@@ -1,0 +1,171 @@
+{
+  "node_id": "ipv6",
+  "scope": "quiz",
+  "questions": [
+    {
+      "prompt": "Quel préfixe correspond aux adresses link-local IPv6, et pourquoi sont-elles particulières ?",
+      "choices": [
+        "fc00::/7 : elles sont routables dans l'entreprise",
+        "2000::/3 : elles sont globales",
+        "fe80::/10 : elles ne sont jamais routées et servent au voisinage sur le lien",
+        "ff00::/8 : elles sont anycast"
+      ],
+      "answer": 2,
+      "explanation": "fe80::/10 est obligatoire sur chaque interface IPv6, non routable, et sert à NDP (NS/NA) ainsi qu'au next-hop. ULA fc00::/7 est privée mais routable en interne ; 2000::/3 est l'espace global ; ff00::/8 est le multicast. Une link-local est unique sur un lien, pas globalement : c'est pour cela qu'on précise l'interface pour la joindre."
+    },
+    {
+      "prompt": "Que désignent ::1, ff02::1 et ff02::2 ?",
+      "choices": [
+        "Loopback, tous les routeurs du lien, tous les nœuds du lien",
+        "Adresse non spécifiée, multicast global, anycast",
+        "Loopback, tous les nœuds du site, tous les routeurs du site",
+        "Loopback, tous les nœuds du lien, tous les routeurs du lien"
+      ],
+      "answer": 3,
+      "explanation": "::1 est le loopback ; ff02::1 est le groupe all-nodes link-local qui remplace le broadcast ; ff02::2 est le groupe all-routers link-local, utilisé pour les Router Solicitations. ff02::1 ne franchit pas le lien, contrairement à ff05::1 (site-local). IPv6 n'a pas d'adresse de broadcast."
+    },
+    {
+      "prompt": "Quel message NDP un hôte envoie-t-il pour trouver la MAC d'un voisin, et quel message répond ?",
+      "choices": [
+        "Router Solicitation, puis Router Advertisement",
+        "Neighbor Solicitation (multicast solicited-node), puis Neighbor Advertisement (unicast)",
+        "Neighbor Advertisement, puis Neighbor Solicitation",
+        "Echo Request ICMPv6, puis Echo Reply"
+      ],
+      "answer": 1,
+      "explanation": "NS remplace la requête ARP et part vers le multicast solicited-node ff02::1:ffXX:XXXX (pas de broadcast) ; la cible répond par une NA, généralement en unicast, avec son adresse link-local et sa MAC. RS/RA servent à la découverte de routeurs et des préfixes. Echo Request/Reply sert au ping, pas à la résolution."
+    },
+    {
+      "prompt": "Comment un hôte forme-t-il un identifiant d'interface EUI-64 à partir de sa MAC 00:1A:2B:3C:4D:5E ?",
+      "choices": [
+        "Il ajoute simplement 00:00 au début : 00:00:00:1A:2B:3C:4D:5E",
+        "Il inverse les 6 octets : 5E:4D:3C:2B:1A:00",
+        "Il insère FF:FE au milieu et inverse le bit U/L : 02:1A:2B:FF:FE:3C:4D:5E",
+        "Il utilise la MAC telle quelle, complétée par des zéros"
+      ],
+      "answer": 2,
+      "explanation": "EUI-64 insère FF:FE entre les octets 3 et 4, puis inverse le bit U/L (bit 1 du premier octet : 00 devient 02). On obtient 64 bits. Cette méthode est déterministe et donc traçable : pour la confidentialité, les privacy extensions (RFC 4941) génèrent des IID aléatoires et renouvelés."
+    },
+    {
+      "prompt": "Pourquoi IPv6 n'a-t-il pas d'adresse de broadcast, et comment remplace-t-il ce comportement ?",
+      "choices": [
+        "Parce que les switches n'acceptent plus le broadcast",
+        "Parce que DHCPv6 interdit le broadcast",
+        "Parce que NDP utilise ARP à la place",
+        "Parce que le multicast ff02::1 remplit ce rôle, et que l'anycast permet de joindre le plus proche d'un groupe"
+      ],
+      "answer": 3,
+      "explanation": "En IPv6, le broadcast est remplacé par des groupes multicast bien définis (ff02::1 pour tous les nœuds du lien). L'anycast est une adresse unicast partagée par plusieurs équipements : le réseau livre au plus proche selon la métrique. Cela évite de réveiller tout le lien et rend le trafic plus sélectif."
+    },
+    {
+      "prompt": "Un poste n'a qu'une adresse fe80:: et aucun accès Internet. Que signifie cette situation ?",
+      "choices": [
+        "Il a une adresse globale mais le DNS est cassé",
+        "Il n'a qu'une adresse link-local : il peut joindre ses voisins sur le lien mais n'a ni préfixe global ni route par défaut ; vérifier RA/SLAAC ou DHCPv6",
+        "Son adresse est une ULA et il est routé normalement",
+        "Il est en anycast et doit changer de préfixe"
+      ],
+      "answer": 1,
+      "explanation": "fe80::/10 est auto-générée sur chaque interface et limitée au lien. Sans RA annonçant un préfixe global (ou sans DHCPv6), le poste n'obtient ni adresse globale ni route par défaut. Vérifier que le routeur émet des RA, que les flags M/A sont cohérents et qu'aucun filtrage (RA guard) ne bloque les messages."
+    },
+    {
+      "prompt": "Dans quel cas choisir DHCPv6 stateful plutôt que SLAAC ?",
+      "choices": [
+        "Quand on a besoin d'un contrôle central des adresses, d'une traçabilité par bail et d'options (DNS, NTP) distribuées par le serveur",
+        "Quand on veut zéro configuration et des adresses générées par les hôtes",
+        "Quand on veut éviter les routeurs",
+        "Quand on utilise uniquement des adresses link-local"
+      ],
+      "answer": 0,
+      "explanation": "SLAAC laisse l'hôte construire son adresse à partir du préfixe RA (EUI-64 ou aléatoire) : simple, sans état, mais peu de contrôle et pas de bail. DHCPv6 stateful attribue et trace les adresses, gère les options et les réservations ; DHCPv6 stateless (M=0, O=1) ne fournit que des options, l'adresse venant de SLAAC. Le choix dépend du besoin de contrôle, pas de la taille du réseau."
+    },
+    {
+      "prompt": "Deux hôtes du même lien ne parviennent pas à se résoudre en NDP. Quelles causes vérifies-tu ?",
+      "choices": [
+        "Le TTL et la MTU",
+        "Le DNS et le bail DHCP",
+        "Des VLAN différents, une link-local absente ou dupliquée, ou un filtrage des ICMPv6/NS-NA sur le lien",
+        "La table CAM et le spanning tree uniquement"
+      ],
+      "answer": 2,
+      "explanation": "NDP s'appuie sur ICMPv6 et sur l'adresse link-local : deux hôtes doivent être dans le même VLAN, avoir une link-local unique, et laisser passer NS/NA (types 135/136) ainsi que le multicast solicited-node. Un filtrage ICMPv6 trop agressif, une isolation privée ou une duplicate address cassent la résolution. Le DNS et le TTL n'interviennent pas dans NDP."
+    },
+    {
+      "prompt": "Un routeur envoie un RA avec le flag M=1. Que doivent faire les hôtes ?",
+      "choices": [
+        "Ignorer le RA et garder uniquement leur link-local",
+        "Passer en DHCPv4 obligatoirement",
+        "Désactiver SLAAC et NDP",
+        "Utiliser DHCPv6 stateful pour obtenir leur adresse, en plus du préfixe annoncé pour l'on-link"
+      ],
+      "answer": 3,
+      "explanation": "M=1 (Managed) indique aux hôtes d'utiliser DHCPv6 pour l'adressage stateful ; O=1 demande DHCPv6 pour d'autres options. Le préfixe du RA reste utilisé pour déterminer ce qui est on-link et, si A=1, pour SLAAC. M=1 sans serveur DHCPv6 laisse les hôtes sans adresse globale : vérifier la cohérence des flags et la présence du serveur."
+    },
+    {
+      "prompt": "Quelle est la forme compressée maximale de 2001:0db8:0000:0000:0000:ff00:0042:8329 ?",
+      "choices": [
+        "2001:db8:0:0:0:ff00:42:8329",
+        "2001:0db8::ff00:0042:8329",
+        "2001:db8:0:0::ff00:42:8329",
+        "2001:db8::ff00:42:8329"
+      ],
+      "answer": 3,
+      "explanation": "On supprime les zéros de tête de chaque groupe, puis on remplace la plus longue suite de groupes nuls par ::, une seule fois. Ici les trois groupes nuls deviennent :: : 2001:db8::ff00:42:8329. On peut aussi écrire les groupes nuls explicitement (0:0:0), mais ce n'est pas la compression maximale ; deux :: dans une même adresse sont interdits."
+    },
+    {
+      "prompt": "Combien de préfixes /64 peut-on créer à partir d'un /48 ?",
+      "choices": [
+        "256",
+        "65 536",
+        "4096",
+        "16 777 216"
+      ],
+      "answer": 1,
+      "explanation": "64 - 48 = 16 bits de marge, soit 2^16 = 65 536 sous-réseaux /64. Chaque /64 contient 2^64 adresses, largement suffisant pour un lien. C'est le découpage classique : /48 par site, /64 par lien, et les 64 bits restants pour l'identifiant d'interface."
+    },
+    {
+      "prompt": "Combien d'adresses contient un préfixe /64 ?",
+      "choices": [
+        "2^32, soit environ 4,3 milliards",
+        "2^48, soit environ 281 000 milliards",
+        "2^128, soit l'espace IPv6 complet",
+        "2^64, soit environ 18,4 milliards de milliards"
+      ],
+      "answer": 3,
+      "explanation": "Un /64 laisse 64 bits pour l'identifiant d'interface : 2^64 ≈ 1,844 × 10^19 adresses. C'est pour cela qu'un /64 est recommandé par lien, même pour un point-to-point (sauf /127 pour les liens router-to-router, RFC 6164). Un /48 de site contient 65 536 /64 ; l'espace complet IPv6 fait 2^128."
+    },
+    {
+      "prompt": "ping6 fe80::1 échoue avec 'no route to host' alors que le voisin répond. Quelle est la cause la plus probable ?",
+      "choices": [
+        "L'adresse est en anycast",
+        "Il manque l'identifiant d'interface (zone) : une link-local n'est pas unique globalement, il faut préciser l'interface, par exemple fe80::1%eth0",
+        "Le MTU est trop petit",
+        "Le routeur n'a pas de route par défaut"
+      ],
+      "answer": 1,
+      "explanation": "fe80::/10 est valable sur chaque lien : la même adresse peut exister sur plusieurs interfaces. La pile a besoin du scope-id (%eth0, %12) pour choisir l'interface de sortie. Sans lui, ping6 ne sait pas où envoyer le paquet. Une fois l'interface précisée, NDP résout la MAC et le ping aboutit."
+    },
+    {
+      "prompt": "Un hôte IPv6 n'a pas de route par défaut. Quel est le symptôme attendu ?",
+      "choices": [
+        "Il ne peut plus utiliser NDP du tout",
+        "Il perd son adresse link-local",
+        "Il ne peut joindre que les destinations on-link (et les link-local) ; les adresses globales distantes échouent",
+        "Il bascule automatiquement en IPv4"
+      ],
+      "answer": 2,
+      "explanation": "Sans route par défaut (généralement apprise par RA), l'hôte n'a aucun next-hop pour les préfixes distants : les destinations on-link restent joignables, les globales distantes renvoient 'no route to host'. Vérifier que le routeur annonce un préfixe et se déclare default router (RA avec Router Lifetime > 0), et qu'aucun filtrage ne bloque les RA."
+    },
+    {
+      "prompt": "Un hôte affiche 'duplicate address detected' pour son adresse IPv6. Que se passe-t-il ?",
+      "choices": [
+        "La DAD a détecté qu'un autre équipement utilise déjà cette adresse ; l'interface la marque en conflit et l'adresse n'est pas utilisée",
+        "Le routeur a refusé le préfixe",
+        "Le DNS a renvoyé deux fois la même réponse",
+        "Le MTU est trop grand pour le lien"
+      ],
+      "answer": 0,
+      "explanation": "Avant d'utiliser une adresse, IPv6 envoie une Neighbor Solicitation pour elle-même (DAD, RFC 4862). Si une NA arrive, l'adresse est dupliquée (EUI-64 identique, clone de VM, configuration manuelle) ; elle passe en duplicate et n'est pas attribuée. Il faut corriger la source du doublon, activer les privacy extensions ou renuméroter."
+    }
+  ]
+}

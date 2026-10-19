@@ -1,0 +1,171 @@
+{
+  "node_id": "ospf",
+  "scope": "quiz",
+  "questions": [
+    {
+      "prompt": "Quel LSA annonce un préfixe inter-area, et quel routeur le génère ?",
+      "choices": [
+        "Type 1, généré par chaque routeur de l'area",
+        "Type 2, généré par le DR du segment",
+        "Type 3, généré par l'ABR",
+        "Type 5, généré par l'ASBR"
+      ],
+      "answer": 2,
+      "explanation": "Type 1 = router LSA (chaque routeur), type 2 = network LSA (DR sur un segment broadcast), type 3 = summary inter-area (ABR), type 4 = ASBR summary (ABR), type 5 = external (ASBR), type 7 = NSSA. Le type 3 transporte les préfixes d'une area vers une autre ; c'est pour cela qu'une route inter-area manquante pointe d'abord vers l'ABR."
+    },
+    {
+      "prompt": "Qu'est-ce qui définit un ABR OSPF ?",
+      "choices": [
+        "Un routeur qui redistribue des routes externes",
+        "Un routeur élu DR sur un segment",
+        "Un routeur avec le plus haut Router ID",
+        "Un routeur avec au moins une interface dans l'area 0 et une dans une autre area"
+      ],
+      "answer": 3,
+      "explanation": "ABR = interfaces dans plusieurs areas, dont l'area 0 (backbone) ; il génère les LSA type 3 et 4. ASBR = routeur qui redistribue des routes externes (type 5). DR est un rôle sur un segment, pas un type de routeur. Un routeur dans plusieurs areas non-backbone n'est pas un ABR valide, sauf via un virtual-link."
+    },
+    {
+      "prompt": "Quelle est la différence entre une area stub et une area totally stubby ?",
+      "choices": [
+        "Stub bloque les type 3 ; totally stubby bloque les type 5",
+        "Les deux bloquent les type 1 et 2",
+        "Stub bloque les type 5 ; totally stubby bloque aussi les type 3, sauf la route par défaut",
+        "Totally stubby autorise les externes, stub les refuse"
+      ],
+      "answer": 2,
+      "explanation": "Stub : pas de LSA type 5 (externes), remplacés par une route par défaut injectée par l'ABR ; les type 3 inter-area restent. Totally stubby (Cisco) : l'ABR filtre aussi les type 3 sauf la default, ce qui réduit encore la LSDB. NSSA autorise des externes type 7 à l'intérieur, traduits en type 5 à la sortie."
+    },
+    {
+      "prompt": "À quoi sert passive-interface en OSPF ?",
+      "choices": [
+        "À désactiver l'interface et retirer son préfixe",
+        "À empêcher l'interface d'envoyer des Hello tout en annonçant son préfixe dans OSPF",
+        "À forcer l'interface en point-to-point",
+        "À chiffrer les échanges OSPF"
+      ],
+      "answer": 1,
+      "explanation": "passive-interface annonce le réseau de l'interface (si couvert par network) sans former de voisinage : utile sur les interfaces vers des hôtes ou l'extérieur. L'interface reste up et le préfixe reste dans la LSDB. Ce n'est pas un shutdown, et cela n'a rien à voir avec l'authentification."
+    },
+    {
+      "prompt": "À quoi sert un virtual-link OSPF ?",
+      "choices": [
+        "À augmenter la bande passante d'un lien",
+        "À remplacer une interface passive",
+        "À traduire les LSA type 7 en type 5",
+        "À connecter une area à l'area 0 à travers une autre area, quand le lien physique direct vers le backbone manque"
+      ],
+      "answer": 3,
+      "explanation": "Le virtual-link traverse une area de transit (qui doit avoir une route vers l'area 0) pour rattacher une area au backbone. Il sert aussi à réparer une area 0 discontinue. Il est configuré entre deux ABR avec le Router ID du voisin et une interface de transit ; ce n'est pas un lien physique et il ne change pas la bande passante. La traduction 7→5 est faite par l'ABR du NSSA."
+    },
+    {
+      "prompt": "Sur un segment broadcast, deux routeurs DROther restent en état 2-Way. Est-ce anormal ?",
+      "choices": [
+        "Oui : tous les voisins OSPF doivent atteindre Full",
+        "Non : les DROther ne forment Full qu'avec le DR et le BDR ; entre eux, 2-Way est normal",
+        "Oui : cela indique un MTU mismatch",
+        "Non : 2-Way signifie que l'interface est passive"
+      ],
+      "answer": 1,
+      "explanation": "Sur un segment broadcast ou NBMA, l'élection désigne un DR et un BDR ; les autres routeurs (DROther) synchronisent leur LSDB avec le DR et le BDR et restent en 2-Way entre eux. C'est le comportement attendu. Sur un lien point-to-point, en revanche, les deux voisins doivent atteindre Full."
+    },
+    {
+      "prompt": "Une route inter-area est absente alors que le préfixe existe dans une autre area. Quel élément vérifies-tu en premier ?",
+      "choices": [
+        "Le LSA de type 5 de l'ASBR",
+        "Le timer Hello du DR",
+        "Le LSA de type 3 généré par l'ABR : network statement manquant, area range ou filtre qui supprime le préfixe",
+        "La priorité du BDR"
+      ],
+      "answer": 2,
+      "explanation": "Les préfixes inter-area sont annoncés par les ABR via des LSA type 3. Si le préfixe n'est pas dans la LSDB de l'area cible, vérifier que l'ABR a une interface active dans l'area source et le network correspondant, puis les area ranges et les filtres (distribute-list). Le type 5 concerne les externes, et DR/Hello n'empêchent pas un préfixe d'être annoncé une fois l'adjacence Full."
+    },
+    {
+      "prompt": "Deux routeurs sont dans la même area, avec les mêmes timers et la même authentification, mais restent bloqués en ExStart/Exchange. Quelle est la cause la plus probable ?",
+      "choices": [
+        "Un Router ID identique",
+        "Une area stub mal configurée",
+        "Un DR absent",
+        "Un MTU différent sur les interfaces, qui fait jeter les DBD trop gros"
+      ],
+      "answer": 3,
+      "explanation": "En ExStart/Exchange, les routeurs échangent des DBD. Si le MTU d'une interface est inférieur à la taille du DBD, le paquet est jeté et l'état reste bloqué. Vérifier `show ip ospf interface` et `show ip ospf neighbor`, puis corriger le MTU des deux côtés, ou utiliser `ip ospf mtu-ignore` en dernier recours pour masquer le problème."
+    },
+    {
+      "prompt": "Une area NSSA contient un ASBR qui redistribue des routes externes. Quels LSA sont utilisés dans l'area et à sa frontière ?",
+      "choices": [
+        "Type 5 dans l'area, type 7 à la sortie",
+        "Type 7 dans l'area, traduits en type 5 par l'ABR à la frontière",
+        "Type 3 uniquement, les externes sont interdits",
+        "Type 2 uniquement, car le DR les génère"
+      ],
+      "answer": 1,
+      "explanation": "Une NSSA n'accepte pas les LSA type 5 du backbone, mais autorise des externes sous forme de type 7 à l'intérieur. L'ABR du NSSA les traduit en type 5 pour le reste du domaine via le P-bit et le translator. Stub et totally stubby, eux, refusent les externes ; NSSA est la solution quand on a besoin d'externes sans impacter l'area 0."
+    },
+    {
+      "prompt": "Avec auto-cost reference-bandwidth 10000 Mb/s, quels sont les coûts OSPF de liens à 100 Mb/s, 1 Gb/s et 10 Gb/s ?",
+      "choices": [
+        "100, 10, 1",
+        "1, 1, 1",
+        "1000, 100, 10",
+        "10, 1, 0,1"
+      ],
+      "answer": 0,
+      "explanation": "Coût = référence / bande passante : 10000/100 = 100 ; 10000/1000 = 10 ; 10000/10000 = 1. Avec la référence par défaut de 100 Mb/s, les trois liens donneraient 1 (minimum), ce qui ne distingue plus les liens rapides : d'où l'intérêt d'augmenter la référence sur tous les routeurs. Une valeur différente d'un routeur à l'autre fausse les chemins."
+    },
+    {
+      "prompt": "Un chemin traverse trois liens : 1 Gb/s, 100 Mb/s et 10 Mb/s, avec reference-bandwidth 10000. Quel est le coût total ?",
+      "choices": [
+        "111",
+        "1110",
+        "15",
+        "1111"
+      ],
+      "answer": 1,
+      "explanation": "Les coûts des liens de sortie sont 10 (1 Gb/s), 100 (100 Mb/s) et 1000 (10 Mb/s) : total 1110. Le coût s'additionne le long du chemin, chaque routeur ajoutant le coût de son interface de sortie. Un chemin plus rapide mais plus long peut donc perdre face à un chemin plus court en nombre de sauts."
+    },
+    {
+      "prompt": "Sur un segment broadcast, R1 a la priorité 100 et le Router ID 1.1.1.1, R2 la priorité 100 et le RID 2.2.2.2, R3 la priorité 50 et le RID 3.3.3.3. Qui est DR et qui est BDR ?",
+      "choices": [
+        "DR = R1, BDR = R2",
+        "DR = R3, BDR = R1",
+        "DR = R2, BDR = R1",
+        "DR = R2, BDR = R3"
+      ],
+      "answer": 2,
+      "explanation": "On compare d'abord la priorité (la plus haute gagne), puis le Router ID (le plus haut) en cas d'égalité. R1 et R2 sont à 100 : R2 gagne avec 2.2.2.2 > 1.1.1.1 ; R1 devient BDR. R3, priorité 50, reste DROther. Une priorité 0 exclut de l'élection."
+    },
+    {
+      "prompt": "Deux routeurs voisins ont des timers Hello différents. Quel est le symptôme ?",
+      "choices": [
+        "Aucune adjacence : les Hello sont rejetés et le voisinage reste en Down/Init",
+        "Ils forment une adjacence mais sans échange de LSDB",
+        "Ils deviennent DR et BDR automatiquement",
+        "Les routes sont installées mais avec un coût plus élevé"
+      ],
+      "answer": 0,
+      "explanation": "Les paramètres Hello doivent correspondre (intervalle hello/dead, area ID, authentification, flags stub/NSSA) pour former une adjacence. Un timer différent fait rejeter les Hello : le voisin n'apparaît pas ou reste en Init. Vérifier `show ip ospf interface` des deux côtés ; un dead interval inférieur à 4× hello est également invalide."
+    },
+    {
+      "prompt": "Deux interfaces reliées appartiennent à des areas OSPF différentes. Que se passe-t-il ?",
+      "choices": [
+        "Elles forment une adjacence mais n'échangent pas de routes",
+        "Elles deviennent automatiquement ABR",
+        "Elles ne forment pas d'adjacence : les Hello sont rejetés à cause de l'area ID différent",
+        "OSPF bascule en EIGRP"
+      ],
+      "answer": 2,
+      "explanation": "L'area ID fait partie des paramètres Hello : deux routeurs d'areas différentes sur le même lien ne deviennent pas voisins. Pour relier deux areas, il faut un ABR avec une interface dans chacune, ou un virtual-link à travers une area de transit. L'area 0 est le backbone auquel les autres areas doivent se rattacher."
+    },
+    {
+      "prompt": "Un voisin OSPF reste en Exchange, avec des DBD reçus mais rejetés. Quel paramètre vérifies-tu ?",
+      "choices": [
+        "La priorité DR",
+        "Le coût des interfaces",
+        "La bande passante de référence",
+        "Le MTU des deux interfaces, qui doit être identique (ou activer mtu-ignore en dernier recours)"
+      ],
+      "answer": 3,
+      "explanation": "Les DBD peuvent être plus gros que le MTU si les tailles diffèrent : le plus petit MTU jette le paquet et l'échange n'avance pas. On aligne le MTU (y compris sur les liens taggés ou jumbo), sinon `ip ospf mtu-ignore` contourne le contrôle mais peut masquer un vrai problème de MTU. Le coût et la priorité n'affectent pas l'échange de DBD."
+    }
+  ]
+}

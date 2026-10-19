@@ -1,0 +1,360 @@
+[
+  {
+    "id": "osi",
+    "title": "Modèle OSI & TCP/IP",
+    "category": "Fondamentaux",
+    "order": 10,
+    "description": "Les 7 couches OSI, les 4 couches TCP/IP et l'encapsulation.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "tcp-udp",
+    "title": "TCP, UDP & ports",
+    "category": "Fondamentaux",
+    "order": 20,
+    "description": "Fiabilité, fenêtrage, multiplexage par ports.",
+    "prereqs": [
+      "osi"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ethernet",
+    "title": "Ethernet & couche 2",
+    "category": "Couche 2 — Commutation",
+    "order": 30,
+    "description": "Trames, adressage MAC et apprentissage du switch.",
+    "prereqs": [
+      "osi"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "vlan",
+    "title": "VLAN & trunking 802.1Q",
+    "category": "Couche 2 — Commutation",
+    "order": 40,
+    "description": "Segmentation logique, ports access/trunk, VLAN natif.",
+    "prereqs": [
+      "ethernet"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "stp",
+    "title": "STP / RSTP",
+    "category": "Couche 2 — Commutation",
+    "order": 50,
+    "description": "Élection du pont racine, états des ports, convergence.",
+    "prereqs": [
+      "vlan"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ipv4",
+    "title": "Adressage IPv4 & sous-réseaux",
+    "category": "Couche 3 — Adressage",
+    "order": 60,
+    "description": "Masques, découpage en sous-réseaux, adresses privées.",
+    "prereqs": [
+      "osi"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "arp",
+    "title": "ARP & résolution L2/L3",
+    "category": "Couche 3 — Adressage",
+    "order": 70,
+    "description": "Correspondance IP/MAC, cache ARP, proxy ARP.",
+    "prereqs": [
+      "ethernet",
+      "ipv4"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ipv6",
+    "title": "IPv6 & NDP",
+    "category": "Couche 3 — Adressage",
+    "order": 80,
+    "description": "Format, préfixes, link-local, SLAAC et Neighbor Discovery.",
+    "prereqs": [
+      "ipv4"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "exam",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "nat",
+    "title": "NAT & PAT",
+    "category": "Couche 3 — Adressage",
+    "order": 90,
+    "description": "Traduction statique, dynamique et surcharge de ports.",
+    "prereqs": [
+      "ipv4"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "routing",
+    "title": "Routage statique & tables",
+    "category": "Routage",
+    "order": 100,
+    "description": "Table de routage, next-hop, route par défaut.",
+    "prereqs": [
+      "ipv4"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "ospf",
+    "title": "OSPF",
+    "category": "Routage",
+    "order": 110,
+    "description": "Voisinage, LSDB, coût, areas et LSA.",
+    "prereqs": [
+      "routing"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "bgp",
+    "title": "BGP",
+    "category": "Routage",
+    "order": 120,
+    "description": "Sessions eBGP/iBGP, AS_PATH et sélection de route.",
+    "prereqs": [
+      "ospf"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      },
+      {
+        "kind": "exam",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "dhcp-dns",
+    "title": "DHCP & DNS",
+    "category": "Services",
+    "order": 130,
+    "description": "Bail DHCP, résolution de noms et enregistrements.",
+    "prereqs": [
+      "ipv4"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "acl",
+    "title": "ACL & filtrage",
+    "category": "Sécurité",
+    "order": 140,
+    "description": "ACL standard/étendue, placement et deny implicite.",
+    "prereqs": [
+      "routing"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "troubleshooting",
+    "title": "Méthodologie de dépannage",
+    "category": "Exploitation",
+    "order": 150,
+    "description": "Diagnostic structuré, outils et preuve d'un incident réel.",
+    "prereqs": [
+      "arp",
+      "dhcp-dns",
+      "routing"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      },
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "lab_netns",
+    "title": "Lab : routage entre namespaces",
+    "category": "Labs pratiques",
+    "order": 200,
+    "description": "Configurer l'adressage et les routes entre 3 namespaces Linux.",
+    "prereqs": [
+      "routing"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "lab_bridge",
+    "title": "Lab : bridge Linux et connectivité L2",
+    "category": "Labs pratiques",
+    "order": 210,
+    "description": "Attacher deux veths à un bridge et valider la connectivité L2.",
+    "prereqs": [
+      "ethernet"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "challenge-osi",
+    "type": "architecture",
+    "title": "Défi d'architecture : réseau de bureau",
+    "category": "Défis d'architecture",
+    "order": 220,
+    "description": "Connecte un Routeur à un Switch et un PC en 120 secondes.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 120,
+      "expected_topology": {
+        "nodes": {
+          "router": 1,
+          "switch": 1,
+          "pc": 1
+        },
+        "connections": [
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "pc"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "cisco-vlan",
+    "title": "Terminal : configuration VLAN",
+    "category": "Terminal réseau",
+    "order": 230,
+    "description": "Saisis une commande Cisco IOS pour configurer un port en trunk.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "terminal",
+        "min_score": 100
+      }
+    ]
+  }
+]

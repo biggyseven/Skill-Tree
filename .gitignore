@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+skilltree.db
+skilltree.db-shm
+skilltree.db-wal
+backups/
+.env

@@ -1,0 +1,171 @@
+{
+  "node_id": "routing",
+  "scope": "quiz",
+  "questions": [
+    {
+      "prompt": "Dans une table de routage, que signifie le code « C » et quelle est la particularité d'une route directement connectée ?",
+      "choices": [
+        "C = candidate : la route attend une validation",
+        "C = cache : la route est temporaire",
+        "C = connected : le préfixe est installé automatiquement quand l'interface est up avec une IP, avec une distance administrative 0",
+        "C = connected : elle a une distance administrative de 110"
+      ],
+      "answer": 2,
+      "explanation": "Les routes connected sont créées dès que l'interface est up/up avec une IP et un masque, et ont l'AD 0, la plus fiable. S = static (AD 1), O = OSPF (110), D = EIGRP (90), R = RIP (120), B = BGP. Une route connected gagne toujours à préfixe égal grâce à son AD minimale, mais un préfixe plus spécifique reste prioritaire."
+    },
+    {
+      "prompt": "Quelle est la différence entre distance administrative et métrique ?",
+      "choices": [
+        "L'AD compare des chemins dans un même protocole ; la métrique compare des protocoles",
+        "Les deux sont identiques et exprimées en sauts",
+        "L'AD ne s'applique qu'aux routes statiques",
+        "L'AD compare des protocoles différents ; la métrique compare des chemins au sein d'un même protocole"
+      ],
+      "answer": 3,
+      "explanation": "L'AD est un indice de confiance par source (connected 0, static 1, eBGP 20, EIGRP 90, OSPF 110, RIP 120, iBGP 200). La métrique est propre au protocole (coût OSPF, bande passante/délai EIGRP, nombre de sauts RIP). On compare d'abord les préfixes (longest match), puis l'AD à préfixe égal, puis la métrique au sein d'un même protocole."
+    },
+    {
+      "prompt": "Deux routes pour le même préfixe 10.1.0.0/16 viennent d'OSPF (coût 20) et d'une statique. Laquelle est installée ?",
+      "choices": [
+        "OSPF, car son coût est plus faible",
+        "Les deux, en ECMP",
+        "La statique, car son AD (1) est meilleure que celle d'OSPF (110)",
+        "Aucune, il y a conflit"
+      ],
+      "answer": 2,
+      "explanation": "À préfixe identique, l'AD départage avant la métrique : statique 1 < OSPF 110, donc la statique gagne même si le coût OSPF est meilleur. Pour préférer OSPF, on augmente l'AD de la statique (route flottante) ou on la retire. ECMP ne s'applique qu'à AD et métrique égales."
+    },
+    {
+      "prompt": "Quel est le risque principal d'une redistribution bidirectionnelle entre OSPF et EIGRP mal filtrée ?",
+      "choices": [
+        "Des boucles de routage et une instabilité, car les routes réapprennent d'un domaine à l'autre avec des métriques recalculées",
+        "Une augmentation du MTU",
+        "La désactivation automatique de STP",
+        "Une perte de la table ARP"
+      ],
+      "answer": 0,
+      "explanation": "La redistribution réinjecte les routes d'un protocole dans l'autre ; sans filtrage (tags, route-maps, préfixes), une route peut revenir par l'autre domaine et créer une boucle ou du flapping. Il faut contrôler les préfixes redistribués, les métriques initiales et utiliser des tags. C'est pour cela qu'on évite la redistribution bidirectionnelle non maîtrisée."
+    },
+    {
+      "prompt": "À quoi sert le policy-based routing (PBR) ?",
+      "choices": [
+        "À remplacer le longest prefix match par un load balancing automatique",
+        "À filtrer les trames L2 selon la MAC",
+        "À choisir la route selon des critères autres que la destination : source, port, protocole, marquage",
+        "À attribuer des adresses IP aux clients"
+      ],
+      "answer": 2,
+      "explanation": "Le PBR (route-map + `ip policy route-map`) dévie un flux vers une interface ou un next-hop choisi selon l'ACL, la source, le port ou le DSCP, au lieu de suivre la table de routage. Il est évalué avant le routage normal, peut casser la symétrie du retour et doit être documenté. Ce n'est ni du filtrage L2 ni du DHCP."
+    },
+    {
+      "prompt": "La table contient 10.1.0.0/16 via A et 10.1.1.0/24 via B. Vers où part un paquet destiné à 10.1.1.5 ?",
+      "choices": [
+        "Via A, car le /16 couvre le /24",
+        "Via B, car /24 est le préfixe le plus spécifique",
+        "Les deux, en ECMP",
+        "Vers la route par défaut"
+      ],
+      "answer": 1,
+      "explanation": "Longest prefix match : /24 est plus long que /16, donc B gagne pour toute adresse de 10.1.1.0/24. Le /16 ne sert que pour les autres adresses 10.1.x.x. Ce comportement permet de percer un résumé par une route plus spécifique, mais peut aussi créer des trous si le /24 n'est pas voulu."
+    },
+    {
+      "prompt": "Quelle configuration crée une route statique flottante de secours vers 0.0.0.0/0 via 203.0.113.1, utilisée seulement si OSPF tombe ?",
+      "choices": [
+        "ip route 0.0.0.0 0.0.0.0 203.0.113.1 250",
+        "ip route 0.0.0.0 0.0.0.0 203.0.113.1 1",
+        "ip route 0.0.0.0 0.0.0.0 203.0.113.1 110",
+        "ip route 0.0.0.0 0.0.0.0 203.0.113.1 name BACKUP"
+      ],
+      "answer": 0,
+      "explanation": "La route flottante utilise une distance administrative supérieure à celle du protocole principal (OSPF = 110). Avec 250, elle n'est pas installée tant que la route OSPF existe ; si OSPF disparaît, elle devient la meilleure et prend le relais. Une AD de 1 la rendrait active en permanence, et 110 créerait une égalité."
+    },
+    {
+      "prompt": "Quelle est la différence entre une route statique par next-hop et une route statique par interface ?",
+      "choices": [
+        "La route par next-hop ne fonctionne pas en IPv4",
+        "La route par interface a toujours une AD plus faible",
+        "Les deux sont strictement identiques",
+        "La route par interface impose un ARP pour chaque destination, ce qui peut dépendre du proxy ARP ; la route par next-hop résout une seule fois l'adresse du voisin"
+      ],
+      "answer": 3,
+      "explanation": "Avec un next-hop, le routeur effectue une résolution récursive puis ARP pour l'adresse du voisin : une entrée par voisin. Avec seulement l'interface, le routeur doit ARP chaque destination, ce qui ne fonctionne que si le voisin répond en proxy ARP ; c'est acceptable sur un lien point-to-point. La bonne pratique est next-hop, ou next-hop + interface."
+    },
+    {
+      "prompt": "Du trafic vers un préfixe disparaît silencieusement alors qu'aucun hôte de ce préfixe n'est joignable. Quel mécanisme est probable ?",
+      "choices": [
+        "Un MTU trop petit",
+        "Une ACL qui autorise tout",
+        "Une route blackhole (vers Null0) ou un résumé qui attire le trafic sans route plus spécifique",
+        "Un défaut de DNS"
+      ],
+      "answer": 2,
+      "explanation": "Une route vers Null0, souvent utilisée pour un résumé, attire le trafic et le jette : c'est volontaire pour éviter les boucles, mais cela crée un trou noir si un préfixe plus spécifique manque ou si le résumé est trop large. Vérifier `show ip route` (Null0), les résumés et l'existence des routes plus spécifiques. Un MTU ou une ACL se manifesteraient autrement."
+    },
+    {
+      "prompt": "Quelles sont les distances administratives par défaut de connected, static, EIGRP, OSPF et BGP externe ?",
+      "choices": [
+        "0, 1, 90, 110, 20",
+        "1, 0, 110, 90, 20",
+        "0, 1, 110, 90, 200",
+        "0, 1, 90, 110, 200"
+      ],
+      "answer": 0,
+      "explanation": "Connected 0, static 1, eBGP 20, EIGRP 90, OSPF 110, RIP 120, iBGP 200. Plus l'AD est basse, plus la source est fiable ; iBGP est volontairement très haut pour éviter les boucles internes. Ces valeurs peuvent être modifiées, notamment pour les routes flottantes."
+    },
+    {
+      "prompt": "Un chemin OSPF traverse trois liens : 1 Gb/s, 100 Mb/s et 10 Mb/s. Avec la bande passante de référence par défaut (100 Mb/s), quel est le coût total ?",
+      "choices": [
+        "3",
+        "12",
+        "21",
+        "111"
+      ],
+      "answer": 1,
+      "explanation": "Coût = référence / bande passante de l'interface, arrondi à l'entier avec un minimum de 1 : 1 Gb/s → 1, 100 Mb/s → 1, 10 Mb/s → 10. Total 1 + 1 + 10 = 12. Le coût est calculé sur l'interface de sortie de chaque routeur et s'additionne ; augmenter la référence (10000) permet de distinguer les liens rapides."
+    },
+    {
+      "prompt": "Quel préfixe résume 172.16.8.0/24 à 172.16.15.0/24 ?",
+      "choices": [
+        "172.16.8.0/20",
+        "172.16.8.0/22",
+        "172.16.8.0/23",
+        "172.16.8.0/21"
+      ],
+      "answer": 3,
+      "explanation": "8 /24 correspondent à 2^3, donc 24 - 3 = 21 : 172.16.8.0/21 couvre 172.16.8.0 à 172.16.15.255. Le bloc est aligné, car 8 est multiple de 8. Un /20 couvrirait 16 /24 et attirerait du trafic hors du résumé ; un /23 ne couvrirait que deux /24."
+    },
+    {
+      "prompt": "Une route statique 0.0.0.0/0 est configurée mais n'apparaît pas dans la table. Quelle est la cause la plus probable ?",
+      "choices": [
+        "Le next-hop n'est pas résolvable (interface down, pas de route vers le next-hop, ARP qui échoue), donc la route n'est pas installée",
+        "La route par défaut ne peut pas être statique",
+        "Le routeur a besoin de DHCP pour l'installer",
+        "Il faut obligatoirement une route dynamique en plus"
+      ],
+      "answer": 0,
+      "explanation": "Une statique n'est installée que si son next-hop est joignable via une route existante (résolution récursive) et si l'interface de sortie est up. Sinon elle reste absente de `show ip route`, même si elle est dans la configuration. Vérifier le next-hop, la route vers celui-ci, l'ARP et l'état de l'interface ; une route par interface évite la résolution mais dépend du proxy ARP."
+    },
+    {
+      "prompt": "traceroute vers une destination montre deux routeurs qui se renvoient le paquet en boucle. Quelle est la cause la plus probable ?",
+      "choices": [
+        "Un MTU trop petit",
+        "Un bail DHCP trop court",
+        "Une boucle de routage : routes statiques qui se pointent l'une l'autre, redistribution mal filtrée ou résumé incohérent",
+        "Une ACL qui autorise trop de trafic"
+      ],
+      "answer": 2,
+      "explanation": "Deux routeurs qui se renvoient le paquet ont chacun une route vers la destination via l'autre : statiques croisées, redistribution bidirectionnelle sans filtre, ou résumé attirant le trafic. Vérifier `show ip route` des deux côtés, les AD, les résumés et les route-maps de redistribution. Le TTL finit par tuer le paquet, d'où le timeout."
+    },
+    {
+      "prompt": "Une route statique pointe vers un next-hop injoignable. Est-elle installée ?",
+      "choices": [
+        "Oui, toujours, car une statique est prioritaire",
+        "Oui, mais avec une métrique 0",
+        "Non, elle est convertie en route par défaut",
+        "Non : la résolution récursive échoue et la route n'est pas installée tant que le next-hop n'est pas joignable"
+      ],
+      "answer": 3,
+      "explanation": "Le routeur doit d'abord trouver une route vers le next-hop (résolution récursive) et résoudre son adresse L2. Si ce n'est pas le cas, la statique reste inactive ; `show ip route` ne la montre pas, mais la configuration est conservée. C'est ce comportement qui rend les routes flottantes fiables : elles ne s'activent que lorsque le next-hop est réellement joignable."
+    }
+  ]
+}

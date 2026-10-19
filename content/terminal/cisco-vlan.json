@@ -1,0 +1,7 @@
+{
+  "node_id": "cisco-vlan",
+  "prompt": "Configure ce port de switch en trunk 802.1Q.",
+  "answer": "switchport mode trunk",
+  "regex": "^\\s*switchport\\s+mode\\s+trunk\\s*$",
+  "explanation": "Cette commande place le port en mode trunk 802.1Q afin qu’il transporte plusieurs VLAN."
+}

@@ -1,0 +1,171 @@
+{
+  "node_id": "osi",
+  "scope": "quiz",
+  "questions": [
+    {
+      "prompt": "Quel est le PDU de la couche transport, puis celui de la couche réseau, dans cet ordre ?",
+      "choices": [
+        "Trame, puis paquet",
+        "Segment, puis paquet",
+        "Paquet, puis segment",
+        "Datagramme, puis trame"
+      ],
+      "answer": 1,
+      "explanation": "TCP produit un segment (UDP un datagramme) ; la couche réseau encapsule ce segment dans un paquet IP ; la couche liaison produit ensuite une trame. Le nom du PDU change à chaque encapsulation, ce qui permet d'identifier la couche d'origine dans une capture."
+    },
+    {
+      "prompt": "Un équipement reçoit une trame, remplace l'en-tête de liaison, décrémente le TTL IP et recalcule le checksum d'en-tête. De quoi s'agit-il ?",
+      "choices": [
+        "Un switch L2",
+        "Un hub",
+        "Un routeur",
+        "Un répartiteur de charge L4"
+      ],
+      "answer": 2,
+      "explanation": "Décrémenter le TTL et réécrire l'en-tête L2 à chaque saut est le comportement du routeur : il termine la trame, examine le paquet, choisit le next-hop puis reconstruit une trame. Un switch L2 ne touche pas au TTL (sauf hop limit IPv6 en cas de routage), un hub répète électriquement, un LB L4 réécrit éventuellement des ports mais ne fait pas ce travail de routage."
+    },
+    {
+      "prompt": "Dans le modèle TCP/IP, la couche Application regroupe quelles couches OSI ?",
+      "choices": [
+        "Application, Présentation, Session",
+        "Application et Transport",
+        "Session, Transport, Réseau",
+        "Application uniquement"
+      ],
+      "answer": 0,
+      "explanation": "TCP/IP ne distingue pas les couches 5 à 7 : session, encodage/chiffrement et protocoles applicatifs (HTTP, DNS, SSH) sont traités par la même couche. C'est pourquoi un proxy ou un pare-feu applicatif doit analyser jusqu'aux données applicatives, et pas seulement l'en-tête de transport."
+    },
+    {
+      "prompt": "Un poste 10.0.1.10/24 ping 10.0.2.20/24 via la passerelle 10.0.1.1. Quelle description correspond au trajet aller-retour réel ?",
+      "choices": [
+        "ARP résout la MAC du destinataire final, puis la trame est envoyée directement à 10.0.2.20.",
+        "Le switch route l'ICMP entre les deux sous-réseaux et renvoie la réponse sans passer par la passerelle.",
+        "L'ICMP est construit, la route désigne la passerelle, ARP résout sa MAC, une trame est émise ; au retour, la MAC destination est celle du poste et l'ICMP est remis au processus ping.",
+        "Le poste émet un broadcast ICMP que la passerelle relaie vers le sous-réseau distant."
+      ],
+      "answer": 2,
+      "explanation": "Le processus ping construit un Echo Request ICMP ; la table de routage voit que 10.0.2.20 est hors du /24 et choisit 10.0.1.1 comme next-hop ; ARP fournit la MAC de la passerelle ; la trame part avec l'IP destination finale. Chaque routeur décrémente le TTL et réécrit l'en-tête L2. Au retour, la passerelle livre la trame au poste, la pile valide la FCS, remonte IP puis ICMP, et le ping reconnaît son identifiant et son numéro de séquence."
+    },
+    {
+      "prompt": "Sur le premier segment, quelles adresses trouve-t-on dans la trame émise par 10.0.1.10 vers 10.0.2.20, avec la passerelle 10.0.1.1 ?",
+      "choices": [
+        "MAC source = poste, MAC destination = 10.0.2.20, IP source = poste, IP destination = passerelle",
+        "MAC source = poste, MAC destination = passerelle, IP source = poste, IP destination = 10.0.2.20",
+        "MAC source = passerelle, MAC destination = poste, IP source = passerelle, IP destination = 10.0.2.20",
+        "MAC et IP de destination sont toutes deux celles de la passerelle"
+      ],
+      "answer": 1,
+      "explanation": "L'adresse IP est logique et de bout en bout : elle ne change pas (hors NAT). L'adresse MAC est locale au segment et change à chaque saut : ici la destination L2 est la passerelle, pas le poste distant. Cette séparation entre identité logique et acheminement local est ce qui rend le routage possible."
+    },
+    {
+      "prompt": "Un switch L2 reçoit une trame dont la MAC de destination est absente de sa table CAM. Que fait-il ?",
+      "choices": [
+        "Il jette la trame et renvoie un ICMP unreachable",
+        "Il l'envoie à la passerelle par défaut",
+        "Il inonde le VLAN d'origine et apprend la MAC source sur le port d'arrivée",
+        "Il inonde tous les ports du switch, VLAN compris"
+      ],
+      "answer": 2,
+      "explanation": "Unknown unicast = flooding limité au VLAN d'origine (pas aux autres VLAN), tout en apprenant la MAC source. Si la destination répond, sa MAC entre en table et les trames suivantes sont commutées. Un switch ne génère pas d'ICMP et ne connaît pas de passerelle par défaut."
+    },
+    {
+      "prompt": "Un firewall stateful qui autorise le retour d'une connexion TCP sortante s'appuie principalement sur quelle couche ?",
+      "choices": [
+        "Couche 4 : il maintient une table d'états des flux TCP/UDP",
+        "Couche 2 : il compare les MAC aux ACL",
+        "Couche 3 : il ne regarde que les adresses IP",
+        "Couche 7 : il déchiffre systématiquement le contenu"
+      ],
+      "answer": 0,
+      "explanation": "Le suivi d'état se fait sur le 5-tuple (IP source/destination, protocole, ports source/destination) : le retour est autorisé parce qu'il correspond à un flux établi, sans règle explicite. Un firewall purement L3 devrait autoriser tout le retour. L'inspection L7 existe sur les NGFW (DPI, TLS) mais n'est pas ce qui définit le stateful."
+    },
+    {
+      "prompt": "Un proxy HTTP explicite intervient à quelle couche ?",
+      "choices": [
+        "Couche 3, en réécrivant les adresses IP",
+        "Couche 4, en relayant les ports TCP",
+        "Couche 2, en commutant les trames",
+        "Couche 7, en terminant et réémettant les requêtes HTTP"
+      ],
+      "answer": 3,
+      "explanation": "Le client ouvre une connexion TCP vers le proxy et lui envoie une requête HTTP ; le proxy ouvre une seconde connexion vers le serveur. Il voit méthodes, URL, en-têtes et codes de retour : il termine donc la session applicative, contrairement à un LB L4 qui ne voit que des flux TCP."
+    },
+    {
+      "prompt": "Des petits pings passent, mais les transferts TLS de grande taille échouent avec des paquets perdus. Où se situe le problème de MTU ?",
+      "choices": [
+        "Couche 1 : un câble trop long",
+        "Couches 2/3 : la MTU borne la charge utile d'une trame, donc la taille du paquet IP ; un paquet trop gros est fragmenté ou rejeté (DF)",
+        "Couche 4 : la fenêtre TCP est mal négociée",
+        "Couche 7 : le certificat TLS est invalide"
+      ],
+      "answer": 1,
+      "explanation": "La MTU est une limite L2 sur la charge utile de la trame ; elle contraint la taille du paquet IP. Avec le bit DF, le routeur renvoie ICMP fragmentation needed et le flux bloque, souvent dès le handshake TLS. Les petits pings passent parce qu'ils tiennent dans la MTU : le test se fait avec des paquets de taille croissante et DF."
+    },
+    {
+      "prompt": "Quelle est la taille cumulée des en-têtes Ethernet II (sans FCS), IPv4 sans options et TCP sans options ?",
+      "choices": [
+        "44 octets",
+        "54 octets",
+        "58 octets",
+        "64 octets"
+      ],
+      "answer": 1,
+      "explanation": "Ethernet II = 14 octets (MAC destination 6 + MAC source 6 + EtherType 2), IPv4 = 20 octets minimum, TCP = 20 octets minimum, soit 14 + 20 + 20 = 54. Les 4 octets de FCS (58 au total) ne font pas partie de la charge utile vue par IP, et le préambule/SFD de 8 octets n'apparaît pas dans la trame capturée."
+    },
+    {
+      "prompt": "Une application envoie 1200 octets utiles via TCP sur IPv4, dans une trame Ethernet II sans FCS. Quel est l'overhead d'encapsulation ?",
+      "choices": [
+        "34 octets",
+        "40 octets",
+        "54 octets",
+        "58 octets"
+      ],
+      "answer": 2,
+      "explanation": "L'overhead ne dépend pas de la charge utile : 14 (Ethernet II) + 20 (IPv4) + 20 (TCP) = 54 octets. La trame transporte donc 1254 octets au total. Attention à ne pas compter la FCS (4) ni le préambule (8), qui ne sont pas des en-têtes protocolaires visibles dans la capture."
+    },
+    {
+      "prompt": "Pour 100 octets utiles avec Ethernet II (sans FCS) + IPv4 + TCP sans options, quel est le ratio charge utile / overhead ?",
+      "choices": [
+        "Environ 1,85:1",
+        "Environ 2,5:1",
+        "Environ 1:1,85",
+        "Environ 0,54:1"
+      ],
+      "answer": 0,
+      "explanation": "Overhead = 54 octets pour 100 octets utiles, soit 100/54 ≈ 1,85. Autrement dit, environ 35 % de la trame est du contrôle. Le ratio se dégrade pour les petites charges utiles (voix, IoT) et s'améliore avec de grandes charges utiles, sans jamais dépasser la MTU."
+    },
+    {
+      "prompt": "ping 10.0.2.20 répond, mais une connexion TCP vers 10.0.2.20:80 reste en timeout, sans aucun RST. Quelle couche cibler en premier ?",
+      "choices": [
+        "Couche 1 : le lien est coupé",
+        "Couche 2 : la MAC est inconnue",
+        "Couche 3 : le routage est absent",
+        "Couche 4 : le port 80 est filtré (drop silencieux)"
+      ],
+      "answer": 3,
+      "explanation": "Le ping valide L1 à L3. Un RST aurait signifié hôte joignable mais aucun service en écoute, donc un problème L7. Ici le silence indique un drop : ACL, security group ou firewall qui filtre le port 80. On vérifie ensuite le service applicatif si le port finit par répondre."
+    },
+    {
+      "prompt": "La résolution DNS échoue, mais l'accès direct par adresse IP fonctionne. Quelle couche est en cause ?",
+      "choices": [
+        "Couche 1 : le câble",
+        "Couche 7 : le service de résolution de noms",
+        "Couche 2 : le VLAN",
+        "Couche 3 : le routage"
+      ],
+      "answer": 1,
+      "explanation": "L'accès direct par IP prouve que L1 à L3 fonctionnent. Seule la résolution de noms échoue : serveur DNS injoignable, mauvaise entrée, UDP/53 filtré ou résolveur mal configuré. DNS est un service applicatif (L7), même s'il dépend d'UDP/53 pour le transport."
+    },
+    {
+      "prompt": "Une trame arrive sur un switch avec une FCS invalide. À quelle couche se situe le problème et que se passe-t-il ?",
+      "choices": [
+        "Couche 2 : la trame est rejetée et non transmise, les couches supérieures retransmettront",
+        "Couche 3 : le paquet IP est rejeté avec un ICMP",
+        "Couche 4 : le segment TCP est acquitté puis ignoré",
+        "Couche 7 : l'application reçoit une erreur de checksum"
+      ],
+      "answer": 0,
+      "explanation": "La FCS est calculée sur la trame : une valeur incorrecte signale une corruption (câble, duplex, interférence). Le switch la jette sans la relayer ; c'est TCP, ou l'application, qui détectera la perte et retransmettra. Aucun ICMP n'est généré pour une trame corrompue."
+    }
+  ]
+}

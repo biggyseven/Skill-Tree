@@ -1,0 +1,7 @@
+{
+  "node_id": "ospf",
+  "mode": "regex",
+  "pattern": "network\\s+10\\.0\\.0\\.0\\s+0\\.0\\.0\\.255\\s+area\\s+0",
+  "prompt": "Annonce le réseau 10.0.0.0/24 dans l'area 0 (Cisco).",
+  "hint": "network <réseau> <wildcard> area <id>"
+}

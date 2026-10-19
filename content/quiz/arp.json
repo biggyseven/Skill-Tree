@@ -1,0 +1,171 @@
+{
+  "node_id": "arp",
+  "scope": "quiz",
+  "questions": [
+    {
+      "prompt": "Une requête ARP est envoyée pour résoudre 192.168.1.20. Quelles adresses MAC porte la trame, et comment revient la réponse ?",
+      "choices": [
+        "MAC destination = MAC du routeur ; la réponse est broadcast",
+        "MAC destination = multicast 01:00:5e:00:00:01 ; la réponse est unicast",
+        "MAC destination = ff:ff:ff:ff:ff:ff ; la réponse est aussi broadcast",
+        "MAC destination = ff:ff:ff:ff:ff:ff ; la réponse est unicast vers le demandeur"
+      ],
+      "answer": 3,
+      "explanation": "ARP est encapsulé directement dans Ethernet (EtherType 0x0806), pas dans IP. La requête part en broadcast ff:ff:ff:ff:ff:ff et est reçue par tout le domaine de broadcast ; seule la cible répond, en unicast, avec son couple IP/MAC. Le demandeur met alors à jour son cache. Le multicast 01:00:5e... est réservé à l'IP multicast, pas à ARP."
+    },
+    {
+      "prompt": "Que se passe-t-il quand une entrée du cache ARP expire ?",
+      "choices": [
+        "La prochaine trame vers cette IP déclenche une nouvelle requête ARP, et les paquets attendent la résolution",
+        "Le switch supprime la MAC de sa table CAM",
+        "Le poste considère la destination comme injoignable et renvoie une ICMP unreachable",
+        "L'adresse IP est libérée pour un autre poste"
+      ],
+      "answer": 0,
+      "explanation": "L'ARP cache a un aging (quelques minutes sous Linux, jusqu'à 4 h sur certains équipements Cisco). À expiration, l'entrée est oubliée et le prochain paquet déclenche une résolution ; selon l'implémentation, les paquets sont mis en file ou jetés pendant ce temps. L'adresse IP reste attribuée : seule la correspondance IP/MAC est perdue. La table CAM du switch est indépendante."
+    },
+    {
+      "prompt": "À quoi sert un gratuitous ARP (ARP announcement) ?",
+      "choices": [
+        "À demander au routeur la passerelle par défaut",
+        "À annoncer ou mettre à jour le couple IP/MAC sans requête préalable, et détecter un conflit d'adresse",
+        "À interroger le serveur DHCP",
+        "À convertir une adresse IPv6 en MAC"
+      ],
+      "answer": 1,
+      "explanation": "Un gratuitous ARP est émis sans sollicitation, en broadcast, pour annoncer son IP/MAC (bascule VRRP/HSRP, migration de VM, changement de carte réseau). Il sert aussi à la détection de conflit : si une réponse arrive, l'adresse est déjà utilisée. Les équipements mettent à jour leur cache, ce qui peut également être exploité par un attaquant pour de l'ARP poisoning."
+    },
+    {
+      "prompt": "Un routeur répond à une requête ARP pour une IP d'un subnet distant qu'il connaît. Quel mécanisme active-t-il et quel est le risque ?",
+      "choices": [
+        "Le NAT : il traduit l'IP distante en IP locale",
+        "Le DHCP relay : il transmet la requête au serveur",
+        "Le proxy ARP : il répond avec sa propre MAC, ce qui rend le subnet distant joignable sans changer la passerelle ; risque de masquer un mauvais adressage",
+        "Le NDP : il résout l'adresse en IPv6"
+      ],
+      "answer": 2,
+      "explanation": "Avec proxy ARP, le routeur se fait passer pour la destination : l'hôte envoie ses trames au routeur, qui route ensuite. Cela permet de joindre un subnet mal masqué, mais masque justement les erreurs de masque et élargit le domaine de broadcast perçu. Beaucoup d'équipements modernes le désactivent par défaut."
+    },
+    {
+      "prompt": "Quel protocole remplace ARP en IPv6, et quelle différence majeure change le comportement ?",
+      "choices": [
+        "NDP (ICMPv6) : il utilise du multicast solicited-node et non du broadcast, et gère aussi la découverte de routeurs",
+        "DHCPv6, qui attribue aussi les MAC",
+        "RARP, qui fonctionne comme ARP mais en IPv6",
+        "ARP reste utilisé en IPv6 pour la couche 2"
+      ],
+      "answer": 0,
+      "explanation": "IPv6 n'a pas de broadcast : NDP (Neighbor Discovery Protocol, ICMPv6 types 135 et 136) envoie les sollicitations vers le multicast solicited-node ff02::1:ffXX:XXXX, ce qui limite la portée. NDP gère aussi la découverte de routeurs, les préfixes (SLAAC) et la détection de duplication d'adresse (DAD). ARP n'existe plus en IPv6."
+    },
+    {
+      "prompt": "Un poste change d'adresse IP, mais les autres postes continuent de joindre l'ancienne IP avec l'ancienne MAC en cache. Que se passe-t-il et que fais-tu ?",
+      "choices": [
+        "Le cache ARP est obsolète : les trames partent vers l'ancienne MAC jusqu'à expiration ; vider le cache ou provoquer un gratuitous ARP",
+        "Le switch a perdu sa table CAM : redémarrer le switch",
+        "Le DNS renvoie l'ancienne IP : vider le cache DNS",
+        "Le routeur a besoin d'un nouveau bail DHCP"
+      ],
+      "answer": 0,
+      "explanation": "L'ARP cache conserve la correspondance IP/MAC jusqu'à l'aging ; une IP réattribuée sans annonce laisse les voisins envoyer vers l'ancienne MAC, d'où des pertes. Un gratuitous ARP à la prise d'adresse corrige les caches ; sinon on vide le cache local (`ip neigh flush`, `arp -d`). Le DNS et la table CAM ne sont pas en cause quand on utilise l'IP directe."
+    },
+    {
+      "prompt": "Deux postes du même VLAN utilisent la même adresse MAC. Quelles conséquences observe-t-on ?",
+      "choices": [
+        "Aucune : les IP suffisent à les distinguer",
+        "Les deux postes obtiennent automatiquement des MAC différentes via DHCP",
+        "ARP refuse d'enregistrer les entrées et bloque le VLAN",
+        "Le switch apprend la MAC alternativement sur deux ports (flapping), le trafic part vers le mauvais poste et la connectivité est instable"
+      ],
+      "answer": 3,
+      "explanation": "La commutation L2 se base uniquement sur la MAC : deux équipements avec la même MAC créent du MAC flapping dans la table CAM, des trames livrées au mauvais port et des coupures. Causes : NIC reconfigurée, clone de VM, usurpation. On localise les ports avec `show mac address-table`, on isole, puis on corrige la MAC ; port-security peut limiter le nombre de MAC par port."
+    },
+    {
+      "prompt": "ARP spoofing détecté sur un VLAN : un poste usurpe la MAC de la passerelle. Quelles mitigations mets-tu en place ?",
+      "choices": [
+        "Changer le VLAN natif du trunk",
+        "Passer les ports en half duplex",
+        "Activer DHCP snooping + Dynamic ARP Inspection sur le VLAN, et poser une entrée ARP statique pour la passerelle sur les postes critiques",
+        "Désactiver ARP sur le VLAN"
+      ],
+      "answer": 2,
+      "explanation": "DAI valide les réponses ARP contre la table de binding DHCP snooping (IP/MAC/port) et jette les usurpations ; sans DHCP, on ajoute des ARP ACL. Une entrée ARP statique pour la passerelle protège les postes critiques, et port-security limite les MAC par port. On ne peut pas désactiver ARP sans casser IPv4 sur le segment."
+    },
+    {
+      "prompt": "Un routeur répond aux ARP pour son propre subnet mais pas pour un subnet distant qu'il connaît. Est-ce normal ?",
+      "choices": [
+        "Non : un routeur doit toujours répondre à tous les ARP",
+        "Non : cela indique que le routage est désactivé",
+        "Oui : ARP n'est valable que sur le lien local ; pour un subnet distant, l'hôte doit utiliser la MAC de sa passerelle",
+        "Oui : le routeur répond uniquement en IPv6"
+      ],
+      "answer": 2,
+      "explanation": "ARP résout une IP présente sur le même lien. Un hôte qui veut joindre un subnet distant envoie ses trames à la MAC de sa passerelle, qui route. Le routeur ne répond pour une IP distante que si le proxy ARP est activé. C'est pourquoi un masque erroné peut faire échouer la communication alors que le routeur est joignable."
+    },
+    {
+      "prompt": "Quelle est la taille de la trame Ethernet II transportant une requête ARP, FCS incluse, avant padding ?",
+      "choices": [
+        "42 octets",
+        "46 octets",
+        "60 octets",
+        "64 octets"
+      ],
+      "answer": 1,
+      "explanation": "Le paquet ARP fait 28 octets (HTYPE 2, PTYPE 2, HLEN 1, PLEN 1, OPER 2, SHA 6, SPA 4, THA 6, TPA 4). Ethernet II ajoute 14 octets et la FCS 4 : 14 + 28 + 4 = 46. La trame est ensuite bourrée à 64 octets minimum sur le média. 42 correspond à l'oubli de la FCS, 64 au minimum après padding."
+    },
+    {
+      "prompt": "Dans un /24, 20 hôtes ont un cache ARP vide et chacun communique avec les 19 autres. Combien de requêtes ARP broadcast sont émises au total, au pire ?",
+      "choices": [
+        "20",
+        "190",
+        "400",
+        "380"
+      ],
+      "answer": 3,
+      "explanation": "Chaque hôte doit résoudre 19 destinations, soit 19 requêtes broadcast par hôte : 20 × 19 = 380. Chaque requête est reçue par tout le domaine de broadcast, mais seule la cible répond, en unicast. Si tous les hôtes ne contactaient que la passerelle, il n'y aurait que 20 requêtes. Le cache et le gratuitous ARP réduisent ce volume en pratique."
+    },
+    {
+      "prompt": "ping 192.168.1.1 fonctionne, ping 192.168.1.5 échoue et aucune entrée ARP n'existe pour .5. Qu'est-ce que cela indique ?",
+      "choices": [
+        "Le routage est cassé sur le routeur",
+        "Le DNS ne résout pas .5",
+        "Le poste .5 ne répond pas à ARP : il est éteint, isolé dans un autre VLAN, filtré ou n'a pas cette IP",
+        "Le MTU est trop petit sur le lien"
+      ],
+      "answer": 2,
+      "explanation": "Sans entrée ARP, la résolution de .5 n'a jamais abouti : soit le poste est absent, soit sa configuration IP/VLAN est incorrecte, soit un filtrage (port-security, ACL, isolation privée) bloque les ARP. Le ping vers la passerelle prouve que le lien local et la pile IP fonctionnent. Un conflit d'IP ou une panne de switch sur ce port sont aussi à vérifier."
+    },
+    {
+      "prompt": "Une requête ARP reste sans réponse. Quelles causes vérifies-tu en priorité ?",
+      "choices": [
+        "Le TTL, le MTU et la fenêtre TCP",
+        "L'hôte cible est éteint ou mal configuré, le VLAN ou le port est incorrect, ou un filtrage (port-security, ACL, isolation) bloque les ARP",
+        "Le serveur DNS et le bail DHCP",
+        "La table CAM du switch et le spanning tree uniquement"
+      ],
+      "answer": 1,
+      "explanation": "Pas de réponse ARP signifie pas de résolution L2 : vérifier que la cible est allumée avec la bonne IP/masque, qu'elle est dans le même VLAN, que le port est up et que rien ne filtre les broadcasts (port-security, ACL, private VLAN, storm control). ARP n'a pas de TTL et ne dépend ni du DNS ni de TCP : inutile de chercher de ce côté."
+    },
+    {
+      "prompt": "Des gratuitous ARP sont observés en continu sur le VLAN. Quelle est la cause la plus probable ?",
+      "choices": [
+        "Un conflit d'adresse IP (deux équipements revendiquent la même IP) ou une attaque ARP en cours",
+        "Un MTU mal réglé",
+        "Un bail DHCP trop long",
+        "Une route par défaut manquante"
+      ],
+      "answer": 0,
+      "explanation": "Un gratuitous ARP répété signale souvent un conflit d'IP : chaque équipement annonce la même adresse, ou un attaquant tente de remapper la passerelle. Vérifier les logs (duplicate address detected sous Linux/Windows), localiser la MAC source, et corréler avec DHCP snooping et DAI. Un bail DHCP ou une route manquante ne génèrent pas de GARP en boucle."
+    },
+    {
+      "prompt": "Le cache ARP/neighbor d'un équipement est plein. Quelle est la conséquence ?",
+      "choices": [
+        "Les entrées existantes sont converties en adresses statiques",
+        "Le switch passe automatiquement en mode hub",
+        "ARP est désactivé et IPv4 continue de fonctionner sans L2",
+        "Les nouvelles résolutions échouent ou sont limitées : les paquets vers de nouvelles destinations sont jetés ou mis en file, avec des erreurs neighbor table overflow"
+      ],
+      "answer": 3,
+      "explanation": "La table neighbor a une taille finie (gc_thresh sous Linux, limites de plateforme). Quand elle est pleine, les nouvelles entrées ne peuvent pas être créées : paquets jetés, messages neighbor table overflow, connectivité intermittente vers les nouvelles destinations. Causes : scan massif, attaque, réseau très plat ; remèdes : augmenter les seuils, agréger, segmenter et limiter le scan."
+    }
+  ]
+}

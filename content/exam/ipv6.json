@@ -1,0 +1,39 @@
+{
+  "node_id": "ipv6",
+  "scope": "exam",
+  "questions": [
+    {
+      "prompt": "Quel type d'adresse remplace le broadcast IPv4 en IPv6 ?",
+      "choices": [
+        "Unicast global",
+        "Multicast",
+        "Anycast",
+        "Lien-local"
+      ],
+      "answer": 1,
+      "explanation": "IPv6 n'a pas de broadcast : le multicast ff02::1 joue ce rôle."
+    },
+    {
+      "prompt": "Que fait SLAAC ?",
+      "choices": [
+        "Il configure l'adresse à partir du préfixe annoncé par le routeur",
+        "Il attribue une IP depuis un serveur central",
+        "Il traduit les adresses",
+        "Il signe les Router Advertisements"
+      ],
+      "answer": 0,
+      "explanation": "SLAAC combine le préfixe des RA et un identifiant d'interface."
+    },
+    {
+      "prompt": "Quelle est la taille de l'en-tête IPv6 de base ?",
+      "choices": [
+        "20 octets",
+        "32 octets",
+        "40 octets",
+        "60 octets"
+      ],
+      "answer": 2,
+      "explanation": "L'en-tête IPv6 fixe fait 40 octets, extensible par en-têtes optionnels."
+    }
+  ]
+}

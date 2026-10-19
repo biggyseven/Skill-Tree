@@ -1,0 +1,8 @@
+{
+  "node_id": "lab_netns",
+  "kind": "docker",
+  "image": "skilltree/lab:latest",
+  "timeout": 90,
+  "prompt": "Configure l'adressage et les routes pour que ns-a et ns-b se joignent à travers ns-router.",
+  "hint": "Trois adresses à poser, puis `ip route add default via <gateway>` dans chaque hôte."
+}

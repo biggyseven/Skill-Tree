@@ -1,0 +1,171 @@
+{
+  "node_id": "ethernet",
+  "scope": "quiz",
+  "questions": [
+    {
+      "prompt": "Une trame Ethernet II porte EtherType 0x8100. Que signifie ce champ et que trouve-t-on immédiatement après ?",
+      "choices": [
+        "IPv6 (0x86DD)",
+        "Un tag VLAN 802.1Q de 4 octets, suivi d'un EtherType interne",
+        "ARP (0x0806)",
+        "Une trame jumbo"
+      ],
+      "answer": 1,
+      "explanation": "0x8100 annonce une étiquette 802.1Q : 2 octets de TCI (priorité, DEI, VLAN ID) puis l'EtherType réel (0x0800 pour IPv4, 0x86DD pour IPv6). C'est ce qui ajoute 4 octets à la trame et porte la taille max standard à 1522 octets sur un trunk. 0x86DD et 0x0806 sont des EtherTypes directs, pas des tags."
+    },
+    {
+      "prompt": "Quelle affirmation sur les tailles de trame Ethernet est exacte ?",
+      "choices": [
+        "La trame minimale fait 64 octets hors FCS et la maximale 1518 octets FCS incluse",
+        "1518 octets est une limite absolue, même avec un tag VLAN",
+        "La trame minimale fait 64 octets FCS incluse ; 1518 octets est le maximum standard et les jumbo frames ne sont pas normalisées par 802.3",
+        "Les jumbo frames sont garanties à 9000 octets par la norme 802.3"
+      ],
+      "answer": 2,
+      "explanation": "64 octets est le minimum FCS incluse (6+6+2+46+4), ce qui garantit la détection de collision ; 1518 est le maximum standard (6+6+2+1500+4), porté à 1522 avec 802.1Q. Les jumbo frames (souvent 9000 octets) ne sont pas définies par 802.3 : il faut que tous les équipements du chemin acceptent la même taille, sinon les paquets sont jetés."
+    },
+    {
+      "prompt": "Une entrée de la table CAM vieillit et disparaît. Quelle est la conséquence immédiate ?",
+      "choices": [
+        "La prochaine trame vers cette MAC est inondée dans le VLAN, puis la MAC est réapprise à la réception d'une trame source",
+        "Le port est désactivé jusqu'au prochain apprentissage",
+        "Le switch envoie une requête ARP pour retrouver la MAC",
+        "Les trames vers cette MAC sont jetées définitivement"
+      ],
+      "answer": 0,
+      "explanation": "L'aging (souvent 300 s chez Cisco) supprime les entrées inactives pour éviter les MAC obsolètes. Une MAC inconnue redevient un unknown unicast : flooding dans le VLAN, puis réapprentissage dès qu'une trame source arrive. Un aging trop court provoque du flooding permanent ; trop long, il conserve des entrées périmées et peut tromper le forwarding."
+    },
+    {
+      "prompt": "Un switch de 24 ports est découpé en 4 VLAN. Combien de domaines de collision et de broadcast compte-t-on ?",
+      "choices": [
+        "1 domaine de collision, 1 domaine de broadcast",
+        "24 domaines de collision, 1 domaine de broadcast",
+        "4 domaines de collision, 4 domaines de broadcast",
+        "24 domaines de collision, 4 domaines de broadcast"
+      ],
+      "answer": 3,
+      "explanation": "Chaque port de switch est son propre domaine de collision (et en full duplex il n'y a plus de collisions, mais le segment reste distinct) ; chaque VLAN est un domaine de broadcast séparé. Un hub ne crée qu'un seul domaine de collision pour tous ses ports ; un routeur (ou un switch L3) sépare les domaines de broadcast."
+    },
+    {
+      "prompt": "Un point d'accès Wi-Fi doit recevoir 30 W au niveau du périphérique (PD). Quel standard PoE minimum faut-il ?",
+      "choices": [
+        "802.3af",
+        "802.3at",
+        "802.3bt",
+        "Aucun standard : un injecteur passif suffit"
+      ],
+      "answer": 2,
+      "explanation": "802.3af fournit 12,95 W au PD, 802.3at (PoE+) 25,5 W au PD pour 30 W au PSE. 30 W réellement disponibles au PD exigent 802.3bt (Type 3 : 51 W au PD, 60 W au PSE). La négociation LLDP permet au PD d'annoncer sa classe ; un injecteur passif impose une tension sans négociation et peut endommager l'équipement."
+    },
+    {
+      "prompt": "Un switch reçoit une trame vers une MAC jamais vue. Que fait-il, et que change la réponse éventuelle ?",
+      "choices": [
+        "Il inonde le VLAN d'origine et apprend la MAC source ; la réponse permettra d'apprendre la MAC destination",
+        "Il jette la trame et renvoie un ICMP unreachable",
+        "Il l'envoie systématiquement à la passerelle par défaut",
+        "Il inonde tous les VLAN du switch"
+      ],
+      "answer": 0,
+      "explanation": "Unknown unicast : flooding limité au VLAN, tout en apprenant la MAC source sur le port d'arrivée. Si la destination répond, sa MAC (source de la réponse) entre en table et les trames suivantes sont commutées sans flooding. Le flooding ne franchit pas les frontières de VLAN et le switch ne génère pas d'ICMP."
+    },
+    {
+      "prompt": "Un port négocié en half duplex, alors que le reste du réseau est en full duplex, compte des collisions et des late collisions. Que fais-tu ?",
+      "choices": [
+        "Forcer le full duplex uniquement sur le switch",
+        "Aligner le duplex des deux extrémités (auto ou full forcé des deux côtés) et vérifier le câblage",
+        "Augmenter la MTU pour réduire le nombre de trames",
+        "Désactiver le STP sur le port"
+      ],
+      "answer": 1,
+      "explanation": "Une négociation asymétrique donne un côté full et l'autre half : le côté full émet sans écouter, le côté half détecte des collisions tardives et des FCS errors, avec des débits très dégradés. Il faut aligner les deux extrémités ; forcer le full d'un seul côté désactive l'autonégociation et crée précisément le mismatch. En half duplex, CSMA/CD et les collisions sont normaux ; en full duplex, toute collision est anormale."
+    },
+    {
+      "prompt": "Le LAN sature : broadcast massif, CPU du switch à 100 %, LEDs des ports qui clignotent en permanence. Quelle est la cause la plus probable ?",
+      "choices": [
+        "Un conflit d'adresses IP",
+        "Un serveur DNS lent",
+        "Un duplex mismatch",
+        "Une boucle L2 (STP absent ou contourné)"
+      ],
+      "answer": 3,
+      "explanation": "Le broadcast n'a pas de TTL : dans une boucle L2, chaque trame est dupliquée à l'infini et sature liens et CPU. Un duplex mismatch dégrade un lien mais ne crée pas de tempête. Réflexes : vérifier le câblage, les BPDU, activer STP et BPDU guard, et poser un storm control en protection."
+    },
+    {
+      "prompt": "Un bâtiment est câblé en Cat5e et tu dois y déployer du 10GBASE-T sur 80 m. Qu'en dis-tu ?",
+      "choices": [
+        "Oui, Cat5e est certifié 10GBASE-T jusqu'à 100 m",
+        "Non, pas garanti : 10GBASE-T exige Cat6 (55 m max) ou Cat6a (100 m)",
+        "Oui, à condition de forcer le duplex full",
+        "Oui, il suffit d'activer les jumbo frames"
+      ],
+      "answer": 1,
+      "explanation": "10GBASE-T utilise une bande passante de 500 MHz, alors que Cat5e est spécifié à 100 MHz : il n'est pas certifié pour 10 Gb/s (il l'est pour 2,5G/5G jusqu'à 100 m). Cat6 tient 10GBASE-T sur 55 m, Cat6a sur 100 m, à condition de maîtriser la diaphonie et les connectiques. Des liaisons courtes peuvent fonctionner empiriquement, mais sans garantie de marge."
+    },
+    {
+      "prompt": "Combien de trames Ethernet de 64 octets un lien 1 GbE peut-il transmettre au maximum par seconde ?",
+      "choices": [
+        "Environ 1,488 Mpps",
+        "Environ 1,953 Mpps",
+        "Environ 744 kpps",
+        "Environ 2,38 Mpps"
+      ],
+      "answer": 0,
+      "explanation": "Sur le fil, une trame minimale occupe 64 octets + 8 de préambule/SFD + 12 d'IFG = 84 octets = 672 bits. 1 000 000 000 / 672 ≈ 1 488 095 trames/s, soit 1,488 Mpps. Oublier le préambule et l'IFG donne 1,953 Mpps (64 octets = 512 bits), un chiffre souvent cité à tort."
+    },
+    {
+      "prompt": "Un analyseur injecte 80 000 trames/s de 1000 octets (hors préambule et IFG) sur un lien 1 GbE. Quel est le taux d'occupation du lien ?",
+      "choices": [
+        "64,0 %",
+        "65,3 %",
+        "68,0 %",
+        "80,0 %"
+      ],
+      "answer": 1,
+      "explanation": "Sur le fil, chaque trame occupe 1000 + 8 + 12 = 1020 octets, soit 8160 bits. 80 000 × 8160 = 652 800 000 bit/s, donc 65,3 % d'un lien à 1 Gb/s. Ignorer préambule et IFG donnerait 64,0 % : l'écart paraît faible mais fausse le dimensionnement sur des millions de trames."
+    },
+    {
+      "prompt": "Sur une trame Ethernet de 1518 octets (FCS incluse) transportant du TCP sur IPv4, quelle part représente la charge utile TCP si le MSS est de 1460 octets ?",
+      "choices": [
+        "88,9 %",
+        "94,9 %",
+        "97,3 %",
+        "96,2 %"
+      ],
+      "answer": 3,
+      "explanation": "1518 octets = 14 (Ethernet) + 20 (IPv4) + 20 (TCP) + 1460 (données) + 4 (FCS). La charge utile représente 1460/1518 ≈ 96,2 %. En ajoutant préambule et IFG (1538 octets sur le fil), on tombe à 94,9 %. Les jumbo frames améliorent légèrement ce ratio, au prix d'une MTU homogène sur tout le chemin."
+    },
+    {
+      "prompt": "Les compteurs CRC/FCS errors d'un port augmentent régulièrement. Quelle couche cibler en premier ?",
+      "choices": [
+        "Couche 1 : câble, connectique, SFP ou interférence électrique",
+        "Couche 2 : boucle de commutation",
+        "Couche 3 : MTU trop grande",
+        "Couche 4 : fenêtre TCP trop petite"
+      ],
+      "answer": 0,
+      "explanation": "Une FCS invalide signifie que la trame a été corrompue sur le média : câble abîmé, connecteur sale, SFP défaillant, diaphonie ou duplex mismatch. Le switch jette la trame et incrémente le compteur. Une boucle provoque du flooding et des duplicates, pas des CRC errors ; la MTU et la fenêtre TCP n'ont aucun effet sur la FCS."
+    },
+    {
+      "prompt": "Un port full duplex compte des late collisions. Qu'est-ce que cela indique ?",
+      "choices": [
+        "Une congestion normale en full duplex",
+        "Une boucle L2 sur le VLAN",
+        "Un duplex mismatch ou un segment trop long (cause physique)",
+        "Une MTU trop grande sur le chemin"
+      ],
+      "answer": 2,
+      "explanation": "Une late collision survient après la fenêtre de collision (512 temps de bit) : la trame était déjà en cours d'émission quand la collision a été détectée. En full duplex, aucune collision ne devrait exister ; leur présence trahit un côté resté en half duplex (mismatch) ou un délai de propagation excessif (câble trop long, trop de répéteurs). La correction est physique ou de configuration de duplex, pas une question de QoS."
+    },
+    {
+      "prompt": "La table CAM montre la même MAC qui alterne entre deux ports en quelques secondes. Quelle est la cause la plus probable ?",
+      "choices": [
+        "Une NIC qui change d'adresse MAC",
+        "Une boucle L2 ou un teaming mal configuré",
+        "Une MTU différente entre les deux ports",
+        "Un problème de résolution DNS"
+      ],
+      "answer": 1,
+      "explanation": "Le MAC flapping signifie que la même MAC est apprise alternativement sur deux ports : une trame arrive par les deux chemins, typiquement à cause d'une boucle L2 (STP absent, BPDU filtré, câble rebouclé) ou d'un agrégat/teaming mal configuré. Vérifier STP, les BPDU, les agrégats et les duplicate frames ; sans correction, la table CAM devient instable et le trafic part dans le mauvais sens."
+    }
+  ]
+}

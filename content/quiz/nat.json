@@ -1,0 +1,171 @@
+{
+  "node_id": "nat",
+  "scope": "quiz",
+  "questions": [
+    {
+      "prompt": "Quelle est la différence entre NAT dynamique avec pool et PAT (overload) ?",
+      "choices": [
+        "PAT mappe une IP privée vers plusieurs IP publiques simultanément",
+        "Le NAT dynamique ne fonctionne qu'en IPv6",
+        "PAT ne fonctionne que pour UDP",
+        "Le NAT dynamique mappe une IP privée vers une IP publique de façon 1:1 pendant la durée du flux ; PAT multiplexe plusieurs IP privées sur une seule IP publique grâce aux ports"
+      ],
+      "answer": 3,
+      "explanation": "NAT dynamique : un pool d'adresses publiques, une adresse par session, donc une limite égale à la taille du pool. PAT : une seule IP publique partagée, distinction par port source et table de translations (5-tuple). NAT statique : mapping fixe 1:1, utile pour les serveurs. PAT est un NAT dynamique avec overload."
+    },
+    {
+      "prompt": "Dans la terminologie Cisco, que désigne une adresse « inside local » ?",
+      "choices": [
+        "L'adresse publique vue par l'extérieur pour un hôte interne",
+        "L'adresse d'un hôte externe vue depuis l'intérieur",
+        "L'adresse privée de l'hôte interne telle qu'elle est configurée sur son interface",
+        "L'adresse de l'interface outside du routeur"
+      ],
+      "answer": 2,
+      "explanation": "inside local = IP privée réelle de l'hôte interne ; inside global = IP publique après traduction ; outside local = IP d'un hôte externe vue de l'intérieur ; outside global = IP réelle de l'hôte externe. C'est le vocabulaire de `show ip nat translations`. Confondre inside local et inside global est l'erreur classique."
+    },
+    {
+      "prompt": "Dans quel ordre un routeur Cisco traite-t-il un paquet allant d'une interface inside vers outside ?",
+      "choices": [
+        "NAT puis routage puis ACL",
+        "Routage, puis traduction NAT inside-to-outside, puis transmission",
+        "ACL, puis NAT, puis routage",
+        "Routage, puis ACL, puis NAT, puis re-routage"
+      ],
+      "answer": 1,
+      "explanation": "Pour inside→outside, le routeur route d'abord (décision de sortie), applique la traduction inside-to-outside, puis transmet. Pour outside→inside, la traduction outside-to-inside intervient avant le routage. Cet ordre explique pourquoi une ACL peut voir l'adresse avant ou après traduction selon la direction et l'interface."
+    },
+    {
+      "prompt": "À quoi servent NAT64 et DNS64 ensemble ?",
+      "choices": [
+        "À permettre à des hôtes IPv6 seuls de joindre des serveurs IPv4 : DNS64 synthétise des AAAA, NAT64 traduit le trafic vers IPv4",
+        "À traduire les adresses MAC en IPv6",
+        "À remplacer DHCPv6",
+        "À faire du double NAT IPv4"
+      ],
+      "answer": 0,
+      "explanation": "DNS64 synthétise un enregistrement AAAA à partir de l'A du serveur, dans un préfixe dédié (souvent 64:ff9b::/96). Le client IPv6 envoie vers cette adresse ; NAT64 la traduit vers l'IPv4 réelle et assure le retour. Sans DNS64, l'hôte IPv6 n'a pas d'adresse de destination ; sans NAT64, l'adresse synthétisée ne mène nulle part."
+    },
+    {
+      "prompt": "Qu'est-ce que le hairpin NAT (NAT loopback) ?",
+      "choices": [
+        "Un NAT qui traduit deux fois vers l'extérieur",
+        "La possibilité pour un hôte interne de joindre un serveur interne via son adresse publique, le trafic sortant puis revenant par le routeur NAT",
+        "Un NAT appliqué uniquement aux VLAN",
+        "Une traduction IPv6 vers IPv4"
+      ],
+      "answer": 1,
+      "explanation": "Sans hairpin, un client interne qui vise l'IP publique de son propre serveur voit sa requête partir vers Internet ou être bloquée, car la traduction ne s'applique pas au trafic interne. Hairpin NAT (ou split DNS) fait revenir le trafic par le routeur avec les règles de DNAT/SNAT. Coût : le trafic traverse deux fois le routeur et les policies doivent l'autoriser."
+    },
+    {
+      "prompt": "Un serveur interne 192.168.1.10 doit être joignable depuis Internet sur 203.0.113.10. Quelle configuration NAT est adaptée ?",
+      "choices": [
+        "ip nat inside source static 192.168.1.10 203.0.113.10, avec les interfaces inside/outside correctement marquées",
+        "ip nat inside source list 10 pool PUBLIC overload, sans entrée statique",
+        "ip nat outside source static 192.168.1.10 203.0.113.10",
+        "Un NAT dynamique avec un pool d'une seule adresse"
+      ],
+      "answer": 0,
+      "explanation": "Un serveur doit avoir un mapping stable : NAT statique 1:1. Un pool dynamique ou du PAT ne garantit pas la même IP publique et n'ouvre pas les connexions entrantes. Il faut aussi `ip nat inside` sur l'interface interne, `ip nat outside` sur l'interface externe, et une route vers le serveur."
+    },
+    {
+      "prompt": "Un tunnel IPsec en mode transport avec AH ne traverse pas un PAT. Pourquoi ?",
+      "choices": [
+        "AH chiffre l'en-tête IP, que le NAT ne peut pas lire",
+        "Le PAT bloque systématiquement UDP 500",
+        "AH utilise IPv6 uniquement",
+        "AH protège l'intégrité de l'en-tête IP, y compris les adresses ; le PAT modifie ces adresses, donc le checksum AH devient invalide"
+      ],
+      "answer": 3,
+      "explanation": "AH calcule un hash sur l'en-tête IP, adresses comprises : toute réécriture NAT casse l'authentification. ESP ne protège pas l'en-tête IP externe, et NAT-T encapsule ESP dans UDP 4500 pour traverser le PAT. D'où la règle : AH est incompatible avec NAT, ESP + NAT-T fonctionne. Le port UDP 500 (IKE) peut être filtré, mais ce n'est pas la cause de l'incompatibilité AH."
+    },
+    {
+      "prompt": "Deux clients internes 192.168.1.10 et .11 ouvrent une connexion vers le même serveur 203.0.113.50:443. Comment le PAT distingue-t-il les deux flux au retour ?",
+      "choices": [
+        "Par l'adresse MAC des clients",
+        "Par l'adresse IP privée, conservée dans l'en-tête",
+        "Par le port source traduit dans la table NAT : chaque flux a un port public différent vers la même destination",
+        "Par le TTL"
+      ],
+      "answer": 2,
+      "explanation": "Après traduction, les deux flux partagent la même IP publique et la même destination, mais pas le même port source public. La table NAT mémorise (IP/port source interne, IP/port destination, IP/port public) et inverse la traduction au retour. C'est pour cela que PAT est aussi appelé NAT avec surcharge de ports."
+    },
+    {
+      "prompt": "Quelle commande Cisco redirige le port 8080 public vers le port 80 du serveur 192.168.1.10 sur 203.0.113.10 ?",
+      "choices": [
+        "ip nat inside source static tcp 192.168.1.10 8080 203.0.113.10 80",
+        "ip nat outside source static tcp 203.0.113.10 8080 192.168.1.10 80",
+        "ip nat inside source static tcp 192.168.1.10 80 203.0.113.10 8080",
+        "ip nat inside destination static tcp 192.168.1.10 80 8080"
+      ],
+      "answer": 2,
+      "explanation": "La syntaxe est `ip nat inside source static tcp <inside-local> <port-local> <inside-global> <port-global>` : 192.168.1.10:80 est publié en 203.0.113.10:8080. L'ordre des ports est donc local puis global. `ip nat outside source` sert au trafic entrant vers l'extérieur, pas au port forwarding classique."
+    },
+    {
+      "prompt": "Combien de traductions simultanées une seule IP publique peut-elle supporter en PAT, au maximum théorique (une par port source) ?",
+      "choices": [
+        "1 024",
+        "65 536",
+        "4 096",
+        "16 777 216"
+      ],
+      "answer": 1,
+      "explanation": "Le port source fait 16 bits, soit 65 536 valeurs possibles ; le port 0 étant réservé, on retient souvent 65 535 ports utilisables. En pratique, la plage éphémère de l'OS, les timeouts et les réservations réduisent ce chiffre. On peut aussi distinguer les flux par destination, mais chaque combinaison doit rester unique dans la table."
+    },
+    {
+      "prompt": "Un routeur utilise un pool NAT dynamique de 8 adresses publiques, sans overload. 300 clients veulent sortir simultanément. Que se passe-t-il ?",
+      "choices": [
+        "Les 8 premiers flux obtiennent une traduction ; les autres sont jetés ou attendent qu'une entrée se libère",
+        "Les 300 clients sortent, le routeur réutilise les adresses",
+        "Le routeur passe automatiquement en PAT",
+        "Le pool s'agrandit dynamiquement"
+      ],
+      "answer": 0,
+      "explanation": "Sans overload, chaque client consomme une adresse publique pour toute la durée de sa session : 8 traductions simultanées au maximum, quelle que soit la bande passante. Les paquets suivants sont jetés, ou attendent selon la plateforme. Pour 300 clients, il faut soit 300 adresses, soit activer `overload` (PAT) sur le pool."
+    },
+    {
+      "prompt": "5 000 clients maintiennent chacun 20 connexions simultanées à travers un PAT. Quelle taille minimale de table NAT faut-il prévoir ?",
+      "choices": [
+        "5 000 entrées",
+        "10 000 entrées",
+        "100 000 entrées",
+        "65 536 entrées"
+      ],
+      "answer": 2,
+      "explanation": "Chaque connexion est une entrée de traduction (5-tuple), pas chaque client : 5 000 × 20 = 100 000 entrées. Les timeouts (TCP établi, UDP, ICMP) déterminent la durée de vie ; une table sous-dimensionnée provoque des échecs de traduction et des erreurs mémoire. Prévoir de la marge pour les pics et les connexions en TIME_WAIT."
+    },
+    {
+      "prompt": "L'interface interne d'un routeur NAT n'a pas la commande ip nat inside. Quel est le symptôme ?",
+      "choices": [
+        "Le routeur traduit deux fois les adresses",
+        "Le PAT fonctionne mais uniquement en UDP",
+        "Le DNS cesse de fonctionner pour tous les VLAN",
+        "Les paquets sortent avec leur adresse privée, sans traduction, et le retour est perdu ; show ip nat translations reste vide"
+      ],
+      "answer": 3,
+      "explanation": "`ip nat inside` (et `ip nat outside` en face) définit où la traduction s'applique. Sans ce marquage, le routeur route normalement mais ne traduit rien : l'adresse privée part sur Internet et est jetée, ou le retour ne correspond à aucune entrée. Vérifier les deux interfaces et l'ordre des commandes."
+    },
+    {
+      "prompt": "Le trafic sort vers Internet mais les réponses ne reviennent pas. Quelle cause NAT vérifies-tu en premier ?",
+      "choices": [
+        "Le MTU de l'interface inside",
+        "Le DNS est mal configuré",
+        "L'interface outside n'est pas marquée ip nat outside, ou la traduction de retour est absente (pool/ACL/route asymétrique)",
+        "Le serveur DHCP a un bail trop court"
+      ],
+      "answer": 2,
+      "explanation": "Le retour doit être détraduit par le routeur qui détient l'état. Si `ip nat outside` manque, la traduction n'est pas appliquée dans ce sens ; si le pool ou l'ACL ne correspond pas, ou si le retour arrive par un autre chemin, la table NAT ne trouve pas l'entrée et le paquet est jeté. Vérifier `show ip nat translations` et `show ip nat statistics`, puis la symétrie du routage."
+    },
+    {
+      "prompt": "Le FTP en mode actif ne fonctionne pas à travers un PAT. Pourquoi ?",
+      "choices": [
+        "Le FTP actif utilise UDP, non traduit par PAT",
+        "Le port 21 est toujours bloqué par les pare-feux",
+        "Le FTP actif utilise IPv6 uniquement",
+        "Le serveur ouvre une connexion de données vers l'IP et le port que le client a annoncés dans le payload (commande PORT) ; le PAT ne réécrit pas ce payload"
+      ],
+      "answer": 3,
+      "explanation": "En mode actif, le client envoie PORT avec son IP privée et un port ; le serveur initie la connexion data vers cette adresse. Le NAT traduit les en-têtes, pas le contenu applicatif, donc le serveur vise une IP privée injoignable. Solutions : FTP passif (le client initie), un ALG qui réécrit PORT, ou SFTP/FTPS. Même problème pour SIP/H.323 et les protocoles qui embarquent des adresses."
+    }
+  ]
+}
