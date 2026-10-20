@@ -1,0 +1,76 @@
+{
+  "node_id": "itil-rca",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "What is the primary objective of ITIL Incident Management?",
+      "choices": ["Fix all errors immediately", "Restore normal service operation quickly", "Prevent all future incidents", "Assign blame for the incident"],
+      "answer": 1,
+      "explanation": "The primary goal of ITIL Incident Management is to restore normal service operation as quickly as possible to minimize business impact."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Which phase of RCA involves defining what happened, when, and where?",
+      "choices": ["Identify root cause", "Collect data", "Implement fix", "Verify resolution"],
+      "answer": 1,
+      "explanation": "Data collection is the second step in RCA, following incident description, to gather facts and evidence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "In ITIL, who is typically responsible for initial incident logging?",
+      "choices": ["IT Director", "Service Desk", "Change Manager", "Problem Manager"],
+      "answer": 1,
+      "explanation": "The Service Desk is the primary point of contact and handles initial incident logging and categorization."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Which ITIL process is most closely related to finding the root cause of recurring incidents?",
+      "choices": ["Incident Management", "Problem Management", "Change Management", "Access Management"],
+      "answer": 1,
+      "explanation": "Problem Management aims to prevent recurrence of incidents by identifying and fixing root causes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "What does RCA stand for?",
+      "choices": ["Root Cause Analysis", "Rapid Corrective Action", "Resource Capacity Assessment", "Risk Control Assessment"],
+      "answer": 0,
+      "explanation": "RCA stands for Root Cause Analysis, a structured method used to identify the underlying cause of an incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Which of the following is a key principle of effective incident classification in ITIL?",
+      "choices": ["Use vague categories to cover all cases", "Classify based on urgency and impact", "Always assign to the same group", "Ignore business impact"],
+      "answer": 1,
+      "explanation": "Incidents are classified based on impact and urgency to prioritize response and resolution efforts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "During RCA, the '5 Whys' technique is primarily used to:",
+      "choices": ["Assign blame to individuals", "Quickly close the incident", "Drill down to the root cause", "Document the incident timeline"],
+      "answer": 2,
+      "explanation": "The 5 Whys technique involves repeatedly asking 'why' to drill through symptoms and uncover the root cause of a problem."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Which ITIL lifecycle stage includes incident management?",
+      "choices": ["Service Strategy", "Service Design", "Service Operation", "Continual Service Improvement"],
+      "answer": 2,
+      "explanation": "Incident Management is a core process within the Service Operation stage of the ITIL lifecycle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "What is the main output of the RCA process?",
+      "choices": ["A list of all incidents", "A permanent fix or workaround that prevents recurrence", "A new service request", "A budget approval document"],
+      "answer": 1,
+      "explanation": "The primary goal of RCA is to identify and eliminate the root cause, resulting in a fix or workaround that prevents future recurrences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "In incident management, 'normal service operation' refers to:",
+      "choices": ["Maximum system uptime regardless of cost", "Service levels agreed upon with the business", "Complete elimination of all incidents", "Automatic resolution of all tickets"],
+      "answer": 1,
+      "explanation": "'Normal service operation' in ITIL means services are operating at the levels agreed upon in service level agreements (SLAs) with the business."
+    }
+  ]
+}

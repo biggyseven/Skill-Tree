@@ -166,6 +166,126 @@
       ],
       "answer": 0,
       "explanation": "Avant d'utiliser une adresse, IPv6 envoie une Neighbor Solicitation pour elle-même (DAD, RFC 4862). Si une NA arrive, l'adresse est dupliquée (EUI-64 identique, clone de VM, configuration manuelle) ; elle passe en duplicate et n'est pas attribuée. Il faut corriger la source du doublon, activer les privacy extensions ou renuméroter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la longueur d’une adresse IPv6 ?",
+      "choices": [
+        "32 bits",
+        "48 bits",
+        "64 bits dans tous les cas",
+        "128 bits"
+      ],
+      "answer": 3,
+      "explanation": "IPv6 dispose d’un espace d’adressage de 128 bits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle écriture est une abréviation IPv6 valide de 2001:0db8:0000:0000:0000:0000:0000:0025 ?",
+      "choices": [
+        "2001:db8::25",
+        "2001::db8::25",
+        "2001:db8:25::25::",
+        "2001.db8.25"
+      ],
+      "answer": 0,
+      "explanation": "Les zéros de tête d’un groupe peuvent être omis et une séquence de groupes nuls peut être remplacée une seule fois par ::."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi correspond le préfixe IPv6 fe80::/10 ?",
+      "choices": [
+        "Loopback",
+        "Link-local",
+        "Multicast global",
+        "Adresse IPv4 privée"
+      ],
+      "answer": 1,
+      "explanation": "Les adresses fe80::/10 sont des adresses de lien local, utilisées entre autres par NDP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle adresse IPv6 est l’adresse de loopback ?",
+      "choices": [
+        "::",
+        "ff02::1",
+        "::1",
+        "fe80::1"
+      ],
+      "answer": 2,
+      "explanation": "::1 désigne la machine locale. :: est l’adresse non spécifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement SLAAC ?",
+      "choices": [
+        "Un serveur DHCPv4 doit attribuer chaque adresse IPv6",
+        "Un hôte peut former automatiquement une adresse grâce aux informations locales et au préfixe annoncé par un routeur",
+        "SLAAC est un protocole de chiffrement",
+        "SLAAC remplace la table de routage"
+      ],
+      "answer": 1,
+      "explanation": "SLAAC permet l’autoconfiguration à partir d’informations locales et d’annonces de routeurs ; DHCPv6 peut coexister."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel message NDP est envoyé par un hôte pour solliciter rapidement une annonce de routeur ?",
+      "choices": [
+        "Router Solicitation (RS)",
+        "Neighbor Advertisement (NA)",
+        "Redirect",
+        "ARP Reply"
+      ],
+      "answer": 0,
+      "explanation": "Une RS demande aux routeurs du lien d’envoyer un Router Advertisement sans attendre l’annonce périodique suivante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d’un Router Advertisement (RA) ?",
+      "choices": [
+        "Annoncer la présence d’un routeur et transmettre des préfixes ou paramètres IPv6",
+        "Résoudre un nom de domaine en adresse MAC",
+        "Attribuer une adresse MAC à un commutateur",
+        "Remplacer tous les paquets ICMPv6"
+      ],
+      "answer": 0,
+      "explanation": "Les RA communiquent des informations nécessaires à la découverte de routeur et peuvent annoncer les préfixes utilisés par SLAAC."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel couple de messages NDP est utilisé pour la résolution de l’adresse de couche 2 d’un voisin ?",
+      "choices": [
+        "RS et RA",
+        "NS et NA",
+        "TCP SYN et ACK",
+        "DHCP Discover et Offer"
+      ],
+      "answer": 1,
+      "explanation": "Neighbor Solicitation demande des informations sur le voisin ; Neighbor Advertisement fournit une réponse ou annonce pertinente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment IPv6 réalise-t-il une découverte de voisins sur le lien local, en l’absence de broadcast IPv6 ?",
+      "choices": [
+        "Avec le multicast et les messages NDP transportés par ICMPv6",
+        "Avec des broadcasts IPv4",
+        "Uniquement avec TCP",
+        "En diffusant la trame à toutes les adresses MAC Internet"
+      ],
+      "answer": 0,
+      "explanation": "IPv6 n’utilise pas le broadcast ; NDP s’appuie notamment sur des adresses multicast solicited-node."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert Duplicate Address Detection (DAD) ?",
+      "choices": [
+        "Vérifier qu’une adresse IPv6 envisagée n’est pas déjà utilisée sur le lien",
+        "Détecter les doublons de noms DNS sur Internet",
+        "Découvrir la vitesse du câble Ethernet",
+        "Chiffrer les Router Advertisements"
+      ],
+      "answer": 0,
+      "explanation": "DAD utilise des messages Neighbor Solicitation pour vérifier l’absence d’un autre nœud utilisant l’adresse candidate."
     }
   ]
 }

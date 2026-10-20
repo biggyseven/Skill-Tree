@@ -583,5 +583,332 @@
     "description": "Gérer la configuration de dizaines d'équipements avec des playbooks.",
     "prereqs": ["automation"],
     "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+    {
+    "id": "poe",
+    "title": "Power over Ethernet (PoE)",
+    "category": "Fondamentaux",
+    "order": 500,
+    "description": "Alimenter les équipements réseau via le câble Ethernet.",
+    "prereqs": ["cabling"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "etherchannel",
+    "title": "Agrégation de liens (EtherChannel/LACP)",
+    "category": "Couche 2 — Commutation",
+    "order": 501,
+    "description": "Combiner plusieurs liens physiques en un seul lien logique.",
+    "prereqs": ["vlan"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "vtp",
+    "title": "VTP et gestion des VLANs",
+    "category": "Couche 2 — Commutation",
+    "order": 502,
+    "description": "Propager la base de données VLAN entre les switchs.",
+    "prereqs": ["vlan"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "eigrp",
+    "title": "EIGRP",
+    "category": "Routage",
+    "order": 503,
+    "description": "Protocole de routage hybride Cisco.",
+    "prereqs": ["routing"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "pbr",
+    "title": "Policy-Based Routing (PBR)",
+    "category": "Routage",
+    "order": 504,
+    "description": "Router le trafic selon la source ou le port, et non la destination.",
+    "prereqs": ["routing"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "vxlan",
+    "title": "VXLAN et Datacenter",
+    "category": "Cloud & Automatisation",
+    "order": 505,
+    "description": "Encapsulation L2 sur un réseau L3 (overlay).",
+    "prereqs": ["vlan"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "spine-leaf",
+    "title": "Architecture Spine/Leaf",
+    "category": "Cloud & Automatisation",
+    "order": 506,
+    "description": "Topologie de datacenter moderne.",
+    "prereqs": ["etherchannel"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "ipsec",
+    "title": "VPN IPsec (IKEv2, ESP)",
+    "category": "Sécurité",
+    "order": 507,
+    "description": "Tunnels chiffrés de site à site.",
+    "prereqs": ["vpn"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "radius",
+    "title": "Authentification centralisée avec RADIUS",
+    "category": "Sécurité",
+    "order": 508,
+    "description": "Contrôle d'accès réseau via un serveur central.",
+    "prereqs": ["aaa"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "netmiko",
+    "title": "Scripting Réseau avec Python et Netmiko",
+    "category": "Cloud & Automatisation",
+    "order": 509,
+    "description": "Se connecter en SSH et configurer des routeurs avec Python.",
+    "prereqs": ["automation"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "restconf",
+    "title": "API RESTCONF et NETCONF",
+    "category": "Cloud & Automatisation",
+    "order": 510,
+    "description": "Configurer les équipements via des API HTTP/XML.",
+    "prereqs": ["automation"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+    {
+    "id": "aws-vpc",
+    "title": "AWS VPC (Virtual Private Cloud)",
+    "category": "Cloud",
+    "order": 601,
+    "description": "Concevoir un réseau virtuel dans AWS (Subnets, Route Tables, IGW).",
+    "prereqs": ["cloud"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "azure-vnet",
+    "title": "Azure VNet et Peering",
+    "category": "Cloud",
+    "order": 602,
+    "description": "Réseau virtuel Azure et interconnexion de VNets.",
+    "prereqs": ["cloud"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "sd-access",
+    "title": "Cisco SD-Access et Fabric",
+    "category": "Cloud & Automatisation",
+    "order": 603,
+    "description": "Architecture d'accès défini par logiciel (SDN) de Cisco.",
+    "prereqs": ["vxlan"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "wireguard",
+    "title": "VPN WireGuard",
+    "category": "Sécurité",
+    "order": 604,
+    "description": "VPN moderne, ultra-rapide et simple à configurer.",
+    "prereqs": ["vpn"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "pki",
+    "title": "PKI et Certificats (TLS/SSL)",
+    "category": "Sécurité",
+    "order": 605,
+    "description": "Autorités de certification, CSR et déploiement de certificats.",
+    "prereqs": ["aaa"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "wireshark",
+    "title": "Analyse de paquets avec Wireshark",
+    "category": "Exploitation",
+    "order": 606,
+    "description": "Capturer et analyser le trafic réseau pour le dépannage.",
+    "prereqs": ["troubleshooting"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "terraform",
+    "title": "Infrastructure as Code avec Terraform",
+    "category": "Cloud & Automatisation",
+    "order": 607,
+    "description": "Déployer l'infrastructure réseau via du code déclaratif.",
+    "prereqs": ["automation"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "bgp-advanced",
+    "title": "BGP Avancé",
+    "category": "Routage",
+    "order": 608,
+    "description": "Route Reflectors, attributs avancés et optimisation des chemins.",
+    "prereqs": ["bgp"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+    {
+    "id": "qos-advanced",
+    "title": "QoS Avancée (LLQ, CBWFQ, Shaping)",
+    "category": "Routage Avancé",
+    "order": 701,
+    "description": "Priorisation fine du trafic, files d'attente et limitation de débit.",
+    "prereqs": ["qos"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "multicast",
+    "title": "Multicast (PIM, IGMP)",
+    "category": "Routage Avancé",
+    "order": 702,
+    "description": "Routage de flux un-vers-plusieurs (vidéo, trading).",
+    "prereqs": ["routing"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "vrf",
+    "title": "VRF (Virtual Routing and Forwarding)",
+    "category": "Routage Avancé",
+    "order": 703,
+    "description": "Isolation de tables de routage sur un même équipement.",
+    "prereqs": ["routing"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "zero-trust-architecture",
+    "title": "Zero Trust et Micro-segmentation",
+    "category": "Sécurité",
+    "order": 704,
+    "description": "Ne jamais faire confiance, toujours vérifier (SASE, micro-segmentation).",
+    "prereqs": ["zero-trust"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "ddos-mitigation",
+    "title": "Attaques DDoS et Mitigation",
+    "category": "Sécurité",
+    "order": 705,
+    "description": "Comprendre les attaques volumétriques et les mécanismes de défense.",
+    "prereqs": ["firewall"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "layer2-security",
+    "title": "Sécurité L2 (ARP Spoofing, DHCP Snooping)",
+    "category": "Sécurité",
+    "order": 706,
+    "description": "Protéger la couche 2 contre l'empoisonnement ARP et les serveurs DHCP pirates.",
+    "prereqs": ["vlan"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "ids-ips",
+    "title": "IDS / IPS et Deep Packet Inspection",
+    "category": "Sécurité",
+    "order": 707,
+    "description": "Détecter et bloquer les intrusions avec Snort ou Suricata.",
+    "prereqs": ["firewall"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "napalm",
+    "title": "Automatisation avec NAPALM",
+    "category": "Cloud & Automatisation",
+    "order": 708,
+    "description": "Abstraction multi-constructeurs pour automatiser les équipements.",
+    "prereqs": ["automation"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "cicd-network",
+    "title": "CI/CD et Git pour le réseau",
+    "category": "Cloud & Automatisation",
+    "order": 709,
+    "description": "Versionner et déployer la configuration réseau via des pipelines.",
+    "prereqs": ["automation"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "netconf-yang",
+    "title": "NETCONF, YANG et RESTCONF",
+    "category": "Cloud & Automatisation",
+    "order": 710,
+    "description": "Modélisation de données et configuration programmatique.",
+    "prereqs": ["automation"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "itil-rca",
+    "title": "Gestion d'incident (ITIL et RCA)",
+    "category": "Exploitation",
+    "order": 711,
+    "description": "Méthodologie de résolution d'incidents et analyse des causes racines.",
+    "prereqs": ["troubleshooting"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "mtu-pmtud",
+    "title": "Dépannage MTU et PMTUD",
+    "category": "Exploitation",
+    "order": 712,
+    "description": "Résoudre les problèmes de fragmentation et de découverte de MTU.",
+    "prereqs": ["troubleshooting"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "wireshark-advanced",
+    "title": "Analyse Wireshark Avancée",
+    "category": "Exploitation",
+    "order": 713,
+    "description": "Filtres complexes, suivi de flux TCP et analyse de latence.",
+    "prereqs": ["wireshark"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+    {
+    "id": "sd-wan",
+    "title": "SD-WAN",
+    "category": "Cloud & Automatisation",
+    "order": 165,
+    "description": "Gestion centralisée et pilotage des liens WAN par logiciel.",
+    "prereqs": ["routing"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+    {
+    "id": "challenge-spine-leaf",
+    "type": "architecture",
+    "title": "Défi : Datacenter Spine/Leaf",
+    "category": "Défis d'Architecture",
+    "order": 310,
+    "description": "Conçois une architecture Datacenter moderne avec 2 routeurs Spine, 2 switchs Leaf et 4 serveurs. Chaque Leaf doit être relié aux deux Spine.",
+    "prereqs": ["spine-leaf"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
+    "challenge": {
+      "time_limit": 480,
+      "expected_topology": {
+        "nodes": {
+          "router": 2,
+          "switch": 2,
+          "server": 4
+        },
+        "connections": [
+          { "from": "router", "to": "switch" },
+          { "from": "router", "to": "switch" },
+          { "from": "router", "to": "switch" },
+          { "from": "router", "to": "switch" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" }
+        ]
+      }
+    }
   }
 ]

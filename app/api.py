@@ -42,7 +42,6 @@ from .engine import (
     BADGE_DEFINITIONS,
     DomainError,
     SkillTree,
-    check_badges,
     get_daily_plan,
     is_validated,
     requirement_met,
@@ -2106,3 +2105,68 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("app.api:app", host="127.0.0.1", port=8000, reload=True)
+
+@app.post("/api/shop/buy")
+def buy_item(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
+    item_id = payload.get("item_id")
+    price = payload.get("price")
+    
+    if not item_id or price is None:
+        raise HTTPException(status_code=422, detail="Item et prix requis.")
+        
+    stats = get_user_stats(tree.conn)
+    if stats["coins"] < price:
+        raise HTTPException(status_code=400, detail="Pas assez de SkillCoins.")
+        
+    tree.conn.execute("UPDATE user_stats SET coins = coins - ? WHERE id = 1", (price,))
+    tree.conn.execute(
+        "INSERT INTO shop_inventory (item_id, quantity) VALUES (?, 1) "
+        "ON CONFLICT(item_id) DO UPDATE SET quantity = quantity + 1", (item_id,)
+    )
+    tree.conn.commit()
+    return {"success": True, "new_balance": stats["coins"] - price}
+
+from fastapi.responses import FileResponse
+import tempfile, os, qrcode, io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import landscape, A4
+from reportlab.lib import colors
+
+@app.get("/api/certificate")
+def generate_certificate(tree: SkillTree = Depends(get_tree)):
+    stats = get_user_stats(tree.conn)
+    user_name = os.getenv("CERTIFICATE_NAME", "Étudiant SkillTree")
+    cert_id = f"ST-{datetime.now().year}-{random.randint(1000, 9999)}"
+    
+    # Création du PDF
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=landscape(A4))
+    
+    # Design
+    p.setFillColor(colors.HexColor("#0f172a"))
+    p.rect(0, 0, 842, 595, fill=True, stroke=False)
+    p.setFillColor(colors.white)
+    p.setFont("Helvetica-Bold", 36)
+    p.drawCentredString(421, 450, "Certificat de Réussite")
+    p.setFont("Helvetica", 20)
+    p.drawCentredString(421, 380, f"Décerné à {user_name}")
+    p.drawCentredString(421, 340, f"Niveau {stats['current_level']} - {stats['level_name']}")
+    p.drawCentredString(421, 300, f"ID: {cert_id}")
+    
+    # QR Code
+    qr = qrcode.make(f"http://localhost:8000/api/verify/{cert_id}")
+    qr_img = io.BytesIO()
+    qr.save(qr_img, format="PNG")
+    qr_img.seek(0)
+    from reportlab.lib.utils import ImageReader
+    p.drawImage(ImageReader(qr_img), 650, 50, width=120, height=120)
+    
+    p.save()
+    buffer.seek(0)
+    
+    # Sauvegarde temporaire
+    temp_path = os.path.join(tempfile.gettempdir(), f"certificat_{cert_id}.pdf")
+    with open(temp_path, "wb") as f:
+        f.write(buffer.read())
+        
+    return FileResponse(temp_path, media_type="application/pdf", filename=f"Certificat_{cert_id}.pdf")

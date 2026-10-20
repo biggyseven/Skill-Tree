@@ -1,0 +1,126 @@
+{
+  "node_id": "mtu-pmtud",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que représente la MTU sur un chemin réseau ?",
+      "choices": [
+        "La taille maximale de la charge utile au niveau Ethernet",
+        "La taille maximale d’un paquet IP pouvant circuler sur le chemin sans fragmentation",
+        "La taille maximale d’un segment TCP indépendamment de la MTU",
+        "La taille du paquet advertise par un serveur DNS"
+      ],
+      "answer": 1,
+      "explanation": "La MTU définit la taille maximale d’un paquet IP accepted par les interfaces traversées. Elle ne correspond donc pas directement à la charge utile de la couche 2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie PMTUD et quel est son objectif principal ?",
+      "choices": [
+        "Path MTU Discovery : déterminer dynamiquement la plus petite MTU utilisable sur le chemin",
+        "Primary Media Type Utility : détecter le type de câble réseau",
+        "Packet Management and Tunneling Utility : chiffrer les paquets IP",
+        "Protocol Maximum Transfer Unit : fixer une MTU identique sur tous les routeurs"
+      ],
+      "answer": 0,
+      "explanation": "PMTUD signifie Path MTU Discovery. Ce mécanisme permet aux extrémités dystore la MTU réellement disponible sur le chemin afin d’éviter une fragmentation inutile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels symptômes peuvent indiquer un problème de MTU ou de PMTUD ?",
+      "choices": [
+        "Toutes les requêtes DNS échouent, même avec de petits paquets",
+        "Les échanges de petite taille fonctionnent, mais les paquets volumineux ou les segments TCP volumineux expirent",
+        "Seule la couche Ethernet est affectée, sans impact sur IP",
+        "Le routeur ren continually un nouveau bail DHCP"
+      ],
+      "answer": 1,
+      "explanation": "Un problème de MTU se manifeste souvent par des connexions qui s’établissent puis se figent lors de l’envoi de données volumineuses, tandis que les petits échanges restent fonctionnels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur IPv4, que fait un routeur lorsqu’il reçoit un paquet trop grand pour la MTU de sa prochaine interface et que le bit DF est positionné ?",
+      "choices": [
+        "Il fragmente toujours le paquet, même si DF est positionné",
+        "Il accepte le paquet et laisse le routeur suivant le fragmenter",
+        "Il rejette le paquet et renvoie un message ICMP Destination Unreachable, type 3, code 4, contenant la MTU suivante",
+        "Il renvoie immédiatement un segment TCP RST à l’expéditeur"
+      ],
+      "answer": 2,
+      "explanation": "Lorsque DF est positionné, le routeur ne peut pas fragmenter. Il rejette le paquet et signale sa taille maximale utilisable à l’aide d’un message ICMP Fragmentation Needed."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment IPv6 gère-t-il un paquet dont la taille dépasse la MTU du lien de sortie ?",
+      "choices": [
+        "Les routeurs IPv6 fragmentent le paquet comme en IPv4",
+        "Les routeurs ne fragmentent pas et renvoient un message ICMPv6 Packet Too Big contenant la MTU utilisable",
+        "Le paquet est automatiquement réduit sans aucune notification",
+        "La MTU est toujours augmentée jusqu’à 1500 octets"
+      ],
+      "answer": 1,
+      "explanation": "En IPv6, les routeurs ne fragmentent jamais les paquets. Ils renvoient un message ICMPv6 Packet Too Big, ce qui permet à la source d’ajuster la taille de ses paquets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel message permet au mécanisme PMTUD d’obtenir la MTU utilisable sur le chemin ?",
+      "choices": [
+        "En IPv4, ICMP Destination Unreachable type 3 code 4 ; en IPv6, ICMPv6 Packet Too Big",
+        "En IPv4, ICMP Echo Reply ; en IPv6, Neighbor Discovery Advertisement",
+        "En IPv4, ICMP Time Exceeded ; en IPv6, ICMPv6 Redirect",
+        "Les messages ARP Request et ARP Reply"
+      ],
+      "answer": 0,
+      "explanation": "Les messages ICMP Fragmentation Needed en IPv4 et ICMPv6 Packet Too Big transportent une information de MTU que l’émetteur peut utiliser pour réduire ses paquets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle valeur maximale doit généralement être configurée pour le MSS TCP en IPv4, sans options d’en-tête IP ni TCP ?",
+      "choices": [
+        "MTU moins 20 octets",
+        "MTU moins 40 octets",
+        "La MTU entière",
+        "MTU moins 60 octets"
+      ],
+      "answer": 1,
+      "explanation": "Le MSS correspond à la charge utile TCP maximale. En IPv4, il vaut généralement PMTU moins 20 octets d’en-tête IP et 20 octets d’en-tête TCP. En IPv6, on soustrait généralement 60 octets au total."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode permet de tester la MTU d’un chemin sans autoriser la fragmentation IP ?",
+      "choices": [
+        "Envoyer un paquet de taille fixe et ignorer les réponses",
+        "Augmenter uniquement le TTL jusqu’à obtenir une erreur",
+        "Positionner DF, augmenter progressivement la taille du payload et repérer le premier échec, en tenant compte des en-têtes",
+        "Désactiver tous les messages ICMP avant le test"
+      ],
+      "answer": 2,
+      "explanation": "Un ping avec prohibition de fragmentation permet de déterminer la plus grande taille acceptée. La MTU obtenue doit inclure l’en-tête IP et les éventuels en-têtes ICMP ou_optionnels générés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que se passe-t-il si les messages ICMP Fragmentation Needed ou Packet Too Big sont bloqués par un pare-feu ou une appliance de sécurité ?",
+      "choices": [
+        "La MTU de toutes les interfaces est automatiquement augmentée",
+        "Seules les communications UDP restent possibles",
+        "Les échanges de petite taille peuvent fonctionner, mais PMTUD ne converge pas et les transferts TCP volumineux restent bloqués",
+        "Les routeurs recommencent immédiatement à fragmenter les paquets"
+      ],
+      "answer": 2,
+      "explanation": "Le blocage de ces messages ICMP empêche l’émetteur de connaître la MTU du chemin. Un contournement consiste notamment à autoriser les ICMP nécessaires, à réduire la MTU announcements ou à appliquer un MSS clamping."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un tunnel VPN ajoute un en-tête et réduit la MTU disponible sur le chemin. Quelle action est la plus adaptée ?",
+      "choices": [
+        "Augmenter la MTU physique pour compenser l’encapsulation",
+        "Ignorer la surcharge du tunnel, car elle n’affecte pas IP",
+        "Calculer la MTU réelle du tunnel, vérifier PMTUD et, si nécessaire, clamper le MSS TCP",
+        "Désactiver le bit DF sur tous les paquets pour éviter tout blocage"
+      ],
+      "answer": 2,
+      "explanation": "L’encapsulation réduit la MTU utile. Il faut en tenir compte dans la configuration et s’assurer que PMTUD fonctionne. Le MSS clamping peut empêcher les segments TCP de dépasser la MTU disponible."
+    }
+  ]
+}

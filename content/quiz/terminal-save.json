@@ -1,0 +1,13 @@
+{
+  "node_id": "terminal-save",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "terminal",
+      "prompt": "Quelle commande Cisco IOS permet de sauvegarder la configuration en cours dans la mémoire NVRAM ?",
+      "answer": "write memory",
+      "regex": "^(write memory|copy running-config startup-config|wr mem)$",
+      "explanation": "La commande 'write memory' (ou 'copy running-config startup-config') sauvegarde la configuration pour qu'elle soit conservée après un redémarrage."
+    }
+  ]
+}

@@ -1,24 +1,46 @@
-# Le modèle OSI
+# Le Modèle OSI et TCP/IP
 
-Le modèle **OSI** découpe les communications réseau en sept couches. Il sert
-de cadre commun pour comprendre où une fonction intervient et pour structurer
-un diagnostic.
+Le modèle OSI (Open Systems Interconnection) et le modèle TCP/IP sont les deux cadres de référence pour comprendre comment les données circulent sur un réseau.
 
-| Couche | Nom | Rôle et exemples |
-| --- | --- | --- |
-| 7 | Application | Services utilisés par les applications : HTTP, DNS, SSH |
-| 6 | Présentation | Représentation, encodage et chiffrement des données |
-| 5 | Session | Établissement et gestion des échanges entre applications |
-| 4 | Transport | Communication de bout en bout : TCP, UDP, ports |
-| 3 | Réseau | Adressage logique et acheminement : IP, routeurs |
-| 2 | Liaison de données | Trames, adresses MAC et commutation Ethernet |
-| 1 | Physique | Transmission des bits sur le support : cuivre, fibre, radio |
+## 1. Le modèle OSI (7 couches)
+Le modèle OSI est un modèle théorique qui décompose la communication réseau en 7 couches distinctes. Chaque couche a un rôle précis et fournit des services à la couche supérieure.
 
-Les couches basses transportent les données vers leur destination ; les
-couches hautes fournissent des services aux applications. Lors d'un incident,
-on peut partir du physique et remonter (*bottom-up*), partir du symptôme
-applicatif et descendre (*top-down*), ou isoler progressivement le segment en
-panne.
+1. **Physique** : Transmission des bits sur le support (câbles, ondes radio, fibre).
+2. **Liaison de données** : Encapsulation en trames, adressage MAC, détection d'erreurs (Ethernet, Wi-Fi).
+3. **Réseau** : Acheminement des paquets entre réseaux différents, adressage IP, routage (IP, ICMP).
+4. **Transport** : Segmentation, fiabilité, multiplexage par ports (TCP, UDP).
+5. **Session** : Établissement, gestion et fin des sessions de communication.
+6. **Présentation** : Formatage des données, chiffrement, compression (TLS, JPEG).
+7. **Application** : Interface avec l'utilisateur et les logiciels (HTTP, DNS, SSH).
 
-Le modèle est un outil de raisonnement, pas une description exacte de chaque
-protocole : certaines fonctions traversent plusieurs couches.
+### Moyen mnémotechnique
+Pour se souvenir de l'ordre (de la couche 7 à la 1) : **A**pplication, **P**résentation, **S**ession, **T**ransport, **R**éseau, **L**iaison, **P**hysique (A.P.S.T.R.L.P).
+
+## 2. Le modèle TCP/IP (4 couches)
+Le modèle TCP/IP est le modèle pratique utilisé sur Internet. Il regroupe certaines couches OSI.
+
+- **Application** (OSI 5, 6, 7) : HTTP, FTP, DNS, SMTP.
+- **Transport** (OSI 4) : TCP (fiable), UDP (rapide).
+- **Internet** (OSI 3) : IP (IPv4, IPv6), ICMP, ARP.
+- **Accès Réseau** (OSI 1, 2) : Ethernet, Wi-Fi, fibres.
+
+## 3. L'encapsulation
+Quand vous envoyez un message, les données descendent les couches et chaque couche ajoute son propre en-tête. C'est l'encapsulation.
+
+| Couche OSI | PDU (Protocole Data Unit) | Équipement typique |
+| :--- | :--- | :--- |
+| Application | Données | Serveurs, PC |
+| Transport | Segment (TCP) / Datagramme (UDP) | Pare-feu L4 |
+| Réseau | Paquet | Routeur |
+| Liaison | Trame | Switch |
+| Physique | Bits | Câble, Hub |
+
+Lors de la réception, c'est l'opération inverse : la **décapsulation**. Chaque couche lit son en-tête et passe le reste à la couche supérieure.
+
+## 4. Atelier de dépannage (Troubleshooting)
+La connaissance du modèle OSI permet de diagnostiquer les pannes efficacement.
+- **Couche 1** : Le câble est-il branché ? La LED est-elle allumée ?
+- **Couche 2** : L'adresse MAC est-elle apprise par le switch ? (Commande : `show mac address-table`).
+- **Couche 3** : Puis-je pinguer l'adresse IP distante ? (Commande : `ping`).
+- **Couche 4** : Le port est-il ouvert ? (Commande : `telnet <ip> <port>` ou `nc -zv`).
+- **Couche 7** : L'application répond-elle ? (Commande : `curl -v http://...`).

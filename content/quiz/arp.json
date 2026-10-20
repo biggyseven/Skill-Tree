@@ -166,6 +166,127 @@
       ],
       "answer": 3,
       "explanation": "La table neighbor a une taille finie (gc_thresh sous Linux, limites de plateforme). Quand elle est pleine, les nouvelles entrées ne peuvent pas être créées : paquets jetés, messages neighbor table overflow, connectivité intermittente vers les nouvelles destinations. Causes : scan massif, attaque, réseau très plat ; remèdes : augmenter les seuils, agréger, segmenter et limiter le scan."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement ARP dans un réseau IPv4 Ethernet ?",
+      "choices": [
+        "À traduire une adresse IPv4 en adresse MAC sur le lien local",
+        "À attribuer automatiquement une adresse IPv4",
+        "À chiffrer les paquets IP",
+        "À choisir la route la plus courte entre deux réseaux"
+      ],
+      "answer": 0,
+      "explanation": "ARP fournit la correspondance nécessaire pour encapsuler le paquet IP dans une trame Ethernet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "PC-A veut joindre une adresse IP située dans un autre sous-réseau. Quelle adresse MAC cherche-t-il généralement ?",
+      "choices": [
+        "La MAC du serveur distant directement",
+        "La MAC de sa passerelle ou du prochain saut",
+        "La MAC du serveur DNS dans tous les cas",
+        "La MAC de diffusion comme destination finale de chaque trame"
+      ],
+      "answer": 1,
+      "explanation": "La table de routage indique le prochain saut. Sur Ethernet, l’hôte résout généralement la MAC de la passerelle plutôt que celle de l’hôte distant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment une requête ARP Ethernet est-elle généralement envoyée ?",
+      "choices": [
+        "En unicast vers la MAC du serveur DNS",
+        "En multicast IPv6",
+        "En broadcast Ethernet sur le domaine de diffusion local",
+        "Uniquement au routeur via TCP"
+      ],
+      "answer": 2,
+      "explanation": "La requête ARP utilise généralement FF:FF:FF:FF:FF:FF pour joindre les hôtes du domaine de broadcast."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle du cache ARP ?",
+      "choices": [
+        "Stocker temporairement les correspondances IPv4/MAC",
+        "Stocker les clés TLS des sites web",
+        "Remplacer la table de routage IP",
+        "Convertir les noms DNS en adresses IPv4"
+      ],
+      "answer": 0,
+      "explanation": "Le cache évite de répéter une requête ARP à chaque envoi vers un voisin connu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande Windows permet habituellement d’afficher le cache ARP ?",
+      "choices": [
+        "ip route",
+        "arp -a",
+        "nslookup -cache",
+        "show ipv6 neighbors"
+      ],
+      "answer": 1,
+      "explanation": "La commande arp -a affiche les entrées du cache ARP dans Windows."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait un routeur qui utilise le Proxy ARP ?",
+      "choices": [
+        "Il chiffre les requêtes ARP",
+        "Il répond avec sa propre MAC pour une adresse qu’il peut atteindre par routage",
+        "Il attribue une adresse IPv6 à chaque hôte",
+        "Il désactive automatiquement toutes les tables ARP"
+      ],
+      "answer": 1,
+      "explanation": "Le routeur reçoit ensuite la trame et achemine le paquet IP vers la destination."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence distingue le Proxy ARP de l’ARP spoofing ?",
+      "choices": [
+        "Le Proxy ARP est une fonction réseau configurée ; l’ARP spoofing falsifie des associations IP/MAC",
+        "Ce sont deux noms pour le même protocole",
+        "Le Proxy ARP existe seulement en IPv6",
+        "L’ARP spoofing est une méthode officielle de découverte de routeur"
+      ],
+      "answer": 0,
+      "explanation": "Le Proxy ARP peut être légitime. Le spoofing vise à tromper les voisins au moyen d’informations falsifiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un effet possible de l’ARP spoofing ?",
+      "choices": [
+        "Augmenter la longueur d’une adresse IPv4",
+        "Intercepter ou détourner le trafic local",
+        "Créer automatiquement un tunnel chiffré sûr",
+        "Empêcher toute requête DNS sur Internet, dans tous les cas"
+      ],
+      "answer": 1,
+      "explanation": "Une entrée ARP empoisonnée peut faire passer le trafic par l’attaquant ou l’envoyer vers une destination incorrecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure réseau peut aider à réduire les risques d’ARP spoofing sur un commutateur géré ?",
+      "choices": [
+        "Dynamic ARP Inspection, souvent associée à DHCP snooping",
+        "Désactiver toutes les adresses MAC",
+        "Utiliser uniquement des câbles plus longs",
+        "Remplacer DNS par ARP"
+      ],
+      "answer": 0,
+      "explanation": "DAI peut vérifier des messages ARP à partir de liaisons fiables, souvent apprises via DHCP snooping ou des entrées configurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole remplit en IPv6 le rôle de résolution des voisins comparable à ARP ?",
+      "choices": [
+        "FTP",
+        "NDP, via des messages ICMPv6",
+        "DHCPv4 exclusivement",
+        "STP"
+      ],
+      "answer": 1,
+      "explanation": "IPv6 utilise Neighbor Discovery, notamment Neighbor Solicitation et Neighbor Advertisement, plutôt qu’ARP."
     }
   ]
 }
+

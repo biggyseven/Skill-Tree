@@ -1,7 +1,7 @@
 {
   "node_id": "terminal-interface",
-  "prompt": "Quelle commande Cisco IOS affiche l'état et l'adresse IP des interfaces ?",
+  "prompt": "Quelle commande Cisco IOS affiche l'état et les adresses IP des interfaces ?",
   "answer": "show ip interface brief",
-  "regex": "^\\s*show\\s+ip\\s+interface\\s+brief\\s*$",
-  "explanation": "show ip interface brief donne une vue synthétique des interfaces : adresse IP, état administratif et état protocolaire."
+  "regex": "^show\\s+ip\\s+interface\\s+brief$",
+  "explanation": "Cette commande donne un résumé de l'état (up/down) et des adresses IP des interfaces."
 }

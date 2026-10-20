@@ -1,0 +1,126 @@
+{
+  "node_id": "netconf-yang",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel transport et quel port standard sont utilisés par NETCONF ?",
+      "choices": [
+        "SSH sur le port TCP 830",
+        "HTTP sur le port TCP 80",
+        "SNMP sur le port TCP 161",
+        "Telnet sur le port TCP 23"
+      ],
+      "answer": 0,
+      "explanation": "NETCONF utilise généralement SSH comme transport, avec le port TCP 830 comme port standard."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal de YANG ?",
+      "choices": [
+        "Transporter les messages NETCONF sur le réseau",
+        "Modéliser de manière standardisée les données et les opérations d’un équipement",
+        "Définir le chiffrement des sessions SSH",
+        "Fournir uniquement une interface de management REST"
+      ],
+      "answer": 1,
+      "explanation": "YANG est un langage de modélisation utilisé pour décrire la structure, les types, les contraintes et les opérations des données d’un équipement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "En YANG, quelle construction permet de définir plusieurs valeurs simples pour un même nœud ?",
+      "choices": [
+        "container",
+        "augment",
+        "leaf-list",
+        "rpc"
+      ],
+      "answer": 2,
+      "explanation": "Une déclaration leaf-list définit une liste de valeurs simples, tandis qu’une liste YANG contient des entrées structurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet la déclaration YANG « augment » ?",
+      "choices": [
+        "Supprimer définitivement un module YANG",
+        "Remplacer toutes les données d’une feuille",
+        "Ajouter des nœuds à un nœud cible existant dans le modèle",
+        "Effectuer une requête HTTP de modification"
+      ],
+      "answer": 2,
+      "explanation": "L’instruction augment enrichit un nœud cible en lui ajoutant des sous-nœuds, souvent à partir d’un autre module."
+    },
+    {
+      "type": "qcm",
+      "prompt": "En YANG, que représente une déclaration « choice » ?",
+      "choices": [
+        "Un groupe de feuilles contenant obligatoirement plusieurs valeurs",
+        "Un ensemble d’alternatives dont une seule branche est généralement active",
+        "Une liste de modules importés",
+        "Un datatype obligatoirement numérique"
+      ],
+      "answer": 1,
+      "explanation": "Une instruction choice définit plusieurs cas possibles, dont un seul peut être sélectionné à la fois dans une instance de données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel message NETCONF est utilisé pendant le handshake pour annoncer et échanger les capacités des两端 ?",
+      "choices": [
+        "<close-session>",
+        "<commit>",
+        "<lock>",
+        "<hello>"
+      ],
+      "answer": 3,
+      "explanation": "Les messages <hello> permettent au client et au serveur d’échanger leurs identités et leurs capacités NETCONF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle opération NETCONF applique des modifications dans le datastore candidat avant leur validation vers le datastore actif ?",
+      "choices": [
+        "<get>",
+        "<kill-session>",
+        "<edit-config>",
+        "<discard-commit>"
+      ],
+      "answer": 2,
+      "explanation": "L’opération <edit-config> peut cibler le datastore candidat. Les modifications sont ensuite validées avec <commit>."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur quoi repose principalement RESTCONF ?",
+      "choices": [
+        "Sur des requêtes HTTP ou HTTPS manipulant des ressources identifiées par des URI",
+        "Sur des messages RPC XML tunnelingés dans SNMP",
+        "Sur le protocole Telnet uniquement",
+        "Sur un transport UDP sans session"
+      ],
+      "answer": 0,
+      "explanation": "RESTCONF est une API de management basée sur HTTP ou HTTPS, qui expose les données YANG sous forme de ressources manipulables via des URI."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type de média JSON est spécifiquement défini pour représenter des données YANG dans RESTCONF ?",
+      "choices": [
+        "application/netconf+json",
+        "text/yang-json",
+        "application/yang-data+json",
+        "application/restconf-xml"
+      ],
+      "answer": 2,
+      "explanation": "Le type de média application/yang-data+json est utilisé pour encoder des données YANG sous forme JSON dans RESTCONF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue correctement RESTCONF de NETCONF ?",
+      "choices": [
+        "RESTCONF utilise des opérations RPC XML, tandis que NETCONF repose sur des URI HTTP",
+        "RESTCONF expose des ressources via des URI et des méthodes HTTP, tandis que NETCONF utilise principalement des opérations RPC XML",
+        "Les deux protocoles sont identiques et utilisent exclusivement SNMP",
+        "NETCONF ne permet pas d’écrire de configuration, contrairement à RESTCONF"
+      ],
+      "answer": 1,
+      "explanation": "NETCONF est un protocole RPC basé sur XML, alors que RESTCONF expose les données sous forme de ressources HTTP adressables par des URI."
+    }
+  ]
+}

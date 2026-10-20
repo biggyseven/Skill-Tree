@@ -317,69 +317,51 @@ class SkillTree:
         return cursor.rowcount
 
 
-def check_badges(tree: SkillTree) -> list[dict]:
-    """Débloque les badges dont les conditions sont satisfaites.
+    def check_badges(self, node_id: str, kind: ProofKind, passed: bool, score: int) -> list[dict]:
+        """Vérifie et débloque les badges après une tentative."""
+        if not passed:
+            return []
 
-    La table ``badges`` ne contient que les succès déjà obtenus ; les
-    définitions restent dans ``BADGE_DEFINITIONS`` pour pouvoir faire évoluer
-    les libellés sans migration. Retourne uniquement les nouveaux badges.
-    """
-    conn = tree.conn
-    conditions = {
-        "first-blood": len(tree.validated_ids()) >= 1,
-        "war-machine": bool(
-            conn.execute(
-                "SELECT COUNT(DISTINCT node_id) FROM attempts"
-                " WHERE kind = 'lab' AND passed = 1"
-            ).fetchone()[0]
-            >= 5
-        ),
-        "architect": bool(
-            conn.execute("SELECT COUNT(*) FROM topologies").fetchone()[0] >= 1
-        ),
-        "flawless": bool(
-            conn.execute(
-                "SELECT COUNT(*) FROM exam_sessions"
-                " WHERE submitted = 1 AND passed = 1 AND score = 100"
-            ).fetchone()[0]
-            >= 1
-            or conn.execute(
-                "SELECT COUNT(*) FROM attempts"
-                " WHERE kind = 'exam' AND passed = 1 AND score = 100"
-            ).fetchone()[0]
-            >= 1
-        ),
-    }
+        unlocked = []
+        
+        # Liste des badges à vérifier
+        badges_to_check = [
+            ("first_blood", "Premier Sang", "Valider son premier nœud", "🩸"),
+            ("war_machine", "Machine de Guerre", "Valider 5 labs", "⚔️"),
+            ("flawless", "Sans Faute", "Avoir 100% à un examen", "💯"),
+            ("architect", "Architecte", "Sauvegarder une topologie", "📐")
+        ]
 
-    unlocked: list[dict] = []
-    unlocked_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    for badge_id, is_unlocked in conditions.items():
-        if not is_unlocked:
-            continue
-        definition = BADGE_DEFINITIONS[badge_id]
-        cursor = conn.execute(
-            "INSERT OR IGNORE INTO badges"
-            " (id, nom, description, icone, condition_debloquee_le)"
-            " VALUES (?, ?, ?, ?, ?)",
-            (
-                badge_id,
-                definition["nom"],
-                definition["description"],
-                definition["icone"],
-                unlocked_at,
-            ),
-        )
-        if cursor.rowcount:
-            unlocked.append(
-                {
-                    "id": badge_id,
-                    **definition,
-                    "condition_debloquee_le": unlocked_at,
-                }
+        # 1. Premier Sang
+        if node_id and kind == ProofKind.QUIZ:
+            total_validated = self.conn.execute("SELECT COUNT(DISTINCT node_id) FROM attempts WHERE passed = 1").fetchone()[0]
+            if total_validated >= 1:
+                self._unlock_badge("first_blood", "Premier Sang", "Valider son premier nœud", "🩸", unlocked)
+
+        # 2. Machine de Guerre (5 labs)
+        if kind == ProofKind.LAB:
+            total_labs = self.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind = 'lab' AND passed = 1").fetchone()[0]
+            if total_labs >= 5:
+                self._unlock_badge("war_machine", "Machine de Guerre", "Valider 5 labs", "⚔️", unlocked)
+
+        # 3. Sans Faute (100% à un examen)
+        if kind == ProofKind.EXAM and score == 100:
+            self._unlock_badge("flawless", "Sans Faute", "Avoir 100% à un examen", "💯", unlocked)
+
+        return unlocked
+
+    def _unlock_badge(self, badge_id: str, nom: str, desc: str, icone: str, unlocked_list: list):
+        """Fonction utilitaire pour insérer un badge s'il n'existe pas."""
+        from datetime import datetime
+        existing = self.conn.execute("SELECT id FROM badges WHERE id = ?", (badge_id,)).fetchone()
+        if not existing:
+            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.conn.execute(
+                "INSERT INTO badges (id, nom, description, icone, condition_debloquee_le) VALUES (?, ?, ?, ?, ?)",
+                (badge_id, nom, desc, icone, now)
             )
-    if unlocked:
-        conn.commit()
-    return unlocked
+            self.conn.commit()
+            unlocked_list.append({"id": badge_id, "nom": nom, "icone": icone})
 
 
 DAILY_REVIEW_AFTER_DAYS = 3

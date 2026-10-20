@@ -507,12 +507,15 @@ def award_attempt_xp(conn: sqlite3.Connection, kind: object, passed: bool = True
     if base_xp <= 0 and base_coins <= 0:
         return None
 
+    # Calcul du multiplicateur de streak
     days = streak_days(conn)
     multiplier = streak_multiplier(days)
     xp = int(round(base_xp * multiplier))
     coins = int(round(base_coins * multiplier))
+    
     before = get_user_stats(conn)
     stats = add_xp(conn, xp, coins)
+    
     return {
         "xp": xp,
         "coins": coins,

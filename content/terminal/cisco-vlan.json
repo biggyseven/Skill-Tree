@@ -1,7 +1,7 @@
 {
   "node_id": "cisco-vlan",
-  "prompt": "Configure ce port de switch en trunk 802.1Q.",
+  "prompt": "Quelle commande Cisco IOS configure un port switch en mode trunk ?",
   "answer": "switchport mode trunk",
-  "regex": "^\\s*switchport\\s+mode\\s+trunk\\s*$",
-  "explanation": "Cette commande place le port en mode trunk 802.1Q afin qu’il transporte plusieurs VLAN."
+  "regex": "^switchport\\s+mode\\s+trunk$",
+  "explanation": "La commande 'switchport mode trunk' force le port à transporter des trames de plusieurs VLANs."
 }

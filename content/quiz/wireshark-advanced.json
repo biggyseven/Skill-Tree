@@ -1,0 +1,76 @@
+{
+  "node_id": "wireshark-advanced",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Which Wireshark display filter displays only TCP packets with the SYN flag set?",
+      "choices": ["tcp.flags.syn == 1", "tcp.syn == true", "flags.syn == 1", "tcp.flags == SYN"],
+      "answer": 0,
+      "explanation": "The correct Wireshark display filter for TCP SYN packets is tcp.flags.syn == 1."
+    },
+    {
+      "type": "qcm",
+      "prompt": "What is the primary purpose of the 'Follow > TCP Stream' feature in Wireshark?",
+      "choices": ["To view the complete payload of a TCP connection in a separate window", "To filter packets by TCP sequence numbers", "To calculate TCP throughput", "To reset TCP connections"],
+      "answer": 0,
+      "explanation": "'Follow TCP Stream' reassembles and displays the data payload of a selected TCP connection."
+    },
+    {
+      "type": "qcm",
+      "prompt": "How does Wireshark typically handle HTTP/2 traffic by default?",
+      "choices": ["It automatically decrypts HTTPS using pre-master secrets", "It displays HTTP/2 frames and headers in the HTTP protocol tree", "It converts HTTP/2 to HTTP/1.1 automatically", "It requires a separate plugin for HTTP/2 analysis"],
+      "answer": 1,
+      "explanation": "Wireshark recognizes and parses HTTP/2 frames, displaying them under the HTTP protocol hierarchy."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Which menu path allows you to create a custom colorizing rule for HTTP traffic in Wireshark?",
+      "choices": ["Tools > Colorizing Rules", "View > Colorizing Rules", "Edit > Color Preferences", "Packet > Apply Color"],
+      "answer": 1,
+      "explanation": "Colorizing rules are managed via View > Colorizing Rules in Wireshark."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Which IO Graph type visualizes round-trip time estimates for TCP connections?",
+      "choices": ["Throughput", "Round Trip Time", "Packet Count", "Window Size"],
+      "answer": 1,
+      "explanation": "The Round Trip Time IO graph estimates RTT for tracked TCP connections."
+    },
+    {
+      "type": "qcm",
+      "prompt": "What does the 'Endpoints' statistic in Wireshark primarily show?",
+      "choices": ["Packet and byte counts per IP address", "TCP window sizes", "DNS resolution times", "HTTP response codes"],
+      "answer": 0,
+      "explanation": "Endpoints statistics summarize traffic per IP address, showing packets and bytes sent/received."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Why should name resolution be disabled during high-volume packet capture analysis in Wireshark?",
+      "choices": ["To increase capture speed and reduce CPU load", "To prevent packet loss due to DNS lookup timeouts", "To improve colorizing rule accuracy", "Both A and B"],
+      "answer": 3,
+      "explanation": "Disabling name resolution avoids DNS lookup delays and reduces system load, preventing potential capture issues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Which statement best describes Wireshark's 'Follow > UDP Stream' feature?",
+      "choices": ["Reassembles UDP packets into a continuous stream like TCP", "Displays UDP packets in hex only", "Cannot reassemble a continuous stream due to UDP's connectionless nature", "Automatically decrypts UDP payloads"],
+      "answer": 2,
+      "explanation": "UDP is connectionless, so Wireshark cannot reassemble a continuous stream; it simply lists packets in order."
+    },
+    {
+      "type": "qcm",
+      "prompt": "In Wireshark, how are HTTP request and response messages typically identified in a capture?",
+      "choices": ["By the presence of 'HTTP/' in the payload", "Using the HTTP protocol dissector and request/response tree expansion", "Through TCP flag analysis alone", "By default, they are not parsed"],
+      "answer": 1,
+      "explanation": "Wireshark's HTTP dissector identifies requests/responses and displays them under the HTTP tree with method, URI, status, etc."
+    },
+    {
+      "type": "qcm",
+      "prompt": "What does a 'Checksum error' indicator in Wireshark usually signify?",
+      "choices": ["The packet was captured on a wrong interface", "The packet data may be corrupted in transit", "The protocol dissector is misconfigured", "The packet is encrypted"],
+      "answer": 1,
+      "explanation": "A checksum error typically indicates that the packet's integrity check failed, suggesting possible corruption."
+    }
+  ]
+}
