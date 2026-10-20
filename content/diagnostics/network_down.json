@@ -1,0 +1,123 @@
+{
+  "id": "network_down",
+  "title": "Le réseau est down",
+  "description": "Ton poste ne joint plus la passerelle ni Internet. Tu es devant le switch et tu dois isoler la panne couche par couche, sans changer plusieurs paramètres à la fois.",
+  "start": "step-1",
+  "steps": {
+    "step-1": {
+      "situation": "Le réseau est down. Que fais-tu ?",
+      "choices": [
+        {
+          "id": "step-1-ping-gateway",
+          "label": "Je ping la passerelle",
+          "next": "step-2",
+          "correct": true
+        },
+        {
+          "id": "step-1-reboot-switch",
+          "label": "Je redémarre le switch",
+          "next": "failure-reboot",
+          "correct": false
+        }
+      ]
+    },
+    "step-2": {
+      "situation": "Le ping vers la passerelle échoue. Que fais-tu ?",
+      "choices": [
+        {
+          "id": "step-2-check-arp",
+          "label": "Je regarde la table ARP et l’adresse IP de mon poste",
+          "next": "step-3",
+          "correct": true
+        },
+        {
+          "id": "step-2-call-isp",
+          "label": "J’appelle immédiatement le FAI",
+          "next": "failure-isp",
+          "correct": false
+        }
+      ]
+    },
+    "step-3": {
+      "situation": "La table ARP est vide et l’interface semble sans adresse. Que fais-tu ?",
+      "choices": [
+        {
+          "id": "step-3-check-link",
+          "label": "Je vérifie le lien physique et l’état de l’interface avec ip link / show interface",
+          "next": "step-4",
+          "correct": true
+        },
+        {
+          "id": "step-3-reinstall",
+          "label": "Je réinstalle le système d’exploitation",
+          "next": "failure-reinstall",
+          "correct": false
+        }
+      ]
+    },
+    "step-4": {
+      "situation": "Le lien est up, mais aucune adresse IP n’est configurée sur l’interface. Que fais-tu ?",
+      "choices": [
+        {
+          "id": "step-4-check-ip",
+          "label": "Je vérifie l’adresse IP, le masque et la passerelle par défaut",
+          "next": "step-5",
+          "correct": true
+        },
+        {
+          "id": "step-4-static-route",
+          "label": "J’ajoute une route par défaut sans vérifier l’adresse IP",
+          "next": "failure-route",
+          "correct": false
+        }
+      ]
+    },
+    "step-5": {
+      "situation": "L’adresse IP du poste est dans le mauvais sous-réseau. Que fais-tu ?",
+      "choices": [
+        {
+          "id": "step-5-fix-ip",
+          "label": "Je corrige l’adresse IP et la passerelle, puis je teste le ping",
+          "next": "resolved",
+          "correct": true
+        },
+        {
+          "id": "step-5-wait-dhcp",
+          "label": "J’attends que le DHCP me donne une adresse sans vérifier le bail",
+          "next": "failure-dhcp",
+          "correct": false
+        }
+      ]
+    },
+    "resolved": {
+      "situation": "Le ping vers la passerelle et vers Internet fonctionne. Le réseau est rétabli.",
+      "outcome": "success",
+      "explanation": "Tu as isolé la panne couche par couche : lien, adressage IP puis passerelle. Le problème venait de la configuration IP du poste."
+    },
+    "failure-reboot": {
+      "situation": "Le switch redémarre et tout le monde perd temporairement le réseau.",
+      "outcome": "failure",
+      "explanation": "Redémarrer sans observation ne prouve pas la cause et peut aggraver l’incident. Commence par vérifier la couche locale avec un ping et l’état de l’interface."
+    },
+    "failure-isp": {
+      "situation": "Le FAI confirme que le lien est actif de son côté.",
+      "outcome": "failure",
+      "explanation": "Le FAI n’est pas le premier maillon à tester quand la passerelle locale ne répond pas. Il faut d’abord vérifier l’adressage et la couche 2."
+    },
+    "failure-reinstall": {
+      "situation": "La réinstallation prend du temps et le problème réseau est toujours présent.",
+      "outcome": "failure",
+      "explanation": "Une réinstallation est disproportionnée. Un diagnostic réseau commence par le lien physique, l’interface et l’adressage."
+    },
+    "failure-route": {
+      "situation": "La route par défaut est ajoutée, mais le poste n’a toujours pas d’adresse IP valide.",
+      "outcome": "failure",
+      "explanation": "Une route sans adresse IP source correcte ne peut pas fonctionner. Vérifie d’abord l’adresse, le masque et la passerelle."
+    },
+    "failure-dhcp": {
+      "situation": "Le bail DHCP reste absent et le poste ne peut pas joindre le réseau.",
+      "outcome": "failure",
+      "explanation": "Attendre sans vérifier le bail ne corrige pas une adresse hors sous-réseau. Il faut contrôler la configuration IP et la passerelle."
+    }
+  }
+}

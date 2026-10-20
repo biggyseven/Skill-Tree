@@ -1,17 +1,72 @@
 [
   {
+    "id": "intro-reseau",
+    "title": "Qu'est-ce qu'un réseau ?",
+    "category": "Fondamentaux",
+    "order": 1,
+    "description": "Les bases : LAN, WAN, client/serveur et topologies.",
+    "prereqs": [],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+  },
+  {
+    "id": "materiel-reseau",
+    "title": "Le matériel réseau",
+    "category": "Fondamentaux",
+    "order": 2,
+    "description": "Câbles, switch, routeur et box Internet.",
+    "prereqs": [],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+  },
+  {
+    "id": "adressage-debutant",
+    "title": "L'adressage IP pour les débutants",
+    "category": "Fondamentaux",
+    "order": 3,
+    "description": "IP publique/privée, DHCP, DNS et passerelle.",
+    "prereqs": [],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+  },
+  {
+    "id": "cabling",
+    "title": "Câblage et Normes",
+    "category": "Fondamentaux",
+    "order": 5,
+    "description": "Cuivre, fibre, normes T568A/B, catégories et connecteurs.",
+    "prereqs": [],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+  },
+  {
+    "id": "equipment",
+    "type": "architecture",
+    "title": "Équipements L1/L2",
+    "category": "Fondamentaux",
+    "order": 6,
+    "description": "Relie un PC à un switch, le switch au routeur, puis le routeur au cloud.",
+    "prereqs": [],
+    "requirements": [
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "manual", "min_score": 100 }
+    ],
+    "challenge": {
+      "time_limit": 180,
+      "expected_topology": {
+        "nodes": { "pc": 1, "switch": 1, "router": 1, "cloud": 1 },
+        "connections": [
+          { "from": "pc", "to": "switch" },
+          { "from": "switch", "to": "router" },
+          { "from": "router", "to": "cloud" }
+        ]
+      }
+    }
+  },
+  {
     "id": "osi",
     "title": "Modèle OSI & TCP/IP",
     "category": "Fondamentaux",
     "order": 10,
     "description": "Les 7 couches OSI, les 4 couches TCP/IP et l'encapsulation.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "tcp-udp",
@@ -19,15 +74,8 @@
     "category": "Fondamentaux",
     "order": 20,
     "description": "Fiabilité, fenêtrage, multiplexage par ports.",
-    "prereqs": [
-      "osi"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["osi"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ethernet",
@@ -35,15 +83,8 @@
     "category": "Couche 2 — Commutation",
     "order": 30,
     "description": "Trames, adressage MAC et apprentissage du switch.",
-    "prereqs": [
-      "osi"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["osi"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "vlan",
@@ -51,18 +92,10 @@
     "category": "Couche 2 — Commutation",
     "order": 40,
     "description": "Segmentation logique, ports access/trunk, VLAN natif.",
-    "prereqs": [
-      "ethernet"
-    ],
+    "prereqs": ["ethernet"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
     ]
   },
   {
@@ -71,14 +104,19 @@
     "category": "Couche 2 — Commutation",
     "order": 50,
     "description": "Élection du pont racine, états des ports, convergence.",
-    "prereqs": [
-      "vlan"
-    ],
+    "prereqs": ["vlan"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+  },
+  {
+    "id": "wifi",
+    "title": "Wi-Fi 802.11",
+    "category": "Couche 2 — Commutation",
+    "order": 55,
+    "description": "Bandes, canaux, WPA2/WPA3, roaming et contrôleurs WLC.",
+    "prereqs": ["ethernet"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "terminal", "min_score": 100 }
     ]
   },
   {
@@ -87,18 +125,10 @@
     "category": "Couche 3 — Adressage",
     "order": 60,
     "description": "Masques, découpage en sous-réseaux, adresses privées.",
-    "prereqs": [
-      "osi"
-    ],
+    "prereqs": ["osi"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
     ]
   },
   {
@@ -107,16 +137,8 @@
     "category": "Couche 3 — Adressage",
     "order": 70,
     "description": "Correspondance IP/MAC, cache ARP, proxy ARP.",
-    "prereqs": [
-      "ethernet",
-      "ipv4"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ethernet", "ipv4"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ipv6",
@@ -124,18 +146,10 @@
     "category": "Couche 3 — Adressage",
     "order": 80,
     "description": "Format, préfixes, link-local, SLAAC et Neighbor Discovery.",
-    "prereqs": [
-      "ipv4"
-    ],
+    "prereqs": ["ipv4"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "exam",
-        "min_score": 85
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "exam", "min_score": 85 }
     ]
   },
   {
@@ -144,18 +158,10 @@
     "category": "Couche 3 — Adressage",
     "order": 90,
     "description": "Traduction statique, dynamique et surcharge de ports.",
-    "prereqs": [
-      "ipv4"
-    ],
+    "prereqs": ["ipv4"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
     ]
   },
   {
@@ -164,18 +170,22 @@
     "category": "Routage",
     "order": 100,
     "description": "Table de routage, next-hop, route par défaut.",
-    "prereqs": [
-      "ipv4"
-    ],
+    "prereqs": ["ipv4"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
+    ]
+  },
+  {
+    "id": "ha",
+    "title": "Haute Disponibilité",
+    "category": "Routage",
+    "order": 105,
+    "description": "VRRP, HSRP, LACP et redondance de liens.",
+    "prereqs": ["routing"],
+    "requirements": [
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
     ]
   },
   {
@@ -184,19 +194,20 @@
     "category": "Routage",
     "order": 110,
     "description": "Voisinage, LSDB, coût, areas et LSA.",
-    "prereqs": [
-      "routing"
-    ],
+    "prereqs": ["routing"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
     ]
+  },
+  {
+    "id": "ospf-advanced",
+    "title": "OSPF Avancé",
+    "category": "Routage",
+    "order": 115,
+    "description": "Aires Stub/NSSA, redistribution et LSAs avancés.",
+    "prereqs": ["ospf"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "bgp",
@@ -204,18 +215,10 @@
     "category": "Routage",
     "order": 120,
     "description": "Sessions eBGP/iBGP, AS_PATH et sélection de route.",
-    "prereqs": [
-      "ospf"
-    ],
+    "prereqs": ["ospf"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "exam",
-        "min_score": 85
-      }
+      { "kind": "quiz", "min_score": 85 },
+      { "kind": "exam", "min_score": 85 }
     ]
   },
   {
@@ -224,57 +227,121 @@
     "category": "Services",
     "order": 130,
     "description": "Bail DHCP, résolution de noms et enregistrements.",
-    "prereqs": [
-      "ipv4"
-    ],
+    "prereqs": ["ipv4"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
     ]
+  },
+  {
+    "id": "dns-advanced",
+    "title": "DNS avancé",
+    "category": "Services",
+    "order": 132,
+    "description": "Zones, MX/TXT/PTR, DNSSEC et attaques DNS.",
+    "prereqs": ["dhcp-dns"],
+    "requirements": [
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
+    ]
+  },
+  {
+    "id": "ntp-syslog",
+    "title": "NTP & Syslog",
+    "category": "Services",
+    "order": 134,
+    "description": "Synchronisation NTP et centralisation Syslog.",
+    "prereqs": ["dhcp-dns"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "acl",
     "title": "ACL & filtrage",
     "category": "Sécurité",
     "order": 140,
-    "description": "ACL standard/étendue, placement et deny implicite.",
-    "prereqs": [
-      "routing"
-    ],
+    "description": "ACL standard/étendue et deny implicite.",
+    "prereqs": ["routing"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
     ]
+  },
+  {
+    "id": "firewall",
+    "title": "Pare-feu & NGFW",
+    "category": "Sécurité",
+    "order": 142,
+    "description": "Firewall stateful, zones, NAT et DPI.",
+    "prereqs": ["acl"],
+    "requirements": [
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "lab", "min_score": 100 }
+    ]
+  },
+  {
+    "id": "vpn",
+    "title": "VPN & tunnels",
+    "category": "Sécurité",
+    "order": 144,
+    "description": "IPsec, IKEv2, SSL/TLS et WireGuard.",
+    "prereqs": ["acl"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+  },
+  {
+    "id": "aaa",
+    "title": "Authentification réseau (AAA)",
+    "category": "Sécurité",
+    "order": 146,
+    "description": "AAA, RADIUS, TACACS+ et 802.1X.",
+    "prereqs": ["acl"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "troubleshooting",
     "title": "Méthodologie de dépannage",
     "category": "Exploitation",
     "order": 150,
-    "description": "Diagnostic structuré, outils et preuve d'un incident réel.",
-    "prereqs": [
-      "arp",
-      "dhcp-dns",
-      "routing"
-    ],
+    "description": "Diagnostic structuré et preuve d'un incident réel.",
+    "prereqs": ["arp", "dhcp-dns", "routing"],
     "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
+      { "kind": "quiz", "min_score": 85 },
+      { "kind": "manual", "min_score": 100 }
     ]
+  },
+  {
+    "id": "cloud",
+    "type": "architecture",
+    "title": "Cloud Networking",
+    "category": "Cloud & Automatisation",
+    "order": 160,
+    "description": "VPC avec deux subnets et passerelle Internet.",
+    "prereqs": [],
+    "requirements": [
+      { "kind": "quiz", "min_score": 80 },
+      { "kind": "manual", "min_score": 100 }
+    ],
+    "challenge": {
+      "time_limit": 240,
+      "expected_topology": {
+        "nodes": { "vpc": 1, "subnet": 2, "router": 1, "cloud": 1, "server": 1 },
+        "connections": [
+          { "from": "cloud", "to": "router" },
+          { "from": "router", "to": "vpc" },
+          { "from": "vpc", "to": "subnet" },
+          { "from": "vpc", "to": "subnet" },
+          { "from": "subnet", "to": "server" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "automation",
+    "title": "Automatisation Réseau",
+    "category": "Cloud & Automatisation",
+    "order": 170,
+    "description": "API REST, Netmiko, Ansible et Jinja2.",
+    "prereqs": [],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "lab_netns",
@@ -282,63 +349,138 @@
     "category": "Labs pratiques",
     "order": 200,
     "description": "Configurer l'adressage et les routes entre 3 namespaces Linux.",
-    "prereqs": [
-      "routing"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["routing"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "lab_bridge",
     "title": "Lab : bridge Linux et connectivité L2",
     "category": "Labs pratiques",
     "order": 210,
-    "description": "Attacher deux veths à un bridge et valider la connectivité L2.",
-    "prereqs": [
-      "ethernet"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "description": "Attacher deux veths à un bridge.",
+    "prereqs": ["ethernet"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
+  },
+  {
+    "id": "lab_troubleshoot_vlan",
+    "title": "Lab : dépannage VLAN",
+    "category": "Labs pratiques",
+    "order": 215,
+    "description": "Erreur L2 volontaire à diagnostiquer.",
+    "prereqs": ["vlan"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
+  },
+  {
+    "id": "lab_tshoot_dns",
+    "title": "Lab : dépannage DNS",
+    "category": "Labs pratiques",
+    "order": 216,
+    "description": "Enregistrement DNS mal configuré.",
+    "prereqs": ["troubleshooting"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
+  },
+  {
+    "id": "lab_tshoot_route",
+    "title": "Lab : dépannage de routage",
+    "category": "Labs pratiques",
+    "order": 217,
+    "description": "Route par défaut manquante.",
+    "prereqs": ["troubleshooting"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
+  },
+  {
+    "id": "lab_tshoot_mtu",
+    "title": "Lab : dépannage MTU",
+    "category": "Labs pratiques",
+    "order": 218,
+    "description": "MTU trop petit sur le chemin.",
+    "prereqs": ["troubleshooting"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "challenge-osi",
     "type": "architecture",
     "title": "Défi d'architecture : réseau de bureau",
-    "category": "Défis d'architecture",
+    "category": "Défis d'Architecture",
     "order": 220,
-    "description": "Connecte un Routeur à un Switch et un PC en 120 secondes.",
+    "description": "Connecte un Routeur à un Switch et un PC.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
     "challenge": {
       "time_limit": 120,
       "expected_topology": {
-        "nodes": {
-          "router": 1,
-          "switch": 1,
-          "pc": 1
-        },
+        "nodes": { "router": 1, "switch": 1, "pc": 1 },
         "connections": [
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "pc"
-          }
+          { "from": "router", "to": "switch" },
+          { "from": "switch", "to": "pc" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-small-business",
+    "type": "architecture",
+    "title": "Défi : Réseau PME (Small Business)",
+    "category": "Défis d'Architecture",
+    "order": 301,
+    "description": "Concevoir un réseau d'entreprise sécurisé (Cloud, Firewall, Routeur, Switch, PC, Serveur).",
+    "prereqs": ["challenge-osi"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
+    "challenge": {
+      "time_limit": 300,
+      "expected_topology": {
+        "nodes": { "cloud": 1, "firewall": 1, "router": 1, "switch": 1, "pc": 1, "server": 1 },
+        "connections": [
+          { "from": "cloud", "to": "firewall" },
+          { "from": "firewall", "to": "router" },
+          { "from": "router", "to": "switch" },
+          { "from": "switch", "to": "pc" },
+          { "from": "switch", "to": "server" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-datacenter",
+    "type": "architecture",
+    "title": "Défi : Datacenter Redondant",
+    "category": "Défis d'Architecture",
+    "order": 302,
+    "description": "Architecture haute disponibilité avec redondance des liens (Full Mesh).",
+    "prereqs": ["challenge-small-business"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
+    "challenge": {
+      "time_limit": 420,
+      "expected_topology": {
+        "nodes": { "router": 2, "switch": 2, "server": 2 },
+        "connections": [
+          { "from": "router", "to": "switch" },
+          { "from": "router", "to": "switch" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-hybrid-cloud",
+    "type": "architecture",
+    "title": "Défi : Architecture Hybride (Cloud)",
+    "category": "Défis d'Architecture",
+    "order": 303,
+    "description": "Relier un réseau local sécurisé à un environnement Cloud (DMZ, VPC).",
+    "prereqs": ["challenge-datacenter"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
+    "challenge": {
+      "time_limit": 360,
+      "expected_topology": {
+        "nodes": { "cloud": 1, "firewall": 1, "router": 1, "switch": 2, "server": 2 },
+        "connections": [
+          { "from": "cloud", "to": "firewall" },
+          { "from": "firewall", "to": "switch" },
+          { "from": "switch", "to": "server" },
+          { "from": "firewall", "to": "router" },
+          { "from": "router", "to": "switch" }
         ]
       }
     }
@@ -350,11 +492,96 @@
     "order": 230,
     "description": "Saisis une commande Cisco IOS pour configurer un port en trunk.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "terminal",
-        "min_score": 100
-      }
-    ]
+    "requirements": [{ "kind": "terminal", "min_score": 100 }]
+  },
+  {
+    "id": "terminal-routing",
+    "title": "Terminal : table de routage",
+    "category": "Terminal réseau",
+    "order": 231,
+    "description": "Saisis la commande Cisco IOS qui affiche la table de routage IPv4.",
+    "prereqs": [],
+    "requirements": [{ "kind": "terminal", "min_score": 100 }]
+  },
+  {
+    "id": "terminal-interface",
+    "title": "Terminal : état des interfaces",
+    "category": "Terminal réseau",
+    "order": 232,
+    "description": "Saisis la commande Cisco IOS qui affiche l'état des interfaces.",
+    "prereqs": [],
+    "requirements": [{ "kind": "terminal", "min_score": 100 }]
+  },
+  {
+    "id": "terminal-vlan",
+    "title": "Terminal : VLAN configurés",
+    "category": "Terminal réseau",
+    "order": 233,
+    "description": "Saisis la commande Cisco IOS qui affiche les VLAN configurés.",
+    "prereqs": [],
+    "requirements": [{ "kind": "terminal", "min_score": 100 }]
+  },
+  {
+    "id": "terminal-trunk",
+    "title": "Terminal : trunk VLAN 10 et 20",
+    "category": "Terminal réseau",
+    "order": 234,
+    "description": "Saisis la commande qui configure un trunk autorisant uniquement les VLAN 10 et 20.",
+    "prereqs": [],
+    "requirements": [{ "kind": "terminal", "min_score": 100 }]
+  },
+  {
+    "id": "terminal-save",
+    "title": "Terminal : sauvegarde de configuration",
+    "category": "Terminal réseau",
+    "order": 235,
+    "description": "Saisis une commande Cisco IOS qui sauvegarde la configuration.",
+    "prereqs": [],
+    "requirements": [{ "kind": "terminal", "min_score": 100 }]
+  },
+    {
+    "id": "mpls",
+    "title": "MPLS et VRF",
+    "category": "Routage Avancé",
+    "order": 400,
+    "description": "Comprendre les labels MPLS et l'isolation des réseaux avec les VRF.",
+    "prereqs": ["bgp"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "qos",
+    "title": "Qualité de Service (QoS)",
+    "category": "Routage Avancé",
+    "order": 401,
+    "description": "Marquage, files d'attente et priorisation du trafic.",
+    "prereqs": ["routing"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "sdwan",
+    "title": "SD-WAN",
+    "category": "Cloud & Automatisation",
+    "order": 402,
+    "description": "Gestion centralisée et pilotage des liens WAN par logiciel.",
+    "prereqs": ["routing"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "zero-trust",
+    "title": "Architecture Zero Trust",
+    "category": "Sécurité",
+    "order": 403,
+    "description": "Micro-segmentation et vérification continue des accès.",
+    "prereqs": ["firewall", "aaa"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "ansible",
+    "title": "Automatisation avec Ansible",
+    "category": "Cloud & Automatisation",
+    "order": 404,
+    "description": "Gérer la configuration de dizaines d'équipements avec des playbooks.",
+    "prereqs": ["automation"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
   }
 ]

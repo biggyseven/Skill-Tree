@@ -1,0 +1,8 @@
+{
+  "node_id": "lab_tshoot_route",
+  "kind": "docker",
+  "image": "skilltree/lab:latest",
+  "timeout": 120,
+  "prompt": "Deux réseaux ne communiquent pas. Le routeur r2 n'a pas de route pour renvoyer le trafic vers le réseau de h1. Ajoute la route par défaut manquante sur r2, puis vérifie le ping dans les deux sens.",
+  "hint": "Sur r2, la route doit pointer vers r1 : ip netns exec r2 ip route add default via 10.40.2.1. Vérifie ensuite avec ip netns exec r2 ip route et un ping depuis h1."
+}

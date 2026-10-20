@@ -1,0 +1,126 @@
+{
+  "node_id": "ospf-advanced",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle aire est la backbone area d'OSPF ?",
+      "choices": [
+        "L'aire 0",
+        "L'aire 1",
+        "L'aire 10",
+        "Toutes les aires sont backbone"
+      ],
+      "answer": 0,
+      "explanation": "L'aire 0 est la backbone area. Les autres aires sont généralement reliées à l'aire 0 par un ABR."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel LSA résume un réseau d'une autre aire ?",
+      "choices": [
+        "Type 1",
+        "Type 2",
+        "Type 3",
+        "Type 5"
+      ],
+      "answer": 2,
+      "explanation": "Le Type 3, Summary LSA, est annoncé par un ABR pour résumer les réseaux d'une aire vers une autre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel LSA annonce une route externe dans OSPF ?",
+      "choices": [
+        "Type 2",
+        "Type 5",
+        "Type 3",
+        "Type 1"
+      ],
+      "answer": 1,
+      "explanation": "Le Type 5, AS External LSA, est produit par un ASBR pour annoncer une route externe au domaine OSPF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type de route une aire Stub ne reçoit-elle pas ?",
+      "choices": [
+        "Les routes connectées",
+        "Les routes internes de l'aire",
+        "Les routes par défaut",
+        "Les routes externes Type 5"
+      ],
+      "answer": 3,
+      "explanation": "Une Stub ne reçoit pas les Type 5. L'ABR injecte une route par défaut pour joindre l'extérieur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel LSA une NSSA utilise-t-elle pour les routes externes locales ?",
+      "choices": [
+        "Le Type 7",
+        "Le Type 3",
+        "Le Type 2",
+        "Le Type 4"
+      ],
+      "answer": 0,
+      "explanation": "Une NSSA autorise un ASBR local à injecter des routes externes sous forme de Type 7. L'ABR peut les traduire en Type 5 vers l'aire 0."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lors d'une redistribution, que signifie metric-type 1 ?",
+      "choices": [
+        "Le coût externe est ignoré",
+        "Le coût externe est ajouté au coût interne",
+        "La route est toujours rejetée",
+        "Le coût est remplacé par la priorité du routeur"
+      ],
+      "answer": 1,
+      "explanation": "En Type 1, le coût externe s'ajoute au coût interne du chemin OSPF. En Type 2, seul le coût externe est généralement pris en compte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux voisins OSPF restent bloqués en ExStart. Quelle cause est fréquente ?",
+      "choices": [
+        "Une différence de MTU",
+        "Un problème de DNS",
+        "Un mauvais masque DHCP",
+        "Une route par défaut absente"
+      ],
+      "answer": 0,
+      "explanation": "Une MTU incompatible peut empêcher les échanges DBD et bloquer l'adjacence en ExStart. Il faut aligner les MTU ou corriger la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'un ABR ?",
+      "choices": [
+        "Il redistribue uniquement les routes statiques",
+        "Il élit le DR sur tous les segments",
+        "Il traduit les adresses MAC en IP",
+        "Il relie une aire à l'aire 0 et résume les routes"
+      ],
+      "answer": 3,
+      "explanation": "Un ABR possède des interfaces dans plusieurs aires, dont l'aire 0, et résume les informations entre les aires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le LSA Type 4 ?",
+      "choices": [
+        "À localiser l'ASBR",
+        "À annoncer un réseau interne",
+        "À élire le DR",
+        "À transporter les routes IPv6 uniquement"
+      ],
+      "answer": 0,
+      "explanation": "Le Type 4, ASBR Summary LSA, indique aux routeurs d'une aire où joindre l'ASBR qui annonce les routes externes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment éviter une boucle de redistribution entre deux protocoles ?",
+      "choices": [
+        "En supprimant toutes les routes connectées",
+        "En désactivant OSPF",
+        "En utilisant des tags et des route-maps",
+        "En changeant le Router ID à chaque redémarrage"
+      ],
+      "answer": 2,
+      "explanation": "Les tags permettent d'identifier l'origine d'une route ; les route-maps filtrent les routes qui ne doivent pas revenir dans leur protocole d'origine."
+    }
+  ]
+}

@@ -3,169 +3,124 @@
   "scope": "quiz",
   "questions": [
     {
-      "prompt": "Deux switches ont la même priorité de bridge dans le même VLAN. Lequel devient root ?",
+      "type": "qcm",
+      "prompt": "Deux switches ont la même priorité de bridge. Lequel devient root ?",
       "choices": [
         "Celui avec la plus grande adresse MAC",
-        "Celui avec le plus de ports",
         "Celui avec la plus petite adresse MAC",
-        "Celui avec le root guard activé"
-      ],
-      "answer": 2,
-      "explanation": "Le Bridge ID = priorité (2 octets) + adresse MAC (6 octets). La priorité la plus basse gagne ; à égalité, la plus petite MAC départage. Avec system-id-extension (PVST+), le VLAN est intégré à la priorité, donc chaque VLAN peut élire un root différent malgré des priorités de base identiques. Le root guard ne participe pas à l'élection : il bloque les BPDU supérieurs reçus."
-    },
-    {
-      "prompt": "En 802.1D, quelle est la différence entre les états listening et learning ?",
-      "choices": [
-        "Listening apprend les MAC sans forwarder ; learning forwarde déjà",
-        "Listening participe à l'élection mais n'apprend pas les MAC ; learning apprend les MAC sans encore forwarder",
-        "Listening dure 30 s, learning 15 s",
-        "Les deux forwardent mais n'apprennent pas"
+        "Celui qui a le plus de ports",
+        "Celui avec l'adresse IP la plus basse"
       ],
       "answer": 1,
-      "explanation": "Les deux états durent 15 s par défaut. Listening : le port émet et reçoit des BPDU, participe à l'élection, mais ne forwarde pas et n'apprend pas. Learning : il apprend les MAC source dans la table CAM, sans encore forwarder. Vient ensuite forwarding. RSTP supprime listening et regroupe blocking, listening et disabled dans discarding."
+      "explanation": "À priorité égale, c'est la plus petite adresse MAC qui départage les bridge ID. La priorité reste le premier critère d'élection."
     },
     {
-      "prompt": "Quelle est la différence entre loop guard et BPDU guard ?",
+      "type": "qcm",
+      "prompt": "Quel port un switch non-root choisit-il comme root port ?",
       "choices": [
-        "Loop guard désactive un port edge qui reçoit un BPDU ; BPDU guard bloque un port qui cesse d'en recevoir",
-        "Les deux font la même chose, seul le nom diffère",
-        "Loop guard s'applique aux trunks, BPDU guard aux VLAN",
-        "Loop guard empêche un port non-designated de passer forwarding si les BPDU cessent ; BPDU guard désactive un port edge qui reçoit un BPDU"
-      ],
-      "answer": 3,
-      "explanation": "Loop guard protège contre les liens unidirectionnels : si un port bloqué (non-designated) ne reçoit plus de BPDU, il passe en loop-inconsistent au lieu de forwarder et de créer une boucle. BPDU guard protège les ports edge/PortFast : recevoir un BPDU (un switch branché) provoque err-disable. Ce sont deux risques différents, souvent activés ensemble."
-    },
-    {
-      "prompt": "Pourquoi PVST+ permet-il d'élire un root bridge différent par VLAN ?",
-      "choices": [
-        "Parce qu'il désactive STP sur les VLAN sans trafic",
-        "Parce qu'il remplace les BPDU par des annonces CDP",
-        "Parce qu'il utilise une instance STP par VLAN et ajoute le VLAN ID à la priorité (system-id-extension)",
-        "Parce qu'il regroupe tous les VLAN dans une seule instance MST"
+        "Le port avec le plus grand numéro",
+        "Le port connecté à un PC",
+        "Le port avec le coût de chemin le plus faible vers le root",
+        "Le port avec la priorité la plus élevée"
       ],
       "answer": 2,
-      "explanation": "PVST+ fait tourner une instance 802.1D par VLAN ; la priorité effective intègre le VLAN via system-id-extension, ce qui autorise des topologies distinctes. Rapid PVST+ remplace 802.1D par RSTP par VLAN, avec convergence en moins d'une seconde. MSTP fait l'inverse : plusieurs VLAN partagent une même instance."
+      "explanation": "Le root port est le port qui offre le meilleur coût cumulé vers le root bridge. En cas d'égalité, on compare le bridge ID puis le port ID du voisin."
     },
     {
-      "prompt": "Qu'est-ce qui définit une région MSTP ?",
+      "type": "qcm",
+      "prompt": "Quel est l'ordre des états 802.1D avant le forwarding ?",
       "choices": [
-        "Le même nom de région, le même revision number et la même table de correspondance VLAN → instances",
-        "Le nom de domaine VTP",
-        "La même adresse MAC de root bridge",
-        "Le même mot de passe VTP"
+        "Blocking → Listening → Learning → Forwarding",
+        "Listening → Blocking → Learning → Forwarding",
+        "Learning → Listening → Blocking → Forwarding",
+        "Forwarding → Learning → Listening → Blocking"
       ],
       "answer": 0,
-      "explanation": "Une région MSTP regroupe les switches qui partagent exactement le nom, le revision number et la table VLAN-instance. Si un paramètre diffère, le switch appartient à une autre région et l'IST (instance 0) ne converge pas comme prévu. MSTP réduit le nombre d'instances par rapport à PVST+ tout en gardant des topologies par instance."
+      "explanation": "Un port 802.1D passe par Blocking, Listening, Learning puis Forwarding. Les timers par défaut rendent la convergence assez lente."
     },
     {
-      "prompt": "Un switch d'accès est configuré avec priorité 0 par erreur, et tout le trafic du VLAN converge vers lui. Quelle est la conséquence et la correction ?",
+      "type": "qcm",
+      "prompt": "Pendant l'état Learning, que fait un port STP ?",
       "choices": [
-        "Il a perdu ses BPDU et reste bloqué : redémarrer le switch",
-        "Il est devenu backup root : aucune correction n'est nécessaire",
-        "La priorité 0 désactive STP sur le VLAN : réactiver STP",
-        "Il est devenu root bridge : le trafic emprunte un chemin sous-optimal et le switch d'accès porte toute la topologie ; remettre une priorité plus haute et réserver le root au cœur"
+        "Il transmet les trames et n'apprend rien",
+        "Il est totalement désactivé",
+        "Il devient root port automatiquement",
+        "Il apprend les MAC mais ne transmet pas encore les trames utilisateur"
       ],
       "answer": 3,
-      "explanation": "La priorité la plus basse gagne l'élection ; 0 est la plus basse possible, donc ce switch devient root et tous les chemins sont recalculés vers lui. Un switch d'accès n'a ni la capacité ni la redondance voulues pour ce rôle. On fixe une priorité élevée sur les switches d'accès et une priorité basse (4096/8192) sur le cœur, avec root guard sur les ports d'accès."
+      "explanation": "Learning permet au switch de remplir sa table MAC sans transmettre le trafic utilisateur. C'est une étape de préparation avant le forwarding."
     },
     {
-      "prompt": "show spanning-tree indique un port en rôle alternate et le trafic ne passe pas par lui. Est-ce normal ?",
+      "type": "qcm",
+      "prompt": "Quels sont les états de port définis par RSTP ?",
       "choices": [
-        "Non : un port alternate doit toujours forwarder",
-        "Non : alternate signifie que le port est en err-disable",
-        "Oui : alternate est une voie de secours qui reste en discarding et ne prend le relais que si le root port ou le chemin principal tombe",
-        "Oui, mais uniquement en 802.1D ; en RSTP, alternate forwarde"
-      ],
-      "answer": 2,
-      "explanation": "En RSTP, alternate est un port qui reçoit des BPDU d'un autre switch et offre un chemin de secours vers la root ; il reste en discarding. Le root port est le chemin actif vers la root, les designated ports forwardent vers les segments, et backup couvre un hub partagé. Un alternate qui ne transmet pas est donc le fonctionnement attendu, pas une panne."
-    },
-    {
-      "prompt": "root guard est activé sur un port et reçoit un BPDU avec une priorité meilleure que le root actuel. Que se passe-t-il ?",
-      "choices": [
-        "Le port passe en root-inconsistent (bloqué) et cesse de transmettre le trafic utilisateur jusqu'à la disparition des BPDU supérieurs",
-        "Le switch local devient root à son tour",
-        "Le port est définitivement err-disabled et nécessite un shutdown/no shutdown",
-        "Le BPDU est simplement ignoré, le port reste forwarding"
-      ],
-      "answer": 0,
-      "explanation": "Root guard protège la place du root légitime : un BPDU supérieur reçu sur le port le place en root-inconsistent, bloqué pour le trafic, sans casser le reste de la topologie. Le port revient automatiquement quand les BPDU supérieurs cessent. Il se configure là où le root ne doit jamais être annoncé (côté accès ou vers l'extérieur), pas sur les liens du cœur."
-    },
-    {
-      "prompt": "Pourquoi est-il dangereux d'activer PortFast sur un port trunk reliant deux switches ?",
-      "choices": [
-        "Parce que PortFast désactive les BPDU sur tout le VLAN",
-        "Parce que PortFast convertit le trunk en access",
-        "Parce que PortFast augmente le coût du port à 1",
-        "Parce que le port passe immédiatement en forwarding sans passer par listening/learning, ce qui peut créer une boucle avant la convergence STP"
-      ],
-      "answer": 3,
-      "explanation": "PortFast suppose un hôte terminal : il saute les états intermédiaires et forwarde tout de suite. Sur un lien entre switches, du trafic peut passer avant que STP ait bloqué les liens redondants, donc boucle et tempête. PortFast ne s'utilise que sur les ports edge, avec BPDU guard pour couper le port si un switch y est branché."
-    },
-    {
-      "prompt": "Quels sont les coûts de port STP IEEE 802.1t pour 100 Mb/s, 1 Gb/s et 10 Gb/s ?",
-      "choices": [
-        "19, 4, 2",
-        "200 000, 20 000, 2 000",
-        "100, 19, 4",
-        "20 000, 2 000, 200"
+        "Blocking, Listening, Learning, Forwarding",
+        "Discarding, Learning, Forwarding",
+        "Disabled, Blocking, Forwarding",
+        "Listening, Forwarding, Root"
       ],
       "answer": 1,
-      "explanation": "802.1t utilise 200 000 pour 100 Mb/s, 20 000 pour 1 Gb/s et 2 000 pour 10 Gb/s. Les valeurs 19/4/2 sont les coûts historiques Cisco (802.1D) encore affichés sur certains équipements. Le coût est associé au port qui reçoit le BPDU et s'additionne le long du chemin ; il peut être forcé manuellement, avec un risque de topologie non voulue."
+      "explanation": "RSTP simplifie les états en Discarding, Learning et Forwarding. Les rôles root, designated, alternate et backup décrivent la fonction du port."
     },
     {
-      "prompt": "En 802.1D avec les temporisations par défaut (15 s listening, 15 s learning), quel est le délai de convergence au pire pour 3 switches traversés en cascade ?",
+      "type": "qcm",
+      "prompt": "Quel mécanisme RSTP permet une convergence rapide sur un lien point à point ?",
       "choices": [
-        "Environ 30 s",
-        "Environ 50 s",
-        "Environ 90 s",
-        "Moins d'une seconde"
+        "Le broadcast ARP",
+        "Le NAT",
+        "Le proposal/agreement",
+        "Le DHCP snooping"
       ],
       "answer": 2,
-      "explanation": "Chaque switch traversé doit passer listening puis learning, soit 30 s ; si les temporisations se cumulent le long de la cascade, le pire cas vaut 3 × 30 = 90 s, sans compter le max age pour détecter la perte du root. En pratique les temporisations se chevauchent partiellement, d'où la valeur usuelle de 30 à 50 s. RSTP converge en moins d'une seconde grâce à proposal/agreement."
+      "explanation": "RSTP utilise les échanges proposal/agreement pour synchroniser rapidement les ports et éviter les longs timers de 802.1D."
     },
     {
-      "prompt": "Avec system-id-extension, quelle priorité effective est utilisée pour le VLAN 10 si la priorité configurée est 32768 ?",
+      "type": "qcm",
+      "prompt": "Que fait BPDU Guard si un port edge reçoit un BPDU ?",
       "choices": [
-        "32768",
-        "32770",
-        "4096",
-        "32778"
-      ],
-      "answer": 3,
-      "explanation": "La priorité de bridge fait 16 bits : 4 bits de priorité + 12 bits de system-id-ext. En PVST+, l'extension vaut le VLAN ID : 32768 + 10 = 32778. C'est pour cela que deux switches avec la même priorité de base peuvent avoir des rôles différents selon le VLAN. L'élection compare ensuite la MAC."
-    },
-    {
-      "prompt": "La topologie STP est stable, mais le trafic entre deux bâtiments passe par un lien lent et saturé alors qu'un lien rapide existe. Quelle est la cause la plus probable ?",
-      "choices": [
-        "Le root bridge est mal placé ou les coûts STP sont déséquilibrés, donc le chemin actif n'est pas le plus court ou le plus rapide",
-        "Un BPDU guard mal configuré",
-        "PortFast est activé sur un trunk",
-        "Le VLAN natif est mal configuré"
+        "Il passe le port en err-disabled",
+        "Il augmente la priorité du switch",
+        "Il crée un nouveau VLAN",
+        "Il désactive le root bridge"
       ],
       "answer": 0,
-      "explanation": "STP choisit le chemin selon le coût cumulé vers la root, pas selon la bande passante réelle ni la latence. Un root mal placé ou un coût de port forcé peut laisser le lien rapide en alternate et faire passer tout le trafic par un lien à coût plus faible mais saturé. Vérifier `show spanning-tree root` et les coûts sur les ports, puis corriger la priorité du root ou les coûts."
+      "explanation": "BPDU Guard protège les ports destinés aux terminaux. Si un switch ou une boucle apparaît sur un port edge, le port est désactivé."
     },
     {
-      "prompt": "Un port configuré PortFast reçoit des BPDU. Que se passe-t-il avec BPDU guard activé ?",
+      "type": "qcm",
+      "prompt": "Que fait Root Guard sur un port qui reçoit un BPDU supérieur au root actuel ?",
       "choices": [
-        "Le port passe en root-inconsistent",
-        "Le port devient trunk automatiquement",
-        "Le port est err-disabled (ou bloqué) : un switch ou une boucle est branché sur un port censé être terminal",
-        "Les BPDU sont ignorées et le port reste forwarding"
-      ],
-      "answer": 2,
-      "explanation": "BPDU guard surveille les ports edge : recevoir un BPDU signifie qu'un équipement STP est branché, donc le port est err-disabled selon la configuration et une alerte est remontée. Il faut débrancher la source, corriger le câblage, puis faire shutdown/no shutdown ou activer errdisable recovery. Root guard, lui, réagit à un BPDU supérieur en root-inconsistent sans err-disable."
-    },
-    {
-      "prompt": "Deux switches se déclarent root bridge dans le même VLAN. Quelle est la cause la plus probable ?",
-      "choices": [
-        "Le VLAN est configuré en VTP transparent",
-        "PortFast est activé sur un port d'accès",
-        "Le coût du port est à 19",
-        "Ils ne s'échangent pas les BPDU : lien unidirectionnel, BPDU filtrées ou domaines/régions STP différents"
+        "Il élit ce port root port",
+        "Il supprime le VLAN",
+        "Il redémarre le switch",
+        "Il bloque le port en root-inconsistent"
       ],
       "answer": 3,
-      "explanation": "Dans un même domaine STP, un seul root peut exister : chaque switch compare les BPDU reçus et se range derrière le meilleur. Deux roots signifient que les BPDU ne circulent pas entre eux (filtrage, lien unidirectionnel, média qui bloque le multicast 01:80:C2:00:00:00) ou qu'ils sont dans des domaines ou régions différents (MSTP mal configuré, instances PVST+ distinctes). Vérifier la connectivité L2 et `show spanning-tree` des deux côtés."
+      "explanation": "Root Guard empêche un switch indésirable de devenir root en bloquant le port qui reçoit un BPDU supérieur. Le port reste bloqué tant que le BPDU est présent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur quels ports active-t-on normalement PortFast ?",
+      "choices": [
+        "Les trunks entre switches",
+        "Les ports access reliés à des postes ou des serveurs",
+        "Les ports uplink du root bridge",
+        "Tous les ports du réseau"
+      ],
+      "answer": 1,
+      "explanation": "PortFast est prévu pour les ports edge reliés à un seul terminal. Il ne faut pas l'activer sur un trunk ou un lien entre switches."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'un port alternate en RSTP ?",
+      "choices": [
+        "C'est le port principal vers le root",
+        "C'est un port réservé au management",
+        "C'est une voie de secours vers le root, en Discarding",
+        "C'est un port qui apprend les MAC sans forwarder"
+      ],
+      "answer": 2,
+      "explanation": "Un port alternate offre un chemin de secours vers le root. Il reste en Discarding et peut prendre le relais si le root port tombe."
     }
   ]
 }

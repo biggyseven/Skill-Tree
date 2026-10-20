@@ -1,0 +1,8 @@
+{
+  "node_id": "firewall",
+  "kind": "docker",
+  "image": "skilltree/lab:latest",
+  "timeout": 120,
+  "prompt": "Le routeur fw est en politique FORWARD DROP. Mets en place un firewall stateful avec conntrack : autorise le retour des connexions ESTABLISHED/RELATED, autorise le HTTP vers le serveur, et bloque les nouveaux ping entrants. Vérifie que HTTP passe et que le ping échoue.",
+  "hint": "Sur fw : iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT, puis iptables -A FORWARD -p tcp --dport 80 -m conntrack --ctstate NEW -j ACCEPT. La politique FORWARD est déjà DROP, donc ICMP reste bloqué. Teste avec wget et ping depuis client."
+}

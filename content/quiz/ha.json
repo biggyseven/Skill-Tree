@@ -1,0 +1,126 @@
+{
+  "node_id": "ha",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quels sont les deux rôles d'un routeur VRRP ?",
+      "choices": [
+        "Active et standby",
+        "Master et backup",
+        "Primary et secondary",
+        "Root et designated"
+      ],
+      "answer": 1,
+      "explanation": "VRRP utilise un routeur master et des routeurs backup. HSRP utilise les termes active et standby."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels sont les deux rôles d'un groupe HSRP ?",
+      "choices": [
+        "Master et backup",
+        "Root et leaf",
+        "Active et standby",
+        "Primary et DR"
+      ],
+      "answer": 2,
+      "explanation": "HSRP désigne un routeur active et un routeur standby qui partagent une adresse IP virtuelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment est choisi le routeur actif VRRP ou HSRP par défaut ?",
+      "choices": [
+        "Celui qui a la priorité la plus élevée",
+        "Celui qui a la plus petite adresse MAC",
+        "Celui qui a le plus de ports",
+        "Celui qui répond le plus vite au ping"
+      ],
+      "answer": 0,
+      "explanation": "La priorité la plus élevée l'emporte. En cas d'égalité, d'autres critères comme l'adresse IP ou le Router ID départagent selon le protocole."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur Cisco, la préemption HSRP est-elle activée par défaut ?",
+      "choices": [
+        "Oui, toujours",
+        "Oui, mais seulement en IPv6",
+        "Uniquement sur les switches",
+        "Non, elle doit être activée explicitement"
+      ],
+      "answer": 3,
+      "explanation": "La préemption HSRP est désactivée par défaut sur Cisco. Il faut la configurer si l'on veut que le routeur prioritaire reprenne le rôle après son retour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la plage de MAC virtuelle utilisée par VRRP ?",
+      "choices": [
+        "00:00:0C:07:AC:XX",
+        "00:00:5E:00:01:XX",
+        "FF:FF:FF:FF:FF:FF",
+        "01:80:C2:00:00:0E"
+      ],
+      "answer": 1,
+      "explanation": "VRRP utilise la plage 00:00:5E:00:01:XX, où XX dépend du groupe VRRP. HSRP utilise ses propres adresses MAC virtuelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour former une agrégation LACP, que faut-il au minimum ?",
+      "choices": [
+        "Au moins un côté en mode active",
+        "Les deux côtés en mode passive",
+        "Aucun côté ne doit négocier",
+        "Un seul lien physique"
+      ],
+      "answer": 0,
+      "explanation": "LACP nécessite au moins un côté actif. Deux côtés passifs ne lancent pas la négociation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment LACP répartit-il le trafic entre les liens d'un EtherChannel ?",
+      "choices": [
+        "Paquet par paquet, toujours en alternance",
+        "Uniquement selon l'adresse MAC source",
+        "Selon un hash calculé par flux",
+        "Il ne répartit jamais le trafic"
+      ],
+      "answer": 2,
+      "explanation": "Le switch calcule un hash à partir de paramètres comme les MAC, IP, ports ou VLAN. Tous les paquets d'un même flux peuvent donc rester sur le même lien."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels paramètres doivent être compatibles entre les membres d'un EtherChannel ?",
+      "choices": [
+        "Uniquement le nom des interfaces",
+        "La vitesse, le duplex, le VLAN et la MTU",
+        "Uniquement l'adresse IP",
+        "Uniquement le nom du switch"
+      ],
+      "answer": 1,
+      "explanation": "Les membres doivent avoir une configuration cohérente : vitesse, duplex, VLAN/trunk, MTU et paramètres STP. Une incohérence peut suspendre le lien."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mode de bonding Linux correspond à LACP ?",
+      "choices": [
+        "balance-rr",
+        "active-backup",
+        "802.3ad",
+        "broadcast"
+      ],
+      "answer": 2,
+      "explanation": "Le mode 802.3ad de Linux correspond à l'agrégation LACP. Il négocie avec le partenaire et agrège les liens compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert l'adresse IP virtuelle VRRP ou HSRP ?",
+      "choices": [
+        "À identifier le switch root",
+        "À servir de passerelle par défaut aux clients",
+        "À remplacer l'adresse MAC du serveur",
+        "À configurer le DNS"
+      ],
+      "answer": 1,
+      "explanation": "Les clients utilisent l'adresse virtuelle comme passerelle par défaut. Le routeur actif répond à l'ARP et route le trafic ; le backup prend le relais en cas de panne."
+    }
+  ]
+}

@@ -4,16 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Skill Tree — Admin Réseau Senior</title>
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="dark light">
 
   <script>
     /* Applique le thème mémorisé avant le premier rendu (évite le flash). */
     try {
       if (localStorage.getItem('skilltree-theme') === 'light') {
+        document.documentElement.classList.remove('dark');
         document.documentElement.classList.add('light');
       }
     } catch (error) { /* stockage indisponible */ }
   </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -23,15 +28,28 @@
         extend: {
           fontFamily: {
             sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-            mono: ['ui-monospace', 'SFMono-Regular', 'JetBrains Mono', 'Menlo', 'monospace'],
+            mono: ['JetBrains Mono', 'Fira Code', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
           },
         },
       },
     };
   </script>
 
+  <!-- Typographie Markdown : plugin officiel @tailwindcss/typography via CDN. -->
+  <script type="module">
+    import typography from 'https://esm.sh/@tailwindcss/typography@0.5.16?deps=tailwindcss@3.4.17';
+    if (window.tailwind) {
+      window.tailwind.config = {
+        ...window.tailwind.config,
+        plugins: [...(window.tailwind.config.plugins ?? []), typography],
+      };
+    }
+  </script>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
   <script defer src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -127,35 +145,215 @@
     .modal-scroll::-webkit-scrollbar-track { background: transparent; }
     .modal-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 999px; }
     .modal-scroll::-webkit-scrollbar-thumb:hover { background: #52525b; }
+    html.light .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; }
+    html.light .modal-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-    .lesson-prose { color: #d4d4d8; font-size: 0.925rem; line-height: 1.8; }
-    .lesson-prose :where(h1, h2, h3) { color: #fff; font-weight: 700; line-height: 1.3; }
-    .lesson-prose h1 { margin: 0 0 1rem; font-size: 1.5rem; }
-    .lesson-prose h2 { margin: 1.5rem 0 0.75rem; font-size: 1.2rem; }
-    .lesson-prose h3 { margin: 1.25rem 0 0.5rem; font-size: 1.05rem; }
-    .lesson-prose p, .lesson-prose ul, .lesson-prose ol, .lesson-prose table,
-    .lesson-prose blockquote, .lesson-prose pre { margin: 0.8rem 0; }
-    .lesson-prose ul, .lesson-prose ol { padding-left: 1.4rem; }
-    .lesson-prose ul { list-style: disc; }
-    .lesson-prose ol { list-style: decimal; }
-    .lesson-prose li + li { margin-top: 0.25rem; }
-    .lesson-prose strong { color: #fff; }
-    .lesson-prose code { border-radius: 0.3rem; background: rgba(255,255,255,.08); padding: .12rem .3rem; color: #a5f3fc; }
-    .lesson-prose pre { overflow-x: auto; border: 1px solid rgba(255,255,255,.12); border-radius: .75rem; background: #09090b; padding: 1rem; }
-    .lesson-prose pre code { background: transparent; padding: 0; }
-    .lesson-prose a { color: #67e8f9; text-decoration: underline; text-underline-offset: 3px; }
-    .lesson-prose blockquote { border-left: 2px solid rgba(255,255,255,.35); padding-left: 1rem; color: #a1a1aa; }
-    .lesson-prose table { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
-    .lesson-prose th, .lesson-prose td { border: 1px solid rgba(255,255,255,.16); padding: .45rem .65rem; text-align: left; }
-    .lesson-prose th { color: #fff; background: rgba(255,255,255,.06); }
-    html.light .lesson-prose { color: #3f3f46; }
-    html.light .lesson-prose :where(h1, h2, h3), html.light .lesson-prose strong { color: #09090b; }
-    html.light .lesson-prose code { background: rgba(0,0,0,.07); color: #0e7490; }
-    html.light .lesson-prose pre { border-color: rgba(0,0,0,.16); background: #f4f4f5; }
-    html.light .lesson-prose a { color: #0e7490; }
-    html.light .lesson-prose blockquote { border-color: rgba(0,0,0,.3); color: #52525b; }
-    html.light .lesson-prose th, html.light .lesson-prose td { border-color: rgba(0,0,0,.16); }
-    html.light .lesson-prose th { color: #09090b; background: rgba(0,0,0,.05); }
+    /* ---- Cours Markdown : lecture confortable et code lisible ---- */
+    .lesson-prose {
+      color: #d4d4d8;
+      font-size: 0.95rem;
+      line-height: 1.85;
+      max-width: none;
+    }
+    .lesson-prose :where(h1, h2, h3, h4) {
+      color: #fff;
+      font-weight: 700;
+      line-height: 1.3;
+      scroll-margin-top: 1.5rem;
+    }
+    .lesson-prose :where(p, li) { line-height: 1.85; }
+    .lesson-prose :where(strong) { color: #fff; }
+    .lesson-prose :where(a) {
+      color: #67e8f9;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .lesson-prose :where(code):not(pre code) {
+      border-radius: 0.3rem;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.12rem 0.32rem;
+      color: #a5f3fc;
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.86em;
+    }
+    .lesson-prose pre {
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scroll-behavior: smooth;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 0.8rem;
+      background: #1e1e1e;
+      padding: 1.05rem 1.15rem;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      line-height: 1.72;
+      tab-size: 4;
+      scrollbar-width: thin;
+      scrollbar-color: #52525b #1e1e1e;
+    }
+    .lesson-prose pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+      font: inherit;
+      white-space: pre;
+    }
+    .lesson-prose pre::-webkit-scrollbar { height: 9px; }
+    .lesson-prose pre::-webkit-scrollbar-track {
+      background: #1e1e1e;
+      border-radius: 999px;
+    }
+    .lesson-prose pre::-webkit-scrollbar-thumb {
+      border: 2px solid #1e1e1e;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #3f3f46, #52525b);
+    }
+    .lesson-prose pre::-webkit-scrollbar-thumb:hover { background: #71717a; }
+    .lesson-prose :where(blockquote) {
+      border-left: 3px solid rgba(255, 255, 255, 0.35);
+      padding-left: 1rem;
+      color: #a1a1aa;
+    }
+    .lesson-prose :where(table) {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+    }
+    .lesson-prose :where(th, td) {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 0.5rem 0.7rem;
+      text-align: left;
+    }
+    .lesson-prose :where(th) {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .lesson-prose :where(hr) { border-color: rgba(255, 255, 255, 0.12); }
+
+    html.light .lesson-prose { color: #334155; }
+    html.light .lesson-prose :where(h1, h2, h3, h4),
+    html.light .lesson-prose :where(strong) { color: #0f172a; }
+    html.light .lesson-prose :where(code):not(pre code) {
+      background: #e2e8f0;
+      color: #0e7490;
+    }
+    html.light .lesson-prose pre {
+      border-color: #cbd5e1;
+      background: #1e1e1e;
+    }
+    html.light .lesson-prose pre code { color: #e4e4e7; }
+    html.light .lesson-prose :where(a) { color: #0e7490; }
+    html.light .lesson-prose :where(blockquote) {
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+    html.light .lesson-prose :where(th, td) { border-color: #e2e8f0; }
+    html.light .lesson-prose :where(th) {
+      color: #0f172a;
+      background: #f1f5f9;
+    }
+
+    /* Bouton de copie des blocs de code Markdown. */
+    .code-block-wrapper {
+      position: relative;
+      margin: 1.5rem 0;
+    }
+    .lesson-prose .code-block-wrapper > pre {
+      margin: 0;
+      padding-right: 4.75rem;
+    }
+    .code-copy-btn {
+      position: absolute;
+      top: 0.55rem;
+      right: 0.55rem;
+      z-index: 2;
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      border-radius: 0.4rem;
+      background: rgba(0, 0, 0, 0.65);
+      padding: 0.25rem 0.5rem;
+      font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #d4d4d8;
+      text-transform: uppercase;
+      backdrop-filter: blur(6px);
+      transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+    }
+    .code-copy-btn:hover {
+      border-color: #67e8f9;
+      color: #a5f3fc;
+      background: rgba(8, 47, 73, 0.82);
+    }
+    .code-copy-btn.is-copied {
+      border-color: #a3e635;
+      color: #d9f99d;
+      background: rgba(26, 46, 5, 0.85);
+    }
+    .code-copy-btn.is-error {
+      border-color: #fb7185;
+      color: #fecdd3;
+    }
+
+    /* ---- Flashcards : retournement 3D ---- */
+    .flashcard-scene {
+      perspective: 1400px;
+    }
+    .flashcard-card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .flashcard-card.is-flipped {
+      transform: rotateY(180deg);
+    }
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      overflow-y: auto;
+      border-radius: 1.25rem;
+      padding: 2rem;
+      text-align: center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      box-shadow: 0 24px 70px -32px rgba(0, 0, 0, 0.85);
+    }
+    .flashcard-front {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: linear-gradient(135deg, rgba(217, 70, 239, 0.13), #09090b 46%, rgba(34, 211, 238, 0.12));
+    }
+    .flashcard-back {
+      border: 1px solid rgba(34, 211, 238, 0.28);
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), #09090b 46%, rgba(163, 230, 53, 0.10));
+      transform: rotateY(180deg);
+    }
+    .flashcard-question { color: #ffffff; }
+    .flashcard-answer { color: #cffafe; }
+    html.light .flashcard-front {
+      border-color: #e2e8f0;
+      background: linear-gradient(135deg, rgba(217, 70, 239, 0.08), #ffffff 46%, rgba(34, 211, 238, 0.08));
+    }
+    html.light .flashcard-back {
+      border-color: #bae6fd;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.10), #ffffff 46%, rgba(163, 230, 53, 0.08));
+    }
+    html.light .flashcard-question { color: #0f172a; }
+    html.light .flashcard-answer { color: #0e7490; }
+    .flashcard-face::-webkit-scrollbar { width: 6px; }
+    .flashcard-face::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.25);
+    }
+    html.light .flashcard-face { box-shadow: 0 24px 70px -32px rgba(15, 23, 42, 0.35); }
 
     /* ===================== Drawflow : thème noir & blanc ===================== */
     #drawflow {
@@ -270,58 +468,81 @@
     }
 
     /* ===================================================================
-       Thème clair « blanc fluo »
+       Thème clair slate
        Les utilitaires Tailwind utilisés dans la page sont réinterprétés
-       sous html.light : le reste (dégradés, glows) reste identique.
+       sous html.light : fond slate-50, texte slate-800, bordures slate-200.
        =================================================================== */
-    html.light { color-scheme: light; scrollbar-color: #d4d4d8 #ffffff; }
-    html.light ::selection { background: rgba(9, 9, 11, 0.15); color: #09090b; }
-    html.light body { background: #ffffff; color: #09090b; }
+    html { color-scheme: dark; }
+    html.light { color-scheme: light; scrollbar-color: #cbd5e1 #f8fafc; }
+    html.light ::selection { background: rgba(15, 23, 42, 0.16); color: #0f172a; }
+    html.light body,
+    html.light body.bg-black { background-color: #f8fafc; color: #1e293b; }
 
     html.light .bg-grid {
       background-image:
-        linear-gradient(to right, rgba(9, 9, 11, 0.06) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(9, 9, 11, 0.06) 1px, transparent 1px);
+        linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
     }
 
     html.light .bg-black { background-color: #ffffff; }
-    html.light .bg-black\/80 { background-color: rgba(255, 255, 255, 0.88); }
-    html.light .bg-black\/85 { background-color: rgba(255, 255, 255, 0.92); }
-    html.light .bg-white\/5 { background-color: rgba(9, 9, 11, 0.04); }
-    html.light .bg-white\/10 { background-color: rgba(9, 9, 11, 0.06); }
-    html.light .bg-white\/15 { background-color: rgba(9, 9, 11, 0.10); }
-    html.light .bg-white\/\[0\.03\] { background-color: rgba(9, 9, 11, 0.03); }
-    html.light .bg-white\/\[0\.04\] { background-color: rgba(9, 9, 11, 0.04); }
-    html.light .bg-zinc-600 { background-color: #a1a1aa; }
+    html.light .bg-black\/80 { background-color: rgba(248, 250, 252, 0.90); }
+    html.light .bg-black\/85 { background-color: rgba(248, 250, 252, 0.94); }
+    html.light .bg-black\/90 { background-color: rgba(255, 255, 255, 0.95); }
+    html.light .bg-white\/5 { background-color: rgba(15, 23, 42, 0.035); }
+    html.light .bg-white\/10 { background-color: rgba(15, 23, 42, 0.055); }
+    html.light .bg-white\/15 { background-color: rgba(15, 23, 42, 0.08); }
+    html.light .bg-white\/\[0\.02\] { background-color: rgba(15, 23, 42, 0.02); }
+    html.light .bg-white\/\[0\.03\] { background-color: rgba(15, 23, 42, 0.025); }
+    html.light .bg-white\/\[0\.035\] { background-color: rgba(15, 23, 42, 0.03); }
+    html.light .bg-white\/\[0\.04\] { background-color: rgba(15, 23, 42, 0.035); }
+    html.light .bg-zinc-600 { background-color: #cbd5e1; }
 
-    html.light .text-white { color: #09090b; }
-    html.light .text-zinc-300 { color: #27272a; }
-    html.light .text-zinc-400 { color: #3f3f46; }
-    html.light .text-zinc-500 { color: #52525b; }
-    html.light .text-zinc-600 { color: #71717a; }
+    html.light .text-white { color: #1e293b; }
+    html.light .text-zinc-200 { color: #334155; }
+    html.light .text-zinc-300 { color: #334155; }
+    html.light .text-zinc-400 { color: #475569; }
+    html.light .text-zinc-500 { color: #64748b; }
+    html.light .text-zinc-600 { color: #94a3b8; }
+    html.light .text-cyan-200,
+    html.light .text-cyan-300,
+    html.light .text-cyan-400 { color: #0e7490; }
+    html.light .text-lime-200,
+    html.light .text-lime-300,
+    html.light .text-lime-400 { color: #3f6212; }
+    html.light .text-fuchsia-200 { color: #a21caf; }
+    html.light .text-amber-200 { color: #92400e; }
+    html.light .text-rose-100,
+    html.light .text-rose-200,
+    html.light .text-rose-300 { color: #be123c; }
+    html.light .text-emerald-300 { color: #047857; }
+    html.light .text-orange-200 { color: #9a3412; }
+    html.light .placeholder\:text-zinc-600::placeholder,
+    html.light .placeholder\:text-zinc-700::placeholder { color: #94a3b8; }
 
-    html.light .border-white\/10 { border-color: rgba(9, 9, 11, 0.10); }
-    html.light .border-white\/15 { border-color: rgba(9, 9, 11, 0.14); }
-    html.light .border-white\/20 { border-color: rgba(9, 9, 11, 0.18); }
-    html.light .border-white\/25 { border-color: rgba(9, 9, 11, 0.22); }
-    html.light .border-white\/30 { border-color: rgba(9, 9, 11, 0.28); }
+    html.light .border-white\/10 { border-color: #e2e8f0; }
+    html.light .border-white\/15 { border-color: #e2e8f0; }
+    html.light .border-white\/20 { border-color: #e2e8f0; }
+    html.light .border-white\/25 { border-color: #cbd5e1; }
+    html.light .border-white\/30 { border-color: #cbd5e1; }
 
-    html.light .hover\:text-white:hover { color: #09090b; }
-    html.light .hover\:border-white\/60:hover { border-color: rgba(9, 9, 11, 0.45); }
-    html.light .hover\:bg-white\/5:hover { background-color: rgba(9, 9, 11, 0.05); }
-    html.light .hover\:bg-white\/10:hover { background-color: rgba(9, 9, 11, 0.08); }
-    html.light .hover\:bg-white\/\[0\.04\]:hover { background-color: rgba(9, 9, 11, 0.04); }
-    html.light .hover\:bg-zinc-200:hover { background-color: #3f3f46; }
+    html.light .hover\:text-white:hover { color: #0f172a; }
+    html.light .hover\:border-white\/50:hover { border-color: #94a3b8; }
+    html.light .hover\:border-white\/60:hover { border-color: #94a3b8; }
+    html.light .hover\:bg-white\/5:hover { background-color: rgba(15, 23, 42, 0.05); }
+    html.light .hover\:bg-white\/10:hover { background-color: rgba(15, 23, 42, 0.08); }
+    html.light .hover\:bg-white\/\[0\.04\]:hover { background-color: rgba(15, 23, 42, 0.04); }
+    html.light .hover\:bg-white\/\[0\.05\]:hover { background-color: rgba(15, 23, 42, 0.05); }
+    html.light .hover\:bg-zinc-200:hover { background-color: #e2e8f0; }
 
-    html.light .group:hover .group-hover\:text-white { color: #09090b; }
-    html.light .group:hover .group-hover\:border-white\/50 { border-color: rgba(9, 9, 11, 0.35); }
+    html.light .group:hover .group-hover\:text-white { color: #0f172a; }
+    html.light .group:hover .group-hover\:border-white\/50 { border-color: #94a3b8; }
 
     html.light .focus-visible\:ring-white\/70:focus-visible,
-    html.light .focus-visible\:ring-white\/80:focus-visible { --tw-ring-color: rgba(9, 9, 11, 0.55); }
+    html.light .focus-visible\:ring-white\/80:focus-visible { --tw-ring-color: rgba(15, 23, 42, 0.45); }
 
     html.light .from-white\/25 {
-      --tw-gradient-from: rgba(9, 9, 11, 0.18);
-      --tw-gradient-to: rgba(9, 9, 11, 0);
+      --tw-gradient-from: rgba(15, 23, 42, 0.18);
+      --tw-gradient-to: rgba(15, 23, 42, 0);
     }
 
     /* Les libellés de statut sont des dégradés clippés : on les assombrit
@@ -339,13 +560,68 @@
 
     /* Éléments volontairement inversés (onglet actif, bouton principal). */
     .theme-inverse { background-color: #ffffff; color: #09090b; }
-    html.light .theme-inverse { background-color: #09090b; color: #ffffff; }
+    html.light .theme-inverse { background-color: #0f172a; color: #ffffff; }
 
     .modal-backdrop { background-color: rgba(0, 0, 0, 0.85); }
-    html.light .modal-backdrop { background-color: rgba(9, 9, 11, 0.45); }
+    html.light .modal-backdrop { background-color: rgba(15, 23, 42, 0.45); }
 
     .modal-panel { box-shadow: 0 35px 90px -25px rgba(255, 255, 255, 0.18); }
-    html.light .modal-panel { box-shadow: 0 35px 90px -25px rgba(9, 9, 11, 0.35); }
+    .modal-panel.is-fullscreen { opacity: 1; transform: none; }
+    html.light .modal-panel { box-shadow: 0 35px 90px -25px rgba(15, 23, 42, 0.30); }
+
+    /* ---- Terminal des labs : toujours sombre, comme VS Code ---- */
+    @keyframes terminalBlink {
+      0%, 45% { opacity: 1; }
+      46%, 100% { opacity: 0; }
+    }
+    .terminal-shell {
+      border-color: rgba(255, 255, 255, 0.14);
+      background: #1e1e1e;
+      box-shadow: 0 24px 70px -28px rgba(0, 0, 0, 0.9);
+    }
+    .terminal-head {
+      background: #252526;
+      border-color: rgba(255, 255, 255, 0.10);
+    }
+    .terminal-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: #3f3f46 #1e1e1e;
+    }
+    .terminal-scroll::-webkit-scrollbar { width: 8px; }
+    .terminal-scroll::-webkit-scrollbar-track { background: #1e1e1e; }
+    .terminal-scroll::-webkit-scrollbar-thumb {
+      border: 2px solid #1e1e1e;
+      border-radius: 999px;
+      background: #52525b;
+    }
+    .terminal-scroll::-webkit-scrollbar-thumb:hover { background: #71717a; }
+    .terminal-command {
+      border-left: 2px solid rgba(34, 211, 238, 0.7);
+      background: rgba(34, 211, 238, 0.06);
+    }
+    .terminal-cursor {
+      display: inline-block;
+      width: 0.55rem;
+      height: 1rem;
+      flex: 0 0 auto;
+      background: #22d3ee;
+      animation: terminalBlink 1s step-end infinite;
+      vertical-align: text-bottom;
+    }
+    html.light .terminal-shell { border-color: rgba(255, 255, 255, 0.14); }
+    html.light .terminal-shell .text-zinc-300 { color: #d4d4d8; }
+    html.light .terminal-shell .text-zinc-400 { color: #a1a1aa; }
+    html.light .terminal-shell .text-zinc-500 { color: #a1a1aa; }
+    html.light .terminal-shell .text-zinc-600 { color: #71717a; }
+    html.light .terminal-shell .text-cyan-200 { color: #a5f3fc; }
+    html.light .terminal-shell .text-cyan-300 { color: #67e8f9; }
+    html.light .terminal-shell .text-cyan-400 { color: #22d3ee; }
+    html.light .terminal-shell .text-amber-200 { color: #fde68a; }
+    html.light .terminal-shell .text-rose-300 { color: #fda4af; }
+    html.light .terminal-shell .text-emerald-300 { color: #6ee7b7; }
+    html.light .terminal-shell .border-white\/10 { border-color: rgba(255, 255, 255, 0.10); }
+    html.light .terminal-shell .border-white\/20 { border-color: rgba(255, 255, 255, 0.20); }
+    html.light .terminal-shell .hover\:border-white\/20:hover { border-color: rgba(255, 255, 255, 0.30); }
 
     /* ---- Drawflow en clair ---- */
     html.light #drawflow {
@@ -400,6 +676,34 @@
 
   <div class="pointer-events-none fixed inset-0 z-0 bg-grid"></div>
 
+  <!-- ================= TOASTS ================= -->
+  <div class="pointer-events-none fixed right-4 top-24 z-[120] flex w-[min(22rem,calc(100vw-2rem))] flex-col gap-2"
+       aria-live="polite" aria-atomic="false">
+    <template x-for="toast in toasts" :key="toast.id">
+      <div class="pointer-events-auto overflow-hidden rounded-xl border bg-black/95 shadow-2xl backdrop-blur"
+           :class="toast.tone === 'badge'
+             ? 'border-amber-300/50 shadow-amber-500/20'
+             : toast.tone === 'level'
+               ? 'border-cyan-300/50 shadow-cyan-500/20'
+               : 'border-white/15'"
+           x-transition:enter="transition ease-out duration-300"
+           x-transition:enter-start="translate-x-8 opacity-0"
+           x-transition:enter-end="translate-x-0 opacity-100"
+           x-transition:leave="transition ease-in duration-200"
+           x-transition:leave-start="translate-x-0 opacity-100"
+           x-transition:leave-end="translate-x-8 opacity-0">
+        <div class="flex gap-3 p-3">
+          <span class="text-xl" aria-hidden="true" x-text="toast.icon || '✦'"></span>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold text-white" x-text="toast.title"></p>
+            <p class="mt-0.5 text-[11px] leading-relaxed text-zinc-400" x-text="toast.message"></p>
+          </div>
+        </div>
+        <div class="h-0.5 bg-gradient-to-r from-amber-300 via-cyan-300 to-fuchsia-400"></div>
+      </div>
+    </template>
+  </div>
+
   <!-- ================= HEADER ================= -->
   <header class="sticky top-0 z-30 border-b border-white/10 bg-black/80 backdrop-blur-xl">
     <div class="h-px w-full rainbow-line opacity-70"></div>
@@ -423,25 +727,47 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
-          <div class="inline-flex items-center rounded-xl border border-white/20 bg-black p-1"
-               role="group" aria-label="Thème d'affichage">
-            <button type="button" @click="setTheme('dark')" :aria-pressed="theme === 'dark'"
-                    aria-label="Thème noir fluo" title="Noir fluo"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                    :class="theme === 'dark' ? 'theme-inverse' : 'text-zinc-400 hover:text-white'">
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
-              </svg>
-            </button>
-            <button type="button" @click="setTheme('light')" :aria-pressed="theme === 'light'"
-                    aria-label="Thème blanc fluo" title="Blanc fluo"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                    :class="theme === 'light' ? 'theme-inverse' : 'text-zinc-400 hover:text-white'">
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"></circle>
-                <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
-              </svg>
-            </button>
+          <button type="button" @click="toggleTheme()"
+                  :aria-pressed="theme === 'light'"
+                  :aria-label="theme === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'"
+                  :title="theme === 'dark' ? 'Thème clair' : 'Thème sombre'"
+                  class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-black text-zinc-400 transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+            <svg x-show="theme === 'dark'" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+            </svg>
+            <svg x-show="theme === 'light'" x-cloak class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+            </svg>
+          </button>
+          <div class="flex items-center gap-1.5 rounded-xl border border-orange-400/30 bg-orange-400/10 px-3 py-2 text-orange-200"
+               :title="`${streakDays} jour(s) consécutif(s) · ${streakMinutesToday} min aujourd'hui${userStats.freezes ? ` · ${userStats.freezes} gel(s)` : ''}`">
+            <span class="text-base leading-none" aria-hidden="true">🔥</span>
+            <span class="font-mono text-sm font-semibold" x-text="streakLoading ? '…' : streakDays"></span>
+            <span class="text-[10px] uppercase tracking-[0.12em]" x-text="streakDays > 1 ? 'jours' : 'jour'"></span>
+          </div>
+          <button type="button" @click="openShop()"
+                  class="flex items-center gap-1.5 rounded-xl border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-amber-100 transition hover:border-amber-200/70 hover:bg-amber-300/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/70"
+                  title="Ouvrir la boutique SkillCoins">
+            <span class="text-base leading-none" aria-hidden="true">🪙</span>
+            <span class="font-mono text-sm font-semibold" x-text="userStatsLoading ? '…' : userStats.coins"></span>
+            <span class="hidden text-[10px] uppercase tracking-[0.12em] sm:inline">Boutique</span>
+          </button>
+          <div class="min-w-[10.5rem] rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-3 py-2 text-cyan-100"
+               :title="userStats.max_level
+                 ? `${userStats.total_xp} XP · Niveau maximum atteint`
+                 : `${userStats.total_xp} XP · ${userStats.xp_to_next} XP avant le niveau ${userStats.next_level}`">
+            <div class="flex items-center justify-between gap-2">
+              <span class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em]">
+                <span aria-hidden="true">⚡</span>
+                <span x-text="userStatsLoading ? '…' : `Niv. ${userStats.current_level} · ${userStats.level_name}`"></span>
+              </span>
+              <span class="font-mono text-[10px] font-semibold" x-text="userStatsLoading ? '…' : `${userStats.total_xp} XP`"></span>
+            </div>
+            <div class="mt-1.5 h-1.5 overflow-hidden rounded-full border border-cyan-300/20 bg-black">
+              <div class="h-full rounded-full bg-gradient-to-r from-cyan-400 to-lime-300 transition-[width] duration-700 ease-out"
+                   :style="`width: ${userStats.progress_percent}%`"></div>
+            </div>
           </div>
           <div class="rounded-xl border border-white/20 bg-black px-4 py-2 text-right">
             <p class="text-[10px] uppercase tracking-[0.18em] text-zinc-500">Validés</p>
@@ -449,7 +775,15 @@
               <span x-text="validated">0</span><span class="text-zinc-600">/</span><span x-text="total">0</span>
             </p>
           </div>
-          <button type="button" @click="loadTree()" :disabled="loading"
+          <button type="button" @click="reloadContent()" :disabled="reloadBusy || loading"
+                  class="rounded-xl border border-white/20 bg-black p-2.5 text-zinc-400 transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:opacity-40"
+                  title="Recharger les cours" aria-label="Recharger les cours">
+            <svg class="h-4 w-4" :class="{ 'animate-spin': reloadBusy }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+          </button>
+          <button type="button" @click="refreshAll()" :disabled="loading"
                   class="rounded-xl border border-white/20 bg-black p-2.5 text-zinc-400 transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:opacity-40"
                   title="Recharger les données" aria-label="Recharger les données">
             <svg class="h-4 w-4" :class="{ 'animate-spin': loading }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -462,7 +796,7 @@
 
       <!-- onglets -->
       <div class="mt-5 flex flex-wrap items-center justify-between gap-4">
-        <nav class="inline-flex rounded-xl border border-white/20 bg-black p-1" aria-label="Navigation principale">
+        <nav class="inline-flex flex-wrap rounded-xl border border-white/20 bg-black p-1" aria-label="Navigation principale">
           <button type="button" @click="setTab('tree')"
                   class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                   :class="tab === 'tree' ? 'theme-inverse shadow-[0_0_24px_-6px_rgba(255,255,255,0.8)]' : 'text-zinc-400 hover:text-white'"
@@ -486,6 +820,48 @@
               <path d="M7.2 6h9.6M6.2 8.2 10.8 16M17.8 8.2 13.2 16"></path>
             </svg>
             Topologie
+          </button>
+          <button type="button" @click="setTab('stats')"
+                  class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  :class="tab === 'stats' ? 'theme-inverse shadow-[0_0_24px_-6px_rgba(255,255,255,0.8)]' : 'text-zinc-400 hover:text-white'"
+                  :aria-current="tab === 'stats' ? 'page' : null">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19V9M10 19V5M16 19v-7M22 19V3"></path>
+            </svg>
+            Radar
+          </button>
+          <button type="button" @click="setTab('memo')"
+                  class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  :class="tab === 'memo' ? 'theme-inverse shadow-[0_0_24px_-6px_rgba(255,255,255,0.8)]' : 'text-zinc-400 hover:text-white'"
+                  :aria-current="tab === 'memo' ? 'page' : null">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="6" width="13" height="15" rx="2"></rect>
+              <path d="M8 3h9a3 3 0 0 1 3 3v11"></path>
+              <path d="M8 11h5M8 15h5"></path>
+            </svg>
+            Mémo
+          </button>
+          <button type="button" @click="setTab('diagnostic')"
+                  class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  :class="tab === 'diagnostic' ? 'theme-inverse shadow-[0_0_24px_-6px_rgba(255,255,255,0.8)]' : 'text-zinc-400 hover:text-white'"
+                  :aria-current="tab === 'diagnostic' ? 'page' : null">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="5" cy="5" r="2"></circle>
+              <circle cx="19" cy="12" r="2"></circle>
+              <circle cx="5" cy="19" r="2"></circle>
+              <path d="M7 5h4a3 3 0 0 1 3 3v1a3 3 0 0 0 3 3M7 19h4a3 3 0 0 0 3-3v-1a3 3 0 0 1 3-3"></path>
+            </svg>
+            Diagnostic
+          </button>
+          <button type="button" @click="setTab('exam')"
+                  class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  :class="tab === 'exam' ? 'theme-inverse shadow-[0_0_24px_-6px_rgba(255,255,255,0.8)]' : 'text-zinc-400 hover:text-white'"
+                  :aria-current="tab === 'exam' ? 'page' : null">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="4" width="14" height="17" rx="2"></rect>
+              <path d="M9 4V3h6v1M9 9h6M9 13h6M9 17h3"></path>
+            </svg>
+            Examen
           </button>
         </nav>
 
@@ -517,6 +893,141 @@
 
     <!-- ============ ONGLET SKILL TREE ============ -->
     <section x-show="tab === 'tree'" x-transition.opacity.duration.200ms>
+
+      <!-- profil / accomplissements -->
+      <section class="mb-8 overflow-hidden rounded-2xl border border-white/20 bg-black">
+        <div class="h-px w-full rainbow-line opacity-60"></div>
+        <div class="p-5 sm:p-6">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-amber-300/30 bg-gradient-to-br from-amber-300/15 to-fuchsia-500/10 shadow-[0_0_30px_-12px_rgba(251,191,36,.7)]">
+                <span class="text-2xl" aria-hidden="true">🏅</span>
+                <span class="absolute -bottom-1 -right-1 flex h-6 min-w-6 items-center justify-center rounded-full border border-black bg-cyan-300 px-1 font-mono text-[11px] font-bold text-black"
+                      x-text="profileLoading ? '…' : (profile?.level.current_level ?? userStats.current_level)"></span>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Mon profil</p>
+                <h2 class="mt-1 text-lg font-semibold text-white">
+                  Niveau <span x-text="profileLoading ? '…' : (profile?.level.current_level ?? userStats.current_level)"></span>
+                  <span class="text-zinc-600">·</span>
+                  <span class="text-cyan-200" x-text="profileLoading ? '…' : (profile?.level.level_name ?? userStats.level_name)"></span>
+                </h2>
+                <p class="mt-1 text-xs text-zinc-500">
+                  <span class="font-mono text-zinc-300" x-text="profileLoading ? '…' : `${profile?.level.total_xp ?? userStats.total_xp} XP`"></span>
+                  <span class="mx-1 text-zinc-700">·</span>
+                  <span x-text="profileLoading ? '…' : `${profile?.validated_nodes ?? validated}/${profile?.total_nodes ?? total} nœuds validés`"></span>
+                </p>
+              </div>
+            </div>
+            <button type="button" @click="downloadCertificate()"
+                    class="inline-flex items-center gap-2 rounded-xl border border-amber-300/40 bg-amber-300/10 px-3.5 py-2 text-xs font-semibold text-amber-100 transition hover:border-amber-200 hover:bg-amber-300/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/70">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="8" r="5"></circle>
+                <path d="m8.5 12.5-1 8 4.5-2 4.5 2-1-8"></path>
+              </svg>
+              Voir mon certificat
+            </button>
+          </div>
+
+          <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div class="rounded-xl border border-white/15 bg-white/[0.03] px-3 py-2.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Labs</p>
+              <p class="mt-1 font-mono text-lg font-semibold text-white">🏆 <span x-text="profileLoading ? '…' : (profile?.labs_validated ?? 0)"></span></p>
+            </div>
+            <div class="rounded-xl border border-white/15 bg-white/[0.03] px-3 py-2.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Examens</p>
+              <p class="mt-1 font-mono text-lg font-semibold text-white">🎓 <span x-text="profileLoading ? '…' : (profile?.exams_passed ?? 0)"></span></p>
+            </div>
+            <div class="rounded-xl border border-white/15 bg-white/[0.03] px-3 py-2.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Jours</p>
+              <p class="mt-1 font-mono text-lg font-semibold text-white">🔥 <span x-text="profileLoading ? '…' : (profile?.streak.days ?? streakDays)"></span></p>
+            </div>
+            <div class="rounded-xl border border-white/15 bg-white/[0.03] px-3 py-2.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Nœuds</p>
+              <p class="mt-1 font-mono text-lg font-semibold text-white">✅ <span x-text="profileLoading ? '…' : (profile?.validated_nodes ?? validated)"></span></p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="mb-1.5 flex items-center justify-between text-[11px] text-zinc-500">
+              <span>Progression du parcours</span>
+              <span class="font-mono text-zinc-300" x-text="profileLoading ? '…' : `${profile?.progress_percent ?? progress}%`"></span>
+            </div>
+            <div class="h-2 overflow-hidden rounded-full border border-white/10 bg-black">
+              <div class="rainbow-bar h-full rounded-full transition-[width] duration-700 ease-out"
+                   :style="`width: ${profile?.progress_percent ?? progress}%`"></div>
+            </div>
+          </div>
+
+          <div class="mt-4" x-show="profile?.badges?.length">
+            <div class="mb-2 flex items-center justify-between text-[11px] text-zinc-500">
+              <span>Badges</span>
+              <span class="font-mono text-zinc-300"
+                    x-text="`${profile?.badges?.filter(badge => badge.unlocked).length || 0}/${profile?.badges?.length || 0}`"></span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <template x-for="badge in (profile?.badges || [])" :key="badge.id">
+                <div class="rounded-xl border px-3 py-2.5 transition"
+                     :class="badge.unlocked
+                       ? 'border-amber-300/35 bg-amber-300/10 text-amber-100'
+                       : 'border-white/10 bg-white/[0.02] text-zinc-600'"
+                     :title="badge.description">
+                  <p class="text-base" x-text="badge.icone"></p>
+                  <p class="mt-1 truncate text-[11px] font-semibold" x-text="badge.nom"></p>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <p x-show="profileError" class="mt-3 text-xs text-rose-300" x-text="profileError"></p>
+        </div>
+      </section>
+
+      <!-- session du jour -->
+      <section class="mb-8 overflow-hidden rounded-2xl border border-white/20 bg-black">
+        <div class="h-px w-full rainbow-line opacity-60"></div>
+        <div class="px-5 py-5 sm:px-6">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Dashboard</p>
+              <h2 class="mt-1 text-lg font-semibold text-white">Ta session d'aujourd'hui</h2>
+            </div>
+            <span x-show="!dailyPlanLoading && dailyPlan.length"
+                  class="rounded-full border border-white/15 bg-white/[0.03] px-2.5 py-1 font-mono text-[10px] text-zinc-400"
+                  x-text="`${dailyPlan.length} action${dailyPlan.length > 1 ? 's' : ''}`"></span>
+          </div>
+
+          <div x-show="dailyPlanLoading" x-cloak class="mt-4 grid gap-3 sm:grid-cols-3">
+            <div class="h-[5.5rem] animate-pulse rounded-xl border border-white/10 bg-white/[0.03]"></div>
+            <div class="h-[5.5rem] animate-pulse rounded-xl border border-white/10 bg-white/[0.03]"></div>
+            <div class="h-[5.5rem] animate-pulse rounded-xl border border-white/10 bg-white/[0.03]"></div>
+          </div>
+
+          <div x-show="!dailyPlanLoading && dailyPlan.length" x-cloak class="mt-4 grid gap-3 sm:grid-cols-3">
+            <template x-for="action in dailyPlan" :key="action.node_id">
+              <button type="button" @click="show(action.node_id)"
+                      class="group flex h-full flex-col rounded-xl border border-white/15 bg-white/[0.02] px-4 py-3 text-left transition hover:border-white/60 hover:bg-white/[0.05] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80">
+                <span class="flex items-center justify-between gap-2">
+                  <span class="rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
+                        :class="planMeta(action.action).classes" x-text="planMeta(action.action).label"></span>
+                  <svg class="h-3.5 w-3.5 text-zinc-500 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-white"
+                       viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6"></path>
+                  </svg>
+                </span>
+                <span class="mt-2 text-sm font-semibold leading-snug text-white" x-text="action.label"></span>
+                <span class="mt-1 text-[11px] text-zinc-500" x-text="action.reason"></span>
+              </button>
+            </template>
+          </div>
+
+          <p x-show="!dailyPlanLoading && !dailyPlan.length && !dailyPlanError" x-cloak
+             class="mt-3 text-sm text-zinc-400">
+            Tout est à jour. Choisis un nœud dans l'arbre pour continuer.
+          </p>
+          <p x-show="dailyPlanError" class="mt-3 text-sm text-rose-300" x-text="dailyPlanError"></p>
+        </div>
+      </section>
 
       <div x-show="error" x-cloak class="mb-8 rounded-2xl border border-white/30 bg-white/5 px-5 py-4 text-sm text-white backdrop-blur-md">
         <div class="flex items-start gap-3">
@@ -673,6 +1184,20 @@
                     class="theme-inverse rounded-lg border border-white/30 px-3.5 py-1.5 text-xs font-semibold shadow-[0_0_24px_-8px_rgba(255,255,255,0.9)] transition hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 disabled:cursor-not-allowed disabled:opacity-40">
               Sauvegarder le schéma
             </button>
+            <button type="button" @click="downloadTopologyJSON()" :disabled="!topologyReady"
+                    x-show="!challengeActive"
+                    title="Télécharger le schéma en JSON" aria-label="Télécharger le schéma en JSON"
+                    class="rounded-lg border border-white/20 bg-black/80 px-3.5 py-1.5 text-xs font-semibold text-zinc-300 backdrop-blur transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 disabled:cursor-not-allowed disabled:opacity-40">
+              Télécharger
+            </button>
+            <button type="button" @click="exportTopologyPNG()" :disabled="!topologyReady || topologyExporting"
+                    x-show="!challengeActive"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3.5 py-1.5 text-xs font-semibold text-cyan-200 backdrop-blur transition hover:border-cyan-200 hover:bg-cyan-400/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 disabled:cursor-wait disabled:opacity-40">
+              <svg x-show="topologyExporting" class="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-6.2-8.56"></path>
+              </svg>
+              <span x-text="topologyExporting ? 'Export…' : 'Exporter en PNG'"></span>
+            </button>
             <div x-show="challengeActive" x-cloak
                  class="rounded-lg border border-amber-300/40 bg-black/90 px-3 py-1.5 font-mono text-sm text-amber-200"
                  role="timer" aria-live="off">
@@ -686,7 +1211,7 @@
             </button>
           </div>
 
-          <div id="drawflow" x-ref="canvas" class="h-[72vh] min-h-[520px] w-full"></div>
+          <div id="drawflow" x-ref="canvas" class="h-[85vh] min-h-[520px] w-full"></div>
 
           <div x-show="!topologyReady" class="absolute inset-0 z-10 flex items-center justify-center bg-black">
             <p class="px-6 text-center text-sm" :class="topologyError ? 'text-white' : 'text-zinc-500'"
@@ -697,6 +1222,9 @@
                class="pointer-events-none absolute bottom-3 left-3 z-20 rounded-lg border border-white/20 bg-black/85 px-3 py-1.5 text-[11px] text-zinc-300 backdrop-blur">
             Schéma sauvegardé à <span class="font-mono text-white" x-text="savedAt"></span>
           </div>
+          <div x-show="topologyError && topologyReady" x-cloak
+               class="pointer-events-none absolute bottom-3 right-3 z-20 max-w-[min(28rem,80%)] rounded-lg border border-rose-300/40 bg-black/90 px-3 py-2 text-xs text-rose-200 backdrop-blur"
+               x-text="topologyError"></div>
           <div x-show="challengeResult" x-cloak
                class="absolute bottom-3 left-3 z-20 max-w-[80%] rounded-lg border bg-black/90 px-4 py-2.5 text-sm backdrop-blur"
                :class="challengeResult && challengeResult.passed ? 'border-lime-300/50 text-lime-200' : 'border-rose-300/50 text-rose-200'"
@@ -707,6 +1235,697 @@
         </div>
       </div>
     </section>
+
+    <!-- ============ ONGLET RADAR / STATISTIQUES ============ -->
+    <section x-show="tab === 'stats'" x-cloak x-transition.opacity.duration.200ms>
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Analyse</p>
+          <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Radar de compétences</h2>
+          <p class="mt-1 text-sm text-zinc-400">
+            Taux de réussite par catégorie, volume de tentatives et nœuds à consolider.
+          </p>
+        </div>
+        <button type="button" @click="loadStats()" :disabled="statsLoading"
+                class="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-black px-4 py-2.5 text-sm text-zinc-300 transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 disabled:opacity-40">
+          <svg class="h-4 w-4" :class="{ 'animate-spin': statsLoading }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+            <path d="M21 3v6h-6"></path>
+          </svg>
+          Actualiser
+        </button>
+      </div>
+
+      <div x-show="statsLoading" x-cloak class="space-y-4">
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="skel h-24 rounded-2xl border border-white/10"></div>
+          <div class="skel h-24 rounded-2xl border border-white/10"></div>
+          <div class="skel h-24 rounded-2xl border border-white/10"></div>
+          <div class="skel h-24 rounded-2xl border border-white/10"></div>
+        </div>
+        <div class="grid gap-4 lg:grid-cols-2">
+          <div class="skel h-80 rounded-2xl border border-white/10"></div>
+          <div class="skel h-80 rounded-2xl border border-white/10"></div>
+        </div>
+      </div>
+
+      <div x-show="statsError" x-cloak
+           class="rounded-2xl border border-rose-400/30 bg-rose-500/10 px-5 py-4 text-sm text-rose-200">
+        <p x-text="statsError"></p>
+        <button type="button" @click="loadStats()"
+                class="mt-3 rounded-lg border border-rose-300/40 px-3 py-1.5 text-xs text-rose-100 transition hover:bg-rose-500/20">
+          Réessayer
+        </button>
+      </div>
+
+      <template x-if="stats && !statsLoading">
+        <div>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="rounded-2xl border border-white/20 bg-black p-4">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Tentatives</p>
+              <p class="mt-1 font-mono text-2xl font-semibold text-white" x-text="stats.totals.attempts"></p>
+              <p class="mt-1 text-[11px] text-zinc-500">Toutes catégories confondues</p>
+            </div>
+            <div class="rounded-2xl border border-white/20 bg-black p-4">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Réussite globale</p>
+              <p class="mt-1 font-mono text-2xl font-semibold text-white" x-text="`${stats.totals.success_rate}%`"></p>
+              <p class="mt-1 text-[11px] text-zinc-500" x-text="`${stats.totals.passed} tentatives réussies`"></p>
+            </div>
+            <div class="rounded-2xl border border-white/20 bg-black p-4">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Points faibles</p>
+              <p class="mt-1 font-mono text-2xl font-semibold text-white" x-text="stats.totals.weak_points"></p>
+              <p class="mt-1 text-[11px] text-zinc-500">Nœuds à plus de 3 tentatives</p>
+            </div>
+            <div class="rounded-2xl border border-white/20 bg-black p-4">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Nœuds validés</p>
+              <p class="mt-1 font-mono text-2xl font-semibold text-white">
+                <span x-text="stats.totals.validated"></span><span class="text-zinc-600">/</span><span x-text="stats.totals.nodes"></span>
+              </p>
+              <p class="mt-1 text-[11px] text-zinc-500">Progression de l'arbre</p>
+            </div>
+          </div>
+
+          <div class="mt-4 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+            <section class="rounded-2xl border border-white/20 bg-black p-5">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-sm font-semibold text-white">Réussite par catégorie</h3>
+                  <p class="mt-1 text-[11px] text-zinc-500">Calculée sur les tentatives corrigées, pas sur le nombre de nœuds.</p>
+                </div>
+                <span class="rounded-full border border-white/15 bg-white/[0.03] px-2.5 py-1 font-mono text-[10px] text-zinc-400">
+                  <span x-text="stats.categories.length"></span> catégories
+                </span>
+              </div>
+
+              <div class="mt-5 space-y-4">
+                <template x-for="category in stats.categories" :key="category.name">
+                  <div>
+                    <div class="flex items-baseline justify-between gap-3">
+                      <span class="text-sm font-medium text-white" x-text="category.name"></span>
+                      <span class="font-mono text-sm" :class="statTone(category.success_rate, category.attempts).text"
+                            x-text="category.attempts ? `${category.success_rate}%` : '—'"></span>
+                    </div>
+                    <div class="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                      <div class="h-full rounded-full transition-[width] duration-700 ease-out"
+                           :class="statTone(category.success_rate, category.attempts).bar"
+                           :style="`width: ${category.success_rate}%`"></div>
+                    </div>
+                    <div class="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-zinc-500">
+                      <span x-text="`${category.passed}/${category.attempts} tentatives réussies`"></span>
+                      <span x-text="`${category.validated}/${category.nodes} nœuds validés (${category.validation_rate}%)`"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+
+              <div class="mt-5 flex flex-wrap gap-4 border-t border-white/10 pt-4 text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+                <span class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-rose-400"></span>Faible &lt; 40%</span>
+                <span class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-amber-300"></span>À consolider 40–69%</span>
+                <span class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-lime-400"></span>Solide ≥ 70%</span>
+              </div>
+            </section>
+
+            <section class="rounded-2xl border border-white/20 bg-black p-5">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-sm font-semibold text-white">Points faibles</h3>
+                  <p class="mt-1 text-[11px] text-zinc-500">Nœuds ayant demandé plus de 3 essais.</p>
+                </div>
+                <span class="rounded-full border border-white/15 bg-white/[0.03] px-2.5 py-1 font-mono text-[10px] text-zinc-400"
+                      x-text="stats.weak_points.length"></span>
+              </div>
+
+              <template x-if="stats.weak_points.length === 0">
+                <p class="mt-4 rounded-xl border border-lime-400/20 bg-lime-500/[0.06] px-3 py-3 text-sm text-lime-200">
+                  Aucun nœud au-delà de 3 tentatives. Le rythme est régulier.
+                </p>
+              </template>
+
+              <div class="mt-4 space-y-2">
+                <template x-for="node in stats.weak_points" :key="node.id">
+                  <button type="button" @click="show(node.id)"
+                          class="group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-3 py-3 text-left transition hover:border-white/50 hover:bg-white/[0.05] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-amber-300/30 bg-amber-400/10 text-amber-200">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 9v4m0 4h.01"></path>
+                        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"></path>
+                      </svg>
+                    </span>
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate text-sm font-medium text-white" x-text="node.title"></span>
+                      <span class="block truncate text-[11px] text-zinc-500"
+                            x-text="`${node.category} · ${node.attempts} tentatives · meilleur score ${node.best_score}/100`"></span>
+                    </span>
+                    <span class="text-[11px] text-zinc-500 transition group-hover:text-white">Ouvrir →</span>
+                  </button>
+                </template>
+              </div>
+            </section>
+          </div>
+
+          <section class="mt-4 overflow-hidden rounded-2xl border border-white/20 bg-black">
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+              <div>
+                <h3 class="text-sm font-semibold text-white">Tentatives par nœud</h3>
+                <p class="mt-1 text-[11px] text-zinc-500">Volume de travail, réussites et meilleur score.</p>
+              </div>
+              <span class="rounded-full border border-white/15 bg-white/[0.03] px-2.5 py-1 font-mono text-[10px] text-zinc-400"
+                    x-text="`${stats.nodes.length} nœuds`"></span>
+            </div>
+            <div class="overflow-x-auto border-t border-white/10">
+              <table class="w-full min-w-[44rem] text-left text-sm">
+                <thead class="text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+                  <tr>
+                    <th class="px-5 py-3 font-medium">Nœud</th>
+                    <th class="px-3 py-3 font-medium">Catégorie</th>
+                    <th class="px-3 py-3 font-medium">Tentatives</th>
+                    <th class="px-3 py-3 font-medium">Réussies</th>
+                    <th class="px-3 py-3 font-medium">Meilleur score</th>
+                    <th class="px-5 py-3 font-medium">Statut</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                  <template x-for="node in stats.nodes" :key="node.id">
+                    <tr @click="show(node.id)" class="cursor-pointer transition hover:bg-white/[0.04]">
+                      <td class="px-5 py-3">
+                        <span class="block text-white" x-text="node.title"></span>
+                        <span class="font-mono text-[10px] text-zinc-500" x-text="node.id"></span>
+                      </td>
+                      <td class="px-3 py-3 text-zinc-400" x-text="node.category"></td>
+                      <td class="px-3 py-3">
+                        <div class="flex items-center gap-2">
+                          <span class="w-6 font-mono text-white" x-text="node.attempts"></span>
+                          <span class="h-1.5 w-16 overflow-hidden rounded-full bg-white/10">
+                            <span class="block h-full rounded-full bg-gradient-to-r from-fuchsia-500 to-cyan-400"
+                                  :style="`width: ${Math.round((node.attempts / maxNodeAttempts) * 100)}%`"></span>
+                          </span>
+                        </div>
+                      </td>
+                      <td class="px-3 py-3 font-mono text-zinc-300" x-text="`${node.passed_attempts}/${node.attempts}`"></td>
+                      <td class="px-3 py-3 font-mono text-zinc-300" x-text="`${node.best_score}/100`"></td>
+                      <td class="px-5 py-3">
+                        <span class="inline-flex items-center gap-1.5 text-[11px]" :class="statusMeta(node.status).text">
+                          <span class="h-1.5 w-1.5 rounded-full" :class="statusMeta(node.status).dot"></span>
+                          <span x-text="statusMeta(node.status).label"></span>
+                        </span>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </template>
+    </section>
+
+    <!-- ============ ONGLET MÉMO ============ -->
+    <section x-show="tab === 'memo'" x-cloak x-transition.opacity.duration.200ms>
+      <div class="mb-6">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Mémorisation</p>
+        <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Mémo</h2>
+        <p class="mt-1 max-w-2xl text-sm text-zinc-400">
+          Retourne chaque carte, puis indique si tu connaissais la réponse. Les cartes non sues reviennent à la fin de la pile.
+        </p>
+      </div>
+
+      <template x-if="flashcardsLoading">
+        <div class="flex min-h-[22rem] items-center justify-center rounded-2xl border border-white/15 bg-white/[0.03]">
+          <div class="text-center">
+            <span class="mx-auto block h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-cyan-300"></span>
+            <p class="mt-3 text-sm text-zinc-500">Chargement des cartes…</p>
+          </div>
+        </div>
+      </template>
+
+      <div x-show="flashcardsError" x-cloak
+           class="rounded-2xl border border-rose-400/30 bg-rose-500/10 p-5 text-sm text-rose-200">
+        <p x-text="flashcardsError"></p>
+        <button type="button" @click="loadFlashcards(true)"
+                class="mt-3 rounded-lg border border-rose-300/40 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:border-rose-200">
+          Réessayer
+        </button>
+      </div>
+
+      <template x-if="!flashcardsLoading && !flashcardsError && currentFlashcard">
+        <div class="mx-auto max-w-3xl">
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-500">
+            <span class="inline-flex items-center gap-2">
+              <span class="rounded-full border border-white/15 bg-white/[0.03] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-cyan-200"
+                    x-text="currentFlashcard.category"></span>
+              <span x-text="`${flashcardKnown} / ${flashcards.length} mémorisées`"></span>
+            </span>
+            <span class="font-mono" x-text="`${flashcardQueue.length} carte${flashcardQueue.length > 1 ? 's' : ''} restante${flashcardQueue.length > 1 ? 's' : ''}`"></span>
+          </div>
+
+          <div class="h-2 overflow-hidden rounded-full border border-white/10 bg-black">
+            <div class="rainbow-bar h-full rounded-full transition-[width] duration-500 ease-out"
+                 :style="`width: ${flashcards.length ? Math.round((flashcardKnown / flashcards.length) * 100) : 0}%`"></div>
+          </div>
+
+          <div class="flashcard-scene mt-5 h-[22rem] cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 sm:h-[24rem]"
+               @click="flipFlashcard()"
+               @keydown.enter="flipFlashcard()"
+               @keydown.space.prevent="flipFlashcard()"
+               role="button" tabindex="0"
+               :aria-label="flashcardFlipped ? 'Afficher le recto de la carte' : 'Afficher la réponse de la carte'">
+            <div class="flashcard-card" :class="{ 'is-flipped': flashcardFlipped }">
+              <div class="flashcard-face flashcard-front">
+                <span class="rounded-full border border-fuchsia-300/30 bg-fuchsia-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-fuchsia-200">
+                  Recto
+                </span>
+                <p class="flashcard-question w-full px-2 text-2xl font-semibold leading-snug sm:text-3xl"
+                   x-text="currentFlashcard.front"></p>
+                <span class="text-[11px] text-zinc-500">Clique pour révéler la réponse</span>
+              </div>
+              <div class="flashcard-face flashcard-back">
+                <span class="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-cyan-200">
+                  Verso
+                </span>
+                <p class="flashcard-answer w-full px-2 text-xl font-medium leading-relaxed sm:text-2xl"
+                   x-text="currentFlashcard.back"></p>
+                <span class="text-[11px] text-zinc-500">Clique pour revenir au recto</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mx-auto mt-5 grid max-w-2xl gap-3 sm:grid-cols-2">
+            <button type="button" @click="markFlashcard(false)"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-400/40 bg-rose-500/10 px-4 py-3 text-sm font-semibold text-rose-200 transition hover:border-rose-300 hover:bg-rose-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+              Je ne savais pas
+            </button>
+            <button type="button" @click="markFlashcard(true)"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-4 py-3 text-sm font-bold text-black shadow-[0_0_24px_-8px_rgba(163,230,53,.8)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-300/70">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+              Je savais
+            </button>
+          </div>
+
+          <div class="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-between gap-3 text-[11px] text-zinc-500">
+            <span x-text="`${flashcardKnown} connue(s) · ${flashcardReview} révision(s)`"></span>
+            <button type="button" @click="restartFlashcards()"
+                    class="rounded-lg border border-white/15 px-2.5 py-1.5 text-[11px] text-zinc-400 transition hover:border-white/40 hover:text-white">
+              Recommencer la pile
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="!flashcardsLoading && !flashcardsError && flashcardsLoaded && !currentFlashcard">
+        <div class="mx-auto max-w-2xl rounded-2xl border border-lime-400/20 bg-lime-500/[0.06] p-8 text-center">
+          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-lime-300/40 bg-lime-400/10 text-lime-300">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+          </div>
+          <h3 class="mt-4 text-xl font-semibold text-white">Pile terminée</h3>
+          <p class="mt-2 text-sm text-zinc-400">
+            Toutes les cartes ont été marquées comme connues.
+          </p>
+          <p class="mt-1 font-mono text-xs text-zinc-500"
+             x-text="`${flashcardKnown} carte(s) mémorisée(s) · ${flashcardReview} révision(s)`"></p>
+          <button type="button" @click="restartFlashcards()"
+                  class="mt-5 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
+            Recommencer
+          </button>
+        </div>
+      </template>
+    </section>
+
+    <!-- ============ ONGLET DIAGNOSTIC ============ -->
+    <section x-show="tab === 'diagnostic'" x-cloak x-transition.opacity.duration.200ms>
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Résolution d’incident</p>
+          <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Diagnostic interactif</h2>
+          <p class="mt-1 max-w-2xl text-sm text-zinc-400">
+            Avance étape par étape comme sur un incident réel. Chaque décision te rapproche — ou t’éloigne — de la résolution.
+          </p>
+        </div>
+        <button type="button" @click="loadDiagnostic(true)" :disabled="diagnosticLoading"
+                class="rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-zinc-300 transition hover:border-cyan-300 hover:text-cyan-200 disabled:cursor-wait disabled:opacity-40">
+          Nouveau diagnostic
+        </button>
+      </div>
+
+      <template x-if="diagnosticLoading">
+        <div class="flex min-h-[22rem] items-center justify-center rounded-2xl border border-white/15 bg-white/[0.03]">
+          <div class="text-center">
+            <span class="mx-auto block h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-cyan-300"></span>
+            <p class="mt-3 text-sm text-zinc-500">Chargement du diagnostic…</p>
+          </div>
+        </div>
+      </template>
+
+      <div x-show="diagnosticError" x-cloak
+           class="rounded-2xl border border-rose-400/30 bg-rose-500/10 p-5 text-sm text-rose-200">
+        <p x-text="diagnosticError"></p>
+        <button type="button" @click="loadDiagnostic(true)"
+                class="mt-3 rounded-lg border border-rose-300/40 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:border-rose-200">
+          Réessayer
+        </button>
+      </div>
+
+      <template x-if="!diagnosticLoading && !diagnosticError && diagnostic && diagnosticStep">
+        <div class="mx-auto max-w-4xl">
+          <div class="overflow-hidden rounded-2xl border border-white/20 bg-black">
+            <div class="h-px w-full rainbow-line opacity-60"></div>
+            <div class="p-5 sm:p-7">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-cyan-200">
+                  Étape <span x-text="diagnosticPath.length + 1"></span>
+                </span>
+                <div class="flex items-center gap-2">
+                  <span class="rounded-full border px-2.5 py-1 font-mono text-[10px] font-semibold"
+                        :class="diagnosticSecondsLeft <= 30
+                          ? 'border-rose-400/40 bg-rose-500/10 text-rose-200'
+                          : 'border-white/15 bg-white/[0.03] text-zinc-300'">
+                    ⏱ <span x-text="formatDiagnosticTime()"></span>
+                  </span>
+                  <span class="font-mono text-[10px] text-zinc-500"
+                        x-text="`${diagnosticPath.length} décision${diagnosticPath.length > 1 ? 's' : ''} prise${diagnosticPath.length > 1 ? 's' : ''}`"></span>
+                </div>
+              </div>
+
+              <h3 class="mt-4 text-xl font-semibold text-white" x-text="diagnostic.title"></h3>
+              <p class="mt-1 max-w-3xl text-sm leading-relaxed text-zinc-400" x-text="diagnostic.description"></p>
+
+              <div class="mt-5 rounded-xl border border-white/15 bg-white/[0.035] p-4">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Situation</p>
+                <p class="mt-2 text-base leading-relaxed text-zinc-100" x-text="diagnosticStep.situation"></p>
+              </div>
+
+              <div class="mt-4 grid gap-2" x-show="diagnosticStep.choices.length">
+                <template x-for="(choice, index) in diagnosticStep.choices" :key="choice.id">
+                  <button type="button" @click="chooseDiagnostic(choice)"
+                          :disabled="diagnosticBusy || Boolean(diagnosticResult)"
+                          class="group flex w-full items-center gap-3 rounded-xl border border-white/15 bg-white/[0.025] px-4 py-3 text-left transition hover:border-cyan-300/60 hover:bg-cyan-400/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 disabled:cursor-wait disabled:opacity-50">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/20 bg-black font-mono text-[11px] text-zinc-400 group-hover:border-cyan-300/50 group-hover:text-cyan-200"
+                          x-text="String.fromCharCode(65 + index)"></span>
+                    <span class="min-w-0 flex-1 text-sm leading-relaxed text-zinc-200" x-text="choice.label"></span>
+                    <svg class="h-4 w-4 shrink-0 text-zinc-600 transition group-hover:translate-x-0.5 group-hover:text-cyan-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6"></path>
+                    </svg>
+                  </button>
+                </template>
+              </div>
+
+              <div x-show="diagnosticStep.type === 'command'" x-cloak class="mt-4 rounded-xl border border-cyan-300/25 bg-cyan-400/[0.04] p-4">
+                <label for="diagnostic-command" class="text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+                  Commande à saisir
+                </label>
+                <p class="mt-1 text-xs leading-relaxed text-zinc-400"
+                   x-text="diagnosticStep.command?.prompt || 'Tape la commande qui permet de continuer le diagnostic.'"></p>
+                <div class="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <input id="diagnostic-command" type="text" x-model="diagnosticCommand"
+                         :placeholder="diagnosticStep.command?.placeholder || 'Ex. ip route show'"
+                         @keydown.enter.prevent="submitDiagnosticCommand()"
+                         :disabled="diagnosticBusy || Boolean(diagnosticResult)"
+                         class="min-w-0 flex-1 rounded-lg border border-white/15 bg-black px-3 py-2 font-mono text-sm text-white placeholder:text-zinc-600 focus:border-cyan-300/60 focus:outline-none focus:ring-2 focus:ring-cyan-300/20 disabled:opacity-50"
+                         autocomplete="off" spellcheck="false">
+                  <button type="button" @click="submitDiagnosticCommand()"
+                          :disabled="diagnosticBusy || !diagnosticCommand.trim() || Boolean(diagnosticResult)"
+                          class="rounded-lg border border-cyan-300/40 bg-cyan-400/10 px-4 py-2 text-xs font-semibold text-cyan-100 transition hover:border-cyan-200 hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40">
+                    Valider la commande
+                  </button>
+                </div>
+                <p x-show="diagnosticCommandError" x-cloak class="mt-2 text-xs text-rose-300" x-text="diagnosticCommandError"></p>
+              </div>
+
+              <div x-show="diagnosticBusy" class="mt-4 flex items-center gap-2 text-xs text-zinc-500">
+                <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-300"></span>
+                Analyse du parcours…
+              </div>
+
+              <div x-show="diagnosticResult" x-cloak
+                   class="mt-5 rounded-xl border p-4"
+                   :class="diagnosticResult?.success
+                     ? 'border-lime-400/30 bg-lime-500/10'
+                     : 'border-rose-400/30 bg-rose-500/10'">
+                <p class="font-semibold"
+                   :class="diagnosticResult?.success ? 'text-lime-300' : 'text-rose-300'"
+                   x-text="diagnosticResult?.success ? 'Diagnostic résolu' : 'Chemin non optimal'"></p>
+                <p class="mt-1 text-sm leading-relaxed text-zinc-300" x-text="diagnosticResult?.explanation"></p>
+                <p x-show="diagnosticResult?.success" x-cloak
+                   class="mt-2 font-mono text-xs text-cyan-200"
+                   x-text="`+${diagnosticResult?.xp_awarded || 0} XP${diagnosticResult?.bonus_xp ? ` (dont +${diagnosticResult.bonus_xp} bonus rapidité)` : ''} · ${diagnosticResult?.user_stats?.total_xp || 0} XP au total`"></p>
+                <p x-show="diagnosticResult?.time_expired" x-cloak
+                   class="mt-2 font-mono text-xs text-rose-300"
+                   x-text="`Temps écoulé (${diagnosticResult?.elapsed_seconds || 0}s).`"></p>
+                <button type="button" @click="restartDiagnostic()"
+                        class="mt-3 rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-zinc-300 transition hover:border-white/50 hover:text-white">
+                  Recommencer le diagnostic
+                </button>
+              </div>
+
+              <div x-show="!diagnosticResult && !diagnosticBusy && !diagnosticStep.choices.length" x-cloak
+                   class="mt-4 rounded-xl border border-white/15 bg-white/[0.03] p-4">
+                <p class="text-sm text-zinc-400">Cette branche est terminée.</p>
+                <button type="button" @click="restartDiagnostic()"
+                        class="mt-3 rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-zinc-300 transition hover:border-white/50 hover:text-white">
+                  Recommencer
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div x-show="diagnosticPathLabels.length" class="mt-4 rounded-2xl border border-white/15 bg-white/[0.025] p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Ton parcours</p>
+            <ol class="mt-2 space-y-1.5">
+              <template x-for="(label, index) in diagnosticPathLabels" :key="`${index}-${label}`">
+                <li class="flex gap-2 text-xs leading-relaxed text-zinc-400">
+                  <span class="font-mono text-zinc-600" x-text="`${index + 1}.`"></span>
+                  <span x-text="label"></span>
+                </li>
+              </template>
+            </ol>
+          </div>
+        </div>
+      </template>
+    </section>
+
+    <!-- ============ ONGLET EXAMEN ============ -->
+    <section x-show="tab === 'exam'" x-cloak x-transition.opacity.duration.200ms>
+      <template x-if="!exam">
+        <div>
+          <div class="mb-6">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Évaluation</p>
+            <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Mode examen</h2>
+            <p class="mt-1 text-sm text-zinc-400">
+              Choisis une catégorie, réponds sans correction immédiate, puis découvre ton score.
+            </p>
+          </div>
+
+          <section class="overflow-hidden rounded-2xl border border-white/20 bg-black">
+            <div class="h-px w-full rainbow-line opacity-60"></div>
+            <div class="px-5 py-6 sm:px-6">
+              <div class="grid gap-3 sm:grid-cols-3">
+                <div class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                  <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Questions</p>
+                  <p class="mt-1 font-mono text-2xl font-semibold text-white">20</p>
+                  <p class="mt-1 text-[11px] text-zinc-500">Tirage aléatoire dans la catégorie</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                  <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Durée</p>
+                  <p class="mt-1 font-mono text-2xl font-semibold text-white">30:00</p>
+                  <p class="mt-1 text-[11px] text-zinc-500">Chronomètre automatique</p>
+                </div>
+                <div class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                  <p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Validation</p>
+                  <p class="mt-1 font-mono text-2xl font-semibold text-white">&gt; 85%</p>
+                  <p class="mt-1 text-[11px] text-zinc-500">Seuil de réussite</p>
+                </div>
+              </div>
+
+              <div class="mt-6 max-w-xl">
+                <label for="exam-category" class="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
+                  Catégorie
+                </label>
+                <select id="exam-category" x-model="examCategory"
+                        class="w-full rounded-lg border border-white/20 bg-black px-3 py-2.5 text-sm text-white outline-none focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20">
+                  <template x-for="category in examCategories" :key="category.name">
+                    <option :value="category.name"
+                            x-text="`${category.name} (${category.nodes} nœud${category.nodes > 1 ? 's' : ''})`"></option>
+                  </template>
+                </select>
+                <p x-show="!examCategories.length" x-cloak class="mt-2 text-xs text-zinc-500">
+                  Aucune catégorie avec des exercices n'est disponible.
+                </p>
+              </div>
+
+              <p x-show="examError" class="mt-4 rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200"
+                 x-text="examError"></p>
+
+              <div class="mt-5 flex flex-wrap items-center gap-3">
+                <button type="button" @click="startExam()" :disabled="!examCategory || examBusy"
+                        class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_24px_-8px_rgba(217,70,239,.85)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300 disabled:cursor-wait disabled:opacity-50">
+                  <svg class="h-4 w-4" :class="{ 'animate-spin': examBusy }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M13 6l6 6-6 6"></path>
+                  </svg>
+                  <span x-text="examBusy ? 'Préparation…' : 'Lancer l’examen'"></span>
+                </button>
+                <p class="text-[11px] text-zinc-500">Les corrections ne seront visibles qu'après la soumission.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </template>
+
+      <template x-if="exam && !examResult">
+        <div>
+          <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Examen en cours</p>
+              <h2 class="mt-1 text-xl font-semibold text-white" x-text="exam.category"></h2>
+              <p class="mt-1 text-xs text-zinc-500"
+                 x-text="`${examAnsweredCount}/${exam.questions.length} questions répondues`"></p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="rounded-xl border bg-black px-4 py-2 font-mono text-lg font-semibold"
+                   :class="examTimeRemaining <= 60
+                     ? 'border-rose-400/40 text-rose-300'
+                     : examTimeRemaining <= 300
+                       ? 'border-amber-300/40 text-amber-200'
+                       : 'border-lime-300/30 text-lime-300'">
+                <span aria-hidden="true">⏱</span>
+                <span x-text="formatExamTime()"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4 h-2 overflow-hidden rounded-full bg-white/10">
+            <div class="h-full rounded-full bg-gradient-to-r from-fuchsia-500 to-cyan-400 transition-[width] duration-300"
+                 :style="`width: ${examProgress}%`"></div>
+          </div>
+
+          <p x-show="exam.total < exam.requested" x-cloak
+             class="mb-4 rounded-lg border border-amber-300/30 bg-amber-400/10 px-3 py-2 text-sm text-amber-200"
+             x-text="`Cette catégorie ne contient que ${exam.total} question(s) ; l'examen utilise toutes les questions disponibles.`"></p>
+
+          <form @submit.prevent="submitExam(false)" class="space-y-4">
+            <template x-for="(question, index) in exam.questions" :key="question.id">
+              <article class="rounded-2xl border border-white/15 bg-black p-5">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="rounded-md border border-white/15 bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-zinc-300"
+                        x-text="`Question ${index + 1}`"></span>
+                  <span class="rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
+                        :class="question.type === 'terminal'
+                          ? 'border-lime-300/30 bg-lime-400/10 text-lime-200'
+                          : question.type === 'input'
+                            ? 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200'
+                            : 'border-fuchsia-300/30 bg-fuchsia-400/10 text-fuchsia-200'"
+                        x-text="question.type === 'terminal' ? 'Terminal' : question.type === 'input' ? 'Saisie' : 'QCM'"></span>
+                  <span class="ml-auto font-mono text-[10px] text-zinc-600" x-text="question.node_id"></span>
+                </div>
+
+                <p class="mt-3 text-sm font-medium leading-relaxed text-white" x-text="question.prompt"></p>
+
+                <template x-if="question.type === 'qcm'">
+                  <div class="mt-3 space-y-2">
+                    <template x-for="(choice, choiceIndex) in question.choices" :key="choiceIndex">
+                      <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-zinc-300 transition hover:border-white/30">
+                        <input type="radio" :name="`exam-${question.id}`" :value="choiceIndex"
+                               :checked="examAnswers[index] === choiceIndex"
+                               @change="examAnswers[index] = choiceIndex"
+                               class="mt-0.5 accent-fuchsia-400">
+                        <span x-text="choice"></span>
+                      </label>
+                    </template>
+                  </div>
+                </template>
+
+                <template x-if="question.type !== 'qcm'">
+                  <div class="mt-3 rounded-lg border border-white/15 bg-black p-3 font-mono">
+                    <div x-show="question.type === 'terminal'" class="mb-2 text-xs text-zinc-500">
+                      Console — saisie de commande
+                    </div>
+                    <label class="flex items-center gap-2">
+                      <span x-show="question.type === 'terminal'" class="text-lime-300" aria-hidden="true">$</span>
+                      <input type="text" :value="examAnswers[index] ?? ''"
+                             @input="examAnswers[index] = $event.target.value"
+                             :aria-label="`Réponse à la question ${index + 1}`"
+                             autocomplete="off" spellcheck="false"
+                             :placeholder="question.type === 'terminal' ? 'commande...' : 'Saisis ta réponse'"
+                             class="min-w-0 flex-1 bg-transparent py-1.5 text-sm text-white outline-none placeholder:text-zinc-600">
+                    </label>
+                  </div>
+                </template>
+              </article>
+            </template>
+
+            <p x-show="examError" class="rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200"
+               x-text="examError"></p>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/15 bg-black p-4">
+              <p class="text-[11px] text-zinc-500">Les corrections seront affichées après la soumission.</p>
+              <button type="submit" :disabled="examBusy"
+                      class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-lime-400 to-cyan-400 px-4 py-2.5 text-sm font-bold text-black transition hover:brightness-110 disabled:cursor-wait disabled:opacity-50">
+                <span x-text="examBusy ? 'Correction…' : 'Terminer l’examen'"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </template>
+
+      <template x-if="exam && examResult">
+        <div>
+          <div class="rounded-2xl border p-5 sm:p-6"
+               :class="examResult.passed
+                 ? 'border-lime-400/30 bg-lime-500/[0.06]'
+                 : 'border-rose-400/30 bg-rose-500/[0.06]'">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Résultat de l'examen</p>
+            <div class="mt-3 flex flex-wrap items-end gap-4">
+              <p class="font-mono text-5xl font-semibold"
+                 :class="examResult.passed ? 'text-lime-300' : 'text-rose-300'">
+                <span x-text="examResult.score"></span><span class="text-2xl text-zinc-500">/100</span>
+              </p>
+              <div>
+                <p class="text-lg font-semibold"
+                   :class="examResult.passed ? 'text-lime-300' : 'text-rose-300'"
+                   x-text="examResult.passed ? 'Validé' : 'Non validé'"></p>
+                <p class="text-sm text-zinc-400"
+                   x-text="`${examResult.correct}/${examResult.total} bonnes réponses — seuil > ${examResult.threshold}%`"></p>
+              </div>
+            </div>
+            <p x-show="examResult.time_expired" class="mt-3 rounded-lg border border-amber-300/30 bg-amber-400/10 px-3 py-2 text-sm text-amber-200">
+              Le temps est écoulé ; l'examen a été corrigé automatiquement.
+            </p>
+            <div class="mt-4">
+              <button type="button" @click="resetExam()"
+                      class="rounded-lg border border-white/20 bg-black px-4 py-2 text-sm text-zinc-300 transition hover:border-white/60 hover:text-white">
+                Nouvel examen
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <template x-for="(result, index) in examResult.results" :key="result.question_id">
+              <article class="rounded-xl border border-white/10 bg-black p-4">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <p class="min-w-0 flex-1 text-sm leading-relaxed text-white">
+                    <span class="mr-1 font-mono text-zinc-500" x-text="`${index + 1}.`"></span>
+                    <span x-text="exam.questions[index].prompt"></span>
+                  </p>
+                  <span class="shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]"
+                        :class="result.correct
+                          ? 'border-lime-300/30 bg-lime-400/10 text-lime-200'
+                          : 'border-rose-300/30 bg-rose-400/10 text-rose-200'"
+                        x-text="result.correct ? 'Correct' : 'Incorrect'"></span>
+                </div>
+                <p x-show="result.explanation" class="mt-2 text-xs leading-relaxed text-zinc-400"
+                   x-text="result.explanation"></p>
+                <p class="mt-2 font-mono text-[10px] text-zinc-600" x-text="exam.questions[index].node_id"></p>
+              </article>
+            </template>
+          </div>
+        </div>
+      </template>
+    </section>
   </main>
 
   <footer class="relative z-10 border-t border-white/10 py-6 text-center text-xs text-zinc-600">
@@ -714,8 +1933,9 @@
   </footer>
 
   <!-- ================= MODALE ================= -->
-  <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-6"
-       @keydown.escape.window="close()">
+  <div x-show="open" x-cloak class="fixed inset-0 z-50 flex justify-center overflow-y-auto overflow-x-hidden"
+       :class="isFullscreen ? 'items-stretch p-0' : 'items-start p-4 sm:p-6'"
+       @keydown.escape.window="labCheatSheetOpen ? (labCheatSheetOpen = false) : close()">
 
     <div class="modal-backdrop fixed inset-0 backdrop-blur-sm"
          x-show="open"
@@ -727,14 +1947,9 @@
          x-transition:leave-end="opacity-0"
          @click="close()"></div>
 
-    <div class="modal-panel relative my-8 w-full max-w-2xl overflow-hidden rounded-2xl border border-white/25 bg-black"
+    <div class="modal-panel relative flex flex-col overflow-hidden border border-white/25 bg-black"
+         :class="isFullscreen ? 'is-fullscreen m-0 h-screen w-screen max-w-none rounded-none' : 'my-8 w-full max-w-2xl rounded-2xl'"
          x-show="open"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 translate-y-4 scale-[0.98]"
-         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-         x-transition:leave-end="opacity-0 translate-y-2 scale-[0.98]"
          role="dialog" aria-modal="true" aria-labelledby="node-title">
 
       <div class="pointer-events-none absolute inset-x-0 top-0 h-px rainbow-line"></div>
@@ -750,8 +1965,8 @@
       </div>
 
       <template x-if="detail && !detailLoading">
-        <div>
-          <div class="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5 sm:px-8">
+        <div class="flex min-h-0 flex-col" :class="isFullscreen ? 'h-full' : ''">
+          <div class="flex shrink-0 items-start justify-between gap-4 border-b border-white/10 px-6 py-5 sm:px-8">
             <div class="min-w-0">
               <div class="mb-2 flex flex-wrap items-center gap-2">
                 <span class="text-[11px] font-semibold uppercase tracking-[0.14em]"
@@ -761,71 +1976,180 @@
                 <span class="text-[11px] text-zinc-600" x-text="detail.category"></span>
               </div>
               <h2 id="node-title" class="text-lg font-semibold leading-snug text-white sm:text-xl" x-text="detail.title"></h2>
+              <div x-show="lessonHtml" x-cloak class="mt-2 flex flex-wrap items-center gap-2">
+                <button type="button" @click="toggleLessonSpeech()"
+                        :aria-pressed="isSpeaking"
+                        :aria-label="ttsLoading ? 'Annuler la génération audio' : isSpeaking ? 'Arrêter la lecture du cours' : 'Écouter le cours'"
+                        :title="ttsLoading ? 'Annuler la génération' : isSpeaking ? 'Arrêter la lecture' : 'Écouter le cours'"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/[0.03] px-2.5 py-1 text-[11px] font-medium text-zinc-300 transition hover:border-cyan-300 hover:text-cyan-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+                  <svg x-show="ttsLoading" class="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                    <path d="M21 12a9 9 0 1 1-6.2-8.56"></path>
+                  </svg>
+                  <svg x-show="!ttsLoading && !isSpeaking" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+                    <path d="M18.5 5.5a9 9 0 0 1 0 13"></path>
+                  </svg>
+                  <svg x-show="!ttsLoading && isSpeaking" x-cloak class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+                  </svg>
+                  <span x-text="ttsLoading ? 'Génération…' : isSpeaking ? 'Arrêter' : 'Écouter'"></span>
+                </button>
+                <span x-show="speechError" x-cloak class="text-[11px] text-rose-300" x-text="speechError"></span>
+              </div>
             </div>
-            <button type="button" @click="close()"
-                    class="shrink-0 rounded-lg border border-white/20 bg-black p-1.5 text-zinc-500 transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
-                    aria-label="Fermer">
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <path d="M18 6 6 18M6 6l12 12"></path>
-              </svg>
-            </button>
+            <div class="flex shrink-0 items-center gap-1.5">
+              <button type="button" @click="toggleFullscreen()"
+                      :aria-label="isFullscreen ? 'Réduire la modale' : 'Maximiser la modale'"
+                      :title="isFullscreen ? 'Réduire' : 'Maximiser'"
+                      class="rounded-lg border border-white/20 bg-black p-1.5 text-zinc-500 transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80">
+                <svg x-show="!isFullscreen" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                </svg>
+                <svg x-show="isFullscreen" x-cloak class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3M16 3v3a2 2 0 0 0 2 2h3M8 21v-3a2 2 0 0 0-2-2H3M16 21v-3a2 2 0 0 1 2-2h3"></path>
+                </svg>
+              </button>
+              <button type="button" @click="close()"
+                      class="rounded-lg border border-white/20 bg-black p-1.5 text-zinc-500 transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                      aria-label="Fermer">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M18 6 6 18M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <div class="modal-scroll max-h-[65vh] overflow-y-auto px-6 py-6 sm:px-8">
+          <div class="modal-scroll overflow-y-auto px-6 py-6 sm:px-8"
+               :class="isFullscreen ? 'min-h-0 flex-1 max-h-none' : 'max-h-[65vh]'">
             <template x-if="lessonHtml">
               <section class="mb-5 rounded-xl border border-white/15 bg-white/[0.035] p-4 sm:p-5">
                 <div class="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
                   <span class="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-cyan-400 shadow-[0_0_12px_rgba(34,211,238,.7)]"></span>
                   Leçon
                 </div>
-                <article class="lesson-prose prose prose-invert max-w-none" x-html="lessonHtml"></article>
+                <article x-ref="lessonArticle" @click="copyLessonCode($event)"
+                         x-init="$nextTick(() => enhanceLessonCodeBlocks())"
+                         class="lesson-prose leading-relaxed max-w-none"
+                         :class="theme === 'dark' ? 'prose prose-invert max-w-none' : 'prose max-w-none'"
+                         x-html="lessonHtml"></article>
               </section>
             </template>
             <p x-show="lessonMissing" class="mb-5 rounded-xl border border-white/15 bg-white/[0.035] p-4 text-sm leading-relaxed text-zinc-300">
               Cours en cours de rédaction. Tu peux passer directement à l’exercice.
             </p>
-            <button type="button" @click="startExercise()"
-                    x-show="canStartExercise()"
-                    class="mb-6 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_24px_-8px_rgba(217,70,239,.85)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300">
-              Passer à l’exercice
-              <span aria-hidden="true">→</span>
-            </button>
+            <div x-show="canStartExercise() && !exerciseMode" x-cloak
+                 class="sticky bottom-0 z-20 -mx-6 mt-4 flex flex-col gap-2 border-t border-white/10 bg-black/90 px-6 py-3 backdrop-blur-sm sm:-mx-8 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+              <p class="hidden text-[11px] text-zinc-500 sm:block">Le cours reste lisible au-dessus ; l’exercice s’ouvre en bas.</p>
+              <button type="button" @click="startExercise()"
+                      class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_24px_-8px_rgba(217,70,239,.85)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300 sm:w-auto">
+                Passer à l’exercice
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+            <div x-ref="exerciseZone" x-show="canStartExercise() || detail.lab || detail.challenge" x-cloak
+                 class="mb-4 flex items-center gap-2 border-t border-white/10 pt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              <span class="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-amber-400 to-rose-400 shadow-[0_0_12px_rgba(251,146,60,.55)]"></span>
+              Exercices &amp; pratique
+            </div>
             <p x-show="exerciseError && !exerciseMode" class="mb-4 text-sm text-rose-300" x-text="exerciseError"></p>
             <template x-if="exerciseMode === 'input' || exerciseMode === 'terminal'">
               <section class="mb-6 rounded-xl border border-white/15 bg-white/[0.035] p-4">
                 <h3 class="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400"
                     x-text="exerciseMode === 'terminal' ? 'Console réseau' : 'Exercice de saisie'"></h3>
                 <p class="mb-4 text-sm leading-relaxed text-zinc-200" x-text="exerciseQuestion?.prompt"></p>
-                <form @submit.prevent="submitAnswer()" class="space-y-3">
-                  <template x-if="exerciseMode === 'input'">
-                    <input type="text" x-model="exerciseAnswer" autocomplete="off" spellcheck="false"
-                           placeholder="Saisis ta réponse"
-                           class="w-full rounded-lg border border-white/20 bg-black px-3 py-2.5 font-mono text-sm text-white outline-none placeholder:text-zinc-600 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20">
-                  </template>
-                  <template x-if="exerciseMode === 'terminal'">
-                    <div class="rounded-lg border border-white/15 bg-black p-3 font-mono text-sm">
-                      <div class="mb-2 text-xs text-zinc-500">Console Cisco IOS — saisie de commande</div>
-                      <label class="flex items-center gap-2 text-lime-300">
-                        <span aria-hidden="true">Switch(config-if)#</span>
-                        <input type="text" x-model="exerciseAnswer" autocomplete="off" spellcheck="false"
-                               aria-label="Commande Cisco"
-                               class="min-w-0 flex-1 bg-transparent py-1 text-white outline-none placeholder:text-zinc-700"
-                               placeholder="commande...">
-                      </label>
-                    </div>
-                  </template>
-                  <button type="submit" :disabled="exerciseBusy || !exerciseAnswer.trim()"
-                          class="rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-wait disabled:opacity-60">
-                    <span x-text="exerciseBusy ? 'Validation…' : 'Valider'"></span>
+
+                <div x-show="exerciseMode === 'terminal'" class="mb-4 inline-flex rounded-lg border border-white/15 bg-black p-1">
+                  <button type="button" @click="sandboxMode = false"
+                          class="rounded-md px-3 py-1.5 text-xs font-medium transition"
+                          :class="!sandboxMode ? 'theme-inverse' : 'text-zinc-400 hover:text-white'">
+                    Exercice
                   </button>
-                </form>
-                <p x-show="exerciseError" class="mt-3 text-sm text-rose-300" x-text="exerciseError"></p>
-                <div x-show="exerciseResult" class="mt-3 rounded-lg border px-3 py-3"
-                     :class="exerciseResult?.correct ? 'border-lime-400/30 bg-lime-500/10' : 'border-rose-400/30 bg-rose-500/10'">
-                  <p class="font-semibold"
-                     :class="exerciseResult?.correct ? 'text-lime-300' : 'text-rose-300'"
-                     x-text="exerciseResult?.correct ? 'Correct' : 'Incorrect'"></p>
-                  <p class="mt-1 text-sm text-zinc-300" x-text="exerciseResult?.explanation"></p>
+                  <button type="button" @click="sandboxMode = true"
+                          class="rounded-md px-3 py-1.5 text-xs font-medium transition"
+                          :class="sandboxMode ? 'theme-inverse' : 'text-zinc-400 hover:text-white'">
+                    Sandbox CLI
+                  </button>
+                </div>
+
+                <div x-show="!sandboxMode">
+                  <form @submit.prevent="submitAnswer()" class="space-y-3">
+                    <template x-if="exerciseMode === 'input'">
+                      <input type="text" x-model="exerciseAnswer" autocomplete="off" spellcheck="false"
+                             placeholder="Saisis ta réponse"
+                             class="w-full rounded-lg border border-white/20 bg-black px-3 py-2.5 font-mono text-sm text-white outline-none placeholder:text-zinc-600 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20">
+                    </template>
+                    <template x-if="exerciseMode === 'terminal'">
+                      <div class="rounded-lg border border-white/15 bg-black p-3 font-mono text-sm">
+                        <div class="mb-2 text-xs text-zinc-500">Console Cisco IOS — saisie de commande</div>
+                        <label class="flex items-center gap-2 text-lime-300">
+                          <span aria-hidden="true">Switch(config-if)#</span>
+                          <input type="text" x-model="exerciseAnswer" autocomplete="off" spellcheck="false"
+                                 aria-label="Commande Cisco"
+                                 class="min-w-0 flex-1 bg-transparent py-1 text-white outline-none placeholder:text-zinc-700"
+                                 placeholder="commande...">
+                        </label>
+                      </div>
+                    </template>
+                    <button type="submit" :disabled="exerciseBusy || !exerciseAnswer.trim()"
+                            class="rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-wait disabled:opacity-60">
+                      <span x-text="exerciseBusy ? 'Validation…' : 'Valider'"></span>
+                    </button>
+                  </form>
+                  <p x-show="exerciseError" class="mt-3 text-sm text-rose-300" x-text="exerciseError"></p>
+                  <div x-show="exerciseResult" class="mt-3 rounded-lg border px-3 py-3"
+                       :class="exerciseResult?.correct ? 'border-lime-400/30 bg-lime-500/10' : 'border-rose-400/30 bg-rose-500/10'">
+                    <p class="font-semibold"
+                       :class="exerciseResult?.correct ? 'text-lime-300' : 'text-rose-300'"
+                       x-text="exerciseResult?.correct ? 'Correct' : 'Incorrect'"></p>
+                    <p class="mt-1 text-sm text-zinc-300" x-text="exerciseResult?.explanation"></p>
+                  </div>
+                </div>
+
+                <div x-show="sandboxMode" x-cloak class="mt-3">
+                  <div class="terminal-shell overflow-hidden rounded-xl border border-white/10">
+                    <div class="terminal-head flex items-center gap-2 border-b border-white/10 px-3 py-2">
+                      <span class="h-3 w-3 rounded-full bg-[#ff5f57]" aria-hidden="true"></span>
+                      <span class="h-3 w-3 rounded-full bg-[#febc2e]" aria-hidden="true"></span>
+                      <span class="h-3 w-3 rounded-full bg-[#28c840]" aria-hidden="true"></span>
+                      <span class="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+                        sandbox@cisco — syntax
+                      </span>
+                      <span class="ml-auto rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-cyan-300">
+                        mode rapide
+                      </span>
+                    </div>
+                    <div x-ref="sandboxConsole" class="terminal-scroll max-h-56 overflow-y-auto p-3 font-mono text-xs leading-relaxed">
+                      <template x-for="(line, index) in sandboxOutput" :key="index">
+                        <div :class="line.kind === 'command'
+                          ? 'terminal-command my-1 rounded-r px-2 py-0.5 text-cyan-300'
+                          : line.kind === 'ok'
+                            ? 'text-lime-300'
+                            : line.kind === 'error'
+                              ? 'text-rose-300'
+                              : 'text-zinc-300'">
+                          <span x-show="line.kind === 'command'" class="mr-1 text-cyan-400" aria-hidden="true">$</span><span class="whitespace-pre-wrap break-words" x-text="line.text"></span>
+                        </div>
+                      </template>
+                      <div x-show="!sandboxOutput.length" class="text-zinc-500">Tape une commande Cisco puis Entrée.</div>
+                    </div>
+                    <form @submit.prevent="runSandboxCommand()"
+                          class="flex items-center gap-2 border-t border-white/10 bg-[#1e1e1e] px-3 py-2">
+                      <span class="font-mono text-xs text-cyan-400" aria-hidden="true">$</span>
+                      <input type="text" x-model="sandboxCommand" :disabled="sandboxBusy"
+                             autocomplete="off" spellcheck="false"
+                             aria-label="Commande Cisco pour la sandbox"
+                             placeholder="switchport mode access"
+                             class="min-w-0 flex-1 bg-transparent py-1 font-mono text-xs text-cyan-200 caret-cyan-300 outline-none placeholder:text-zinc-600">
+                      <span class="terminal-cursor" aria-hidden="true"></span>
+                      <button type="submit" :disabled="sandboxBusy || !sandboxCommand.trim()"
+                              class="rounded-md border border-white/20 px-2.5 py-1 text-[11px] text-zinc-300 transition hover:border-cyan-300 hover:text-cyan-200 disabled:opacity-40">
+                        Entrée
+                      </button>
+                    </form>
+                  </div>
+                  <p x-show="sandboxError" class="mt-2 text-xs text-rose-300" x-text="sandboxError"></p>
+                  <p class="mt-2 text-[11px] text-zinc-500">Vérification de syntaxe uniquement — aucun conteneur Docker n'est lancé.</p>
                 </div>
               </section>
             </template>
@@ -942,9 +2266,126 @@
 
             <template x-if="detail.lab">
               <div class="mt-6 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3">
-                <h3 class="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Lab</h3>
-                <p class="text-sm text-zinc-300" x-text="detail.lab.prompt"></p>
-                <p class="mt-1 text-xs text-zinc-500" x-text="detail.lab.kind === 'docker' ? 'Lab Docker — python main.py labd ' + detail.id : 'Lab texte — python main.py lab ' + detail.id"></p>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Lab</h3>
+                  <span class="rounded-md border border-white/15 bg-white/[0.03] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-zinc-400"
+                        x-text="detail.lab.kind === 'docker' ? 'Docker' : 'Texte'"></span>
+                  <span x-show="labRequirementMet()" x-cloak
+                        class="rounded-md border border-lime-300/30 bg-lime-400/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-lime-200">
+                    Déjà réussi
+                  </span>
+                </div>
+                <p class="mt-2 text-sm text-zinc-300" x-text="detail.lab.prompt"></p>
+                <p x-show="detail.lab.hint" class="mt-1 text-xs text-zinc-500"
+                   x-text="`Indice : ${detail.lab.hint}`"></p>
+
+                <template x-if="detail.lab.kind === 'text'">
+                  <p class="mt-2 font-mono text-xs text-zinc-500"
+                     x-text="`Lab texte — python main.py lab ${detail.id}`"></p>
+                </template>
+
+                <template x-if="detail.lab.kind === 'docker'">
+                  <div class="mt-3">
+                    <p x-show="detail.status === 'locked'" x-cloak
+                       class="rounded-lg border border-amber-300/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">
+                      Termine les prérequis avant de démarrer ce lab.
+                    </p>
+
+                    <template x-if="detail.status !== 'validated'">
+                      <div class="flex flex-wrap gap-2">
+                        <button type="button" @click="startLab()"
+                                :disabled="labBusy || labRunning || detail.status === 'locked'"
+                                class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-lime-400 to-cyan-400 px-3.5 py-2 text-sm font-semibold text-black transition hover:brightness-110 disabled:cursor-wait disabled:opacity-40">
+                          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 5v14l11-7z"></path>
+                          </svg>
+                          <span x-text="labBusy ? 'Patientez…' : 'Démarrer le Lab'"></span>
+                        </button>
+                        <button type="button" @click="labCheatSheetOpen = true"
+                                class="inline-flex items-center gap-2 rounded-lg border border-cyan-300/35 bg-cyan-400/5 px-3.5 py-2 text-sm text-cyan-200 transition hover:border-cyan-300 hover:bg-cyan-400/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60">
+                          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path>
+                          </svg>
+                          Aide-mémoire
+                        </button>
+                        <button type="button" @click="validateLab()" :disabled="!labRunning || labBusy"
+                                class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3.5 py-2 text-sm text-zinc-200 transition hover:border-lime-300 hover:text-lime-200 disabled:cursor-not-allowed disabled:opacity-40">
+                          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6 9 17l-5-5"></path>
+                          </svg>
+                          <span x-text="labBusy ? 'Patientez…' : 'Terminer et vérifier'"></span>
+                        </button>
+                      </div>
+                    </template>
+
+                    <p x-show="detail.status === 'validated'" x-cloak
+                       class="rounded-lg border border-lime-400/30 bg-lime-500/10 px-3 py-2 text-xs text-lime-200">
+                      Lab validé. Tu peux relancer un autre nœud de lab.
+                    </p>
+
+                    <p x-show="labError" class="mt-2 text-xs text-rose-300" x-text="labError"></p>
+
+                    <div x-show="labRunning" x-cloak class="terminal-shell mt-3 overflow-hidden rounded-xl border border-white/10">
+                      <div class="terminal-head flex items-center gap-2 border-b border-white/10 px-3 py-2">
+                        <span class="h-3 w-3 rounded-full bg-[#ff5f57]" aria-hidden="true"></span>
+                        <span class="h-3 w-3 rounded-full bg-[#febc2e]" aria-hidden="true"></span>
+                        <span class="h-3 w-3 rounded-full bg-[#28c840]" aria-hidden="true"></span>
+                        <span class="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+                          lab@skilltree — bash
+                        </span>
+                        <span class="ml-auto inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-emerald-300">
+                          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true"></span>
+                          live
+                        </span>
+                      </div>
+                      <div x-ref="labConsole" role="log" aria-live="polite" aria-relevant="additions"
+                           class="terminal-scroll max-h-72 overflow-y-auto p-3 font-mono text-xs leading-relaxed">
+                        <template x-for="(line, index) in labOutput" :key="index">
+                          <div :class="line.kind === 'command'
+                            ? 'terminal-command my-1 rounded-r px-2 py-0.5 text-cyan-300'
+                            : line.kind === 'error'
+                              ? 'text-rose-300'
+                              : line.kind === 'stderr'
+                                ? 'text-amber-200'
+                                : line.kind === 'system'
+                                  ? 'text-zinc-500'
+                                  : 'text-zinc-300'">
+                            <span x-show="line.kind === 'command'" class="mr-1 text-cyan-400" aria-hidden="true">$</span><span class="whitespace-pre-wrap break-words" x-text="line.text"></span>
+                          </div>
+                        </template>
+                        <div x-show="!labOutput.length" class="text-zinc-500">En attente de commandes…</div>
+                      </div>
+                      <form @submit.prevent="runLabCommand()"
+                            class="flex items-center gap-2 border-t border-white/10 bg-[#1e1e1e] px-3 py-2">
+                        <span class="font-mono text-xs text-cyan-400" aria-hidden="true">$</span>
+                        <input type="text" x-model="labCommand" :disabled="labBusy"
+                               autocomplete="off" spellcheck="false"
+                               aria-label="Commande du lab"
+                               placeholder="ip a, ping -c 2 ..., ss -tunap"
+                               class="min-w-0 flex-1 bg-transparent py-1 font-mono text-xs text-cyan-200 caret-cyan-300 outline-none placeholder:text-zinc-600">
+                        <span class="terminal-cursor" aria-hidden="true"></span>
+                        <button type="submit" :disabled="labBusy || !labCommand.trim()"
+                                class="rounded-md border border-white/20 px-2.5 py-1 text-[11px] text-zinc-300 transition hover:border-cyan-300 hover:text-cyan-200 disabled:opacity-40">
+                          Entrée
+                        </button>
+                      </form>
+                    </div>
+
+                    <div x-show="labValidation" x-cloak
+                         class="mt-3 rounded-lg border px-3 py-2 text-xs"
+                         :class="labValidation && labValidation.passed
+                           ? 'border-lime-400/30 bg-lime-500/10 text-lime-200'
+                           : 'border-rose-400/30 bg-rose-500/10 text-rose-200'">
+                      <p class="font-semibold"
+                         x-text="labValidation && labValidation.passed ? 'Lab réussi' : 'Lab échoué'"></p>
+                      <p class="mt-1" x-text="labValidation && labValidation.detail"></p>
+                      <pre x-show="labValidation && labValidation.logs"
+                           class="mt-2 max-h-40 overflow-auto whitespace-pre-wrap font-mono text-[11px] text-zinc-300"
+                           x-text="labValidation && labValidation.logs"></pre>
+                    </div>
+                  </div>
+                </template>
               </div>
             </template>
 
@@ -970,7 +2411,7 @@
             </div>
           </div>
 
-          <div class="flex flex-col-reverse gap-3 border-t border-white/10 bg-black px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <div class="flex shrink-0 flex-col-reverse gap-3 border-t border-white/10 bg-black px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
             <p class="text-[11px] text-zinc-500">
               La réinitialisation supprime toutes les tentatives de ce nœud et peut reverrouiller ses successeurs.
             </p>
@@ -990,9 +2431,259 @@
               </button>
             </div>
           </div>
+
+          <button type="button" x-show="lessonHtml && !tutorOpen" x-cloak
+                  @click="openTutor()"
+                  class="absolute bottom-44 right-5 z-30 inline-flex items-center gap-2 rounded-full border border-fuchsia-300/30 bg-black/90 px-3.5 py-2 text-xs font-semibold text-fuchsia-200 shadow-[0_12px_35px_-12px_rgba(217,70,239,.8)] backdrop-blur transition hover:border-fuchsia-200 hover:bg-fuchsia-500/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-300/70">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"></path>
+              <path d="M8 9h8M8 13h5"></path>
+            </svg>
+            Poser une question
+          </button>
+
+          <div x-show="tutorOpen" x-cloak
+               class="absolute bottom-44 right-5 z-30 flex max-h-[min(30rem,calc(100vh-14rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-fuchsia-300/25 bg-black/90 shadow-[0_30px_90px_-30px_rgba(217,70,239,.65)] backdrop-blur"
+               role="dialog" aria-modal="false" aria-labelledby="tutor-title">
+            <div class="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg border border-fuchsia-300/30 bg-fuchsia-400/10 text-fuchsia-200">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3a7 7 0 0 0-7 7c0 2.2 1 4.2 2.6 5.5V19l3-1.5h1.4A7 7 0 1 0 12 3Z"></path>
+                    <path d="M9.5 10h.01M14.5 10h.01M9 14c.8.7 1.8 1 3 1s2.2-.3 3-1"></path>
+                  </svg>
+                </span>
+                <div>
+                  <h3 id="tutor-title" class="text-sm font-semibold text-white">Tuteur IA</h3>
+                  <p class="text-[10px] text-zinc-500">Questions sur ce cours</p>
+                </div>
+              </div>
+              <button type="button" @click="tutorOpen = false"
+                      class="rounded-lg border border-white/15 bg-black p-1.5 text-zinc-500 transition hover:border-white/40 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                      aria-label="Fermer le tuteur">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <path d="M18 6 6 18M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div x-ref="tutorHistory" class="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+              <template x-if="tutorMessages.length === 0">
+                <p class="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs leading-relaxed text-zinc-500">
+                  Pose une question sur ce que tu viens de lire. Le tuteur répondra avec le contexte du nœud.
+                </p>
+              </template>
+              <template x-for="(message, index) in tutorMessages" :key="index">
+                <div :class="message.role === 'user'
+                  ? 'ml-auto max-w-[88%] rounded-xl rounded-br-sm bg-fuchsia-500/15 px-3 py-2'
+                  : 'mr-auto max-w-[92%] rounded-xl rounded-bl-sm border border-white/10 bg-white/[0.04] px-3 py-2'">
+                  <p class="text-[9px] font-semibold uppercase tracking-[0.14em]"
+                     :class="message.role === 'user' ? 'text-fuchsia-200' : 'text-cyan-200'"
+                     x-text="message.role === 'user' ? 'Toi' : 'Tuteur IA'"></p>
+                  <p class="mt-1 whitespace-pre-wrap text-sm leading-relaxed"
+                     :class="message.role === 'user' ? 'text-zinc-100' : 'text-zinc-300'"
+                     x-text="message.text"></p>
+                </div>
+              </template>
+              <div x-show="tutorBusy" class="mr-auto flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-zinc-500">
+                <span class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-cyan-300/20 border-t-cyan-300"></span>
+                <span>Le tuteur analyse le cours… <span class="text-zinc-600">(quelques secondes)</span></span>
+              </div>
+            </div>
+
+            <p x-show="tutorError" class="border-t border-rose-400/20 px-3 py-2 text-[11px] text-rose-300" x-text="tutorError"></p>
+
+            <form @submit.prevent="askTutor()" class="flex shrink-0 gap-2 border-t border-white/10 p-3">
+              <input type="text" x-ref="tutorInput" x-model="tutorQuestion" :disabled="tutorBusy"
+                     autocomplete="off" placeholder="Pose ta question…"
+                     aria-label="Question pour le tuteur"
+                     class="min-w-0 flex-1 rounded-lg border border-white/15 bg-black px-3 py-2 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-fuchsia-300 focus:ring-2 focus:ring-fuchsia-400/20 disabled:opacity-60">
+              <button type="submit" :disabled="tutorBusy || !tutorQuestion.trim()"
+                      class="rounded-lg bg-gradient-to-r from-fuchsia-500 to-purple-500 px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110 disabled:cursor-wait disabled:opacity-50">
+                Envoyer
+              </button>
+            </form>
+          </div>
         </div>
       </template>
     </div>
+  </div>
+
+  <audio x-ref="lessonAudio" class="hidden" preload="none"
+         @ended="isSpeaking = false"
+         @error="onLessonAudioError()"></audio>
+
+  <!-- ================= CERTIFICAT ================= -->
+  <div x-show="certificateOpen" x-cloak
+       class="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/80 p-4 backdrop-blur-sm"
+       role="dialog" aria-modal="true" aria-labelledby="certificate-title"
+       @click.self="certificateOpen = false">
+    <div class="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-amber-300/30 bg-gradient-to-br from-[#17140b] via-black to-[#1a1206] p-1 shadow-[0_40px_120px_-40px_rgba(251,191,36,.55)]">
+      <div class="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-amber-300/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl"></div>
+      <div class="relative overflow-hidden rounded-[1.35rem] border border-white/10 px-6 py-8 sm:px-10 sm:py-10">
+        <div class="pointer-events-none absolute inset-x-0 top-0 h-px rainbow-line opacity-70"></div>
+
+        <button type="button" @click="certificateOpen = false"
+                class="absolute right-3 top-3 rounded-lg border border-white/15 bg-black/60 p-2 text-zinc-400 transition hover:border-white/50 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                aria-label="Fermer le certificat">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+
+        <div class="text-center">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-amber-300/40 bg-gradient-to-br from-amber-300/20 to-cyan-400/10 text-3xl shadow-[0_0_40px_-12px_rgba(251,191,36,.8)]">
+            🏅
+          </div>
+          <p class="mt-4 text-[10px] font-semibold uppercase tracking-[0.28em] text-amber-200/70">Skill Tree Academy</p>
+          <h2 id="certificate-title" class="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            Certificat d'Admin Réseau Senior
+          </h2>
+          <div class="mx-auto mt-4 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent"></div>
+          <p class="mt-5 text-xs uppercase tracking-[0.2em] text-zinc-500">Décerné à</p>
+          <p class="mt-2 font-serif text-3xl italic text-amber-100 sm:text-4xl"
+             x-text="profile?.certificate?.name || 'Ton Nom'"></p>
+          <p class="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-zinc-400">
+            pour avoir progressé dans le parcours Admin Réseau Senior et validé
+            les compétences fondamentales du skill tree.
+          </p>
+
+          <div class="mx-auto mt-7 grid max-w-xl grid-cols-3 gap-3">
+            <div class="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+              <p class="text-[9px] uppercase tracking-[0.16em] text-zinc-500">Niveau</p>
+              <p class="mt-1 font-semibold text-white" x-text="profile?.level.level_name || userStats.level_name"></p>
+            </div>
+            <div class="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+              <p class="text-[9px] uppercase tracking-[0.16em] text-zinc-500">XP total</p>
+              <p class="mt-1 font-mono font-semibold text-cyan-200" x-text="profile?.level.total_xp ?? userStats.total_xp"></p>
+            </div>
+            <div class="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+              <p class="text-[9px] uppercase tracking-[0.16em] text-zinc-500">Date</p>
+              <p class="mt-1 font-mono text-sm text-white" x-text="profile?.certificate?.date || '—'"></p>
+            </div>
+          </div>
+
+          <div class="mx-auto mt-8 flex max-w-xl items-end justify-between gap-4">
+            <div class="text-left">
+              <p class="font-serif text-2xl italic text-white">Skill Tree</p>
+              <p class="mt-1 border-t border-white/15 pt-1 text-[9px] uppercase tracking-[0.16em] text-zinc-500">Signature</p>
+            </div>
+            <div class="flex h-14 w-14 items-center justify-center rounded-full border border-amber-300/40 bg-amber-300/10 text-[9px] font-semibold uppercase leading-tight tracking-[0.12em] text-amber-200">
+              Réseau<br>Senior
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= BOUTIQUE ================= -->
+  <div x-show="shopOpen" x-cloak
+       class="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/80 p-4 backdrop-blur-sm"
+       role="dialog" aria-modal="true" aria-labelledby="shop-title"
+       @click.self="shopOpen = false">
+    <div class="w-full max-w-2xl overflow-hidden rounded-3xl border border-amber-300/30 bg-[#0c0a06] shadow-[0_40px_120px_-40px_rgba(251,191,36,.45)]">
+      <div class="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-200/70">SkillCoins</p>
+          <h2 id="shop-title" class="mt-1 text-xl font-semibold text-white">Boutique</h2>
+          <p class="mt-1 text-xs text-zinc-500">Des bonus pour continuer à progresser.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="rounded-xl border border-amber-300/30 bg-amber-300/10 px-3 py-2 font-mono text-sm font-semibold text-amber-100">
+            🪙 <span x-text="userStatsLoading ? '…' : userStats.coins"></span>
+          </span>
+          <button type="button" @click="shopOpen = false"
+                  class="rounded-lg border border-white/15 bg-black/60 p-2 text-zinc-400 transition hover:border-white/50 hover:text-white"
+                  aria-label="Fermer la boutique">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="max-h-[65vh] overflow-y-auto p-6">
+        <p x-show="shopError" x-cloak
+           class="mb-4 rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200"
+           x-text="shopError"></p>
+        <div x-show="shopLoading" class="flex items-center justify-center py-12 text-sm text-zinc-500">
+          <span class="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-amber-300"></span>
+          Chargement de la boutique…
+        </div>
+        <div x-show="!shopLoading" class="grid gap-3 sm:grid-cols-2">
+          <template x-for="item in shopItems" :key="item.id">
+            <article class="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <div class="flex items-start justify-between gap-3">
+                <span class="text-2xl" aria-hidden="true" x-text="item.type === 'streak_freeze' ? '🧊' : '💡'"></span>
+                <span class="rounded-full border border-amber-300/25 bg-amber-300/10 px-2 py-1 font-mono text-[10px] text-amber-100"
+                      x-text="`🪙 ${item.prix}`"></span>
+              </div>
+              <h3 class="mt-3 text-sm font-semibold text-white" x-text="item.nom"></h3>
+              <p class="mt-1 flex-1 text-xs leading-relaxed text-zinc-400" x-text="item.description"></p>
+              <p x-show="item.quantity > 0" class="mt-2 text-[10px] text-cyan-200"
+                 x-text="`Possédé : ${item.quantity}`"></p>
+              <button type="button" @click="buyShopItem(item)"
+                      :disabled="shopBusyId === item.id || userStats.coins < item.prix"
+                      class="mt-3 rounded-lg border border-amber-300/35 bg-amber-300/10 px-3 py-2 text-xs font-semibold text-amber-100 transition hover:border-amber-200 hover:bg-amber-300/15 disabled:cursor-not-allowed disabled:opacity-40">
+                <span x-show="shopBusyId === item.id">Achat…</span>
+                <span x-show="shopBusyId !== item.id">Acheter</span>
+              </button>
+            </article>
+          </template>
+        </div>
+      </div>
+      <div class="border-t border-white/10 px-6 py-3 text-[10px] leading-relaxed text-zinc-600">
+        Les SkillCoins se gagnent en validant des exercices, des labs et des examens. Le multiplicateur de streak s'applique aux gains.
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= AIDE-MÉMOIRE DES LABS ================= -->
+  <div x-show="labCheatSheetOpen" x-cloak
+       class="fixed inset-0 z-[70]"
+       role="dialog" aria-modal="true" aria-labelledby="lab-cheatsheet-title">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="labCheatSheetOpen = false"></div>
+    <aside class="absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-white/15 bg-black shadow-2xl">
+      <div class="flex shrink-0 items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Lab interactif</p>
+          <h3 id="lab-cheatsheet-title" class="mt-1 text-lg font-semibold text-white">Aide-mémoire</h3>
+          <p class="mt-1 text-xs text-zinc-500">Commandes utiles pour ce lab.</p>
+        </div>
+        <button type="button" @click="labCheatSheetOpen = false"
+                class="shrink-0 rounded-lg border border-white/20 bg-black p-1.5 text-zinc-500 transition hover:border-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                aria-label="Fermer l’aide-mémoire">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="min-h-0 flex-1 space-y-6 overflow-y-auto p-5">
+        <template x-for="section in labCheatSheet" :key="section.title">
+          <section>
+            <h4 class="text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-200" x-text="section.title"></h4>
+            <ul class="mt-2 space-y-2">
+              <template x-for="item in section.items" :key="item.cmd">
+                <li class="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+                  <code class="block select-all whitespace-pre-wrap break-words font-mono text-xs text-cyan-200" x-text="item.cmd"></code>
+                  <p class="mt-1 text-[11px] leading-relaxed text-zinc-500" x-text="item.note"></p>
+                </li>
+              </template>
+            </ul>
+          </section>
+        </template>
+      </div>
+
+      <div class="shrink-0 border-t border-white/10 p-4">
+        <button type="button" @click="labCheatSheetOpen = false"
+                class="w-full rounded-lg border border-white/20 px-3.5 py-2.5 text-sm text-zinc-300 transition hover:border-cyan-300 hover:text-cyan-200">
+          Fermer l’aide-mémoire
+        </button>
+      </div>
+    </aside>
   </div>
 
   <noscript>
@@ -1009,6 +2700,8 @@
       firewall: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"></rect><path d="M3 10h18M3 15h18M8 5v5M16 10v5M8 15v4"></path></svg>',
       server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="8" rx="2"></rect><rect x="3" y="13" width="18" height="8" rx="2"></rect><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"></path></svg>',
       cloud: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.2 8.4 4.8 4.8 0 0 0 7 18Z"></path></svg>',
+      vpc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="2" stroke-dasharray="3 2"></rect><path d="M6.5 8.5h4v3h-4zM13.5 12.5h4v3h-4zM10.5 10h3M9 11.5v3M13.5 14h-2.5"></path></svg>',
+      subnet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="6" rx="1.5"></rect><rect x="3" y="14" width="18" height="6" rx="1.5"></rect><path d="M7 7h10M7 17h10"></path></svg>',
       wifi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a14 14 0 0 1 18 0M6 12a9 9 0 0 1 12 0M9 15a4.5 4.5 0 0 1 6 0"></path><circle cx="12" cy="19" r="1"></circle></svg>',
       laptop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="12" rx="1.5"></rect><path d="M2.5 20h19l-2-4h-15l-2 4Z"></path></svg>',
     };
@@ -1026,12 +2719,50 @@
         total: 0,
         validated: 0,
         loading: true,
+        reloadBusy: false,
+        streakDays: 0,
+        streakMinutesToday: 0,
+        streakLoading: true,
+        streakError: null,
+        userStats: {
+          total_xp: 0,
+          current_level: 1,
+          level_name: 'Débutant',
+          level_xp: 0,
+          next_level: 2,
+          next_level_xp: 500,
+          xp_in_level: 0,
+          xp_to_next: 500,
+          progress_percent: 0,
+          max_level: false,
+          coins: 0,
+          freezes: 0,
+        },
+        userStatsLoading: true,
+        userStatsError: null,
+        profile: null,
+        profileLoading: true,
+        profileError: null,
+        certificateOpen: false,
+        shopOpen: false,
+        shopItems: [],
+        shopLoading: false,
+        shopError: null,
+        shopBusyId: null,
+        toasts: [],
+        toastCounter: 0,
         error: null,
         open: false,
         detail: null,
         lessonHtml: '',
         lessonMissing: false,
         detailLoading: false,
+        isFullscreen: false,
+        isSpeaking: false,
+        ttsLoading: false,
+        ttsObjectUrl: null,
+        ttsAbortController: null,
+        speechError: null,
         resetBusy: false,
         quiz: null,
         quizAnswers: [],
@@ -1044,6 +2775,89 @@
         exerciseResult: null,
         exerciseError: null,
         exerciseBusy: false,
+        sandboxMode: false,
+        sandboxCommand: '',
+        sandboxOutput: [],
+        sandboxBusy: false,
+        sandboxError: null,
+        tutorOpen: false,
+        tutorQuestion: '',
+        tutorMessages: [],
+        tutorBusy: false,
+        tutorError: null,
+        labId: null,
+        labContainerId: null,
+        labBusy: false,
+        labRunning: false,
+        labOutput: [],
+        labCommand: '',
+        labError: null,
+        labValidation: null,
+        labCheatSheetOpen: false,
+        labCheatSheet: [
+          {
+            title: 'Linux / IP',
+            items: [
+              { cmd: 'ip a', note: 'Lister les interfaces et adresses IP' },
+              { cmd: 'ip route', note: 'Afficher la table de routage' },
+              { cmd: 'ping -c 4 8.8.8.8', note: 'Tester la connectivité' },
+              { cmd: 'ip netns exec <namespace> <commande>', note: 'Exécuter une commande dans un namespace' },
+            ],
+          },
+          {
+            title: 'Bridge / VLAN',
+            items: [
+              { cmd: 'bridge vlan show', note: 'Afficher les VLANs par interface' },
+              { cmd: 'bridge link show', note: 'Afficher les ports du bridge' },
+            ],
+          },
+          {
+            title: 'Cisco / routage',
+            items: [
+              { cmd: 'switchport mode trunk', note: 'Passer un port Cisco en trunk' },
+              { cmd: 'ip route add <réseau> via <passerelle>', note: 'Ajouter une route (Linux/IP)' },
+            ],
+          },
+        ],
+        dailyPlan: [],
+        dailyPlanLoading: true,
+        dailyPlanError: null,
+        stats: null,
+        statsLoading: false,
+        statsError: null,
+        flashcards: [],
+        flashcardQueue: [],
+        flashcardsLoading: false,
+        flashcardsLoaded: false,
+        flashcardsError: null,
+        flashcardFlipped: false,
+        flashcardKnown: 0,
+        flashcardReview: 0,
+        diagnosticId: 'network_down',
+        diagnostic: null,
+        diagnosticLoading: false,
+        diagnosticError: null,
+        diagnosticStepId: null,
+        diagnosticStep: null,
+        diagnosticPath: [],
+        diagnosticPathLabels: [],
+        diagnosticResult: null,
+        diagnosticBusy: false,
+        diagnosticCommand: '',
+        diagnosticCommandError: null,
+        diagnosticTimeLimit: 120,
+        diagnosticSecondsLeft: 120,
+        diagnosticStartedAt: null,
+        diagnosticTimer: null,
+        exam: null,
+        examAnswers: [],
+        examResult: null,
+        examError: null,
+        examBusy: false,
+        examCategory: '',
+        examTimeRemaining: 0,
+        examDeadline: null,
+        examTimer: null,
 
         /* ---------- topologie ---------- */
         devices: [
@@ -1053,12 +2867,15 @@
           { type: 'firewall', label: 'Firewall', hint: 'Filtrage', icon: TOPO_ICONS.firewall },
           { type: 'server', label: 'Serveur', hint: 'Services réseau', icon: TOPO_ICONS.server },
           { type: 'cloud', label: 'Cloud / Internet', hint: 'Réseau externe', icon: TOPO_ICONS.cloud },
+          { type: 'vpc', label: 'VPC', hint: 'Réseau cloud isolé', icon: TOPO_ICONS.vpc },
+          { type: 'subnet', label: 'Subnet', hint: 'Public / privé', icon: TOPO_ICONS.subnet },
           { type: 'wifi', label: 'Borne WiFi / Access Point', hint: 'Accès sans fil', icon: TOPO_ICONS.wifi },
           { type: 'laptop', label: 'PC Portable', hint: 'Poste mobile', icon: TOPO_ICONS.laptop },
         ],
         topologyEditor: null,
         topologyReady: false,
         topologyLoading: false,
+        topologyExporting: false,
         topologyError: null,
         nodeCount: 0,
         savedAt: null,
@@ -1074,24 +2891,81 @@
         challengeResult: null,
 
         async init() {
-          await this.loadTree();
+          await this.refreshAll();
+          this.examCategory = this.examCategories[0]?.name || '';
+        },
+
+        async refreshAll() {
+          const tasks = [
+            this.loadTree(),
+            this.loadDailyPlan(),
+            this.loadStreak(),
+            this.loadUserStats(),
+            this.loadProfile(),
+          ];
+          if (this.tab === 'stats' && this.stats) tasks.push(this.loadStats());
+          await Promise.all(tasks);
+        },
+
+        async reloadContent() {
+          if (this.reloadBusy) return;
+          this.reloadBusy = true;
+          this.error = null;
+          try {
+            const response = await fetch('/api/reload-content', {
+              method: 'POST',
+              headers: { Accept: 'application/json' },
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.flashcardsLoaded = false;
+            await this.refreshAll();
+            if (this.tab === 'memo') await this.loadFlashcards(true);
+          } catch (error) {
+            this.error = `Rechargement des cours impossible : ${error.message}`;
+          } finally {
+            this.reloadBusy = false;
+          }
         },
 
         setTheme(theme) {
           this.theme = theme === 'light' ? 'light' : 'dark';
-          document.documentElement.classList.toggle('light', this.theme === 'light');
+          const isLight = this.theme === 'light';
+          document.documentElement.classList.toggle('light', isLight);
+          document.documentElement.classList.toggle('dark', !isLight);
+          document.documentElement.style.colorScheme = this.theme;
           try {
             localStorage.setItem('skilltree-theme', this.theme);
           } catch (error) { /* stockage indisponible */ }
         },
 
+        toggleTheme() {
+          this.setTheme(this.theme === 'dark' ? 'light' : 'dark');
+        },
+
         async setTab(name) {
           if (this.challengeActive && name !== 'topology') return;
           if (this.tab === name) return;
+          if (this.exam && !this.examResult && name !== 'exam') {
+            const confirmed = window.confirm(
+              "Un examen est en cours. Le chronomètre continue. Quitter l'onglet ?"
+            );
+            if (!confirmed) return;
+          }
           this.tab = name;
           if (name === 'topology') {
             await this.$nextTick();
             this.initTopology();
+          }
+          if (name === 'stats') {
+            await this.$nextTick();
+            await this.loadStats();
+          }
+          if (name === 'memo') {
+            await this.loadFlashcards();
+          }
+          if (name === 'diagnostic') {
+            await this.loadDiagnostic();
           }
         },
 
@@ -1111,6 +2985,361 @@
           } finally {
             this.loading = false;
           }
+        },
+
+        async loadDailyPlan() {
+          this.dailyPlanLoading = true;
+          this.dailyPlanError = null;
+          try {
+            const response = await fetch('/api/daily-plan', { headers: { Accept: 'application/json' } });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.dailyPlan = data.actions || [];
+          } catch (error) {
+            this.dailyPlanError = `Impossible de charger la session du jour : ${error.message}`;
+          } finally {
+            this.dailyPlanLoading = false;
+          }
+        },
+
+        async loadStreak() {
+          this.streakLoading = true;
+          this.streakError = null;
+          try {
+            const response = await fetch('/api/streak', {
+              headers: { Accept: 'application/json' },
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.streakDays = Number(data.days) || 0;
+            this.streakMinutesToday = Number(data.minutes_today) || 0;
+            this.userStats.freezes = Number(data.freezes) || 0;
+          } catch (error) {
+            this.streakError = `Impossible de charger le streak : ${error.message}`;
+          } finally {
+            this.streakLoading = false;
+          }
+        },
+
+        async loadUserStats() {
+          this.userStatsLoading = true;
+          this.userStatsError = null;
+          try {
+            const response = await fetch('/api/user-stats', {
+              headers: { Accept: 'application/json' },
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.userStats = data;
+          } catch (error) {
+            this.userStatsError = `Impossible de charger les XP : ${error.message}`;
+          } finally {
+            this.userStatsLoading = false;
+          }
+        },
+
+        async loadProfile() {
+          this.profileLoading = true;
+          this.profileError = null;
+          try {
+            const response = await fetch('/api/profile', {
+              headers: { Accept: 'application/json' },
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.profile = data;
+          } catch (error) {
+            this.profileError = `Impossible de charger le profil : ${error.message}`;
+          } finally {
+            this.profileLoading = false;
+          }
+        },
+
+        pushToast(title, message, tone = 'info', icon = '✦') {
+          const toast = {
+            id: ++this.toastCounter,
+            title,
+            message,
+            tone,
+            icon,
+          };
+          this.toasts.push(toast);
+          setTimeout(() => {
+            this.toasts = this.toasts.filter((item) => item.id !== toast.id);
+          }, 5200);
+        },
+
+        celebrate() {
+          if (typeof window.confetti !== 'function') return;
+          const colors = ['#fbbf24', '#22d3ee', '#a3e635', '#e879f9'];
+          window.confetti({
+            particleCount: 90,
+            spread: 75,
+            origin: { y: 0.62 },
+            colors,
+            scalar: 0.9,
+          });
+          setTimeout(() => {
+            window.confetti({
+              particleCount: 45,
+              spread: 55,
+              origin: { x: 0.18, y: 0.55 },
+              colors,
+            });
+          }, 140);
+        },
+
+        applyGamification(data) {
+          if (!data) return;
+          if (data.user_stats) this.userStats = data.user_stats;
+          const reward = data.reward;
+          if (reward && (reward.xp > 0 || reward.coins > 0)) {
+            const multiplier = reward.multiplier && reward.multiplier > 1
+              ? ` · ×${reward.multiplier} streak`
+              : '';
+            this.pushToast(
+              'Gains',
+              `+${reward.xp || 0} XP · +${reward.coins || 0} 🪙${multiplier}`,
+              'info',
+              '✨'
+            );
+          }
+          if (reward?.level_up) {
+            this.celebrate();
+            this.pushToast(
+              'Niveau supérieur',
+              `Tu passes au niveau ${reward.stats?.current_level ?? this.userStats.current_level} · ${reward.stats?.level_name ?? this.userStats.level_name}`,
+              'level',
+              '🚀'
+            );
+          }
+          for (const badge of data.new_badges || []) {
+            this.celebrate();
+            this.pushToast(
+              'Badge débloqué',
+              `${badge.icone || '🏅'} ${badge.nom} — ${badge.description}`,
+              'badge',
+              '🏅'
+            );
+          }
+        },
+
+        async openShop() {
+          this.shopOpen = true;
+          this.shopLoading = true;
+          this.shopError = null;
+          try {
+            const response = await fetch('/api/shop', {
+              headers: { Accept: 'application/json' },
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.shopItems = data.items || [];
+            if (data.coins != null) this.userStats.coins = data.coins;
+          } catch (error) {
+            this.shopError = `Boutique indisponible : ${error.message}`;
+          } finally {
+            this.shopLoading = false;
+          }
+        },
+
+        async buyShopItem(item) {
+          if (!item || this.shopBusyId || this.userStats.coins < item.prix) return;
+          this.shopBusyId = item.id;
+          this.shopError = null;
+          try {
+            const response = await fetch('/api/shop/buy', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ item_id: item.id }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.shopItems = data.items || this.shopItems;
+            if (data.coins != null) this.userStats.coins = data.coins;
+            this.pushToast('Achat effectué', data.message || `${item.nom} ajouté.`, 'info', '🪙');
+            await this.loadProfile();
+          } catch (error) {
+            this.shopError = `Achat impossible : ${error.message}`;
+          } finally {
+            this.shopBusyId = null;
+          }
+        },
+
+        downloadCertificate() {
+          this.certificateOpen = false;
+          window.location.href = '/api/certificate';
+        },
+
+        async loadStats() {
+          this.statsLoading = true;
+          this.statsError = null;
+          try {
+            const response = await fetch('/api/stats', { headers: { Accept: 'application/json' } });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.stats = data;
+          } catch (error) {
+            this.statsError = `Impossible de charger les statistiques : ${error.message}`;
+          } finally {
+            this.statsLoading = false;
+          }
+        },
+
+        async loadFlashcards(force = false) {
+          if (this.flashcardsLoaded && !force) return;
+          this.flashcardsLoading = true;
+          this.flashcardsError = null;
+          try {
+            const response = await fetch('/api/flashcards', {
+              headers: { Accept: 'application/json' },
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            const cards = Array.isArray(data.cards) ? data.cards : [];
+            this.flashcards = cards;
+            this.flashcardQueue = cards.slice();
+            this.flashcardFlipped = false;
+            this.flashcardKnown = 0;
+            this.flashcardReview = 0;
+            this.flashcardsLoaded = true;
+          } catch (error) {
+            this.flashcards = [];
+            this.flashcardQueue = [];
+            this.flashcardsLoaded = false;
+            this.flashcardsError = `Impossible de charger les cartes : ${error.message}`;
+          } finally {
+            this.flashcardsLoading = false;
+          }
+        },
+
+        flipFlashcard() {
+          if (this.currentFlashcard) this.flashcardFlipped = !this.flashcardFlipped;
+        },
+
+        markFlashcard(known) {
+          if (!this.flashcardQueue.length) return;
+          const card = this.flashcardQueue.shift();
+          if (known) {
+            this.flashcardKnown += 1;
+          } else {
+            this.flashcardReview += 1;
+            this.flashcardQueue.push(card);
+          }
+          this.flashcardFlipped = false;
+        },
+
+        restartFlashcards() {
+          const cards = this.flashcards.slice();
+          for (let index = cards.length - 1; index > 0; index -= 1) {
+            const swapIndex = Math.floor(Math.random() * (index + 1));
+            [cards[index], cards[swapIndex]] = [cards[swapIndex], cards[index]];
+          }
+          this.flashcardQueue = cards;
+          this.flashcardFlipped = false;
+          this.flashcardKnown = 0;
+          this.flashcardReview = 0;
+        },
+
+        async loadDiagnostic(force = false) {
+          if (this.diagnostic && !force) return;
+          this.stopDiagnosticTimer();
+          this.diagnosticLoading = true;
+          this.diagnosticError = null;
+          this.diagnosticResult = null;
+          this.diagnosticBusy = false;
+          this.diagnosticCommand = '';
+          this.diagnosticCommandError = null;
+          try {
+            const response = await fetch(
+              `/api/diagnostics/${encodeURIComponent(this.diagnosticId)}`,
+              { headers: { Accept: 'application/json' } }
+            );
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            const startStep = data.steps?.[data.start];
+            if (!startStep) throw new Error("L'étape de départ est introuvable.");
+            this.diagnostic = data;
+            this.diagnosticStepId = data.start;
+            this.diagnosticStep = startStep;
+            this.diagnosticPath = [];
+            this.diagnosticPathLabels = [];
+          } catch (error) {
+            this.diagnostic = null;
+            this.diagnosticStep = null;
+            this.diagnosticError = `Impossible de charger le diagnostic : ${error.message}`;
+          } finally {
+            this.diagnosticLoading = false;
+          }
+        },
+
+        chooseDiagnostic(choice) {
+          if (
+            !this.diagnostic ||
+            !this.diagnosticStep ||
+            this.diagnosticBusy ||
+            this.diagnosticResult
+          ) {
+            return;
+          }
+          const nextStep = this.diagnostic.steps?.[choice.next];
+          if (!nextStep) {
+            this.diagnosticError = `Étape suivante introuvable : ${choice.next}.`;
+            return;
+          }
+          this.diagnosticPath.push(choice.id);
+          this.diagnosticPathLabels.push(choice.label);
+          this.diagnosticStepId = choice.next;
+          this.diagnosticStep = nextStep;
+          if (nextStep.outcome) this.completeDiagnostic();
+        },
+
+        async completeDiagnostic() {
+          if (!this.diagnostic || this.diagnosticBusy || this.diagnosticResult) return;
+          this.diagnosticBusy = true;
+          this.diagnosticError = null;
+          try {
+            const response = await fetch(
+              `/api/diagnostics/${encodeURIComponent(this.diagnostic.id)}/complete`,
+              {
+                method: 'POST',
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ path: this.diagnosticPath }),
+              }
+            );
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.diagnosticResult = data;
+            if (data.success) {
+              if (data.user_stats) this.userStats = data.user_stats;
+              else await this.loadUserStats();
+              await this.loadProfile();
+            }
+          } catch (error) {
+            this.diagnosticError = `Impossible de valider le diagnostic : ${error.message}`;
+          } finally {
+            this.diagnosticBusy = false;
+          }
+        },
+
+        restartDiagnostic() {
+          if (!this.diagnostic) {
+            this.loadDiagnostic(true);
+            return;
+          }
+          this.diagnosticStepId = this.diagnostic.start;
+          this.diagnosticStep = this.diagnostic.steps?.[this.diagnostic.start] || null;
+          this.diagnosticPath = [];
+          this.diagnosticPathLabels = [];
+          this.diagnosticResult = null;
+          this.diagnosticError = null;
+          this.diagnosticBusy = false;
         },
 
         get categories() {
@@ -1136,6 +3365,93 @@
 
         get progress() {
           return this.total ? Math.round((this.validated / this.total) * 100) : 0;
+        },
+
+        get currentFlashcard() {
+          return this.flashcardQueue[0] || null;
+        },
+
+        get maxNodeAttempts() {
+          const values = (this.stats?.nodes || []).map((node) => node.attempts);
+          return Math.max(1, ...values);
+        },
+
+        get examCategories() {
+          const groups = new Map();
+          for (const node of this.nodes) {
+            if (!node.requirements_detail.some((req) => req.kind === 'quiz')) continue;
+            const current = groups.get(node.category) || { name: node.category, nodes: 0 };
+            current.nodes += 1;
+            groups.set(node.category, current);
+          }
+          return [...groups.values()];
+        },
+
+        get examAnsweredCount() {
+          return (this.examAnswers || []).filter(
+            (answer) => answer !== null && String(answer).trim() !== ''
+          ).length;
+        },
+
+        get examProgress() {
+          return this.exam && this.exam.questions.length
+            ? Math.round((this.examAnsweredCount / this.exam.questions.length) * 100)
+            : 0;
+        },
+
+        statTone(rate, attempts) {
+          if (!attempts) {
+            return {
+              label: 'Aucune tentative',
+              bar: 'bg-zinc-700',
+              text: 'text-zinc-500',
+              dot: 'bg-zinc-600',
+            };
+          }
+          if (rate < 40) {
+            return {
+              label: 'Faible',
+              bar: 'bg-gradient-to-r from-rose-500 to-red-400',
+              text: 'text-rose-300',
+              dot: 'bg-rose-400',
+            };
+          }
+          if (rate < 70) {
+            return {
+              label: 'À consolider',
+              bar: 'bg-gradient-to-r from-amber-400 to-yellow-300',
+              text: 'text-amber-200',
+              dot: 'bg-amber-300',
+            };
+          }
+          return {
+            label: 'Solide',
+            bar: 'bg-gradient-to-r from-lime-400 to-cyan-400',
+            text: 'text-lime-300',
+            dot: 'bg-lime-400',
+          };
+        },
+
+        planMeta(action) {
+          const metas = {
+            review: {
+              label: 'Révision',
+              classes: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
+            },
+            lab: {
+              label: 'Lab en cours',
+              classes: 'border-orange-300/30 bg-orange-400/10 text-orange-200',
+            },
+            challenge: {
+              label: 'Défi en cours',
+              classes: 'border-fuchsia-300/30 bg-fuchsia-400/10 text-fuchsia-200',
+            },
+            start: {
+              label: 'Nouveau',
+              classes: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
+            },
+          };
+          return metas[action] || metas.start;
         },
 
         statusMeta(status) {
@@ -1179,7 +3495,11 @@
         },
 
         async show(nodeId) {
+          this.stopLessonSpeech(true);
+          this.resetTutor();
           this.open = true;
+          this.isFullscreen = false;
+          this.speechError = null;
           this.detail = null;
           this.lessonHtml = '';
           this.lessonMissing = false;
@@ -1192,6 +3512,7 @@
           this.exerciseAnswer = '';
           this.exerciseResult = null;
           this.exerciseError = null;
+          this.resetLab();
           this.detailLoading = true;
           try {
             const encodedNodeId = encodeURIComponent(nodeId);
@@ -1225,14 +3546,249 @@
             this.open = false;
           } finally {
             this.detailLoading = false;
+            setTimeout(() => this.enhanceLessonCodeBlocks(), 50);
           }
         },
 
         close() {
+          this.stopLessonSpeech(true);
+          this.resetTutor();
           this.open = false;
+          this.isFullscreen = false;
+          this.speechError = null;
           this.detail = null;
           this.lessonHtml = '';
           this.lessonMissing = false;
+          this.resetLab();
+        },
+
+        resetTutor() {
+          this.tutorOpen = false;
+          this.tutorQuestion = '';
+          this.tutorMessages = [];
+          this.tutorBusy = false;
+          this.tutorError = null;
+        },
+
+        openTutor() {
+          this.tutorOpen = true;
+          this.tutorError = null;
+          setTimeout(() => this.$refs.tutorInput?.focus(), 50);
+        },
+
+        scrollTutor() {
+          setTimeout(() => {
+            const history = this.$refs.tutorHistory;
+            if (history) history.scrollTop = history.scrollHeight;
+          }, 0);
+        },
+
+        async askTutor() {
+          const question = this.tutorQuestion.trim();
+          if (!question || this.tutorBusy || !this.detail) return;
+
+          this.tutorMessages.push({ role: 'user', text: question });
+          this.tutorQuestion = '';
+          this.tutorBusy = true;
+          this.tutorError = null;
+          this.scrollTutor();
+
+          try {
+            const [response] = await Promise.all([
+              fetch(`/api/node/${encodeURIComponent(this.detail.id)}/ask`, {
+                method: 'POST',
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question }),
+              }),
+              new Promise((resolve) => setTimeout(resolve, 550)),
+            ]);
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.tutorMessages.push({ role: 'assistant', text: data.answer });
+          } catch (error) {
+            this.tutorError = `Le tuteur n'a pas pu répondre : ${error.message}`;
+          } finally {
+            this.tutorBusy = false;
+            this.scrollTutor();
+          }
+        },
+
+        toggleFullscreen() {
+          this.isFullscreen = !this.isFullscreen;
+        },
+
+        scrollToExercise() {
+          const scroll = () => {
+            this.$refs.exerciseZone?.scrollIntoView({ behavior: 'auto', block: 'start' });
+          };
+          scroll();
+          setTimeout(scroll, 120);
+        },
+
+        async toggleLessonSpeech() {
+          if (this.ttsLoading) {
+            this.ttsAbortController?.abort();
+            this.ttsAbortController = null;
+            this.ttsLoading = false;
+            return;
+          }
+
+          const audio = this.$refs.lessonAudio;
+          if (!audio) return;
+
+          if (this.isSpeaking) {
+            this.stopLessonSpeech();
+            return;
+          }
+
+          if (audio.src) {
+            try {
+              if (audio.ended) audio.currentTime = 0;
+              await audio.play();
+              this.isSpeaking = true;
+              this.speechError = null;
+              return;
+            } catch (error) {
+              this.speechError = `Lecture impossible : ${error.message}`;
+              return;
+            }
+          }
+
+          if (!this.detail) return;
+          this.ttsLoading = true;
+          this.speechError = null;
+          const controller = new AbortController();
+          this.ttsAbortController = controller;
+
+          try {
+            const response = await fetch(
+              `/api/node/${encodeURIComponent(this.detail.id)}/tts?voice=fr-FR-DeniseNeural`,
+              { headers: { Accept: 'audio/mpeg' }, signal: controller.signal }
+            );
+            if (!response.ok) {
+              let detail = `HTTP ${response.status}`;
+              try {
+                const data = await response.json();
+                detail = data.detail || detail;
+              } catch (error) { /* réponse non JSON */ }
+              throw new Error(detail);
+            }
+
+            const blob = await response.blob();
+            if (this.ttsObjectUrl) URL.revokeObjectURL(this.ttsObjectUrl);
+            this.ttsObjectUrl = URL.createObjectURL(blob);
+            audio.src = this.ttsObjectUrl;
+            audio.load();
+            await audio.play();
+            this.isSpeaking = true;
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              this.speechError = `Lecture impossible : ${error.message}`;
+            }
+            this.isSpeaking = false;
+          } finally {
+            if (this.ttsAbortController === controller) this.ttsAbortController = null;
+            this.ttsLoading = false;
+          }
+        },
+
+        stopLessonSpeech(clear = false) {
+          this.ttsAbortController?.abort();
+          this.ttsAbortController = null;
+          this.ttsLoading = false;
+
+          const audio = this.$refs.lessonAudio;
+          if (audio) {
+            audio.pause();
+            if (clear) {
+              audio.removeAttribute('src');
+              audio.load();
+            }
+          }
+
+          this.isSpeaking = false;
+          if (clear && this.ttsObjectUrl) {
+            URL.revokeObjectURL(this.ttsObjectUrl);
+            this.ttsObjectUrl = null;
+          }
+        },
+
+        onLessonAudioError() {
+          this.isSpeaking = false;
+          const audio = this.$refs.lessonAudio;
+          if (audio) {
+            audio.removeAttribute('src');
+            audio.load();
+          }
+          if (this.ttsObjectUrl) {
+            URL.revokeObjectURL(this.ttsObjectUrl);
+            this.ttsObjectUrl = null;
+          }
+          this.speechError = 'La lecture audio a échoué.';
+        },
+
+        async copyToClipboard(text) {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return;
+          }
+          const area = document.createElement('textarea');
+          area.value = text;
+          area.setAttribute('readonly', '');
+          area.style.position = 'fixed';
+          area.style.top = '-1000px';
+          area.style.opacity = '0';
+          document.body.appendChild(area);
+          area.select();
+          const copied = document.execCommand('copy');
+          area.remove();
+          if (!copied) throw new Error('Copie impossible');
+        },
+
+        async copyLessonCode(event) {
+          const button = event.target.closest?.('[data-copy-code]');
+          if (!button) return;
+          const wrapper = button.closest('.code-block-wrapper');
+          const code = wrapper?.querySelector('pre code') || wrapper?.querySelector('pre');
+          if (!code) return;
+          try {
+            await this.copyToClipboard(code.textContent || '');
+            button.textContent = 'Copié !';
+            button.classList.add('is-copied');
+            button.classList.remove('is-error');
+          } catch (error) {
+            button.textContent = 'Erreur';
+            button.classList.add('is-error');
+            button.classList.remove('is-copied');
+          } finally {
+            clearTimeout(button._copyResetTimer);
+            button._copyResetTimer = setTimeout(() => {
+              button.textContent = 'Copier';
+              button.classList.remove('is-copied', 'is-error');
+            }, 1800);
+          }
+        },
+
+        enhanceLessonCodeBlocks() {
+          const article = this.$refs.lessonArticle;
+          if (!article) return;
+          article.querySelectorAll('pre').forEach((pre) => {
+            if (pre.parentElement?.classList.contains('code-block-wrapper')) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-block-wrapper';
+            pre.parentNode.insertBefore(wrapper, pre);
+            wrapper.appendChild(pre);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.copyCode = 'true';
+            button.className = 'code-copy-btn';
+            button.textContent = 'Copier';
+            button.setAttribute('aria-label', 'Copier le code');
+            wrapper.appendChild(button);
+          });
         },
 
         kindLabel(kind) {
@@ -1244,14 +3800,17 @@
         },
 
         canStartExercise() {
-          if (!this.detail || this.detail.challenge) return false;
-          return this.detail.requirements.some(
+          if (!this.detail) return false;
+          const hasPendingExercise = this.detail.requirements.some(
             (item) => ['quiz', 'terminal'].includes(item.kind) && !item.met
-          ) && (this.hasRequirement('quiz') || Boolean(this.detail.terminal));
+          );
+          if (this.detail.challenge) return hasPendingExercise;
+          return hasPendingExercise &&
+            (this.hasRequirement('quiz') || Boolean(this.detail.terminal));
         },
 
         async startExercise() {
-          if (!this.detail || this.detail.challenge) return;
+          if (!this.detail) return;
           this.quizError = null;
           this.quizResult = null;
           this.exerciseResult = null;
@@ -1259,13 +3818,25 @@
           this.exerciseAnswer = '';
           this.exerciseMode = null;
           this.exerciseQuestion = null;
+          this.sandboxMode = false;
+          this.sandboxCommand = '';
+          this.sandboxOutput = [];
+          this.sandboxBusy = false;
+          this.sandboxError = null;
           try {
-            if (this.detail.terminal) {
+            const terminalPending = this.detail.requirements.some(
+              (item) => item.kind === 'terminal' && !item.met
+            );
+            const quizPending = this.detail.requirements.some(
+              (item) => item.kind === 'quiz' && !item.met
+            );
+            if (terminalPending && this.detail.terminal) {
               this.exerciseMode = 'terminal';
               this.exerciseQuestion = this.detail.terminal;
+              this.scrollToExercise();
               return;
             }
-            if (!this.hasRequirement('quiz')) return;
+            if (!quizPending || !this.hasRequirement('quiz')) return;
             const response = await fetch(
               `/api/node/${encodeURIComponent(this.detail.id)}/quiz`,
               { headers: { Accept: 'application/json' } }
@@ -1280,6 +3851,7 @@
             } else {
               this.exerciseMode = 'quiz';
             }
+            this.scrollToExercise();
           } catch (error) {
             this.exerciseError = `Impossible de charger l’exercice : ${error.message}`;
           }
@@ -1304,7 +3876,7 @@
             const result = await response.json();
             if (!response.ok) throw new Error(result.detail || `HTTP ${response.status}`);
             this.quizResult = result;
-            await this.loadTree();
+            await this.refreshAll();
             const detailResponse = await fetch(`/api/node/${encodeURIComponent(this.detail.id)}`);
             if (detailResponse.ok) this.detail = await detailResponse.json();
           } catch (error) {
@@ -1337,7 +3909,7 @@
             const result = await response.json();
             if (!response.ok) throw new Error(result.detail || `HTTP ${response.status}`);
             this.exerciseResult = result;
-            await this.loadTree();
+            await this.refreshAll();
             const detailResponse = await fetch(`/api/node/${encodeURIComponent(this.detail.id)}`);
             if (detailResponse.ok) this.detail = await detailResponse.json();
           } catch (error) {
@@ -1345,6 +3917,337 @@
           } finally {
             this.exerciseBusy = false;
           }
+        },
+
+        scrollSandbox() {
+          setTimeout(() => {
+            const consoleEl = this.$refs.sandboxConsole;
+            if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
+          }, 0);
+        },
+
+        async runSandboxCommand() {
+          const command = this.sandboxCommand.trim();
+          if (!command || this.sandboxBusy) return;
+
+          if (command.toLowerCase() === 'clear' || command.toLowerCase() === 'cls') {
+            this.sandboxOutput = [];
+            this.sandboxCommand = '';
+            this.sandboxError = null;
+            return;
+          }
+
+          this.sandboxBusy = true;
+          this.sandboxError = null;
+          this.sandboxOutput.push({ kind: 'command', text: command });
+          this.sandboxCommand = '';
+          this.scrollSandbox();
+
+          try {
+            const response = await fetch('/api/sandbox/check', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ command }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+
+            if (data.accepted) {
+              this.sandboxOutput.push({
+                kind: 'ok',
+                text: `Commande acceptée${data.description ? ` — ${data.description}` : ''}`,
+              });
+            } else {
+              this.sandboxOutput.push({
+                kind: 'error',
+                text: data.message || 'Commande inconnue',
+              });
+            }
+          } catch (error) {
+            this.sandboxError = `Vérification impossible : ${error.message}`;
+            this.sandboxOutput.push({ kind: 'error', text: this.sandboxError });
+          } finally {
+            this.sandboxBusy = false;
+            this.scrollSandbox();
+          }
+        },
+
+        resetLab() {
+          this.labId = null;
+          this.labContainerId = null;
+          this.labBusy = false;
+          this.labRunning = false;
+          this.labOutput = [];
+          this.labCommand = '';
+          this.labError = null;
+          this.labValidation = null;
+          this.labCheatSheetOpen = false;
+        },
+
+        labRequirementMet() {
+          return Boolean(
+            this.detail &&
+            this.detail.requirements.some((item) => item.kind === 'lab' && item.met)
+          );
+        },
+
+        scrollLabConsole() {
+          this.$nextTick(() => {
+            const consoleEl = this.$refs.labConsole;
+            if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
+          });
+        },
+
+        async startLab() {
+          if (!this.detail || !this.detail.lab || this.labBusy) return;
+          this.labBusy = true;
+          this.labError = null;
+          this.labValidation = null;
+          this.labOutput = [];
+          try {
+            const response = await fetch('/api/lab/start', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ node_id: this.detail.id }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.labId = data.lab_id;
+            this.labContainerId = data.container_id;
+            this.labRunning = true;
+            this.labOutput.push({
+              kind: 'system',
+              text: `Lab démarré (${data.container_id}).`,
+            });
+            if (data.setup_logs) {
+              this.labOutput.push({ kind: 'stdout', text: data.setup_logs });
+            }
+            if (data.hint) {
+              this.labOutput.push({ kind: 'system', text: `Indice : ${data.hint}` });
+            }
+            this.scrollLabConsole();
+          } catch (error) {
+            this.labError = `Impossible de démarrer le lab : ${error.message}`;
+          } finally {
+            this.labBusy = false;
+          }
+        },
+
+        async runLabCommand() {
+          const command = this.labCommand.trim();
+          if (!command || this.labBusy) return;
+          if (command.toLowerCase() === 'clear' || command.toLowerCase() === 'cls') {
+            this.labOutput = [];
+            this.labCommand = '';
+            this.labError = null;
+            this.scrollLabConsole();
+            return;
+          }
+          if (!this.labId) return;
+          this.labBusy = true;
+          this.labError = null;
+          this.labOutput.push({ kind: 'command', text: command });
+          this.labCommand = '';
+          this.scrollLabConsole();
+          try {
+            const response = await fetch('/api/lab/exec', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ lab_id: this.labId, command }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            if (data.stdout) this.labOutput.push({ kind: 'stdout', text: data.stdout });
+            if (data.stderr) this.labOutput.push({ kind: 'stderr', text: data.stderr });
+            if (data.timed_out) {
+              this.labOutput.push({
+                kind: 'error',
+                text: 'Commande interrompue après le délai maximal.',
+              });
+            } else if (data.exit_code !== 0) {
+              this.labOutput.push({
+                kind: 'system',
+                text: `Code de sortie : ${data.exit_code}`,
+              });
+            }
+          } catch (error) {
+            this.labError = `Commande impossible : ${error.message}`;
+            if (
+              error.message.includes('introuvable') ||
+              error.message.includes('plus actif')
+            ) {
+              this.labRunning = false;
+              this.labId = null;
+            }
+          } finally {
+            this.labBusy = false;
+            this.scrollLabConsole();
+          }
+        },
+
+        async validateLab() {
+          if (!this.labId || this.labBusy) return;
+          this.labBusy = true;
+          this.labError = null;
+          this.labValidation = null;
+          try {
+            const response = await fetch('/api/lab/validate', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ lab_id: this.labId }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.labValidation = data;
+            this.labRunning = false;
+            this.labId = null;
+            if (data.logs) {
+              this.labOutput.push({ kind: 'stdout', text: data.logs });
+            }
+            this.labOutput.push({
+              kind: data.passed ? 'system' : 'error',
+              text: data.passed ? 'Check réussi.' : 'Le check a échoué.',
+            });
+            await this.refreshAll();
+            if (data.validated) {
+              this.close();
+              return;
+            }
+            const detailResponse = await fetch(
+              `/api/node/${encodeURIComponent(this.detail.id)}`
+            );
+            if (detailResponse.ok) this.detail = await detailResponse.json();
+          } catch (error) {
+            this.labError = `Validation impossible : ${error.message}`;
+            this.labRunning = false;
+            this.labId = null;
+          } finally {
+            this.labBusy = false;
+            this.scrollLabConsole();
+          }
+        },
+
+        async startExam() {
+          if (!this.examCategory || this.examBusy) return;
+          this.examBusy = true;
+          this.examError = null;
+          this.examResult = null;
+          this.exam = null;
+          this.examAnswers = [];
+          this.examTimeRemaining = 0;
+          this.examDeadline = null;
+          this.clearExamTimer();
+          try {
+            const response = await fetch('/api/exam/generate', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ category: this.examCategory }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP ${response.status}`);
+            this.exam = data;
+            this.examAnswers = data.questions.map((question) =>
+              question.type === 'qcm' ? null : ''
+            );
+            this.examDeadline = Date.now() + data.duration_seconds * 1000;
+            this.examTimeRemaining = data.duration_seconds;
+            this.startExamTimer();
+          } catch (error) {
+            this.examError = `Impossible de générer l'examen : ${error.message}`;
+          } finally {
+            this.examBusy = false;
+          }
+        },
+
+        startExamTimer() {
+          this.clearExamTimer();
+          const tick = () => {
+            this.examTimeRemaining = Math.max(
+              0,
+              Math.ceil((this.examDeadline - Date.now()) / 1000)
+            );
+            if (this.examTimeRemaining <= 0) {
+              this.clearExamTimer();
+              this.submitExam(true);
+            }
+          };
+          tick();
+          this.examTimer = setInterval(tick, 1000);
+        },
+
+        clearExamTimer() {
+          if (this.examTimer) clearInterval(this.examTimer);
+          this.examTimer = null;
+        },
+
+        formatExamTime() {
+          const minutes = Math.floor(this.examTimeRemaining / 60);
+          const seconds = this.examTimeRemaining % 60;
+          return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        },
+
+        async submitExam(auto = false) {
+          if (!this.exam || !this.exam.session_id || this.examBusy || this.examResult) return;
+          if (!auto) {
+            const unanswered = this.exam.questions.length - this.examAnsweredCount;
+            if (unanswered > 0) {
+              const confirmed = window.confirm(
+                `${unanswered} question(s) sans réponse. Terminer l'examen quand même ?`
+              );
+              if (!confirmed) return;
+            }
+          }
+          this.examBusy = true;
+          this.examError = null;
+          this.clearExamTimer();
+          try {
+            const response = await fetch('/api/exam/submit', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                session_id: this.exam.session_id,
+                answers: this.examAnswers,
+              }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.detail || `HTTP ${response.status}`);
+            this.examResult = result;
+            this.examTimeRemaining = result.remaining_seconds ?? 0;
+            await this.loadUserStats();
+            await this.loadProfile();
+          } catch (error) {
+            this.examError = `Impossible de soumettre l'examen : ${error.message}`;
+          } finally {
+            this.examBusy = false;
+          }
+        },
+
+        resetExam() {
+          this.clearExamTimer();
+          this.exam = null;
+          this.examAnswers = [];
+          this.examResult = null;
+          this.examError = null;
+          this.examTimeRemaining = 0;
+          this.examDeadline = null;
         },
 
         formatChallengeTime() {
@@ -1444,7 +4347,7 @@
               this.topologyEditor.import(this.challengePreviousTopology);
             }
             this.challengePreviousTopology = null;
-            await this.loadTree();
+            await this.refreshAll();
           } catch (error) {
             this.topologyError = `Validation du défi impossible : ${error.message}`;
             this.error = this.topologyError;
@@ -1565,6 +4468,59 @@
 
         zoomReset() {
           if (this.topologyEditor) this.topologyEditor.zoom_reset();
+        },
+
+        downloadTopologyJSON() {
+          if (!this.topologyEditor) return;
+          const data = this.topologyEditor.export();
+          const blob = new Blob([JSON.stringify(data, null, 2)], {
+            type: 'application/json',
+          });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'topologie.json';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 0);
+        },
+
+        async exportTopologyPNG() {
+          if (!this.topologyEditor || !this.topologyReady || this.topologyExporting) return;
+          const element = this.$refs.canvas;
+          if (!element) return;
+
+          this.topologyExporting = true;
+          this.topologyError = null;
+          try {
+            if (typeof html2canvas !== 'function') {
+              throw new Error("html2canvas n'a pas pu être chargé (CDN inaccessible).");
+            }
+            const light = document.documentElement.classList.contains('light');
+            const canvas = await html2canvas(element, {
+              backgroundColor: light ? '#f8fafc' : '#000000',
+              scale: Math.min(2, window.devicePixelRatio || 1),
+              useCORS: true,
+              logging: false,
+              width: element.clientWidth,
+              height: element.clientHeight,
+              windowWidth: element.clientWidth,
+              windowHeight: element.clientHeight,
+            });
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'topologie.png';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          } catch (error) {
+            this.topologyError = `Export PNG impossible : ${error.message}`;
+            this.error = this.topologyError;
+            console.error(this.topologyError, error);
+          } finally {
+            this.topologyExporting = false;
+          }
         },
 
         async saveTopology() {

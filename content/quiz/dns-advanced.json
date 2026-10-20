@@ -1,0 +1,126 @@
+{
+  "node_id": "dns-advanced",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence principale entre un serveur DNS autoritaire et un résolveur récursif ?",
+      "choices": [
+        "L'autoritaire détient une zone et répond pour elle ; le récursif résout pour le client et met en cache",
+        "Le récursif détient les zones ; l'autoritaire ne fait que du cache",
+        "Les deux sont identiques, seul le port change",
+        "L'autoritaire ne répond qu'en IPv6"
+      ],
+      "answer": 0,
+      "explanation": "Un autoritaire est la source de vérité d'une zone. Un récursif interroge la hiérarchie pour le compte du client, puis conserve les réponses selon le TTL. Ouvrir la récursion sur un autoritaire public est dangereux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le numéro de série du SOA ?",
+      "choices": [
+        "À identifier le client DNS",
+        "À versionner la zone pour que les secondaires détectent les changements",
+        "À chiffrer les transferts AXFR",
+        "À fixer le TTL des enregistrements A"
+      ],
+      "answer": 1,
+      "explanation": "Les secondaires comparent le serial du SOA. Il doit être incrémenté à chaque modification, sinon un secondaire peut rester sur une ancienne version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur un enregistrement CNAME est correcte ?",
+      "choices": [
+        "Il peut cohabiter avec un MX au même nom",
+        "Il pointe directement vers une adresse IP",
+        "Il ne doit pas cohabiter avec d'autres enregistrements au même nom",
+        "Il remplace obligatoirement le SOA"
+      ],
+      "answer": 2,
+      "explanation": "Un CNAME est un alias vers un nom canonique. Il ne peut pas partager le même nom avec un A, MX, TXT ou SOA. L'apex d'une zone ne peut donc pas être un CNAME classique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un enregistrement MX, que signifie une priorité plus faible ?",
+      "choices": [
+        "Le serveur est moins fiable",
+        "Le serveur est préféré",
+        "Le serveur est réservé à IPv6",
+        "Le serveur est désactivé"
+      ],
+      "answer": 1,
+      "explanation": "Les clients de messagerie essaient d'abord la priorité la plus faible. Les valeurs plus élevées servent de secours."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel nom utiliser pour la résolution inverse de 10.20.30.40 en IPv4 ?",
+      "choices": [
+        "10.20.30.40.in-addr.arpa",
+        "40.30.20.10.in-addr.arpa",
+        "ptr.10.20.30.40.arpa",
+        "10.20.30.40.ptr"
+      ],
+      "answer": 1,
+      "explanation": "La résolution inverse IPv4 inverse les octets et ajoute in-addr.arpa : 10.20.30.40 devient 40.30.20.10.in-addr.arpa."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels enregistrements constituent la chaîne de confiance DNSSEC ?",
+      "choices": [
+        "A, AAAA et CNAME",
+        "DNSKEY, RRSIG et DS",
+        "MX, TXT et SRV",
+        "PTR et SOA uniquement"
+      ],
+      "answer": 1,
+      "explanation": "La zone publie des DNSKEY et signe les ensembles avec RRSIG. Le parent publie un DS qui ancre la clé de la sous-zone, formant la chaîne de confiance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "DNSSEC chiffre-t-il le contenu des requêtes DNS ?",
+      "choices": [
+        "Oui, avec AES",
+        "Oui, mais seulement les réponses A",
+        "Non, il assure l'authenticité et l'intégrité, pas la confidentialité",
+        "Oui, via TLS obligatoire"
+      ],
+      "answer": 2,
+      "explanation": "DNSSEC signe les données pour détecter la falsification. Il ne chiffre pas les échanges. La confidentialité nécessite DoT, DoH ou un tunnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure réduit le risque de cache poisoning DNS ?",
+      "choices": [
+        "Utiliser un seul serveur récursif ouvert",
+        "Randomiser les identifiants et ports sources, restreindre la récursion et déployer DNSSEC",
+        "Désactiver les TTL",
+        "Autoriser AXFR depuis Internet"
+      ],
+      "answer": 1,
+      "explanation": "La randomisation complique l'injection, la restriction de récursion limite les attaquants et DNSSEC permet de détecter les réponses falsifiées. Un récursif ouvert et un AXFR public sont dangereux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi restreindre les transferts AXFR ?",
+      "choices": [
+        "Pour accélérer la résolution des clients",
+        "Pour éviter d'exposer toute la zone et de faciliter l'énumération",
+        "Pour empêcher DNSSEC de fonctionner",
+        "Pour supprimer les enregistrements MX"
+      ],
+      "answer": 1,
+      "explanation": "AXFR copie la zone entière. Il doit être limité aux secondaires authentifiés, souvent avec TSIG et une ACL."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait `dig +trace www.example.com` ?",
+      "choices": [
+        "Il suit la délégation depuis la racine jusqu'au serveur autoritaire",
+        "Il affiche uniquement le cache local",
+        "Il signe la requête avec DNSSEC",
+        "Il force une résolution inverse"
+      ],
+      "answer": 0,
+      "explanation": "`+trace` interroge successivement les serveurs racine, le TLD et les autoritaires pour montrer le chemin de délégation. C'est utile pour diagnostiquer un problème de NS."
+    }
+  ]
+}

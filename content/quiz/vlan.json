@@ -166,6 +166,13 @@
       ],
       "answer": 0,
       "explanation": "La native VLAN doit être identique de bout en bout ; le mieux est une VLAN dédiée sans ports utilisateurs, différente de VLAN 1, pour limiter le VLAN hopping. On corrige des deux côtés, on vérifie `show interfaces trunk` et la connectivité de gestion, puis on contrôle les journaux CDP. `nonegotiate` ne corrige pas un mismatch, il empêche seulement la négociation DTP."
+    },
+    {
+      "type": "terminal",
+      "prompt": "Depuis le mode interface, quelle commande Cisco affecte le port courant au VLAN 20 en mode access ?",
+      "answer": "switchport access vlan 20",
+      "regex": "^\\s*switchport\\s+access\\s+vlan\\s+20\\s*$",
+      "explanation": "`switchport access vlan 20` assigne le port au VLAN 20. Le mode doit avoir été réglé avec `switchport mode access` ; sinon le port peut rester en trunk ou en négociation DTP."
     }
   ]
 }

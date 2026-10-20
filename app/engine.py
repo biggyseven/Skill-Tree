@@ -6,6 +6,7 @@ import re
 import sqlite3
 from datetime import datetime
 
+from .db import award_attempt_xp, touch_daily_streak
 from .domain import (
     Attempt,
     LabSpec,
@@ -18,6 +19,29 @@ from .domain import (
 from .labs_runner import LabResult
 
 MAX_DETAIL = 4000
+
+BADGE_DEFINITIONS = {
+    "first-blood": {
+        "nom": "Premier Sang",
+        "description": "Valider son premier nœud du skill tree.",
+        "icone": "🩸",
+    },
+    "war-machine": {
+        "nom": "Machine de Guerre",
+        "description": "Valider cinq labs différents.",
+        "icone": "⚔️",
+    },
+    "architect": {
+        "nom": "Architecte",
+        "description": "Sauvegarder une topologie dans le canvas.",
+        "icone": "🏛️",
+    },
+    "flawless": {
+        "nom": "Sans Faute",
+        "description": "Obtenir 100 % à un examen.",
+        "icone": "🎯",
+    },
+}
 
 KIND_ORDER = {
     ProofKind.QUIZ: 0,
@@ -99,6 +123,8 @@ class SkillTree:
 
     def __init__(self, conn: sqlite3.Connection):
         self.conn = conn
+        self.last_reward: dict | None = None
+        self.last_badges: list[dict] = []
 
     # --- lecture ---------------------------------------------------------
     def nodes(self) -> list[Node]:
@@ -246,6 +272,9 @@ class SkillTree:
             (node_id, kind.value, score, int(passed), evidence, detail, created_at),
         )
         self.conn.commit()
+        touch_daily_streak(self.conn)
+        self.last_reward = award_attempt_xp(self.conn, kind) if passed else None
+        self.last_badges = check_badges(self)
         attempt = Attempt(
             id=cursor.lastrowid,
             node_id=node_id,
@@ -286,3 +315,238 @@ class SkillTree:
         cursor = self.conn.execute("DELETE FROM attempts WHERE node_id = ?", (node_id,))
         self.conn.commit()
         return cursor.rowcount
+
+
+def check_badges(tree: SkillTree) -> list[dict]:
+    """Débloque les badges dont les conditions sont satisfaites.
+
+    La table ``badges`` ne contient que les succès déjà obtenus ; les
+    définitions restent dans ``BADGE_DEFINITIONS`` pour pouvoir faire évoluer
+    les libellés sans migration. Retourne uniquement les nouveaux badges.
+    """
+    conn = tree.conn
+    conditions = {
+        "first-blood": len(tree.validated_ids()) >= 1,
+        "war-machine": bool(
+            conn.execute(
+                "SELECT COUNT(DISTINCT node_id) FROM attempts"
+                " WHERE kind = 'lab' AND passed = 1"
+            ).fetchone()[0]
+            >= 5
+        ),
+        "architect": bool(
+            conn.execute("SELECT COUNT(*) FROM topologies").fetchone()[0] >= 1
+        ),
+        "flawless": bool(
+            conn.execute(
+                "SELECT COUNT(*) FROM exam_sessions"
+                " WHERE submitted = 1 AND passed = 1 AND score = 100"
+            ).fetchone()[0]
+            >= 1
+            or conn.execute(
+                "SELECT COUNT(*) FROM attempts"
+                " WHERE kind = 'exam' AND passed = 1 AND score = 100"
+            ).fetchone()[0]
+            >= 1
+        ),
+    }
+
+    unlocked: list[dict] = []
+    unlocked_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    for badge_id, is_unlocked in conditions.items():
+        if not is_unlocked:
+            continue
+        definition = BADGE_DEFINITIONS[badge_id]
+        cursor = conn.execute(
+            "INSERT OR IGNORE INTO badges"
+            " (id, nom, description, icone, condition_debloquee_le)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (
+                badge_id,
+                definition["nom"],
+                definition["description"],
+                definition["icone"],
+                unlocked_at,
+            ),
+        )
+        if cursor.rowcount:
+            unlocked.append(
+                {
+                    "id": badge_id,
+                    **definition,
+                    "condition_debloquee_le": unlocked_at,
+                }
+            )
+    if unlocked:
+        conn.commit()
+    return unlocked
+
+
+DAILY_REVIEW_AFTER_DAYS = 3
+
+
+def _attempt_datetime(attempt: Attempt) -> datetime:
+    try:
+        return datetime.fromisoformat(attempt.created_at)
+    except (TypeError, ValueError):
+        return datetime.min
+
+
+def _validation_datetime(node: Node) -> datetime | None:
+    """Date à laquelle la dernière exigence a été satisfaite, si elle existe."""
+    if not node.requirements:
+        return None
+
+    dates: list[datetime] = []
+    for requirement in node.requirements:
+        passing = [
+            attempt
+            for attempt in node.attempts
+            if attempt.kind == requirement.kind
+            and attempt.passed
+            and attempt.score >= requirement.min_score
+        ]
+        if not passing:
+            return None
+        dates.append(max(_attempt_datetime(attempt) for attempt in passing))
+    return max(dates)
+
+
+def _plan_action(node: Node, status: Status, action: str, label: str, reason: str, **extra) -> dict:
+    item = {
+        "node_id": node.id,
+        "title": node.title,
+        "category": node.category,
+        "order": node.sort_order,
+        "status": status.value,
+        "action": action,
+        "label": label,
+        "reason": reason,
+    }
+    item.update(extra)
+    return item
+
+
+def get_daily_plan(
+    tree: SkillTree,
+    *,
+    limit: int = 3,
+    now: datetime | None = None,
+) -> dict:
+    """Sélectionne une session équilibrée : travaux en cours, révisions et découvertes.
+
+    Une révision espacée est proposée lorsque la validation complète du nœud
+    date de plus de ``DAILY_REVIEW_AFTER_DAYS`` jours. Les nœuds disponibles
+    n'ont jamais reçu de tentative. Seuls les labs et défis déjà commencés sont
+    retenus dans la catégorie « en cours ».
+    """
+    limit = max(1, int(limit))
+    now = now or datetime.now()
+
+    nodes = tree.nodes()
+    validated_ids = {node.id for node in nodes if is_validated(node)}
+    statuses = {node.id: status_of(node, validated_ids) for node in nodes}
+    lab_nodes = {
+        row["node_id"] for row in tree.conn.execute("SELECT node_id FROM lab_specs")
+    }
+    challenge_nodes = {
+        row["node_id"] for row in tree.conn.execute("SELECT node_id FROM challenges")
+    }
+
+    in_progress: list[dict] = []
+    review: list[dict] = []
+    available: list[dict] = []
+
+    for node in nodes:
+        status = statuses[node.id]
+
+        if status is Status.VALIDATED:
+            validated_at = _validation_datetime(node)
+            if validated_at is None:
+                continue
+            age_seconds = (now - validated_at).total_seconds()
+            if age_seconds <= DAILY_REVIEW_AFTER_DAYS * 86400:
+                continue
+            days = int(age_seconds // 86400)
+            review.append(
+                _plan_action(
+                    node,
+                    status,
+                    "review",
+                    f"Réviser {node.title}",
+                    f"Dernière validation il y a {days} jours",
+                    last_validated_at=validated_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    days_since=days,
+                )
+            )
+            continue
+
+        if status is Status.IN_PROGRESS and (node.id in lab_nodes or node.id in challenge_nodes):
+            last_attempt = max(node.attempts, key=_attempt_datetime, default=None)
+            action = "challenge" if node.id in challenge_nodes else "lab"
+            reason = "Défi d'architecture en cours" if action == "challenge" else "Lab en cours"
+            label = (
+                f"Continuer {node.title}"
+                if action == "challenge"
+                else f"Faire le lab {node.title}"
+            )
+            in_progress.append(
+                _plan_action(
+                    node,
+                    status,
+                    action,
+                    label,
+                    reason,
+                    last_activity_at=last_attempt.created_at if last_attempt is not None else None,
+                )
+            )
+            continue
+
+        if status is Status.AVAILABLE and not node.attempts:
+            available.append(
+                _plan_action(
+                    node,
+                    status,
+                    "start",
+                    f"Commencer {node.title}",
+                    "Nouveau nœud disponible",
+                )
+            )
+
+    review.sort(key=lambda item: (item["last_validated_at"], item["node_id"]))
+    in_progress.sort(
+        key=lambda item: (item["last_activity_at"] or "", item["order"], item["node_id"]),
+        reverse=True,
+    )
+    available.sort(key=lambda item: (item["order"], item["node_id"]))
+
+    groups = [in_progress, review, available]
+    cursors = [0, 0, 0]
+    actions: list[dict] = []
+    while len(actions) < limit:
+        progressed = False
+        for index, group in enumerate(groups):
+            if len(actions) >= limit:
+                break
+            if cursors[index] < len(group):
+                actions.append(group[cursors[index]])
+                cursors[index] += 1
+                progressed = True
+        if not progressed:
+            break
+
+    return {
+        "generated_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "review_after_days": DAILY_REVIEW_AFTER_DAYS,
+        "actions": actions,
+        "sections": {
+            "in_progress": in_progress[:limit],
+            "review": review[:limit],
+            "available": available[:limit],
+        },
+        "counts": {
+            "in_progress": len(in_progress),
+            "review": len(review),
+            "available": len(available),
+        },
+    }

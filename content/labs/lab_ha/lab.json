@@ -1,0 +1,8 @@
+{
+  "node_id": "ha",
+  "kind": "docker",
+  "image": "skilltree/lab:latest",
+  "timeout": 150,
+  "prompt": "Configure un bond0 LACP (802.3ad) dans ns1 et ns2 avec les deux liens fournis, pose 10.10.0.1/24 et 10.10.0.2/24 sur les bonds, puis vérifie le ping bidirectionnel.",
+  "hint": "Dans chaque namespace : ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast, puis ajoute veth1a/veth2a (ns1) ou veth1b/veth2b (ns2) avec ip link set <if> master bond0. Termine par ip addr add et ip link set bond0 up."
+}

@@ -1,0 +1,121 @@
+{
+  "node_id": "automation",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode HTTP utilise-t-on généralement pour lire une ressource REST ?",
+      "choices": [
+        "GET",
+        "DELETE",
+        "POST",
+        "PATCH"
+      ],
+      "answer": 0,
+      "explanation": "GET lit une ressource sans la modifier. POST crée, PUT remplace, PATCH modifie partiellement et DELETE supprime."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie généralement un code HTTP 401 ?",
+      "choices": [
+        "La ressource a été créée",
+        "La requête est trop volumineuse",
+        "L'authentification est absente ou invalide",
+        "Le serveur a réussi sans contenu"
+      ],
+      "answer": 2,
+      "explanation": "401 Unauthorized indique un problème d'authentification. 403 signifie que l'identité est connue mais n'a pas le droit d'accéder à la ressource."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel format écrit-on généralement un playbook Ansible ?",
+      "choices": [
+        "XML",
+        "YAML",
+        "CSV",
+        "HTML"
+      ],
+      "answer": 1,
+      "explanation": "Un playbook Ansible est un fichier YAML lisible qui décrit les hôtes, les variables et les tâches à exécuter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert Jinja2 dans l'automatisation réseau ?",
+      "choices": [
+        "À remplacer le routeur",
+        "À chiffrer les tunnels IPsec",
+        "À attribuer les adresses DHCP",
+        "À générer des configurations à partir de variables"
+      ],
+      "answer": 3,
+      "explanation": "Jinja2 est un moteur de templates : il produit du texte, par exemple une configuration Cisco, à partir de variables et de boucles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'une tâche idempotente ?",
+      "choices": [
+        "Une tâche qui ne modifie rien si l'état souhaité est déjà présent",
+        "Une tâche qui redémarre toujours l'équipement",
+        "Une tâche qui ne peut être exécutée qu'une fois",
+        "Une tâche qui supprime toutes les routes"
+      ],
+      "answer": 0,
+      "explanation": "L'idempotence garantit que réappliquer le même état ne provoque pas de changement inutile. C'est un principe central d'Ansible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où faut-il stocker les mots de passe utilisés par Ansible ?",
+      "choices": [
+        "Dans le playbook versionné",
+        "Dans un vault ou un gestionnaire de secrets",
+        "Dans un commentaire YAML",
+        "Dans un nom de fichier"
+      ],
+      "answer": 1,
+      "explanation": "Les secrets doivent être chiffrés et stockés dans un vault ou un coffre-fort, jamais en clair dans Git."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un code HTTP 429 ?",
+      "choices": [
+        "La ressource est introuvable",
+        "Le serveur a planté",
+        "Trop de requêtes, il faut ralentir ou attendre",
+        "La requête a réussi"
+      ],
+      "answer": 2,
+      "explanation": "429 Too Many Requests indique une limitation de débit. Il faut ajouter un backoff, réduire la concurrence ou respecter les quotas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel format est très courant pour les réponses d'API REST modernes ?",
+      "choices": [
+        "JSON",
+        "Un fichier ZIP",
+        "Du HTML uniquement",
+        "Un tableur Excel"
+      ],
+      "answer": 0,
+      "explanation": "JSON est lisible par les humains et facile à traiter en Python, JavaScript ou Go. Les API peuvent aussi renvoyer du XML ou du texte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'intérêt principal de Netmiko ?",
+      "choices": [
+        "Remplacer le système d'exploitation du routeur",
+        "Simplifier les sessions SSH vers les équipements réseau",
+        "Attribuer les adresses IP",
+        "Créer des VLAN automatiquement sans commande"
+      ],
+      "answer": 1,
+      "explanation": "Netmiko gère les invites, la pagination et les particularités des équipements pour envoyer des commandes CLI via SSH."
+    },
+    {
+      "type": "input",
+      "prompt": "Quelle librairie Python utilise-t-on couramment pour se connecter en SSH à un routeur et envoyer des commandes CLI ?",
+      "answer": "netmiko",
+      "regex": "^\\s*netmiko\\s*$",
+      "explanation": "Netmiko est une librairie Python dédiée aux connexions SSH vers les équipements réseau. Elle simplifie la gestion des invites et des sorties CLI."
+    }
+  ]
+}

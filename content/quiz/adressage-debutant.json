@@ -1,0 +1,66 @@
+{
+  "node_id": "adressage-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une adresse IP ?",
+      "choices": [
+        "À refroidir le processeur",
+        "À choisir la couleur du câble",
+        "À identifier un appareil sur un réseau",
+        "À imprimer un document"
+      ],
+      "answer": 2,
+      "explanation": "L'adresse IP est l'adresse logique d'un appareil sur un réseau. Elle permet de savoir où envoyer les paquets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Laquelle de ces adresses est une adresse privée ?",
+      "choices": [
+        "8.8.8.8",
+        "192.168.1.20",
+        "1.1.1.1",
+        "203.0.113.10"
+      ],
+      "answer": 1,
+      "explanation": "192.168.1.20 fait partie de la plage privée 192.168.0.0 à 192.168.255.255. Les autres adresses sont publiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service attribue automatiquement une adresse IP à un appareil ?",
+      "choices": [
+        "DHCP",
+        "DNS",
+        "HTTP",
+        "NAT"
+      ],
+      "answer": 0,
+      "explanation": "DHCP fournit automatiquement une adresse IP, un masque, une passerelle et souvent un serveur DNS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le DNS ?",
+      "choices": [
+        "À attribuer une adresse IP à chaque appareil",
+        "À connecter physiquement les câbles",
+        "À chiffrer tous les fichiers du disque",
+        "À traduire un nom de site en adresse IP"
+      ],
+      "answer": 3,
+      "explanation": "Le DNS est comme un annuaire : il traduit par exemple www.exemple.fr en une adresse IP utilisable par le réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une maison, quel appareil sert souvent de passerelle par défaut ?",
+      "choices": [
+        "L'imprimante",
+        "La box ou le routeur",
+        "Le clavier",
+        "Le serveur DNS"
+      ],
+      "answer": 1,
+      "explanation": "La box ou le routeur est la porte de sortie du réseau local vers Internet. C'est souvent l'adresse de passerelle configurée sur les appareils."
+    }
+  ]
+}

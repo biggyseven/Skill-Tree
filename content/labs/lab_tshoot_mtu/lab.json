@@ -1,0 +1,8 @@
+{
+  "node_id": "lab_tshoot_mtu",
+  "kind": "docker",
+  "image": "skilltree/lab:latest",
+  "timeout": 120,
+  "prompt": "Le ping fonctionne depuis h1 vers h2, mais les gros paquets avec DF échouent : le lien r1-h2 est limité à un MTU de 1400. Trouve l'interface concernée et ajuste le MTU de h1 pour que le transfert de gros paquets passe.",
+  "hint": "Reproduis avec ip netns exec h1 ping -M do -s 1472 10.60.2.10. La correction se fait sur veth-h1 dans h1 : ip netns exec h1 ip link set veth-h1 mtu 1400. Vérifie ensuite avec -s 1372."
+}

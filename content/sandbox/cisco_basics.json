@@ -1,0 +1,95 @@
+{
+  "title": "Cisco IOS — commandes de base",
+  "valid": [
+    {
+      "command": "enable",
+      "description": "Passe en mode privilégié."
+    },
+    {
+      "command": "configure terminal",
+      "description": "Entre en mode de configuration globale."
+    },
+    {
+      "command": "interface FastEthernet0/1",
+      "description": "Sélectionne l'interface FastEthernet0/1."
+    },
+    {
+      "command": "switchport mode access",
+      "description": "Configure le port en mode access."
+    },
+    {
+      "command": "switchport mode trunk",
+      "description": "Configure le port en mode trunk."
+    },
+    {
+      "command": "switchport access vlan 10",
+      "description": "Place le port dans le VLAN 10."
+    },
+    {
+      "command": "switchport trunk allowed vlan 10,20",
+      "description": "Autorise les VLAN 10 et 20 sur le trunk."
+    },
+    {
+      "command": "no shutdown",
+      "description": "Active l'interface."
+    },
+    {
+      "command": "end",
+      "description": "Revient au mode privilégié."
+    },
+    {
+      "command": "show vlan brief",
+      "description": "Affiche les VLANs et leurs ports."
+    },
+    {
+      "command": "show interfaces trunk",
+      "description": "Affiche les trunks et les VLAN autorisés."
+    },
+    {
+      "command": "show running-config",
+      "description": "Affiche la configuration courante."
+    },
+    {
+      "command": "ip route 0.0.0.0 0.0.0.0 192.168.1.1",
+      "description": "Configure une route par défaut vers 192.168.1.1."
+    },
+    {
+      "command": "ping 8.8.8.8",
+      "description": "Teste la connectivité vers 8.8.8.8."
+    }
+  ],
+  "invalid": [
+    {
+      "command": "switchport mode banana",
+      "error": "Erreur : mode de port inconnu. Utilise access ou trunk."
+    },
+    {
+      "command": "switchport access vlan 5000",
+      "error": "Erreur : le VLAN 5000 est hors de la plage utilisable (1–4094)."
+    },
+    {
+      "command": "configure banana",
+      "error": "Erreur : commande de configuration incomplète."
+    },
+    {
+      "command": "interface Banana0/1",
+      "error": "Erreur : interface inconnue."
+    },
+    {
+      "command": "no shut",
+      "error": "Erreur : commande incomplète. Utilise no shutdown."
+    },
+    {
+      "command": "switchport mode",
+      "error": "Erreur : il manque access ou trunk après switchport mode."
+    },
+    {
+      "command": "show vlan banana",
+      "error": "Erreur : argument invalide pour show vlan."
+    },
+    {
+      "command": "ip route add 10.0.0.0/8 via 192.168.1.1",
+      "error": "Erreur : syntaxe Linux. En Cisco IOS, utilise ip route 10.0.0.0 255.0.0.0 192.168.1.1."
+    }
+  ]
+}

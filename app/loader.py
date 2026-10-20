@@ -13,7 +13,18 @@ CONTENT_DIR = Path(__file__).resolve().parent.parent / "content"
 PROOF_KINDS = {kind.value for kind in ProofKind}
 LAB_MODES = {"exact", "contains", "regex", "all", "any"}
 NODE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
-DEVICE_TYPES = {"router", "switch", "pc", "firewall"}
+DEVICE_TYPES = {
+    "router",
+    "switch",
+    "pc",
+    "firewall",
+    "server",
+    "cloud",
+    "wifi",
+    "laptop",
+    "vpc",
+    "subnet",
+}
 
 
 class ContentError(Exception):
@@ -189,17 +200,39 @@ def _parse_nodes(path: Path) -> list[NodeSpec]:
 
         challenge = None
         raw_challenge = raw.get("challenge")
+        challenge_file = raw.get("challenge_file")
         if node_type == "architecture":
+            if raw_challenge is not None and challenge_file is not None:
+                raise ContentError(
+                    f"{where} : utilise soit « challenge », soit « challenge_file », pas les deux."
+                )
+            if challenge_file is not None:
+                challenge_name = _text(challenge_file, "challenge_file", where)
+                content_root = path.parent.resolve()
+                challenge_path = (content_root / challenge_name).resolve()
+                try:
+                    challenge_path.relative_to(content_root)
+                except ValueError:
+                    raise ContentError(
+                        f"{where} : « challenge_file » doit rester dans le dossier content/."
+                    )
+                raw_challenge = _read_json(challenge_path)
             if not isinstance(raw_challenge, dict):
-                raise ContentError(f"{where} : un nœud architecture exige un objet « challenge ».")
+                raise ContentError(
+                    f"{where} : un nœud architecture exige un objet « challenge » "
+                    "ou un fichier « challenge_file »."
+                )
             time_limit = _integer(raw_challenge.get("time_limit"), "time_limit", where, 1, 3600)
             expected_topology = raw_challenge.get("expected_topology")
             challenge = ChallengeSpec(
                 expected_topology=_parse_expected_topology(expected_topology, where),
                 time_limit=time_limit,
             )
-        elif raw_challenge is not None:
-            raise ContentError(f"{where} : seul un nœud architecture peut définir « challenge ».")
+        elif raw_challenge is not None or challenge_file is not None:
+            raise ContentError(
+                f"{where} : seul un nœud architecture peut définir « challenge » "
+                "ou « challenge_file »."
+            )
 
         prereqs: list[str] = []
         for prereq in _string_list(raw.get("prereqs", []), "prereqs", where):
@@ -402,6 +435,30 @@ def load_lessons(
     return lessons
 
 
+def find_lab_dir(
+    node_id: str,
+    directory: str | Path = CONTENT_DIR,
+) -> Path | None:
+    """Retourne le dossier Docker dont lab.json cible ce nœud."""
+    labs_dir = Path(directory) / "labs"
+    direct = labs_dir / node_id
+    if (direct / "lab.json").is_file():
+        return direct
+
+    if labs_dir.is_dir():
+        for candidate in sorted(labs_dir.iterdir()):
+            config = candidate / "lab.json"
+            if not config.is_file():
+                continue
+            try:
+                payload = json.loads(config.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if isinstance(payload, dict) and payload.get("node_id") == node_id:
+                return candidate
+    return None
+
+
 def _check_regex(pattern: str, path: Path) -> None:
     try:
         re.compile(pattern)
@@ -533,12 +590,9 @@ def _parse_docker_lab(directory: Path, node_ids: set[str]) -> LabData:
     if not isinstance(payload, dict):
         raise ContentError(f"{path} : la racine doit être un objet JSON.")
 
+    # Le nom du dossier reste libre (par exemple lab_ospf/) : c'est
+    # lab.json.node_id qui identifie le nœud destinataire.
     node_id = _text(payload.get("node_id"), "node_id", path.name)
-    if node_id != directory.name:
-        raise ContentError(
-            f"{path} : node_id « {node_id} » ne correspond pas au nom de dossier "
-            f"« {directory.name} »."
-        )
     if node_id not in node_ids:
         raise ContentError(f"{path} : node_id « {node_id} » absent de nodes.json.")
 
@@ -626,6 +680,7 @@ def _write(
         conn.execute("DELETE FROM questions")
         conn.execute("DELETE FROM terminal_specs")
         conn.execute("DELETE FROM challenge_sessions")
+        conn.execute("DELETE FROM exam_sessions")
         conn.execute("DELETE FROM challenges")
         for node_id in removed:
             conn.execute("DELETE FROM nodes WHERE id = ?", (node_id,))

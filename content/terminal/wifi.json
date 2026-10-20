@@ -1,0 +1,7 @@
+{
+  "node_id": "wifi",
+  "prompt": "Tape la commande Linux NetworkManager qui affiche les réseaux Wi-Fi à proximité.",
+  "answer": "nmcli dev wifi",
+  "regex": "^\\s*nmcli\\s+(dev|device)\\s+wifi(\\s+list)?\\s*$",
+  "explanation": "nmcli dev wifi interroge NetworkManager et liste les réseaux Wi-Fi détectés avec leur SSID, leur canal et leur niveau de signal."
+}

@@ -20,7 +20,7 @@ from .domain import (
 )
 from .engine import DomainError, SkillTree, check_lab, requirement_met
 from .labs_runner import LabRunnerError, debug_shell, run_lab
-from .loader import CONTENT_DIR, ContentError, LoadReport, load_content
+from .loader import CONTENT_DIR, ContentError, LoadReport, find_lab_dir, load_content
 from .seed import ExportError, export_content
 
 ANSI = {
@@ -289,6 +289,8 @@ def _run_qcm(tree: SkillTree, node_id: str, kind: ProofKind, answers: str | None
     if not questions:
         raise DomainError(f"Aucune question {kind.value} pour « {node_id} ».")
 
+    # On conserve les réponses brutes : les QCM seront convertis en int
+    # uniquement au moment de la correction.
     provided: list[str] | None = None
     if answers:
         provided = [part.strip() for part in answers.split(",")]
@@ -323,20 +325,20 @@ def _run_qcm(tree: SkillTree, node_id: str, kind: ProofKind, answers: str | None
                 print("Abandon : aucune tentative enregistrée.")
                 return 0
 
-        if question.question_type in {"input", "terminal"}:
+        if question.question_type == "qcm":
+            try:
+                choice = int(raw)
+            except (TypeError, ValueError):
+                raise DomainError(f"Réponse invalide à la question {index}.")
+            if not 1 <= choice <= len(question.choices):
+                raise DomainError(f"Réponse hors bornes à la question {index}.")
+            is_correct = choice - 1 == question.answer
+        else:
             is_correct = re.fullmatch(
                 question.answer_regex or "",
                 raw,
                 re.IGNORECASE,
             ) is not None
-        else:
-            try:
-                choice = int(raw)
-            except ValueError:
-                raise DomainError(f"Réponse invalide à la question {index}.")
-            if not 1 <= choice <= len(question.choices):
-                raise DomainError(f"Réponse hors bornes à la question {index}.")
-            is_correct = choice - 1 == question.answer
 
         if is_correct:
             correct += 1
@@ -382,6 +384,11 @@ def cmd_lab(tree: SkillTree, args: argparse.Namespace) -> int:
     spec = tree.lab_spec(args.node)
     if spec is None:
         raise DomainError(f"Aucun lab défini pour « {args.node} ».")
+    if spec.kind == "docker":
+        raise DomainError(
+            f"Le lab « {args.node} » est un lab Docker : "
+            f"utilise `python main.py labd {args.node}`."
+        )
 
     print(STYLE.paint(f"LAB — {node.title}", "bold"))
     print(spec.prompt)
@@ -412,7 +419,7 @@ def cmd_lab(tree: SkillTree, args: argparse.Namespace) -> int:
 
 
 def _lab_dir(node_id: str) -> Path:
-    return CONTENT_DIR / "labs" / node_id
+    return find_lab_dir(node_id) or (CONTENT_DIR / "labs" / node_id)
 
 
 def _require_docker_lab(tree: SkillTree, node_id: str) -> LabSpec:

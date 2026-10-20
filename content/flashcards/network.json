@@ -1,0 +1,62 @@
+[
+  {
+    "id": "ssh-port",
+    "category": "Ports",
+    "front": "Quel est le port de SSH ?",
+    "back": "22 (TCP)"
+  },
+  {
+    "id": "https-port",
+    "category": "Ports",
+    "front": "Quel est le port de HTTPS ?",
+    "back": "443 (TCP)"
+  },
+  {
+    "id": "dhcp-ports",
+    "category": "Ports",
+    "front": "Quels sont les ports utilisés par DHCP ?",
+    "back": "UDP 67 côté serveur et UDP 68 côté client."
+  },
+  {
+    "id": "cisco-trunk",
+    "category": "Cisco",
+    "front": "Quelle commande Cisco passe une interface en mode trunk ?",
+    "back": "switchport mode trunk"
+  },
+  {
+    "id": "linux-routes",
+    "category": "Linux",
+    "front": "Quelle commande Linux affiche la table de routage ?",
+    "back": "ip route"
+  },
+  {
+    "id": "linux-interfaces",
+    "category": "Linux",
+    "front": "Quelle commande Linux liste les interfaces et leurs adresses IP ?",
+    "back": "ip a (ou ip addr show)"
+  },
+  {
+    "id": "vlan-tag-size",
+    "category": "802.1Q",
+    "front": "Combien de bits composent le VID d'un tag 802.1Q ?",
+    "back": "12 bits, soit 4 096 valeurs possibles (0 à 4095)."
+  },
+  {
+    "id": "stp-purpose",
+    "category": "Commutation",
+    "front": "Quel est le rôle principal de STP ?",
+    "back": "Casser les boucles de niveau 2 en bloquant logiquement certains ports, tout en conservant la redondance physique."
+  },
+  {
+    "id": "bridge-vlan-show",
+    "category": "Linux",
+    "front": "Quelle commande Linux affiche les VLANs d'un bridge ?",
+    "back": "bridge vlan show"
+  },
+  {
+    "id": "default-route-cisco",
+    "category": "Cisco",
+    "front": "Quelle commande Cisco configure une route par défaut vers 203.0.113.1 ?",
+    "back": "ip route 0.0.0.0 0.0.0.0 203.0.113.1"
+  }
+]

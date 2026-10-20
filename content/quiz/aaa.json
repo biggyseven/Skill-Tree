@@ -1,0 +1,126 @@
+{
+  "node_id": "aaa",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que signifient les trois A de AAA ?",
+      "choices": [
+        "Access, Address, Audit",
+        "Authentication, Authorization, Accounting",
+        "Application, API, Authentication",
+        "Admin, Access, Authorization"
+      ],
+      "answer": 1,
+      "explanation": "AAA regroupe l'authentification (identité), l'autorisation (droits) et la comptabilité (traçabilité)."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels ports UDP utilise RADIUS pour l'authentification et la comptabilité ?",
+      "choices": [
+        "1812 et 1813",
+        "500 et 4500",
+        "49 et 514",
+        "80 et 443"
+      ],
+      "answer": 0,
+      "explanation": "RADIUS utilise UDP 1812 pour l'authentification et UDP 1813 pour l'accounting (les anciens ports 1645/1646 existent encore)."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole est particulièrement adapté à l'autorisation commande par commande sur Cisco ?",
+      "choices": [
+        "TACACS+",
+        "RADIUS",
+        "NTP",
+        "SNMP"
+      ],
+      "answer": 0,
+      "explanation": "TACACS+ utilise TCP 49, chiffre le corps du paquet et permet une autorisation fine des commandes et des niveaux de privilège."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels sont les trois rôles de 802.1X ?",
+      "choices": [
+        "Supplicant, authenticator, serveur d'authentification",
+        "Client, proxy, registraire",
+        "Switch, routeur, firewall",
+        "CA, CRL, OCSP"
+      ],
+      "answer": 0,
+      "explanation": "Le supplicant est le poste, l'authentificateur est le switch ou l'AP, et le serveur AAA valide les identifiants et renvoie la politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode EAP repose sur des certificats client et serveur ?",
+      "choices": [
+        "EAP-TLS",
+        "EAP-MD5",
+        "PAP",
+        "CHAP"
+      ],
+      "answer": 0,
+      "explanation": "EAP-TLS utilise une authentification mutuelle par certificats. PEAP et EAP-TTLS établissent un tunnel TLS puis utilisent souvent un mot de passe interne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la faiblesse principale de MAB ?",
+      "choices": [
+        "L'adresse MAC peut être usurpée",
+        "Il chiffre trop fortement le trafic",
+        "Il ne fonctionne qu'en IPv6",
+        "Il remplace automatiquement les certificats"
+      ],
+      "answer": 0,
+      "explanation": "MAB authentifie un équipement par sa MAC, une valeur observable et falsifiable. Il doit être limité aux équipements non supplicants et surveillé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert CoA dans un déploiement RADIUS ?",
+      "choices": [
+        "À modifier une session active (VLAN, ACL, déconnexion)",
+        "À synchroniser l'heure",
+        "À chiffrer les logs Syslog",
+        "À remplacer le DNS"
+      ],
+      "answer": 0,
+      "explanation": "Change of Authorization permet au serveur RADIUS de changer la politique d'une session déjà authentifiée, par exemple pour isoler un poste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel attribut RADIUS permet de placer un client dans un VLAN ?",
+      "choices": [
+        "Tunnel-Private-Group-Id",
+        "User-Password",
+        "NAS-IP-Address",
+        "Acct-Session-Time"
+      ],
+      "answer": 0,
+      "explanation": "Le trio Tunnel-Type, Tunnel-Medium-Type et Tunnel-Private-Group-Id porte souvent le VLAN dynamique. Le switch doit supporter et appliquer ces attributs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie `aaa authentication login default group RAD-GRP local` ?",
+      "choices": [
+        "Utiliser RADIUS puis la base locale en secours",
+        "Utiliser uniquement la base locale",
+        "Refuser toutes les connexions",
+        "Utiliser TACACS+ uniquement"
+      ],
+      "answer": 0,
+      "explanation": "La liste tente le groupe RADIUS d'abord, puis la base locale si le serveur est indisponible. Le compte local doit être protégé et surveillé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le client doit-il valider le certificat du serveur RADIUS en PEAP ?",
+      "choices": [
+        "Pour éviter un faux serveur et le vol d'identifiants",
+        "Pour accélérer le DHCP",
+        "Pour changer le VLAN automatiquement",
+        "Pour désactiver MAB"
+      ],
+      "answer": 0,
+      "explanation": "Sans validation du certificat serveur, un attaquant peut monter un faux portail RADIUS et récolter les identifiants. Le nom/SAN et la chaîne de confiance doivent être vérifiés."
+    }
+  ]
+}
