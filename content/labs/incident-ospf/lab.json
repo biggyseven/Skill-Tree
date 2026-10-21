@@ -1,0 +1,8 @@
+{
+  "node_id": "incident-ospf",
+  "kind": "docker",
+  "image": "skilltree/lab:latest",
+  "timeout": 180,
+  "prompt": "Le reseau 192.168.2.0/24 est injoignable depuis R2. Trouve l'erreur de routage sur R1 et corrige-la.",
+  "hint": "Utilise 'ip netns exec r1 ip route' pour voir la table de routage. Une erreur pointe vers 10.0.0.99."
+}

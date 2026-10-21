@@ -1,8 +1,8 @@
 {
-  "node_id": "dhcp-dns",
   "kind": "docker",
   "image": "skilltree/lab:latest",
+  "node_id": "dhcp-dns",
   "timeout": 120,
-  "prompt": "Le serveur DHCP/DNS dnsmasq tourne dans le namespace srv. Dans le namespace cli, obtiens une adresse dans la plage 10.20.0.100-150 via DHCP, puis vérifie que intranet.lab se résout en 10.20.0.1.",
-  "hint": "ip netns exec cli udhcpc -i veth-cli -q -n, puis ip netns exec cli nslookup -type=A intranet.lab 10.20.0.1. Le bail doit aussi installer la route par défaut et le serveur DNS 10.20.0.1."
+  "prompt": "Le serveur DHCP/DNS dnsmasq tourne dans le namespace srv. Dans le namespace cli, obtiens une IP et résous un nom.",
+  "hint": "Utilise dhclient ou udhcpc, puis dig."
 }

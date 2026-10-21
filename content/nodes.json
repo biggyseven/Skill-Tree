@@ -910,5 +910,100 @@
         ]
       }
     }
+  },
+    {
+    "id": "cisco-aci",
+    "title": "Cisco ACI : Fabric et Politiques",
+    "category": "Cloud & Automatisation",
+    "order": 180,
+    "description": "Architecture SDN de datacenter pilotée par APIC.",
+    "prereqs": ["vxlan", "spine-leaf"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "evpn",
+    "title": "EVPN-VXLAN (Plan de contrôle BGP)",
+    "category": "Cloud & Automatisation",
+    "order": 181,
+    "description": "Distribution des MAC/IP via MP-BGP pour les fabrics modernes.",
+    "prereqs": ["vxlan", "bgp-advanced"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+  {
+    "id": "segment-routing",
+    "title": "Segment Routing (SR-MPLS / SRv6)",
+    "category": "Routage Avancé",
+    "order": 182,
+    "description": "Source routing, TI-LFA et SR-TE.",
+    "prereqs": ["mpls", "ospf-advanced"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
+  },
+    {
+    "id": "challenge-backbone-segment-routing",
+    "type": "architecture",
+    "title": "Défi : Backbone Segment Routing multi-chemins",
+    "category": "Défis d'Architecture",
+    "order": 311,
+    "description": "Concevez un backbone opérateur SR-MPLS : deux CE, deux PE, un cœur P1/P2 maillé, un route-reflector et un contrôleur SR-TE.",
+    "prereqs": ["segment-routing"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
+    "challenge": {
+      "time_limit": 420,
+      "expected_topology": {
+        "nodes": { "router": 7, "server": 3 },
+        "connections": [
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "server" },
+          { "from": "router", "to": "server" },
+          { "from": "router", "to": "server" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-fabric-aci-multi-tenant",
+    "type": "architecture",
+    "title": "Défi : Fabric ACI spine-leaf avec sortie externe",
+    "category": "Défis d'Architecture",
+    "order": 312,
+    "description": "Construisez une fabric Cisco ACI : 2 spines, 3 leafs, un cluster APIC, des serveurs applicatifs et un routeur WAN.",
+    "prereqs": ["cisco-aci"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
+    "challenge": {
+      "time_limit": 600,
+      "expected_topology": {
+        "nodes": { "router": 1, "switch": 5, "server": 5 },
+        "connections": [
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "router" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "incident-ospf",
+    "title": "WAR GAME : Routeur muet (Routage)",
+    "category": "War Games (Scénarios de crise)",
+    "order": 900,
+    "description": "Un incident a coupé la connectivité. Tu as 3 minutes pour diagnostiquer et réparer.",
+    "prereqs": ["routing"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   }
 ]

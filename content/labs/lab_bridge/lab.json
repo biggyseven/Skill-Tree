@@ -1,8 +1,8 @@
 {
-  "node_id": "lab_bridge",
   "kind": "docker",
   "image": "skilltree/lab:latest",
+  "node_id": "lab_bridge",
   "timeout": 90,
   "prompt": "Attache les deux veths au bridge pour rétablir la connectivité L2.",
-  "hint": "ip link set <if> master br-lab, puis ip link set <if> up."
+  "hint": "ip link set <if> master br-lab"
 }

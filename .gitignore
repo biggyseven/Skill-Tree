@@ -5,3 +5,37 @@ skilltree.db-shm
 skilltree.db-wal
 backups/
 .env
+# Environnements virtuels
+.venv/
+venv/
+env/
+
+# Fichiers Python compilés
+__pycache__/
+*.pyc
+*.pyo
+
+# Variables d'environnement (TRÈS IMPORTANT : ne jamais publier ses clés API)
+.env
+.env.local
+
+# Base de données locale
+skilltree.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Sauvegardes lourdes
+backups/
+
+# Système d'exploitation
+.DS_Store
+Thumbs.db
+
+# IDE / VS Code
+.vscode/
+.idea/
+
+# Fichiers générés
+projet_complet.md
+structure.txt

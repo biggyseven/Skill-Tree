@@ -1,0 +1,76 @@
+{
+  "node_id": "cisco-aci",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel composant Cisco ACI stocke et distribue la configuration déclarative de la fabric ?",
+      "choices": ["Le spine", "L'APIC", "Le border leaf", "Le VTEP"],
+      "answer": 1,
+      "explanation": "L'APIC (Application Policy Infrastructure Controller) est le contrôleur en cluster qui porte le modèle de politiques et configure les nœuds. Les nœuds de la fabric ne sont pas configurés individuellement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole assure la localisation des endpoints dans les spines ACI ?",
+      "choices": ["OSPF", "COOP", "LDP", "VTP"],
+      "answer": 1,
+      "explanation": "COOP (Council of Oracles Protocol) maintient dans les spines la base de données des endpoints : localisation, VTEP, etc. IS-IS sert pour l'underlay et MP-BGP pour les routes externes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement par défaut s'applique à la communication entre deux EPG différents d'un même VRF en mode Enforced ?",
+      "choices": ["Tout est autorisé", "Seul ICMP est autorisé", "Tout est refusé tant qu'aucun contrat ne l'autorise", "Seul le trafic TCP est autorisé"],
+      "answer": 2,
+      "explanation": "ACI applique un modèle allow-list : sans contrat entre deux EPG, le trafic est refusé. À l'intérieur d'un même EPG, la communication est libre par défaut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le modèle ACI, quel objet correspond le mieux à un domaine de diffusion L2 contenant les passerelles (subnets) ?",
+      "choices": ["Le Tenant", "L'EPG", "Le Bridge Domain", "Le Filtre"],
+      "answer": 2,
+      "explanation": "Le Bridge Domain (BD) est le domaine de diffusion L2 qui porte les subnets/passerelles et est associé à un VRF. L'EPG est un groupe d'endpoints partageant la même politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'ordre correct de la chaîne d'access policies pour relier un EPG à un port physique ?",
+      "choices": ["Interface Profile → VLAN Pool → AAEP → Contrat", "VLAN Pool → Domain → AAEP → Interface Policy Group → Interface/Switch Profile", "AAEP → Tenant → VRF → EPG", "Switch Profile → Contrat → Filtre → Domain"],
+      "answer": 1,
+      "explanation": "Le VLAN Pool est lié à un Domain, associé à un AAEP, lui-même référencé par l'Interface Policy Group. Les Interface Profile et Switch Profile sélectionnent les ports et les leafs concernés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel objet permet d'appliquer un seul contrat à tous les EPG d'un VRF pour économiser du TCAM ?",
+      "choices": ["Taboo contract", "vzAny", "uSeg EPG", "Service Graph"],
+      "answer": 1,
+      "explanation": "vzAny représente l'ensemble des EPG d'un VRF. Y attacher un contrat évite de multiplier les règles par paire d'EPG et réduit la consommation de TCAM."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un EPG doit joindre le WAN via un L3Out, mais aucun trafic ne passe. Quelle vérification est essentielle ?",
+      "choices": ["Qu'un contrat existe entre l'EPG et l'External EPG de l'L3Out", "Que le spine ait 3 liens", "Que le cluster APIC contienne 5 nœuds", "Que le tenant soit common"],
+      "answer": 0,
+      "explanation": "L'External EPG (l3extInstP) est soumis aux contrats comme tout EPG. Il faut aussi que le BD soit associé à l'L3Out et que le subnet soit annoncé avec le scope public."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle architecture ACI conserve un cluster APIC unique pour plusieurs pods interconnectés par un IPN ?",
+      "choices": ["Multi-Site", "Multi-Pod", "Remote Leaf avec NDO", "Stretched VRF"],
+      "answer": 1,
+      "explanation": "Multi-Pod relie plusieurs pods via l'IPN (OSPF, PIM Bidir, DHCP relay) sous un seul cluster APIC et donc un seul domaine de défaut. Multi-Site orchestre des fabrics indépendantes via NDO."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle requête REST permet de s'authentifier auprès de l'APIC ?",
+      "choices": ["GET /api/login", "POST /api/aaaLogin.json avec un objet aaaUser", "PUT /api/uni/token", "POST /api/mo/uni/tn-common.json"],
+      "answer": 1,
+      "explanation": "On envoie un POST sur /api/aaaLogin.json avec un objet aaaUser (name, pwd). L'APIC renvoie un cookie de session (APIC-cookie) utilisé pour les requêtes suivantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande sur un leaf ACI permet de consulter les règles de contrat effectivement installées dans le TCAM ?",
+      "choices": ["show zoning-rule", "show ip ospf neighbor", "show vlan brief", "show spanning-tree"],
+      "answer": 0,
+      "explanation": "« show zoning-rule » affiche les règles (scope VRF, pcTag source/destination, filtre, action). Elle permet de vérifier qu'un contrat a bien été programmé sur le leaf."
+    }
+  ]
+}

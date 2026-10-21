@@ -1,8 +1,8 @@
 {
-  "node_id": "ospf",
   "kind": "docker",
   "image": "skilltree/lab:latest",
+  "node_id": "ospf",
   "timeout": 120,
   "prompt": "Configure le routage entre r1 et r2 pour que h1 et h2 se joignent à travers le lien 10.255.0.0/30.",
-  "hint": "Ajoute une route vers le LAN distant sur chaque routeur, par exemple : ip netns exec r1 ip route add 192.168.20.0/24 via 10.255.0.2. Le forwarding est déjà activé."
+  "hint": "ip netns exec r1 ip route add..."
 }

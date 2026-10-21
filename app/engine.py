@@ -213,6 +213,12 @@ class SkillTree:
             kind=row["kind"],
         )
 
+    def terminal_spec(self, node_id: str) -> dict | None:
+        row = self.conn.execute("SELECT * FROM terminal_specs WHERE node_id = ?", (node_id,)).fetchone()
+        if row is None:
+            return None
+        return dict(row)
+
     def questions(self, node_id: str, scope: ProofKind) -> list[Question]:
         rows = self.conn.execute(
             "SELECT * FROM questions WHERE node_id = ? AND scope = ? ORDER BY position, id",

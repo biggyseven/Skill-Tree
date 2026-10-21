@@ -958,49 +958,34 @@ def read_streak(tree: SkillTree = Depends(get_tree)) -> dict:
 
 @app.get("/api/profile")
 def read_profile(tree: SkillTree = Depends(get_tree)) -> dict:
-    """Regroupe les accomplissements affichés dans le bandeau de profil."""
-    check_badges(tree)
-    nodes = tree.nodes()
-    total_nodes = len(nodes)
-    validated_nodes = sum(1 for node in nodes if is_validated(node))
-    progress_percent = round(100 * validated_nodes / total_nodes) if total_nodes else 0
+    try:
+        stats = get_user_stats(tree.conn)
+        total_nodes = len(tree.nodes())
+        validated_nodes = len(tree.validated_ids())
+        
+        from .db import streak_days
+        days = streak_days(tree.conn)
 
-    labs_validated = int(
-        tree.conn.execute(
-            "SELECT COUNT(DISTINCT node_id) FROM attempts"
-            " WHERE kind = 'lab' AND passed = 1"
-        ).fetchone()[0]
-    )
-    exam_attempts = int(
-        tree.conn.execute(
-            "SELECT COUNT(*) FROM attempts WHERE kind = 'exam' AND passed = 1"
-        ).fetchone()[0]
-    )
-    exam_sessions = int(
-        tree.conn.execute(
-            "SELECT COUNT(*) FROM exam_sessions"
-            " WHERE submitted = 1 AND passed = 1"
-        ).fetchone()[0]
-    )
-    exams_passed = exam_attempts + exam_sessions
-    level = get_user_stats(tree.conn)
+        labs = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='lab' AND passed=1").fetchone()[0]
+        exams = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='exam' AND passed=1").fetchone()[0]
 
-    return {
-        "streak": _streak_payload(tree),
-        "validated_nodes": validated_nodes,
-        "total_nodes": total_nodes,
-        "progress_percent": progress_percent,
-        "labs_validated": labs_validated,
-        "exams_passed": exams_passed,
-        "level": level,
-        "certificate": {
-            "name": CERTIFICATE_NAME,
-            "title": "Certificat d'Admin Réseau Senior",
-            "date": date.today().strftime("%d/%m/%Y"),
-        },
-        "coins": level["coins"],
-        "badges": _badge_list(tree),
-    }
+        import datetime
+        today = datetime.date.today().isoformat()
+
+        return {
+            "level": stats,
+            "total_nodes": total_nodes,
+            "validated_nodes": validated_nodes,
+            "progress_percent": int((validated_nodes / total_nodes) * 100) if total_nodes else 0,
+            "streak": {"days": days},
+            "labs_validated": labs,
+            "exams_passed": exams,
+            "badges": [],
+            "certificate": {"name": "KITE KADJI GUILLAUME AARON", "date": today}
+        }
+    except Exception as e:
+        print(f"Erreur profile: {e}")
+        return {"level": {"current_level": 1, "level_name": "Débutant", "total_xp": 0}, "total_nodes": 0, "validated_nodes": 0, "progress_percent": 0, "streak": {"days": 0}, "labs_validated": 0, "exams_passed": 0, "badges": [], "certificate": {}}
 
 
 def _new_certificate_number(conn: sqlite3.Connection) -> str:
@@ -1388,6 +1373,7 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
     terminal = tree.conn.execute(
         "SELECT prompt, explanation FROM terminal_specs WHERE node_id = ?", (node.id,)
     ).fetchone()
+    terminal_spec = tree.terminal_spec(node.id)
     return {
         "id": node.id,
         "type": (
@@ -1434,6 +1420,8 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
             else None
         ),
         "attempts": [_attempt_payload(attempt) for attempt in node.attempts],
+        
+        "terminal": terminal_spec,
     }
 
 
@@ -1732,89 +1720,38 @@ def submit_exam(
 
 
 @app.post("/api/node/{node_id}/submit-answer")
-def submit_answer(
-    node_id: str,
-    payload: dict[str, Any] = Body(...),
-    tree: SkillTree = Depends(get_tree),
-) -> dict:
-    """Corrige une réponse saisie et enregistre la preuve de l'exercice."""
-    node = _playable(tree, node_id)
-    answer = payload.get("answer")
-    if not isinstance(answer, str) or not answer.strip():
-        raise HTTPException(status_code=422, detail="Le champ answer doit contenir une réponse.")
-    if len(answer) > 5000:
-        raise HTTPException(status_code=422, detail="La réponse dépasse 5000 caractères.")
+def submit_answer(node_id: str, payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
+    node = _get_node(tree, node_id)
+    answer = str(payload.get("answer", "")).strip()
+    
+    # Vérifier si c'est un exercice de type "terminal"
+    spec = tree.terminal_spec(node_id)
+    if spec:
+        pattern = spec.get("regex") or spec.get("pattern")
+        is_correct = False
+        if pattern:
+            try:
+                is_correct = re.match(pattern, answer, re.IGNORECASE) is not None
+            except Exception:
+                is_correct = False
+        else:
+            # Si pas de regex, on vérifie l'égalité stricte
+            is_correct = answer.lower() == spec.get("answer", "").lower()
+            
+        score = 100 if is_correct else 0
+        passed = is_correct
+        attempt, validated = tree.record(node_id, ProofKind.TERMINAL, score, passed, evidence=answer, detail="terminal")
+        
+        return {
+            "success": True,
+            "correct": is_correct,
+            "explanation": spec.get("explanation", ""),
+            "validated": validated,
+            "user_stats": get_user_stats(tree.conn),
+        }
 
-    question_id = payload.get("question_id")
-    if question_id is not None:
-        if not isinstance(question_id, int) or isinstance(question_id, bool):
-            raise HTTPException(status_code=422, detail="Le champ question_id doit être un entier.")
-        requirement = node.requirement(ProofKind.QUIZ)
-        question = next(
-            (
-                item
-                for item in tree.questions(node_id, ProofKind.QUIZ)
-                if item.id == question_id
-            ),
-            None,
-        )
-        if requirement is None or question is None:
-            raise HTTPException(status_code=404, detail="Question d'exercice introuvable.")
-        if question.question_type not in {"input", "terminal"}:
-            raise HTTPException(
-                status_code=422,
-                detail="Cette question attend une sélection de réponse, pas du texte.",
-            )
-        pattern = question.answer_regex or ""
-        explanation = question.explanation
-        kind = ProofKind.QUIZ
-        terminal_answer = question.question_type == "terminal"
-    else:
-        requirement = node.requirement(ProofKind.TERMINAL)
-        if requirement is None:
-            raise HTTPException(status_code=404, detail="Ce nœud n'a pas d'exercice de saisie.")
-        spec = tree.conn.execute(
-            "SELECT pattern, explanation FROM terminal_specs WHERE node_id = ?",
-            (node_id,),
-        ).fetchone()
-        if spec is None:
-            raise HTTPException(status_code=404, detail="Spécification terminal absente.")
-        pattern = spec["pattern"]
-        explanation = spec["explanation"]
-        kind = ProofKind.TERMINAL
-        terminal_answer = True
-
-    correct = _answer_matches(
-        pattern,
-        answer,
-        terminal=terminal_answer,
-    )
-    detail = "Réponse correcte." if correct else "Réponse incorrecte."
-    attempt, validated = tree.record(
-        node_id,
-        kind,
-        100 if correct else 0,
-        correct,
-        evidence=answer,
-        detail=detail,
-    )
-    if not explanation:
-        explanation = (
-            "La réponse correspond au format attendu."
-            if correct
-            else "Vérifie le format de l'adresse ou la syntaxe de la commande."
-        )
-    return {
-        "success": True,
-        "correct": correct,
-        "explanation": explanation,
-        "score": attempt.score,
-        "passed": attempt.passed,
-        "validated": validated,
-        "status": tree.status(node_id).value,
-        "attempt": _attempt_payload(attempt),
-        **_gamification_payload(tree),
-    }
+    # Fallback pour les quiz normaux (QCM/input)
+    raise HTTPException(status_code=400, detail="Type d'exercice non reconnu pour ce nœud.")
 
 
 # Les routes /api/lab/* exécutent des commandes dans un conteneur --privileged.

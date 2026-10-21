@@ -1,8 +1,8 @@
 {
-  "node_id": "acl",
   "kind": "docker",
   "image": "skilltree/lab:latest",
+  "node_id": "acl",
   "timeout": 120,
-  "prompt": "Le routeur r1 relie les réseaux 10.10.1.0/24 et 10.10.2.0/24. Un serveur HTTP écoute sur h2 (10.10.2.10:80). Configure iptables sur r1 pour bloquer le ping de h1 vers h2, tout en laissant passer HTTP.",
-  "hint": "Dans r1, ajoute une règle FORWARD pour ICMP en DROP : ip netns exec r1 iptables -A FORWARD -p icmp -j DROP. Vérifie avec ping et wget depuis h1."
+  "prompt": "Bloque le ping entre les deux hôtes tout en autorisant le HTTP.",
+  "hint": "Utilise iptables sur le routeur. HTTP = port 80, Ping = ICMP."
 }

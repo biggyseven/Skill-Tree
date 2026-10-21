@@ -1,0 +1,76 @@
+{
+  "node_id": "evpn",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle famille d'adresses BGP transporte les routes EVPN ?",
+      "choices": ["ipv4 unicast", "vpnv4 unicast", "l2vpn evpn", "ipv6 labeled-unicast"],
+      "answer": 2,
+      "explanation": "EVPN utilise MP-BGP avec l'AFI L2VPN et le SAFI EVPN, configuré avec « address-family l2vpn evpn »."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type de route EVPN annonce une adresse MAC (et éventuellement l'IP associée) d'un hôte ?",
+      "choices": ["Type 1", "Type 2", "Type 3", "Type 5"],
+      "answer": 1,
+      "explanation": "La route type 2 (MAC/IP Advertisement) distribue MAC et IP d'un hôte. Type 1 = Ethernet A-D, type 3 = Inclusive Multicast, type 4 = Ethernet Segment, type 5 = préfixe IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert la route EVPN de type 3 dans une fabric VXLAN avec ingress replication ?",
+      "choices": ["À annoncer les préfixes IP externes", "À élire le Designated Forwarder", "À annoncer les VTEP participant à un VNI pour répliquer le trafic BUM", "À signaler le déplacement d'une MAC"],
+      "answer": 2,
+      "explanation": "La route type 3 (Inclusive Multicast Ethernet Tag) liste les VTEP intéressés par un VNI. Elle permet de construire la liste de réplication pour le trafic BUM."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence principale entre un L2VNI et un L3VNI ?",
+      "choices": ["Le L2VNI est utilisé pour la commutation d'un VLAN ; le L3VNI est associé à une VRF pour le routage symétrique", "Le L2VNI utilise UDP 4789 et le L3VNI utilise UDP 4790", "Le L3VNI est réservé aux spines", "Le L2VNI ne fonctionne qu'avec le multicast"],
+      "answer": 0,
+      "explanation": "Un L2VNI correspond à un VLAN/bridge domain. Le L3VNI est associé à une VRF et porte le trafic routé entre leafs en IRB symétrique. Les deux utilisent l'encapsulation VXLAN sur UDP 4789."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait l'« anycast gateway » dans une fabric EVPN ?",
+      "choices": ["Elle élit une passerelle active unique avec HSRP", "Elle configure la même IP et la même MAC virtuelle de passerelle sur tous les leafs", "Elle réplique le trafic multicast", "Elle remplace le Route Reflector"],
+      "answer": 1,
+      "explanation": "L'anycast gateway distribue la passerelle : tous les leafs portent la même IP et la même MAC virtuelle (fabric forwarding anycast-gateway-mac), donc l'hôte parle toujours à son leaf local même après migration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'avantage principal de l'IRB symétrique par rapport à l'IRB asymétrique ?",
+      "choices": ["Il ne nécessite aucun VNI", "Il évite de configurer tous les L2VNI sur tous les leafs, grâce à un L3VNI par VRF", "Il supprime le besoin de BGP", "Il élimine l'encapsulation VXLAN"],
+      "answer": 1,
+      "explanation": "En IRB symétrique, le routage est fait sur le leaf source et le leaf destination via le L3VNI. Un leaf n'a besoin que de ses L2VNI locaux, ce qui est beaucoup plus scalable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un leaf NX-OS, la session BGP EVPN est établie mais les routes type 2 n'importent pas leurs RT correctement. Quelle commande manquante est une cause classique ?",
+      "choices": ["send-community extended", "ip ospf cost", "spanning-tree vlan 10", "feature vpc"],
+      "answer": 0,
+      "explanation": "Les Route-Targets sont des extended communities. Sans « send-community extended » (en plus de send-community), les RT ne sont pas transmises et les routes ne sont pas importées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de la route EVPN de type 4 dans un scénario multihoming ESI ?",
+      "choices": ["Annoncer un préfixe IP externe", "Élire le Designated Forwarder pour le trafic BUM d'un Ethernet Segment", "Retirer toutes les MAC d'un seul coup", "Annoncer le MAC Mobility"],
+      "answer": 1,
+      "explanation": "La route type 4 (Ethernet Segment) sert à la découverte des PE partageant le même ESI et à l'élection du DF. Le mass withdraw est réalisé avec les routes type 1 par ESI."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une VM migre d'un leaf à un autre. Comment EVPN détermine-t-il quelle annonce de MAC est la plus récente ?",
+      "choices": ["Grâce au RD le plus petit", "Grâce au sequence number de la MAC Mobility extended community", "Grâce au router-id le plus élevé", "Grâce au timer ARP de l'hôte"],
+      "answer": 1,
+      "explanation": "Le leaf qui apprend la MAC après migration annonce la route avec un sequence number incrémenté. La route avec le numéro le plus élevé est préférée par tous les VTEP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle valeur de MTU minimale faut-il prévoir sur l'underlay pour transporter des trames Ethernet de 1500 octets en VXLAN sans fragmentation ?",
+      "choices": ["1500 octets", "Au moins 1550 octets (VXLAN ajoute environ 50 octets), en pratique 9216 sur les data centers", "1400 octets", "576 octets"],
+      "answer": 1,
+      "explanation": "L'encapsulation VXLAN ajoute environ 50 octets (Ethernet, IP, UDP, VXLAN). Il faut donc un MTU underlay supérieur à 1550 ; les fabrics utilisent généralement 9216."
+    }
+  ]
+}

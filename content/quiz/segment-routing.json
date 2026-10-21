@@ -1,0 +1,76 @@
+{
+  "node_id": "segment-routing",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Avec un SRGB de 16000-23999, quel label MPLS correspond à un Prefix-SID d'index 5 ?",
+      "choices": ["16005", "5", "24005", "15005"],
+      "answer": 0,
+      "explanation": "Le label d'un Prefix-SID est égal à SRGB_base + index, soit 16000 + 5 = 16005."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la portée d'un Adjacency-SID (Adj-SID) ?",
+      "choices": ["Globale dans tout le domaine SR", "Locale au routeur qui l'annonce", "Globale mais seulement dans une aire OSPF", "Limitée au domaine BGP"],
+      "answer": 1,
+      "explanation": "Un Adj-SID est local : il n'a de sens que sur le routeur qui l'a alloué et force la sortie par une adjacence précise. Un Prefix-SID, lui, est global."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole de distribution de labels devient inutile dans un réseau SR-MPLS pur ?",
+      "choices": ["BGP", "IS-IS", "LDP", "BFD"],
+      "answer": 2,
+      "explanation": "Les SID sont annoncés par l'IGP (IS-IS ou OSPF) : LDP n'est plus nécessaire. RSVP-TE est aussi remplacé par SR-TE."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi recommande-t-on d'utiliser le même SRGB sur tous les routeurs ?",
+      "choices": ["Sans cela, l'IGP refuse d'établir les adjacences", "Pour que le label d'un préfixe soit identique partout, ce qui simplifie l'exploitation", "Parce que le SRGB détermine le coût des liens", "Parce que TI-LFA ne fonctionne qu'avec un SRGB identique"],
+      "answer": 1,
+      "explanation": "Avec un SRGB homogène, le label d'un Prefix-SID est le même sur tous les routeurs. Avec des SRGB différents, le fonctionnement reste possible mais le dépannage est beaucoup plus difficile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle garantie TI-LFA apporte-t-il par rapport au LFA classique ?",
+      "choices": ["Une convergence plus rapide de l'IGP", "Une couverture de protection de 100 % de la topologie, avec le chemin post-convergence", "La suppression de la nécessité de BFD", "La possibilité de se passer de métriques wide"],
+      "answer": 1,
+      "explanation": "TI-LFA calcule le chemin post-convergence et l'encode avec une liste de segments, ce qui donne une protection indépendante de la topologie, avec bascule en moins de 50 ms."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel triplet identifie une SR policy ?",
+      "choices": ["(VRF, RD, RT)", "(Tête de ligne, couleur, extrémité)", "(SRGB, SRLB, index)", "(Source, groupe, RP)"],
+      "answer": 1,
+      "explanation": "Une SR policy est identifiée par la tête de ligne, la couleur (color) et l'extrémité (endpoint). Elle contient ensuite un ou plusieurs candidate paths."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment un service BGP L3VPN est-il automatiquement dirigé dans une SR policy (Automated Steering) ?",
+      "choices": ["Grâce à une communauté étendue Color qui correspond à une policy (color, next-hop)", "Grâce à une route statique pointant vers le BSID", "Grâce à une ACL appliquée sur l'interface d'entrée", "Grâce à une métrique IGP modifiée"],
+      "answer": 0,
+      "explanation": "La route BGP porte une extended community Color. Si une policy existe pour (color, endpoint = next-hop BGP), le trafic y est automatiquement dirigé ; avec ODN, la policy peut même être créée à la demande."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle plage d'identifiants est réservée aux algorithmes Flex-Algo définis par l'utilisateur ?",
+      "choices": ["0 à 15", "16 à 127", "128 à 255", "256 à 1023"],
+      "answer": 2,
+      "explanation": "Les valeurs 0 et 1 sont des algorithmes standard (SPF et Strict SPF). Les algorithmes personnalisés Flex-Algo utilisent la plage 128-255."
+    },
+    {
+      "type": "qcm",
+      "prompt": "En SRv6, à quoi sert le comportement End.DT4 ?",
+      "choices": ["À transmettre le paquet via une adjacence précise", "À décapsuler le paquet et rechercher l'IPv4 de destination dans une table VRF", "À répliquer le trafic multicast", "À compresser la liste de segments"],
+      "answer": 1,
+      "explanation": "End.DT4 est le comportement de décapsulation suivie d'une recherche dans une table de routage IPv4 spécifique (VRF), utilisé pour les L3VPN SRv6. End.X correspond à l'Adj-SID."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une SR policy ne s'installe pas alors que sa segment-list est valide. Quelle est une cause typique liée à la plateforme ?",
+      "choices": ["Le MSD de la tête de ligne est inférieur au nombre de labels de la liste", "Le SRGB est supérieur à 16000", "L'IGP utilise des métriques wide", "Le Prefix-SID a le flag N"],
+      "answer": 0,
+      "explanation": "Le MSD (Maximum SID Depth) limite le nombre de labels qu'un routeur peut imposer. Si la liste dépasse cette limite, la policy est invalide ; les Binding-SID permettent de raccourcir les piles."
+    }
+  ]
+}

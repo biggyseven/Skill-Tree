@@ -1,8 +1,8 @@
 {
-  "node_id": "lab_troubleshoot_vlan",
   "kind": "docker",
   "image": "skilltree/lab:latest",
+  "node_id": "lab_troubleshoot_vlan",
   "timeout": 120,
-  "prompt": "Le ping entre ns1 et ns2 échoue. Trouve l'erreur de configuration VLAN sur le bridge et corrige-la.",
-  "hint": "Compare les VLAN des ports avec `bridge vlan show`. Le problème est au niveau L2, pas dans les adresses IP."
+  "prompt": "Le ping entre ns1 et ns2 échoue. Trouve l'erreur de configuration VLAN sur le bridge.",
+  "hint": "Compare les VLAN avec bridge vlan show."
 }

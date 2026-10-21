@@ -1,8 +1,8 @@
 {
-  "node_id": "lab_tshoot_dns",
   "kind": "docker",
   "image": "skilltree/lab:latest",
+  "node_id": "lab_tshoot_dns",
   "timeout": 120,
-  "prompt": "Le client n'arrive pas à résoudre correctement intranet.lab. Le serveur DNS 10.70.1.53 répond, mais renvoie une mauvaise adresse. Trouve et corrige l'enregistrement DNS sur le serveur, puis redémarre dnsmasq et vérifie la résolution.",
-  "hint": "Regarde /tmp/dnsmasq-tshoot.conf : l'enregistrement address=/intranet.lab/10.70.1.99 pointe vers une mauvaise IP. Remplace .99 par .53, tue le processus via /tmp/dnsmasq-tshoot.pid, puis relance dnsmasq dans le namespace dns."
+  "prompt": "Le client n'arrive pas à résoudre intranet.lab. Le serveur DNS 10.70.0.53 est mal configuré.",
+  "hint": "Vérifie l'enregistrement A sur le serveur DNS."
 }

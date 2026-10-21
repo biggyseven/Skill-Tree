@@ -1,8 +1,8 @@
 {
-  "node_id": "dns-advanced",
   "kind": "docker",
   "image": "skilltree/lab:latest",
+  "node_id": "dns-advanced",
   "timeout": 120,
-  "prompt": "Configure un serveur DNS local dans le namespace dns (10.80.0.53). La zone lab doit contenir un enregistrement A app.lab -> 10.80.0.10 et un CNAME www.app.lab -> app.lab. Démarre dnsmasq puis vérifie les deux noms avec dig.",
-  "hint": "Crée /tmp/dns-adv.conf avec interface=veth-dns, bind-interfaces, listen-address=10.80.0.53, host-record=app.lab,10.80.0.10 et cname=www.app.lab,app.lab. Lance : ip netns exec dns dnsmasq --conf-file=/tmp/dns-adv.conf. Teste : ip netns exec client dig +short A app.lab @10.80.0.53 et dig +short A www.app.lab @10.80.0.53."
+  "prompt": "Configure un serveur DNS local dans le namespace dns (10.80.0.53). La zone lab doit résoudre app.lab.",
+  "hint": "Utilise dnsmasq avec host-record."
 }
