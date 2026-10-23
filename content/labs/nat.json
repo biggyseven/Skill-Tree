@@ -1,7 +1,0 @@
-{
-  "node_id": "nat",
-  "mode": "regex",
-  "pattern": "ip\\s+nat\\s+inside\\s+source\\s+list\\s+10\\s+interface\\s+\\S+\\s+overload",
-  "prompt": "Écris la commande de surcharge NAT pour la liste 10 sur l'interface WAN.",
-  "hint": "ip nat inside source list <id> interface <if> overload"
-}

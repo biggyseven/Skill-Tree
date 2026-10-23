@@ -1,8 +1,0 @@
-{
-  "kind": "docker",
-  "image": "skilltree/lab:latest",
-  "node_id": "firewall",
-  "timeout": 120,
-  "prompt": "Le routeur fw est en politique FORWARD DROP. Mets en place un firewall stateful avec conntrack.",
-  "hint": "Autorise ESTABLISHED,RELATED et le port 80 en NEW."
-}

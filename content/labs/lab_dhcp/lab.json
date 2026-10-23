@@ -1,8 +1,0 @@
-{
-  "kind": "docker",
-  "image": "skilltree/lab:latest",
-  "node_id": "dhcp-dns",
-  "timeout": 120,
-  "prompt": "Le serveur DHCP/DNS dnsmasq tourne dans le namespace srv. Dans le namespace cli, obtiens une IP et résous un nom.",
-  "hint": "Utilise dhclient ou udhcpc, puis dig."
-}

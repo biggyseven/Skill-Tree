@@ -1,0 +1,1 @@
+{"node_id": "bgp-intermediaire", "mode": "contains", "prompt": "Saisissez la commande pour forcer l'adresse du prochain saut à être le routeur lui-même pour le voisin 10.0.0.1.", "hint": "Utilisez 'neighbor' et 'next-hop-self'.", "pattern": "neighbor 10.0.0.1 next-hop-self"}

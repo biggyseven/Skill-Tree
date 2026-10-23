@@ -1,0 +1,4 @@
+{"node_id":"eigrp-intermediaire","scope":"quiz","questions":[
+  {"type":"qcm","prompt":"Que signifie la Condition de Faisabilité (Feasibility Condition) dans EIGRP ?","choices":["La RD du voisin est strictement inférieure à la FD locale","La FD du voisin est strictement inférieure à la RD locale","La métrique est égale à zéro","Le voisin est en état actif"],"answer":0,"explanation":"La FC stipule que pour être Feasible Successor, la Reported Distance (RD) du voisin doit être inférieure à la Feasible Distance (FD) locale. Cela garantit l'absence de boucle."},
+  {"type":"qcm","prompt":"Quel mode de configuration EIGRP permet de gérer IPv4 et IPv6 dans le même processus ?","choices":["Classic Mode","Named Mode","Stub Mode","Passive Mode"],"answer":1,"explanation":"Le Named Mode (ex: router eigrp PROD) permet de configurer plusieurs address-family (IPv4, IPv6) au sein d'un même processus EIGRP."}
+]}

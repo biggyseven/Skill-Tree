@@ -1,7 +1,0 @@
-{
-  "node_id": "routing",
-  "mode": "regex",
-  "pattern": "ip\\s+route\\s+0\\.0\\.0\\.0\\s+0\\.0\\.0\\.0\\s+192\\.168\\.1\\.1",
-  "prompt": "Écris la route statique par défaut via 192.168.1.1 (Cisco).",
-  "hint": "ip route 0.0.0.0 0.0.0.0 <next-hop>"
-}

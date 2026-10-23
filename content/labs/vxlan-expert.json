@@ -1,0 +1,7 @@
+{
+  "node_id": "vxlan-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de VXLAN & EVPN - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

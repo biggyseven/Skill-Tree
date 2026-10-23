@@ -1,0 +1,1 @@
+{"node_id": "ha-expert", "mode": "contains", "prompt": "Saisissez la commande pour configurer un délai de préemption de 180 secondes sur HSRP (groupe 10).", "hint": "Commencez par 'standby 10 preempt delay'.", "pattern": "standby 10 preempt delay minimum 180"}

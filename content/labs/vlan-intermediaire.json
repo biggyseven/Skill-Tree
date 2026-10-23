@@ -1,0 +1,1 @@
+{"node_id": "vlan-intermediaire", "mode": "contains", "prompt": "Saisissez la commande pour configurer le port GigabitEthernet0/1 en mode Trunk.", "hint": "Commencez par 'switchport'.", "pattern": "switchport mode trunk"}

@@ -1,0 +1,3 @@
+{"node_id":"eigrp-expert","scope":"quiz","questions":[
+  {"type":"qcm","prompt":"Quel est le principal avantage des Wide Metrics dans le Named Mode d'EIGRP ?","choices":["Ils supportent les liens à très haute vitesse (10 Gbps et plus)","Ils suppriment l'utilisation du DUAL","Ils permettent de configurer VTPv3","Ils remplacent l'authentification MD5"],"answer":0,"explanation":"Les Wide Metrics utilisent 64 bits, ce qui permet de calculer des métriques précises pour les liens très rapides sans saturation."}
+]}

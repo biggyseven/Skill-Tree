@@ -1,0 +1,18 @@
+{
+  "node_id": "restconf-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire pour API RESTCONF et NETCONF - Expert. Avez-vous lu le cours ?",
+      "choices": [
+        "Oui",
+        "Non",
+        "Peut-être",
+        "Je ne sais pas"
+      ],
+      "answer": 0,
+      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+    }
+  ]
+}

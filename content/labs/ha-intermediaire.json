@@ -1,0 +1,1 @@
+{"node_id": "ha-intermediaire", "mode": "contains", "prompt": "Saisissez la commande pour activer la préemption HSRP sur le groupe 10.", "hint": "Commencez par 'standby'.", "pattern": "standby 10 preempt"}

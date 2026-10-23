@@ -1,0 +1,7 @@
+{
+  "node_id": "vrf-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de VRF - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

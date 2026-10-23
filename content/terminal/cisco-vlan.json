@@ -1,7 +1,0 @@
-{
-  "node_id": "cisco-vlan",
-  "prompt": "Quelle commande Cisco IOS configure un port switch en mode trunk ?",
-  "answer": "switchport mode trunk",
-  "regex": "^switchport\\s+mode\\s+trunk$",
-  "explanation": "La commande 'switchport mode trunk' force le port à transporter des trames de plusieurs VLANs."
-}

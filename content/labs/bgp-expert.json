@@ -1,0 +1,1 @@
+{"node_id": "bgp-expert", "mode": "contains", "prompt": "Saisissez la commande pour configurer le voisin 10.0.0.2 en tant que Route Reflector Client.", "hint": "Commencez par 'neighbor'.", "pattern": "neighbor 10.0.0.2 route-reflector-client"}

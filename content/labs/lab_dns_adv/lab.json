@@ -1,8 +1,0 @@
-{
-  "kind": "docker",
-  "image": "skilltree/lab:latest",
-  "node_id": "dns-advanced",
-  "timeout": 120,
-  "prompt": "Configure un serveur DNS local dans le namespace dns (10.80.0.53). La zone lab doit résoudre app.lab.",
-  "hint": "Utilise dnsmasq avec host-record."
-}

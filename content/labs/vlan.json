@@ -1,7 +1,0 @@
-{
-  "node_id": "vlan",
-  "mode": "contains",
-  "pattern": "switchport mode trunk",
-  "prompt": "Configure l'interface Gi0/1 en trunk 802.1Q (commande Cisco).",
-  "hint": "interface Gi0/1 puis switchport mode ..."
-}

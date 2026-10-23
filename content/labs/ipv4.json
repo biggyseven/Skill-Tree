@@ -1,7 +1,0 @@
-{
-  "node_id": "ipv4",
-  "mode": "exact",
-  "pattern": "62",
-  "prompt": "Combien d'hôtes utilisables dans le réseau 192.168.10.0/26 ?",
-  "hint": "2^(32-26) - 2"
-}

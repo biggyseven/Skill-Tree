@@ -1,0 +1,7 @@
+{
+  "node_id": "segment-routing-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Segment Routing - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

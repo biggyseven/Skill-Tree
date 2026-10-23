@@ -1,0 +1,1 @@
+{"node_id": "ospf-expert", "mode": "contains", "prompt": "Saisissez la commande pour configurer l'Area 1 en mode Stub dans le processus OSPF 1.", "hint": "Utilisez le mot-clé 'area'.", "pattern": "area 1 stub"}

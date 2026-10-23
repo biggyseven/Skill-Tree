@@ -1,0 +1,7 @@
+{
+  "node_id": "azure-vnet-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Azure VNet - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

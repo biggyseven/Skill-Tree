@@ -1,0 +1,1 @@
+{"node_id": "vlan-expert", "mode": "contains", "prompt": "Saisissez la commande pour changer le VLAN natif du trunk à 999.", "hint": "Utilisez 'switchport trunk native'.", "pattern": "switchport trunk native vlan 999"}

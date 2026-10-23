@@ -1,0 +1,7 @@
+{
+  "node_id": "ipv4-debutant",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Adressage IPv4 & sous-réseaux - Débutant.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

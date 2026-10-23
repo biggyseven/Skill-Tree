@@ -1,8 +1,0 @@
-{
-  "kind": "docker",
-  "image": "skilltree/lab:latest",
-  "node_id": "ha",
-  "timeout": 150,
-  "prompt": "Configure un bond0 LACP (802.3ad) dans ns1 et ns2 avec les deux liens fournis, pose 10.10.0.1/24 et 10.10.0.2/24.",
-  "hint": "ip link add bond0 type bond mode 802.3ad"
-}

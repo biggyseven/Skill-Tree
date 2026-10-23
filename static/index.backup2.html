@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill Tree — Admin Réseau Senior</title>
+  <meta name="color-scheme" content="dark light">
+
+  <script>
+    try {
+      if (localStorage.getItem('skilltree-theme') === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    } catch (error) { }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <script type="module">
+    import typography from 'https://esm.sh/@tailwindcss/typography@0.5.16?deps=tailwindcss@3.4.17';
+    if (window.tailwind) {
+      window.tailwind.config = {
+        ...window.tailwind.config,
+        plugins: [...(window.tailwind.config.plugins ?? []), typography],
+      };
+    }
+  </script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
+  <script defer src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    [x-cloak] { display: none !important; }
+    html { scrollbar-color: #3f3f46 #000; }
+    ::selection { background: rgba(255, 255, 255, 0.25); color: #fff; }
+    body { background: #050505; }
+
+    /* --- Animations / cartes --- */
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .animate-rise { animation: rise 0.5s ease both; }
+
+    /* --- Flashcards (flip) --- */
+    .flashcard-scene { perspective: 1200px; }
+    .flashcard-card { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+    .flashcard-card.is-flipped { transform: rotateY(180deg); }
+    .flashcard-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; text-align: center; padding: 1.5rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.1); background: #0c0c0c; }
+    .flashcard-back { transform: rotateY(180deg); }
+
+    /* --- Surface du cours : TOUJOURS sombre, quel que soit le contenu injecté --- */
+    .modal-panel { background-color: #0c0c0c !important; color: #d4d4d8; color-scheme: dark; }
+    .modal-scroll { background-color: #0c0c0c; }
+
+    /* --- STYLE DES COURS (CALLOUTS & CODE) --- */
+    .callout { --c-bg: #0b1a33; --c-border: #3b82f6; --c-text: #dbeafe; --c-title: #60a5fa; margin: 1.5rem 0; padding: 1rem 1.5rem; border-radius: 0 0.75rem 0.75rem 0; border-left: 4px solid var(--c-border); background: var(--c-bg); color: var(--c-text); display: flex; flex-direction: column; gap: 0.5rem; }
+    .callout-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem; color: var(--c-title) !important; }
+    .callout-content { font-size: 0.95em; line-height: 1.7; color: var(--c-text); }
+    .callout-content > :first-child { margin-top: 0; }
+    .callout-content > :last-child { margin-bottom: 0; }
+    .callout-content p { margin-bottom: 0.6em; }
+    .callout-info { --c-bg: #0b1a33; --c-border: #3b82f6; --c-text: #dbeafe; --c-title: #60a5fa; }
+    .callout-tip { --c-bg: #06241b; --c-border: #10b981; --c-text: #d1fae5; --c-title: #34d399; }
+    .callout-danger { --c-bg: #2a1013; --c-border: #ef4444; --c-text: #fee2e2; --c-title: #f87171; }
+    .callout-exam { --c-bg: #2b1706; --c-border: #f97316; --c-text: #ffedd5; --c-title: #fb923c; }
+
+    /* Bloc de code avec bouton Copier */
+    .code-container { position: relative; width: 100%; max-width: 100%; min-width: 0; align-self: stretch; margin: 1.5rem 0; border-radius: 0.75rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #09090b; }
+    .code-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #a1a1aa; }
+    .code-lang { text-transform: uppercase; font-weight: bold; color: #a1a1aa; }
+    .btn-copy { background: transparent; border: none; color: #a1a1aa; cursor: pointer; font-size: 0.75rem; transition: color 0.2s; }
+    .btn-copy:hover { color: #fff; }
+    .code-container pre { margin: 0 !important; border: none !important; border-radius: 0 !important; padding: 1rem !important; overflow-x: auto; background: transparent !important; }
+
+    /* --- GLOWS --- */
+    @keyframes glowLime { 0%, 100% { box-shadow: 0 0 16px -6px rgba(163, 230, 53, 0.55), 0 0 55px -18px rgba(34, 211, 238, 0.65); } 50% { box-shadow: 0 0 26px -4px rgba(163, 230, 53, 0.8), 0 0 85px -12px rgba(34, 211, 238, 0.95); } }
+    .glow-lime { animation: glowLime 4.2s ease-in-out infinite; }
+    @keyframes glowFuchsia { 0%, 100% { box-shadow: 0 0 18px -6px rgba(217, 70, 239, 0.6), 0 0 60px -16px rgba(168, 85, 247, 0.7); } 50% { box-shadow: 0 0 30px -4px rgba(217, 70, 239, 0.9), 0 0 95px -10px rgba(168, 85, 247, 1); } }
+    .glow-fuchsia { animation: glowFuchsia 3.2s ease-in-out infinite; }
+
+    /* --- Markdown (cours) : couleurs FORCÉES pour un contraste toujours correct sur fond sombre --- */
+    .lesson-prose { color: #d4d4d8; font-size: 1.05rem; line-height: 1.85; max-width: none; letter-spacing: 0.01em; background: transparent; }
+    .lesson-prose > :first-child { margin-top: 0 !important; }
+    .lesson-prose p, .lesson-prose li, .lesson-prose dd, .lesson-prose dt, .lesson-prose td, .lesson-prose figcaption,
+    .lesson-prose label, .lesson-prose small, .lesson-prose span, .lesson-prose em, .lesson-prose i { color: #d4d4d8 !important; }
+    .lesson-prose h1, .lesson-prose h2, .lesson-prose h3, .lesson-prose h4, .lesson-prose h5, .lesson-prose h6,
+    .lesson-prose strong, .lesson-prose b, .lesson-prose th, .lesson-prose summary { color: #ffffff !important; }
+    .lesson-prose :where(h1, h2, h3, h4) { font-weight: 700; margin-top: 2.2em; margin-bottom: 0.7em; letter-spacing: -0.02em; line-height: 1.3; scroll-margin-top: 1.5rem; }
+    .lesson-prose h1 { font-size: 2em; }
+    .lesson-prose h2 { font-size: 1.5em; padding-top: 0.7em; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+    .lesson-prose h3 { font-size: 1.2em; }
+    .lesson-prose h4 { font-size: 1.05em; }
+    .lesson-prose :where(p, li) { margin-bottom: 0.9em; }
+    .lesson-prose ul { list-style: disc; padding-left: 1.5rem; margin: 1em 0; }
+    .lesson-prose ol { list-style: decimal; padding-left: 1.5rem; margin: 1em 0; }
+    .lesson-prose li > ul, .lesson-prose li > ol { margin: 0.4em 0; }
+    .lesson-prose li::marker { color: #a1a1aa; }
+    .lesson-prose a { color: #22d3ee !important; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+    .lesson-prose a:hover { color: #67e8f9 !important; }
+    .lesson-prose hr { border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 2.5em 0; }
+    .lesson-prose blockquote { border-left: 3px solid #52525b; padding: 0.2em 1.2em; margin: 1.5em 0; }
+    .lesson-prose blockquote p, .lesson-prose blockquote li { color: #a1a1aa !important; }
+    .lesson-prose details { margin: 1em 0; }
+    .lesson-prose summary { cursor: pointer; font-weight: 600; }
+    .lesson-prose img { max-width: 100%; height: auto; }
+
+    /* Code en ligne */
+    .lesson-prose :not(pre) > code { border-radius: 0.4rem; background: rgba(255, 255, 255, 0.1); padding: 0.15em 0.4em; color: #a5f3fc !important; font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace; font-size: 0.88em; overflow-wrap: anywhere; }
+
+    /* Blocs de code : texte clair + police mono, jamais de retour à la ligne */
+    .lesson-prose pre { overflow-x: auto; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; background: #18181b; padding: 1.5rem; font-size: 0.85em; line-height: 1.6; margin-top: 1.5em; margin-bottom: 1.5em; }
+    .lesson-prose .code-container pre,
+    .lesson-prose .code-container code,
+    .lesson-prose .code-container code * { color: #e4e4e7 !important; font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace !important; white-space: pre !important; word-break: normal !important; overflow-wrap: normal !important; background: transparent !important; text-decoration: none !important; }
+    .lesson-prose .code-container pre { font-size: 0.85em; line-height: 1.6; margin: 0 !important; }
+
+    /* Tableaux : s'adaptent à la largeur, le texte passe à la ligne (défilement uniquement si vraiment nécessaire) */
+    .table-wrapper { margin: 1.5em 0; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.1); max-width: 100%; overflow-x: auto; }
+    .lesson-prose table { width: 100%; border-collapse: collapse; table-layout: auto; font-size: 0.92em; margin: 0; }
+    .lesson-prose th, .lesson-prose td { border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.65rem 0.9rem; text-align: left; vertical-align: top; white-space: normal; overflow-wrap: anywhere; }
+    .lesson-prose th { background: #18181b; font-weight: 600; }
+    .lesson-prose td code { white-space: normal; overflow-wrap: anywhere; }
+    .lesson-prose tr:hover td { background: rgba(255, 255, 255, 0.03); }
+
+    /* Callouts : texte toujours lisible sur leur fond propre */
+    .lesson-prose .callout p, .lesson-prose .callout li, .lesson-prose .callout span, .lesson-prose .callout em, .lesson-prose .callout td { color: var(--c-text) !important; }
+    .lesson-prose .callout strong { color: #ffffff !important; }
+    .lesson-prose .callout a { color: var(--c-title) !important; }
+
+    /* Boîte "À retenir" */
+    .lesson-recap { margin: 2.5em 0 1em; padding: 0.2rem 1.5rem 0.8rem; border: 2px solid rgba(52, 211, 153, 0.5); border-radius: 1rem; background: #071a14; }
+    .lesson-prose .lesson-recap h2 { border-top: 0 !important; margin-top: 0.9em !important; color: #6ee7b7 !important; }
+
+    /* Figures / schémas HTML intégrés aux cours : conçus pour fond clair -> carte claire à texte foncé */
+    .lesson-prose figure, .lesson-prose [class~="figure"], .lesson-prose [class~="lesson-figure"], .lesson-prose [class~="diagram"] { background: #f8fafc; color: #0f172a; border-radius: 1rem; padding: 1.25rem; margin: 1.5rem 0; border: 1px solid rgba(255, 255, 255, 0.12); }
+    .lesson-prose figure p, .lesson-prose figure span, .lesson-prose figure label, .lesson-prose figure em, .lesson-prose figure i, .lesson-prose figure small, .lesson-prose figure li, .lesson-prose figure figcaption { color: #334155 !important; }
+    .lesson-prose figure h1, .lesson-prose figure h2, .lesson-prose figure h3, .lesson-prose figure h4, .lesson-prose figure h5, .lesson-prose figure h6, .lesson-prose figure strong, .lesson-prose figure b, .lesson-prose figure summary { color: #0f172a !important; border: 0; }
+    .lesson-prose figure :not(pre) > code { background: #e2e8f0; color: #0b3b66 !important; }
+
+    /* --- Terminal --- */
+    .terminal-shell { background: #09090b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; }
+    .terminal-head { background: #18181b; border-bottom: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem 1rem 0 0; }
+    .terminal-cursor { display: inline-block; width: 0.55rem; height: 1rem; background: #22d3ee; animation: terminalBlink 1s step-end infinite; vertical-align: text-bottom; }
+    @keyframes terminalBlink { 0%, 45% { opacity: 1; } 46%, 100% { opacity: 0; } }
+
+    /* --- Drawflow --- */
+    #drawflow { position: relative; background-color: #09090b; background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px); background-size: 24px 24px; touch-action: none; border-radius: 1.5rem; }
+    #drawflow .drawflow-node { background: #09090b; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 1rem; color: #fff; box-shadow: 0 0 20px -10px rgba(255, 255, 255, 0.5); }
+    #drawflow .drawflow-node.selected { border-color: #fff; box-shadow: 0 0 0 1px #fff, 0 0 30px -5px rgba(255, 255, 255, 0.4); }
+    #drawflow .topo-node { display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+    #drawflow .topo-icon { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.2); }
+    #drawflow .topo-label { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; }
+    #drawflow .topo-sub { display: block; font-size: 10px; text-transform: uppercase; color: #a1a1aa; }
+  </style>
+</head>
+
+<body class="flex h-screen overflow-hidden bg-[#050505] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open }">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside x-show="!focusMode" class="hidden h-full flex-col bg-[#050505] py-6 transition-all duration-300 md:flex" :class="sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'">
+    <!-- Logo & Toggle -->
+    <div class="flex h-16 shrink-0 items-center mb-6 transition-all" :class="sidebarCollapsed ? 'justify-center' : 'justify-between px-2'">
+      <div class="flex items-center gap-3 cursor-pointer" @click="sidebarCollapsed = false">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 shadow-[0_0_20px_-4px_rgba(52,211,153,0.5)]">
+          <svg class="h-5 w-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4l12 8-12 8Z"></path><path d="M14 14l6 6"></path></svg>
+        </div>
+        <div x-show="!sidebarCollapsed" class="whitespace-nowrap">
+          <h1 class="text-sm font-bold tracking-tight text-white">Skill Tree</h1>
+          <p class="text-[10px] text-zinc-500">Admin Réseau Senior</p>
+        </div>
+      </div>
+      <button type="button" @click="sidebarCollapsed = !sidebarCollapsed" x-show="!sidebarCollapsed" class="text-zinc-500 hover:text-white transition">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"></path></svg>
+      </button>
+    </div>
+
+    <!-- Profil Utilisateur -->
+    <div x-show="!sidebarCollapsed" class="mb-6 flex shrink-0 flex-col items-center rounded-3xl bg-[#0c0c0c] p-5 border border-white/5 shadow-xl">
+      <div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-emerald-500/50 bg-zinc-900 shadow-[0_0_20px_-4px_rgba(52,211,153,0.4)]">
+        <span class="text-2xl">👨‍💻</span>
+      </div>
+      <h2 class="mt-3 text-sm font-bold text-white" x-text="userName"></h2>
+      <p class="text-[10px] text-zinc-500">Admin Réseau Senior</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 space-y-2 overflow-y-auto" aria-label="Navigation principale">
+      <button type="button" @click="setTab('tree')" title="Tableau de bord" class="flex w-full items-center gap-3 rounded-2xl py-3 text-sm font-medium transition" :class="[tab === 'tree' ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-4']">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect></svg>
+        <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Tableau de bord</span>
+      </button>
+      <button type="button" @click="setTab('topology')" title="Topologie" class="flex w-full items-center gap-3 rounded-2xl py-3 text-sm font-medium transition" :class="[tab === 'topology' ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-4']">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="6" r="2.2"></circle><circle cx="19" cy="6" r="2.2"></circle><circle cx="12" cy="18" r="2.2"></circle><path d="M7.2 6h9.6M6.2 8.2 10.8 16M17.8 8.2 13.2 16"></path></svg>
+        <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Topologie</span>
+      </button>
+      <button type="button" @click="setTab('stats')" title="Radar" class="flex w-full items-center gap-3 rounded-2xl py-3 text-sm font-medium transition" :class="[tab === 'stats' ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-4']">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"></path></svg>
+        <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Radar</span>
+      </button>
+      <button type="button" @click="setTab('memo')" title="Mémo" class="flex w-full items-center gap-3 rounded-2xl py-3 text-sm font-medium transition" :class="[tab === 'memo' ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-4']">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="13" height="15" rx="2"></rect><path d="M8 3h9a3 3 0 0 1 3 3v11"></path></svg>
+        <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Mémo</span>
+      </button>
+      <button type="button" @click="setTab('diagnostic')" title="Diagnostic" class="flex w-full items-center gap-3 rounded-2xl py-3 text-sm font-medium transition" :class="[tab === 'diagnostic' ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-4']">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="5" r="2"></circle><circle cx="19" cy="12" r="2"></circle><circle cx="5" cy="19" r="2"></circle><path d="M7 5h4a3 3 0 0 1 3 3v1a3 3 0 0 0 3 3M7 19h4a3 3 0 0 0 3-3v-1a3 3 0 0 1 3-3"></path></svg>
+        <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Diagnostic</span>
+      </button>
+      <button type="button" @click="setTab('exam')" title="Examen" class="flex w-full items-center gap-3 rounded-2xl py-3 text-sm font-medium transition" :class="[tab === 'exam' ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-4']">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 4V3h6v1M9 9h6M9 13h6M9 17h3"></path></svg>
+        <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Examen</span>
+      </button>
+    </nav>
+
+    <!-- Focus -->
+    <div class="mt-auto pt-4 shrink-0">
+      <button type="button" @click="focusMode = !focusMode" class="group flex w-full items-center rounded-2xl border border-white/5 bg-[#0c0c0c] py-3 text-left transition hover:border-emerald-500/50 hover:bg-emerald-500/10 shadow-lg" :class="sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-4'">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <svg class="h-4 w-4 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M3 12h3M18 12h3M12 3v3M12 18v3"></path></svg>
+          <span x-show="!sidebarCollapsed" class="text-xs font-semibold text-white whitespace-nowrap">Focus</span>
+        </div>
+        <span x-show="!sidebarCollapsed" class="text-[10px] text-zinc-500 whitespace-nowrap" x-text="`${progress}%`"></span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Bouton de sortie du mode focus -->
+  <button x-show="focusMode" x-cloak @click="focusMode = false" class="fixed top-6 right-6 z-50 flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0c0c0c] px-4 py-2.5 text-xs font-semibold text-white shadow-2xl hover:bg-white/5 transition">
+    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+    Sortir du focus
+  </button>
+
+  <!-- ================= MAIN CONTENU ================= -->
+  <div class="flex flex-1 flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header x-show="!focusMode" class="flex h-20 shrink-0 items-center justify-between px-8">
+      <div class="flex-1">
+        <h2 class="text-xl font-bold tracking-tight text-white" x-text="{
+          tree: 'Tableau de bord', topology: 'Topologie Réseau', stats: 'Radar de compétences',
+          memo: 'Mémo', diagnostic: 'Diagnostic Interactif', exam: 'Mode Examen'
+        }[tab] || 'Skill Tree'"></h2>
+      </div>
+
+      <div class="flex flex-1 items-center justify-center gap-3">
+        <div class="flex items-center gap-1.5 rounded-2xl bg-[#0c0c0c] px-4 py-2 text-orange-200 border border-white/5 shadow-md">
+          <span class="text-sm">🔥</span>
+          <span class="font-mono text-xs font-semibold" x-text="streakDays"></span>
+        </div>
+        <button type="button" @click.stop="openShop()" class="flex items-center gap-1.5 rounded-2xl bg-[#0c0c0c] px-4 py-2 text-amber-100 border border-white/5 hover:bg-[#151515] transition shadow-md">
+          <span class="text-sm">💎</span>
+          <span class="font-mono text-xs font-semibold" x-text="userStats.coins"></span>
+        </button>
+        <div class="flex items-center gap-3 rounded-2xl bg-emerald-500/10 px-4 py-2 border border-emerald-500/20 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]">
+          <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">Niv. <span x-text="userStats.current_level"></span></span>
+          <div class="h-3 w-px bg-emerald-500/30"></div>
+          <span class="text-[10px] font-mono font-bold text-emerald-300" x-text="`${userStats.total_xp} XP`"></span>
+        </div>
+      </div>
+
+      <!-- Droite : Actions -->
+      <div class="flex flex-1 items-center justify-end gap-3 relative">
+        <button type="button" @click.stop="notificationsOpen = !notificationsOpen; settingsMenuOpen = false; profileMenuOpen = false" class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0c0c0c] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </button>
+        <div x-show="notificationsOpen" x-cloak @click.outside="notificationsOpen = false" class="absolute top-14 right-24 z-50 w-80 rounded-2xl border border-white/10 bg-[#0c0c0c] p-5 shadow-2xl">
+          <h3 class="text-sm font-bold text-white mb-4">Notifications</h3>
+          <div class="space-y-4">
+            <div class="flex gap-4">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></div>
+              <div><p class="text-xs font-semibold text-white">Nouveau défi disponible</p><p class="text-[11px] text-zinc-500 mt-0.5">Défi : Backbone Segment Routing</p></div>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-400"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg></div>
+              <div><p class="text-xs font-semibold text-white">Cours ajoutés</p><p class="text-[11px] text-zinc-500 mt-0.5">Cisco ACI, EVPN, Segment Routing</p></div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" @click.stop="editProfile()" class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-sm shadow-[0_0_15px_-3px_rgba(52,211,153,0.5)] border-2 border-transparent hover:border-white/20 transition">👨‍💻</button>
+        <div x-show="profileMenuOpen" x-cloak @click.outside="profileMenuOpen = false" @keydown.escape.window="profileMenuOpen = false" class="absolute top-14 right-14 z-50 w-72 rounded-2xl border border-white/10 bg-[#0c0c0c] p-5 shadow-2xl">
+          <h3 class="mb-3 text-sm font-bold text-white">Ton profil</h3>
+          <label for="profile-name" class="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400">Nom affiché</label>
+          <form @submit.prevent="saveProfile()" class="flex gap-2">
+            <input id="profile-name" type="text" x-model="profileDraft" maxlength="40" placeholder="Ton nom" class="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#151515] px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/50">
+            <button type="submit" class="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-black hover:brightness-110">OK</button>
+          </form>
+        </div>
+
+        <button type="button" @click.stop="settingsMenuOpen = !settingsMenuOpen; notificationsOpen = false; profileMenuOpen = false" class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0c0c0c] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
+        </button>
+        <div x-show="settingsMenuOpen" x-cloak @click.outside="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-64 rounded-2xl border border-white/10 bg-[#0c0c0c] p-2 shadow-2xl">
+          <button @click="toggleTheme(); settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
+            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> Basculer le thème
+          </button>
+          <button @click="reloadContent(); settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
+            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Recharger les données
+          </button>
+          <div class="h-px w-full bg-white/5 my-1"></div>
+          <button @click="exportData(); settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
+            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Sauvegarder le profil
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Scrollable -->
+    <main x-ref="mainScroll" class="flex-1 overflow-y-auto px-8 pb-12">
+
+      <!-- ============ ONGLET SKILL TREE ============ -->
+      <section x-show="tab === 'tree'">
+        <section class="mb-8 grid gap-6 lg:grid-cols-[1fr_2fr]">
+          <div class="flex flex-col justify-between rounded-3xl border border-white/5 bg-[#0c0c0c] p-6 shadow-2xl">
+            <div>
+              <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 text-black shadow-[0_0_20px_-4px_rgba(52,211,153,0.5)]"><span class="text-2xl">🏅</span></div>
+                <div><p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Mon Profil</p><h2 class="text-xl font-bold text-white">Niveau <span x-text="userStats.current_level"></span> · <span x-text="userStats.level_name"></span></h2></div>
+              </div>
+              <div class="mt-8">
+                <div class="flex items-center justify-between text-xs mb-3"><span class="text-zinc-400">Progression globale</span><span class="font-mono text-emerald-400"><span x-text="progress"></span>%</span></div>
+                <div class="h-3 w-full overflow-hidden rounded-full bg-white/5 border border-white/5"><div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-1000 shadow-[0_0_10px_rgba(52,211,153,0.5)]" :style="`width: ${progress}%`"></div></div>
+                <div class="mt-3 flex justify-between text-[11px] text-zinc-500"><span><span x-text="validated"></span> nœuds validés</span><span><span x-text="total"></span> au total</span></div>
+              </div>
+            </div>
+            <div class="mt-8 grid grid-cols-2 gap-3">
+              <div class="rounded-2xl border border-white/5 bg-[#151515] p-4 text-center"><p class="text-[10px] uppercase tracking-wider text-zinc-500">Streak</p><p class="font-mono text-xl font-bold text-orange-400">🔥 <span x-text="streakDays"></span></p></div>
+              <div class="rounded-2xl border border-white/5 bg-[#151515] p-4 text-center"><p class="text-[10px] uppercase tracking-wider text-zinc-500">XP Total</p><p class="font-mono text-xl font-bold text-cyan-400">⚡ <span x-text="userStats.total_xp"></span></p></div>
+            </div>
+          </div>
+
+          <div class="flex flex-col rounded-3xl border border-white/5 bg-[#0c0c0c] p-8 shadow-2xl">
+            <div class="flex items-center justify-between mb-8">
+              <h3 class="text-base font-bold text-white">Ton parcours</h3>
+              <button @click="document.getElementById('tree-grid').scrollIntoView({ behavior: 'smooth' })" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300">Voir l'arbre complet →</button>
+            </div>
+            <div class="relative flex-1 flex items-center justify-between min-h-[120px]">
+              <div class="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-white/5 z-0"></div>
+              <div class="relative z-10 flex flex-col items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-emerald-500/50 bg-[#0c0c0c] text-emerald-400 shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]"><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="text-[11px] font-medium text-white">OSI</span></div>
+              <div class="relative z-10 flex flex-col items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-emerald-500/50 bg-[#0c0c0c] text-emerald-400 shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]"><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="text-[11px] font-medium text-white">VLAN</span></div>
+              <div class="relative z-10 flex flex-col items-center gap-3"><div class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-fuchsia-500 bg-[#0c0c0c] text-fuchsia-400 shadow-[0_0_25px_-5px_rgba(217,70,239,0.6)] animate-pulse"><span class="text-xl">⚡</span></div><span class="text-[11px] font-bold text-fuchsia-300">Routage</span></div>
+              <div class="relative z-10 flex flex-col items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-zinc-800 bg-[#0c0c0c] text-zinc-600"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div><span class="text-[11px] text-zinc-500">OSPF</span></div>
+              <div class="relative z-10 flex flex-col items-center gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-zinc-800 bg-[#0c0c0c] text-zinc-600"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div><span class="text-[11px] text-zinc-500">BGP</span></div>
+            </div>
+            <div class="mt-8 flex justify-center"><button @click="show('routing')" class="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-8 py-3.5 text-sm font-bold text-black transition hover:brightness-110 shadow-[0_0_20px_-5px_rgba(52,211,153,0.5)]">Continuer le parcours →</button></div>
+          </div>
+        </section>
+
+        <section class="mb-8 overflow-hidden rounded-3xl border border-white/5 bg-[#0c0c0c] p-6 shadow-2xl">
+          <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+            <div><p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Dashboard</p><h2 class="mt-1 text-lg font-semibold text-white">Ta session d'aujourd'hui</h2></div>
+            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[10px] text-zinc-400" x-text="`${dailyPlan.length || 3} actions`"></span>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-3">
+            <template x-if="dailyPlan.length > 0">
+              <template x-for="action in dailyPlan" :key="action.node_id">
+                <button type="button" @click="show(action.node_id)" class="group flex h-full flex-col rounded-2xl border border-white/5 bg-[#151515] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[#1a1a1a]">
+                  <span class="flex items-center justify-between gap-2"><span class="rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]" :class="planMeta(action.action).classes" x-text="planMeta(action.action).label"></span><svg class="h-4 w-4 text-zinc-500 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+                  <span class="mt-3 text-sm font-semibold leading-snug text-white" x-text="action.label"></span>
+                  <span class="mt-1.5 text-[11px] text-zinc-500" x-text="action.reason"></span>
+                </button>
+              </template>
+            </template>
+            <template x-if="dailyPlan.length === 0">
+              <div class="contents">
+                <button type="button" @click="show('routing')" class="group flex h-full flex-col rounded-2xl border border-white/5 bg-[#151515] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[#1a1a1a]"><span class="flex items-center justify-between gap-2"><span class="rounded-md border border-orange-500/30 bg-orange-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-orange-400">Lab en cours</span><svg class="h-4 w-4 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span><span class="mt-3 text-sm font-semibold leading-snug text-white">Faire le lab OSPF</span><span class="mt-1.5 text-[11px] text-zinc-500">Pratique recommandée</span></button>
+                <button type="button" @click="show('intro-reseau')" class="group flex h-full flex-col rounded-2xl border border-white/5 bg-[#151515] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[#1a1a1a]"><span class="flex items-center justify-between gap-2"><span class="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-400">Nouveau</span><svg class="h-4 w-4 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span><span class="mt-3 text-sm font-semibold leading-snug text-white">Commencer Qu'est-ce qu'un réseau ?</span><span class="mt-1.5 text-[11px] text-zinc-500">Nouveau nœud disponible</span></button>
+                <button type="button" @click="show('materiel-reseau')" class="group flex h-full flex-col rounded-2xl border border-white/5 bg-[#151515] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[#1a1a1a]"><span class="flex items-center justify-between gap-2"><span class="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-400">Nouveau</span><svg class="h-4 w-4 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span><span class="mt-3 text-sm font-semibold leading-snug text-white">Commencer Le matériel réseau</span><span class="mt-1.5 text-[11px] text-zinc-500">Nouveau nœud disponible</span></button>
+              </div>
+            </template>
+          </div>
+        </section>
+
+        <div class="mb-8 flex flex-wrap gap-3">
+          <button type="button" @click="treeFilter = 'all'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'all' ? 'border-white/20 bg-white/10 text-white shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🌐 Tout voir</button>
+          <button type="button" @click="treeFilter = 'beginner'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'beginner' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🌱 Débutant</button>
+          <button type="button" @click="treeFilter = 'intermediaire'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'intermediaire' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🚀 Intermédiaire</button>
+          <button type="button" @click="treeFilter = 'expert'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'expert' ? 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🔥 Expert</button>
+        </div>
+
+        <div id="tree-grid" class="flex flex-col gap-10">
+          <template x-for="(category, categoryIndex) in categories" :key="category.name">
+            <section>
+              <div class="mb-5 flex items-center gap-4"><h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white" x-text="category.name"></h2><span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-400"><span x-text="category.validated"></span>/<span x-text="category.items.length"></span></span><div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div></div>
+              <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <template x-for="(node, nodeIndex) in category.items" :key="node.id">
+                  <div class="animate-rise" :style="`animation-delay: ${Math.min(categoryIndex * 60 + nodeIndex * 45, 500)}ms`">
+                    <button type="button" @click="show(node.id)" class="card-shine group relative h-full w-full rounded-3xl p-px text-left transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80" :class="cardShell(node.status)">
+                      <div class="relative flex h-full flex-col rounded-[23px] bg-[#0c0c0c] p-6 shadow-xl">
+                        <div class="flex items-start justify-between gap-3">
+                          <div class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl" :class="statusMeta(node.status).icon"><template x-if="node.status === 'validated'"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></template><template x-if="node.status === 'locked'"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></template><template x-if="node.status === 'available'"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg></template><template x-if="node.status === 'in_progress'"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4.5l3 1.8"></path></svg></template></span><span class="text-[11px] font-bold uppercase tracking-[0.14em]" :class="statusMeta(node.status).text" x-text="statusMeta(node.status).label"></span></div>
+                          <span class="rounded-lg border border-white/5 bg-white/5 px-2 py-1 font-mono text-[10px] text-zinc-500" x-text="node.id"></span>
+                        </div>
+                        <h3 class="mt-4 text-[16px] font-bold leading-snug text-white" x-text="node.title"></h3>
+                        <div class="mt-4 flex flex-wrap gap-2"><template x-for="req in node.requirements_detail" :key="req.kind"><span class="rounded-lg border border-white/5 bg-white/5 px-2.5 py-1 font-mono text-[10px] tracking-wide text-zinc-300" x-text="`${kindLabel(req.kind)} ≥ ${req.min_score}`"></span></template></div>
+                        <div class="mt-5 flex items-center justify-between text-[11px] text-zinc-500"><span x-text="node.prereqs.length ? `${node.prereqs.length} prérequis` : 'Nœud racine'"></span><span class="flex items-center gap-1 transition group-hover:text-white">Détails <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></div>
+                      </div>
+                    </button>
+                  </div>
+                </template>
+              </div>
+            </section>
+          </template>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET TOPOLOGIE ============ -->
+      <section x-show="tab === 'topology'" x-cloak>
+        <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
+          <aside class="rounded-3xl border border-white/5 bg-[#0c0c0c] p-6 shadow-2xl">
+            <h2 class="text-[11px] font-bold uppercase tracking-[0.2em] text-white">Équipements</h2>
+            <p class="mt-2 text-[11px] text-zinc-500">Clique pour ajouter au canvas.</p>
+            <div class="mt-6 space-y-3">
+              <template x-for="device in devices" :key="device.type">
+                <button type="button" @click="addDevice(device.type)" class="group flex w-full items-center gap-4 rounded-2xl border border-white/5 bg-[#151515] px-4 py-3 text-left transition hover:border-white/20 hover:bg-[#1a1a1a]"><span class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white" x-html="device.icon"></span><span class="min-w-0"><span class="block text-sm font-semibold text-white" x-text="device.label"></span><span class="block truncate text-[10px] uppercase tracking-[0.14em] text-zinc-500" x-text="device.hint"></span></span></button>
+              </template>
+            </div>
+          </aside>
+          <div class="relative overflow-hidden rounded-3xl border border-white/5 bg-[#0c0c0c] shadow-2xl">
+            <div class="absolute right-4 top-4 z-20 flex flex-wrap items-center gap-2"><button type="button" @click="zoom(1)" class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#151515] text-white hover:bg-white/10 transition">+</button><button type="button" @click="zoom(-1)" class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#151515] text-white hover:bg-white/10 transition">−</button><button type="button" @click="zoomReset()" class="rounded-xl border border-white/10 bg-[#151515] px-4 py-2 text-xs font-semibold text-zinc-300 hover:text-white transition">Recentrer</button><button type="button" @click="saveTopology()" :disabled="!topologyReady" class="rounded-xl border border-white/20 bg-white text-black px-4 py-2 text-xs font-semibold shadow-lg">Sauvegarder</button></div>
+            <div id="drawflow" x-ref="canvas" class="h-[85vh] min-h-[520px] w-full"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET RADAR ============ -->
+      <section x-show="tab === 'stats'" x-cloak>
+        <div class="mb-8 flex h-80 w-full items-center justify-center rounded-3xl border border-white/5 bg-[#0c0c0c] shadow-2xl"><canvas id="spiderChart"></canvas></div>
+        <div class="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Analyse</p><h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Radar de compétences</h2></div><button type="button" @click="loadStats()" :disabled="statsLoading" class="rounded-xl border border-white/10 bg-[#0c0c0c] px-4 py-2.5 text-sm text-zinc-300 hover:bg-white/5 transition">Actualiser</button></div>
+        <template x-if="stats && !statsLoading">
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="rounded-3xl border border-white/5 bg-[#0c0c0c] p-5 shadow-xl"><p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Tentatives</p><p class="mt-2 font-mono text-3xl font-semibold text-white" x-text="stats.totals.attempts"></p></div>
+            <div class="rounded-3xl border border-white/5 bg-[#0c0c0c] p-5 shadow-xl"><p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Réussite</p><p class="mt-2 font-mono text-3xl font-semibold text-white" x-text="`${stats.totals.success_rate}%`"></p></div>
+            <div class="rounded-3xl border border-white/5 bg-[#0c0c0c] p-5 shadow-xl"><p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Points faibles</p><p class="mt-2 font-mono text-3xl font-semibold text-white" x-text="stats.totals.weak_points || 0"></p></div>
+            <div class="rounded-3xl border border-white/5 bg-[#0c0c0c] p-5 shadow-xl"><p class="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Validés</p><p class="mt-2 font-mono text-3xl font-semibold text-white"><span x-text="stats.totals.validated"></span>/<span x-text="stats.totals.nodes"></span></p></div>
+          </div>
+        </template>
+      </section>
+
+      <!-- ============ ONGLET MÉMO ============ -->
+      <section x-show="tab === 'memo'" x-cloak>
+        <div class="mb-8"><p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Mémorisation</p><h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Mémo</h2></div>
+        <template x-if="!flashcardsLoading && currentFlashcard">
+          <div class="mx-auto max-w-3xl">
+            <div class="flashcard-scene mt-6 h-[22rem] cursor-pointer select-none" @click="flipFlashcard()"><div class="flashcard-card" :class="{ 'is-flipped': flashcardFlipped }"><div class="flashcard-face flashcard-front"><span class="rounded-full border border-fuchsia-300/20 bg-fuchsia-400/10 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-fuchsia-200">Recto</span><p class="flashcard-question w-full px-4 text-2xl font-semibold leading-snug sm:text-3xl text-white" x-text="currentFlashcard.front"></p><span class="text-[12px] text-zinc-500">Clique pour révéler la réponse</span></div><div class="flashcard-face flashcard-back"><span class="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-cyan-200">Verso</span><p class="flashcard-answer w-full px-4 text-xl font-medium leading-relaxed sm:text-2xl text-cyan-100" x-text="currentFlashcard.back"></p><span class="text-[12px] text-zinc-500">Clique pour revenir au recto</span></div></div></div>
+            <div class="mx-auto mt-6 grid max-w-2xl gap-4 sm:grid-cols-2"><button type="button" @click="markFlashcard(false)" class="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-5 py-4 text-sm font-semibold text-rose-200 hover:bg-rose-500/20 transition">Je ne savais pas</button><button type="button" @click="markFlashcard(true)" class="rounded-2xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-4 text-sm font-bold text-black shadow-[0_0_20px_-5px_rgba(163,230,53,0.5)] hover:brightness-110 transition">Je savais</button></div>
+          </div>
+        </template>
+      </section>
+
+      <!-- ============ ONGLET DIAGNOSTIC ============ -->
+      <section x-show="tab === 'diagnostic'" x-cloak>
+        <template x-if="diagnostic && diagnosticStep">
+          <div class="mx-auto max-w-4xl rounded-3xl border border-white/5 bg-[#0c0c0c] p-8 shadow-2xl">
+            <h3 class="text-2xl font-bold text-white" x-text="diagnostic.title"></h3>
+            <div class="mt-6 rounded-2xl border border-white/5 bg-[#151515] p-6"><p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">Situation</p><p class="mt-3 text-base leading-relaxed text-zinc-200" x-text="diagnosticStep.situation"></p></div>
+            <div class="mt-6 grid gap-3" x-show="diagnosticStep.choices.length">
+              <template x-for="(choice, index) in diagnosticStep.choices" :key="choice.id">
+                <button type="button" @click="chooseDiagnostic(choice)" class="group flex w-full items-center gap-4 rounded-2xl border border-white/5 bg-[#151515] px-5 py-4 text-left hover:border-cyan-500/30 hover:bg-[#1a1a1a] transition"><span class="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-black font-mono text-xs text-zinc-400" x-text="String.fromCharCode(65 + index)"></span><span class="min-w-0 flex-1 text-sm leading-relaxed text-zinc-200" x-text="choice.label"></span></button>
+              </template>
+            </div>
+          </div>
+        </template>
+      </section>
+
+      <!-- ============ ONGLET EXAMEN ============ -->
+      <section x-show="tab === 'exam'" x-cloak>
+        <template x-if="!exam">
+          <div class="mb-6 rounded-3xl border border-white/5 bg-[#0c0c0c] p-8 shadow-2xl">
+            <h2 class="text-2xl font-semibold tracking-tight text-white">Mode examen</h2>
+            <div class="mt-8 max-w-xl"><label for="exam-category" class="mb-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400">Catégorie</label><select id="exam-category" x-model="examCategory" class="w-full rounded-xl border border-white/10 bg-[#151515] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition"><template x-for="category in examCategories" :key="category.name"><option :value="category.name" x-text="`${category.name} (${category.nodes} nœud${category.nodes > 1 ? 's' : ''})`"></option></template></select></div>
+            <div class="mt-8"><button type="button" @click="startExam()" :disabled="!examCategory || examBusy" class="rounded-2xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_20px_-5px_rgba(217,70,239,0.5)] hover:brightness-110 transition">Lancer l’examen</button></div>
+          </div>
+        </template>
+        <template x-if="exam && !examResult">
+          <div>
+            <h2 class="text-xl font-semibold text-white" x-text="exam.category"></h2>
+            <form @submit.prevent="submitExam(false)" class="mt-6 space-y-6">
+              <template x-for="(question, index) in exam.questions" :key="question.id">
+                <article class="rounded-3xl border border-white/5 bg-[#0c0c0c] p-6 shadow-xl">
+                  <p class="mt-3 text-base font-medium leading-relaxed text-white" x-text="question.prompt"></p>
+                  <template x-if="question.type === 'qcm'"><div class="mt-4 space-y-3"><template x-for="(choice, choiceIndex) in question.choices" :key="choiceIndex"><label class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/5 bg-[#151515] px-4 py-3 text-sm text-zinc-300 hover:border-white/20 transition"><input type="radio" :name="`exam-${question.id}`" :value="choiceIndex" :checked="examAnswers[index] === choiceIndex" @change="examAnswers[index] = choiceIndex" class="mt-0.5 accent-fuchsia-500"><span x-text="choice"></span></label></template></div></template>
+                </article>
+              </template>
+              <div class="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/5 bg-[#0c0c0c] p-6 shadow-xl"><button type="submit" :disabled="examBusy" class="rounded-2xl bg-gradient-to-r from-lime-400 to-cyan-400 px-6 py-3.5 text-sm font-bold text-black shadow-[0_0_20px_-5px_rgba(163,230,53,0.5)]">Terminer l’examen</button></div>
+            </form>
+          </div>
+        </template>
+        <template x-if="exam && examResult">
+          <div><div class="rounded-3xl border p-8 shadow-2xl" :class="examResult.passed ? 'border-lime-400/20 bg-lime-500/5' : 'border-rose-400/20 bg-rose-500/5'"><p class="font-mono text-6xl font-semibold" x-text="examResult.score"></p><p class="mt-2 text-sm text-zinc-400" x-text="`${examResult.correct}/${examResult.total} bonnes réponses`"></p><div class="mt-6"><button type="button" @click="resetExam()" class="rounded-xl border border-white/10 bg-black px-5 py-2.5 text-sm text-zinc-300 hover:text-white transition">Nouvel examen</button></div></div></div>
+        </template>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALE DÉTAIL (LEÇON) ================= -->
+  <div x-show="open" x-cloak class="fixed inset-0 z-50 flex justify-center overflow-y-auto overflow-x-hidden" :class="isFullscreen ? 'items-stretch p-0' : 'items-start p-4 sm:p-10'" @keydown.escape.window="onEscape()">
+    <div class="modal-backdrop fixed inset-0 backdrop-blur-md bg-black/60" @click="close()"></div>
+
+    <div class="modal-panel relative flex flex-col overflow-hidden border border-white/10 bg-[#0c0c0c] shadow-[0_0_50px_-10px_rgba(0,0,0,0.8)]"
+         :class="isFullscreen ? 'm-0 h-screen w-screen max-w-none rounded-none' : 'my-6 max-h-[calc(100vh-3rem)] w-full max-w-4xl rounded-3xl'"
+         x-show="open" role="dialog" aria-modal="true">
+
+      <!-- Barre de progression de lecture -->
+      <div class="absolute left-0 top-0 z-20 h-1 bg-gradient-to-r from-fuchsia-500 to-cyan-500 transition-[width] duration-150" :style="`width: ${lessonProgress}%`"></div>
+
+      <!-- Header de la modale -->
+      <div class="flex shrink-0 flex-col gap-4 border-b border-white/5 px-6 py-5 sm:px-8">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <h2 class="text-2xl font-bold leading-snug text-white" x-text="detail?.title || 'Chargement...'"></h2>
+
+            <!-- BADGES -->
+            <div class="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
+              <span class="rounded-full border px-3 py-1 flex items-center gap-1"
+                    :class="detail?.title.includes('Expert') ? 'border-rose-500/30 bg-rose-500/10 text-rose-400' : (detail?.title.includes('Intermédiaire') ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400')"
+                    x-text="detail?.title.includes('Expert') ? '🔥 Expert' : (detail?.title.includes('Intermédiaire') ? '🚀 Intermédiaire' : '🌱 Débutant')">
+              </span>
+              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-zinc-400 flex items-center gap-1">
+                ⏱️ <span x-text="readingMinutes"></span> min
+              </span>
+              <template x-if="detail?.prereqs && detail.prereqs.length > 0">
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-zinc-500">
+                  Prérequis: <span x-text="detail.prereqs.map(p => p.id).join(', ')"></span>
+                </span>
+              </template>
+            </div>
+          </div>
+
+          <!-- BOUTONS DE FENÊTRE : taille du texte, agrandir, fermer -->
+          <div class="flex shrink-0 items-center gap-2">
+            <div class="hidden items-center overflow-hidden rounded-xl border border-white/10 sm:flex" x-show="modalTab === 'lesson'">
+              <button type="button" @click="changeFontSize(-1)" title="Réduire le texte" class="px-3 py-2 text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white">A−</button>
+              <span class="h-4 w-px bg-white/10"></span>
+              <button type="button" @click="changeFontSize(1)" title="Agrandir le texte" class="px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white">A+</button>
+            </div>
+            <button type="button" @click="toggleFullscreen()" :title="isFullscreen ? 'Réduire la fenêtre' : 'Agrandir la fenêtre'" :aria-label="isFullscreen ? 'Réduire la fenêtre' : 'Agrandir la fenêtre'" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white">
+              <svg x-show="!isFullscreen" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
+              <svg x-show="isFullscreen" x-cloak class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"></path></svg>
+            </button>
+            <button type="button" @click="close()" title="Fermer (Échap)" aria-label="Fermer" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-400 transition hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-300">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Onglets -->
+        <div class="flex flex-wrap gap-2" x-show="!detailLoading">
+          <button @click="modalTab = 'lesson'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'lesson' ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">📖 Cours</button>
+          <button x-show="canStartExercise() || quiz || exerciseMode" @click="modalTab = 'exercise'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'exercise' ? 'bg-fuchsia-500/10 text-fuchsia-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">✏️ Exercice</button>
+          <button x-show="detail?.lab" @click="modalTab = 'lab'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'lab' ? 'bg-cyan-500/10 text-cyan-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">💻 Lab / Terminal</button>
+        </div>
+      </div>
+
+      <!-- Contenu de la modale -->
+      <div x-ref="modalScroll" @scroll.passive="onLessonScroll($event)" class="modal-scroll min-h-0 flex-1 overflow-y-auto px-6 py-8 sm:px-10">
+
+        <!-- Spinner de chargement -->
+        <div x-show="detailLoading" class="flex items-center justify-center py-20">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+        </div>
+
+        <div x-show="!detailLoading">
+          <!-- ONGLET 1 : COURS -->
+          <div x-show="modalTab === 'lesson'">
+            <template x-if="lessonHtml">
+              <div class="lg:flex lg:items-start lg:gap-10">
+
+                <!-- Sommaire latéral (fenêtre agrandie, écran large) -->
+                <aside x-show="isFullscreen && lessonToc.length" class="sticky top-0 hidden max-h-[calc(100vh-14rem)] w-60 shrink-0 self-start overflow-y-auto lg:block">
+                  <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Sommaire</p>
+                  <nav class="border-l border-white/10" aria-label="Sommaire du cours">
+                    <template x-for="item in lessonToc" :key="item.id">
+                      <a :href="'#' + item.id" @click.prevent="goToSection(item.id)" class="-ml-px block border-l-2 py-1.5 pl-4 pr-2 text-[13px] leading-snug transition"
+                         :class="activeSection === item.id ? 'border-emerald-400 font-semibold text-emerald-300' : 'border-transparent text-zinc-500 hover:text-white'" x-text="item.text"></a>
+                    </template>
+                  </nav>
+                </aside>
+
+                <div class="min-w-0 flex-1" :class="isFullscreen ? 'mx-auto max-w-3xl' : ''">
+                  <!-- Sommaire repliable (fenêtre normale / mobile) -->
+                  <details x-show="lessonToc.length" class="mb-8 rounded-2xl border border-white/10 bg-[#151515] px-5 py-3" :class="isFullscreen ? 'lg:hidden' : ''">
+                    <summary class="cursor-pointer text-sm font-semibold text-white">📑 Sommaire du cours</summary>
+                    <nav class="mt-3 space-y-1 pb-2">
+                      <template x-for="item in lessonToc" :key="item.id">
+                        <a :href="'#' + item.id" @click.prevent="goToSection(item.id)" class="block rounded-lg px-3 py-1.5 text-[13px] transition" :class="activeSection === item.id ? 'bg-emerald-500/10 text-emerald-300' : 'text-zinc-400 hover:bg-white/5 hover:text-white'" x-text="item.text"></a>
+                      </template>
+                    </nav>
+                  </details>
+
+                  <article class="lesson-prose" :style="`font-size: ${fontSize}px`" x-html="lessonHtml" @click="onLessonClick($event)"></article>
+
+                  <!-- Leçon précédente / suivante -->
+                  <div class="mt-12 grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <template x-if="lessonNeighbors.prev">
+                        <button type="button" @click="show(lessonNeighbors.prev.id)" class="w-full rounded-2xl border border-white/10 bg-[#151515] p-4 text-left transition hover:border-white/30">
+                          <span class="block text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">← Leçon précédente</span>
+                          <span class="mt-1 block truncate text-sm font-semibold text-white" x-text="lessonNeighbors.prev.title"></span>
+                        </button>
+                      </template>
+                    </div>
+                    <div>
+                      <template x-if="lessonNeighbors.next">
+                        <button type="button" @click="show(lessonNeighbors.next.id)" class="w-full rounded-2xl border border-white/10 bg-[#151515] p-4 text-right transition hover:border-white/30">
+                          <span class="block text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">Leçon suivante →</span>
+                          <span class="mt-1 block truncate text-sm font-semibold text-white" x-text="lessonNeighbors.next.title"></span>
+                        </button>
+                      </template>
+                    </div>
+                  </div>
+
+                  <div x-show="canStartExercise() || detail?.lab" class="mt-8 flex justify-end">
+                    <button @click="modalTab = 'exercise'" class="rounded-2xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-bold text-white shadow-lg">Passer à l'exercice →</button>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <p x-show="lessonMissing" class="rounded-2xl border border-white/5 bg-[#151515] p-6 text-sm text-zinc-400">Cours en cours de rédaction.</p>
+          </div>
+
+          <!-- ONGLET 2 : EXERCICE -->
+          <div x-show="modalTab === 'exercise'">
+            <div x-show="!exerciseMode && !quiz" class="flex flex-col items-center justify-center py-12 text-center">
+              <p class="text-zinc-400 mb-6">Prêt à tester tes connaissances sur ce sujet ?</p>
+              <button @click="startExercise()" class="rounded-2xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-8 py-4 text-sm font-bold text-white shadow-[0_0_20px_-5px_rgba(217,70,239,0.5)] transition hover:brightness-110">Démarrer l'exercice</button>
+            </div>
+
+            <template x-if="exerciseMode === 'input' || exerciseMode === 'terminal'">
+              <section class="rounded-3xl border border-white/5 bg-[#151515] p-6">
+                <h3 class="mb-4 text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-400" x-text="exerciseMode === 'terminal' ? 'Console réseau' : 'Saisie libre'"></h3>
+                <p class="mb-5 text-base leading-relaxed text-zinc-200" x-text="exerciseQuestion?.prompt"></p>
+                <form @submit.prevent="submitAnswer()" class="space-y-4">
+                  <template x-if="exerciseMode === 'input'">
+                    <input type="text" x-model="exerciseAnswer" placeholder="Saisis ta réponse" class="w-full rounded-xl border border-white/10 bg-[#0c0c0c] px-4 py-3 font-mono text-sm text-white outline-none focus:border-fuchsia-500/50">
+                  </template>
+                  <template x-if="exerciseMode === 'terminal'">
+                    <div class="rounded-xl border border-white/10 bg-[#09090b] p-4 font-mono text-sm">
+                      <label class="flex items-center gap-3 text-lime-300"><span>Switch(config-if)#</span><input type="text" x-model="exerciseAnswer" class="min-w-0 flex-1 bg-transparent py-1 text-white outline-none"></label>
+                    </div>
+                  </template>
+                  <button type="submit" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg">Valider</button>
+                </form>
+                <div x-show="exerciseResult" class="mt-4 rounded-xl border p-4" :class="exerciseResult?.correct ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
+                  <p class="font-bold" :class="exerciseResult?.correct ? 'text-lime-300' : 'text-rose-300'" x-text="exerciseResult?.correct ? 'Correct' : 'Incorrect'"></p>
+                  <p class="text-sm text-zinc-400 mt-2" x-text="exerciseResult?.explanation"></p>
+                </div>
+              </section>
+            </template>
+
+            <template x-if="quiz && exerciseMode === 'quiz'">
+              <section class="rounded-3xl border border-white/5 bg-[#151515] p-6">
+                <form @submit.prevent="submitQuiz()" class="space-y-6">
+                  <template x-for="(question, questionIndex) in quiz.questions" :key="question.id">
+                    <fieldset class="space-y-3">
+                      <legend class="text-base font-medium leading-relaxed text-white" x-text="question.prompt"></legend>
+                      <div class="space-y-2">
+                        <template x-for="(choice, choiceIndex) in question.choices" :key="choiceIndex">
+                          <label class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/5 bg-[#0c0c0c] px-4 py-3 text-sm text-zinc-300 hover:border-white/10 transition">
+                            <input type="radio" :name="`q-${question.id}`" :value="choiceIndex" :checked="quizAnswers[questionIndex] === choiceIndex" @change="quizAnswers[questionIndex] = choiceIndex" class="mt-0.5 accent-fuchsia-500">
+                            <span x-text="choice"></span>
+                          </label>
+                        </template>
+                      </div>
+                    </fieldset>
+                  </template>
+                  <button type="submit" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg">Valider mes réponses</button>
+                </form>
+                <div x-show="quizResult" class="mt-6 rounded-xl border p-4" :class="quizResult?.passed ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
+                  <p class="font-bold text-lg" :class="quizResult?.passed ? 'text-lime-300' : 'text-rose-300'" x-text="`${quizResult?.score}/100`"></p>
+                </div>
+              </section>
+            </template>
+          </div>
+
+          <!-- ONGLET 3 : LAB / TERMINAL DOCKER -->
+          <div x-show="modalTab === 'lab'">
+            <template x-if="detail?.lab">
+              <div class="rounded-3xl border border-white/5 bg-[#151515] p-6">
+                <h3 class="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">Consigne du Lab</h3>
+                <p class="mt-3 text-base text-zinc-300" x-text="detail.lab.prompt"></p>
+
+                <div class="mt-6">
+                  <button type="button" @click="startLab()"
+                          :disabled="labBusy || labRunning || detail?.status === 'locked'"
+                          class="rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span x-text="labBusy ? 'Démarrage...' : 'Démarrer le Lab'"></span>
+                  </button>
+                  <div x-show="detail?.status === 'locked'" class="mt-3 text-sm text-orange-400">
+                    🔒 Ce lab est verrouillé. Tu dois d'abord valider les nœuds prérequis.
+                  </div>
+                  <div x-show="labError" class="mt-3 rounded-xl border border-rose-400/20 bg-rose-500/10 p-3 text-sm text-rose-200" x-text="labError"></div>
+
+                  <div x-show="labRunning" class="mt-5">
+                    <div class="terminal-shell overflow-hidden rounded-xl border border-white/10 shadow-2xl">
+                      <div class="terminal-head flex items-center gap-2 border-b border-white/10 px-4 py-3">
+                        <span class="h-3 w-3 rounded-full bg-[#ff5f57]"></span>
+                        <span class="h-3 w-3 rounded-full bg-[#febc2e]"></span>
+                        <span class="h-3 w-3 rounded-full bg-[#28c840]"></span>
+                      </div>
+                      <div class="p-4 font-mono text-xs max-h-80 overflow-y-auto" x-ref="labConsole">
+                        <template x-for="(line, index) in labOutput" :key="index">
+                          <div x-text="line.text"></div>
+                        </template>
+                      </div>
+                      <form @submit.prevent="runLabCommand()" class="flex items-center gap-3 border-t border-white/10 bg-[#151515] px-4 py-3">
+                        <span class="font-mono text-sm text-cyan-400">$</span>
+                        <input type="text" x-model="labCommand" placeholder="Tape ta commande..." class="min-w-0 flex-1 bg-transparent py-1 font-mono text-sm text-cyan-200 outline-none">
+                        <button type="submit" :disabled="labBusy" class="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white transition disabled:opacity-50">Entrée</button>
+                      </form>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                      <button @click="validateLab()" :disabled="labBusy" class="rounded-xl border border-emerald-500/50 bg-emerald-500/10 px-5 py-2.5 text-sm font-bold text-emerald-400 shadow-lg disabled:opacity-50">
+                        <span x-text="labBusy ? 'Vérification...' : 'Terminer et vérifier'"></span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div x-show="labValidation" class="mt-4 rounded-xl border p-4" :class="labValidation?.passed ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
+                    <p class="font-bold" :class="labValidation?.passed ? 'text-lime-300' : 'text-rose-300'" x-text="labValidation?.passed ? 'Lab réussi !' : 'Lab échoué.'"></p>
+                    <p class="text-sm text-zinc-400 mt-1" x-text="labValidation?.detail"></p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div> <!-- Fin x-show="!detailLoading" -->
+      </div> <!-- Fin Scrollable -->
+
+      <button type="button" x-show="lessonHtml && modalTab === 'lesson' && !detailLoading" @click="openTutor()" class="absolute bottom-6 right-6 z-30 rounded-full border border-fuchsia-300/30 bg-black/90 px-5 py-3 text-xs font-bold text-fuchsia-200 shadow-2xl backdrop-blur transition hover:border-fuchsia-200 hover:bg-fuchsia-500/15">💬 Poser une question</button>
+
+      <div x-show="tutorOpen" x-cloak class="absolute bottom-6 right-6 z-30 flex max-h-[min(30rem,calc(100vh-10rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl border border-fuchsia-300/20 bg-[#0c0c0c]/95 shadow-2xl backdrop-blur-xl">
+        <div class="flex items-center justify-between border-b border-white/5 px-5 py-4"><h3 class="text-sm font-bold text-white">Tuteur IA</h3><button @click="tutorOpen = false" class="text-zinc-400 hover:text-white">✕</button></div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-4" x-ref="tutorHistory">
+          <template x-for="(msg, i) in tutorMessages" :key="i"><div :class="msg.role === 'user' ? 'ml-auto bg-fuchsia-500/15 p-3 rounded-2xl text-sm text-white' : 'mr-auto bg-[#151515] p-3 rounded-2xl text-sm text-zinc-300'"><p x-text="msg.text"></p></div></template>
+        </div>
+        <form @submit.prevent="askTutor()" class="flex gap-3 border-t border-white/5 p-4"><input type="text" x-model="tutorQuestion" placeholder="Pose ta question…" class="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#09090b] px-4 py-2.5 text-sm text-white outline-none focus:border-fuchsia-500/50"><button type="submit" :disabled="tutorBusy" class="rounded-xl bg-fuchsia-500 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">Envoyer</button></form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODALE BOUTIQUE ================= -->
+  <div x-show="shopOpen" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-md p-4" @click.self="shopOpen = false" @keydown.escape.window="shopOpen = false">
+    <div class="relative w-full max-w-2xl rounded-3xl border border-amber-300/20 bg-[#0c0c0c] p-8 shadow-2xl">
+      <button @click="shopOpen = false" class="absolute right-4 top-4 text-zinc-400 hover:text-white">✕</button>
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">💎</span>
+        <div>
+          <h2 class="text-xl font-bold text-white">Boutique</h2>
+          <p class="text-xs text-zinc-500">Solde : <span class="font-mono text-amber-300" x-text="userStats.coins"></span> pièces</p>
+        </div>
+      </div>
+      <div class="mt-6 grid gap-3 sm:grid-cols-2">
+        <template x-for="item in shopItems" :key="item.id">
+            <div class="rounded-2xl border border-white/5 bg-[#151515] p-4">
+              <p class="text-sm font-semibold text-white" x-text="item.nom"></p>
+              <p class="mt-1 text-xs text-zinc-500" x-text="item.description"></p>
+              <div class="mt-3 flex justify-between items-center">
+                <p class="font-mono text-xs text-amber-300" x-text="`💎 ${item.prix}`"></p>
+                <button @click="buyItem(item.id)" class="text-xs bg-amber-500 text-black px-3 py-1 rounded-lg font-bold">Acheter</button>
+              </div>
+            </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOPO_ICONS = {
+      router: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="13" width="20" height="8" rx="2"></rect><path d="M6 17h.01M9.5 17h.01"></path><path d="M12 9V3M12 3 9 6M12 3l3 3"></path></svg>',
+      switch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 10h6M6 14h6"></path><path d="M16 10h2M16 14h2"></path></svg>',
+      pc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M8 20h8M12 16v4"></path></svg>',
+      firewall: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="1.5"></rect><path d="M3 10h18M3 15h18M8 5v5M16 10v5M8 15v4"></path></svg>',
+      server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="8" rx="2"></rect><rect x="3" y="13" width="18" height="8" rx="2"></rect><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"></path></svg>',
+      cloud: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 18h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.2 8.4 4.8 4.8 0 0 0 7 18Z"></path></svg>',
+      vpc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="4" width="19" height="16" rx="2" stroke-dasharray="3 2"></rect><path d="M6.5 8.5h4v3h-4zM13.5 12.5h4v3h-4zM10.5 10h3M9 11.5v3M13.5 14h-2.5"></path></svg>',
+      subnet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="6" rx="1.5"></rect><rect x="3" y="14" width="18" height="6" rx="1.5"></rect><path d="M7 7h10M7 17h10"></path></svg>',
+      wifi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 9a14 14 0 0 1 18 0M6 12a9 9 0 0 1 12 0M9 15a4.5 4.5 0 0 1 6 0"></path><circle cx="12" cy="19" r="1"></circle></svg>',
+      laptop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="4" width="14" height="12" rx="1.5"></rect><path d="M2.5 20h19l-2-4h-15l-2 4Z"></path></svg>',
+      spine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4" width="20" height="6" rx="1"></rect><path d="M6 7h.01M10 7h.01"></path><path d="M6 14v6M18 14v6"></path><circle cx="6" cy="14" r="2"></circle><circle cx="18" cy="14" r="2"></circle></svg>',
+      leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="10" width="20" height="8" rx="1"></rect><path d="M6 14h.01M10 14h.01"></path><path d="M6 6v4M18 6v4"></path><circle cx="6" cy="6" r="2"></circle><circle cx="18" cy="6" r="2"></circle></svg>',
+    };
+
+    function skilltree() {
+      return {
+        socket: null,
+        showUpdateToast: false,
+        profileMenuOpen: false, profileDraft: '',
+        theme: document.documentElement.classList.contains('light') ? 'light' : 'dark',
+        focusMode: false, treeFilter: 'all', sidebarCollapsed: false,
+        notificationsOpen: false, settingsMenuOpen: false, tab: 'tree',
+        userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
+        nodes: [], total: 0, validated: 0, loading: true, streakDays: 0,
+        userStats: { total_xp: 0, current_level: 1, level_name: 'Débutant', progress_percent: 0, coins: 0 },
+        shopOpen: false, shopItems: [], open: false,
+        detail: null, detailLoading: false, modalTab: 'lesson', isFullscreen: false,
+        lessonHtml: '', lessonMissing: false,
+
+        // --- Lecteur de cours ---
+        fontSize: 17,
+        lessonToc: [], activeSection: '', lessonProgress: 0, readingMinutes: 1,
+
+        quiz: null, quizAnswers: [], quizResult: null, quizBusy: false,
+        exerciseMode: null, exerciseQuestion: null, exerciseAnswer: '', exerciseResult: null, exerciseBusy: false,
+
+        labId: null, labBusy: false, labRunning: false, labOutput: [], labCommand: '', labValidation: null, labError: null,
+
+        tutorOpen: false, tutorQuestion: '', tutorMessages: [], tutorBusy: false,
+        dailyPlan: [], stats: null, statsLoading: false, flashcards: [], flashcardQueue: [], flashcardsLoading: false, flashcardFlipped: false,
+
+        diagnostic: null, diagnosticStep: null,
+        exam: null, examAnswers: [], examResult: null, examBusy: false, examCategory: '',
+
+        devices: [
+          { type: 'router', label: 'Routeur', hint: 'L3', icon: TOPO_ICONS.router },
+          { type: 'switch', label: 'Switch', hint: 'L2', icon: TOPO_ICONS.switch },
+          { type: 'pc', label: 'PC', hint: 'Terminal', icon: TOPO_ICONS.pc },
+          { type: 'firewall', label: 'Firewall', hint: 'Sécurité', icon: TOPO_ICONS.firewall },
+          { type: 'server', label: 'Serveur', hint: 'Services', icon: TOPO_ICONS.server },
+          { type: 'cloud', label: 'Cloud', hint: 'Externe', icon: TOPO_ICONS.cloud },
+        ],
+        topologyEditor: null, topologyReady: false,
+
+        async init() {
+          this.loadUiPrefs();
+          await this.refreshAll();
+          this.examCategory = this.examCategories[0]?.name || '';
+          this.connectWebSocket();
+        },
+
+        // --- Préférences d'affichage du lecteur (taille du texte, fenêtre agrandie) ---
+        loadUiPrefs() {
+          try {
+            const p = JSON.parse(localStorage.getItem('skilltree-ui') || '{}');
+            if (p.fs) this.fontSize = Math.min(22, Math.max(14, p.fs));
+            this.isFullscreen = !!p.full;
+          } catch (e) { }
+        },
+        saveUiPrefs() {
+          try { localStorage.setItem('skilltree-ui', JSON.stringify({ fs: this.fontSize, full: this.isFullscreen })); } catch (e) { }
+        },
+        changeFontSize(delta) {
+          this.fontSize = Math.min(22, Math.max(14, this.fontSize + delta));
+          this.saveUiPrefs();
+        },
+        toggleFullscreen() {
+          this.isFullscreen = !this.isFullscreen;
+          this.saveUiPrefs();
+        },
+        onEscape() {
+          if (!this.open) return;
+          if (this.isFullscreen) { this.isFullscreen = false; this.saveUiPrefs(); return; }
+          this.close();
+        },
+
+        connectWebSocket() {
+          // On force 127.0.0.1 pour éviter les conflits localhost / 127.0.0.1
+          const host = window.location.host.includes('localhost') ? '127.0.0.1:8000' : window.location.host;
+          const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+          const wsUrl = `${protocol}//${host}/api/ws`;
+
+          this.socket = new WebSocket(wsUrl);
+
+          this.socket.onmessage = (event) => {
+            if (event.data === "update") {
+              console.log("🔄 Mise à jour reçue du serveur !");
+              this.refreshAll();
+              this.showUpdateToast = true;
+              setTimeout(() => { this.showUpdateToast = false; }, 4000);
+            }
+          };
+
+          this.socket.onclose = () => {
+            console.log("WebSocket déconnecté. Nouvelle tentative dans 5 secondes...");
+            setTimeout(() => this.connectWebSocket(), 5000);
+          };
+        },
+        async refreshAll() {
+          await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()]);
+        },
+
+        editProfile() {
+          this.profileDraft = this.userName;
+          this.notificationsOpen = false; this.settingsMenuOpen = false;
+          this.profileMenuOpen = !this.profileMenuOpen;
+        },
+        saveProfile() {
+          const name = (this.profileDraft || '').trim();
+          if (name) {
+            this.userName = name;
+            try { localStorage.setItem('skilltree-name', name); } catch (e) { }
+          }
+          this.profileMenuOpen = false;
+        },
+
+        exportData() { alert("Profil sauvegardé !"); },
+        reloadContent() { this.refreshAll(); },
+        toggleTheme() { this.theme = this.theme === 'dark' ? 'light' : 'dark'; document.documentElement.classList.toggle('dark', this.theme === 'dark'); },
+
+        async setTab(name) {
+          this.tab = name;
+          this.notificationsOpen = false; this.settingsMenuOpen = false; this.profileMenuOpen = false;
+          this.$nextTick(() => { const m = this.$refs.mainScroll; if (m) m.scrollTop = 0; });
+          try {
+            if (name === 'topology') { await this.$nextTick(); await this.initTopology(); }
+            if (name === 'stats') await this.loadStats();
+            if (name === 'memo') await this.loadFlashcards();
+            if (name === 'diagnostic') await this.loadDiagnostic();
+          } catch (e) { console.error('setTab', name, e); }
+        },
+
+        async loadTree() {
+          try {
+            const r = await fetch('/api/tree'); const d = await r.json();
+            this.nodes = d.nodes || []; this.total = d.total || 0; this.validated = d.validated || 0;
+          } catch (e) { console.error(e); }
+        },
+        async loadUserStats() { try { const r = await fetch('/api/user-stats'); this.userStats = await r.json(); } catch(e){} },
+        async loadStreak() { try { const r = await fetch('/api/streak'); const d = await r.json(); this.streakDays = d.days || 0; } catch(e){} },
+        async loadDailyPlan() { try { const r = await fetch('/api/daily-plan'); const d = await r.json(); this.dailyPlan = d.actions || []; } catch(e){} },
+        async loadStats() {
+          this.statsLoading = true;
+          try { const r = await fetch('/api/stats'); this.stats = await r.json(); } catch(e) {}
+          this.statsLoading = false; this.$nextTick(() => this.renderSpiderChart());
+        },
+        async loadFlashcards() {
+          this.flashcardsLoading = true;
+          try { const r = await fetch('/api/flashcards'); const d = await r.json(); this.flashcards = d.cards || []; this.flashcardQueue = this.flashcards.slice(); } catch(e) {}
+          this.flashcardsLoading = false;
+        },
+        async loadDiagnostic() {
+          try { const r = await fetch('/api/diagnostics/network_down'); this.diagnostic = await r.json(); this.diagnosticStep = this.diagnostic.steps[this.diagnostic.start]; } catch(e){}
+        },
+
+        // ================= LECTEUR DE COURS =================
+        // Retire l'en-tête technique des fichiers de cours ("## node_id: ..." puis "title: ...") pour ne pas l'afficher
+        stripLessonHeader(md) {
+          return md.replace(/^\s*##\s*node_id:[^\n]*\n+(?:title:[^\n]*\n+)?/i, '');
+        },
+
+        // Dé-indente les balises HTML (4 espaces ou plus) hors blocs de code : sinon Markdown les prend pour du code
+        normalizeHtmlBlocks(md) {
+          let inFence = false;
+          return md.split('\n').map(line => {
+            if (/^\s*(```|~~~)/.test(line)) { inFence = !inFence; return line; }
+            if (!inFence && /^ {4,}<\/?[a-zA-Z][^>]*>/.test(line)) return line.trimStart();
+            return line;
+          }).join('\n');
+        },
+
+        slugify(s) {
+          return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+        },
+
+        // Markdown -> HTML : ids de titres + sommaire, callouts, blocs de code, boîte "À retenir"
+        formatMarkdown(mdText) {
+          const wrap = document.createElement('div');
+          wrap.innerHTML = marked.parse(this.normalizeHtmlBlocks(this.stripLessonHeader(mdText)));
+
+          // 1. Titres h2 : id + sommaire
+          const toc = [];
+          wrap.querySelectorAll('h2').forEach((h, i) => {
+            const text = h.textContent.trim();
+            h.id = `sec-${i}-${this.slugify(text)}`;
+            toc.push({ id: h.id, text });
+          });
+          this.lessonToc = toc;
+
+          // 2. Blockquotes "**Mot-clé :** ..." -> callouts
+          wrap.querySelectorAll('blockquote').forEach(bq => {
+            const p = bq.firstElementChild;
+            const strong = p && p.firstElementChild;
+            if (!p || p.tagName !== 'P' || !strong || strong.tagName !== 'STRONG' || p.firstChild !== strong) return;
+
+            const keyword = strong.textContent.replace(/[:：]\s*$/, '').trim();
+            let type = null, icon = '';
+            if (/analogie|note|remarque/i.test(keyword)) { type = 'info'; icon = '💡'; }
+            else if (/astuce|bonne pratique/i.test(keyword)) { type = 'tip'; icon = '✅'; }
+            else if (/piège|piege|danger|attention/i.test(keyword)) { type = 'danger'; icon = '⚠️'; }
+            else if (/examen/i.test(keyword)) { type = 'exam'; icon = '🎓'; }
+            if (!type) return; // citation normale
+
+            strong.remove();
+            if (p.firstChild && p.firstChild.nodeType === 3) p.firstChild.textContent = p.firstChild.textContent.replace(/^[\s:：]+/, '');
+
+            const box = document.createElement('div');
+            box.className = `callout callout-${type}`;
+            const title = document.createElement('div');
+            title.className = 'callout-title';
+            title.textContent = `${icon} ${keyword}`;
+            const content = document.createElement('div');
+            content.className = 'callout-content';
+            while (bq.firstChild) content.appendChild(bq.firstChild);
+            box.appendChild(title);
+            box.appendChild(content);
+            bq.replaceWith(box);
+          });
+
+          // 3. Blocs de code : en-tête (langue) + bouton Copier (géré par délégation, voir onLessonClick)
+          wrap.querySelectorAll('pre').forEach(pre => {
+            const code = pre.querySelector('code');
+            const m = code && code.className.match(/language-(\S+)/);
+            const lang = m ? m[1] : 'text';
+            const box = document.createElement('div');
+            box.className = 'code-container';
+            const head = document.createElement('div');
+            head.className = 'code-header';
+            head.innerHTML = '<span class="code-lang"></span><button type="button" class="btn-copy">Copier</button>';
+            head.querySelector('.code-lang').textContent = lang;
+            pre.replaceWith(box);
+            box.appendChild(head);
+            box.appendChild(pre);
+          });
+
+          // 3bis. Tableaux : conteneur arrondi (défilement seulement si le tableau ne peut pas tenir)
+          wrap.querySelectorAll('table').forEach(t => {
+            const holder = document.createElement('div');
+            holder.className = 'table-wrapper';
+            t.parentNode.insertBefore(holder, t);
+            holder.appendChild(t);
+          });
+
+          // 4. Section "À retenir" mise en valeur
+          const recapTitle = [...wrap.querySelectorAll('h2')].find(h => /retenir/i.test(h.textContent));
+          if (recapTitle) {
+            const box = document.createElement('div');
+            box.className = 'lesson-recap';
+            recapTitle.parentNode.insertBefore(box, recapTitle);
+            let n = recapTitle;
+            while (n && !(n !== recapTitle && n.nodeType === 1 && n.tagName === 'H2')) {
+              const next = n.nextSibling;
+              box.appendChild(n);
+              n = next;
+            }
+          }
+
+          // 5. Temps de lecture (sur le texte, pas sur le HTML)
+          const words = (wrap.textContent || '').split(/\s+/).filter(Boolean).length;
+          this.readingMinutes = Math.max(1, Math.ceil(words / 200));
+
+          return wrap.innerHTML;
+        },
+
+        onLessonClick(e) {
+          const btn = e.target.closest('.btn-copy');
+          if (!btn) return;
+          const pre = btn.closest('.code-container')?.querySelector('pre');
+          if (!pre) return;
+          navigator.clipboard.writeText(pre.innerText).then(() => {
+            btn.textContent = 'Copié ✓';
+            setTimeout(() => { btn.textContent = 'Copier'; }, 1800);
+          }).catch(() => { });
+        },
+
+        onLessonScroll(e) {
+          const el = e.target;
+          const max = el.scrollHeight - el.clientHeight;
+          this.lessonProgress = max > 0 ? Math.min(100, Math.round((el.scrollTop / max) * 100)) : 0;
+          if (this.modalTab !== 'lesson') return;
+          const limit = el.getBoundingClientRect().top + 100;
+          let current = null;
+          el.querySelectorAll('.lesson-prose h2[id]').forEach(h => { if (h.getBoundingClientRect().top <= limit) current = h.id; });
+          this.activeSection = current || (this.lessonToc[0] ? this.lessonToc[0].id : '');
+        },
+
+        goToSection(id) {
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        },
+
+        get lessonNeighbors() {
+          if (!this.detail) return { prev: null, next: null };
+          const i = this.nodes.findIndex(n => n.id === this.detail.id);
+          return {
+            prev: i > 0 ? this.nodes[i - 1] : null,
+            next: i >= 0 && i < this.nodes.length - 1 ? this.nodes[i + 1] : null,
+          };
+        },
+
+        async show(nodeId) {
+          this.open = true; this.detailLoading = true;
+          this.modalTab = 'lesson'; this.quiz = null; this.quizResult = null; this.exerciseMode = null;
+          this.labRunning = false; this.labValidation = null; this.labOutput = []; this.labError = null;
+          this.lessonProgress = 0; this.lessonToc = []; this.activeSection = '';
+
+          try {
+            const r = await fetch(`/api/node/${nodeId}`); this.detail = await r.json();
+            const l = await fetch(`/api/node/${nodeId}/lesson`);
+            if (l.ok) {
+              const md = await l.text();
+              const rawHtml = this.formatMarkdown(md);
+              this.lessonHtml = DOMPurify.sanitize(rawHtml);
+              this.lessonMissing = false;
+            }
+            else { this.lessonHtml = ''; this.lessonMissing = true; }
+          } catch (e) { console.error("Erreur chargement", e); }
+          finally {
+            this.detailLoading = false;
+            this.$nextTick(() => {
+              const s = this.$refs.modalScroll;
+              if (s) { s.scrollTop = 0; this.onLessonScroll({ target: s }); }
+            });
+          }
+        },
+
+        close() { this.open = false; this.detail = null; this.tutorOpen = false; },
+
+        canStartExercise() { return this.detail?.requirements?.some(r => ['quiz', 'terminal'].includes(r.kind)) || false; },
+        async startExercise() {
+          this.quizResult = null; this.exerciseResult = null; this.exerciseAnswer = '';
+          if (this.detail.terminal) { this.exerciseMode = 'terminal'; this.exerciseQuestion = this.detail.terminal; }
+          else {
+            const r = await fetch(`/api/node/${this.detail.id}/quiz`); this.quiz = await r.json();
+            this.exerciseMode = 'quiz'; this.quizAnswers = this.quiz.questions.map(q => null);
+          }
+        },
+        async submitAnswer() {
+          const r = await fetch(`/api/node/${this.detail.id}/submit-answer`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answer: this.exerciseAnswer })
+          });
+          this.exerciseResult = await r.json(); await this.refreshAll();
+        },
+        async submitQuiz() {
+          const r = await fetch(`/api/node/${this.detail.id}/quiz`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: this.quizAnswers })
+          });
+          this.quizResult = await r.json(); await this.refreshAll();
+        },
+
+        async startLab() {
+          this.labBusy = true;
+          this.labError = null;
+          this.labOutput = [];
+          try {
+            const r = await fetch('/api/lab/start', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ node_id: this.detail.id })
+            });
+
+            const text = await r.text();
+            if (!r.ok) {
+              throw new Error(text || `Erreur ${r.status}`);
+            }
+
+            const data = JSON.parse(text);
+
+            this.labId = data.lab_id;
+            this.labRunning = true;
+            this.labOutput.push({ text: `Lab démarré (${data.container_id}).` });
+            if(data.setup_logs) this.labOutput.push({ text: data.setup_logs });
+
+          } catch (e) {
+            this.labError = e.message;
+          } finally {
+            this.labBusy = false;
+          }
+        },
+        async runLabCommand() {
+          this.labOutput.push({ text: `$ ${this.labCommand}` });
+          const cmd = this.labCommand; this.labCommand = '';
+          const r = await fetch('/api/lab/exec', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lab_id: this.labId, command: cmd }) });
+          const data = await r.json(); this.labOutput.push({ text: data.stdout || data.stderr });
+        },
+        async validateLab() {
+          if (!this.labId || this.labBusy) return;
+          this.labBusy = true;
+          this.labValidation = null;
+          this.labError = null;
+
+          try {
+            const r = await fetch('/api/lab/validate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lab_id: this.labId })
+            });
+
+            const text = await r.text();
+            if (!r.ok) throw new Error(text || `Erreur ${r.status}`);
+
+            const data = JSON.parse(text);
+            this.labValidation = data;
+            this.labRunning = false;
+            await this.refreshAll();
+
+          } catch (e) {
+            this.labError = e.message;
+          } finally {
+            this.labBusy = false;
+          }
+        },
+
+        get categories() {
+          const g = new Map();
+
+          // 1. On filtre les nœuds selon le bouton cliqué (treeFilter)
+          const filteredNodes = this.nodes.filter(n => {
+            if (this.treeFilter === 'all') return true;
+
+            const title = n.title.toLowerCase();
+
+            if (this.treeFilter === 'beginner') {
+              return title.includes('débutant') || title.includes('debutant');
+            }
+            if (this.treeFilter === 'intermediaire') {
+              return title.includes('intermédiaire') || title.includes('intermediaire');
+            }
+            if (this.treeFilter === 'expert') {
+              return title.includes('expert');
+            }
+            return true;
+          });
+          // 2. On regroupe les nœuds filtrés par catégorie
+          for (const n of filteredNodes) {
+            if (!g.has(n.category)) g.set(n.category, []);
+            g.get(n.category).push(n);
+          }
+
+          // 3. On renvoie le résultat formaté pour l'affichage
+          return [...g.entries()].map(([name, items]) => ({
+            name,
+            items,
+            validated: items.filter(n => n.status === 'validated').length
+          }));
+
+        },
+        get progress() { return this.total ? Math.round((this.validated / this.total) * 100) : 0; },
+        get currentFlashcard() { return this.flashcardQueue[0] || null; },
+        get examCategories() { const g = new Map(); for (const n of this.nodes) { if (!g.has(n.category)) g.set(n.category, { name: n.category, nodes: 0 }); g.get(n.category).nodes++; } return [...g.values()]; },
+
+        statusMeta(s) { return { validated: { label: 'Validé', text: 'text-emerald-400', icon: 'bg-emerald-500/10 text-emerald-400' }, available: { label: 'Disponible', text: 'text-fuchsia-400', icon: 'bg-fuchsia-500/10 text-fuchsia-400' }, locked: { label: 'Verrouillé', text: 'text-zinc-500', icon: 'bg-zinc-800 text-zinc-500' } }[s] || { label: s, text: 'text-zinc-500', icon: 'bg-zinc-800 text-zinc-500' }; },
+        cardShell(s) { return { validated: 'bg-emerald-500/20 glow-lime', available: 'bg-fuchsia-500/20 glow-fuchsia', locked: 'bg-white/5' }[s] || 'bg-white/5'; },
+        kindLabel(k) { return k === 'quiz' ? 'Exercice' : k; },
+        planMeta(a) { return { lab: { label: 'Lab en cours', classes: 'text-orange-400 bg-orange-500/10' }, start: { label: 'Nouveau', classes: 'text-cyan-400 bg-cyan-500/10' } }[a] || { label: a, classes: '' }; },
+
+        renderSpiderChart() {
+          const canvas = document.getElementById('spiderChart'); if (!canvas || !this.stats) return;
+          if (window.spider) window.spider.destroy();
+          window.spider = new Chart(canvas, { type: 'radar', data: { labels: this.stats.categories.map(c => c.name), datasets: [{ data: this.stats.categories.map(c => c.success_rate || 0), backgroundColor: 'rgba(217, 70, 239, 0.2)', borderColor: '#d946ef', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { ticks: { display: false }, pointLabels: { color: '#e2e8f0' } } } } });
+        },
+
+        async startExam() {
+          this.examBusy = true;
+          const r = await fetch('/api/exam/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category: this.examCategory }) });
+          this.exam = await r.json(); this.examAnswers = this.exam.questions.map(q => null); this.examResult = null; this.examBusy = false;
+        },
+        async submitExam() {
+          this.examBusy = true;
+          const r = await fetch('/api/exam/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers }) });
+          this.examResult = await r.json(); await this.refreshAll(); this.examBusy = false;
+        },
+        resetExam() { this.exam = null; this.examResult = null; },
+
+        async initTopology() {
+          if (this.topologyReady) return; const el = this.$refs.canvas; if (!el) return;
+          this.topologyEditor = new Drawflow(el); this.topologyEditor.start(); this.topologyReady = true;
+        },
+        addDevice(type) {
+          if (!this.topologyEditor) return;
+          const device = this.devices.find(d => d.type === type);
+          const x = this.topologyEditor.precanvas.clientWidth / 2 - 90; const y = this.topologyEditor.precanvas.clientHeight / 2 - 30;
+          const html = `<div class="topo-node"><span class="topo-icon">${device.icon}</span><span><span class="topo-label">${device.label}</span></span></div>`;
+          this.topologyEditor.addNode(type, 1, 1, x, y, type, { label: device.label }, html, false);
+        },
+        zoom(d) { if (d > 0) this.topologyEditor.zoom_in(); else this.topologyEditor.zoom_out(); },
+        zoomReset() { if (this.topologyEditor) this.topologyEditor.zoom_reset(); },
+        async saveTopology() {
+          const data = this.topologyEditor.export();
+          await fetch('/api/topology', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+          alert("Topologie sauvegardée !");
+        },
+
+        flipFlashcard() { this.flashcardFlipped = !this.flashcardFlipped; },
+        markFlashcard(known) { this.flashcardQueue.shift(); this.flashcardFlipped = false; },
+        chooseDiagnostic(c) { this.diagnosticStep = this.diagnostic.steps[c.next]; },
+        downloadCertificate() { window.location.href = '/api/certificate'; },
+
+        async openShop() {
+          this.shopOpen = true;
+          try {
+            const r = await fetch('/api/shop'); const data = await r.json();
+            this.shopItems = data.items; this.userStats.coins = data.coins;
+          } catch(e) { console.error(e); }
+        },
+        async buyItem(id) {
+          const r = await fetch('/api/shop/buy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ item_id: id }) });
+          const data = await r.json();
+          if(data.success) { this.userStats.coins = data.coins; alert("Acheté !"); }
+          else { alert(data.detail || "Erreur"); }
+        },
+        openTutor() { this.tutorOpen = true; },
+        async askTutor() {
+          const q = this.tutorQuestion.trim(); if (!q) return;
+          this.tutorMessages.push({ role: 'user', text: q }); this.tutorQuestion = ''; this.tutorBusy = true;
+          try {
+            const r = await fetch('/api/tutor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ node_id: this.detail.id, question: q }) });
+            const data = await r.json(); this.tutorMessages.push({ role: 'assistant', text: data.answer });
+          } catch(e) { this.tutorMessages.push({ role: 'assistant', text: "Erreur de connexion au tuteur." }); }
+          this.tutorBusy = false;
+        }
+      };
+    }
+  </script>
+
+  <!-- Notification de mise à jour WebSocket -->
+  <div x-show="showUpdateToast" x-cloak x-transition.opacity style="z-index: 9999;"
+       class="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 rounded-full border border-emerald-500/30 bg-[#0c0c0c] px-5 py-3 shadow-2xl">
+    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M20 6 9 17l-5-5"></path>
+      </svg>
+    </div>
+    <span class="text-sm font-semibold text-white">Nouveau contenu synchronisé !</span>
+  </div>
+</body>
+</html>

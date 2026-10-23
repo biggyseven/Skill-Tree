@@ -1,0 +1,7 @@
+{
+  "node_id": "ddos-mitigation-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Attaques DDoS et mitigation - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

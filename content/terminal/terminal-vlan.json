@@ -1,7 +1,0 @@
-{
-  "node_id": "terminal-vlan",
-  "prompt": "Quelle commande Cisco IOS affiche les VLANs configurés sur un switch ?",
-  "answer": "show vlan brief",
-  "regex": "^show\\s+vlan\\s+brief$",
-  "explanation": "La commande 'show vlan brief' liste les VLANs et les ports qui y sont assignés."
-}

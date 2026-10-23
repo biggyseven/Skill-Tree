@@ -179,8 +179,10 @@ def _start_container(
     sleep_seconds: int = 300,
 ) -> str:
     _remove_container(name)
-    # --privileged : nécessaire pour `ip netns` et pour écrire les sysctl
-    # par namespace (net.ipv4.ip_forward), que Docker monte en lecture seule.
+    
+    # Correction pour Windows : utilisation de chemins avec slashs et sans espaces
+    lab_path = str(lab_dir.resolve()).replace("\\", "/")
+    
     created = _docker(
         [
             "run",
@@ -190,7 +192,7 @@ def _start_container(
             name,
             "--privileged",
             "-v",
-            f"{lab_dir.resolve()}:/lab:ro",
+            f"{lab_path}:/lab:ro",
             image,
             "sleep",
             str(sleep_seconds),

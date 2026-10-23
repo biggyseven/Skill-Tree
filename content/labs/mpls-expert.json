@@ -1,0 +1,7 @@
+{
+  "node_id": "mpls-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de MPLS & VRF - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

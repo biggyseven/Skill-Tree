@@ -1,0 +1,7 @@
+{
+  "node_id": "vxlan-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de VXLAN & EVPN - Intermédiaire.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

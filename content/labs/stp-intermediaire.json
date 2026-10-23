@@ -1,0 +1,1 @@
+{"node_id": "stp-intermediaire", "mode": "contains", "prompt": "Saisissez la commande pour activer PortFast sur l'interface GigabitEthernet0/1.", "hint": "Commencez par 'spanning-tree'.", "pattern": "spanning-tree portfast"}

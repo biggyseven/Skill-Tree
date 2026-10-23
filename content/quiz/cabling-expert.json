@@ -1,0 +1,18 @@
+{
+  "node_id": "cabling-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire pour Câblage et Normes - Expert. Avez-vous lu le cours ?",
+      "choices": [
+        "Oui",
+        "Non",
+        "Peut-être",
+        "Je ne sais pas"
+      ],
+      "answer": 0,
+      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+    }
+  ]
+}

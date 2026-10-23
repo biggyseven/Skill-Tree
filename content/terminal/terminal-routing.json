@@ -1,7 +1,0 @@
-{
-  "node_id": "terminal-routing",
-  "prompt": "Quelle commande Cisco IOS affiche la table de routage IPv4 ?",
-  "answer": "show ip route",
-  "regex": "^show\\s+ip\\s+route$",
-  "explanation": "La commande 'show ip route' affiche la table de routage IPv4."
-}

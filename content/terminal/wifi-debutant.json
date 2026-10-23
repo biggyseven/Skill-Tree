@@ -1,0 +1,7 @@
+{
+  "node_id": "wifi-debutant",
+  "prompt": "Saisissez le mot 'ok' pour valider l'exercice temporaire.",
+  "answer": "ok",
+  "regex": "^ok$",
+  "hint": "Tapez simplement 'ok'."
+}

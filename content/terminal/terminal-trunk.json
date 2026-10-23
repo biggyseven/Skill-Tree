@@ -1,7 +1,0 @@
-{
-  "node_id": "terminal-trunk",
-  "prompt": "Quelle commande Cisco IOS configure un port trunk pour n'autoriser que les VLAN 10 et 20 ?",
-  "answer": "switchport trunk allowed vlan 10,20",
-  "regex": "^switchport\\s+trunk\\s+allowed\\s+vlan\\s+10,20$",
-  "explanation": "Cette commande restreint la liste des VLANs autorisés sur le lien trunk."
-}

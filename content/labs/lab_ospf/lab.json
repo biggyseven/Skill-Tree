@@ -1,7 +1,7 @@
 {
   "kind": "docker",
   "image": "skilltree/lab:latest",
-  "node_id": "ospf",
+  "node_id": "ospf-intermediaire",
   "timeout": 120,
   "prompt": "Configure le routage entre r1 et r2 pour que h1 et h2 se joignent à travers le lien 10.255.0.0/30.",
   "hint": "ip netns exec r1 ip route add..."

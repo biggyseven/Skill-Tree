@@ -1,0 +1,1 @@
+{"node_id": "stp-expert", "mode": "contains", "prompt": "Saisissez la commande pour activer BPDU Guard sur l'interface FastEthernet0/1.", "hint": "Utilisez 'spanning-tree bpduguard'.", "pattern": "spanning-tree bpduguard enable"}

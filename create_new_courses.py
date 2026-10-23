@@ -1,0 +1,160 @@
+import os
+
+LESSON_DIR = "content/lessons"
+os.makedirs(LESSON_DIR, exist_ok=True)
+
+# Liste des nouveaux cours à créer (ID et Titre)
+courses = [
+    # Groupe 1
+    ("intro-reseau-debutant", "Qu'est-ce qu'un réseau ? - Débutant"),
+    ("intro-reseau-intermediaire", "Qu'est-ce qu'un réseau ? - Intermédiaire"),
+    ("intro-reseau-expert", "Qu'est-ce qu'un réseau ? - Expert"),
+    ("materiel-reseau-debutant", "Le matériel réseau - Débutant"),
+    ("materiel-reseau-intermediaire", "Le matériel réseau - Intermédiaire"),
+    ("materiel-reseau-expert", "Le matériel réseau - Expert"),
+    ("osi-debutant", "Modèle OSI & TCP/IP - Débutant"),
+    ("osi-intermediaire", "Modèle OSI & TCP/IP - Intermédiaire"),
+    ("osi-expert", "Modèle OSI & TCP/IP - Expert"),
+    ("tcp-udp-debutant", "TCP, UDP & ports - Débutant"),
+    ("tcp-udp-intermediaire", "TCP, UDP & ports - Intermédiaire"),
+    ("tcp-udp-expert", "TCP, UDP & ports - Expert"),
+    ("cabling-debutant", "Câblage et Normes - Débutant"),
+    ("cabling-intermediaire", "Câblage et Normes - Intermédiaire"),
+    ("cabling-expert", "Câblage et Normes - Expert"),
+    ("equipment-debutant", "Équipements L1/L2 - Débutant"),
+    ("equipment-intermediaire", "Équipements L1/L2 - Intermédiaire"),
+    ("equipment-expert", "Équipements L1/L2 - Expert"),
+    # Groupe 2
+    ("ethernet-debutant", "Ethernet & couche 2 - Débutant"),
+    ("ethernet-intermediaire", "Ethernet & couche 2 - Intermédiaire"),
+    ("ethernet-expert", "Ethernet & couche 2 - Expert"),
+    ("wifi-debutant", "Wi-Fi 802.11 - Débutant"),
+    ("wifi-intermediaire", "Wi-Fi 802.11 - Intermédiaire"),
+    ("wifi-expert", "Wi-Fi 802.11 - Expert"),
+    ("etherchannel-debutant", "Agrégation de liens - Débutant"),
+    ("etherchannel-intermediaire", "Agrégation de liens - Intermédiaire"),
+    ("etherchannel-expert", "Agrégation de liens - Expert"),
+    ("vtp-debutant", "VTP et gestion des VLANs - Débutant"),
+    ("vtp-intermediaire", "VTP et gestion des VLANs - Intermédiaire"),
+    ("vtp-expert", "VTP et gestion des VLANs - Expert"),
+    ("poe-debutant", "Power over Ethernet (PoE) - Débutant"),
+    ("poe-intermediaire", "Power over Ethernet (PoE) - Intermédiaire"),
+    ("poe-expert", "Power over Ethernet (PoE) - Expert"),
+    # Groupe 3
+    ("ipv4-debutant", "Adressage IPv4 & sous-réseaux - Débutant"),
+    ("ipv4-intermediaire", "Adressage IPv4 & sous-réseaux - Intermédiaire"),
+    ("ipv4-expert", "Adressage IPv4 & sous-réseaux - Expert"),
+    ("adressage-debutant-md", "L'adressage IP (bases) - Débutant"),
+    ("adressage-intermediaire", "L'adressage IP (bases) - Intermédiaire"),
+    ("adressage-expert", "L'adressage IP (bases) - Expert"),
+    ("arp-debutant", "ARP & résolution L2/L3 - Débutant"),
+    ("arp-intermediaire", "ARP & résolution L2/L3 - Intermédiaire"),
+    ("arp-expert", "ARP & résolution L2/L3 - Expert"),
+    ("nat-debutant", "NAT & PAT - Débutant"),
+    ("nat-intermediaire", "NAT & PAT - Intermédiaire"),
+    ("nat-expert", "NAT & PAT - Expert"),
+    ("routing-debutant", "Routage statique & tables - Débutant"),
+    ("routing-intermediaire", "Routage statique & tables - Intermédiaire"),
+    ("routing-expert", "Routage statique & tables - Expert"),
+    # Groupe 4
+    ("ntp-syslog-debutant", "NTP & Syslog - Débutant"),
+    ("ntp-syslog-intermediaire", "NTP & Syslog - Intermédiaire"),
+    ("ntp-syslog-expert", "NTP & Syslog - Expert"),
+    ("acl-debutant", "ACL & filtrage - Débutant"),
+    ("acl-intermediaire", "ACL & filtrage - Intermédiaire"),
+    ("acl-expert", "ACL & filtrage - Expert"),
+    ("firewall-debutant", "Pare-feu & NGFW - Débutant"),
+    ("firewall-intermediaire", "Pare-feu & NGFW - Intermédiaire"),
+    ("firewall-expert", "Pare-feu & NGFW - Expert"),
+    ("vpn-debutant", "VPN & tunnels - Débutant"),
+    ("vpn-intermediaire", "VPN & tunnels - Intermédiaire"),
+    ("vpn-expert", "VPN & tunnels - Expert"),
+    ("aaa-debutant", "Authentification réseau (AAA) - Débutant"),
+    ("aaa-intermediaire", "Authentification réseau (AAA) - Intermédiaire"),
+    ("aaa-expert", "Authentification réseau (AAA) - Expert"),
+    ("troubleshooting-debutant", "Méthodologie de dépannage - Débutant"),
+    ("troubleshooting-intermediaire", "Méthodologie de dépannage - Intermédiaire"),
+    ("troubleshooting-expert", "Méthodologie de dépannage - Expert"),
+    ("ddos-mitigation-debutant", "Attaques DDoS et Mitigation - Débutant"),
+    ("ddos-mitigation-intermediaire", "Attaques DDoS et Mitigation - Intermédiaire"),
+    ("ddos-mitigation-expert", "Attaques DDoS et Mitigation - Expert"),
+    ("ids-ips-debutant", "IDS / IPS et DPI - Débutant"),
+    ("ids-ips-intermediaire", "IDS / IPS et DPI - Intermédiaire"),
+    ("ids-ips-expert", "IDS / IPS et DPI - Expert"),
+    ("ipsec-debutant", "VPN IPsec - Débutant"),
+    ("ipsec-intermediaire", "VPN IPsec - Intermédiaire"),
+    ("ipsec-expert", "VPN IPsec - Expert"),
+    ("radius-debutant", "Authentification RADIUS - Débutant"),
+    ("radius-intermediaire", "Authentification RADIUS - Intermédiaire"),
+    ("radius-expert", "Authentification RADIUS - Expert"),
+    ("wireguard-debutant", "VPN WireGuard - Débutant"),
+    ("wireguard-intermediaire", "VPN WireGuard - Intermédiaire"),
+    ("wireguard-expert", "VPN WireGuard - Expert"),
+    ("pki-debutant", "PKI et Certificats - Débutant"),
+    ("pki-intermediaire", "PKI et Certificats - Intermédiaire"),
+    ("pki-expert", "PKI et Certificats - Expert"),
+    # Groupe 5
+    ("cloud-debutant", "Cloud Networking - Débutant"),
+    ("cloud-intermediaire", "Cloud Networking - Intermédiaire"),
+    ("cloud-expert", "Cloud Networking - Expert"),
+    ("cisco-aci-debutant", "Cisco ACI - Débutant"),
+    ("cisco-aci-intermediaire", "Cisco ACI - Intermédiaire"),
+    ("cisco-aci-expert", "Cisco ACI - Expert"),
+    ("spine-leaf-debutant", "Architecture Spine/Leaf - Débutant"),
+    ("spine-leaf-intermediaire", "Architecture Spine/Leaf - Intermédiaire"),
+    ("spine-leaf-expert", "Architecture Spine/Leaf - Expert"),
+    ("wireshark-debutant", "Wireshark - Débutant"),
+    ("wireshark-intermediaire", "Wireshark - Intermédiaire"),
+    ("wireshark-expert", "Wireshark - Expert"),
+    ("itil-rca-debutant", "Gestion d'incident (ITIL et RCA) - Débutant"),
+    ("itil-rca-intermediaire", "Gestion d'incident (ITIL et RCA) - Intermédiaire"),
+    ("itil-rca-expert", "Gestion d'incident (ITIL et RCA) - Expert"),
+    ("mtu-pmtud-debutant", "Dépannage MTU et PMTUD - Débutant"),
+    ("mtu-pmtud-intermediaire", "Dépannage MTU et PMTUD - Intermédiaire"),
+    ("mtu-pmtud-expert", "Dépannage MTU et PMTUD - Expert"),
+    ("wireshark-advanced-debutant", "Wireshark Avancé - Débutant"),
+    ("wireshark-advanced-intermediaire", "Wireshark Avancé - Intermédiaire"),
+    ("wireshark-advanced-expert", "Wireshark Avancé - Expert"),
+    ("netmiko-debutant", "Scripting Python/Netmiko - Débutant"),
+    ("netmiko-intermediaire", "Scripting Python/Netmiko - Intermédiaire"),
+    ("netmiko-expert", "Scripting Python/Netmiko - Expert"),
+    ("restconf-debutant", "API RESTCONF et NETCONF - Débutant"),
+    ("restconf-intermediaire", "API RESTCONF et NETCONF - Intermédiaire"),
+    ("restconf-expert", "API RESTCONF et NETCONF - Expert"),
+    ("napalm-debutant", "Automatisation NAPALM - Débutant"),
+    ("napalm-intermediaire", "Automatisation NAPALM - Intermédiaire"),
+    ("napalm-expert", "Automatisation NAPALM - Expert"),
+    ("cicd-network-debutant", "CI/CD et Git - Débutant"),
+    ("cicd-network-intermediaire", "CI/CD et Git - Intermédiaire"),
+    ("cicd-network-expert", "CI/CD et Git - Expert"),
+    ("netconf-yang-debutant", "NETCONF, YANG et RESTCONF - Débutant"),
+    ("netconf-yang-intermediaire", "NETCONF, YANG et RESTCONF - Intermédiaire"),
+    ("netconf-yang-expert", "NETCONF, YANG et RESTCONF - Expert"),
+    ("terraform-debutant", "Terraform - Débutant"),
+    ("terraform-intermediaire", "Terraform - Intermédiaire"),
+    ("terraform-expert", "Terraform - Expert"),
+]
+
+print("✨ Création des nouveaux fichiers de cours...\n")
+
+for node_id, title in courses:
+    # On nettoie l'ID pour être sûr (au cas où il y aurait un "-md" dans la liste)
+    clean_id = node_id.replace("-md", "")
+    filepath = os.path.join(LESSON_DIR, f"{clean_id}.md")
+    
+    # Si le fichier n'existe pas, on le crée avec un contenu temporaire
+    if not os.path.exists(filepath):
+        content = f"""---
+node_id: {clean_id}
+title: {title}
+---
+
+# {title}
+
+> **Note** : Ce cours est en cours de rédaction. Utilisez Gemini pour générer le contenu complet !
+"""
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"📝 Créé : {clean_id}.md")
+
+print("\n✅ Tous les fichiers sont prêts ! Tu n'as plus qu'à coller le texte de Gemini dedans.")

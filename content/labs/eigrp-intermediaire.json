@@ -1,0 +1,1 @@
+{"node_id": "eigrp-intermediaire", "mode": "contains", "prompt": "Saisissez la commande pour activer EIGRP AS 100.", "hint": "Commence par router", "pattern": "router eigrp 100"}

@@ -1,0 +1,27 @@
+Tu es un formateur réseau mondialement reconnu, expert CCIE. 
+Rédige un cours d'une profondeur exceptionnelle (niveau CCNP/CCIE, minimum 5000 mots) sur le sujet suivant : __SUJET__.
+Le niveau de ce cours doit être : __NIVEAU__.
+
+Le cours doit être structuré EXACTEMENT comme suit (ne rajoute aucune phrase avant ou après) :
+---
+node_id: __NODE_ID__
+title: __SUJET__ - __NIVEAU__
+---
+
+# __SUJET__ - __NIVEAU__
+
+**Niveau :** __NIVEAU__
+
+[Une introduction de 3 à 4 paragraphes expliquant le contexte historique et l'utilité de ce protocole/concept].
+
+> **Analogie** : [Une analogie très détaillée et pertinente avec le monde réel pour vulgariser le concept].
+
+---
+
+## 1. [Titre de la première partie théorique]
+[Explication très profonde. Explique les mécanismes internes, les algorithmes (ex: Dijkstra, SPF, BGP best path, Diffusing Update Algorithm, etc.), et comment les paquets sont construits].
+
+> **Piège :** [Explique une erreur courante ou un piège d'examen ici].
+
+```text
+[Insère ici un schéma ASCII très propre et détaillé illustrant la théorie]

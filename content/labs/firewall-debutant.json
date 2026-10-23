@@ -1,0 +1,7 @@
+{
+  "node_id": "firewall-debutant",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Pare-feu & NGFW - Débutant.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

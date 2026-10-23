@@ -1,0 +1,7 @@
+{
+  "node_id": "secu-l2-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Sécurité L2 - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

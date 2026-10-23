@@ -1,0 +1,7 @@
+{
+  "node_id": "dhcp-dns-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de DHCP & DNS - Intermédiaire.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

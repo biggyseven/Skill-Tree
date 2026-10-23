@@ -1,0 +1,7 @@
+{
+  "node_id": "zero-trust-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Architecture Zero Trust - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

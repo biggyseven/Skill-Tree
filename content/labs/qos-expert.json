@@ -1,0 +1,7 @@
+{
+  "node_id": "qos-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de QoS - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

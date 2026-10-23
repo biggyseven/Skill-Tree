@@ -1,0 +1,7 @@
+{
+  "node_id": "sd-wan-expert",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de SD-WAN - Expert.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}
