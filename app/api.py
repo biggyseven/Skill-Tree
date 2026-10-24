@@ -61,6 +61,7 @@ from .labs_runner import (
     LabRunnerError, LabSessionError, exec_in_lab, start_interactive_lab, validate_lab,
 )
 from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons
+from .lab_routes import router as lab_v2_router
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if load_dotenv is not None:
@@ -144,6 +145,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Lab Workspace v2 : nouvelles routes séparées des endpoints legacy.
+app.include_router(lab_v2_router, prefix="/api")
 
 def get_tree() -> Iterator[SkillTree]:
     conn = connect(DB_PATH, check_same_thread=False)
