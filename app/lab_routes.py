@@ -28,8 +28,10 @@ DB_PATH = Path(os.environ.get("SKILLTREE_DB", DEFAULT_DB))
 
 
 def _database_connection() -> sqlite3.Connection:
+    # Résolu à chaque requête : app.api charge .env après l'import de ce module.
+    db_path = Path(os.environ.get("SKILLTREE_DB", str(DEFAULT_DB))).expanduser()
     try:
-        return connect(DB_PATH)
+        return connect(db_path)
     except sqlite3.Error as error:
         raise HTTPException(status_code=503, detail=f"Base SQLite indisponible : {error}")
 

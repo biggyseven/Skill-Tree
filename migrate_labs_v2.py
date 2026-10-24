@@ -321,7 +321,7 @@ def print_plan(targets: dict[str, dict[str, Any]], lab_filter: str | None) -> No
         if pilot in targets and payload is not None:
             print(f"{pilot:34} {'would migrate from JSON':30} labs_v2/{pilot}.json")
         elif pilot in targets and payload is None:
-            print(f"{pilot:34} {'missing, skipped':30} JSON pilote absent")
+            print(f"{pilot:34} {'auto v1-compat':30} JSON pilote absent; repli sur le lab legacy")
         elif payload is not None:
             print(f"{pilot:34} {'would migrate from JSON':30} nouvel enregistrement depuis labs_v2/{pilot}.json")
         else:
@@ -461,8 +461,8 @@ def main() -> int:
             for lab_id in selected_ids:
                 row = targets.get(lab_id)
                 payload = pilot_json.get(lab_id) if lab_id in PILOT_LABS else None
-                if lab_id in PILOT_LABS and payload is None:
-                    print(f"[SKIP] {lab_id} : JSON pilote absent, enregistrement non modifié.")
+                if lab_id in PILOT_LABS and payload is None and row is None:
+                    print(f"[SKIP] {lab_id} : JSON pilote absent et aucun lab legacy.")
                     continue
                 if payload is not None:
                     definition = payload
@@ -473,8 +473,12 @@ def main() -> int:
                         print(f"[SKIP] {lab_id} : aucun enregistrement legacy.")
                         continue
                     definition = minimal_v1_compat(row)
-                    note = "M1: définition minimale v1-compat générée automatiquement"
-                    source = "v1-compat"
+                    if lab_id in PILOT_LABS:
+                        note = "M1: JSON pilote absent; repli v1-compat depuis les données legacy"
+                        source = "v1-compat (JSON pilote absent)"
+                    else:
+                        note = "M1: définition minimale v1-compat générée automatiquement"
+                        source = "v1-compat"
                 now_iso = datetime.now(timezone.utc).isoformat()
                 if not table_exists(conn, "labs"):
                     raise RuntimeError("La table labs n'a pas pu être créée.")
