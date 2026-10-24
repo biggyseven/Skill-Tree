@@ -332,8 +332,14 @@ def print_plan(targets: dict[str, dict[str, Any]], lab_filter: str | None) -> No
         else:
             print(f"{lab_id:34} {'auto v1-compat':30} conversion vers schema_version=2")
     print("-" * 92)
-    count = sum(1 for lab_id in selected if lab_id in targets and
-                (lab_id not in PILOT_LABS or (LABS_V2_DIR / f"{lab_id}.json").is_file()))
+    count = sum(
+        1 for lab_id in selected
+        if lab_id in targets and (
+            lab_id not in PILOT_LABS
+            or (LABS_V2_DIR / f"{lab_id}.json").is_file()
+            or lab_id in targets
+        )
+    )
     print(f"Labs qui seraient migrés : {count}")
 
 
@@ -406,12 +412,24 @@ def main() -> int:
     globals()["DB_PATH"] = db_path
 
     if not db_path.is_file():
-        print(f"[ERREUR] Base SQLite introuvable : {db_path}")
-        for pilot in PILOT_LABS:
-            if not args.lab or args.lab == pilot:
-                print(f"{pilot:34} {'missing, skipped':30} base absente et pilote non vérifié")
         if args.dry_run:
-            print("DRY-RUN terminé : aucune base ni aucun fichier n'a été créé.")
+            # Le mode simulation ne crée jamais la DB manquante. Il inspecte les
+            # JSON v1 présents dans le dépôt et signale que les données SQLite
+            # locales ne sont pas disponibles pour cette prévisualisation.
+            try:
+                conn = sqlite3.connect(":memory:")
+                conn.row_factory = sqlite3.Row
+                targets = migration_targets(conn)
+                conn.close()
+                print_plan(targets, args.lab)
+                print(f"[INFO] Base absente : {db_path}; seuls les labs trouvés dans le contenu du dépôt sont prévisualisés.")
+                print("DRY-RUN terminé : aucune base ni aucun fichier n'a été créé.")
+                return 0
+            except (sqlite3.Error, ValueError, RuntimeError) as error:
+                print(f"[ERREUR] Prévisualisation impossible : {error}")
+                return 1
+        print(f"[ERREUR] Base SQLite introuvable : {db_path}")
+        print("Crée/initialise d'abord la base, ou passe --db=CHEMIN.")
         return 1
 
     connect_uri = f"file:{quote(str(db_path))}?mode=ro" if args.dry_run else str(db_path)

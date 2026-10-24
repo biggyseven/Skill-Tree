@@ -34,8 +34,8 @@ RuleOperator = Literal[
 class TopologyMetadata(SchemaModel):
     name: str = ""
     author: str = ""
-    created_at: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
     )
     mode: Literal["lab"] = "lab"
 
