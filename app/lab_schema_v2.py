@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import json
 from typing import Any, Literal
 import uuid
 
@@ -164,7 +165,8 @@ class SubmitRequest(SchemaModel):
 
 
 def model_to_dict(value: Any, *, by_alias: bool = False) -> dict[str, Any]:
-    """Sérialisation compatible Pydantic v1/v2."""
+    """Sérialisation JSON-compatible avec Pydantic v1 et v2."""
     if hasattr(value, "model_dump"):
         return value.model_dump(mode="json", by_alias=by_alias)
-    return value.dict(by_alias=by_alias)
+    # BaseModel.dict() conserve les datetime : json() les convertit en ISO-8601.
+    return json.loads(value.json(by_alias=by_alias))
