@@ -506,12 +506,19 @@ def check_lab_v2(lab_id: str, body: CheckRequest) -> dict[str, Any]:
         }
     definition: LabDefinition = payload["definition"]
     result = _evaluate_lab_check(definition, body.topology)
-    conn = _database_connection()
+    conn = None
     try:
+        try:
+            conn = _database_connection()
+        except HTTPException:
+            # La vérification pédagogique du JSON peut rester disponible même si
+            # SQLite est temporairement indisponible ; la soumission, elle, exige DB.
+            return result
         course_context = _course_lab_context(conn, lab_id)
         return _enforce_course_lab_score(result, course_context)
     finally:
-        conn.close()
+        if conn is not None:
+            conn.close()
 
 
 @router.post("/lab/v2/{lab_id}/submit", response_class=UTF8JSONResponse)
