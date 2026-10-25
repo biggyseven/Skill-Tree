@@ -126,6 +126,41 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn(':aria-valuenow="progressPercent"', DASHBOARD_HTML)
         self.assertIn("Le temps est compté pendant que la page est active.", DASHBOARD_HTML)
 
+    def test_daily_review_action_opens_a_course_scoped_flashcard_session(self):
+        action_start = DASHBOARD_HTML.index("        async openPlanAction(action) {")
+        action_end = DASHBOARD_HTML.index("        renderSpiderChart() {", action_start)
+        action_method = DASHBOARD_HTML[action_start:action_end]
+        review_start = action_method.index("if (action.action === 'review')")
+        review_end = action_method.index("await this.show(nodeId);", review_start)
+        review_action = action_method[review_start:review_end]
+
+        self.assertIn("this.reviewNodeId = nodeId;", review_action)
+        self.assertIn("this.reviewDaysSince = Number(action.days_since) || null;", review_action)
+        self.assertIn("mode: 'all'", review_action)
+        self.assertIn("await this.setTab('memo');", review_action)
+
+        self.assertIn("reviewNodeId: null, reviewDaysSince: null", DASHBOARD_HTML)
+        build_start = DASHBOARD_HTML.index("        buildDeck() {")
+        build_end = DASHBOARD_HTML.index("        clearGuidedReview()", build_start)
+        build_method = DASHBOARD_HTML[build_start:build_end]
+        self.assertIn("String(c.node_id) === String(this.reviewNodeId)", build_method)
+        self.assertIn("if (!this.reviewNodeId && f.mode === 'due')", build_method)
+
+        clear_start = DASHBOARD_HTML.index("        clearGuidedReview() {")
+        clear_end = DASHBOARD_HTML.index("        markFlashcard(known)", clear_start)
+        guided_methods = DASHBOARD_HTML[clear_start:clear_end]
+        self.assertIn("this.reviewNodeId = null;", guided_methods)
+        self.assertIn("this.cardFilter = { ...this.cardFilter, module: 'all', level: 'all', mode: 'due' };", guided_methods)
+        self.assertIn("await this.setTab('tree');", guided_methods)
+        self.assertIn("await this.show(nodeId);", guided_methods)
+
+        self.assertIn('x-show="reviewNodeId"', DASHBOARD_HTML)
+        self.assertIn("Révision guidée du plan du jour", DASHBOARD_HTML)
+        self.assertIn("Dernière validation il y a ' + reviewDaysSince", DASHBOARD_HTML)
+        self.assertIn(':disabled="reviewNodeId"', DASHBOARD_HTML)
+        self.assertIn('@click="openGuidedReviewLesson()"', DASHBOARD_HTML)
+        self.assertIn("Aucune carte mémorisée pour ce cours pour le moment.", DASHBOARD_HTML)
+
     def test_daily_plan_filters_resume_and_path_but_keeps_other_available_courses(self):
         self.assertIn("this.dailyPlan.filter(action => !visibleNodeIds.includes(String(action.node_id)))", DASHBOARD_HTML)
         self.assertIn("this.nodes\n            .filter(n => n.status === 'available' && !visibleNodeIds.includes(String(n.id)))", DASHBOARD_HTML)
