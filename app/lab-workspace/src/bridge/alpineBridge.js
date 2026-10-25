@@ -9,6 +9,29 @@ function emit(type, detail) {
 
 let prevSnap = null;
 
+function persistSuccessfulLab(result) {
+  if (
+    !result ||
+    result.passed !== true ||
+    result.sandbox === true ||
+    result.attempt_recorded !== true ||
+    result.stale === true ||
+    !result.lab_id
+  ) return;
+
+  try {
+    const storageKey = 'st:labs-done';
+    const saved = JSON.parse(window.localStorage.getItem(storageKey) || '[]');
+    const completed = Array.isArray(saved) ? saved.map(String) : [];
+    const labId = String(result.lab_id);
+    if (!completed.includes(labId)) {
+      window.localStorage.setItem(storageKey, JSON.stringify([...completed, labId]));
+    }
+  } catch (_error) {
+    // La progression serveur demeure enregistrée même si le stockage du navigateur est bloqué.
+  }
+}
+
 export function initAlpineBridge() {
   window.addEventListener('lab:load', (e) => {
     const d = e.detail || {};
@@ -142,6 +165,7 @@ export function initAlpineBridge() {
           }
         : data;
       current.setCheckResult(finalResult);
+      persistSuccessfulLab(finalResult);
       emit('lab:submit-result', finalResult);
     } catch (_err) {
       useLabStore.getState().setCheckResult({
