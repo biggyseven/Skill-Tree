@@ -401,8 +401,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("challengeResult.attemptRecorded", DASHBOARD_HTML)
         self.assertIn("const passed = !timeout && score >= this.challenge.minScore;", DASHBOARD_HTML)
         self.assertIn(':disabled="!c.builtin && c.status === \'locked\'"', DASHBOARD_HTML)
-        self.assertIn("c.status === 'validated' ? '✅ Validé dans le parcours · rejouable'", DASHBOARD_HTML)
-        self.assertIn("c.status === 'in_progress' ? '↻ Tentative enregistrée · à poursuivre'", DASHBOARD_HTML)
+        self.assertIn("app.challengeState = function (c)", DASHBOARD_HTML)
+        self.assertIn("if (state === 'validated') return '✅ Validé dans le parcours · rejouable'", DASHBOARD_HTML)
+        self.assertIn("if (state === 'in_progress') return '↻ Tentative enregistrée · à poursuivre'", DASHBOARD_HTML)
 
     def test_empty_daily_plan_distinguishes_completion_from_missing_data(self):
         self.assertIn("Préparation de ta session…", DASHBOARD_HTML)
