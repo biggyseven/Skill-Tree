@@ -155,29 +155,40 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         self.assertEqual(action["last_attempt_kind"], "terminal")
         self.assertEqual(action["next_requirement_kind"], "quiz")
 
-    def test_validating_prerequisite_unlocks_next_course_and_daily_plan(self) -> None:
+    def test_validating_prerequisite_unlocks_multiple_courses_and_daily_plan(self) -> None:
         now = datetime(2026, 10, 25, 12, 0, 0)
         self.add_node("intro-course", "Introduction", "Administration Réseaux", 1)
         self.add_quiz_requirement("intro-course")
         self.add_node("next-course", "Étape suivante", "Administration Réseaux", 2)
+        self.add_node("parallel-course", "Autre étape accessible", "Administration Réseaux", 3)
         self.conn.execute(
             "INSERT INTO edges (node_id, prereq_id) VALUES (?, ?)",
             ("next-course", "intro-course"),
+        )
+        self.conn.execute(
+            "INSERT INTO edges (node_id, prereq_id) VALUES (?, ?)",
+            ("parallel-course", "intro-course"),
         )
         self.add_attempt("intro-course", 100, True, now)
 
         statuses = self.tree.statuses()
         self.assertEqual(statuses["intro-course"].value, "validated")
         self.assertEqual(statuses["next-course"].value, "available")
+        self.assertEqual(statuses["parallel-course"].value, "available")
 
         tree_payload = read_tree(self.tree)
-        next_node = next(node for node in tree_payload["nodes"] if node["id"] == "next-course")
-        self.assertEqual(next_node["status"], "available")
+        tree_statuses = {node["id"]: node["status"] for node in tree_payload["nodes"]}
+        self.assertEqual(tree_statuses["next-course"], "available")
+        self.assertEqual(tree_statuses["parallel-course"], "available")
 
         plan = get_daily_plan(self.tree, now=now)
-        self.assertEqual(plan["actions"][0]["node_id"], "next-course")
-        self.assertEqual(plan["actions"][0]["action"], "start")
-        self.assertEqual(plan["actions"][0]["status"], "available")
+        self.assertEqual(
+            [(action["node_id"], action["action"], action["status"]) for action in plan["actions"]],
+            [
+                ("next-course", "start", "available"),
+                ("parallel-course", "start", "available"),
+            ],
+        )
 
     def test_review_recommendation_uses_the_real_validation_date(self) -> None:
         now = datetime(2026, 10, 25, 12, 0, 0)
