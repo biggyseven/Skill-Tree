@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
 import unittest
+
+from fastapi import HTTPException
 from datetime import datetime, timedelta
 
-from app.api import read_node, read_profile, read_tree
+from app.api import read_node, read_profile, read_tree, submit_challenge
 from app.db import connect, initialize
 from app.engine import SkillTree, get_daily_plan
 
@@ -29,6 +32,31 @@ class LearningProgressConsistencyTests(unittest.TestCase):
             "INSERT INTO requirements (node_id, kind, min_score) VALUES (?, 'quiz', ?)",
             (node_id, min_score),
         )
+
+    def add_challenge(self, node_id: str, expected: dict | None = None, min_score: int = 100) -> dict:
+        expected = expected or {
+            "nodes": {"router": 1, "switch": 1},
+            "connections": [{"from": "router", "to": "switch"}],
+        }
+        self.conn.execute(
+            "INSERT INTO requirements (node_id, kind, min_score) VALUES (?, 'manual', ?)",
+            (node_id, min_score),
+        )
+        self.conn.execute(
+            "INSERT INTO challenges (node_id, expected_topology, time_limit) VALUES (?, ?, ?)",
+            (node_id, json.dumps(expected), 300),
+        )
+        return expected
+
+    @staticmethod
+    def drawflow_topology(*, extra_server: bool = False) -> dict:
+        topology = {
+            "1": {"name": "router", "outputs": {"output_1": {"connections": [{"node": "2", "output": "input_1"}]}}},
+            "2": {"name": "switch", "outputs": {"output_1": {"connections": []}}},
+        }
+        if extra_server:
+            topology["3"] = {"name": "server", "outputs": {"output_1": {"connections": []}}}
+        return topology
 
     def add_attempt(self, node_id: str, score: int, passed: bool, created_at: datetime) -> None:
         self.conn.execute(
@@ -94,6 +122,111 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         self.assertEqual(plan["actions"][0]["node_id"], "validated-course")
         self.assertEqual(plan["actions"][0]["action"], "review")
         self.assertEqual(plan["actions"][0]["days_since"], 5)
+
+    def test_challenge_detail_exposes_expected_topology_and_server_records_success(self) -> None:
+        self.add_node("challenge-network", "Défi réseau", "Administration Réseaux", 1)
+        expected = self.add_challenge("challenge-network")
+
+        detail = read_node("challenge-network", self.tree)
+        self.assertEqual(detail["challenge"]["expected_topology"], expected)
+        self.assertEqual(detail["challenge"]["time_limit"], 300)
+
+        result = submit_challenge(
+            "challenge-network",
+            {"topology": self.drawflow_topology()},
+            self.tree,
+        )
+
+        self.assertEqual(result["score"], 100)
+        self.assertTrue(result["passed"])
+        self.assertTrue(result["validated"])
+        self.assertEqual(result["status"], "validated")
+        self.assertTrue(result["attempt_recorded"])
+        attempt = self.conn.execute(
+            "SELECT kind, score, passed FROM attempts WHERE node_id = ?",
+            ("challenge-network",),
+        ).fetchone()
+        self.assertEqual(tuple(attempt), ("manual", 100, 1))
+
+    def test_failed_and_timed_out_challenges_are_recorded_and_retryable(self) -> None:
+        self.add_node("challenge-network", "Défi réseau", "Administration Réseaux", 1)
+        self.add_challenge("challenge-network")
+
+        failed = submit_challenge(
+            "challenge-network",
+            {"topology": self.drawflow_topology(extra_server=True)},
+            self.tree,
+        )
+        self.assertEqual(failed["score"], 83)
+        self.assertFalse(failed["passed"])
+        self.assertEqual(failed["status"], "in_progress")
+        self.assertTrue(failed["attempt_recorded"])
+
+        plan = get_daily_plan(self.tree, now=datetime(2026, 10, 25, 12, 0, 0))
+        self.assertEqual(plan["actions"][0]["node_id"], "challenge-network")
+        self.assertEqual(plan["actions"][0]["action"], "challenge")
+
+        timed_out = submit_challenge(
+            "challenge-network",
+            {"topology": self.drawflow_topology(), "timeout": True},
+            self.tree,
+        )
+        self.assertEqual(timed_out["score"], 100)
+        self.assertFalse(timed_out["passed"])
+        self.assertEqual(timed_out["status"], "in_progress")
+
+        passed = submit_challenge(
+            "challenge-network",
+            {"topology": self.drawflow_topology()},
+            self.tree,
+        )
+        self.assertTrue(passed["passed"])
+        self.assertTrue(passed["validated"])
+        self.assertEqual(passed["status"], "validated")
+
+    def test_replaying_validated_challenge_does_not_record_a_second_reward_attempt(self) -> None:
+        self.add_node("challenge-network", "Défi réseau", "Administration Réseaux", 1)
+        self.add_challenge("challenge-network")
+        first = submit_challenge("challenge-network", {"topology": self.drawflow_topology()}, self.tree)
+        second = submit_challenge("challenge-network", {"topology": self.drawflow_topology()}, self.tree)
+
+        self.assertTrue(first["attempt_recorded"])
+        self.assertFalse(second["attempt_recorded"])
+        self.assertTrue(second["passed"])
+        self.assertEqual(
+            self.conn.execute("SELECT COUNT(*) FROM attempts WHERE node_id = ?", ("challenge-network",)).fetchone()[0],
+            1,
+        )
+
+    def test_locked_challenge_is_rejected_by_server(self) -> None:
+        self.add_node("prerequisite", "Prérequis", "Administration Réseaux", 1)
+        self.add_node("challenge-network", "Défi réseau", "Administration Réseaux", 2)
+        self.conn.execute(
+            "INSERT INTO edges (node_id, prereq_id) VALUES ('challenge-network', 'prerequisite')"
+        )
+        self.add_challenge("challenge-network")
+
+        with self.assertRaises(HTTPException) as context:
+            submit_challenge(
+                "challenge-network",
+                {"topology": self.drawflow_topology()},
+                self.tree,
+            )
+        self.assertEqual(context.exception.status_code, 409)
+        self.assertEqual(
+            self.conn.execute("SELECT COUNT(*) FROM attempts WHERE node_id = 'challenge-network'").fetchone()[0],
+            0,
+        )
+
+    def test_newly_available_challenge_appears_as_a_challenge_action(self) -> None:
+        self.add_node("challenge-network", "Défi réseau", "Administration Réseaux", 1)
+        self.add_challenge("challenge-network")
+
+        plan = get_daily_plan(self.tree, now=datetime(2026, 10, 25, 12, 0, 0))
+
+        self.assertEqual(len(plan["actions"]), 1)
+        self.assertEqual(plan["actions"][0]["node_id"], "challenge-network")
+        self.assertEqual(plan["actions"][0]["action"], "challenge")
 
     def test_locked_course_is_not_presented_as_a_new_step(self) -> None:
         self.add_node("first-step", "Première étape", "Administration Réseaux", 1)
