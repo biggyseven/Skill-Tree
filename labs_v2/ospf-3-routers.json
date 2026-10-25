@@ -6,14 +6,16 @@
   "module": "Routage",
   "duration_min": 15,
   "difficulty": "débutant",
-  "prompt": "Configurez les interfaces point à point et OSPF area 0 sur R1, R2 et R3. R1 doit utiliser 10.0.12.1/30, R2 10.0.12.2/30 et 10.0.23.1/30, et R3 10.0.23.2/30. Annoncez 10.0.12.0/30 sur R1 et R2, puis 10.0.23.0/30 sur R2 et R3.",
+  "prompt": "Changez le hostname de R1 en « Routeur-Paris », configurez les interfaces point à point et OSPF area 0 sur R1, R2 et R3. R1 doit utiliser 10.0.12.1/30, R2 10.0.12.2/30 et 10.0.23.1/30, et R3 10.0.23.2/30. Annoncez 10.0.12.0/30 sur R1 et R2, puis 10.0.23.0/30 sur R2 et R3.",
   "objectives": [
+    "Changer le hostname de R1 en Routeur-Paris",
     "Configurer les quatre adresses IPv4 et leurs masques /30",
     "Activer OSPF sur R1, R2 et R3",
     "Annoncer 10.0.12.0/30 dans l’area 0 sur R1 et R2",
     "Annoncer 10.0.23.0/30 dans l’area 0 sur R2 et R3"
   ],
   "hints": [
+    "Sur R1, en mode de configuration globale, exécutez hostname Routeur-Paris.",
     "Sur chaque routeur, passez en mode privilégié avec enable, puis en configuration globale avec configure terminal.",
     "Configurez chaque interface avec interface Fa0/0 (ou Fa0/1), puis ip address ADRESSE 255.255.255.252 et no shutdown.",
     "Activez OSPF avec router ospf 1.",
