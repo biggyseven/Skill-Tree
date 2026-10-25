@@ -478,5 +478,46 @@ class DashboardUiRegressionTests(unittest.TestCase):
         profile_end = DASHBOARD_HTML.index("        saveProfile() {", profile_start)
         self.assertIn("this.themeMenuOpen = false", DASHBOARD_HTML[profile_start:profile_end])
 
+    def test_theme_selector_uses_alpine_reactive_state_and_saved_preference(self):
+        self.assertIn("themeIsActive(id) { return this.theme === id; }", DASHBOARD_HTML)
+        sync_start = DASHBOARD_HTML.index("        syncTheme() {")
+        sync_end = DASHBOARD_HTML.index("        closeThemeOnOutside(event)", sync_start)
+        sync = DASHBOARD_HTML[sync_start:sync_end]
+        self.assertIn("this.themes.some(x => x.id === stored)", sync)
+        self.assertIn("root.dataset.theme = id;", sync)
+        self.assertIn("this.theme = id;", sync)
+        self.assertIn("localStorage.setItem('skilltree-theme2', id)", sync)
+        self.assertIn("@click=\"setTheme(t.id)\"", DASHBOARD_HTML)
+        self.assertIn(":aria-pressed=\"themeIsActive(t.id)\"", DASHBOARD_HTML)
+        self.assertIn("@click=\"syncTheme(); themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false\"", DASHBOARD_HTML)
+
+    def test_notification_center_is_event_driven_persistent_and_marks_unread(self):
+        self.assertIn("skilltree-notifications-v1", DASHBOARD_HTML)
+        self.assertIn("get unreadNotificationCount()", DASHBOARD_HTML)
+        self.assertIn("addNotification(event)", DASHBOARD_HTML)
+        self.assertIn("markNotificationRead(id)", DASHBOARD_HTML)
+        self.assertIn("markAllNotificationsRead()", DASHBOARD_HTML)
+        self.assertIn("openNotification(notification)", DASHBOARD_HTML)
+        self.assertIn("x-text=\"unreadNotificationCount > 9 ? '9+' : unreadNotificationCount\"", DASHBOARD_HTML)
+        self.assertIn("@click=\"openNotification(n)\"", DASHBOARD_HTML)
+        self.assertIn("@click=\"markAllNotificationsRead()\"", DASHBOARD_HTML)
+        self.assertIn("Aucune notification pour le moment", DASHBOARD_HTML)
+        self.assertIn("Les nouveaux cours, déblocages, validations, séries et badges apparaîtront ici.", DASHBOARD_HTML)
+        self.assertNotIn("this.planActions.slice(0, 3).forEach(a => out.push", DASHBOARD_HTML)
+
+    def test_course_changes_streaks_and_badges_create_deduplicated_notifications(self):
+        self.assertIn("skilltree-node-snapshot-v1", DASHBOARD_HTML)
+        self.assertIn("readNodeSnapshot()", DASHBOARD_HTML)
+        self.assertIn("saveNodeSnapshot(this.nodes)", DASHBOARD_HTML)
+        self.assertIn("courses-added:", DASHBOARD_HTML)
+        self.assertIn("course-unlocked:", DASHBOARD_HTML)
+        self.assertIn("course-validated:", DASHBOARD_HTML)
+        self.assertIn("streak-milestone:", DASHBOARD_HTML)
+        self.assertIn("badge-unlocked:", DASHBOARD_HTML)
+        self.assertIn("this.addNotification({", DASHBOARD_HTML)
+        # The previous implementation skipped all comparisons when the in-memory
+        # tree was empty, which missed new courses added while the page was closed.
+        self.assertNotIn("if (!prev.size) return; const ev = [];", DASHBOARD_HTML)
+
 if __name__ == "__main__":
     unittest.main()
