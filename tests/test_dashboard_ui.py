@@ -721,6 +721,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertNotIn("id: 'topology', label: 'Topologie'", DASHBOARD_HTML)
         self.assertNotIn("tab === 'topology'", DASHBOARD_HTML)
         self.assertNotIn("Mode libre", DASHBOARD_HTML)
+        self.assertIn("effacera les ${count} équipement(s) du défi précédent", DASHBOARD_HTML)
+        self.assertNotIn("Sauvegarde-la si tu veux la conserver", DASHBOARD_HTML)
 
         challenge_start = DASHBOARD_HTML.index("<!-- ============ ONGLET DÉFIS ============ -->")
         challenge_end = DASHBOARD_HTML.index("<!-- ============ ONGLET LABS ============ -->", challenge_start)
