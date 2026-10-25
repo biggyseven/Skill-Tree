@@ -127,6 +127,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         validation_method = DASHBOARD_HTML[validation_start:validation_end]
         self.assertIn("data.sandbox === true", validation_method)
         self.assertIn("data.attempt_recorded === false", validation_method)
+        self.assertIn("const nodeId = String(data.lab_id || (this.detail && this.detail.id) || '');", validation_method)
         self.assertIn("if (!data || !data.passed || data.sandbox === true || data.attempt_recorded === false) return;", validation_method)
 
     def test_daily_focus_timer_tracks_active_time_and_persists_the_daily_goal(self):
