@@ -304,14 +304,23 @@
     html.light .lesson-prose .callout strong { color: #fff !important; }
     html.light .lesson-prose .callout { box-shadow: 0 1px 4px rgb(15 23 42 / .08); }
 
-    /* Sidebar hiérarchisée et raccourcis visibles. */
+    /* Sidebar : navigation lisible, état actif net et cibles clavier/tactiles confortables. */
     .skill-sidebar { position: relative; z-index: 15; border-right: 1px solid rgb(var(--w) / .08); box-shadow: 12px 0 40px -38px rgb(0 0 0 / .6); }
     .skill-sidebar nav { padding: .25rem .1rem; }
-    .skill-sidebar nav button { position: relative; min-height: 44px; border: 1px solid transparent; }
-    .skill-sidebar nav button[aria-current="page"] { border-color: rgb(var(--emerald-400) / .15); }
+    .skill-sidebar nav button { position: relative; min-height: 48px; border: 1px solid transparent; transform: translateX(0); }
+    .skill-sidebar nav button:not([aria-current="page"]):hover { transform: translateX(2px); }
+    .skill-sidebar nav button:active { transform: scale(.99); }
+    .skill-sidebar nav button[aria-current="page"] { border-color: rgb(var(--emerald-400) / .2); }
     .skill-sidebar nav button[aria-current="page"]::before { content: ""; position: absolute; inset-block: 10px; left: -1px; width: 3px; border-radius: 0 999px 999px 0; background: linear-gradient(180deg, rgb(var(--emerald-400)), rgb(var(--cyan-400))); }
-    .skill-sidebar nav button svg { opacity: .88; }
-    .skill-sidebar nav button[aria-current="page"] svg { filter: drop-shadow(0 0 5px rgb(var(--emerald-400) / .22)); }
+    .skill-sidebar nav button .nav-item-icon { width: 2.25rem; height: 2.25rem; }
+    .skill-sidebar nav button .nav-item-icon svg { opacity: .88; }
+    .skill-sidebar nav button:not([aria-current="page"]):hover .nav-item-icon { border-color: rgb(var(--w) / .08); }
+    .skill-sidebar nav button[aria-current="page"] .nav-item-icon svg { filter: drop-shadow(0 0 5px rgb(var(--emerald-400) / .22)); }
+    .nav-action-btn { position: relative; flex: 0 0 auto; transition: transform .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease; }
+    .nav-action-btn:hover { transform: translateY(-1px); }
+    .nav-action-btn:active { transform: scale(.97); }
+    .nav-action-btn[aria-expanded="true"] { border-color: rgb(var(--emerald-400) / .4) !important; box-shadow: 0 0 0 3px rgb(var(--emerald-400) / .08); }
+    .nav-action-btn:focus-visible { outline: 2px solid rgb(var(--cyan-400)); outline-offset: 3px; }
 
     /* Lab de topologie : dimension réelle des icônes, cartes lisibles, ports thémés. */
     #drawflow { min-height: 620px; background-color: var(--s0) !important; border: 1px solid rgb(var(--w) / .08); }
@@ -358,11 +367,21 @@
       body { height: 100dvh !important; }
       main { padding-left: 1rem !important; padding-right: 1rem !important; padding-bottom: 6.5rem !important; }
       header { padding-left: 1rem !important; padding-right: 1rem !important; }
-      .mobile-bottom-nav { position: fixed; z-index: 70; bottom: max(.5rem, env(safe-area-inset-bottom)); left: .5rem; right: .5rem; display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: .15rem; padding: .45rem; border: 1px solid rgb(var(--w) / .1); border-radius: 1.35rem; background: color-mix(in srgb, var(--s1) 94%, transparent); box-shadow: 0 14px 42px -20px #000; backdrop-filter: blur(18px); }
-      .mobile-bottom-nav button { display: flex; min-width: 0; flex-direction: column; align-items: center; justify-content: center; gap: .22rem; padding: .35rem .1rem; border-radius: .8rem; color: rgb(var(--z-400)); font-size: 9px; line-height: 1.15; }
-      .mobile-bottom-nav button svg { width: 18px; height: 18px; }
-      .mobile-bottom-nav button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .mobile-bottom-nav button.is-active { background: rgb(var(--emerald-400) / .13); color: rgb(var(--emerald-300)); }
+      .mobile-bottom-nav { position: fixed; z-index: 70; bottom: max(.5rem, env(safe-area-inset-bottom)); left: .5rem; right: .5rem; display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: .2rem; padding: .4rem; border: 1px solid rgb(var(--w) / .12); border-radius: 1.3rem; background: color-mix(in srgb, var(--s1) 94%, transparent); box-shadow: 0 16px 44px -20px #000, 0 0 0 1px rgb(var(--w) / .025); backdrop-filter: blur(18px); }
+      .mobile-bottom-nav button { position: relative; display: flex; min-width: 0; min-height: 48px; flex-direction: column; align-items: center; justify-content: center; gap: .24rem; padding: .4rem .1rem .58rem; border: 1px solid transparent; border-radius: .9rem; color: rgb(var(--z-400)); font-size: 9.5px; font-weight: 600; line-height: 1.1; transition: background .16s ease, color .16s ease, border-color .16s ease, transform .16s ease; -webkit-tap-highlight-color: transparent; }
+      .mobile-bottom-nav button:not(.is-active):hover { background: rgb(var(--w) / .045); color: rgb(var(--z-200)); }
+      .mobile-bottom-nav button:active { transform: scale(.97); }
+      .mobile-bottom-nav button svg { width: 20px; height: 20px; transition: transform .16s ease; }
+      .mobile-bottom-nav button span { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .mobile-bottom-nav button.is-active { border-color: rgb(var(--emerald-400) / .2); background: linear-gradient(180deg, rgb(var(--emerald-400) / .13), rgb(var(--emerald-400) / .055)); color: rgb(var(--emerald-300)); box-shadow: inset 0 1px 0 rgb(var(--w) / .055); }
+      .mobile-bottom-nav button.is-active svg { transform: translateY(-1px); }
+      .mobile-bottom-nav button.is-active::after { content: ""; position: absolute; left: 50%; bottom: .2rem; width: 1rem; height: 2px; border-radius: 999px; background: linear-gradient(90deg, rgb(var(--emerald-400)), rgb(var(--cyan-400))); transform: translateX(-50%); }
+      .mobile-bottom-nav button:focus-visible { outline: 2px solid rgb(var(--cyan-400)); outline-offset: 2px; }
+      @media (max-width: 360px) {
+        .mobile-bottom-nav { left: .35rem; right: .35rem; gap: .1rem; padding: .3rem; }
+        .mobile-bottom-nav button { font-size: 8.5px; }
+        .mobile-bottom-nav button svg { width: 18px; height: 18px; }
+      }
       #drawflow { min-height: 560px; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -485,16 +504,18 @@
     <!-- Navigation -->
     <nav class="flex-1 space-y-2 overflow-y-auto" aria-label="Navigation principale">
       <template x-for="item in navItems" :key="item.id">
-        <button type="button" @click="setTab(item.id)" :title="item.label" :aria-current="tab === item.id ? 'page' : null" class="flex w-full items-center gap-3 rounded-2xl py-3 text-sm font-medium transition" :class="[tab === item.id ? 'bg-emerald-500/10 text-emerald-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-4']">
-          <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" x-html="item.svg"></svg>
-          <span x-show="!sidebarCollapsed" class="whitespace-nowrap" x-text="item.label"></span>
+        <button type="button" @click="setTab(item.id)" :title="sidebarCollapsed ? item.label : null" :aria-label="item.label" :aria-current="tab === item.id ? 'page' : null" class="group flex w-full items-center gap-3 rounded-2xl py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)] active:scale-[0.99]" :class="[tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_22px_-18px_rgba(52,211,153,0.9)]' : 'border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/[0.045] hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-3']">
+          <span class="nav-item-icon flex shrink-0 items-center justify-center rounded-xl border border-transparent transition" :class="tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200' : 'text-zinc-500 group-hover:bg-white/5 group-hover:text-zinc-200'">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" x-html="item.svg"></svg>
+          </span>
+          <span x-show="!sidebarCollapsed" class="min-w-0 truncate whitespace-nowrap" x-text="item.label"></span>
         </button>
       </template>
     </nav>
 
     <!-- Focus -->
     <div class="mt-auto pt-4 shrink-0">
-      <button type="button" @click="focusMode = !focusMode" class="group flex w-full items-center rounded-2xl border border-white/5 bg-[color:var(--s1)] py-3 text-left transition hover:border-emerald-500/50 hover:bg-emerald-500/10 shadow-lg" :class="sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-4'">
+      <button type="button" @click="focusMode = !focusMode" :aria-pressed="focusMode" :aria-label="focusMode ? 'Quitter le mode focus' : 'Activer le mode focus'" :title="sidebarCollapsed ? 'Mode focus · ' + progress + '%' : null" class="group flex w-full items-center rounded-2xl border border-white/5 bg-[color:var(--s1)] py-3 text-left transition hover:border-emerald-500/50 hover:bg-emerald-500/10 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70" :class="[sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-4', focusMode ? 'border-emerald-400/30 bg-emerald-400/10' : '']">
         <div class="flex items-center gap-2 overflow-hidden">
           <svg class="h-4 w-4 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M3 12h3M18 12h3M12 3v3M12 18v3"></path></svg>
           <span x-show="!sidebarCollapsed" class="text-xs font-semibold text-white whitespace-nowrap">Focus</span>
@@ -524,7 +545,7 @@
           <span class="text-sm">🔥</span>
           <span class="font-mono text-xs font-semibold" x-text="streakLoaded ? streakDays : '—'"></span>
         </div>
-        <button type="button" @click.stop="openShop()" class="flex items-center gap-1.5 rounded-2xl bg-[color:var(--s1)] px-4 py-2 text-amber-100 border border-white/5 hover:bg-[color:var(--s2)] transition shadow-md">
+        <button type="button" @click.stop="openShop()" title="Ouvrir la boutique" aria-label="Ouvrir la boutique" class="nav-action-btn flex items-center gap-1.5 rounded-2xl bg-[color:var(--s1)] px-4 py-2 text-amber-100 border border-white/5 hover:bg-[color:var(--s2)] transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
           <span class="text-sm">💎</span>
           <span class="font-mono text-xs font-semibold" x-text="userStatsLoaded ? userStats.coins : '—'"></span>
         </button>
@@ -560,7 +581,7 @@
           </div>
         </div>
         <div class="relative" data-theme-picker>
-          <button type="button" @click.stop="syncTheme(); themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Thèmes" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none">
+          <button type="button" @click.stop="syncTheme(); themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Choisir un thème" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8Z"></path><circle cx="7.5" cy="11" r="1"></circle><circle cx="10.5" cy="7" r="1"></circle><circle cx="15.5" cy="7.5" r="1"></circle></svg>
           </button>
           <div x-show="themeMenuOpen" x-cloak x-transition.opacity @keydown.escape.window="themeMenuOpen = false" class="absolute top-12 right-0 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl">
@@ -575,7 +596,7 @@
             </div>
           </div>
         </div>
-        <button type="button" @click.stop="notificationsOpen = !notificationsOpen; settingsMenuOpen = false; profileMenuOpen = false" class="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none">
+        <button type="button" @click.stop="notificationsOpen = !notificationsOpen; settingsMenuOpen = false; profileMenuOpen = false; themeMenuOpen = false" title="Notifications" aria-label="Ouvrir les notifications" aria-haspopup="true" :aria-expanded="notificationsOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </button>
         <div x-show="notificationsOpen" x-cloak @click.outside="notificationsOpen = false" class="absolute top-14 right-24 z-50 w-80 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-5 shadow-2xl">
@@ -591,7 +612,7 @@
           </div>
         </div>
 
-        <button type="button" @click.stop="editProfile()" class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-sm shadow-[0_0_15px_-3px_rgba(52,211,153,0.5)] border-2 border-transparent hover:border-white/20 transition">👨‍💻</button>
+        <button type="button" @click.stop="editProfile()" title="Modifier le profil" aria-label="Modifier le profil" aria-haspopup="true" :aria-expanded="profileMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-sm shadow-[0_0_15px_-3px_rgba(52,211,153,0.5)] border-2 border-transparent hover:border-white/20 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">👨‍💻</button>
         <div x-show="profileMenuOpen" x-cloak @click.outside="profileMenuOpen = false" @keydown.escape.window="profileMenuOpen = false" class="absolute top-14 right-14 z-50 w-72 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-5 shadow-2xl">
           <h3 class="mb-3 text-sm font-bold text-white">Ton profil</h3>
           <label for="profile-name" class="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400">Nom affiché</label>
@@ -601,7 +622,7 @@
           </form>
         </div>
 
-        <button type="button" @click.stop="settingsMenuOpen = !settingsMenuOpen; notificationsOpen = false; profileMenuOpen = false" class="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none">
+        <button type="button" @click.stop="settingsMenuOpen = !settingsMenuOpen; notificationsOpen = false; profileMenuOpen = false; themeMenuOpen = false" title="Paramètres" aria-label="Ouvrir les paramètres" aria-haspopup="true" :aria-expanded="settingsMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
         </button>
         <div x-show="settingsMenuOpen" x-cloak @click.outside="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-64 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-2 shadow-2xl">
@@ -1802,7 +1823,7 @@
 
         editProfile() {
           this.profileDraft = this.userName;
-          this.notificationsOpen = false; this.settingsMenuOpen = false;
+          this.notificationsOpen = false; this.settingsMenuOpen = false; this.themeMenuOpen = false;
           this.profileMenuOpen = !this.profileMenuOpen;
         },
         saveProfile() {
@@ -3907,8 +3928,8 @@
   <!-- Barre de navigation mobile : accès aux actions essentielles sans la sidebar desktop -->
   <nav class="mobile-bottom-nav md:hidden" aria-label="Navigation mobile">
     <template x-for="item in navItems.filter(i => ['tree','labs','exam','topology','diagnostic','stats'].includes(i.id))" :key="item.id">
-      <button type="button" @click="setTab(item.id)" :aria-current="tab === item.id ? 'page' : null" :class="tab === item.id ? 'is-active' : ''" :title="item.label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" x-html="item.svg"></svg><span x-text="item.id === 'tree' ? 'Accueil' : item.label"></span>
+      <button type="button" @click="setTab(item.id)" :aria-label="item.id === 'tree' ? 'Accueil' : item.label" :aria-current="tab === item.id ? 'page' : null" :class="tab === item.id ? 'is-active' : ''" :title="item.id === 'tree' ? 'Accueil' : item.label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" x-html="item.svg"></svg><span x-text="item.id === 'tree' ? 'Accueil' : item.label"></span>
       </button>
     </template>
   </nav>
