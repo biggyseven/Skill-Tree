@@ -715,18 +715,19 @@
               <div class="absolute left-12 top-1/2 h-0.5 -translate-y-1/2 z-0 rounded-full bg-gradient-to-r from-emerald-400 to-fuchsia-400 transition-all duration-700" :style="`width: calc((100% - 6rem) * ${parcours.fill})`"></div>
               <template x-for="st in parcours.steps" :key="st.id">
                 <button type="button" :disabled="st.status === 'locked'" @click="show(st.id)" :title="st.title + ' · ' + statusMeta(st.status).label" class="relative z-10 flex w-24 flex-col items-center gap-3 disabled:cursor-not-allowed">
-                  <div class="flex items-center justify-center rounded-full border-2 bg-[color:var(--s1)] transition" :class="st.cur ? 'h-14 w-14 border-fuchsia-500 text-fuchsia-400 animate-pulse glow-fuchsia' : (st.status === 'validated' ? 'h-12 w-12 border-emerald-500/60 text-emerald-400' : (st.status === 'available' ? 'h-12 w-12 border-fuchsia-500/60 text-fuchsia-400' : 'h-12 w-12 border-zinc-800 text-zinc-600'))">
+                  <div class="flex items-center justify-center rounded-full border-2 bg-[color:var(--s1)] transition" :class="st.cur ? 'h-14 w-14 border-fuchsia-500 text-fuchsia-400 animate-pulse glow-fuchsia' : (st.status === 'validated' ? 'h-12 w-12 border-emerald-500/60 text-emerald-400' : (st.status === 'in_progress' ? 'h-12 w-12 border-cyan-400/60 text-cyan-300' : (st.status === 'available' ? 'h-12 w-12 border-fuchsia-500/60 text-fuchsia-400' : 'h-12 w-12 border-zinc-800 text-zinc-600')))">
                     <svg x-show="st.status === 'validated'" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>
+                    <svg x-show="st.status === 'in_progress'" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg>
                     <span x-show="st.status === 'available'" class="text-lg">⚡</span>
                     <svg x-show="st.status === 'locked'" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                   </div>
-                  <span class="w-full truncate text-center text-[11px]" :class="st.cur ? 'font-bold text-fuchsia-300' : (st.status === 'validated' ? 'font-medium text-zinc-300' : (st.status === 'available' ? 'font-medium text-zinc-300' : 'text-zinc-600'))" x-text="st.title"></span>
+                  <span class="w-full truncate text-center text-[11px]" :class="st.cur ? 'font-bold text-fuchsia-300' : (st.status === 'validated' ? 'font-medium text-zinc-300' : (st.status === 'in_progress' ? 'font-medium text-cyan-300' : (st.status === 'available' ? 'font-medium text-zinc-300' : 'text-zinc-600')))" x-text="st.title"></span>
                 </button>
               </template>
             </div>
             <p x-show="!parcours.steps.length" class="flex-1 py-8 text-center text-sm text-zinc-500" x-text="loading ? 'Chargement du parcours…' : 'Aucun cours dans ce module pour le moment.'"></p>
-            <p x-show="parcours.steps.length" class="mt-6 text-center text-xs text-zinc-400" x-text="parcours.finished ? '🎉 Parcours terminé · ' + parcours.done + '/' + parcours.total + ' cours validés' : 'Prochaine étape : ' + (parcours.cur ? parcours.cur.title : '—') + ' · ' + parcours.done + '/' + parcours.total + ' validés'"></p>
-            <div class="mt-6 flex justify-center"><button type="button" :disabled="!parcours.steps.length || (parcours.cur && parcours.cur.status === 'locked')" @click="parcours.cur ? show(parcours.cur.id) : document.getElementById('tree-grid').scrollIntoView({ behavior: 'smooth' })" class="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-8 py-3.5 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_rgb(var(--emerald-400)/0.5)]" x-text="parcours.finished ? 'Revoir l’arbre complet' : 'Continuer le parcours →'"></button></div>
+            <p x-show="parcours.steps.length" class="mt-6 text-center text-xs text-zinc-400" x-text="parcours.finished ? '🎉 Parcours terminé · ' + parcours.done + '/' + parcours.total + ' cours validés' : (parcours.cur ? (parcours.cur.status === 'in_progress' ? 'À poursuivre : ' + parcours.cur.title : 'Prochaine étape : ' + parcours.cur.title) + ' · ' + parcours.done + '/' + parcours.total + ' validés' : 'Aucune étape débloquée pour le moment · ' + parcours.done + '/' + parcours.total + ' validés')"></p>
+            <div class="mt-6 flex justify-center"><button type="button" :disabled="!parcours.steps.length || !parcours.cur || parcours.cur.status === 'locked'" @click="parcours.cur ? show(parcours.cur.id) : document.getElementById('tree-grid').scrollIntoView({ behavior: 'smooth' })" class="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 px-8 py-3.5 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_rgb(var(--emerald-400)/0.5)]" x-text="parcours.finished ? 'Revoir l’arbre complet' : (parcours.cur && parcours.cur.status === 'in_progress' ? 'Reprendre cette étape →' : (parcours.cur ? 'Continuer le parcours →' : 'Voir les prérequis →'))"></button></div>
           </div>
         </section>
 
@@ -738,7 +739,7 @@
           <div class="grid gap-4 sm:grid-cols-3">
             <template x-if="planActions.length > 0">
               <template x-for="action in planActions" :key="action.node_id">
-                <button type="button" @click="show(action.node_id)" class="group flex h-full flex-col rounded-2xl border border-white/5 bg-[color:var(--s2)] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[color:var(--s3)]">
+                <button type="button" @click="openPlanAction(action)" class="group flex h-full flex-col rounded-2xl border border-white/5 bg-[color:var(--s2)] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[color:var(--s3)]">
                   <span class="flex items-center justify-between gap-2"><span class="rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]" :class="planMeta(action.action).classes" x-text="planMeta(action.action).label"></span><svg class="h-4 w-4 text-zinc-500 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
                   <span class="mt-3 text-sm font-semibold leading-snug text-white" x-text="action.label"></span>
                   <span class="mt-1.5 text-[11px] text-zinc-500" x-text="action.reason"></span>
@@ -2240,10 +2241,27 @@
         get currentFlashcard() { return this.flashcardQueue[0] || null; },
         get examCategories() { const g = new Map(); for (const n of this.nodes) { if (!g.has(n.category)) g.set(n.category, { name: n.category, nodes: 0 }); g.get(n.category).nodes++; } return [...g.values()]; },
 
-        statusMeta(s) { return { validated: { label: 'Validé', text: 'text-emerald-400', icon: 'bg-emerald-500/10 text-emerald-400' }, available: { label: 'Disponible', text: 'text-fuchsia-400', icon: 'bg-fuchsia-500/10 text-fuchsia-400' }, locked: { label: 'Verrouillé', text: 'text-zinc-500', icon: 'bg-zinc-800 text-zinc-500' } }[s] || { label: s, text: 'text-zinc-500', icon: 'bg-zinc-800 text-zinc-500' }; },
-        cardShell(s) { return { validated: 'bg-emerald-500/20 glow-lime', available: 'bg-fuchsia-500/20 glow-fuchsia', locked: 'bg-white/5' }[s] || 'bg-white/5'; },
+        statusMeta(s) { return { validated: { label: 'Validé', text: 'text-emerald-400', icon: 'bg-emerald-500/10 text-emerald-400' }, in_progress: { label: 'En cours', text: 'text-cyan-300', icon: 'bg-cyan-500/10 text-cyan-300' }, available: { label: 'Disponible', text: 'text-fuchsia-400', icon: 'bg-fuchsia-500/10 text-fuchsia-400' }, locked: { label: 'Verrouillé', text: 'text-zinc-500', icon: 'bg-zinc-800 text-zinc-500' } }[s] || { label: s, text: 'text-zinc-500', icon: 'bg-zinc-800 text-zinc-500' }; },
+        cardShell(s) { return { validated: 'bg-emerald-500/20 glow-lime', in_progress: 'bg-cyan-500/20', available: 'bg-fuchsia-500/20 glow-fuchsia', locked: 'bg-white/5' }[s] || 'bg-white/5'; },
         kindLabel(k) { return k === 'quiz' ? 'Exercice' : k; },
-        planMeta(a) { return { lab: { label: 'Lab en cours', classes: 'text-orange-400 bg-orange-500/10' }, start: { label: 'Nouveau', classes: 'text-cyan-400 bg-cyan-500/10' } }[a] || { label: a, classes: '' }; },
+        planMeta(a) { return { challenge: { label: 'Défi à poursuivre', classes: 'text-cyan-300 bg-cyan-500/10' }, lab: { label: 'Lab à poursuivre', classes: 'text-orange-300 bg-orange-500/10' }, continue: { label: 'À reprendre', classes: 'text-violet-300 bg-violet-500/10' }, review: { label: 'Révision', classes: 'text-amber-300 bg-amber-500/10' }, start: { label: 'À découvrir', classes: 'text-emerald-300 bg-emerald-500/10' } }[a] || { label: 'Parcours', classes: 'text-zinc-300 bg-white/5' }; },
+        async openPlanAction(action) {
+          if (!action || !action.node_id) return;
+          const nodeId = String(action.node_id);
+          if (action.action === 'challenge') {
+            await this.setTab('topology');
+            this.topoMode = 'defis';
+            await this.$nextTick();
+            await this.startChallenge(nodeId);
+            return;
+          }
+          if (action.action === 'lab') {
+            await this.openLab(nodeId);
+            return;
+          }
+          await this.show(nodeId);
+          if (action.action === 'continue' && this.canStartExercise()) this.modalTab = 'exercise';
+        },
 
         renderSpiderChart() {
           const canvas = document.getElementById('spiderChart'); if (!canvas || !this.stats || !this.stats.categories) return;
@@ -2914,13 +2932,38 @@
           return this.lastOpenedNode || this.parcours.cur || this.nodes.find(n => n.status === 'available') || null;
         },
         get parcours() {
-          const pool = this.nodesIn(this.moduleFilter), total = pool.length, done = pool.filter(n => n.status === 'validated').length, finished = total > 0 && done === total;
-          let ci = pool.findIndex(n => n.status === 'available');
-          if (ci < 0) ci = finished ? total - 1 : Math.max(0, pool.findIndex(n => n.status !== 'validated'));
-          const start = Math.max(0, Math.min(ci - 2, total - 5));
-          const steps = pool.slice(start, start + 5).map((n, i) => ({ id: n.id, title: n.title, status: n.status, cur: !finished && start + i === ci }));
-          const pos = steps.findIndex(x => x.cur);
-          return { steps, total, done, finished, cur: finished ? null : (pool[ci] || null), fill: finished ? 1 : (steps.length > 1 && pos >= 0 ? pos / (steps.length - 1) : 0) };
+          const pool = this.nodesIn(this.moduleFilter);
+          const total = pool.length;
+          const done = pool.filter(n => n.status === 'validated').length;
+          const finished = total > 0 && done === total;
+          const activePlanAction = (this.dailyPlan || []).find(action =>
+            ['continue', 'lab', 'challenge'].includes(action.action) &&
+            pool.some(node => String(node.id) === String(action.node_id))
+          );
+          let ci = activePlanAction
+            ? pool.findIndex(node => String(node.id) === String(activePlanAction.node_id))
+            : -1;
+          if (ci < 0) ci = pool.findIndex(node => node.status === 'in_progress');
+          if (ci < 0) ci = pool.findIndex(node => node.status === 'available');
+          if (ci < 0 && finished) ci = total - 1;
+
+          const activeIndex = Math.max(0, ci);
+          const start = Math.max(0, Math.min(activeIndex - 2, total - 5));
+          const steps = pool.slice(start, start + 5).map((node, i) => ({
+            id: node.id,
+            title: node.title,
+            status: node.status,
+            cur: !finished && ci >= 0 && start + i === ci,
+          }));
+          const pos = steps.findIndex(step => step.cur);
+          return {
+            steps,
+            total,
+            done,
+            finished,
+            cur: ci >= 0 && !finished ? pool[ci] : null,
+            fill: finished ? 1 : (steps.length > 1 && pos >= 0 ? pos / (steps.length - 1) : 0),
+          };
         },
         get planActions() {
           if (this.dailyPlan.length) return this.dailyPlan;
