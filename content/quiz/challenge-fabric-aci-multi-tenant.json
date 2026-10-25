@@ -1,0 +1,18 @@
+{
+  "node_id": "challenge-fabric-aci-multi-tenant",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Avez-vous bien lu ce cours ?",
+      "choices": [
+        "La première proposition",
+        "La deuxième proposition",
+        "Information insuffisante",
+        "Aucune des propositions précédentes"
+      ],
+      "answer": 0,
+      "explanation": "Question placeholder générée automatiquement."
+    }
+  ],
+  "scope": "quiz"
+}

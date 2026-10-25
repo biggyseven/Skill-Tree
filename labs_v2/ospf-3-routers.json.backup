@@ -1,0 +1,259 @@
+{
+  "schema_version": 2,
+  "id": "ospf-3-routers",
+  "title": "Configuration de base sur trois routeurs",
+  "level": "débutant",
+  "module": "Routage",
+  "duration_min": 15,
+  "difficulty": "débutant",
+  "prompt": "Changez le hostname de R1 en « Routeur-Paris » et configurez l'adresse IPv4 de Fa0/0 sur 10.0.12.1 avec le masque 255.255.255.252.",
+  "objectives": [
+    "Identifier les trois routeurs et leurs liaisons",
+    "Changer le hostname de R1",
+    "Configurer l'adresse IPv4 de Fa0/0 sur R1"
+  ],
+  "hints": [
+    "Sur R1, passez en mode privilégié avec enable, puis en mode de configuration globale avec configure terminal.",
+    "Utilisez hostname Routeur-Paris pour modifier le nom du routeur.",
+    "Utilisez interface Fa0/0 puis ip address 10.0.12.1 255.255.255.252 pour configurer l'interface."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-ospf-3-routers",
+    "metadata": {
+      "name": "Configuration initiale de trois routeurs",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-25T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "generic-1841",
+        "x": 150,
+        "y": 250,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "down",
+            "speed": 100,
+            "mac": "00:00:0A:13:00:01",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Lien point à point vers R2"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "down",
+            "speed": 100,
+            "mac": "00:00:0A:13:00:02",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Interface disponible"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "1.1.1.1",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "model": "generic-1841",
+        "x": 500,
+        "y": 250,
+        "label": "R2",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "down",
+            "speed": 100,
+            "mac": "00:00:0A:13:00:03",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Lien point à point vers R1"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "down",
+            "speed": 100,
+            "mac": "00:00:0A:13:00:04",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Lien point à point vers R3"
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "2.2.2.2",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "model": "generic-1841",
+        "x": 850,
+        "y": 250,
+        "label": "R3",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "down",
+            "speed": 100,
+            "mac": "00:00:0A:13:00:05",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Lien point à point vers R2"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "down",
+            "speed": 100,
+            "mac": "00:00:0A:13:00:06",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Interface disponible"
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "3.3.3.3",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 100,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "R2",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 100,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "r1_hostname",
+        "device": "R1",
+        "path": "config.hostname",
+        "operator": "equals",
+        "expected": "Routeur-Paris",
+        "description": "Le hostname de R1 doit être Routeur-Paris"
+      },
+      {
+        "id": "r1_ip",
+        "device": "R1",
+        "path": "ports[0].ip",
+        "operator": "equals",
+        "expected": "10.0.12.1",
+        "description": "Fa0/0 de R1 doit être configurée en 10.0.12.1"
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}

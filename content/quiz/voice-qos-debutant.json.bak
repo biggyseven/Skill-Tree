@@ -1,0 +1,16 @@
+{
+  "node_id": "voice-qos-debutant",
+  "questions": [
+    {
+      "id": "voice-qos-debutant-q1",
+      "prompt": "Avez-vous bien lu ce cours ?",
+      "type": "qcm",
+      "choices": [
+        "Oui",
+        "Non"
+      ],
+      "answer": 0,
+      "explanation": "Question placeholder générée automatiquement."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire pour valider la synchronisation.",
+      "choices": [
+        "La première proposition",
+        "La deuxième proposition",
+        "Information insuffisante",
+        "Aucune des propositions précédentes"
+      ],
+      "answer": 0,
+      "explanation": "Ceci est un placeholder."
+    }
+  ],
+  "node_id": "cloud-serverless-debutant",
+  "scope": "quiz"
+}

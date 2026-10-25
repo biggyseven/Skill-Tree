@@ -1,0 +1,16 @@
+{
+  "node_id": "telecom-mpls-tp-debutant",
+  "questions": [
+    {
+      "id": "telecom-mpls-tp-debutant-q1",
+      "prompt": "Avez-vous bien lu ce cours ?",
+      "type": "qcm",
+      "choices": [
+        "Oui",
+        "Non"
+      ],
+      "answer": 0,
+      "explanation": "Question placeholder générée automatiquement."
+    }
+  ]
+}

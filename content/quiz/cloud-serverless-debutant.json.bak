@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "node_id": "cloud-serverless-debutant",
+      "prompt": "Question temporaire pour valider la synchronisation.",
+      "type": "qcm",
+      "choices": ["Oui", "Non"],
+      "answer": 0,
+      "explanation": "Ceci est un placeholder."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "node_id": "challenge-hybrid-cloud",
+  "questions": [
+    {
+      "id": "challenge-hybrid-cloud-q1",
+      "prompt": "Avez-vous bien lu ce cours ?",
+      "type": "qcm",
+      "choices": [
+        "Oui",
+        "Non"
+      ],
+      "answer": 0,
+      "explanation": "Question placeholder générée automatiquement."
+    }
+  ]
+}

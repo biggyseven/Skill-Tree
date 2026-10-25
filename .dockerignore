@@ -1,0 +1,26 @@
+# Dossiers lourds ou inutiles
+node_modules
+app/lab-workspace/node_modules
+app/lab-workspace/dist
+.git
+.vscode
+.idea
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.venv
+
+# Fichiers locaux
+*.db
+*.db-shm
+*.db-wal
+backups/
+.env
+
+# Fichiers de cache
+.pytest_cache
+.ruff_cache

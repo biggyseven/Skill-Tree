@@ -1,0 +1,16 @@
+{
+  "node_id": "challenge-fabric-aci-multi-tenant",
+  "questions": [
+    {
+      "id": "challenge-fabric-aci-multi-tenant-q1",
+      "prompt": "Avez-vous bien lu ce cours ?",
+      "type": "qcm",
+      "choices": [
+        "Oui",
+        "Non"
+      ],
+      "answer": 0,
+      "explanation": "Question placeholder générée automatiquement."
+    }
+  ]
+}
