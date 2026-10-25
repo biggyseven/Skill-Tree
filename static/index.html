@@ -686,7 +686,7 @@
               <p x-show="dashboardDataErrors.stats" x-text="dashboardDataErrors.stats"></p>
             </div>
           </div>
-          <button type="button" @click="refreshAll()" :disabled="loading || statsLoading" class="shrink-0 rounded-xl border border-amber-300/30 px-4 py-2 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/15 disabled:cursor-wait disabled:opacity-50">Réessayer</button>
+          <button type="button" @click="retryDashboardData()" :disabled="loading || statsLoading" class="shrink-0 rounded-xl border border-amber-300/30 px-4 py-2 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/15 disabled:cursor-wait disabled:opacity-50">Réessayer</button>
         </div>
       </div>
 
@@ -1790,14 +1790,11 @@
           };
         },
         async refreshAll() {
-          await Promise.all([
-            this.loadTree(),
-            this.loadDailyPlan(),
-            this.loadStreak(),
-            this.loadUserStats(),
-            this.loadStats(),
-          ]);
+          await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()]);
           if (this.checkRewards) this.checkRewards();
+        },
+        async retryDashboardData() {
+          await Promise.all([this.refreshAll(), this.loadStats()]);
         },
 
         editProfile() {
