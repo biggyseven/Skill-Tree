@@ -113,7 +113,9 @@ export function TopologyToolbar() {
               {checkResult.passed
                 ? (Number(checkResult.xp_gained) > 0
                   ? '+' + Number(checkResult.xp_gained) + ' XP obtenus.'
-                  : 'Lab réussi : la récompense XP de ce lab a déjà été attribuée.')
+                  : checkResult.first_success
+                    ? 'Lab réussi : aucune récompense XP n’est configurée pour ce lab.'
+                    : 'Lab réussi : la récompense XP a déjà été attribuée lors d’une réussite précédente.')
                 : 'Tentative enregistrée sans récompense XP.'}
               {checkResult.course_attempt_recorded
                 ? ' Progression du parcours mise à jour.'
