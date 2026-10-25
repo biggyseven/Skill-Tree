@@ -228,6 +228,33 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(passed, 0)
         self.assertFalse(json.loads(result_json)["passed"])
 
+    def test_json_only_lab_is_added_to_catalog_before_first_submission(self) -> None:
+        definition = self._definition()
+        definition.id = "file-lab"
+        request = SubmitRequest(topology=self._topology("edge-1"), check_result={"passed": False})
+        with patch.object(
+            lab_routes,
+            "_fetch_lab",
+            return_value={"id": "file-lab", "definition": definition},
+        ), patch.object(lab_routes, "_database_connection", side_effect=self._connect):
+            result = lab_routes.submit_lab_v2("file-lab", request)
+
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["lab_id"], "file-lab")
+        self.assertTrue(result["attempt_recorded"])
+        conn = self._connect()
+        try:
+            catalog_row = conn.execute(
+                "SELECT id, title FROM labs WHERE id = 'file-lab'"
+            ).fetchone()
+            stored_attempt = conn.execute(
+                "SELECT lab_id, passed FROM lab_attempts WHERE lab_id = 'file-lab'"
+            ).fetchone()
+        finally:
+            conn.close()
+        self.assertEqual(tuple(catalog_row), ("file-lab", "Lab de test"))
+        self.assertEqual(tuple(stored_attempt), ("file-lab", 1))
+
     def test_success_reward_is_persisted_once_per_lab(self) -> None:
         request = SubmitRequest(topology=self._topology("edge-1"), check_result={"passed": False})
         with self._mock_lab(self._definition()), patch.object(
