@@ -70,8 +70,10 @@ class DashboardUiRegressionTests(unittest.TestCase):
     def test_remote_challenge_score_is_checked_and_saved_by_the_server(self):
         self.assertIn("/api/node/${encodeURIComponent(ch.id)}/challenge", DASHBOARD_HTML)
         self.assertIn("JSON.stringify({ topology: graph, timeout: !!timeout })", DASHBOARD_HTML)
-        self.assertIn("if (ch.builtin) return;", DASHBOARD_HTML)
+        self.assertIn("if (!ch.builtin) {", DASHBOARD_HTML)
         self.assertIn("challengeResult.pending", DASHBOARD_HTML)
+        self.assertIn("expectedSummary: ch.expected_summary", DASHBOARD_HTML)
+        self.assertNotIn("expected: ch.expected_topology", DASHBOARD_HTML)
         self.assertIn("challengeResult.attemptRecorded", DASHBOARD_HTML)
         self.assertIn("const passed = !timeout && score >= this.challenge.minScore;", DASHBOARD_HTML)
         self.assertIn(':disabled="!c.builtin && c.status === \'locked\'"', DASHBOARD_HTML)
