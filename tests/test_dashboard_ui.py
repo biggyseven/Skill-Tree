@@ -618,5 +618,25 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("preferences:", DASHBOARD_HTML[export_start:export_end])
         self.assertIn("progress:", DASHBOARD_HTML[export_start:export_end])
 
+
+    def test_flashcard_loading_distinguishes_api_errors_from_an_empty_deck(self):
+        start = DASHBOARD_HTML.rindex("        async loadFlashcards() {")
+        end = DASHBOARD_HTML.index("        buildDeck() {", start)
+        method = DASHBOARD_HTML[start:end]
+        self.assertIn("if (!r.ok) throw new Error", method)
+        self.assertIn("Array.isArray(d.cards)", method)
+        self.assertIn("this.cardLoadError =", method)
+        self.assertIn("finally", method)
+
+        memo_start = DASHBOARD_HTML.index('<section x-show="tab === \'memo\'"')
+        memo_end = DASHBOARD_HTML.index("<!-- ============ ONGLET DIAGNOSTIC ============ -->", memo_start)
+        memo = DASHBOARD_HTML[memo_start:memo_end]
+        self.assertIn('x-show="flashcardsLoading"', memo)
+        self.assertIn('x-show="cardLoadError"', memo)
+        self.assertIn('role="alert" aria-live="polite"', memo)
+        self.assertIn('@click="loadFlashcards()"', memo)
+        self.assertIn('x-if="!flashcardsLoading && !cardLoadError && currentFlashcard"', memo)
+        self.assertIn('x-if="!flashcardsLoading && !cardLoadError && !currentFlashcard"', memo)
+
 if __name__ == "__main__":
     unittest.main()
