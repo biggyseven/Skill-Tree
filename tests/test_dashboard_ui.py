@@ -105,9 +105,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
         self.assertIn("return node && node.status !== 'locked' ? node : null;", resumable_getter)
         self.assertIn("return this.resumableLastNode || this.parcours.cur", DASHBOARD_HTML)
-        self.assertIn("x-text=\"resumableLastNode ? 'Reprise disponible'", DASHBOARD_HTML)
+        self.assertIn('x-text="resumeBadge"', DASHBOARD_HTML)
         self.assertIn('x-show="resumableLastNode"', DASHBOARD_HTML)
-        self.assertIn("x-text=\"resumableLastNode ? (lastLessonProgress", DASHBOARD_HTML)
+        self.assertIn('x-text="resumeButtonLabel"', DASHBOARD_HTML)
 
     def test_daily_path_does_not_promote_an_available_challenge_to_in_progress(self):
         start = DASHBOARD_HTML.rindex("get parcours()")
@@ -118,6 +118,20 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("['continue', 'lab', 'challenge'].includes(action.action)", parcours_getter)
         self.assertIn("pool.findIndex(node => node.status === 'in_progress')", parcours_getter)
         self.assertIn("pool.findIndex(node => node.status === 'available')", parcours_getter)
+
+    def test_resume_button_label_matches_the_current_target_status(self):
+        self.assertIn("get resumeButtonLabel()", DASHBOARD_HTML)
+        self.assertIn("if (this.resumeNode?.status === 'in_progress') return 'Reprendre cette activité';", DASHBOARD_HTML)
+        self.assertIn("if (this.resumeNode?.status === 'validated') return 'Réviser cette leçon';", DASHBOARD_HTML)
+        self.assertIn("return this.lastLessonProgress >= 100 ? 'Revoir cette leçon' : 'Reprendre la lecture';", DASHBOARD_HTML)
+        self.assertIn('x-text="resumeButtonLabel"', DASHBOARD_HTML)
+
+    def test_fully_validated_path_still_offers_a_review_target(self):
+        self.assertIn("get allNodesValidated()", DASHBOARD_HTML)
+        self.assertIn("return this.nodes.length > 0 && this.nodes.every(node => node.status === 'validated');", DASHBOARD_HTML)
+        self.assertIn("this.nodes.find(n => n.status === 'validated')", DASHBOARD_HTML)
+        self.assertIn("if (this.allNodesValidated) return 'Parcours terminé';", DASHBOARD_HTML)
+        self.assertIn("Tu as validé tout le parcours disponible.", DASHBOARD_HTML)
 
 if __name__ == "__main__":
     unittest.main()
