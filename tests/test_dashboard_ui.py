@@ -165,6 +165,22 @@ class DashboardUiRegressionTests(unittest.TestCase):
             DASHBOARD_HTML,
         )
 
+    def test_module_cards_expose_selection_and_progress_accessibly(self):
+        start = DASHBOARD_HTML.index("<!-- Cartes modules compactes -->")
+        end = DASHBOARD_HTML.index("<div class=\"mb-8 flex flex-wrap gap-3\">", start)
+        module_cards = DASHBOARD_HTML[start:end]
+
+        self.assertIn(':aria-pressed="moduleFilter === m.id"', module_cards)
+        self.assertIn(
+            ':aria-label="`${m.label}, ${m.validated} cours validés sur ${m.total}, ${m.pct} %. ${moduleFilter === m.id ? \'Module sélectionné\' : \'Afficher ce module\'}`"',
+            module_cards,
+        )
+        self.assertIn('role="progressbar"', module_cards)
+        self.assertIn(':aria-label="`Progression du module ${m.label}`"', module_cards)
+        self.assertIn(':aria-valuenow="m.pct"', module_cards)
+        self.assertIn('aria-valuemin="0" aria-valuemax="100"', module_cards)
+        self.assertIn("focus-visible:ring-emerald-400/70", module_cards)
+
     def test_module_progress_uses_canonical_module_and_validated_nodes(self):
         start = DASHBOARD_HTML.index("get modulesList()")
         end = DASHBOARD_HTML.index("get progress()", start)
