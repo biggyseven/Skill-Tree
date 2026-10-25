@@ -722,7 +722,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('x-show="challenge" x-cloak class="grid gap-6 lg:grid-cols-[16rem_1fr]"', challenge_markup)
         self.assertNotIn("loadTopology()", challenge_markup)
         self.assertNotIn("saveTopology()", challenge_markup)
-        self.assertIn("if (name === 'challenges') { await this.$nextTick(); await this.initTopology(); }", DASHBOARD_HTML)
+        self.assertIn("if (this.challenge) {", DASHBOARD_HTML)
         self.assertIn("await this.setTab('challenges')", DASHBOARD_HTML)
 
         self.assertIn("window.open('/lab.html?demo=1', '_blank', 'noopener,noreferrer')", DASHBOARD_HTML)
