@@ -52,13 +52,20 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("tree: !this.treeError", refresh_method)
         self.assertIn("dailyPlan: !this.dashboardDataErrors.dailyPlan", refresh_method)
 
-        helper_start = DASHBOARD_HTML.index("        advanceResumeTargetAfterValidation(nodeId, requestId) {")
+        clear_start = DASHBOARD_HTML.index("        clearResumeTargetAfterValidation(nodeId) {")
+        clear_end = DASHBOARD_HTML.index("        advanceResumeTargetAfterValidation(nodeId, requestId) {", clear_start)
+        clear_method = DASHBOARD_HTML[clear_start:clear_end]
+        self.assertIn("this.lastOpenedNodeId = ''", clear_method)
+        self.assertIn("this.lastOpenedNodeStatus = ''", clear_method)
+        self.assertIn("localStorage.removeItem('skilltree-last-node')", clear_method)
+        self.assertIn("localStorage.removeItem('skilltree-last-status')", clear_method)
+        self.assertIn("localStorage.removeItem('skilltree-last-progress')", clear_method)
+
+        helper_start = clear_end
         helper_end = DASHBOARD_HTML.index("        async submitAnswer() {", helper_start)
         helper = DASHBOARD_HTML[helper_start:helper_end]
         self.assertIn("node.status !== 'validated' || this.allNodesValidated", helper)
-        self.assertIn("this.lastOpenedNodeId = ''", helper)
-        self.assertIn("localStorage.removeItem('skilltree-last-node')", helper)
-        self.assertIn("localStorage.removeItem('skilltree-last-progress')", helper)
+        self.assertIn("this.clearResumeTargetAfterValidation(nodeId)", helper)
 
         start = DASHBOARD_HTML.index("        async submitAnswer() {")
         end = DASHBOARD_HTML.index("        async startLab()", start)
@@ -69,6 +76,40 @@ class DashboardUiRegressionTests(unittest.TestCase):
         )
         self.assertEqual(submissions.count("if (!refreshed.tree || !refreshed.dailyPlan)"), 2)
         self.assertIn("if (this.allNodesValidated)", DASHBOARD_HTML)
+
+    def test_reading_progress_and_resume_status_survive_reload_and_external_validation(self):
+        self.assertIn("lastOpenedNodeStatus: localStorage.getItem('skilltree-last-status') || ''", DASHBOARD_HTML)
+        self.assertIn("lastLessonProgress: Math.max(0, Math.min(100, Number(localStorage.getItem('skilltree-last-progress') || 0) || 0))", DASHBOARD_HTML)
+
+        refresh_start = DASHBOARD_HTML.index("        async refreshAll() {")
+        refresh_end = DASHBOARD_HTML.index("        async retryDashboardData()", refresh_start)
+        refresh_method = DASHBOARD_HTML[refresh_start:refresh_end]
+        self.assertIn("resumeStatusBeforeRefresh", refresh_method)
+        self.assertIn("resumeNodeAfterRefresh?.status === 'validated'", refresh_method)
+        self.assertIn("resumeStatusBeforeRefresh !== 'validated'", refresh_method)
+        self.assertIn("this.clearResumeTargetAfterValidation(resumeIdBeforeRefresh)", refresh_method)
+        self.assertIn("localStorage.setItem('skilltree-last-status', resumeNodeAfterRefresh.status)", refresh_method)
+
+        show_start = DASHBOARD_HTML.index("        async show(nodeId) {")
+        show_end = DASHBOARD_HTML.index("        close() {", show_start)
+        show_method = DASHBOARD_HTML[show_start:show_end]
+        self.assertIn("localStorage.setItem('skilltree-last-status', this.lastOpenedNodeStatus)", show_method)
+        self.assertIn("localStorage.removeItem('skilltree-last-progress')", show_method)
+        self.assertIn("s.scrollTop = max > 0 ? Math.round(max * progress / 100) : 0", show_method)
+        self.assertIn("this.onLessonScroll({ target: s })", show_method)
+
+        init_start = DASHBOARD_HTML.index("        async init() {")
+        init_end = DASHBOARD_HTML.index("        // --- Préférences d'affichage du lecteur", init_start)
+        init_method = DASHBOARD_HTML[init_start:init_end]
+        self.assertIn("message.type === 'lab:submit-result'", init_method)
+        self.assertIn("this.onLabValidated(message.detail)", init_method)
+        self.assertIn("this.refreshAll()", init_method)
+
+    def test_daily_plan_filters_resume_and_path_but_keeps_other_available_courses(self):
+        self.assertIn("this.dailyPlan.filter(action => !visibleNodeIds.includes(String(action.node_id)))", DASHBOARD_HTML)
+        self.assertIn("this.nodes\n            .filter(n => n.status === 'available' && !visibleNodeIds.includes(String(n.id)))", DASHBOARD_HTML)
+        self.assertIn("this.dailyPlan.length", DASHBOARD_HTML)
+        self.assertIn("Les priorités du jour sont déjà mises en évidence", DASHBOARD_HTML)
 
     def test_course_reader_surfaces_load_errors_and_ignores_stale_requests(self):
         start = DASHBOARD_HTML.index("        async show(nodeId) {")
