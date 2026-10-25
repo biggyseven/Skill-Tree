@@ -507,12 +507,12 @@
   <div class="flex flex-1 flex-col overflow-hidden">
 
     <!-- Header — correctif : titre à gauche, groupe central en position absolue pour un centrage parfait, actions à droite -->
-    <header x-show="!focusMode" class="relative flex h-20 shrink-0 items-center gap-4 px-8">
+    <header x-show="!focusMode" class="relative flex h-20 shrink-0 items-center gap-3 px-3 sm:gap-4 sm:px-6 xl:px-8">
       <div class="min-w-0 flex-1">
         <h2 class="truncate text-xl font-bold tracking-tight text-white" x-text="(navItems.find(i => i.id === tab) || {}).title || 'Skill Tree'"></h2>
       </div>
 
-      <div class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3">
+      <div class="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-3 xl:flex">
         <div class="flex items-center gap-1.5 rounded-2xl bg-[color:var(--s1)] px-4 py-2 text-orange-200 border border-white/5 shadow-md">
           <span class="text-sm">🔥</span>
           <span class="font-mono text-xs font-semibold" x-text="streakDays"></span>
@@ -529,8 +529,11 @@
       </div>
 
       <!-- Droite : Actions -->
-      <div class="flex min-w-0 flex-1 items-center justify-end gap-3 relative">
-                <div class="relative hidden lg:block" @click.outside="searchOpen = false" @keydown.window="onGlobalKey($event)">
+      <div class="flex min-w-0 flex-1 items-center justify-end gap-2 sm:gap-3 relative">
+        <button type="button" @click.stop="openMobileSearch()" aria-label="Rechercher un cours" :aria-expanded="mobileSearchOpen" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/5 bg-[color:var(--s1)] text-zinc-300 shadow-md transition hover:border-emerald-400/30 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 lg:hidden">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </button>
+        <div class="relative hidden lg:block" @click.outside="searchOpen = false" @keydown.window="onGlobalKey($event)">
           <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
           <input x-ref="searchBox" type="search" x-model="searchQuery" aria-label="Rechercher un cours" placeholder="Rechercher…  ( / )" class="field !w-56 !pl-9"
                  @focus="searchOpen = true" @input="searchOpen = true; searchActive = 0"
@@ -611,6 +614,56 @@
         </div>
       </div>
     </header>
+
+    <!-- Recherche mobile : même moteur de recherche que la barre desktop, dans un panneau adapté au tactile. -->
+    <div x-show="mobileSearchOpen" x-cloak x-transition.opacity @click.self="closeMobileSearch()" @keydown.escape.window="closeMobileSearch()"
+         class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/75 p-3 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm sm:p-6 sm:pt-12 lg:hidden">
+      <section role="dialog" aria-modal="true" aria-labelledby="mobile-search-title"
+               class="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[color:var(--s1)] shadow-2xl">
+        <div class="flex items-center gap-3 border-b border-white/10 p-4 sm:p-5">
+          <svg class="h-5 w-5 shrink-0 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <h2 id="mobile-search-title" class="sr-only">Rechercher un cours</h2>
+          <input x-ref="mobileSearchBox" type="search" x-model="searchQuery" aria-label="Rechercher un cours"
+                 placeholder="Un cours, un protocole, une compétence…"
+                 class="min-w-0 flex-1 rounded-xl border border-white/10 bg-[color:var(--s2)] px-3 py-3 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/10"
+                 @focus="searchOpen = true" @input="searchOpen = true; searchActive = 0"
+                 @keydown.down.prevent="searchActive = Math.min(searchActive + 1, Math.max(searchResults.length - 1, 0))"
+                 @keydown.up.prevent="searchActive = Math.max(searchActive - 1, 0)"
+                 @keydown.enter.prevent="openSearchResult(searchResults[searchActive])"
+                 @keydown.escape.prevent="closeMobileSearch()">
+          <button type="button" @click="closeMobileSearch()" aria-label="Fermer la recherche"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div class="max-h-[min(65vh,36rem)] overflow-y-auto p-2 sm:p-3">
+          <p x-show="searchQuery.trim().length < 2" class="px-3 py-8 text-center text-sm text-zinc-500">Saisis au moins deux caractères pour trouver un cours.</p>
+          <template x-if="searchQuery.trim().length >= 2">
+            <div class="space-y-1">
+              <template x-for="(r, i) in searchResults" :key="r.node.id">
+                <button type="button" class="flex w-full flex-col gap-1 rounded-xl px-3 py-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                        :class="i === searchActive ? 'bg-white/10' : 'hover:bg-white/5'"
+                        @click="openSearchResult(r)" @mouseenter="searchActive = i">
+                  <span class="flex w-full flex-wrap items-center gap-2">
+                    <span class="chip" x-text="moduleMeta(moduleOf(r.node)).short"></span>
+                    <span class="chip" x-text="levelLabel(r.node)"></span>
+                  </span>
+                  <span class="text-sm font-semibold text-white" x-text="r.node.title"></span>
+                  <span class="break-words text-[11px] leading-relaxed text-zinc-500" x-text="r.snippet || (r.node.category + ' · ' + r.node.id)"></span>
+                </button>
+              </template>
+              <p x-show="!searchResults.length" class="px-3 py-6 text-center text-sm text-zinc-500">Aucun cours trouvé. Essaie un autre terme ou active la recherche dans le contenu.</p>
+            </div>
+          </template>
+        </div>
+        <label class="flex items-center gap-2 border-t border-white/5 px-4 py-3 text-xs leading-relaxed text-zinc-400 sm:px-5">
+          <input type="checkbox" x-model="searchContent" @change="toggleContentSearch()" class="accent-emerald-500">
+          <span class="flex-1">Chercher aussi dans le contenu des cours</span>
+          <span x-show="searchBusy" class="shrink-0 font-mono text-[10px]" x-text="searchDone + '/' + nodes.length"></span>
+        </label>
+        <p class="px-4 pb-4 text-[10px] text-zinc-600 sm:px-5">Astuce : sur ordinateur, utilise <kbd class="rounded border border-white/10 px-1.5 py-0.5 font-mono text-zinc-400">/</kbd> ou <kbd class="rounded border border-white/10 px-1.5 py-0.5 font-mono text-zinc-400">Ctrl K</kbd>.</p>
+      </section>
+    </div>
 
     <!-- Main Scrollable -->
     <main x-ref="mainScroll" class="flex-1 overflow-y-auto px-4 pb-12 sm:px-6 xl:px-8">
@@ -2456,7 +2509,7 @@
         },
 
         // ---------- recherche ----------
-        searchQuery: '', searchOpen: false, searchActive: 0, searchContent: false, searchIdx: null, searchBusy: false, searchDone: 0,
+        searchQuery: '', searchOpen: false, mobileSearchOpen: false, searchActive: 0, searchContent: false, searchIdx: null, searchBusy: false, searchDone: 0,
         get searchResults() {
           const q = this.norm(this.searchQuery.trim()); if (q.length < 2) return [];
           const toks = q.split(/\s+/); const out = [];
@@ -2480,10 +2533,22 @@
           await Promise.all([worker(), worker(), worker(), worker(), worker()]);
           this.searchIdx = idx; this.searchBusy = false;
         },
-        openSearchResult(r) { if (!r) return; this.searchOpen = false; this.searchQuery = ''; this.show(r.node.id); },
+        openMobileSearch() {
+          this.mobileSearchOpen = true; this.searchOpen = true;
+          this.$nextTick(() => this.$refs.mobileSearchBox?.focus());
+        },
+        closeMobileSearch() {
+          this.mobileSearchOpen = false; this.searchOpen = false;
+        },
+        openSearchResult(r) { if (!r) return; this.searchOpen = false; this.mobileSearchOpen = false; this.searchQuery = ''; this.show(r.node.id); },
         onGlobalKey(e) {
           const t = e.target; const typing = t && (/^(input|textarea|select)$/i.test(t.tagName) || t.isContentEditable);
-          if ((e.key === '/' && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); const b = this.$refs.searchBox; if (b) { b.focus(); this.searchOpen = true; } return; }
+          if ((e.key === '/' && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+            e.preventDefault();
+            if (window.matchMedia('(max-width: 1023px)').matches) { this.openMobileSearch(); }
+            else { const b = this.$refs.searchBox; if (b) { b.focus(); this.searchOpen = true; } }
+            return;
+          }
           if (typing || this.open) return;
           if (this.tab === 'memo' && this.currentFlashcard) {
             if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); this.flipFlashcard(); }
