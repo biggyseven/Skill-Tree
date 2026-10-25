@@ -490,15 +490,15 @@ def get_daily_plan(
             continue
 
         if status is Status.AVAILABLE and not node.attempts:
-            available.append(
-                _plan_action(
-                    node,
-                    status,
-                    "start",
-                    f"Commencer {node.title}",
-                    "Nouveau nœud disponible",
-                )
-            )
+            if node.id in challenge_nodes:
+                action = "challenge"
+                label = f"Relever {node.title}"
+                reason = "Défi d'architecture disponible"
+            else:
+                action = "start"
+                label = f"Commencer {node.title}"
+                reason = "Nouveau nœud disponible"
+            available.append(_plan_action(node, status, action, label, reason))
 
     review.sort(key=lambda item: (item["last_validated_at"], item["node_id"]))
     in_progress.sort(
