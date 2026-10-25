@@ -369,6 +369,98 @@ def _compare_topology_counts(actual: Counter, expected: Counter, render) -> tupl
     return ratio, missing, extra
 
 
+def _topology_adjacency(topology: dict) -> tuple[dict[str, str], dict[str, set[str]], dict[str, str]]:
+    """Construit le graphe non orienté des équipements depuis l'export Drawflow."""
+    node_types = {
+        str(raw_id): str(raw_node.get("name", "")).strip().lower()
+        for raw_id, raw_node in topology.items()
+    }
+    adjacency: dict[str, set[str]] = {node_id: set() for node_id in node_types}
+    labels: dict[str, str] = {}
+    for raw_id, raw_node in topology.items():
+        node_id = str(raw_id)
+        data = raw_node.get("data")
+        label = data.get("label") if isinstance(data, dict) else None
+        labels[node_id] = label.strip()[:80] if isinstance(label, str) and label.strip() else f"{node_types[node_id]} #{node_id}"
+        outputs = raw_node.get("outputs") or {}
+        for output in outputs.values():
+            for connection in output.get("connections") or []:
+                target_id = str(connection.get("node", ""))
+                if target_id in adjacency and target_id != node_id:
+                    adjacency[node_id].add(target_id)
+                    adjacency[target_id].add(node_id)
+    return node_types, adjacency, labels
+
+
+def _topology_constraint_errors(expected_topology: dict, topology: dict) -> list[str]:
+    """Vérifie les relations entre instances d'équipements, au-delà des simples compteurs."""
+    constraints = expected_topology.get("constraints", [])
+    if not isinstance(constraints, list):
+        raise HTTPException(500, "Les contraintes du défi sont invalides.")
+
+    node_types, adjacency, labels = _topology_adjacency(topology)
+    errors: list[str] = []
+    for index, constraint in enumerate(constraints, 1):
+        if not isinstance(constraint, dict):
+            raise HTTPException(500, f"Contrainte de défi invalide (position {index}).")
+        kind = constraint.get("kind")
+        if kind == "all_pairs":
+            source = constraint.get("from")
+            target = constraint.get("to")
+            if not isinstance(source, str) or not isinstance(target, str):
+                raise HTTPException(500, f"Contrainte all_pairs invalide (position {index}).")
+            left = [node_id for node_id, node_type in node_types.items() if node_type == source]
+            right = [node_id for node_id, node_type in node_types.items() if node_type == target]
+            for left_id in left:
+                for right_id in right:
+                    if right_id not in adjacency[left_id]:
+                        errors.append(f"Liaison requise manquante : {labels[left_id]} ↔ {labels[right_id]}.")
+        elif kind == "min_peer_count":
+            source = constraint.get("from")
+            target = constraint.get("to")
+            minimum = constraint.get("min_peers")
+            if (
+                not isinstance(source, str)
+                or not isinstance(target, str)
+                or isinstance(minimum, bool)
+                or not isinstance(minimum, int)
+                or minimum < 1
+            ):
+                raise HTTPException(500, f"Contrainte min_peer_count invalide (position {index}).")
+            for node_id, node_type in node_types.items():
+                if node_type != source:
+                    continue
+                peers = {peer_id for peer_id in adjacency[node_id] if node_types.get(peer_id) == target}
+                if len(peers) < minimum:
+                    errors.append(
+                        f"{labels[node_id]} doit être relié à au moins {minimum} équipement(s) "
+                        f"de type « {target} » (actuellement {len(peers)})."
+                    )
+        elif kind == "connected":
+            device_type = constraint.get("type")
+            if not isinstance(device_type, str) or not device_type.strip():
+                raise HTTPException(500, f"Contrainte connected invalide (position {index}).")
+            selected = [node_id for node_id, node_type in node_types.items() if node_type == device_type]
+            if len(selected) > 1:
+                visited = {selected[0]}
+                stack = [selected[0]]
+                while stack:
+                    current = stack.pop()
+                    for peer_id in adjacency[current]:
+                        if node_types.get(peer_id) == device_type and peer_id not in visited:
+                            visited.add(peer_id)
+                            stack.append(peer_id)
+                disconnected = [labels[node_id] for node_id in selected if node_id not in visited]
+                if disconnected:
+                    errors.append(
+                        f"Les équipements de type « {device_type} » doivent former un réseau connecté. "
+                        f"À relier au groupe : {', '.join(disconnected)}."
+                    )
+        else:
+            raise HTTPException(500, f"Type de contrainte inconnu à la position {index}.")
+    return errors
+
+
 @app.post("/api/node/{node_id}/challenge")
 def submit_challenge(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
     """Calcule et enregistre un défi d'architecture à partir de la topologie reçue."""
@@ -399,8 +491,13 @@ def submit_challenge(node_id: str, payload: dict[str, Any] = Body(...), tree: Sk
         lambda pair, count: f"{count} × {pair[0]} ↔ {pair[1]}",
     )
     score = round(100 * (0.5 * node_ratio + 0.5 * link_ratio))
+    constraint_errors = _topology_constraint_errors(expected_topology, topology)
+    if constraint_errors:
+        # Les contraintes d'architecture ne doivent jamais être compensées par un bon comptage.
+        score = min(score, 95)
+        missing_links.extend(constraint_errors)
     timed_out = payload.get("timeout") is True
-    passed = score >= requirement.min_score and not timed_out
+    passed = score >= requirement.min_score and not timed_out and not constraint_errors
     current_status = tree.status(node_id)
 
     if current_status is Status.LOCKED:
@@ -420,7 +517,11 @@ def submit_challenge(node_id: str, payload: dict[str, Any] = Body(...), tree: Sk
         }
 
     evidence = json.dumps(
-        {"nodes": dict(actual_nodes), "links": {f"{a}|{b}": count for (a, b), count in actual_links.items()}},
+        {
+            "nodes": dict(actual_nodes),
+            "links": {f"{a}|{b}": count for (a, b), count in actual_links.items()},
+            "constraint_errors": constraint_errors,
+        },
         ensure_ascii=False,
     )[:4000]
     detail = f"Défi d'architecture : {score}/100"
