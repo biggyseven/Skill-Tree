@@ -47,8 +47,8 @@ function PowerSwitch({ port, deviceId, togglePortState }) {
       ].join(' ')}
     >
       <span>{isUp ? 'ON' : 'OFF'}</span>
-      <span className={['relative h-[15px] w-[28px] rounded-full border transition-colors', isUp ? 'border-[#10b981] bg-[#10b981]/25' : 'border-[#6e7681] bg-[#30363d]'].join(' ')}>
-        <span className={['absolute top-[2px] h-[9px] w-[9px] rounded-full transition-all duration-150', isUp ? 'left-[15px] bg-[#10b981]' : 'left-[2px] bg-[#8b949e]'].join(' ')} />
+      <span className={['relative h-[15px] w-[28px] rounded-full border transition-colors', isUp ? 'border-[#10b981] bg-[#10b981]/25' : 'border-[#f85149] bg-[#f85149]/20'].join(' ')}>
+        <span className={['absolute top-[2px] h-[9px] w-[9px] rounded-full transition-all duration-150', isUp ? 'left-[15px] bg-[#10b981]' : 'left-[2px] bg-[#ff7b72]'].join(' ')} />
       </span>
     </button>
   );
@@ -59,10 +59,10 @@ function HardwarePortSlot({ device, port, removePort, togglePortState }) {
   const name = port.name || port.id;
 
   return (
-    <article className={['min-w-0 rounded-lg border bg-[#161b22] p-3 transition-colors duration-150', isUp ? 'border-[#10b981]/35 hover:border-[#10b981]/70' : 'border-[#30363d] hover:border-[#0ea5e9]/60'].join(' ')}>
+    <article className={['min-w-0 rounded-lg border bg-[#161b22] p-3 transition-colors duration-150', isUp ? 'border-[#10b981]/35 hover:border-[#10b981]/70' : 'border-[#f85149]/25 hover:border-[#f85149]/60'].join(' ')}>
       <div className="flex min-w-0 items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className={['h-2 w-2 shrink-0 rounded-full', isUp ? 'bg-[#10b981] shadow-[0_0_6px_rgba(16,185,129,0.6)]' : 'bg-[#6e7681]'].join(' ')} />
+          <span className={['h-2 w-2 shrink-0 rounded-full', isUp ? 'bg-[#10b981] shadow-[0_0_6px_rgba(16,185,129,0.6)]' : 'bg-[#f85149]'].join(' ')} />
           <span className="truncate font-mono text-xs font-semibold text-[#e6edf3]" title={name}>{name}</span>
         </div>
         <button
@@ -79,7 +79,7 @@ function HardwarePortSlot({ device, port, removePort, togglePortState }) {
       {/* Connecteur stylisé : représentation visuelle du port du modèle */}
       <div className="my-3 flex items-center gap-2">
         <div className="grid h-10 w-11 shrink-0 place-items-center rounded border border-[#30363d] bg-[#0d1117]">
-          <div className={['flex h-5 w-7 items-center justify-center gap-[2px] rounded-sm border', isUp ? 'border-[#10b981]/50 bg-[#10b981]/10' : 'border-[#30363d] bg-[#161b22]'].join(' ')}>
+          <div className={['flex h-5 w-7 items-center justify-center gap-[2px] rounded-sm border', isUp ? 'border-[#10b981]/50 bg-[#10b981]/10' : 'border-[#f85149]/35 bg-[#f85149]/[0.06]'].join(' ')}>
             <span className="h-2 w-[3px] rounded-[1px] bg-[#6e7681]" />
             <span className="h-2 w-[3px] rounded-[1px] bg-[#6e7681]" />
             <span className="h-2 w-[3px] rounded-[1px] bg-[#6e7681]" />
@@ -125,7 +125,7 @@ function HardwareTab({ device, addPort, removePort, togglePortState }) {
       <section className="rounded-xl border border-[#30363d] bg-[#0d1117] p-3 shadow-inner">
         <div className="flex items-center justify-between gap-2">
           <span className="truncate text-[9px] font-bold uppercase tracking-[0.16em] text-[#8b949e]">{device.type || 'Équipement'} / face avant</span>
-          <span className="shrink-0 text-[10px] text-[#8b949e]"><span className="mr-1 text-[#10b981]">●</span>{upCount} actifs</span>
+          <span className="shrink-0 font-mono text-[10px] text-[#8b949e]"><span className="mr-1 text-[#10b981]">●</span>{upCount} ON <span className="mx-1 text-[#484f58]">/</span><span className="text-[#ff7b72]">{ports.length - upCount} OFF</span></span>
         </div>
         <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-[#30363d] bg-[#161b22] px-3 py-2">
           <div className="min-w-0">
