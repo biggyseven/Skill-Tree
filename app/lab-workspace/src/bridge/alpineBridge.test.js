@@ -100,6 +100,32 @@ test('une soumission validée est transmise au dashboard à la même origine', a
   assert.equal(useLabStore.getState().loading, false);
 });
 
+test('un bac à sable ne peut pas soumettre une tentative notée', async () => {
+  useLabStore.getState().loadLab('node-sandbox', {
+    title: 'Workspace libre',
+    sandbox: true,
+  }, {
+    schema_version: 2,
+    topology_id: 'sandbox-topology',
+    nodes: [],
+    links: [],
+  });
+  useLabStore.getState().setCheckResult({ passed: true, score: 1 });
+
+  let fetchCalls = 0;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    return { ok: true, status: 200, json: async () => ({ passed: true }) };
+  };
+
+  fakeWindow.dispatchEvent(new CustomEvent('lab:submit', { detail: {} }));
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  assert.equal(fetchCalls, 0);
+  assert.equal(fakeWindow.messages.some(item => item.message?.type === 'lab:submit-result'), false);
+  assert.equal(useLabStore.getState().loading, false);
+});
+
 test('une réponse serveur en erreur ne remonte pas comme une validation réussie', async () => {
   seedLab();
   globalThis.fetch = async () => ({
