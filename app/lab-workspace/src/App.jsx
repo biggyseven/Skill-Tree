@@ -7,9 +7,12 @@ import { Palette } from './canvas/Palette.jsx';
 import { InspectorPanel } from './inspector/InspectorPanel.jsx';
 
 function fetchLabFromUrl(labId) {
-  return fetch('/api/lab/v2/' + encodeURIComponent(labId)).then(response => {
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    return response.json();
+  return fetch('/api/lab/v2/' + encodeURIComponent(labId)).then(async response => {
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.detail || 'HTTP ' + response.status);
+    }
+    return payload;
   });
 }
 
