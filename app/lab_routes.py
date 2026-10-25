@@ -14,7 +14,9 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
-from .db import DEFAULT_DB, add_xp, connect
+from .db import DEFAULT_DB, add_xp, connect, touch_daily_streak
+from .domain import ProofKind, Status
+from .engine import DomainError, SkillTree
 from .lab_schema_v2 import (
     CheckDefinition,
     CheckRequest,
@@ -252,6 +254,62 @@ def _fetch_lab(lab_id: str) -> dict[str, Any]:
     raise HTTPException(status_code=404, detail=" ".join(details))
 
 
+def _course_lab_context(conn: sqlite3.Connection, lab_id: str) -> dict[str, Any] | None:
+    """Retourne le lien vers une exigence de lab du parcours, si les schémas le permettent."""
+    tables = {
+        row["name"]
+        for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+    }
+    if not {"nodes", "edges", "requirements", "attempts"}.issubset(tables):
+        return None
+
+    try:
+        tree = SkillTree(conn)
+        node = tree.node(lab_id)
+        requirement = node.requirement(ProofKind.LAB)
+        if requirement is None:
+            return None
+        return {
+            "min_score": int(requirement.min_score),
+            "unlocked": tree.status(lab_id) is not Status.LOCKED,
+        }
+    except (sqlite3.Error, DomainError, KeyError, TypeError, ValueError):
+        # Un lab autonome reste utilisable même si aucune correspondance de parcours
+        # n'existe ou si la base ne possède pas le schéma complet du skill tree.
+        return None
+
+
+def _enforce_course_lab_score(
+    result: dict[str, Any],
+    course_context: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Aligne le succès du lab sur le seuil défini pour valider le cours."""
+    if course_context is None:
+        return result
+
+    try:
+        score_percent = round(max(0.0, min(1.0, float(result.get("score", 0)))) * 100)
+    except (TypeError, ValueError):
+        score_percent = 0
+
+    minimum = int(course_context["min_score"])
+    if score_percent < minimum and result.get("passed"):
+        result = dict(result)
+        result["passed"] = False
+        results = list(result.get("results") or [])
+        results.append({
+            "rule_id": "course-min-score",
+            "passed": False,
+            "message": (
+                f"Le parcours exige au moins {minimum}/100 pour valider ce lab ; "
+                f"score obtenu : {score_percent}/100."
+            ),
+        })
+        result["results"] = results
+        result["message"] = results[-1]["message"]
+    return result
+
+
 def _path_tokens(path: str) -> list[str | int]:
     """Accepte des chemins tels que config.ports[0].ip."""
     if not path:
@@ -436,16 +494,24 @@ def check_lab_v2(lab_id: str, body: CheckRequest) -> dict[str, Any]:
     payload = _fetch_lab(lab_id)
     if payload.get("sandbox"):
         return {
-            "passed": True,
-            "score": 1.0,
+            "passed": False,
+            "score": 0.0,
+            "sandbox": True,
+            "manual_review_required": True,
             "results": [{
                 "rule_id": "sandbox",
-                "passed": True,
-                "message": "Bac à sable : aucune règle de validation.",
+                "passed": False,
+                "message": "Bac à sable : ce workspace n'a pas de règles de validation et ne peut pas valider un cours.",
             }],
         }
     definition: LabDefinition = payload["definition"]
-    return _evaluate_lab_check(definition, body.topology)
+    result = _evaluate_lab_check(definition, body.topology)
+    conn = _database_connection()
+    try:
+        course_context = _course_lab_context(conn, lab_id)
+        return _enforce_course_lab_score(result, course_context)
+    finally:
+        conn.close()
 
 
 @router.post("/lab/v2/{lab_id}/submit", response_class=UTF8JSONResponse)
@@ -453,16 +519,19 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
     payload = _fetch_lab(lab_id)
     definition: LabDefinition = payload["definition"]
 
-    # Le bac à sable ne rapporte pas de XP et ne crée pas de tentative notée.
+    # Un bac à sable est utilisable librement, mais n'est jamais une validation.
     if payload.get("sandbox"):
         return {
             "ok": True,
-            "passed": True,
-            "score": 1.0,
+            "passed": False,
+            "score": 0.0,
+            "sandbox": True,
+            "attempt_recorded": False,
+            "course_attempt_recorded": False,
             "results": [{
                 "rule_id": "sandbox",
-                "passed": True,
-                "message": "Bac à sable : aucune règle de validation.",
+                "passed": False,
+                "message": "Bac à sable : aucune règle de validation n'est configurée. Aucune progression ni récompense n'est attribuée.",
             }],
             "xp_gained": 0,
             "badges_unlocked": [],
@@ -470,13 +539,13 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
 
     # Le résultat envoyé par le client n'est jamais la source de vérité.
     check_result = _evaluate_lab_check(definition, body.topology)
-    passed = bool(check_result["passed"])
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     attempt_id = str(uuid.uuid4())
     snapshot = json.dumps(model_to_dict(body.topology, by_alias=True), ensure_ascii=False)
-    result_json = json.dumps(check_result, ensure_ascii=False)
+    result_json = ""
 
     conn = _database_connection()
+    course_attempt_recorded = False
     try:
         if "lab_attempts" not in {
             row["name"] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
@@ -484,6 +553,12 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
             raise HTTPException(status_code=503, detail="La table lab_attempts n'existe pas. Exécute la migration M1.")
 
         conn.execute("BEGIN IMMEDIATE")
+        course_context = _course_lab_context(conn, lab_id)
+        check_result = _enforce_course_lab_score(check_result, course_context)
+        passed = bool(check_result["passed"])
+        score_percent = round(max(0.0, min(1.0, float(check_result.get("score", 0)))) * 100)
+        result_json = json.dumps(check_result, ensure_ascii=False)
+
         previous_success = conn.execute(
             "SELECT 1 FROM lab_attempts WHERE lab_id = ? AND passed = 1 LIMIT 1", (lab_id,)
         ).fetchone()
@@ -497,8 +572,36 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (attempt_id, lab_id, None, now, now, int(passed), snapshot, result_json),
         )
+
+        # Les statistiques du skill tree lisent la table canonique attempts, pas
+        # lab_attempts. Synchroniser les deux uniquement si le lab est bien lié à
+        # une exigence LAB du même nœud et que les prérequis sont déjà déverrouillés.
+        if course_context and course_context["unlocked"]:
+            tables = {
+                row["name"] for row in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )
+            }
+            canonical_created = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            conn.execute(
+                "INSERT INTO attempts "
+                "(node_id, kind, score, passed, evidence, detail, created_at) "
+                "VALUES (?, 'lab', ?, ?, ?, ?, ?)",
+                (
+                    lab_id,
+                    score_percent,
+                    int(passed),
+                    snapshot[:4000],
+                    f"Lab Workspace v2 : {'réussi' if passed else 'à reprendre'} ({score_percent}/100)",
+                    canonical_created,
+                ),
+            )
+            course_attempt_recorded = True
+            if "daily_streak" in tables:
+                touch_daily_streak(conn)
+
         if xp_gained:
-            # add_xp committe aussi la tentative ; les deux changements restent atomiques.
+            # add_xp committe également lab_attempts et attempts en une transaction.
             add_xp(conn, xp_gained)
         else:
             conn.commit()
@@ -514,7 +617,15 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
     finally:
         conn.close()
 
-    return {"ok": True, **check_result, "xp_gained": xp_gained, "badges_unlocked": badges_unlocked}
+    return {
+        "ok": True,
+        **check_result,
+        "xp_gained": xp_gained,
+        "badges_unlocked": badges_unlocked,
+        "sandbox": False,
+        "attempt_recorded": True,
+        "course_attempt_recorded": course_attempt_recorded,
+    }
 
 @router.get("/lab/v2")
 def list_labs_v2() -> list[dict[str, Any]]:
