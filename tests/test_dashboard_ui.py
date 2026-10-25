@@ -118,6 +118,13 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.onLabValidated(message.detail)", init_method)
         self.assertIn("this.refreshAll()", init_method)
 
+        validation_start = DASHBOARD_HTML.index("        onLabValidated(data) {")
+        validation_end = DASHBOARD_HTML.index("        // ---------- récompenses", validation_start)
+        validation_method = DASHBOARD_HTML[validation_start:validation_end]
+        self.assertIn("data.sandbox === true", validation_method)
+        self.assertIn("data.attempt_recorded === false", validation_method)
+        self.assertIn("if (!data || !data.passed || data.sandbox === true || data.attempt_recorded === false) return;", validation_method)
+
     def test_daily_focus_timer_tracks_active_time_and_persists_the_daily_goal(self):
         self.assertIn("function skilltreeStudySession()", DASHBOARD_HTML)
         self.assertIn("const storageKey = 'skilltree-study-session-v1';", DASHBOARD_HTML)
