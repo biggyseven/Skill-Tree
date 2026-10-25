@@ -31,11 +31,13 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         open_lab_method = dashboard[start:end]
 
         v2_check = open_lab_method.find("fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`)")
-        workspace_route = open_lab_method.find("navigate(`/lab/?id=${encodeURIComponent(nodeId)}`)")
-        legacy_fallback = open_lab_method.find("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)")
+        workspace_route = open_lab_method.find("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)")
+        legacy_fallback = open_lab_method.find("await this.show(nodeId);")
         self.assertGreaterEqual(v2_check, 0)
         self.assertGreater(workspace_route, v2_check)
         self.assertGreater(legacy_fallback, workspace_route)
+        self.assertIn("if (openInNewTab && labWindow && !labWindow.closed) labWindow.close();", open_lab_method)
+
 
 
 if __name__ == "__main__":
