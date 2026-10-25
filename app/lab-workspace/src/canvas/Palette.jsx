@@ -12,12 +12,14 @@ const DEVICE_GROUPS = [
     devices: [{ type: 'switch', label: 'Switch' }],
   },
   {
-    title: 'Terminaux',
-    caption: 'Hôtes et services',
-    devices: [
-      { type: 'pc', label: 'PC' },
-      { type: 'server', label: 'Serveur' },
-    ],
+    title: 'PC',
+    caption: 'Postes clients',
+    devices: [{ type: 'pc', label: 'PC / Poste client' }],
+  },
+  {
+    title: 'Serveurs',
+    caption: 'Services réseau',
+    devices: [{ type: 'server', label: 'Serveur' }],
   },
   {
     title: 'Sécurité & WAN',
