@@ -81,6 +81,15 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("c.status === 'validated' ? '✅ Validé dans le parcours · rejouable'", DASHBOARD_HTML)
         self.assertIn("c.status === 'in_progress' ? '↻ Tentative enregistrée · à poursuivre'", DASHBOARD_HTML)
 
+    def test_empty_daily_plan_distinguishes_completion_from_missing_data(self):
+        self.assertIn("Préparation de ta session…", DASHBOARD_HTML)
+        self.assertIn("Tu as validé tout le parcours actuellement disponible.", DASHBOARD_HTML)
+        self.assertIn("Aucune action recommandée pour le moment.", DASHBOARD_HTML)
+        self.assertNotIn(
+            "Aucune action disponible : valide un cours pour débloquer la suite.",
+            DASHBOARD_HTML,
+        )
+
     def test_completed_learning_path_remains_navigable(self):
         self.assertIn(
             ':disabled="!parcours.steps.length || (parcours.cur && parcours.cur.status === \'locked\')"',
