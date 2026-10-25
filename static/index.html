@@ -994,7 +994,8 @@
                       <span class="chip" x-show="c.builtin" x-text="c.minutes + ' min'"></span>
                     </div>
                     <p class="mt-2 text-sm font-bold text-white" x-text="c.title"></p>
-                    <p class="mt-1 text-[11px] leading-relaxed text-zinc-500" x-text="challengeStatusLabel(c)"></p>
+                    <p class="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-400" x-text="c.description || 'Construis la topologie demandée puis lance la vérification.'"></p>
+                    <p class="mt-2 text-[11px] leading-relaxed text-zinc-500" x-text="challengeStatusLabel(c)"></p>
                   </button>
                 </template>
               </div>
@@ -1982,7 +1983,11 @@
         toggleReadingWidth() {
           this.readingWidth = this.readingWidth === 'wide' ? 'comfortable' : 'wide';
           this.saveUiPrefs();
-          this.$nextTick(() => this.fixLessonContrast());
+          this.$nextTick(() => {
+            this.fixLessonContrast();
+            const scroll = this.$refs.modalScroll;
+            if (scroll) this.onLessonScroll({ target: scroll });
+          });
         },
         toggleFullscreen() {
           this.isFullscreen = !this.isFullscreen;
