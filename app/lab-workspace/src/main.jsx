@@ -1,11 +1,17 @@
-import React from 'react';
+﻿import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './index.css';
 import App from './App.jsx';
+import { initAlpineBridge } from './bridge/alpineBridge.js';
 
-createRoot(document.getElementById('root')).render(
+initAlpineBridge();
+
+createRoot(document.getElementById('lab-root')).render(
   <React.StrictMode>
-    <App />
+    <ReactFlowProvider>
+      <App />
+    </ReactFlowProvider>
   </React.StrictMode>,
 );

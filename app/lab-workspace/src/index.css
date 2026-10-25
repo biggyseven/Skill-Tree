@@ -36,3 +36,27 @@ body { min-height: 100vh; }
 .react-flow__controls-button:hover { background: var(--s2); }
 .react-flow__minimap { background: var(--s1); }
 .react-flow__attribution { background: var(--s1); color: var(--text-primary); }
+
+/* === CSS vars pour le Lab Workspace (ajout M2) === */
+:root, [data-theme="aurore"] {
+  --s0:#100d21; --s1:#16122b; --s2:#201b3c; --s3:#292249; --s4:#1c1736;
+  --w:255 255 255;
+  --on-accent:6 32 31;
+  --emerald-300:110 231 183; --emerald-400:52 211 153;
+  --cyan-300:94 234 212; --cyan-400:45 212 191;
+  --rose-400:251 113 133;
+  --text-primary:rgb(235 233 241);
+  --text-secondary:rgb(194 190 213);
+  --text-muted:rgb(132 124 171);
+}
+[data-theme="lumiere"] {
+  --s0:#f8f7fd; --s1:#ffffff; --s2:#eae7f8; --s3:#dedaf1; --s4:#e7e4f6;
+  --w:25 20 52;
+  --on-accent:255 255 255;
+  --emerald-300:4 120 87; --emerald-400:5 150 105;
+  --cyan-300:3 105 161; --cyan-400:2 132 199;
+  --rose-400:225 29 72;
+  --text-primary:rgb(35 32 50);
+  --text-secondary:rgb(61 56 87);
+  --text-muted:rgb(100 91 143);
+}
