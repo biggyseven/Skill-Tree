@@ -580,6 +580,10 @@
             <label class="mt-1 flex items-center gap-2 border-t border-white/5 px-3 py-2 text-[11px] text-zinc-400"><input type="checkbox" x-model="searchContent" @change="toggleContentSearch()" class="accent-emerald-500"> Chercher aussi dans le contenu des cours <span x-show="searchBusy" x-text="'(' + searchDone + '/' + nodes.length + ')'"></span></label>
           </div>
         </div>
+        <button type="button" @click="window.open('/lab.html?demo=1', '_blank', 'noopener,noreferrer')" title="Ouvrir le Lab Workspace indépendant" aria-label="Ouvrir le Lab Workspace indépendant dans un nouvel onglet" class="nav-action-btn inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-2.5 text-cyan-200 transition hover:border-cyan-300/50 hover:bg-cyan-400/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 sm:px-3">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/></svg>
+          <span class="hidden xl:inline text-xs font-semibold">Lab Workspace</span>
+        </button>
         <div class="relative" data-theme-picker>
           <button type="button" @click.stop="themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Choisir un thème" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8Z"></path><circle cx="7.5" cy="11" r="1"></circle><circle cx="10.5" cy="7" r="1"></circle><circle cx="15.5" cy="7.5" r="1"></circle></svg>
@@ -778,7 +782,13 @@
           <section class="flex min-w-0 flex-col rounded-3xl border border-white/5 bg-[color:var(--s1)] p-5 shadow-2xl sm:p-6 xl:p-8" aria-labelledby="daily-plan-title">
           <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
             <div><p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">PLAN DU JOUR</p><h2 id="daily-plan-title" class="mt-1 text-lg font-semibold text-white">Ta session d'aujourd'hui</h2></div>
-            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[10px] text-zinc-400" x-text="dashboardDataErrors.dailyPlan && !dailyPlan.length ? `${planActions.length} action${planActions.length > 1 ? 's' : '' } · sélection locale` : `${planActions.length} action${planActions.length > 1 ? 's' : ''}`"></span>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" @click="setTab('memo')" aria-label="Ouvrir les révisions espacées" class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300/20 bg-amber-400/10 px-3 py-2 text-[11px] font-semibold text-amber-200 transition hover:border-amber-300/40 hover:bg-amber-400/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/70">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5z"/><path d="M5 4.5v17M9 6h7M9 10h7"/></svg>
+                Révisions
+              </button>
+              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[10px] text-zinc-400" x-text="dashboardDataErrors.dailyPlan && !dailyPlan.length ? `${planActions.length} action${planActions.length > 1 ? 's' : '' } · sélection locale` : `${planActions.length} action${planActions.length > 1 ? 's' : ''}`"></span>
+            </div>
           </div>
           <div x-data="skilltreeStudySession()" class="mb-5 rounded-2xl border border-white/5 bg-[color:var(--s2)] p-4 sm:p-5">
             <div class="flex flex-wrap items-start justify-between gap-4">
@@ -922,21 +932,25 @@
         </div>
       </section>
 
-      <!-- ============ ONGLET TOPOLOGIE ============ -->
-      <section x-show="tab === 'topology'" x-cloak>
-        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex gap-2">
-            <button type="button" class="btn" :class="{ 'btn-primary': topoMode === 'libre' }" @click="topoMode = 'libre'">🧩 Mode libre</button>
-            <button type="button" class="btn" :class="{ 'btn-primary': topoMode === 'defis' }" @click="topoMode = 'defis'">🎯 Défis d'architecture <span class="chip" x-text="challengeNodes.length"></span></button>
+      <!-- ============ ONGLET DÉFIS ============ -->
+      <section x-show="tab === 'challenges'" x-cloak>
+        <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div class="min-w-0">
+            <p class="eyebrow">Pratique · architecture réseau</p>
+            <h2 class="mt-1 text-2xl font-semibold text-white">Défis d’architecture</h2>
+            <p class="mt-1 max-w-3xl text-sm leading-relaxed text-zinc-400">Choisis un scénario, construis la topologie demandée puis fais-la vérifier. Le canevas n’apparaît que pendant un défi : le Lab Workspace reste l’espace indépendant pour configurer et simuler un laboratoire.</p>
           </div>
-          <div class="flex items-center gap-2"><span class="chip" x-text="topoCounts.nodes + ' équipements'"></span><span class="chip" x-text="topoCounts.links + ' liens'"></span></div>
+          <div x-show="challenge" class="flex items-center gap-2">
+            <span class="chip" x-text="topoCounts.nodes + ' équipements'"></span>
+            <span class="chip" x-text="topoCounts.links + ' liens'"></span>
+          </div>
         </div>
 
-        <div x-show="topoMode === 'defis'" x-cloak class="card mb-4">
+        <div class="card mb-4">
           <template x-if="!challenge">
             <div>
               <p class="eyebrow">Choisis un défi</p>
-              <p class="mt-2 rounded-xl border border-cyan-400/20 bg-cyan-500/5 px-3 py-2 text-xs leading-relaxed text-zinc-400">Ces défis contrôlent les équipements et les liaisons du schéma. Les commandes et comportements réels (VLAN, IP, routage, ACL) doivent être vérifiés dans un lab CLI de l’onglet Labs lorsque le backend fournit ce scénario.</p>
+              <p class="mt-2 rounded-xl border border-cyan-400/20 bg-cyan-500/5 px-3 py-2 text-xs leading-relaxed text-zinc-400">Ces défis vérifient les équipements et les liaisons du schéma. Pour approfondir les configurations IP, VLAN, routage ou ACL, ouvre le Lab Workspace indépendant depuis le bouton en haut de l’écran ou un lab du catalogue.</p>
               <div class="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <template x-for="c in challengeNodes" :key="c.id">
                   <button type="button" class="card-sm text-left transition hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-50" :disabled="!c.builtin && c.status === 'locked'" :title="!c.builtin && c.status === 'locked' ? 'Valide les prérequis avant de lancer ce défi.' : c.title" @click="startChallenge(c.id)">
@@ -945,7 +959,6 @@
                     <p class="mt-1 text-[11px] text-zinc-500" x-text="!c.builtin && c.status === 'locked' ? '🔒 Prérequis à valider' : (!c.builtin && c.status === 'validated' ? '✅ Validé dans le parcours · rejouable' : (!c.builtin && c.status === 'in_progress' ? '↻ Tentative enregistrée · à poursuivre' : (challengesDone.includes(c.id) ? '✅ Réussi · rejouable' : (c.description || 'À relever'))))"></p>
                   </button>
                 </template>
-              </div>
               </div>
               <p x-show="!challengeNodes.length" class="mt-3 text-sm text-zinc-500">Aucun défi disponible pour le moment. Les défis intégrés apparaissent ici dès le chargement du module.</p>
             </div>
@@ -982,7 +995,7 @@
           </template>
         </div>
         <!-- GRILLE PRINCIPALE : Menu de gauche + Canevas à droite -->
-        <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
+        <div x-show="challenge" x-cloak class="grid gap-6 lg:grid-cols-[16rem_1fr]">
 
           <!-- MENU DE GAUCHE : ÉQUIPEMENTS -->
           <aside class="rounded-3xl border border-white/5 bg-[color:var(--s1)] p-6 shadow-2xl">
@@ -1013,10 +1026,7 @@
               <button type="button" class="btn" @click="zoom(-1)" title="Zoom −">−</button>
               <button type="button" class="btn" @click="zoomReset()">Recentrer</button>
               <button type="button" class="btn" @click="removeSelected()">Supprimer sélection</button>
-              <button type="button" class="btn btn-danger" @click="clearTopology()">Tout effacer</button>
-              <button type="button" class="btn" @click="exportTopologyPng()">PNG</button>
-              <button type="button" class="btn" @click="loadTopology()">Charger</button>
-              <button type="button" class="btn btn-primary" :disabled="!topologyReady" @click="saveTopology()">Sauvegarder</button>
+              <button type="button" class="btn" @click="exportTopologyPng()">Exporter PNG</button>
             </div>
             <div id="drawflow" x-ref="canvas" class="h-[75vh] min-h-[480px] w-full"></div>
           </div>
@@ -1108,10 +1118,10 @@
         </template>
       </section>
 
-      <!-- ============ ONGLET MÉMO ============ -->
+      <!-- ============ ONGLET RÉVISIONS ============ -->
       <section x-show="tab === 'memo'" x-cloak>
         <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div><p class="eyebrow">Mémorisation</p><h2 class="mt-1 text-2xl font-semibold text-white">Mémo · révision espacée</h2><p class="mt-1 text-sm text-zinc-400">Les cartes que tu connais reviennent de plus en plus tard ; les autres reviennent vite.</p></div>
+          <div><p class="eyebrow">Révisions</p><h2 class="mt-1 text-2xl font-semibold text-white">Révisions espacées</h2><p class="mt-1 text-sm text-zinc-400">Consolide les notions avec des cartes ciblées ou révise tous les modules, même lorsqu’aucune révision n’est encore due dans le plan du jour.</p></div>
           <div class="flex flex-wrap gap-2">
             <select :disabled="reviewNodeId" class="field w-48 disabled:opacity-50" x-model="cardFilter.module" @change="buildDeck()"><option value="all">Tous les modules</option><template x-for="m in modules" :key="m.id"><option :value="m.id" x-text="m.label"></option></template></select>
             <select :disabled="reviewNodeId" class="field w-40 disabled:opacity-50" x-model="cardFilter.level" @change="buildDeck()"><option value="all">Tous niveaux</option><template x-for="l in levels" :key="l.id"><option :value="l.id" x-text="l.label"></option></template></select>
@@ -1922,7 +1932,7 @@
           this.notificationsOpen = false; this.settingsMenuOpen = false; this.profileMenuOpen = false;
           this.$nextTick(() => { const m = this.$refs.mainScroll; if (m) m.scrollTop = 0; });
           try {
-            if (name === 'topology') { await this.$nextTick(); await this.initTopology(); }
+            if (name === 'challenges') { await this.$nextTick(); await this.initTopology(); }
             if (name === 'stats') await this.loadStats();
             if (name === 'memo') await this.loadFlashcards();
             if (name === 'diagnostic') await this.loadDiagnostic();
@@ -2593,8 +2603,8 @@
           if (!action || !action.node_id) return;
           const nodeId = String(action.node_id);
           if (action.action === 'challenge') {
-            await this.setTab('topology');
-            this.topoMode = 'defis';
+            await this.setTab('challenges');
+            
             await this.$nextTick();
             await this.startChallenge(nodeId);
             return;
@@ -2736,7 +2746,7 @@
       { id: 'tree', label: 'Tableau de bord', title: 'Tableau de bord', svg: '<rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect>' },
       { id: 'labs', label: 'Labs', title: 'Labs pratiques', svg: '<path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"></path><path d="M7.5 15h9"></path>' },
       { id: 'exam', label: 'Examens', title: "Centre d'évaluation", svg: '<rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 4V3h6v1M9 9h6M9 13h6M9 17h3"></path>' },
-      { id: 'topology', label: 'Topologie', title: 'Topologie Réseau', svg: '<circle cx="5" cy="6" r="2.2"></circle><circle cx="19" cy="6" r="2.2"></circle><circle cx="12" cy="18" r="2.2"></circle><path d="M7.2 6h9.6M6.2 8.2 10.8 16M17.8 8.2 13.2 16"></path>' },
+      { id: 'challenges', label: 'Défis', title: "Défis d'architecture", svg: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"></path><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"></path>' },
       { id: 'diagnostic', label: 'Diagnostic', title: 'Diagnostic Interactif', svg: '<circle cx="5" cy="5" r="2"></circle><circle cx="19" cy="12" r="2"></circle><circle cx="5" cy="19" r="2"></circle><path d="M7 5h4a3 3 0 0 1 3 3v1a3 3 0 0 0 3 3M7 19h4a3 3 0 0 0 3-3v-1a3 3 0 0 1 3-3"></path>' },
       { id: 'memo', label: 'Mémo', title: 'Mémo (révision espacée)', svg: '<rect x="4" y="6" width="13" height="15" rx="2"></rect><path d="M8 3h9a3 3 0 0 1 3 3v11"></path>' },
       { id: 'stats', label: 'Radar', title: 'Radar de compétences', svg: '<path d="M4 19V9M10 19V5M16 19v-7M22 19V3"></path>' },
@@ -3156,7 +3166,7 @@
           { type: 'wifi', label: 'Point d’accès', hint: 'Wi-Fi', icon: TOPO_ICONS.wifi }, { type: 'cloud', label: 'Cloud', hint: 'Externe', icon: TOPO_ICONS.cloud },
           { type: 'spine', label: 'Spine', hint: 'Fabric', icon: TOPO_ICONS.spine }, { type: 'leaf', label: 'Leaf', hint: 'Fabric', icon: TOPO_ICONS.leaf },
         ],
-        topoMode: 'libre', topoCounts: { nodes: 0, links: 0 }, topoTypeCounter: {}, challenge: null, challengeLeft: 0, challengeTimer: null, challengeResult: null, challengeSubmissionBusy: false,
+        topoCounts: { nodes: 0, links: 0 }, topoTypeCounter: {}, challenge: null, challengeLeft: 0, challengeTimer: null, challengeResult: null, challengeSubmissionBusy: false,
         get challengeNodes() { return this.nodes.filter(n => n.type === 'architecture' || /^challenge-/.test(n.id)); },
         get expectedSummary() {
           if (!this.challenge) return '';
@@ -3985,7 +3995,7 @@
 
         app.addDevice = function (type) {
           const ed = this.topologyEditor;
-          if (!ed) { this.notify('Ouvre l’onglet Topologie pour initialiser le lab.'); return; }
+          if (!ed) { this.notify('Ouvre un défi pour initialiser le canevas.'); return; }
           const d = this.devices.find(x => x.type === type);
           if (!d) return;
           const ports = Math.min(48, Math.max(1, Math.round(Number(this.topoPortCount) || 1)));
@@ -4091,7 +4101,7 @@
               this.challengeLeft = Math.max(0, this.challengeLeft - 1);
               if (this.challengeLeft <= 0) this.checkChallenge(true);
             }, 1000);
-            this.topoMode = 'defis';
+            
             this.notify(`Défi lancé : ${local.title}`);
             return;
           }
@@ -4319,7 +4329,7 @@
   </script>
   <!-- Barre de navigation mobile : accès aux actions essentielles sans la sidebar desktop -->
   <nav class="mobile-bottom-nav md:hidden" aria-label="Navigation mobile">
-    <template x-for="item in navItems.filter(i => ['tree','labs','exam','topology','diagnostic','stats'].includes(i.id))" :key="item.id">
+    <template x-for="item in navItems.filter(i => ['tree','labs','exam','challenges','diagnostic','stats'].includes(i.id))" :key="item.id">
       <button type="button" @click="setTab(item.id)" :aria-label="item.id === 'tree' ? 'Accueil' : item.label" :aria-current="tab === item.id ? 'page' : null" :class="tab === item.id ? 'is-active' : ''" :title="item.id === 'tree' ? 'Accueil' : item.label">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" x-html="item.svg"></svg><span x-text="item.id === 'tree' ? 'Accueil' : item.label"></span>
       </button>
