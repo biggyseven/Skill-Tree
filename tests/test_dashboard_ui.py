@@ -105,6 +105,27 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.onLabValidated(message.detail)", init_method)
         self.assertIn("this.refreshAll()", init_method)
 
+    def test_daily_focus_timer_tracks_active_time_and_persists_the_daily_goal(self):
+        self.assertIn("function skilltreeStudySession()", DASHBOARD_HTML)
+        self.assertIn("const storageKey = 'skilltree-study-session-v1';", DASHBOARD_HTML)
+        self.assertIn("const goals = [15, 25, 45, 60];", DASHBOARD_HTML)
+        self.assertIn("if (saved && saved.date === todayKey())", DASHBOARD_HTML)
+        self.assertIn("document.addEventListener('visibilitychange', this._onVisibilityChange);", DASHBOARD_HTML)
+        self.assertIn("window.addEventListener('pagehide', this._onPageHide);", DASHBOARD_HTML)
+        self.assertIn("this._interval = window.setInterval(() =>", DASHBOARD_HTML)
+        self.assertIn("if (this.goalReached)", DASHBOARD_HTML)
+        self.assertIn("this.elapsedSeconds % 5 === 0", DASHBOARD_HTML)
+        self.assertIn("x-data=\\"skilltreeStudySession()\\" class=\\"mb-5 rounded-2xl", DASHBOARD_HTML)
+        self.assertIn('role="group" aria-label="Durée cible de la session"', DASHBOARD_HTML)
+        self.assertIn('@click="setTarget(minutes)"', DASHBOARD_HTML)
+        self.assertIn(':aria-pressed="targetMinutes === minutes"', DASHBOARD_HTML)
+        self.assertIn('x-text="elapsedLabel()"', DASHBOARD_HTML)
+        self.assertIn('x-text="statusLabel"', DASHBOARD_HTML)
+        self.assertIn('@click="toggle()"', DASHBOARD_HTML)
+        self.assertIn('@click="reset()"', DASHBOARD_HTML)
+        self.assertIn(':aria-valuenow="progressPercent"', DASHBOARD_HTML)
+        self.assertIn("Le temps est compté pendant que la page est active.", DASHBOARD_HTML)
+
     def test_daily_plan_filters_resume_and_path_but_keeps_other_available_courses(self):
         self.assertIn("this.dailyPlan.filter(action => !visibleNodeIds.includes(String(action.node_id)))", DASHBOARD_HTML)
         self.assertIn("this.nodes\n            .filter(n => n.status === 'available' && !visibleNodeIds.includes(String(n.id)))", DASHBOARD_HTML)
