@@ -349,7 +349,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.loading = false;", load_tree)
         self.assertIn('x-show="treeError && tab === \'tree\'"', DASHBOARD_HTML)
         self.assertIn('@click="refreshAll()"', DASHBOARD_HTML)
-        self.assertIn("treeError && !nodes.length", DASHBOARD_HTML)
+        self.assertIn("get planEmptyMessage()", DASHBOARD_HTML)
+        self.assertIn("this.treeError && !this.nodes.length", DASHBOARD_HTML)
+        self.assertIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
         self.assertIn("Aucun cours disponible", DASHBOARD_HTML)
 
 if __name__ == "__main__":
