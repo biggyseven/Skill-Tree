@@ -289,15 +289,8 @@ def _parse_nodes(path: Path) -> list[NodeSpec]:
             )
         )
 
-    known = {node.id for node in nodes}
-    for node in nodes:
-        for prereq in node.prereqs:
-            if prereq not in known:
-                raise ContentError(
-                    f"{path.name} : le nœud « {node.id} » référence le prérequis « {prereq} », "
-                    "absent de nodes.json."
-                )
-
+    # Les prérequis inconnus sont ignorés au chargement des arêtes dans _write().
+    # On laisse passer le contenu afin qu'une référence obsolète ne bloque pas le démarrage.
     _check_cycles(nodes, path.name)
     return nodes
 
@@ -315,7 +308,9 @@ def _check_cycles(nodes: list[NodeSpec], filename: str) -> None:
             return
         state[node_id] = 1
         for prereq in graph[node_id]:
-            visit(prereq, trail + (node_id,))
+            # Une référence absente de nodes.json ne fait pas partie du graphe chargé.
+            if prereq in graph:
+                visit(prereq, trail + (node_id,))
         state[node_id] = 2
 
     for node in nodes:
@@ -709,15 +704,26 @@ def _write(
                 " sort_order = excluded.sort_order",
                 (node.id, node.title, node.description, node.category, node.module, node.order),
             )
-            for prereq in node.prereqs:
-                conn.execute(
-                    "INSERT INTO edges (node_id, prereq_id) VALUES (?, ?)",
-                    (node.id, prereq),
-                )
             for kind, min_score in node.requirements:
                 conn.execute(
                     "INSERT INTO requirements (node_id, kind, min_score) VALUES (?, ?, ?)",
                     (node.id, kind, min_score),
+                )
+
+        # Insérer les arêtes uniquement après avoir créé TOUS les nœuds : le prérequis
+        # peut apparaître plus loin dans nodes.json. Les références inconnues sont ignorées.
+        node_ids = {node.id for node in nodes}
+        for node in nodes:
+            for prereq in node.prereqs:
+                if prereq not in node_ids:
+                    print(
+                        f"⚠️ Pré-requis ignoré : le nœud « {node.id} » référence "
+                        f"« {prereq} », absent de nodes.json."
+                    )
+                    continue
+                conn.execute(
+                    "INSERT INTO edges (node_id, prereq_id) VALUES (?, ?)",
+                    (node.id, prereq),
                 )
 
         for scope, bank in (("quiz", quizzes), ("exam", exams)):
@@ -798,7 +804,7 @@ def load_content(conn: sqlite3.Connection, directory: str | Path = CONTENT_DIR) 
     removed = _write(conn, nodes, quizzes, exams, labs, terminals)
     return LoadReport(
         nodes=len(nodes),
-        edges=sum(len(node.prereqs) for node in nodes),
+        edges=sum(1 for node in nodes for prereq in node.prereqs if prereq in node_ids),
         quiz_questions=sum(len(questions) for questions in quizzes.values()),
         exam_questions=sum(len(questions) for questions in exams.values()),
         labs=len(labs),
