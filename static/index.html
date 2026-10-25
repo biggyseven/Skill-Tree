@@ -857,7 +857,7 @@
                 <button type="button" class="btn" :disabled="challengeSubmissionBusy" @click="endChallenge()">Abandonner</button>
               </div>
               <template x-if="challengeResult">
-                <div class="mt-4 rounded-2xl border p-4" :class="challengeResult.passed ? 'border-emerald-400/30 bg-emerald-500/10' : 'border-rose-400/30 bg-rose-500/10'">
+                <div class="mt-4 rounded-2xl border p-4" :class="challengeResult.pending ? 'border-cyan-400/30 bg-cyan-500/10' : (challengeResult.passed ? 'border-emerald-400/30 bg-emerald-500/10' : 'border-rose-400/30 bg-rose-500/10')">
                   <p class="text-lg font-bold text-white" x-text="challengeResult.pending ? 'Vérification du défi…' : (challengeResult.error ? 'Résultat non enregistré' : ((challengeResult.passed ? '🎉 Défi réussi : ' : 'Score : ') + challengeResult.score + ' %'))"></p>
                   <p x-show="challengeResult.pending" class="mt-1 text-xs text-cyan-200">Le score et la progression sont vérifiés côté serveur.</p>
                   <p x-show="challengeResult.error" class="mt-1 text-xs text-rose-300" x-text="challengeResult.error"></p>
@@ -3333,6 +3333,7 @@
           // Défis du catalogue : le serveur calcule score, réussite et progression.
           // On n'envoie jamais le score annoncé par le navigateur.
           if (!ch.builtin) {
+            clearInterval(this.challengeTimer);
             this.challengeSubmissionBusy = true;
             this.challengeResult = {
               score: null, passed: false, timeout: !!timeout, pending: true, error: '',
