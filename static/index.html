@@ -1466,44 +1466,57 @@
               <section class="rounded-3xl border border-white/5 bg-[color:var(--s2)] p-6">
                 <h3 class="mb-4 text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-400" x-text="exerciseMode === 'terminal' ? 'Console réseau' : 'Saisie libre'"></h3>
                 <p class="mb-5 text-base leading-relaxed text-zinc-200" x-text="exerciseQuestion?.prompt"></p>
-                <form @submit.prevent="submitAnswer()" class="space-y-4">
+                <form @submit.prevent="submitAnswer()" class="space-y-4" :aria-busy="exerciseBusy">
                   <template x-if="exerciseMode === 'input'">
-                    <input type="text" x-model="exerciseAnswer" placeholder="Saisis ta réponse" class="w-full rounded-xl border border-white/10 bg-[color:var(--s1)] px-4 py-3 font-mono text-sm text-white outline-none focus:border-fuchsia-500/50">
+                    <input type="text" x-model="exerciseAnswer" :disabled="exerciseBusy" placeholder="Saisis ta réponse" class="w-full rounded-xl border border-white/10 bg-[color:var(--s1)] px-4 py-3 font-mono text-sm text-white outline-none focus:border-fuchsia-500/50 disabled:opacity-60">
                   </template>
                   <template x-if="exerciseMode === 'terminal'">
                     <div class="rounded-xl border border-white/10 bg-[color:var(--s0)] p-4 font-mono text-sm">
-                      <label class="flex items-center gap-3 text-lime-300"><span>Switch(config-if)#</span><input type="text" x-model="exerciseAnswer" class="min-w-0 flex-1 bg-transparent py-1 text-white outline-none"></label>
+                      <label class="flex items-center gap-3 text-lime-300"><span>Switch(config-if)#</span><input type="text" x-model="exerciseAnswer" :disabled="exerciseBusy" class="min-w-0 flex-1 bg-transparent py-1 text-white outline-none disabled:opacity-60"></label>
                     </div>
                   </template>
-                  <button type="submit" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg">Valider</button>
+                  <button type="submit" :disabled="exerciseBusy" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg disabled:cursor-wait disabled:opacity-50" x-text="exerciseBusy ? 'Envoi en cours…' : 'Valider'"></button>
                 </form>
-                <div x-show="exerciseResult" class="mt-4 rounded-xl border p-4" :class="exerciseResult?.correct ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
+                <div x-show="exerciseError" x-cloak role="alert" aria-live="polite" class="mt-4 rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="exerciseError"></div>
+                <div x-show="exerciseResult" role="status" aria-live="polite" class="mt-4 rounded-xl border p-4" :class="exerciseResult?.correct ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
                   <p class="font-bold" :class="exerciseResult?.correct ? 'text-lime-300' : 'text-rose-300'" x-text="exerciseResult?.correct ? 'Correct' : 'Incorrect'"></p>
                   <p class="text-sm text-zinc-400 mt-2" x-text="exerciseResult?.explanation"></p>
+                  <p x-show="exerciseResult?.validated" class="mt-3 text-sm font-semibold text-lime-300">Cours validé : ta progression a été actualisée.</p>
+                  <p x-show="exerciseResult?.correct && !exerciseResult?.validated" class="mt-3 text-sm text-amber-200">Bonne réponse, mais d’autres exigences du cours restent à valider.</p>
                 </div>
               </section>
             </template>
 
             <template x-if="quiz && exerciseMode === 'quiz'">
               <section class="rounded-3xl border border-white/5 bg-[color:var(--s2)] p-6">
-                <form @submit.prevent="submitQuiz()" class="space-y-6">
+                <form @submit.prevent="submitQuiz()" class="space-y-6" :aria-busy="quizBusy">
                   <template x-for="(question, questionIndex) in quiz.questions" :key="question.id">
                     <fieldset class="space-y-3">
                       <legend class="text-base font-medium leading-relaxed text-white" x-text="question.prompt"></legend>
                       <div class="space-y-2">
                         <template x-for="(choice, choiceIndex) in question.choices" :key="choiceIndex">
                           <label class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/5 bg-[color:var(--s1)] px-4 py-3 text-sm text-zinc-300 hover:border-white/10 transition">
-                            <input type="radio" :name="`q-${question.id}`" :value="choiceIndex" :checked="quizAnswers[questionIndex] === choiceIndex" @change="quizAnswers[questionIndex] = choiceIndex" class="mt-0.5 accent-fuchsia-500">
+                            <input type="radio" :name="`q-${question.id}`" :value="choiceIndex" :checked="quizAnswers[questionIndex] === choiceIndex" :disabled="quizBusy" @change="quizAnswers[questionIndex] = choiceIndex" class="mt-0.5 accent-fuchsia-500">
                             <span x-text="choice"></span>
                           </label>
                         </template>
                       </div>
                     </fieldset>
                   </template>
-                  <button type="submit" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg">Valider mes réponses</button>
+                  <button type="submit" :disabled="quizBusy" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg disabled:cursor-wait disabled:opacity-50" x-text="quizBusy ? 'Correction en cours…' : 'Valider mes réponses'"></button>
                 </form>
-                <div x-show="quizResult" class="mt-6 rounded-xl border p-4" :class="quizResult?.passed ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
+                <div x-show="exerciseError" x-cloak role="alert" aria-live="polite" class="mt-4 rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="exerciseError"></div>
+                <div x-show="quizResult" role="status" aria-live="polite" class="mt-6 rounded-xl border p-4" :class="quizResult?.passed ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
                   <p class="font-bold text-lg" :class="quizResult?.passed ? 'text-lime-300' : 'text-rose-300'" x-text="`${quizResult?.score}/100`"></p>
+                  <p class="mt-2 text-sm text-zinc-300" x-text="quizResult?.validated ? 'Cours validé : progression enregistrée.' : (quizResult?.passed ? 'Score suffisant, mais d’autres exigences du cours restent à valider.' : 'Score insuffisant : consulte les corrections et réessaie.')"></p>
+                  <div x-show="quizResult?.results?.length" class="mt-4 space-y-2 border-t border-white/10 pt-3">
+                    <template x-for="item in (quizResult.results || [])" :key="item.id">
+                      <div class="rounded-xl bg-[color:var(--s1)] p-3">
+                        <p class="text-sm font-semibold" :class="item.correct ? 'text-lime-300' : 'text-rose-300'" x-text="item.correct ? '✓ Réponse correcte' : '✕ Réponse incorrecte'"></p>
+                        <p x-show="item.explanation" class="mt-1 text-sm leading-relaxed text-zinc-400" x-text="item.explanation"></p>
+                      </div>
+                    </template>
+                  </div>
                 </div>
               </section>
             </template>
@@ -1720,7 +1733,7 @@
         lessonToc: [], activeSection: '', lessonProgress: 0, readingMinutes: 1,
 
         quiz: null, quizAnswers: [], quizResult: null, quizBusy: false,
-        exerciseMode: null, exerciseQuestion: null, exerciseAnswer: '', exerciseResult: null, exerciseBusy: false, exercisePreferredKind: null,
+        exerciseMode: null, exerciseQuestion: null, exerciseAnswer: '', exerciseResult: null, exerciseBusy: false, exerciseError: null, exercisePreferredKind: null,
 
         labId: null, labBusy: false, labRunning: false, labOutput: [], labCommand: '', labValidation: null, labError: null,
 
@@ -2176,6 +2189,7 @@
           this.open = true;
           this.detailLoading = true;
           this.detailLoadError = null;
+          this.exerciseBusy = false; this.quizBusy = false; this.exerciseError = null;
           this.detail = null;
           this.lessonHtml = '';
           this.lessonMissing = false;
@@ -2258,16 +2272,78 @@
           }
         },
         async submitAnswer() {
-          const r = await fetch(`/api/node/${this.detail.id}/submit-answer`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answer: this.exerciseAnswer })
-          });
-          this.exerciseResult = await r.json(); await this.refreshAll();
+          if (this.exerciseBusy || !this.detail?.id) return;
+          const nodeId = String(this.detail.id);
+          const requestId = this._detailRequestId;
+          this.exerciseBusy = true;
+          this.exerciseError = null;
+          this.exerciseResult = null;
+          let result;
+          try {
+            const response = await fetch(`/api/node/${encodeURIComponent(nodeId)}/submit-answer`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ answer: this.exerciseAnswer })
+            });
+            const raw = await response.text();
+            try { result = raw ? JSON.parse(raw) : {}; }
+            catch (_) { throw new Error(response.ok ? 'Le serveur a renvoyé une réponse illisible.' : `Erreur HTTP ${response.status}`); }
+            if (!response.ok) throw new Error(result.detail || result.message || `Erreur HTTP ${response.status}`);
+          } catch (error) {
+            if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) {
+              this.exerciseError = `La réponse n’a pas pu être enregistrée : ${error.message || 'erreur réseau'}`;
+            }
+            if (requestId === this._detailRequestId) this.exerciseBusy = false;
+            return;
+          }
+
+          if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) this.exerciseResult = result;
+          try {
+            await this.refreshAll();
+          } catch (error) {
+            if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) {
+              this.exerciseError = 'Réponse enregistrée, mais la progression n’a pas pu être actualisée. Réessaie d’actualiser le tableau de bord.';
+            }
+          } finally {
+            if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) this.exerciseBusy = false;
+          }
         },
         async submitQuiz() {
-          const r = await fetch(`/api/node/${this.detail.id}/quiz`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: this.quizAnswers })
-          });
-          this.quizResult = await r.json(); await this.refreshAll();
+          if (this.quizBusy || !this.detail?.id) return;
+          const nodeId = String(this.detail.id);
+          const requestId = this._detailRequestId;
+          this.quizBusy = true;
+          this.exerciseError = null;
+          this.quizResult = null;
+          let result;
+          try {
+            const response = await fetch(`/api/node/${encodeURIComponent(nodeId)}/quiz`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ answers: this.quizAnswers })
+            });
+            const raw = await response.text();
+            try { result = raw ? JSON.parse(raw) : {}; }
+            catch (_) { throw new Error(response.ok ? 'Le serveur a renvoyé une réponse illisible.' : `Erreur HTTP ${response.status}`); }
+            if (!response.ok) throw new Error(result.detail || result.message || `Erreur HTTP ${response.status}`);
+          } catch (error) {
+            if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) {
+              this.exerciseError = `Le quiz n’a pas pu être enregistré : ${error.message || 'erreur réseau'}`;
+            }
+            if (requestId === this._detailRequestId) this.quizBusy = false;
+            return;
+          }
+
+          if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) this.quizResult = result;
+          try {
+            await this.refreshAll();
+          } catch (error) {
+            if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) {
+              this.exerciseError = 'Résultat enregistré, mais la progression n’a pas pu être actualisée. Réessaie d’actualiser le tableau de bord.';
+            }
+          } finally {
+            if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) this.quizBusy = false;
+          }
         },
 
         async startLab() {
