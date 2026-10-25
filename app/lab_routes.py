@@ -66,7 +66,7 @@ def _load_lab_file(lab_id: str) -> dict[str, Any] | None:
 
     try:
         raw_payload = json.loads(lab_path.read_text(encoding="utf-8-sig"))
-    except (OSError, json.JSONDecodeError) as error:
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
         raise HTTPException(
             status_code=500,
             detail=f"Fichier JSON du lab '{lab_id}' illisible ({lab_path.name}) : {error}",
