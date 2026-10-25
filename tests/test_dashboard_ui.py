@@ -45,7 +45,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.setTheme(k === 'dark' ? 'lumiere' : 'graphite')", DASHBOARD_HTML)
 
     def test_ambient_glows_are_subtle_and_status_motion_is_not_continuous(self):
-        self.assertEqual(DASHBOARD_HTML.count("--halo:.55;"), 5)
+        self.assertEqual(DASHBOARD_HTML.count("--halo:.55;"), 7)
         self.assertIn(".glow-lime { box-shadow:", DASHBOARD_HTML)
         self.assertIn(".glow-fuchsia { box-shadow:", DASHBOARD_HTML)
         self.assertNotIn(".glow-lime { animation:", DASHBOARD_HTML)
