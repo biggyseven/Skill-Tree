@@ -146,5 +146,20 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.modalTab = 'lab';", open_lab_method)
         self.assertIn("this.openLab(this.detail.id, true);", DASHBOARD_HTML)
 
+    def test_tree_loading_finishes_and_api_failures_are_visible(self):
+        start = DASHBOARD_HTML.index("async loadTree() {")
+        end = DASHBOARD_HTML.index("async loadUserStats()", start)
+        load_tree = DASHBOARD_HTML[start:end]
+
+        self.assertIn("if (!r.ok) throw new Error(`HTTP ${r.status}`);", load_tree)
+        self.assertIn("!Array.isArray(d.nodes)", load_tree)
+        self.assertIn("this.treeError =", load_tree)
+        self.assertIn("finally {", load_tree)
+        self.assertIn("this.loading = false;", load_tree)
+        self.assertIn('x-show="treeError && tab === \'tree\'"', DASHBOARD_HTML)
+        self.assertIn('@click="refreshAll()"', DASHBOARD_HTML)
+        self.assertIn("treeError && !nodes.length", DASHBOARD_HTML)
+        self.assertIn("Aucun cours disponible", DASHBOARD_HTML)
+
 if __name__ == "__main__":
     unittest.main()
