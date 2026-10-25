@@ -676,5 +676,24 @@ class DashboardUiRegressionTests(unittest.TestCase):
             stats_markup,
         )
 
+
+    def test_dashboard_progress_uses_placeholders_when_initial_tree_load_fails(self):
+        self.assertIn(
+            'x-text="loading || (treeError && !nodes.length) ? \'—\' : progress"',
+            DASHBOARD_HTML,
+        )
+        self.assertIn(
+            'x-text="loading || (treeError && !nodes.length) ? \'—\' : validated"',
+            DASHBOARD_HTML,
+        )
+        self.assertIn(
+            'x-text="loading || (treeError && !nodes.length) ? \'—\' : total"',
+            DASHBOARD_HTML,
+        )
+        self.assertIn(
+            "stats?.totals ? stats.totals.validated + ' / ' + stats.totals.nodes : (loading || (treeError && !nodes.length) ? '—' : validated + ' / ' + total)",
+            DASHBOARD_HTML,
+        )
+
 if __name__ == "__main__":
     unittest.main()
