@@ -36,6 +36,26 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("previousCheck.stale", bridge)
         self.assertIn("topologySnapshot", bridge)
 
+    def test_workspace_submission_result_refreshes_dashboard_progress(self):
+        bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
+        dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+
+        self.assertIn("window.opener.postMessage({ type, detail }, window.location.origin)", bridge)
+        self.assertIn("emit('lab:submit-result', finalResult)", bridge)
+
+        init_start = dashboard.index("        async init() {")
+        init_end = dashboard.index("        // --- Préférences d'affichage du lecteur", init_start)
+        init_method = dashboard[init_start:init_end]
+        self.assertIn("if (event.origin !== window.location.origin) return;", init_method)
+        self.assertIn("message.type === 'lab:submit-result' && message.detail", init_method)
+        self.assertIn("this.onLabValidated(message.detail)", init_method)
+        self.assertIn("this.refreshAll()", init_method)
+
+        refresh_start = dashboard.index("        async refreshAll() {")
+        refresh_end = dashboard.index("        async retryDashboardData()", refresh_start)
+        refresh_method = dashboard[refresh_start:refresh_end]
+        self.assertIn("await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()])", refresh_method)
+
     def test_workspace_uses_single_panel_navigation_below_desktop_breakpoint(self):
         app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
 
