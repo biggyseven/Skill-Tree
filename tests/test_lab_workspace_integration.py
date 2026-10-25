@@ -56,6 +56,19 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         refresh_method = dashboard[refresh_start:refresh_end]
         self.assertIn("await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()])", refresh_method)
 
+    def test_sandbox_status_is_preserved_and_rewards_are_visible_after_submission(self):
+        app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
+        bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
+        toolbar = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "TopologyToolbar.jsx").read_text(encoding="utf-8")
+
+        self.assertIn("sandbox: data.sandbox === true", app)
+        self.assertIn("initial.lab.sandbox === true", bridge)
+        self.assertIn("lab?.sandbox === true", toolbar)
+        self.assertIn("Bac à sable — non noté", toolbar)
+        self.assertIn("checkResult.xp_gained", toolbar)
+        self.assertIn("checkResult.course_attempt_recorded", toolbar)
+        self.assertIn("Badge(s) débloqué(s)", toolbar)
+
     def test_workspace_uses_single_panel_navigation_below_desktop_breakpoint(self):
         app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
 
