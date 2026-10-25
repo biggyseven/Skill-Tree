@@ -230,6 +230,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("await this.startChallenge(nodeId)", DASHBOARD_HTML)
         self.assertIn("if (action.action === 'lab')", DASHBOARD_HTML)
         self.assertIn("await this.openLab(nodeId)", DASHBOARD_HTML)
+        self.assertIn("lab: status === 'available'", DASHBOARD_HTML)
+        self.assertIn("label: 'Lab à lancer'", DASHBOARD_HTML)
+        self.assertIn("label: 'Lab à poursuivre'", DASHBOARD_HTML)
         self.assertIn("label: 'Révision'", DASHBOARD_HTML)
         self.assertIn("label: 'Défi à poursuivre'", DASHBOARD_HTML)
 
