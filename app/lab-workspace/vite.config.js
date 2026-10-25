@@ -4,6 +4,7 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/lab/',
   server: {
     host: '127.0.0.1',
     proxy: {
