@@ -638,5 +638,25 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('x-if="!flashcardsLoading && !cardLoadError && currentFlashcard"', memo)
         self.assertIn('x-if="!flashcardsLoading && !cardLoadError && !currentFlashcard"', memo)
 
+
+    def test_dashboard_statistics_never_present_unloaded_defaults_as_real_values(self):
+        self.assertIn(
+            'x-text="streakLoaded ? streakDays : \'—\'"',
+            DASHBOARD_HTML,
+        )
+        self.assertIn(
+            'x-text="userStatsLoaded ? userStats.total_xp : \'—\'"',
+            DASHBOARD_HTML,
+        )
+        # The compact header and the main dashboard should use the same loaded flags.
+        self.assertIn(
+            'x-text="userStatsLoaded ? `${userStats.total_xp} XP` : \'— XP\'"',
+            DASHBOARD_HTML,
+        )
+        self.assertIn(
+            'x-text="streakLoaded ? streakDays : \'—\'"',
+            DASHBOARD_HTML,
+        )
+
 if __name__ == "__main__":
     unittest.main()
