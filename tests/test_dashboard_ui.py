@@ -658,5 +658,23 @@ class DashboardUiRegressionTests(unittest.TestCase):
             DASHBOARD_HTML,
         )
 
+
+    def test_radar_distinguishes_api_failure_from_a_genuinely_empty_history(self):
+        stats_start = DASHBOARD_HTML.index('<section x-show="tab === \'stats\'"')
+        stats_end = DASHBOARD_HTML.index('<!-- ============ ONGLET MÉMO ============ -->', stats_start)
+        stats_markup = DASHBOARD_HTML[stats_start:stats_end]
+
+        self.assertIn('x-show="dashboardDataErrors.stats"', stats_markup)
+        self.assertIn("Cela ne signifie pas que ta progression est vide.", stats_markup)
+        self.assertIn('@click="loadStats()"', stats_markup)
+        self.assertIn(
+            'x-show="!statsLoading && !dashboardDataErrors.stats && !radarHasData()"',
+            stats_markup,
+        )
+        self.assertIn(
+            'x-show="!statsLoading && !dashboardDataErrors.stats && radarHasData() && !radarHasPositiveRate()"',
+            stats_markup,
+        )
+
 if __name__ == "__main__":
     unittest.main()
