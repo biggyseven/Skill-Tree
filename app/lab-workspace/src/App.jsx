@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLabStore } from './store/useLabStore.js';
 import { LabCanvas } from './canvas/LabCanvas.jsx';
 import { TopologyToolbar } from './canvas/TopologyToolbar.jsx';
@@ -14,6 +14,7 @@ function fetchLabFromUrl(labId) {
 }
 
 function WorkspaceHeader({ lab, topology }) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const levelLabels = {
     debutant: 'Débutant',
     intermediaire: 'Intermédiaire',
@@ -21,36 +22,80 @@ function WorkspaceHeader({ lab, topology }) {
   };
   const level = levelLabels[String(lab.level || '').toLowerCase()] || lab.level || 'Lab';
 
+  useEffect(() => {
+    const updateFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', updateFullscreen);
+    updateFullscreen();
+    return () => document.removeEventListener('fullscreenchange', updateFullscreen);
+  }, []);
+
+  async function toggleFullscreen() {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (error) {
+      console.warn('Le mode plein écran n’est pas disponible dans ce navigateur.', error);
+    }
+  }
+
   return (
-    <header className="relative z-20 flex h-[60px] shrink-0 items-center justify-between gap-4 border-b border-[#30363d] bg-[#161b22] px-4 shadow-[0_4px_14px_rgba(0,0,0,0.16)]">
-      <div className="flex min-w-0 items-center gap-3">
+    <header className="relative z-20 flex h-[64px] shrink-0 items-center justify-between gap-3 border-b border-[#30363d] bg-[#161b22] px-3 shadow-[0_4px_14px_rgba(0,0,0,0.22)] sm:px-4">
+      <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/10 font-black tracking-tight text-[#38bdf8]">
           ST
         </div>
-        <div className="hidden min-w-0 sm:block">
-          <div className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8b949e]">
+        <div className="block min-w-0">
+          <div className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#8b949e] sm:text-[10px] sm:tracking-[0.17em]">
             Skill Tree <span className="mx-1 text-[#30363d]">/</span> Network Lab
           </div>
-          <div className="mt-0.5 truncate text-sm font-semibold text-[#e6edf3]" title={lab.title}>
+          <div className="mt-0.5 max-w-[42vw] truncate text-xs font-semibold text-[#e6edf3] sm:max-w-[380px] sm:text-sm" title={lab.title}>
             {lab.title || 'Lab Workspace'}
           </div>
         </div>
-        <span className="hidden h-7 w-px bg-[#30363d] md:block" />
+        <span className="hidden h-7 w-px bg-[#30363d] lg:block" />
         <div className="hidden min-w-0 lg:block">
-          <div className="text-[9px] uppercase tracking-[0.15em] text-[#6e7681]">Topology</div>
+          <div className="text-[9px] uppercase tracking-[0.15em] text-[#6e7681]">Topologie</div>
           <div className="mt-0.5 font-mono text-[11px] text-[#c9d1d9]">
-            {(topology?.nodes || []).length} devices <span className="text-[#484f58]">/</span> {(topology?.links || []).length} links
+            {(topology?.nodes || []).length} équipements <span className="text-[#484f58]">/</span> {(topology?.links || []).length} liaisons
           </div>
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-        <span className="hidden rounded-md border border-[#30363d] bg-[#0d1117] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#c9d1d9] sm:inline-flex">
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <span className="hidden rounded-md border border-[#30363d] bg-[#0d1117] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#c9d1d9] md:inline-flex">
           {level}
         </span>
-        <span className="inline-flex items-center gap-2 rounded-md border border-[#10b981]/25 bg-[#10b981]/[0.07] px-2.5 py-1.5 text-[10px] font-semibold text-[#10b981]">
+        <a
+          href="/"
+          title="Retourner au tableau de bord Skill Tree"
+          aria-label="Retour au tableau de bord"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#30363d] bg-[#0d1117] px-2.5 text-[11px] font-semibold text-[#c9d1d9] transition hover:border-[#0ea5e9]/70 hover:bg-[#0ea5e9]/10 hover:text-white sm:px-3 sm:text-xs"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="m3 10 9-7 9 7" /><path d="M5 9v12h14V9" /><path d="M9 21v-7h6v7" />
+          </svg>
+          <span className="hidden sm:inline">Tableau de bord</span>
+        </a>
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          title={isFullscreen ? 'Quitter le plein écran' : 'Passer en plein écran'}
+          aria-label={isFullscreen ? 'Quitter le plein écran' : 'Passer en plein écran'}
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#30363d] bg-[#0d1117] px-2.5 text-[11px] font-semibold text-[#c9d1d9] transition hover:border-[#0ea5e9]/70 hover:bg-[#0ea5e9]/10 hover:text-white sm:px-3 sm:text-xs"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {isFullscreen
+              ? <><path d="M8 3v5H3" /><path d="M16 3v5h5" /><path d="M8 21v-5H3" /><path d="M16 21v-5h5" /></>
+              : <><path d="M8 3H3v5" /><path d="M16 3h5v5" /><path d="M8 21H3v-5" /><path d="M16 21h5v-5" /></>}
+          </svg>
+          <span className="hidden sm:inline">{isFullscreen ? 'Quitter plein écran' : 'Plein écran'}</span>
+        </button>
+        <span className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#10b981]/25 bg-[#10b981]/[0.07] px-2 text-[9px] font-semibold text-[#10b981] sm:h-9 sm:px-2.5 sm:text-[10px]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_rgba(16,185,129,0.65)]" />
-          Lab actif
+          <span className="hidden sm:inline">Lab actif</span>
         </span>
       </div>
     </header>
