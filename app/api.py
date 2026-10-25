@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request
-from fastapi.responses import PlainTextResponse, StreamingResponse, FileResponse
+from fastapi.responses import PlainTextResponse, StreamingResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -69,6 +69,11 @@ DIAGNOSTIC_FAST_BONUS_XP = 50
 
 class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
+
+
+class SpeechRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=2600)
+    rate: float = Field(default=1.0, ge=0.8, le=1.6)
 
 class SandboxCheckRequest(BaseModel):
     command: str = Field(min_length=1, max_length=500)
@@ -776,7 +781,14 @@ def tutor_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
 
     api_key = (os.environ.get("GROQ_API_KEY") or "").strip()
     if not api_key:
-        return {"answer": "Le tuteur IA n’est pas configuré pour le moment. Vérifie la variable GROQ_API_KEY dans la configuration du service."}
+        return {
+            "answer": (
+                "Le tuteur IA est désactivé : la variable GROQ_API_KEY manque dans la configuration Render. "
+                "Ouvre le tableau de bord Render, sélectionne le service Skill-Tree, puis Environment. "
+                "Ajoute GROQ_API_KEY avec une clé créée sur console.groq.com et redéploie le service. "
+                "Ne publie jamais cette clé dans GitHub ni dans le chat."
+            )
+        }
 
     system_message = (
         "Tu es le tuteur pédagogique intégré à Skill-Tree. Réponds toujours en français, "
@@ -817,6 +829,42 @@ def tutor_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
     except Exception as error:
         print(f"Erreur Tuteur Skill-Tree ({type(error).__name__}).")
         return {"answer": "Le tuteur rencontre momentanément un problème. Réessaie dans quelques instants."}
+
+@app.post("/api/tts")
+async def generate_speech(payload: SpeechRequest) -> Response:
+    """Génère un segment audio MP3 avec une voix française stable côté serveur."""
+    if not payload.text.strip():
+        raise HTTPException(status_code=422, detail="Le texte à prononcer ne peut pas être vide.")
+    try:
+        import edge_tts
+
+        rate_percent = int(round((payload.rate - 1.0) * 100))
+        communicate = edge_tts.Communicate(
+            payload.text,
+            voice="fr-FR-DeniseNeural",
+            rate=f"{rate_percent:+d}%",
+        )
+        audio_parts: list[bytes] = []
+        async for chunk in communicate.stream():
+            if chunk.get("type") == "audio" and chunk.get("data"):
+                audio_parts.append(chunk["data"])
+    except Exception as error:
+        print(f"Erreur de synthèse vocale ({type(error).__name__}).")
+        raise HTTPException(
+            status_code=502,
+            detail="Le service de voix française est momentanément indisponible. Réessaie dans quelques instants.",
+        ) from None
+
+    audio_data = b"".join(audio_parts)
+    if not audio_data:
+        raise HTTPException(status_code=502, detail="Le service vocal n’a produit aucun son. Réessaie.")
+
+    return Response(
+        content=audio_data,
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "private, max-age=300"},
+    )
+
 
 @app.post("/api/topology")
 def save_topology_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):

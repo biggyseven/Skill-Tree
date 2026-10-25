@@ -51,5 +51,21 @@ class ContextualTutorApiTests(unittest.TestCase):
         self.assertEqual(messages[3]["content"], "Pourquoi cette notion est-elle importante ?")
 
 
+    def test_tutor_explains_how_to_configure_missing_groq_key(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            database_path = Path(temporary) / "skilltree.db"
+            with patch.object(api, "DB_PATH", database_path):
+                with patch.dict(os.environ, {"GROQ_API_KEY": ""}):
+                    with TestClient(api.app) as client:
+                        response = client.post(
+                            "/api/tutor",
+                            json={"node_id": "intro-reseau-intermediaire", "question": "Explique cette notion"},
+                        )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertIn("Environment", response.json()["answer"])
+        self.assertIn("console.groq.com", response.json()["answer"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1477,6 +1477,8 @@
          :class="isFullscreen ? 'm-0 h-screen max-w-none rounded-none' : 'my-0 h-[94vh] w-[97vw] max-w-[1680px] rounded-3xl'"
          x-show="open" role="dialog" aria-modal="true" aria-labelledby="course-reader-title">
 
+      <audio x-ref="speechAudio" class="hidden" preload="auto" aria-hidden="true"></audio>
+
       <!-- Barre de progression de lecture -->
       <div class="absolute left-0 top-0 z-20 h-1 bg-gradient-to-r from-fuchsia-500 to-cyan-500 transition-[width] duration-150" :style="`width: ${lessonProgress}%`"></div>
 
@@ -1597,14 +1599,15 @@
                         <button type="button" x-show="speechKind === 'lesson' && speechState !== 'idle'" x-cloak @click="stopSpeech()" aria-label="Arrêter la lecture" title="Arrêter la lecture" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-300 transition hover:bg-white/5">■</button>
                         <label class="flex items-center gap-2 rounded-xl border border-white/10 bg-[color:var(--s1)] px-3 py-2 text-xs text-zinc-300">
                           <span>Vitesse</span>
-                          <select x-model.number="speechRate" aria-label="Vitesse de lecture vocale" class="bg-transparent font-semibold text-white outline-none">
+                          <select x-model.number="speechRate" @change="changeSpeechRate()" aria-label="Vitesse de lecture vocale" class="bg-transparent font-semibold text-white outline-none">
                             <option value="0.8">0,8×</option><option value="1">1×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option><option value="1.6">1,6×</option>
                           </select>
                         </label>
                         <button type="button" @mousedown.prevent @click="explainSelectedText()" class="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3 py-2.5 text-xs font-semibold text-violet-200 transition hover:bg-violet-500/20">Expliquer ma sélection</button>
                       </div>
                     </div>
-                    <p x-show="!speechSupported()" class="mt-3 text-xs text-amber-200">La lecture vocale n’est pas prise en charge par ce navigateur. Essaie avec une version récente de Chrome ou Edge.</p>
+                    <p x-show="!speechSupported()" class="mt-3 text-xs text-amber-200">Ce navigateur ne permet pas la lecture audio HTML5.</p>
+                    <p x-show="speechError" x-cloak role="alert" aria-live="polite" class="mt-3 rounded-xl border border-rose-400/20 bg-rose-500/10 px-3 py-2 text-xs leading-relaxed text-rose-200" x-text="speechError"></p>
                   </section>
                   <!-- Sommaire repliable -->
                   <details x-show="lessonToc.length" class="mb-5 rounded-2xl border border-white/10 bg-[color:var(--s2)] px-5 py-3 lg:hidden">
@@ -1930,7 +1933,8 @@
         labId: null, labBusy: false, labRunning: false, labOutput: [], labCommand: '', labValidation: null, labError: null,
 
         tutorOpen: false, tutorQuestion: '', tutorMessages: [], tutorBusy: false, tutorSelectedText: '',
-        speechState: 'idle', speechKind: null, speechRate: 1, speechQueue: [], speechQueueIndex: 0, _speechRunId: 0, _speechUtterance: null,
+        speechState: 'idle', speechKind: null, speechRate: 1, speechQueue: [], speechQueueIndex: 0,
+        speechError: null, _speechRunId: 0, _speechAudioUrls: {}, _speechAudioRequests: {}, _speechLoadedIndex: -1,
         dailyPlan: [], stats: null, statsLoading: false, flashcards: [], flashcardQueue: [], flashcardsLoading: false, flashcardFlipped: false,
 
         diagnostic: null, diagnosticStep: null,
@@ -2833,21 +2837,21 @@
           if(data.success) { this.userStats.coins = data.coins; alert("Acheté !"); }
           else { alert(data.detail || "Erreur"); }
         },
-        // --- Lecture vocale et assistant pédagogique ---
+        // --- Lecture vocale serveur et assistant pédagogique ---
         speechSupported() {
           return typeof window !== 'undefined'
-            && 'speechSynthesis' in window
-            && typeof window.SpeechSynthesisUtterance === 'function';
+            && typeof window.fetch === 'function'
+            && typeof window.Audio === 'function';
         },
         lessonSpeechButtonLabel() {
           if (this.speechKind === 'lesson' && this.speechState === 'speaking') return 'Mettre en pause';
           if (this.speechKind === 'lesson' && this.speechState === 'paused') return 'Reprendre la lecture';
-          if (this.speechKind === 'lesson' && this.speechState === 'starting') return 'Lecture en cours…';
+          if (this.speechKind === 'lesson' && this.speechState === 'starting') return 'Préparation de l’audio…';
           return 'Écouter le cours';
         },
         speechStatusLabel() {
           if (this.speechState === 'paused') return 'Lecture en pause';
-          if (this.speechState === 'starting') return 'Préparation de la voix…';
+          if (this.speechState === 'starting') return 'Préparation du segment audio…';
           if (this.speechKind === 'lesson') return 'Lecture du cours en cours';
           if (this.speechKind === 'tutor') return 'Lecture de la réponse en cours';
           return '';
@@ -2856,107 +2860,257 @@
           const article = this.$refs.lessonArticle;
           if (!article) return '';
           const readable = article.cloneNode(true);
-          readable.querySelectorAll('pre, svg, table, img, button, details, .no-speech').forEach(element => element.remove());
+          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, .no-speech').forEach(element => element.remove());
           return (readable.innerText || readable.textContent || '')
-            .replace(/[ \\t]+/g, ' ')
-            .replace(/\\n{3,}/g, '\\n\\n')
+            .replace(/\r\n?/g, '\n')
+            .replace(/[ \t]+/g, ' ')
+            .replace(/\n[ \t]+/g, '\n')
+            .replace(/\n{3,}/g, '\n\n')
             .trim();
         },
         splitSpeechText(text) {
-          const normalized = String(text || '').replace(/[ \\t]+/g, ' ').replace(/\\n+/g, '\\n').trim();
+          const normalized = String(text || '')
+            .replace(/\r\n?/g, '\n')
+            .replace(/[ \t]+/g, ' ')
+            .replace(/\n[ \t]+/g, '\n')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
           if (!normalized) return [];
-          const sentences = normalized.split(/(?<=[.!?…])\\s+|\\n+/u).map(sentence => sentence.trim()).filter(Boolean);
+
+          const paragraphs = normalized.split(/\n{2,}/).map(part => part.replace(/\n+/g, ' ').trim()).filter(Boolean);
           const chunks = [];
+          const maxLength = 1800;
           let current = '';
           const appendSentence = sentence => {
-            if (sentence.length > 260) {
+            const clean = String(sentence || '').replace(/\s+/g, ' ').trim();
+            if (!clean) return;
+            if (clean.length > maxLength) {
               if (current) { chunks.push(current); current = ''; }
               let part = '';
-              for (const word of sentence.split(/\\s+/)) {
-                if (part && (part + ' ' + word).length > 220) { chunks.push(part); part = word; }
-                else part = part ? part + ' ' + word : word;
+              for (const word of clean.split(/\s+/)) {
+                if (part && (part + ' ' + word).length > maxLength) {
+                  chunks.push(part);
+                  part = word;
+                } else {
+                  part = part ? part + ' ' + word : word;
+                }
               }
               if (part) chunks.push(part);
               return;
             }
-            if (current && (current + ' ' + sentence).length > 260) {
+            if (current && (current + ' ' + clean).length > maxLength) {
               chunks.push(current);
-              current = sentence;
-            } else current = current ? current + ' ' + sentence : sentence;
+              current = clean;
+            } else {
+              current = current ? current + ' ' + clean : clean;
+            }
           };
-          sentences.forEach(appendSentence);
+
+          for (const paragraph of paragraphs) {
+            let sentences;
+            if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
+              const segmenter = new Intl.Segmenter('fr', { granularity: 'sentence' });
+              sentences = Array.from(segmenter.segment(paragraph), item => item.segment.trim()).filter(Boolean);
+            } else {
+              sentences = paragraph.split(/(?<=[.!?…])\s+/u).map(item => item.trim()).filter(Boolean);
+            }
+            sentences.forEach(appendSentence);
+          }
           if (current) chunks.push(current);
           return chunks;
         },
+        async loadSpeechChunk(index, runId) {
+          if (runId !== this._speechRunId) return null;
+          if (this._speechAudioUrls[index]) return this._speechAudioUrls[index];
+          if (this._speechAudioRequests[index]) return this._speechAudioRequests[index];
+
+          const request = (async () => {
+            const response = await fetch('/api/tts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                text: this.speechQueue[index],
+                rate: Math.max(0.8, Math.min(1.6, Number(this.speechRate) || 1)),
+              }),
+            });
+            if (!response.ok) {
+              let message = 'Impossible de générer la voix française.';
+              try {
+                const problem = await response.json();
+                if (problem && problem.detail) message = problem.detail;
+              } catch (_) { /* réponse d'erreur non JSON */ }
+              throw new Error(message);
+            }
+            const blob = await response.blob();
+            if (!blob.size) throw new Error('Le service vocal a renvoyé un segment audio vide.');
+            const url = URL.createObjectURL(blob);
+            if (runId !== this._speechRunId) {
+              URL.revokeObjectURL(url);
+              return null;
+            }
+            this._speechAudioUrls[index] = url;
+            return url;
+          })();
+
+          this._speechAudioRequests[index] = request;
+          try {
+            return await request;
+          } finally {
+            if (this._speechAudioRequests[index] === request) delete this._speechAudioRequests[index];
+          }
+        },
+        prefetchSpeechChunk(index, runId) {
+          if (runId !== this._speechRunId || index >= this.speechQueue.length) return;
+          this.loadSpeechChunk(index, runId).catch(() => {
+            // Le segment sera retenté au moment de le lire, avec un message visible si l'échec persiste.
+          });
+        },
+        async playSpeechChunk(index, runId) {
+          if (runId !== this._speechRunId) return;
+          if (index >= this.speechQueue.length) {
+            this.finishSpeech(runId);
+            return;
+          }
+          this.speechQueueIndex = index;
+          this.speechError = null;
+
+          try {
+            const url = await this.loadSpeechChunk(index, runId);
+            if (runId !== this._speechRunId || !url) return;
+            const audio = this.$refs.speechAudio;
+            if (!audio) throw new Error('Le lecteur audio du cours est introuvable.');
+
+            audio.onended = () => this.onSpeechAudioEnded(runId, index);
+            audio.onerror = () => this.onSpeechAudioError(runId, index);
+            if (this._speechLoadedIndex !== index || audio.src !== url) {
+              audio.pause();
+              audio.src = url;
+              audio.load();
+              this._speechLoadedIndex = index;
+            }
+            if (this.speechState === 'paused') return;
+
+            this.speechState = 'starting';
+            await audio.play();
+            if (runId !== this._speechRunId) return;
+            this.speechState = 'speaking';
+            this.prefetchSpeechChunk(index + 1, runId);
+          } catch (error) {
+            if (runId !== this._speechRunId) return;
+            this.speechError = error && error.message
+              ? error.message
+              : 'La lecture audio a échoué. Essaie de relancer la lecture.';
+            this.speechState = 'idle';
+            this.speechKind = null;
+            this.notify(this.speechError);
+          }
+        },
+        onSpeechAudioEnded(runId, index) {
+          if (runId !== this._speechRunId || index !== this.speechQueueIndex) return;
+          if (index + 1 >= this.speechQueue.length) {
+            this.finishSpeech(runId);
+            return;
+          }
+          this.playSpeechChunk(index + 1, runId);
+        },
+        onSpeechAudioError(runId, index) {
+          if (runId !== this._speechRunId || index !== this.speechQueueIndex) return;
+          this.speechError = 'Le fichier audio n’a pas pu être lu. Relance la lecture ; si le problème continue, vérifie la connexion.';
+          this.speechState = 'idle';
+          this.speechKind = null;
+          this.notify(this.speechError);
+        },
+        revokeSpeechAudioUrls() {
+          Object.values(this._speechAudioUrls || {}).forEach(url => {
+            try { URL.revokeObjectURL(url); } catch (_) { /* URL déjà libérée */ }
+          });
+          this._speechAudioUrls = {};
+          this._speechAudioRequests = {};
+          this._speechLoadedIndex = -1;
+        },
+        finishSpeech(runId) {
+          if (runId !== this._speechRunId) return;
+          this._speechRunId += 1;
+          const audio = this.$refs.speechAudio;
+          if (audio) {
+            audio.onended = null;
+            audio.onerror = null;
+            audio.pause();
+            audio.removeAttribute('src');
+            audio.load();
+          }
+          this.revokeSpeechAudioUrls();
+          this.speechState = 'idle';
+          this.speechKind = null;
+          this.speechQueue = [];
+          this.speechQueueIndex = 0;
+        },
         startSpeech(text, kind) {
           if (!this.speechSupported()) {
-            this.notify('La lecture vocale n’est pas disponible dans ce navigateur.');
+            this.speechError = 'La lecture audio n’est pas prise en charge par ce navigateur.';
             return;
           }
           this.stopSpeech();
           this.speechQueue = this.splitSpeechText(text);
           if (!this.speechQueue.length) {
-            this.notify('Aucun texte lisible à prononcer dans ce contenu.');
+            this.speechError = 'Aucun texte à lire dans ce contenu.';
+            this.notify(this.speechError);
             return;
           }
           this.speechKind = kind;
           this.speechState = 'starting';
+          this.speechError = null;
           this.speechQueueIndex = 0;
-          this.speakNextChunk(this._speechRunId);
-        },
-        speakNextChunk(runId) {
-          if (runId !== this._speechRunId || !this.speechSupported()) return;
-          if (this.speechQueueIndex >= this.speechQueue.length) {
-            this.speechState = 'idle';
-            this.speechKind = null;
-            this._speechUtterance = null;
-            this.speechQueue = [];
-            this.speechQueueIndex = 0;
-            return;
-          }
-          const utterance = new window.SpeechSynthesisUtterance(this.speechQueue[this.speechQueueIndex]);
-          utterance.lang = 'fr-FR';
-          utterance.rate = Math.max(0.7, Math.min(1.7, Number(this.speechRate) || 1));
-          const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-          utterance.voice = voices.find(voice => String(voice.lang || '').toLowerCase() === 'fr-fr')
-            || voices.find(voice => String(voice.lang || '').toLowerCase().startsWith('fr'))
-            || null;
-          utterance.onstart = () => {
-            if (runId === this._speechRunId) this.speechState = 'speaking';
-          };
-          utterance.onend = () => {
-            if (runId !== this._speechRunId) return;
-            this.speechQueueIndex += 1;
-            this.speakNextChunk(runId);
-          };
-          utterance.onerror = event => {
-            if (runId !== this._speechRunId || event.error === 'canceled' || event.error === 'interrupted') return;
-            this.speechState = 'idle';
-            this.speechKind = null;
-            this._speechUtterance = null;
-            this.notify('La lecture vocale a été interrompue. Tu peux relancer la lecture.');
-          };
-          this._speechUtterance = utterance;
-          window.speechSynthesis.speak(utterance);
+          this.playSpeechChunk(0, this._speechRunId);
         },
         stopSpeech() {
           this._speechRunId += 1;
-          if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+          const audio = this.$refs.speechAudio;
+          if (audio) {
+            audio.onended = null;
+            audio.onerror = null;
+            audio.pause();
+            audio.removeAttribute('src');
+            audio.load();
+          }
+          this.revokeSpeechAudioUrls();
           this.speechState = 'idle';
           this.speechKind = null;
           this.speechQueue = [];
           this.speechQueueIndex = 0;
-          this._speechUtterance = null;
+          this.speechError = null;
         },
         pauseSpeech() {
-          if (!this.speechSupported() || !['speaking', 'starting'].includes(this.speechState)) return;
-          window.speechSynthesis.pause();
+          if (!['speaking', 'starting'].includes(this.speechState)) return;
+          const audio = this.$refs.speechAudio;
+          if (audio) audio.pause();
           this.speechState = 'paused';
         },
-        resumeSpeech() {
-          if (!this.speechSupported() || this.speechState !== 'paused') return;
-          window.speechSynthesis.resume();
-          this.speechState = 'speaking';
+        async resumeSpeech() {
+          if (this.speechState !== 'paused') return;
+          const runId = this._speechRunId;
+          const audio = this.$refs.speechAudio;
+          this.speechState = 'starting';
+          if (audio && this._speechLoadedIndex === this.speechQueueIndex && audio.src) {
+            try {
+              await audio.play();
+              if (runId === this._speechRunId) this.speechState = 'speaking';
+            } catch (error) {
+              if (runId !== this._speechRunId) return;
+              this.speechState = 'paused';
+              this.speechError = 'Appuie de nouveau sur Reprendre pour autoriser la lecture audio.';
+            }
+          } else if (!this._speechAudioRequests[this.speechQueueIndex]) {
+            this.playSpeechChunk(this.speechQueueIndex, runId);
+          }
+        },
+        changeSpeechRate() {
+          if (!this.speechKind || !['speaking', 'starting', 'paused'].includes(this.speechState)) return;
+          const kind = this.speechKind;
+          const remainingText = this.speechQueue.slice(this.speechQueueIndex).join(' ');
+          const wasPaused = this.speechState === 'paused';
+          this.startSpeech(remainingText, kind);
+          if (wasPaused) this.pauseSpeech();
         },
         toggleLessonSpeech() {
           if (this.speechKind === 'lesson' && ['speaking', 'starting'].includes(this.speechState)) return this.pauseSpeech();
