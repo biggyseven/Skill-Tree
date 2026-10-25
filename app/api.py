@@ -541,6 +541,12 @@ async def trigger_update():
     await manager.broadcast("update")
     return {"status": "ok"}
 
+from fastapi.responses import FileResponse
+
+@app.get("/lab.html")
+async def lab_workspace_page():
+    return FileResponse("lab.html")
+
 STATIC_DIR.mkdir(exist_ok=True)
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
