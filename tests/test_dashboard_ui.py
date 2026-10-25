@@ -104,7 +104,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         resumable_getter = DASHBOARD_HTML[start:end]
 
         self.assertIn("return node && node.status !== 'locked' ? node : null;", resumable_getter)
-        self.assertIn("return this.resumableLastNode || this.parcours.cur", DASHBOARD_HTML)
+        self.assertIn("return this.resumableLastNode\n            || this.parcours.cur", DASHBOARD_HTML)
         self.assertIn('x-text="resumeBadge"', DASHBOARD_HTML)
         self.assertIn('x-show="resumableLastNode"', DASHBOARD_HTML)
         self.assertIn('x-text="resumeButtonLabel"', DASHBOARD_HTML)
