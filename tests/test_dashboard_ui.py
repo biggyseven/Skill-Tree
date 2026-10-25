@@ -415,6 +415,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("LS.set('challenges-done', this.challengesDone)", DASHBOARD_HTML)
         self.assertIn("Récompenses :", DASHBOARD_HTML)
         self.assertIn("challengeResult.xpGained > 0", DASHBOARD_HTML)
+        self.assertIn("challengeResult.coinsGained > 0", DASHBOARD_HTML)
+        self.assertIn("Number(result.coins_gained) || 0", DASHBOARD_HTML)
         self.assertIn("Badges débloqués", DASHBOARD_HTML)
         self.assertIn("const passed = !timeout && score >= this.challenge.minScore;", DASHBOARD_HTML)
         self.assertIn(':disabled="!c.builtin && c.status === \'locked\'"', DASHBOARD_HTML)
