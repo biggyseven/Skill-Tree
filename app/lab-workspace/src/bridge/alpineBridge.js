@@ -90,6 +90,7 @@ export function initAlpineBridge() {
       !initial.lab ||
       !initial.topology ||
       initial.lab.id === 'demo' ||
+      initial.lab.sandbox === true ||
       initial.loading ||
       !previousCheck ||
       previousCheck.stale ||
