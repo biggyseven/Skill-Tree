@@ -127,7 +127,6 @@ test('une topologie modifiée pendant la soumission est signalée comme obsolèt
   await waitFor(() => typeof resolveRequest === 'function', 'La requête de soumission n’a pas été lancée.');
 
   const current = useLabStore.getState();
-  current.setState;
   useLabStore.setState(state => ({
     topology: { ...state.topology, topology_id: 'topology-changed-during-submit' },
   }));
