@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from app.api import read_node, read_profile, read_tree, submit_challenge
 from app.db import connect, initialize
 from app.engine import SkillTree, get_daily_plan
+from app.loader import ContentError, _parse_expected_topology
 
 
 class LearningProgressConsistencyTests(unittest.TestCase):
@@ -348,6 +349,96 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         planned_ids = {action["node_id"] for action in plan["actions"]}
         self.assertIn("first-step", planned_ids)
         self.assertNotIn("locked-step", planned_ids)
+
+
+    def test_topology_all_pairs_rule_rejects_duplicate_links_to_the_same_peer(self) -> None:
+        self.add_node("challenge-fullmesh", "Défi full mesh", "Administration Réseaux", 1)
+        expected = {
+            "nodes": {"router": 2, "switch": 2},
+            "connections": [{"from": "router", "to": "switch"} for _ in range(4)],
+            "constraints": [{"kind": "all_pairs", "from": "router", "to": "switch"}],
+        }
+        self.add_challenge("challenge-fullmesh", expected=expected)
+
+        # Le nombre total de liens correspond à l'attendu, mais trois liens
+        # aboutissent au même switch : les deux paires restantes sont absentes.
+        topology = {
+            "1": {"name": "router", "data": {"label": "Routeur A"}, "outputs": {
+                "output_1": {"connections": [{"node": "3"}, {"node": "3"}, {"node": "3"}]}
+            }},
+            "2": {"name": "router", "data": {"label": "Routeur B"}, "outputs": {
+                "output_1": {"connections": [{"node": "4"}]}
+            }},
+            "3": {"name": "switch", "data": {"label": "Switch A"}, "outputs": {"output_1": {"connections": []}}},
+            "4": {"name": "switch", "data": {"label": "Switch B"}, "outputs": {"output_1": {"connections": []}}},
+        }
+
+        result = submit_challenge("challenge-fullmesh", {"topology": topology}, self.tree)
+
+        self.assertEqual(result["score"], 95)
+        self.assertFalse(result["passed"])
+        self.assertEqual(result["status"], "in_progress")
+        self.assertGreaterEqual(
+            sum("Liaison requise manquante" in message for message in result["missing_links"]),
+            2,
+        )
+
+    def test_connected_rule_rejects_an_isolated_router_even_when_link_counts_match(self) -> None:
+        self.add_node("challenge-connected", "Défi backbone connecté", "Administration Réseaux", 1)
+        expected = {
+            "nodes": {"router": 3, "server": 1},
+            "connections": [
+                {"from": "router", "to": "router"},
+                {"from": "router", "to": "router"},
+                {"from": "router", "to": "server"},
+            ],
+            "constraints": [
+                {"kind": "connected", "type": "router"},
+                {"kind": "min_peer_count", "from": "server", "to": "router", "min_peers": 1},
+            ],
+        }
+        self.add_challenge("challenge-connected", expected=expected)
+        topology = {
+            "1": {"name": "router", "data": {"label": "R1"}, "outputs": {
+                "output_1": {"connections": [{"node": "2"}, {"node": "2"}]}
+            }},
+            "2": {"name": "router", "data": {"label": "R2"}, "outputs": {
+                "output_1": {"connections": [{"node": "4"}]}
+            }},
+            "3": {"name": "router", "data": {"label": "R3 isolé"}, "outputs": {
+                "output_1": {"connections": []}
+            }},
+            "4": {"name": "server", "data": {"label": "Route reflector"}, "outputs": {
+                "output_1": {"connections": []}
+            }},
+        }
+
+        result = submit_challenge("challenge-connected", {"topology": topology}, self.tree)
+
+        self.assertEqual(result["score"], 95)
+        self.assertFalse(result["passed"])
+        self.assertTrue(any("réseau connecté" in message for message in result["missing_links"]))
+
+    def test_expected_topology_parser_preserves_and_checks_constraints(self) -> None:
+        parsed = _parse_expected_topology(
+            {
+                "nodes": {"spine": 2, "leaf": 2},
+                "connections": [{"from": "spine", "to": "leaf"}],
+                "constraints": [{"kind": "all_pairs", "from": "spine", "to": "leaf"}],
+            },
+            "fixture",
+        )
+        self.assertEqual(parsed["constraints"], [{"kind": "all_pairs", "from": "spine", "to": "leaf"}])
+
+        with self.assertRaises(ContentError):
+            _parse_expected_topology(
+                {
+                    "nodes": {"router": 1, "switch": 1},
+                    "connections": [{"from": "router", "to": "switch"}],
+                    "constraints": [{"kind": "all_pairs", "from": "router", "to": "apic"}],
+                },
+                "fixture",
+            )
 
 
 if __name__ == "__main__":
