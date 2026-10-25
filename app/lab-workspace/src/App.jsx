@@ -122,6 +122,7 @@ export default function App() {
   const topology = useLabStore(s => s.topology);
   const loading = useLabStore(s => s.loading);
   const error = useLabStore(s => s.error);
+  const [mobilePane, setMobilePane] = useState('canvas');
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -168,9 +169,42 @@ export default function App() {
     <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-[#0d1117] text-[#e6edf3]">
       <WorkspaceHeader lab={lab} topology={topology} />
 
+      <nav className="grid grid-cols-3 gap-1 border-b border-[#30363d] bg-[#0d1117] p-1.5 xl:hidden" aria-label="Panneaux du laboratoire">
+        <button
+          type="button"
+          onClick={() => setMobilePane('brief')}
+          aria-current={mobilePane === 'brief' ? 'page' : undefined}
+          className={mobilePane === 'brief'
+            ? 'min-h-11 rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 py-2 text-xs font-semibold text-[#7dd3fc]'
+            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[#8b949e] hover:bg-[#161b22] hover:text-[#e6edf3]'}
+        >
+          <span className="mr-1.5 font-mono text-[10px]">01</span>Mission
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobilePane('canvas')}
+          aria-current={mobilePane === 'canvas' ? 'page' : undefined}
+          className={mobilePane === 'canvas'
+            ? 'min-h-11 rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 py-2 text-xs font-semibold text-[#7dd3fc]'
+            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[#8b949e] hover:bg-[#161b22] hover:text-[#e6edf3]'}
+        >
+          <span className="mr-1.5 font-mono text-[10px]">02</span>Topologie
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobilePane('inspector')}
+          aria-current={mobilePane === 'inspector' ? 'page' : undefined}
+          className={mobilePane === 'inspector'
+            ? 'min-h-11 rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 py-2 text-xs font-semibold text-[#7dd3fc]'
+            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[#8b949e] hover:bg-[#161b22] hover:text-[#e6edf3]'}
+        >
+          <span className="mr-1.5 font-mono text-[10px]">03</span>Console
+        </button>
+      </nav>
+
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Panneau gauche : mission pédagogique et bibliothèque matérielle */}
-        <aside className="flex w-[300px] shrink-0 flex-col overflow-hidden border-r border-[#30363d] bg-[#161b22] xl:w-[320px]">
+        <aside className={`${mobilePane === 'brief' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-r border-[#30363d] bg-[#161b22] xl:w-[320px] xl:shrink-0`}>
           <section className="flex min-h-0 flex-1 flex-col">
             <PanelHeader eyebrow="01 / Lab brief" title="Mission & objectifs" />
             <div className="lab-scrollbar min-h-0 flex-1 overflow-y-auto">
@@ -187,13 +221,13 @@ export default function App() {
         </aside>
 
         {/* Canvas central : la zone de travail principale */}
-        <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#0d1117]">
+        <main className={`${mobilePane === 'canvas' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-1 flex-col overflow-hidden bg-[#0d1117] xl:w-auto`}>
           <TopologyToolbar />
           <LabCanvas />
         </main>
 
         {/* Panneau droit : console CLI et inspection matérielle */}
-        <aside className="flex w-[340px] shrink-0 flex-col overflow-hidden border-l border-[#30363d] bg-[#161b22] xl:w-[370px]">
+        <aside className={`${mobilePane === 'inspector' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-l border-[#30363d] bg-[#161b22] xl:w-[370px] xl:shrink-0`}>
           <InspectorPanel />
         </aside>
       </div>

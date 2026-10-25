@@ -36,6 +36,17 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("previousCheck.stale", bridge)
         self.assertIn("topologySnapshot", bridge)
 
+    def test_workspace_uses_single_panel_navigation_below_desktop_breakpoint(self):
+        app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
+
+        self.assertIn("const [mobilePane, setMobilePane] = useState('canvas')", app)
+        self.assertIn('aria-label="Panneaux du laboratoire"', app)
+        self.assertIn("onClick={() => setMobilePane('brief')}", app)
+        self.assertIn("onClick={() => setMobilePane('canvas')}", app)
+        self.assertIn("onClick={() => setMobilePane('inspector')}", app)
+        self.assertGreaterEqual(app.count("'hidden xl:flex'"), 2)
+        self.assertIn('xl:hidden', app)
+
     def test_dashboard_uses_the_v2_route_before_legacy_fallback(self):
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         start = dashboard.rindex("async openLab(id, openInNewTab = false) {")
