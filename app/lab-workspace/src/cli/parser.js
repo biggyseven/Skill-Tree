@@ -88,8 +88,14 @@ export class CLIParser {
         return { output: '' };
       }
       if (cmd === 'router' && tokens[1] === 'ospf') {
-        this.mode = 'router'; this.context.router_pid = tokens[2] || '1';
-        if (!this.device.config.ospf) this.device.config.ospf = { enabled: true, router_id: null, areas: [] };
+        this.mode = 'router';
+        this.context.router_pid = tokens[2] || '1';
+        if (!this.device.config.ospf) {
+          this.device.config.ospf = { enabled: true, router_id: null, areas: [] };
+        } else {
+          this.device.config.ospf.enabled = true;
+          if (!Array.isArray(this.device.config.ospf.areas)) this.device.config.ospf.areas = [];
+        }
         return { output: '' };
       }
     }
@@ -117,7 +123,11 @@ export class CLIParser {
     // --- MODE ROUTER OSPF ---
     if (this.mode === 'router') {
       if (cmd === 'network' && tokens.length >= 5 && tokens[3] === 'area') {
-        this.device.config.ospf.areas.push({ area: parseInt(tokens[4]), network: tokens[1] + '/' + this.maskToCidr(tokens[2]) });
+        const prefixLength = this.wildcardMaskToCidr(tokens[2]);
+        this.device.config.ospf.areas.push({
+          area: Number.parseInt(tokens[4], 10),
+          network: tokens[1] + '/' + prefixLength,
+        });
         return { output: '' };
       }
       if (cmd === 'router-id' && tokens[1]) { this.device.config.ospf.router_id = tokens[1]; return { output: '' }; }
@@ -192,6 +202,23 @@ export class CLIParser {
     return out;
   }
 
-  maskToCidr(mask) { return mask.split('.').map(Number).reduce((acc, oct) => acc + (oct >>> 0).toString(2).split('1').length - 1, 0); }
-  getNetwork(ip, mask) { const ipP = ip.split('.').map(Number); const mP = mask.split('.').map(Number); return ipP.map((o, i) => o & mP[i]).join('.'); }
+  maskToCidr(mask) {
+    return mask.split('.').map(Number).reduce((acc, oct) => acc + (oct >>> 0).toString(2).split('1').length - 1, 0);
+  }
+
+  // Cisco OSPF emploie un wildcard (inverse du masque réseau), pas un masque de sous-réseau.
+  wildcardMaskToCidr(wildcardMask) {
+    const octets = String(wildcardMask).split('.').map(Number);
+    if (octets.length !== 4 || octets.some(value => !Number.isInteger(value) || value < 0 || value > 255)) {
+      return 0;
+    }
+    const subnetMask = octets.map(value => 255 - value).join('.');
+    return this.maskToCidr(subnetMask);
+  }
+
+  getNetwork(ip, mask) {
+    const ipP = ip.split('.').map(Number);
+    const mP = mask.split('.').map(Number);
+    return ipP.map((oct, index) => oct & mP[index]).join('.');
+  }
 }
