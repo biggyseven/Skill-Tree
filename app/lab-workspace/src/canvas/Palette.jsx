@@ -4,27 +4,27 @@ const DEVICE_GROUPS = [
   {
     title: 'Routeurs',
     caption: 'Routage L3',
-    devices: [{ type: 'router', label: 'Routeur', icon: null }],
+    devices: [{ type: 'router', label: 'Routeur' }],
   },
   {
     title: 'Switchs',
     caption: 'Commutation L2',
-    devices: [{ type: 'switch', label: 'Switch', icon: null }],
+    devices: [{ type: 'switch', label: 'Switch' }],
   },
   {
     title: 'Terminaux',
     caption: 'Hôtes et services',
     devices: [
-      { type: 'pc', label: 'PC', icon: null },
-      { type: 'server', label: 'Serveur', icon: null },
+      { type: 'pc', label: 'PC' },
+      { type: 'server', label: 'Serveur' },
     ],
   },
   {
     title: 'Sécurité & WAN',
     caption: 'Périmètre réseau',
     devices: [
-      { type: 'firewall', label: 'Pare-feu', icon: null },
-      { type: 'cloud', label: 'Cloud WAN', icon: null },
+      { type: 'firewall', label: 'Pare-feu' },
+      { type: 'cloud', label: 'Cloud WAN' },
     ],
   },
 ];
