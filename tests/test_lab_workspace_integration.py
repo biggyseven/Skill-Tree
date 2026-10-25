@@ -26,13 +26,13 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
 
     def test_dashboard_uses_the_v2_route_before_legacy_fallback(self):
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        start = dashboard.rindex("async openLab(id) {")
+        start = dashboard.rindex("async openLab(id, openInNewTab = false) {")
         end = dashboard.index("        isLabDone(id)", start)
         open_lab_method = dashboard[start:end]
 
         v2_check = open_lab_method.find("fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`)")
-        workspace_route = open_lab_method.find("window.location.assign(`/lab/?id=${encodeURIComponent(nodeId)}`)")
-        legacy_fallback = open_lab_method.find("await this.show(nodeId);")
+        workspace_route = open_lab_method.find("navigate(`/lab/?id=${encodeURIComponent(nodeId)}`)")
+        legacy_fallback = open_lab_method.find("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)")
         self.assertGreaterEqual(v2_check, 0)
         self.assertGreater(workspace_route, v2_check)
         self.assertGreater(legacy_fallback, workspace_route)
