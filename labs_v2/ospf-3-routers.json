@@ -1,21 +1,24 @@
 {
   "schema_version": 2,
   "id": "ospf-3-routers",
-  "title": "Configuration de base sur trois routeurs",
+  "title": "Adressage IPv4 et OSPF sur trois routeurs",
   "level": "débutant",
   "module": "Routage",
   "duration_min": 15,
   "difficulty": "débutant",
-  "prompt": "Changez le hostname de R1 en « Routeur-Paris » et configurez l'adresse IPv4 de Fa0/0 sur 10.0.12.1 avec le masque 255.255.255.252.",
+  "prompt": "Configurez les interfaces point à point et OSPF area 0 sur R1, R2 et R3. R1 doit utiliser 10.0.12.1/30, R2 10.0.12.2/30 et 10.0.23.1/30, et R3 10.0.23.2/30. Annoncez 10.0.12.0/30 sur R1 et R2, puis 10.0.23.0/30 sur R2 et R3.",
   "objectives": [
-    "Identifier les trois routeurs et leurs liaisons",
-    "Changer le hostname de R1",
-    "Configurer l'adresse IPv4 de Fa0/0 sur R1"
+    "Configurer les quatre adresses IPv4 et leurs masques /30",
+    "Activer OSPF sur R1, R2 et R3",
+    "Annoncer 10.0.12.0/30 dans l’area 0 sur R1 et R2",
+    "Annoncer 10.0.23.0/30 dans l’area 0 sur R2 et R3"
   ],
   "hints": [
-    "Sur R1, passez en mode privilégié avec enable, puis en mode de configuration globale avec configure terminal.",
-    "Utilisez hostname Routeur-Paris pour modifier le nom du routeur.",
-    "Utilisez interface Fa0/0 puis ip address 10.0.12.1 255.255.255.252 pour configurer l'interface."
+    "Sur chaque routeur, passez en mode privilégié avec enable, puis en configuration globale avec configure terminal.",
+    "Configurez chaque interface avec interface Fa0/0 (ou Fa0/1), puis ip address ADRESSE 255.255.255.252 et no shutdown.",
+    "Activez OSPF avec router ospf 1.",
+    "Pour 10.0.12.0/30, utilisez la commande OSPF network 10.0.12.0 0.0.0.3 area 0 sur R1 et R2.",
+    "Pour 10.0.23.0/30, utilisez network 10.0.23.0 0.0.0.3 area 0 sur R2 et R3. Le masque wildcard 0.0.0.3 correspond au préfixe /30."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -243,12 +246,168 @@
         "description": "Le hostname de R1 doit être Routeur-Paris"
       },
       {
-        "id": "r1_ip",
+        "id": "r1_fa00_ip",
         "device": "R1",
         "path": "ports[0].ip",
         "operator": "equals",
         "expected": "10.0.12.1",
-        "description": "Fa0/0 de R1 doit être configurée en 10.0.12.1"
+        "description": "R1 Fa0/0 doit utiliser l’adresse 10.0.12.1"
+      },
+      {
+        "id": "r1_fa00_mask",
+        "device": "R1",
+        "path": "ports[0].mask",
+        "operator": "equals",
+        "expected": "255.255.255.252",
+        "description": "R1 Fa0/0 doit utiliser le masque /30"
+      },
+      {
+        "id": "r2_fa00_ip",
+        "device": "R2",
+        "path": "ports[0].ip",
+        "operator": "equals",
+        "expected": "10.0.12.2",
+        "description": "R2 Fa0/0 doit utiliser l’adresse 10.0.12.2"
+      },
+      {
+        "id": "r2_fa00_mask",
+        "device": "R2",
+        "path": "ports[0].mask",
+        "operator": "equals",
+        "expected": "255.255.255.252",
+        "description": "R2 Fa0/0 doit utiliser le masque /30"
+      },
+      {
+        "id": "r2_fa01_ip",
+        "device": "R2",
+        "path": "ports[1].ip",
+        "operator": "equals",
+        "expected": "10.0.23.1",
+        "description": "R2 Fa0/1 doit utiliser l’adresse 10.0.23.1"
+      },
+      {
+        "id": "r2_fa01_mask",
+        "device": "R2",
+        "path": "ports[1].mask",
+        "operator": "equals",
+        "expected": "255.255.255.252",
+        "description": "R2 Fa0/1 doit utiliser le masque /30"
+      },
+      {
+        "id": "r3_fa00_ip",
+        "device": "R3",
+        "path": "ports[0].ip",
+        "operator": "equals",
+        "expected": "10.0.23.2",
+        "description": "R3 Fa0/0 doit utiliser l’adresse 10.0.23.2"
+      },
+      {
+        "id": "r3_fa00_mask",
+        "device": "R3",
+        "path": "ports[0].mask",
+        "operator": "equals",
+        "expected": "255.255.255.252",
+        "description": "R3 Fa0/0 doit utiliser le masque /30"
+      },
+      {
+        "id": "r1_ospf_enabled",
+        "device": "R1",
+        "path": "config.ospf.enabled",
+        "operator": "equals",
+        "expected": true,
+        "description": "OSPF doit être activé sur R1"
+      },
+      {
+        "id": "r2_ospf_enabled",
+        "device": "R2",
+        "path": "config.ospf.enabled",
+        "operator": "equals",
+        "expected": true,
+        "description": "OSPF doit être activé sur R2"
+      },
+      {
+        "id": "r3_ospf_enabled",
+        "device": "R3",
+        "path": "config.ospf.enabled",
+        "operator": "equals",
+        "expected": true,
+        "description": "OSPF doit être activé sur R3"
+      },
+      {
+        "id": "r1_ospf_10_0_12_0_30_network",
+        "device": "R1",
+        "path": "config.ospf.areas",
+        "operator": "contains_network",
+        "expected": "10.0.12.0/30",
+        "description": "R1 doit annoncer 10.0.12.0/30 en OSPF"
+      },
+      {
+        "id": "r1_ospf_10_0_12_0_30_area0",
+        "device": "R1",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "10.0.12.0/30"
+        },
+        "description": "R1 doit annoncer exactement 10.0.12.0/30 dans l’area 0"
+      },
+      {
+        "id": "r2_ospf_10_0_12_0_30_network",
+        "device": "R2",
+        "path": "config.ospf.areas",
+        "operator": "contains_network",
+        "expected": "10.0.12.0/30",
+        "description": "R2 doit annoncer 10.0.12.0/30 en OSPF"
+      },
+      {
+        "id": "r2_ospf_10_0_12_0_30_area0",
+        "device": "R2",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "10.0.12.0/30"
+        },
+        "description": "R2 doit annoncer exactement 10.0.12.0/30 dans l’area 0"
+      },
+      {
+        "id": "r2_ospf_10_0_23_0_30_network",
+        "device": "R2",
+        "path": "config.ospf.areas",
+        "operator": "contains_network",
+        "expected": "10.0.23.0/30",
+        "description": "R2 doit annoncer 10.0.23.0/30 en OSPF"
+      },
+      {
+        "id": "r2_ospf_10_0_23_0_30_area0",
+        "device": "R2",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "10.0.23.0/30"
+        },
+        "description": "R2 doit annoncer exactement 10.0.23.0/30 dans l’area 0"
+      },
+      {
+        "id": "r3_ospf_10_0_23_0_30_network",
+        "device": "R3",
+        "path": "config.ospf.areas",
+        "operator": "contains_network",
+        "expected": "10.0.23.0/30",
+        "description": "R3 doit annoncer 10.0.23.0/30 en OSPF"
+      },
+      {
+        "id": "r3_ospf_10_0_23_0_30_area0",
+        "device": "R3",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "10.0.23.0/30"
+        },
+        "description": "R3 doit annoncer exactement 10.0.23.0/30 dans l’area 0"
       }
     ],
     "pass_threshold": 1,
