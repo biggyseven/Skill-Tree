@@ -56,6 +56,14 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         refresh_method = dashboard[refresh_start:refresh_end]
         self.assertIn("await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()])", refresh_method)
 
+    def test_workspace_check_wraps_the_topology_for_the_check_request_schema(self):
+        bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
+        schema = (ROOT / "app" / "lab_schema_v2.py").read_text(encoding="utf-8")
+
+        self.assertIn("body: JSON.stringify({ topology: initial.topology })", bridge)
+        self.assertIn("class CheckRequest(SchemaModel)", schema)
+        self.assertIn("topology: Topology = Field(default_factory=Topology)", schema)
+
     def test_sandbox_status_is_preserved_and_rewards_are_visible_after_submission(self):
         app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
         bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
