@@ -472,7 +472,7 @@
   </style>
 </head>
 
-<body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode }" @click.window.capture="closeThemeOnOutside($event)">
+<body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode }" @click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event)">
 
   <!-- ================= SIDEBAR ================= -->
   <aside x-show="!focusMode" class="skill-sidebar hidden h-full flex-col bg-[color:var(--bg)] py-6 transition-all duration-300 md:flex" :class="sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'">
@@ -581,10 +581,10 @@
           </div>
         </div>
         <div class="relative" data-theme-picker>
-          <button type="button" @click.stop="syncTheme(); themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Choisir un thème" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+          <button type="button" @click.stop="themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Choisir un thème" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8Z"></path><circle cx="7.5" cy="11" r="1"></circle><circle cx="10.5" cy="7" r="1"></circle><circle cx="15.5" cy="7.5" r="1"></circle></svg>
           </button>
-          <div x-show="themeMenuOpen" x-cloak x-transition.opacity @keydown.escape.window="themeMenuOpen = false" class="absolute top-12 right-0 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl">
+          <div x-show="themeMenuOpen" x-cloak x-transition.opacity @click.outside="themeMenuOpen = false" @keydown.escape.window="themeMenuOpen = false" class="absolute top-12 right-0 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl">
             <h3 class="mb-3 text-sm font-bold text-white">Thème</h3>
             <div class="grid grid-cols-2 gap-2">
               <template x-for="t in themes" :key="t.id">
@@ -646,7 +646,7 @@
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
         </button>
         <div x-show="settingsMenuOpen" x-cloak @click.outside="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-64 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-2 shadow-2xl">
-          <button @click="syncTheme(); themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
+          <button @click="themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
             <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> Changer de thème
           </button>
           <button @click="reloadContent(); settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
@@ -1596,7 +1596,7 @@
 
   <!-- ================= MODALE BOUTIQUE ================= -->
   <div x-show="shopOpen" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-md p-4" @click.self="shopOpen = false" @keydown.escape.window="shopOpen = false">
-    <div class="relative w-full max-w-2xl rounded-3xl border border-amber-300/20 bg-[color:var(--s1)] p-8 shadow-2xl">
+    <div data-modal-content role="dialog" aria-modal="true" class="relative w-full max-w-2xl rounded-3xl border border-amber-300/20 bg-[color:var(--s1)] p-8 shadow-2xl">
       <button @click="shopOpen = false" class="absolute right-4 top-4 text-zinc-400 hover:text-white">✕</button>
       <div class="flex items-center gap-3">
         <span class="text-3xl">💎</span>
@@ -1622,7 +1622,7 @@
 
   <!-- ================= DIPLÔME ================= -->
   <div x-show="diplomaView" x-cloak class="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-md" @click.self="diplomaView = null" @keydown.escape.window="diplomaView = null">
-    <div class="w-full max-w-4xl">
+    <div data-modal-content role="dialog" aria-modal="true" class="w-full max-w-4xl">
       <div class="mb-3 flex flex-wrap justify-end gap-2">
         <button type="button" class="btn" @click="downloadDiploma()">⬇ Télécharger (PNG)</button>
         <button type="button" class="btn" @click="printDiploma()">🖨 Imprimer / PDF</button>
@@ -1649,7 +1649,7 @@
 
   <!-- ================= GESTION DES MODULES / MIGRATION ================= -->
   <div x-show="modMgrOpen" x-cloak class="fixed inset-0 z-[75] flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-md sm:p-10" @click.self="modMgrOpen = false" @keydown.escape.window="modMgrOpen = false">
-    <div class="card w-full max-w-5xl">
+    <div data-modal-content role="dialog" aria-modal="true" class="card w-full max-w-5xl">
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div><p class="eyebrow">Migration</p><h2 class="mt-1 text-xl font-bold text-white">Gérer les modules et niveaux</h2><p class="mt-1 text-sm text-zinc-400">Par défaut, tous les cours existants sont rattachés à « Administration Réseaux ». Ajuste ici, puis exporte le fichier pour <code class="font-mono text-cyan-300">migrate_modules.py</code>.</p></div>
         <button type="button" class="btn" @click="modMgrOpen = false">Fermer</button>
@@ -3223,7 +3223,7 @@
     function skilltreeTheme() {
       const TONE = { cyan: 'bg-cyan-500/10 text-cyan-400', emerald: 'bg-emerald-500/10 text-emerald-400', fuchsia: 'bg-fuchsia-500/10 text-fuchsia-400', orange: 'bg-orange-500/10 text-orange-400' };
       return {
-        themes: window.THEMES, themeMenuOpen: false, theme: document.documentElement.dataset.theme || 'graphite',
+        themes: window.THEMES, themeMenuOpen: false, theme: document.documentElement.dataset.theme || 'graphite', activeThemeId: document.documentElement.dataset.theme || 'graphite',
         liveEvents: (() => {
           try {
             const saved = JSON.parse(localStorage.getItem('skilltree-notifications-v1') || '[]');
@@ -3235,12 +3235,14 @@
           const root = document.documentElement;
           const applied = root.dataset.theme;
           const stored = (() => { try { return localStorage.getItem('skilltree-theme2'); } catch (_) { return null; } })();
-          // La préférence persistée est la source de vérité ; l'attribut HTML est resynchronisé ensuite.
-          const id = this.themes.some(x => x.id === stored)
-            ? stored
-            : (this.themes.some(x => x.id === applied) ? applied : 'graphite');
+          // activeThemeId est la source réactive unique pendant la session ; stockage et DOM sont synchronisés avec elle.
+          const fallback = this.themes.some(x => x.id === applied) ? applied : 'graphite';
+          const id = this.themes.some(x => x.id === this.activeThemeId)
+            ? this.activeThemeId
+            : (this.themes.some(x => x.id === stored) ? stored : fallback);
           const selected = this.themes.find(x => x.id === id);
           if (!selected) return;
+          this.activeThemeId = id;
           this.theme = id;
           root.dataset.theme = id;
           root.classList.toggle('dark', selected.kind === 'dark');
@@ -3248,7 +3250,18 @@
           root.style.colorScheme = selected.kind;
           try { if (stored !== id) localStorage.setItem('skilltree-theme2', id); } catch (_) { }
         },
-        themeIsActive(id) { return this.theme === id; },
+        themeIsActive(id) { return this.activeThemeId === id; },
+        closeModalsOnOutside(event) {
+          const target = event && event.target;
+          if (!target || !target.closest) return;
+          // Un clic dans le contenu ne doit pas interrompre les actions du formulaire ou de la modale.
+          if (target.closest('[role="dialog"][aria-modal="true"], [data-modal-content]')) return;
+          if (this.open) this.close();
+          if (this.mobileSearchOpen) this.closeMobileSearch();
+          if (this.shopOpen) this.shopOpen = false;
+          if (this.diplomaView) this.diplomaView = null;
+          if (this.modMgrOpen) this.modMgrOpen = false;
+        },
         closeThemeOnOutside(event) {
           const target = event && event.target;
           if (!target || !target.closest || !target.closest('[data-theme-picker]')) this.themeMenuOpen = false;
@@ -3264,11 +3277,18 @@
           return Array.isArray(this.stats?.categories) && this.stats.categories.some(c => Number(c?.success_rate) > 0);
         },
         setTheme(id) {
-          const m = this.themes.find(x => x.id === id); if (!m) return; const r = document.documentElement;
-          r.dataset.theme = id; r.classList.toggle('dark', m.kind === 'dark'); r.classList.toggle('light', m.kind === 'light'); r.style.colorScheme = m.kind;
-          this.theme = r.dataset.theme;
-          try { localStorage.setItem('skilltree-theme2', id); } catch (e) { }
-          this.themeMenuOpen = false;
+          const m = this.themes.find(x => x.id === id);
+          if (!m) return;
+          const r = document.documentElement;
+          // Mettre à jour l'état Alpine avant le DOM évite une coche qui reste sur l'ancien thème.
+          this.activeThemeId = id;
+          this.theme = id;
+          r.dataset.theme = id;
+          r.classList.toggle('dark', m.kind === 'dark');
+          r.classList.toggle('light', m.kind === 'light');
+          r.style.colorScheme = m.kind;
+          try { localStorage.setItem('skilltree-theme2', id); } catch (_) { }
+          // Le sélecteur reste ouvert pour que la coche confirme immédiatement le choix.
           if (this.stats && this.tab === 'stats') this.$nextTick(() => this.renderSpiderChart());
         },
         toggleTheme() { const k = (this.themes.find(x => x.id === this.theme) || {}).kind; this.setTheme(k === 'dark' ? 'lumiere' : 'graphite'); },
