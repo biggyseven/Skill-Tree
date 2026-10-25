@@ -86,6 +86,7 @@ export const useLabStore = create((set, get) => ({
 
   removePort(nodeId, portId) {
     const topo = get().topology;
+    if (!topo) return;
     const node = topo.nodes.find(n => n.id === nodeId);
     if (!node) return;
     
@@ -104,6 +105,7 @@ export const useLabStore = create((set, get) => ({
 
   togglePortState(nodeId, portId) {
     const topo = get().topology;
+    if (!topo) return;
     const node = topo.nodes.find(n => n.id === nodeId);
     if (!node) return;
     set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: n.ports.map(p => p.id === portId ? { ...p, state: p.state === 'up' ? 'down' : 'up' } : p) } : n) }, checkResult: null });

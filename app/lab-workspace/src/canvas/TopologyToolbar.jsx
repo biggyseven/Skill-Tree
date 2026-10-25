@@ -49,10 +49,34 @@ export function TopologyToolbar() {
     }
   }
 
-  const handleCheck = () => window.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
-  const handleSubmit = () => window.dispatchEvent(new CustomEvent('lab:submit', { detail: {} }));
+  const handleCheck = () => {
+    if (useLabStore.getState().loading) return;
+    window.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
+  };
+  const handleSubmit = () => {
+    const state = useLabStore.getState();
+    const result = state.checkResult;
+    if (
+      state.loading ||
+      state.lab?.id === 'demo' ||
+      !result ||
+      result.stale ||
+      result.checkError ||
+      result.submissionError ||
+      result.ok === true
+    ) return;
+    window.dispatchEvent(new CustomEvent('lab:submit', { detail: {} }));
+  };
   const handleClose = () => window.dispatchEvent(new CustomEvent('lab:close', { detail: {} }));
   const persistenceDisabled = persistenceBusy || !lab || lab.id === 'demo';
+  const submitDisabled =
+    loading ||
+    lab?.id === 'demo' ||
+    !checkResult ||
+    checkResult.stale ||
+    checkResult.checkError ||
+    checkResult.submissionError ||
+    checkResult.ok === true;
 
   return (
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--s2)] bg-[var(--s1)] px-4 py-2.5">
@@ -60,8 +84,16 @@ export function TopologyToolbar() {
         <div className="font-mono text-xs text-[var(--text-secondary)]">
           {topology?.nodes?.length || 0} équipements · {topology?.links?.length || 0} liaisons
           {checkResult && (
-            <span className={checkResult.passed ? 'ml-3 text-[var(--emerald-400)]' : 'ml-3 text-[var(--rose-400)]'}>
-              {checkResult.passed ? '✓ Réussi' : 'Score ' + Math.round((checkResult.score || 0) * 100) + '%'}
+            <span className={checkResult.stale ? 'ml-3 text-[var(--amber-400)]' : checkResult.passed ? 'ml-3 text-[var(--emerald-400)]' : 'ml-3 text-[var(--rose-400)]'}>
+              {checkResult.stale
+                ? '⚠ Configuration modifiée — revérifier'
+                : checkResult.checkError
+                  ? 'Erreur de vérification'
+                  : checkResult.ok === true
+                    ? (checkResult.passed ? '✓ Tentative enregistrée' : 'Tentative enregistrée — échec')
+                    : checkResult.passed
+                      ? '✓ Réussi'
+                      : 'Score ' + Math.round((checkResult.score || 0) * 100) + '%'}
             </span>
           )}
         </div>
@@ -82,9 +114,15 @@ export function TopologyToolbar() {
           className="rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
           {loading ? '…' : '✓ Vérifier'}
         </button>
-        <button type="button" onClick={handleSubmit} disabled={loading || lab?.id === 'demo'}
-          title={lab?.id === 'demo' ? 'La démo ne peut pas être soumise' : 'Recalculer et enregistrer le résultat côté serveur'}
-          className="rounded-lg border border-[var(--s2)] bg-[var(--s2)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--s3)] disabled:opacity-40">
+        <button type="button" onClick={handleSubmit} disabled={submitDisabled}
+          title={lab?.id === 'demo'
+            ? 'La démo ne peut pas être soumise'
+            : checkResult?.ok === true
+              ? 'Cette vérification a déjà été soumise. Modifiez la configuration puis revérifiez-la.'
+              : submitDisabled
+                ? 'Vérifiez la configuration avant de soumettre'
+                : 'Enregistrer cette tentative et son résultat côté serveur'}
+          className="rounded-lg border border-[var(--s2)] bg-[var(--s2)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--s3)] disabled:cursor-not-allowed disabled:opacity-40">
           ↑ Soumettre
         </button>
         <button type="button" onClick={handleClose}

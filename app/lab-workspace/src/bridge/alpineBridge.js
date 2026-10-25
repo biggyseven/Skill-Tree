@@ -16,71 +16,146 @@ export function initAlpineBridge() {
   });
 
   window.addEventListener('lab:check', async () => {
-    const st = useLabStore.getState();
-    if (!st.lab || !st.topology) return;
-    st.setLoading(true);
-    st.setCheckResult(null);
+    const initial = useLabStore.getState();
+    if (!initial.lab || !initial.topology || initial.loading) return;
+
+    const labId = initial.lab.id;
+    const topologySnapshot = JSON.stringify(initial.topology);
+    initial.setLoading(true);
+    initial.setCheckResult(null);
+
+    const setCurrentCheckResult = (result) => {
+      const current = useLabStore.getState();
+      const changedDuringCheck =
+        current.lab?.id !== labId ||
+        JSON.stringify(current.topology) !== topologySnapshot;
+      const finalResult = changedDuringCheck
+        ? {
+            passed: false,
+            score: 0,
+            stale: true,
+            results: [{
+              rule_id: 'stale-check',
+              passed: false,
+              message: 'La topologie a changé pendant la vérification. Relancez le contrôle.',
+            }],
+          }
+        : result;
+      current.setCheckResult(finalResult);
+      emit('lab:check-result', finalResult);
+    };
 
     try {
-      const res = await fetch(`/api/lab/v2/${st.lab.id}/check`, {
+      const res = await fetch(`/api/lab/v2/${encodeURIComponent(labId)}/check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topology: st.topology }),
+        body: topologySnapshot,
       });
-      
+
       if (!res.ok) {
-        // On affiche l'erreur dans le panneau de gauche au lieu de crasher
-        st.setCheckResult({ 
-          passed: false, score: 0, 
-          results: [{ rule_id: 'error', passed: false, message: `Erreur serveur (${res.status}).` }] 
+        setCurrentCheckResult({
+          passed: false,
+          score: 0,
+          checkError: true,
+          results: [{
+            rule_id: 'error',
+            passed: false,
+            message: `Erreur serveur (${res.status}).`,
+          }],
         });
         return;
       }
-      
-      const result = await res.json();
-      st.setCheckResult(result);
-      emit('lab:check-result', result);
-    } catch (err) {
-      st.setCheckResult({ 
-        passed: false, score: 0, 
-        results: [{ rule_id: 'error', passed: false, message: `Erreur de connexion au serveur.` }] 
+
+      setCurrentCheckResult(await res.json());
+    } catch (_err) {
+      setCurrentCheckResult({
+        passed: false,
+        score: 0,
+        checkError: true,
+        results: [{
+          rule_id: 'error',
+          passed: false,
+          message: 'Impossible de joindre le serveur pour vérifier la topologie.',
+        }],
       });
     } finally {
-      st.setLoading(false);
+      useLabStore.getState().setLoading(false);
     }
   });
 
   window.addEventListener('lab:submit', async () => {
-    const st = useLabStore.getState();
-    if (!st.lab || !st.topology || st.lab.id === 'demo') return;
+    const initial = useLabStore.getState();
+    const previousCheck = initial.checkResult;
+    if (
+      !initial.lab ||
+      !initial.topology ||
+      initial.lab.id === 'demo' ||
+      initial.loading ||
+      !previousCheck ||
+      previousCheck.stale ||
+      previousCheck.checkError ||
+      previousCheck.submissionError ||
+      previousCheck.ok === true
+    ) return;
 
-    st.setLoading(true);
+    const labId = initial.lab.id;
+    const topologySnapshot = JSON.stringify(initial.topology);
+    initial.setLoading(true);
+
     try {
-      const res = await fetch('/api/lab/v2/' + encodeURIComponent(st.lab.id) + '/submit', {
+      const res = await fetch('/api/lab/v2/' + encodeURIComponent(labId) + '/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topology: st.topology, check_result: st.checkResult || {} }),
+        body: JSON.stringify({ topology: JSON.parse(topologySnapshot), check_result: previousCheck }),
       });
       const data = await res.json().catch(() => ({}));
+      const current = useLabStore.getState();
+      const changedDuringSubmit =
+        current.lab?.id !== labId ||
+        JSON.stringify(current.topology) !== topologySnapshot;
+
       if (!res.ok) {
         const detail = data.detail || `Erreur serveur (${res.status}).`;
-        st.setCheckResult({
+        current.setCheckResult({
           passed: false,
           score: 0,
+          checkError: true,
+          submissionError: true,
           results: [{ rule_id: 'submit-error', passed: false, message: String(detail) }],
         });
         return;
       }
-      st.setCheckResult(data);
-      emit('lab:submit-result', data);
+
+      const finalResult = changedDuringSubmit
+        ? {
+            ...data,
+            stale: true,
+            results: [
+              ...(Array.isArray(data.results) ? data.results : []),
+              {
+                rule_id: 'stale-submission',
+                passed: false,
+                message: 'La tentative a été enregistrée pour la configuration envoyée, mais la topologie actuelle a changé. Vérifiez-la à nouveau.',
+              },
+            ],
+          }
+        : data;
+      current.setCheckResult(finalResult);
+      emit('lab:submit-result', finalResult);
     } catch (_err) {
-      st.setCheckResult({
+      useLabStore.getState().setCheckResult({
         passed: false,
         score: 0,
-        results: [{ rule_id: 'submit-error', passed: false, message: 'Impossible de joindre le serveur pour enregistrer le laboratoire.' }],
+        checkError: true,
+        submissionError: true,
+        results: [{
+          rule_id: 'submit-error',
+          passed: false,
+          message: 'Impossible de joindre le serveur pour enregistrer le laboratoire.',
+        }],
       });
     } finally {
-      st.setLoading(false);
+      useLabStore.getState().setLoading(false);
     }
   });
 

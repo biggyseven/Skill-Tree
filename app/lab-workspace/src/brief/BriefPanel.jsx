@@ -26,6 +26,13 @@ export function BriefPanel() {
       )}
 
       {/* ZONE DE RESULTAT DU CHECK */}
+      {checkResult?.stale && (
+        <div role="status" className="rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-3 py-2 text-xs leading-relaxed text-[#fcd34d]">
+          {checkResult.ok === true
+            ? 'La tentative a été enregistrée pour la configuration envoyée, mais la topologie a changé pendant le traitement. Vérifiez à nouveau la configuration actuelle.'
+            : 'La topologie a changé pendant la vérification. Relancez le contrôle avant de soumettre.'}
+        </div>
+      )}
       {typeof checkResult?.xp_gained === 'number' && (
         <div className="rounded-lg border border-[#10b981]/30 bg-[#10b981]/10 px-3 py-2 text-xs text-[#a7f3d0]">
           {checkResult.passed

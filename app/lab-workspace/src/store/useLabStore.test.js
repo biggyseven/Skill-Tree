@@ -56,3 +56,9 @@ test('déplacer un équipement conserve le résultat car la position n’est pas
   useLabStore.getState().updateNodePosition('R1', 360, 220);
   assert.deepEqual(useLabStore.getState().checkResult, { passed: true, score: 1 });
 });
+
+test('les actions matérielles restent sûres avant le chargement d’un lab', () => {
+  assert.doesNotThrow(() => useLabStore.getState().removePort('R1', 'Fa0/0'));
+  assert.doesNotThrow(() => useLabStore.getState().togglePortState('R1', 'Fa0/0'));
+  assert.equal(useLabStore.getState().topology, null);
+});

@@ -24,6 +24,18 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertTrue((STATIC_LAB / "main.css").is_file(), "Published Lab Workspace CSS bundle is missing")
         self.assertIn('app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")', api_source)
 
+    def test_cli_rebinds_to_current_device_and_submit_requires_fresh_check(self):
+        cli = (ROOT / "app" / "lab-workspace" / "src" / "cli" / "CLITab.jsx").read_text(encoding="utf-8-sig")
+        toolbar = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "TopologyToolbar.jsx").read_text(encoding="utf-8")
+        bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
+
+        self.assertIn("parserRef.current.device = latestDevice", cli)
+        self.assertIn("...(topologyChanged ? { checkResult: null } : {})", cli)
+        self.assertIn("!checkResult", toolbar)
+        self.assertIn("checkResult.ok === true", toolbar)
+        self.assertIn("previousCheck.stale", bridge)
+        self.assertIn("topologySnapshot", bridge)
+
     def test_dashboard_uses_the_v2_route_before_legacy_fallback(self):
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         start = dashboard.rindex("async openLab(id, openInNewTab = false) {")
