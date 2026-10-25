@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Introduction aux Réseaux OT / ICS",
+      "prompt": "Que fait généralement un PLC ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Exécute une logique de contrôle industriel",
+        "Héberge toujours un site public",
+        "Remplace la DMZ",
+        "Fournit des certificats publics"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le PLC pilote le procédé à partir des entrées et de sa logique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'une HMI/IHM ?",
+      "choices": [
+        "Interface opérateur",
+        "Câble fibre",
+        "Protocole de routage",
+        "Pare-feu périmétrique"
+      ],
+      "answer": 0,
+      "explanation": "L'HMI permet de surveiller le système et d'interagir avec lui."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi isoler IT et OT ?",
+      "choices": [
+        "Réduire les chemins d'accès et limiter l'impact d'un incident",
+        "Augmenter la puissance radio",
+        "Remplacer les sauvegardes",
+        "Chiffrer tous les protocoles"
+      ],
+      "answer": 0,
+      "explanation": "La segmentation réduit les communications non nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter les scans agressifs sur des équipements OT en production ?",
+      "choices": [
+        "Ils peuvent perturber des équipements sensibles",
+        "Ils changent toujours les IP",
+        "Ils améliorent les interférences radio",
+        "Ils désactivent toujours les PLC"
+      ],
+      "answer": 0,
+      "explanation": "Certains équipements tolèrent mal les requêtes imprévues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel actif conserve typiquement l'historique des mesures ?",
+      "choices": [
+        "Historian",
+        "Dial peer",
+        "gNodeB",
+        "Route list"
+      ],
+      "answer": 0,
+      "explanation": "L'Historian conserve les séries temporelles et événements."
     }
   ]
 }
