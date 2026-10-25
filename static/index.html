@@ -1533,6 +1533,37 @@
                 </aside>
 
                 <div class="lesson-content min-w-0 w-full max-w-none">
+                  <!-- Lecteur vocal intégré au cours -->
+                  <section class="mb-5 rounded-2xl border border-cyan-400/20 bg-cyan-500/[0.045] p-4 sm:p-5" aria-label="Lecture vocale du cours">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-200" aria-hidden="true">
+                          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"></path></svg>
+                        </div>
+                        <div class="min-w-0">
+                          <h3 class="font-semibold text-white">Écouter le cours</h3>
+                          <p class="mt-1 text-xs leading-relaxed text-zinc-400">Lecture vocale en français. Les blocs de code et les schémas sont laissés à la lecture visuelle.</p>
+                          <p x-show="speechState !== 'idle'" x-cloak class="mt-1 text-xs font-medium text-cyan-200" role="status" aria-live="polite" x-text="speechStatusLabel()"></p>
+                        </div>
+                      </div>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" @click="toggleLessonSpeech()" :disabled="!speechSupported()" class="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50">
+                          <svg x-show="!(speechKind === 'lesson' && speechState === 'speaking')" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+                          <svg x-show="speechKind === 'lesson' && speechState === 'speaking'" x-cloak class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>
+                          <span x-text="lessonSpeechButtonLabel()"></span>
+                        </button>
+                        <button type="button" x-show="speechKind === 'lesson' && speechState !== 'idle'" x-cloak @click="stopSpeech()" aria-label="Arrêter la lecture" title="Arrêter la lecture" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-300 transition hover:bg-white/5">■</button>
+                        <label class="flex items-center gap-2 rounded-xl border border-white/10 bg-[color:var(--s1)] px-3 py-2 text-xs text-zinc-300">
+                          <span>Vitesse</span>
+                          <select x-model.number="speechRate" aria-label="Vitesse de lecture vocale" class="bg-transparent font-semibold text-white outline-none">
+                            <option value="0.8">0,8×</option><option value="1">1×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option><option value="1.6">1,6×</option>
+                          </select>
+                        </label>
+                        <button type="button" @mousedown.prevent @click="explainSelectedText()" class="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3 py-2.5 text-xs font-semibold text-violet-200 transition hover:bg-violet-500/20">Expliquer ma sélection</button>
+                      </div>
+                    </div>
+                    <p x-show="!speechSupported()" class="mt-3 text-xs text-amber-200">La lecture vocale n’est pas prise en charge par ce navigateur. Essaie avec une version récente de Chrome ou Edge.</p>
+                  </section>
                   <!-- Sommaire repliable -->
                   <details x-show="lessonToc.length" class="mb-5 rounded-2xl border border-white/10 bg-[color:var(--s2)] px-5 py-3 lg:hidden">
                     <summary class="cursor-pointer text-sm font-semibold text-white">📑 Sommaire du cours</summary>
@@ -1543,7 +1574,7 @@
                     </nav>
                   </details>
 
-                  <article class="lesson-prose" :style="`font-size: ${fontSize}px`" x-html="lessonHtml" @click="onLessonClick($event)"></article>
+                  <article x-ref="lessonArticle" class="lesson-prose" :style="`font-size: ${fontSize}px`" x-html="lessonHtml" @click="onLessonClick($event)"></article>
 
                   <!-- Leçon précédente / suivante -->
                   <div class="mt-12 grid gap-4 sm:grid-cols-2">
@@ -1659,6 +1690,54 @@
           </div>
         </div> <!-- Fin x-show="!detailLoading" -->
       </div> <!-- Fin Scrollable -->
+
+      <!-- Assistant pédagogique contextuel -->
+      <button x-show="open && detail?.id && lessonHtml && modalTab === 'lesson' && !tutorOpen" x-cloak type="button" @click="openTutor()" class="absolute bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-violet-300/30 bg-violet-600 px-4 py-3 text-sm font-bold text-white shadow-2xl transition hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-300">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 4a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"></path></svg>
+        <span>Assistant du cours</span>
+      </button>
+
+      <section x-show="open && tutorOpen && modalTab === 'lesson'" x-cloak role="dialog" aria-label="Assistant pédagogique du cours" class="absolute bottom-4 right-3 z-40 flex max-h-[78vh] w-[min(430px,calc(100%-1.5rem))] flex-col overflow-hidden rounded-3xl border border-violet-300/25 bg-[color:var(--s1)] shadow-2xl sm:bottom-5 sm:right-5">
+        <header class="flex items-center justify-between gap-3 border-b border-white/10 bg-violet-500/[0.08] px-4 py-3">
+          <div class="flex min-w-0 items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v3a6 6 0 0 0 6 6 6 6 0 0 0 6-6V9a6 6 0 0 0-6-6z"></path><path d="M9 21h6M12 18v3M9 10v2M15 10v2"></path></svg></div>
+            <div class="min-w-0"><h3 class="truncate text-sm font-bold text-white">Assistant pédagogique</h3><p class="truncate text-xs text-zinc-400" x-text="detail?.title || 'Cours actuel'"></p></div>
+          </div>
+          <button type="button" @click="tutorOpen = false" aria-label="Fermer l’assistant" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 text-zinc-300 transition hover:bg-white/5">✕</button>
+        </header>
+
+        <div class="flex flex-wrap gap-1.5 border-b border-white/5 px-3 py-3">
+          <button type="button" @click="askTutorPreset('Explique-moi simplement la notion principale de ce cours, comme si je la découvrais pour la première fois.')" :disabled="tutorBusy" class="rounded-full border border-violet-300/20 bg-violet-500/10 px-3 py-1.5 text-[11px] font-semibold text-violet-200 hover:bg-violet-500/20 disabled:opacity-50">Plus simple</button>
+          <button type="button" @click="askTutorPreset('Donne-moi un exemple concret et réaliste de cette notion, puis explique chaque étape.')" :disabled="tutorBusy" class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold text-zinc-200 hover:bg-white/[0.06] disabled:opacity-50">Exemple concret</button>
+          <button type="button" @click="askTutorPreset('Explique les schémas présents dans ce cours en décrivant leurs composants, les liens et le cheminement étape par étape. Appuie-toi seulement sur les informations réellement présentes dans le cours et précise si un détail manque.')" :disabled="tutorBusy" class="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold text-zinc-200 hover:bg-white/[0.06] disabled:opacity-50">Expliquer le schéma</button>
+        </div>
+
+        <div x-ref="tutorMessagesArea" class="min-h-[150px] flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite" aria-relevant="additions text">
+          <template x-for="(message, messageIndex) in tutorMessages" :key="messageIndex">
+            <div class="flex gap-2" :class="message.role === 'user' ? 'justify-end' : 'justify-start'">
+              <div class="max-w-[88%] rounded-2xl px-3 py-2.5 text-sm leading-relaxed" :class="message.role === 'user' ? 'bg-violet-600 text-white' : 'border border-white/10 bg-[color:var(--s2)] text-zinc-200'">
+                <p class="whitespace-pre-wrap break-words" x-text="message.text"></p>
+                <div x-show="message.role === 'assistant'" class="mt-2 flex justify-end">
+                  <button type="button" @click="speakTutorMessage(message.text)" class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-cyan-200 transition hover:bg-cyan-400/10" title="Écouter cette réponse"><span aria-hidden="true">🔊</span> Écouter</button>
+                </div>
+              </div>
+            </div>
+          </template>
+          <div x-show="tutorBusy" class="flex items-center gap-2 text-xs text-violet-200" role="status"><span class="h-2 w-2 animate-pulse rounded-full bg-violet-300"></span>Le tuteur prépare une explication…</div>
+          <div x-show="!tutorMessages.length && !tutorBusy" class="text-sm leading-relaxed text-zinc-400">Pose une question, demande un exemple ou fais expliquer un schéma de cette leçon.</div>
+        </div>
+
+        <form @submit.prevent="askTutor()" class="border-t border-white/10 bg-[color:var(--s2)] p-3">
+          <label for="course-tutor-question" class="mb-2 block text-xs font-semibold text-zinc-300">Ta question</label>
+          <div class="flex items-end gap-2">
+            <textarea id="course-tutor-question" x-model="tutorQuestion" rows="2" maxlength="2000" :disabled="tutorBusy" placeholder="Ex. : Pourquoi le routeur choisit-il cette route ?" class="min-h-[70px] min-w-0 flex-1 resize-y rounded-xl border border-white/10 bg-[color:var(--s1)] px-3 py-2.5 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-violet-400/50 disabled:opacity-60"></textarea>
+            <button type="submit" :disabled="tutorBusy || !tutorQuestion.trim()" aria-label="Envoyer la question" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-500 text-white transition hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-40">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
+            </button>
+          </div>
+          <p class="mt-2 text-[10px] leading-relaxed text-zinc-500">Les réponses sont basées sur le cours actuel. Bouton « Écouter » pour les entendre à voix haute.</p>
+        </form>
+      </section>
     </div>
   </div>
 
@@ -1794,7 +1873,8 @@
 
         labId: null, labBusy: false, labRunning: false, labOutput: [], labCommand: '', labValidation: null, labError: null,
 
-        tutorOpen: false, tutorQuestion: '', tutorMessages: [], tutorBusy: false,
+        tutorOpen: false, tutorQuestion: '', tutorMessages: [], tutorBusy: false, tutorSelectedText: '',
+        speechState: 'idle', speechKind: null, speechRate: 1, speechQueue: [], speechQueueIndex: 0, _speechRunId: 0, _speechUtterance: null,
         dailyPlan: [], stats: null, statsLoading: false, flashcards: [], flashcardQueue: [], flashcardsLoading: false, flashcardFlipped: false,
 
         diagnostic: null, diagnosticStep: null,
@@ -2278,6 +2358,8 @@
           this.detailLoading = true;
           this.detailLoadError = null;
           this.exerciseBusy = false; this.quizBusy = false; this.exerciseError = null;
+          this.stopSpeech();
+          this.tutorOpen = false; this.tutorQuestion = ''; this.tutorMessages = []; this.tutorSelectedText = '';
           this.detail = null;
           this.lessonHtml = '';
           this.lessonMissing = false;
@@ -2334,6 +2416,7 @@
 
         close() {
           this._detailRequestId += 1;
+          this.stopSpeech();
           this.open = false;
           this.detailLoading = false;
           this.detailLoadError = null;
@@ -2684,15 +2767,200 @@
           if(data.success) { this.userStats.coins = data.coins; alert("Acheté !"); }
           else { alert(data.detail || "Erreur"); }
         },
-        openTutor() { this.tutorOpen = true; },
+        // --- Lecture vocale et assistant pédagogique ---
+        speechSupported() {
+          return typeof window !== 'undefined'
+            && 'speechSynthesis' in window
+            && typeof window.SpeechSynthesisUtterance === 'function';
+        },
+        lessonSpeechButtonLabel() {
+          if (this.speechKind === 'lesson' && this.speechState === 'speaking') return 'Mettre en pause';
+          if (this.speechKind === 'lesson' && this.speechState === 'paused') return 'Reprendre la lecture';
+          if (this.speechKind === 'lesson' && this.speechState === 'starting') return 'Lecture en cours…';
+          return 'Écouter le cours';
+        },
+        speechStatusLabel() {
+          if (this.speechState === 'paused') return 'Lecture en pause';
+          if (this.speechState === 'starting') return 'Préparation de la voix…';
+          if (this.speechKind === 'lesson') return 'Lecture du cours en cours';
+          if (this.speechKind === 'tutor') return 'Lecture de la réponse en cours';
+          return '';
+        },
+        speechTextFromArticle() {
+          const article = this.$refs.lessonArticle;
+          if (!article) return '';
+          const readable = article.cloneNode(true);
+          readable.querySelectorAll('pre, svg, table, img, button, details, .no-speech').forEach(element => element.remove());
+          return (readable.innerText || readable.textContent || '')
+            .replace(/[ \\t]+/g, ' ')
+            .replace(/\\n{3,}/g, '\\n\\n')
+            .trim();
+        },
+        splitSpeechText(text) {
+          const normalized = String(text || '').replace(/[ \\t]+/g, ' ').replace(/\\n+/g, '\\n').trim();
+          if (!normalized) return [];
+          const sentences = normalized.split(/(?<=[.!?…])\\s+|\\n+/u).map(sentence => sentence.trim()).filter(Boolean);
+          const chunks = [];
+          let current = '';
+          const appendSentence = sentence => {
+            if (sentence.length > 260) {
+              if (current) { chunks.push(current); current = ''; }
+              let part = '';
+              for (const word of sentence.split(/\\s+/)) {
+                if (part && (part + ' ' + word).length > 220) { chunks.push(part); part = word; }
+                else part = part ? part + ' ' + word : word;
+              }
+              if (part) chunks.push(part);
+              return;
+            }
+            if (current && (current + ' ' + sentence).length > 260) {
+              chunks.push(current);
+              current = sentence;
+            } else current = current ? current + ' ' + sentence : sentence;
+          };
+          sentences.forEach(appendSentence);
+          if (current) chunks.push(current);
+          return chunks;
+        },
+        startSpeech(text, kind) {
+          if (!this.speechSupported()) {
+            this.notify('La lecture vocale n’est pas disponible dans ce navigateur.');
+            return;
+          }
+          this.stopSpeech();
+          this.speechQueue = this.splitSpeechText(text);
+          if (!this.speechQueue.length) {
+            this.notify('Aucun texte lisible à prononcer dans ce contenu.');
+            return;
+          }
+          this.speechKind = kind;
+          this.speechState = 'starting';
+          this.speechQueueIndex = 0;
+          this.speakNextChunk(this._speechRunId);
+        },
+        speakNextChunk(runId) {
+          if (runId !== this._speechRunId || !this.speechSupported()) return;
+          if (this.speechQueueIndex >= this.speechQueue.length) {
+            this.speechState = 'idle';
+            this.speechKind = null;
+            this._speechUtterance = null;
+            this.speechQueue = [];
+            this.speechQueueIndex = 0;
+            return;
+          }
+          const utterance = new window.SpeechSynthesisUtterance(this.speechQueue[this.speechQueueIndex]);
+          utterance.lang = 'fr-FR';
+          utterance.rate = Math.max(0.7, Math.min(1.7, Number(this.speechRate) || 1));
+          const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+          utterance.voice = voices.find(voice => String(voice.lang || '').toLowerCase() === 'fr-fr')
+            || voices.find(voice => String(voice.lang || '').toLowerCase().startsWith('fr'))
+            || null;
+          utterance.onstart = () => {
+            if (runId === this._speechRunId) this.speechState = 'speaking';
+          };
+          utterance.onend = () => {
+            if (runId !== this._speechRunId) return;
+            this.speechQueueIndex += 1;
+            this.speakNextChunk(runId);
+          };
+          utterance.onerror = event => {
+            if (runId !== this._speechRunId || event.error === 'canceled' || event.error === 'interrupted') return;
+            this.speechState = 'idle';
+            this.speechKind = null;
+            this._speechUtterance = null;
+            this.notify('La lecture vocale a été interrompue. Tu peux relancer la lecture.');
+          };
+          this._speechUtterance = utterance;
+          window.speechSynthesis.speak(utterance);
+        },
+        stopSpeech() {
+          this._speechRunId += 1;
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+          this.speechState = 'idle';
+          this.speechKind = null;
+          this.speechQueue = [];
+          this.speechQueueIndex = 0;
+          this._speechUtterance = null;
+        },
+        pauseSpeech() {
+          if (!this.speechSupported() || !['speaking', 'starting'].includes(this.speechState)) return;
+          window.speechSynthesis.pause();
+          this.speechState = 'paused';
+        },
+        resumeSpeech() {
+          if (!this.speechSupported() || this.speechState !== 'paused') return;
+          window.speechSynthesis.resume();
+          this.speechState = 'speaking';
+        },
+        toggleLessonSpeech() {
+          if (this.speechKind === 'lesson' && ['speaking', 'starting'].includes(this.speechState)) return this.pauseSpeech();
+          if (this.speechKind === 'lesson' && this.speechState === 'paused') return this.resumeSpeech();
+          this.startSpeech(this.speechTextFromArticle(), 'lesson');
+        },
+        speakTutorMessage(text) {
+          this.startSpeech(text, 'tutor');
+        },
+        openTutor() {
+          this.tutorOpen = true;
+          this.$nextTick(() => {
+            if (this.$refs.tutorMessagesArea) this.$refs.tutorMessagesArea.scrollTop = this.$refs.tutorMessagesArea.scrollHeight;
+          });
+        },
+        askTutorPreset(question) {
+          this.tutorOpen = true;
+          this.tutorQuestion = question;
+          return this.askTutor();
+        },
+        explainSelectedText() {
+          const selected = typeof window !== 'undefined' && window.getSelection ? String(window.getSelection().toString()).trim() : '';
+          this.tutorOpen = true;
+          if (!selected) {
+            this.tutorMessages.push({ role: 'assistant', text: 'Sélectionne d’abord un passage dans le cours, puis clique sur « Expliquer ma sélection ».' });
+            this.$nextTick(() => {
+              if (this.$refs.tutorMessagesArea) this.$refs.tutorMessagesArea.scrollTop = this.$refs.tutorMessagesArea.scrollHeight;
+            });
+            return;
+          }
+          this.tutorSelectedText = selected.slice(0, 1800);
+          this.tutorQuestion = 'Explique-moi ce passage avec des mots simples, puis donne un exemple concret si cela aide.';
+          return this.askTutor();
+        },
         async askTutor() {
-          const q = this.tutorQuestion.trim(); if (!q) return;
-          this.tutorMessages.push({ role: 'user', text: q }); this.tutorQuestion = ''; this.tutorBusy = true;
+          const question = String(this.tutorQuestion || '').trim();
+          if (!question || this.tutorBusy || !this.detail?.id) return;
+          const selectedText = this.tutorSelectedText;
+          const history = this.tutorMessages.slice(-8).map(message => ({
+            role: message.role === 'assistant' ? 'assistant' : 'user',
+            content: String(message.text || '').slice(0, 3000),
+          }));
+          this.tutorMessages.push({ role: 'user', text: question });
+          this.tutorQuestion = '';
+          this.tutorSelectedText = '';
+          this.tutorBusy = true;
+          this.$nextTick(() => {
+            if (this.$refs.tutorMessagesArea) this.$refs.tutorMessagesArea.scrollTop = this.$refs.tutorMessagesArea.scrollHeight;
+          });
           try {
-            const r = await fetch('/api/tutor', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ node_id: this.detail.id, question: q }) });
-            const data = await r.json(); this.tutorMessages.push({ role: 'assistant', text: data.answer });
-          } catch(e) { this.tutorMessages.push({ role: 'assistant', text: "Erreur de connexion au tuteur." }); }
-          this.tutorBusy = false;
+            const response = await fetch('/api/tutor', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ node_id: this.detail.id, question, selected_text: selectedText, history })
+            });
+            const raw = await response.text();
+            let data;
+            try { data = raw ? JSON.parse(raw) : {}; }
+            catch (_) { throw new Error('Le serveur a renvoyé une réponse illisible.'); }
+            if (!response.ok) throw new Error(data.detail || data.message || `Erreur HTTP ${response.status}`);
+            const answer = String(data.answer || 'Je n’ai pas reçu de réponse exploitable.');
+            this.tutorMessages.push({ role: 'assistant', text: answer });
+          } catch (error) {
+            this.tutorMessages.push({ role: 'assistant', text: error.message || 'Erreur de connexion au tuteur.' });
+          } finally {
+            this.tutorBusy = false;
+            this.$nextTick(() => {
+              if (this.$refs.tutorMessagesArea) this.$refs.tutorMessagesArea.scrollTop = this.$refs.tutorMessagesArea.scrollHeight;
+            });
+          }
         }
       };
     }

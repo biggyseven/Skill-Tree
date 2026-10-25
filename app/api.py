@@ -658,28 +658,64 @@ def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tr
 
 @app.post("/api/tutor")
 def tutor_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
-    node_id = payload.get("node_id")
-    question = payload.get("question")
-    if not node_id: raise HTTPException(400, "node_id manquant")
-    
+    """Répond à une question en utilisant le cours courant et, si fourni, le passage sélectionné."""
+    node_id = str(payload.get("node_id") or "").strip()
+    question = str(payload.get("question") or "").strip()
+    selected_text = str(payload.get("selected_text") or "").strip()[:1800]
+    if not node_id:
+        raise HTTPException(400, "node_id manquant")
+    if not question:
+        raise HTTPException(422, "Écris une question pour le tuteur.")
+    if len(question) > 2000:
+        raise HTTPException(422, "La question est trop longue (2 000 caractères maximum).")
+
     node = _get_node(tree, node_id)
     lessons = load_lessons(CONTENT_DIR, {item.id for item in tree.nodes()})
     context = lessons.get(node.id, "")[:TUTOR_MAX_CONTEXT_CHARS]
-    
+
     api_key = (os.environ.get("GROQ_API_KEY") or "").strip()
-    if not api_key: return {"answer": "Tuteur IA non configuré (GROQ_API_KEY manquante dans le .env)."}
-    
+    if not api_key:
+        return {"answer": "Le tuteur IA n’est pas configuré pour le moment. Vérifie la variable GROQ_API_KEY dans la configuration du service."}
+
+    system_message = (
+        "Tu es le tuteur pédagogique intégré à Skill-Tree. Réponds toujours en français, "
+        "avec une explication claire, progressive et adaptée au niveau du cours. "
+        "Commence par répondre directement à la question, puis donne un exemple concret si utile. "
+        "Pour les notions réseau ou système, définis les acronymes lors de leur première utilisation. "
+        "Quand on te demande d’expliquer un schéma, utilise uniquement les libellés, descriptions et "
+        "éléments de schéma réellement présents dans le contenu fourni; ne devine pas les détails visuels "
+        "absents. Si les informations du cours ne suffisent pas, dis-le et demande une précision. "
+        "Ne prétends pas avoir vu une image qui n'est pas décrite dans le contexte.\n\n"
+        f"COURS ACTUEL : {node.title}\nCONTENU DU COURS :\n{context}"
+    )
+    if selected_text:
+        system_message += f"\n\nPASSAGE SÉLECTIONNÉ PAR L'APPRENANT :\n{selected_text}"
+
+    history = payload.get("history")
+    chat_messages = []
+    if isinstance(history, list):
+        for item in history[-8:]:
+            if not isinstance(item, dict) or item.get("role") not in {"user", "assistant"}:
+                continue
+            content = str(item.get("content") or "").strip()
+            if content:
+                chat_messages.append({"role": item["role"], "content": content[:3000]})
+    chat_messages = [{"role": "system", "content": system_message}, *chat_messages, {"role": "user", "content": question}]
+
     try:
         from groq import Groq
         client = Groq(api_key=api_key)
         completion = client.chat.completions.create(
             model=GROQ_DEFAULT_MODEL,
-            messages=[{"role": "system", "content": f"Contexte: {context}"}, {"role": "user", "content": question}],
-            temperature=0.25, max_tokens=900
+            messages=chat_messages,
+            temperature=0.25,
+            max_tokens=1100,
         )
-        return {"answer": completion.choices[0].message.content}
-    except Exception as e:
-        return {"answer": f"Erreur Tuteur : {str(e)}"}
+        answer = completion.choices[0].message.content
+        return {"answer": answer or "Je n’ai pas pu formuler une réponse. Peux-tu reformuler ta question ?"}
+    except Exception as error:
+        print(f"Erreur Tuteur Skill-Tree ({type(error).__name__}).")
+        return {"answer": "Le tuteur rencontre momentanément un problème. Réessaie dans quelques instants."}
 
 @app.post("/api/topology")
 def save_topology_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):

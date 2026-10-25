@@ -12,6 +12,19 @@ DASHBOARD_HTML = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
 
 
 class DashboardUiRegressionTests(unittest.TestCase):
+    def test_course_reader_voice_and_contextual_tutor_are_wired(self):
+        self.assertIn('aria-label="Lecture vocale du cours"', DASHBOARD_HTML)
+        self.assertIn('x-ref="lessonArticle"', DASHBOARD_HTML)
+        self.assertIn("speechSynthesis", DASHBOARD_HTML)
+        self.assertIn("toggleLessonSpeech()", DASHBOARD_HTML)
+        self.assertIn("pauseSpeech()", DASHBOARD_HTML)
+        self.assertIn("resumeSpeech()", DASHBOARD_HTML)
+        self.assertIn("Expliquer le schéma", DASHBOARD_HTML)
+        self.assertIn("Expliquer ma sélection", DASHBOARD_HTML)
+        self.assertIn('x-show="open && tutorOpen && modalTab === \'lesson\'"', DASHBOARD_HTML)
+        self.assertIn("speakTutorMessage(message.text)", DASHBOARD_HTML)
+        self.assertIn("selected_text: selectedText, history", DASHBOARD_HTML)
+
     def test_mobile_search_dialog_uses_shared_search_state(self):
         self.assertIn('role="dialog" aria-modal="true" aria-labelledby="mobile-search-title"', DASHBOARD_HTML)
         self.assertIn('x-ref="mobileSearchBox"', DASHBOARD_HTML)
