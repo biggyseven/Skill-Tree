@@ -41,7 +41,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertEqual(exercise_ui.count('role="alert" aria-live="polite"'), 2)
         self.assertEqual(exercise_ui.count('role="status" aria-live="polite"'), 2)
         self.assertIn("Cours validé : ta progression a été actualisée.", exercise_ui)
-        self.assertIn("D’autres exigences du cours restent à valider.", exercise_ui)
+        self.assertIn("d’autres exigences du cours restent à valider.", exercise_ui)
         self.assertIn("quizResult.results || []", exercise_ui)
         self.assertIn("exerciseError: null", DASHBOARD_HTML)
 
