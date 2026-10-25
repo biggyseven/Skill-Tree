@@ -78,6 +78,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("challengeResult.attemptRecorded", DASHBOARD_HTML)
         self.assertIn("const passed = !timeout && score >= this.challenge.minScore;", DASHBOARD_HTML)
         self.assertIn(':disabled="!c.builtin && c.status === \'locked\'"', DASHBOARD_HTML)
+        self.assertIn("c.status === 'validated' ? '✅ Validé dans le parcours · rejouable'", DASHBOARD_HTML)
+        self.assertIn("c.status === 'in_progress' ? '↻ Tentative enregistrée · à poursuivre'", DASHBOARD_HTML)
 
     def test_completed_learning_path_remains_navigable(self):
         self.assertIn(
