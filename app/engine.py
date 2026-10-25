@@ -458,15 +458,24 @@ def get_daily_plan(
             )
             continue
 
-        if status is Status.IN_PROGRESS and (node.id in lab_nodes or node.id in challenge_nodes):
+        if status is Status.IN_PROGRESS:
             last_attempt = max(node.attempts, key=_attempt_datetime, default=None)
-            action = "challenge" if node.id in challenge_nodes else "lab"
-            reason = "Défi d'architecture en cours" if action == "challenge" else "Lab en cours"
-            label = (
-                f"Continuer {node.title}"
-                if action == "challenge"
-                else f"Faire le lab {node.title}"
-            )
+            if node.id in challenge_nodes:
+                action = "challenge"
+                reason = "Défi d'architecture à poursuivre"
+                label = f"Continuer {node.title}"
+            elif node.id in lab_nodes:
+                action = "lab"
+                reason = "Lab à poursuivre"
+                label = f"Continuer le lab {node.title}"
+            else:
+                # Une tentative incomplète existe aussi pour les cours sans lab :
+                # ne pas les ignorer au profit d'un cours disponible plus loin.
+                action = "continue"
+                kind = last_attempt.kind.value if last_attempt is not None else "activité"
+                reason = f"Tentative à reprendre ({kind})"
+                label = f"Reprendre {node.title}"
+
             in_progress.append(
                 _plan_action(
                     node,
@@ -475,6 +484,7 @@ def get_daily_plan(
                     label,
                     reason,
                     last_activity_at=last_attempt.created_at if last_attempt is not None else None,
+                    last_attempt_kind=last_attempt.kind.value if last_attempt is not None else None,
                 )
             )
             continue
