@@ -46,6 +46,19 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("label: 'Révision'", DASHBOARD_HTML)
         self.assertIn("label: 'Défi à poursuivre'", DASHBOARD_HTML)
 
+    def test_daily_plan_challenge_badge_distinguishes_available_and_in_progress(self):
+        self.assertIn('planMeta(action).classes', DASHBOARD_HTML)
+        self.assertIn('x-text="planMeta(action).label"', DASHBOARD_HTML)
+
+        start = DASHBOARD_HTML.index("        planMeta(action) {")
+        end = DASHBOARD_HTML.index("        async openPlanAction(action)", start)
+        plan_meta = DASHBOARD_HTML[start:end]
+
+        self.assertIn("const status = action && typeof action === 'object' ? action.status : null;", plan_meta)
+        self.assertIn("status === 'available'", plan_meta)
+        self.assertIn("label: 'Défi à relever'", plan_meta)
+        self.assertIn("label: 'Défi à poursuivre'", plan_meta)
+
     def test_active_learning_path_prefers_in_progress_work(self):
         start = DASHBOARD_HTML.rindex("get parcours()")
         end = DASHBOARD_HTML.index("get planActions()", start)
@@ -139,7 +152,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         open_lab_method = DASHBOARD_HTML[start:end]
 
         self.assertIn("fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`)", open_lab_method)
-        self.assertIn("navigate(`/lab/?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
+        self.assertIn("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
         self.assertIn("if (response.status !== 404)", open_lab_method)
         self.assertIn("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
         self.assertIn("await this.show(nodeId);", open_lab_method)
