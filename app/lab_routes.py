@@ -629,6 +629,7 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
         **check_result,
         "xp_gained": xp_gained,
         "badges_unlocked": badges_unlocked,
+        "first_success": bool(first_success),
         "sandbox": False,
         "attempt_recorded": True,
         "course_attempt_recorded": course_attempt_recorded,
