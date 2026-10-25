@@ -780,6 +780,37 @@
             <div><p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">PLAN DU JOUR</p><h2 id="daily-plan-title" class="mt-1 text-lg font-semibold text-white">Ta session d'aujourd'hui</h2></div>
             <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[10px] text-zinc-400" x-text="dashboardDataErrors.dailyPlan && !dailyPlan.length ? `${planActions.length} action${planActions.length > 1 ? 's' : '' } · sélection locale` : `${planActions.length} action${planActions.length > 1 ? 's' : ''}`"></span>
           </div>
+          <div x-data="skilltreeStudySession()" class="mb-5 rounded-2xl border border-white/5 bg-[color:var(--s2)] p-4 sm:p-5">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan-400/20 bg-cyan-400/10 text-cyan-300" aria-hidden="true">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 1.5M9 2h6M12 2v3M19 6l1.5-1.5"></path></svg>
+                  </span>
+                  <div><p class="text-xs font-bold text-white">Objectif de concentration</p><p class="mt-0.5 text-[10px] text-zinc-500" x-text="statusLabel"></p></div>
+                </div>
+              </div>
+              <div class="min-w-[5rem] text-right">
+                <p class="font-mono text-xl font-bold tabular-nums text-cyan-300" x-text="elapsedLabel()"></p>
+                <p class="mt-0.5 text-[10px] text-zinc-500" x-text="progressPercent + '% de l’objectif'"></p>
+              </div>
+            </div>
+            <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-label="Objectif de concentration" :aria-valuenow="progressPercent" aria-valuemin="0" aria-valuemax="100">
+              <div class="h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-[width] duration-300" :style="'width:' + progressPercent + '%'"></div>
+            </div>
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Durée cible de la session">
+                <template x-for="minutes in goals" :key="minutes">
+                  <button type="button" @click="setTarget(minutes)" :aria-pressed="targetMinutes === minutes" :class="targetMinutes === minutes ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-200' : 'border-white/10 text-zinc-400 hover:bg-white/5'" class="rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70" x-text="minutes + ' min'"></button>
+                </template>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" @click="toggle()" :disabled="goalReached" :class="running ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 hover:bg-amber-400/15' : 'border-cyan-400/20 bg-cyan-400/10 text-cyan-200 hover:bg-cyan-400/15'" class="rounded-xl border px-3 py-2 text-[11px] font-bold transition disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70" x-text="running ? 'Mettre en pause' : (elapsedSeconds > 0 ? 'Reprendre' : 'Démarrer')"></button>
+                <button type="button" x-show="elapsedSeconds > 0" @click="reset()" class="rounded-xl border border-white/10 px-3 py-2 text-[11px] font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70">Réinitialiser</button>
+              </div>
+            </div>
+            <p class="mt-3 text-[10px] leading-relaxed text-zinc-600">Le temps est compté pendant que la page est active. Ta durée cible et ton temps cumulé du jour sont conservés sur cet appareil.</p>
+          </div>
           <div class="mt-5 grid flex-1 content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <template x-if="planActions.length > 0">
               <template x-for="(action, actionIndex) in planActions" :key="action.node_id">
@@ -3220,6 +3251,107 @@
   <script>
     /* Fusionne le noyau (skilltreeBase) et l'extension v3 (skilltreeExt) : l'extension remplace les méthodes de même nom. */
     function rgbOf(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim().split(/\s+/).join(','); }
+    function skilltreeStudySession() {
+      const storageKey = 'skilltree-study-session-v1';
+      const goals = [15, 25, 45, 60];
+      const todayKey = () => {
+        const now = new Date();
+        return String(now.getFullYear()) + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      };
+      return {
+        goals,
+        targetMinutes: 25,
+        elapsedSeconds: 0,
+        running: false,
+        _interval: null,
+        _onVisibilityChange: null,
+        _onPageHide: null,
+        init() {
+          let saved = null;
+          try { saved = JSON.parse(localStorage.getItem(storageKey) || 'null'); } catch (_) { }
+          const target = Number(saved && saved.targetMinutes);
+          if (goals.includes(target)) this.targetMinutes = target;
+          if (saved && saved.date === todayKey()) {
+            this.elapsedSeconds = Math.max(0, Math.floor(Number(saved.elapsedSeconds) || 0));
+          }
+          // Ne jamais compter le temps passé hors de l'application après un rechargement.
+          this.running = false;
+          this._onVisibilityChange = () => { if (document.hidden) this.pause(); };
+          this._onPageHide = () => this.pause();
+          document.addEventListener('visibilitychange', this._onVisibilityChange);
+          window.addEventListener('pagehide', this._onPageHide);
+          this._interval = window.setInterval(() => {
+            if (!this.running) return;
+            this.elapsedSeconds += 1;
+            if (this.goalReached) {
+              this.running = false;
+              this.persist();
+              return;
+            }
+            if (this.elapsedSeconds % 5 === 0) this.persist();
+          }, 1000);
+          this.persist();
+        },
+        destroy() {
+          if (this._interval !== null) window.clearInterval(this._interval);
+          if (this._onVisibilityChange) document.removeEventListener('visibilitychange', this._onVisibilityChange);
+          if (this._onPageHide) window.removeEventListener('pagehide', this._onPageHide);
+          this.running = false;
+          this.persist();
+        },
+        get goalReached() { return this.elapsedSeconds >= this.targetMinutes * 60; },
+        get progressPercent() {
+          return Math.min(100, Math.round((this.elapsedSeconds / (this.targetMinutes * 60)) * 100));
+        },
+        get statusLabel() {
+          if (this.goalReached) return 'Objectif atteint — bravo !';
+          if (this.running) return 'Session en cours';
+          return this.elapsedSeconds > 0 ? 'Session en pause · tu peux reprendre quand tu veux' : 'Choisis une durée et lance ta session';
+        },
+        elapsedLabel() {
+          const seconds = Math.max(0, Math.floor(this.elapsedSeconds));
+          const hours = Math.floor(seconds / 3600);
+          const minutes = Math.floor((seconds % 3600) / 60);
+          const rest = seconds % 60;
+          return hours
+            ? String(hours) + ' h ' + String(minutes).padStart(2, '0') + ' min'
+            : String(minutes).padStart(2, '0') + ':' + String(rest).padStart(2, '0');
+        },
+        setTarget(minutes) {
+          const value = Number(minutes);
+          if (!goals.includes(value)) return;
+          this.targetMinutes = value;
+          if (this.goalReached) this.running = false;
+          this.persist();
+        },
+        toggle() {
+          if (this.goalReached) return;
+          this.running = !this.running;
+          this.persist();
+        },
+        pause() {
+          if (!this.running) return;
+          this.running = false;
+          this.persist();
+        },
+        reset() {
+          this.running = false;
+          this.elapsedSeconds = 0;
+          this.persist();
+        },
+        persist() {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify({
+              date: todayKey(),
+              targetMinutes: this.targetMinutes,
+              elapsedSeconds: this.elapsedSeconds,
+              running: this.running,
+            }));
+          } catch (_) { }
+        },
+      };
+    }
+
     function skilltreeTheme() {
       const TONE = { cyan: 'bg-cyan-500/10 text-cyan-400', emerald: 'bg-emerald-500/10 text-emerald-400', fuchsia: 'bg-fuchsia-500/10 text-fuchsia-400', orange: 'bg-orange-500/10 text-orange-400' };
       return {
