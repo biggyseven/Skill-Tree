@@ -86,7 +86,7 @@ export function TopologyToolbar() {
         <div className="font-mono text-xs text-[var(--text-secondary)]">
           {topology?.nodes?.length || 0} équipements · {topology?.links?.length || 0} liaisons
           {checkResult && (
-            <span className={checkResult.stale ? 'ml-3 text-[var(--amber-400)]' : checkResult.passed ? 'ml-3 text-[var(--emerald-400)]' : 'ml-3 text-[var(--rose-400)]'}>
+            <span className={checkResult.stale ? 'ml-3 text-[var(--amber-400)]' : checkResult.sandbox === true ? 'ml-3 text-[var(--text-secondary)]' : checkResult.passed ? 'ml-3 text-[var(--emerald-400)]' : 'ml-3 text-[var(--rose-400)]'}>
               {checkResult.stale
                 ? '⚠ Configuration modifiée — revérifier'
                 : checkResult.checkError
