@@ -1691,7 +1691,7 @@
         lessonToc: [], activeSection: '', lessonProgress: 0, readingMinutes: 1,
 
         quiz: null, quizAnswers: [], quizResult: null, quizBusy: false,
-        exerciseMode: null, exerciseQuestion: null, exerciseAnswer: '', exerciseResult: null, exerciseBusy: false,
+        exerciseMode: null, exerciseQuestion: null, exerciseAnswer: '', exerciseResult: null, exerciseBusy: false, exercisePreferredKind: null,
 
         labId: null, labBusy: false, labRunning: false, labOutput: [], labCommand: '', labValidation: null, labError: null,
 
@@ -2088,7 +2088,7 @@
             if (!resumingSameLesson) localStorage.removeItem('skilltree-last-progress');
           } catch (e) { }
           this.open = true; this.detailLoading = true;
-          this.modalTab = 'lesson'; this.quiz = null; this.quizResult = null; this.exerciseMode = null;
+          this.modalTab = 'lesson'; this.quiz = null; this.quizResult = null; this.exerciseMode = null; this.exercisePreferredKind = null;
           this.labRunning = false; this.labValidation = null; this.labOutput = []; this.labError = null;
           this.lessonProgress = 0; this.lessonToc = []; this.activeSection = '';
 
@@ -2124,9 +2124,17 @@
         canStartExercise() { return this.detail?.requirements?.some(r => ['quiz', 'terminal'].includes(r.kind)) || false; },
         async startExercise() {
           this.quizResult = null; this.exerciseResult = null; this.exerciseAnswer = '';
-          if (this.detail.terminal) { this.exerciseMode = 'terminal'; this.exerciseQuestion = this.detail.terminal; }
-          else {
-            const r = await fetch(`/api/node/${this.detail.id}/quiz`); this.quiz = await r.json();
+          const preferredKind = this.exercisePreferredKind;
+          this.exercisePreferredKind = null;
+          if ((preferredKind === 'terminal' || (!preferredKind && this.detail.terminal)) && this.detail.terminal) {
+            this.exerciseMode = 'terminal'; this.exerciseQuestion = this.detail.terminal;
+          } else {
+            const r = await fetch(`/api/node/${this.detail.id}/quiz`);
+            if (!r.ok) {
+              this.notify('Impossible de charger le quiz (' + r.status + ').');
+              return;
+            }
+            this.quiz = await r.json();
             this.exerciseMode = 'quiz'; this.quizAnswers = this.quiz.questions.map(q => null);
           }
         },
@@ -2298,7 +2306,10 @@
             return;
           }
           await this.show(nodeId);
-          if (action.action === 'continue' && this.canStartExercise()) this.modalTab = 'exercise';
+          if (action.action === 'continue' && ['quiz', 'terminal'].includes(action.next_requirement_kind)) {
+            this.exercisePreferredKind = action.next_requirement_kind;
+            this.modalTab = 'exercise';
+          }
         },
 
         renderSpiderChart() {
