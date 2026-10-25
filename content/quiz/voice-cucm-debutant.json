@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Téléphonie IP (CUCM)",
+      "prompt": "Quel est le rôle principal de CUCM ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Contrôle d'appel et gestion des téléphones",
+        "Transporter toujours le RTP",
+        "Alimentation PoE",
+        "Remplacer le switch"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "CUCM assure le contrôle d'appel ; le média peut circuler directement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente un Directory Number (DN) ?",
+      "choices": [
+        "Une ligne ou extension téléphonique",
+        "Un VLAN",
+        "Un codec",
+        "Un port RTP"
+      ],
+      "answer": 0,
+      "explanation": "Le DN est le numéro associé à une ligne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un CSS ?",
+      "choices": [
+        "Définir les partitions accessibles pour résoudre les destinations",
+        "Chiffrer RTP",
+        "Attribuer une IP",
+        "Distribuer le firmware du switch"
+      ],
+      "answer": 0,
+      "explanation": "Le CSS détermine les partitions consultables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Appel établi mais sans audio : que vérifier ?",
+      "choices": [
+        "RTP, ACL, NAT, SDP et codecs",
+        "Uniquement le DN",
+        "Wi-Fi uniquement",
+        "DNS public uniquement"
+      ],
+      "answer": 0,
+      "explanation": "La signalisation peut réussir même si le média est bloqué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service distribue couramment les fichiers de configuration des téléphones ?",
+      "choices": [
+        "TFTP",
+        "SNMP trap",
+        "BGP",
+        "Modbus"
+      ],
+      "answer": 0,
+      "explanation": "TFTP est couramment utilisé pour distribuer des fichiers de configuration."
     }
   ]
 }
