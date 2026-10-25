@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Réseaux Mobiles (4G/5G)",
+      "prompt": "Quel composant fournit l'accès radio en 5G ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "gNodeB",
+        "CUCM",
+        "Historian",
+        "Routeur NAT"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le gNodeB est la station de base 5G NR."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que mesure principalement le SINR ?",
+      "choices": [
+        "Qualité du signal face aux interférences et au bruit",
+        "Coût mensuel",
+        "Puissance CPU",
+        "Nombre de SIM"
+      ],
+      "answer": 0,
+      "explanation": "Le SINR compare signal utile, interférences et bruit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Terminal enregistré mais sans accès IP : vérifier...",
+      "choices": [
+        "Session de données, APN/DNN, IP et DNS",
+        "Uniquement le nom du téléphone",
+        "La couleur de l'antenne",
+        "Le Wi-Fi domestique"
+      ],
+      "answer": 0,
+      "explanation": "L'enregistrement ne garantit pas qu'une session de données fonctionne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La 5G SA s'appuie sur...",
+      "choices": [
+        "Un cœur 5G (5GC)",
+        "Uniquement EPC 4G",
+        "TFTP",
+        "Dial peer POTS"
+      ],
+      "answer": 0,
+      "explanation": "Standalone utilise le cœur 5G."
+    },
+    {
+      "type": "qcm",
+      "prompt": "RSRP bon et SINR faible peuvent indiquer...",
+      "choices": [
+        "Interférences ou bruit",
+        "Batterie vide à coup sûr",
+        "DNS incorrect à coup sûr",
+        "SIM absente"
+      ],
+      "answer": 0,
+      "explanation": "La puissance reçue ne décrit pas seule la qualité radio."
     }
   ]
 }
