@@ -1316,11 +1316,12 @@
   </div>
 
   <!-- ================= MODALE DÉTAIL (LEÇON) ================= -->
+    <!-- ================= MODALE DÉTAIL (LEÇON) ================= -->
   <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden" :class="isFullscreen ? 'p-0' : 'p-2 sm:p-4'" @keydown.escape.window="onEscape()">
     <div class="modal-backdrop fixed inset-0 backdrop-blur-md bg-black/60" @click="close()"></div>
 
-    <div class="modal-panel relative flex min-w-0 flex-col overflow-hidden border border-white/10 bg-[color:var(--s1)] shadow-[0_0_50px_-10px_rgba(0,0,0,0.8)]"
-         :class="isFullscreen ? 'm-0 h-screen w-screen max-w-none rounded-none' : 'my-0 h-[94vh] w-[97vw] max-w-[1680px] rounded-3xl'"
+    <div class="modal-panel relative flex flex-col overflow-hidden border border-white/10 bg-[color:var(--s1)] shadow-[0_0_50px_-10px_rgba(0,0,0,0.8)] w-full"
+         :class="isFullscreen ? 'm-0 h-screen max-w-none rounded-none' : 'my-0 h-[94vh] w-[97vw] max-w-[1680px] rounded-3xl'"
          x-show="open" role="dialog" aria-modal="true">
 
       <!-- Barre de progression de lecture -->
@@ -1330,13 +1331,7 @@
       <div class="flex shrink-0 flex-col gap-4 border-b border-white/5 px-6 py-5 sm:px-8">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <h2 class="min-w-0 flex-1 text-2xl font-bold leading-snug text-white" x-text="detail?.title || 'Chargement...'"></h2>
-              <button type="button" x-show="detail?.id" @click="toggleFavorite(detail.id)" :aria-pressed="isFavorite(detail?.id)" :class="isFavorite(detail?.id) ? 'border-amber-300/40 bg-amber-400/15 text-amber-200' : 'border-white/10 bg-white/5 text-zinc-400 hover:border-amber-300/30 hover:text-amber-200'" class="inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition" :title="isFavorite(detail?.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" :fill="isFavorite(detail?.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3z"></path></svg>
-                <span x-text="isFavorite(detail?.id) ? 'Favori' : 'Ajouter aux favoris'"></span>
-              </button>
-            </div>
+            <h2 class="text-2xl font-bold leading-snug text-white" x-text="detail?.title || 'Chargement...'"></h2>
 
             <!-- BADGES -->
             <div class="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
@@ -1347,36 +1342,28 @@
               <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-zinc-400 flex items-center gap-1">
                 ⏱️ <span x-text="readingMinutes"></span> min
               </span>
-              <template x-if="detail?.prereqs && detail.prereqs.length > 0">
-                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-zinc-500">
-                  Prérequis: <span x-text="detail.prereqs.map(p => p.id).join(', ')"></span>
-                </span>
-              </template>
             </div>
           </div>
 
-          <!-- BOUTONS DE FENÊTRE : taille du texte, agrandir, fermer -->
+          <!-- BOUTONS DE FENÊTRE -->
           <div class="flex shrink-0 items-center gap-2">
             <div class="hidden items-center overflow-hidden rounded-xl border border-white/10 sm:flex" x-show="modalTab === 'lesson'">
               <button type="button" @click="changeFontSize(-1)" title="Réduire le texte" class="px-3 py-2 text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white">A−</button>
               <span class="h-4 w-px bg-white/10"></span>
               <button type="button" @click="changeFontSize(1)" title="Agrandir le texte" class="px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white">A+</button>
             </div>
-            <button type="button" @click="toggleFullscreen()" :title="isFullscreen ? 'Réduire la fenêtre' : 'Agrandir la fenêtre'" :aria-label="isFullscreen ? 'Réduire la fenêtre' : 'Agrandir la fenêtre'" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white">
+            <button type="button" @click="toggleFullscreen()" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white">
               <svg x-show="!isFullscreen" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
               <svg x-show="isFullscreen" x-cloak class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"></path></svg>
             </button>
-            <button type="button" x-show="modalTab === 'lab' && detail?.id" @click="openVisualLab()" title="Ouvrir les Labs V2 pour le cours sélectionné" aria-label="Ouvrir les Labs V2 pour le cours sélectionné" class="flex h-10 items-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-3 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-500/20">
-              <span aria-hidden="true">↗</span><span>Ouvrir les Labs V2</span>
-            </button>
-            <button type="button" @click="close()" title="Fermer (Échap)" aria-label="Fermer" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-400 transition hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-300">
+            <button type="button" @click="close()" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-400 transition hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-300">
               <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
             </button>
           </div>
         </div>
 
         <!-- Onglets -->
-        <div class="flex flex-wrap gap-2" x-show="!detailLoading && !detailLoadError">
+        <div class="flex flex-wrap gap-2" x-show="!detailLoading">
           <button @click="modalTab = 'lesson'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'lesson' ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">📖 Cours</button>
           <button x-show="canStartExercise() || quiz || exerciseMode" @click="modalTab = 'exercise'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'exercise' ? 'bg-fuchsia-500/10 text-fuchsia-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">✏️ Exercice</button>
           <button x-show="detail?.lab" @click="modalTab = 'lab'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'lab' ? 'bg-cyan-500/10 text-cyan-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">💻 Lab / Terminal</button>
@@ -1384,32 +1371,20 @@
       </div>
 
       <!-- Contenu de la modale -->
-      <div x-ref="modalScroll" @scroll.passive="onLessonScroll($event)" class="modal-scroll min-h-0 w-full min-w-0 max-w-full flex-1 overflow-y-auto box-border px-4 py-5 sm:px-6 sm:py-7 xl:px-8">
-
+      <div x-ref="modalScroll" @scroll.passive="onLessonScroll($event)" class="modal-scroll min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-7 xl:px-8 w-full">
+        
         <!-- Spinner de chargement -->
         <div x-show="detailLoading" class="flex items-center justify-center py-20">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
         </div>
 
-        <div x-show="!detailLoading && detailLoadError" x-cloak role="alert" aria-live="assertive" class="mx-auto my-10 max-w-xl rounded-3xl border border-rose-400/25 bg-rose-500/5 p-6 text-center">
-          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-400/20 bg-rose-500/10 text-rose-300">
-            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5m0 4h.01"></path></svg>
-          </div>
-          <h3 class="mt-4 text-base font-bold text-white">Impossible d’ouvrir ce cours</h3>
-          <p class="mt-2 text-sm leading-relaxed text-rose-100/80" x-text="detailLoadError"></p>
-          <div class="mt-5 flex flex-wrap justify-center gap-2">
-            <button type="button" @click="detailRequestedNodeId && show(detailRequestedNodeId)" :disabled="detailLoading || !detailRequestedNodeId" class="rounded-xl bg-rose-300 px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-rose-200 disabled:opacity-50">Réessayer</button>
-            <button type="button" @click="close()" class="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-zinc-300 transition hover:bg-white/5">Fermer</button>
-          </div>
-        </div>
-
-        <div x-show="!detailLoading && !detailLoadError" class="w-full min-w-0 max-w-full">
+        <div x-show="!detailLoading" class="w-full">
+          
           <!-- ONGLET 1 : COURS -->
-          <div x-show="modalTab === 'lesson'">
+          <div x-show="modalTab === 'lesson'" class="w-full">
             <template x-if="lessonHtml">
-              <div class="lesson-reader-grid grid w-full min-w-0 max-w-full box-border grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8">
-
-                <!-- Sommaire latéral (fenêtre agrandie, écran large) -->
+              <div class="lesson-reader-grid grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8 w-full">
+                <!-- Sommaire latéral -->
                 <aside x-show="lessonToc.length" class="lesson-toc-panel sticky top-2 hidden max-h-[calc(94vh-13rem)] w-full shrink-0 self-start overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s2)] p-4 lg:block">
                   <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Sommaire</p>
                   <nav class="border-l border-white/10" aria-label="Sommaire du cours">
@@ -1421,7 +1396,7 @@
                 </aside>
 
                 <div class="lesson-content min-w-0 w-full max-w-none">
-                  <!-- Sommaire repliable (fenêtre normale / mobile) -->
+                  <!-- Sommaire repliable -->
                   <details x-show="lessonToc.length" class="mb-5 rounded-2xl border border-white/10 bg-[color:var(--s2)] px-5 py-3 lg:hidden">
                     <summary class="cursor-pointer text-sm font-semibold text-white">📑 Sommaire du cours</summary>
                     <nav class="mt-3 space-y-1 pb-2">
@@ -1463,7 +1438,7 @@
           </div>
 
           <!-- ONGLET 2 : EXERCICE -->
-          <div x-show="modalTab === 'exercise'">
+          <div x-show="modalTab === 'exercise'" class="w-full">
             <div x-show="!exerciseMode && !quiz" class="flex flex-col items-center justify-center py-12 text-center">
               <p class="text-zinc-400 mb-6">Prêt à tester tes connaissances sur ce sujet ?</p>
               <button @click="startExercise()" class="rounded-2xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-8 py-4 text-sm font-bold text-white shadow-[0_0_20px_-5px_rgba(244,114,182,0.5)] transition hover:brightness-110">Démarrer l'exercice</button>
@@ -1473,143 +1448,67 @@
               <section class="rounded-3xl border border-white/5 bg-[color:var(--s2)] p-6">
                 <h3 class="mb-4 text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-400" x-text="exerciseMode === 'terminal' ? 'Console réseau' : 'Saisie libre'"></h3>
                 <p class="mb-5 text-base leading-relaxed text-zinc-200" x-text="exerciseQuestion?.prompt"></p>
-                <form @submit.prevent="submitAnswer()" class="space-y-4" :aria-busy="exerciseBusy">
+                <form @submit.prevent="submitAnswer()" class="space-y-4">
                   <template x-if="exerciseMode === 'input'">
-                    <input type="text" x-model="exerciseAnswer" :disabled="exerciseBusy" placeholder="Saisis ta réponse" class="w-full rounded-xl border border-white/10 bg-[color:var(--s1)] px-4 py-3 font-mono text-sm text-white outline-none focus:border-fuchsia-500/50 disabled:opacity-60">
+                    <input type="text" x-model="exerciseAnswer" placeholder="Saisis ta réponse" class="w-full rounded-xl border border-white/10 bg-[color:var(--s1)] px-4 py-3 font-mono text-sm text-white outline-none focus:border-fuchsia-500/50">
                   </template>
                   <template x-if="exerciseMode === 'terminal'">
                     <div class="rounded-xl border border-white/10 bg-[color:var(--s0)] p-4 font-mono text-sm">
-                      <label class="flex items-center gap-3 text-lime-300"><span>Switch(config-if)#</span><input type="text" x-model="exerciseAnswer" :disabled="exerciseBusy" class="min-w-0 flex-1 bg-transparent py-1 text-white outline-none disabled:opacity-60"></label>
+                      <label class="flex items-center gap-3 text-lime-300"><span>Switch(config-if)#</span><input type="text" x-model="exerciseAnswer" class="min-w-0 flex-1 bg-transparent py-1 text-white outline-none"></label>
                     </div>
                   </template>
-                  <button type="submit" :disabled="exerciseBusy" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg disabled:cursor-wait disabled:opacity-50" x-text="exerciseBusy ? 'Envoi en cours…' : 'Valider'"></button>
+                  <button type="submit" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg">Valider</button>
                 </form>
-                <div x-show="exerciseError" x-cloak role="alert" aria-live="polite" class="mt-4 rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="exerciseError"></div>
-                <div x-show="exerciseResult" role="status" aria-live="polite" class="mt-4 rounded-xl border p-4" :class="exerciseResult?.correct ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
+                <div x-show="exerciseResult" class="mt-4 rounded-xl border p-4" :class="exerciseResult?.correct ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
                   <p class="font-bold" :class="exerciseResult?.correct ? 'text-lime-300' : 'text-rose-300'" x-text="exerciseResult?.correct ? 'Correct' : 'Incorrect'"></p>
                   <p class="text-sm text-zinc-400 mt-2" x-text="exerciseResult?.explanation"></p>
-                  <p x-show="exerciseResult?.validated" class="mt-3 text-sm font-semibold text-lime-300">Cours validé : ta progression a été actualisée.</p>
-                  <p x-show="exerciseResult?.correct && !exerciseResult?.validated" class="mt-3 text-sm text-amber-200">Bonne réponse, mais d’autres exigences du cours restent à valider.</p>
                 </div>
               </section>
             </template>
 
             <template x-if="quiz && exerciseMode === 'quiz'">
               <section class="rounded-3xl border border-white/5 bg-[color:var(--s2)] p-6">
-                <form @submit.prevent="submitQuiz()" class="space-y-6" :aria-busy="quizBusy">
+                <form @submit.prevent="submitQuiz()" class="space-y-6">
                   <template x-for="(question, questionIndex) in quiz.questions" :key="question.id">
                     <fieldset class="space-y-3">
                       <legend class="text-base font-medium leading-relaxed text-white" x-text="question.prompt"></legend>
                       <div class="space-y-2">
                         <template x-for="(choice, choiceIndex) in question.choices" :key="choiceIndex">
                           <label class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/5 bg-[color:var(--s1)] px-4 py-3 text-sm text-zinc-300 hover:border-white/10 transition">
-                            <input type="radio" :name="`q-${question.id}`" :value="choiceIndex" :checked="quizAnswers[questionIndex] === choiceIndex" :disabled="quizBusy" @change="quizAnswers[questionIndex] = choiceIndex" class="mt-0.5 accent-fuchsia-500">
+                            <input type="radio" :name="`q-${question.id}`" :value="choiceIndex" :checked="quizAnswers[questionIndex] === choiceIndex" @change="quizAnswers[questionIndex] = choiceIndex" class="mt-0.5 accent-fuchsia-500">
                             <span x-text="choice"></span>
                           </label>
                         </template>
                       </div>
                     </fieldset>
                   </template>
-                  <button type="submit" :disabled="quizBusy" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg disabled:cursor-wait disabled:opacity-50" x-text="quizBusy ? 'Correction en cours…' : 'Valider mes réponses'"></button>
+                  <button type="submit" class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white shadow-lg">Valider mes réponses</button>
                 </form>
-                <div x-show="exerciseError" x-cloak role="alert" aria-live="polite" class="mt-4 rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="exerciseError"></div>
-                <div x-show="quizResult" role="status" aria-live="polite" class="mt-6 rounded-xl border p-4" :class="quizResult?.passed ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
+                <div x-show="quizResult" class="mt-6 rounded-xl border p-4" :class="quizResult?.passed ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
                   <p class="font-bold text-lg" :class="quizResult?.passed ? 'text-lime-300' : 'text-rose-300'" x-text="`${quizResult?.score}/100`"></p>
-                  <p class="mt-2 text-sm text-zinc-300" x-text="quizResult?.validated ? 'Cours validé : progression enregistrée.' : (quizResult?.passed ? 'Score suffisant, mais d’autres exigences du cours restent à valider.' : 'Score insuffisant : consulte les corrections et réessaie.')"></p>
-                  <div x-show="quizResult?.results?.length" class="mt-4 space-y-2 border-t border-white/10 pt-3">
-                    <template x-for="item in (quizResult.results || [])" :key="item.id">
-                      <div class="rounded-xl bg-[color:var(--s1)] p-3">
-                        <p class="text-sm font-semibold" :class="item.correct ? 'text-lime-300' : 'text-rose-300'" x-text="item.correct ? '✓ Réponse correcte' : '✕ Réponse incorrecte'"></p>
-                        <p x-show="item.explanation" class="mt-1 text-sm leading-relaxed text-zinc-400" x-text="item.explanation"></p>
-                      </div>
-                    </template>
-                  </div>
                 </div>
               </section>
             </template>
           </div>
 
           <!-- ONGLET 3 : LAB / TERMINAL DOCKER -->
-          <div x-show="modalTab === 'lab'">
+          <div x-show="modalTab === 'lab'" class="w-full">
             <template x-if="detail?.lab">
               <div class="rounded-3xl border border-white/5 bg-[color:var(--s2)] p-6">
                 <h3 class="text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">Consigne du Lab</h3>
                 <p class="mt-3 text-base text-zinc-300" x-text="detail.lab.prompt"></p>
-                <div class="mt-3 flex flex-wrap gap-2"><span class="chip" x-show="detail.lab.duration" x-text="'⏱ ' + detail.lab.duration"></span><span class="chip" x-show="detail.lab.difficulty" x-text="detail.lab.difficulty"></span><span class="chip chip-on" x-show="isLabDone(detail.id)">✅ Lab réussi</span></div>
-                <template x-if="detail.lab.objectives && detail.lab.objectives.length">
-                  <div class="mt-4"><p class="eyebrow">Objectifs</p><ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-300"><template x-for="o in detail.lab.objectives" :key="o"><li x-text="o"></li></template></ul></div>
-                </template>
-                <template x-if="detail.lab.steps && detail.lab.steps.length">
-                  <div class="mt-4"><p class="eyebrow">Étapes</p>
-                    <div class="mt-2 space-y-2"><template x-for="(s, i) in detail.lab.steps" :key="i">
-                      <label class="card-sm flex cursor-pointer items-start gap-3 text-sm text-zinc-300"><input type="checkbox" class="mt-1 accent-emerald-500" :checked="stepDone(i)" @change="toggleStep(i)"><span :class="{ 'line-through opacity-60': stepDone(i) }" x-text="s"></span></label>
-                    </template></div></div>
-                </template>
-                <template x-if="detail.lab.hints && detail.lab.hints.length">
-                  <div class="mt-4"><p class="eyebrow">Indices</p>
-                    <div class="mt-2 space-y-2"><template x-for="(h, i) in detail.lab.hints" :key="i">
-                      <div class="card-sm text-sm text-zinc-300"><button type="button" class="font-semibold text-cyan-300" x-show="!labHints[detail.id + ':' + i]" @click="labHints = { ...labHints, [detail.id + ':' + i]: true }" x-text="'💡 Afficher l’indice ' + (i + 1)"></button><span x-show="labHints[detail.id + ':' + i]" x-text="h"></span></div>
-                    </template></div></div>
-                </template>
-
+                <div class="mt-3 flex flex-wrap gap-2"><span class="chip" x-show="detail.lab.duration" x-text="'⏱ ' + detail.lab.duration"></span><span class="chip" x-show="detail.lab.difficulty" x-text="detail.lab.difficulty"></span></div>
+                
                 <div class="mt-6">
-                  <button type="button"
-                          @click="window.open('/lab.html?id=' + encodeURIComponent(detail?.id || ''), '_blank', 'noopener')"
-                          :disabled="detail?.status === 'locked'"
-                          class="rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
+                  <button type="button" @click="window.open('/lab.html?id=' + (detail?.id || ''), '_blank')" class="rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                     🧪 Ouvrir le Lab Workspace
                   </button>
-                  <div x-show="detail?.status === 'locked'" class="mt-3 text-sm text-orange-400">
-                    🔒 Ce lab est verrouillé. Tu dois d'abord valider les nœuds prérequis.
-                  </div>
-                  <div x-show="labError" class="mt-3 rounded-xl border border-rose-400/20 bg-rose-500/10 p-3 text-sm text-rose-200" x-text="labError"></div>
-
-                  <div x-show="labRunning" class="mt-5">
-                    <div class="terminal-shell overflow-hidden rounded-xl border border-white/10 shadow-2xl">
-                      <div class="terminal-head flex items-center gap-2 border-b border-white/10 px-4 py-3">
-                        <span class="h-3 w-3 rounded-full bg-[#ff5f57]"></span>
-                        <span class="h-3 w-3 rounded-full bg-[#febc2e]"></span>
-                        <span class="h-3 w-3 rounded-full bg-[#28c840]"></span>
-                      </div>
-                      <div class="p-4 font-mono text-xs max-h-80 overflow-y-auto" x-ref="labConsole">
-                        <template x-for="(line, index) in labOutput" :key="index">
-                          <div x-text="line.text"></div>
-                        </template>
-                      </div>
-                      <form @submit.prevent="runLabCommand()" class="flex items-center gap-3 border-t border-white/10 bg-[color:var(--s2)] px-4 py-3">
-                        <span class="font-mono text-sm text-cyan-400">$</span>
-                        <input type="text" x-model="labCommand" placeholder="Tape ta commande..." class="min-w-0 flex-1 bg-transparent py-1 font-mono text-sm text-cyan-200 outline-none">
-                        <button type="submit" :disabled="labBusy" class="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white transition disabled:opacity-50">Entrée</button>
-                      </form>
-                    </div>
-                    <div class="mt-4 flex justify-end">
-                      <button @click="validateLab()" :disabled="labBusy" class="rounded-xl border border-emerald-500/50 bg-emerald-500/10 px-5 py-2.5 text-sm font-bold text-emerald-400 shadow-lg disabled:opacity-50">
-                        <span x-text="labBusy ? 'Vérification...' : 'Terminer et vérifier'"></span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div x-show="labValidation" class="mt-4 rounded-xl border p-4" :class="labValidation?.passed ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
-                    <p class="font-bold" :class="labValidation?.passed ? 'text-lime-300' : 'text-rose-300'" x-text="labValidation?.passed ? 'Lab réussi !' : 'Lab échoué.'"></p>
-                    <p class="text-sm text-zinc-400 mt-1" x-text="labValidation?.detail"></p>
-                  </div>
                 </div>
               </div>
             </template>
           </div>
         </div> <!-- Fin x-show="!detailLoading" -->
       </div> <!-- Fin Scrollable -->
-
-      <button type="button" x-show="lessonHtml && modalTab === 'lesson' && !detailLoading" @click="openTutor()" class="absolute bottom-6 right-6 z-30 rounded-full border border-fuchsia-300/30 bg-black/90 px-5 py-3 text-xs font-bold text-fuchsia-200 shadow-2xl backdrop-blur transition hover:border-fuchsia-200 hover:bg-fuchsia-500/15">💬 Poser une question</button>
-
-      <div x-show="tutorOpen" x-cloak class="absolute bottom-6 right-6 z-30 flex max-h-[min(30rem,calc(100vh-10rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl border border-fuchsia-300/20 bg-[color:var(--s1)]/95 shadow-2xl backdrop-blur-xl">
-        <div class="flex items-center justify-between border-b border-white/5 px-5 py-4"><h3 class="text-sm font-bold text-white">Tuteur IA</h3><button @click="tutorOpen = false" class="text-zinc-400 hover:text-white">✕</button></div>
-        <div class="flex-1 overflow-y-auto p-4 space-y-4" x-ref="tutorHistory">
-          <template x-for="(msg, i) in tutorMessages" :key="i"><div :class="msg.role === 'user' ? 'ml-auto bg-fuchsia-500/15 p-3 rounded-2xl text-sm text-white' : 'mr-auto bg-[color:var(--s2)] p-3 rounded-2xl text-sm text-zinc-300'"><p x-text="msg.text"></p></div></template>
-        </div>
-        <form @submit.prevent="askTutor()" class="flex gap-3 border-t border-white/5 p-4"><input type="text" x-model="tutorQuestion" placeholder="Pose ta question…" class="min-w-0 flex-1 rounded-xl border border-white/10 bg-[color:var(--s0)] px-4 py-2.5 text-sm text-white outline-none focus:border-fuchsia-500/50"><button type="submit" :disabled="tutorBusy" class="rounded-xl bg-fuchsia-500 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">Envoyer</button></form>
-      </div>
-
     </div>
   </div>
 
