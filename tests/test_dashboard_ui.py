@@ -115,7 +115,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this._interval = window.setInterval(() =>", DASHBOARD_HTML)
         self.assertIn("if (this.goalReached)", DASHBOARD_HTML)
         self.assertIn("this.elapsedSeconds % 5 === 0", DASHBOARD_HTML)
-        self.assertIn("x-data=\\"skilltreeStudySession()\\" class=\\"mb-5 rounded-2xl", DASHBOARD_HTML)
+        self.assertIn('x-data="skilltreeStudySession()" class="mb-5 rounded-2xl', DASHBOARD_HTML)
         self.assertIn('role="group" aria-label="Durée cible de la session"', DASHBOARD_HTML)
         self.assertIn('@click="setTarget(minutes)"', DASHBOARD_HTML)
         self.assertIn(':aria-pressed="targetMinutes === minutes"', DASHBOARD_HTML)
