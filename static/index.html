@@ -853,7 +853,7 @@
               <p class="mt-2 text-sm text-zinc-400" x-text="challenge.description"></p>
               <p class="mt-2 text-[12px] text-zinc-500">Attendu : <span class="font-mono text-zinc-300" x-text="expectedSummary"></span></p>
               <div class="mt-4 flex flex-wrap gap-2">
-                <button type="button" class="btn btn-primary" @click="checkChallenge(false)">✔ Vérifier mon schéma</button>
+                <button type="button" class="btn btn-primary" :disabled="challengeSubmissionBusy" @click="checkChallenge(false)">✔ Vérifier mon schéma</button>
                 <button type="button" class="btn" :disabled="challengeSubmissionBusy" @click="endChallenge()">Abandonner</button>
               </div>
               <template x-if="challengeResult">
@@ -2763,9 +2763,15 @@
         topoMode: 'libre', topoCounts: { nodes: 0, links: 0 }, topoTypeCounter: {}, challenge: null, challengeLeft: 0, challengeTimer: null, challengeResult: null, challengeSubmissionBusy: false,
         get challengeNodes() { return this.nodes.filter(n => n.type === 'architecture' || /^challenge-/.test(n.id)); },
         get expectedSummary() {
-          if (!this.challenge) return ''; const e = this.challenge.expected || {};
+          if (!this.challenge) return '';
+          // Pour les défis serveur, le navigateur reçoit uniquement un résumé,
+          // jamais la correction complète des connexions attendues.
+          const e = this.challenge.expectedSummary || this.challenge.expected || {};
           const nodes = Object.entries(e.nodes || {}).map(([k, v]) => `${v} ${k}`).join(' · ');
-          return `${nodes} — ${(e.connections || []).length} liens`;
+          const connectionCount = Array.isArray(e.connections)
+            ? e.connections.length
+            : Math.max(0, Number(e.connections) || 0);
+          return `${nodes || 'Topologie à construire'} — ${connectionCount} liens`;
         },
         async initTopology() {
           if (this.topologyReady) return; const el = this.$refs.canvas; if (!el || typeof Drawflow === 'undefined') return;
@@ -2806,9 +2812,9 @@
         async startChallenge(id) {
           try {
             const r = await fetch(`/api/node/${id}`); const d = await r.json(); const ch = d.challenge || {};
-            if (!ch.expected_topology) throw new Error('défi sans topologie attendue');
-            this.clearTopology(); const req = (d.requirements || [])[0] || {};
-            this.challenge = { id, title: d.title, description: d.description, expected: ch.expected_topology, minScore: req.min_score || 100, builtin: false };
+            if (!ch.expected_summary) throw new Error('résumé du défi indisponible');
+            this.clearTopology(); const req = (d.requirements || []).find(item => item.kind === 'manual') || {};
+            this.challenge = { id, title: d.title, description: d.description, expectedSummary: ch.expected_summary, minScore: req.min_score || 100, builtin: false };
             this.challengeResult = null; this.challengeLeft = ch.time_limit || 300; clearInterval(this.challengeTimer);
             this.challengeTimer = setInterval(() => { this.challengeLeft--; if (this.challengeLeft <= 0) this.checkChallenge(true); }, 1000);
           } catch (e) { this.notify('Défi indisponible : ' + e.message); }
@@ -3323,6 +3329,67 @@
           const ch = this.challenge;
           if (!ch || this.challengeSubmissionBusy) return;
           const graph = this.topoData();
+
+          // Défis du catalogue : le serveur calcule score, réussite et progression.
+          // On n'envoie jamais le score annoncé par le navigateur.
+          if (!ch.builtin) {
+            this.challengeSubmissionBusy = true;
+            this.challengeResult = {
+              score: null, passed: false, timeout: !!timeout, pending: true, error: '',
+              missingNodes: [], extraNodes: [], missingLinks: [], extraLinks: [],
+            };
+            try {
+              const response = await fetch(`/api/node/${encodeURIComponent(ch.id)}/challenge`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topology: graph, timeout: !!timeout }),
+              });
+              const responseText = await response.text();
+              let result;
+              try { result = JSON.parse(responseText); }
+              catch (_) { throw new Error(responseText || `Erreur ${response.status}`); }
+              if (!response.ok) throw new Error(result.detail || responseText || `Erreur ${response.status}`);
+
+              this.challengeResult = {
+                score: Number(result.score) || 0,
+                passed: !!result.passed,
+                timeout: !!result.timeout,
+                missingNodes: result.missing_nodes || [],
+                extraNodes: result.extra_nodes || [],
+                missingLinks: result.missing_links || [],
+                extraLinks: result.extra_links || [],
+                pending: false,
+                error: '',
+                validated: !!result.validated,
+                attemptRecorded: !!result.attempt_recorded,
+                xpGained: Number(result.xp_gained) || 0,
+                badgesUnlocked: result.badges_unlocked || [],
+              };
+              await this.refreshAll();
+              if (result.passed && result.validated && result.attempt_recorded) {
+                this.celebrate();
+                this.notify(`Défi validé et progression enregistrée : ${result.score} %.`);
+              } else if (result.passed && result.attempt_recorded) {
+                this.notify(`Défi réussi (${result.score} %) : les autres exigences restent à valider.`);
+              } else if (!result.passed && result.attempt_recorded) {
+                this.notify(`Tentative enregistrée : ${result.score} %. Corrige la topologie puis réessaie.`);
+              } else if (result.passed && result.validated) {
+                this.notify('Ce défi est déjà validé dans ton parcours.');
+              }
+            } catch (error) {
+              this.challengeResult = {
+                score: null, passed: false, timeout: !!timeout, pending: false,
+                error: `La vérification serveur n'a pas pu être enregistrée : ${error.message}`,
+                missingNodes: [], extraNodes: [], missingLinks: [], extraLinks: [],
+              };
+              this.notify('Défi non enregistré : vérifie la connexion puis réessaie.');
+            } finally {
+              this.challengeSubmissionBusy = false;
+            }
+            return;
+          }
+
+          // Défis intégrés : exercice local sans effet sur la progression serveur.
           const linked = (idA, nodeA, idB, nodeB) => {
             const fromA = Object.values(nodeA.outputs || {}).some(o => (o.connections || []).some(c => String(c.node) === String(idB)));
             const fromB = Object.values(nodeB.outputs || {}).some(o => (o.connections || []).some(c => String(c.node) === String(idA)));
@@ -3348,67 +3415,13 @@
             }));
           }
           const priorMin = ch.minScore;
-          if (missing.length) ch.minScore = 101; // Bloque un défi local qui n'a pas toutes ses liaisons obligatoires.
+          if (missing.length) ch.minScore = 101;
           originalCheckChallenge(timeout);
           ch.minScore = priorMin;
           if (missing.length && this.challengeResult) {
             this.challengeResult.score = Math.min(Number(this.challengeResult.score) || 0, 95);
             this.challengeResult.passed = false;
             this.challengeResult.missingLinks = [...(this.challengeResult.missingLinks || []), ...missing];
-          }
-
-          // Les défis intégrés sont des exercices locaux. Les défis du catalogue sont
-          // recalculés et enregistrés par l'API à partir de l'export brut de Drawflow.
-          if (ch.builtin) return;
-          const localResult = this.challengeResult ? { ...this.challengeResult } : null;
-          this.challengeSubmissionBusy = true;
-          this.challengeResult = { ...(localResult || {}), pending: true, error: '' };
-          try {
-            const response = await fetch(`/api/node/${encodeURIComponent(ch.id)}/challenge`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ topology: graph, timeout: !!timeout }),
-            });
-            const responseText = await response.text();
-            let result;
-            try { result = JSON.parse(responseText); }
-            catch (_) { throw new Error(responseText || `Erreur ${response.status}`); }
-            if (!response.ok) throw new Error(result.detail || responseText || `Erreur ${response.status}`);
-
-            this.challengeResult = {
-              score: Number(result.score) || 0,
-              passed: !!result.passed,
-              timeout: !!result.timeout,
-              missingNodes: result.missing_nodes || [],
-              extraNodes: result.extra_nodes || [],
-              missingLinks: [...(result.missing_links || []), ...(localResult?.missingLinks || [])],
-              extraLinks: result.extra_links || [],
-              pending: false,
-              error: '',
-              validated: !!result.validated,
-              attemptRecorded: !!result.attempt_recorded,
-              xpGained: Number(result.xp_gained) || 0,
-              badgesUnlocked: result.badges_unlocked || [],
-            };
-            await this.refreshAll();
-            if (result.passed && result.validated && result.attempt_recorded) {
-              this.celebrate();
-              this.notify(`Défi validé et progression enregistrée : ${result.score} %.`);
-            } else if (result.passed && result.attempt_recorded) {
-              this.notify(`Défi réussi (${result.score} %) : les autres exigences restent à valider.`);
-            } else if (!result.passed && result.attempt_recorded) {
-              this.notify(`Tentative enregistrée : ${result.score} %. Tu peux corriger la topologie et réessayer.`);
-            }
-          } catch (error) {
-            this.challengeResult = {
-              ...(localResult || {}),
-              passed: false,
-              pending: false,
-              error: `La vérification serveur n'a pas pu être enregistrée : ${error.message}`,
-            };
-            this.notify('Défi non enregistré : vérifie la connexion puis réessaie.');
-          } finally {
-            this.challengeSubmissionBusy = false;
           }
         };
 
