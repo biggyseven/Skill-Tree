@@ -45,6 +45,31 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("quizResult.results || []", exercise_ui)
         self.assertIn("exerciseError: null", DASHBOARD_HTML)
 
+    def test_validation_advances_resume_target_and_reports_refresh_health(self):
+        refresh_start = DASHBOARD_HTML.index("        async refreshAll() {")
+        refresh_end = DASHBOARD_HTML.index("        async retryDashboardData()", refresh_start)
+        refresh_method = DASHBOARD_HTML[refresh_start:refresh_end]
+        self.assertIn("tree: !this.treeError", refresh_method)
+        self.assertIn("dailyPlan: !this.dashboardDataErrors.dailyPlan", refresh_method)
+
+        helper_start = DASHBOARD_HTML.index("        advanceResumeTargetAfterValidation(nodeId, requestId) {")
+        helper_end = DASHBOARD_HTML.index("        async submitAnswer() {", helper_start)
+        helper = DASHBOARD_HTML[helper_start:helper_end]
+        self.assertIn("node.status !== 'validated' || this.allNodesValidated", helper)
+        self.assertIn("this.lastOpenedNodeId = ''", helper)
+        self.assertIn("localStorage.removeItem('skilltree-last-node')", helper)
+        self.assertIn("localStorage.removeItem('skilltree-last-progress')", helper)
+
+        start = DASHBOARD_HTML.index("        async submitAnswer() {")
+        end = DASHBOARD_HTML.index("        async startLab()", start)
+        submissions = DASHBOARD_HTML[start:end]
+        self.assertEqual(
+            submissions.count("if (result.validated && refreshed.tree) this.advanceResumeTargetAfterValidation(nodeId, requestId);"),
+            2,
+        )
+        self.assertEqual(submissions.count("if (!refreshed.tree || !refreshed.dailyPlan)"), 2)
+        self.assertIn("if (this.allNodesValidated)", DASHBOARD_HTML)
+
     def test_course_reader_surfaces_load_errors_and_ignores_stale_requests(self):
         start = DASHBOARD_HTML.index("        async show(nodeId) {")
         end = DASHBOARD_HTML.index("        close() {", start)
