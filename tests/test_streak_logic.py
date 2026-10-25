@@ -6,6 +6,7 @@ from types import SimpleNamespace
 import unittest
 
 from app.api import _streak_payload
+from app.db import streak_days
 
 
 class StreakPayloadTests(unittest.TestCase):
@@ -43,6 +44,7 @@ class StreakPayloadTests(unittest.TestCase):
         payload = _streak_payload(self.tree)
 
         self.assertEqual(payload["days"], 0)
+        self.assertEqual(streak_days(self.connection), 0)
         self.assertFalse(payload["active_today"])
 
     def test_activity_today_starts_or_continues_a_streak(self):
@@ -51,6 +53,7 @@ class StreakPayloadTests(unittest.TestCase):
         payload = _streak_payload(self.tree)
 
         self.assertEqual(payload["days"], 1)
+        self.assertEqual(streak_days(self.connection), 1)
         self.assertTrue(payload["active_today"])
         self.assertEqual(payload["minutes_today"], 25)
 
@@ -60,6 +63,7 @@ class StreakPayloadTests(unittest.TestCase):
         payload = _streak_payload(self.tree)
 
         self.assertEqual(payload["days"], 1)
+        self.assertEqual(streak_days(self.connection), 1)
         self.assertFalse(payload["active_today"])
 
     def test_streak_counts_consecutive_days_through_today(self):
@@ -71,6 +75,7 @@ class StreakPayloadTests(unittest.TestCase):
         payload = _streak_payload(self.tree)
 
         self.assertEqual(payload["days"], 3)
+        self.assertEqual(streak_days(self.connection), 3)
         self.assertTrue(payload["active_today"])
 
 
