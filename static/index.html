@@ -1369,7 +1369,7 @@
         </div>
 
         <!-- Onglets -->
-        <div class="flex flex-wrap gap-2" x-show="!detailLoading">
+        <div class="flex flex-wrap gap-2" x-show="!detailLoading && !detailLoadError">
           <button @click="modalTab = 'lesson'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'lesson' ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">📖 Cours</button>
           <button x-show="canStartExercise() || quiz || exerciseMode" @click="modalTab = 'exercise'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'exercise' ? 'bg-fuchsia-500/10 text-fuchsia-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">✏️ Exercice</button>
           <button x-show="detail?.lab" @click="modalTab = 'lab'" class="rounded-xl px-4 py-2 text-sm font-semibold transition" :class="modalTab === 'lab' ? 'bg-cyan-500/10 text-cyan-400' : 'text-zinc-400 hover:text-white hover:bg-white/5'">💻 Lab / Terminal</button>
@@ -1384,7 +1384,19 @@
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
         </div>
 
-        <div x-show="!detailLoading">
+        <div x-show="!detailLoading && detailLoadError" x-cloak role="alert" aria-live="assertive" class="mx-auto my-10 max-w-xl rounded-3xl border border-rose-400/25 bg-rose-500/5 p-6 text-center">
+          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-400/20 bg-rose-500/10 text-rose-300">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5m0 4h.01"></path></svg>
+          </div>
+          <h3 class="mt-4 text-base font-bold text-white">Impossible d’ouvrir ce cours</h3>
+          <p class="mt-2 text-sm leading-relaxed text-rose-100/80" x-text="detailLoadError"></p>
+          <div class="mt-5 flex flex-wrap justify-center gap-2">
+            <button type="button" @click="detailRequestedNodeId && show(detailRequestedNodeId)" :disabled="detailLoading || !detailRequestedNodeId" class="rounded-xl bg-rose-300 px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-rose-200 disabled:opacity-50">Réessayer</button>
+            <button type="button" @click="close()" class="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-zinc-300 transition hover:bg-white/5">Fermer</button>
+          </div>
+        </div>
+
+        <div x-show="!detailLoading && !detailLoadError">
           <!-- ONGLET 1 : COURS -->
           <div x-show="modalTab === 'lesson'">
             <template x-if="lessonHtml">
@@ -1700,7 +1712,7 @@
         dashboardDataErrors: { userStats: null, streak: null, dailyPlan: null, stats: null },
         userStats: { total_xp: 0, current_level: 1, level_name: 'Débutant', progress_percent: 0, coins: 0 }, userStatsLoaded: false,
         shopOpen: false, shopItems: [], open: false,
-        detail: null, detailLoading: false, modalTab: 'lesson', isFullscreen: false,
+        detail: null, detailLoading: false, detailLoadError: null, detailRequestedNodeId: null, _detailRequestId: 0, modalTab: 'lesson', isFullscreen: false,
         lessonHtml: '', lessonMissing: false,
 
         // --- Lecteur de cours ---
@@ -2152,46 +2164,81 @@
 
         async show(nodeId) {
           const nodeKey = String(nodeId);
+          const requestId = ++this._detailRequestId;
           const resumingSameLesson = nodeKey === String(this.lastOpenedNodeId || '');
           this.lastOpenedNodeId = nodeKey;
+          this.detailRequestedNodeId = nodeKey;
           if (!resumingSameLesson) this.lastLessonProgress = 0;
           try {
             localStorage.setItem('skilltree-last-node', nodeKey);
             if (!resumingSameLesson) localStorage.removeItem('skilltree-last-progress');
           } catch (e) { }
-          this.open = true; this.detailLoading = true;
+          this.open = true;
+          this.detailLoading = true;
+          this.detailLoadError = null;
+          this.detail = null;
+          this.lessonHtml = '';
+          this.lessonMissing = false;
           this.modalTab = 'lesson'; this.quiz = null; this.quizResult = null; this.exerciseMode = null; this.exercisePreferredKind = null;
           this.labRunning = false; this.labValidation = null; this.labOutput = []; this.labError = null;
           this.lessonProgress = 0; this.lessonToc = []; this.activeSection = '';
 
           try {
-            const r = await fetch(`/api/node/${nodeId}`); this.detail = await r.json();
-            const l = await fetch(`/api/node/${nodeId}/lesson`);
+            const r = await fetch(`/api/node/${encodeURIComponent(nodeKey)}`);
+            if (requestId !== this._detailRequestId) return;
+            if (!r.ok) throw new Error(`Impossible de charger le cours (HTTP ${r.status}).`);
+            const detail = await r.json();
+            if (requestId !== this._detailRequestId) return;
+            this.detail = detail;
+
+            const l = await fetch(`/api/node/${encodeURIComponent(nodeKey)}/lesson`);
+            if (requestId !== this._detailRequestId) return;
             if (l.ok) {
               const md = await l.text();
+              if (requestId !== this._detailRequestId) return;
               const rawHtml = this.formatMarkdown(md);
               this.lessonHtml = DOMPurify.sanitize(rawHtml);
               this.lessonMissing = false;
             }
             else { this.lessonHtml = ''; this.lessonMissing = true; }
-          } catch (e) { console.error("Erreur chargement", e); }
-          finally {
-            this.detailLoading = false;
-            this.$nextTick(() => {
-              const s = this.$refs.modalScroll;
-              if (s) {
-                const max = Math.max(0, s.scrollHeight - s.clientHeight);
-                const progress = String(this.detail?.id || '') === String(this.lastOpenedNodeId || '') ? this.lastLessonProgress : 0;
-                s.scrollTop = max > 0 ? Math.round(max * progress / 100) : 0;
-                this.onLessonScroll({ target: s });
-              }
-              this.fixLessonContrast();
-              setTimeout(() => this.fixLessonContrast(), 80);
-            });
+          } catch (e) {
+            if (requestId === this._detailRequestId) {
+              this.detail = null;
+              this.lessonHtml = '';
+              this.lessonMissing = false;
+              this.detailLoadError = e && e.message ? e.message : 'Une erreur inattendue empêche le chargement. Vérifie la connexion puis réessaie.';
+              console.error("Erreur chargement", e);
+            }
+          } finally {
+            if (requestId === this._detailRequestId) {
+              this.detailLoading = false;
+              this.$nextTick(() => {
+                if (requestId !== this._detailRequestId || !this.open || this.detailLoadError) return;
+                const s = this.$refs.modalScroll;
+                if (s) {
+                  const max = Math.max(0, s.scrollHeight - s.clientHeight);
+                  const progress = String(this.detail?.id || '') === String(this.lastOpenedNodeId || '') ? this.lastLessonProgress : 0;
+                  s.scrollTop = max > 0 ? Math.round(max * progress / 100) : 0;
+                  this.onLessonScroll({ target: s });
+                }
+                this.fixLessonContrast();
+                setTimeout(() => {
+                  if (requestId === this._detailRequestId && this.open && !this.detailLoadError) this.fixLessonContrast();
+                }, 80);
+              });
+            }
           }
         },
 
-        close() { this.open = false; this.detail = null; this.tutorOpen = false; },
+        close() {
+          this._detailRequestId += 1;
+          this.open = false;
+          this.detailLoading = false;
+          this.detailLoadError = null;
+          this.detailRequestedNodeId = null;
+          this.detail = null;
+          this.tutorOpen = false;
+        },
 
         canStartExercise() { return this.detail?.requirements?.some(r => ['quiz', 'terminal'].includes(r.kind)) || false; },
         async startExercise() {
