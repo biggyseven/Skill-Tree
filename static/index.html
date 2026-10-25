@@ -770,8 +770,7 @@
               </template>
             </template>
             <template x-if="planActions.length === 0">
-              <p class="col-span-full py-4 text-center text-sm leading-relaxed text-zinc-400"
-                 x-text="dashboardDataErrors.dailyPlan && !dailyPlan.length ? 'Le plan du serveur est indisponible. Les éventuelles suggestions ci-dessus sont déduites du parcours chargé.' : (treeError && !nodes.length ? 'Le parcours ne peut pas être affiché. Réessaie avec le bouton ci-dessus.' : (!nodes.length ? (loading ? 'Préparation de ta session…' : 'Aucun cours disponible pour le moment.') : (nodes.every(n => n.status === 'validated') ? '🎉 Tu as validé tout le parcours actuellement disponible. Reprends une leçon pour réviser ou explore les modules pour approfondir.' : 'Aucune action recommandée pour le moment. Consulte les prérequis des cours ou explore un module.')))"></p>
+              <p class="col-span-full py-4 text-center text-sm leading-relaxed text-zinc-400" x-text="planEmptyMessage"></p>
             </template>
           </div>
         </section>
@@ -3183,8 +3182,34 @@
           };
         },
         get planActions() {
-          if (this.dailyPlan.length) return this.dailyPlan;
-          return this.nodes.filter(n => n.status === 'available').slice(0, 3).map(n => ({ node_id: n.id, label: n.title, reason: n.category || '', action: 'start' }));
+          // Le résumé de reprise et le graphe montrent déjà leur activité cible.
+          // Le plan du jour propose des actions complémentaires plutôt que de dupliquer ces nœuds.
+          const visibleNodeIds = [
+            this.resumeNode?.id,
+            this.parcours.cur?.id,
+          ].filter(id => id !== null && id !== undefined).map(String);
+          if (this.dailyPlan.length) {
+            return this.dailyPlan.filter(action => !visibleNodeIds.includes(String(action.node_id)));
+          }
+          return this.nodes
+            .filter(n => n.status === 'available' && !visibleNodeIds.includes(String(n.id)))
+            .slice(0, 3)
+            .map(n => ({ node_id: n.id, label: n.title, reason: n.category || '', action: 'start' }));
+        },
+        get planEmptyMessage() {
+          if (this.dashboardDataErrors.dailyPlan && !this.dailyPlan.length) return 'Le plan du serveur est indisponible. Les suggestions locales éventuelles sont déduites du parcours chargé.';
+          if (this.treeError && !this.nodes.length) return 'Le parcours ne peut pas être affiché. Réessaie avec le bouton ci-dessus.';
+          if (!this.nodes.length) return this.loading ? 'Préparation de ta session…' : 'Aucun cours disponible pour le moment.';
+          if (this.nodes.every(n => n.status === 'validated')) return '🎉 Tu as validé tout le parcours actuellement disponible. Reprends une leçon pour réviser ou explore les modules pour approfondir.';
+          const visibleNodeIds = [this.resumeNode?.id, this.parcours.cur?.id]
+            .filter(id => id !== null && id !== undefined).map(String);
+          if (this.dailyPlan.length && this.dailyPlan.every(action => visibleNodeIds.includes(String(action.node_id)))) {
+            return 'Les priorités du jour sont déjà mises en évidence dans les cartes de reprise et du parcours. Explore un autre module pour varier ta session.';
+          }
+          if (!this.dailyPlan.length && this.nodes.some(n => n.status === 'available' && visibleNodeIds.includes(String(n.id)))) {
+            return 'La prochaine étape est déjà mise en évidence dans les cartes ci-dessus. Explore un autre module pour varier ta session.';
+          }
+          return 'Aucune action recommandée pour le moment. Consulte les prérequis des cours ou explore un module.';
         },
         get notifications() {
           const out = this.liveEvents.map(e => ({ ...e }));
