@@ -42,6 +42,8 @@ jobs:
           cache-dependency-path: app/lab-workspace/package-lock.json
       - name: Install JavaScript dependencies
         run: npm ci
+      - name: Check inline Skill-Tree dashboard scripts
+        run: node ../../scripts/check-dashboard-js.cjs
       - name: Build Lab Workspace
         run: npm run build
       - name: Publish generated static bundle
