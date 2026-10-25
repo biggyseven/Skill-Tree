@@ -57,6 +57,32 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("statusMeta(s)", DASHBOARD_HTML)
         self.assertIn("in_progress: { label: 'En cours'", DASHBOARD_HTML)
 
+    def test_module_progress_uses_canonical_module_and_validated_nodes(self):
+        start = DASHBOARD_HTML.index("get modulesList()")
+        end = DASHBOARD_HTML.index("get progress()", start)
+        modules_getter = DASHBOARD_HTML[start:end]
+
+        self.assertIn("this.moduleOf(node)", modules_getter)
+        self.assertIn("node.status === 'validated'", modules_getter)
+        self.assertIn("progress: item.total ? Math.round((item.validated / item.total) * 100) : 0", modules_getter)
+        self.assertNotIn("progress: 0", modules_getter)
+
+    def test_remote_challenge_score_is_checked_and_saved_by_the_server(self):
+        self.assertIn("/api/node/${encodeURIComponent(ch.id)}/challenge", DASHBOARD_HTML)
+        self.assertIn("JSON.stringify({ topology: graph, timeout: !!timeout })", DASHBOARD_HTML)
+        self.assertIn("if (ch.builtin) return;", DASHBOARD_HTML)
+        self.assertIn("challengeResult.pending", DASHBOARD_HTML)
+        self.assertIn("challengeResult.attemptRecorded", DASHBOARD_HTML)
+        self.assertIn("const passed = !timeout && score >= this.challenge.minScore;", DASHBOARD_HTML)
+        self.assertIn(':disabled="!c.builtin && c.status === \'locked\'"', DASHBOARD_HTML)
+
+    def test_completed_learning_path_remains_navigable(self):
+        self.assertIn(
+            ':disabled="!parcours.steps.length || (parcours.cur && parcours.cur.status === \'locked\')"',
+            DASHBOARD_HTML,
+        )
+        self.assertIn("'Revoir l’arbre complet'", DASHBOARD_HTML)
+
 
 if __name__ == "__main__":
     unittest.main()
