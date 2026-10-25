@@ -770,7 +770,7 @@
             </div>
             <div class="relative mt-5 grid grid-cols-3 gap-2 border-t border-white/5 pt-4 sm:mt-7 sm:pt-5">
               <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">Progression</p><p class="mt-1 font-mono text-lg font-bold text-emerald-300"><span x-text="progress"></span><span class="text-xs">%</span></p><p class="text-[9px] text-zinc-500"><span x-text="validated"></span>/<span x-text="total"></span> cours</p></div>
-              <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">Série</p><p class="mt-1 font-mono text-lg font-bold text-orange-300">🔥 <span x-text="streakDays"></span></p><p class="text-[9px] text-zinc-500">jours</p></div>
+              <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">Série</p><p class="mt-1 font-mono text-lg font-bold text-orange-300">🔥 <span x-text="streakLoaded ? streakDays : '—'"></span></p><p class="text-[9px] text-zinc-500">jours</p></div>
               <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">XP total</p><p class="mt-1 font-mono text-lg font-bold text-cyan-300" x-text="userStatsLoaded ? userStats.total_xp : '—'"></p><p class="text-[9px] text-zinc-500">points gagnés</p></div>
             </div>
           </div>
@@ -1371,7 +1371,7 @@
         <div class="mb-6"><p class="eyebrow">Progression</p><h2 class="mt-1 text-2xl font-semibold text-white">Récompenses et diplômes</h2><p class="mt-1 text-sm text-zinc-400">Un diplôme s'obtient quand tous les cours d'un niveau sont validés et que l'examen de ce niveau est réussi (70 % minimum).</p></div>
         <div class="mb-8 grid gap-4 sm:grid-cols-4">
           <div class="card-sm text-center"><p class="eyebrow">Niveau</p><p class="mt-1 font-mono text-2xl text-emerald-400" x-text="userStatsLoaded ? userStats.current_level + ' · ' + userStats.level_name : '—'"></p></div>
-          <div class="card-sm text-center"><p class="eyebrow">XP</p><p class="mt-1 font-mono text-2xl text-cyan-400" x-text="userStats.total_xp"></p></div>
+          <div class="card-sm text-center"><p class="eyebrow">XP</p><p class="mt-1 font-mono text-2xl text-cyan-400" x-text="userStatsLoaded ? userStats.total_xp : '—'"></p></div>
           <div class="card-sm text-center"><p class="eyebrow">Badges</p><p class="mt-1 font-mono text-2xl text-fuchsia-400" x-text="badges.filter(b => b.ok).length + ' / ' + badges.length"></p></div>
           <div class="card-sm text-center"><p class="eyebrow">Diplômes</p><p class="mt-1 font-mono text-2xl text-amber-300" x-text="issuedDiplomas.length"></p></div>
         </div>
