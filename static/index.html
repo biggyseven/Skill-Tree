@@ -778,7 +778,7 @@
         <!-- Cartes modules compactes -->
         <div class="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <template x-for="m in moduleCards" :key="m.id">
-            <button type="button" @click="setModule(m.id)" class="card-sm !p-3 text-left transition" :class="moduleFilter === m.id ? '!border-emerald-400/60 !bg-emerald-500/5' : 'hover:border-white/20'">
+            <button type="button" @click="setModule(m.id)" :aria-pressed="moduleFilter === m.id" :aria-label="`${m.label}, ${m.validated} cours validés sur ${m.total}, ${m.pct} %. ${moduleFilter === m.id ? 'Module sélectionné' : 'Afficher ce module'}`" class="card-sm !p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70" :class="moduleFilter === m.id ? '!border-emerald-400/60 !bg-emerald-500/5' : 'hover:border-white/20'">
               <div class="flex items-center gap-2">
                 <span class="shrink-0 text-base" x-text="m.icon"></span>
                 <span class="min-w-0 flex-1 truncate text-[11px] font-bold text-white" x-text="m.label"></span>
@@ -787,7 +787,7 @@
                 <span x-text="m.validated + ' / ' + m.total"></span>
                 <span class="font-mono text-emerald-400" x-text="m.pct + '%'"></span>
               </div>
-              <div class="bar mt-1.5"><i :style="`width:${m.pct}%`"></i></div>
+              <div class="bar mt-1.5" role="progressbar" :aria-label="`Progression du module ${m.label}`" :aria-valuenow="m.pct" aria-valuemin="0" aria-valuemax="100"><i :style="`width:${m.pct}%`"></i></div>
             </button>
           </template>
         </div>
