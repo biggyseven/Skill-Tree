@@ -1943,8 +1943,8 @@
         labId: null, labBusy: false, labRunning: false, labOutput: [], labCommand: '', labValidation: null, labError: null,
 
         tutorOpen: false, tutorQuestion: '', tutorMessages: [], tutorBusy: false, tutorSelectedText: '',
-        speechState: 'idle', speechKind: null, speechRate: 1, speechQueue: [], speechQueueIndex: 0,
-        speechError: null, _speechRunId: 0, _speechAudioUrls: {}, _speechAudioRequests: {}, _speechLoadedIndex: -1,
+        speechState: 'idle', speechKind: null, speechEngine: null, speechRate: 1, speechQueue: [], speechQueueIndex: 0,
+        speechError: null, _speechRunId: 0, _speechAudioUrls: {}, _speechAudioRequests: {}, _speechLoadedIndex: -1, _browserSpeechUtterance: null,
         dailyPlan: [], stats: null, statsLoading: false, flashcards: [], flashcardQueue: [], flashcardsLoading: false, flashcardFlipped: false,
 
         diagnostic: null, diagnosticStep: null,
@@ -2863,6 +2863,7 @@
         speechStatusLabel() {
           if (this.speechState === 'paused') return 'Lecture en pause';
           if (this.speechState === 'starting') return 'Préparation du segment audio…';
+          if (this.speechEngine === 'browser') return 'Lecture avec la voix de secours du navigateur';
           if (this.speechKind === 'lesson') return 'Lecture du cours en cours';
           if (this.speechKind === 'tutor') return 'Lecture de la réponse en cours';
           return '';
@@ -2879,7 +2880,7 @@
             .replace(/\n{3,}/g, '\n\n')
             .trim();
         },
-        splitSpeechText(text) {
+        splitSpeechText(text, maxLength = 1800) {
           const normalized = String(text || '')
             .replace(/\r\n?/g, '\n')
             .replace(/[ \t]+/g, ' ')
@@ -2890,7 +2891,6 @@
 
           const paragraphs = normalized.split(/\n{2,}/).map(part => part.replace(/\n+/g, ' ').trim()).filter(Boolean);
           const chunks = [];
-          const maxLength = 1800;
           let current = '';
           const appendSentence = sentence => {
             const clean = String(sentence || '').replace(/\s+/g, ' ').trim();
@@ -3008,13 +3008,73 @@
             this.prefetchSpeechChunk(index + 1, runId);
           } catch (error) {
             if (runId !== this._speechRunId) return;
-            this.speechError = error && error.message
+            const message = error && error.message
               ? error.message
               : 'La lecture audio a échoué. Essaie de relancer la lecture.';
+            if (!this.startBrowserSpeechFallback(runId, message)) {
+              this.speechError = message;
+              this.speechState = 'idle';
+              this.speechKind = null;
+              this.notify(this.speechError);
+            }
+          }
+        },
+        startBrowserSpeechFallback(failedRunId, serverError) {
+          if (failedRunId !== this._speechRunId) return false;
+          if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') {
+            this.speechError = serverError || 'La synthèse vocale est indisponible sur ce serveur et dans ce navigateur.';
+            return false;
+          }
+
+          const kind = this.speechKind || 'lesson';
+          const remainingText = this.speechQueue.slice(this.speechQueueIndex).join(' ');
+          if (!remainingText.trim()) {
+            this.speechError = serverError || 'Aucun texte restant à lire.';
+            return false;
+          }
+
+          this.stopSpeech();
+          this.speechEngine = 'browser';
+          this.speechKind = kind;
+          this.speechQueue = this.splitSpeechText(remainingText, 1000);
+          this.speechQueueIndex = 0;
+          this.speechState = 'starting';
+          this.speechError = null;
+          this.notify('La voix en ligne est indisponible : lecture de secours activée dans le navigateur.');
+          this.speakNextBrowserChunk(this._speechRunId);
+          return true;
+        },
+        speakNextBrowserChunk(runId) {
+          if (runId !== this._speechRunId || this.speechEngine !== 'browser') return;
+          if (this.speechQueueIndex >= this.speechQueue.length) {
+            this.finishSpeech(runId);
+            return;
+          }
+
+          const utterance = new window.SpeechSynthesisUtterance(this.speechQueue[this.speechQueueIndex]);
+          utterance.lang = 'fr-FR';
+          utterance.rate = Math.max(0.8, Math.min(1.6, Number(this.speechRate) || 1));
+          const availableVoices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+          utterance.voice = availableVoices.find(voice => String(voice.lang || '').toLowerCase() === 'fr-fr')
+            || availableVoices.find(voice => String(voice.lang || '').toLowerCase().startsWith('fr'))
+            || null;
+          utterance.onstart = () => {
+            if (runId === this._speechRunId) this.speechState = 'speaking';
+          };
+          utterance.onend = () => {
+            if (runId !== this._speechRunId) return;
+            this.speechQueueIndex += 1;
+            this.speakNextBrowserChunk(runId);
+          };
+          utterance.onerror = event => {
+            if (runId !== this._speechRunId || event.error === 'canceled' || event.error === 'interrupted') return;
+            this.speechError = 'La voix de secours du navigateur a échoué. Vérifie qu’une voix française est installée.';
             this.speechState = 'idle';
             this.speechKind = null;
             this.notify(this.speechError);
-          }
+          };
+          this._browserSpeechUtterance = utterance;
+          window.speechSynthesis.speak(utterance);
         },
         onSpeechAudioEnded(runId, index) {
           if (runId !== this._speechRunId || index !== this.speechQueueIndex) return;
@@ -3026,10 +3086,13 @@
         },
         onSpeechAudioError(runId, index) {
           if (runId !== this._speechRunId || index !== this.speechQueueIndex) return;
-          this.speechError = 'Le fichier audio n’a pas pu être lu. Relance la lecture ; si le problème continue, vérifie la connexion.';
-          this.speechState = 'idle';
-          this.speechKind = null;
-          this.notify(this.speechError);
+          const message = 'Le fichier audio n’a pas pu être lu. Essaie de relancer la lecture.';
+          if (!this.startBrowserSpeechFallback(runId, message)) {
+            this.speechError = message;
+            this.speechState = 'idle';
+            this.speechKind = null;
+            this.notify(this.speechError);
+          }
         },
         revokeSpeechAudioUrls() {
           Object.values(this._speechAudioUrls || {}).forEach(url => {
@@ -3042,6 +3105,8 @@
         finishSpeech(runId) {
           if (runId !== this._speechRunId) return;
           this._speechRunId += 1;
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+          this._browserSpeechUtterance = null;
           const audio = this.$refs.speechAudio;
           if (audio) {
             audio.onended = null;
@@ -3053,6 +3118,7 @@
           this.revokeSpeechAudioUrls();
           this.speechState = 'idle';
           this.speechKind = null;
+          this.speechEngine = null;
           this.speechQueue = [];
           this.speechQueueIndex = 0;
         },
@@ -3069,6 +3135,7 @@
             return;
           }
           this.speechKind = kind;
+          this.speechEngine = 'server';
           this.speechState = 'starting';
           this.speechError = null;
           this.speechQueueIndex = 0;
@@ -3076,6 +3143,8 @@
         },
         stopSpeech() {
           this._speechRunId += 1;
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+          this._browserSpeechUtterance = null;
           const audio = this.$refs.speechAudio;
           if (audio) {
             audio.onended = null;
@@ -3087,19 +3156,29 @@
           this.revokeSpeechAudioUrls();
           this.speechState = 'idle';
           this.speechKind = null;
+          this.speechEngine = null;
           this.speechQueue = [];
           this.speechQueueIndex = 0;
           this.speechError = null;
         },
         pauseSpeech() {
           if (!['speaking', 'starting'].includes(this.speechState)) return;
-          const audio = this.$refs.speechAudio;
-          if (audio) audio.pause();
+          if (this.speechEngine === 'browser' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            window.speechSynthesis.pause();
+          } else {
+            const audio = this.$refs.speechAudio;
+            if (audio) audio.pause();
+          }
           this.speechState = 'paused';
         },
         async resumeSpeech() {
           if (this.speechState !== 'paused') return;
           const runId = this._speechRunId;
+          if (this.speechEngine === 'browser' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            window.speechSynthesis.resume();
+            this.speechState = 'speaking';
+            return;
+          }
           const audio = this.$refs.speechAudio;
           this.speechState = 'starting';
           if (audio && this._speechLoadedIndex === this.speechQueueIndex && audio.src) {
@@ -3120,6 +3199,17 @@
           const kind = this.speechKind;
           const remainingText = this.speechQueue.slice(this.speechQueueIndex).join(' ');
           const wasPaused = this.speechState === 'paused';
+          if (this.speechEngine === 'browser') {
+            this.stopSpeech();
+            this.speechEngine = 'browser';
+            this.speechKind = kind;
+            this.speechQueue = this.splitSpeechText(remainingText, 1000);
+            this.speechQueueIndex = 0;
+            this.speechState = 'starting';
+            this.speakNextBrowserChunk(this._speechRunId);
+            if (wasPaused) this.pauseSpeech();
+            return;
+          }
           this.startSpeech(remainingText, kind);
           if (wasPaused) this.pauseSpeech();
         },

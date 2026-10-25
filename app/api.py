@@ -1,6 +1,7 @@
 """API HTTP du skill tree (FastAPI) + service de l'interface statique."""
 from __future__ import annotations
 
+import asyncio
 import io
 import json
 import os
@@ -868,32 +869,57 @@ def tutor_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
 
 @app.post("/api/tts")
 async def generate_speech(payload: SpeechRequest) -> Response:
-    """Génère un segment audio MP3 avec une voix française stable côté serveur."""
+    """Génère un segment audio MP3 et réessaie avec d'autres voix en cas de panne."""
     if not payload.text.strip():
         raise HTTPException(status_code=422, detail="Le texte à prononcer ne peut pas être vide.")
+
     try:
         import edge_tts
-
-        rate_percent = int(round((payload.rate - 1.0) * 100))
-        communicate = edge_tts.Communicate(
-            payload.text,
-            voice="fr-FR-DeniseNeural",
-            rate=f"{rate_percent:+d}%",
-        )
-        audio_parts: list[bytes] = []
-        async for chunk in communicate.stream():
-            if chunk.get("type") == "audio" and chunk.get("data"):
-                audio_parts.append(chunk["data"])
-    except Exception as error:
-        print(f"Erreur de synthèse vocale ({type(error).__name__}).")
+    except ImportError:
         raise HTTPException(
-            status_code=502,
-            detail="Le service de voix française est momentanément indisponible. Réessaie dans quelques instants.",
+            status_code=503,
+            detail="Le moteur de voix n’est pas installé. Le lecteur va essayer la voix de secours du navigateur.",
         ) from None
 
-    audio_data = b"".join(audio_parts)
+    rate_percent = int(round((payload.rate - 1.0) * 100))
+    voices = (
+        "fr-FR-DeniseNeural",
+        "fr-FR-HenriNeural",
+        "fr-CA-SylvieNeural",
+        "fr-FR-DeniseNeural",
+    )
+    audio_data = b""
+    failures: list[str] = []
+
+    for attempt_index, voice in enumerate(voices):
+        try:
+            communicate = edge_tts.Communicate(
+                payload.text,
+                voice=voice,
+                rate=f"{rate_percent:+d}%",
+            )
+            audio_parts: list[bytes] = []
+            async for chunk in communicate.stream():
+                if chunk.get("type") == "audio" and chunk.get("data"):
+                    audio_parts.append(chunk["data"])
+            audio_data = b"".join(audio_parts)
+            if audio_data:
+                break
+            raise RuntimeError("NoAudioReceived")
+        except Exception as error:
+            error_type = type(error).__name__
+            failures.append(f"{voice}:{error_type}")
+            # Journalise la voix et le type d'erreur, jamais le texte à prononcer.
+            print(f"Échec TTS voix={voice} type={error_type}")
+            if attempt_index < len(voices) - 1:
+                await asyncio.sleep(0.25 * (attempt_index + 1))
+
     if not audio_data:
-        raise HTTPException(status_code=502, detail="Le service vocal n’a produit aucun son. Réessaie.")
+        print("Synthèse vocale indisponible après plusieurs tentatives: " + ", ".join(failures))
+        raise HTTPException(
+            status_code=502,
+            detail="La voix en ligne ne répond pas. Le lecteur va essayer la voix de secours du navigateur.",
+        ) from None
 
     return Response(
         content=audio_data,

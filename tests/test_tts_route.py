@@ -11,6 +11,32 @@ from app import api
 
 
 class TextToSpeechApiTests(unittest.TestCase):
+    def test_tts_retries_with_another_french_voice_if_first_fails(self) -> None:
+        requested_voices: list[str] = []
+
+        class FailsOnDeniseThenWorksOnHenri:
+            def __init__(self, text: str, *, voice: str, rate: str) -> None:
+                requested_voices.append(voice)
+
+            async def stream(self):
+                if requested_voices[-1] == "fr-FR-DeniseNeural":
+                    raise RuntimeError("simulated upstream refusal")
+                yield {"type": "audio", "data": b"audio-from-henri"}
+
+        with tempfile.TemporaryDirectory() as temporary:
+            database_path = Path(temporary) / "skilltree.db"
+            with patch.object(api, "DB_PATH", database_path):
+                with patch("edge_tts.Communicate", FailsOnDeniseThenWorksOnHenri):
+                    with TestClient(api.app) as client:
+                        response = client.post(
+                            "/api/tts",
+                            json={"text": "Phrase de test.", "rate": 1.0},
+                        )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.content, b"audio-from-henri")
+        self.assertEqual(requested_voices[:2], ["fr-FR-DeniseNeural", "fr-FR-HenriNeural"])
+
     def test_tts_returns_french_mp3_and_translates_rate(self) -> None:
         captured: dict[str, str] = {}
 
