@@ -677,15 +677,15 @@
             <div class="relative">
               <div class="mb-5 flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Ton espace d’apprentissage</span>
-                <span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-300" x-text="lastOpenedNode ? 'Reprise disponible' : 'Prêt à démarrer'"></span>
+                <span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-300" x-text="resumableLastNode ? 'Reprise disponible' : 'Prêt à démarrer'"></span>
               </div>
               <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-cyan-400/10 text-emerald-300">
                 <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5z"></path><path d="M5 4.5v17M9 6h7M9 10h7"></path><path d="m14 14 2.5 2.5L21 12"></path></svg>
               </div>
-              <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300" x-text="lastOpenedNode ? 'Reprendre ta dernière leçon' : 'Ta prochaine étape'"></p>
+              <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300" x-text="resumableLastNode ? 'Reprendre ta dernière leçon' : 'Ta prochaine étape'"></p>
               <h2 class="mt-2 text-2xl font-bold leading-tight tracking-tight text-white" x-text="resumeNode ? resumeNode.title : 'Ton parcours commence ici'"></h2>
-              <p class="mt-3 text-sm leading-relaxed text-zinc-400" x-text="lastOpenedNode ? 'Retrouve le cours où tu t’es arrêté et poursuis ta lecture sans devoir le rechercher.' : (resumeNode ? 'Poursuis le parcours conseillé, étape après étape.' : 'Choisis un cours pour commencer à construire tes compétences réseau.')"></p>
-              <div x-show="lastOpenedNode" x-cloak class="mt-5 rounded-2xl border border-white/5 bg-[color:var(--s2)] p-3.5">
+              <p class="mt-3 text-sm leading-relaxed text-zinc-400" x-text="resumableLastNode ? 'Retrouve le cours où tu t’es arrêté et poursuis ta lecture sans devoir le rechercher.' : (resumeNode ? 'Poursuis le parcours conseillé, étape après étape.' : 'Choisis un cours pour commencer à construire tes compétences réseau.')"></p>
+              <div x-show="resumableLastNode" x-cloak class="mt-5 rounded-2xl border border-white/5 bg-[color:var(--s2)] p-3.5">
                 <div class="mb-2 flex items-center justify-between gap-3 text-[11px]"><span class="font-medium text-zinc-300">Progression de lecture</span><span class="font-mono font-semibold text-emerald-300" x-text="lastLessonProgress + '%'"></span></div>
                 <div class="h-1.5 overflow-hidden rounded-full bg-white/10"><div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-500" :style="`width: ${lastLessonProgress}%`"></div></div>
                 <p class="mt-2 text-[10px] text-zinc-500" x-text="lastLessonProgress >= 100 ? 'Lecture terminée · tu peux revoir cette leçon.' : 'Position mémorisée sur cet appareil.'"></p>
@@ -694,7 +694,7 @@
             </div>
             <div class="relative mt-7">
               <button type="button" :disabled="!resumeNode" @click="resumeNode && show(resumeNode.id)" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-3.5 text-sm font-bold text-slate-950 shadow-[0_8px_24px_-10px_rgba(52,211,153,0.65)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-40">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg><span x-text="lastOpenedNode ? (lastLessonProgress >= 100 ? 'Revoir cette leçon' : 'Reprendre la lecture') : 'Commencer la prochaine étape'"></span>
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg><span x-text="resumableLastNode ? (lastLessonProgress >= 100 ? 'Revoir cette leçon' : 'Reprendre la lecture') : 'Commencer la prochaine étape'"></span>
               </button>
               <p class="mt-3 text-center text-[10px] text-zinc-500">Reprise locale · synchronisation non activée</p>
             </div>
@@ -2935,15 +2935,22 @@
         get lastOpenedNode() {
           return this.lastOpenedNodeId ? (this.nodes.find(n => String(n.id) === String(this.lastOpenedNodeId)) || null) : null;
         },
+        get resumableLastNode() {
+          const node = this.lastOpenedNode;
+          return node && node.status !== 'locked' ? node : null;
+        },
         get resumeNode() {
-          return this.lastOpenedNode || this.parcours.cur || this.nodes.find(n => n.status === 'available') || null;
+          return this.resumableLastNode || this.parcours.cur || this.nodes.find(n => n.status === 'available') || null;
         },
         get parcours() {
           const pool = this.nodesIn(this.moduleFilter);
           const total = pool.length;
           const done = pool.filter(n => n.status === 'validated').length;
           const finished = total > 0 && done === total;
+          // Une action "challenge" peut aussi être une nouveauté disponible :
+          // seule une tentative déjà en cours doit remplacer l'étape courante du parcours.
           const activePlanAction = (this.dailyPlan || []).find(action =>
+            action.status === 'in_progress' &&
             ['continue', 'lab', 'challenge'].includes(action.action) &&
             pool.some(node => String(node.id) === String(action.node_id))
           );
