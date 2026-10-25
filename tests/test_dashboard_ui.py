@@ -110,6 +110,20 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("statusMeta(s)", DASHBOARD_HTML)
         self.assertIn("in_progress: { label: 'En cours'", DASHBOARD_HTML)
 
+    def test_learning_path_steps_remain_readable_on_narrow_screens(self):
+        self.assertIn(
+            'class="relative flex-1 overflow-x-auto pb-2" role="group" aria-label="Étapes du parcours"',
+            DASHBOARD_HTML,
+        )
+        self.assertIn(
+            ':style="`min-width: ${Math.max(parcours.steps.length * 6, 12)}rem`"',
+            DASHBOARD_HTML,
+        )
+        self.assertIn(
+            'class="relative flex min-h-[120px] items-center justify-between"',
+            DASHBOARD_HTML,
+        )
+
     def test_module_progress_uses_canonical_module_and_validated_nodes(self):
         start = DASHBOARD_HTML.index("get modulesList()")
         end = DASHBOARD_HTML.index("get progress()", start)
