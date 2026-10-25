@@ -15,6 +15,11 @@ class FakeWindow {
     this.location = { origin: 'http://127.0.0.1:8000' };
     this.listeners = new Map();
     this.messages = [];
+    this.storage = new Map();
+    this.localStorage = {
+      getItem: key => this.storage.has(key) ? this.storage.get(key) : null,
+      setItem: (key, value) => this.storage.set(key, String(value)),
+    };
     this.opener = {
       closed: false,
       postMessage: (message, targetOrigin) => this.messages.push({ message, targetOrigin }),
@@ -63,6 +68,7 @@ async function waitFor(predicate, message) {
 
 beforeEach(() => {
   fakeWindow.messages.length = 0;
+  fakeWindow.storage.clear();
   useLabStore.setState({
     lab: null, topology: null, selectedDevice: null, checkResult: null,
     loading: false, error: null, activePacket: null, activeTool: 'select',
@@ -70,7 +76,7 @@ beforeEach(() => {
   globalThis.fetch = async () => ({
     ok: true,
     status: 200,
-    json: async () => ({ passed: true, score: 1, ok: true, attempt_recorded: true }),
+    json: async () => ({ lab_id: 'lab-test', passed: true, score: 1, ok: true, attempt_recorded: true }),
   });
 });
 
@@ -121,6 +127,7 @@ test('une soumission validée est transmise au dashboard à la même origine', a
   assert.equal(posted.targetOrigin, fakeWindow.location.origin);
   assert.equal(posted.message.detail.passed, true);
   assert.equal(posted.message.detail.attempt_recorded, true);
+  assert.deepEqual(JSON.parse(fakeWindow.localStorage.getItem('st:labs-done')), ['lab-test']);
   assert.equal(useLabStore.getState().checkResult.ok, true);
   assert.equal(useLabStore.getState().loading, false);
 });
@@ -194,5 +201,6 @@ test('une topologie modifiée pendant la soumission est signalée comme obsolèt
   );
   const posted = fakeWindow.messages.find(item => item.message.type === 'lab:submit-result');
   assert.equal(posted.message.detail.stale, true);
+  assert.equal(fakeWindow.localStorage.getItem('st:labs-done'), null);
   assert.match(posted.message.detail.results.at(-1).message, /topologie actuelle a changé/);
 });
