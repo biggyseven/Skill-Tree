@@ -1025,6 +1025,15 @@
                   <p x-show="challengeResult.attemptRecorded && challengeResult.validated && challengeResult.passed" class="mt-1 text-xs text-emerald-300">Validation enregistrée dans ton parcours.</p>
                   <p x-show="challengeResult.attemptRecorded && challengeResult.passed && !challengeResult.validated" class="mt-1 text-xs text-amber-200">Défi réussi : d'autres exigences du cours restent à valider.</p>
                   <p x-show="challengeResult.timeout" class="text-xs text-zinc-400">Temps écoulé.</p>
+                  <p x-show="!challengeResult.pending && challengeResult.attemptRecorded && challengeResult.passed && challengeResult.xpGained > 0" class="mt-2 text-sm font-semibold text-emerald-300" x-text="'+' + challengeResult.xpGained + ' XP obtenus.'"></p>
+                  <div x-show="!challengeResult.pending && challengeResult.attemptRecorded && challengeResult.passed && challengeResult.badgesUnlocked.length > 0" class="mt-2 rounded-lg bg-emerald-500/10 p-2 text-xs text-emerald-200">
+                    <p class="mb-1 font-semibold">Badges débloqués</p>
+                    <div class="flex flex-wrap gap-2">
+                      <template x-for="badge in challengeResult.badgesUnlocked" :key="badge.id || badge.nom || badge">
+                        <span class="rounded-full border border-emerald-400/20 px-2 py-1" x-text="typeof badge === 'string' ? badge : (badge.nom || badge.id || badge.name || 'Badge')"></span>
+                      </template>
+                    </div>
+                  </div>
                   <ul class="mt-2 space-y-1 text-[12px] text-zinc-300">
                     <template x-for="m in challengeResult.missingNodes" :key="'mn' + m"><li x-text="'➕ Équipement manquant : ' + m"></li></template>
                     <template x-for="m in challengeResult.extraNodes" :key="'en' + m"><li x-text="'➖ Équipement en trop : ' + m"></li></template>
@@ -4743,12 +4752,27 @@
                 xpGained: Number(result.xp_gained) || 0,
                 badgesUnlocked: result.badges_unlocked || [],
               };
+              // Un défi serveur réussi doit aussi alimenter le compteur de défis local,
+              // utilisé par le système de badges du dashboard.
+              if (result.passed && !this.challengesDone.includes(ch.id)) {
+                this.challengesDone = [...this.challengesDone, ch.id];
+                LS.set('challenges-done', this.challengesDone);
+              }
               await this.refreshAll();
+
+              const rewardParts = [];
+              if (Number(result.xp_gained) > 0) rewardParts.push(`+${Number(result.xp_gained)} XP`);
+              (Array.isArray(result.badges_unlocked) ? result.badges_unlocked : []).forEach(badge => {
+                const label = typeof badge === 'string' ? badge : (badge.nom || badge.id || badge.name || 'Badge');
+                rewardParts.push(`Badge : ${label}`);
+              });
+              const rewardSuffix = rewardParts.length ? ` Récompenses : ${rewardParts.join(' · ')}.` : '';
+
               if (result.passed && result.validated && result.attempt_recorded) {
                 this.celebrate();
-                this.notify(`Défi validé et progression enregistrée : ${result.score} %.`);
+                this.notify(`Défi validé et progression enregistrée : ${result.score} %.${rewardSuffix}`);
               } else if (result.passed && result.attempt_recorded) {
-                this.notify(`Défi réussi (${result.score} %) : les autres exigences restent à valider.`);
+                this.notify(`Défi réussi (${result.score} %) : les autres exigences restent à valider.${rewardSuffix}`);
               } else if (!result.passed && result.attempt_recorded) {
                 this.notify(`Tentative enregistrée : ${result.score} %. Corrige la topologie puis réessaie.`);
               } else if (result.passed && result.validated) {
