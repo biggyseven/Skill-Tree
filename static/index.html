@@ -667,6 +667,13 @@
 
     <!-- Main Scrollable -->
     <main x-ref="mainScroll" class="flex-1 overflow-y-auto px-4 pb-12 sm:px-6 xl:px-8">
+      <div x-show="treeError && tab === 'tree'" x-cloak role="alert" aria-live="polite" class="mb-5 flex flex-col gap-3 rounded-2xl border border-rose-400/25 bg-rose-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-rose-200">Le parcours n’est pas synchronisé</p>
+          <p class="mt-1 text-xs leading-relaxed text-rose-100/80" x-text="treeError"></p>
+        </div>
+        <button type="button" @click="refreshAll()" :disabled="loading" class="shrink-0 rounded-xl border border-rose-300/30 px-4 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-500/15 disabled:cursor-wait disabled:opacity-50" x-text="loading ? 'Réessai…' : 'Réessayer'"></button>
+      </div>
 
       <!-- ============ ONGLET SKILL TREE ============ -->
       <section x-show="tab === 'tree'">
@@ -748,7 +755,7 @@
             </template>
             <template x-if="planActions.length === 0">
               <p class="col-span-full py-4 text-center text-sm leading-relaxed text-zinc-400"
-                 x-text="!nodes.length ? (loading ? 'Préparation de ta session…' : 'Aucun cours disponible pour le moment.') : (nodes.every(n => n.status === 'validated') ? '🎉 Tu as validé tout le parcours actuellement disponible. Reprends une leçon pour réviser ou explore les modules pour approfondir.' : 'Aucune action recommandée pour le moment. Consulte les prérequis des cours ou explore un module.')"></p>
+                 x-text="treeError && !nodes.length ? 'Le parcours ne peut pas être affiché. Réessaie avec le bouton ci-dessus.' : (!nodes.length ? (loading ? 'Préparation de ta session…' : 'Aucun cours disponible pour le moment.') : (nodes.every(n => n.status === 'validated') ? '🎉 Tu as validé tout le parcours actuellement disponible. Reprends une leçon pour réviser ou explore les modules pour approfondir.' : 'Aucune action recommandée pour le moment. Consulte les prérequis des cours ou explore un module.'))"></p>
             </template>
           </div>
         </section>
@@ -1673,7 +1680,7 @@
         lastOpenedNodeId: localStorage.getItem('skilltree-last-node') || '',
         lastLessonProgress: Math.max(0, Math.min(100, Number(localStorage.getItem('skilltree-last-progress') || 0) || 0)),
         favoriteNodeIds: [],
-        nodes: [], total: 0, validated: 0, loading: true, streakDays: 0,
+        nodes: [], total: 0, validated: 0, loading: true, treeError: null, streakDays: 0,
         userStats: { total_xp: 0, current_level: 1, level_name: 'Débutant', progress_percent: 0, coins: 0 },
         shopOpen: false, shopItems: [], open: false,
         detail: null, detailLoading: false, modalTab: 'lesson', isFullscreen: false,
@@ -1827,10 +1834,27 @@
         },
 
         async loadTree() {
+          const hadNodes = this.nodes.length > 0;
+          this.loading = true;
+          this.treeError = null;
           try {
-            const r = await fetch('/api/tree'); const d = await r.json();
-            this.nodes = d.nodes || []; this.total = d.total || 0; this.validated = d.validated || 0;
-          } catch (e) { console.error(e); }
+            const r = await fetch('/api/tree');
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            const d = await r.json();
+            if (!d || !Array.isArray(d.nodes)) throw new Error('Réponse /api/tree invalide : le tableau nodes est absent.');
+            this.nodes = d.nodes;
+            this.total = Number.isInteger(d.total) && d.total >= 0 ? d.total : d.nodes.length;
+            this.validated = Number.isInteger(d.validated) && d.validated >= 0
+              ? d.validated
+              : d.nodes.filter(node => node.status === 'validated').length;
+          } catch (e) {
+            this.treeError = hadNodes
+              ? 'Actualisation du parcours impossible. Les données précédentes restent affichées.'
+              : "Impossible de charger le parcours. Vérifie que l’API Skill-Tree est disponible, puis réessaie.";
+            console.error('loadTree', e);
+          } finally {
+            this.loading = false;
+          }
         },
         async loadUserStats() { try { const r = await fetch('/api/user-stats'); this.userStats = await r.json(); } catch(e){} },
         async loadStreak() { try { const r = await fetch('/api/streak'); const d = await r.json(); this.streakDays = d.days || 0; } catch(e){} },
@@ -2991,18 +3015,24 @@
           return this.nodes.length > 0 && this.nodes.every(node => node.status === 'validated');
         },
         get resumeBadge() {
+          if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
+          if (!this.nodes.length) return this.loading ? 'Chargement du parcours' : 'Aucun cours disponible';
           if (this.resumableLastNode) return 'Reprise disponible';
           if (this.resumeNode?.status === 'in_progress') return 'Activité à reprendre';
           if (this.allNodesValidated) return 'Parcours terminé';
           return this.resumeNode ? 'Prêt à continuer' : 'À explorer';
         },
         get resumeEyebrow() {
+          if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
+          if (!this.nodes.length) return this.loading ? 'Chargement en cours' : 'Aucun cours disponible';
           if (this.resumableLastNode) return 'Reprendre ta dernière leçon';
           if (this.resumeNode?.status === 'in_progress') return 'Reprendre une activité';
           if (this.allNodesValidated) return 'Révision recommandée';
           return 'Ta prochaine étape';
         },
         get resumeDescription() {
+          if (this.treeError && !this.nodes.length) return 'Le parcours n’a pas pu être chargé. Réessaie depuis le message affiché en haut du tableau de bord.';
+          if (!this.nodes.length) return this.loading ? 'Récupération des étapes du parcours…' : 'Le serveur ne fournit actuellement aucun cours dans le parcours.';
           if (this.resumableLastNode) return 'Retrouve le cours où tu t’es arrêté et poursuis ta lecture sans devoir le rechercher.';
           if (this.resumeNode?.status === 'in_progress') return 'Une activité est déjà commencée : reprends-la pour poursuivre ta progression.';
           if (this.allNodesValidated) return 'Tu as validé tout le parcours disponible. Choisis une leçon pour réviser et consolider tes acquis.';
@@ -3011,6 +3041,8 @@
           return 'Choisis un cours pour commencer à construire tes compétences réseau.';
         },
         get resumeButtonLabel() {
+          if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
+          if (!this.nodes.length) return this.loading ? 'Chargement…' : 'Aucun cours disponible';
           if (this.resumableLastNode) return this.lastLessonProgress >= 100 ? 'Revoir cette leçon' : 'Reprendre la lecture';
           if (this.resumeNode?.status === 'in_progress') return 'Reprendre cette activité';
           if (this.resumeNode?.status === 'validated') return 'Réviser cette leçon';
