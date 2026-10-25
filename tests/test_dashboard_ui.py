@@ -181,6 +181,18 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('aria-valuemin="0" aria-valuemax="100"', module_cards)
         self.assertIn("focus-visible:ring-emerald-400/70", module_cards)
 
+    def test_level_and_favorites_filters_announce_selection_accessibly(self):
+        start = DASHBOARD_HTML.index('<div class="mb-8 flex flex-wrap gap-3">')
+        end = DASHBOARD_HTML.index('<div id="tree-grid"', start)
+        filter_controls = DASHBOARD_HTML[start:end]
+
+        for filter_id in ("all", "beginner", "intermediaire", "expert", "favorites"):
+            self.assertIn(
+                f':aria-pressed="treeFilter === \'{filter_id}\'"',
+                filter_controls,
+            )
+        self.assertEqual(filter_controls.count("focus-visible:ring-emerald-400/70"), 5)
+
     def test_module_progress_uses_canonical_module_and_validated_nodes(self):
         start = DASHBOARD_HTML.index("get modulesList()")
         end = DASHBOARD_HTML.index("get progress()", start)
