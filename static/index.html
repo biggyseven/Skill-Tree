@@ -2180,6 +2180,7 @@
 
           // 1. On filtre les nœuds selon le bouton cliqué (treeFilter)
           const filteredNodes = this.nodes.filter(n => {
+            if (this.treeFilter === 'favorites') return this.isFavorite(n.id);
             if (this.treeFilter === 'all') return true;
 
             const title = n.title.toLowerCase();
