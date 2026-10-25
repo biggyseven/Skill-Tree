@@ -228,6 +228,7 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         self.assertEqual(result["status"], "validated")
         self.assertTrue(result["attempt_recorded"])
         self.assertEqual(result["xp_gained"], 30)
+        self.assertEqual(result["coins_gained"], 10)
         stats = self.conn.execute(
             "SELECT total_xp, coins FROM user_stats WHERE id = 1"
         ).fetchone()
@@ -289,6 +290,7 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         self.assertEqual(first["xp_gained"], 30)
         self.assertFalse(second["attempt_recorded"])
         self.assertEqual(second["xp_gained"], 0)
+        self.assertEqual(second["coins_gained"], 0)
         self.assertTrue(second["passed"])
         self.assertEqual(
             self.conn.execute("SELECT COUNT(*) FROM attempts WHERE node_id = ?", ("challenge-network",)).fetchone()[0],
