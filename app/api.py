@@ -311,6 +311,7 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
     validated = sum(1 for status in statuses.values() if status is Status.VALIDATED)
     return {
         "total": len(nodes), "validated": validated,
+        "progress_percent": round((validated / len(nodes)) * 100) if nodes else 0,
         "nodes": [{"id": n.id, "title": n.title, "category": n.category, "module": n.module, "status": statuses[n.id].value, "prereqs": list(n.prereqs), "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements]} for n in nodes]
     }
 
@@ -358,7 +359,7 @@ def read_profile(tree: SkillTree = Depends(get_tree)) -> dict:
     exams = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='exam' AND passed=1").fetchone()[0]
     return {
         "level": stats, "total_nodes": total_nodes, "validated_nodes": validated_nodes,
-        "progress_percent": int((validated_nodes / total_nodes) * 100) if total_nodes else 0,
+        "progress_percent": round((validated_nodes / total_nodes) * 100) if total_nodes else 0,
         "streak": {"days": days}, "labs_validated": labs, "exams_passed": exams, "badges": [],
         "certificate": {"name": CERTIFICATE_NAME, "date": date.today().isoformat()}
     }
