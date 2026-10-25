@@ -3183,7 +3183,8 @@
           const ed = new Drawflow(el); ed.reroute = true; ed.start();
           ['nodeCreated', 'nodeRemoved', 'connectionCreated', 'connectionRemoved', 'nodeMoved'].forEach(ev => ed.on(ev, () => this.refreshTopo()));
           this.topologyEditor = ed; this.topologyReady = true;
-          const draft = LS.get('topology-draft', null); if (draft) { try { ed.import(draft); } catch (e) { } }
+          // Les topologies libres ne sont plus restaurées : ce canevas est réservé aux défis,
+          // qui doivent toujours commencer avec une configuration vierge.
           this.refreshTopo(false);
         },
         topoData() { try { return this.topologyEditor.export().drawflow.Home.data || {}; } catch (e) { return {}; } },
