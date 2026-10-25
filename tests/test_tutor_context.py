@@ -41,6 +41,7 @@ class ContextualTutorApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual(response.json()["answer"], "Voici une explication claire.")
+        self.assertEqual(groq_client.chat.completions.create.call_args.kwargs["model"], "openai/gpt-oss-120b")
         messages = groq_client.chat.completions.create.call_args.kwargs["messages"]
         self.assertEqual(messages[0]["role"], "system")
         self.assertIn("CONTENU DU COURS", messages[0]["content"])
