@@ -460,21 +460,48 @@ def get_daily_plan(
 
         if status is Status.IN_PROGRESS:
             last_attempt = max(node.attempts, key=_attempt_datetime, default=None)
-            if node.id in challenge_nodes:
+            unmet_requirements = [
+                requirement for requirement in node.requirements
+                if not requirement_met(requirement, node)
+            ]
+
+            # Reprendre en priorité la dernière activité si elle n'a pas encore
+            # satisfait son exigence. Si elle a déjà réussi, passer à la première
+            # exigence restante au lieu de relancer inutilement la même activité.
+            next_requirement = next(
+                (
+                    requirement for requirement in unmet_requirements
+                    if last_attempt is not None and requirement.kind == last_attempt.kind
+                ),
+                None,
+            )
+            if next_requirement is None and unmet_requirements:
+                next_requirement = unmet_requirements[0]
+            target_kind = (
+                next_requirement.kind
+                if next_requirement is not None
+                else (last_attempt.kind if last_attempt is not None else None)
+            )
+
+            if target_kind == ProofKind.MANUAL and node.id in challenge_nodes:
                 action = "challenge"
                 reason = "Défi d'architecture à poursuivre"
                 label = f"Continuer {node.title}"
-            elif node.id in lab_nodes:
+            elif target_kind == ProofKind.LAB:
                 action = "lab"
                 reason = "Lab à poursuivre"
                 label = f"Continuer le lab {node.title}"
             else:
-                # Une tentative incomplète existe aussi pour les cours sans lab :
-                # ne pas les ignorer au profit d'un cours disponible plus loin.
+                # Le cours peut avoir plusieurs preuves : l'action proposée doit
+                # viser l'exigence réellement manquante, pas une capacité annexe.
                 action = "continue"
-                kind = last_attempt.kind.value if last_attempt is not None else "activité"
-                reason = f"Tentative à reprendre ({kind})"
-                label = f"Reprendre {node.title}"
+                kind = target_kind.value if target_kind is not None else "activité"
+                if last_attempt is not None and target_kind == last_attempt.kind:
+                    reason = f"Tentative à reprendre ({kind})"
+                    label = f"Reprendre {node.title}"
+                else:
+                    reason = f"Prochaine évaluation à effectuer ({kind})"
+                    label = f"Continuer {node.title}"
 
             in_progress.append(
                 _plan_action(
@@ -485,6 +512,7 @@ def get_daily_plan(
                     reason,
                     last_activity_at=last_attempt.created_at if last_attempt is not None else None,
                     last_attempt_kind=last_attempt.kind.value if last_attempt is not None else None,
+                    next_requirement_kind=target_kind.value if target_kind is not None else None,
                 )
             )
             continue
