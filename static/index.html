@@ -1109,12 +1109,23 @@
         <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div><p class="eyebrow">Mémorisation</p><h2 class="mt-1 text-2xl font-semibold text-white">Mémo · révision espacée</h2><p class="mt-1 text-sm text-zinc-400">Les cartes que tu connais reviennent de plus en plus tard ; les autres reviennent vite.</p></div>
           <div class="flex flex-wrap gap-2">
-            <select class="field w-48" x-model="cardFilter.module" @change="buildDeck()"><option value="all">Tous les modules</option><template x-for="m in modules" :key="m.id"><option :value="m.id" x-text="m.label"></option></template></select>
-            <select class="field w-40" x-model="cardFilter.level" @change="buildDeck()"><option value="all">Tous niveaux</option><template x-for="l in levels" :key="l.id"><option :value="l.id" x-text="l.label"></option></template></select>
-            <select class="field w-40" x-model="cardFilter.mode" @change="buildDeck()"><option value="due">À réviser</option><option value="all">Toutes les cartes</option></select>
+            <select :disabled="reviewNodeId" class="field w-48 disabled:opacity-50" x-model="cardFilter.module" @change="buildDeck()"><option value="all">Tous les modules</option><template x-for="m in modules" :key="m.id"><option :value="m.id" x-text="m.label"></option></template></select>
+            <select :disabled="reviewNodeId" class="field w-40 disabled:opacity-50" x-model="cardFilter.level" @change="buildDeck()"><option value="all">Tous niveaux</option><template x-for="l in levels" :key="l.id"><option :value="l.id" x-text="l.label"></option></template></select>
+            <select :disabled="reviewNodeId" class="field w-40 disabled:opacity-50" x-model="cardFilter.mode" @change="buildDeck()"><option value="due">À réviser</option><option value="all">Toutes les cartes</option></select>
           </div>
         </div>
-        <div class="mb-6 grid gap-3 sm:grid-cols-4">
+        <div x-show="reviewNodeId" x-cloak class="mb-5 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4 sm:p-5">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="min-w-0">
+              <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-300">Révision guidée du plan du jour</p>
+              <h3 class="mt-1 text-sm font-bold text-white" x-text="nodes.find(n => String(n.id) === String(reviewNodeId))?.title || 'Cours sélectionné'"></h3>
+              <p class="mt-1 text-xs leading-relaxed text-zinc-400" x-text="reviewDaysSince ? 'Dernière validation il y a ' + reviewDaysSince + ' jours. Toutes les cartes associées à ce cours sont proposées pour consolider les acquis.' : 'Toutes les cartes associées à ce cours sont proposées pour consolider les acquis.'"></p>
+              <p x-show="!flashcardsLoading && cardSession.total > 0" class="mt-1 text-[10px] text-zinc-500" x-text="cardSession.total + ' carte(s) dans cette session'"></p>
+            </div>
+            <button type="button" @click="clearGuidedReview()" class="shrink-0 rounded-xl border border-amber-300/25 px-3 py-2 text-[11px] font-semibold text-amber-200 transition hover:bg-amber-400/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/70">Toutes les révisions</button>
+          </div>
+        </div>
+        <div x-show="!reviewNodeId" class="mb-6 grid gap-3 sm:grid-cols-4">
           <div class="card-sm text-center"><p class="eyebrow">Total</p><p class="mt-1 font-mono text-2xl text-white" x-text="cardStats.total"></p></div>
           <div class="card-sm text-center"><p class="eyebrow">À réviser</p><p class="mt-1 font-mono text-2xl text-fuchsia-400" x-text="cardStats.due"></p></div>
           <div class="card-sm text-center"><p class="eyebrow">Nouvelles</p><p class="mt-1 font-mono text-2xl text-cyan-400" x-text="cardStats.nw"></p></div>
@@ -1139,8 +1150,13 @@
           <div class="card mx-auto max-w-xl text-center">
             <p class="text-3xl">🎉</p>
             <p class="mt-2 text-lg font-bold text-white" x-text="cardSession.total ? 'Session terminée !' : 'Aucune carte à réviser'"></p>
-            <p class="mt-1 text-sm text-zinc-400" x-text="cardSession.total ? cardSession.known + ' cartes connues, ' + cardSession.unknown + ' à revoir.' : 'Change de filtre ou passe en « Toutes les cartes ».'"></p>
-            <div class="mt-4 flex flex-wrap justify-center gap-2"><button type="button" class="btn btn-primary" @click="cardFilter.mode = 'all'; buildDeck()">Réviser toutes les cartes</button><button type="button" class="btn" @click="resetBoxes()">Réinitialiser ma progression</button></div>
+            <p class="mt-1 text-sm text-zinc-400" x-text="reviewNodeId ? 'Aucune carte mémorisée pour ce cours pour le moment. Tu peux ouvrir la leçon pour réviser son contenu.' : (cardSession.total ? cardSession.known + ' cartes connues, ' + cardSession.unknown + ' à revoir.' : 'Change de filtre ou passe en « Toutes les cartes ».')"></p>
+            <div class="mt-4 flex flex-wrap justify-center gap-2">
+              <button type="button" x-show="!reviewNodeId" class="btn btn-primary" @click="cardFilter.mode = 'all'; buildDeck()">Réviser toutes les cartes</button>
+              <button type="button" x-show="reviewNodeId" class="btn btn-primary" @click="openGuidedReviewLesson()">Ouvrir le cours</button>
+              <button type="button" x-show="reviewNodeId" class="btn" @click="clearGuidedReview()">Quitter la révision guidée</button>
+              <button type="button" x-show="!reviewNodeId" class="btn" @click="resetBoxes()">Réinitialiser ma progression</button>
+            </div>
           </div>
         </template>
       </section>
@@ -2576,6 +2592,14 @@
             await this.openLab(nodeId);
             return;
           }
+          if (action.action === 'review') {
+            // Les révisions du plan journalier ouvrent directement les cartes du cours ciblé.
+            this.reviewNodeId = nodeId;
+            this.reviewDaysSince = Number(action.days_since) || null;
+            this.cardFilter = { ...this.cardFilter, module: 'all', level: 'all', mode: 'all' };
+            await this.setTab('memo');
+            return;
+          }
           await this.show(nodeId);
           if (action.action === 'continue' && ['quiz', 'terminal'].includes(action.next_requirement_kind)) {
             this.exercisePreferredKind = action.next_requirement_kind;
@@ -3216,7 +3240,7 @@
         diagClose() { this.diagId = null; this.diagData = null; this.diagTrail = []; },
 
         // ---------- mémo (révision espacée de Leitner) ----------
-        cardFilter: { module: 'all', level: 'all', mode: 'due' }, cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },
+        cardFilter: { module: 'all', level: 'all', mode: 'due' }, reviewNodeId: null, reviewDaysSince: null, cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },
         cardKey(c) { return c.id || `${c.node_id || ''}|${c.front}`; },
         async loadFlashcards() {
           this.flashcardsLoading = true;
@@ -3225,10 +3249,33 @@
         },
         buildDeck() {
           const now = Date.now(); const f = this.cardFilter;
-          let cards = this.flashcards.filter(c => { const n = this.nodes.find(x => x.id === c.node_id); if (!n) return f.module === 'all' && f.level === 'all'; return (f.module === 'all' || this.moduleOf(n) === f.module) && (f.level === 'all' || this.levelOf(n) === f.level); });
-          if (f.mode === 'due') cards = cards.filter(c => { const b = this.cardBoxes[this.cardKey(c)]; return !b || b.due <= now; });
+          let cards = this.flashcards.filter(c => {
+            if (this.reviewNodeId !== null && this.reviewNodeId !== undefined) {
+              return String(c.node_id) === String(this.reviewNodeId);
+            }
+            const n = this.nodes.find(x => String(x.id) === String(c.node_id));
+            if (!n) return f.module === 'all' && f.level === 'all';
+            return (f.module === 'all' || this.moduleOf(n) === f.module) && (f.level === 'all' || this.levelOf(n) === f.level);
+          });
+          // Une révision conseillée par le serveur doit pouvoir revoir toutes les cartes du cours,
+          // même si certaines cartes ne sont pas encore dues selon la boîte de Leitner.
+          if (!this.reviewNodeId && f.mode === 'due') cards = cards.filter(c => { const b = this.cardBoxes[this.cardKey(c)]; return !b || b.due <= now; });
           for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
           this.flashcardQueue = cards; this.flashcardFlipped = false; this.cardSession = { known: 0, unknown: 0, total: cards.length };
+        },
+        clearGuidedReview() {
+          this.reviewNodeId = null;
+          this.reviewDaysSince = null;
+          this.cardFilter = { ...this.cardFilter, module: 'all', level: 'all', mode: 'due' };
+          this.buildDeck();
+        },
+        async openGuidedReviewLesson() {
+          const nodeId = this.reviewNodeId;
+          if (!nodeId) return;
+          this.reviewNodeId = null;
+          this.reviewDaysSince = null;
+          await this.setTab('tree');
+          await this.show(nodeId);
         },
         markFlashcard(known) {
           const c = this.flashcardQueue.shift(); if (!c) return; this.flashcardFlipped = false;
