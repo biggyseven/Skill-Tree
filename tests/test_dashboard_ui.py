@@ -481,17 +481,44 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.themeMenuOpen = false", DASHBOARD_HTML[profile_start:profile_end])
 
     def test_theme_selector_uses_alpine_reactive_state_and_saved_preference(self):
-        self.assertIn("themeIsActive(id) { return this.theme === id; }", DASHBOARD_HTML)
+        self.assertIn("themeIsActive(id) { return this.activeThemeId === id; }", DASHBOARD_HTML)
         sync_start = DASHBOARD_HTML.index("        syncTheme() {")
         sync_end = DASHBOARD_HTML.index("        closeThemeOnOutside(event)", sync_start)
         sync = DASHBOARD_HTML[sync_start:sync_end]
         self.assertIn("this.themes.some(x => x.id === stored)", sync)
         self.assertIn("root.dataset.theme = id;", sync)
         self.assertIn("this.theme = id;", sync)
+        self.assertIn("this.activeThemeId = id;", sync)
         self.assertIn("localStorage.setItem('skilltree-theme2', id)", sync)
         self.assertIn("@click=\"setTheme(t.id)\"", DASHBOARD_HTML)
         self.assertIn(":aria-pressed=\"themeIsActive(t.id)\"", DASHBOARD_HTML)
-        self.assertIn("@click=\"syncTheme(); themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false\"", DASHBOARD_HTML)
+        self.assertIn("@click=\"themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false\"", DASHBOARD_HTML)
+
+    def test_theme_choice_uses_one_reactive_id_and_remains_visible_after_selection(self):
+        self.assertIn("activeThemeId: document.documentElement.dataset.theme || 'graphite'", DASHBOARD_HTML)
+        self.assertIn("themeIsActive(id) { return this.activeThemeId === id; }", DASHBOARD_HTML)
+        self.assertIn('@click.outside="themeMenuOpen = false"', DASHBOARD_HTML)
+        self.assertIn('@keydown.escape.window="themeMenuOpen = false"', DASHBOARD_HTML)
+        set_start = DASHBOARD_HTML.index("        setTheme(id) {")
+        set_end = DASHBOARD_HTML.index("        toggleTheme()", set_start)
+        set_method = DASHBOARD_HTML[set_start:set_end]
+        self.assertIn("this.activeThemeId = id;", set_method)
+        self.assertNotIn("this.themeMenuOpen = false;", set_method)
+
+    def test_active_modals_close_on_outside_click_without_interrupting_inside_actions(self):
+        self.assertIn('@click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event)"', DASHBOARD_HTML)
+        start = DASHBOARD_HTML.index("closeModalsOnOutside(event) {")
+        end = DASHBOARD_HTML.index("closeThemeOnOutside(event)", start)
+        close_method = DASHBOARD_HTML[start:end]
+        self.assertIn('target.closest(\'[role="dialog"][aria-modal="true"], [data-modal-content]\')', close_method)
+        self.assertIn("if (this.open) this.close();", close_method)
+        self.assertIn("if (this.mobileSearchOpen) this.closeMobileSearch();", close_method)
+        self.assertIn("if (this.shopOpen) this.shopOpen = false;", close_method)
+        self.assertIn("if (this.diplomaView) this.diplomaView = null;", close_method)
+        self.assertIn("if (this.modMgrOpen) this.modMgrOpen = false;", close_method)
+        self.assertGreaterEqual(DASHBOARD_HTML.count('data-modal-content role="dialog" aria-modal="true"'), 3)
+        self.assertIn('@click.self="closeMobileSearch()"', DASHBOARD_HTML)
+        self.assertIn('@click.self="shopOpen = false"', DASHBOARD_HTML)
 
     def test_notification_center_is_event_driven_persistent_and_marks_unread(self):
         self.assertIn("skilltree-notifications-v1", DASHBOARD_HTML)
@@ -523,7 +550,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
     def test_settings_menu_actions_match_their_names_and_close_the_menu(self):
         self.assertIn("Changer de thème", DASHBOARD_HTML)
-        self.assertIn('@click="syncTheme(); themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false"', DASHBOARD_HTML)
+        self.assertIn('@click="themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false"', DASHBOARD_HTML)
         self.assertIn("Recharger les données", DASHBOARD_HTML)
         self.assertIn('@click="reloadContent(); settingsMenuOpen = false"', DASHBOARD_HTML)
         self.assertIn("Gérer les modules et niveaux", DASHBOARD_HTML)
