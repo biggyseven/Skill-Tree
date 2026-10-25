@@ -132,11 +132,31 @@ def _fetch_lab(lab_id: str) -> dict[str, Any]:
                         except (json.JSONDecodeError, TypeError, ValueError) as error:
                             invalid_db_definition = str(error)
                         else:
-                            return _lab_payload_from_definition(
+                            db_payload = _lab_payload_from_definition(
                                 str(data["id"]),
                                 definition,
                                 schema_version=int(data.get("schema_version") or 1),
                             )
+
+                            # Une ancienne ligne SQLite peut contenir une définition valide
+                            # mais une topologie vide (aucun noeud ni lien). Dans ce cas,
+                            # préférer le JSON du dépôt s'il fournit une vraie topologie.
+                            if definition.initial_topology.nodes:
+                                return db_payload
+
+                            try:
+                                file_payload = _load_lab_file(lab_id)
+                            except HTTPException:
+                                # Ne pas rendre la ligne SQLite inutilisable si le fichier
+                                # de repli existe mais est invalide.
+                                file_payload = None
+
+                            if file_payload is not None:
+                                file_topology = file_payload.get("initial_topology")
+                                if file_topology is not None and getattr(file_topology, "nodes", None):
+                                    return file_payload
+
+                            return db_payload
                     else:
                         invalid_db_definition = (
                             "la ligne existe mais le champ definition_json est vide"
