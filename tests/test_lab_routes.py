@@ -21,6 +21,11 @@ class LabValidationTests(unittest.TestCase):
             conn.execute("PRAGMA foreign_keys = ON")
             conn.execute("CREATE TABLE labs (id TEXT PRIMARY KEY, title TEXT NOT NULL DEFAULT '')")
             conn.execute("INSERT INTO labs (id, title) VALUES (?, ?)", ("lab-1", "Lab de test"))
+            conn.execute("CREATE TABLE nodes (id TEXT PRIMARY KEY, title TEXT NOT NULL)")
+            conn.execute(
+                "INSERT INTO nodes (id, title) VALUES (?, ?)",
+                ("node-sandbox", "Cours de test sans laboratoire"),
+            )
             conn.execute(
                 """
                 CREATE TABLE lab_attempts (
@@ -79,6 +84,45 @@ class LabValidationTests(unittest.TestCase):
 
     def _mock_lab(self, definition):
         return patch.object(lab_routes, "_fetch_lab", return_value={"id": "lab-1", "definition": definition})
+
+    def test_bom_json_lab_definition_loads(self) -> None:
+        labs_dir = Path(self.temp_dir.name) / "labs_v2"
+        labs_dir.mkdir()
+        definition_path = labs_dir / "lab-1.json"
+        definition_path.write_bytes(
+            b"\xef\xbb\xbf"
+            + json.dumps(
+                {"schema_version": 2, "id": "lab-1", "title": "Lab BOM"},
+                ensure_ascii=False,
+            ).encode("utf-8")
+        )
+        with patch.object(lab_routes, "LABS_V2_DIR", labs_dir), patch.object(
+            lab_routes, "_database_connection", side_effect=self._connect
+        ):
+            result = lab_routes.get_lab_v2("lab-1")
+        self.assertEqual(result["definition"].title, "Lab BOM")
+
+    def test_missing_lab_definition_returns_sandbox_for_known_course(self) -> None:
+        labs_dir = Path(self.temp_dir.name) / "empty_labs_v2"
+        labs_dir.mkdir()
+        with patch.object(lab_routes, "LABS_V2_DIR", labs_dir), patch.object(
+            lab_routes, "_database_connection", side_effect=self._connect
+        ):
+            result = lab_routes.get_lab_v2("node-sandbox")
+            checked = lab_routes.check_lab_v2(
+                "node-sandbox",
+                CheckRequest(topology=self._topology("edge-1")),
+            )
+
+        definition = result["definition"]
+        self.assertTrue(result["sandbox"])
+        self.assertEqual(definition.title, "Cours de test sans laboratoire")
+        self.assertEqual(definition.level, "Sandbox")
+        self.assertEqual(definition.initial_topology.nodes, [])
+        self.assertEqual(definition.initial_topology.links, [])
+        self.assertTrue(checked["passed"])
+        self.assertEqual(checked["score"], 1.0)
+        self.assertEqual(checked["results"][0]["rule_id"], "sandbox")
 
     def test_matching_server_rules_can_pass(self) -> None:
         with self._mock_lab(self._definition()):
