@@ -765,5 +765,27 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.challengeLeft = Math.max(0, this.challengeLeft - 1)", loader)
         self.assertIn("if (!this.challenge || this.challengeResult)", loader)
 
+
+    def test_challenge_catalog_filters_and_distinguishes_training_from_path_progress(self):
+        self.assertIn('x-model="challengeQuery"', DASHBOARD_HTML)
+        self.assertIn('x-model="challengeLevelFilter"', DASHBOARD_HTML)
+        self.assertIn('x-model="challengeStateFilter"', DASHBOARD_HTML)
+        self.assertIn('x-for="c in filteredChallengeNodes"', DASHBOARD_HTML)
+        self.assertIn("app.challengeStatusLabel = function (c)", DASHBOARD_HTML)
+        self.assertIn("Entraînement libre", DASHBOARD_HTML)
+        self.assertIn("Parcours noté", DASHBOARD_HTML)
+        self.assertIn("'challenge-fabric-aci-multi-tenant': 'expert'", DASHBOARD_HTML)
+        self.assertIn("{ type: 'apic', label: 'Contrôleur APIC'", DASHBOARD_HTML)
+
+    def test_course_reader_width_and_mobile_controls_are_persisted(self):
+        self.assertIn('aria-labelledby="course-reader-title"', DASHBOARD_HTML)
+        self.assertIn('aria-label="Commandes de lecture"', DASHBOARD_HTML)
+        self.assertIn('aria-label="Réduire la taille du texte"', DASHBOARD_HTML)
+        self.assertIn("lesson-width-comfortable", DASHBOARD_HTML)
+        self.assertIn("lesson-width-wide", DASHBOARD_HTML)
+        self.assertIn("toggleReadingWidth()", DASHBOARD_HTML)
+        self.assertIn("readingWidth: this.readingWidth", DASHBOARD_HTML)
+        self.assertIn("p.readingWidth === 'comfortable' || p.readingWidth === 'wide'", DASHBOARD_HTML)
+
 if __name__ == "__main__":
     unittest.main()
