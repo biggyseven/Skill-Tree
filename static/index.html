@@ -746,7 +746,10 @@
                 </button>
               </template>
             </template>
-            <template x-if="planActions.length === 0"><p class="col-span-full py-4 text-center text-sm text-zinc-500">Aucune action disponible : valide un cours pour débloquer la suite.</p></template>
+            <template x-if="planActions.length === 0">
+              <p class="col-span-full py-4 text-center text-sm leading-relaxed text-zinc-400"
+                 x-text="!nodes.length ? (loading ? 'Préparation de ta session…' : 'Aucun cours disponible pour le moment.') : (nodes.every(n => n.status === 'validated') ? '🎉 Tu as validé tout le parcours actuellement disponible. Reprends une leçon pour réviser ou explore les modules pour approfondir.' : 'Aucune action recommandée pour le moment. Consulte les prérequis des cours ou explore un module.')"></p>
+            </template>
           </div>
         </section>
 
