@@ -237,6 +237,8 @@ class LabValidationTests(unittest.TestCase):
             second = lab_routes.submit_lab_v2("lab-1", request)
         self.assertTrue(first["passed"])
         self.assertEqual(first["xp_gained"], 25)
+        self.assertTrue(first["first_success"])
+        self.assertFalse(second["first_success"])
         self.assertTrue(first["attempt_recorded"])
         self.assertTrue(first["course_attempt_recorded"])
         self.assertEqual(second["xp_gained"], 0)
