@@ -747,7 +747,7 @@
             <template x-if="planActions.length > 0">
               <template x-for="action in planActions" :key="action.node_id">
                 <button type="button" @click="openPlanAction(action)" class="group flex h-full flex-col rounded-2xl border border-white/5 bg-[color:var(--s2)] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[color:var(--s3)]">
-                  <span class="flex items-center justify-between gap-2"><span class="rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]" :class="planMeta(action.action).classes" x-text="planMeta(action.action).label"></span><svg class="h-4 w-4 text-zinc-500 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+                  <span class="flex items-center justify-between gap-2"><span class="rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]" :class="planMeta(action).classes" x-text="planMeta(action).label"></span><svg class="h-4 w-4 text-zinc-500 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
                   <span class="mt-3 text-sm font-semibold leading-snug text-white" x-text="action.label"></span>
                   <span class="mt-1.5 text-[11px] text-zinc-500" x-text="action.reason"></span>
                 </button>
@@ -2269,7 +2269,20 @@
         statusMeta(s) { return { validated: { label: 'Validé', text: 'text-emerald-400', icon: 'bg-emerald-500/10 text-emerald-400' }, in_progress: { label: 'En cours', text: 'text-cyan-300', icon: 'bg-cyan-500/10 text-cyan-300' }, available: { label: 'Disponible', text: 'text-fuchsia-400', icon: 'bg-fuchsia-500/10 text-fuchsia-400' }, locked: { label: 'Verrouillé', text: 'text-zinc-500', icon: 'bg-zinc-800 text-zinc-500' } }[s] || { label: s, text: 'text-zinc-500', icon: 'bg-zinc-800 text-zinc-500' }; },
         cardShell(s) { return { validated: 'bg-emerald-500/20 glow-lime', in_progress: 'bg-cyan-500/20', available: 'bg-fuchsia-500/20 glow-fuchsia', locked: 'bg-white/5' }[s] || 'bg-white/5'; },
         kindLabel(k) { return k === 'quiz' ? 'Exercice' : k; },
-        planMeta(a) { return { challenge: { label: 'Défi à poursuivre', classes: 'text-cyan-300 bg-cyan-500/10' }, lab: { label: 'Lab à poursuivre', classes: 'text-orange-300 bg-orange-500/10' }, continue: { label: 'À reprendre', classes: 'text-violet-300 bg-violet-500/10' }, review: { label: 'Révision', classes: 'text-amber-300 bg-amber-500/10' }, start: { label: 'À découvrir', classes: 'text-emerald-300 bg-emerald-500/10' } }[a] || { label: 'Parcours', classes: 'text-zinc-300 bg-white/5' }; },
+        planMeta(action) {
+          const type = typeof action === 'string' ? action : action?.action;
+          const status = action && typeof action === 'object' ? action.status : null;
+          const meta = {
+            challenge: status === 'available'
+              ? { label: 'Défi à relever', classes: 'text-emerald-300 bg-emerald-500/10' }
+              : { label: 'Défi à poursuivre', classes: 'text-cyan-300 bg-cyan-500/10' },
+            lab: { label: 'Lab à poursuivre', classes: 'text-orange-300 bg-orange-500/10' },
+            continue: { label: 'À reprendre', classes: 'text-violet-300 bg-violet-500/10' },
+            review: { label: 'Révision', classes: 'text-amber-300 bg-amber-500/10' },
+            start: { label: 'À découvrir', classes: 'text-emerald-300 bg-emerald-500/10' },
+          };
+          return meta[type] || { label: 'Parcours', classes: 'text-zinc-300 bg-white/5' };
+        },
         async openPlanAction(action) {
           if (!action || !action.node_id) return;
           const nodeId = String(action.node_id);
@@ -2754,10 +2767,9 @@
             this.notify('Le Lab Workspace ne répond pas ; ouverture du laboratoire classique.');
           }
 
-          if (openInNewTab) {
-            navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`);
-            return;
-          }
+          // Sans définition v2, conserver le lab classique dans la modale.
+          // Un nouvel onglet vide ne doit pas afficher une erreur de chargement V2.
+          if (openInNewTab && labWindow && !labWindow.closed) labWindow.close();
           await this.show(nodeId);
           this.modalTab = 'lab';
         },
