@@ -167,6 +167,32 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.modalTab = 'lab';", open_lab_method)
         self.assertIn("this.openLab(this.detail.id, true);", DASHBOARD_HTML)
 
+    def test_dashboard_api_loaders_surface_errors_without_replacing_data_with_defaults(self):
+        self.assertIn("dashboardDataErrors: { userStats: null, streak: null, dailyPlan: null, stats: null }", DASHBOARD_HTML)
+        self.assertIn("Certaines données n’ont pas pu être actualisées", DASHBOARD_HTML)
+        self.assertIn("Les dernières valeurs disponibles sont conservées", DASHBOARD_HTML)
+        self.assertIn('@click="refreshAll()"', DASHBOARD_HTML)
+
+        for method, endpoint, error_key in [
+            ("loadUserStats", "/api/user-stats", "userStats"),
+            ("loadStreak", "/api/streak", "streak"),
+            ("loadDailyPlan", "/api/daily-plan", "dailyPlan"),
+            ("loadStats", "/api/stats", "stats"),
+        ]:
+            start = DASHBOARD_HTML.index(f"async {method}() {{")
+            next_method = DASHBOARD_HTML.find("\\n        async ", start + 1)
+            end = next_method if next_method >= 0 else len(DASHBOARD_HTML)
+            body = DASHBOARD_HTML[start:end]
+            self.assertIn(f"fetch('{endpoint}')", body)
+            self.assertIn("if (!r.ok) throw new Error", body)
+            self.assertIn(f"this.dashboardDataErrors.{error_key} = null;", body)
+            self.assertIn(f"this.dashboardDataErrors.{error_key} =", body)
+            self.assertIn("catch (e)", body)
+
+        self.assertNotIn("this.streakDays = d.days || 0;", DASHBOARD_HTML)
+        self.assertNotIn("this.dailyPlan = d.actions || [];", DASHBOARD_HTML)
+        self.assertIn("this.loadStats()", DASHBOARD_HTML[DASHBOARD_HTML.index("async refreshAll()"):DASHBOARD_HTML.index("editProfile()")])
+
     def test_tree_loading_finishes_and_api_failures_are_visible(self):
         start = DASHBOARD_HTML.index("async loadTree() {")
         end = DASHBOARD_HTML.index("async loadUserStats()", start)
