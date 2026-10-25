@@ -254,6 +254,7 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
         "id": node.id,
         "title": node.title,
         "category": node.category,
+        "module": node.module,
         "description": node.description,
         "status": status.value,
         "prereqs": [{"id": p, "title": tree.node(p).title, "status": tree.status(p).value} for p in node.prereqs],
@@ -310,7 +311,7 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
     validated = sum(1 for status in statuses.values() if status is Status.VALIDATED)
     return {
         "total": len(nodes), "validated": validated,
-        "nodes": [{"id": n.id, "title": n.title, "category": n.category, "status": statuses[n.id].value, "prereqs": list(n.prereqs), "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements]} for n in nodes]
+        "nodes": [{"id": n.id, "title": n.title, "category": n.category, "module": n.module, "status": statuses[n.id].value, "prereqs": list(n.prereqs), "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements]} for n in nodes]
     }
 
 @app.get("/api/stats")
