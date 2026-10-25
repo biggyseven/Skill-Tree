@@ -82,6 +82,14 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("if (openInNewTab && labWindow && !labWindow.closed) labWindow.close();", open_lab_method)
 
 
+    def test_standalone_workspace_route_resolves_entrypoint_from_project_root(self):
+        api_source = (ROOT / "app" / "api.py").read_text(encoding="utf-8")
+        entrypoint = ROOT / "lab.html"
+
+        self.assertTrue(entrypoint.is_file(), "Standalone Lab Workspace HTML entrypoint is missing")
+        self.assertIn('@app.get("/lab.html")', api_source)
+        self.assertIn('return FileResponse(PROJECT_ROOT / "lab.html")', api_source)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
