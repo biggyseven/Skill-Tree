@@ -71,6 +71,9 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
 
         self.assertIn("sandbox: data.sandbox === true", app)
         self.assertIn("initial.lab.sandbox === true", bridge)
+        self.assertIn("persistSuccessfulLab(finalResult)", bridge)
+        self.assertIn("const storageKey = 'st:labs-done';", bridge)
+        self.assertIn("result.stale === true", bridge)
         self.assertIn("lab?.sandbox === true", toolbar)
         self.assertIn("Bac à sable — non noté", toolbar)
         self.assertIn("checkResult.xp_gained", toolbar)
