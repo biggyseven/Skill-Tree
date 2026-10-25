@@ -24,15 +24,38 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.openMobileSearch()", DASHBOARD_HTML)
 
     def test_favorites_filter_only_shows_saved_favorites(self):
-        start = DASHBOARD_HTML.index("get categories()")
-        end = DASHBOARD_HTML.index("get modulesList()", start)
+        # skilltreeTheme() overrides the earlier legacy getter; verify the
+        # effective getter instead of an unused implementation.
+        start = DASHBOARD_HTML.rindex("get categories()")
+        end = DASHBOARD_HTML.index("get modMgrNodes()", start)
         categories_getter = DASHBOARD_HTML[start:end]
 
         self.assertIn(
-            "if (this.treeFilter === 'favorites') return this.isFavorite(n.id);",
+            "this.treeFilter === 'favorites' ? this.isFavorite(n.id)",
             categories_getter,
         )
         self.assertIn("Aucun favori pour le moment", DASHBOARD_HTML)
+
+    def test_daily_plan_routes_each_action_to_the_matching_workspace(self):
+        self.assertIn('@click="openPlanAction(action)"', DASHBOARD_HTML)
+        self.assertIn("if (action.action === 'challenge')", DASHBOARD_HTML)
+        self.assertIn("await this.setTab('topology')", DASHBOARD_HTML)
+        self.assertIn("await this.startChallenge(nodeId)", DASHBOARD_HTML)
+        self.assertIn("if (action.action === 'lab')", DASHBOARD_HTML)
+        self.assertIn("await this.openLab(nodeId)", DASHBOARD_HTML)
+        self.assertIn("label: 'Révision'", DASHBOARD_HTML)
+        self.assertIn("label: 'Défi à poursuivre'", DASHBOARD_HTML)
+
+    def test_active_learning_path_prefers_in_progress_work(self):
+        start = DASHBOARD_HTML.rindex("get parcours()")
+        end = DASHBOARD_HTML.index("get planActions()", start)
+        parcours_getter = DASHBOARD_HTML[start:end]
+
+        self.assertIn("pool.findIndex(node => node.status === 'in_progress')", parcours_getter)
+        self.assertIn("activePlanAction", parcours_getter)
+        self.assertIn("ci >= 0 && !finished ? pool[ci] : null", parcours_getter)
+        self.assertIn("statusMeta(s)", DASHBOARD_HTML)
+        self.assertIn("in_progress: { label: 'En cours'", DASHBOARD_HTML)
 
 
 if __name__ == "__main__":
