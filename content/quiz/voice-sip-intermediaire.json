@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Protocole SIP & Dial Peers",
+      "prompt": "Quel protocole transporte généralement la voix ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "RTP",
+        "SIP",
+        "DNS",
+        "DHCP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "SIP contrôle la session ; RTP transporte généralement le média."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une réponse SIP 488 ?",
+      "choices": [
+        "Paramètres de session non acceptables",
+        "Destination toujours occupée",
+        "Succès confirmé",
+        "Adresse IP attribuée"
+      ],
+      "answer": 0,
+      "explanation": "Examiner SDP, codecs et paramètres média."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de SDP ?",
+      "choices": [
+        "Décrire les paramètres média négociés",
+        "Transporter les échantillons audio",
+        "Distribuer les adresses DHCP",
+        "Remplacer le routage"
+      ],
+      "answer": 0,
+      "explanation": "SDP annonce notamment adresses, ports et codecs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel port est usuel pour Modbus TCP ?",
+      "choices": [
+        "TCP/502",
+        "UDP/161",
+        "TCP/5060",
+        "UDP/514"
+      ],
+      "answer": 0,
+      "explanation": "Modbus TCP utilise généralement TCP/502."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel symptôme suggère un problème RTP ?",
+      "choices": [
+        "Appel établi mais audio unidirectionnel",
+        "Numéro rejeté avant sonnerie",
+        "Aucun dial peer sélectionné",
+        "Réponse 404"
+      ],
+      "answer": 0,
+      "explanation": "Analyser flux média, SDP, NAT et ACL."
     }
   ]
 }
