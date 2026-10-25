@@ -13,7 +13,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from .db import DEFAULT_DB, connect
+from .db import DEFAULT_DB, add_xp, connect
 from .lab_schema_v2 import (
     CheckDefinition,
     CheckRequest,
@@ -209,6 +209,32 @@ def evaluate_rules(topology: Topology | dict[str, Any], rules: list[Any]) -> lis
     return results
 
 
+def _evaluate_lab_check(
+    definition: LabDefinition,
+    topology: Topology,
+) -> dict[str, Any]:
+    """Évalue un lab côté serveur et refuse une réussite sans preuve automatique."""
+    check = definition.check
+    if check.type == "manual_review":
+        return {
+            "passed": False,
+            "score": 0.0,
+            "results": [],
+            "manual_review_required": True,
+            "message": "Ce laboratoire nécessite une validation manuelle.",
+        }
+    if not check.rules:
+        return {
+            "passed": False,
+            "score": 0.0,
+            "results": [],
+            "message": "Aucune règle de contrôle n'est configurée ; validation automatique refusée.",
+        }
+    results = evaluate_rules(topology, check.rules)
+    score = sum(1 for result in results if result["passed"]) / len(results)
+    return {"passed": score >= check.pass_threshold, "score": round(score, 4), "results": results}
+
+
 @router.get("/lab/v2/{lab_id}")
 def get_lab_v2(lab_id: str) -> dict[str, Any]:
     return _fetch_lab(lab_id)
@@ -218,53 +244,51 @@ def get_lab_v2(lab_id: str) -> dict[str, Any]:
 def check_lab_v2(lab_id: str, body: CheckRequest) -> dict[str, Any]:
     payload = _fetch_lab(lab_id)
     definition: LabDefinition = payload["definition"]
-    rules = definition.check.rules
-    results = evaluate_rules(body.topology, rules)
-    score = (
-        sum(1 for result in results if result["passed"]) / len(results)
-        if results else 1.0
-    )
-    passed = score >= definition.check.pass_threshold
-    return {"passed": passed, "score": round(score, 4), "results": results}
+    return _evaluate_lab_check(definition, body.topology)
 
 
 @router.post("/lab/v2/{lab_id}/submit")
 def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
     payload = _fetch_lab(lab_id)
     definition: LabDefinition = payload["definition"]
-    passed = bool(body.check_result.get("passed", False))
-    xp_gained = int(definition.xp_reward) if passed else 0
-    badges_unlocked = list(definition.badges) if passed else []
-    now = datetime.now(timezone.utc).isoformat()
+
+    # Le résultat envoyé par le client n'est jamais la source de vérité.
+    check_result = _evaluate_lab_check(definition, body.topology)
+    passed = bool(check_result["passed"])
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     attempt_id = str(uuid.uuid4())
-    snapshot = json.dumps(
-        model_to_dict(body.topology, by_alias=True),
-        ensure_ascii=False,
-    )
-    result_json = json.dumps(body.check_result, ensure_ascii=False)
+    snapshot = json.dumps(model_to_dict(body.topology, by_alias=True), ensure_ascii=False)
+    result_json = json.dumps(check_result, ensure_ascii=False)
 
     conn = _database_connection()
     try:
-        tables = {
-            row["name"]
-            for row in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
-        }
-        if "lab_attempts" not in tables:
-            raise HTTPException(
-                status_code=503,
-                detail="La table lab_attempts n'existe pas. Exécute la migration M1.",
-            )
+        if "lab_attempts" not in {
+            row["name"] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }:
+            raise HTTPException(status_code=503, detail="La table lab_attempts n'existe pas. Exécute la migration M1.")
+
+        conn.execute("BEGIN IMMEDIATE")
+        previous_success = conn.execute(
+            "SELECT 1 FROM lab_attempts WHERE lab_id = ? AND passed = 1 LIMIT 1", (lab_id,)
+        ).fetchone()
+        first_success = passed and previous_success is None
+        xp_gained = int(definition.xp_reward) if first_success else 0
+        badges_unlocked = list(definition.badges) if first_success else []
+
         conn.execute(
             "INSERT INTO lab_attempts "
             "(id, lab_id, user_id, started_at, finished_at, passed, config_snapshot, check_result_json) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                attempt_id, lab_id, None, now, now, int(passed), snapshot, result_json,
-            ),
+            (attempt_id, lab_id, None, now, now, int(passed), snapshot, result_json),
         )
-        conn.commit()
+        if xp_gained:
+            # add_xp committe aussi la tentative ; les deux changements restent atomiques.
+            add_xp(conn, xp_gained)
+        else:
+            conn.commit()
+    except HTTPException:
+        conn.rollback()
+        raise
     except sqlite3.IntegrityError as error:
         conn.rollback()
         raise HTTPException(status_code=409, detail=f"Impossible d'enregistrer la tentative : {error}")
@@ -274,7 +298,7 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
     finally:
         conn.close()
 
-    return {"ok": True, "xp_gained": xp_gained, "badges_unlocked": badges_unlocked}
+    return {"ok": True, **check_result, "xp_gained": xp_gained, "badges_unlocked": badges_unlocked}
 
 @router.get("/lab/v2")
 def list_labs_v2() -> list[dict[str, Any]]:

@@ -7,8 +7,6 @@ const DEVICES = [
   { type: 'server', label: 'Serveur', icon: '🖥️' },
   { type: 'firewall', label: 'Pare-feu', icon: '🛡️' },
   { type: 'cloud', label: 'Cloud WAN', icon: '☁️' },
-  { type: 'hub', label: 'Hub', icon: '🔌' },
-  { type: 'laptop', label: 'Portable', icon: '💼' },
 ];
 
 export function Palette() {

@@ -5,6 +5,7 @@ skilltree.db-shm
 skilltree.db-wal
 backups/
 .env
+
 # Environnements virtuels
 .venv/
 venv/
@@ -15,18 +16,21 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Variables d'environnement (TRÈS IMPORTANT : ne jamais publier ses clés API)
+# Variables d'environnement
 .env
 .env.local
 
-# Base de données locale
-skilltree.db
+# Bases de données locales
 *.db
 *.sqlite
 *.sqlite3
 
 # Sauvegardes lourdes
 backups/
+
+# Dépendances et builds générés
+node_modules/
+app/lab-workspace/dist/
 
 # Système d'exploitation
 .DS_Store

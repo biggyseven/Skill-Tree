@@ -49,7 +49,10 @@ export const useLabStore = create((set, get) => ({
   },
   
   addNode(type, x, y) {
-    const id = type.charAt(0).toUpperCase() + type.slice(1) + '-' + Math.floor(Math.random() * 1000);
+    const prefix = type.charAt(0).toUpperCase() + type.slice(1);
+    const existing = new Set((get().topology?.nodes || []).map(n => n.id));
+    let id;
+    do { id = prefix + '-' + crypto.randomUUID().slice(0, 8); } while (existing.has(id));
     let defaultPorts = [];
     if (type === 'router') defaultPorts = [{ id: 'Fa0/0', name: 'Fa0/0', state: 'down' }, { id: 'Fa0/1', name: 'Fa0/1', state: 'down' }];
     else if (type === 'switch') defaultPorts = Array.from({ length: 8 }).map((_, i) => ({ id: `Fa0/${i+1}`, name: `Fa0/${i+1}`, state: 'down' }));
@@ -63,11 +66,21 @@ export const useLabStore = create((set, get) => ({
   
   addPort(nodeId) {
     const topo = get().topology;
+    if (!topo) return;
     const node = topo.nodes.find(n => n.id === nodeId);
     if (!node) return;
-    const currentCount = node.ports?.length || 0;
-    const newPort = { id: `Fa0/${currentCount}`, name: `Fa0/${currentCount}`, state: 'down', ip: null, mask: null };
-    
+    const ports = node.ports || [];
+    const prefix = ['router', 'switch'].includes(node.type) ? 'Fa0/' : 'eth';
+    const used = new Set(ports.map(p => p.id || p.name));
+    const indexes = ports
+      .map(p => String(p.id || p.name || ''))
+      .filter(name => name.startsWith(prefix))
+      .map(name => Number.parseInt(name.slice(prefix.length), 10))
+      .filter(Number.isFinite);
+    let index = indexes.length ? Math.max(...indexes) + 1 : 0;
+    let name = `${prefix}${index}`;
+    while (used.has(name)) { index += 1; name = `${prefix}${index}`; }
+    const newPort = { id: name, name, state: 'down', ip: null, mask: null };
     set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: [...(n.ports || []), newPort] } : n) } });
   },
 
@@ -98,11 +111,17 @@ export const useLabStore = create((set, get) => ({
 
   addLink(connection, type) {
     const topo = get().topology;
+    if (!topo || !connection.source || !connection.target || connection.source === connection.target) return;
+    const source = topo.nodes.find(n => n.id === connection.source);
+    const target = topo.nodes.find(n => n.id === connection.target);
+    const sourcePort = (source?.ports || []).some(p => p.id === connection.sourceHandle);
+    const targetPort = (target?.ports || []).some(p => p.id === connection.targetHandle);
+    if (!sourcePort || !targetPort) return;
     const newLink = {
-      id: 'link-' + Date.now(),
+      id: 'link-' + crypto.randomUUID(),
       from: { node: connection.source, port: connection.sourceHandle },
       to: { node: connection.target, port: connection.targetHandle },
-      cable_type: type === 'cable_cross' ? 'copper_cross' : (type === 'fiber' ? 'fiber' : 'copper_straight'),
+      cable_type: type === 'cable_cross' ? 'copper_crossover' : (type === 'fiber' ? 'fiber' : 'copper_straight'),
       state: 'up'
     };
     set({ topology: { ...topo, links: [...topo.links, newLink] }, activeTool: 'select' });

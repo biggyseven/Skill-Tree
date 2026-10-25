@@ -7,7 +7,7 @@ import { Palette } from './canvas/Palette.jsx';
 import { InspectorPanel } from './inspector/InspectorPanel.jsx';
 
 function fetchLabFromUrl(labId) {
-  return fetch('/api/lab/v2/' + labId).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  return fetch('/api/lab/v2/' + encodeURIComponent(labId)).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
 }
 
 export default function App() {
@@ -23,7 +23,12 @@ export default function App() {
     useLabStore.getState().setLoading(true);
     fetchLabFromUrl(labId)
       .then(data => useLabStore.getState().loadLab(labId, data.definition, data.initial_topology))
-      .catch(err => { console.warn('Lab fetch failed, falling back to demo:', err); useLabStore.getState().loadDemo(); });
+      .catch(err => {
+        console.error('Lab Workspace could not load the requested lab:', err);
+        useLabStore.getState().setError(
+          new Error(`Impossible de charger le lab "${labId}". Vérifiez que la migration M1 a été exécutée et que l'API est disponible. Détail : ${err.message}`)
+        );
+      });
   }, []);
 
   if (error) {

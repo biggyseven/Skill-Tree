@@ -26,6 +26,13 @@ export function BriefPanel() {
       )}
 
       {/* ZONE DE RESULTAT DU CHECK */}
+      {typeof checkResult?.xp_gained === 'number' && (
+        <div className="rounded-lg border border-[#10b981]/30 bg-[#10b981]/10 px-3 py-2 text-xs text-[#a7f3d0]">
+          {checkResult.passed
+            ? (checkResult.xp_gained > 0 ? `Laboratoire enregistré · +${checkResult.xp_gained} XP` : 'Laboratoire enregistré · récompense déjà obtenue')
+            : 'Tentative enregistrée sans récompense.'}
+        </div>
+      )}
       {checkResult && (
         <div className="mt-6 rounded-xl border border-[#334155] bg-[#1e293b] p-4 shadow-xl">
           <div className="mb-3 flex items-center justify-between border-b border-[#334155] pb-2">

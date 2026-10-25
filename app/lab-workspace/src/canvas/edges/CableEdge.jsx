@@ -8,7 +8,7 @@ export function CableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePositi
   let strokeColor = '#0ea5e9'; // Bleu
   let strokeDasharray = 'none';
 
-  if (data?.cable_type === 'copper_cross') { strokeColor = '#f97316'; strokeDasharray = '6,4'; } // Orange
+  if (data?.cable_type === 'copper_crossover') { strokeColor = '#f97316'; strokeDasharray = '6,4'; } // Orange
   if (data?.cable_type === 'fiber') { strokeColor = '#a855f7'; } // Violet
   if (data?.state === 'down') { strokeColor = '#ef4444'; strokeDasharray = '4,4'; } // Rouge
   if (selected) { strokeColor = '#10b981'; }

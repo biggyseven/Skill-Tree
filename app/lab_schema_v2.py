@@ -50,6 +50,7 @@ class Port(SchemaModel):
     mode: PortMode = "down"
     ip: str | None = None
     mask: str | None = None
+    vlan: int | None = None
     description: str = ""
 
 
