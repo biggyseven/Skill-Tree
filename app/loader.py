@@ -22,6 +22,9 @@ DEVICE_TYPES = {
     "cloud",
     "wifi",
     "laptop",
+    "spine",
+    "leaf",
+    "apic",
     "vpc",
     "subnet",
 }
@@ -160,10 +163,53 @@ def _parse_expected_topology(value, where: str) -> dict:
                 f"{connection_where} : chaque extrémité doit correspondre à un type d'équipement déclaré."
             )
         connections.append({"from": source, "to": target})
+    raw_constraints = value.get("constraints", [])
+    if not isinstance(raw_constraints, list):
+        raise ContentError(f"{where} : « expected_topology.constraints » doit être une liste.")
+
+    constraints: list[dict] = []
+    for index, raw in enumerate(raw_constraints, 1):
+        constraint_where = f"{where}.constraints[{index}]"
+        if not isinstance(raw, dict):
+            raise ContentError(f"{constraint_where} : un objet est attendu.")
+        kind = _text(raw.get("kind"), "kind", constraint_where)
+        if kind in {"all_pairs", "min_peer_count"}:
+            source = _text(raw.get("from"), "from", constraint_where).lower()
+            target = _text(raw.get("to"), "to", constraint_where).lower()
+            if source not in nodes or target not in nodes:
+                raise ContentError(
+                    f"{constraint_where} : « from » et « to » doivent désigner des types déclarés dans nodes."
+                )
+            if source == target and kind == "all_pairs":
+                raise ContentError(
+                    f"{constraint_where} : « all_pairs » exige deux types distincts."
+                )
+            rule = {"kind": kind, "from": source, "to": target}
+            if kind == "min_peer_count":
+                minimum = _integer(raw.get("min_peers"), "min_peers", constraint_where, 1, 100)
+                if minimum > nodes[target]:
+                    raise ContentError(
+                        f"{constraint_where} : « min_peers » dépasse le nombre attendu de « {target} »."
+                    )
+                rule["min_peers"] = minimum
+            constraints.append(rule)
+        elif kind == "connected":
+            device_type = _text(raw.get("type"), "type", constraint_where).lower()
+            if device_type not in nodes:
+                raise ContentError(
+                    f"{constraint_where} : « type » doit désigner un type déclaré dans nodes."
+                )
+            constraints.append({"kind": kind, "type": device_type})
+        else:
+            raise ContentError(
+                f"{constraint_where} : règle « {kind} » inconnue "
+                "(attendu : all_pairs, min_peer_count ou connected)."
+            )
+
     if not connections:
         raise ContentError(f"{where} : le défi doit exiger au moins une connexion.")
 
-    return {"nodes": nodes, "connections": connections}
+    return {"nodes": nodes, "connections": connections, "constraints": constraints}
 
 
 def _parse_nodes(path: Path) -> list[NodeSpec]:
