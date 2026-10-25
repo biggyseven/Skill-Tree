@@ -1,28 +1,30 @@
+import { DeviceIcon } from './nodes/DeviceIcon.jsx';
+
 const DEVICE_GROUPS = [
   {
     title: 'Routeurs',
     caption: 'Routage L3',
-    devices: [{ type: 'router', label: 'Routeur', icon: '🌐' }],
+    devices: [{ type: 'router', label: 'Routeur', icon: null }],
   },
   {
     title: 'Switchs',
     caption: 'Commutation L2',
-    devices: [{ type: 'switch', label: 'Switch', icon: '🔀' }],
+    devices: [{ type: 'switch', label: 'Switch', icon: null }],
   },
   {
     title: 'Terminaux',
     caption: 'Hôtes et services',
     devices: [
-      { type: 'pc', label: 'PC', icon: '💻' },
-      { type: 'server', label: 'Serveur', icon: '🖥️' },
+      { type: 'pc', label: 'PC', icon: null },
+      { type: 'server', label: 'Serveur', icon: null },
     ],
   },
   {
     title: 'Sécurité & WAN',
     caption: 'Périmètre réseau',
     devices: [
-      { type: 'firewall', label: 'Pare-feu', icon: '🛡️' },
-      { type: 'cloud', label: 'Cloud WAN', icon: '☁️' },
+      { type: 'firewall', label: 'Pare-feu', icon: null },
+      { type: 'cloud', label: 'Cloud WAN', icon: null },
     ],
   },
 ];
@@ -64,9 +66,7 @@ export function Palette() {
               {group.devices.map(device => (
                 <div
                   key={device.type}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Glisser ${device.label} sur le canvas`}
+                  title={`Glisser ${device.label} sur le canvas`}
                   draggable
                   onDragStart={event => onDragStart(event, device.type)}
                   onDragEnd={onDragEnd}
@@ -80,9 +80,7 @@ export function Palette() {
                   ].join(' ')}
                 >
                   <span className="absolute left-2 top-2 h-1.5 w-1.5 rounded-full bg-[#30363d] transition-colors group-hover:bg-[#0ea5e9]" />
-                  <span className="text-xl transition-transform duration-150 group-hover:scale-110" aria-hidden="true">
-                    {device.icon}
-                  </span>
+                  <DeviceIcon kind={device.type} className="h-6 w-6 text-[#0ea5e9] transition-transform duration-150 group-hover:scale-110" />
                   <span className="text-[10px] font-semibold text-[#c9d1d9] transition-colors group-hover:text-white">
                     {device.label}
                   </span>
