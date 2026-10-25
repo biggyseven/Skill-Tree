@@ -367,7 +367,7 @@
       body { height: 100dvh !important; }
       main { padding-left: 1rem !important; padding-right: 1rem !important; padding-bottom: 6.5rem !important; }
       header { padding-left: 1rem !important; padding-right: 1rem !important; }
-      .mobile-bottom-nav { position: fixed; z-index: 70; bottom: max(.5rem, env(safe-area-inset-bottom)); left: .5rem; right: .5rem; display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: .2rem; padding: .4rem; border: 1px solid rgb(var(--w) / .12); border-radius: 1.3rem; background: color-mix(in srgb, var(--s1) 94%, transparent); box-shadow: 0 16px 44px -20px #000, 0 0 0 1px rgb(var(--w) / .025); backdrop-filter: blur(18px); }
+      .mobile-bottom-nav { position: fixed; z-index: 70; bottom: max(.5rem, env(safe-area-inset-bottom)); left: .5rem; right: .5rem; display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: .2rem; padding: .4rem; border: 1px solid rgb(var(--w) / .12); border-radius: 1.3rem; background: color-mix(in srgb, var(--s1) 94%, transparent); box-shadow: 0 16px 44px -20px #000, 0 0 0 1px rgb(var(--w) / .025); backdrop-filter: blur(18px); }
       .mobile-bottom-nav button { position: relative; display: flex; min-width: 0; min-height: 48px; flex-direction: column; align-items: center; justify-content: center; gap: .24rem; padding: .4rem .1rem .58rem; border: 1px solid transparent; border-radius: .9rem; color: rgb(var(--z-400)); font-size: 9.5px; font-weight: 600; line-height: 1.1; transition: background .16s ease, color .16s ease, border-color .16s ease, transform .16s ease; -webkit-tap-highlight-color: transparent; }
       .mobile-bottom-nav button:not(.is-active):hover { background: rgb(var(--w) / .045); color: rgb(var(--z-200)); }
       .mobile-bottom-nav button:active { transform: scale(.97); }
@@ -2747,7 +2747,7 @@
       { id: 'exam', label: 'Examens', title: "Centre d'évaluation", svg: '<rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 4V3h6v1M9 9h6M9 13h6M9 17h3"></path>' },
       { id: 'challenges', label: 'Défis', title: "Défis d'architecture", svg: '<circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle>' },
       { id: 'diagnostic', label: 'Diagnostic', title: 'Diagnostic Interactif', svg: '<circle cx="5" cy="5" r="2"></circle><circle cx="19" cy="12" r="2"></circle><circle cx="5" cy="19" r="2"></circle><path d="M7 5h4a3 3 0 0 1 3 3v1a3 3 0 0 0 3 3M7 19h4a3 3 0 0 0 3-3v-1a3 3 0 0 1 3-3"></path>' },
-      { id: 'memo', label: 'Mémo', title: 'Mémo (révision espacée)', svg: '<rect x="4" y="6" width="13" height="15" rx="2"></rect><path d="M8 3h9a3 3 0 0 1 3 3v11"></path>' },
+      { id: 'memo', label: 'Révisions', title: 'Révisions espacées', svg: '<rect x="4" y="6" width="13" height="15" rx="2"></rect><path d="M8 3h9a3 3 0 0 1 3 3v11"></path>' },
       { id: 'stats', label: 'Radar', title: 'Radar de compétences', svg: '<path d="M4 19V9M10 19V5M16 19v-7M22 19V3"></path>' },
       { id: 'rewards', label: 'Récompenses', title: 'Récompenses et diplômes', svg: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"></path><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"></path>' },
     ];
@@ -4336,7 +4336,7 @@
   </script>
   <!-- Barre de navigation mobile : accès aux actions essentielles sans la sidebar desktop -->
   <nav class="mobile-bottom-nav md:hidden" aria-label="Navigation mobile">
-    <template x-for="item in navItems.filter(i => ['tree','labs','exam','challenges','diagnostic','stats'].includes(i.id))" :key="item.id">
+    <template x-for="item in navItems.filter(i => ['tree','labs','exam','challenges','memo','diagnostic','stats'].includes(i.id))" :key="item.id">
       <button type="button" @click="setTab(item.id)" :aria-label="item.id === 'tree' ? 'Accueil' : item.label" :aria-current="tab === item.id ? 'page' : null" :class="tab === item.id ? 'is-active' : ''" :title="item.id === 'tree' ? 'Accueil' : item.label">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" x-html="item.svg"></svg><span x-text="item.id === 'tree' ? 'Accueil' : item.label"></span>
       </button>
