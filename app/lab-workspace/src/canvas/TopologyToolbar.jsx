@@ -59,6 +59,7 @@ export function TopologyToolbar() {
     if (
       state.loading ||
       state.lab?.id === 'demo' ||
+      state.lab?.sandbox === true ||
       !result ||
       result.stale ||
       result.checkError ||
@@ -72,6 +73,7 @@ export function TopologyToolbar() {
   const submitDisabled =
     loading ||
     lab?.id === 'demo' ||
+    lab?.sandbox === true ||
     !checkResult ||
     checkResult.stale ||
     checkResult.checkError ||
@@ -89,15 +91,45 @@ export function TopologyToolbar() {
                 ? '⚠ Configuration modifiée — revérifier'
                 : checkResult.checkError
                   ? 'Erreur de vérification'
-                  : checkResult.ok === true
-                    ? (checkResult.passed ? '✓ Tentative enregistrée' : 'Tentative enregistrée — échec')
-                    : checkResult.passed
+                  : checkResult.sandbox === true
+                    ? 'Bac à sable — non noté'
+                    : checkResult.ok === true
+                      ? (checkResult.passed ? '✓ Tentative enregistrée' : 'Tentative enregistrée — échec')
+                      : checkResult.passed
                       ? '✓ Réussi'
                       : 'Score ' + Math.round((checkResult.score || 0) * 100) + '%'}
             </span>
           )}
         </div>
         {persistenceMessage && <p role="status" className="mt-1 text-[10px] text-[var(--text-secondary)]">{persistenceMessage}</p>}
+        {checkResult?.sandbox === true && (
+          <p role="status" className="mt-1 text-xs text-[var(--text-secondary)]">
+            {checkResult.results?.[0]?.message || 'Ce bac à sable permet de tester librement, sans note ni récompense.'}
+          </p>
+        )}
+        {checkResult?.ok === true && checkResult.sandbox !== true && (
+          <div role="status" className="mt-1 text-xs text-[var(--text-secondary)]">
+            <p>
+              {checkResult.passed
+                ? (Number(checkResult.xp_gained) > 0
+                  ? '+' + Number(checkResult.xp_gained) + ' XP obtenus.'
+                  : 'Lab réussi : la récompense XP de ce lab a déjà été attribuée.')
+                : 'Tentative enregistrée sans récompense XP.'}
+              {checkResult.course_attempt_recorded
+                ? ' Progression du parcours mise à jour.'
+                : checkResult.passed
+                  ? ' Le parcours reste inchangé : aucun cours lié ou prérequis encore verrouillés.'
+                  : ''}
+            </p>
+            {Array.isArray(checkResult.badges_unlocked) && checkResult.badges_unlocked.length > 0 && (
+              <p className="mt-1 text-[var(--emerald-400)]">
+                Badge(s) débloqué(s) : {checkResult.badges_unlocked.map(badge =>
+                  typeof badge === 'string' ? badge : (badge.nom || badge.name || badge.id || 'Badge')
+                ).join(', ')}
+              </p>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={handleSave} disabled={persistenceDisabled}
