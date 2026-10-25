@@ -734,5 +734,18 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("window.open('/lab.html?demo=1', '_blank', 'noopener,noreferrer')", DASHBOARD_HTML)
         self.assertIn("Ouvrir le Lab Workspace indépendant", DASHBOARD_HTML)
 
+    def test_server_challenge_loading_handles_api_errors_and_bounds_the_timer(self):
+        start = DASHBOARD_HTML.index("        async startChallenge(id) {")
+        end = DASHBOARD_HTML.index("        endChallenge()", start)
+        loader = DASHBOARD_HTML[start:end]
+
+        self.assertIn("encodeURIComponent(String(id))", loader)
+        self.assertIn("if (!response.ok) throw new Error(data.detail || `Erreur HTTP ${response.status}`)", loader)
+        self.assertIn("response.json().catch(() => ({}))", loader)
+        self.assertLess(loader.index("if (!challenge.expected_summary)"), loader.index("this.clearTopology();"))
+        self.assertIn("Number.isFinite(timeLimit) && timeLimit > 0", loader)
+        self.assertIn("this.challengeLeft = Math.max(0, this.challengeLeft - 1)", loader)
+        self.assertIn("if (!this.challenge || this.challengeResult)", loader)
+
 if __name__ == "__main__":
     unittest.main()
