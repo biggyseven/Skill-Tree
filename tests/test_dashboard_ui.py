@@ -521,5 +521,19 @@ class DashboardUiRegressionTests(unittest.TestCase):
         # tree was empty, which missed new courses added while the page was closed.
         self.assertNotIn("if (!prev.size) return; const ev = [];", DASHBOARD_HTML)
 
+    def test_settings_menu_actions_match_their_names_and_close_the_menu(self):
+        self.assertIn("Changer de thème", DASHBOARD_HTML)
+        self.assertIn('@click="syncTheme(); themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false"', DASHBOARD_HTML)
+        self.assertIn("Recharger les données", DASHBOARD_HTML)
+        self.assertIn('@click="reloadContent(); settingsMenuOpen = false"', DASHBOARD_HTML)
+        self.assertIn("Gérer les modules et niveaux", DASHBOARD_HTML)
+        self.assertIn('@click="modMgrOpen = true; settingsMenuOpen = false"', DASHBOARD_HTML)
+        self.assertIn("Exporter mes données (JSON)", DASHBOARD_HTML)
+        self.assertIn('@click="exportData(); settingsMenuOpen = false"', DASHBOARD_HTML)
+        export_start = DASHBOARD_HTML.index("        app.exportData = function () {")
+        export_end = DASHBOARD_HTML.index("        app._allowChallengeClear = false;", export_start)
+        self.assertIn("preferences:", DASHBOARD_HTML[export_start:export_end])
+        self.assertIn("progress:", DASHBOARD_HTML[export_start:export_end])
+
 if __name__ == "__main__":
     unittest.main()
