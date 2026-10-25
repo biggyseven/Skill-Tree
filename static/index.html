@@ -718,6 +718,7 @@
           <button type="button" @click="treeFilter = 'beginner'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'beginner' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🌱 Débutant</button>
           <button type="button" @click="treeFilter = 'intermediaire'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'intermediaire' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🚀 Intermédiaire</button>
           <button type="button" @click="treeFilter = 'expert'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'expert' ? 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🔥 Expert</button>
+          <button type="button" @click="treeFilter = 'favorites'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'favorites' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">★ Favoris <span class="ml-1 font-mono" x-text="favoriteCount"></span></button>
         </div>
 
         <div id="tree-grid" class="flex flex-col gap-10">
@@ -747,9 +748,9 @@
           <template x-if="categories.length === 0">
             <div class="card">
               <p class="eyebrow">Programme</p>
-              <h3 class="mt-1 text-lg font-bold text-white" x-text="moduleMeta(moduleFilter).label + ' : aucun cours pour ce filtre'"></h3>
-              <p class="mt-2 text-sm text-zinc-400">Les cours de ce module apparaîtront ici dès qu'ils seront ajoutés (champ <code class="font-mono text-cyan-300">module</code> dans leur définition). Programme prévu :</p>
-              <div class="mt-5 grid gap-4 md:grid-cols-3">
+              <h3 class="mt-1 text-lg font-bold text-white" x-text="treeFilter === 'favorites' ? 'Aucun favori pour le moment' : moduleMeta(moduleFilter).label + ' : aucun cours pour ce filtre'"></h3>
+              <p class="mt-2 text-sm text-zinc-400" x-text="treeFilter === 'favorites' ? 'Ajoute un cours à tes favoris avec le bouton étoile dans le lecteur pour le retrouver ici.' : 'Les cours de ce module apparaîtront ici dès qu’ils seront ajoutés. Programme prévu :'"></p>
+              <div x-show="treeFilter !== 'favorites'" class="mt-5 grid gap-4 md:grid-cols-3">
                 <template x-for="l in levels" :key="l.id">
                   <div class="card-sm"><p class="text-sm font-bold text-white" x-text="l.icon + ' ' + l.label"></p>
                     <ul class="mt-3 space-y-1.5 text-[12px] text-zinc-400"><template x-for="t in (moduleMeta(moduleFilter).roadmap[l.id] || [])" :key="t"><li class="flex gap-2"><span>•</span><span x-text="t"></span></li></template></ul>
@@ -1239,7 +1240,13 @@
       <div class="flex shrink-0 flex-col gap-4 border-b border-white/5 px-6 py-5 sm:px-8">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
-            <h2 class="text-2xl font-bold leading-snug text-white" x-text="detail?.title || 'Chargement...'"></h2>
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <h2 class="min-w-0 flex-1 text-2xl font-bold leading-snug text-white" x-text="detail?.title || 'Chargement...'"></h2>
+              <button type="button" x-show="detail?.id" @click="toggleFavorite(detail.id)" :aria-pressed="isFavorite(detail?.id)" :class="isFavorite(detail?.id) ? 'border-amber-300/40 bg-amber-400/15 text-amber-200' : 'border-white/10 bg-white/5 text-zinc-400 hover:border-amber-300/30 hover:text-amber-200'" class="inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition" :title="isFavorite(detail?.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" :fill="isFavorite(detail?.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3z"></path></svg>
+                <span x-text="isFavorite(detail?.id) ? 'Favori' : 'Ajouter aux favoris'"></span>
+              </button>
+            </div>
 
             <!-- BADGES -->
             <div class="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
@@ -1604,6 +1611,7 @@
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
         lastOpenedNodeId: localStorage.getItem('skilltree-last-node') || '',
         lastLessonProgress: Math.max(0, Math.min(100, Number(localStorage.getItem('skilltree-last-progress') || 0) || 0)),
+        favoriteNodeIds: [],
         nodes: [], total: 0, validated: 0, loading: true, streakDays: 0,
         userStats: { total_xp: 0, current_level: 1, level_name: 'Débutant', progress_percent: 0, coins: 0 },
         shopOpen: false, shopItems: [], open: false,
@@ -1637,6 +1645,7 @@
 
         async init() {
           this.loadUiPrefs();
+          this.loadFavorites();
           window.addEventListener('message', (event) => {
             if (event.origin !== window.location.origin) return;
             const message = event.data;
@@ -1731,6 +1740,29 @@
             if (name === 'labs') await this.loadLabIndex();
             if (name === 'rewards') this.checkRewards();
           } catch (e) { console.error('setTab', name, e); }
+        },
+
+        loadFavorites() {
+          try {
+            const saved = JSON.parse(localStorage.getItem('skilltree-favorites') || '[]');
+            this.favoriteNodeIds = Array.isArray(saved) ? [...new Set(saved.map(String))] : [];
+          } catch (e) {
+            this.favoriteNodeIds = [];
+          }
+        },
+        isFavorite(nodeId) {
+          return !!nodeId && this.favoriteNodeIds.includes(String(nodeId));
+        },
+        toggleFavorite(nodeId) {
+          if (!nodeId) return;
+          const id = String(nodeId);
+          this.favoriteNodeIds = this.isFavorite(id)
+            ? this.favoriteNodeIds.filter(value => value !== id)
+            : [...this.favoriteNodeIds, id];
+          try { localStorage.setItem('skilltree-favorites', JSON.stringify(this.favoriteNodeIds)); } catch (e) { }
+        },
+        get favoriteCount() {
+          return this.nodes.filter(n => this.isFavorite(n.id)).length;
         },
 
         async loadTree() {
@@ -2405,7 +2437,7 @@
         get categories() {
           const map = { beginner: 'debutant', intermediaire: 'intermediaire', expert: 'expert' };
           const g = new Map();
-          this.nodes.filter(n => (this.moduleFilter === 'all' || this.moduleOf(n) === this.moduleFilter) && (this.treeFilter === 'all' || this.levelOf(n) === map[this.treeFilter]))
+          this.nodes.filter(n => (this.moduleFilter === 'all' || this.moduleOf(n) === this.moduleFilter) && (this.treeFilter === 'all' || (this.treeFilter === 'favorites' ? this.isFavorite(n.id) : this.levelOf(n) === map[this.treeFilter])))
             .forEach(n => { if (!g.has(n.category)) g.set(n.category, []); g.get(n.category).push(n); });
           return [...g.entries()].map(([name, items]) => ({ name, items, validated: items.filter(n => n.status === 'validated').length }));
         },
