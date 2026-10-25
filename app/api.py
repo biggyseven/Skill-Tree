@@ -516,7 +516,7 @@ def submit_challenge(node_id: str, payload: dict[str, Any] = Body(...), tree: Sk
         return {
             "success": True, "score": score, "passed": passed, "timeout": timed_out,
             "validated": True, "status": Status.VALIDATED.value,
-            "attempt_recorded": False, "xp_gained": 0, "badges_unlocked": [],
+            "attempt_recorded": False, "xp_gained": 0, "coins_gained": 0, "badges_unlocked": [],
             "missing_nodes": missing_nodes, "extra_nodes": extra_nodes,
             "missing_links": missing_links, "extra_links": extra_links,
         }
@@ -548,6 +548,7 @@ def submit_challenge(node_id: str, payload: dict[str, Any] = Body(...), tree: Sk
         "status": tree.status(node_id).value,
         "attempt_recorded": True,
         "xp_gained": (tree.last_reward or {}).get("xp", 0),
+        "coins_gained": (tree.last_reward or {}).get("coins", 0),
         "badges_unlocked": tree.last_badges,
         "missing_nodes": missing_nodes,
         "extra_nodes": extra_nodes,
