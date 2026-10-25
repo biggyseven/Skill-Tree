@@ -49,7 +49,7 @@ export function initAlpineBridge() {
       const res = await fetch(`/api/lab/v2/${encodeURIComponent(labId)}/check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: topologySnapshot,
+        body: JSON.stringify({ topology: initial.topology }),
       });
 
       if (!res.ok) {
