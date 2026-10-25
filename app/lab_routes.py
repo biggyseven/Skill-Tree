@@ -530,6 +530,7 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
     if payload.get("sandbox"):
         return {
             "ok": True,
+            "lab_id": lab_id,
             "passed": False,
             "score": 0.0,
             "sandbox": True,
@@ -626,6 +627,7 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
 
     return {
         "ok": True,
+        "lab_id": lab_id,
         **check_result,
         "xp_gained": xp_gained,
         "badges_unlocked": badges_unlocked,
