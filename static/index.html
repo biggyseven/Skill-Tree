@@ -378,7 +378,14 @@
 
     .modal-panel { isolation: isolate; }
     .modal-panel .modal-scroll { scroll-padding-top: 1.25rem; overscroll-behavior: contain; }
-    .modal-panel .lesson-reader-grid { width: 100%; margin-inline: auto; gap: clamp(1rem, 2vw, 2rem); }
+    .modal-panel .lesson-reader-grid { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; margin-inline: auto; gap: clamp(1rem, 2vw, 2rem); }
+    .modal-panel .modal-scroll,
+    .modal-panel .modal-scroll > div,
+    .modal-panel .lesson-reader-grid > *,
+    .modal-panel .lesson-content,
+    .modal-panel .lesson-prose { min-width: 0; max-width: 100%; box-sizing: border-box; }
+    .modal-panel .lesson-prose { overflow-wrap: anywhere; }
+    .modal-panel .lesson-prose pre { max-width: 100%; overflow-x: auto; }
     .modal-panel .lesson-toc-panel {
       top: 1rem; max-height: calc(94vh - 11rem);
       border-color: rgb(var(--w) / .11);
@@ -1312,7 +1319,7 @@
   <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden" :class="isFullscreen ? 'p-0' : 'p-2 sm:p-4'" @keydown.escape.window="onEscape()">
     <div class="modal-backdrop fixed inset-0 backdrop-blur-md bg-black/60" @click="close()"></div>
 
-    <div class="modal-panel relative flex flex-col overflow-hidden border border-white/10 bg-[color:var(--s1)] shadow-[0_0_50px_-10px_rgba(0,0,0,0.8)]"
+    <div class="modal-panel relative flex min-w-0 flex-col overflow-hidden border border-white/10 bg-[color:var(--s1)] shadow-[0_0_50px_-10px_rgba(0,0,0,0.8)]"
          :class="isFullscreen ? 'm-0 h-screen w-screen max-w-none rounded-none' : 'my-0 h-[94vh] w-[97vw] max-w-[1680px] rounded-3xl'"
          x-show="open" role="dialog" aria-modal="true">
 
@@ -1377,7 +1384,7 @@
       </div>
 
       <!-- Contenu de la modale -->
-      <div x-ref="modalScroll" @scroll.passive="onLessonScroll($event)" class="modal-scroll min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-7 xl:px-8">
+      <div x-ref="modalScroll" @scroll.passive="onLessonScroll($event)" class="modal-scroll min-h-0 w-full min-w-0 max-w-full flex-1 overflow-y-auto box-border px-4 py-5 sm:px-6 sm:py-7 xl:px-8">
 
         <!-- Spinner de chargement -->
         <div x-show="detailLoading" class="flex items-center justify-center py-20">
@@ -1396,11 +1403,11 @@
           </div>
         </div>
 
-        <div x-show="!detailLoading && !detailLoadError">
+        <div x-show="!detailLoading && !detailLoadError" class="w-full min-w-0 max-w-full">
           <!-- ONGLET 1 : COURS -->
           <div x-show="modalTab === 'lesson'">
             <template x-if="lessonHtml">
-              <div class="lesson-reader-grid grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8">
+              <div class="lesson-reader-grid grid w-full min-w-0 max-w-full box-border grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8">
 
                 <!-- Sommaire latéral (fenêtre agrandie, écran large) -->
                 <aside x-show="lessonToc.length" class="lesson-toc-panel sticky top-2 hidden max-h-[calc(94vh-13rem)] w-full shrink-0 self-start overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s2)] p-4 lg:block">
