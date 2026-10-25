@@ -1,5 +1,4 @@
-import { DeviceNode } from './DeviceNode.jsx';
-
+﻿import { DeviceNode } from './DeviceNode.jsx';
 export function PCNode({ data, selected }) {
-  return <DeviceNode data={data} selected={selected} kind="pc" title="PC" surface="bg-[var(--s2)]" />;
+  return <DeviceNode data={{...data, type: 'pc'}} selected={selected} />;
 }

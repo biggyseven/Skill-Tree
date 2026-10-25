@@ -3,7 +3,9 @@ import { useLabStore } from './store/useLabStore.js';
 import { LabCanvas } from './canvas/LabCanvas.jsx';
 import { TopologyToolbar } from './canvas/TopologyToolbar.jsx';
 import { BriefPanel } from './brief/BriefPanel.jsx';
+import { Palette } from './canvas/Palette.jsx';
 import { InspectorPanel } from './inspector/InspectorPanel.jsx';
+
 function fetchLabFromUrl(labId) {
   return fetch('/api/lab/v2/' + labId).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
 }
@@ -42,15 +44,29 @@ export default function App() {
   }
 
   return (
-    <div className="grid h-screen grid-cols-[300px_1fr_340px] overflow-hidden bg-[var(--s0)] text-[var(--text-primary)]">
-      <aside className="overflow-y-auto border-r border-[var(--s2)] bg-[var(--s1)]"><BriefPanel /></aside>
-      <main className="flex min-w-0 flex-col">
+    <div className="flex h-screen overflow-hidden bg-[var(--s0)] text-[var(--text-primary)]">
+      
+      {/* COLONNE GAUCHE : Palette + Brief */}
+      <aside className="flex w-[320px] shrink-0 flex-col border-r border-[var(--s2)] bg-[var(--s1)]">
+        <div className="flex-1 overflow-y-auto">
+          <BriefPanel />
+        </div>
+        <div className="h-[280px] shrink-0 border-t border-[var(--s2)]">
+          <Palette />
+        </div>
+      </aside>
+
+      {/* COLONNE CENTRALE : Canvas */}
+      <main className="flex min-w-0 flex-1 flex-col">
         <TopologyToolbar />
         <LabCanvas />
       </main>
-      <aside className="overflow-hidden border-l border-[var(--s2)] bg-[var(--s1)]">
+
+      {/* COLONNE DROITE : Inspector */}
+      <aside className="w-[380px] shrink-0 overflow-hidden border-l border-[var(--s2)] bg-[var(--s1)]">
         <InspectorPanel />
       </aside>
+      
     </div>
   );
 }

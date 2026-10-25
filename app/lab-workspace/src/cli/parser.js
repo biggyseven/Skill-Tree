@@ -1,7 +1,5 @@
 ﻿/**
  * Parser CLI Cisco-like.
- * Chaque commande est exécutée sur un objet device (issu du Zustand store).
- * Retourne { output: string }.
  */
 export class CLIParser {
   constructor(device, mode = 'user', context = {}) {
@@ -23,8 +21,7 @@ export class CLIParser {
   }
 
   findPort(name) {
-    const ports = this.device.ports || [];
-    return ports.find(p => p.id === name || p.name === name);
+    return (this.device.ports || []).find(p => p.id === name || p.name === name);
   }
 
   execute(line) {
@@ -33,7 +30,11 @@ export class CLIParser {
     const tokens = raw.split(/\s+/);
     const cmd = tokens[0].toLowerCase();
 
-    // Globales
+    // --- COMMANDES GLOBALES ---
+    if (cmd === 'ping' && tokens[1]) {
+      import('../simulation/pingEngine.js').then(({ simulatePing }) => { simulatePing(this.device.id, tokens[1]); });
+      return { output: `Type escape sequence to abort.\nSending 5, 100-byte ICMP Echos to ${tokens[1]}, timeout is 2 seconds:`, isAsync: true };
+    }
     if (cmd === 'exit') {
       if (this.mode === 'interface' || this.mode === 'router') this.mode = 'config';
       else if (this.mode === 'config') this.mode = 'privileged';
@@ -49,7 +50,7 @@ export class CLIParser {
       return { output: '% Already in privileged mode.' };
     }
 
-    // Privileged
+    // --- MODE PRIVILEGED ---
     if (this.mode === 'privileged') {
       if (cmd === 'configure' && tokens[1] === 'terminal') {
         this.mode = 'config';
@@ -57,9 +58,10 @@ export class CLIParser {
       }
       if (cmd === 'show') return this.doShow(tokens.slice(1));
       if (cmd === 'write' && tokens[1] === 'memory') return { output: 'Building configuration...\n[OK]' };
+      if (cmd === 'reload') return { output: 'System configuration has been modified. Save? [yes/no]: ' };
     }
 
-    // Config
+    // --- MODE CONFIG GLOBAL ---
     if (this.mode === 'config') {
       if (cmd === 'hostname' && tokens[1]) {
         this.device.config.hostname = tokens[1];
@@ -68,61 +70,57 @@ export class CLIParser {
       }
       if (cmd === 'interface' && tokens[1]) {
         const port = this.findPort(tokens[1]);
-        if (!port) return { output: '% Interface not found. Use: show ip interface brief' };
+        if (!port) return { output: '% Interface not found.' };
         this.mode = 'interface';
         this.context.interface = tokens[1];
         return { output: '' };
       }
+      if (cmd === 'ip' && tokens[1] === 'route' && tokens.length >= 5) {
+        if (!this.device.config.routes) this.device.config.routes = [];
+        this.device.config.routes.push({ network: tokens[2], mask: tokens[3], next_hop: tokens[4] });
+        return { output: '' };
+      }
+      if (cmd === 'vlan' && tokens[1]) {
+        if (!this.device.config.vlans) this.device.config.vlans = [];
+        if (!this.device.config.vlans.find(v => v.id === parseInt(tokens[1]))) {
+          this.device.config.vlans.push({ id: parseInt(tokens[1]), name: `VLAN${tokens[1]}` });
+        }
+        return { output: '' };
+      }
       if (cmd === 'router' && tokens[1] === 'ospf') {
-        this.mode = 'router';
-        this.context.router_pid = tokens[2] || '1';
+        this.mode = 'router'; this.context.router_pid = tokens[2] || '1';
         if (!this.device.config.ospf) this.device.config.ospf = { enabled: true, router_id: null, areas: [] };
-        else this.device.config.ospf.enabled = true;
         return { output: '' };
       }
     }
 
-    // Interface
+    // --- MODE INTERFACE ---
     if (this.mode === 'interface') {
       const port = this.findPort(this.context.interface);
-      if (!port) {
-        this.mode = 'config';
-        return { output: '% Interface not found.' };
+      if (!port) { this.mode = 'config'; return { output: '% Interface not found.' }; }
+      
+      if (cmd === 'ip' && tokens[1] === 'address' && tokens[2] && tokens[3]) {
+        port.ip = tokens[2]; port.mask = tokens[3]; port.state = 'up';
+        return { output: '' };
       }
-      if (cmd === 'ip' && tokens[1] === 'address') {
-        if (!tokens[2] || !tokens[3]) return { output: '% Incomplete command.' };
-        port.ip = tokens[2];
-        port.mask = tokens[3];
-        port.state = 'up';
+      if (cmd === 'no' && tokens[1] === 'ip' && tokens[2] === 'address') {
+        port.ip = null; port.mask = null;
         return { output: '' };
       }
       if (cmd === 'no' && tokens[1] === 'shutdown') { port.state = 'up'; return { output: '' }; }
       if (cmd === 'shutdown') { port.state = 'down'; return { output: '' }; }
-      if (cmd === 'switchport' && tokens[1] === 'mode' && tokens[2]) {
-        port.mode = tokens[2];
-        return { output: '' };
-      }
-      if (cmd === 'switchport' && tokens[1] === 'access' && tokens[2] === 'vlan' && tokens[3]) {
-        port.vlan = parseInt(tokens[3]);
-        return { output: '' };
-      }
-      if (cmd === 'description' && tokens.length > 1) {
-        port.description = tokens.slice(1).join(' ');
-        return { output: '' };
-      }
+      if (cmd === 'switchport' && tokens[1] === 'mode' && tokens[2]) { port.mode = tokens[2]; return { output: '' }; }
+      if (cmd === 'switchport' && tokens[1] === 'access' && tokens[2] === 'vlan' && tokens[3]) { port.vlan = parseInt(tokens[3]); return { output: '' }; }
+      if (cmd === 'description' && tokens.length > 1) { port.description = tokens.slice(1).join(' '); return { output: '' }; }
     }
 
-    // Router OSPF
+    // --- MODE ROUTER OSPF ---
     if (this.mode === 'router') {
       if (cmd === 'network' && tokens.length >= 5 && tokens[3] === 'area') {
-        const network = tokens[1] + '/' + this.maskToCidr(tokens[2]);
-        this.device.config.ospf.areas.push({ area: parseInt(tokens[4]), network });
+        this.device.config.ospf.areas.push({ area: parseInt(tokens[4]), network: tokens[1] + '/' + this.maskToCidr(tokens[2]) });
         return { output: '' };
       }
-      if (cmd === 'router-id' && tokens[1]) {
-        this.device.config.ospf.router_id = tokens[1];
-        return { output: '' };
-      }
+      if (cmd === 'router-id' && tokens[1]) { this.device.config.ospf.router_id = tokens[1]; return { output: '' }; }
     }
 
     return { output: `% Invalid input detected at '^' marker.` };
@@ -133,6 +131,12 @@ export class CLIParser {
     if (args[0] === 'ip' && args[1] === 'interface' && args[2] === 'brief') return { output: this.formatIpIntBrief() };
     if (args[0] === 'ip' && args[1] === 'route') return { output: this.formatIpRoute() };
     if (args[0] === 'vlan' && args[1] === 'brief') return { output: this.formatVlanBrief() };
+    if (args[0] === 'version') return { output: 'Cisco IOS Software, C2900 Software (C2900-UNIVERSALK9-M), Version 15.1(4)M4, RELEASE SOFTWARE (fc2)\nSkillTree Edition' };
+    if (args[0] === 'interfaces' && args[1]) {
+      const p = this.findPort(args[1]);
+      if (!p) return { output: `% Invalid interface ${args[1]}` };
+      return { output: `${p.name} is ${p.state}, line protocol is ${p.state}\n  Hardware is Fast Ethernet, address is ${p.mac || '0000.0000.0000'}\n  Internet address is ${p.ip ? p.ip + '/' + this.maskToCidr(p.mask) : 'unassigned'}` };
+    }
     return { output: `% No 'show' command found for '${args.join(' ')}'.` };
   }
 
@@ -140,6 +144,13 @@ export class CLIParser {
     const c = this.device.config || {};
     let out = 'Building configuration...\n\nCurrent configuration : 1024 bytes\n!\n';
     out += `hostname ${c.hostname || this.device.id}\n!\n`;
+    
+    // VLANs
+    if (c.vlans && c.vlans.length) {
+      c.vlans.forEach(v => { out += `vlan ${v.id}\n name ${v.name}\n!\n`; });
+    }
+
+    // Interfaces
     (this.device.ports || []).forEach(p => {
       out += `interface ${p.name || p.id}\n`;
       if (p.description) out += ` description ${p.description}\n`;
@@ -148,17 +159,10 @@ export class CLIParser {
       if (p.ip && p.mask) out += ` ip address ${p.ip} ${p.mask}\n`;
       out += ` ${p.state === 'up' ? 'no ' : ''}shutdown\n!\n`;
     });
+
+    // Routes
     if (c.routes && c.routes.length) {
       c.routes.forEach(r => { out += `ip route ${r.network} ${r.mask} ${r.next_hop}\n`; });
-      out += '!\n';
-    }
-    if (c.ospf && c.ospf.enabled) {
-      out += 'router ospf 1\n';
-      if (c.ospf.router_id) out += ` router-id ${c.ospf.router_id}\n`;
-      (c.ospf.areas || []).forEach(a => {
-        const [net, cidr] = a.network.split('/');
-        out += ` network ${net} ${this.cidrToMask(parseInt(cidr))} area ${a.area}\n`;
-      });
       out += '!\n';
     }
     out += 'end';
@@ -168,9 +172,7 @@ export class CLIParser {
   formatIpIntBrief() {
     let out = 'Interface              IP-Address      OK? Method Status                Protocol\n';
     (this.device.ports || []).forEach(p => {
-      const ip = p.ip || 'unassigned';
-      const status = p.state === 'up' ? 'up' : 'administratively down';
-      out += `${(p.name || p.id).padEnd(22)} ${ip.padEnd(15)} YES manual ${status.padEnd(21)} up\n`;
+      out += `${(p.name || p.id).padEnd(22)} ${(p.ip || 'unassigned').padEnd(15)} YES manual ${(p.state === 'up' ? 'up' : 'administratively down').padEnd(21)} up\n`;
     });
     return out;
   }
@@ -178,17 +180,9 @@ export class CLIParser {
   formatIpRoute() {
     let out = 'Codes: C - connected, S - static, O - OSPF\n\nGateway of last resort is not set\n\n';
     (this.device.ports || []).forEach(p => {
-      if (p.ip && p.mask) {
-        const cidr = this.maskToCidr(p.mask);
-        const net = this.getNetwork(p.ip, p.mask);
-        out += `C    ${net}/${cidr} is directly connected, ${p.name || p.id}\n`;
-      }
+      if (p.ip && p.mask) out += `C    ${this.getNetwork(p.ip, p.mask)}/${this.maskToCidr(p.mask)} is directly connected, ${p.name || p.id}\n`;
     });
-    if (this.device.config?.routes) {
-      this.device.config.routes.forEach(r => {
-        out += `S    ${r.network}/${this.maskToCidr(r.mask)} [1/0] via ${r.next_hop}\n`;
-      });
-    }
+    if (this.device.config?.routes) this.device.config.routes.forEach(r => { out += `S    ${r.network}/${this.maskToCidr(r.mask)} [1/0] via ${r.next_hop}\n`; });
     return out;
   }
 
@@ -199,6 +193,5 @@ export class CLIParser {
   }
 
   maskToCidr(mask) { return mask.split('.').map(Number).reduce((acc, oct) => acc + (oct >>> 0).toString(2).split('1').length - 1, 0); }
-  cidrToMask(cidr) { return [0, 1, 2, 3].map(i => (0xFF << (8 - (cidr - i * 8) > 0 ? 8 - (cidr - i * 8) : 0)) & 0xFF).join('.'); }
   getNetwork(ip, mask) { const ipP = ip.split('.').map(Number); const mP = mask.split('.').map(Number); return ipP.map((o, i) => o & mP[i]).join('.'); }
 }

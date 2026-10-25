@@ -10,6 +10,7 @@ export function CLITab() {
   const topology = useLabStore(s => s.topology);
   const termRef = useRef(null);
   const parserRef = useRef(null);
+  const termInstanceRef = useRef(null);
 
   const device = topology?.nodes.find(n => n.id === selectedDeviceId);
 
@@ -18,21 +19,14 @@ export function CLITab() {
 
     const term = new Terminal({
       cursorBlink: true,
-      theme: { 
-        background: '#0c0a1a', 
-        foreground: '#e2e8f0',
-        cursor: '#0dbedc',
-        selectionBackground: 'rgba(52, 211, 153, 0.3)'
-      },
-      fontFamily: '"JetBrains Mono", monospace',
-      fontSize: 13,
-      convertEol: true,
-      scrollback: 1000,
+      theme: { background: '#0c0a1a', foreground: '#e2e8f0', cursor: '#0dbedc', selectionBackground: 'rgba(52, 211, 153, 0.3)' },
+      fontFamily: '"JetBrains Mono", monospace', fontSize: 13, convertEol: true, scrollback: 1000,
     });
     const fit = new FitAddon();
     term.loadAddon(fit);
     term.open(termRef.current);
     fit.fit();
+    termInstanceRef.current = term;
 
     parserRef.current = new CLIParser(device);
     
@@ -43,28 +37,47 @@ export function CLITab() {
 
     term.onData(data => {
       const code = data.charCodeAt(0);
-      if (code === 13) {
+      if (code === 13) { // Enter
         term.write('\r\n');
         if (currentLine.trim()) {
           const res = parserRef.current.execute(currentLine);
           if (res.output) term.write(res.output.replace(/\n/g, '\r\n') + '\r\n');
-          // FORCER LA MISE A JOUR REACT FLOW
           useLabStore.setState(s => ({ topology: { ...s.topology } }));
+          
+          // Si c'est asynchrone (ex: ping), on n'affiche pas le prompt tout de suite
+          if (!res.isAsync) {
+            term.write(prompt());
+          }
+        } else {
+          term.write(prompt());
         }
         currentLine = '';
-        term.write(prompt());
-      } else if (code === 127) {
+      } else if (code === 127) { // Backspace
         if (currentLine.length > 0) {
           currentLine = currentLine.slice(0, -1);
           term.write('\b \b');
         }
-      } else if (code >= 32 && code <= 126) {
+      } else if (code >= 32 && code <= 126) { // Caractères imprimables
         currentLine += data;
         term.write(data);
       }
     });
 
-    return () => { term.dispose(); };
+    // ÉCOUTEUR POUR LE RÉSULTAT DU PING
+    const handlePingResult = (e) => {
+      const res = e.detail.result;
+      const output = res.success 
+        ? `!!!!!\nSuccess rate is 100 percent (5/5), round-trip min/avg/max = 1/1/1 ms`
+        : `.....\nSuccess rate is 0 percent (0/5)`;
+      term.write(`\r\n${output}\r\n`);
+      term.write(prompt()); 
+    };
+    window.addEventListener('cli:ping-result', handlePingResult);
+
+    return () => { 
+      term.dispose(); 
+      window.removeEventListener('cli:ping-result', handlePingResult);
+    };
   }, [device?.id]);
 
   if (!selectedDeviceId) {

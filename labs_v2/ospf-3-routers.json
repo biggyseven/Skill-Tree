@@ -1,0 +1,13 @@
+﻿{
+  "id": "ospf-3-routers",
+  "title": "Configuration de base",
+  "prompt": "Changez le hostname de R1 en 'Routeur-Paris' et configurez l'IP de Fa0/0 à 10.0.12.1 255.255.255.252.",
+  "objectives": ["Changer le hostname", "Configurer l'IP"],
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {"id": "r1_hostname", "device": "R1", "path": "config.hostname", "operator": "equals", "expected": "Routeur-Paris", "description": "Le hostname de R1 doit être Routeur-Paris"},
+      {"id": "r1_ip", "device": "R1", "path": "ports[0].ip", "operator": "equals", "expected": "10.0.12.1", "description": "L'IP de R1 doit être 10.0.12.1"}
+    ]
+  }
+}

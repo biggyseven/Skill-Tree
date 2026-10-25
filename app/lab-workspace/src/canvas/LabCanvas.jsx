@@ -1,7 +1,8 @@
 ﻿import { useCallback, useMemo } from 'react';
-import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap } from '@xyflow/react';
+import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useReactFlow } from '@xyflow/react';
 import { useLabStore } from '../store/useLabStore.js';
 import { nodeTypes, edgeTypes } from './nodeTypes.js';
+import { Toolbar } from './Toolbar.jsx';
 
 const defaultEdgeOptions = { type: 'cable' };
 
@@ -9,6 +10,11 @@ export function LabCanvas() {
   const topology = useLabStore(s => s.topology);
   const selectDevice = useLabStore(s => s.selectDevice);
   const updateNodePosition = useLabStore(s => s.updateNodePosition);
+  const addNode = useLabStore(s => s.addNode);
+  const addLink = useLabStore(s => s.addLink);
+  const activePacket = useLabStore(s => s.activePacket);
+  const activeTool = useLabStore(s => s.activeTool);
+  const { screenToFlowPosition } = useReactFlow();
 
   const flowNodes = useMemo(() => {
     if (!topology) return [];
@@ -16,7 +22,7 @@ export function LabCanvas() {
       const anyUp = (n.ports || []).some(p => p.state === 'up');
       return {
         id: n.id, type: n.type, position: { x: n.x || 100, y: n.y || 100 },
-        data: { label: n.label || n.id, hostname: (n.config && n.config.hostname) || n.id, model: n.model || '', state: anyUp ? 'up' : 'down' },
+        data: { label: n.label || n.id, hostname: (n.config && n.config.hostname) || n.id, state: anyUp ? 'up' : 'down', ports: n.ports },
       };
     });
   }, [topology]);
@@ -25,7 +31,8 @@ export function LabCanvas() {
     if (!topology) return [];
     return topology.links.map(l => ({
       id: l.id, source: l.from.node, target: l.to.node, type: 'cable',
-      data: { state: l.state, cable_type: l.cable_type, label: l.from.port + ' → ' + l.to.port },
+      sourceHandle: l.from.port, targetHandle: l.to.port,
+      data: { state: l.state, cable_type: l.cable_type, label: `${l.from.port} → ${l.to.port}` },
     }));
   }, [topology]);
 
@@ -33,24 +40,66 @@ export function LabCanvas() {
     changes.forEach(c => { if (c.type === 'position' && c.position) updateNodePosition(c.id, c.position.x, c.position.y); });
   }, [updateNodePosition]);
 
-  const onNodeClick = useCallback((_e, node) => selectDevice(node.id), [selectDevice]);
+  const onNodeClick = useCallback((_e, node) => {
+    if (activeTool === 'select') selectDevice(node.id);
+  }, [selectDevice, activeTool]);
+
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback((event) => {
+    event.preventDefault();
+    const type = event.dataTransfer.getData('application/reactflow');
+    if (!type) return;
+    const position = screenToFlowPosition({ x: event.clientX, y: event.clientY });
+    addNode(type, position.x, position.y);
+  }, [screenToFlowPosition, addNode]);
+
+  const onConnect = useCallback((params) => {
+    addLink(params, activeTool);
+  }, [addLink, activeTool]);
 
   if (!topology) return null;
 
+  let packetStyle = { display: 'none' };
+  if (activePacket) {
+    const fromNode = topology.nodes.find(n => n.id === activePacket.from);
+    const toNode = topology.nodes.find(n => n.id === activePacket.to);
+    if (fromNode && toNode) {
+      packetStyle = { left: (fromNode.x + toNode.x)/2 + 40, top: (fromNode.y + toNode.y)/2 + 40, display: 'block', transition: 'all 0.6s ease-in-out' };
+    }
+  }
+
   return (
-    <div className="flex-1 min-h-0">
+    <div className={`relative flex-1 min-h-0 bg-[#0f172a] ${activeTool !== 'select' ? 'cursor-crosshair' : ''}`} onDrop={onDrop} onDragOver={onDragOver}>
       <ReactFlow nodes={flowNodes} edges={flowEdges} onNodesChange={onNodesChange} onNodeClick={onNodeClick}
+        onConnect={onConnect}
         nodeTypes={nodeTypes} edgeTypes={edgeTypes} defaultEdgeOptions={defaultEdgeOptions}
         fitView fitViewOptions={{ padding: 0.2 }} proOptions={{ hideAttribution: true }}>
-        <Background variant={BackgroundVariant.Dots} color="var(--s2)" gap={18} size={1.2} />
-        <Controls />
+        
+        <Background variant={BackgroundVariant.Dots} color="#1e293b" gap={24} size={2} />
+        
+        {/* FIX DES CARRES BLANCS : on force le background en style inline */}
+        <Controls 
+          showInteractive={false} 
+          style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#94a3b8' }}
+        />
+        
         <MiniMap 
           pannable zoomable 
-          style={{ backgroundColor: 'var(--s1)', border: '1px solid var(--s2)' }}
-          nodeColor="var(--cyan-400)"
-          maskColor="rgba(0,0,0,0.5)"
+          style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} 
+          nodeColor="#0ea5e9" 
+          maskColor="rgba(15, 23, 42, 0.7)" 
         />
       </ReactFlow>
+
+      <Toolbar />
+
+      <div className="pointer-events-none absolute z-50 flex h-6 w-6 items-center justify-center rounded-full bg-[#10b981] shadow-[0_0_15px_#10b981]" style={packetStyle}>
+        <div className="h-2 w-2 rounded-full bg-white animate-ping" />
+      </div>
     </div>
   );
 }

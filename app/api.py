@@ -12,27 +12,6 @@ import tempfile
 import time
 import uuid
 from fastapi import WebSocket, WebSocketDisconnect
-# --- GESTIONNAIRE WEBSOCKET ---
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: list[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        if websocket in self.active_connections:
-            self.active_connections.remove(websocket)
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            try:
-                await connection.send_text(message)
-            except Exception:
-                pass
-
-manager = ConnectionManager()
 from collections import Counter
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone
@@ -40,7 +19,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request
-from fastapi.responses import PlainTextResponse, StreamingResponse
+from fastapi.responses import PlainTextResponse, StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -103,6 +82,29 @@ class DiagnosticCompleteRequest(BaseModel):
     time_limit_seconds: int = Field(default=DIAGNOSTIC_TIME_LIMIT_SECONDS, ge=1, le=3600)
 
 
+# --- GESTIONNAIRE WEBSOCKET ---
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            try:
+                await connection.send_text(message)
+            except Exception:
+                pass
+
+manager = ConnectionManager()
+
+
 def _markdown_to_plain_text(markdown: str) -> str:
     text = re.sub(r"```.*?```", " ", markdown, flags=re.S)
     text = re.sub(r"~~~.*?~~~", " ", text, flags=re.S)
@@ -132,12 +134,10 @@ async def lifespan(_app: FastAPI):
         conn.close()
     yield
 
-
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Skilltree API", lifespan=lifespan)
 
-# Ajout du CORS pour autoriser les WebSockets locaux
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -165,7 +165,6 @@ def _get_node(tree: SkillTree, node_id: str) -> Node:
 
 
 def _challenge_row(tree: SkillTree, node_id: str):
-    """Récupère les données d'un défi d'architecture pour un nœud donné."""
     return tree.conn.execute(
         "SELECT expected_topology, time_limit FROM challenges WHERE node_id = ?",
         (node_id,),
@@ -173,7 +172,6 @@ def _challenge_row(tree: SkillTree, node_id: str):
 
 
 def _streak_payload(tree: SkillTree) -> dict:
-    """Calcule le streak actuel et les minutes d'étude."""
     rows = tree.conn.execute(
         "SELECT date_jour, minutes_etudiees FROM daily_streak ORDER BY date_jour DESC"
     ).fetchall()
@@ -237,7 +235,6 @@ def read_lesson(node_id: str, tree: SkillTree = Depends(get_tree)):
         lessons = load_lessons(CONTENT_DIR, {item.id for item in tree.nodes()})
         content = lessons.get(node.id, "")
     except ContentError as e:
-        # Si le nœud n'est pas encore en base de données, on lit le fichier .md directement
         print(f"Avertissement Loader : {e}")
         file_path = CONTENT_DIR / "lessons" / f"{node_id}.md"
         content = file_path.read_text(encoding="utf-8") if file_path.exists() else ""
@@ -311,7 +308,6 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
     nodes = tree.nodes()
     statuses = tree.statuses()
     validated = sum(1 for status in statuses.values() if status is Status.VALIDATED)
-    architecture_nodes = {row["node_id"] for row in tree.conn.execute("SELECT node_id FROM challenges")}
     return {
         "total": len(nodes), "validated": validated,
         "nodes": [{"id": n.id, "title": n.title, "category": n.category, "status": statuses[n.id].value, "prereqs": list(n.prereqs), "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements]} for n in nodes]
@@ -382,18 +378,15 @@ def read_diagnostic(diag_id: str) -> dict:
 
 
 # ---------------------------------------------------------
-# ROUTES DOCKER & LABS
+# ROUTES DOCKER & LABS (Legacy)
 # ---------------------------------------------------------
 
 @app.post("/api/lab/start")
 def start_lab(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
     node_id = payload.get("node_id")
-    
-    # On vérifie si le nœud est accessible
     try:
         node = tree.playable(node_id)
     except DomainError as error:
-        # On renvoie l'erreur "Verrouillé" proprement en HTTP 409 (Conflit)
         raise HTTPException(status_code=409, detail=str(error))
 
     lab_dir = find_lab_dir(node.id)
@@ -407,11 +400,7 @@ def start_lab(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) ->
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Erreur interne : {str(error)}")
     
-    return {
-        "lab_id": session.lab_id, 
-        "container_id": session.container_id, 
-        "setup_logs": session.setup_logs
-    }
+    return {"lab_id": session.lab_id, "container_id": session.container_id, "setup_logs": session.setup_logs}
 
 @app.post("/api/lab/exec")
 def exec_lab(payload: dict = Body(...)) -> dict:
@@ -421,27 +410,15 @@ def exec_lab(payload: dict = Body(...)) -> dict:
 @app.post("/api/lab/validate")
 def validate_lab_route(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
     lab_id = payload.get("lab_id")
-    if not lab_id:
-        raise HTTPException(400, "lab_id manquant")
-    
+    if not lab_id: raise HTTPException(400, "lab_id manquant")
     try:
         validation = validate_lab(lab_id)
         attempt, validated = tree.record_docker_lab(validation.node_id, validation.commands, validation.result)
-        return {
-            "success": True, 
-            "passed": validation.result.passed, 
-            "score": validation.result.score, 
-            "detail": validation.result.detail, 
-            "validated": validated
-        }
-    except LabSessionError as error:
-        raise HTTPException(404, str(error))
-    except LabRunnerError as error:
-        raise HTTPException(503, str(error))
-    except DomainError as error:
-        raise HTTPException(409, str(error))
-    except Exception as error:
-        raise HTTPException(500, f"Erreur inattendue : {str(error)}")
+        return {"success": True, "passed": validation.result.passed, "score": validation.result.score, "detail": validation.result.detail, "validated": validated}
+    except LabSessionError as error: raise HTTPException(404, str(error))
+    except LabRunnerError as error: raise HTTPException(503, str(error))
+    except DomainError as error: raise HTTPException(409, str(error))
+    except Exception as error: raise HTTPException(500, f"Erreur inattendue : {str(error)}")
 
 
 # ---------------------------------------------------------
@@ -541,7 +518,110 @@ async def trigger_update():
     await manager.broadcast("update")
     return {"status": "ok"}
 
-from fastapi.responses import FileResponse
+
+# ==========================================
+# M9 : LOGIQUE DE VERIFICATION DES LABS (V2)
+# ==========================================
+
+def get_nested_value(data, path):
+    """Récupère une valeur profonde dans un dict via un chemin (ex: 'config.ospf.areas')"""
+    keys = path.replace('[', '.').replace(']', '').split('.')
+    for key in keys:
+        if not key: continue
+        if isinstance(data, dict) and key in data:
+            data = data[key]
+        elif isinstance(data, list) and key.isdigit() and int(key) < len(data):
+            data = data[int(key)]
+        else:
+            return None
+    return data
+
+# ==========================================
+# M9 : LOGIQUE DE VERIFICATION DES LABS (V2)
+# ==========================================
+
+LABS_V2_DIR = PROJECT_ROOT / "labs_v2"
+
+def get_nested_value(data, path):
+    keys = path.replace('[', '.').replace(']', '').split('.')
+    for key in keys:
+        if not key: continue
+        if isinstance(data, dict) and key in data:
+            data = data[key]
+        elif isinstance(data, list) and key.isdigit() and int(key) < len(data):
+            data = data[int(key)]
+        else:
+            return None
+    return data
+
+@app.get("/api/lab/v2/{lab_id}")
+async def get_lab_v2(lab_id: str):
+    lab_path = LABS_V2_DIR / f"{lab_id}.json"
+    if not lab_path.exists():
+        raise HTTPException(status_code=404, detail=f"Lab introuvable sur le serveur : {lab_path}")
+        
+    with open(lab_path, "r", encoding="utf-8") as f:
+        lab_data = json.load(f)
+        
+    return {
+        "id": lab_id,
+        "schema_version": 2,
+        "definition": lab_data,
+        "initial_topology": lab_data.get("initial_topology", {
+            "schema_version": 2, "nodes": [], "links": []
+        })
+    }
+
+@app.post("/api/lab/v2/{lab_id}/check")
+async def check_lab_v2(lab_id: str, payload: dict):
+    lab_path = LABS_V2_DIR / f"{lab_id}.json"
+    if not lab_path.exists():
+        return {"passed": False, "score": 0, "results": [{"rule_id": "error", "passed": False, "message": f"Fichier {lab_id}.json introuvable."}]}
+    
+    with open(lab_path, "r", encoding="utf-8") as f:
+        lab_def = json.load(f)
+
+    rules = lab_def.get("check", {}).get("rules", [])
+    if not rules:
+        return {"passed": True, "score": 1.0, "results": [{"rule_id": "no_rules", "passed": True, "message": "Aucune règle définie."}]}
+
+    topo = payload.get("topology", {})
+    nodes = {n["id"]: n for n in topo.get("nodes", [])}
+    results = []
+    passed_count = 0
+
+    for rule in rules:
+        dev_id = rule.get("device")
+        path = rule.get("path")
+        operator = rule.get("operator")
+        expected = rule.get("expected")
+        
+        device = nodes.get(dev_id)
+        if not device:
+            results.append({"rule_id": rule["id"], "passed": False, "message": f"Équipement {dev_id} manquant."})
+            continue
+
+        actual = get_nested_value(device, path)
+        passed = False
+        if operator == "equals":
+            passed = (str(actual) == str(expected))
+        elif operator == "contains_network":
+            if actual and isinstance(actual, list):
+                passed = any(str(expected["network"]) in str(a.get("network", "")) for a in actual)
+        
+        if passed: passed_count += 1
+        results.append({
+            "rule_id": rule["id"],
+            "passed": passed,
+            "message": rule.get("description", "Règle") + (" (OK)" if passed else " (Échec)")
+        })
+
+    score = passed_count / len(rules) if rules else 1.0
+    return {"passed": score >= 0.7, "score": score, "results": results}
+
+# ---------------------------------------------------------
+# FICHIERS STATIQUES & LANCEMENT (TOUJOURS À LA FIN)
+# ---------------------------------------------------------
 
 @app.get("/lab.html")
 async def lab_workspace_page():
