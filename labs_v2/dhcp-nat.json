@@ -350,8 +350,8 @@
         "description": "Le pool DHCP doit annoncer un serveur DNS",
         "device": "R1",
         "path": "config.services.dhcp.dns_server",
-        "operator": "exists",
-        "expected": true
+        "operator": "not_equals",
+        "expected": null
       },
       {
         "id": "r1_inside_ip",
