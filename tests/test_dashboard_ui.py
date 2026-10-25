@@ -171,7 +171,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("dashboardDataErrors: { userStats: null, streak: null, dailyPlan: null, stats: null }", DASHBOARD_HTML)
         self.assertIn("Certaines données n’ont pas pu être actualisées", DASHBOARD_HTML)
         self.assertIn("Les valeurs valides déjà chargées sont conservées", DASHBOARD_HTML)
-        self.assertIn('@click="refreshAll()"', DASHBOARD_HTML)
+        self.assertIn('@click="retryDashboardData()"', DASHBOARD_HTML)
 
         for method, endpoint, error_key in [
             ("loadUserStats", "/api/user-stats", "userStats"),
@@ -194,7 +194,11 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("userStatsLoaded ? userStats.total_xp : '—'", DASHBOARD_HTML)
         self.assertIn("streakLoaded ? streakDays : '—'", DASHBOARD_HTML)
         self.assertIn("sélection locale", DASHBOARD_HTML)
-        self.assertIn("this.loadStats()", DASHBOARD_HTML[DASHBOARD_HTML.index("async refreshAll()"):DASHBOARD_HTML.index("editProfile()")])
+        retry_start = DASHBOARD_HTML.index("async retryDashboardData()")
+        retry_end = DASHBOARD_HTML.index("editProfile()", retry_start)
+        self.assertIn("this.refreshAll()", DASHBOARD_HTML[retry_start:retry_end])
+        self.assertIn("this.loadStats()", DASHBOARD_HTML[retry_start:retry_end])
+        self.assertNotIn("this.loadStats()", DASHBOARD_HTML[DASHBOARD_HTML.index("async refreshAll()"):retry_start])
 
     def test_tree_loading_finishes_and_api_failures_are_visible(self):
         start = DASHBOARD_HTML.index("async loadTree() {")
