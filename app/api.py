@@ -476,6 +476,92 @@ def save_topology_alias(payload: dict = Body(...), tree: SkillTree = Depends(get
     tree.conn.commit()
     return {"success": True}
 
+@app.post("/api/lab/v2/{lab_id}/save")
+def save_lab_topology_v2(lab_id: str, payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
+    """Enregistre la dernière topologie de travail associée à un lab v2."""
+    topology = payload.get("topology")
+    if not isinstance(topology, dict):
+        raise HTTPException(status_code=422, detail="Le champ 'topology' doit être un objet JSON.")
+
+    try:
+        serialized = json.dumps(topology, ensure_ascii=False, separators=(",", ":"))
+    except (TypeError, ValueError) as error:
+        raise HTTPException(status_code=422, detail=f"Topologie non sérialisable : {error}")
+
+    name = f"lab_{lab_id}"
+    updated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    conn = connect(DB_PATH)
+    try:
+        columns = {row["name"] for row in conn.execute('PRAGMA table_info("topologies")')}
+        if not {"id", "name", "data", "updated_at"}.issubset(columns):
+            raise HTTPException(status_code=503, detail="La table topologies est absente ou incompatible.")
+
+        conn.execute("BEGIN IMMEDIATE")
+        existing = conn.execute(
+            "SELECT id FROM topologies WHERE name = ? ORDER BY updated_at DESC, id DESC LIMIT 1",
+            (name,),
+        ).fetchone()
+        if existing:
+            conn.execute(
+                "UPDATE topologies SET data = ?, updated_at = ? WHERE id = ?",
+                (serialized, updated_at, existing["id"]),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO topologies (name, data, updated_at) VALUES (?, ?, ?)",
+                (name, serialized, updated_at),
+            )
+        conn.commit()
+    except HTTPException:
+        conn.rollback()
+        raise
+    except sqlite3.Error as error:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Erreur SQLite pendant la sauvegarde : {error}")
+    finally:
+        conn.close()
+
+    return {"success": True, "lab_id": lab_id, "name": name, "updated_at": updated_at}
+
+
+@app.get("/api/lab/v2/{lab_id}/load")
+def load_lab_topology_v2(lab_id: str) -> dict[str, Any]:
+    """Récupère la dernière topologie sauvegardée pour ce lab v2."""
+    name = f"lab_{lab_id}"
+    conn = connect(DB_PATH)
+    try:
+        columns = {row["name"] for row in conn.execute('PRAGMA table_info("topologies")')}
+        if not {"id", "name", "data", "updated_at"}.issubset(columns):
+            raise HTTPException(status_code=503, detail="La table topologies est absente ou incompatible.")
+
+        row = conn.execute(
+            "SELECT data, updated_at FROM topologies WHERE name = ? ORDER BY updated_at DESC, id DESC LIMIT 1",
+            (name,),
+        ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail="Aucune topologie sauvegardée pour ce lab.")
+        try:
+            topology_data = json.loads(row["data"])
+        except (json.JSONDecodeError, TypeError) as error:
+            raise HTTPException(status_code=500, detail=f"Topologie sauvegardée invalide : {error}")
+        if not isinstance(topology_data, dict):
+            raise HTTPException(status_code=500, detail="La topologie sauvegardée n'est pas un objet JSON.")
+
+        return {
+            "success": True,
+            "lab_id": lab_id,
+            "name": name,
+            "topology": topology_data,
+            "updated_at": row["updated_at"],
+        }
+    except HTTPException:
+        raise
+    except sqlite3.Error as error:
+        raise HTTPException(status_code=500, detail=f"Erreur SQLite pendant le chargement : {error}")
+    finally:
+        conn.close()
+
+
 @app.get("/api/certificate")
 def download_certificate(request: Request, tree: SkillTree = Depends(get_tree)):
     return StreamingResponse(io.BytesIO(b"PDF EXEMPLE"), media_type="application/pdf")
