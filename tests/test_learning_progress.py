@@ -128,7 +128,11 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         expected = self.add_challenge("challenge-network")
 
         detail = read_node("challenge-network", self.tree)
-        self.assertEqual(detail["challenge"]["expected_topology"], expected)
+        self.assertEqual(detail["challenge"]["expected_summary"], {
+            "nodes": expected["nodes"],
+            "connections": len(expected["connections"]),
+        })
+        self.assertNotIn("expected_topology", detail["challenge"])
         self.assertEqual(detail["challenge"]["time_limit"], 300)
 
         result = submit_challenge(
