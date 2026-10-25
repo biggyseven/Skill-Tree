@@ -27,11 +27,14 @@ class LearningProgressConsistencyTests(unittest.TestCase):
             (node_id, title, module, sort_order),
         )
 
-    def add_quiz_requirement(self, node_id: str, min_score: int = 80) -> None:
+    def add_requirement(self, node_id: str, kind: str, min_score: int = 80) -> None:
         self.conn.execute(
-            "INSERT INTO requirements (node_id, kind, min_score) VALUES (?, 'quiz', ?)",
-            (node_id, min_score),
+            "INSERT INTO requirements (node_id, kind, min_score) VALUES (?, ?, ?)",
+            (node_id, kind, min_score),
         )
+
+    def add_quiz_requirement(self, node_id: str, min_score: int = 80) -> None:
+        self.add_requirement(node_id, "quiz", min_score)
 
     def add_challenge(self, node_id: str, expected: dict | None = None, min_score: int = 100) -> dict:
         expected = expected or {
@@ -58,11 +61,13 @@ class LearningProgressConsistencyTests(unittest.TestCase):
             topology["3"] = {"name": "server", "outputs": {"output_1": {"connections": []}}}
         return topology
 
-    def add_attempt(self, node_id: str, score: int, passed: bool, created_at: datetime) -> None:
+    def add_attempt(
+        self, node_id: str, score: int, passed: bool, created_at: datetime, kind: str = "quiz"
+    ) -> None:
         self.conn.execute(
             "INSERT INTO attempts (node_id, kind, score, passed, evidence, detail, created_at) "
-            "VALUES (?, 'quiz', ?, ?, '', 'test', ?)",
-            (node_id, score, int(passed), created_at.strftime("%Y-%m-%d %H:%M:%S")),
+            "VALUES (?, ?, ?, ?, '', 'test', ?)",
+            (node_id, kind, score, int(passed), created_at.strftime("%Y-%m-%d %H:%M:%S")),
         )
 
     def test_tree_and_detail_apis_expose_canonical_module(self) -> None:
@@ -109,6 +114,46 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         self.assertEqual(first["status"], "in_progress")
         self.assertEqual(first["last_attempt_kind"], "quiz")
         self.assertEqual(plan["counts"]["in_progress"], 1)
+
+    def test_failed_quiz_is_recommended_before_the_lab_on_a_multi_requirement_course(self) -> None:
+        now = datetime(2026, 10, 25, 12, 0, 0)
+        self.add_node("multi-proof-course", "Cours avec quiz et lab", "Administration Réseaux", 1)
+        self.add_requirement("multi-proof-course", "quiz")
+        self.add_requirement("multi-proof-course", "lab")
+        self.conn.execute(
+            "INSERT INTO lab_specs (node_id, kind, mode, pattern, prompt, hint) "
+            "VALUES (?, 'text', 'contains', 'validated', 'Établir la configuration', '')",
+            ("multi-proof-course",),
+        )
+        self.add_attempt("multi-proof-course", 45, False, now - timedelta(minutes=5), kind="quiz")
+
+        plan = get_daily_plan(self.tree, now=now)
+        action = plan["actions"][0]
+
+        self.assertEqual(action["node_id"], "multi-proof-course")
+        self.assertEqual(action["action"], "continue")
+        self.assertEqual(action["status"], "in_progress")
+        self.assertEqual(action["last_attempt_kind"], "quiz")
+        self.assertEqual(action["next_requirement_kind"], "quiz")
+
+    def test_passed_terminal_does_not_hide_an_unmet_quiz_requirement(self) -> None:
+        now = datetime(2026, 10, 25, 12, 0, 0)
+        self.add_node("wifi-course", "Wi-Fi avec quiz et terminal", "Administration Réseaux", 1)
+        self.add_requirement("wifi-course", "quiz")
+        self.add_requirement("wifi-course", "terminal")
+        self.conn.execute(
+            "INSERT INTO terminal_specs (node_id, prompt, answer, pattern, explanation) "
+            "VALUES (?, 'Saisir la commande', 'show ip interface brief', 'show ip interface brief', '')",
+            ("wifi-course",),
+        )
+        self.add_attempt("wifi-course", 100, True, now - timedelta(minutes=5), kind="terminal")
+
+        plan = get_daily_plan(self.tree, now=now)
+        action = plan["actions"][0]
+
+        self.assertEqual(action["action"], "continue")
+        self.assertEqual(action["last_attempt_kind"], "terminal")
+        self.assertEqual(action["next_requirement_kind"], "quiz")
 
     def test_review_recommendation_uses_the_real_validation_date(self) -> None:
         now = datetime(2026, 10, 25, 12, 0, 0)
