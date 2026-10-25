@@ -95,7 +95,7 @@ def _read_json(path: Path):
     if not path.is_file():
         raise ContentError(f"Fichier de contenu manquant : {path}")
     try:
-        with path.open(encoding="utf-8") as handle:
+        with path.open(encoding="utf-8-sig") as handle:
             return json.load(handle)
     except json.JSONDecodeError as error:
         raise ContentError(
@@ -344,7 +344,12 @@ def _parse_bank(directory: Path, scope: str, node_ids: set[str]) -> dict[str, li
         if node_id in bank:
             raise ContentError(f"{path} : plusieurs fichiers {scope} pour le nœud « {node_id} ».")
 
-        declared_scope = _text(payload.get("scope"), "scope", path.name)
+        raw_scope = payload.get("scope")
+        # Un scope absent/null/vide prend celui du dossier (quiz ou exam).
+        if raw_scope is None or (isinstance(raw_scope, str) and not raw_scope.strip()):
+            declared_scope = scope
+        else:
+            declared_scope = _text(raw_scope, "scope", path.name)
         if declared_scope != scope:
             raise ContentError(
                 f"{path} : scope « {declared_scope} » inattendu (attendu : « {scope} »)."
