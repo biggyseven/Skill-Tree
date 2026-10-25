@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 
 from .db import DEFAULT_DB, add_xp, connect
 from .lab_schema_v2 import (
@@ -22,6 +23,12 @@ from .lab_schema_v2 import (
     Topology,
     model_to_dict,
 )
+
+class UTF8JSONResponse(JSONResponse):
+    """Réponse JSON avec charset explicite pour les clients Windows/PowerShell."""
+
+    media_type = "application/json; charset=utf-8"
+
 
 router = APIRouter(tags=["Lab Workspace v2"])
 DB_PATH = Path(os.environ.get("SKILLTREE_DB", DEFAULT_DB))
@@ -348,19 +355,19 @@ def _evaluate_lab_check(
     return {"passed": score >= check.pass_threshold, "score": round(score, 4), "results": results}
 
 
-@router.get("/lab/v2/{lab_id}")
+@router.get("/lab/v2/{lab_id}", response_class=UTF8JSONResponse)
 def get_lab_v2(lab_id: str) -> dict[str, Any]:
     return _fetch_lab(lab_id)
 
 
-@router.post("/lab/v2/{lab_id}/check")
+@router.post("/lab/v2/{lab_id}/check", response_class=UTF8JSONResponse)
 def check_lab_v2(lab_id: str, body: CheckRequest) -> dict[str, Any]:
     payload = _fetch_lab(lab_id)
     definition: LabDefinition = payload["definition"]
     return _evaluate_lab_check(definition, body.topology)
 
 
-@router.post("/lab/v2/{lab_id}/submit")
+@router.post("/lab/v2/{lab_id}/submit", response_class=UTF8JSONResponse)
 def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
     payload = _fetch_lab(lab_id)
     definition: LabDefinition = payload["definition"]
