@@ -2252,7 +2252,7 @@
     "title": "Défi : Datacenter Redondant",
     "category": "Défis d'Architecture",
     "order": 302,
-    "description": "Architecture haute disponibilité avec redondance des liens (Full Mesh).",
+    "description": "Construis une architecture redondante : chacun des deux routeurs doit rejoindre les deux switchs, puis chaque switch doit être relié aux deux serveurs.",
     "prereqs": [
       "challenge-small-business"
     ],
@@ -2280,10 +2280,38 @@
             "to": "switch"
           },
           {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
             "from": "switch",
             "to": "server"
           },
           {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "all_pairs",
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "kind": "all_pairs",
             "from": "switch",
             "to": "server"
           }
@@ -2298,7 +2326,7 @@
     "title": "Défi : Architecture Hybride (Cloud)",
     "category": "Défis d'Architecture",
     "order": 303,
-    "description": "Relier un réseau local sécurisé à un environnement Cloud (DMZ, VPC).",
+    "description": "Relie un réseau local à un environnement cloud par un firewall et un routeur. Les deux switchs et les deux serveurs doivent tous participer à la topologie.",
     "prereqs": [
       "challenge-datacenter"
     ],
@@ -2332,12 +2360,30 @@
             "to": "server"
           },
           {
+            "from": "switch",
+            "to": "server"
+          },
+          {
             "from": "firewall",
             "to": "router"
           },
           {
             "from": "router",
             "to": "switch"
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "min_peer_count",
+            "from": "switch",
+            "to": "server",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "server",
+            "to": "switch",
+            "min_peers": 1
           }
         ]
       }
@@ -2350,7 +2396,7 @@
     "title": "Défi : Datacenter Spine/Leaf",
     "category": "Défis d'Architecture",
     "order": 310,
-    "description": "Conçois une architecture Datacenter moderne avec 2 routeurs Spine, 2 switchs Leaf et 4 serveurs. Chaque Leaf doit être relié aux deux Spine.",
+    "description": "Construis un fabric avec deux Spine et deux Leaf : chaque Spine rejoint chaque Leaf, chaque Leaf dessert au moins deux serveurs et aucun serveur ne doit rester isolé.",
     "prereqs": [
       "spine-leaf-expert"
     ],
@@ -2364,42 +2410,61 @@
       "time_limit": 480,
       "expected_topology": {
         "nodes": {
-          "router": 2,
-          "switch": 2,
+          "spine": 2,
+          "leaf": 2,
           "server": 4
         },
         "connections": [
           {
-            "from": "router",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "router",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "router",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "router",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "switch",
+            "from": "leaf",
             "to": "server"
           },
           {
-            "from": "switch",
+            "from": "leaf",
             "to": "server"
           },
           {
-            "from": "switch",
+            "from": "leaf",
             "to": "server"
           },
           {
-            "from": "switch",
+            "from": "leaf",
             "to": "server"
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "all_pairs",
+            "from": "spine",
+            "to": "leaf"
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "leaf",
+            "to": "server",
+            "min_peers": 2
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "server",
+            "to": "leaf",
+            "min_peers": 1
           }
         ]
       }
@@ -2412,7 +2477,7 @@
     "title": "Défi : Backbone Segment Routing multi-chemins",
     "category": "Défis d'Architecture",
     "order": 311,
-    "description": "Concevez un backbone opérateur SR-MPLS : deux CE, deux PE, un cœur P1/P2 maillé, un route-reflector et un contrôleur SR-TE.",
+    "description": "Relie les sept routeurs en un backbone connecté et rattache chacun des trois serveurs à un routeur. Une bonne quantité de liens ne suffit pas si un routeur reste dans une composante isolée.",
     "prereqs": [
       "segment-routing-expert"
     ],
@@ -2474,6 +2539,18 @@
             "from": "router",
             "to": "server"
           }
+        ],
+        "constraints": [
+          {
+            "kind": "connected",
+            "type": "router"
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "server",
+            "to": "router",
+            "min_peers": 1
+          }
         ]
       }
     }
@@ -2485,7 +2562,7 @@
     "title": "Défi : Fabric ACI spine-leaf avec sortie externe",
     "category": "Défis d'Architecture",
     "order": 312,
-    "description": "Construisez une fabric Cisco ACI : 2 spines, 3 leafs, un cluster APIC, des serveurs applicatifs et un routeur WAN.",
+    "description": "Construis une fabric ACI avec 2 Spine, 3 Leaf, 3 contrôleurs APIC, 5 serveurs et un routeur WAN. Chaque Spine rejoint chaque Leaf; les APIC et les serveurs doivent être répartis sans laisser d'équipement isolé.",
     "prereqs": [
       "cisco-aci-expert"
     ],
@@ -2500,57 +2577,120 @@
       "expected_topology": {
         "nodes": {
           "router": 1,
-          "switch": 5,
+          "spine": 2,
+          "leaf": 3,
+          "apic": 3,
           "server": 5
         },
         "connections": [
           {
-            "from": "switch",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "switch",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "switch",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "switch",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "switch",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "switch",
-            "to": "switch"
+            "from": "spine",
+            "to": "leaf"
           },
           {
-            "from": "switch",
+            "from": "apic",
+            "to": "leaf"
+          },
+          {
+            "from": "apic",
+            "to": "leaf"
+          },
+          {
+            "from": "apic",
+            "to": "leaf"
+          },
+          {
+            "from": "apic",
+            "to": "leaf"
+          },
+          {
+            "from": "apic",
+            "to": "leaf"
+          },
+          {
+            "from": "apic",
+            "to": "leaf"
+          },
+          {
+            "from": "leaf",
             "to": "server"
           },
           {
-            "from": "switch",
+            "from": "leaf",
             "to": "server"
           },
           {
-            "from": "switch",
+            "from": "leaf",
             "to": "server"
           },
           {
-            "from": "switch",
+            "from": "leaf",
             "to": "server"
           },
           {
-            "from": "switch",
+            "from": "leaf",
             "to": "server"
           },
           {
-            "from": "switch",
-            "to": "router"
+            "from": "router",
+            "to": "leaf"
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "all_pairs",
+            "from": "spine",
+            "to": "leaf"
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "apic",
+            "to": "leaf",
+            "min_peers": 2
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "leaf",
+            "to": "apic",
+            "min_peers": 2
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "leaf",
+            "to": "server",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "server",
+            "to": "leaf",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "router",
+            "to": "leaf",
+            "min_peers": 1
           }
         ]
       }
