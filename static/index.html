@@ -4721,6 +4721,8 @@
           const ch = this.challenge;
           if (!ch || this.challengeSubmissionBusy) return;
           const graph = this.topoData();
+          const architectBadgeWasUnlocked = this.badges.some(badge => badge.id === 'topo' && badge.ok);
+          const seenBadgesBeforeRefresh = LS.get('badges-seen', null);
 
           // Défis du catalogue : le serveur calcule score, réussite et progression.
           // On n'envoie jamais le score annoncé par le navigateur.
@@ -4766,6 +4768,13 @@
                 LS.set('challenges-done', this.challengesDone);
               }
               await this.refreshAll();
+              // refreshAll() peut déjà déclencher la célébration de badge via checkRewards().
+              // N'afficher qu'une seule salve de confettis pour ce résultat.
+              const refreshAlreadyCelebrated = Array.isArray(seenBadgesBeforeRefresh)
+                && this.badges.some(badge => badge.ok && !seenBadgesBeforeRefresh.includes(badge.id));
+              const architectBadgeSuffix = !architectBadgeWasUnlocked && result.passed
+                ? ' 🧩 Badge « Architecte » débloqué.'
+                : '';
 
               const rewardParts = [];
               if (Number(result.xp_gained) > 0) rewardParts.push(`+${Number(result.xp_gained)} XP`);
@@ -4777,14 +4786,14 @@
               const rewardSuffix = rewardParts.length ? ` Récompenses : ${rewardParts.join(' · ')}.` : '';
 
               if (result.passed && result.validated && result.attempt_recorded) {
-                this.celebrate();
-                this.notify(`Défi validé et progression enregistrée : ${result.score} %.${rewardSuffix}`);
+                if (!refreshAlreadyCelebrated) this.celebrate();
+                this.notify(`Défi validé et progression enregistrée : ${result.score} %.${architectBadgeSuffix}${rewardSuffix}`);
               } else if (result.passed && result.attempt_recorded) {
-                this.notify(`Défi réussi (${result.score} %) : les autres exigences restent à valider.${rewardSuffix}`);
+                this.notify(`Défi réussi (${result.score} %) : les autres exigences restent à valider.${architectBadgeSuffix}${rewardSuffix}`);
               } else if (!result.passed && result.attempt_recorded) {
                 this.notify(`Tentative enregistrée : ${result.score} %. Corrige la topologie puis réessaie.`);
               } else if (result.passed && result.validated) {
-                this.notify('Ce défi est déjà validé dans ton parcours.');
+                this.notify(`Ce défi est déjà validé dans ton parcours.${architectBadgeSuffix}`);
               }
             } catch (error) {
               this.challengeResult = {
