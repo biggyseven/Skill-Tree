@@ -191,6 +191,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
         self.assertNotIn("this.streakDays = d.days || 0;", DASHBOARD_HTML)
         self.assertNotIn("this.dailyPlan = d.actions || [];", DASHBOARD_HTML)
+        self.assertIn("userStatsLoaded ? userStats.total_xp : '—'", DASHBOARD_HTML)
+        self.assertIn("streakLoaded ? streakDays : '—'", DASHBOARD_HTML)
+        self.assertIn("sélection locale", DASHBOARD_HTML)
         self.assertIn("this.loadStats()", DASHBOARD_HTML[DASHBOARD_HTML.index("async refreshAll()"):DASHBOARD_HTML.index("editProfile()")])
 
     def test_tree_loading_finishes_and_api_failures_are_visible(self):
