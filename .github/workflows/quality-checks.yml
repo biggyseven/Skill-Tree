@@ -44,6 +44,8 @@ jobs:
         run: npm ci
       - name: Check inline Skill-Tree dashboard scripts
         run: node ../../scripts/check-dashboard-js.cjs
+      - name: Run Lab Workspace unit tests
+        run: npm test
       - name: Build Lab Workspace
         run: npm run build
       - name: Publish generated static bundle

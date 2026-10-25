@@ -34,10 +34,10 @@ export const useLabStore = create((set, get) => ({
 
   setTool(tool) { set({ activeTool: tool }); },
   loadLab(labId, definition, initialTopology) {
-    set({ lab: { id: labId, ...(definition || {}) }, topology: initialTopology || emptyTopology(), loading: false, error: null, selectedDevice: null, checkResult: null, activePacket: null });
+    set({ lab: { id: labId, ...(definition || {}) }, topology: initialTopology || emptyTopology(), loading: false, error: null, selectedDevice: null, checkResult: null, activePacket: null, activeTool: 'select' });
   },
   loadDemo() {
-    set({ lab: { id: 'demo', title: 'Démo', level: 'debutant', prompt: 'Gérez le matériel depuis l’inspecteur.', objectives: [] }, topology: demoTopology(), loading: false, error: null });
+    set({ lab: { id: 'demo', title: 'Démo', level: 'debutant', prompt: 'Gérez le matériel depuis l’inspecteur.', objectives: [] }, topology: demoTopology(), loading: false, error: null, selectedDevice: null, checkResult: null, activePacket: null, activeTool: 'select' });
   },
   setError(err) { set({ error: String((err && err.message) || err), loading: false }); },
   setLoading(v) { set({ loading: !!v }); },
@@ -59,7 +59,7 @@ export const useLabStore = create((set, get) => ({
     else defaultPorts = [{ id: 'eth0', name: 'eth0', state: 'down' }];
 
     const newNode = { id, type, x, y, label: id, ports: defaultPorts, config: { hostname: id } };
-    set(s => ({ topology: { ...s.topology, nodes: [...s.topology.nodes, newNode] } }));
+    set(s => ({ topology: { ...s.topology, nodes: [...s.topology.nodes, newNode] }, checkResult: null }));
   },
 
   // --- GESTION DU MATERIEL (HARDWARE) ---
@@ -81,7 +81,7 @@ export const useLabStore = create((set, get) => ({
     let name = `${prefix}${index}`;
     while (used.has(name)) { index += 1; name = `${prefix}${index}`; }
     const newPort = { id: name, name, state: 'down', ip: null, mask: null };
-    set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: [...(n.ports || []), newPort] } : n) } });
+    set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: [...(n.ports || []), newPort] } : n) }, checkResult: null });
   },
 
   removePort(nodeId, portId) {
@@ -99,14 +99,14 @@ export const useLabStore = create((set, get) => ({
       return;
     }
 
-    set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: n.ports.filter(p => p.id !== portId) } : n) } });
+    set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: n.ports.filter(p => p.id !== portId) } : n) }, checkResult: null });
   },
 
   togglePortState(nodeId, portId) {
     const topo = get().topology;
     const node = topo.nodes.find(n => n.id === nodeId);
     if (!node) return;
-    set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: n.ports.map(p => p.id === portId ? { ...p, state: p.state === 'up' ? 'down' : 'up' } : p) } : n) } });
+    set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: n.ports.map(p => p.id === portId ? { ...p, state: p.state === 'up' ? 'down' : 'up' } : p) } : n) }, checkResult: null });
   },
 
   addLink(connection, type) {
@@ -124,7 +124,7 @@ export const useLabStore = create((set, get) => ({
       cable_type: type === 'cable_cross' ? 'copper_crossover' : (type === 'fiber' ? 'fiber' : 'copper_straight'),
       state: 'up'
     };
-    set({ topology: { ...topo, links: [...topo.links, newLink] }, activeTool: 'select' });
+    set({ topology: { ...topo, links: [...topo.links, newLink] }, activeTool: 'select', checkResult: null });
   },
 
   selectDevice(nodeId) { set({ selectedDevice: nodeId }); },

@@ -312,6 +312,38 @@
         "description": "R3 Fa0/0 doit utiliser le masque /30"
       },
       {
+        "id": "r1_fa00_state",
+        "device": "R1",
+        "path": "ports[0].state",
+        "operator": "equals",
+        "expected": "up",
+        "description": "R1 Fa0/0 doit être activée avec no shutdown"
+      },
+      {
+        "id": "r2_fa00_state",
+        "device": "R2",
+        "path": "ports[0].state",
+        "operator": "equals",
+        "expected": "up",
+        "description": "R2 Fa0/0 doit être activée avec no shutdown"
+      },
+      {
+        "id": "r2_fa01_state",
+        "device": "R2",
+        "path": "ports[1].state",
+        "operator": "equals",
+        "expected": "up",
+        "description": "R2 Fa0/1 doit être activée avec no shutdown"
+      },
+      {
+        "id": "r3_fa00_state",
+        "device": "R3",
+        "path": "ports[0].state",
+        "operator": "equals",
+        "expected": "up",
+        "description": "R3 Fa0/0 doit être activée avec no shutdown"
+      },
+      {
         "id": "r1_ospf_enabled",
         "device": "R1",
         "path": "config.ospf.enabled",

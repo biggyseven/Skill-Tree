@@ -106,7 +106,7 @@ export class CLIParser {
       if (!port) { this.mode = 'config'; return { output: '% Interface not found.' }; }
       
       if (cmd === 'ip' && tokens[1] === 'address' && tokens[2] && tokens[3]) {
-        port.ip = tokens[2]; port.mask = tokens[3]; port.state = 'up';
+        port.ip = tokens[2]; port.mask = tokens[3];
         return { output: '' };
       }
       if (cmd === 'no' && tokens[1] === 'ip' && tokens[2] === 'address') {

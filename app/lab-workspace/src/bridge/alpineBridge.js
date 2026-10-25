@@ -88,8 +88,10 @@ export function initAlpineBridge() {
     useLabStore.setState({ lab: null, topology: null, selectedDevice: null, checkResult: null, error: null });
     emit('lab:closed', {});
     if (window.opener && !window.opener.closed) {
-      try { window.close(); } catch (e) {}
+      try { window.close(); return; } catch (e) {}
     }
+    // Depuis le même onglet, fermer le lab doit ramener au tableau de bord.
+    window.location.assign('/');
   });
 
   useLabStore.subscribe((state) => {

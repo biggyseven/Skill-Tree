@@ -40,9 +40,11 @@ export function CLITab() {
       if (code === 13) { // Enter
         term.write('\r\n');
         if (currentLine.trim()) {
+          const topologyBefore = JSON.stringify(useLabStore.getState().topology);
           const res = parserRef.current.execute(currentLine);
           if (res.output) term.write(res.output.replace(/\n/g, '\r\n') + '\r\n');
-          useLabStore.setState(s => ({ topology: { ...s.topology } }));
+          const topologyChanged = topologyBefore !== JSON.stringify(useLabStore.getState().topology);
+          useLabStore.setState(s => ({ topology: { ...s.topology }, ...(topologyChanged ? { checkResult: null } : {}) }));
           
           // Si c'est asynchrone (ex: ping), on n'affiche pas le prompt tout de suite
           if (!res.isAsync) {
