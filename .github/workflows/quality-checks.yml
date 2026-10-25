@@ -63,4 +63,7 @@ jobs:
             exit 0
           fi
           git commit -m "Build Lab Workspace static assets"
+          # Un autre commit peut arriver pendant le build : rebase le bundle sur la tête distante
+          # avant le push, plutôt que d'échouer sur un rejet non-fast-forward.
+          git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
