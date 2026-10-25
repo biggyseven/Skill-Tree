@@ -4339,7 +4339,7 @@
   <nav class="mobile-bottom-nav md:hidden" aria-label="Navigation mobile">
     <template x-for="item in navItems.filter(i => ['tree','labs','exam','challenges','memo','diagnostic','stats'].includes(i.id))" :key="item.id">
       <button type="button" @click="setTab(item.id)" :aria-label="item.id === 'tree' ? 'Accueil' : item.label" :aria-current="tab === item.id ? 'page' : null" :class="tab === item.id ? 'is-active' : ''" :title="item.id === 'tree' ? 'Accueil' : item.label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" x-html="item.svg"></svg><span x-text="item.id === 'tree' ? 'Accueil' : item.label"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" x-html="item.svg"></svg><span x-text="item.id === 'tree' ? 'Accueil' : (item.id === 'memo' ? 'Réviser' : item.label)"></span>
       </button>
     </template>
   </nav>
