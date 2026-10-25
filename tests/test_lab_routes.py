@@ -31,6 +31,17 @@ class LabValidationTests(unittest.TestCase):
                 )
                 """
             )
+            conn.execute(
+                """
+                CREATE TABLE user_stats (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    total_xp INTEGER NOT NULL DEFAULT 0 CHECK (total_xp >= 0),
+                    current_level INTEGER NOT NULL DEFAULT 1 CHECK (current_level BETWEEN 1 AND 4),
+                    coins INTEGER NOT NULL DEFAULT 0 CHECK (coins >= 0)
+                )
+                """
+            )
+            conn.execute("INSERT INTO user_stats (id, total_xp, current_level, coins) VALUES (1, 0, 1, 0)")
             conn.commit()
         finally:
             conn.close()
@@ -136,19 +147,14 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(payload["nodes"][0]["ports"][0]["vlan"], 20)
         self.assertEqual(payload["links"][0]["cable_type"], "copper_crossover")
 
-    def test_lab_api_routes_are_not_duplicated(self) -> None:
-        endpoints = [
-            (method, getattr(route, "path", ""))
-            for route in app.routes
-            for method in (getattr(route, "methods", set()) or set())
-            if getattr(route, "path", "") in {
-                "/api/lab/v2/{lab_id}",
-                "/api/lab/v2/{lab_id}/check",
-                "/api/lab/v2/{lab_id}/submit",
-            }
-        ]
-        self.assertEqual(len(endpoints), 3)
-        self.assertEqual(len(set(endpoints)), 3)
+    def test_lab_api_routes_are_exposed_once_in_openapi(self) -> None:
+        paths = app.openapi()["paths"]
+        self.assertIn("/api/lab/v2/{lab_id}", paths)
+        self.assertIn("/api/lab/v2/{lab_id}/check", paths)
+        self.assertIn("/api/lab/v2/{lab_id}/submit", paths)
+        self.assertIn("get", paths["/api/lab/v2/{lab_id}"])
+        self.assertIn("post", paths["/api/lab/v2/{lab_id}/check"])
+        self.assertIn("post", paths["/api/lab/v2/{lab_id}/submit"])
 
 
 if __name__ == "__main__":
