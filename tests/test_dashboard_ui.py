@@ -226,7 +226,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
     def test_daily_plan_routes_each_action_to_the_matching_workspace(self):
         self.assertIn('@click="openPlanAction(action)"', DASHBOARD_HTML)
         self.assertIn("if (action.action === 'challenge')", DASHBOARD_HTML)
-        self.assertIn("await this.setTab('topology')", DASHBOARD_HTML)
+        self.assertIn("await this.setTab('challenges')", DASHBOARD_HTML)
         self.assertIn("await this.startChallenge(nodeId)", DASHBOARD_HTML)
         self.assertIn("if (action.action === 'lab')", DASHBOARD_HTML)
         self.assertIn("await this.openLab(nodeId)", DASHBOARD_HTML)
@@ -661,7 +661,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
     def test_radar_distinguishes_api_failure_from_a_genuinely_empty_history(self):
         stats_start = DASHBOARD_HTML.index('<section x-show="tab === \'stats\'"')
-        stats_end = DASHBOARD_HTML.index('<!-- ============ ONGLET MÉMO ============ -->', stats_start)
+        stats_end = DASHBOARD_HTML.index('<!-- ============ ONGLET RÉVISIONS ============ -->', stats_start)
         stats_markup = DASHBOARD_HTML[stats_start:stats_end]
 
         self.assertIn('x-show="dashboardDataErrors.stats"', stats_markup)
@@ -694,6 +694,39 @@ class DashboardUiRegressionTests(unittest.TestCase):
             "stats?.totals ? stats.totals.validated + ' / ' + stats.totals.nodes : (loading || (treeError && !nodes.length) ? '—' : validated + ' / ' + total)",
             DASHBOARD_HTML,
         )
+
+
+    def test_revision_access_is_visible_from_dashboard_and_navigation(self):
+        nav_start = DASHBOARD_HTML.index("const NAV_ITEMS = [")
+        nav_end = DASHBOARD_HTML.index("/* Scénarios de diagnostic intégrés", nav_start)
+        nav_items = DASHBOARD_HTML[nav_start:nav_end]
+
+        self.assertIn("{ id: 'memo', label: 'Révisions', title: 'Révisions espacées'", nav_items)
+        self.assertIn("Ouvrir les révisions espacées", DASHBOARD_HTML)
+        self.assertIn('@click="setTab(\'memo\')"', DASHBOARD_HTML)
+        self.assertIn("<!-- ============ ONGLET RÉVISIONS ============ -->", DASHBOARD_HTML)
+        self.assertIn("Révisions espacées", DASHBOARD_HTML)
+        # The revisions section remains accessible even when the server has no review action due today.
+        self.assertIn("même lorsqu’aucune révision n’est encore due dans le plan du jour", DASHBOARD_HTML)
+
+    def test_topology_navigation_is_replaced_by_challenges_and_lab_workspace_is_independent(self):
+        self.assertIn("section x-show=\\"tab === 'challenges'\\"", DASHBOARD_HTML)
+        self.assertIn("{ id: 'challenges', label: 'Défis', title: \\"Défis d'architecture\\"", DASHBOARD_HTML)
+        self.assertNotIn("id: 'topology', label: 'Topologie'", DASHBOARD_HTML)
+        self.assertNotIn("tab === 'topology'", DASHBOARD_HTML)
+        self.assertNotIn("Mode libre", DASHBOARD_HTML)
+
+        challenge_start = DASHBOARD_HTML.index("<!-- ============ ONGLET DÉFIS ============ -->")
+        challenge_end = DASHBOARD_HTML.index("<!-- ============ ONGLET LABS ============ -->", challenge_start)
+        challenge_markup = DASHBOARD_HTML[challenge_start:challenge_end]
+        self.assertIn('x-show="challenge" x-cloak class="grid gap-6 lg:grid-cols-[16rem_1fr]"', challenge_markup)
+        self.assertNotIn("@click=\\"loadTopology()\\"", challenge_markup)
+        self.assertNotIn("@click=\\"saveTopology()\\"", challenge_markup)
+        self.assertIn("if (name === 'challenges') { await this.$nextTick(); await this.initTopology(); }", DASHBOARD_HTML)
+        self.assertIn("await this.setTab('challenges')", DASHBOARD_HTML)
+
+        self.assertIn("window.open('/lab.html?demo=1', '_blank', 'noopener,noreferrer')", DASHBOARD_HTML)
+        self.assertIn("Ouvrir le Lab Workspace indépendant", DASHBOARD_HTML)
 
 if __name__ == "__main__":
     unittest.main()
