@@ -1825,6 +1825,12 @@
         async refreshAll() {
           await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()]);
           if (this.checkRewards) this.checkRewards();
+          return {
+            tree: !this.treeError,
+            dailyPlan: !this.dashboardDataErrors.dailyPlan,
+            userStats: !this.dashboardDataErrors.userStats,
+            streak: !this.dashboardDataErrors.streak,
+          };
         },
         async retryDashboardData() {
           await Promise.all([this.refreshAll(), this.loadStats()]);
@@ -2278,6 +2284,21 @@
             this.exerciseMode = 'quiz'; this.quizAnswers = this.quiz.questions.map(q => null);
           }
         },
+        advanceResumeTargetAfterValidation(nodeId, requestId) {
+          if (requestId !== this._detailRequestId || String(this.detail?.id) !== String(nodeId)) return;
+          const node = this.nodes.find(item => String(item.id) === String(nodeId));
+          if (!node || node.status !== 'validated' || this.allNodesValidated) return;
+          if (String(this.lastOpenedNodeId || '') !== String(nodeId)) return;
+
+          // Une validation termine l'étape en cours : ne pas continuer à la proposer
+          // comme cible de reprise lorsque la suite du parcours vient d'être débloquée.
+          this.lastOpenedNodeId = '';
+          this.lastLessonProgress = 0;
+          try {
+            localStorage.removeItem('skilltree-last-node');
+            localStorage.removeItem('skilltree-last-progress');
+          } catch (e) { }
+        },
         async submitAnswer() {
           if (this.exerciseBusy || !this.detail?.id) return;
           const nodeId = String(this.detail.id);
@@ -2306,7 +2327,9 @@
 
           if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) this.exerciseResult = result;
           try {
-            await this.refreshAll();
+            const refreshed = await this.refreshAll();
+            if (result.validated && refreshed.tree) this.advanceResumeTargetAfterValidation(nodeId, requestId);
+            if (!refreshed.tree || !refreshed.dailyPlan) throw new Error('Actualisation du parcours incomplète.');
           } catch (error) {
             if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) {
               this.exerciseError = 'Réponse enregistrée, mais la progression n’a pas pu être actualisée. Réessaie d’actualiser le tableau de bord.';
@@ -2343,7 +2366,9 @@
 
           if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) this.quizResult = result;
           try {
-            await this.refreshAll();
+            const refreshed = await this.refreshAll();
+            if (result.validated && refreshed.tree) this.advanceResumeTargetAfterValidation(nodeId, requestId);
+            if (!refreshed.tree || !refreshed.dailyPlan) throw new Error('Actualisation du parcours incomplète.');
           } catch (error) {
             if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) {
               this.exerciseError = 'Résultat enregistré, mais la progression n’a pas pu être actualisée. Réessaie d’actualiser le tableau de bord.';
