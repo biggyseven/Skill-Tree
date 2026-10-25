@@ -6020,5 +6020,321 @@
         "min_score": 80
       }
     ]
+  },
+  {
+    "id": "challenge-vpn-inter-sites",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi : VPN IPsec intersites",
+    "category": "Défis d'Architecture",
+    "order": 313,
+    "description": "Relie deux sites à travers Internet : deux routeurs d’extrémité, deux pare-feu et deux LAN. Chaque site doit être câblé de bout en bout et les deux routeurs doivent être reliés par le tunnel logique IPsec.",
+    "prereqs": [
+      "challenge-hybrid-cloud"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 480,
+      "expected_topology": {
+        "nodes": {
+          "cloud": 1,
+          "router": 2,
+          "firewall": 2,
+          "switch": 2,
+          "pc": 2
+        },
+        "connections": [
+          {
+            "from": "cloud",
+            "to": "router"
+          },
+          {
+            "from": "cloud",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "firewall"
+          },
+          {
+            "from": "router",
+            "to": "firewall"
+          },
+          {
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "pc"
+          },
+          {
+            "from": "switch",
+            "to": "pc"
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "all_pairs",
+            "from": "router",
+            "to": "cloud"
+          },
+          {
+            "kind": "connected",
+            "type": "router"
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "router",
+            "to": "firewall",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "firewall",
+            "to": "router",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "firewall",
+            "to": "switch",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "switch",
+            "to": "firewall",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "switch",
+            "to": "pc",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "pc",
+            "to": "switch",
+            "min_peers": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-dual-isp-ha",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi Expert : double accès Internet hautement disponible",
+    "category": "Défis d'Architecture",
+    "order": 314,
+    "description": "Construis une sortie Internet redondante : les deux routeurs doivent atteindre chacun des deux fournisseurs, partager un lien inter-routeurs et rejoindre le pare-feu central. Vérifie aussi les deux segments de serveurs.",
+    "prereqs": [
+      "challenge-vpn-inter-sites"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 600,
+      "expected_topology": {
+        "nodes": {
+          "cloud": 2,
+          "router": 2,
+          "firewall": 1,
+          "switch": 2,
+          "server": 2
+        },
+        "connections": [
+          {
+            "from": "cloud",
+            "to": "router"
+          },
+          {
+            "from": "cloud",
+            "to": "router"
+          },
+          {
+            "from": "cloud",
+            "to": "router"
+          },
+          {
+            "from": "cloud",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "firewall"
+          },
+          {
+            "from": "router",
+            "to": "firewall"
+          },
+          {
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "all_pairs",
+            "from": "router",
+            "to": "cloud"
+          },
+          {
+            "kind": "connected",
+            "type": "router"
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "router",
+            "to": "firewall",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "firewall",
+            "to": "router",
+            "min_peers": 2
+          },
+          {
+            "kind": "all_pairs",
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "switch",
+            "to": "server",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "server",
+            "to": "switch",
+            "min_peers": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-it-ot-segmentation",
+    "module": "Réseaux Industriels (OT)",
+    "type": "architecture",
+    "title": "Défi Expert : segmentation IT/OT avec pare-feu",
+    "category": "Défis d'Architecture",
+    "order": 315,
+    "description": "Sépare le réseau bureautique (PC) du réseau industriel (automates PLC). Chaque zone doit disposer de son switch et le pare-feu doit être leur seul point de passage : aucune liaison ni chemin alternatif ne doit contourner ce contrôle.",
+    "prereqs": [
+      "challenge-dual-isp-ha"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 600,
+      "expected_topology": {
+        "nodes": {
+          "router": 1,
+          "firewall": 1,
+          "switch": 2,
+          "pc": 2,
+          "plc": 2
+        },
+        "connections": [
+          {
+            "from": "router",
+            "to": "firewall"
+          },
+          {
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "pc"
+          },
+          {
+            "from": "switch",
+            "to": "pc"
+          },
+          {
+            "from": "switch",
+            "to": "plc"
+          },
+          {
+            "from": "switch",
+            "to": "plc"
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "all_pairs",
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "pc",
+            "to": "switch",
+            "min_peers": 1
+          },
+          {
+            "kind": "min_peer_count",
+            "from": "plc",
+            "to": "switch",
+            "min_peers": 1
+          },
+          {
+            "kind": "separated_by",
+            "from": "pc",
+            "to": "plc",
+            "via": "firewall"
+          }
+        ]
+      }
+    }
   }
 ]

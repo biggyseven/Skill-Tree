@@ -795,7 +795,12 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Entraînement libre", DASHBOARD_HTML)
         self.assertIn("Parcours noté", DASHBOARD_HTML)
         self.assertIn("'challenge-fabric-aci-multi-tenant': 'expert'", DASHBOARD_HTML)
+        self.assertIn("'challenge-vpn-inter-sites': 'intermediaire'", DASHBOARD_HTML)
+        self.assertIn("'challenge-dual-isp-ha': 'expert'", DASHBOARD_HTML)
+        self.assertIn("'challenge-it-ot-segmentation': 'expert'", DASHBOARD_HTML)
         self.assertIn("{ type: 'apic', label: 'Contrôleur APIC'", DASHBOARD_HTML)
+        self.assertIn("{ type: 'plc', label: 'Automate industriel'", DASHBOARD_HTML)
+        self.assertIn("plc: '<svg viewBox", DASHBOARD_HTML)
 
     def test_course_reader_width_and_mobile_controls_are_persisted(self):
         self.assertIn('aria-labelledby="course-reader-title"', DASHBOARD_HTML)

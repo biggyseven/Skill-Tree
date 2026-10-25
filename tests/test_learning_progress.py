@@ -432,16 +432,100 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         self.assertFalse(result["passed"])
         self.assertTrue(any("réseau connecté" in message for message in result["missing_links"]))
 
+    def test_it_ot_separation_allows_only_paths_through_firewall(self) -> None:
+        self.add_node("challenge-it-ot-valid", "Segmentation IT/OT", "Réseaux Industriels (OT)", 1)
+        expected = {
+            "nodes": {"router": 1, "firewall": 1, "switch": 2, "pc": 2, "plc": 2},
+            "connections": [
+                {"from": "router", "to": "firewall"},
+                {"from": "firewall", "to": "switch"},
+                {"from": "firewall", "to": "switch"},
+                {"from": "switch", "to": "pc"},
+                {"from": "switch", "to": "pc"},
+                {"from": "switch", "to": "plc"},
+                {"from": "switch", "to": "plc"},
+            ],
+            "constraints": [
+                {"kind": "all_pairs", "from": "firewall", "to": "switch"},
+                {"kind": "min_peer_count", "from": "pc", "to": "switch", "min_peers": 1},
+                {"kind": "min_peer_count", "from": "plc", "to": "switch", "min_peers": 1},
+                {"kind": "separated_by", "from": "pc", "to": "plc", "via": "firewall"},
+            ],
+        }
+        self.add_challenge("challenge-it-ot-valid", expected=expected)
+        topology = {
+            "1": {"name": "router", "outputs": {"output_1": {"connections": [{"node": "2"}]}}},
+            "2": {"name": "firewall", "outputs": {"output_1": {"connections": [{"node": "3"}, {"node": "4"}]}}},
+            "3": {"name": "switch", "outputs": {"output_1": {"connections": [{"node": "5"}, {"node": "6"}]}}},
+            "4": {"name": "switch", "outputs": {"output_1": {"connections": [{"node": "7"}, {"node": "8"}]}}},
+            "5": {"name": "pc", "outputs": {"output_1": {"connections": []}}},
+            "6": {"name": "pc", "outputs": {"output_1": {"connections": []}}},
+            "7": {"name": "plc", "outputs": {"output_1": {"connections": []}}},
+            "8": {"name": "plc", "outputs": {"output_1": {"connections": []}}},
+        }
+
+        result = submit_challenge("challenge-it-ot-valid", {"topology": topology}, self.tree)
+
+        self.assertEqual(result["score"], 100)
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["missing_links"], [])
+
+    def test_it_ot_separation_rejects_a_path_that_bypasses_firewall(self) -> None:
+        self.add_node("challenge-it-ot-bypass", "Segmentation IT/OT", "Réseaux Industriels (OT)", 1)
+        expected = {
+            "nodes": {"router": 1, "firewall": 1, "switch": 2, "pc": 2, "plc": 2},
+            "connections": [
+                {"from": "router", "to": "firewall"},
+                {"from": "firewall", "to": "switch"},
+                {"from": "firewall", "to": "switch"},
+                {"from": "switch", "to": "pc"},
+                {"from": "switch", "to": "pc"},
+                {"from": "switch", "to": "plc"},
+                {"from": "switch", "to": "plc"},
+            ],
+            "constraints": [
+                {"kind": "all_pairs", "from": "firewall", "to": "switch"},
+                {"kind": "min_peer_count", "from": "pc", "to": "switch", "min_peers": 1},
+                {"kind": "min_peer_count", "from": "plc", "to": "switch", "min_peers": 1},
+                {"kind": "separated_by", "from": "pc", "to": "plc", "via": "firewall"},
+            ],
+        }
+        self.add_challenge("challenge-it-ot-bypass", expected=expected)
+        # Les compteurs sont exacts, mais un PC et les automates partagent le switch 4 :
+        # ils peuvent donc communiquer sans traverser le pare-feu.
+        topology = {
+            "1": {"name": "router", "outputs": {"output_1": {"connections": [{"node": "2"}]}}},
+            "2": {"name": "firewall", "outputs": {"output_1": {"connections": [{"node": "3"}, {"node": "4"}]}}},
+            "3": {"name": "switch", "outputs": {"output_1": {"connections": [{"node": "5"}]}}},
+            "4": {"name": "switch", "outputs": {"output_1": {"connections": [{"node": "6"}, {"node": "7"}, {"node": "8"}]}}},
+            "5": {"name": "pc", "outputs": {"output_1": {"connections": []}}},
+            "6": {"name": "pc", "outputs": {"output_1": {"connections": []}}},
+            "7": {"name": "plc", "outputs": {"output_1": {"connections": []}}},
+            "8": {"name": "plc", "outputs": {"output_1": {"connections": []}}},
+        }
+
+        result = submit_challenge("challenge-it-ot-bypass", {"topology": topology}, self.tree)
+
+        self.assertEqual(result["score"], 95)
+        self.assertFalse(result["passed"])
+        self.assertTrue(any("contourne" in message for message in result["missing_links"]))
+
     def test_expected_topology_parser_preserves_and_checks_constraints(self) -> None:
         parsed = _parse_expected_topology(
             {
-                "nodes": {"spine": 2, "leaf": 2},
+                "nodes": {"spine": 2, "leaf": 2, "pc": 1, "plc": 1, "firewall": 1},
                 "connections": [{"from": "spine", "to": "leaf"}],
-                "constraints": [{"kind": "all_pairs", "from": "spine", "to": "leaf"}],
+                "constraints": [
+                    {"kind": "all_pairs", "from": "spine", "to": "leaf"},
+                    {"kind": "separated_by", "from": "pc", "to": "plc", "via": "firewall"},
+                ],
             },
             "fixture",
         )
-        self.assertEqual(parsed["constraints"], [{"kind": "all_pairs", "from": "spine", "to": "leaf"}])
+        self.assertEqual(parsed["constraints"], [
+            {"kind": "all_pairs", "from": "spine", "to": "leaf"},
+            {"kind": "separated_by", "from": "pc", "to": "plc", "via": "firewall"},
+        ])
 
         with self.assertRaises(ContentError):
             _parse_expected_topology(

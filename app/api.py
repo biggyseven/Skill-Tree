@@ -441,6 +441,41 @@ def _topology_constraint_errors(expected_topology: dict, topology: dict) -> list
                         f"{labels[node_id]} doit être relié à au moins {minimum} équipement(s) "
                         f"de type « {target} » (actuellement {len(peers)})."
                     )
+        elif kind == "separated_by":
+            source = constraint.get("from")
+            target = constraint.get("to")
+            via = constraint.get("via")
+            if (
+                not isinstance(source, str) or not isinstance(target, str)
+                or not isinstance(via, str) or len({source, target, via}) != 3
+            ):
+                raise HTTPException(500, f"Contrainte separated_by invalide (position {index}).")
+            gateways = {node_id for node_id, node_type in node_types.items() if node_type == via}
+            if not gateways:
+                errors.append(
+                    f"Aucun équipement de type « {via} » ne peut assurer la séparation entre "
+                    f"« {source} » et « {target} »."
+                )
+                continue
+            source_ids = [node_id for node_id, node_type in node_types.items() if node_type == source]
+            target_ids = {node_id for node_id, node_type in node_types.items() if node_type == target}
+            for source_id in source_ids:
+                visited = {source_id}
+                stack = [source_id]
+                while stack:
+                    current = stack.pop()
+                    for peer_id in adjacency[current]:
+                        if peer_id in gateways or peer_id in visited:
+                            continue
+                        visited.add(peer_id)
+                        stack.append(peer_id)
+                for target_id in target_ids:
+                    if target_id in visited:
+                        errors.append(
+                            f"Le chemin entre {labels[source_id]} et {labels[target_id]} contourne "
+                            f"les équipements de type « {via} » : le trafic doit passer par ce "
+                            "point de contrôle."
+                        )
         elif kind == "connected":
             device_type = constraint.get("type")
             if not isinstance(device_type, str) or not device_type.strip():

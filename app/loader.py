@@ -17,6 +17,7 @@ DEVICE_TYPES = {
     "router",
     "switch",
     "pc",
+    "plc",
     "firewall",
     "server",
     "cloud",
@@ -193,6 +194,20 @@ def _parse_expected_topology(value, where: str) -> dict:
                     )
                 rule["min_peers"] = minimum
             constraints.append(rule)
+        elif kind == "separated_by":
+            source = _text(raw.get("from"), "from", constraint_where).lower()
+            target = _text(raw.get("to"), "to", constraint_where).lower()
+            via = _text(raw.get("via"), "via", constraint_where).lower()
+            if source not in nodes or target not in nodes or via not in nodes:
+                raise ContentError(
+                    f"{constraint_where} : « from », « to » et « via » doivent désigner "
+                    "des types déclarés dans nodes."
+                )
+            if len({source, target, via}) != 3:
+                raise ContentError(
+                    f"{constraint_where} : « separated_by » exige trois types distincts."
+                )
+            constraints.append({"kind": kind, "from": source, "to": target, "via": via})
         elif kind == "connected":
             device_type = _text(raw.get("type"), "type", constraint_where).lower()
             if device_type not in nodes:
@@ -203,7 +218,7 @@ def _parse_expected_topology(value, where: str) -> dict:
         else:
             raise ContentError(
                 f"{constraint_where} : règle « {kind} » inconnue "
-                "(attendu : all_pairs, min_peer_count ou connected)."
+                "(attendu : all_pairs, min_peer_count, connected ou separated_by)."
             )
 
     if not connections:

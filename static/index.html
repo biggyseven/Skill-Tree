@@ -1909,6 +1909,7 @@
       spine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4" width="20" height="6" rx="1"></rect><path d="M6 7h.01M10 7h.01"></path><path d="M6 14v6M18 14v6"></path><circle cx="6" cy="14" r="2"></circle><circle cx="18" cy="14" r="2"></circle></svg>',
       leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="10" width="20" height="8" rx="1"></rect><path d="M6 14h.01M10 14h.01"></path><path d="M6 6v4M18 6v4"></path><circle cx="6" cy="6" r="2"></circle><circle cx="18" cy="6" r="2"></circle></svg>',
       apic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="2"></rect><circle cx="12" cy="8" r="2"></circle><path d="M8 14h8M8 17h8"></path></svg>',
+      plc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 7h8M8 11h8M8 15h4"></path><circle cx="17" cy="17" r="1"></circle></svg>',
     };
 
     function skilltreeBase() {
@@ -1955,6 +1956,7 @@
           { type: 'pc', label: 'PC', hint: 'Terminal', icon: TOPO_ICONS.pc },
           { type: 'firewall', label: 'Firewall', hint: 'Sécurité', icon: TOPO_ICONS.firewall },
           { type: 'server', label: 'Serveur', hint: 'Services', icon: TOPO_ICONS.server },
+          { type: 'plc', label: 'Automate industriel', hint: 'OT', icon: TOPO_ICONS.plc },
           { type: 'cloud', label: 'Cloud', hint: 'Externe', icon: TOPO_ICONS.cloud },
         ],
         topologyEditor: null, topologyReady: false,
@@ -3678,6 +3680,7 @@
           { type: 'wifi', label: 'Point d’accès', hint: 'Wi-Fi', icon: TOPO_ICONS.wifi }, { type: 'cloud', label: 'Cloud', hint: 'Externe', icon: TOPO_ICONS.cloud },
           { type: 'spine', label: 'Spine', hint: 'Fabric', icon: TOPO_ICONS.spine }, { type: 'leaf', label: 'Leaf', hint: 'Fabric', icon: TOPO_ICONS.leaf },
           { type: 'apic', label: 'Contrôleur APIC', hint: 'Control plane', icon: TOPO_ICONS.apic },
+          { type: 'plc', label: 'Automate industriel', hint: 'OT', icon: TOPO_ICONS.plc },
         ],
         topoCounts: { nodes: 0, links: 0 }, topoTypeCounter: {}, challenge: null, challengeLeft: 0, challengeTimer: null, challengeResult: null, challengeSubmissionBusy: false,
         get challengeNodes() { return this.nodes.filter(n => n.type === 'architecture' || /^challenge-/.test(n.id)); },
@@ -4410,7 +4413,10 @@
               'challenge-hybrid-cloud': 'intermediaire',
               'challenge-spine-leaf': 'expert',
               'challenge-backbone-segment-routing': 'expert',
-              'challenge-fabric-aci-multi-tenant': 'expert'
+              'challenge-fabric-aci-multi-tenant': 'expert',
+              'challenge-vpn-inter-sites': 'intermediaire',
+              'challenge-dual-isp-ha': 'expert',
+              'challenge-it-ot-segmentation': 'expert'
             };
             const remote = (this.nodes || []).filter(n => n.type === 'architecture' || /^challenge-/.test(n.id))
               .map(n => {
