@@ -158,7 +158,12 @@ class LearningProgressConsistencyTests(unittest.TestCase):
 
         failed = submit_challenge(
             "challenge-network",
-            {"topology": self.drawflow_topology(extra_server=True)},
+            {
+                "topology": self.drawflow_topology(extra_server=True),
+                # Ces champs ne doivent jamais influencer le résultat calculé.
+                "score": 100,
+                "passed": True,
+            },
             self.tree,
         )
         self.assertEqual(failed["score"], 83)
@@ -201,6 +206,25 @@ class LearningProgressConsistencyTests(unittest.TestCase):
             self.conn.execute("SELECT COUNT(*) FROM attempts WHERE node_id = ?", ("challenge-network",)).fetchone()[0],
             1,
         )
+
+    def test_challenge_with_no_required_links_can_be_validated(self) -> None:
+        self.add_node("challenge-single-router", "Défi routeur isolé", "Administration Réseaux", 1)
+        expected = {
+            "nodes": {"router": 1},
+            "connections": [],
+        }
+        self.add_challenge("challenge-single-router", expected=expected)
+        topology = {
+            "1": {"name": "router", "outputs": {"output_1": {"connections": []}}},
+        }
+
+        detail = read_node("challenge-single-router", self.tree)
+        self.assertEqual(detail["challenge"]["expected_summary"]["connections"], 0)
+        result = submit_challenge("challenge-single-router", {"topology": topology}, self.tree)
+
+        self.assertEqual(result["score"], 100)
+        self.assertTrue(result["passed"])
+        self.assertTrue(result["validated"])
 
     def test_locked_challenge_is_rejected_by_server(self) -> None:
         self.add_node("prerequisite", "Prérequis", "Administration Réseaux", 1)
