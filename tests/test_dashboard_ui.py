@@ -19,6 +19,32 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('@click.stop="openMobileSearch()"', DASHBOARD_HTML)
         self.assertIn('@keydown.enter.prevent="openSearchResult(searchResults[searchActive])"', DASHBOARD_HTML)
 
+    def test_exercise_submission_handles_errors_duplicates_and_progress_updates(self):
+        start = DASHBOARD_HTML.index("        async submitAnswer() {")
+        end = DASHBOARD_HTML.index("        async startLab()", start)
+        methods = DASHBOARD_HTML[start:end]
+
+        self.assertIn("if (this.exerciseBusy || !this.detail?.id) return;", methods)
+        self.assertIn("if (this.quizBusy || !this.detail?.id) return;", methods)
+        self.assertEqual(methods.count("encodeURIComponent(nodeId)"), 2)
+        self.assertEqual(methods.count("if (!response.ok) throw new Error"), 2)
+        self.assertIn("this.exerciseError = `La réponse n’a pas pu être enregistrée :", methods)
+        self.assertIn("this.exerciseError = `Le quiz n’a pas pu être enregistré :", methods)
+        self.assertGreaterEqual(methods.count("await this.refreshAll();"), 2)
+        self.assertIn("requestId === this._detailRequestId && String(this.detail?.id) === nodeId", methods)
+
+        start = DASHBOARD_HTML.index("<!-- ONGLET 2 : EXERCICE -->")
+        end = DASHBOARD_HTML.index("<!-- ONGLET 3 : LAB / TERMINAL DOCKER -->", start)
+        exercise_ui = DASHBOARD_HTML[start:end]
+        self.assertIn(':disabled="exerciseBusy"', exercise_ui)
+        self.assertIn(':disabled="quizBusy"', exercise_ui)
+        self.assertEqual(exercise_ui.count('role="alert" aria-live="polite"'), 2)
+        self.assertEqual(exercise_ui.count('role="status" aria-live="polite"'), 2)
+        self.assertIn("Cours validé : ta progression a été actualisée.", exercise_ui)
+        self.assertIn("D’autres exigences du cours restent à valider.", exercise_ui)
+        self.assertIn("quizResult.results || []", exercise_ui)
+        self.assertIn("exerciseError: null", DASHBOARD_HTML)
+
     def test_course_reader_surfaces_load_errors_and_ignores_stale_requests(self):
         start = DASHBOARD_HTML.index("        async show(nodeId) {")
         end = DASHBOARD_HTML.index("        close() {", start)
