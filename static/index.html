@@ -2591,7 +2591,9 @@
             challenge: status === 'available'
               ? { label: 'Défi à relever', classes: 'text-emerald-300 bg-emerald-500/10' }
               : { label: 'Défi à poursuivre', classes: 'text-cyan-300 bg-cyan-500/10' },
-            lab: { label: 'Lab à poursuivre', classes: 'text-orange-300 bg-orange-500/10' },
+            lab: status === 'available'
+              ? { label: 'Lab à lancer', classes: 'text-emerald-300 bg-emerald-500/10' }
+              : { label: 'Lab à poursuivre', classes: 'text-orange-300 bg-orange-500/10' },
             continue: { label: 'À reprendre', classes: 'text-violet-300 bg-violet-500/10' },
             review: { label: 'Révision', classes: 'text-amber-300 bg-amber-500/10' },
             start: { label: 'À découvrir', classes: 'text-emerald-300 bg-emerald-500/10' },
