@@ -2694,9 +2694,49 @@
         },
         openVisualLab() {
           if (!this.detail?.id) return;
-          window.open('/lab.html?id=' + encodeURIComponent(this.detail.id), '_blank');
+          this.openLab(this.detail.id, true);
         },
-        async openLab(id) { await this.show(id); this.modalTab = 'lab'; },
+        async openLab(id, openInNewTab = false) {
+          const nodeId = String(id || '');
+          if (!nodeId) return;
+
+          // Préouvrir l'onglet pendant le clic utilisateur pour éviter le blocage popup.
+          const labWindow = openInNewTab ? window.open('about:blank', '_blank') : null;
+          if (openInNewTab && !labWindow) {
+            this.notify("Autorise les fenêtres contextuelles pour ouvrir le laboratoire dans un nouvel onglet.");
+            return;
+          }
+          const navigate = url => {
+            if (openInNewTab) {
+              if (labWindow && !labWindow.closed) labWindow.location.replace(url);
+              else this.notify("La fenêtre du laboratoire a été fermée avant l'ouverture.");
+            } else {
+              window.location.assign(url);
+            }
+          };
+
+          // Le nouveau workspace React Flow est prioritaire quand une définition v2 existe.
+          // Les nœuds historiques sans définition v2 conservent leur lecteur classique.
+          try {
+            const response = await fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`);
+            if (response.ok) {
+              navigate(`/lab/?id=${encodeURIComponent(nodeId)}`);
+              return;
+            }
+            if (response.status !== 404) {
+              this.notify('Le Lab Workspace est indisponible ; ouverture du laboratoire classique.');
+            }
+          } catch (error) {
+            this.notify('Le Lab Workspace ne répond pas ; ouverture du laboratoire classique.');
+          }
+
+          if (openInNewTab) {
+            navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`);
+            return;
+          }
+          await this.show(nodeId);
+          this.modalTab = 'lab';
+        },
         isLabDone(id) { return this.labsDone.includes(id); },
         stepDone(i) { return !!(this.detail && this.labSteps[this.detail.id + ':' + i]); },
         toggleStep(i) { const k = this.detail.id + ':' + i; const o = { ...this.labSteps }; if (o[k]) delete o[k]; else o[k] = 1; this.labSteps = o; LS.set('lab-steps', o); },
