@@ -187,19 +187,9 @@ def _streak_payload(tree: SkillTree) -> dict:
             dates.add(day)
 
     latest = max(dates) if dates else None
-    if latest is None:
-        streak = 0
-    elif latest < today - timedelta(days=1):
-        # Une série est « actuelle » seulement si la dernière activité date
-        # d'aujourd'hui ou d'hier. Une ancienne activité ne doit pas afficher
-        # artificiellement une série de 1 jour après plusieurs jours d'absence.
-        streak = 0
-    else:
-        streak = 0
-        cursor = latest
-        while cursor in dates:
-            streak += 1
-            cursor -= timedelta(days=1)
+    # Le helper partagé est la source de vérité pour l'expiration de la série.
+    # Les totaux de minutes et les dates affichés ci-dessous restent calculés ici.
+    streak = streak_days(tree.conn, today)
 
     minutes_total = sum(int(row["minutes_etudiees"] or 0) for row in rows)
     minutes_today = sum(
