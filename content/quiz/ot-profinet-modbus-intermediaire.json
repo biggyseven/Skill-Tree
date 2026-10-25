@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Protocoles Industriels (Modbus, Profinet)",
+      "prompt": "Quel port est usuel pour Modbus TCP ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "TCP/502",
+        "UDP/161",
+        "TCP/5060",
+        "UDP/514"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Modbus TCP utilise généralement TCP/502."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans PROFINET, quel composant pilote typiquement les échanges cycliques ?",
+      "choices": [
+        "IO-Controller",
+        "Historian",
+        "SBC",
+        "DNS public"
+      ],
+      "answer": 0,
+      "explanation": "Le contrôleur, souvent un PLC, pilote les IO-Devices."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une valeur Modbus peut-elle être incorrecte ?",
+      "choices": [
+        "Offset, format, ordre des mots ou échelle incorrects",
+        "Uniquement câble fibre",
+        "TCP/502 est toujours chiffré",
+        "DSCP EF absent"
+      ],
+      "answer": 0,
+      "explanation": "Les conventions d'adressage et de représentation varient."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode est préférable pour observer un réseau OT en production ?",
+      "choices": [
+        "Capture passive autorisée",
+        "Écriture de registres aléatoires",
+        "Scan intensif non planifié",
+        "Redémarrage des PLC"
+      ],
+      "answer": 0,
+      "explanation": "La capture passive limite les risques de perturbation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Modbus TCP traditionnel fournit-il seul une authentification forte ?",
+      "choices": [
+        "Non",
+        "Oui toujours avec MFA",
+        "Oui TLS obligatoire par défaut",
+        "Seulement via DHCP"
+      ],
+      "answer": 0,
+      "explanation": "La sécurité exige des contrôles complémentaires."
     }
   ]
 }
