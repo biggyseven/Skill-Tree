@@ -2744,7 +2744,7 @@
           try {
             const response = await fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`);
             if (response.ok) {
-              navigate(`/lab/?id=${encodeURIComponent(nodeId)}`);
+              navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`);
               return;
             }
             if (response.status !== 404) {
