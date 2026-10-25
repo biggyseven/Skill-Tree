@@ -3085,10 +3085,14 @@
           try {
             const response = await fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`);
             if (response.ok) {
-              navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`);
-              return;
-            }
-            if (response.status !== 404) {
+              const labPayload = await response.json();
+              // Un bac à sable générique ne remplace pas une consigne legacy déjà disponible.
+              // Le workspace v2 n'est prioritaire que lorsqu'une vraie définition de lab existe.
+              if (!labPayload.sandbox) {
+                navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`);
+                return;
+              }
+            } else if (response.status !== 404) {
               this.notify('Le Lab Workspace est indisponible ; ouverture du laboratoire classique.');
             }
           } catch (error) {
