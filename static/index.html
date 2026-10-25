@@ -1337,8 +1337,8 @@
               <svg x-show="!isFullscreen" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
               <svg x-show="isFullscreen" x-cloak class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"></path></svg>
             </button>
-            <button type="button" x-show="modalTab === 'lab' && detail?.id" @click="openVisualLab()" title="Ouvrir le Lab Workspace visuel" aria-label="Ouvrir le Lab Workspace visuel" class="flex h-10 items-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-3 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-500/20">
-              <span aria-hidden="true">↗</span><span>Workspace visuel</span>
+            <button type="button" x-show="modalTab === 'lab' && detail?.id" @click="openVisualLab()" title="Ouvrir les Labs V2 pour le cours sélectionné" aria-label="Ouvrir les Labs V2 pour le cours sélectionné" class="flex h-10 items-center gap-2 rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-3 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-500/20">
+              <span aria-hidden="true">↗</span><span>Ouvrir les Labs V2</span>
             </button>
             <button type="button" @click="close()" title="Fermer (Échap)" aria-label="Fermer" class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-zinc-400 transition hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-rose-300">
               <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
@@ -3604,9 +3604,6 @@
     <span class="text-sm font-semibold text-white">Nouveau contenu synchronisé !</span>
   </div>
 
-<a id="labs-v2-shortcut" href="/labs-v2.html"
-   style="position:fixed;right:18px;bottom:18px;z-index:100000;padding:12px 16px;border-radius:12px;background:#b7f36b;color:#111b0a;font-weight:750;text-decoration:none;box-shadow:0 6px 24px #0008">
-   Ouvrir les Labs V2 ↗
-</a>
+<!-- L'ouverture du Lab Workspace passe par le bouton contextuel, lié à l'identifiant du cours sélectionné. -->
 </body>
 </html>
