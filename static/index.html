@@ -1726,6 +1726,7 @@
         notificationsOpen: false, settingsMenuOpen: false, tab: 'tree',
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
         lastOpenedNodeId: localStorage.getItem('skilltree-last-node') || '',
+        lastOpenedNodeStatus: localStorage.getItem('skilltree-last-status') || '',
         lastLessonProgress: Math.max(0, Math.min(100, Number(localStorage.getItem('skilltree-last-progress') || 0) || 0)),
         favoriteNodeIds: [],
         nodes: [], total: 0, validated: 0, loading: true, treeError: null, streakDays: 0, streakLoaded: false,
@@ -1768,6 +1769,9 @@
             const message = event.data;
             if (message && message.type === 'lab:submit-result' && message.detail) {
               this.onLabValidated(message.detail);
+              // Le workspace peut valider un cours dans un autre onglet :
+              // synchroniser l'arbre et les recommandations dès le retour du résultat.
+              this.refreshAll();
             }
           });
           await this.refreshAll();
@@ -1823,7 +1827,27 @@
           };
         },
         async refreshAll() {
+          const resumeIdBeforeRefresh = String(this.lastOpenedNodeId || '');
+          const resumeStatusBeforeRefresh = this.lastOpenedNodeStatus
+            || (this.lastOpenedNodeId ? localStorage.getItem('skilltree-last-status') || '' : '');
           await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()]);
+
+          // Détecte aussi une validation faite dans un autre onglet, pendant que
+          // le tableau de bord était fermé, ou par un mécanisme autre que le quiz.
+          if (resumeIdBeforeRefresh && String(this.lastOpenedNodeId || '') === resumeIdBeforeRefresh) {
+            const resumeNodeAfterRefresh = this.nodes.find(node => String(node.id) === resumeIdBeforeRefresh);
+            if (
+              resumeNodeAfterRefresh?.status === 'validated'
+              && resumeStatusBeforeRefresh !== 'validated'
+              && !this.allNodesValidated
+            ) {
+              this.clearResumeTargetAfterValidation(resumeIdBeforeRefresh);
+            } else if (resumeNodeAfterRefresh) {
+              this.lastOpenedNodeStatus = resumeNodeAfterRefresh.status;
+              try { localStorage.setItem('skilltree-last-status', resumeNodeAfterRefresh.status); } catch (e) { }
+            }
+          }
+
           if (this.checkRewards) this.checkRewards();
           return {
             tree: !this.treeError,
@@ -2193,10 +2217,13 @@
           const requestId = ++this._detailRequestId;
           const resumingSameLesson = nodeKey === String(this.lastOpenedNodeId || '');
           this.lastOpenedNodeId = nodeKey;
+          this.lastOpenedNodeStatus = this.nodes.find(node => String(node.id) === nodeKey)?.status || '';
           this.detailRequestedNodeId = nodeKey;
           if (!resumingSameLesson) this.lastLessonProgress = 0;
           try {
             localStorage.setItem('skilltree-last-node', nodeKey);
+            if (this.lastOpenedNodeStatus) localStorage.setItem('skilltree-last-status', this.lastOpenedNodeStatus);
+            else localStorage.removeItem('skilltree-last-status');
             if (!resumingSameLesson) localStorage.removeItem('skilltree-last-progress');
           } catch (e) { }
           this.open = true;
@@ -2284,20 +2311,25 @@
             this.exerciseMode = 'quiz'; this.quizAnswers = this.quiz.questions.map(q => null);
           }
         },
+        clearResumeTargetAfterValidation(nodeId) {
+          if (String(this.lastOpenedNodeId || '') !== String(nodeId)) return;
+          this.lastOpenedNodeId = '';
+          this.lastOpenedNodeStatus = '';
+          this.lastLessonProgress = 0;
+          try {
+            localStorage.removeItem('skilltree-last-node');
+            localStorage.removeItem('skilltree-last-status');
+            localStorage.removeItem('skilltree-last-progress');
+          } catch (e) { }
+        },
         advanceResumeTargetAfterValidation(nodeId, requestId) {
           if (requestId !== this._detailRequestId || String(this.detail?.id) !== String(nodeId)) return;
           const node = this.nodes.find(item => String(item.id) === String(nodeId));
           if (!node || node.status !== 'validated' || this.allNodesValidated) return;
-          if (String(this.lastOpenedNodeId || '') !== String(nodeId)) return;
 
-          // Une validation termine l'étape en cours : ne pas continuer à la proposer
-          // comme cible de reprise lorsque la suite du parcours vient d'être débloquée.
-          this.lastOpenedNodeId = '';
-          this.lastLessonProgress = 0;
-          try {
-            localStorage.removeItem('skilltree-last-node');
-            localStorage.removeItem('skilltree-last-progress');
-          } catch (e) { }
+          // Une validation termine l'étape en cours : le prochain cours accessible
+          // prend le relais. La même règle est appliquée par refreshAll aux labs.
+          this.clearResumeTargetAfterValidation(nodeId);
         },
         async submitAnswer() {
           if (this.exerciseBusy || !this.detail?.id) return;
