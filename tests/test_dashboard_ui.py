@@ -155,7 +155,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
             "var t = localStorage.getItem('skilltree-theme2') || (localStorage.getItem('skilltree-theme') === 'light' ? 'lumiere' : 'graphite');",
             DASHBOARD_HTML,
         )
-        self.assertIn("this.themes.some(x => x.id === stored) ? stored : 'graphite'", DASHBOARD_HTML)
+        self.assertIn("this.themes.some(x => x.id === stored)", DASHBOARD_HTML)
+        self.assertIn("this.themes.some(x => x.id === applied) ? applied : 'graphite'", DASHBOARD_HTML)
         self.assertIn("this.setTheme(k === 'dark' ? 'lumiere' : 'graphite')", DASHBOARD_HTML)
 
     def test_ambient_glows_are_subtle_and_status_motion_is_not_continuous(self):
@@ -468,8 +469,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("min-height: 48px", DASHBOARD_HTML)
         self.assertIn("@media (max-width: 360px)", DASHBOARD_HTML)
 
-        for label in ("Choisir un thème", "Ouvrir les notifications", "Modifier le profil", "Ouvrir les paramètres"):
+        for label in ("Choisir un thème", "Modifier le profil", "Ouvrir les paramètres"):
             self.assertIn(f'aria-label="{label}"', DASHBOARD_HTML)
+        self.assertIn(':aria-label="unreadNotificationCount > 0 ? \'Ouvrir les notifications, \' + unreadNotificationCount', DASHBOARD_HTML)
         for state in ("themeMenuOpen", "notificationsOpen", "profileMenuOpen", "settingsMenuOpen"):
             self.assertIn(f':aria-expanded="{state}"', DASHBOARD_HTML)
         self.assertGreaterEqual(DASHBOARD_HTML.count('class="nav-action-btn'), 5)
