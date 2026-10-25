@@ -613,26 +613,42 @@
     </header>
 
     <!-- Main Scrollable -->
-    <main x-ref="mainScroll" class="flex-1 overflow-y-auto px-8 pb-12">
+    <main x-ref="mainScroll" class="flex-1 overflow-y-auto px-4 pb-12 sm:px-6 xl:px-8">
 
       <!-- ============ ONGLET SKILL TREE ============ -->
       <section x-show="tab === 'tree'">
         <section class="mb-8 grid gap-6 lg:grid-cols-[1fr_2fr]">
-          <div class="flex flex-col justify-between rounded-3xl border border-white/5 bg-[color:var(--s1)] p-6 shadow-2xl">
-            <div>
-              <div class="flex items-center gap-4">
-                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 text-black shadow-[0_0_20px_-4px_rgba(52,211,153,0.5)]"><span class="text-2xl">🏅</span></div>
-                <div><p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Mon Profil</p><h2 class="text-xl font-bold text-white">Niveau <span x-text="userStats.current_level"></span> · <span x-text="userStats.level_name"></span></h2></div>
+          <div class="relative isolate flex min-w-0 flex-col justify-between overflow-hidden rounded-3xl border border-emerald-400/20 bg-[color:var(--s1)] p-6 shadow-2xl sm:p-7">
+            <div aria-hidden="true" class="pointer-events-none absolute -right-14 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl"></div>
+            <div aria-hidden="true" class="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-cyan-400/10 blur-3xl"></div>
+            <div class="relative">
+              <div class="mb-5 flex flex-wrap items-center justify-between gap-2">
+                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Ton espace d’apprentissage</span>
+                <span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-300" x-text="lastOpenedNode ? 'Reprise disponible' : 'Prêt à démarrer'"></span>
               </div>
-              <div class="mt-8">
-                <div class="flex items-center justify-between text-xs mb-3"><span class="text-zinc-400">Progression globale</span><span class="font-mono text-emerald-400"><span x-text="progress"></span>%</span></div>
-                <div class="h-3 w-full overflow-hidden rounded-full bg-white/5 border border-white/5"><div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-1000 shadow-[0_0_10px_rgba(52,211,153,0.5)]" :style="`width: ${progress}%`"></div></div>
-                <div class="mt-3 flex justify-between text-[11px] text-zinc-500"><span><span x-text="validated"></span> nœuds validés</span><span><span x-text="total"></span> au total</span></div>
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-cyan-400/10 text-emerald-300">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5z"></path><path d="M5 4.5v17M9 6h7M9 10h7"></path><path d="m14 14 2.5 2.5L21 12"></path></svg>
               </div>
+              <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300" x-text="lastOpenedNode ? 'Reprendre ta dernière leçon' : 'Ta prochaine étape'"></p>
+              <h2 class="mt-2 text-2xl font-bold leading-tight tracking-tight text-white" x-text="resumeNode ? resumeNode.title : 'Ton parcours commence ici'"></h2>
+              <p class="mt-3 text-sm leading-relaxed text-zinc-400" x-text="lastOpenedNode ? 'Retrouve le cours où tu t’es arrêté et poursuis ta lecture sans devoir le rechercher.' : (resumeNode ? 'Poursuis le parcours conseillé, étape après étape.' : 'Choisis un cours pour commencer à construire tes compétences réseau.')"></p>
+              <div x-show="lastOpenedNode" x-cloak class="mt-5 rounded-2xl border border-white/5 bg-[color:var(--s2)] p-3.5">
+                <div class="mb-2 flex items-center justify-between gap-3 text-[11px]"><span class="font-medium text-zinc-300">Progression de lecture</span><span class="font-mono font-semibold text-emerald-300" x-text="lastLessonProgress + '%'"></span></div>
+                <div class="h-1.5 overflow-hidden rounded-full bg-white/10"><div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-500" :style="`width: ${lastLessonProgress}%`"></div></div>
+                <p class="mt-2 text-[10px] text-zinc-500" x-text="lastLessonProgress >= 100 ? 'Lecture terminée · tu peux revoir cette leçon.' : 'Position mémorisée sur cet appareil.'"></p>
+              </div>
+              <div x-show="resumeNode" class="mt-4 flex flex-wrap items-center gap-2"><span class="chip" x-text="resumeNode ? levelLabel(resumeNode) : ''"></span><span class="chip" x-show="resumeNode" x-text="resumeNode ? statusMeta(resumeNode.status).label : ''"></span></div>
             </div>
-            <div class="mt-8 grid grid-cols-2 gap-3">
-              <div class="rounded-2xl border border-white/5 bg-[color:var(--s2)] p-4 text-center"><p class="text-[10px] uppercase tracking-wider text-zinc-500">Streak</p><p class="font-mono text-xl font-bold text-orange-400">🔥 <span x-text="streakDays"></span></p></div>
-              <div class="rounded-2xl border border-white/5 bg-[color:var(--s2)] p-4 text-center"><p class="text-[10px] uppercase tracking-wider text-zinc-500">XP Total</p><p class="font-mono text-xl font-bold text-cyan-400">⚡ <span x-text="userStats.total_xp"></span></p></div>
+            <div class="relative mt-7">
+              <button type="button" :disabled="!resumeNode" @click="resumeNode && show(resumeNode.id)" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-3.5 text-sm font-bold text-slate-950 shadow-[0_8px_24px_-10px_rgba(52,211,153,0.65)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-40">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg><span x-text="lastOpenedNode ? (lastLessonProgress >= 100 ? 'Revoir cette leçon' : 'Reprendre la lecture') : 'Commencer la prochaine étape'"></span>
+              </button>
+              <p class="mt-3 text-center text-[10px] text-zinc-500">Reprise locale · synchronisation non activée</p>
+            </div>
+            <div class="relative mt-7 grid grid-cols-3 gap-2 border-t border-white/5 pt-5">
+              <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">Progression</p><p class="mt-1 font-mono text-lg font-bold text-emerald-300"><span x-text="progress"></span><span class="text-xs">%</span></p><p class="text-[9px] text-zinc-500"><span x-text="validated"></span>/<span x-text="total"></span> cours</p></div>
+              <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">Série</p><p class="mt-1 font-mono text-lg font-bold text-orange-300">🔥 <span x-text="streakDays"></span></p><p class="text-[9px] text-zinc-500">jours</p></div>
+              <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">XP total</p><p class="mt-1 font-mono text-lg font-bold text-cyan-300" x-text="userStats.total_xp"></p><p class="text-[9px] text-zinc-500">points gagnés</p></div>
             </div>
           </div>
 
@@ -1586,6 +1602,8 @@
         focusMode: false, treeFilter: 'all', sidebarCollapsed: false,
         notificationsOpen: false, settingsMenuOpen: false, tab: 'tree',
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
+        lastOpenedNodeId: localStorage.getItem('skilltree-last-node') || '',
+        lastLessonProgress: Math.max(0, Math.min(100, Number(localStorage.getItem('skilltree-last-progress') || 0) || 0)),
         nodes: [], total: 0, validated: 0, loading: true, streakDays: 0,
         userStats: { total_xp: 0, current_level: 1, level_name: 'Débutant', progress_percent: 0, coins: 0 },
         shopOpen: false, shopItems: [], open: false,
@@ -1915,6 +1933,13 @@
           const el = e.target;
           const max = el.scrollHeight - el.clientHeight;
           this.lessonProgress = max > 0 ? Math.min(100, Math.round((el.scrollTop / max) * 100)) : 0;
+          if (this.modalTab === 'lesson' && this.detail?.id && String(this.detail.id) === String(this.lastOpenedNodeId)) {
+            const progress = this.lessonProgress;
+            if (progress === 0 || progress === 100 || Math.abs(progress - this.lastLessonProgress) >= 2) {
+              this.lastLessonProgress = progress;
+              try { localStorage.setItem('skilltree-last-progress', String(progress)); } catch (e) { }
+            }
+          }
           if (this.modalTab !== 'lesson') return;
           const limit = el.getBoundingClientRect().top + 100;
           let current = null;
@@ -1937,6 +1962,14 @@
         },
 
         async show(nodeId) {
+          const nodeKey = String(nodeId);
+          const resumingSameLesson = nodeKey === String(this.lastOpenedNodeId || '');
+          this.lastOpenedNodeId = nodeKey;
+          if (!resumingSameLesson) this.lastLessonProgress = 0;
+          try {
+            localStorage.setItem('skilltree-last-node', nodeKey);
+            if (!resumingSameLesson) localStorage.removeItem('skilltree-last-progress');
+          } catch (e) { }
           this.open = true; this.detailLoading = true;
           this.modalTab = 'lesson'; this.quiz = null; this.quizResult = null; this.exerciseMode = null;
           this.labRunning = false; this.labValidation = null; this.labOutput = []; this.labError = null;
@@ -1957,7 +1990,12 @@
             this.detailLoading = false;
             this.$nextTick(() => {
               const s = this.$refs.modalScroll;
-              if (s) { s.scrollTop = 0; this.onLessonScroll({ target: s }); }
+              if (s) {
+                const max = Math.max(0, s.scrollHeight - s.clientHeight);
+                const progress = String(this.detail?.id || '') === String(this.lastOpenedNodeId || '') ? this.lastLessonProgress : 0;
+                s.scrollTop = max > 0 ? Math.round(max * progress / 100) : 0;
+                this.onLessonScroll({ target: s });
+              }
               this.fixLessonContrast();
               setTimeout(() => this.fixLessonContrast(), 80);
             });
@@ -2771,6 +2809,12 @@
         },
         toggleTheme() { const k = (this.themes.find(x => x.id === this.theme) || {}).kind; this.setTheme(k === 'dark' ? 'lumiere' : 'aurore'); },
         /* Parcours : fenêtre de 5 cours autour de l'étape en cours, calculée depuis /api/tree */
+        get lastOpenedNode() {
+          return this.lastOpenedNodeId ? (this.nodes.find(n => String(n.id) === String(this.lastOpenedNodeId)) || null) : null;
+        },
+        get resumeNode() {
+          return this.lastOpenedNode || this.parcours.cur || this.nodes.find(n => n.status === 'available') || null;
+        },
         get parcours() {
           const pool = this.nodesIn(this.moduleFilter), total = pool.length, done = pool.filter(n => n.status === 'validated').length, finished = total > 0 && done === total;
           let ci = pool.findIndex(n => n.status === 'available');
