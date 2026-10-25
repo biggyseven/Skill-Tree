@@ -170,7 +170,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
     def test_dashboard_api_loaders_surface_errors_without_replacing_data_with_defaults(self):
         self.assertIn("dashboardDataErrors: { userStats: null, streak: null, dailyPlan: null, stats: null }", DASHBOARD_HTML)
         self.assertIn("Certaines données n’ont pas pu être actualisées", DASHBOARD_HTML)
-        self.assertIn("Les dernières valeurs disponibles sont conservées", DASHBOARD_HTML)
+        self.assertIn("Les valeurs valides déjà chargées sont conservées", DASHBOARD_HTML)
         self.assertIn('@click="refreshAll()"', DASHBOARD_HTML)
 
         for method, endpoint, error_key in [
@@ -180,7 +180,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
             ("loadStats", "/api/stats", "stats"),
         ]:
             start = DASHBOARD_HTML.index(f"async {method}() {{")
-            next_method = DASHBOARD_HTML.find("\\n        async ", start + 1)
+            next_method = DASHBOARD_HTML.find("\n        async ", start + 1)
             end = next_method if next_method >= 0 else len(DASHBOARD_HTML)
             body = DASHBOARD_HTML[start:end]
             self.assertIn(f"fetch('{endpoint}')", body)
