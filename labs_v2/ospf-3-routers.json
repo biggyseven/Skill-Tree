@@ -204,7 +204,7 @@
           "node": "R2",
           "port": "Fa0/0"
         },
-        "cable_type": "copper_cross",
+        "cable_type": "copper_crossover",
         "state": "up",
         "bandwidth": 100,
         "latency_ms": 1
@@ -219,7 +219,7 @@
           "node": "R3",
           "port": "Fa0/0"
         },
-        "cable_type": "copper_cross",
+        "cable_type": "copper_crossover",
         "state": "up",
         "bandwidth": 100,
         "latency_ms": 1
