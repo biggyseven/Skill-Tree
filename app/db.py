@@ -348,6 +348,7 @@ XP_REWARDS = {
     "quiz": 10,
     "terminal": 10,
     "lab": 50,
+    "manual": 30,
     "exam": 100,
     "diagnostic": 20,
 }
@@ -356,6 +357,7 @@ COIN_REWARDS = {
     "quiz": 5,
     "terminal": 5,
     "lab": 20,
+    "manual": 10,
     "exam": 50,
 }
 
