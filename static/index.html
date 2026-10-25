@@ -692,43 +692,43 @@
 
       <!-- ============ ONGLET SKILL TREE ============ -->
       <section x-show="tab === 'tree'">
-        <section class="mb-8 grid gap-6 lg:grid-cols-[1fr_2fr]">
-          <div class="relative isolate flex min-w-0 flex-col justify-between overflow-hidden rounded-3xl border border-emerald-400/20 bg-[color:var(--s1)] p-6 shadow-2xl sm:p-7">
+        <section class="mb-8 grid gap-4 sm:gap-6 lg:grid-cols-[1fr_2fr]">
+          <div class="relative isolate flex min-w-0 flex-col justify-between overflow-hidden rounded-3xl border border-emerald-400/20 bg-[color:var(--s1)] p-5 shadow-2xl sm:p-7">
             <div aria-hidden="true" class="pointer-events-none absolute -right-14 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl"></div>
             <div aria-hidden="true" class="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-cyan-400/10 blur-3xl"></div>
             <div class="relative">
-              <div class="mb-5 flex flex-wrap items-center justify-between gap-2">
+              <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Ton espace d’apprentissage</span>
                 <span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-300" x-text="resumeBadge"></span>
               </div>
-              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-cyan-400/10 text-emerald-300">
+              <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-cyan-400/10 text-emerald-300">
                 <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5z"></path><path d="M5 4.5v17M9 6h7M9 10h7"></path><path d="m14 14 2.5 2.5L21 12"></path></svg>
               </div>
               <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300" x-text="resumeEyebrow"></p>
               <h2 class="mt-2 text-2xl font-bold leading-tight tracking-tight text-white" x-text="resumeNode ? resumeNode.title : 'Ton parcours commence ici'"></h2>
-              <p class="mt-3 text-sm leading-relaxed text-zinc-400" x-text="resumeDescription"></p>
-              <div x-show="resumableLastNode" x-cloak class="mt-5 rounded-2xl border border-white/5 bg-[color:var(--s2)] p-3.5">
+              <p class="mt-2.5 text-sm leading-relaxed text-zinc-400" x-text="resumeDescription"></p>
+              <div x-show="resumableLastNode" x-cloak class="mt-4 rounded-2xl border border-white/5 bg-[color:var(--s2)] p-3.5">
                 <div class="mb-2 flex items-center justify-between gap-3 text-[11px]"><span class="font-medium text-zinc-300">Progression de lecture</span><span class="font-mono font-semibold text-emerald-300" x-text="lastLessonProgress + '%'"></span></div>
                 <div class="h-1.5 overflow-hidden rounded-full bg-white/10"><div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-500" :style="`width: ${lastLessonProgress}%`"></div></div>
                 <p class="mt-2 text-[10px] text-zinc-500" x-text="lastLessonProgress >= 100 ? 'Lecture terminée · tu peux revoir cette leçon.' : 'Position mémorisée sur cet appareil.'"></p>
               </div>
               <div x-show="resumeNode" class="mt-4 flex flex-wrap items-center gap-2"><span class="chip" x-text="resumeNode ? levelLabel(resumeNode) : ''"></span><span class="chip" x-show="resumeNode" x-text="resumeNode ? statusMeta(resumeNode.status).label : ''"></span></div>
             </div>
-            <div class="relative mt-7">
+            <div class="relative mt-5 sm:mt-7">
               <button type="button" :disabled="!resumeNode" @click="resumeNode && show(resumeNode.id)" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-3.5 text-sm font-bold text-slate-950 shadow-[0_8px_24px_-10px_rgba(52,211,153,0.65)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-40">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg><span x-text="resumeButtonLabel"></span>
               </button>
               <p class="mt-3 text-center text-[10px] text-zinc-500">Reprise locale · synchronisation non activée</p>
             </div>
-            <div class="relative mt-7 grid grid-cols-3 gap-2 border-t border-white/5 pt-5">
+            <div class="relative mt-5 grid grid-cols-3 gap-2 border-t border-white/5 pt-4 sm:mt-7 sm:pt-5">
               <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">Progression</p><p class="mt-1 font-mono text-lg font-bold text-emerald-300"><span x-text="progress"></span><span class="text-xs">%</span></p><p class="text-[9px] text-zinc-500"><span x-text="validated"></span>/<span x-text="total"></span> cours</p></div>
               <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">Série</p><p class="mt-1 font-mono text-lg font-bold text-orange-300">🔥 <span x-text="streakDays"></span></p><p class="text-[9px] text-zinc-500">jours</p></div>
               <div class="rounded-xl bg-[color:var(--s2)] p-3"><p class="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">XP total</p><p class="mt-1 font-mono text-lg font-bold text-cyan-300" x-text="userStatsLoaded ? userStats.total_xp : '—'"></p><p class="text-[9px] text-zinc-500">points gagnés</p></div>
             </div>
           </div>
 
-          <div class="flex flex-col rounded-3xl border border-white/5 bg-[color:var(--s1)] p-8 shadow-2xl">
-            <div class="flex items-center justify-between mb-8">
+          <div class="flex min-w-0 flex-col rounded-3xl border border-white/5 bg-[color:var(--s1)] p-5 shadow-2xl sm:p-6 xl:p-8">
+            <div class="mb-5 flex flex-wrap items-center justify-between gap-3 sm:mb-7">
               <div class="flex items-center gap-3"><h3 class="text-base font-bold text-white">Ton parcours</h3><span class="chip" x-text="moduleMeta(moduleFilter).icon + ' ' + moduleMeta(moduleFilter).short"></span></div>
               <button @click="document.getElementById('tree-grid').scrollIntoView({ behavior: 'smooth' })" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300">Voir l'arbre complet →</button>
             </div>
