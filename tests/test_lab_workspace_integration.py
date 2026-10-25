@@ -77,7 +77,10 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         workspace_route = open_lab_method.find("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)")
         legacy_fallback = open_lab_method.find("await this.show(nodeId);")
         self.assertGreaterEqual(v2_check, 0)
-        self.assertGreater(workspace_route, v2_check)
+        self.assertIn("const labPayload = await response.json();", open_lab_method)
+        sandbox_check = open_lab_method.find("if (!labPayload.sandbox)")
+        self.assertGreater(sandbox_check, v2_check)
+        self.assertGreater(workspace_route, sandbox_check)
         self.assertGreater(legacy_fallback, workspace_route)
         self.assertIn("if (openInNewTab && labWindow && !labWindow.closed) labWindow.close();", open_lab_method)
 
