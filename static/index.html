@@ -836,7 +836,7 @@
                   <button type="button" class="card-sm text-left transition hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-50" :disabled="!c.builtin && c.status === 'locked'" :title="!c.builtin && c.status === 'locked' ? 'Valide les prérequis avant de lancer ce défi.' : c.title" @click="startChallenge(c.id)">
                     <div class="flex flex-wrap items-center gap-2"><span class="chip" x-text="c.levelLabel || 'Défi guidé'"></span><span class="chip" x-show="c.builtin" x-text="c.minutes + ' min'"></span></div>
                     <p class="mt-2 text-sm font-bold text-white" x-text="c.title"></p>
-                    <p class="mt-1 text-[11px] text-zinc-500" x-text="!c.builtin && c.status === 'locked' ? '🔒 Prérequis à valider' : (challengesDone.includes(c.id) ? '✅ Réussi · rejouable' : (c.description || 'À relever'))"></p>
+                    <p class="mt-1 text-[11px] text-zinc-500" x-text="!c.builtin && c.status === 'locked' ? '🔒 Prérequis à valider' : (!c.builtin && c.status === 'validated' ? '✅ Validé dans le parcours · rejouable' : (!c.builtin && c.status === 'in_progress' ? '↻ Tentative enregistrée · à poursuivre' : (challengesDone.includes(c.id) ? '✅ Réussi · rejouable' : (c.description || 'À relever'))))"></p>
                   </button>
                 </template>
               </div>
