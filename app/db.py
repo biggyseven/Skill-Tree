@@ -380,7 +380,7 @@ def streak_days(conn: sqlite3.Connection, today: date | None = None) -> int:
         return 0
     latest = max(days)
     if latest < today - timedelta(days=1):
-        return 1
+        return 0
     streak = 0
     cursor = latest
     while cursor in days:
