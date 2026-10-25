@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour QoS pour la Voix et Vidéo",
+      "prompt": "Quel DSCP est couramment utilisé pour la voix RTP ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "EF 46",
+        "CS0",
+        "AF11",
+        "CS1"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "EF est souvent choisi pour une classe voix à faible latence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter la file LLQ ?",
+      "choices": [
+        "Éviter qu'elle affame les autres classes",
+        "Doubler le débit physique",
+        "Supprimer la classification",
+        "Remplacer la supervision"
+      ],
+      "answer": 0,
+      "explanation": "Une priorité non bornée peut pénaliser les autres classes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La QoS augmente-t-elle la capacité physique ?",
+      "choices": [
+        "Non, elle gère la contention",
+        "Oui, elle double le débit",
+        "Oui si DSCP 46",
+        "Seulement en IPv6"
+      ],
+      "answer": 0,
+      "explanation": "La QoS gère le traitement en congestion, pas la capacité physique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme lisse le débit en mettant en tampon ?",
+      "choices": [
+        "Shaping",
+        "DNS caching",
+        "NAT",
+        "ARP"
+      ],
+      "answer": 0,
+      "explanation": "Le shaping retarde les paquets pour lisser le débit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "EF marqué mais sans amélioration : que vérifier ?",
+      "choices": [
+        "Conservation DSCP, classification, files et tous les segments",
+        "Le TTL uniquement",
+        "Désactiver toutes les ACL",
+        "Changer les numéros"
+      ],
+      "answer": 0,
+      "explanation": "Le marquage seul n'assure pas le traitement de bout en bout."
     }
   ]
 }
