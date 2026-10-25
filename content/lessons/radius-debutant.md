@@ -12,7 +12,6 @@ Le cours part des notions de base et progresse vers un petit laboratoire. Il dis
 
 > **Analogie** : RADIUS ressemble à un poste de contrôle central dans un bâtiment. Le lecteur de badge à la porte représente le switch ou le point d’accès : il transmet la demande et applique le résultat. Le service de sécurité central représente le serveur RADIUS : il vérifie l’identité et les règles. Le journal des passages représente l’accounting.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -388,7 +387,6 @@ Une fois l’accounting configuré, générer une nouvelle session de test. Vér
 
 Une absence de Stop n’implique pas toujours une action malveillante. Une panne, un redémarrage du NAS, une perte de paquets ou un problème de configuration peut expliquer une session incomplète. Il faut corréler les informations plutôt que conclure sur un unique événement.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -548,7 +546,6 @@ Ne pas considérer un mot de passe dans une configuration locale comme une strat
 - [ ] La procédure de retour arrière est disponible.
 - [ ] La configuration de la plate-forme a été vérifiée avec sa documentation exacte.
 
----
 
 ## Points à retenir
 
@@ -595,7 +592,6 @@ L’authentification fonctionne, mais aucune session n’apparaît dans les rapp
 
 **Correction :** vérifier que l’accounting est activé pour le bon service, que UDP 1813 et la bonne destination sont configurés, puis que le serveur accepte et stocke les messages Start/Stop. Contrôler aussi l’heure et les journaux du NAS.
 
----
 
 ## Glossaire
 

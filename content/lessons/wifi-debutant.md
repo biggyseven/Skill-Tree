@@ -550,7 +550,6 @@ Les liens ci-dessous permettent de compléter ce cours et de confirmer les déta
 
 **Règle de prudence :** les bandes de fréquences, canaux permis, puissances et certaines fonctionnalités varient selon le domaine réglementaire et le matériel. Vérifie les règles applicables dans ton pays ainsi que les notes du fabricant avant de configurer un réseau réel.
 
----
 
 ## À retenir
 

@@ -1,8 +1,3 @@
----
-node_id: acl-intermediaire
-title: ACL & filtrage - Intermédiaire
----
-
 # ACL & filtrage - Intermédiaire
 
 **Niveau :** Intermédiaire
@@ -17,7 +12,6 @@ Les exemples de ce cours utilisent principalement Cisco IOS/IOS XE. La disponibi
 
 > **Analogie** : Une ACL ressemble à un contrôle de sécurité placé à l'entrée d'un bâtiment. Chaque règle décrit une combinaison de critères : identité annoncée, zone de provenance, destination demandée et type d'accès. L'agent examine les règles dans l'ordre et applique la première qui correspond. Si la première règle autorise l'accès à une zone sensible, une règle de refus située plus bas ne peut pas annuler cette autorisation : l'évaluation s'est déjà arrêtée. Si aucune règle ne correspond, l'accès est refusé par défaut. La position du poste de contrôle compte autant que les règles elles-mêmes : un contrôle placé à l'entrée du bâtiment ne voit pas exactement les mêmes déplacements qu'un contrôle placé devant une salle précise. Une ACL appliquée en entrée d'une interface examine les paquets lorsqu'ils arrivent sur cette interface ; une ACL en sortie examine ceux qui sont sur le point de la quitter. Enfin, un poste de contrôle qui ne garde aucune mémoire de la visite précédente ne peut pas déterminer à lui seul si une personne a déjà été autorisée à entrer. C'est la différence entre un filtrage sans état et un pare-feu qui suit les sessions.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -311,7 +305,6 @@ Les ACL doivent être conçues pour être lisibles, stables et testables, pas se
     applicables aux autres VLANs ni la protection des services.
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -520,7 +513,6 @@ Procédure recommandée :
 
 Sur les équipements qui proposent une fonction de confirmation temporisée ou un mécanisme de rollback, suivre la procédure adaptée à cette plateforme. Ne pas supposer qu'elle existe partout. Pour une intervention distante, conserver une voie d'accès de secours indépendante de l'ACL modifiée.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -640,7 +632,6 @@ Les changements d'ACL doivent être inclus dans la gestion de configuration rés
 
 > **Danger :** Une ACL mal positionnée ou trop permissive peut exposer un réseau sensible ; une ACL trop restrictive peut couper l'accès d'administration, les protocoles de routage ou des services indispensables. Ne déploie pas une règle générique pour corriger rapidement une panne sans vérifier l'impact sur l'ensemble des flux. Pour toute modification distante, prépare un retour arrière et un moyen d'accès de secours. Sur les liens de transit et en IPv6, examine particulièrement les protocoles de contrôle dont le blocage peut provoquer une panne globale.
 
----
 
 ## Points à retenir
 

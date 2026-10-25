@@ -1,0 +1,18 @@
+{
+  "node_id": "telecom-5g-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire pour Réseaux Mobiles (4G/5G)",
+      "choices": [
+        "Réponse A",
+        "Réponse B",
+        "Réponse C",
+        "Réponse D"
+      ],
+      "answer": 0,
+      "explanation": "Ceci est un quiz généré automatiquement."
+    }
+  ]
+}

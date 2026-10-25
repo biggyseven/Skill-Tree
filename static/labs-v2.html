@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab Workspace V2 — SkillTree</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#090e18; --panel:#121b2b; --line:#26364e;
+  --text:#e7eef9; --muted:#9baec8; --accent:#b7f36b;
+  --blue:#58c6ff; --red:#ff7d88;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--text);
+  font:15px/1.6 system-ui,-apple-system,Segoe UI,sans-serif;
+}
+header {
+  padding:20px 26px; border-bottom:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center;
+  gap:16px; flex-wrap:wrap;
+}
+h1 { font-size:22px; margin:0; }
+h2 { font-size:19px; margin:0 0 12px; }
+h3 { font-size:15px; margin:20px 0 8px; }
+p { overflow-wrap:anywhere; }
+a { color:var(--blue); text-decoration:none; }
+main {
+  max-width:1500px; margin:auto; padding:22px;
+  display:grid; grid-template-columns:minmax(260px,340px) minmax(0,1fr);
+  gap:20px;
+}
+.panel {
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:16px; padding:20px; min-width:0;
+}
+.muted { color:var(--muted); }
+input,textarea {
+  width:100%; background:#090f1b; color:var(--text);
+  border:1px solid var(--line); border-radius:9px;
+  padding:11px; font:inherit;
+}
+textarea {
+  min-height:340px; resize:vertical;
+  font:13px/1.55 Consolas,Monaco,monospace;
+  tab-size:2;
+}
+button {
+  background:#1b2940; color:var(--text);
+  border:1px solid var(--line); border-radius:9px;
+  padding:10px 13px; font:inherit; font-weight:650; cursor:pointer;
+}
+button:hover { border-color:var(--blue); }
+button:disabled { opacity:.45; cursor:not-allowed; }
+.primary { background:var(--accent); color:#111b0a; border-color:var(--accent); }
+#catalogue { display:grid; gap:8px; margin-top:14px; }
+.lab-item { width:100%; text-align:left; }
+.lab-item.active { border-color:var(--accent); background:#233322; }
+.lab-item strong,.lab-item small { display:block; }
+.lab-item small { color:var(--muted); margin-top:4px; }
+.meta { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+.tag {
+  border:1px solid var(--line); color:var(--muted);
+  border-radius:20px; padding:3px 9px; font-size:12px;
+}
+.actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.status {
+  margin:14px 0; padding:12px; border:1px solid var(--line);
+  border-radius:10px; overflow-wrap:anywhere;
+}
+.status.ok { border-color:#548e52; color:var(--accent); }
+.status.bad { border-color:#854652; color:var(--red); }
+pre {
+  white-space:pre-wrap; overflow-wrap:anywhere;
+  background:#080d16; padding:13px; border-radius:9px;
+  border:1px solid var(--line); max-height:440px; overflow:auto;
+}
+details { margin-top:16px; }
+summary { cursor:pointer; color:var(--blue); }
+.hidden { display:none !important; }
+#objectives { padding-left:22px; }
+@media(max-width:800px) {
+  main { grid-template-columns:1fr; padding:12px; }
+  header { padding:16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>SkillTree — Lab Workspace V2</h1>
+    <div class="muted">Catalogue, configuration, vérification et soumission des labs</div>
+  </div>
+  <a href="/">← Retour à l'application</a>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Catalogue des labs</h2>
+    <div class="muted" id="catalogueCount">Chargement du catalogue…</div>
+    <p><input id="search" type="search" placeholder="Rechercher un lab ou un module…"></p>
+    <div id="catalogue"></div>
+    <p id="catalogueError" class="status bad hidden"></p>
+  </section>
+
+  <section class="panel">
+    <div id="empty">
+      <h2>Choisis un lab</h2>
+      <p class="muted">Les définitions provenant de la table <code>labs</code> apparaîtront ici.</p>
+    </div>
+
+    <div id="workspace" class="hidden">
+      <h2 id="labTitle"></h2>
+      <div class="meta" id="labMeta"></div>
+      <p id="labPrompt"></p>
+      <ul id="objectives"></ul>
+
+      <h3>Topologie du lab — JSON</h3>
+      <p class="muted">
+        Modifie la configuration initiale selon les objectifs du lab.
+        Vérifie la syntaxe JSON avant de lancer l'évaluation.
+      </p>
+      <textarea id="topology" spellcheck="false" aria-label="Configuration JSON de la topologie"></textarea>
+
+      <div class="actions">
+        <button id="checkButton" class="primary">Vérifier la configuration</button>
+        <button id="submitButton" disabled>Enregistrer la tentative</button>
+      </div>
+
+      <div id="status" class="status hidden" role="status"></div>
+      <h3>Résultat détaillé</h3>
+      <pre id="result">Aucune vérification effectuée.</pre>
+
+      <details>
+        <summary>Afficher la définition complète du lab</summary>
+        <pre id="definition"></pre>
+      </details>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const state = {
+    catalogue: [],
+    lab: null,
+    details: null,
+    lastCheck: null
+  };
+
+  async function api(url, options = {}) {
+    const response = await fetch(url, options);
+    const raw = await response.text();
+    let data = {};
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = { detail: raw };
+    }
+    if (!response.ok) {
+      const message = data.detail || data.message || `Erreur HTTP ${response.status}`;
+      throw new Error(typeof message === "string" ? message : JSON.stringify(message));
+    }
+    return data;
+  }
+
+  function showStatus(message, kind = "") {
+    $("status").textContent = message;
+    $("status").className = "status" + (kind ? " " + kind : "");
+  }
+
+  function clearCheck() {
+    state.lastCheck = null;
+    $("submitButton").disabled = true;
+    if (state.details) showStatus("Configuration modifiée : relance la vérification avant la soumission.");
+  }
+
+  function renderCatalogue() {
+    const query = $("search").value.trim().toLocaleLowerCase("fr");
+    const list = $("catalogue");
+    list.replaceChildren();
+
+    const filtered = state.catalogue.filter(lab =>
+      [lab.title, lab.module, lab.level, lab.id]
+        .some(v => String(v || "").toLocaleLowerCase("fr").includes(query))
+    );
+
+    $("catalogueCount").textContent =
+      `${filtered.length} lab(s) affiché(s) sur ${state.catalogue.length}.`;
+
+    for (const lab of filtered) {
+      const button = document.createElement("button");
+      button.className = "lab-item" + (state.lab?.id === lab.id ? " active" : "");
+      const title = document.createElement("strong");
+      title.textContent = lab.title || lab.id;
+      const meta = document.createElement("small");
+      meta.textContent = `${lab.module || "Sans module"} · ${lab.level || "Niveau non précisé"} · V${lab.schema_version}`;
+      button.append(title, meta);
+      button.addEventListener("click", () => selectLab(lab.id));
+      list.appendChild(button);
+    }
+
+    if (!filtered.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted";
+      empty.textContent = "Aucun lab ne correspond à cette recherche.";
+      list.appendChild(empty);
+    }
+  }
+
+  async function selectLab(id) {
+    try {
+      state.lab = state.catalogue.find(lab => lab.id === id);
+      state.details = null;
+      state.lastCheck = null;
+      renderCatalogue();
+      $("catalogueError").classList.add("hidden");
+      $("empty").classList.add("hidden");
+      $("workspace").classList.remove("hidden");
+      $("submitButton").disabled = true;
+      $("checkButton").disabled = true;
+      $("submitButton").disabled = true;
+      showStatus("Chargement de la définition du lab…");
+
+      const data = await api(`/api/lab/v2/${encodeURIComponent(id)}`);
+      state.details = data;
+
+      const definition = data.definition || {};
+      $("labTitle").textContent = state.lab?.title || data.id;
+      $("labMeta").replaceChildren();
+
+      for (const value of [
+        state.lab?.module,
+        state.lab?.level,
+        `Schéma ${data.schema_version}`
+      ].filter(Boolean)) {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = value;
+        $("labMeta").appendChild(tag);
+      }
+
+      $("labPrompt").textContent =
+        definition.prompt || definition.description || "Consulte les objectifs et la définition du lab.";
+
+      $("objectives").replaceChildren();
+      const objectives = definition.objectives;
+      const items = Array.isArray(objectives)
+        ? objectives
+        : (objectives ? [objectives] : []);
+
+      for (const objective of items) {
+        const li = document.createElement("li");
+        li.textContent = typeof objective === "string"
+          ? objective
+          : JSON.stringify(objective);
+        $("objectives").appendChild(li);
+      }
+
+      $("topology").value = JSON.stringify(data.initial_topology, null, 2);
+      $("definition").textContent = JSON.stringify(definition, null, 2);
+      $("result").textContent = "Aucune vérification effectuée.";
+      showStatus("Lab chargé. Vérifie ta configuration pour évaluer les règles.");
+    } catch (error) {
+      showStatus(error.message, "bad");
+    } finally {
+      $("checkButton").disabled = !state.details;
+    }
+  }
+
+  async function checkLab() {
+    if (!state.lab || !state.details) return;
+
+    $("checkButton").disabled = true;
+    $("submitButton").disabled = true;
+
+    try {
+      const topology = JSON.parse($("topology").value);
+      const result = await api(
+        `/api/lab/v2/${encodeURIComponent(state.lab.id)}/check`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topology })
+        }
+      );
+
+      state.lastCheck = result;
+      $("submitButton").disabled = false;
+
+      const percent = Math.round(Number(result.score || 0) * 100);
+      showStatus(
+        `${result.passed ? "Vérification réussie" : "Vérification non réussie"} — score : ${percent} %. Tu peux maintenant enregistrer cette tentative.`,
+        result.passed ? "ok" : "bad"
+      );
+      $("result").textContent = JSON.stringify(result, null, 2);
+    } catch (error) {
+      state.lastCheck = null;
+      showStatus(error.message, "bad");
+      $("result").textContent = error.message;
+    } finally {
+      $("checkButton").disabled = !state.details;
+    }
+  }
+
+  async function submitLab() {
+    if (!state.lab || !state.details || !state.lastCheck) return;
+
+    $("submitButton").disabled = true;
+    try {
+      const topology = JSON.parse($("topology").value);
+      const result = await api(
+        `/api/lab/v2/${encodeURIComponent(state.lab.id)}/submit`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topology,
+            check_result: state.lastCheck
+          })
+        }
+      );
+
+      state.lastCheck = null;
+      const badges = Array.isArray(result.badges_unlocked)
+        ? result.badges_unlocked.join(", ")
+        : "";
+
+      showStatus(
+        `Tentative enregistrée. XP obtenus : ${result.xp_gained ?? 0}.` +
+        (badges ? ` Badges : ${badges}.` : ""),
+        result.ok ? "ok" : "bad"
+      );
+      $("result").textContent = JSON.stringify(result, null, 2);
+    } catch (error) {
+      showStatus(error.message, "bad");
+      $("submitButton").disabled = false;
+    }
+  }
+
+  async function loadCatalogue() {
+    try {
+      const data = await api("/api/lab/v2");
+      state.catalogue = Array.isArray(data) ? data : [];
+      renderCatalogue();
+
+      if (!state.catalogue.length) {
+        $("catalogueCount").textContent = "Aucun lab V2 disponible.";
+      }
+    } catch (error) {
+      $("catalogueCount").textContent = "Impossible de charger le catalogue.";
+      $("catalogueError").textContent = error.message;
+      $("catalogueError").classList.remove("hidden");
+    }
+  }
+
+  $("search").addEventListener("input", renderCatalogue);
+  $("topology").addEventListener("input", clearCheck);
+  $("checkButton").addEventListener("click", checkLab);
+  $("submitButton").addEventListener("click", submitLab);
+
+  loadCatalogue();
+})();
+</script>
+</body>
+</html>

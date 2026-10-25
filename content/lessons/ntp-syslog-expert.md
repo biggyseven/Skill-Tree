@@ -1,8 +1,3 @@
----
-node_id: ntp-syslog-expert
-title: NTP & Syslog - Expert
----
-
 # NTP & Syslog - Expert
 
 **Niveau :** Expert
@@ -17,7 +12,6 @@ Syslog possède plusieurs générations et modes de transport. Le format histori
 
 > **Analogie** : Considère le temps comme l'échelle commune d'un réseau ferroviaire national, et Syslog comme le registre officiel de chaque gare. Si chaque gare utilise une horloge différente, deux rapports d'incident peuvent sembler inversés : une panne paraît avoir précédé la coupure qui l'a provoquée, ou un événement observé sur un pare-feu semble survenir après la connexion qu'il a bloquée. NTP fournit un mécanisme de comparaison des horloges avec des références, de rejet des sources incohérentes et de correction graduelle des écarts. Syslog transporte les rapports des gares vers un centre d'archives. Mais une ligne de communication saturée peut perdre les rapports, un émetteur mal configuré peut inscrire un horaire local dans un format mal interprété, et un adversaire peut tenter d'injecter de faux événements. Une architecture professionnelle doit donc traiter l'heure, l'identité de la source, le transport, l'intégrité, la capacité de collecte et la conservation comme des maillons d'une même chaîne de confiance.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -302,7 +296,6 @@ La synchronisation garantit une base de comparaison meilleure, mais n'élimine p
                                            +-------------------------+
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -530,7 +523,6 @@ Un résultat de test acceptable n'est pas seulement « le message est arrivé »
 
 > **Astuce :** Crée un événement synthétique par équipement, avec un identifiant unique et une heure UTC connue. Compare la valeur émise, la réception au relais et l'indexation centrale. Ce marqueur permet de mesurer un retard de pipeline et de distinguer l'absence d'un message de l'incapacité du parseur à le retrouver. Couple ce contrôle à l'état NTP de l'émetteur et du collecteur ; sinon, une différence de timestamp pourrait provenir d'une horloge divergente plutôt que du transport.
 
----
 
 ## 3. Dépannage et Sécurité
 

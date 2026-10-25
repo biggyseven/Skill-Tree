@@ -1,8 +1,3 @@
----
-node_id: troubleshooting-intermediaire
-title: Méthodologie de dépannage - Intermédiaire
----
-
 # Méthodologie de dépannage - Intermédiaire
 
 **Niveau :** INTERMÉDIAIRE
@@ -17,7 +12,6 @@ Le fil conducteur est la méthode **observer → formuler → discriminer → co
 
 > **Analogie** : Le dépannage intermédiaire ressemble à une enquête technique. Un témoignage permet de choisir où regarder, mais ne suffit pas à établir une cause. Une capture, un compteur d’interface, une table de routage et un journal sont des pièces différentes ; c’est leur concordance dans le temps qui permet de reconstituer le mécanisme de la panne.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -328,7 +322,6 @@ Appliquez la règle du changement minimal : si un test démontre que l’ACL `in
 
 > **Astuce :** pour les incidents complexes, gardez un journal d’hypothèses avec trois états : « non testé », « renforcé par une preuve » et « réfuté par une preuve ». Évitez les étiquettes « vrai/faux » tant que les données ne suffisent pas. Cela rend les échanges avec le serveur, la sécurité et l’équipe réseau beaucoup plus efficaces.
 
----
 
 ## 2. Configuration et pratique
 
@@ -481,7 +474,6 @@ Une validation utile répond à quatre questions :
 
 Ne clôturez pas un incident simplement parce que la commande de configuration a été acceptée. Un changement syntaxiquement valide peut ne pas être celui qui correspond au flux, et un service peut fonctionner brièvement tout en étant encore instable.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -611,7 +603,6 @@ Pour une panne intermittente, une courte période sans récidive peut être insu
 
 Une cause racine peut aussi rester probable mais non confirmée si les preuves manquent. Dans ce cas, dites-le : « le service a été rétabli par la correction X ; les données disponibles suggèrent Y, mais la capture n’a pas été réalisée au point Z ». La transparence est plus utile qu’une certitude inventée.
 
----
 
 ## Points à retenir
 

@@ -7,7 +7,6 @@
 **Public :** ingénieurs réseau, architectes d'automatisation, ingénieurs NetDevOps, administrateurs infrastructure  
 **Objectif :** construire une plateforme d'automatisation capable de découvrir les capacités des équipements, de comprendre leurs modèles, d'effectuer des opérations contrôlées, de détecter les conflits, de vérifier les changements et de produire des preuves d'exécution exploitables.
 
----
 
 # AVANT-PROPOS — LE NIVEAU EXPERT PROLONGE LE PARCOURS
 
@@ -65,7 +64,6 @@ Les références principales du cours sont :
 
 Les RFC définissent des mécanismes standards ; ils ne garantissent pas qu'un équipement particulier implémente toutes les fonctionnalités optionnelles. La compatibilité doit toujours être vérifiée sur le serveur cible.
 
----
 
 # SOMMAIRE
 
@@ -94,7 +92,6 @@ Les RFC définissent des mécanismes standards ; ils ne garantissent pas qu'un �
 23. Glossaire
 24. Références officielles
 
----
 
 # 1. OBJECTIFS ET MODÈLE MENTAL EXPERT
 
@@ -174,7 +171,6 @@ NETCONF est réintroduit lorsqu'il apporte un mécanisme utile pour comprendre l
 
 Il ne s'agit pas d'affirmer que NETCONF est toujours supérieur à RESTCONF. La bonne architecture choisit l'interface qui fournit les capacités nécessaires sur les équipements réellement exploités.
 
----
 
 # 2. ARCHITECTURE D'UNE PLATEFORME D'AUTOMATISATION RESTCONF
 
@@ -291,7 +287,6 @@ Ce modèle ne contient ni mot de passe ni objet de session HTTP.
 
 Il doit distinguer l'identité de la cible, l'opération exécutée, la durée, le statut et les données pertinentes.
 
----
 
 # 3. ÉTABLIR LES CONTRATS DU CLIENT
 
@@ -344,7 +339,6 @@ Les valeurs sont illustratives.
 
 Cette structure sert à séparer les étapes. Si la réponse JSON est valide mais que la structure attendue n'existe pas, `validation_status` doit le signaler sans effacer le succès du transport.
 
----
 
 # 4. CONCEVOIR UN CLIENT RESTCONF CENTRALISÉ
 
@@ -783,7 +777,6 @@ Elle ne doit pas accepter aveuglément une URL qui permettrait d'envoyer des ide
 
 Pour une plateforme de production, ajoutez une politique d'hôtes autorisés fondée sur l'inventaire approuvé, la résolution réseau et les restrictions d'environnement.
 
----
 
 # 5. DÉCOUVERTE DES CAPACITÉS DU SERVEUR
 
@@ -913,7 +906,6 @@ Le client doit donc vérifier trois éléments :
 2. elle est adaptée à l'opération demandée ;
 3. la ressource ciblée autorise cette opération et l'identité dispose des permissions nécessaires.
 
----
 
 # 6. YANG LIBRARY ET DÉPENDANCES ENTRE MODULES
 
@@ -1059,7 +1051,6 @@ https://www.rfc-editor.org/rfc/rfc8341.html
   <path class="yanglib-link" d="M465 264 V287"/>
 </svg>
 
----
 
 # 7. DATASTORES NMDA ET RESTCONF
 
@@ -1213,7 +1204,6 @@ Ces distinctions sont importantes lorsqu'un programme compare la configuration a
   <text x="470" y="324" class="ds-small">Ne confondez jamais intention, configuration courante et état observé.</text>
 </svg>
 
----
 
 # 8. SÉLECTION AVANCÉE DES DONNÉES
 
@@ -1342,7 +1332,6 @@ Si un serveur fournit une extension de pagination, l'application doit la détect
   <text x="467" y="315" class="select-small">L'optimisation ne doit jamais diminuer la fiabilité du contrôle métier.</text>
 </svg>
 
----
 
 # 9. VALIDATION SÉMANTIQUE ET NORMALISATION
 
@@ -1473,7 +1462,6 @@ La comparaison devrait :
 
 Cette approche réduit les faux positifs et aide à préparer des changements réellement utiles.
 
----
 
 # 10. ETAG, IF-MATCH ET DÉTECTION DES CONFLITS
 
@@ -1587,7 +1575,6 @@ L'ETag aide à détecter certaines modifications concurrentes. Il ne remplace pa
 
 Il ne prouve pas non plus que les changements externes au système de gestion sont impossibles.
 
----
 
 # 11. MODIFICATIONS CONTRÔLÉES ET YANG PATCH
 
@@ -1731,7 +1718,6 @@ Cette lecture doit être elle-même protégée par les politiques de sécurité 
   <text x="480" y="341" class="change-exp-small">Planifier, autoriser, appliquer, relire et valider sont des étapes distinctes.</text>
 </svg>
 
----
 
 # 12. IDEMPOTENCE, REPRISES ET COHÉRENCE
 
@@ -1820,7 +1806,6 @@ Exemples de statuts applicatifs :
 
 Un statut tel que `unknown_after_timeout` est préférable à un faux `failed` si le changement a peut-être été appliqué.
 
----
 
 # 13. SÉCURITÉ AVANCÉE ET CONTRÔLE DES ACCÈS
 
@@ -1917,7 +1902,6 @@ Une opération de modification doit être liée à une politique explicite, avec
 
 Il ne suffit pas qu'un utilisateur puisse appeler l'API. Il faut aussi que le changement corresponde à son autorisation dans l'organisation.
 
----
 
 # 14. EXÉCUTION MULTI-ÉQUIPEMENTS ET LIMITATION DE DÉBIT
 
@@ -2054,7 +2038,6 @@ Le nombre de workers ne peut pas remplacer une politique d'ordonnancement. Les l
   <text x="470" y="319" class="rate-small">Plus de concurrence n'est pas toujours synonyme de meilleure exploitation.</text>
 </svg>
 
----
 
 # 15. NOTIFICATIONS, FLUX D'ÉVÉNEMENTS ET TÉLÉMÉTRIE
 
@@ -2214,7 +2197,6 @@ La création répétée de souscriptions sans contrôle peut créer une charge i
   <text x="470" y="335" class="notify-small">Une souscription nécessite découverte, permissions et gestion de connexion.</text>
 </svg>
 
----
 
 # 16. TESTS UNITAIRES, CONTRACTUELS ET D'INTÉGRATION
 
@@ -2380,7 +2362,6 @@ Une architecture avancée devrait savoir quelles opérations dépendent d'un mod
   <text x="470" y="321" class="test-small">Les tests de laboratoire complètent les tests locaux ; ils ne les remplacent pas.</text>
 </svg>
 
----
 
 # 17. OBSERVABILITÉ, AUDIT ET RAPPORTS
 
@@ -2521,7 +2502,6 @@ Un opérateur doit pouvoir répondre à ces questions sans examiner chaque ligne
   <text x="470" y="313" class="obs-small">La traçabilité permet de comprendre l'exécution sans exposer les secrets.</text>
 </svg>
 
----
 
 # 18. INTÉGRATION CONTINUE ET EXPLOITATION
 
@@ -2597,7 +2577,6 @@ L'application doit interrompre le lot si :
 
 Le comportement en cas d'arrêt doit distinguer les cibles non traitées, les cibles réussies et les cibles qui ont subi une opération dont le résultat est ambigu.
 
----
 
 # 19. LABORATOIRES PROGRESSIFS
 
@@ -2817,7 +2796,6 @@ Ces laboratoires complètent ceux du niveau Débutant et du niveau Intermédiair
 - procédure de récupération ;
 - guide d'exploitation.
 
----
 
 # 20. PROJET FINAL — RESTCONF AUTOMATION CONTROLLER
 
@@ -2960,7 +2938,6 @@ Le projet est terminé lorsque le code sait démontrer :
 - comment les risques ont été contrôlés ;
 - quelles preuves sont disponibles.
 
----
 
 # 21. DÉPANNAGE EXPERT
 
@@ -3056,7 +3033,6 @@ Comparez l'environnement, les versions et les tests contractuels. Les dépendanc
 
 En production, la reproductibilité est essentielle pour distinguer un défaut applicatif d'un changement de bibliothèque.
 
----
 
 # 22. ÉVALUATION DE SORTIE
 
@@ -3098,7 +3074,6 @@ Répondez en vous appuyant sur le projet final.
 
 **Prêt pour l'industrialisation :** votre application est reproductible, observable, compatible avec les exigences de gouvernance et capable de prouver ce qu'elle a exécuté et les résultats obtenus.
 
----
 
 # 23. GLOSSAIRE
 
@@ -3136,7 +3111,6 @@ Répondez en vous appuyant sur le projet final.
 
 **YANG-Push** — Mécanismes d'abonnement aux mises à jour des datastores selon les standards applicables.
 
----
 
 # 24. RÉFÉRENCES OFFICIELLES
 
@@ -3200,7 +3174,6 @@ Ces documents constituent les références principales pour adapter le code à u
 - Documentation Python  
   https://docs.python.org/3/
 
----
 
 # CONCLUSION — L'EXPERTISE EST DANS LA MAÎTRISE DU SYSTÈME
 

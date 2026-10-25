@@ -524,6 +524,5 @@ Les commandes, limites de membres, états et options varient entre versions et m
 - [IEEE 802.1AX — Link Aggregation](https://standards.ieee.org/ieee/149/6768/) — référence normative sur l’agrégation de liens.
 - Pour le dépannage, les commandes et les restrictions propres au matériel, utiliser les sections de surveillance et de diagnostic du [guide EtherChannel Cisco IOS XE](https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/lyr2-fwd/etherchannel/etherchannel-configuration-guide/etherchannels.html), puis sélectionner le guide correspondant au modèle installé.
 
----
 
 **Objectif de sortie :** à la fin de ce cours, tu dois pouvoir expliquer la différence entre liens physiques et port-channel, décrire le rôle de LACP, comprendre la répartition des flux, effectuer une configuration de laboratoire simple, vérifier l’état de l’agrégat et dépanner les incompatibilités les plus courantes sans intervenir à l’aveugle en production.

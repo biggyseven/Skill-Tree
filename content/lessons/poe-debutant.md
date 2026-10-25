@@ -5,7 +5,6 @@
 **Prérequis :** connaissances élémentaires des réseaux Ethernet et du rôle d'un switch.  
 **Objectif général :** comprendre comment un équipement réseau reçoit de l'énergie électrique par Ethernet, identifier les équipements compatibles et réaliser un premier diagnostic.
 
----
 
 ## Objectifs pédagogiques
 
@@ -20,7 +19,6 @@
 - diagnostiquer un premier problème d'alimentation ;
 - respecter les précautions essentielles lors d'une installation PoE.
 
----
 
 # 1. Pourquoi le PoE existe-t-il ?
 
@@ -90,7 +88,6 @@ Il existe aussi des limites :
 - le câblage doit être adapté aux conditions électriques ;
 - un mauvais choix de matériel ou une mauvaise configuration peut provoquer un refus d'alimentation.
 
----
 
 # 2. Les deux rôles fondamentaux : PSE et PD
 
@@ -140,7 +137,6 @@ Le PSE est la source de puissance. Le PD est le récepteur.
 
 Le câble Ethernet relie les deux appareils, mais le fonctionnement dépend aussi des mécanismes de détection et d'alimentation, de la compatibilité des équipements et de la disponibilité de puissance.
 
----
 
 # 3. Schéma animé — Une liaison Ethernet transporte les données et l'énergie
 
@@ -177,7 +173,6 @@ Les deux lignes animées permettent de distinguer visuellement les fonctions tra
 <text class="poeb1-caption" x="450" y="278" text-anchor="middle">Les tirets animés illustrent le flux : ils ne représentent pas la vitesse réelle des données.</text>
 </svg>
 
----
 
 # 4. Le rôle du câble Ethernet
 
@@ -214,7 +209,6 @@ Avant de remplacer le switch, effectuer les vérifications non destructives suiv
 
 Ne manipule pas des conducteurs nus ou une source électrique inconnue pour essayer de déterminer si un câble fournit du PoE.
 
----
 
 # 5. PoE standardisé et PoE passif
 
@@ -240,7 +234,6 @@ Un équipement qui utilise un connecteur RJ45 n'est pas forcément conçu pour r
 
 **Règle essentielle :** ne branche jamais une source d'alimentation de type ou de brochage inconnu à un appareil réseau.
 
----
 
 # 6. Les principaux standards PoE
 
@@ -277,7 +270,6 @@ Une caméra, un téléphone IP et un point d'accès Wi-Fi n'ont pas nécessairem
 
 Avant de sélectionner le switch, vérifier le standard requis, la puissance disponible sur les ports concernés et la capacité totale du système.
 
----
 
 # 7. Détection et démarrage
 
@@ -338,7 +330,6 @@ La compatibilité ne se déduit donc pas du seul fait que le câble est branché
 <text class="poeb2-note" x="450" y="275" text-anchor="middle">Le branchement seul ne garantit ni l'admission du PD ni une puissance suffisante.</text>
 </svg>
 
----
 
 # 8. Budget PoE : comprendre la capacité du switch
 
@@ -394,7 +385,6 @@ Le comportement varie suivant le matériel et sa configuration. Un switch peut r
 
 L'administrateur doit consulter le statut PoE et les journaux. Il ne faut pas tenter de contourner une limitation sans vérifier les capacités électriques de la liaison et des appareils.
 
----
 
 # 9. Schéma animé — Dépannage d'un équipement qui ne s'allume pas
 
@@ -427,7 +417,6 @@ L'administrateur doit consulter le statut PoE et les journaux. Il ne faut pas te
 <text class="poeb3-t" x="450" y="316" text-anchor="middle">Corriger la cause identifiée puis effectuer un test contrôlé</text>
 </svg>
 
----
 
 # 10. Diagnostiquer les pannes courantes
 
@@ -482,7 +471,6 @@ Lorsque plusieurs équipements sont touchés au même moment, il faut rechercher
 
 La corrélation temporelle constitue une piste de diagnostic. Elle ne prouve pas à elle seule que la cause est électrique.
 
----
 
 # 11. Travaux pratiques guidés
 
@@ -529,7 +517,6 @@ Le rapport doit inclure le symptôme, les informations collectées, les hypothè
 
 N'effectue pas de court-circuit volontaire et n'applique jamais une tension non prévue par le matériel.
 
----
 
 # 12. Exercices et corrigés
 
@@ -559,7 +546,6 @@ N'effectue pas de court-circuit volontaire et n'applique jamais une tension non 
 9. L'injecteur ajoute une alimentation PoE à une liaison Ethernet.
 10. Il faut identifier la tension, le brochage, le standard et la compatibilité à partir de la documentation.
 
----
 
 # 13. Glossaire
 
@@ -576,7 +562,6 @@ N'effectue pas de court-circuit volontaire et n'applique jamais une tension non 
 | Injecteur | Dispositif qui ajoute l'alimentation à une liaison Ethernet |
 | LLDP | Protocole de découverte de voisins de couche 2, pouvant contribuer aux échanges de puissance sur le matériel compatible |
 
----
 
 # 14. Références
 

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS nodes (
     title       TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     category    TEXT NOT NULL DEFAULT 'Général',
+    module TEXT NOT NULL DEFAULT 'Administration Réseaux',
     sort_order  INTEGER NOT NULL DEFAULT 0
 );
 

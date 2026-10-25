@@ -1325,7 +1325,6 @@ réseau des pertes introduites par l'observateur.
 
 ## 40. Tableau de décision rapide
 
-  -----------------------------------------------------------------------
   Observation       Ce qu'elle        Ce qu'elle ne     Prochaine
                     suggère           prouve pas        vérification
   ----------------- ----------------- ----------------- -----------------
@@ -1367,7 +1366,6 @@ réseau des pertes introduites par l'observateur.
   Paquets absents   trafic non        perte réelle sur  statistiques
   dans une capture  observé à cet     le chemin         capture et autre
                     endroit                             point
-  -----------------------------------------------------------------------
 
 Ce tableau est une aide à la priorisation, pas un moteur de diagnostic
 automatique. Chaque observation doit être replacée dans la chronologie

@@ -12,7 +12,6 @@ Ce cours examine les ACL comme un système de politique déterministe, depuis la
 
 > **Analogie** : Une ACL ressemble à un poste de contrôle où chaque véhicule est examiné selon une liste de critères, dans un ordre précis. Le premier contrôle correspondant décide du résultat : un véhicule admis par une règle ne poursuit pas son inspection pour chercher une règle plus restrictive plus bas. Si aucune règle ne correspond, il est refusé par défaut. Le poste ne se souvient pas nécessairement des véhicules déjà entrés : pour laisser revenir une réponse, il faut une règle qui corresponde aussi à ce paquet retour, sauf si un mécanisme distinct assure le suivi d’état. Enfin, déplacer le poste de contrôle change les véhicules qu’il voit : un filtre en entrée d’une interface ne traite pas le même ensemble de paquets qu’un filtre en sortie d’une autre interface.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -233,7 +232,6 @@ Les préoccupations d’exploitation comprennent :
 
 Une ACL longue n’est pas automatiquement lente, mais elle peut épuiser une ressource matérielle ou se compiler différemment. Sur les plateformes de campus ou de centre de données, vérifier les commandes propres au modèle pour les ressources ACL/TCAM et les journaux de programmation.
 
----
 
 ## 2. Configuration et pratique
 
@@ -378,7 +376,6 @@ La syntaxe de filtrage de la configuration dépend de la version IOS/IOS XE. Apr
 
 > **Astuce :** Avant d’attacher une ACL à une interface distante, prépare une ACE de gestion qui conserve l’accès depuis le réseau d’administration, puis vérifie le plan de retour arrière. Pour les changements critiques, utiliser une fenêtre de maintenance, une session console/hors bande et un test automatisé des flux autorisés et interdits.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -500,7 +497,6 @@ Chaque ACL de production devrait avoir :
 
 Les règles inutilisées ne doivent pas être supprimées sur la seule base d’un compteur nul observé pendant une courte période. Il peut s’agir d’un flux rare mais critique. Corréler les compteurs avec les périodes d’activité et les propriétaires de service.
 
----
 
 ## Points à retenir
 

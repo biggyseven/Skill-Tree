@@ -10,7 +10,6 @@ Ce cours poursuit le niveau Débutant : les rôles du client RADIUS/NAS, les mes
 
 <style>.radius-visual{width:100%;max-width:100%;min-width:0;margin:1rem 0 1.4rem;color:#e4e4e7;background:#090d14;border:1px solid #303846;border-radius:16px;padding:12px;box-sizing:border-box;overflow:hidden;color-scheme:dark}.radius-visual *{box-sizing:border-box}.radius-visual svg{display:block;width:100%;height:auto;max-width:100%;background:#090d14;border-radius:10px;overflow:visible}.radius-visual svg text{font-family:Inter,Segoe UI,Arial,sans-serif;fill:#e4e4e7;font-size:15px}.radius-visual svg .small{font-size:12px;fill:#a1a1aa}.radius-visual svg .title{font-size:17px;font-weight:700;fill:#f4f4f5}.radius-visual svg .flow{fill:none;stroke-width:3;stroke-dasharray:7 9;stroke-linecap:round;animation:radiusFlow 1.25s linear infinite}.radius-visual svg .flow-blue{stroke:#60a5fa}.radius-visual svg .flow-green{stroke:#4ade80}.radius-visual svg .flow-amber{stroke:#fbbf24}.radius-visual svg .flow-red{stroke:#fb7185}.radius-visual svg .flow-muted{stroke:#94a3b8;stroke-dasharray:4 8}.radius-visual svg .radius-int-flow,.radius-visual svg .radius-int-decision-flow,.radius-visual svg .radius-int-eap-flow,.radius-visual svg .radius-int-acct-flow,.radius-visual svg .radius-int-diag-flow,.radius-visual svg .radius-int-failover-flow{stroke-dasharray:7 7;stroke-linecap:round;animation:radiusFlow 1.25s linear infinite}.radius-visual svg .radius-int-packet{animation:radiusPulse 1.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.radius-visual svg .radius-int-packet-delay{animation-delay:.45s}.radius-visual svg .radius-int-soft{animation:radiusPulse 2.1s ease-in-out infinite}.radius-visual__caption{margin:.65rem .35rem .25rem;color:#cbd5e1;font-size:.9rem;line-height:1.7}.radius-visual__note{color:#94a3b8;font-size:.8rem;line-height:1.65;margin:.5rem .35rem .2rem}@keyframes radiusFlow{to{stroke-dashoffset:-32}}@keyframes radiusPulse{0%,100%{opacity:.3}50%{opacity:1}}@media(max-width:700px){.radius-visual{padding:8px}.radius-visual svg text{font-size:17px}.radius-visual svg .small{font-size:14px}.radius-visual svg .title{font-size:19px}}@media(prefers-reduced-motion:reduce){.radius-visual svg .flow,.radius-visual svg .radius-int-flow,.radius-visual svg .radius-int-decision-flow,.radius-visual svg .radius-int-eap-flow,.radius-visual svg .radius-int-acct-flow,.radius-visual svg .radius-int-diag-flow,.radius-visual svg .radius-int-failover-flow,.radius-visual svg .radius-int-packet,.radius-visual svg .radius-int-soft{animation:none!important}.radius-visual{scroll-behavior:auto!important}}</style>
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -123,7 +122,6 @@ Cette moyenne masque les pointes. Un redémarrage de switch, une panne Wi-Fi ou 
 | temps de réponse serveur | latence de décision | base d’identité, CPU, disque, réseau |
 | sessions sans Stop | accounting incomplet ou interruption | reboot NAS, perte de paquet, durée de session |
 
----
 
 ## 2. Configuration et pratique
 
@@ -270,7 +268,6 @@ Utilisez une matrice courte et reproductible. Elle permet de distinguer un défa
 
 > **Astuce :** testez aussi le cas de panne. Un système qui accepte un utilisateur en temps normal, mais refuse toute authentification lors d’une courte panne du serveur central, peut avoir un comportement conforme à la politique de sécurité mais inadapté aux besoins de continuité. La politique *fail-open/fail-closed* doit être décidée explicitement, documentée et validée.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -396,7 +393,6 @@ Ne concluez pas qu’un `Accounting-Stop` est absent uniquement parce que le tab
 - [ ] Les journaux et captures protègent les données d’identité.
 - [ ] Les étapes de retour arrière sont documentées et testées.
 
----
 
 ## Points à retenir
 

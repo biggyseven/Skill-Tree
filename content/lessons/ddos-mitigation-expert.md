@@ -10,7 +10,6 @@ Ce cours poursuit les niveaux Débutant et Intermédiaire. Il suppose que les no
 
 > **Analogie** : Une défense DDoS à grande échelle ressemble à un système d'urgence métropolitain. Les capteurs repèrent l'incident, le centre de contrôle évalue sa portée, les routes sont réorganisées avant que les rues locales soient bloquées, des équipes spécialisées absorbent le surplus, et les services essentiels disposent de voies prioritaires. Une bonne stratégie ne cherche pas seulement à « arrêter les voitures » : elle garde les accès critiques ouverts et évite que la réponse elle-même crée un second accident.
 
----
 
 <style>
 /* Animations CSS des schémas DDoS. Les classes sont utilisées à la place des balises d’animation SVG SMIL,
@@ -359,7 +358,6 @@ Le schéma suivant illustre la relation entre trafic entrant, capacité de servi
 
 Le taux de remplissage d'une file bornée peut être approximé par la différence entre débit entrant et débit de service lorsque cette différence est positive. Dans une vraie infrastructure, les arrivées sont variables et les mécanismes de rejet ne sont pas nécessairement uniformes. Les files peuvent être réparties, priorisées, gérées par classes ou affectées par les retransmissions. Utiliser ce modèle comme aide de raisonnement, pas comme prédiction exacte de production.
 
----
 
 ## 2. Configuration et pratique
 
@@ -571,7 +569,6 @@ Ne pas confondre un simulateur pédagogique et un test de performance réel. Les
 | Rejets élevés et succès client en baisse | faux positifs ou règle trop large | réduire la portée et comparer les traces | empiler de nouvelles règles non testées |
 | Télémétrie absente | panne de collecte ou perte de gestion | restaurer la visibilité, réduire l'automatisation risquée | considérer l'absence de métriques comme absence d'attaque |
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -712,7 +709,6 @@ Pour chaque exercice, définir les rôles, les critères d'arrêt, les signaux d
 
 > **Danger :** Une annonce BGP incorrecte, une règle FlowSpec trop large ou un blackhole mal ciblé peut rendre injoignables des préfixes légitimes au-delà du service attaqué. Vérifie la portée et le retrait avant toute action.
 
----
 
 ## Points à retenir
 

@@ -5,7 +5,6 @@
 > **Prérequis :** avoir étudié `napalm-debutant.md` et savoir exécuter un script Python qui se connecte à un équipement de laboratoire.  
 > **Révision documentaire :** 23 octobre 2026. La page PyPI et les versions publiées du dépôt indiquent NAPALM 5.2.0 comme version la plus récente vérifiée à cette date. NAPALM 5.2.0 demande Python 3.10 ou plus. Vérifiez toujours l'état réel des dépendances dans votre environnement avant une installation.
 
----
 
 ## 0. La place de ce niveau dans le parcours
 
@@ -62,7 +61,6 @@ Le niveau Expert devra pouvoir reprendre les fonctions, les conventions et les r
 8. tester les fonctions Python sans devoir se connecter à un commutateur ou à un routeur réel ;
 9. diagnostiquer un échec en séparant les problèmes d'inventaire, d'authentification, de transport, de pilote, de données et de configuration.
 
----
 
 # 1. Concevoir un outil, pas seulement un script
 
@@ -205,7 +203,6 @@ reports/*.html
 
 Si les snapshots doivent être suivis dans un dépôt, décidez explicitement quels champs peuvent y être conservés. Les configurations, adresses, noms internes et sorties détaillées peuvent révéler des informations sensibles. Ne versionnez pas automatiquement l'ensemble des données collectées.
 
----
 
 # 2. Inventaire enrichi, validation et gestion des secrets
 
@@ -400,7 +397,6 @@ Ne commitez jamais un fichier `.env` contenant les secrets réels. N'imprimez pa
 4. Ajoutez un environnement non autorisé : la validation doit l'identifier.
 5. Reprenez ensuite l'inventaire correct et confirmez qu'il est chargé.
 
----
 
 # 3. Établir un contrat de collecte fiable
 
@@ -452,7 +448,6 @@ Références techniques :
 - [Documentation NAPALM — NetworkDriver](https://napalm.readthedocs.io/en/latest/base.html)
 - [Documentation NAPALM — pilotes et équipements pris en charge](https://napalm.readthedocs.io/en/stable/support/)
 
----
 
 # 4. Construire un collecteur multi-équipements
 
@@ -614,7 +609,6 @@ Ne transformez pas systématiquement une valeur comme `-1.0` en une date ou un c
 4. Vérifiez qu'un échec de connexion produit un résultat `error` pour cet appareil mais n'efface pas les résultats valides des autres.
 5. Retirez ensuite ce faux équipement de l'inventaire opérationnel.
 
----
 
 # 5. Exécution en parallèle avec une limite de concurrence
 
@@ -734,7 +728,6 @@ Lancez la même collecte en mode séquentiel, puis avec `max_workers=2`, puis av
 
 Votre objectif n'est pas seulement de réduire la durée. Il faut préserver une qualité de données et un taux de réussite satisfaisants.
 
----
 
 # 6. Normaliser et archiver les résultats
 
@@ -818,7 +811,6 @@ Ne vous fiez pas uniquement à l'ordre des lignes ou au nom du fichier pour reli
 
 Pour un parc important, envisagez la conservation selon une politique documentée : par exemple garder les instantanés détaillés pendant une durée limitée puis ne conserver que des résumés. Adaptez cette politique aux besoins opérationnels et aux règles de sécurité applicables.
 
----
 
 # 7. Vérifications réseau plus avancées
 
@@ -959,7 +951,6 @@ Quelques principes :
 - **ARP/MAC :** contrôler le caractère plausible des entrées dans un contexte précis, plutôt que de supposer qu'une table identique est attendue partout ;
 - **configuration :** utiliser la configuration comme preuve de paramètres déclarés, mais ne pas la considérer comme preuve suffisante que l'état opérationnel est correct.
 
----
 
 # 8. Mettre en place la conformité avec NAPALM Validate
 
@@ -976,7 +967,6 @@ Référence officielle : [Validating deployments](https://napalm.readthedocs.io/
 Créez `config/validation.yml` :
 
 ```yaml
----
 - get_facts:
     hostname: core-r1
 ```
@@ -1043,7 +1033,6 @@ Pour réduire les faux positifs :
 
 Utilisez deux appareils de laboratoire. Définissez une règle facile à vérifier, par exemple un nom d'hôte ou une version connue. Exécutez la validation, inspectez le rapport, puis modifiez temporairement la valeur attendue pour provoquer un écart. Confirmez que votre outil distingue bien un écart réel d'un échec de collecte.
 
----
 
 # 9. Comparer les instantanés et repérer les changements
 
@@ -1126,7 +1115,6 @@ Un événement utile pourrait prendre cette forme :
 
 Un événement de ce type n'est pas une preuve absolue de cause. Il indique qu'un changement a été observé entre deux résultats exploitables. Pour déterminer pourquoi le lien est passé down, il peut être nécessaire de croiser les journaux réseau, la topologie, les changements de configuration et les événements physiques.
 
----
 
 # 10. Préparer un changement de configuration de façon contrôlée
 
@@ -1283,7 +1271,6 @@ Un déploiement prudent peut suivre ces étapes :
 
 La taille du lot dépend du risque, du rôle et de la redondance du réseau. Un canari ne doit pas être choisi uniquement parce qu'il est facile d'accès : il doit représenter suffisamment les conditions du groupe cible.
 
----
 
 # 11. Tests automatisés sans équipement réseau
 
@@ -1403,7 +1390,6 @@ La stratégie de test doit comporter trois couches :
 - **tests d'intégration** : compatibilité du pilote, connexion réelle en laboratoire, disponibilité des getters et comportement de configuration ;
 - **tests de recette** : comportement du système complet, rapport produit, règles opérationnelles et décision humaine.
 
----
 
 # 12. Journalisation et diagnostic reproductible
 
@@ -1480,7 +1466,6 @@ Lorsqu'une collecte échoue, procédez du plus simple au plus spécifique :
 
 Cette séquence évite de modifier inutilement une règle de conformité quand le vrai problème est une connexion SSH ou un pilote incompatible.
 
----
 
 # 13. Sécurité et garde-fous opérationnels
 
@@ -1527,7 +1512,6 @@ Un collecteur qui a seulement besoin de lire des facts, des interfaces et des vo
 
 La séparation n'est pas seulement technique : elle permet à l'équipe de sécurité, au responsable réseau et à l'opérateur de comprendre clairement qui peut lire, qui peut préparer, qui peut approuver et qui peut appliquer un changement.
 
----
 
 # 14. Atelier intégrateur — Construire un mini-auditeur réseau
 
@@ -1650,7 +1634,6 @@ Le projet peut être considéré comme terminé lorsque :
 - le collecteur n'applique aucune modification de configuration ;
 - la procédure a été exécutée dans un environnement de laboratoire et les limites connues sont consignées.
 
----
 
 # 15. Travaux pratiques progressifs
 
@@ -1732,7 +1715,6 @@ Le projet peut être considéré comme terminé lorsque :
 
 **Livrable :** le projet complet et un `README.md` expliquant l'installation, la configuration, les commandes, les tests, les limites et les précautions opérationnelles.
 
----
 
 # 16. Erreurs courantes du niveau Intermédiaire
 
@@ -1768,7 +1750,6 @@ Un diff de quelques lignes peut couper un accès distant, modifier une route par
 
 Les extraits du cours illustrent des concepts. Ils doivent être adaptés, testés et revus par rapport au pilote, au modèle, à la version logicielle et aux politiques de l'organisation. Aucune recette générique ne garantit qu'un changement est sans risque sur toutes les plates-formes.
 
----
 
 # 17. Grille d'évaluation
 
@@ -1789,7 +1770,6 @@ Les extraits du cours illustrent des concepts. Ils doivent être adaptés, test�
 
 **Seuil recommandé :** 80/100, sans échec sur les critères de sécurité. Un outil qui collecte correctement mais expose les secrets ou présente un résultat inconnu comme conforme ne doit pas être considéré comme prêt.
 
----
 
 # 18. Préparer le passage au niveau Expert
 
@@ -1810,7 +1790,6 @@ Les thèmes du niveau Expert pourront ensuite inclure la gestion de lots complex
 
 Il ne suffira pas d'écrire un script plus long. Le niveau Expert devra pouvoir expliquer comment l'outil se comporte pendant une panne partielle, comment il sait qu'une donnée est fiable, comment il empêche une action non autorisée, et comment il prouve qu'une opération a été vérifiée après son application.
 
----
 
 # 19. Références officielles et vérifications de version
 
@@ -1825,7 +1804,6 @@ Consultez en priorité les sources officielles suivantes avant une utilisation s
 
 Les pages de documentation peuvent être publiées indépendamment des versions du paquet et certaines URLs historiques peuvent contenir des exemples plus anciens. Pour des fonctions sensibles — en particulier les changements de configuration et commit-confirm — vérifiez la documentation correspondante à votre version NAPALM et testez le comportement sur le pilote réel. La prise en charge peut différer selon les plateformes, les transports, les versions logicielles et les options du pilote.
 
----
 
 # 20. Checklist finale avant de déclarer le niveau acquis
 
@@ -1868,7 +1846,6 @@ Les pages de documentation peuvent être publiées indépendamment des versions 
 - [ ] La journalisation aide au diagnostic sans enregistrer les secrets.
 - [ ] Le `README.md` explique l'installation, les paramètres, les tests, les limites et les précautions opérationnelles.
 
----
 
 ## Conclusion
 

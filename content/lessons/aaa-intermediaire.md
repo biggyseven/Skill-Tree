@@ -1,8 +1,3 @@
----
-node_id: aaa-intermediaire
-title: Authentification réseau (AAA) - Intermédiaire
----
-
 # Authentification réseau (AAA) - Intermédiaire
 
 **Niveau :** INTERMÉDIAIRE
@@ -15,7 +10,6 @@ Une architecture AAA doit être évaluée sur trois plans. Le plan **identité**
 
 > **Analogie** : AAA ressemble à un système de contrôle d’accès dans un centre de données. Le badge vérifie l’identité, le profil du badge détermine les salles et les équipements accessibles, et le registre conserve les passages. Une panne du service central ne doit pas obliger à laisser toutes les portes ouvertes : il faut une procédure d’urgence limitée, prévue et auditée, ainsi qu’une manière sûre de revenir au contrôle normal.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -268,7 +262,6 @@ Les erreurs les plus dangereuses proviennent souvent de l’interaction entre m�
 
 > **Piège :** une règle AAA centrale ne suffit pas si la configuration du client utilise une autre liste, un autre serveur, un autre groupe ou un compte local qui n’a pas été retiré. Cartographie séparément les règles côté serveur et côté équipement. Les deux extrémités font partie de la politique effective.
 
----
 
 ## 2. Configuration et pratique
 
@@ -586,7 +579,6 @@ Une entreprise possède quinze commutateurs, cinq routeurs et deux pare-feu admi
 
 > **Astuce :** conserve une session d’administration valide pendant le déploiement et ouvre une deuxième session pour tester la nouvelle politique. Ne retire l’ancienne voie qu’après avoir confirmé les scénarios positifs et négatifs, la journalisation et le retour arrière. Pour les équipements critiques, exécute les changements par petits lots, pas simultanément sur tout le parc.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -757,7 +749,6 @@ Après : valide la cohérence des journaux, la source d’autorité, les sauvega
 
 > **Danger :** n’applique pas une nouvelle politique AAA simultanément à l’ensemble d’un parc distant sans moyen de récupération indépendant. Une politique correcte sur le serveur peut devenir inaccessible à cause d’un défaut de routage, d’un secret divergent ou d’une autorisation trop stricte. Le plan de secours fait partie du changement et doit être testé avant la bascule.
 
----
 
 ## Points à retenir
 

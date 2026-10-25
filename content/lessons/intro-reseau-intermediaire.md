@@ -5,7 +5,6 @@
 > **Prérequis :** connaître les adresses IP, les rôles du switch et du routeur, ainsi que les principaux protocoles réseau.  
 > **Objectif :** comprendre les mécanismes de communication, calculer des sous-réseaux, expliquer les VLAN et le routage, puis diagnostiquer une panne à partir de preuves.
 
----
 
 ## Sommaire
 
@@ -24,7 +23,6 @@
 13. Évaluation corrigée
 14. Préparation du niveau expert
 
----
 
 # 1. Contexte et objectifs
 
@@ -52,7 +50,6 @@ Nous allons également apprendre à diagnostiquer les incidents sans nous limite
 - identifier des causes possibles de panne ;
 - suivre une méthode de dépannage fondée sur des observations vérifiables.
 
----
 
 # 2. Les modèles OSI et TCP/IP
 
@@ -144,7 +141,6 @@ La terminologie dépend du protocole, et certains mécanismes modifient ou ajout
 
 Un routeur, par exemple, retire les informations de couche liaison associées au lien entrant, traite le paquet IP, puis utilise une nouvelle encapsulation de couche liaison pour le lien sortant.
 
----
 
 # 3. Ethernet et les adresses MAC
 
@@ -180,7 +176,6 @@ La table MAC est associée au VLAN. Une même adresse apparente ne doit pas êtr
 
 Un broadcast Ethernet de couche 2 ne traverse normalement pas un routeur comme une diffusion ordinaire. Des mécanismes spécifiques, configurés explicitement, peuvent toutefois relayer certains types de messages.
 
----
 
 # 4. IPv4 et calcul des sous-réseaux
 
@@ -323,7 +318,6 @@ Chaque sous-réseau comporte 64 adresses, dont 62 sont utilisables comme adresse
   <text class="sn-text" x="480" y="318" text-anchor="middle">Choisissez les préfixes selon les besoins et les politiques d'adressage.</text>
 </svg>
 
----
 
 # 5. VLAN et segmentation de couche 2
 
@@ -393,7 +387,6 @@ Le routage peut être fourni par un routeur ou par un switch de couche 3.
 
 Le fait de connecter deux VLAN à un même switch ne suffit pas à les rendre communicants au niveau IP.
 
----
 
 # 6. Routage et table de routage
 
@@ -482,7 +475,6 @@ Chaque protocole a ses règles de calcul, ses usages et ses limites.
   <text class="rt-text" x="480" y="307" text-anchor="middle">Les adresses sont un exemple pédagogique, pas une configuration complète.</text>
 </svg>
 
----
 
 # 7. DHCP, DNS, ARP et NDP
 
@@ -552,7 +544,6 @@ ARP, NDP et DNS peuvent utiliser des caches. Un changement récent d'adresse ou 
 
 Avant de vider un cache sur un système de production, vérifiez que cette action est autorisée et qu'elle est nécessaire. Une opération de dépannage doit suivre le diagnostic, pas le remplacer.
 
----
 
 # 8. TCP, UDP et ports
 
@@ -602,7 +593,6 @@ Pour un service TCP, il faut notamment distinguer :
 
 Un ping réussi teste ICMP, pas le service TCP. Une connexion TCP réussie ne prouve pas non plus que la réponse applicative est correcte.
 
----
 
 # 9. Wi-Fi, MTU et performances
 
@@ -637,7 +627,6 @@ Il ne faut pas changer la MTU sans comprendre le chemin complet et les besoins d
 
 Une application temps réel peut souffrir d'une forte gigue ou de pertes même si le débit maximal semble suffisant.
 
----
 
 # 10. Méthode de dépannage structurée
 
@@ -738,7 +727,6 @@ Une réponse applicative peut être incorrecte alors que TCP s'établit normalem
 
 Chaque observation doit donc être interprétée selon le protocole qu'elle mesure réellement.
 
----
 
 # 11. Atelier pratique
 
@@ -793,7 +781,6 @@ La présence éventuelle d'une règle de sécurité bloquante.
 
 Une telle conclusion est préférable à « le réseau ne marche pas », car elle permet d'orienter le diagnostic vers les éléments encore inconnus.
 
----
 
 # 12. Étude de panne
 
@@ -821,7 +808,6 @@ Un poste peut accéder à Internet par adresse IP, mais l'accès à un site par 
 
 Le simple fait qu'une adresse IP soit joignable ne permet pas de conclure que le réseau DNS est opérationnel.
 
----
 
 # 13. Évaluation corrigée
 
@@ -855,7 +841,6 @@ Le simple fait qu'une adresse IP soit joignable ne permet pas de conclure que le
 11. Pour éviter de provoquer des changements inutiles et de masquer la cause de l'incident.
 12. En contrôlant séparément la résolution des noms et l'accessibilité IP de la destination.
 
----
 
 # 14. Préparation du niveau expert
 
@@ -874,7 +859,6 @@ Le niveau expert s'intéressera à :
 
 **Le niveau intermédiaire apprend à expliquer et à tester le fonctionnement du réseau. Le niveau expert apprend à concevoir une architecture cohérente, à anticiper les défaillances et à maîtriser leurs conséquences.**
 
----
 
 ## Références utiles
 

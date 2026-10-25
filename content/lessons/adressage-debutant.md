@@ -5,12 +5,10 @@
 > **Prérequis :** notions de réseau local, de switch et de routeur.  
 > **Objectif :** lire une adresse IPv4, reconnaître les plages privées, comprendre le masque et configurer une machine dans un réseau simple.
 
----
 
 
 > **Schémas intégrés :** le code SVG est directement présent dans ce fichier Markdown. Aucun dossier `images` séparé n’est nécessaire.
 
----
 
 
 ## 1. Qu’est-ce qu’une adresse IP ?
@@ -291,6 +289,5 @@ Un poste joint un serveur local par IP mais n’atteint pas les réseaux distant
 - [RFC 4632 — Classless Inter-domain Routing](https://www.rfc-editor.org/rfc/rfc4632)
 - [Registre IANA des adresses IPv4 spéciales](https://www.iana.org/assignments/iana-ipv4-special-registry)
 
----
 
 **Suite :** `adressage-intermediaire.md` — calcul de sous-réseaux, CIDR, VLSM et diagnostic méthodique.

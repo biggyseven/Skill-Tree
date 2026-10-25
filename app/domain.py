@@ -81,6 +81,7 @@ class Node:
     id: str
     title: str
     description: str
+    module: str
     category: str
     sort_order: int
     prereqs: tuple[str, ...] = ()

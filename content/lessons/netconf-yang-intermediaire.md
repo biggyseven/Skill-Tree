@@ -5,7 +5,6 @@
 > **Prérequis :** comprendre les rôles de YANG, NETCONF et RESTCONF, XML, JSON et les bases des modèles de données.  
 > **Objectif :** écrire et valider des modèles YANG, exploiter les capacités des équipements, automatiser des lectures avec Python et comprendre les opérations de modification contrôlée.
 
----
 
 ## Sommaire
 
@@ -23,7 +22,6 @@
 12. Évaluation corrigée
 13. Préparation du niveau expert
 
----
 
 # 1. Architecture de gestion pilotée par les modèles
 
@@ -102,7 +100,6 @@ Un modèle standardisé facilite l'interopérabilité, mais il faut vérifier :
 
 Un client ne doit pas construire des requêtes uniquement à partir d'une documentation générale si le serveur expose un ensemble de modèles différent.
 
----
 
 # 2. Écrire des modèles YANG plus robustes
 
@@ -223,7 +220,6 @@ Ces mécanismes peuvent aider à intégrer les extensions ou limites d'une plate
 
 Une automatisation portable doit documenter les hypothèses et identifier les modèles nécessaires à chaque équipement.
 
----
 
 # 3. Types, contraintes et relations entre les données
 
@@ -257,7 +253,6 @@ Exemples :
 
 Il faut séparer les contrôles pouvant être décrits directement en YANG des vérifications opérationnelles ou métier qui nécessitent d'autres informations.
 
----
 
 # 4. Valider les modèles avec des outils
 
@@ -310,7 +305,6 @@ Une CI de modèles peut exécuter :
 
 Un changement de modèle peut modifier le comportement des clients sans changer le protocole. C'est pourquoi les révisions et la compatibilité doivent être traitées comme des éléments importants du processus.
 
----
 
 # 5. Découvrir les capacités et modèles d'un serveur NETCONF
 
@@ -350,7 +344,6 @@ Pour un client robuste, cette découverte est particulièrement utile lorsqu'il 
 
 Référence : RFC 8525, YANG Library. Vérifiez les mises à jour et la version prise en charge par votre implémentation.
 
----
 
 # 6. Automatiser des lectures NETCONF avec Python
 
@@ -432,7 +425,6 @@ Un filtre mal construit peut retourner un résultat vide sans que la connexion s
 
 Un programme ne doit pas interpréter tous ces résultats comme un même échec générique.
 
----
 
 # 7. Lire et modifier les ressources RESTCONF
 
@@ -516,7 +508,6 @@ Lorsque le serveur expose des mécanismes de validation conditionnelle HTTP, l'u
 
 Cette protection dépend des ressources et des fonctionnalités prises en charge. Il ne faut pas supposer que tous les serveurs fournissent le même comportement pour toutes les opérations.
 
----
 
 # 8. Gérer les erreurs et les modifications concurrentes
 
@@ -556,7 +547,6 @@ Si le serveur annonce la capacité `candidate`, une application peut préparer d
 
 Si `candidate` ou `validate` n'est pas disponible, le client doit utiliser une stratégie adaptée aux capacités réellement exposées. Il ne doit pas inventer un cycle de transaction que le serveur ne prend pas en charge.
 
----
 
 # 9. Sécuriser les clients et les permissions
 
@@ -580,7 +570,6 @@ Ne consignez pas les mots de passe, jetons ou clés privées dans les journaux.
 
 Avant de publier un XML ou un JSON de réponse dans un rapport, examinez s'il contient des éléments sensibles : les réponses de configuration peuvent révéler des informations d'exploitation importantes.
 
----
 
 # 10. Atelier d'intégration
 
@@ -633,7 +622,6 @@ L'exercice est réussi lorsque le client peut effectuer la lecture de manière r
 
 Aucune écriture réseau n'est nécessaire pour valider cet atelier.
 
----
 
 # 11. Diagnostic
 
@@ -657,7 +645,6 @@ L'acceptation d'une requête ne doit pas remplacer la vérification de l'état a
 
 Comparez les modèles, leurs révisions, les capacités, la version logicielle et les permissions. Deux équipements compatibles avec un même protocole ne prennent pas nécessairement en charge les mêmes modules.
 
----
 
 # 12. Évaluation corrigée
 
@@ -687,7 +674,6 @@ Comparez les modèles, leurs révisions, les capacités, la version logicielle e
 9. L'opération initiale peut avoir été appliquée avant la perte de connexion ; un nouvel envoi peut provoquer un effet inattendu.
 10. Elle confirme que le résultat réel correspond au résultat attendu.
 
----
 
 # 13. Préparation du niveau expert
 
@@ -706,7 +692,6 @@ Le niveau expert approfondira :
 
 **Le niveau intermédiaire transforme les notions de protocole en clients et validations réutilisables. Le niveau expert construit des opérations sûres, transactionnelles lorsque possible, et adaptées aux capacités réelles de chaque équipement.**
 
----
 
 ## Références officielles
 

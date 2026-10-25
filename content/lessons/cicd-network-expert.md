@@ -5,7 +5,6 @@
 > **Prérequis :** Git, validation YAML, tests Python, pipelines CI, gestion des branches et sécurité des secrets.  
 > **Objectif :** concevoir une chaîne de changements réseau gouvernée, traçable, reproductible, observable et capable de gérer les échecs de déploiement.
 
----
 
 ## Sommaire
 
@@ -25,7 +24,6 @@
 14. Étude de défaillance
 15. Évaluation corrigée
 
----
 
 # 1. Architecture et responsabilités d'une chaîne CI/CD experte
 
@@ -65,7 +63,6 @@ Ces activités ne doivent pas être confondues dans un script unique qui modifie
 10. appliquer des règles de sécurité et de séparation des responsabilités ;
 11. mesurer la qualité et la fiabilité de la chaîne de changement.
 
----
 
 # 2. Du dépôt de configuration à l'état attendu
 
@@ -146,7 +143,6 @@ Le choix doit préserver la possibilité d'identifier la source d'un changement,
 
 Une personne ou un outil peut remplir plusieurs fonctions dans un petit environnement, mais les responsabilités doivent rester compréhensibles. Pour une opération à haut risque, les capacités d'approbation et de déploiement doivent être séparées conformément aux règles de l'organisation.
 
----
 
 # 3. GitOps et réconciliation de l'état réseau
 
@@ -240,7 +236,6 @@ La réconciliation continue nécessite des garde-fous supplémentaires. Une bouc
   <text class="eg-text" x="500" y="369" text-anchor="middle">Évaluer l'identité, le contexte, les exceptions et l'autorisation avant toute action.</text>
 </svg>
 
----
 
 # 4. Conception d'un pipeline multi-étapes
 
@@ -354,7 +349,6 @@ La promotion d'un artefact consiste à autoriser son passage vers un autre envir
 
 Lorsque l'artefact doit être reconstruit pour un environnement donné, ses différences doivent être explicites et les résultats de validation doivent rester traçables.
 
----
 
 # 5. Validation approfondie et tests de bout en bout
 
@@ -419,7 +413,6 @@ Exemples :
 
 Les tests négatifs sont particulièrement importants pour les contrôles de sécurité. Un système qui accepte tous les changements ne valide rien.
 
----
 
 # 6. Génération d'un artefact de release
 
@@ -505,7 +498,6 @@ Une empreinte permet de détecter une différence de contenu. Elle ne prouve pas
 
 Pour ces objectifs, il faut relier l'artefact à des sources de confiance, à des contrôles traçables et à une approbation vérifiable.
 
----
 
 # 7. Déploiement progressif et contrôle du périmètre
 
@@ -602,7 +594,6 @@ La décision de poursuivre doit dépendre de critères mesurables, par exemple :
 
 Un message de réussite de la commande de déploiement ne remplace pas ces vérifications.
 
----
 
 # 8. Précontrôles, post-contrôles et critères d'arrêt
 
@@ -664,7 +655,6 @@ Ce fichier illustre la forme d'une politique. Une implémentation doit définir 
 
 Les noms de conditions ne suffisent pas à garantir qu'un orchestrateur les applique correctement.
 
----
 
 # 9. Gestion des échecs partiels et retour arrière
 
@@ -741,7 +731,6 @@ Une procédure de récupération doit préciser :
 
 Une récupération peut exiger une intervention humaine. L'objectif n'est pas de rendre chaque panne entièrement automatique, mais d'éviter les réactions non contrôlées et les décisions prises sans informations suffisantes.
 
----
 
 # 10. Gouvernance, sécurité et traçabilité
 
@@ -804,7 +793,6 @@ Pour un changement important, il doit être possible de relier :
 
 La traçabilité permet d'expliquer ce qui s'est produit et facilite l'analyse après un incident.
 
----
 
 # 11. Mesure de la fiabilité du processus
 
@@ -847,7 +835,6 @@ Après chaque incident ou changement ayant rencontré une difficulté :
 
 L'objectif est de réduire la récurrence des défaillances et d'améliorer la confiance dans les changements futurs.
 
----
 
 # 12. Architecture de référence
 
@@ -923,7 +910,6 @@ Une architecture experte doit préserver les propriétés suivantes :
 
 **Récupération maîtrisée :** l'échec déclenche une stratégie prévue et vérifiable plutôt qu'une réaction improvisée.
 
----
 
 # 13. Atelier expert
 
@@ -1005,7 +991,6 @@ La clôture doit enregistrer le résultat réel, les équipements traités, les 
 
 Ne marquez pas la release comme réussie si certains post-contrôles obligatoires n'ont pas été exécutés ou si leur résultat est inconnu.
 
----
 
 # 14. Étude de défaillance
 
@@ -1044,7 +1029,6 @@ Il ne faut pas conclure automatiquement qu'un seul composant est responsable. L'
 
 Une chaîne avancée ne doit pas simplement exécuter une suite de commandes. Elle doit gérer des états, contrôler les conditions de passage, enregistrer les résultats et interrompre les actions lorsque les hypothèses deviennent invalides.
 
----
 
 # 15. Évaluation corrigée
 
@@ -1113,7 +1097,6 @@ Elle permet de vérifier l'intégrité du contenu comparé à une empreinte de r
 
 L'orchestrateur doit bloquer les actions dépendantes, enregistrer l'état de l'exécution et diriger le processus vers la stratégie de diagnostic ou de récupération prévue.
 
----
 
 # Conclusion — Le niveau expert
 
@@ -1141,7 +1124,6 @@ Le parcours est désormais cohérent :
 
 La maturité CI/CD ne consiste pas à supprimer toute intervention humaine. Elle consiste à automatiser ce qui peut être vérifié de façon fiable et à encadrer explicitement les décisions qui engagent la stabilité du réseau.
 
----
 
 ## Références officielles
 

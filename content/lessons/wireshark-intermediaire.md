@@ -562,7 +562,6 @@ Les menus, options et champs précis peuvent différer selon la version install�
 - [TCP Display Filter Reference](https://www.wireshark.org/docs/dfref/t/tcp.html) — champs et indicateurs TCP disponibles.
 - [Site officiel Wireshark](https://www.wireshark.org/) — téléchargements et ressources du projet.
 
----
 
 ## À retenir
 

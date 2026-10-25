@@ -17,7 +17,6 @@ Les noms des services varient selon les fournisseurs. AWS utilise notamment les 
 
 > **Analogie :** au niveau débutant, tu as appris à dessiner une route entre deux bâtiments. Au niveau intermédiaire, tu dessines le plan de circulation d’une ville : voies principales, sens uniques, échangeurs, tunnels, péages, zones à accès restreint et équipements de contrôle. Une flèche indique le sens d’un trajet possible, mais seule la signalisation et l’état réel des voies permettent de savoir si le trajet est autorisé.
 
----
 
 ## 1. Revoir les fondations avant de concevoir
 
@@ -897,7 +896,6 @@ Consulte la documentation officielle du fournisseur choisi avant de traduire les
 
 Les services et leurs limites évoluent. Les liens officiels doivent être consultés pour les prérequis, les options de routage, les comportements par défaut et les tarifs de la région cible.
 
----
 
 ## À retenir
 

@@ -1,0 +1,7 @@
+{
+  "node_id": "iac-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Infrastructure as Code avec Terraform.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

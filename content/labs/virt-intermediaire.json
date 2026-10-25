@@ -1,0 +1,7 @@
+{
+  "node_id": "virt-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Gestion avancée de l'hyperviseur.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

@@ -5,7 +5,6 @@
 > **Niveau actuel :** Débutant  
 > **Objectif :** reconnaître les équipements réseau, comprendre leur rôle, identifier les principaux ports et câbles, et apprendre à vérifier une installation élémentaire.
 
----
 
 ## Sommaire
 
@@ -24,7 +23,6 @@
 13. Évaluation corrigée
 14. Préparation du niveau intermédiaire
 
----
 
 # 1. Contexte et objectifs
 
@@ -55,7 +53,6 @@ Comprendre le matériel aide donc à installer, entretenir et dépanner une infr
 
 Aucune expérience avancée n'est nécessaire. Vous devez simplement savoir reconnaître un ordinateur, un câble, une prise réseau et une alimentation électrique.
 
----
 
 # 2. Qu'est-ce que le matériel réseau ?
 
@@ -77,7 +74,6 @@ Chaque composant a une fonction particulière. Deux appareils peuvent se ressemb
 
 Par exemple, une box Internet résidentielle peut réunir un routeur, un petit switch, un point d'accès Wi-Fi, un pare-feu et un terminal d'accès au fournisseur. Dans une entreprise, ces fonctions sont souvent réparties entre plusieurs équipements.
 
----
 
 # 3. Les équipements essentiels
 
@@ -184,7 +180,6 @@ Le choix dépend de la fonction nécessaire, et non simplement de l'apparence de
 | Convertisseur de média | Adapter une liaison à un autre support | Ethernet cuivre vers fibre |
 | Répéteur Wi-Fi | Étendre la portée selon le système | Zone de couverture supplémentaire |
 
----
 
 # 4. Switch, routeur et point d'accès : les différences
 
@@ -245,7 +240,6 @@ Ces équipements sont parfois confondus, notamment parce qu'une box Internet peu
   <text class="hb-text" x="480" y="342" text-anchor="middle">Le dessin ne représente pas les règles de sécurité ni tous les liens de l'infrastructure.</text>
 </svg>
 
----
 
 # 5. Les supports de transmission
 
@@ -358,7 +352,6 @@ Une liaison Wi-Fi ne dépend donc pas uniquement du débit inscrit sur la boîte
   <text class="me-text" x="480" y="317" text-anchor="middle">Le débit dépend des interfaces, du support et de la qualité du lien.</text>
 </svg>
 
----
 
 # 6. Les ports, interfaces et voyants
 
@@ -406,7 +399,6 @@ Lorsqu'il clignote, cela peut refléter l'activité, la négociation ou un autre
 
 Ne remplacez pas immédiatement le switch sur la base d'un voyant isolé. Vérifiez également le câble, l'interface distante, la configuration et l'alimentation du terminal.
 
----
 
 # 7. Alimentation et PoE
 
@@ -486,7 +478,6 @@ Avant l'installation :
   <text class="pe-text" x="480" y="278" text-anchor="middle">Vérifier compatibilité, puissance par port et budget total.</text>
 </svg>
 
----
 
 # 8. Les composants d'un équipement professionnel
 
@@ -526,7 +517,6 @@ D'autres possèdent une interface de gestion Ethernet dédiée.
 
 Ces interfaces ne sont pas nécessairement destinées au trafic utilisateur. Il faut respecter les instructions du constructeur et les règles de sécurité de l'infrastructure.
 
----
 
 # 9. Exemple d'installation réseau
 
@@ -620,7 +610,6 @@ Vérifiez :
 
 Une lumière verte ne prouve pas que tout fonctionne. Elle indique seulement un état défini par le fabricant.
 
----
 
 # 10. Installation et précautions
 
@@ -665,7 +654,6 @@ Documentez au minimum :
 
 Ne publiez pas les numéros de série, adresses de gestion ou autres détails sensibles dans des documents accessibles sans contrôle.
 
----
 
 # 11. Premiers diagnostics
 
@@ -712,7 +700,6 @@ Un redémarrage répété peut provenir d'un problème d'alimentation ou de logi
 8. Remplacer un composant seulement si les éléments recueillis le justifient.
 ```
 
----
 
 # 12. Atelier pratique
 
@@ -750,7 +737,6 @@ Enregistrez les connexions, les éventuels problèmes et les vérifications effe
 
 Le laboratoire est réussi lorsque le matériel est identifié, raccordé de manière cohérente et vérifié sans remplacer des composants au hasard.
 
----
 
 # 13. Évaluation corrigée
 
@@ -819,7 +805,6 @@ Un équipement optique peut émettre un signal invisible potentiellement dangere
 
 Leurs couleurs et comportements varient selon les fabricants et les modèles.
 
----
 
 # 14. Préparation du niveau intermédiaire
 
@@ -838,7 +823,6 @@ Le niveau intermédiaire approfondira :
 
 Le niveau débutant vous apprend à reconnaître le matériel. Le niveau intermédiaire vous apprendra à dimensionner et diagnostiquer une installation de manière méthodique.
 
----
 
 ## Références utiles
 

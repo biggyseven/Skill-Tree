@@ -5,7 +5,6 @@
 > **Prérequis :** maîtriser les dépôts, commits, branches, diff et pipelines simples présentés dans le cours débutant.  
 > **Objectif :** construire une chaîne CI plus fiable, tester les données et les configurations réseau, et préparer des déploiements gouvernés sans exposer prématurément les équipements de production.
 
----
 
 ## Sommaire
 
@@ -24,7 +23,6 @@
 13. Évaluation corrigée
 14. Préparation du niveau expert
 
----
 
 # 1. Contexte et objectifs
 
@@ -80,7 +78,6 @@ python3 --version
 
 Tous les exercices de validation ci-dessous peuvent être exécutés localement avant d'être intégrés à la CI.
 
----
 
 # 2. Architecture du dépôt réseau
 
@@ -146,7 +143,6 @@ devices:
 
 Les adresses `192.0.2.0/24` sont réservées à la documentation. Elles servent ici d'exemples ; remplacez-les par les valeurs de votre laboratoire si vous exécutez des contrôles de connectivité.
 
----
 
 # 3. Gestion des branches et qualité des changements
 
@@ -250,7 +246,6 @@ Un changement doit avoir une intention identifiable. Évitez les commits qui mê
 
 Un petit changement est plus facile à relire, tester et annuler.
 
----
 
 # 4. Validation des inventaires YAML
 
@@ -447,7 +442,6 @@ SUCCÈS — inventaire valide : inventory/devices.yml
 
 Pour tester volontairement un échec, dupliquez le nom d'un équipement ou modifiez une adresse IP en une chaîne invalide. Le programme doit alors afficher les problèmes et terminer avec un code d'échec.
 
----
 
 # 5. Tests automatisés et analyse statique
 
@@ -552,7 +546,6 @@ Un test réseau peut vérifier un comportement plus large, par exemple une conne
 
 Un test unitaire réussi ne démontre pas le bon fonctionnement de toute l'infrastructure.
 
----
 
 # 6. Pipeline CI intermédiaire
 
@@ -713,7 +706,6 @@ Le rapport n'est pas une preuve de validation fonctionnelle de l'équipement. Il
   <text class="mp-text" x="500" y="353" text-anchor="middle">Ils ne prouvent pas à eux seuls le comportement en production.</text>
 </svg>
 
----
 
 # 7. Production de rapports et d'artefacts
 
@@ -753,7 +745,6 @@ Le même commit doit idéalement donner des résultats comparables lorsque les c
 - évitez les dépendances implicites à la machine locale ;
 - documentez les paramètres nécessaires aux tests.
 
----
 
 # 8. Préparation d'un déploiement contrôlé
 
@@ -795,7 +786,6 @@ Le processus doit s'arrêter lorsqu'un critère obligatoire échoue. Un pipeline
 
 L'ordre opérationnel, le nombre d'équipements traités simultanément, les délais d'attente et les conditions d'arrêt doivent faire partie de la conception du changement.
 
----
 
 # 9. Sécurité de la chaîne CI/CD
 
@@ -832,7 +822,6 @@ Une action tierce exécutée dans la CI fait partie de la chaîne logicielle. Le
 
 L'utilisation de versions récentes n'élimine pas tous les risques ; la provenance, les permissions et le contexte d'exécution restent importants.
 
----
 
 # 10. Vérification avant et après changement
 
@@ -928,7 +917,6 @@ Il doit indiquer :
 
 Ne supposez jamais que remettre un fichier Git à sa version précédente remet automatiquement l'équipement dans cet état.
 
----
 
 # 11. Atelier pratique complet
 
@@ -1004,7 +992,6 @@ La fusion doit rester soumise aux protections configurées dans le dépôt.
 
 **Résultat attendu de l'atelier :** un changement versionné, des règles testées, une CI reproductible et des résultats consultables. Aucun déploiement réseau n'est nécessaire pour démontrer cette réussite.
 
----
 
 # 12. Dépannage
 
@@ -1028,7 +1015,6 @@ C'est attendu lorsque la génération du rapport utilise `if: always()`. Examine
 
 Un parseur YAML vérifie seulement la structure du document. Les règles métier — noms uniques, rôles autorisés, champs obligatoires et contraintes d'adressage — doivent être testées séparément.
 
----
 
 # 13. Évaluation corrigée
 
@@ -1058,7 +1044,6 @@ Un parseur YAML vérifie seulement la structure du document. Les règles métier
 9. Une étape de génération de rapport peut être configurée pour s'exécuter même si une étape précédente échoue.
 10. Elle peut imposer des contrôles réussis, une revue et d'autres règles avant d'autoriser les changements sur la branche principale.
 
----
 
 # 14. Préparation du niveau expert
 
@@ -1077,7 +1062,6 @@ Le niveau expert ira au-delà de la validation des fichiers et des tests unitair
 
 **Le niveau intermédiaire transforme le dépôt Git en une base testable. Le niveau expert transforme cette base en un processus de changement gouverné, observable et résilient.**
 
----
 
 ## Références officielles
 

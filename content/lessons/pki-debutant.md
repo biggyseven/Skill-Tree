@@ -8,7 +8,6 @@ Le terme **SSL** reste courant dans les conversations et dans certains noms d’
 
 > **Analogie** : Un certificat est comparable à une carte d’identité signée par une autorité reconnue. La carte relie un nom à une clé publique, et la signature permet de vérifier que l’autorité a approuvé cette liaison. Une carte authentique ne garantit toutefois pas que son porteur est bien la personne recherchée si tu ne compares pas le bon nom.
 
----
 
 <style>
 .pki-diagram{width:100%;max-width:100%;margin:1.35rem auto 1.8rem;padding:.55rem;border:1px solid #334155;border-radius:16px;background:#090d14;box-sizing:border-box;overflow:hidden;color:#e4e4e7}

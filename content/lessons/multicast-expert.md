@@ -1,217 +1,474 @@
-# Architecture Multicast Avancée : Protocoles, Ingénierie L2/L3 et Sécurité Entreprise
+# IP Multicast — Niveau Expert
 
-Ce document de niveau expert détaille la théorie des systèmes, les protocoles de routage inter-domaine et intra-domaine, l'intégration du Multicast au sein des fabriques modernisées (VXLAN/EVPN), ainsi que le diagnostic réseau à grande échelle.
+> **Parcours :** Réseaux IP avancés · **Niveau :** Expert · **Fichier :** `multicast-expert.md`
+>
+> Ce cours prolonge le niveau intermédiaire. Il vise le design, le dimensionnement, l’exploitation et le dépannage d’architectures multicast étendues. Les exemples de CLI Cisco sont pédagogiques et doivent être adaptés à la plateforme, au train logiciel et au modèle de service réellement déployés.
 
----
+## Objectifs pédagogiques
+À la fin de ce cours, tu dois pouvoir : concevoir un service multicast avec des hypothèses explicites de croissance et de panne ; choisir entre ASM, SSM et Bidir-PIM selon les besoins ; planifier la redondance RP et comprendre ses limites ; interpréter le comportement PIM-SM/RPF lors des changements de topologie ; analyser le multicast dans une VRF et un VPN MPLS ; établir une procédure de validation reproductible ; distinguer une panne de contrôle d’une panne du plan de données ; rédiger une stratégie de déploiement et de retour arrière mesurable.
 
-## 1. Mécanique Fondamentale et Algorithmes de Routage Multicast
+## Prérequis et conventions
+- Les niveaux débutant et intermédiaire : IGMP/MLD, IGMP snooping, PIM-SM, RPF, `(*,G)`, `(S,G)`, SSM, RP, BSR, SPT et MVPN.
+- Routage unicast, OSPF ou IS-IS, BGP de base, adressage IPv4/IPv6, ACL et lecture de compteurs d’interface.
+- `S` désigne l’adresse unicast de source ; `G` l’adresse de groupe multicast. Exemple : `S=10.10.10.10`, `G=239.10.10.10`.
+- Les diagrammes sont des modèles conceptuels. Ils illustrent le sens logique du flux ou des messages, pas une capture exacte d’une implémentation.
 
-### 1.1 Le Contrat RPF (Reverse Path Forwarding) et Invariant de Non-Bouclage
 
-Contrairement au routage Unicast qui oriente le paquet en fonction de son **adresse de destination**, le routage Multicast prend ses décisions en fonction de **l'adresse source** ($S$).
+## 1. De l’exploitation au design : raisonner en service de bout en bout
 
-#### Algorithme de Vérification RPF :
-Lorsqu'un paquet IPv4 Multicast avec la source $S$ et le groupe $G$ arrive sur l'interface $I_{in}$ :
+En exploitation quotidienne, une commande peut montrer un état `(*,G)` ou `(S,G)` et pourtant l’application ne reçoit aucun paquet. À l’inverse, quelques paquets peuvent arriver alors que le contrôle est instable, que des compteurs se réinitialisent ou que le flux disparaît après une convergence. Au niveau expert, la question n’est donc pas seulement « PIM est-il activé ? », mais « quel contrat de service le réseau doit-il respecter et quelles preuves démontrent qu’il le respecte ? ».
 
-1. Le routeur consulte sa table de routage Unicast (RIB) pour trouver la route correspondant à l'adresse de la source $S$.
-2. Le routeur identifie l'interface de sortie Unicast $I_{expected}$ et le prochain saut (*Next-Hop*) associés à $S$.
-3. **Condition RPF :**
-   $$\text{Si } I_{in} == I_{expected} \implies \text{Test RPF Réussi (Forwarding)}$$
-   $$\text{Si } I_{in} \neq I_{expected} \implies \text{Test RPF Échoué (Drop Packet)}$$
+Un contrat multicast documente au minimum : les producteurs autorisés, les groupes autorisés, le type de service (ASM ou SSM), les récepteurs attendus, le débit moyen et de pointe, le nombre d’états simultanés, les domaines traversés, le délai de démarrage acceptable, la perte maximale tolérée, le comportement attendu en cas de panne et le propriétaire de l’application. Sans cette fiche, le design risque d’optimiser le débit alors que le vrai problème est le nombre d’états `(S,G)`, la durée de reprise ou une frontière de sécurité mal définie.
 
-```
-                  [ Source S: 10.10.10.1 ]
-                             │
-                             ▼
-                    [ Switch Core L3 ]
-                       │          │
-         Interface GE0/0          Interface GE0/1
-         (Chemin Unicast)         (Chemin Secondaire)
-                       │          │
-                       ▼          ▼
-             ┌──────────────────────────┐
-             │    Routeur Multicast     │
-             └──────────────────────────┘
-             • Paquet arrivant sur GE0/0 ──► RPF OK  ──► Transmis sur OIL
-             • Paquet arrivant sur GE0/1 ──► RPF FAIL ──► Droppé immédiatement
-```
+**Schéma 1 — Vue de service de bout en bout**
+Le fonctionnement doit être validé du producteur au socket récepteur, en passant par l’adhésion, le routage multicast et le transfert matériel.
 
-#### RPF Vector & Asymétrie de Routage :
-En présence d'un routage Unicast asymétrique (où le chemin Aller $A \to B$ diffère du chemin Retour $B \to A$), la vérification RPF classique peut échouer. Les extensions protocolaires (ex: *PIM RPF Vector*) permettent d'inclure une adresse explicite de prochain saut RPF dans les messages de signalisation PIM.
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="390" viewBox="0 0 960 390" role="img" aria-label="Multicast de bout en bout : plusieurs plans"><rect x="0" y="0" width="960" height="390" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Multicast de bout en bout : plusieurs plans</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Le contrôle construit l’état ; le plan de données réplique les paquets</text><rect x="28" y="105" width="165" height="112" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="110.5" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">Source S</text><text x="110.5" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">10.10.10.10</text><text x="110.5" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">envoie vers G</text><rect x="250" y="105" width="175" height="112" rx="12" fill="#14243a" stroke="#67e8f9" stroke-width="2"/><text x="337.5" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#67e8f9" text-anchor="middle">Routeur source / FHR</text><text x="337.5" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">PIM Register en ASM</text><text x="337.5" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">ou Join (S,G) en SSM</text><rect x="492" y="105" width="175" height="112" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="579.5" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">Cœur multicast</text><text x="579.5" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RPF + état (*,G)/(S,G)</text><text x="579.5" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">réplication ciblée</text><rect x="745" y="105" width="185" height="112" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="837.5" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">Récepteur / LHR</text><text x="837.5" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">IGMPv3 / MLDv2</text><text x="837.5" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">OIF vers VLAN client</text><line x1="193" y1="161" x2="250" y2="161" stroke="#4ade80" stroke-width="3"/><polygon points="250.0,161.0 239.0,155.0 239.0,167.0" fill="#4ade80"/><line x1="425" y1="161" x2="492" y2="161" stroke="#67e8f9" stroke-width="3"/><polygon points="492.0,161.0 481.0,155.0 481.0,167.0" fill="#67e8f9"/><line x1="667" y1="161" x2="745" y2="161" stroke="#60a5fa" stroke-width="3"/><polygon points="745.0,161.0 734.0,155.0 734.0,167.0" fill="#60a5fa"/><text x="480" y="264" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">Plan de contrôle : IGMP/MLD, PIM, RP/BSR, MRIB</text><text x="480" y="292" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="400" fill="#f4f7fb" text-anchor="middle">Plan de données : RPF sur IIF, réplication vers OIL/OIF</text><text x="480" y="336" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Un état présent ne prouve pas à lui seul que les paquets arrivent au récepteur.</text></svg>
 
----
+### 1.1 Séparer les preuves
 
-## 2. Anatomie de PIM-Sparse Mode (PIM-SM) et Évolution des Arbres
+| Domaine | Preuve attendue | Ce que cette preuve ne garantit pas |
+|---|---|---|
+| Application source | La source émet vers le bon `G`, avec TTL et port attendus | Que le premier routeur accepte ce trafic |
+| Adhésion locale | IGMP/MLD et table snooping cohérents | Que le groupe traverse le cœur IP |
+| Contrôle multicast | Voisins PIM, mapping RP, Join/Prune, états | Que les paquets sont effectivement transférés en matériel |
+| Routage et RPF | Route attendue vers `S` ou le RP et interface cohérente | Que les ACL ou la capacité ne bloquent pas le flux |
+| Plan de données | Compteurs d’entrée et de sortie, capture ciblée | Que l’application décode les données correctement |
+| Application réceptrice | Socket abonné, interface locale et pare-feu compatibles | Que le réseau sera stable lors d’une panne |
 
-### 2.1 Les Tables d'État (mroute) : `(*, G)` vs `(S, G)`
+La preuve la plus fiable repose sur plusieurs observations faites à la même période. Synchroniser les horloges et consigner les adresses source, groupe, port UDP, VLAN, interface et horodatage permet de comparer des compteurs avant et après chaque frontière du chemin.
 
-Chaque routeur Multicast maintient une table d'état applicative (*Multicast Routing Table* - `mroute`).
+### 1.2 ASM, SSM ou Bidir-PIM : choix d’architecture
 
-* **Entrée `(*, G)` (Rendezvous Point Tree / Shared Tree) :**
-  * **Wildcard wildcard :** Représente toutes les sources émettant vers le groupe $G$.
-  * **Incoming Interface (IIF) :** Interface tournée vers le **Rendezvous Point (RP)**.
-  * **Outgoing Interface List (OIL) :** Liste des interfaces menant aux récepteurs actifs ou aux routeurs en aval.
+Le modèle ASM reste utile lorsqu’un récepteur souhaite un groupe sans connaître à l’avance toutes les sources, mais implique un mécanisme de rendezvous en PIM-SM. SSM est préférable quand l’application connaît explicitement la source et que les terminaux peuvent utiliser IGMPv3/MLDv2. Bidir-PIM vise des applications où de nombreuses sources et récepteurs partagent des groupes, et où l’arbre bidirectionnel peut réduire l’état source-spécifique. Ces modèles ne sont pas interchangeables sans vérifier la sémantique applicative, la prise en charge des terminaux et les fonctions disponibles sur tous les équipements.
 
-* **Entrée `(S, G)` (Shortest Path Tree / Source Tree) :**
-  * **Specific Source :** Représente la source unique $S$ émettant vers le groupe $G$.
-  * **Incoming Interface (IIF) :** Interface tournée vers la **Source $S$** (obtenue via le test RPF Unicast vers $S$).
-  * **Outgoing Interface List (OIL) :** Interfaces actives pour transmettre le flux spécifique.
+**Schéma 2 — Comparaison du modèle de service**
 
----
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="410" viewBox="0 0 960 410" role="img" aria-label="Choisir ASM ou SSM"><rect x="0" y="0" width="960" height="410" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Choisir ASM ou SSM</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Le modèle de service détermine le besoin de RP et le type d’état</text><rect x="36" y="100" width="410" height="120" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="241.0" y="125" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">ASM — Any-Source Multicast</text><text x="241.0" y="149" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Le récepteur rejoint G</text><text x="241.0" y="169" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Le RP facilite la découverte des sources</text><text x="241.0" y="189" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">État partagé (*,G), puis souvent (S,G)</text><rect x="514" y="100" width="410" height="120" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="719.0" y="125" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">SSM — Source-Specific Multicast</text><text x="719.0" y="149" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Le récepteur rejoint explicitement (S,G)</text><text x="719.0" y="169" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">IGMPv3 / MLDv2 requis pour filtrer la source</text><text x="719.0" y="189" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Pas de RP requis pour le mécanisme SSM</text><line x1="240" y1="220" x2="240" y2="262" stroke="#fbbf24" stroke-width="2"/><line x1="720" y1="220" x2="720" y2="262" stroke="#4ade80" stroke-width="2"/><rect x="95" y="262" width="290" height="85" rx="12" fill="#101d30" stroke="#fbbf24" stroke-width="2"/><text x="240.0" y="287" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#fbbf24" text-anchor="middle">Avantages ASM</text><text x="240.0" y="311" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Souplesse si la source est inconnue</text><rect x="573" y="262" width="290" height="85" rx="12" fill="#101d30" stroke="#4ade80" stroke-width="2"/><text x="718.0" y="287" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#4ade80" text-anchor="middle">Avantages SSM</text><text x="718.0" y="311" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Contrôle explicite du canal (S,G)</text><text x="480" y="382" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Choisir selon les applications, les hôtes, l’exploitation et la compatibilité.</text></svg>
 
-### 2.2 Séquence Complète du Flux de Signalisation PIM-SM
+Décision pratique :
+1. L’application connaît-elle l’adresse de la source ? Si oui, SSM mérite d’être étudié en priorité.
+2. Les terminaux et le LAN gèrent-ils IGMPv3 ou MLDv2 sur le chemin concerné ?
+3. Faut-il autoriser plusieurs sources sans gérer une liste explicite `(S,G)` ? ASM peut être adapté.
+4. Le trafic est-il très many-to-many, avec de nombreuses sources actives ? Bidir-PIM peut être pertinent si la plateforme et l’exploitation le supportent.
+5. La transition peut-elle se faire par groupes et segments pilotes, avec un retour arrière vérifiable ?
 
-```
- [ Source S ]           [ First-Hop Router (FHR) ]          [ Rendezvous Point (RP) ]          [ Last-Hop Router (LHR) ]          [ Receiver ]
-      │                                 │                                    │                                  │                        │
-      │                                 │                                    │ ◄──────── PIM Join (*,G) ────────┤ (IGMP Report reçu)     │
-      │                                 │                                    │                                  │                        │
-      ├────── Flux UDP Multicast ──────►│                                    │                                  │                        │
-      │                                 │ ─── PIM Register (Unicast Encaps) ─►│                                  │                        │
-      │                                 │     (Contient le paquet data)      │ ────── Flux décapsulé (*,G) ─────►│                        │
-      │                                 │                                    │                                  │ ─── Flux vers hôte ───►│
-      │                                 │ ◄─── PIM Join (S,G) (Native Tree) ─┤                                  │                        │
-      │                                 │                                    │                                  │                        │
-      │ ◄────── Native Multicast ───────┤ ════════ Native Multicast ════════►│                                  │                        │
-      │                                 │                                    │                                  │                        │
-      │                                 │ ─── PIM Register-Stop ────────────►│                                  │                        │
-      │                                 │                                    │                                  │                        │
-      │                                 │                                    │ ◄─── PIM Join (S,G) (SPT Switch) ┤                        │
-      │                                 │ ◄──────────────── PIM Join (S,G) ─────────────────────────────────────┤                        │
-      │                                 │                                    │                                  │                        │
-      │ ◄────────────────────────────── native Multicast Direct (SPT) ─────────────────────────────────────────┤                        │
-      │                                 │                                    │ ─── PIM Prune (S,G) ────────────►│                        │
-```
+### 1.3 Dimensionner les états, pas uniquement les bits par seconde
 
-#### Étape 1 : Rejointoiement du Récepteur
-1. Le récepteur envoie un **IGMP Membership Report** pour le groupe $G$.
-2. Le **LHR (Last-Hop Router)** crée une entrée `(*, G)` et transmet un message **PIM Join (*, G)** saut par saut vers le **RP**.
-3. Chaque routeur intermédiaire crée l'état `(*, G)` et ajoute l'interface incidente à son `OIL`.
+La charge multicast est multidimensionnelle : débit en bit/s, paquets/s, nombre de groupes, nombre de sources par groupe, nombre de récepteurs et ports de sortie, nombre d’états `(S,G)`/`(*,G)`, fréquence des changements de membership, taille de la table de transfert matériel et volume de contrôle. Deux réseaux transportant le même débit peuvent exercer des charges différentes si l’un a quelques flux stables et l’autre des milliers de sources éphémères.
 
-#### Étape 2 : Enregistrement de la Source
-1. La source $S$ commence à émettre des paquets vers $G$.
-2. Le **FHR (First-Hop Router)** intercepte le flux, crée une entrée `(S, G)`.
-3. Le FHR encapsule le paquet original dans un message Unicast **PIM Register** et l'envoie au RP.
-4. Le RP déballe le paquet et le transmet le long de l'arbre partagé `(*, G)`.
+Une règle de conception prudente consiste à mesurer le pic de groupes et de sources en conditions représentatives, ajouter la croissance attendue, puis tester un scénario de churn (adhésions/départs) et une panne. Ne pas considérer une limite théorique de protocole comme une garantie de capacité du matériel : la taille réelle dépend des ASIC, de la mémoire, du système logiciel et des fonctions activées.
 
-#### Étape 3 : Transition vers l'Arbre Natif (RP-Tree)
-1. Le RP envoie un message **PIM Join (S, G)** en direction du FHR pour établir un arbre natif non encapsulé.
-2. Dès que les paquets natifs `(S, G)` arrivent au RP, celui-ci répond au FHR par un **PIM Register-Stop** pour mettre fin à l'encapsulation Unicast.
+**Schéma 3 — Les axes de capacité multicast**
 
-#### Étape 4 : Bascule SPT (Shortest Path Tree Switchover)
-1. Par défaut (seuil de débit à 0 kbps), dès que le **LHR** reçoit le premier paquet du flux via l'arbre partagé `(*, G)`, il initie la bascule vers le chemin direct vers la source.
-2. Le LHR envoie un **PIM Join (S, G)** vers la source $S$.
-3. Dès que le flux arrive par l'arbre direct `(S, G)`, le LHR envoie un **PIM Prune (S, G)** vers le RP pour couper la branche redondante via l'arbre partagé.
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="Dimensionnement : mesurer les états, pas seulement le débit"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Dimensionnement : mesurer les états, pas seulement le débit</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Le coût dépend des groupes, sources, interfaces et récepteurs, pas uniquement des Mbps</text><rect x="35" y="104" width="205" height="103" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="137.5" y="129" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">Charge data-plane</text><text x="137.5" y="153" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">débit pps / bps</text><text x="137.5" y="173" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">réplication par sortie</text><rect x="265" y="104" width="205" height="103" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="367.5" y="129" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">Charge contrôle</text><text x="367.5" y="153" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">états (S,G), (*,G)</text><text x="367.5" y="173" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">fréquence Join/Prune</text><rect x="495" y="104" width="205" height="103" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="597.5" y="129" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">Charge multicast LAN</text><text x="597.5" y="153" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">groupes actifs</text><text x="597.5" y="173" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">ports membres</text><rect x="725" y="104" width="205" height="103" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="827.5" y="129" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">Capacité matériel</text><text x="827.5" y="153" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">ASIC / table / CPU</text><text x="827.5" y="173" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">limites du modèle</text><line x1="240" y1="155" x2="265" y2="155" stroke="#94a3b8" stroke-width="2"/><polygon points="265.0,155.0 254.0,149.0 254.0,161.0" fill="#94a3b8"/><line x1="470" y1="155" x2="495" y2="155" stroke="#94a3b8" stroke-width="2"/><polygon points="495.0,155.0 484.0,149.0 484.0,161.0" fill="#94a3b8"/><line x1="700" y1="155" x2="725" y2="155" stroke="#94a3b8" stroke-width="2"/><polygon points="725.0,155.0 714.0,149.0 714.0,161.0" fill="#94a3b8"/><text x="480" y="275" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#f4f7fb" text-anchor="middle">Charge = trafic + nombre d’états + fréquence des changements</text><text x="480" y="313" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Tester le pic d’adhésions et le churn de sources, pas seulement le débit moyen.</text><text x="480" y="354" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#67e8f9" text-anchor="middle">Les valeurs maximales dépendent du matériel, des licences et de l’OS.</text></svg>
 
----
 
-## 3. Stratégies d'Infrastructures RP : Auto-RP, BSR et Anycast-RP
+## 2. PIM-SM avancé : de l’état à la décision de transfert
 
-Pour éviter un point de défaillance unique (*Single Point of Failure*), le rôle de RP doit être redondé et découvert dynamiquement.
+PIM-SM construit des états à partir de la topologie unicast et des messages PIM. L’état partagé `(*,G)` décrit un intérêt pour le groupe via le RP. L’état source-spécifique `(S,G)` décrit un chemin vers une source précise. Selon le modèle et la phase de fonctionnement, un routeur peut garder les deux états, l’un ou l’autre. La présence d’une entrée dans la table ne prouve pas à elle seule que les paquets sont conformes aux attentes : il faut aussi examiner l’interface entrante attendue (IIF), la liste des interfaces de sortie (OIL), les compteurs et le comportement du plan de données.
 
-### 3.1 Comparatif des Mécanismes de Découverte de RP
+### 2.1 PIM Join/Prune et propagation des changements
 
-| Critère | Static RP | Auto-RP (Propriétaire Cisco) | PIM Bootstrap Router (BSR - RFC 5059) |
-| :--- | :--- | :--- | :--- |
-| **Standardisation** | Indépendant | Propriétaire Cisco | Standard IETF (Open) |
-| **Transport** | Configuration manuelle | Dense-Mode Flooding (`224.0.1.39`/`224.0.1.40`) | Messages PIM BSR Bipoints (`224.0.0.13`) |
-| **Sélection du RP** | N/A | Le RP avec la plus haute IP gagne | Calcul de Hash-Function algorithmique par groupe |
-| **Fiabilité** | Pas de bascule dynamique | Élections dynamiques via Candidate-RP | Élections dynamiques + Répartition via Hash |
+Les messages Join/Prune sont envoyés vers le voisin amont choisi par la vérification RPF. Le Join construit une branche de l’arbre ; le Prune retire une branche lorsque plus aucun récepteur ou prochain saut n’en a besoin. Les messages sont périodiques et l’état expire sans rafraîchissement. Il peut exister un délai entre la modification de l’adhésion locale et la stabilisation de l’état sur tout le chemin. Des changements rapides de récepteurs ou de sources sollicitent le contrôle et peuvent se transformer en churn significatif.
 
----
+Les paquets de contrôle et le trafic de données sont distincts. Une capture de PIM Join prouve qu’une demande a été envoyée, pas que chaque routeur amont l’a acceptée ni que le trafic suit le chemin. Pour vérifier le chemin, comparer le voisin amont, l’interface RPF, l’état `(S,G)` et les compteurs d’entrée/sortie. Les commandes précises varient selon IOS/IOS XE, NX-OS et d’autres OS.
 
-### 3.2 Anycast-RP avec MSDP (Multicast Source Discovery Protocol)
+### 2.2 RPT vers SPT : critères et effets
 
-Dans les architectures multi-domaines ou intra-domaine à très haute disponibilité, plusieurs RP partagent **exactement la même adresse IP Unicast** (ex: `10.255.255.1/32` via Loopback).
+Dans ASM/PIM-SM, un routeur de dernier saut (LHR) peut commencer à recevoir un flux par l’arbre partagé RPT. Il peut ensuite construire un arbre SPT vers la source. Cela peut réduire le détour via le RP, mais accroît les états source-spécifiques. Le seuil de bascule (immédiat, basé sur le débit ou défini par une politique) varie selon la plateforme. Si le réseau comporte de nombreuses sources de courte durée, une stratégie SPT trop agressive peut augmenter le churn et la consommation de ressources.
 
-```
-   [ Source S ]                                                         [ Récepteur ]
-        │                                                                    │
-        ▼                                                                    ▼
-┌───────────────┐        Sessions MSDP Peer (TCP 639)         ┌───────────────┐
-│  RP-1 (PIM)   │ ◄─────────────────────────────────────────► │  RP-2 (PIM)   │
-│ 10.255.255.1  │        Message Source-Active (SA)           │ 10.255.255.1  │
-└───────────────┘                                             └───────────────┘
-```
+Lorsqu’un SPT est construit, l’ancien arbre ne doit pas être supposé disparaître immédiatement dans tous les états. Observer les deux états durant la transition peut être normal. Ce qui est suspect est une asymétrie durable, une interface attendue incohérente, une duplication persistante ou des compteurs qui croissent sur une interface de sortie non voulue.
 
-1. **Routage Unicast Anycast :** Les routeurs du réseau rejoignent le RP le plus proche au sens de la métrique IGP (OSPF/IS-IS).
-2. **Découverte de Source via MSDP (RFC 3618) :**
-   * La source émet vers **RP-1**.
-   * RP-1 crée l'état `(S, G)` et génère un message MSDP **Source-Active (SA)** contenant $(S, G)$ et l'adresse du FHR.
-   * RP-1 transmet ce message SA à ses pairs MSDP (dont **RP-2**).
-   * **RP-2** reçoit le message SA. Comme il possède des récepteurs inscrits en `(*, G)`, il envoie un `PIM Join (S, G)` vers la source $S$.
+**Schéma 4 — Transition RPT/SPT**
 
----
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="Basculer du RPT vers le SPT"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Basculer du RPT vers le SPT</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Le comportement et le seuil de bascule dépendent de la plateforme et de la configuration</text><rect x="30" y="105" width="165" height="100" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="112.5" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">Source S</text><text x="112.5" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">10.10.10.10</text><rect x="280" y="92" width="175" height="105" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="367.5" y="117" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">RP</text><text x="367.5" y="141" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">arbre partagé</text><text x="367.5" y="161" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">(*,G)</text><rect x="530" y="92" width="175" height="105" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="617.5" y="117" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">Routeur LHR</text><text x="617.5" y="141" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">récepteur actif</text><text x="617.5" y="161" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">état (*,G)</text><rect x="780" y="92" width="150" height="105" rx="12" fill="#14243a" stroke="#67e8f9" stroke-width="2"/><text x="855.0" y="117" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#67e8f9" text-anchor="middle">LAN client</text><text x="855.0" y="141" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">G rejoint</text><line x1="195" y1="155" x2="280" y2="145" stroke="#fbbf24" stroke-width="3"/><polygon points="280.0,145.0 268.4,140.3 269.8,152.2" fill="#fbbf24"/><line x1="455" y1="145" x2="530" y2="145" stroke="#fbbf24" stroke-width="3"/><polygon points="530.0,145.0 519.0,139.0 519.0,151.0" fill="#fbbf24"/><line x1="705" y1="145" x2="780" y2="145" stroke="#f472b6" stroke-width="3"/><polygon points="780.0,145.0 769.0,139.0 769.0,151.0" fill="#f472b6"/><line x1="195" y1="155" x2="530" y2="250" stroke="#4ade80" stroke-width="3"/><polygon points="530.0,250.0 521.1,241.2 517.8,252.8" fill="#4ade80"/><line x1="530" y1="250" x2="530" y2="198" stroke="#4ade80" stroke-width="3"/><polygon points="530.0,198.0 524.0,209.0 536.0,209.0" fill="#4ade80"/><text x="355" y="226" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#4ade80" text-anchor="middle">Join (S,G) vers S</text><text x="480" y="300" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#fbbf24" text-anchor="middle">1. RPT : chemin partagé via RP</text><text x="480" y="327" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#4ade80" text-anchor="middle">2. LHR construit le chemin source si nécessaire</text><text x="480" y="354" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">3. Le RPT peut être élagué lorsque le SPT transporte le flux</text></svg>
 
-## 4. Multicast dans les Fabriques Modernes : VXLAN et BGP-EVPN
+### 2.3 PIM Assert et segments multi-accès
 
-L'acheminement du trafic Multicast dans un Overlay VXLAN sans inonder le sous-jacent (*Underlay*) est un enjeu d'ingénierie majeur.
+Sur un LAN où plusieurs routeurs PIM peuvent transférer un même flux, le mécanisme Assert choisit un routeur gagnant selon les règles PIM et évite la duplication sur le segment partagé. Une erreur d’interprétation consiste à chercher uniquement des voisins PIM « en trop » alors que le fonctionnement attendu dépend de l’élection et du gagnant. En diagnostic, vérifier la présence des voisins, les interfaces entrantes/sortantes, les informations Assert lorsque la plateforme les expose et les compteurs de duplication.
 
-### 4.1 BGP-EVPN Route Type 6, 7 & 8 (Selective Multicast - SMET)
+La conception la plus claire évite les LAN où la fonction de transit multicast est involontairement ambiguë. Documenter quel routeur est prévu pour recevoir le flux amont, où le trafic est répliqué et si un segment est un réseau de récepteurs ou un vrai domaine de transit simplifie l’exploitation.
 
-Pour optimiser le transport BUM (*Broadcast, Unknown Unicast, Multicast*), l'IETF a défini des routes EVPN spécifiques pour le Multicast (RFC 9251 / RFC 9252).
 
-```
- [ Leaf 1 (NVE1) ] ────── EVPN Route Type 6 (SMET) ──────► [ Leaf 2 (NVE2) ]
- (Récepteur local)                                         (Source rattachée)
-  IGMP Join 239.1.1.1                                       Génère VXLAN Data
-```
+## 3. Redondance des RP : disponibilité sans illusion
 
-1. **Route Type 6 (Selective Multicast Ethernet Tag - SMET) :**
-   Lorsqu'un hôte derrière le **Leaf 1** émet un IGMP Join pour `239.1.1.1`, le Leaf 1 génère une route EVPN Type 6 annonçant :
-   * Le VNI concerné.
-   * L'adresse du Groupe Multicast (`239.1.1.1`) et optionnellement la Source.
-   * L'adresse IP de son interface d'encapsulation (VTEP IP).
+La fonction RP n’est pas uniquement une adresse. Elle dépend de la découverte du mapping de groupe, de la reachability unicast, du fonctionnement PIM, du traitement des Register pour les sources ASM et, suivant l’architecture, de l’échange d’information de sources. Une approche de disponibilité doit préciser ce qui doit survivre : la panne d’une interface, d’un routeur, d’un lien de cœur, d’un site, du plan de contrôle ou de la connectivité entre RP.
 
-2. **Réplication Sélective (Ingress Replication) :**
-   Le **Leaf 2** (connecté à la source) lit la route Type 6 et ajoute le VTEP du Leaf 1 à sa liste de réplication Head-End. Le trafic Multicast est récapitulé en Unicast VXLAN uniquement vers les Leafs ayant des récepteurs déclarés.
+### 3.1 RP statique, BSR, Auto-RP et Anycast-RP
 
----
+Un RP statique est simple mais nécessite une configuration cohérente et maîtrisée. BSR est le mécanisme standard PIM pour diffuser l’information candidate et la sélection de RP. Auto-RP est un mécanisme Cisco dont l’usage doit être vérifié sur les OS et configurations concernés. Mélanger plusieurs mécanismes sans politique claire peut provoquer des mappings différents selon le routeur.
 
-## 5. Dépannage et Commandes d'Ingénierie Systèmes
+Anycast-RP permet à plusieurs routeurs de partager une adresse RP annoncée dans le routage unicast, afin que les sources et les récepteurs utilisent un point proche selon la topologie. Cela ne garantit pas, à lui seul, que les informations de sources ASM sont synchronisées entre les RP. L’architecture doit utiliser un mécanisme de coordination des sources approprié et pris en charge (par exemple MSDP dans les architectures qui s’appuient sur celui-ci, ou une autre solution documentée). Une panne de lien unicast peut modifier le RP atteint, même si l’adresse Anycast reste la même.
 
-### 5.1 Matrice de Diagnostic Cisco IOS-XE / NX-OS
+**Schéma 5 — Anycast-RP et information de source**
 
-```bash
-# 1. Vérifier la table de routage Multicast (mroute)
-show ip mroute 239.10.10.1
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="Anycast-RP : redondance de la fonction RP"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Anycast-RP : redondance de la fonction RP</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Exemple ASM ; vérifier si l’implémentation utilise MSDP, PIM Anycast-RP ou une méthode supportée</text><rect x="35" y="100" width="190" height="100" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="130.0" y="125" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">FHR / source</text><text x="130.0" y="149" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Register vers RP</text><rect x="385" y="92" width="190" height="110" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="480.0" y="117" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">RP-A</text><text x="480.0" y="141" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">10.255.0.1</text><text x="480.0" y="161" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">site A</text><rect x="735" y="92" width="190" height="110" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="830.0" y="117" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">RP-B</text><text x="830.0" y="141" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">10.255.0.1</text><text x="830.0" y="161" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">site B</text><line x1="225" y1="148" x2="385" y2="148" stroke="#4ade80" stroke-width="3"/><polygon points="385.0,148.0 374.0,142.0 374.0,154.0" fill="#4ade80"/><line x1="225" y1="148" x2="735" y2="148" stroke="#4ade80" stroke-width="3" stroke-dasharray="7,5"/><polygon points="735.0,148.0 724.0,142.0 724.0,154.0" fill="#4ade80"/><line x1="575" y1="150" x2="640" y2="150" stroke="#f472b6" stroke-width="3"/><polygon points="640.0,150.0 629.0,144.0 629.0,156.0" fill="#f472b6"/><line x1="640" y1="150" x2="640" y2="228" stroke="#f472b6" stroke-width="3"/><line x1="640" y1="228" x2="575" y2="228" stroke="#f472b6" stroke-width="3"/><polygon points="575.0,228.0 586.0,234.0 586.0,222.0" fill="#f472b6"/><text x="607" y="218" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle"></text><text x="610" y="172" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f472b6" text-anchor="middle">Échange de source</text><rect x="384" y="260" width="352" height="80" rx="12" fill="#101d30" stroke="#67e8f9" stroke-width="2"/><text x="560.0" y="285" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#67e8f9" text-anchor="middle">Adresse Anycast partagée</text><text x="560.0" y="309" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Routage unicast dirige chaque source vers un RP proche</text><text x="480" y="375" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#fb7185" text-anchor="middle">Anycast seul ne garantit pas la synchronisation des états de source ASM.</text></svg>
 
-# Exemple de sortie interprétée :
-# (10.1.1.50, 239.10.10.1), 00:04:12/00:02:47, flags: FT
-#   Incoming interface: GigabitEthernet0/0/0, RPF nbr 10.1.1.1
-#   Outgoing interface list:
-#     GigabitEthernet0/0/1, Forward/Sparse, 00:04:12/00:02:47
+| Dimension | Question de design |
+|---|---|
+| Adresse Anycast | Est-elle annoncée uniquement depuis les RP autorisés ? |
+| Reachability | La route vers l’adresse est-elle stable et cohérente ? |
+| État des sources | Comment les RP apprennent-ils l’existence des sources ASM ? |
+| Group mapping | Tous les routeurs associent-ils `G` au même service RP ? |
+| Panne de site | Quel est le temps mesuré de reprise d’une source et d’un récepteur ? |
+| Retour arrière | Comment restaurer le mapping précédent sans états persistants incohérents ? |
 
-# 2. Diagnostiquer les échecs RPF
-show ip rpf 10.1.1.50
+**Schéma 6 — Comparaison de découverte RP**
 
-# 3. Inspecter les voisins PIM
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="Découverte et distribution de l’information RP"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Découverte et distribution de l’information RP</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Les mécanismes de découverte ne sont pas tous équivalents ni interopérables</text><rect x="30" y="105" width="270" height="116" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="165.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">RP statique</text><text x="165.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Configuration explicite</text><text x="165.0" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Simple mais exige une cohérence manuelle</text><rect x="345" y="105" width="270" height="116" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="480.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">BSR standard PIM</text><text x="480.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Candidate-RP annonce les groupes</text><text x="480.0" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Bootstrap Router diffuse la sélection</text><rect x="660" y="105" width="270" height="116" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="795.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">Auto-RP Cisco</text><text x="795.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Mécanisme propriétaire</text><text x="795.0" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Dépend des fonctions et versions Cisco</text><line x1="165" y1="221" x2="165" y2="267" stroke="#60a5fa" stroke-width="2"/><line x1="480" y1="221" x2="480" y2="267" stroke="#4ade80" stroke-width="2"/><line x1="795" y1="221" x2="795" y2="267" stroke="#fbbf24" stroke-width="2"/><text x="165" y="292" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#f4f7fb" text-anchor="middle">État attendu : mapping</text><text x="480" y="292" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#f4f7fb" text-anchor="middle">État attendu : BSR + RP</text><text x="795" y="292" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#f4f7fb" text-anchor="middle">État attendu : mapping Auto-RP</text><text x="480" y="348" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#f472b6" text-anchor="middle">Sur chaque routeur, vérifier quel mécanisme est réellement actif.</text><text x="480" y="378" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Un conflit de mapping peut produire des Join (*,G) incohérents.</text></svg>
+
+### 3.2 BSR et changement de mapping
+
+Le BSR constitue un point important du plan de contrôle : si les routeurs n’ont pas de mapping cohérent, le Join `(*,G)` peut être dirigé vers un RP différent de celui attendu. Au moment d’une migration, il faut comparer la sélection de RP pour les plages de groupes et tester depuis plusieurs parties du domaine, pas uniquement depuis le routeur candidat. Documenter les group-ranges évite que des groupes oubliés héritent d’une configuration plus large que prévue.
+
+Le test de reprise doit inclure une source ASM, un récepteur éloigné, un récepteur proche du RP et un changement de topologie unicast. Le résultat attendu inclut non seulement la restauration du trafic, mais aussi la disparition des chemins obsolètes et la stabilité de l’état après plusieurs intervalles de rafraîchissement.
+
+
+## 4. SSM à grande échelle : sécurité et exploitation
+
+SSM simplifie la découverte des sources parce que le récepteur demande un canal `(S,G)`. En contrepartie, le plan d’adressage des sources et des groupes devient un contrat entre producteurs, applications, équipes réseau et équipes de sécurité. Le réseau doit s’assurer que les récepteurs ont les bonnes informations de source et que les implémentations des hôtes prennent en charge la signalisation source-specific nécessaire.
+
+### 4.1 Gestion des canaux
+
+Créer une base de données des canaux avec au minimum : identifiant d’application, adresse source ou liste de sources autorisées, groupe, port/protocole, TTL prévu, périmètre géographique, VRF, propriétaires et processus de changement. Les adresses de groupe seules ne suffisent pas à définir l’autorisation dans SSM ; l’objet utile est le couple source-groupe. Un même `G` peut correspondre à plusieurs canaux si les sources diffèrent.
+
+Pour IPv4, la plage SSM normalisée est `232.0.0.0/8` ; certaines plages ont des réservations supplémentaires, donc suivre le registre IANA et les politiques de l’organisation plutôt que de choisir une plage au hasard. Pour IPv6, la définition d’un canal source-specific utilise le modèle SSM et les rapports MLDv2, avec le champ de portée et le format d’adresse adaptés au groupe. Vérifier explicitement les ranges SSM configurés sur les équipements ; une divergence hôte-routeur peut faire échouer l’intention de réception ou basculer vers une sémantique non souhaitée.
+
+**Schéma 7 — Contrat d’un canal SSM**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="400" viewBox="0 0 960 400" role="img" aria-label="SSM : le récepteur demande un canal précis"><rect x="0" y="0" width="960" height="400" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">SSM : le récepteur demande un canal précis</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Source S + groupe G ; un RP n’est pas requis par le modèle SSM</text><rect x="35" y="112" width="200" height="115" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="135.0" y="137" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">Récepteur</text><text x="135.0" y="161" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">demande (S,G)</text><text x="135.0" y="181" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">IGMPv3 INCLUDE</text><rect x="380" y="112" width="200" height="115" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="480.0" y="137" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">Routeur d’accès</text><text x="480.0" y="161" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">apprend le canal</text><text x="480.0" y="181" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">PIM Join (S,G)</text><rect x="720" y="112" width="200" height="115" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="820.0" y="137" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">Source autorisée</text><text x="820.0" y="161" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">S = 10.10.10.10</text><text x="820.0" y="181" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">G = 232.1.1.10</text><line x1="235" y1="170" x2="380" y2="170" stroke="#f472b6" stroke-width="3"/><polygon points="380.0,170.0 369.0,164.0 369.0,176.0" fill="#f472b6"/><line x1="580" y1="170" x2="720" y2="170" stroke="#4ade80" stroke-width="3"/><polygon points="720.0,170.0 709.0,164.0 709.0,176.0" fill="#4ade80"/><text x="480" y="285" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">Le flux n’est accepté que pour la source jointe</text><text x="480" y="319" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Valider IGMPv3, plage SSM, état (S,G), RPF et ACL.</text></svg>
+
+### 4.2 IGMPv3 / MLDv2 et snooping
+
+IGMPv3 permet aux hôtes IPv4 de signaler un intérêt filtré par source. MLDv2 remplit le rôle correspondant pour IPv6. La fonction de snooping écoute la signalisation sur le LAN pour limiter la réplication Ethernet aux ports intéressés ; elle ne remplace pas le routage PIM entre sous-réseaux. Le querier est essentiel dans les réseaux où il faut rafraîchir l’état d’adhésion. Il faut vérifier si le snooping est activé, si un querier existe, si la version de protocole convient et si la table de ports membres correspond aux abonnés réels.
+
+Des fonctions telles que fast leave ne sont pas universellement adaptées : couper immédiatement un port lorsqu’un message de départ est reçu peut interrompre d’autres membres si plusieurs hôtes partagent le même port ou si le comportement de l’accès est mal compris. Le design doit tenir compte du type de port (poste seul, téléphone + PC, point d’accès, port aval d’un commutateur) et des fonctions spécifiques de la plateforme.
+
+### 4.3 Migrer ASM vers SSM
+
+La migration se réalise par groupes et applications pilotes, pas par simple remplacement global d’une plage d’adresses. Pour chaque application, valider la compatibilité du récepteur, l’adresse de source stable, les rapports IGMPv3/MLDv2, l’ACL source-groupe, les états `(S,G)`, le comportement des hôtes hérités et les outils de supervision. Prévoir une période de coexistence uniquement si le modèle de service et les capacités des appareils permettent cette coexistence ; ne présume pas que ASM et SSM se combinent sans stratégie.
+
+
+## 5. Multicast multi-domaines : frontières, sécurité et politiques
+
+Dans un réseau d’entreprise étendu, les frontières multicast sont des objets de conception. Elles peuvent être des frontières de VLAN, de domaine de routage, de VRF, de campus, de site, d’entreprise, de fournisseur ou de zone de sécurité. Les groupes administrativement scopés `239.0.0.0/8` sont destinés à un périmètre local selon les règles d’adressage multicast ; leur choix ne remplace pas les ACL, les politiques de routage et les limites de propagation effectives.
+
+Une politique de frontière devrait définir : les ranges de groupes qui peuvent entrer ou sortir, qui peut être source, les interfaces autorisées, les règles de TTL ou de portée si applicables, l’enregistrement et l’alerting en cas de rejet, et les tests prouvant que la frontière bloque réellement le trafic indésirable. Dans de nombreuses implémentations Cisco, les fonctions de filtrage et leur syntaxe varient ; valider sur la plateforme plutôt que transposer un exemple de CLI sans test.
+
+**Schéma 8 — Frontières de domaine multicast**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="Planifier les frontières de domaines multicast"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Planifier les frontières de domaines multicast</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Un domaine doit définir les sources, les groupes, le RP et les limites de propagation</text><rect x="35" y="110" width="265" height="118" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="167.5" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">Domaine A</text><text x="167.5" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">G = 239.10.0.0/16</text><text x="167.5" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RP-A / règles de source</text><rect x="350" y="110" width="265" height="118" rx="12" fill="#14243a" stroke="#fb7185" stroke-width="2"/><text x="482.5" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fb7185" text-anchor="middle">Frontière contrôlée</text><text x="482.5" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">ACL / boundary</text><text x="482.5" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">filtrage RP et groupes</text><rect x="665" y="110" width="260" height="118" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="795.0" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">Domaine B</text><text x="795.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">G = 239.20.0.0/16</text><text x="795.0" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RP-B / politique locale</text><line x1="300" y1="168" x2="350" y2="168" stroke="#fbbf24" stroke-width="3"/><polygon points="350.0,168.0 339.0,162.0 339.0,174.0" fill="#fbbf24"/><line x1="615" y1="168" x2="665" y2="168" stroke="#fbbf24" stroke-width="3"/><polygon points="665.0,168.0 654.0,162.0 654.0,174.0" fill="#fbbf24"/><text x="480" y="282" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fb7185" text-anchor="middle">Éviter les fuites de groupes entre environnements</text><text x="480" y="318" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Documenter qui peut émettre, rejoindre et relayer chaque groupe.</text><text x="480" y="356" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#67e8f9" text-anchor="middle">Les groupes administrativement scopés (239/8) restent privés par design.</text></svg>
+
+### 5.1 Sécurité des sources et récepteurs
+
+Le modèle de menace couvre au minimum : source non autorisée, usurpation d’adresse source, abonnement abusif à un groupe, épuisement d’états, flood de signalisation, récepteur non autorisé, fuites entre VRF, abus du RP et exploitation des fonctions de diagnostic. Les mesures doivent être placées aux bons endroits : ACL proche des producteurs, contrôle d’accès de l’hôte, limites d’adhésion au niveau LAN, filtrage de groupe aux frontières, politiques PIM quand elles sont disponibles, CoPP pour les plans de contrôle et supervision des rejets.
+
+Le RPF réduit certains scénarios de trafic arrivant d’une direction non attendue, mais n’est pas une politique d’autorisation complète. Un chemin RPF valide n’implique pas que la source soit métier ou cryptographiquement authentique. Utiliser une défense en profondeur et ne pas traiter l’adresse multicast comme une identité.
+
+**Schéma 9 — Défense en profondeur**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-label="Défense en profondeur du multicast"><rect x="0" y="0" width="960" height="430" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Défense en profondeur du multicast</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Limiter l’exposition et protéger les plans de contrôle comme le plan de données</text><rect x="32" y="103" width="205" height="106" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="134.5" y="128" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">À la source</text><text x="134.5" y="152" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">ACL source / groupe</text><text x="134.5" y="172" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">validation des émetteurs</text><rect x="265" y="103" width="205" height="106" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="367.5" y="128" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">À l’accès</text><text x="367.5" y="152" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">IGMP snooping</text><text x="367.5" y="172" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">querier fiable, limites</text><rect x="498" y="103" width="205" height="106" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="600.5" y="128" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">Au routage</text><text x="600.5" y="152" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">PIM ACL / boundary</text><text x="600.5" y="172" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RPF strict si adapté</text><rect x="730" y="103" width="198" height="106" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="829.0" y="128" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">Au routeur</text><text x="829.0" y="152" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">CoPP, auth, journaux</text><text x="829.0" y="172" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">protection CPU</text><line x1="237" y1="155" x2="265" y2="155" stroke="#67e8f9" stroke-width="3"/><polygon points="265.0,155.0 254.0,149.0 254.0,161.0" fill="#67e8f9"/><line x1="470" y1="155" x2="498" y2="155" stroke="#67e8f9" stroke-width="3"/><polygon points="498.0,155.0 487.0,149.0 487.0,161.0" fill="#67e8f9"/><line x1="703" y1="155" x2="730" y2="155" stroke="#67e8f9" stroke-width="3"/><polygon points="730.0,155.0 719.0,149.0 719.0,161.0" fill="#67e8f9"/><text x="480" y="273" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#fb7185" text-anchor="middle">Ne jamais faire confiance uniquement à l’adresse de groupe</text><text x="480" y="309" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Réduire les groupes autorisés, les émetteurs et les interfaces de sortie.</text><text x="480" y="350" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#67e8f9" text-anchor="middle">Tester les impacts de filtrage avant déploiement en production.</text></svg>
+
+### 5.2 TTL, scope et limites de domaine
+
+Le TTL IP limite le nombre de sauts et peut servir à restreindre un flux. Il ne remplace pas une règle de frontière : des chemins plus courts ou une topologie modifiée peuvent changer le périmètre réel atteint. Les portées et règles IPv6 sont différentes de l’interprétation des adresses multicast IPv4. Documenter l’intention (portée applicative, organisationnelle ou géographique) puis implémenter des contrôles explicites et testables.
+
+
+## 6. Multicast dans VRF et MPLS : le service MVPN
+
+Le multicast au sein d’une VRF locale doit d’abord fonctionner correctement : adhésion locale, PIM dans le contexte de routage, route RPF correcte, source autorisée et interfaces de sortie attendues. Transporter le multicast entre sites d’un VPN MPLS est un problème supplémentaire. Le service MVPN définit les procédures de contrôle et de transport nécessaires pour étendre le service multicast à travers le cœur opérateur. Les méthodes et types de tunnels disponibles dépendent de l’architecture du fournisseur et de la plateforme.
+
+Dans un design MVPN, distinguer clairement :
+- le plan de contrôle de la VRF client (adhésions, routes et états multicast du client) ;
+- le contrôle BGP/PIM ou autre mécanisme de distribution des informations nécessaires au service VPN ;
+- les arbres ou tunnels de distribution utilisés dans le cœur ;
+- le plan de données réellement transporté entre PE d’entrée et PE de sortie.
+
+**Schéma 10 — Modèle conceptuel MVPN**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-label="Multicast dans une VRF et à travers un VPN"><rect x="0" y="0" width="960" height="430" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Multicast dans une VRF et à travers un VPN</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Ne pas confondre la VRF unicast avec les mécanismes MVPN qui distribuent l’état multicast</text><rect x="28" y="105" width="190" height="110" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="123.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">CE site A</text><text x="123.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">source multicast</text><text x="123.0" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">VRF CLIENT-A</text><rect x="270" y="105" width="190" height="110" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="365.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">PE ingress</text><text x="365.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">VRF + état client</text><text x="365.0" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">I-PMSI / S-PMSI*</text><rect x="510" y="105" width="190" height="110" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="605.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">Cœur opérateur</text><text x="605.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">tunnel de distribution</text><text x="605.0" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">selon design MVPN</text><rect x="752" y="105" width="180" height="110" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="842.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">PE egress / CE</text><text x="842.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">état récepteur</text><text x="842.0" y="174" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">VRF CLIENT-A</text><line x1="218" y1="160" x2="270" y2="160" stroke="#4ade80" stroke-width="3"/><polygon points="270.0,160.0 259.0,154.0 259.0,166.0" fill="#4ade80"/><line x1="460" y1="160" x2="510" y2="160" stroke="#60a5fa" stroke-width="3"/><polygon points="510.0,160.0 499.0,154.0 499.0,166.0" fill="#60a5fa"/><line x1="700" y1="160" x2="752" y2="160" stroke="#fbbf24" stroke-width="3"/><polygon points="752.0,160.0 741.0,154.0 741.0,166.0" fill="#fbbf24"/><text x="480" y="274" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">* S-PMSI sélectif seulement si déployé et supporté</text><text x="480" y="309" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="400" fill="#f4f7fb" text-anchor="middle">MVPN définit des procédures de contrôle et de transport ; le choix</text><text x="480" y="334" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="400" fill="#f4f7fb" text-anchor="middle">des tunnels et de l’encapsulation dépend de l’architecture fournisseur.</text><text x="480" y="385" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#67e8f9" text-anchor="middle">Toujours vérifier le plan de données, le RPF dans la VRF et les routes MVPN.</text></svg>
+
+### 6.1 Inclusive et selective PMSI
+
+Une PMSI (Provider Multicast Service Interface) est un concept de l’architecture MVPN. Une Inclusive PMSI peut servir à transporter un ensemble de trafic destiné à tous les PE concernés par un service ou une agrégation ; une Selective PMSI est utilisée dans les architectures qui choisissent un transport plus spécifique pour certains flux ou groupes. Ces termes ne doivent pas être assimilés à un seul type de tunnel : les mécanismes précis varient selon le profil MVPN supporté et les extensions applicables.
+
+Le compromis fondamental oppose état dans le cœur et réplication à l’ingress. Un transport agrégé peut limiter l’état sur les routeurs P mais transporter davantage de trafic non nécessaire à certains PE. Un transport plus sélectif peut mieux correspondre aux récepteurs mais augmente le nombre d’arbres, de signalisation ou de tunnels à maintenir. Le design doit mesurer ce compromis avec le nombre de clients, les groupes actifs, les PE, le profil de trafic et les limites de matériel.
+
+### 6.2 Vérification de bout en bout dans MVPN
+
+Ne pas déduire le succès du service d’une seule route VPN unicast. Valider le contexte VRF, l’état multicast client sur le PE, les routes ou états de contrôle MVPN, l’association de la source au transport, la reachability du tunnel, les compteurs de paquets sur le PE d’entrée et de sortie et l’interface LAN vers le récepteur. Si le trafic marche localement dans chaque site mais pas inter-site, comparer les chemins locaux et le transport VPN séparément pour isoler le défaut.
+
+
+## 7. Multicast IPv6 en production
+
+IPv6 utilise des adresses multicast et des scopes propres à IPv6. MLD gère les adhésions des récepteurs, tandis que PIMv6 construit les chemins multicast entre routeurs. Les comportements sont analogues sur le plan fonctionnel, mais les commandes, adresses, scopes et dépendances au routage IPv6 doivent être vérifiés spécifiquement. Une implémentation IPv4 fonctionnelle n’implique pas que l’IPv6 soit activé ou opérationnel.
+
+Les diagnostics doivent examiner la route IPv6 vers la source ou vers le RP, les voisins PIMv6, les états MLD, les groupes et sources, les règles de filtrage IPv6 et le traitement ICMPv6 nécessaire aux opérations réseau. Les adresses link-local ne sont valides que dans une zone d’interface ; un outil ou une procédure qui oublie l’interface peut faire croire que deux références désignent le même voisin alors qu’elles appartiennent à des liens différents.
+
+**Schéma 11 — Fonctions IPv6 et points de validation**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="IPv6 multicast : correspondance des fonctions"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">IPv6 multicast : correspondance des fonctions</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Les équivalents fonctionnels existent, mais les champs et règles IPv6 sont spécifiques</text><rect x="30" y="110" width="210" height="105" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="135.0" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">Hôte IPv6</text><text x="135.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">abonnement à ff3x::/…</text><text x="135.0" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">MLDv2</text><rect x="280" y="110" width="190" height="105" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="375.0" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">LHR / LAN</text><text x="375.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">MLD snooping</text><text x="375.0" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">querier/état local</text><rect x="520" y="110" width="190" height="105" rx="12" fill="#14243a" stroke="#67e8f9" stroke-width="2"/><text x="615.0" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#67e8f9" text-anchor="middle">Réseau PIMv6</text><text x="615.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RPF IPv6</text><text x="615.0" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Join/Prune PIM</text><rect x="750" y="110" width="180" height="105" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="840.0" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">Source / autres LHR</text><text x="840.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">source IPv6</text><text x="840.0" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">OIF de sortie</text><line x1="240" y1="160" x2="280" y2="160" stroke="#f472b6" stroke-width="3"/><polygon points="280.0,160.0 269.0,154.0 269.0,166.0" fill="#f472b6"/><line x1="470" y1="160" x2="520" y2="160" stroke="#60a5fa" stroke-width="3"/><polygon points="520.0,160.0 509.0,154.0 509.0,166.0" fill="#60a5fa"/><line x1="710" y1="160" x2="750" y2="160" stroke="#4ade80" stroke-width="3"/><polygon points="750.0,160.0 739.0,154.0 739.0,166.0" fill="#4ade80"/><text x="480" y="278" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#fbbf24" text-anchor="middle">Ne pas transposer les commandes IPv4 à l’identique</text><text x="480" y="312" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Vérifier link-local, zones de portée, routes IPv6 et pare-feu ICMPv6.</text><text x="480" y="351" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#67e8f9" text-anchor="middle">SSM IPv6 utilise notamment les abonnements source/groupe via MLDv2.</text></svg>
+
+### 7.1 MLD snooping et Wi-Fi
+
+Les réseaux Wi-Fi ajoutent un domaine où la réplication multicast peut avoir des coûts importants. Selon l’architecture WLAN, le point d’accès peut tunneliser le trafic vers un contrôleur, le convertir en unicast, ou le transmettre en multicast selon les fonctions et la politique. Le bon comportement dépend du type de déploiement, des capacités des clients et des paramètres du contrôleur. Il faut vérifier la chaîne complète : adhésion MLD/IGMP du client, état du réseau d’accès, chemin du multicast en amont et choix d’encapsulation/transmission au niveau WLAN.
+
+Dans un réseau dual-stack, éviter d’examiner uniquement IGMP : les groupes IPv6 s’appuient sur MLD et les fonctions de snooping IPv6. Une ACL IPv4 n’apporte aucun filtrage à un flux IPv6.
+
+
+## 8. Convergence, reprise et stabilité
+
+Le temps de reprise multicast est composé de plusieurs intervalles : détection physique ou L2, convergence unicast, changement de l’interface RPF, détection ou reconstruction PIM, réinstallation de l’état de transfert, traitement du plan de données et récupération de l’application. Une affirmation telle que « le multicast converge en une seconde » n’est pas sérieuse sans décrire le mécanisme de détection, le profil de panne, le matériel et la mesure utilisée.
+
+### 8.1 Décomposer le budget de reprise
+
+Mesurer au minimum : instant de panne, moment où l’interface change, moment où la route unicast change, moment où les états multicast changent, instant où les compteurs de sortie reprennent, première réception au client et temps où l’application se considère rétablie. Une mesure faite seulement par ping unicast ne représente pas nécessairement la reprise de l’application multicast.
+
+**Schéma 12 — Budget de convergence multicast**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-label="Convergence : diagnostiquer du physique au multicast"><rect x="0" y="0" width="960" height="430" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Convergence : diagnostiquer du physique au multicast</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Chaque couche peut être stable ou défaillante indépendamment des autres</text><rect x="40" y="90" width="205" height="82" rx="12" fill="#14243a" stroke="#fb7185" stroke-width="2"/><text x="142.5" y="115" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fb7185" text-anchor="middle">1. Lien / L2</text><text x="142.5" y="139" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">erreurs, MTU, VLAN</text><rect x="265" y="90" width="205" height="82" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="367.5" y="115" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">2. Unicast</text><text x="367.5" y="139" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">route vers S/RP</text><rect x="490" y="90" width="205" height="82" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="592.5" y="115" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">3. Voisinage PIM</text><text x="592.5" y="139" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Hello, adjacency</text><rect x="715" y="90" width="205" height="82" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="817.5" y="115" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">4. État multicast</text><text x="817.5" y="139" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RPF, IIF, OIL</text><line x1="245" y1="132" x2="265" y2="132" stroke="#94a3b8" stroke-width="2"/><polygon points="265.0,132.0 254.0,126.0 254.0,138.0" fill="#94a3b8"/><line x1="470" y1="132" x2="490" y2="132" stroke="#94a3b8" stroke-width="2"/><polygon points="490.0,132.0 479.0,126.0 479.0,138.0" fill="#94a3b8"/><line x1="695" y1="132" x2="715" y2="132" stroke="#94a3b8" stroke-width="2"/><polygon points="715.0,132.0 704.0,126.0 704.0,138.0" fill="#94a3b8"/><rect x="170" y="240" width="260" height="95" rx="12" fill="#101d30" stroke="#67e8f9" stroke-width="2"/><text x="300.0" y="265" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#67e8f9" text-anchor="middle">Test de continuité</text><text x="300.0" y="289" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">source, cœur, LAN récepteur</text><rect x="530" y="240" width="260" height="95" rx="12" fill="#101d30" stroke="#f472b6" stroke-width="2"/><text x="660.0" y="265" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#f472b6" text-anchor="middle">Mesure applicative</text><text x="660.0" y="289" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">arrivée, pertes, délai, débit</text><line x1="430" y1="286" x2="530" y2="286" stroke="#fbbf24" stroke-width="3"/><polygon points="530.0,286.0 519.0,280.0 519.0,292.0" fill="#fbbf24"/><text x="480" y="380" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#f4f7fb" text-anchor="middle">Comparer l’état de contrôle, les compteurs de paquets et une capture réelle.</text></svg>
+
+### 8.2 Failover RP, failover source et failover chemin
+
+Ce sont trois événements différents : le RP peut tomber tandis que la source et le chemin vers elle restent accessibles ; une source peut redémarrer avec une adresse différente ; ou le chemin unicast vers la source peut changer et forcer une nouvelle interface RPF. Tester chacun séparément puis dans une combinaison réaliste. Pour ASM, l’impact d’une panne RP dépend du rôle du RP dans l’état existant et de l’implémentation. Pour SSM, le rôle du RP est absent du mécanisme de découverte de source, mais le chemin vers la source et les adhésions restent essentiels.
+
+Une reprise à chaud ne doit pas être jugée seulement au retour du flux. Vérifier si les états obsolètes disparaissent, si le trafic duplique, si les groupes restent limités au périmètre attendu et si la charge CPU/ASIC reste dans les limites prévues.
+
+### 8.3 Contrôle du churn
+
+Le churn provient entre autres de sources brèves, d’hôtes qui rejoignent et quittent en boucle, de liens instables, de changements répétés de RP et de politiques qui basculent constamment de RPT vers SPT. Une action corrective doit cibler la cause : stabilité du transport, gestion de groupe côté application, temporisation raisonnable, simplification de la politique, capacité matérielle ou segmentation du domaine. Augmenter arbitrairement un timer peut réduire la signalisation mais allonger le temps de retrait d’un flux devenu inutile.
+
+
+## 9. Observabilité et méthode de diagnostic expert
+
+Une méthode de diagnostic fiable s’appuie sur des hypothèses testables. Pour chaque incident, enregistrer source, groupe, port UDP, VRF, récepteur, horodatage, interfaces traversées et symptômes observés. Capturer l’état avant et après une action et changer une variable à la fois. Lorsque c’est possible, utiliser une source de test connue, un groupe réservé à l’exploitation et des récepteurs dans plusieurs sous-réseaux afin de déterminer où le comportement diverge.
+
+**Schéma 13 — Chaîne de preuves**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="Observabilité multicast : quatre sources de preuve"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Observabilité multicast : quatre sources de preuve</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Aucun écran unique ne suffit pour expliquer une panne</text><rect x="30" y="95" width="205" height="100" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="132.5" y="120" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">État de contrôle</text><text x="132.5" y="144" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">PIM neighbors</text><text x="132.5" y="164" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RP mapping / BSR</text><rect x="265" y="95" width="205" height="100" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="367.5" y="120" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">État de transfert</text><text x="367.5" y="144" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">(*,G), (S,G)</text><text x="367.5" y="164" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">IIF / OIL</text><rect x="500" y="95" width="205" height="100" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="602.5" y="120" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">Compteurs</text><text x="602.5" y="144" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">packets, drops</text><text x="602.5" y="164" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">interface / ASIC</text><rect x="735" y="95" width="195" height="100" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="832.5" y="120" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">Capture / hôte</text><text x="832.5" y="144" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">IGMP/MLD, UDP</text><text x="832.5" y="164" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">socket, firewall</text><line x1="235" y1="145" x2="265" y2="145" stroke="#67e8f9" stroke-width="3"/><polygon points="265.0,145.0 254.0,139.0 254.0,151.0" fill="#67e8f9"/><line x1="470" y1="145" x2="500" y2="145" stroke="#67e8f9" stroke-width="3"/><polygon points="500.0,145.0 489.0,139.0 489.0,151.0" fill="#67e8f9"/><line x1="705" y1="145" x2="735" y2="145" stroke="#67e8f9" stroke-width="3"/><polygon points="735.0,145.0 724.0,139.0 724.0,151.0" fill="#67e8f9"/><text x="480" y="265" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#f4f7fb" text-anchor="middle">Chronologie commune : horloge synchronisée, source et groupe précis</text><text x="480" y="300" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">S = 10.10.10.10   G = 239.10.10.10   port UDP = 5000 (exemple)</text><text x="480" y="340" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#67e8f9" text-anchor="middle">Capture au point source, avant/après cœur, puis interface du récepteur.</text></svg>
+
+### 9.1 Séquence de dépannage
+
+1. **Hôte source** : confirmer l’adresse source, le groupe, le protocole/port, le TTL/hop limit et le débit réel. Vérifier qu’il s’agit de multicast IP et non d’une émission unicast ou broadcast.
+2. **LAN source** : confirmer VLAN, table MAC, IGMP/MLD snooping et état local du port. S’assurer qu’un querier est présent si l’architecture l’exige.
+3. **Premier routeur** : vérifier interface et adresse source, route unicast/RPF, voisins PIM et état `(S,G)` ou Register en ASM.
+4. **Cœur** : suivre l’interface amont prévue par RPF, les Joins/Prunes, la liste OIL, les compteurs et les éventuelles ACL de frontière.
+5. **RP et transitions** : vérifier le mapping RP, les états `(*,G)` et `(S,G)`, la route vers RP, et le chemin de la source. Ne pas supposer que tous les flux empruntent encore le RP après le basculement SPT.
+6. **Routeur de dernier saut** : vérifier la membership locale, l’OIF vers le récepteur, les compteurs de réplication et les rejets RPF.
+7. **Application** : vérifier socket, adresse de destination, sélection de l’interface, pare-feu local, décodage des paquets et attentes applicatives.
+
+### 9.2 Commandes Cisco : une grille, pas une recette universelle
+
+Selon IOS/IOS XE, NX-OS et les fonctionnalités activées, les commandes peuvent changer. Les commandes suivantes sont des familles de vérification courantes, à confirmer sur la plateforme réelle :
+
+```text
+show ip mroute
+show ip mroute <G>
+show ip mroute <S> <G>
 show ip pim neighbor
-
-# 4. Analyser les groupes IGMP enregistrés sur une interface
-show ip igmp groups GigabitEthernet0/0/1 detail
+show ip pim rp mapping
+show ip igmp groups
+show ip rpf <S>
+show ip route <S>
+show ip mroute count
 ```
 
-### 5.2 Capture de Trafic et Validation avec TShark / Wireshark
+Sur IPv6, utiliser les équivalents `show ipv6 ...` de l’OS pris en charge, par exemple pour les routes multicast IPv6, les voisins PIMv6 et les groupes MLD. Ne pas supposer que la syntaxe d’une version IOS XE existe dans NX-OS. La capture ciblée doit être effectuée avec un filtre précis sur `S`, `G` et le port afin de limiter la charge et d’éviter de collecter des données sans rapport avec l’incident.
 
-Filtrer les messages de contrôle PIM et IGMP au niveau binaire :
+### 9.3 Classer la panne par symptôme
 
-```bash
-# Capture des paquets IGMPv3 et PIM Join/Prune
-tshark -i eth0 -Y "igmp || pim" -T fields -e frame.time -e ip.src -e ip.dst -e igmp.maddr -e pim.dir.group
+| Symptôme | Causes plausibles | Première preuve à recueillir |
+|---|---|---|
+| Aucun récepteur ne reçoit | source silencieuse, frontière, RPF, RP ou groupe mal choisi | capture au FHR puis état `(S,G)` en amont |
+| Un seul VLAN ne reçoit pas | snooping, querier, OIF ou ACL locale | IGMP/MLD, table snooping, compteurs du port |
+| Fonctionne sur LAN, pas intersite | MVPN ou transport du cœur, VRF, TTL, filtrage | capture PE ingress/egress et état MVPN |
+| Duplication | chemins parallèles, Assert, état RPT/SPT ou boucle applicative | captures horodatées aux points de réplication |
+| Panne après bascule | RPF non convergé, RP mapping incohérent, stale state | chronologie RIB/MRIB, PIM et compteurs |
+| Débit insuffisant | réplication coûteuse, congestion, pertes ASIC, policer | compteurs entrée/sortie, pps, drops et charge |
 
-# Analyse des options IGMPv3 (Report type 4 = CHANGE_TO_INCLUDE_MODE)
-tshark -r capture.pcap -Y "igmp.record_type == 4"
-```
+**Schéma 14 — Arbre de décision de dépannage**
 
----
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="450" viewBox="0 0 960 450" role="img" aria-label="Arbre de décision de dépannage multicast"><rect x="0" y="0" width="960" height="450" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Arbre de décision de dépannage multicast</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Commencer par le récepteur et remonter, en observant chaque frontière</text><rect x="335" y="78" width="290" height="66" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="480.0" y="103" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#f472b6" text-anchor="middle">Le récepteur reçoit-il le flux ?</text><text x="480.0" y="127" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">Vérifier socket, firewall et VLAN</text><line x1="480" y1="144" x2="480" y2="178" stroke="#94a3b8" stroke-width="2"/><rect x="335" y="178" width="290" height="66" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="480.0" y="203" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#60a5fa" text-anchor="middle">État IGMP/MLD présent ?</text><text x="480.0" y="227" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">membership / snooping / querier</text><line x1="335" y1="211" x2="210" y2="211" stroke="#fb7185" stroke-width="2"/><polygon points="210.0,211.0 221.0,217.0 221.0,205.0" fill="#fb7185"/><line x1="210" y1="211" x2="210" y2="250" stroke="#fb7185" stroke-width="2"/><polygon points="210.0,250.0 216.0,239.0 204.0,239.0" fill="#fb7185"/><rect x="28" y="250" width="365" height="62" rx="12" fill="#14243a" stroke="#fb7185" stroke-width="2"/><text x="210.5" y="275" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#fb7185" text-anchor="middle">Non → corriger l’accès local</text><text x="210.5" y="299" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">hôte, IGMP/MLD, VLAN, snooping</text><line x1="480" y1="244" x2="480" y2="278" stroke="#94a3b8" stroke-width="2"/><rect x="335" y="278" width="290" height="66" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="480.0" y="303" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#fbbf24" text-anchor="middle">PIM et état RPF corrects ?</text><text x="480.0" y="327" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">neighbor, RP, IIF/OIL, route vers S</text><line x1="625" y1="311" x2="750" y2="311" stroke="#fb7185" stroke-width="2"/><polygon points="750.0,311.0 739.0,305.0 739.0,317.0" fill="#fb7185"/><line x1="750" y1="311" x2="750" y2="350" stroke="#fb7185" stroke-width="2"/><polygon points="750.0,350.0 756.0,339.0 744.0,339.0" fill="#fb7185"/><rect x="568" y="350" width="360" height="62" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="748.0" y="375" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#fbbf24" text-anchor="middle">Non → corriger le routage multicast</text><text x="748.0" y="399" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">route unicast/MRIB, RP, ACL, frontières</text><line x1="480" y1="344" x2="480" y2="380" stroke="#94a3b8" stroke-width="2"/><text x="480" y="410" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#4ade80" text-anchor="middle">Oui → capture de paquets et compteurs aux interfaces entrée/sortie</text></svg>
 
-## 6. Synthèse des Flags et Timers Critiques
 
-| Paramètre | Valeur par Défaut | Impact Métier / Recommandation |
-| :--- | :--- | :--- |
-| **PIM Hello Interval** | 30 secondes | Fréquence de découverte des voisins. Réduire à 1s pour le Fast-Convergence. |
-| **PIM Holdtime** | $3.5 \times \text{Hello}$ (105s) | Délai avant déclenchement de panne d'un voisin PIM. |
-| **IGMP Query Interval** | 125 secondes | Périodicité des requêtes d'état envoyées par le Querier. |
-| **IGMP Query Response Interval** | 10 secondes | Temps accordé aux hôtes pour répondre (évite la collision d'éclats). |
-| **SPT Switchover Threshold** | `0 kbps` (Immédiat) | Force le passage automatique de l'arbre RP à l'arbre direct Source (SPT). |
+## 10. Dimensionnement et capacité opérationnelle
+
+Les plans de capacité doivent estimer, dans le pire scénario réaliste : nombre simultané de groupes, sources par groupe, adhésions récepteurs, états multicast, interfaces de sortie, paquets par seconde, réplications ASIC, débit cumulé et taux de changement d’état. Les capacités doivent être demandées au fournisseur pour le modèle et la version exacte, avec les fonctionnalités activées. Ne pas confondre la limite d’une table de protocole avec le nombre garanti d’entrées matérielles disponibles après prise en compte du routage unicast, des ACL, des tunnels et d’autres fonctions.
+
+**Schéma 15 — Mesurer plusieurs dimensions**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="Evaluer la capacité multicast par charge, cardinalité et churn"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Évaluer la capacité multicast par scénario</text><text x="480" y="57" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Ne pas limiter le dimensionnement au débit moyen</text><rect x="28" y="90" width="215" height="100" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="135.5" y="115" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#4ade80" text-anchor="middle">Volume de trafic</text><text x="135.5" y="139" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle">bit/s + paquets/s</text><text x="135.5" y="158" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle">taille des paquets</text><rect x="263" y="90" width="215" height="100" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="370.5" y="115" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#60a5fa" text-anchor="middle">Cardinalité</text><text x="370.5" y="139" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle">groupes et sources</text><text x="370.5" y="158" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle">états (*,G)/(S,G)</text><rect x="498" y="90" width="215" height="100" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="605.5" y="115" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#fbbf24" text-anchor="middle">Réplication</text><text x="605.5" y="139" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle">ports OIF par flux</text><text x="605.5" y="158" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle">nombre de récepteurs</text><rect x="733" y="90" width="199" height="100" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="832.5" y="115" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#f472b6" text-anchor="middle">Churn</text><text x="832.5" y="139" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle">joins/leaves par seconde</text><text x="832.5" y="158" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#f4f7fb" text-anchor="middle">sources éphémères</text><line x1="135" y1="190" x2="135" y2="220" stroke="#4ade80" stroke-width="2"/><line x1="370" y1="190" x2="370" y2="220" stroke="#60a5fa" stroke-width="2"/><line x1="605" y1="190" x2="605" y2="220" stroke="#fbbf24" stroke-width="2"/><line x1="832" y1="190" x2="832" y2="220" stroke="#f472b6" stroke-width="2"/><rect x="60" y="220" width="840" height="105" rx="12" fill="#101d30" stroke="#64748b" stroke-width="1.5"/><text x="480" y="247" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#67e8f9" text-anchor="middle">Valider les scénarios de charge</text><text x="200" y="277" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#f4f7fb" text-anchor="middle">1. Régime nominal</text><text x="480" y="277" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#f4f7fb" text-anchor="middle">2. Pointe + churn</text><text x="760" y="277" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" fill="#f4f7fb" text-anchor="middle">3. Panne / convergence</text><line x1="330" y1="276" x2="365" y2="276" stroke="#94a3b8" stroke-width="2"/><polygon points="365,276 356.0,271.0 356.0,281.0" fill="#94a3b8"/><line x1="615" y1="276" x2="650" y2="276" stroke="#94a3b8" stroke-width="2"/><polygon points="650,276 641.0,271.0 641.0,281.0" fill="#94a3b8"/><text x="480" y="358" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#f4f7fb" text-anchor="middle">Mesurer pertes, CPU/ASIC, tables, temps de reprise et dérive des compteurs.</text><text x="480" y="384" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="400" fill="#b9c7d8" text-anchor="middle">Garder une marge basée sur la plateforme et les fonctions réellement activées.</text></svg>
+
+### 10.1 Plan de test de charge
+
+Un test de charge sérieux comporte :
+- Un débit bas, nominal et de pointe pour plusieurs profils de paquets.
+- Plusieurs groupes et sources avec des durées de flux différentes.
+- Des adhésions en vague et des départs simultanés, pour générer le churn.
+- Une distribution de récepteurs locale et intersite.
+- Une panne de lien et une panne d’équipement, avec mesure de reprise.
+- La vérification des compteurs de pertes, CPU, mémoire, tables de transfert et journaux de contrôle.
+- Une répétition à chaud après la stabilisation afin de différencier démarrage coûteux et régime stable.
+
+Le résultat est une capacité validée dans une enveloppe précise, pas une simple valeur « débit maximal ». Ajouter une marge documentée pour croissance et incidents, puis définir des alertes avant la limite opérationnelle. Les tests ne doivent pas saturer un service de production sans fenêtre approuvée, plan de retour arrière et validation métier.
+
+
+## 11. Architecture de référence pour un grand domaine multicast
+
+Une architecture de référence peut associer des groupes d’application et producteurs autorisés, des segments de réception locaux, un domaine PIM-SM structuré, une politique RP claire, des frontières explicites et une supervision qui corrèle contrôle et données. SSM est envisagé pour les applications capables d’identifier leurs sources. ASM est réservé aux usages où le rendezvous est utile et où la résilience RP est explicitement traitée. Le choix doit être documenté par application, pas laissé implicite dans la configuration historique.
+
+Les sites doivent être séparés selon les domaines de panne et les politiques de sécurité. Pour chaque frontière : documenter les groupes qui traversent, la source attendue, les interfaces qui peuvent recevoir et transmettre, la méthode RPF et les effets d’une perte de lien. Pour les réseaux de fournisseurs, valider les fonctions multicast VPN selon la solution et éviter de confondre une route unicast VPN avec la construction de l’arbre multicast du service.
+
+**Schéma 16 — Déploiement expert avec étapes de validation**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-label="Déploiement expert : progression contrôlée"><rect x="0" y="0" width="960" height="420" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Déploiement expert : progression contrôlée</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Ne pas activer simultanément toutes les sources, groupes et frontières</text><rect x="35" y="105" width="200" height="94" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="135.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">1. Baseline</text><text x="135.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RIB, voisins, groupes</text><rect x="265" y="105" width="200" height="94" rx="12" fill="#14243a" stroke="#67e8f9" stroke-width="2"/><text x="365.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#67e8f9" text-anchor="middle">2. Pilote</text><text x="365.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">source/groupe test</text><rect x="495" y="105" width="200" height="94" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="595.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">3. Extension</text><text x="595.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">groupes et sites</text><rect x="725" y="105" width="200" height="94" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="825.0" y="130" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">4. Validation</text><text x="825.0" y="154" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">charge + rollback</text><line x1="235" y1="152" x2="265" y2="152" stroke="#94a3b8" stroke-width="2"/><polygon points="265.0,152.0 254.0,146.0 254.0,158.0" fill="#94a3b8"/><line x1="465" y1="152" x2="495" y2="152" stroke="#94a3b8" stroke-width="2"/><polygon points="495.0,152.0 484.0,146.0 484.0,158.0" fill="#94a3b8"/><line x1="695" y1="152" x2="725" y2="152" stroke="#94a3b8" stroke-width="2"/><polygon points="725.0,152.0 714.0,146.0 714.0,158.0" fill="#94a3b8"/><rect x="190" y="260" width="580" height="72" rx="12" fill="#101d30" stroke="#f472b6" stroke-width="2"/><text x="480.0" y="285" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#f472b6" text-anchor="middle">Critères de sortie</text><text x="480.0" y="309" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">trafic attendu · aucun groupe hors périmètre · convergence mesurée</text><text x="480" y="365" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Préparer le retour arrière, propriétaire métier et fenêtre de test avant changement.</text></svg>
+
+### 11.1 Standards et compatibilité
+
+Les concepts PIM-SM, SSM, IGMPv3/MLDv2 et MVPN reposent sur plusieurs documents de normalisation, mais une implémentation commerciale peut n’en prendre en charge qu’un sous-ensemble selon la version. La conception doit lister les fonctions requises et la compatibilité de chaque nœud, et différencier les caractéristiques normalisées des mécanismes propriétaires. Les commandes et fonctions de redondance RP, les limites de groupe, les modèles de tunneling MVPN et les options d’interface peuvent varier suivant l’OS.
+
+
+## 12. Laboratoire de synthèse : ASM, SSM, panne et frontières
+
+### 12.1 Objectif
+
+Valider qu’un groupe ASM rejoint les récepteurs via le RP, qu’un canal SSM est construit pour la paire source-groupe attendue, qu’une route RPF est comprise et que les frontières limitent le périmètre. Ajouter ensuite une panne de transport et mesurer le temps de reprise. Le laboratoire doit être isolé et ne pas annoncer les adresses de test dans un domaine de production.
+
+### 12.2 Topologie suggérée
+
+Quatre routeurs R1 à R4 dans un domaine unicast OSPF ou IS-IS, un segment source en R1, un RP logique accessible dans le cœur, des récepteurs sous R3/R4 et une frontière filtrée vers un réseau de test. Les adresses de groupe d’exemple doivent être réservées à ce labo et vérifiées comme non utilisées dans l’environnement. Choisir un matériel ou un simulateur qui prend réellement en charge les fonctions requises ; une simulation peut ne pas représenter le plan de données ASIC.
+
+**Schéma 17 — Laboratoire d’exercice**
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-label="Laboratoire expert : quatre routeurs, deux modèles de service"><rect x="0" y="0" width="960" height="430" rx="18" fill="#0b1220" stroke="#31516f" stroke-width="2"/><text x="480" y="34" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" fill="#f4f7fb" text-anchor="middle">Laboratoire expert : quatre routeurs, deux modèles de service</text><text x="480" y="58" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#b9c7d8" text-anchor="middle">Adresses illustratives ; isoler le laboratoire de tout domaine de production</text><rect x="30" y="110" width="180" height="94" rx="12" fill="#14243a" stroke="#4ade80" stroke-width="2"/><text x="120.0" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#4ade80" text-anchor="middle">R1 — Source</text><text x="120.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">S=10.10.10.10</text><text x="120.0" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">G ASM et SSM</text><rect x="270" y="90" width="170" height="96" rx="12" fill="#14243a" stroke="#60a5fa" stroke-width="2"/><text x="355.0" y="115" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#60a5fa" text-anchor="middle">R2 — Cœur</text><text x="355.0" y="139" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">PIM + RPF</text><text x="355.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">route unicast</text><rect x="505" y="90" width="170" height="96" rx="12" fill="#14243a" stroke="#fbbf24" stroke-width="2"/><text x="590.0" y="115" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#fbbf24" text-anchor="middle">R3 — Cœur / RP</text><text x="590.0" y="139" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">RP ASM</text><text x="590.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">route vers S</text><rect x="750" y="110" width="180" height="94" rx="12" fill="#14243a" stroke="#f472b6" stroke-width="2"/><text x="840.0" y="135" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#f472b6" text-anchor="middle">R4 — Récepteurs</text><text x="840.0" y="159" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">IGMPv3 / MLDv2</text><text x="840.0" y="179" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">récepteur G</text><line x1="210" y1="157" x2="270" y2="137" stroke="#67e8f9" stroke-width="3"/><polygon points="270.0,137.0 257.7,134.8 261.5,146.2" fill="#67e8f9"/><line x1="440" y1="137" x2="505" y2="137" stroke="#67e8f9" stroke-width="3"/><polygon points="505.0,137.0 494.0,131.0 494.0,143.0" fill="#67e8f9"/><line x1="675" y1="137" x2="750" y2="157" stroke="#67e8f9" stroke-width="3"/><polygon points="750.0,157.0 740.9,148.4 737.8,160.0" fill="#67e8f9"/><rect x="235" y="260" width="490" height="82" rx="12" fill="#101d30" stroke="#c4b5fd" stroke-width="2"/><text x="480.0" y="285" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#c4b5fd" text-anchor="middle">Points de capture</text><text x="480.0" y="309" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#f4f7fb" text-anchor="middle">R1 sortie · R2 entrée/sortie · R3 état RP · R4 OIF</text><text x="480" y="380" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#b9c7d8" text-anchor="middle">Mesurer l’état normal, la panne de lien, le changement de RP et le retour arrière.</text></svg>
+
+### 12.3 Étapes et résultats attendus
+
+1. Construire l’underlay unicast et vérifier la route vers chaque source, vers chaque RP et entre tous les routeurs.
+2. Activer PIM sur les interfaces de transit et de source/récepteur. Vérifier la liste des voisins attendus.
+3. Définir le mapping RP de manière cohérente pour les groupes ASM de test. Vérifier le mapping depuis plusieurs routeurs.
+4. Lancer une source ASM, abonner un récepteur et constater la séquence Register / état partagé / éventuel état SPT. Capturer à plusieurs frontières.
+5. Lancer un canal SSM et confirmer l’état `(S,G)` sans supposer qu’un RP est impliqué.
+6. Bloquer volontairement le groupe sur la frontière de test. Confirmer l’absence de paquets au-delà et la présence d’un compteur ou journal utile lorsque la plateforme le permet.
+7. Retirer la règle dans le laboratoire et restaurer l’état nominal.
+8. Faire tomber un lien de cœur, noter la chronologie unicast/RPF/PIM/data-plane/application, puis restaurer le lien.
+9. Vérifier qu’aucun état obsolète, duplication persistante ou fuite de groupe n’apparaît après stabilisation.
+10. Rédiger le résultat : état initial, action, mesure, durée, cause, preuve, correction et leçon pour le runbook.
+
+### 12.4 Rapport de test
+
+| Test | Résultat attendu | Preuve à conserver |
+|---|---|---|
+| Source active | `S` émet vers le bon `G`/port | capture ou compteur source |
+| Membership | récepteur apparaît dans l’état IGMP/MLD attendu | sortie de commande et VLAN |
+| Contrôle PIM | voisins, Join/Prune et RP conformes | captures de contrôle / états |
+| Plan de données | paquet vu sur les OIF attendues seulement | compteurs et captures par point |
+| Frontière | aucun trafic hors groupe ou domaine autorisé | capture de part et d’autre |
+| Panne | reprise dans le budget convenu | chronologie horodatée |
+| Retour arrière | état initial restauré | diff configuration et tests finaux |
+
+
+## 13. Études de cas avancées
+
+### Cas 1 — Source active, groupe actif, mais un site ne reçoit rien
+
+**Hypothèses :** la source transmet, les récepteurs locaux au site A reçoivent, le site B ne reçoit pas. Ne pas commencer par modifier le RP. Vérifier d’abord si l’adhésion du site B est visible, puis la route vers `S`, l’état `(S,G)` et les interfaces de sortie dans chaque routeur du chemin. Si une VRF ou un MVPN intervient, comparer les états client et transport de cœur séparément. Une route unicast de B vers S ne prouve pas qu’un état multicast a été créé.
+
+**Correction attendue :** basée sur la première frontière où la capture montre l’écart. Le rapport doit inclure l’interface attendue, les compteurs avant/après et les tests de non-régression.
+
+### Cas 2 — Fonctionne jusqu’au basculement, puis le trafic est perdu
+
+**Hypothèses :** la convergence unicast est correcte mais le RPF multicast n’est pas encore aligné ; l’Anycast-RP change le RP atteint ; les sources ASM ne sont pas connues du RP de secours ; ou une frontière bloque le nouveau chemin. Observer la chronologie plutôt que modifier les timers immédiatement. Si la panne est une perte de route vers S, le problème n’est pas identique à une panne RP.
+
+**Correction attendue :** démontrer quelle condition n’a pas été satisfaite après bascule puis retester l’événement après modification.
+
+### Cas 3 — Duplication après déploiement d’un lien redondant
+
+**Hypothèses :** les deux chemins transfèrent sur un LAN commun, Assert ne fonctionne pas comme attendu, ou des états anciens restent actifs après changement de topologie. Vérifier le voisinage PIM, les interfaces d’entrée/sortie, les captures des paquets et le comportement des compteurs lors de la bascule. Examiner aussi la duplication au niveau applicatif avant d’incriminer le réseau.
+
+**Correction attendue :** identifier le point où le même paquet est répliqué inutilement et appliquer une correction au domaine concerné, pas une ACL large qui masque le symptôme.
+
+### Cas 4 — Le cœur atteint une limite d’états
+
+**Hypothèses :** trop de sources par groupe, groupes éphémères, churn élevé, réplication par port, ou limite matérielle inférieure à la limite logicielle. Mesurer nombre d’états, fréquence d’entrées/sorties, pps, utilisation ASIC/CPU et pertes. Évaluer si SSM, une meilleure agrégation, une architecture MVPN plus appropriée ou un changement de gamme est justifié.
+
+**Correction attendue :** justifier une solution par un test de charge et une mesure de capacité ; ne pas masquer le problème par une suppression arbitraire des états.
+
+### Cas 5 — IPv4 fonctionne mais IPv6 multicast échoue
+
+**Hypothèses :** MLD/snooping absent, routage IPv6 vers S incorrect, PIMv6 non activé, interface link-local mal référencée ou ACL IPv6 manquante. Faire le diagnostic de bout en bout pour la famille IPv6 et ne pas utiliser les sorties IPv4 comme substitut.
+
+**Correction attendue :** prouver que l’adhésion MLD, la route IPv6/RPF, l’état PIMv6 et la réception application sont tous cohérents.
+
+
+## 14. Quiz Expert — questions et corrigé
+
+1. **Un état `(*,G)` signifie-t-il que le routeur reçoit nécessairement les paquets ?** Non. Il décrit un état de contrôle/transfert ; les compteurs, l’IIF/OIL et le plan de données doivent être vérifiés.
+2. **SSM requiert-il le mécanisme RP de PIM-SM ASM ?** Non, le modèle SSM est source-specific et s’appuie sur les abonnements `(S,G)` ; la compatibilité des hôtes et routeurs reste nécessaire.
+3. **Anycast-RP synchronise-t-il automatiquement les sources ASM ?** Non. L’architecture doit fournir un mécanisme pris en charge pour l’information des sources lorsque nécessaire.
+4. **Une route unicast valide garantit-elle le multicast ?** Non. PIM, les états, le RPF, les interfaces de sortie et les politiques doivent aussi être corrects.
+5. **Que signifie un paquet reçu hors IIF attendue ?** Il peut être rejeté par RPF ; vérifier route vers source, MRIB si utilisée, asymétrie et état multicast.
+6. **Pourquoi mesurer le churn ?** Il peut provoquer une charge de contrôle et de ressources importante même lorsque le débit utile reste modeste.
+7. **Un MVPN est-il équivalent à une VRF unicast ?** Non. Le MVPN fournit les procédures pour transporter l’état et le trafic multicast à travers le réseau VPN opérateur.
+8. **Pourquoi distinguer une panne RP d’une panne du chemin vers S ?** Les états affectés et les causes sont différents, notamment entre ASM et SSM.
+9. **La réussite du ping prouve-t-elle que le chemin multicast fonctionne ?** Non. Il faut tester l’émission, les adhésions et le plan de données multicast.
+10. **Quels éléments doit contenir un changement multicast ?** Objet du changement, groupes/sources, périmètre, état initial, test, impact, critères de succès, rollback, preuve post-change et responsable.
+
+
+## 15. Checklist de mise en production
+
+### Design
+- [ ] Modèle ASM/SSM/Bidir justifié par application.
+- [ ] Sources, groupes, ports, VRF et périmètres documentés.
+- [ ] Rôle et mapping RP explicitement documentés pour ASM.
+- [ ] Redondance RP/source/chemin traitée séparément.
+- [ ] Capacité états, pps, réplication, churn et matériel validée.
+
+### Sécurité
+- [ ] Sources autorisées et frontières de groupe appliquées.
+- [ ] Règles de réception/émission documentées, incluant IPv6.
+- [ ] Protection du plan de contrôle et journalisation validées.
+- [ ] Contrôle d’accès et groupes non autorisés testés.
+
+### Opérations
+- [ ] Runbook source → récepteur disponible.
+- [ ] États, compteurs et captures utiles documentés pour chaque OS.
+- [ ] Alertes sur état RP, churn, pertes et utilisation des ressources.
+- [ ] Panne lien/RP/source mesurée en préproduction.
+- [ ] Retour arrière testé et approuvé.
+
+
+## 16. Glossaire de référence
+
+| Terme | Signification |
+|---|---|
+| ASM | Any-Source Multicast ; les récepteurs rejoignent un groupe sans sélectionner chaque source |
+| BSR | Bootstrap Router ; mécanisme standard PIM de diffusion du mapping RP |
+| DR | Designated Router ; routeur désigné sur un LAN multicast selon les règles PIM |
+| FHR | First-Hop Router, routeur proche de la source |
+| IGMP / MLD | Protocoles d’adhésion des hôtes en IPv4 / IPv6 |
+| IIF / OIF / OIL | Interface entrante attendue / interface sortante / liste des interfaces de sortie |
+| LHR | Last-Hop Router, routeur proche des récepteurs |
+| MRIB | Multicast Routing Information Base, utilisée par certaines implémentations pour les décisions multicast |
+| MSDP | Multicast Source Discovery Protocol, historiquement utilisé notamment pour l’échange d’informations de source ASM entre RP |
+| MVPN | Multicast VPN, extension de service pour transporter le multicast entre sites VPN |
+| PIM | Protocol Independent Multicast |
+| RP | Rendezvous Point dans PIM-SM ASM |
+| RPF | Reverse Path Forwarding ; vérification du chemin retour attendu vers une source ou le RP |
+| RPT / SPT | Rendezvous Point Tree / Shortest Path Tree |
+| SSM | Source-Specific Multicast ; service fondé sur le canal `(S,G)` |
+
+
+## Références techniques
+
+- [RFC 7761 — Protocol Independent Multicast - Sparse Mode (PIM-SM)](https://www.rfc-editor.org/rfc/rfc7761.html)
+- [RFC 4607 — Source-Specific Multicast for IP](https://www.rfc-editor.org/rfc/rfc4607.html)
+- [RFC 4604 — IGMPv3 / MLDv2 for Source-Specific Multicast](https://www.rfc-editor.org/rfc/rfc4604.html)
+- [RFC 5015 — Bidirectional Protocol Independent Multicast](https://www.rfc-editor.org/rfc/rfc5015.html)
+- [RFC 3810 — Multicast Listener Discovery Version 2 (MLDv2) for IPv6](https://www.rfc-editor.org/rfc/rfc3810.html)
+- [RFC 6513 — Multicast in MPLS/BGP IP VPNs](https://www.rfc-editor.org/rfc/rfc6513.html)
+- [RFC 6514 — BGP Encodings and Procedures for Multicast in MPLS/BGP IP VPNs](https://www.rfc-editor.org/rfc/rfc6514.html)
+- [Cisco — IP Multicast Configuration Guide](https://www.cisco.com/c/en/us/support/ip/ip-multicast/series.html)
+
+> **Règle d’exploitation :** ne fermer un incident que lorsque le résultat applicatif, les états de contrôle et les compteurs du plan de données sont cohérents avec les critères convenus.

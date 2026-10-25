@@ -8,7 +8,6 @@ Ce cours prolonge les bases du niveau Débutant. Il utilise des exemples Suricat
 
 > **Analogie** : Un IDS ressemble à une caméra et à un système d’alarme : il observe et signale ce qui paraît anormal. Un IPS placé en ligne ressemble à un contrôle d’accès : il peut arrêter un flux avant qu’il n’atteigne sa destination. Le DPI correspond au travail d’analyse du contenu et du contexte du trafic, dans les limites de ce que le capteur peut réellement voir.
 
----
 
 ## 1. Théorie et mécanismes d’inspection
 
@@ -282,7 +281,6 @@ Une alerte passe rarement directement de « règle déclenchée » à « inciden
 </svg>
 </div>
 
----
 
 ## 2. Configuration et pratique
 
@@ -429,7 +427,6 @@ Pour confirmer une action :
 
 Une règle peut être configurée en blocage sans que le chemin matériel ou logiciel applique ce blocage comme attendu. À l’inverse, un flux peut être coupé par un pare-feu voisin et donner l’impression que l’IPS l’a bloqué. La preuve doit relier l’événement à l’action réellement observée.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -561,7 +558,6 @@ Après une alerte importante :
 - [ ] Documenter toute action de blocage et son résultat réel.
 - [ ] Fermer ou réviser la règle avec une preuve de test.
 
----
 
 ## Points à retenir
 

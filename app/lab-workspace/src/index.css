@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --s1: #101827;
+  --s2: #263449;
+  --emerald-400: #34d399;
+  --emerald-300: #6ee7b7;
+  --cyan-400: #22d3ee;
+  --red-400: #f87171;
+  --text-primary: #f1f5f9;
+  color: var(--text-primary);
+  background: var(--s1);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { min-width: 320px; min-height: 100%; width: 100%; margin: 0; }
+body { min-height: 100vh; }
+.theme-root { background: var(--s1); color: var(--text-primary); transition: background-color 160ms ease, color 160ms ease; }
+.theme-root[data-theme='light'] {
+  --s1: #f8fafc;
+  --s2: #d8e1ec;
+  --emerald-400: #059669;
+  --emerald-300: #10b981;
+  --cyan-400: #0891b2;
+  --red-400: #dc2626;
+  --text-primary: #0f172a;
+}
+.react-flow { background: var(--s1); }
+.react-flow__controls, .react-flow__minimap { border: 1px solid var(--s2); overflow: hidden; }
+.react-flow__controls-button { background: var(--s1); fill: var(--text-primary); border-bottom-color: var(--s2); }
+.react-flow__controls-button:hover { background: var(--s2); }
+.react-flow__minimap { background: var(--s1); }
+.react-flow__attribution { background: var(--s1); color: var(--text-primary); }

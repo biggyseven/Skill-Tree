@@ -8,7 +8,6 @@
 **Durée conseillée :** 2 h 30 à 4 h, selon les manipulations pratiques.  
 **Environnement recommandé :** deux machines de test, un routeur ou pare-feu administrable, une interface VPN de laboratoire et Wireshark ou tcpdump. Les commandes qui changent la configuration doivent être testées dans un environnement autorisé.
 
----
 
 ## Rapport de comptage des mots
 
@@ -694,7 +693,6 @@ Les RFC suivantes constituent les références principales pour les mécanismes 
 
 **Note de version :** les outils et interfaces de configuration changent selon les systèmes. Vérifiez la documentation de la version réellement installée avant d’exécuter une commande en production. Ce cours fournit une méthode de diagnostic pédagogique et ne remplace pas la documentation spécifique de l’équipement ni les procédures de changement de votre organisation.
 
----
 
 ## Rapport final de comptage des mots
 

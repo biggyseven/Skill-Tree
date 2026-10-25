@@ -1,178 +1,358 @@
-# MPLS & VRF - Débutant
+# MPLS & VRF — Niveau Débutant
 
-> **Note** : Ce cours est en cours de rédaction. Utilisez Gemini pour générer le contenu complet !## node_id: mpls-debutant
+> **Objectif :** comprendre les principes d’un réseau MPLS L3VPN et la séparation logique par VRF, avant d’aborder la conception et le dépannage avancés.
 
-title: MPLS et VRF - Débutant
+## 1. Objectifs pédagogiques et prérequis
 
-# MPLS (Multiprotocol Label Switching) et VRF - Débutant
+À la fin de ce niveau débutant, tu dois pouvoir expliquer à quoi servent MPLS et VRF, reconnaître les rôles CE/PE/P, suivre un paquet à travers un réseau MPLS, distinguer underlay et VPN, comprendre les labels, et lire une configuration de base sans confondre isolation de routage et sécurité complète.
 
-**Niveau :** Débutant  
-**Prérequis :** Notions de base en routage IP (IPv4, tables de routage, IGP comme OSPF ou IS-IS) et concepts VLAN (802.1Q).
+**Prérequis utiles :** adressage IPv4, masque et passerelle par défaut, routes statiques, notions d’IGP (OSPF ou IS-IS), BGP au niveau conceptuel, VLAN et interfaces de routeur. Tu peux suivre le cours sans avoir déjà configuré un réseau MPLS de production.
 
-Ce cours introduit les concepts fondamentaux du **MPLS (Multiprotocol Label Switching)** et des **VRF (Virtual Routing and Forwarding)**. Nous verrons pourquoi ces technologies ont été créées, comment elles fonctionnent au niveau du plan de données (*Data Plane*) et du plan de contrôle (*Control Plane*), ainsi que les bases de la commutation par étiquettes (*Labels*).
+**Périmètre :** le cours se concentre sur MPLS L3VPN avec VRF, modèle largement utilisé pour connecter des sites clients via un fournisseur. Les syntaxes varient selon IOS, IOS XE, IOS XR, Junos et les versions ; les blocs Cisco ci-dessous sont pédagogiques et doivent être adaptés à la plateforme.
 
----
+## 2. Pourquoi MPLS ?
 
-## 1. Pourquoi MPLS et VRF ?
+MPLS signifie *Multiprotocol Label Switching*. C’est une technique de transfert dans laquelle les routeurs peuvent acheminer les paquets en s’appuyant sur des labels courts ajoutés au paquet, au lieu de refaire à chaque saut une recherche IP classique sur l’adresse de destination. MPLS est souvent utilisé dans les réseaux d’opérateurs pour construire des services VPN, transporter plusieurs familles de trafic et séparer le plan de transport du service client.
 
-### Le problème du routage IP traditionnel
+MPLS n’est ni un protocole de chiffrement ni une garantie automatique de confidentialité cryptographique. Il fournit une architecture de transfert et de services. Si le besoin exige une protection contre l’écoute sur un réseau non fiable, il faut ajouter des mécanismes adaptés (par exemple IPsec ou MACsec selon le scénario).
 
-Dans le routage IP classique :
-1. Chaque routeur le long du chemin consulte la **table de routage (FIB/RIB)** pour déterminer le saut suivant (*Next-Hop*).
-2. La recherche s'effectue sur le masque de sous-réseau le plus long (*Longest Prefix Match* - LPM), ce qui demande un calcul à chaque saut.
-3. Toutes les paquets d'une même destination empruntent exactement le même chemin défini par l'IGP.
-4. Par défaut, la table de routage est unique : deux clients ou services ayant les mêmes sous-réseaux privés (ex: `192.168.1.0/24`) ne peuvent pas coexister sur les mêmes équipements sans conflit d'adressage IP.
+### Problème concret
+Une entreprise possède deux sites, Site A et Site B. Elle veut communiquer à travers le réseau d’un fournisseur sans que ses routes privées soient mélangées avec celles des autres clients. Le fournisseur doit transporter les paquets, apprendre les routes du client, et garder des tables séparées. MPLS L3VPN et les VRF répondent à ce besoin.
 
-### Les solutions apportées
+### Schéma explicatif
 
-* **VRF (Virtual Routing and Forwarding) :** Permet de partitionner un routeur physique en plusieurs tables de routage virtuelles indépendantes (analogue aux VLANs pour la couche 2).
-* **MPLS (Multiprotocol Label Switching) :** Permet d'acheminer les paquets IP en leur ajoutant une petite étiquette (*Label*) de taille fixe. Les routeurs de transit commutent les paquets en regardant uniquement cette étiquette, sans analyser l'en-tête IP.
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Architecture MPLS L3VPN : rôles CE, PE et P"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Architecture MPLS L3VPN : rôles CE, PE et P</text><rect x="35" y="140" width="150" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="110.0" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Site A</text><text x="110.0" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">CE / LAN</text><rect x="260" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="332.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">PE1</text><text x="332.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VRF + MPLS</text><rect x="465" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="537.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">P</text><text x="537.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Label switching</text><rect x="670" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="742.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">PE2</text><text x="742.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VRF + MPLS</text><rect x="845" y="140" width="90" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="890.0" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">CE</text><text x="890.0" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Site B</text><line x1="185" y1="178" x2="260" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 251.2 182.8 L 260 178 L 251.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="222.5" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">IP</text><line x1="405" y1="178" x2="465" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 456.2 182.8 L 465 178 L 456.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="435.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">label</text><line x1="610" y1="178" x2="670" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 661.2 182.8 L 670 178 L 661.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="640.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">label</text><line x1="815" y1="178" x2="845" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 836.2 182.8 L 845 178 L 836.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="830.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">IP</text><text x="480" y="270" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#b8c7d9">Le cœur P commute les labels sans connaître les routes des clients.</text></svg>
 
----
+## 3. Architecture CE, PE et P
 
-## 2. Le concept de VRF (Virtual Routing and Forwarding)
+Dans le modèle classique, trois rôles sont essentiels :
 
-Une VRF permet de créer plusieurs instances de routage étanches sur un même équipement.
+- **CE (Customer Edge)** : équipement côté client. Il échange les routes avec le fournisseur, souvent via une route statique, OSPF, BGP ou un autre protocole convenu.
+- **PE (Provider Edge)** : équipement du fournisseur connecté au CE. Il héberge les VRF des clients, apprend leurs routes, applique les politiques d’import/export et associe les routes VPN à des labels.
+- **P (Provider/Core)** : routeur du cœur fournisseur. Il commute les labels de transport et n’a normalement pas besoin de connaître les routes IP de chaque client.
 
-```
-                  ┌─────────────────────────────────┐
-                  │        ROUTEUR PHYSIQUE         │
-                  │                                 │
-                  │  ┌───────────┐   ┌───────────┐  │
-Client A (VLAN10) ┼──┤  VRF A    │   │  VRF B    ├──┼ Client B (VLAN20)
-10.0.0.0/24       │  │ (Table A) │   │ (Table B) │  │ 10.0.0.0/24
-                  │  └───────────┘   └───────────┘  │
-                  └─────────────────────────────────┘
-```
+Le point important : les PE connaissent le contexte VPN ; les routeurs P n’ont généralement qu’à transporter les paquets à travers le cœur. Cela permet de faire évoluer le cœur sans installer toutes les routes des clients dans chaque routeur P.
 
-### Caractéristiques principales d'une VRF :
-1. **Table de routage dédiée :** Chaque VRF possède sa propre table IP (`show ip route vrf <nom>`).
-2. **Isolation totale :** Les paquets appartenant à la VRF A ne peuvent pas communiquer avec la VRF B par défaut.
-3. **Plages d'adresses overlapping :** Plusieurs clients peuvent utiliser le même espace d'adressage IP privé (ex: RFC 1918) sans interférence.
-4. **Interfaces dédiées :** Une interface physique ou sous-interface (VLAN) est assignée à une seule VRF à la fois.
+### Schéma explicatif
 
----
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Architecture MPLS L3VPN : rôles CE, PE et P"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Architecture MPLS L3VPN : rôles CE, PE et P</text><rect x="35" y="140" width="150" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="110.0" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Site A</text><text x="110.0" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">CE / LAN</text><rect x="260" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="332.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">PE1</text><text x="332.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VRF + MPLS</text><rect x="465" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="537.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">P</text><text x="537.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Label switching</text><rect x="670" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="742.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">PE2</text><text x="742.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VRF + MPLS</text><rect x="845" y="140" width="90" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="890.0" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">CE</text><text x="890.0" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Site B</text><line x1="185" y1="178" x2="260" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 251.2 182.8 L 260 178 L 251.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="222.5" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">IP</text><line x1="405" y1="178" x2="465" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 456.2 182.8 L 465 178 L 456.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="435.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">label</text><line x1="610" y1="178" x2="670" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 661.2 182.8 L 670 178 L 661.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="640.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">label</text><line x1="815" y1="178" x2="845" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 836.2 182.8 L 845 178 L 836.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="830.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">IP</text><text x="480" y="270" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#b8c7d9">Le cœur P commute les labels sans connaître les routes des clients.</text></svg>
 
-## 3. Les Fondations du MPLS
+## 4. Le trajet d’un paquet à travers MPLS
 
-### 1. La structure de l'en-tête MPLS (Shim Header)
+Un scénario simplifié suit ces étapes :
 
-L'en-tête MPLS (4 octets / 32 bits) s'intercale entre la couche 2 (Ethernet) et la couche 3 (IP), d'où son appellation de protocole **Couche 2.5**.
+1. Le CE du site A envoie un paquet IP vers le CE du site B.
+2. Le PE d’entrée reçoit le paquet sur une interface associée à la VRF du client.
+3. Il consulte la table de cette VRF et identifie la route VPN vers le site B.
+4. Le PE ajoute un ou plusieurs labels selon le service et le chemin de transport.
+5. Les routeurs P utilisent le label externe pour commuter le paquet à travers le cœur.
+6. À proximité du PE de sortie, le label de transport peut être retiré par *Penultimate Hop Popping* (PHP), selon la configuration.
+7. Le PE de sortie utilise le contexte VPN restant, ou sa table de transfert, pour transmettre le paquet vers le CE distant.
 
-```
- 0                   1          2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                LABEL (20 bits)                | Exp |S|  TTL  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-```
+Il s’agit d’un modèle pédagogique. Les détails exacts dépendent du mode de distribution des labels, du service utilisé, du comportement PHP/explicit-null et de la configuration.
 
-* **Label (20 bits) :** Valeur numérique de l'étiquette (de 0 à $2^{20}-1 = 1\,048\,575$). Identifie la classe d'équivalence de transfert (FEC).
-* **Experimental / TC (3 bits) :** Utilisé pour la QoS (Quality of Service / DiffServ).
-* **Bottom of Stack - S (1 bit) :** Indique si cette étiquette est la dernière de la pile ($S=1$) ou s'il y en a d'autres empilées en dessous ($S=0$).
-* **Time To Live - TTL (8 bits) :** Évite les boucles de routage (décrémenté à chaque saut MPLS).
+### Schéma explicatif
 
----
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Encapsulation : paquet IP et labels MPLS"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Encapsulation : paquet IP et labels MPLS</text><rect x="55" y="125" width="185" height="92" rx="12" fill="#17304a" stroke="#5a82b1" stroke-width="2"/><text x="147.5" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Paquet client</text><text x="147.5" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">IP source / destination</text><rect x="300" y="125" width="185" height="92" rx="12" fill="#1b3c52" stroke="#39a7a1" stroke-width="2"/><text x="392.5" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Label externe</text><text x="392.5" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Transport vers le PE</text><rect x="545" y="125" width="185" height="92" rx="12" fill="#3b2d56" stroke="#a78bfa" stroke-width="2"/><text x="637.5" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Label VPN</text><text x="637.5" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Contexte de la VRF</text><rect x="770" y="125" width="145" height="92" rx="12" fill="#17304a" stroke="#5a82b1" stroke-width="2"/><text x="842.5" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">IP client</text><text x="842.5" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Au PE distant</text><line x1="240" y1="171" x2="300" y2="171" stroke="#6dd3ce" stroke-width="3"/><path d="M 291.2 175.8 L 300 171 L 291.2 166.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="270.0" y="162.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">push</text><line x1="485" y1="171" x2="545" y2="171" stroke="#6dd3ce" stroke-width="3"/><path d="M 536.2 175.8 L 545 171 L 536.2 166.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="515.0" y="162.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">push</text><line x1="730" y1="171" x2="770" y2="171" stroke="#6dd3ce" stroke-width="3"/><path d="M 761.2 175.8 L 770 171 L 761.2 166.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="750.0" y="162.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">pop</text><text x="480" y="275" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#c8d7e8">Schéma conceptuel : l’ordre des labels et les opérations exactes dépendent du chemin et de l’implémentation.</text></svg>
 
-### 2. Typologie des Routeurs MPLS
+## 5. Comprendre les labels MPLS
 
-Dans une architecture MPLS, on distingue trois rôles majeurs :
+Un label MPLS est une valeur locale au contexte de commutation : il n’est pas une adresse IP globale et ne doit pas être interprété comme un identifiant permanent de destination. Le routeur reçoit un paquet avec un label, consulte sa table de commutation et applique une opération, par exemple :
 
-```
-[ Client A ] ─── ( CE1 ) ─── [ LER / PE1 ] ─── [ LSR / P ] ─── [ LER / PE2 ] ─── ( CE2 ) ─── [ Client B ]
-                               (Ingress)                       (Egress)
-```
+- **Push** : ajouter un label à la pile.
+- **Swap** : remplacer le label du dessus par un autre label.
+- **Pop** : retirer le label du dessus.
 
-1. **CE (Customer Edge) :** Routeur situé chez le client. Il n'a pas conscience du réseau MPLS et émet/reçoit des paquets IP standards.
-2. **PE (Provider Edge) ou LER (Label Edge Router) :** Routeur de bordure du fournisseur de services. Il fait le pont entre le routage IP classique et le domaine MPLS.
-   * **Ingress LER :** Ajoute l'étiquette MPLS au paquet IP entrant (*Push*).
-   * **Egress LER :** Retire l'étiquette MPLS avant d'envoyer le paquet IP au destinataire final (*Pop*).
-3. **P (Provider Router) ou LSR (Label Switching Router) :** Routeur de cœur de réseau (*Core Router*). Il ne regarde que les étiquettes MPLS pour commuter le trafic (*Swap*).
+La pile de labels permet de combiner un label de transport (pour atteindre le PE de sortie) et un label de service/VPN (pour identifier le traitement associé au VPN). On peut imaginer le label externe comme une instruction de transport dans le cœur, et le label interne comme une information de service consommée à la sortie. Ce modèle n’est pas une règle universelle pour tous les services MPLS, mais il explique bien MPLS L3VPN classique.
 
----
+### Schéma explicatif
 
-### 3. Les Opérations MPLS sur le Plan de Données
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="VRF : séparation logique des tables de routage"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">VRF : séparation logique des tables de routage</text><rect x="40" y="150" width="160" height="78" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="120.0" y="177" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">CE A</text><text x="120.0" y="199" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">10.10.0.0/16</text><rect x="260" y="80" width="190" height="80" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="355.0" y="107" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF CLIENT-A</text><text x="355.0" y="129" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">RD 65000:10</text><rect x="260" y="220" width="190" height="80" rx="12" fill="#392b54" stroke="#ad8bfa" stroke-width="2"/><text x="355.0" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF CLIENT-B</text><text x="355.0" y="269" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">RD 65000:20</text><rect x="530" y="150" width="175" height="78" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="617.5" y="177" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">PE</text><text x="617.5" y="199" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Tables séparées</text><rect x="775" y="80" width="150" height="80" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="850.0" y="107" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VPN A</text><text x="850.0" y="129" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Routes A</text><rect x="775" y="220" width="150" height="80" rx="12" fill="#392b54" stroke="#ad8bfa" stroke-width="2"/><text x="850.0" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VPN B</text><text x="850.0" y="269" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Routes B</text><line x1="200" y1="175" x2="260" y2="120" stroke="#6dd3ce" stroke-width="3"/><path d="M 256.8 129.5 L 260 120 L 250.3 122.4" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="230.0" y="138.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">interface / VRF</text><line x1="200" y1="185" x2="260" y2="260" stroke="#6dd3ce" stroke-width="3"/><path d="M 250.8 256.1 L 260 260 L 258.3 250.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="230.0" y="213.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">interface / VRF</text><line x1="450" y1="120" x2="530" y2="170" stroke="#6dd3ce" stroke-width="3"/><path d="M 520.0 169.4 L 530 170 L 525.1 161.3" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="490.0" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">routes A</text><line x1="450" y1="260" x2="530" y2="205" stroke="#6dd3ce" stroke-width="3"/><path d="M 525.5 213.9 L 530 205 L 520.1 206.0" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="490.0" y="223.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">routes B</text><line x1="705" y1="170" x2="775" y2="120" stroke="#6dd3ce" stroke-width="3"/><path d="M 770.6 129.0 L 775 120 L 765.1 121.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="740.0" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">MP-BGP</text><line x1="705" y1="205" x2="775" y2="260" stroke="#6dd3ce" stroke-width="3"/><path d="M 765.1 258.3 L 775 260 L 771.1 250.8" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="740.0" y="223.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">MP-BGP</text></svg>
 
-Un routeur MPLS effectue trois opérations fondamentales sur la pile d'étiquettes :
+## 6. Underlay, IGP et distribution des labels
 
-* **PUSH :** Ajout d'une nouvelle étiquette au sommet de la pile (ex-Ingress PE).
-* **SWAP :** Remplacement de l'étiquette entrante par une étiquette sortante (ex-routeur P de transit).
-* **POP :** Suppression de l'étiquette supérieure de la pile (ex-Egress PE).
+Le réseau MPLS repose sur un réseau IP sous-jacent (*underlay*). Les loopbacks des routeurs PE/P doivent être joignables à travers un IGP comme OSPF ou IS-IS, ou via une architecture de routage appropriée. Les sessions de contrôle et les chemins de transport dépendent de cette connectivité.
 
-```
-        PUSH (Label 100)               SWAP (100 -> 200)             POP (Label 200)
-IP Packet  ─────────>  [ LER Ingress ]  ─────────>  [ LSR Core ]  ─────────>  [ LER Egress ]  ─────────> IP Packet
-                       [100|IP Header]              [200|IP Header]               [IP Header]
-```
+La distribution des labels de transport peut être réalisée par LDP, RSVP-TE dans certaines architectures, ou Segment Routing (SR-MPLS). Pour un premier laboratoire, LDP est souvent le plus simple à expliquer, mais il faut éviter d’affirmer que tous les réseaux MPLS utilisent LDP.
 
----
+**Règle pratique :** avant de déboguer une route VPN, vérifie que les loopbacks PE sont joignables dans l’underlay et que le mécanisme de transport des labels fonctionne. Une route VPN peut exister dans BGP tout en étant inutilisable si le next-hop ou le chemin de transport n’est pas résolu.
 
-## 4. Protocole d'Échange d'Étiquettes : LDP (Label Distribution Protocol)
+### Schéma explicatif
 
-Pour que la commutation d'étiquettes fonctionne, les routeurs doivent s'accorder sur les étiquettes à utiliser pour chaque destination IP. Le protocole standard utilisé est **LDP (RFC 5036)**.
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Plan de contrôle : IGP, distribution de labels et MP-BGP"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Plan de contrôle : IGP, distribution de labels et MP-BGP</text><rect x="55" y="130" width="180" height="90" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="145.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">IGP</text><text x="145.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Reachability loopbacks</text><rect x="285" y="130" width="180" height="90" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="375.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">LDP / SR</text><text x="375.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Transport labels</text><rect x="515" y="130" width="180" height="90" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="605.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">MP-BGP</text><text x="605.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Routes VPN + labels</text><rect x="745" y="130" width="170" height="90" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="830.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF PE</text><text x="830.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Import / export</text><line x1="235" y1="175" x2="285" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 276.2 179.8 L 285 175 L 276.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="260.0" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">underlay</text><line x1="465" y1="175" x2="515" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 506.2 179.8 L 515 175 L 506.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="490.0" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">BGP next-hop</text><line x1="695" y1="175" x2="745" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 736.2 179.8 L 745 175 L 736.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="720.0" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">VPN routes</text><text x="480" y="275" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#c8d7e8">Trois fonctions distinctes : transport IP, distribution des labels, échange des routes VPN.</text></svg>
 
-### Fonctionnement de LDP :
-1. **Découverte des voisins :** Les routeurs s'envoient des messages Hello UDP sur le port `646`.
-2. **Session TCP :** Une session TCP (port `646`) est établie entre les voisins LDP.
-3. **Attribution et Annonce des Labels :**
-   * Chaque routeur attribue une étiquette locale (*Local Label*) à chaque préfixe IP connu dans son IGP (OSPF/IS-IS).
-   * Il informe ses voisins de l'association *(Préfixe IP $\rightarrow$ Label Local)* via des messages LDP *Mapping*.
-4. **Construction des tables MPLS :**
-   * **LIB (Label Information Base) :** Contient toutes les associations d'étiquettes reçues de tous les voisins LDP.
-   * **LFIB (Label Forwarding Information Base) :** Contient les meilleures étiquettes retenues pour la commutation effective du plan de données.
+## 7. VRF : plusieurs tables de routage sur un même PE
 
----
+VRF signifie *Virtual Routing and Forwarding*. Une VRF permet à un routeur de maintenir une table de routage distincte pour un contexte donné. Plusieurs clients peuvent utiliser le même préfixe privé (par exemple 10.0.0.0/8) sans être automatiquement mélangés, parce que leurs routes sont installées dans des tables différentes.
 
-## 5. Configuration de Base : VRF et MPLS LDP (Cisco IOS)
+Sur un PE, l’interface connectée au CE est associée à une VRF. Les routes apprises sur cette interface sont placées dans cette table, et le transfert des paquets reçus sur cette interface s’effectue dans le contexte VRF associé.
 
-### 1. Configuration d'une VRF simple
+Une VRF **n’est pas simplement un VLAN**. Un VLAN segmente principalement la couche 2 ; une VRF sépare les contextes de routage couche 3. Les deux peuvent être utilisés ensemble, mais ils répondent à des besoins différents.
 
-```cisco
-! Définition de la VRF pour le Client Alpha
-vrf definition CLIENT_ALPHA
+### Schéma explicatif
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Cycle de vie simplifié des labels"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Cycle de vie simplifié des labels</text><rect x="55" y="130" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="135.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Ingress PE</text><text x="135.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Impose les labels</text><rect x="300" y="130" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="380.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">P router</text><text x="380.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Échange label externe</text><rect x="545" y="130" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="625.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Egress PE</text><text x="625.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Retire transport</text><rect x="790" y="130" width="125" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="852.5" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">CE distant</text><text x="852.5" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Reçoit IP</text><line x1="215" y1="180" x2="300" y2="180" stroke="#6dd3ce" stroke-width="3"/><path d="M 291.2 184.8 L 300 180 L 291.2 175.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="257.5" y="171.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">push</text><line x1="460" y1="180" x2="545" y2="180" stroke="#6dd3ce" stroke-width="3"/><path d="M 536.2 184.8 L 545 180 L 536.2 175.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="502.5" y="171.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">swap</text><line x1="705" y1="180" x2="790" y2="180" stroke="#6dd3ce" stroke-width="3"/><path d="M 781.2 184.8 L 790 180 L 781.2 175.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="747.5" y="171.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">pop / PHP</text><text x="480" y="285" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#c8d7e8">PHP (Penultimate Hop Popping) peut retirer le label de transport avant le PE de sortie.</text></svg>
+
+## 8. Exemple de recouvrement d’adresses
+
+Supposons deux clients du fournisseur : Client A utilise 10.10.0.0/16 et Client B utilise aussi 10.10.0.0/16. Dans une table de routage unique, ces préfixes seraient ambigus. Avec deux VRF distinctes, `CLIENT-A` et `CLIENT-B`, le PE peut conserver deux routes identiques dans des tables différentes.
+
+Cette séparation est l’une des raisons majeures de l’usage des VRF dans les services MPLS L3VPN. Elle facilite aussi la séparation logique de départements dans une entreprise, par exemple USERS, SERVERS, GUEST et MANAGEMENT, même si la mise en œuvre de politiques de sécurité exige des contrôles complémentaires.
+
+## 9. RD et RT : ne pas les confondre
+
+Deux notions BGP sont fondamentales dans MPLS L3VPN :
+
+- **RD (Route Distinguisher)** : rend un préfixe VPN unique dans l’espace VPNv4/VPNv6. Il aide à distinguer des préfixes identiques issus de contextes différents. Le RD ne décide pas à lui seul où une route sera importée.
+- **RT (Route Target)** : attribut étendu BGP utilisé comme politique d’import/export. Un RT exporté par une VRF peut être utilisé pour sélectionner les VRF qui importeront cette route.
+
+Une analogie : le RD donne une identité distincte à la route dans l’espace VPN ; le RT sert d’étiquette de politique pour décider quels contextes peuvent la recevoir. Un RD différent ne crée pas à lui seul une politique d’accès, et un RT commun n’est pas un chiffrement.
+
+Les valeurs comme `65000:10` sont des exemples. Dans une conception réelle, l’allocation des RD/RT doit être documentée, cohérente et contrôlée.
+
+### Schéma explicatif
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="RD et RT : identité de route et politique d’import/export"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">RD et RT : identité de route et politique d’import/export</text><rect x="45" y="135" width="190" height="100" rx="12" fill="#18334c" stroke="#5a82b1" stroke-width="2"/><text x="140.0" y="162" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF locale</text><text x="140.0" y="184" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">RD unique ou choisi</text><rect x="300" y="135" width="190" height="100" rx="12" fill="#3a2e54" stroke="#ad8bfa" stroke-width="2"/><text x="395.0" y="162" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VPNv4 / VPNv6</text><text x="395.0" y="184" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Préfixe + RD + label</text><rect x="555" y="65" width="170" height="85" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="640.0" y="92" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">RT export</text><text x="640.0" y="114" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">65000:100</text><rect x="555" y="220" width="170" height="85" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="640.0" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">RT import</text><text x="640.0" y="269" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">65000:100</text><rect x="790" y="135" width="130" height="100" rx="12" fill="#18334c" stroke="#5a82b1" stroke-width="2"/><text x="855.0" y="162" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF distante</text><text x="855.0" y="184" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Import autorisé</text><line x1="235" y1="185" x2="300" y2="185" stroke="#6dd3ce" stroke-width="3"/><path d="M 291.2 189.8 L 300 185 L 291.2 180.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="267.5" y="176.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">route</text><line x1="490" y1="165" x2="555" y2="110" stroke="#6dd3ce" stroke-width="3"/><path d="M 551.4 119.3 L 555 110 L 545.2 112.0" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="522.5" y="128.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">export RT</text><line x1="490" y1="205" x2="555" y2="260" stroke="#6dd3ce" stroke-width="3"/><path d="M 545.2 258.0 L 555 260 L 551.4 250.7" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="522.5" y="223.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">import RT</text><line x1="725" y1="110" x2="790" y2="165" stroke="#6dd3ce" stroke-width="3"/><path d="M 780.2 163.0 L 790 165 L 786.4 155.7" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="757.5" y="128.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">match</text><line x1="725" y1="260" x2="790" y2="205" stroke="#6dd3ce" stroke-width="3"/><path d="M 786.4 214.3 L 790 205 L 780.2 207.0" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="757.5" y="223.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">match</text></svg>
+
+## 10. MP-BGP et routes VPN
+
+MP-BGP (Multiprotocol BGP) transporte des informations de routage pour plusieurs familles d’adresses. Dans MPLS L3VPN, les PE échangent des routes VPNv4 ou VPNv6, selon la configuration. Les routes transportent notamment le préfixe VPN, des attributs tels que les RT et une information de label de service.
+
+Les routeurs P du cœur n’ont généralement pas besoin d’apprendre chaque préfixe client. Les PE maintiennent les routes VPN et utilisent le cœur MPLS pour acheminer le trafic vers le PE distant.
+
+Dans une configuration réelle, il faut vérifier la famille d’adresses activée, l’activation des voisins BGP, l’annonce des routes, les politiques d’import/export, la résolution du next-hop et la présence des labels. La simple présence d’une session BGP « Established » ne prouve pas que le service VPN fonctionne de bout en bout.
+
+### Schéma explicatif
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Plan de contrôle : IGP, distribution de labels et MP-BGP"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Plan de contrôle : IGP, distribution de labels et MP-BGP</text><rect x="55" y="130" width="180" height="90" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="145.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">IGP</text><text x="145.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Reachability loopbacks</text><rect x="285" y="130" width="180" height="90" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="375.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">LDP / SR</text><text x="375.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Transport labels</text><rect x="515" y="130" width="180" height="90" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="605.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">MP-BGP</text><text x="605.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Routes VPN + labels</text><rect x="745" y="130" width="170" height="90" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="830.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF PE</text><text x="830.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Import / export</text><line x1="235" y1="175" x2="285" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 276.2 179.8 L 285 175 L 276.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="260.0" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">underlay</text><line x1="465" y1="175" x2="515" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 506.2 179.8 L 515 175 L 506.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="490.0" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">BGP next-hop</text><line x1="695" y1="175" x2="745" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 736.2 179.8 L 745 175 L 736.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="720.0" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">VPN routes</text><text x="480" y="275" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#c8d7e8">Trois fonctions distinctes : transport IP, distribution des labels, échange des routes VPN.</text></svg>
+
+## 11. Exemple de configuration Cisco conceptuel
+
+L’exemple suivant illustre la création d’une VRF sur un PE Cisco IOS/IOS XE. Il n’est pas un gabarit universel : la syntaxe et les commandes de vérification diffèrent selon la plateforme et la version.
+
+```text
+vrf definition CLIENT-A
+ rd 65000:10
  address-family ipv4
+  route-target export 65000:100
+  route-target import 65000:100
  exit-address-family
 !
-! Assignation d'une interface à la VRF
-interface GigabitEthernet0/1
- vrf forwarding CLIENT_ALPHA
- ip address 10.1.1.1 255.255.255.0
+interface GigabitEthernet0/0
+ description Vers-CE-CLIENT-A
+ vrf forwarding CLIENT-A
+ ip address 192.0.2.1 255.255.255.252
  no shutdown
 ```
 
-### 2. Activation de MPLS LDP sur les interfaces de Cœur
+**Attention à l’ordre des commandes :** sur plusieurs versions Cisco, l’application de `vrf forwarding` sur une interface supprime l’adresse IP déjà configurée. La pratique sûre consiste à appliquer la VRF, puis à reconfigurer l’adresse IP. Vérifie toujours le comportement exact de ta version avant d’utiliser un bloc en production.
 
-```cisco
-! 1. Identifier le routeur avec un ID LDP (souvent la Loopback0)
-mpls router-id Loopback0 force
+Cet extrait crée une VRF et associe une interface. Il ne configure pas à lui seul un service MPLS L3VPN complet. Il manque notamment l’underlay, le mécanisme de labels, MP-BGP VPNv4/VPNv6, les politiques et le routage CE-PE.
 
-! 2. Activer MPLS globalement et sur l'interface du cœur
-mpls ip
+## 12. VRF-Lite et MPLS L3VPN : différence
 
-interface GigabitEthernet0/0
- description Lien vers Routeur P (Core)
- ip address 172.16.12.1 255.255.255.252
- mpls ip
-!
+**VRF-Lite** permet de séparer plusieurs tables de routage sans exiger un cœur MPLS ni un échange MP-BGP de routes VPN. Elle est utile sur un routeur d’entreprise qui sépare plusieurs environnements, ou pour des architectures de segmentation locales.
+
+**MPLS L3VPN** ajoute un mécanisme de transport MPLS et un plan de contrôle VPN, généralement MP-BGP, pour connecter des VRF sur plusieurs PE à travers un réseau fournisseur.
+
+En résumé : VRF est la fonction de séparation des tables ; MPLS est une technologie de transport par labels ; MP-BGP est couramment utilisé pour distribuer les routes VPN entre PE. Ces éléments peuvent être combinés, mais ils ne sont pas synonymes.
+
+## 13. Route leaking : partager seulement ce qui est nécessaire
+
+Le *route leaking* consiste à rendre certaines routes d’une VRF visibles dans une autre VRF, par des politiques contrôlées. Exemple : plusieurs VRF clientes doivent atteindre un service DNS partagé. On peut publier uniquement les routes nécessaires vers le service, au lieu de fusionner les tables de routage.
+
+Le leaking doit être limité et documenté : quelles routes sont importées, dans quel sens, pour quelle raison et avec quels contrôles de trafic ? Un import RT trop large peut créer des chemins inattendus ou exposer des services qui devaient rester isolés.
+
+La VRF fournit une séparation de routage ; elle ne remplace pas un pare-feu, une ACL ou une politique de sécurité de bout en bout. Si des flux entre zones doivent être limités, le contrôle doit être appliqué et testé séparément.
+
+### Schéma explicatif
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Route leaking contrôlé entre VRF"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Route leaking contrôlé entre VRF</text><rect x="55" y="125" width="190" height="95" rx="12" fill="#18334c" stroke="#5a82b1" stroke-width="2"/><text x="150.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF USERS</text><text x="150.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">10.10.0.0/16</text><rect x="385" y="125" width="190" height="95" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="480.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Services partagés</text><text x="480.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">DNS / DHCP / NTP</text><rect x="715" y="125" width="190" height="95" rx="12" fill="#3a2e54" stroke="#ad8bfa" stroke-width="2"/><text x="810.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF SERVERS</text><text x="810.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">10.20.0.0/16</text><line x1="245" y1="170" x2="385" y2="170" stroke="#f6c453" stroke-width="3"/><path d="M 376.2 174.8 L 385 170 L 376.2 165.2" fill="none" stroke="#f6c453" stroke-width="3"/><text x="315.0" y="161.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">route ciblée</text><line x1="575" y1="170" x2="715" y2="170" stroke="#f6c453" stroke-width="3"/><path d="M 706.2 174.8 L 715 170 L 706.2 165.2" fill="none" stroke="#f6c453" stroke-width="3"/><text x="645.0" y="161.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">flux autorisé</text><text x="480" y="275" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#c8d7e8">Le leaking doit être intentionnel, documenté et filtré ; il ne remplace pas un contrôle de sécurité.</text></svg>
+
+## 14. Sécurité et limites de la segmentation
+
+MPLS L3VPN sépare les tables de routage et permet de construire des services privés logiques sur une infrastructure partagée. Cependant, il ne faut pas assimiler séparation logique et chiffrement. Les protections de sécurité dépendent de la conception du fournisseur, des configurations et des exigences de l’organisation.
+
+Bonnes pratiques :
+- documenter les VRF et les routes importées/exportées ;
+- limiter les routes partagées ;
+- filtrer les annonces CE-PE et contrôler les préfixes acceptés ;
+- protéger les plans de gestion et de contrôle ;
+- surveiller les changements de routes et les anomalies de trafic ;
+- utiliser IPsec/MACsec ou un mécanisme de chiffrement adapté si la confidentialité cryptographique est requise ;
+- tester les chemins autorisés et interdits, pas seulement la connectivité positive.
+
+## 15. Vérifications et commandes utiles
+
+Les commandes disponibles varient selon IOS, IOS XE, IOS XR et les autres fournisseurs. Les commandes ci-dessous sont des exemples fréquents dans des environnements Cisco ; consulte la documentation correspondant à ta plateforme.
+
+```text
+show ip route vrf CLIENT-A
+show ip interface brief
+show mpls ldp neighbor
+show mpls forwarding-table
+show bgp vpnv4 unicast all summary
+show bgp vpnv4 unicast all
+show running-config | section vrf
 ```
 
----
+Selon la version, les commandes BGP peuvent prendre une forme différente, notamment avec `show ip bgp vpnv4 ...` sur des versions plus anciennes. Le but est de vérifier chaque couche séparément : interface CE-PE, route locale dans la VRF, IGP/loopbacks, distribution des labels, session MP-BGP, import RT, résolution next-hop, puis plan de données.
 
-## 6. Commandes de Vérification Essentielles
+## 16. Méthode de dépannage structurée
 
-| Commande (Cisco IOS) | Description / Objectif |
-| --- | --- |
-| `show vrf` | Liste les VRFs configurées et leurs interfaces associées. |
-| `show ip route vrf <NOM>` | Affiche la table de routage spécifique d'une VRF. |
-| `show mpls ldp neighbor` | Vérifie l'état de la session LDP avec les routeurs voisins. |
-| `show mpls ldp bindings` | Affiche la table **LIB** (associations préfixes/labels reçus). |
-| `show mpls forwarding-table` | Affiche la table **LFIB** utilisée pour le transfert des paquets MPLS. |
+Quand un site A ne peut pas joindre un site B, évite de modifier plusieurs paramètres à la fois. Suis une chaîne de preuves :
 
----
+1. **Couche physique et interfaces** : liens actifs, erreurs, encapsulation, adresses correctes.
+2. **Routage CE-PE** : le PE apprend-il la route du CE ? La route apparaît-elle dans la VRF attendue ?
+3. **VRF** : l’interface est-elle associée à la bonne VRF ? La table de routage a-t-elle une route vers la destination ?
+4. **Underlay** : les loopbacks PE sont-elles joignables ? Le next-hop BGP est-il résolu ?
+5. **Labels** : la route de transport et les labels existent-ils dans le plan de transfert ?
+6. **MP-BGP** : la route VPN est-elle reçue, exportée et importée avec les RT attendus ?
+7. **Plan de données** : teste dans les deux sens, puis compare ping, traceroute, compteurs et captures si disponibles.
+8. **Filtrage et MTU** : ACL, pare-feu, MTU du chemin, fragmentation, PMTUD et politiques de service.
 
-## Points à retenir
+Une session BGP active n’est qu’un indicateur. Une route visible n’est pas une garantie de transfert ; une route installée dans la VRF n’est pas une garantie que le retour existe.
 
-* **VRF** isole les tables de routage IP au niveau du plan de contrôle et du plan de données sur un même routeur.
-* **MPLS** ajoute un en-tête de 32 bits (Couche 2.5) contenant un **Label de 20 bits** pour accélérer et flexibiliser l'acheminement des paquets.
-* **Ingress PE** applique une opération **Push**, les routeurs **P** effectuent un **Swap**, et le **Egress PE** effectue un **Pop**.
-* **LDP (Label Distribution Protocol)** est le protocole du plan de contrôle utilisé pour associer et distribuer des étiquettes MPLS aux préfixes IP appris via l'IGP.
+### Schéma explicatif
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Arbre de diagnostic MPLS L3VPN"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Arbre de diagnostic MPLS L3VPN</text><rect x="35" y="125" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="115.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">1. Underlay</text><text x="115.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Loopbacks joignables</text><rect x="220" y="125" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="300.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">2. Labels</text><text x="300.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">LDP / SR opérationnel</text><rect x="405" y="125" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="485.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">3. MP-BGP</text><text x="485.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VPNv4/v6 actif</text><rect x="590" y="125" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="670.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">4. VRF</text><text x="670.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Route importée</text><rect x="775" y="125" width="150" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="850.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">5. Data plane</text><text x="850.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Ping / traceroute</text><line x1="195" y1="175" x2="220" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 211.2 179.8 L 220 175 L 211.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><line x1="380" y1="175" x2="405" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 396.2 179.8 L 405 175 L 396.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><line x1="565" y1="175" x2="590" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 581.2 179.8 L 590 175 L 581.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><line x1="750" y1="175" x2="775" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 766.2 179.8 L 775 175 L 766.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="480" y="280" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#c8d7e8">Diagnostiquer dans cet ordre évite de chercher une panne applicative quand le transport est cassé.</text></svg>
+
+## 17. Laboratoire guidé : deux sites, une VRF
+
+### Objectif
+Construire mentalement puis en laboratoire une topologie de deux sites reliés par un réseau fournisseur. Le lab peut être réalisé dans un simulateur qui prend en charge les fonctionnalités nécessaires, mais toutes les images ou versions d’IOS ne supportent pas MPLS et MP-BGP de la même façon.
+
+### Plan d’adressage d’exemple
+
+| Segment | Préfixe d’exemple | Rôle |
+|---|---|---|
+| LAN Site A | `10.10.10.0/24` | Réseau client A |
+| CE-A ↔ PE1 | `192.0.2.0/30` | Liaison CE-PE |
+| Loopbacks PE1/P/PE2 | `198.51.100.0/24` découpé en /32 | Underlay |
+| CE-B ↔ PE2 | `192.0.2.4/30` | Liaison CE-PE |
+| LAN Site B | `10.20.20.0/24` | Réseau client B |
+
+Ces plages sont réservées à la documentation et à l’exemple ; ne les utilise pas comme adresses publiques réelles.
+
+### Étapes
+1. Configure les loopbacks et les liens du cœur, puis active l’IGP.
+2. Vérifie la connectivité IP entre toutes les loopbacks PE/P.
+3. Active le mécanisme de distribution de labels retenu par le laboratoire.
+4. Crée la VRF `CLIENT-A` sur PE1 et PE2 avec des RD et RT cohérents.
+5. Associe chaque interface CE-PE à la VRF appropriée et configure l’adressage.
+6. Configure le routage CE-PE.
+7. Configure MP-BGP VPNv4 entre les PE (ou via les route-reflectors du lab) et les politiques de voisinage nécessaires.
+8. Vérifie que les routes du LAN A et du LAN B sont présentes dans la bonne VRF distante.
+9. Vérifie la résolution des next-hops et l’existence des labels.
+10. Teste le trafic dans les deux sens et documente les résultats.
+
+### Critères de réussite
+- les loopbacks du cœur sont joignables ;
+- le mécanisme de transport MPLS fonctionne ;
+- les routes clients apparaissent uniquement dans la VRF prévue ;
+- les routes sont échangées par le plan de contrôle VPN ;
+- les deux LAN communiquent ;
+- un préfixe appartenant à une autre VRF n’est pas appris sans politique explicite.
+
+### Schéma explicatif
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Architecture MPLS L3VPN : rôles CE, PE et P"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Architecture MPLS L3VPN : rôles CE, PE et P</text><rect x="35" y="140" width="150" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="110.0" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Site A</text><text x="110.0" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">CE / LAN</text><rect x="260" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="332.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">PE1</text><text x="332.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VRF + MPLS</text><rect x="465" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="537.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">P</text><text x="537.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Label switching</text><rect x="670" y="140" width="145" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="742.5" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">PE2</text><text x="742.5" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VRF + MPLS</text><rect x="845" y="140" width="90" height="76" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="890.0" y="167" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">CE</text><text x="890.0" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Site B</text><line x1="185" y1="178" x2="260" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 251.2 182.8 L 260 178 L 251.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="222.5" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">IP</text><line x1="405" y1="178" x2="465" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 456.2 182.8 L 465 178 L 456.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="435.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">label</text><line x1="610" y1="178" x2="670" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 661.2 182.8 L 670 178 L 661.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="640.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">label</text><line x1="815" y1="178" x2="845" y2="178" stroke="#6dd3ce" stroke-width="3"/><path d="M 836.2 182.8 L 845 178 L 836.2 173.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="830.0" y="169.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">IP</text><text x="480" y="270" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" fill="#b8c7d9">Le cœur P commute les labels sans connaître les routes des clients.</text></svg>
+
+## 18. Études de cas
+
+### Cas A — La session MP-BGP est établie, mais aucun ping ne passe
+Vérifie la route dans la VRF locale, le RT d’import/export, la résolution du next-hop, le label de service et le retour. L’état Established n’indique pas que les routes voulues sont acceptées ni que le plan de données est opérationnel.
+
+### Cas B — Les routes apparaissent dans le mauvais client
+Examine l’association de l’interface à la VRF, les RD/RT, les politiques BGP et les éventuelles fuites de routes. Ne corrige pas le problème en ajoutant un RT global sans comprendre le périmètre de l’import.
+
+### Cas C — Le ping de petite taille fonctionne, mais une application échoue
+Vérifie la MTU de bout en bout, l’encapsulation et le comportement PMTUD. Un tunnel ou une pile de labels réduit la marge de MTU disponible. Confirme la taille du paquet et le retour des messages ICMP nécessaires au PMTUD.
+
+### Cas D — Un site peut joindre l’autre dans un seul sens
+Examine les routes de retour, les filtres, les politiques de routage et les chemins asymétriques. Le routage est souvent bidirectionnel dans les besoins applicatifs, mais les chemins aller et retour ne sont pas nécessairement identiques.
+
+## 19. Quiz de validation (avec corrigé)
+
+**1. Que signifie VRF ?** — *Virtual Routing and Forwarding*, mécanisme permettant des tables de routage séparées.
+
+**2. Quel équipement héberge habituellement les VRF clientes en MPLS L3VPN ?** — Le PE.
+
+**3. Un routeur P doit-il apprendre toutes les routes LAN des clients ?** — En général non ; il commute les labels du cœur et n’a pas besoin des routes VPN individuelles.
+
+**4. Quelle est la différence entre RD et RT ?** — Le RD rend distinctes les routes dans l’espace VPN ; le RT sert à la politique d’import/export.
+
+**5. Que fait Swap ?** — Remplace un label par un autre pendant la commutation.
+
+**6. MPLS chiffre-t-il automatiquement le trafic ?** — Non.
+
+**7. Une VRF est-elle équivalente à un VLAN ?** — Non ; VLAN segmente principalement la couche 2, VRF sépare les tables de routage couche 3.
+
+**8. Que vérifier avant de déboguer MP-BGP VPN ?** — La connectivité underlay et la résolution des loopbacks/next-hops.
+
+**9. Que garantit une session BGP Established ?** — Que la session de contrôle est établie, pas que le service de bout en bout fonctionne.
+
+**10. Pourquoi limiter le route leaking ?** — Pour éviter d’élargir involontairement la portée des routes et des communications entre contextes.
+
+## 20. Checklist de révision et glossaire
+
+### Checklist
+- [ ] Je peux décrire CE, PE et P.
+- [ ] Je sais expliquer push, swap et pop.
+- [ ] Je distingue underlay et service VPN.
+- [ ] Je peux expliquer pourquoi le cœur P n’a généralement pas besoin des routes client.
+- [ ] Je distingue VRF, VLAN, RD et RT.
+- [ ] Je sais pourquoi MP-BGP transporte les routes VPN entre PE.
+- [ ] Je sais qu’une VRF n’est pas un chiffrement ni un pare-feu.
+- [ ] Je peux suivre une méthode de dépannage par couches.
+- [ ] Je sais que les commandes varient selon la version et la plateforme.
+
+### Glossaire
+- **CE** : Customer Edge, équipement côté client.
+- **PE** : Provider Edge, équipement fournisseur en bordure.
+- **P** : routeur du cœur fournisseur.
+- **MPLS** : Multiprotocol Label Switching.
+- **VRF** : Virtual Routing and Forwarding.
+- **RD** : Route Distinguisher.
+- **RT** : Route Target.
+- **MP-BGP** : BGP multiprotocole, utilisé notamment pour transporter les routes VPN.
+- **LDP** : Label Distribution Protocol.
+- **IGP** : protocole de routage interne, par exemple OSPF ou IS-IS.
+- **PHP** : Penultimate Hop Popping.
+- **Route leaking** : échange contrôlé de routes entre tables de routage distinctes.
+- **Underlay** : réseau de transport IP sous-jacent.
+- **Plan de données** : chemin réellement emprunté par les paquets.
+- **Plan de contrôle** : mécanismes qui apprennent et distribuent les routes et labels.
+
+### Références officielles à consulter
+- RFC 3031 — Multiprotocol Label Switching Architecture : https://www.rfc-editor.org/rfc/rfc3031
+- RFC 4364 — BGP/MPLS IP Virtual Private Networks (VPNs) : https://www.rfc-editor.org/rfc/rfc4364
+- RFC 4271 — A Border Gateway Protocol 4 (BGP-4) : https://www.rfc-editor.org/rfc/rfc4271
+- Documentation Cisco IOS XE — VRF, MPLS et BGP VPNv4 : consulter la documentation correspondant à la version utilisée.
+
+**Dernière règle :** ne déploie pas une configuration MPLS L3VPN sur un réseau réel en copiant un exemple de cours sans vérifier la compatibilité logicielle, les politiques BGP, les protections de plan de contrôle et le plan de retour.
+
+## Annexe visuelle — RD/RT, leaking et diagnostic
+
+Les schémas suivants résument trois opérations qu’il faut garder distinctes : identification des routes VPN, partage contrôlé entre VRF et diagnostic ordonné.
+
+### Schéma 6 — RD et RT
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="RD et RT : identité de route et politique d’import/export"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">RD et RT : identité de route et politique d’import/export</text><rect x="45" y="135" width="190" height="100" rx="12" fill="#18334c" stroke="#5a82b1" stroke-width="2"/><text x="140.0" y="162" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF locale</text><text x="140.0" y="184" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">RD unique ou choisi</text><rect x="300" y="135" width="190" height="100" rx="12" fill="#3a2e54" stroke="#ad8bfa" stroke-width="2"/><text x="395.0" y="162" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VPNv4 / VPNv6</text><text x="395.0" y="184" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Préfixe + RD + label</text><rect x="555" y="65" width="170" height="85" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="640.0" y="92" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">RT export</text><text x="640.0" y="114" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">65000:100</text><rect x="555" y="220" width="170" height="85" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="640.0" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">RT import</text><text x="640.0" y="269" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">65000:100</text><rect x="790" y="135" width="130" height="100" rx="12" fill="#18334c" stroke="#5a82b1" stroke-width="2"/><text x="855.0" y="162" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF distante</text><text x="855.0" y="184" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Import autorisé</text><line x1="235" y1="185" x2="300" y2="185" stroke="#6dd3ce" stroke-width="3"/><path d="M 291.2 189.8 L 300 185 L 291.2 180.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="267.5" y="176.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">route</text><line x1="490" y1="165" x2="555" y2="110" stroke="#6dd3ce" stroke-width="3"/><path d="M 551.4 119.3 L 555 110 L 545.2 112.0" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="522.5" y="128.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">export RT</text><line x1="490" y1="205" x2="555" y2="260" stroke="#6dd3ce" stroke-width="3"/><path d="M 545.2 258.0 L 555 260 L 551.4 250.7" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="522.5" y="223.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">import RT</text><line x1="725" y1="110" x2="790" y2="165" stroke="#6dd3ce" stroke-width="3"/><path d="M 780.2 163.0 L 790 165 L 786.4 155.7" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="757.5" y="128.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">match</text><line x1="725" y1="260" x2="790" y2="205" stroke="#6dd3ce" stroke-width="3"/><path d="M 786.4 214.3 L 790 205 L 780.2 207.0" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="757.5" y="223.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">match</text></svg>
+
+### Schéma 7 — Route leaking
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Route leaking contrôlé entre VRF"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Route leaking contrôlé entre VRF</text><rect x="55" y="125" width="190" height="95" rx="12" fill="#18334c" stroke="#5a82b1" stroke-width="2"/><text x="150.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF USERS</text><text x="150.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">10.10.0.0/16</text><rect x="385" y="125" width="190" height="95" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="480.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Services partagés</text><text x="480.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">DNS / DHCP / NTP</text><rect x="715" y="125" width="190" height="95" rx="12" fill="#3a2e54" stroke="#ad8bfa" stroke-width="2"/><text x="810.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF SERVERS</text><text x="810.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">10.20.0.0/16</text><line x1="245" y1="170" x2="385" y2="170" stroke="#f6c453" stroke-width="3"/><path d="M 376.2 174.8 L 385 170 L 376.2 165.2" fill="none" stroke="#f6c453" stroke-width="3"/><text x="315.0" y="161.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">route ciblée</text><line x1="575" y1="170" x2="715" y2="170" stroke="#f6c453" stroke-width="3"/><path d="M 706.2 174.8 L 715 170 L 706.2 165.2" fill="none" stroke="#f6c453" stroke-width="3"/><text x="645.0" y="161.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">flux autorisé</text><text x="480" y="275" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#c8d7e8">Le leaking doit être intentionnel, documenté et filtré ; il ne remplace pas un contrôle de sécurité.</text></svg>
+
+### Schéma 8 — Arbre de diagnostic
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Arbre de diagnostic MPLS L3VPN"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Arbre de diagnostic MPLS L3VPN</text><rect x="35" y="125" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="115.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">1. Underlay</text><text x="115.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Loopbacks joignables</text><rect x="220" y="125" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="300.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">2. Labels</text><text x="300.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">LDP / SR opérationnel</text><rect x="405" y="125" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="485.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">3. MP-BGP</text><text x="485.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VPNv4/v6 actif</text><rect x="590" y="125" width="160" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="670.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">4. VRF</text><text x="670.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Route importée</text><rect x="775" y="125" width="150" height="100" rx="12" fill="#162a43" stroke="#5a82b1" stroke-width="2"/><text x="850.0" y="152" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">5. Data plane</text><text x="850.0" y="174" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Ping / traceroute</text><line x1="195" y1="175" x2="220" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 211.2 179.8 L 220 175 L 211.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><line x1="380" y1="175" x2="405" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 396.2 179.8 L 405 175 L 396.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><line x1="565" y1="175" x2="590" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 581.2 179.8 L 590 175 L 581.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><line x1="750" y1="175" x2="775" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 766.2 179.8 L 775 175 L 766.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="480" y="280" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#c8d7e8">Diagnostiquer dans cet ordre évite de chercher une panne applicative quand le transport est cassé.</text></svg>
+
+### Schéma 9 — Commutation MPLS
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Commutation MPLS dans le cœur"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Commutation MPLS dans le cœur</text><rect x="65" y="130" width="180" height="90" rx="12" fill="#17304a" stroke="#5a82b1" stroke-width="2"/><text x="155.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Entrée PE</text><text x="155.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">FEC → label 240</text><rect x="300" y="130" width="180" height="90" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="390.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Routeur P1</text><text x="390.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">240 → 315</text><rect x="535" y="130" width="180" height="90" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="625.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Routeur P2</text><text x="625.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">315 → implicit-null</text><rect x="770" y="130" width="145" height="90" rx="12" fill="#3a2e54" stroke="#ad8bfa" stroke-width="2"/><text x="842.5" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Sortie PE</text><text x="842.5" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">VPN label / VRF</text><line x1="245" y1="175" x2="300" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 291.2 179.8 L 300 175 L 291.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="272.5" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">push</text><line x1="480" y1="175" x2="535" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 526.2 179.8 L 535 175 L 526.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="507.5" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">swap</text><line x1="715" y1="175" x2="770" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 761.2 179.8 L 770 175 L 761.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="742.5" y="166.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">PHP</text></svg>
+
+### Schéma 10 — Segmentation de sécurité
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360" role="img" aria-label="Segmentation : VRF et contrôle de sécurité complémentaire"><rect x="1" y="1" width="958" height="358" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Segmentation : VRF et contrôle de sécurité complémentaire</text><rect x="45" y="130" width="180" height="90" rx="12" fill="#3a2e54" stroke="#ad8bfa" stroke-width="2"/><text x="135.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">VRF Finance</text><text x="135.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Routes isolées</text><rect x="285" y="130" width="180" height="90" rx="12" fill="#163b36" stroke="#46b99f" stroke-width="2"/><text x="375.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">RT policy</text><text x="375.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Import explicite</text><rect x="525" y="130" width="180" height="90" rx="12" fill="#5a2b2b" stroke="#e78a8a" stroke-width="2"/><text x="615.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Firewall / ACL</text><text x="615.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Contrôle du trafic</text><rect x="765" y="130" width="150" height="90" rx="12" fill="#17304a" stroke="#5a82b1" stroke-width="2"/><text x="840.0" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Application</text><text x="840.0" y="179" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#c8d7e8">Accès minimal</text><line x1="225" y1="175" x2="285" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 276.2 179.8 L 285 175 L 276.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><line x1="465" y1="175" x2="525" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 516.2 179.8 L 525 175 L 516.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><line x1="705" y1="175" x2="765" y2="175" stroke="#6dd3ce" stroke-width="3"/><path d="M 756.2 179.8 L 765 175 L 756.2 170.2" fill="none" stroke="#6dd3ce" stroke-width="3"/><text x="480" y="275" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#c8d7e8">Une VRF limite la portée du routage, mais n’est pas à elle seule un pare-feu.</text></svg>
+

@@ -1,0 +1,7 @@
+{
+  "node_id": "docker-debutant",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Docker : images et conteneurs.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

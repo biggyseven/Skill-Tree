@@ -1,0 +1,7 @@
+{
+  "node_id": "netflow-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de IP SLA & NetFlow - Intermédiaire.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

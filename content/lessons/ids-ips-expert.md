@@ -8,7 +8,6 @@ Les exemples utilisent surtout Suricata, Zeek, Linux, Wireshark et des fonctions
 
 > **Analogie** : Un dispositif IDS/IPS expert ressemble à une chaîne de contrôle industriel. Les capteurs mesurent, le moteur d’analyse interprète, la politique décide et les actionneurs appliquent éventuellement la décision. Une mesure absente, un capteur mal placé, une horloge décalée ou un actionneur trop agressif peut invalider toute la chaîne, même si chaque composant paraît fonctionner seul.
 
----
 
 ## 1. Théorie et modèles d’inspection
 
@@ -98,7 +97,6 @@ Le choix doit donc être fait flux par flux. Les flux critiques à faible latenc
 | Proxy/WAF | Contexte applicatif riche | Compatibilité, terminaison TLS, comportement applicatif modifié | Tests de protocole et de bout en bout |
 | NDR/Zeek | Corrélation temporelle et métadonnées riches | Dépendance aux données et à l’analyse différée | Validation des logs, horodatages et trous de capture |
 
----
 
 ## 2. Reconstruction des flux et résistance aux ambiguïtés
 
@@ -143,7 +141,6 @@ Pour les applications critiques, compare les décisions du capteur avec le compo
 
 Une alerte exploitable doit être corroborée. Commence par valider l’horodatage et le sens du flux ; identifie le capteur, le VLAN ou la zone ; vérifie la règle, la révision du jeu de règles et l’action réelle. Recherche ensuite les paquets ou métadonnées qui ont déclenché la signature, les événements voisins du même flux, les connexions vers l’hôte, les journaux de l’application et les actions du pare-feu. Une différence entre l’alerte et le comportement de l’hôte peut être due à un faux positif, à une règle trop large, à un flux incomplet ou à un parseur divergent.
 
----
 
 ## 3. Moteurs de détection et gouvernance des règles
 
@@ -232,7 +229,6 @@ La qualité de détection ne se réduit pas au nombre d’alertes. Une règle pe
 
 Ces chiffres dépendent de la qualité du corpus. L’absence de cas négatifs variés donne une mesure de précision trompeuse ; une capture trop courte ne permet pas d’évaluer le comportement temporel. Décris donc la population testée, la période et les limites des résultats.
 
----
 
 ## 4. DPI, chiffrement TLS et limites de visibilité
 
@@ -276,7 +272,6 @@ La détection doit connaître les protocoles réellement observés. Un parseur H
 
 Une stratégie durable distingue les fonctions de contrôle du canal (pare-feu, flux, identité, destination), les fonctions applicatives (proxy/WAF), l’analyse des hôtes et la télémétrie de session. Le DPI doit être présenté comme une capacité bornée par les protocoles et les points de déchiffrement réellement en place.
 
----
 
 ## 5. Performance, files d’attente et intégrité de capture
 
@@ -338,7 +333,6 @@ Un dispositif inline peut, selon l’équipement, laisser passer le trafic en ca
 
 > **Danger :** Ne change pas à distance le mode fail-open/fail-closed d’un équipement qui porte des flux critiques sans fenêtre de maintenance, test de perte de gestion et plan de restauration. Confirme aussi l’effet des sessions déjà établies pendant le basculement.
 
----
 
 ## 6. Capteurs distribués, NDR et corrélation SIEM
 
@@ -377,7 +371,6 @@ Une règle de corrélation doit définir sa fenêtre temporelle, ses clés de re
 
 Le but n’est pas de multiplier les alertes, mais de réduire le travail de l’analyste sans cacher l’incertitude. Conserve les événements composants, l’ordre chronologique et le score qui a déterminé la priorité. En cas d’action automatique, ajoute une limite de portée, une expiration, une liste d’exclusions approuvée et un mécanisme de validation humaine pour les actifs critiques.
 
----
 
 ## 7. Tuning, bruit, dérive et cycle de vie
 
@@ -413,7 +406,6 @@ L’absence soudaine d’événement sur un capteur essentiel doit être une ale
 
 > **Astuce :** Établis deux types de tests : des tests de fonction du moteur (une trace de laboratoire doit déclencher la règle attendue) et des tests de santé du pipeline (l’événement doit arriver jusqu’au SIEM dans un délai mesuré). Ils répondent à deux questions différentes.
 
----
 
 ## 8. Réponse à incident et automatisation défensive
 
@@ -457,7 +449,6 @@ Le nom du fichier est un exemple. Stocke la capture et son empreinte dans un emp
 
 Le post-mortem doit expliquer ce qui s’est passé, comment la détection a fonctionné, quelles preuves ont été disponibles, pourquoi les contrôles ont réussi ou échoué, et quelles améliorations sont prioritaires. Il ne doit pas se limiter à une chronologie d’alertes. Prends en compte la couverture du capteur, les limites de visibilité TLS, les pertes de capture, la qualité des règles, la latence de l’ingestion, l’escalade, les décisions et les effets de la mitigation.
 
----
 
 ## 9. Configuration et pratique en laboratoire
 
@@ -518,7 +509,6 @@ Crée une règle de test dans un fichier dédié plutôt que de modifier directe
 5. Le pipeline SIEM reçoit les événements dans le délai défini.
 6. Le laboratoire n’a pas modifié le trafic de production et peut être nettoyé sans effet secondaire.
 
----
 
 ## 10. Dépannage expert : symptômes, hypothèses et tests discriminants
 
@@ -566,7 +556,6 @@ Sépare le temps de génération du capteur, le temps d’écriture du fichier, 
 </svg>
 </div>
 
----
 
 ## 11. Études de cas expert
 
@@ -610,7 +599,6 @@ Sépare le temps de génération du capteur, le temps d’écriture du fichier, 
 
 **Résolution.** Limite l’automatisation à une identité plus forte ou à une session ciblée ; sinon, transforme l’action en validation humaine. Ajoute une expiration, un journal d’action et une procédure de révocation.
 
----
 
 ## 12. Sécurité et gouvernance opérationnelle
 
@@ -633,7 +621,6 @@ Les procédures de changement doivent contenir : objectif, périmètre, risque, 
 - Tester un playbook en environnement de simulation, y compris sa révocation.
 - Documenter un cas où la détection ne peut pas voir le contenu, notamment sous chiffrement.
 
----
 
 ## Points à retenir
 
@@ -649,7 +636,6 @@ Les procédures de changement doivent contenir : objectif, périmètre, risque, 
 - Une action automatique doit être bornée, réversible, journalisée, expirante et adaptée à la certitude disponible.
 - La qualité de détection se mesure sur un corpus représentatif, avec précision, rappel, délai, coût et limites déclarées.
 
----
 
 ## Références techniques
 

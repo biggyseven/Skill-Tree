@@ -1,8 +1,3 @@
----
-node_id: arp-debutant
-title: ARP & résolution L2/L3 - Débutant
----
-
 # ARP & résolution L2/L3 - Débutant
 
 **Niveau :** Débutant
@@ -19,7 +14,6 @@ ARP est particulièrement important pour diagnostiquer les problèmes de connect
 >
 > Le hall représente le domaine de broadcast, souvent un VLAN. La demande initiale est entendue par les appareils de ce domaine, mais pas automatiquement par ceux d’un autre étage séparé par un routeur. Si le colis doit parvenir à un immeuble lointain, le livreur ne cherche pas l’interphone du destinataire final dans tous les immeubles du trajet : il remet d’abord le colis au centre de distribution local, c’est-à-dire à la passerelle par défaut. Cette passerelle l’achemine ensuite vers le réseau suivant et résout à son tour l’adresse de couche 2 nécessaire. Le cache ARP est comparable au carnet dans lequel le livreur conserve les correspondances récentes. Ce carnet doit être actualisé, car un appareil peut être remplacé ou une adresse IP peut être réattribuée. Enfin, si quelqu’un répond à la place de l’occupant légitime en annonçant une fausse correspondance, le livreur risque d’envoyer les colis au mauvais endroit : c’est l’idée générale d’une falsification ARP.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -329,7 +323,6 @@ Cette distinction compte également pour la sécurité. Dynamic ARP Inspection p
       Réseau de destination
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -531,7 +524,6 @@ Pour un changement de sécurité tel que l’activation de DAI ou DHCP Snooping,
 
 > **Astuce :** Pour une première analyse, vérifie dans cet ordre : `show ip interface brief`, `show ip route`, `show ip arp`, puis la configuration VLAN et la table MAC du commutateur. Commence par répondre à trois questions : quelle interface sortante est choisie, quelle adresse IP constitue le prochain saut, et quelle MAC est associée à ce prochain saut ? Cette méthode sépare une erreur de routage d’un échec de résolution ARP et d’un problème de commutation L2.
 
----
 
 ## 3. Dépannage et Sécurité
 

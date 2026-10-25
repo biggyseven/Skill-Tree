@@ -1,8 +1,3 @@
----
-node_id: arp-intermediaire
-title: ARP & résolution L2/L3 - Intermédiaire
----
-
 # ARP & résolution L2/L3 - Intermédiaire
 
 **Niveau :** Intermédiaire
@@ -21,7 +16,6 @@ La résolution ARP est locale au domaine de diffusion de couche 2. Un routeur n�
 >
 > Un cache ARP ressemble au carnet temporaire du personnel. Il accélère les livraisons, mais une entrée peut devenir périmée si un résident change de badge, si un équipement est remplacé ou si une adresse IP est réattribuée. ARP de base ne dispose pas d’un service central garantissant que toute réponse est honnête. Un individu malveillant pourrait annoncer que le badge d’un autre résident lui appartient et détourner ainsi le colis. C’est l’analogie d’un empoisonnement ARP : le problème n’est pas seulement de trouver une correspondance, mais de faire confiance à la correspondance reçue.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -357,7 +351,6 @@ Aucun indicateur isolé n’établit avec certitude une attaque ARP. Le diagnost
 
 La réponse correcte n’est pas nécessairement de vider tous les caches ARP. Cette action peut supprimer temporairement les symptômes, mais elle ne corrige ni un conflit ni une source d’annonces frauduleuses. Il faut remonter à l’équipement, au VLAN, au port et à la configuration responsable.
 
----
 
 ## 2. Configuration et Pratique
 
@@ -572,7 +565,6 @@ La validation ne doit pas se limiter à un simple ping depuis un seul poste. Tes
 
 > **Astuce :** Pour isoler rapidement un problème ARP, corrèle trois observations : l’entrée IPv4–MAC du poste ou du routeur (`show ip arp`), le port/VLAN où la MAC est apprise (`show mac address-table dynamic vlan X`) et la trace de requête/réponse ARP dans une capture. Si l’association IP–MAC est absente, concentre-toi sur la résolution ; si elle est correcte mais que la MAC apparaît sur un mauvais port, inspecte le chemin L2 ; si la réponse est rejetée, consulte les statistiques DAI et les associations DHCP Snooping avant de modifier la configuration.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -674,7 +666,6 @@ Cette séquence évite de traiter chaque panne de connectivité comme un problè
 
 > **Danger :** Une annonce ARP falsifiée peut détourner le trafic d’un segment local et, lorsqu’elle usurpe la passerelle, affecter les communications vers de nombreux réseaux. Une mauvaise configuration de confiance sur un port peut rendre inefficace une partie des contrôles DAI. N’active pas la confiance sur un port simplement pour faire disparaître des rejets ; valide d’abord son rôle, les équipements situés derrière et les associations attendues. En cas d’incident, conserve les preuves, localise le port source, isole l’équipement suspect selon la procédure d’exploitation et rétablis les associations après correction de la cause.
 
----
 
 ## Points à retenir
 
@@ -684,7 +675,6 @@ Cette séquence évite de traiter chaque panne de connectivité comme un problè
 
 - **ARP de base n’authentifie pas la propriété d’une adresse.** Les conflits et attaques d’empoisonnement doivent être traités avec des mesures d’architecture et de sécurité adaptées, notamment segmentation, DHCP Snooping, Dynamic ARP Inspection, contrôle des ports et supervision. Les adresses statiques et les liens déclarés trusted nécessitent une attention particulière.
 
----
 
 ## Références techniques
 

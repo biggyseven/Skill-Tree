@@ -1,7 +1,3 @@
----
-node_id: troubleshooting-expert
-title: Méthodologie de dépannage - Expert
----
 # Méthodologie de dépannage - Expert
 
 **Niveau :** EXPERT
@@ -14,7 +10,6 @@ Le cours utilise des exemples Windows, Linux et Cisco IOS/IOS XE, mais les princ
 
 > **Analogie** : Diagnostiquer un réseau complexe revient à enquêter sur une chaîne logistique. Une livraison en retard peut provenir de l’entrepôt, d’un contrôle, d’un transporteur ou du destinataire. Il faut horodater les événements, comparer les étapes et identifier le premier endroit où le comportement attendu diverge du comportement réel.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -278,7 +273,6 @@ SORTIE : cause étayée, correction réversible, test de validation et actions p
 
 > **Piège :** Ne commencez pas par le composant le plus complexe ou le plus visible. Commencez par le premier point où deux observations indépendantes cessent de correspondre au comportement attendu.
 
----
 
 ## 2. Configuration et pratique
 
@@ -567,7 +561,6 @@ Construire des tests synthétiques qui couvrent le parcours utilisateur réel sa
 
 Un SLO peut, par exemple, être défini autour d’un taux de requêtes correctes et d’une latence sous un seuil. Le seuil et la fenêtre sont des choix de service, non des valeurs universelles. Une alerte doit correspondre à un impact ou à une consommation de budget d’erreur significative, plutôt qu’à chaque variation minime d’une métrique interne.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -720,7 +713,6 @@ Avant de déclarer l’incident résolu, vérifier :
 - [ ] Les actions préventives ont un responsable, une échéance et un critère de réussite.
 - [ ] Le runbook, les alertes et la documentation ont été corrigés si nécessaire.
 
----
 
 ## Points à retenir
 
@@ -736,7 +728,6 @@ Avant de déclarer l’incident résolu, vérifier :
 - Un correctif n’est validé que lorsque le parcours complet est testé, les métriques sont stables et le risque de régression est contrôlé.
 - Le post-mortem doit transformer les preuves en améliorations mesurables de l’architecture, de l’observabilité et des procédures.
 
----
 
 ## Références techniques
 

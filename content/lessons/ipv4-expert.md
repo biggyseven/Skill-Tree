@@ -1,8 +1,3 @@
----
-node_id: ipv4-expert
-title: Adressage IPv4 & sous-réseaux - Expert
----
-
 # Adressage IPv4 & sous-réseaux - Expert
 
 **Niveau :** Expert
@@ -23,7 +18,6 @@ IPv4 reste largement exploité malgré la disponibilité d’IPv6. Son fonctionn
 >
 > Enfin, une route incorrecte ressemble à une consigne de réexpédition erronée dans un centre postal. Même si l’adresse du destinataire est valide, un résumé trop large ou une route plus spécifique incorrecte peut envoyer le courrier dans la mauvaise direction. La qualité d’un plan d’adressage dépend donc autant de l’arithmétique binaire que de la cohérence des frontières, des itinéraires, des règles d’exploitation et des contrôles de sécurité.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -476,7 +470,6 @@ Le plan d’adressage doit être considéré comme une donnée de sécurité. Le
   - Les exceptions et les réserves doivent être documentées.
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -693,7 +686,6 @@ Une communication inter-VLAN réussie démontre que les couches 2 et 3 fonctionn
 
 > **Astuce :** Pour vérifier rapidement un sous-réseau, lis le préfixe en CIDR, calcule `h = 32 − p`, puis utilise l’ET logique pour trouver le réseau. Pour la plage de diffusion, mets tous les bits hôte à 1. En pratique Cisco, croise `show ip interface brief`, `show ip route`, `show ip arp` et les tests `ping`/`traceroute`. Si une panne ne touche que les flux volumineux ou les sessions VPN, examine le MTU et la découverte de MTU de chemin avant de renuméroter les interfaces.
 
----
 
 ## 3. Dépannage et Sécurité
 

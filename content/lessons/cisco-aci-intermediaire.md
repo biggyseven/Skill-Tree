@@ -27,7 +27,6 @@
 
 > **Analogie :** le modèle ACI ressemble à un système de transport dont les terminaux, les lignes et les règles d’accès sont décrits séparément. Les endpoints sont les voyageurs, la fabric transporte les paquets, les EPG les classe, les contrats définissent les flux permis, et les leaf appliquent la politique résolue. Une route disponible ne signifie pas qu’un trajet est autorisé par la politique.
 
----
 
 ## 1. Réviser les fondamentaux sans rester au niveau débutant
 
@@ -416,7 +415,6 @@ Les menus, noms d’objets, options et commandes peuvent varier selon la version
 - [Cisco ACI Forwarding / VXLAN](https://www.cisco.com/c/en/us/td/docs/switches/datacenter/aci/apic/sw/2-x/L3_config/b_Cisco_APIC_Layer_3_Configuration_Guide/b_Cisco_APIC_Layer_3_Configuration_Guide_chapter_01.pdf) — principes d’encapsulation et forwarding.
 - [Cisco Troubleshoot ACI Security Policies — Contracts](https://team-development.cisco.com/c/en/us/support/docs/cloud-systems-management/application-policy-infrastructure-controller-apic/218030-troubleshoot-aci-security-policies-con.html) — méthode de diagnostic des politiques de contrat.
 
----
 
 ## À retenir
 

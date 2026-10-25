@@ -5,7 +5,6 @@
 > **Niveau :** Débutant  
 > **Objectif :** comprendre les modèles de données réseau YANG, découvrir NETCONF et RESTCONF, et effectuer ses premières lectures structurées sans risque pour les équipements.
 
----
 
 ## Sommaire
 
@@ -21,7 +20,6 @@
 10. Évaluation corrigée
 11. Préparation du niveau intermédiaire
 
----
 
 # 1. Contexte et objectifs
 
@@ -69,7 +67,6 @@ Vous devez connaître les notions suivantes :
 
 La connaissance de Python est utile, mais elle n'est pas obligatoire pour ce premier niveau.
 
----
 
 # 2. Pourquoi automatiser la gestion du réseau ?
 
@@ -107,7 +104,6 @@ Cet exemple illustre la forme générale de données. Les noms de champs réelle
 
 La structure permet au programme de distinguer explicitement le nom de l'interface, son état administratif et sa description.
 
----
 
 # 3. Comprendre NETCONF, YANG et RESTCONF
 
@@ -211,7 +207,6 @@ RESTCONF peut utiliser XML ou JSON pour représenter les données selon les règ
 
 **À retenir :** YANG définit la structure ; NETCONF et RESTCONF transportent des demandes et des données suivant cette structure.
 
----
 
 # 4. Découvrir les modèles YANG
 
@@ -352,7 +347,6 @@ Les constructeurs peuvent aussi proposer leurs propres modules ou étendre des m
 
 Deux équipements peuvent donc exposer des données similaires avec des modèles, des révisions ou des capacités différentes. Avant d'écrire une automatisation, il faut connaître les modèles effectivement pris en charge par l'équipement ciblé.
 
----
 
 # 5. Comprendre NETCONF
 
@@ -418,7 +412,6 @@ Cet exemple dépend de la prise en charge du modèle d'interfaces et de la forme
 
 Le filtre sert à limiter les données demandées. Pour une automatisation à grande échelle, il est préférable de ne demander que les données nécessaires.
 
----
 
 # 6. Comprendre RESTCONF
 
@@ -484,7 +477,6 @@ Cet extrait illustre une forme de représentation possible. Les propriétés vis
 
 Le JSON utilisé par RESTCONF doit respecter les règles d'encodage des données YANG. Il ne s'agit pas d'un objet JSON libre dans lequel les noms et les types peuvent être changés arbitrairement.
 
----
 
 # 7. Comparer NETCONF et RESTCONF
 
@@ -503,7 +495,6 @@ RESTCONF expose des ressources HTTP basées sur les modèles YANG. Il convient n
 
 Les deux protocoles ne doivent pas être comparés uniquement sur la syntaxe des appels. Les capacités de l'équipement, les besoins transactionnels et la façon dont l'application utilise les données sont tout aussi importants.
 
----
 
 # 8. Atelier pratique
 
@@ -550,7 +541,6 @@ Vérifiez qu'un même concept — par exemple le nom d'une interface — est cor
 
 Ne supposez pas que les deux protocoles exposent automatiquement toutes les mêmes fonctions ou toutes les mêmes données.
 
----
 
 # 9. Sécurité et bonnes pratiques
 
@@ -579,7 +569,6 @@ Pour un premier exercice, utilisez un compte de lecture seule. Testez les modifi
 
 La première règle est simple : vérifier les capacités, limiter les droits et commencer par les lectures.
 
----
 
 # 10. Évaluation corrigée
 
@@ -609,7 +598,6 @@ La première règle est simple : vérifier les capacités, limiter les droits et
 9. Elle réduit les données retournées et facilite l'analyse.
 10. La lecture permet de découvrir la structure et les capacités sans prendre le risque d'un changement opérationnel.
 
----
 
 # 11. Préparation du niveau intermédiaire
 
@@ -628,7 +616,6 @@ Le but du niveau débutant est de comprendre la séparation entre modèle de don
 
 **À retenir : YANG structure, NETCONF opère sur des données structurées et RESTCONF les expose à travers des ressources HTTP.**
 
----
 
 ## Références officielles
 

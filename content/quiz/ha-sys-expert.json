@@ -1,0 +1,18 @@
+{
+  "node_id": "ha-sys-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire pour DRP et PRA (Reprise d'activité)",
+      "choices": [
+        "Réponse A",
+        "Réponse B",
+        "Réponse C",
+        "Réponse D"
+      ],
+      "answer": 0,
+      "explanation": "Ceci est un quiz généré automatiquement."
+    }
+  ]
+}

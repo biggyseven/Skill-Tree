@@ -5,7 +5,6 @@
 **Prérequis :** notions PSE/PD, Ethernet, puissance électrique et premiers diagnostics d’un switch.  
 **Objectif :** administrer un déploiement PoE, comprendre ses limites, anticiper les refus d’alimentation et construire une méthode de dépannage reproductible.
 
----
 
 # 1. Passer de la compréhension à l’administration
 
@@ -23,7 +22,6 @@ Pour chaque équipement alimenté, il faut pouvoir répondre à cinq questions :
 
 L’objectif de ce cours est d'apporter une réponse méthodique à ces questions, sans dépendre des conventions d’un seul constructeur.
 
----
 
 # 2. Types PoE et puissance réellement disponible
 
@@ -100,7 +98,6 @@ Ce graphique compare les plafonds de puissance de référence côté PSE. Il ne 
 <text class="poei1-sub" x="450" y="329" text-anchor="middle">La puissance maximale PSE ne doit pas être confondue avec la puissance reçue par le PD.</text>
 </svg>
 
----
 
 # 3. Classes de puissance : comprendre ce que le switch réserve
 
@@ -149,7 +146,6 @@ Le nom du port et le voyant Ethernet sont insuffisants pour connaître la situat
 
 Il n’est pas garanti que toutes ces informations soient disponibles sur chaque équipement. Il faut documenter les données réellement fournies par la plate-forme et signaler les mesures non disponibles comme inconnues, plutôt que leur attribuer une valeur fictive.
 
----
 
 # 4. Schéma animé — Classification et décision d’admission
 
@@ -186,7 +182,6 @@ Ce schéma sépare volontairement la détection, la classification, la négociat
 <text class="poei2-note" x="450" y="279" text-anchor="middle">Les mécanismes et les messages varient suivant le standard, les capacités et la politique de l’équipement.</text>
 </svg>
 
----
 
 # 5. Calculer le budget global du switch
 
@@ -243,7 +238,6 @@ Le bon raisonnement consiste donc à vérifier successivement :
 3. le budget global utilisable ;
 4. la politique d’allocation et les conditions matérielles.
 
----
 
 # 6. Schéma animé — Répartition du budget
 
@@ -280,7 +274,6 @@ Les valeurs sont illustratives. Le diagramme distingue les réservations existan
 <text class="poei3-note" x="450" y="302" text-anchor="middle">La barre illustre une réservation de capacité, pas la mesure instantanée de la consommation.</text>
 </svg>
 
----
 
 # 7. Dimensionnement d’un parc d’équipements
 
@@ -337,7 +330,6 @@ Un système dimensionné exactement à sa limite offre peu de souplesse. Il peut
 
 Une marge appropriée n’est pas un chiffre universel. Elle dépend du profil des charges, des exigences de disponibilité, du niveau de redondance et du plan d’évolution du réseau.
 
----
 
 # 8. Dépannage intermédiaire : analyser avant de modifier
 
@@ -369,7 +361,6 @@ Augmenter une limite configurée ou contourner la procédure d’admission sans 
 
 Une correction doit respecter la documentation du constructeur, les limites du standard et les exigences électriques de l’installation.
 
----
 
 # 9. Commandes et outils d’administration
 
@@ -399,7 +390,6 @@ Un événement horodaté permet de rapprocher le statut PoE d’autres événeme
 
 La chronologie est souvent essentielle pour déterminer si la cause provient du PD, du port, de la capacité du système ou d’un événement commun.
 
----
 
 # 10. Travaux pratiques
 
@@ -439,7 +429,6 @@ Après le remplacement d’un switch par une autre référence :
 
 Un nombre identique de ports ne signifie pas une capacité d’alimentation identique.
 
----
 
 # 11. Étude de cas : ajout d’un point d’accès
 
@@ -479,7 +468,6 @@ Il faut vérifier le standard et le niveau de puissance du point d’accès, la 
 
 La consommation mesurée correspond à l’utilisation à un instant particulier. La réservation est une décision d’allocation du système, destinée à tenir compte des besoins et des règles du contrôleur. Les deux valeurs peuvent donc être différentes.
 
----
 
 # 12. Évaluation intermédiaire
 
@@ -505,7 +493,6 @@ Réponds aux questions sans consulter les sections précédentes, puis compare t
 7. Statut du port, caractéristiques du PD et du PSE, budget, réservation, mesure éventuelle, journaux et chronologie.
 8. Une source défaillante peut modifier la capacité totale et provoquer un problème commun à plusieurs ports.
 
----
 
 # 13. Références techniques
 

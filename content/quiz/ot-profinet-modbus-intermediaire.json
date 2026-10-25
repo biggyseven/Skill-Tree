@@ -1,0 +1,18 @@
+{
+  "node_id": "ot-profinet-modbus-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire pour Protocoles Industriels (Modbus, Profinet)",
+      "choices": [
+        "Réponse A",
+        "Réponse B",
+        "Réponse C",
+        "Réponse D"
+      ],
+      "answer": 0,
+      "explanation": "Ceci est un quiz généré automatiquement."
+    }
+  ]
+}

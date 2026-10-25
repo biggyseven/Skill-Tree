@@ -5,7 +5,6 @@
 > **Prérequis :** connaître HCL, les ressources, les variables, le state et les commandes Terraform fondamentales.  
 > **Objectif :** construire une infrastructure réseau modulaire, maîtriser les dépendances, tester les configurations et intégrer Terraform dans une chaîne de validation.
 
----
 
 ## Sommaire
 
@@ -25,7 +24,6 @@
 14. Évaluation corrigée
 15. Préparation du niveau expert
 
----
 
 # 1. Contexte et objectifs
 
@@ -60,7 +58,6 @@ Terraform permet de déclarer ces ressources et de calculer un plan de changemen
 9. contrôler les risques liés aux remplacements et destructions ;
 10. préparer une configuration exploitable dans plusieurs environnements.
 
----
 
 # 2. Architecture du projet
 
@@ -103,7 +100,6 @@ Les fichiers `.tf` situés dans le même répertoire forment un module. Le répe
 
 Une bonne structure doit rendre le changement facile à lire, à tester et à expliquer. Le nombre de fichiers n'est pas un objectif en soi.
 
----
 
 # 3. Construire un réseau cloud avec Terraform
 
@@ -322,7 +318,6 @@ Les sorties fournissent les identifiants utiles au diagnostic et à d'autres mod
   <text class="tm-text" x="480" y="347" text-anchor="middle">Un VPC et un sous-réseau ne suffisent pas à garantir une connectivité applicative.</text>
 </svg>
 
----
 
 # 4. Variables, validations et sorties
 
@@ -362,7 +357,6 @@ N'exposez pas de secrets dans les sorties. Une sortie peut être affichée dans 
 
 Pour les données sensibles, appliquez la politique appropriée et vérifiez leur traitement dans le state, le plan et les journaux.
 
----
 
 # 5. Comprendre les dépendances
 
@@ -428,7 +422,6 @@ Les types de ressources précédés de `exemple_` sont fictifs et ne sont pas ex
   <text class="dp-text" x="480" y="269" text-anchor="middle">Utilisez depends_on seulement lorsque la dépendance nécessaire n'est pas implicite.</text>
 </svg>
 
----
 
 # 6. Créer des modules réutilisables
 
@@ -544,7 +537,6 @@ Les sources locales conviennent à un projet unique. Pour partager un module dan
 
 Fixez des versions compatibles et examinez les changements avant de mettre un module partagé à jour.
 
----
 
 # 7. Data sources et ressources existantes
 
@@ -574,7 +566,6 @@ Pour gérer une ressource préexistante, il faut choisir la procédure adaptée 
 
 Une adoption mal planifiée peut créer des changements inattendus. Comparez la configuration voulue avec l'état existant avant de mettre la ressource sous gestion.
 
----
 
 # 8. Tests Terraform
 
@@ -633,7 +624,6 @@ Le test simulé vérifie certaines propriétés du plan. Il ne confirme pas la d
 
 N'utilisez pas de tests d'application réelle dans la CI sans prévoir le périmètre, les coûts, les autorisations et le nettoyage.
 
----
 
 # 9. State, environnements et plans enregistrés
 
@@ -688,7 +678,6 @@ Ne faites pas circuler un fichier `terraform.tfstate` entre administrateurs comm
 
 Pour une équipe, configurez un backend adapté. Utilisez les mécanismes de verrouillage lorsqu'ils sont pris en charge et ne supprimez jamais un verrou actif par réflexe.
 
----
 
 # 10. Pipeline CI/CD
 
@@ -759,7 +748,6 @@ Le déploiement peut constituer un workflow distinct, protégé par les permissi
 
 Les identifiants de production doivent être limités aux jobs autorisés et ne doivent pas être accessibles aux workflows exécutant du code non fiable.
 
----
 
 # 11. Sécurité et contrôle des changements
 
@@ -800,7 +788,6 @@ La revue doit rechercher les valeurs codées en dur, les permissions excessives,
 
 Un pipeline vert n'annule pas la nécessité de vérifier ce que le plan va réellement faire.
 
----
 
 # 12. Atelier pratique
 
@@ -864,7 +851,6 @@ Examinez le plan de destruction et utilisez la procédure de nettoyage approuvé
 
 **Attention :** la destruction d'une infrastructure réelle peut interrompre un service. Ne la faites jamais sur un environnement partagé ou de production sans autorisation.
 
----
 
 # 13. Dépannage
 
@@ -888,7 +874,6 @@ Les tests vérifient uniquement le comportement couvert. Les permissions, quotas
 
 Vérifiez si une opération est toujours active avant de tenter de récupérer un verrou. Le forçage d'un déverrouillage alors qu'un autre opérateur travaille peut entraîner des conflits et une corruption de l'état suivi.
 
----
 
 # 14. Évaluation corrigée
 
@@ -918,7 +903,6 @@ Vérifiez si une opération est toujours active avant de tenter de récupérer u
 9. Parce que son effet dépend de la déclaration maintenue et qu'il ne remplace pas les protections organisationnelles.
 10. Pour limiter les effets d'un workflow compromis, d'un code non fiable ou d'une erreur de configuration.
 
----
 
 # 15. Préparation du niveau expert
 
@@ -937,7 +921,6 @@ Le niveau expert abordera :
 
 Le niveau intermédiaire apprend à structurer et tester une infrastructure réelle. Le niveau expert organisera la livraison avec des états protégés, des règles de sécurité et des procédures de changement contrôlées.
 
----
 
 ## Références officielles
 

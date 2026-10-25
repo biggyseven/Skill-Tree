@@ -4,7 +4,6 @@
 > **Prérequis :** connaître les sept couches OSI, les adresses MAC et IP, les ports, ainsi que les bases de TCP et UDP.  
 > **Objectif :** analyser un échange réseau réel, interpréter une capture et localiser une panne à partir d'observations vérifiables.
 
----
 
 ## Sommaire
 
@@ -24,7 +23,6 @@
 14. Exercices et corrigés
 15. Glossaire technique
 
----
 
 # 1. Revoir le modèle OSI avec précision
 
@@ -109,7 +107,6 @@ Dans une analyse réelle, la séparation dépend de la technologie. HTTP est un 
 
 L’objectif de l’analyste n’est pas de forcer chaque fonctionnalité dans une case unique, mais de comprendre où elle agit, quelles informations elle consomme et quel composant peut être responsable du comportement observé.
 
----
 
 # 2. OSI et TCP/IP : comprendre la correspondance
 
@@ -154,7 +151,6 @@ Le premier nécessite d’étudier la couche physique ou la liaison. Le deuxièm
 
 Ce classement n’est pas une preuve. Il indique plutôt où commencer les recherches.
 
----
 
 # 3. Encapsulation, PDU et interprétation des paquets
 
@@ -225,7 +221,6 @@ Des mécanismes intermédiaires, tels que NAT, un tunnel ou un proxy, peuvent mo
 <text x="35" y="355" fill="#475569" font-family="Arial,sans-serif" font-size="13">Les traits en mouvement illustrent les étapes ; ils ne représentent pas un débit réel ou une mesure de performance.</text>
 </svg>
 
----
 
 # 4. Adresses locales et acheminement IP
 
@@ -260,7 +255,6 @@ Chaque routeur peut choisir un nouveau prochain saut. Le paquet IP traverse diff
 
 Le trajet aller et le trajet retour peuvent être différents. Un diagnostic ne doit donc pas supposer que les paquets suivent obligatoirement le même chemin dans les deux directions.
 
----
 
 # 5. Commutation Ethernet et VLAN
 
@@ -302,7 +296,6 @@ Deux machines situées dans des VLAN distincts ont généralement besoin d’un 
 
 Une adresse IP apparemment correcte ne prouve pas que le poste se trouve dans le VLAN adapté.
 
----
 
 # 6. Routage et passerelle par défaut
 
@@ -352,7 +345,6 @@ Les protocoles de routage, les politiques et les règles d’installation des ro
 </g>
 </svg>
 
----
 
 # 7. TCP, UDP et numéros de ports
 
@@ -426,7 +418,6 @@ NAT et les proxys peuvent modifier ce que l’on observe dans ce tuple.
 
 Ces observations ne constituent pas des diagnostics définitifs. Plusieurs causes différentes peuvent produire des symptômes similaires.
 
----
 
 # 8. MTU, fragmentation et MSS
 
@@ -501,7 +492,6 @@ Le MSS annoncé participe à la détermination de la taille des segments. L’aj
 
 Ne concluez pas automatiquement à une panne de MTU parce qu’un transfert volumineux échoue.
 
----
 
 # 9. DNS, DHCP et résolution locale
 
@@ -545,7 +535,6 @@ En IPv6, Neighbor Discovery fournit notamment les mécanismes de découverte des
 
 Un problème de résolution locale peut empêcher une machine de remettre ses paquets au prochain saut, même si l’adresse IP et la route paraissent correctes.
 
----
 
 # 10. Lire une capture avec Wireshark
 
@@ -633,7 +622,6 @@ Certaines cartes réseau calculent les checksums ou segmentent les données à p
 
 Avant de déclarer une corruption du trafic, vérifiez le point de capture et les offloads.
 
----
 
 # 11. Méthodologie de dépannage intermédiaire
 
@@ -681,7 +669,6 @@ Lorsqu’un site complet rencontre une panne, comparez les observations sur plus
 
 Le but n’est pas d’effectuer tous les tests partout, mais d’identifier le point où les symptômes commencent à diverger.
 
----
 
 # 12. Travaux pratiques
 
@@ -748,7 +735,6 @@ Observez séparément :
 
 Une erreur au niveau TLS n’est pas identique à un rejet TCP. Une réponse HTTP d’erreur prouve que certaines étapes précédentes ont réussi, mais ne signifie pas que l’opération applicative a abouti.
 
----
 
 # 13. Exercices
 
@@ -798,7 +784,6 @@ Une connexion TCP s’établit, puis le client reçoit une réponse HTTP `500`.
 
 À quelles couches faut-il poursuivre le diagnostic ? Que démontre cette réponse, et que ne démontre-t-elle pas ?
 
----
 
 # 14. Corrigés commentés
 
@@ -840,7 +825,6 @@ La carte réseau peut calculer le checksum après le point de capture, en raison
 
 La réponse HTTP `500` indique qu’une réponse HTTP a été reçue et que le traitement applicatif a rencontré une erreur côté serveur ou dans son contexte d’exécution. Le diagnostic doit se poursuivre au niveau applicatif, des dépendances et des journaux. Cela ne prouve pas que tous les composants internes du service sont sains.
 
----
 
 # 15. Fiche de révision intermédiaire
 
@@ -884,7 +868,6 @@ La réponse HTTP `500` indique qu’une réponse HTTP a été reçue et que le t
 
 **VLAN :** réseau local logique associé à une séparation de couche 2.
 
----
 
 ## Conclusion
 

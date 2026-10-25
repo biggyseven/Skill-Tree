@@ -10,7 +10,6 @@ Ce cours explique les concepts depuis les bases, puis les met en pratique dans u
 
 > **Analogie** : Un IDS ressemble à une caméra et à un agent qui signalent un comportement inhabituel. Un IPS ressemble à un agent de sécurité placé à l’entrée, capable de refuser le passage selon des règles. Le DPI est la capacité d’examiner plus précisément ce qui transite, comme vérifier le contenu d’un colis plutôt que de regarder seulement son étiquette. Dans la pratique, les produits combinent souvent plusieurs de ces fonctions.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -445,7 +444,6 @@ SORTIE : événement qualifié, action justifiée et trace d’investigation.
 
 Ces catégories se recouvrent parfois. Les produits évoluent, et un équipement peut offrir plusieurs fonctions. Il vaut mieux raisonner par capacité réelle et emplacement dans l’architecture que par seul nom commercial.
 
----
 
 ## 2. Configuration et pratique
 
@@ -593,7 +591,6 @@ Un capteur déclenche une alerte liée à un volume inhabituel de requêtes DNS 
 
 Ce laboratoire doit confirmer le fonctionnement, pas rechercher la saturation ou la perturbation de systèmes. L’objectif est d’apprendre à vérifier le placement et la politique avant de tirer une conclusion sur les capacités du capteur.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -764,7 +761,6 @@ Un capteur non supervisé peut devenir une fausse assurance. Il faut générer d
 
 **Correction.** Pas immédiatement. L’alerte indique une correspondance avec une règle, mais il faut confirmer la précision de la signature, le contexte et les journaux du serveur. L’attaque peut avoir échoué, la règle peut être un faux positif, ou une conséquence peut ne pas être visible sur le seul capteur.
 
----
 
 ## Points à retenir
 

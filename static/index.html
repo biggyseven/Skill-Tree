@@ -87,6 +87,21 @@
     .modal-panel { background-color: var(--s1) !important; color: rgb(var(--z-200)); color-scheme: dark; }
     .modal-scroll { background-color: var(--s1); }
 
+    /* Lecteur de cours horizontal : sommaire fixe à gauche, contenu confortable à droite. */
+    .lesson-reader-grid { min-height: 100%; }
+    .lesson-toc-panel { scrollbar-width: thin; scrollbar-color: rgb(var(--z-600)) transparent; }
+    .lesson-toc-panel nav a { display: block; overflow-wrap: anywhere; border-radius: .65rem; margin: .12rem 0; padding: .55rem .7rem; }
+    .lesson-content { padding: clamp(1rem, 2.1vw, 2rem); border: 1px solid rgb(var(--w) / .07); border-radius: 1.25rem; background: color-mix(in srgb, var(--s1) 78%, transparent); }
+    .lesson-content .lesson-prose { max-width: 100%; }
+    .lesson-content .lesson-prose > h1:first-child { margin-top: .15em !important; }
+    @media (max-width: 1023px) {
+      .lesson-content { max-width: none; padding: 1rem; }
+    }
+    @media (max-width: 640px) {
+      .lesson-content { border-radius: 1rem; padding: .85rem; }
+      .lesson-content .lesson-prose { font-size: .98rem; line-height: 1.75; }
+    }
+
     /* --- STYLE DES COURS (CALLOUTS & CODE) --- */
     .callout { --c-bg: #16224f; --c-border: #60a5fa; --c-text: #e0ecff; --c-title: #93c5fd; margin: 1.5rem 0; padding: 1rem 1.5rem; border-radius: 0 0.75rem 0.75rem 0; border-left: 4px solid var(--c-border); background: var(--c-bg); color: var(--c-text); display: flex; flex-direction: column; gap: 0.5rem; }
     .callout-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem; color: var(--c-title) !important; }
@@ -355,10 +370,83 @@
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
 
+    /* --- Correctifs UX ciblés : lecture, thème actif, radar et mode focus --- */
+    body.focus-layout main { padding-top: clamp(4rem, 7vh, 5rem) !important; }
+    @media (max-width: 767px) {
+      body.focus-layout main { padding-top: 4.5rem !important; }
+    }
+
+    .modal-panel { isolation: isolate; }
+    .modal-panel .modal-scroll { scroll-padding-top: 1.25rem; overscroll-behavior: contain; }
+    .modal-panel .lesson-reader-grid { width: 100%; margin-inline: auto; gap: clamp(1rem, 2vw, 2rem); }
+    .modal-panel .lesson-toc-panel {
+      top: 1rem; max-height: calc(94vh - 11rem);
+      border-color: rgb(var(--w) / .11);
+      background: color-mix(in srgb, var(--s2) 92%, transparent);
+      box-shadow: 0 16px 40px -32px #000;
+      backdrop-filter: blur(14px);
+    }
+    .modal-panel .lesson-toc-panel nav a { margin-block: .18rem; padding-block: .62rem; border-radius: .7rem; }
+    .modal-panel .lesson-content {
+      max-width: none; min-width: 0;
+      padding: clamp(1.25rem, 2.7vw, 3rem);
+      border-color: rgb(var(--w) / .10);
+      background: color-mix(in srgb, var(--s1) 96%, transparent);
+      box-shadow: 0 24px 60px -44px #000;
+    }
+    .modal-panel .lesson-prose { font-size: 1rem; line-height: 1.9; letter-spacing: .006em; }
+    .modal-panel .lesson-prose > p,
+    .modal-panel .lesson-prose > ul,
+    .modal-panel .lesson-prose > ol,
+    .modal-panel .lesson-prose > blockquote,
+    .modal-panel .lesson-prose > .callout,
+    .modal-panel .lesson-prose > h1,
+    .modal-panel .lesson-prose > h2,
+    .modal-panel .lesson-prose > h3,
+    .modal-panel .lesson-prose > h4 { max-width: 84ch; }
+    .modal-panel .lesson-prose > .callout,
+    .modal-panel .lesson-prose > figure,
+    .modal-panel .lesson-prose > .diagram,
+    .modal-panel .lesson-prose > .lesson-figure,
+    .modal-panel .lesson-prose > .lesson-recap,
+    .modal-panel .lesson-prose > pre,
+    .modal-panel .lesson-prose > .code-container,
+    .modal-panel .lesson-prose > .table-wrapper,
+    .modal-panel .lesson-prose > table { max-width: 100%; }
+    .modal-panel .lesson-prose > h1:first-child { margin-bottom: 1rem; }
+    .modal-panel .lesson-prose h2 { margin-top: 2.8em; padding-top: 1.1em; }
+    .modal-panel .lesson-prose h3 { margin-top: 2.2em; }
+    .modal-panel .lesson-prose p { text-wrap: pretty; }
+    .modal-panel .lesson-prose img { border-radius: .85rem; }
+    @media (max-width: 1023px) {
+      .modal-panel .lesson-content { padding: 1.25rem; }
+      .modal-panel .lesson-prose > p,
+      .modal-panel .lesson-prose > ul,
+      .modal-panel .lesson-prose > ol,
+      .modal-panel .lesson-prose > blockquote,
+      .modal-panel .lesson-prose > h1,
+      .modal-panel .lesson-prose > h2,
+      .modal-panel .lesson-prose > h3,
+      .modal-panel .lesson-prose > h4 { max-width: 100%; }
+    }
+    @media (max-width: 640px) {
+      .modal-panel .lesson-content { padding: 1rem; }
+      .modal-panel .lesson-prose { font-size: .98rem; line-height: 1.8; }
+    }
+
+    .radar-panel { overflow: visible; }
+    .radar-canvas-wrap {
+      position: relative; width: 100%; height: clamp(390px, 56vh, 620px);
+      min-width: 0; margin-inline: auto;
+    }
+    .radar-canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
+    [data-theme-picker] { position: relative; }
+    [data-theme-picker] > div[x-show="themeMenuOpen"] { transform-origin: top right; }
+
   </style>
 </head>
 
-<body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open }">
+<body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode }" @click.window.capture="closeThemeOnOutside($event)">
 
   <!-- ================= SIDEBAR ================= -->
   <aside x-show="!focusMode" class="skill-sidebar hidden h-full flex-col bg-[color:var(--bg)] py-6 transition-all duration-300 md:flex" :class="sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'">
@@ -418,13 +506,13 @@
   <!-- ================= MAIN CONTENU ================= -->
   <div class="flex flex-1 flex-col overflow-hidden">
 
-    <!-- Header -->
-    <header x-show="!focusMode" class="flex h-20 shrink-0 items-center justify-between px-8">
-      <div class="flex-1">
-        <h2 class="text-xl font-bold tracking-tight text-white" x-text="(navItems.find(i => i.id === tab) || {}).title || 'Skill Tree'"></h2>
+    <!-- Header — correctif : titre à gauche, groupe central en position absolue pour un centrage parfait, actions à droite -->
+    <header x-show="!focusMode" class="relative flex h-20 shrink-0 items-center gap-4 px-8">
+      <div class="min-w-0 flex-1">
+        <h2 class="truncate text-xl font-bold tracking-tight text-white" x-text="(navItems.find(i => i.id === tab) || {}).title || 'Skill Tree'"></h2>
       </div>
 
-      <div class="flex flex-1 items-center justify-center gap-3">
+      <div class="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3">
         <div class="flex items-center gap-1.5 rounded-2xl bg-[color:var(--s1)] px-4 py-2 text-orange-200 border border-white/5 shadow-md">
           <span class="text-sm">🔥</span>
           <span class="font-mono text-xs font-semibold" x-text="streakDays"></span>
@@ -441,7 +529,7 @@
       </div>
 
       <!-- Droite : Actions -->
-      <div class="flex flex-1 items-center justify-end gap-3 relative">
+      <div class="flex min-w-0 flex-1 items-center justify-end gap-3 relative">
                 <div class="relative hidden lg:block" @click.outside="searchOpen = false" @keydown.window="onGlobalKey($event)">
           <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
           <input x-ref="searchBox" type="search" x-model="searchQuery" aria-label="Rechercher un cours" placeholder="Rechercher…  ( / )" class="field !w-56 !pl-9"
@@ -461,18 +549,20 @@
             <label class="mt-1 flex items-center gap-2 border-t border-white/5 px-3 py-2 text-[11px] text-zinc-400"><input type="checkbox" x-model="searchContent" @change="toggleContentSearch()" class="accent-emerald-500"> Chercher aussi dans le contenu des cours <span x-show="searchBusy" x-text="'(' + searchDone + '/' + nodes.length + ')'"></span></label>
           </div>
         </div>
-        <button type="button" @click.stop="themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Thèmes" aria-label="Choisir un thème" class="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8Z"></path><circle cx="7.5" cy="11" r="1"></circle><circle cx="10.5" cy="7" r="1"></circle><circle cx="15.5" cy="7.5" r="1"></circle></svg>
-        </button>
-        <div x-show="themeMenuOpen" x-cloak x-transition.opacity @click.outside="themeMenuOpen = false" @keydown.escape.window="themeMenuOpen = false" class="absolute top-14 right-40 z-50 w-80 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl">
-          <h3 class="mb-3 text-sm font-bold text-white">Thème</h3>
-          <div class="grid grid-cols-2 gap-2">
-            <template x-for="t in themes" :key="t.id">
-              <button type="button" @click="setTheme(t.id)" class="flex items-center gap-3 rounded-xl border p-2.5 text-left text-xs font-semibold transition" :class="theme === t.id ? 'border-emerald-400/60 bg-emerald-500/10 text-white' : 'border-white/10 text-zinc-300 hover:bg-white/5'">
-                <span class="flex h-8 w-11 shrink-0 items-center justify-center gap-1 rounded-lg border border-white/10" :style="`background:${t.sw[0]}`"><i class="h-2.5 w-2.5 rounded-full" :style="`background:${t.sw[1]}`"></i><i class="h-2.5 w-2.5 rounded-full" :style="`background:${t.sw[2]}`"></i><i class="h-2.5 w-2.5 rounded-full" :style="`background:${t.sw[3]}`"></i></span>
-                <span class="flex-1" x-text="t.label"></span><span x-show="theme === t.id" class="text-emerald-400">✓</span>
-              </button>
-            </template>
+        <div class="relative" data-theme-picker>
+          <button type="button" @click.stop="syncTheme(); themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Thèmes" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8Z"></path><circle cx="7.5" cy="11" r="1"></circle><circle cx="10.5" cy="7" r="1"></circle><circle cx="15.5" cy="7.5" r="1"></circle></svg>
+          </button>
+          <div x-show="themeMenuOpen" x-cloak x-transition.opacity @keydown.escape.window="themeMenuOpen = false" class="absolute top-12 right-0 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl">
+            <h3 class="mb-3 text-sm font-bold text-white">Thème</h3>
+            <div class="grid grid-cols-2 gap-2">
+              <template x-for="t in themes" :key="t.id">
+                <button type="button" @click="setTheme(t.id)" class="flex items-center gap-3 rounded-xl border p-2.5 text-left text-xs font-semibold transition" :class="themeIsActive(t.id) ? 'border-emerald-400/60 bg-emerald-500/10 text-white' : 'border-white/10 text-zinc-300 hover:bg-white/5'" :aria-pressed="themeIsActive(t.id)">
+                  <span class="flex h-8 w-11 shrink-0 items-center justify-center gap-1 rounded-lg border border-white/10" :style="`background:${t.sw[0]}`"><i class="h-2.5 w-2.5 rounded-full" :style="`background:${t.sw[1]}`"></i><i class="h-2.5 w-2.5 rounded-full" :style="`background:${t.sw[2]}`"></i><i class="h-2.5 w-2.5 rounded-full" :style="`background:${t.sw[3]}`"></i></span>
+                  <span class="flex-1" x-text="t.label"></span><span x-show="themeIsActive(t.id)" class="text-emerald-400">✓</span>
+                </button>
+              </template>
+            </div>
           </div>
         </div>
         <button type="button" @click.stop="notificationsOpen = !notificationsOpen; settingsMenuOpen = false; profileMenuOpen = false" class="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none">
@@ -590,13 +680,19 @@
           </div>
         </section>
 
-                <div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <!-- Cartes modules compactes -->
+        <div class="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <template x-for="m in moduleCards" :key="m.id">
-            <button type="button" @click="setModule(m.id)" class="card-sm text-left transition" :class="moduleFilter === m.id ? '!border-emerald-400/60 !bg-emerald-500/5' : 'hover:border-white/20'">
-              <div class="flex items-center justify-between"><span class="text-xl" x-text="m.icon"></span><span class="font-mono text-[11px] text-zinc-400" x-text="m.validated + ' / ' + m.total"></span></div>
-              <p class="mt-2 text-sm font-bold text-white" x-text="m.label"></p>
-              <div class="bar mt-3"><i :style="`width:${m.pct}%`"></i></div>
-              <p class="mt-2 text-[11px] text-zinc-500" x-text="m.total ? m.pct + ' % complété' : 'Bientôt : voir le programme'"></p>
+            <button type="button" @click="setModule(m.id)" class="card-sm !p-3 text-left transition" :class="moduleFilter === m.id ? '!border-emerald-400/60 !bg-emerald-500/5' : 'hover:border-white/20'">
+              <div class="flex items-center gap-2">
+                <span class="shrink-0 text-base" x-text="m.icon"></span>
+                <span class="min-w-0 flex-1 truncate text-[11px] font-bold text-white" x-text="m.label"></span>
+              </div>
+              <div class="mt-2 flex items-center justify-between text-[10px] text-zinc-500">
+                <span x-text="m.validated + ' / ' + m.total"></span>
+                <span class="font-mono text-emerald-400" x-text="m.pct + '%'"></span>
+              </div>
+              <div class="bar mt-1.5"><i :style="`width:${m.pct}%`"></i></div>
             </button>
           </template>
         </div>
@@ -673,6 +769,7 @@
                   </button>
                 </template>
               </div>
+              </div>
               <p x-show="!challengeNodes.length" class="mt-3 text-sm text-zinc-500">Aucun défi disponible pour le moment. Les défis intégrés apparaissent ici dès le chargement du module.</p>
             </div>
           </template>
@@ -703,31 +800,32 @@
             </div>
           </template>
         </div>
+        <!-- GRILLE PRINCIPALE : Menu de gauche + Canevas à droite -->
+        <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
 
-        <div class="grid gap-6 lg:grid-cols-[15rem_1fr]">
-          <aside class="card">
-            <h2 class="eyebrow">Équipements</h2>
-            <p class="mt-2 text-[11px] text-zinc-500">Ajoute les équipements, choisis leur nombre de ports et relie les prises en faisant glisser un port de sortie vers une entrée.</p>
-            <div class="mt-4 rounded-2xl border border-white/10 bg-[color:var(--s2)] p-3">
-              <label for="topo-port-count" class="block text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-400">Ports par équipement</label>
-              <div class="mt-2 flex items-center gap-2">
-                <input id="topo-port-count" type="number" min="1" max="48" step="1" x-model.number="topoPortCount" class="field !w-24" aria-label="Nombre de ports à créer">
-                <span class="text-[11px] text-zinc-500">entrées et sorties · 1–48 par côté</span>
-              </div>
-              <button type="button" class="btn w-full mt-2" @click="applySelectedPorts()" :disabled="!topologyReady || !selectedTopoNode">Appliquer au nœud sélectionné</button>
-              <p class="mt-2 text-[11px] leading-relaxed text-zinc-500" x-text="selectedTopoNode ? ('Sélection : ' + selectedTopoNode.label + ' · ' + selectedTopoNode.inputs + ' entrées / ' + selectedTopoNode.outputs + ' sorties') : 'Sélectionne un équipement pour modifier ses ports existants.'"></p>
-              <p class="mt-1 text-[10px] text-zinc-500">Le nombre s’applique à chaque côté (entrées et sorties). Réduire les ports peut retirer des liens associés ; confirmation avant suppression.</p>
-            </div>
-            <div class="mt-4 grid grid-cols-2 gap-2">
+          <!-- MENU DE GAUCHE : ÉQUIPEMENTS -->
+          <aside class="rounded-3xl border border-white/5 bg-[color:var(--s1)] p-6 shadow-2xl">
+            <h2 class="text-[11px] font-bold uppercase tracking-[0.2em] text-white">Équipements</h2>
+            <p class="mt-2 text-[11px] text-zinc-500">Clique pour ajouter au canvas.</p>
+            <div class="mt-6 space-y-3">
               <template x-for="device in devices" :key="device.type">
-                <button type="button" @click="addDevice(device.type)" class="card-sm flex flex-col items-center gap-1 px-2 py-3 text-center transition hover:border-white/30">
-                  <span class="flex h-9 w-9 items-center justify-center text-white" x-html="device.icon"></span>
-                  <span class="text-[12px] font-semibold text-white" x-text="device.label"></span>
-                  <span class="text-[9px] uppercase tracking-[0.14em] text-zinc-500" x-text="device.hint"></span>
+                <button type="button" @click="addDevice(device.type)" class="group flex w-full items-center gap-4 rounded-2xl border border-white/5 bg-[color:var(--s2)] px-4 py-3 text-left transition hover:border-white/20 hover:bg-[color:var(--s3)]">
+                  <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white" x-html="device.icon"></span>
+                  <span class="min-w-0">
+                    <span class="block text-sm font-semibold text-white" x-text="device.label"></span>
+                    <span class="block truncate text-[10px] uppercase tracking-[0.14em] text-zinc-500" x-text="device.hint"></span>
+                  </span>
                 </button>
               </template>
             </div>
+            <div class="mt-6 border-t border-white/10 pt-4">
+              <label class="text-[10px] uppercase text-zinc-500 font-bold">Nombre de ports par défaut</label>
+              <input type="number" x-model.number="topoPortCount" min="1" max="48" class="field mt-1">
+              <button type="button" class="btn w-full mt-2" @click="applySelectedPorts()" :disabled="!topologyReady || !selectedTopoNode">Appliquer au nœud sélectionné</button>
+            </div>
           </aside>
+
+          <!-- CANEVAS À DROITE -->
           <div class="card relative overflow-hidden p-0">
             <div class="topology-toolbar relative z-20 flex flex-wrap items-center justify-end gap-2">
               <button type="button" class="btn" @click="zoom(1)" title="Zoom +">+</button>
@@ -789,8 +887,21 @@
         </div>
         <div class="radar-panel card">
           <div class="mb-3 flex flex-wrap items-center justify-between gap-2"><div><h3 class="text-base font-bold text-white">Maîtrise par domaine</h3><p class="mt-1 text-xs text-zinc-500">Échelle 0–100 · utilise « Actualiser » après une évaluation</p></div><span class="chip" x-text="stats?.categories?.length ? stats.categories.length + ' domaines' : 'En attente de données'"></span></div>
-          <div class="radar-canvas-wrap"><canvas id="spiderChart" role="img" aria-label="Radar de maîtrise par domaine"></canvas></div>
-          <div x-show="!statsLoading && (!stats || !stats.categories || !stats.categories.length)" class="mt-3 rounded-xl border border-white/10 bg-[color:var(--s2)] p-4 text-sm text-zinc-400">Pas encore assez de statistiques pour tracer le radar. Termine un quiz ou un examen, puis actualise cette page.</div>
+          <div class="radar-canvas-wrap" x-show="radarHasPositiveRate()" x-cloak><canvas id="spiderChart" role="img" aria-label="Radar de maîtrise par domaine"></canvas></div>
+          <div x-show="!statsLoading && !radarHasData()" x-cloak class="mt-3 rounded-2xl border border-dashed border-white/15 bg-[color:var(--s2)] p-6 sm:p-8 text-center">
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10 text-2xl">⌁</div>
+            <p class="mt-3 text-sm font-semibold text-white">Ton radar apparaîtra après tes premières évaluations</p>
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">Les domaines sont bien détectés, mais aucun résultat exploitable n’est encore enregistré. Termine un quiz ou un examen, puis clique sur « Actualiser » pour afficher tes taux de réussite.</p>
+          </div>
+          <div x-show="!statsLoading && radarHasData() && !radarHasPositiveRate()" x-cloak class="mt-3 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-6 text-center">
+            <p class="text-sm font-semibold text-white">Évaluations enregistrées, mais aucun taux positif pour le moment</p>
+            <p class="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">Les résultats actuels sont à 0 %. Le radar se dessinera dès qu’une évaluation produira un taux de réussite supérieur à 0 %. Les domaines à renforcer restent listés plus bas.</p>
+          </div>
+          <div x-show="radarSelectedDomain && radarHasPositiveRate()" x-cloak class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-4">
+            <div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">Domaine sélectionné</p><p class="mt-1 truncate text-sm font-semibold text-white" x-text="radarSelectedDomain?.name"></p></div>
+            <div class="flex items-center gap-3"><p class="font-mono text-xl font-bold text-cyan-300" x-text="(radarSelectedDomain?.rate ?? 0) + '%' "></p><button type="button" class="btn" @click="radarSelectedDomain = null">Effacer</button></div>
+          </div>
+          <p x-show="radarHasPositiveRate()" class="mt-3 text-xs text-zinc-500">Survole un point pour lire sa valeur, ou clique dessus pour garder le domaine sélectionné.</p>
         </div>
         <template x-if="stats && stats.categories && !statsLoading">
           <div class="mt-4 grid gap-4 lg:grid-cols-2">
@@ -913,6 +1024,31 @@
               <div><p class="eyebrow">Évaluation</p><h2 class="mt-1 text-2xl font-semibold text-white">Centre d'examens</h2><p class="mt-1 text-sm text-zinc-400">Examens construits à partir des cours de chaque module et de chaque niveau. Réussite à partir de <span class="text-white" x-text="70"></span> %.</p></div>
             </div>
             <p x-show="examErr" class="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200" x-text="examErr"></p>
+
+            <!-- NOUVEAU : Examens aléatoires massifs -->
+            <section class="card">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="eyebrow">Mode aléatoire</p>
+                  <h3 class="mt-1 text-base font-bold text-white">🎲 Examens aléatoires massifs</h3>
+                  <p class="mt-1 text-xs text-zinc-500">Questions tirées au hasard dans tous les cours disponibles. Plus la session est longue, plus l'évaluation couvre de sujets.</p>
+                </div>
+                <span class="chip" x-text="nodes.length + ' cours disponibles'"></span>
+              </div>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <template x-for="preset in randomExamPresets" :key="preset.label">
+                  <button type="button" class="card-sm text-left transition hover:border-emerald-400/40 disabled:opacity-50" :disabled="examBusy" @click="launchExam(preset.cfg)">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-lg" x-text="preset.icon"></span>
+                      <span class="chip" x-text="preset.cfg.count + ' q'"></span>
+                    </div>
+                    <p class="mt-2 text-sm font-bold text-white" x-text="preset.label"></p>
+                    <p class="mt-1 text-[11px] text-zinc-500" x-text="preset.sub"></p>
+                  </button>
+                </template>
+              </div>
+            </section>
+
             <template x-for="m in modules" :key="m.id">
               <section class="card">
                 <div class="mb-4 flex items-center gap-3"><span class="text-xl" x-text="m.icon"></span><h3 class="text-base font-bold text-white" x-text="m.label"></h3></div>
@@ -935,10 +1071,10 @@
             <section class="card">
               <h3 class="text-base font-bold text-white">Examen sur mesure</h3>
               <div class="mt-4 grid gap-4 md:grid-cols-4">
-                <div><label class="eyebrow">Module</label><select class="field mt-1" x-model="examCfg.module"><template x-for="m in modules" :key="m.id"><option :value="m.id" x-text="m.label"></option></template></select></div>
-                <div><label class="eyebrow">Niveaux</label><div class="mt-2 flex flex-wrap gap-2"><template x-for="l in levels" :key="l.id"><button type="button" class="chip cursor-pointer" :class="{ 'chip-on': examCfg.levels.includes(l.id) }" @click="toggleCfgLevel(l.id)" x-text="l.icon + ' ' + l.label"></button></template></div></div>
-                <div><label class="eyebrow">Questions</label><select class="field mt-1" x-model.number="examCfg.count"><option :value="10">10</option><option :value="20">20</option><option :value="30">30</option><option :value="40">40</option></select></div>
-                <div><label class="eyebrow">Durée</label><select class="field mt-1" x-model.number="examCfg.minutes"><option :value="15">15 min</option><option :value="30">30 min</option><option :value="45">45 min</option><option :value="60">60 min</option></select></div>
+                <div><label class="eyebrow">Module</label><select class="field mt-1" x-model="examCfg.module"><option value="all">🎲 Tous les modules (aléatoire)</option><template x-for="m in modules" :key="m.id"><option :value="m.id" x-text="m.label"></option></template></select></div>
+                <div><label class="eyebrow">Niveaux</label><div class="mt-2 flex flex-wrap gap-2"><button type="button" class="chip cursor-pointer" :class="{ 'chip-on': examCfg.levels.includes('all') }" @click="toggleCfgLevel('all')">🎲 Tous niveaux</button><template x-for="l in levels" :key="l.id"><button type="button" class="chip cursor-pointer" :class="{ 'chip-on': examCfg.levels.includes(l.id) && !examCfg.levels.includes('all') }" @click="toggleCfgLevel(l.id)" x-text="l.icon + ' ' + l.label"></button></template></div></div>
+                <div><label class="eyebrow">Questions</label><select class="field mt-1" x-model.number="examCfg.count"><option :value="10">10</option><option :value="20">20</option><option :value="30">30</option><option :value="40">40</option><option :value="50">50</option><option :value="100">100</option><option :value="200">200</option><option :value="500">500</option></select></div>
+                <div><label class="eyebrow">Durée</label><select class="field mt-1" x-model.number="examCfg.minutes"><option :value="15">15 min</option><option :value="30">30 min</option><option :value="45">45 min</option><option :value="60">60 min</option><option :value="90">90 min</option><option :value="120">2 h</option><option :value="180">3 h</option><option :value="480">8 h</option></select></div>
               </div>
               <button type="button" class="btn btn-primary mt-5" :disabled="examBusy || !examCfg.levels.length" @click="launchExam(examCfg)" x-text="examBusy ? 'Préparation…' : 'Lancer l’examen sur mesure'"></button>
             </section>
@@ -1073,11 +1209,11 @@
   </div>
 
   <!-- ================= MODALE DÉTAIL (LEÇON) ================= -->
-  <div x-show="open" x-cloak class="fixed inset-0 z-50 flex justify-center overflow-y-auto overflow-x-hidden" :class="isFullscreen ? 'items-stretch p-0' : 'items-start p-4 sm:p-10'" @keydown.escape.window="onEscape()">
+  <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden" :class="isFullscreen ? 'p-0' : 'p-2 sm:p-4'" @keydown.escape.window="onEscape()">
     <div class="modal-backdrop fixed inset-0 backdrop-blur-md bg-black/60" @click="close()"></div>
 
     <div class="modal-panel relative flex flex-col overflow-hidden border border-white/10 bg-[color:var(--s1)] shadow-[0_0_50px_-10px_rgba(0,0,0,0.8)]"
-         :class="isFullscreen ? 'm-0 h-screen w-screen max-w-none rounded-none' : 'my-6 max-h-[calc(100vh-3rem)] w-full max-w-4xl rounded-3xl'"
+         :class="isFullscreen ? 'm-0 h-screen w-screen max-w-none rounded-none' : 'my-0 h-[94vh] w-[97vw] max-w-[1680px] rounded-3xl'"
          x-show="open" role="dialog" aria-modal="true">
 
       <!-- Barre de progression de lecture -->
@@ -1132,7 +1268,7 @@
       </div>
 
       <!-- Contenu de la modale -->
-      <div x-ref="modalScroll" @scroll.passive="onLessonScroll($event)" class="modal-scroll min-h-0 flex-1 overflow-y-auto px-6 py-8 sm:px-10">
+      <div x-ref="modalScroll" @scroll.passive="onLessonScroll($event)" class="modal-scroll min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-7 xl:px-8">
 
         <!-- Spinner de chargement -->
         <div x-show="detailLoading" class="flex items-center justify-center py-20">
@@ -1143,10 +1279,10 @@
           <!-- ONGLET 1 : COURS -->
           <div x-show="modalTab === 'lesson'">
             <template x-if="lessonHtml">
-              <div class="lg:flex lg:items-start lg:gap-10">
+              <div class="lesson-reader-grid grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8">
 
                 <!-- Sommaire latéral (fenêtre agrandie, écran large) -->
-                <aside x-show="isFullscreen && lessonToc.length" class="sticky top-0 hidden max-h-[calc(100vh-14rem)] w-60 shrink-0 self-start overflow-y-auto lg:block">
+                <aside x-show="lessonToc.length" class="lesson-toc-panel sticky top-2 hidden max-h-[calc(94vh-13rem)] w-full shrink-0 self-start overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s2)] p-4 lg:block">
                   <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Sommaire</p>
                   <nav class="border-l border-white/10" aria-label="Sommaire du cours">
                     <template x-for="item in lessonToc" :key="item.id">
@@ -1156,9 +1292,9 @@
                   </nav>
                 </aside>
 
-                <div class="min-w-0 flex-1" :class="isFullscreen ? 'mx-auto max-w-3xl' : ''">
+                <div class="lesson-content min-w-0 w-full max-w-none">
                   <!-- Sommaire repliable (fenêtre normale / mobile) -->
-                  <details x-show="lessonToc.length" class="mb-8 rounded-2xl border border-white/10 bg-[color:var(--s2)] px-5 py-3" :class="isFullscreen ? 'lg:hidden' : ''">
+                  <details x-show="lessonToc.length" class="mb-5 rounded-2xl border border-white/10 bg-[color:var(--s2)] px-5 py-3 lg:hidden">
                     <summary class="cursor-pointer text-sm font-semibold text-white">📑 Sommaire du cours</summary>
                     <nav class="mt-3 space-y-1 pb-2">
                       <template x-for="item in lessonToc" :key="item.id">
@@ -1940,6 +2076,32 @@
           }));
 
         },
+                get modulesList() {
+          if (!this.nodes || this.nodes.length === 0) return [];
+          
+          const counts = {};
+          this.nodes.forEach(n => {
+            const mod = n.module || 'Administration Réseaux'; // Fallback
+            counts[mod] = (counts[mod] || 0) + 1;
+          });
+
+          const icons = {
+            'Administration Réseaux': '🌐',
+            'Administration Système': '🖥️',
+            'DevOps': '⚙️',
+            'Cloud Computing': '☁️',
+            'Opérateurs & Télécoms': '📡',
+            'Voix & Collaboration': '📞',
+            'Réseaux Industriels (OT)': '🏭'
+          };
+
+          return Object.keys(counts).map(mod => ({
+            name: mod,
+            total: counts[mod],
+            icon: icons[mod] || '📚',
+            progress: 0 // À remplacer par le vrai calcul de progression si besoin
+          }));
+        },
         get progress() { return this.total ? Math.round((this.validated / this.total) * 100) : 0; },
         get currentFlashcard() { return this.flashcardQueue[0] || null; },
         get examCategories() { const g = new Map(); for (const n of this.nodes) { if (!g.has(n.category)) g.set(n.category, { name: n.category, nodes: 0 }); g.get(n.category).nodes++; } return [...g.values()]; },
@@ -2028,7 +2190,7 @@
       { id: 'expert', label: 'Expert', icon: '🔥' },
     ];
 
-    const MODULES = [
+        const MODULES = [
       { id: 'admin-reseaux', label: 'Administration Réseaux', short: 'Réseaux', icon: '🌐', roadmap: {} },
       { id: 'admin-systeme', label: 'Administration Système', short: 'Système', icon: '🖥️', roadmap: {
         debutant: ['Introduction à Linux et au shell', 'Système de fichiers et permissions', 'Utilisateurs et groupes', 'Processus et services (systemd)', 'Paquets et mises à jour', 'Windows Server : bases et Active Directory'],
@@ -2038,6 +2200,10 @@
         debutant: ['Principes DevOps et cycle CI/CD', 'Git et gestion de versions', 'Linux pour DevOps', 'YAML, JSON et formats de configuration', 'Docker : images et conteneurs', 'Introduction au cloud'],
         intermediaire: ['Docker Compose et registres', 'CI/CD avec GitHub Actions et GitLab CI', 'Infrastructure as Code avec Terraform', 'Configuration avec Ansible', 'Observabilité : Prometheus et Grafana', 'Kubernetes : les bases'],
         expert: ['Kubernetes avancé : réseau et sécurité', 'GitOps avec ArgoCD', 'IaC à grande échelle', 'SRE : SLI, SLO et gestion des incidents', 'DevSecOps', 'Service mesh'] } },
+      { id: 'cloud', label: 'Cloud Computing', short: 'Cloud', icon: '☁️', roadmap: {} },
+      { id: 'telecom', label: 'Opérateurs & Télécoms', short: 'Télécoms', icon: '📡', roadmap: {} },
+      { id: 'voix', label: 'Voix & Collaboration', short: 'Voix', icon: '📞', roadmap: {} },
+      { id: 'ot', label: 'Réseaux Industriels (OT)', short: 'OT', icon: '🏭', roadmap: {} },
     ];
 
     /* Niveau par défaut des cours qui n'ont pas "level" ni de mot-clé dans leur titre. À ajuster librement. */
@@ -2141,15 +2307,35 @@
         // ---------- modules et niveaux ----------
         moduleMeta(id) { return this.modules.find(m => m.id === id) || { id: 'all', label: 'Tous les modules', short: 'Tous', icon: '🧭', roadmap: {} }; },
         levelMeta(id) { return this.levels.find(l => l.id === id) || null; },
-        moduleOf(n) {
+                moduleOf(n) {
           const o = this.moduleOverrides[n.id]; if (o) return o;
-          const raw = this.norm(n.module || '');
-          if (raw) { if (/reseau|network/.test(raw)) return 'admin-reseaux'; if (/syst/.test(raw)) return 'admin-systeme'; if (/devops/.test(raw)) return 'devops'; }
-          if (/^(sys|sysadmin|linux|win)-/.test(n.id)) return 'admin-systeme';
-          if (/^(devops|k8s|docker|git)-/.test(n.id)) return 'devops';
-          const cat = this.norm(n.category || '');
-          if (/^administration syst/.test(cat)) return 'admin-systeme';
-          if (/^devops/.test(cat)) return 'devops';
+          
+          // 1. D'abord, on vérifie le champ "module" exact.
+          const raw = String(n.module || '').trim();
+          
+          if (raw === 'Réseaux Industriels (OT)') return 'ot';
+          if (raw === 'Cloud Computing') return 'cloud';
+          if (raw === 'Opérateurs & Télécoms') return 'telecom';
+          if (raw === 'Voix & Collaboration') return 'voix';
+          if (raw === 'Administration Système') return 'admin-systeme';
+          if (raw === 'DevOps') return 'devops';
+          if (raw === 'Administration Réseaux') return 'admin-reseaux';
+
+          // 2. Ensuite, on vérifie l'ID du cours (au cas où le champ module serait absent).
+          const id = String(n.id || '');
+          if (id.startsWith('ot-')) return 'ot';
+          if (id.startsWith('cloud-aws') || id.startsWith('cloud-azure') || id.startsWith('cloud-gcp') || id.startsWith('cloud-serverless')) return 'cloud';
+          if (id.startsWith('telecom-')) return 'telecom';
+          if (id.startsWith('voice-')) return 'voix';
+          
+          // 3. Pour l'Admin Sys et le DevOps, on garde nos anciennes règles basées sur l'ID.
+          if (/^(sys|sysadmin|linux|win|storage|users|process|packages|scripting|reseau-linux|web-server|db|ha-sys|virt|monitoring|backup)-/.test(id)) return 'admin-systeme';
+          if (/^(devops|k8s|docker|git|iac|observability|devsecops|mesh)-/.test(id)) return 'devops';
+
+          // 4. On garde les anciens cours AWS/Azure dans "Administration Réseaux" (car ce sont des cours de réseau cloud).
+          if (id.startsWith('aws-vpc') || id.startsWith('azure-vnet')) return 'admin-reseaux';
+
+          // 5. Par défaut, tout le reste est du Réseau.
           return 'admin-reseaux';
         },
         levelOf(n) {
@@ -2231,7 +2417,24 @@
         examHistory: LS.get('exam-history', []), examIdx: 0, examFlags: {}, examLeft: 0, examTimerId: null, examConfirm: false, examErr: '', examStarted: 0,
         examBest(mod, lvls) { const key = [...lvls].sort().join('+'); const l = this.examHistory.filter(e => e.module === mod && [...e.levels].sort().join('+') === key); return l.length ? Math.max(...l.map(e => e.score)) : null; },
         examBestLabel(mod, lvls) { const b = this.examBest(mod, lvls); return b === null ? 'Jamais passé' : 'Meilleur score : ' + b + ' %'; },
-        toggleCfgLevel(id) { const l = this.examCfg.levels; this.examCfg.levels = l.includes(id) ? l.filter(x => x !== id) : [...l, id]; },
+        toggleCfgLevel(id) {
+          if (id === 'all') {
+            this.examCfg.levels = this.examCfg.levels.includes('all') ? ['debutant'] : ['all'];
+            return;
+          }
+          if (this.examCfg.levels.includes('all')) {
+            this.examCfg.levels = [id];
+            return;
+          }
+          const l = this.examCfg.levels;
+          this.examCfg.levels = l.includes(id) ? l.filter(x => x !== id) : [...l, id];
+        },
+        randomExamPresets: [
+          { icon: '⚡', label: 'Express',   sub: '50 questions · 45 min · aléatoire',  cfg: { module: 'all', levels: ['all'], count: 50,  minutes: 45 } },
+          { icon: '🚀', label: 'Complet',   sub: '100 questions · 90 min · aléatoire', cfg: { module: 'all', levels: ['all'], count: 100, minutes: 90 } },
+          { icon: '🔥', label: 'Marathon',  sub: '200 questions · 3 h · aléatoire',    cfg: { module: 'all', levels: ['all'], count: 200, minutes: 180 } },
+          { icon: '🏆', label: 'Ultime',    sub: '500 questions · 8 h · aléatoire',    cfg: { module: 'all', levels: ['all'], count: 500, minutes: 480 } },
+        ],
         get examClock() { return this.fmtClock(this.examLeft); },
         get examAnswered() { return this.examAnswers.filter(a => a !== null && a !== '' && a !== undefined).length; },
         get examBreakdown() {
@@ -2245,9 +2448,30 @@
         },
         async launchExam(cfg) {
           this.examBusy = true; this.examErr = '';
-          const scope = this.nodes.filter(n => this.moduleOf(n) === cfg.module && cfg.levels.includes(this.levelOf(n)));
-          if (!scope.length || !cfg.levels.length) { this.examErr = 'Aucun cours dans ce périmètre.'; this.examBusy = false; return; }
-          const body = { module: cfg.module, levels: cfg.levels, count: cfg.count, node_ids: scope.map(n => n.id), time_limit: cfg.minutes * 60 };
+          const allModules = cfg.module === 'all';
+          const allLevels = cfg.levels.includes('all');
+          const scope = this.nodes.filter(n =>
+            (allModules || this.moduleOf(n) === cfg.module) &&
+            (allLevels || cfg.levels.includes(this.levelOf(n)))
+          );
+          if (!scope.length || (!allLevels && !cfg.levels.length)) { this.examErr = 'Aucun cours dans ce périmètre.'; this.examBusy = false; return; }
+          
+          let pool = scope;
+          if (allModules || allLevels) {
+            pool = [...scope];
+            for (let i = pool.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+          }
+          const levelsBody = allLevels ? ['debutant', 'intermediaire', 'expert'] : cfg.levels;
+          const body = {
+            ...(allModules ? {} : { module: cfg.module }),
+            levels: levelsBody,
+            count: cfg.count,
+            node_ids: pool.map(n => n.id),
+            time_limit: cfg.minutes * 60
+          };
           try {
             let r = await fetch('/api/exam/build', { method: 'POST', headers: H, body: JSON.stringify(body) });
             if (r.status === 404 || r.status === 405) {
@@ -2257,9 +2481,13 @@
             }
             if (!r.ok) throw new Error((await r.text()) || 'Erreur ' + r.status);
             const data = await r.json();
-            if (!data.questions || !data.questions.length) throw new Error('Aucune question disponible pour ce périmètre.');
-            const qs = data.questions.length > cfg.count ? data.questions.slice(0, cfg.count) : data.questions;
-            this.exam = { ...data, questions: qs, cfg: { ...cfg }, category: data.category || this.moduleMeta(cfg.module).label };
+            const rawQs = data.questions || [];
+            const realQs = rawQs.filter(q => !/question temporaire/i.test(String(q.prompt || '')));
+            const sourceQs = realQs.length ? realQs : rawQs;
+            if (!sourceQs.length) throw new Error('Aucune question disponible pour ce périmètre.');
+            const qs = sourceQs.length > cfg.count ? sourceQs.slice(0, cfg.count) : sourceQs;
+            if (qs.length < cfg.count) this.notify(`Seulement ${qs.length} questions disponibles (demandé : ${cfg.count}).`);
+            this.exam = { ...data, questions: qs, cfg: { ...cfg }, category: allModules ? '🎲 Aléatoire · Tous modules' : (data.category || this.moduleMeta(cfg.module).label) };
             this.examAnswers = qs.map(() => null); this.examFlags = {}; this.examIdx = 0; this.examResult = null; this.examConfirm = false;
             this.examLeft = data.time_limit || cfg.minutes * 60; this.examStarted = Date.now(); this.startExamTimer();
           } catch (e) { this.examErr = e.message; } finally { this.examBusy = false; }
@@ -2493,10 +2721,36 @@
     function skilltreeTheme() {
       const TONE = { cyan: 'bg-cyan-500/10 text-cyan-400', emerald: 'bg-emerald-500/10 text-emerald-400', fuchsia: 'bg-fuchsia-500/10 text-fuchsia-400', orange: 'bg-orange-500/10 text-orange-400' };
       return {
-        themes: window.THEMES, themeMenuOpen: false, theme: document.documentElement.dataset.theme || 'aurore', liveEvents: [],
+        themes: window.THEMES, themeMenuOpen: false, theme: document.documentElement.dataset.theme || 'aurore', liveEvents: [], radarSelectedDomain: null,
+        syncTheme() {
+          const applied = document.documentElement.dataset.theme;
+          const stored = (() => { try { return localStorage.getItem('skilltree-theme2'); } catch (_) { return null; } })();
+          const id = this.themes.some(x => x.id === applied) ? applied : (this.themes.some(x => x.id === stored) ? stored : 'aurore');
+          const m = this.themes.find(x => x.id === id);
+          this.theme = id;
+          if (m && applied !== id) { const r = document.documentElement; r.dataset.theme = id; r.classList.toggle('dark', m.kind === 'dark'); r.classList.toggle('light', m.kind === 'light'); r.style.colorScheme = m.kind; }
+          // Réconcilie aussi la préférence stockée pour que le thème ne change pas au prochain rechargement.
+          try { if (m && stored !== id) localStorage.setItem('skilltree-theme2', id); } catch (_) { }
+        },
+        themeIsActive(id) { return (document.documentElement.dataset.theme || this.theme) === id; },
+        closeThemeOnOutside(event) {
+          const target = event && event.target;
+          if (!target || !target.closest || !target.closest('[data-theme-picker]')) this.themeMenuOpen = false;
+        },
+        radarHasData() {
+          const categories = Array.isArray(this.stats?.categories) ? this.stats.categories : [];
+          if (!categories.length) return false;
+          const totalAttempts = Number(this.stats?.totals?.attempts);
+          if (Number.isFinite(totalAttempts) && totalAttempts > 0) return true;
+          return categories.some(c => Number(c?.attempts ?? c?.total_attempts ?? c?.questions_answered ?? 0) > 0 || Number(c?.success_rate) > 0);
+        },
+        radarHasPositiveRate() {
+          return Array.isArray(this.stats?.categories) && this.stats.categories.some(c => Number(c?.success_rate) > 0);
+        },
         setTheme(id) {
           const m = this.themes.find(x => x.id === id); if (!m) return; const r = document.documentElement;
-          this.theme = id; r.dataset.theme = id; r.classList.toggle('dark', m.kind === 'dark'); r.classList.toggle('light', m.kind === 'light'); r.style.colorScheme = m.kind;
+          r.dataset.theme = id; r.classList.toggle('dark', m.kind === 'dark'); r.classList.toggle('light', m.kind === 'light'); r.style.colorScheme = m.kind;
+          this.theme = r.dataset.theme;
           try { localStorage.setItem('skilltree-theme2', id); } catch (e) { }
           this.themeMenuOpen = false;
           if (this.stats && this.tab === 'stats') this.$nextTick(() => this.renderSpiderChart());
@@ -2544,7 +2798,7 @@
           else if (o === 'locked' && n.status === 'available') ev.push({ icon: '🔓', tone: 'fuchsia', title: 'Cours débloqué', sub: n.title, node: n.id }); });
         if (ev.length) this.liveEvents = [...ev, ...this.liveEvents].slice(0, 8);
       };
-      base.init = async function () { await origInit.call(this); this.startSync(); };
+      base.init = async function () { this.syncTheme?.(); await origInit.call(this); this.syncTheme?.(); this.startSync(); };
       return base;
     }
   </script>
@@ -2646,35 +2900,86 @@
           this.$nextTick(() => { this.fixLessonContrast(); if (this.tab === 'stats') this.renderSpiderChart(); });
         };
 
-        // Radar adaptatif aux palettes sombre/claire et plus lisible.
+        // Radar : un seul graphique actif, axes lisibles et infobulle limitée au point survolé.
         app.renderSpiderChart = function () {
           const canvas = document.getElementById('spiderChart');
-          if (!canvas || !window.Chart || !this.stats || !Array.isArray(this.stats.categories)) return;
-          if (window.spider) { window.spider.destroy(); window.spider = null; }
+          if (!canvas || !window.Chart) return;
+          const existing = window.Chart.getChart ? window.Chart.getChart(canvas) : window.spider;
+          if (existing) existing.destroy();
+          window.spider = null;
+          if (!this.stats || !Array.isArray(this.stats.categories) || !this.radarHasPositiveRate()) return;
+
+          const byName = new Map();
+          this.stats.categories.forEach(c => {
+            const name = String(c?.name || c?.category || '').trim();
+            if (name && !byName.has(name)) byName.set(name, { ...c, name });
+          });
+          const categories = [...byName.values()].slice(0, 18);
+          if (!categories.length) return;
           const styles = getComputedStyle(document.documentElement);
-          const rgb = name => (styles.getPropertyValue(name).trim().split(/\s+/).map(Number).length === 3)
-            ? styles.getPropertyValue(name).trim().split(/\s+/).join(',') : '128,128,128';
+          const rgb = name => {
+            const parts = styles.getPropertyValue(name).trim().split(/\s+/).map(Number);
+            return parts.length === 3 && parts.every(Number.isFinite) ? parts.join(',') : '128,128,128';
+          };
           const accent = `rgb(${rgb('--cyan-400')})`;
-          const accentFill = `rgba(${rgb('--cyan-400')}, .2)`;
-          const grid = `rgba(${rgb('--w')}, .12)`;
-          const labelColor = `rgb(${rgb('--z-300')})`;
+          const accentFill = `rgba(${rgb('--cyan-400')}, .18)`;
+          const grid = `rgba(${rgb('--w')}, .13)`;
+          const labelColor = `rgb(${rgb('--z-200')})`;
           const tickColor = `rgb(${rgb('--z-400')})`;
-          const labels = this.stats.categories.map(c => c.name || c.category || 'Domaine');
-          const values = this.stats.categories.map(c => Math.max(0, Math.min(100, Number(c.success_rate) || 0)));
+          const labels = categories.map(c => c.name);
+          const values = categories.map(c => Math.max(0, Math.min(100, Number(c.success_rate) || 0)));
+          this.radarSelectedDomain = null;
           window.spider = new Chart(canvas, {
             type: 'radar',
-            data: { labels, datasets: [{ label: 'Taux de réussite', data: values, fill: true, backgroundColor: accentFill, borderColor: accent, pointBackgroundColor: `rgb(${rgb('--emerald-400')})`, pointBorderColor: styles.getPropertyValue('--s1').trim() || '#ffffff', pointHoverBackgroundColor: accent, pointHoverBorderColor: `rgb(${rgb('--z-50')})`, borderWidth: 2.5, pointRadius: 3.5, pointHoverRadius: 6 }] },
+            data: { labels, datasets: [{
+              label: 'Taux de réussite', data: values, fill: true,
+              backgroundColor: accentFill, borderColor: accent,
+              pointBackgroundColor: `rgb(${rgb('--emerald-400')})`,
+              pointBorderColor: styles.getPropertyValue('--s1').trim() || '#ffffff',
+              pointHoverBackgroundColor: accent, pointHoverBorderColor: `rgb(${rgb('--z-50')})`,
+              borderWidth: 2.5,
+              pointRadius: ctx => (Number(ctx.raw) > 0 ? 3.5 : 0),
+              pointHitRadius: ctx => (Number(ctx.raw) > 0 ? 8 : 0),
+              pointHoverRadius: 6
+            }] },
             options: {
-              responsive: true, maintainAspectRatio: false, animation: { duration: 450 },
-              interaction: { intersect: false, mode: 'nearest' },
-              layout: { padding: { top: 8, right: 18, bottom: 8, left: 18 } },
-              plugins: { legend: { display: true, labels: { color: labelColor, usePointStyle: true, boxWidth: 8, padding: 18 } },
-                tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.r}%` } } },
+              responsive: true, maintainAspectRatio: false, animation: { duration: 350 },
+              interaction: { intersect: true, mode: 'nearest' },
+              layout: { padding: { top: 22, right: 28, bottom: 22, left: 28 } },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  enabled: true, intersect: true, mode: 'nearest',
+                  callbacks: {
+                    title: items => items.length ? labels[items[0].dataIndex] : '',
+                    label: ctx => `Réussite : ${Math.round(Number(ctx.parsed.r) || 0)}%`
+                  }
+                }
+              },
+              onClick: (event, elements) => {
+                if (!elements || !elements.length) return;
+                const index = elements[0].index;
+                this.radarSelectedDomain = { name: labels[index], rate: Math.round(values[index]), category: categories[index] };
+              },
               scales: { r: {
                 min: 0, max: 100, beginAtZero: true,
                 angleLines: { color: grid, lineWidth: 1 }, grid: { color: grid, circular: true },
                 ticks: { display: true, stepSize: 20, color: tickColor, backdropColor: 'transparent', showLabelBackdrop: false, font: { size: 10 } },
-                pointLabels: { color: labelColor, padding: 10, font: { size: 11, weight: '600' } }
+                pointLabels: {
+                  color: labelColor, padding: 11,
+                  font: { size: 10, weight: '600' },
+                  callback(label) {
+                    const words = String(label).split(/\s+/);
+                    const lines = []; let line = '';
+                    words.forEach(word => {
+                      const next = line ? `${line} ${word}` : word;
+                      if (next.length > 19 && line) { lines.push(line); line = word; }
+                      else line = next;
+                    });
+                    if (line) lines.push(line);
+                    return lines;
+                  }
+                }
               } }
             }
           });
@@ -2988,5 +3293,10 @@
     </div>
     <span class="text-sm font-semibold text-white">Nouveau contenu synchronisé !</span>
   </div>
+
+<a id="labs-v2-shortcut" href="/labs-v2.html"
+   style="position:fixed;right:18px;bottom:18px;z-index:100000;padding:12px 16px;border-radius:12px;background:#b7f36b;color:#111b0a;font-weight:750;text-decoration:none;box-shadow:0 6px 24px #0008">
+   Ouvrir les Labs V2 ↗
+</a>
 </body>
 </html>

@@ -5,12 +5,10 @@
 > **Prérequis :** savoir lire une adresse IPv4, un masque et le rôle d’une passerelle.  
 > **Objectif :** calculer précisément des sous-réseaux, dimensionner les préfixes et construire un plan sans chevauchement.
 
----
 
 
 > **Schémas intégrés :** le code SVG est directement présent dans ce fichier Markdown. Aucun dossier `images` séparé n’est nécessaire.
 
----
 
 
 ## 1. De la configuration au plan d’adressage
@@ -323,6 +321,5 @@ Si la passerelle répond mais qu’une destination distante échoue, examiner la
 - [RFC 4291 — IPv6 Addressing Architecture](https://www.rfc-editor.org/rfc/rfc4291)
 - [RFC 5952 — Représentation textuelle IPv6](https://www.rfc-editor.org/rfc/rfc5952)
 
----
 
 **Suite :** `adressage-expert.md` — hiérarchie des préfixes, agrégation avancée, cas particuliers IPv4 et architecture IPv6.

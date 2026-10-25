@@ -5,7 +5,6 @@
 > **Prérequis :** maîtriser les modèles YANG, les échanges XML et JSON, les capacités NETCONF, les requêtes RESTCONF, les validateurs et les clients Python.  
 > **Objectif :** concevoir des opérations de gestion réseau sûres, comprendre les mécanismes transactionnels, gérer les capacités et les écarts de modèles, contrôler les changements et vérifier l'état opérationnel réel.
 
----
 
 ## Sommaire
 
@@ -24,7 +23,6 @@
 13. Étude de défaillance
 14. Évaluation corrigée
 
----
 
 # 1. Architecture avancée des interfaces de gestion
 
@@ -67,7 +65,6 @@ Ces questions ne peuvent pas être résolues uniquement par un client NETCONF ou
 - définir un cycle précontrôle, changement et post-contrôle ;
 - construire une méthode de récupération cohérente.
 
----
 
 # 2. YANG, datastores et architecture NMDA
 
@@ -167,7 +164,6 @@ Certaines valeurs sont dynamiques : compteurs, routes apprises, états calculés
 
 Il faut définir quelles propriétés doivent correspondre à l'intention, lesquelles sont uniquement surveillées et lesquelles ne peuvent pas être considérées comme stables.
 
----
 
 # 3. Découverte de schémas et compatibilité des modèles
 
@@ -217,7 +213,6 @@ Par exemple, un client qui utilise `interfaces/interface/name` et `interfaces/in
 
 Si l'un des nœuds n'existe pas, le client doit échouer explicitement ou appliquer une stratégie de compatibilité documentée. Il ne doit pas inventer un résultat par défaut sans signaler l'incertitude.
 
----
 
 # 4. Transactions NETCONF et commit confirmé
 
@@ -359,7 +354,6 @@ Il faut vérifier la capacité annoncée et la portée exacte de l'opération co
   <text class="tx-text" x="500" y="379" text-anchor="middle">Les transactions NETCONF ne créent pas automatiquement une transaction réseau multi-équipements.</text>
 </svg>
 
----
 
 # 5. Gestion des erreurs et des changements concurrents
 
@@ -416,7 +410,6 @@ Les opérations de gestion peuvent entrer en concurrence avec :
 
 Un verrou ou une lecture préalable ne remplace pas toutes les mesures de coordination. Le moteur doit détecter les écarts et déterminer si son autorisation reste valable au moment d'écrire.
 
----
 
 # 6. Opérations RESTCONF avancées
 
@@ -464,7 +457,6 @@ Après une modification RESTCONF :
 
 Une réponse réussie est une preuve de résultat au niveau de la requête, mais ne suffit pas toujours à prouver l'état fonctionnel attendu.
 
----
 
 # 7. Conception d'un moteur d'automatisation
 
@@ -524,7 +516,6 @@ Une bonne chaîne peut calculer un plan de changement à partir :
 
 Le plan doit montrer ce qui sera modifié avant l'exécution. Il ne doit pas être appliqué automatiquement si les préconditions ou les autorisations ne sont plus valides.
 
----
 
 # 8. Sécurité et contrôle d'accès
 
@@ -574,7 +565,6 @@ Les journaux devraient contenir suffisamment d'informations pour diagnostiquer u
 
 Ils ne doivent pas recopier intégralement les données sensibles lorsque cela n'est pas nécessaire.
 
----
 
 # 9. Cohérence, idempotence et état attendu
 
@@ -612,7 +602,6 @@ Il est préférable de définir explicitement :
 - les propriétés critiques ;
 - les critères d'arrêt.
 
----
 
 # 10. Vérification opérationnelle et notifications
 
@@ -652,7 +641,6 @@ Utilisez au minimum des résultats distincts pour :
 
 Un post-contrôle qui n'a pas pu être exécuté ne doit pas être présenté comme réussi.
 
----
 
 # 11. Architecture de référence
 
@@ -731,7 +719,6 @@ Une architecture solide doit établir :
 
 **Traçabilité :** chaque opération reste associée à ses résultats et à sa release.
 
----
 
 # 12. Atelier expert
 
@@ -821,7 +808,6 @@ Le registre doit inclure :
 
 L'atelier est réussi lorsque le cycle complet peut être expliqué et que chaque état correspond à un résultat effectivement observé.
 
----
 
 # 13. Étude de défaillance
 
@@ -850,7 +836,6 @@ Le premier commit peut avoir été accepté. Le second peut provoquer une action
 
 Cette démarche évite de confondre perte de réponse et échec de l'opération.
 
----
 
 # 14. Évaluation corrigée
 
@@ -919,7 +904,6 @@ Il permet de confirmer que le changement a obtenu le résultat réel prévu, et 
 
 Il faut conserver le contexte de l'opération, les données pertinentes, l'identité de la release, les actions effectuées, les résultats, les erreurs, les décisions et les preuves de vérification, tout en protégeant les éléments sensibles.
 
----
 
 # Conclusion — Le niveau expert
 
@@ -947,7 +931,6 @@ Le parcours est désormais cohérent :
 
 **Le véritable niveau expert ne consiste pas à envoyer davantage de commandes : il consiste à contrôler ce qui peut être changé, à savoir ce qui a réellement changé et à réagir correctement quand le résultat n'est pas celui qui était attendu.**
 
----
 
 ## Références officielles
 

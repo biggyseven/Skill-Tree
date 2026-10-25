@@ -5,7 +5,6 @@
 > **Prérequis :** notions de réseau local, switch, routeur et Ethernet.  
 > **Objectif :** reconnaître le câblage cuivre et fibre, lire un brochage RJ45, comprendre la limite usuelle de distance et effectuer les premiers contrôles sans confondre test de continuité et certification.
 
----
 
 ## 1. Pourquoi le câblage est-il important ?
 
@@ -227,6 +226,5 @@ Une simple lumière de continuité qui passe n'est pas la preuve qu'un câble Ca
 
 Les textes complets des normes sont généralement payants. Avant de déployer, vérifier l'édition contractuelle du projet, le code du bâtiment et les obligations locales : une référence ANSI/TIA n'est pas automatiquement une règle légale dans tous les pays.
 
----
 
 **Suite :** `cabling-intermediaire.md` — conception du cheminement, essais de certification, choix cuivre/fibre et réception de chantier.

@@ -10,7 +10,6 @@ Ce cours apprend à comprendre les éléments d’un tunnel WireGuard, à distin
 
 > **Piège :** un tunnel peut être configuré sans être réellement opérationnel. La présence d’une interface `wg0` ne prouve ni que le pair est joignable, ni qu’un échange cryptographique récent a eu lieu, ni que le routage permet à l’application d’atteindre sa destination.
 
----
 
 ## 1. La théorie et les mécanismes
 
@@ -142,7 +141,6 @@ WireGuard fournit un tunnel IP protégé, mais certaines fonctions doivent venir
 
 > **Danger :** ne transforme pas les exemples de laboratoire en règles universelles. Les plages `AllowedIPs`, le transfert IP, les règles NAT, les routes par défaut et les règles de pare-feu peuvent exposer un réseau entier s’ils sont copiés sans analyse.
 
----
 
 ## 2. Configuration et pratique
 
@@ -342,7 +340,6 @@ IPv6 doit être traité explicitement. Si le tunnel n’autorise que des préfix
 
 Le DNS doit aussi être inclus dans le plan : quel résolveur l’hôte utilise-t-il, est-il joignable par le tunnel, et les noms privés sont-ils réservés aux clients autorisés ? Un handshake réussi ne prouve pas que le DNS fonctionne.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -458,7 +455,6 @@ Si un ping par adresse IP fonctionne mais qu’un nom ne se résout pas, la caus
 - [ ] La MTU est validée avec des paquets et des transferts de tailles différentes.
 - [ ] La révocation d’un peer et le retour arrière ont été documentés.
 
----
 
 ## Points à retenir
 

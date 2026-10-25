@@ -19,7 +19,6 @@ ACI ne fait pas disparaître les principes réseau classiques. Les adresses IP, 
 
 > **Analogie :** imagine un campus avec des routes rapides entre les bâtiments. Les commutateurs leaf sont les points d’accès où arrivent les serveurs ; les spine sont les axes rapides qui relient les leaf entre eux. L’APIC est le centre de gestion qui distribue les plans et les règles. Les contrats indiquent quels groupes d’applications peuvent communiquer, sur quels services.
 
----
 
 ## 1. Pourquoi Cisco ACI ?
 
@@ -868,7 +867,6 @@ Pour les menus, options et procédures de configuration, utilise en priorité la
 
 Les procédures peuvent changer entre les versions. Confirme toujours les commandes, l’interface, les options et les exigences matérielles dans les guides de la release que tu utilises.
 
----
 
 ## À retenir
 

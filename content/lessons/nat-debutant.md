@@ -1,8 +1,3 @@
----
-node_id: nat-debutant
-title: NAT & PAT - Débutant
----
-
 # NAT & PAT - Débutant
 
 **Niveau :** Débutant
@@ -19,7 +14,6 @@ NAT et PAT ne remplacent pas le routage, le filtrage de sécurité ou la segment
 >
 > Une autre situation est celle d’un service qui doit être joignable depuis l’extérieur. L’entreprise peut décider qu’un numéro public précis correspond toujours au même poste interne. Cette correspondance permanente ressemble au NAT statique. Le mécanisme ne signifie pas que tous les postes internes sont publiquement accessibles : seuls les mappings et les règles de filtrage configurés déterminent les communications permises. Le standard doit aussi savoir si la ligne est destinée à un appel sortant ou à une communication entrante, tout comme un routeur NAT doit connaître le sens « inside » et « outside » des interfaces.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -316,7 +310,6 @@ Il faut planifier les effets secondaires plutôt que de traiter NAT comme une si
     le client interne à partir du flux de retour.
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -488,7 +481,6 @@ Après un changement, vérifie :
 
 Évite les opérations d’effacement de toute la table NAT comme première réaction à un incident. Elles peuvent interrompre des sessions utilisateur et masquer les indices utiles au diagnostic. Les entrées problématiques doivent être examinées et les actions de nettoyage limitées au besoin réel.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -661,7 +653,6 @@ Une autre astuce consiste à conserver un schéma explicite du sens inside/outsi
 
 Pour une publication de service, documente le propriétaire applicatif, l’adresse interne, l’adresse publique, le protocole, le port interne, le port externe, les sources autorisées, la date de mise en production et le processus de retrait. Les mappings oubliés deviennent souvent des ouvertures de sécurité non surveillées.
 
----
 
 ## Points à retenir
 
@@ -669,7 +660,6 @@ Pour une publication de service, documente le propriétaire applicatif, l’adre
 - **Une traduction correcte ne remplace ni le routage ni le filtrage.** Il faut des interfaces inside/outside cohérentes, une règle NAT qui sélectionne la bonne source, des routes valides et un chemin retour fonctionnel.
 - **NAT n’est pas un pare-feu.** Tout service publié doit être protégé par des règles explicites, maintenu à jour et surveillé. Le dépannage doit examiner la table NAT, le routage, les ACL et les paquets avant et après traduction.
 
----
 
 ## Références techniques
 

@@ -1,7 +1,3 @@
----
-node_id: firewall-intermediaire
-title: Pare-feu & NGFW - Intermédiaire
----
 # Pare-feu & NGFW - Intermédiaire
 **Niveau :** INTERMÉDIAIRE
 
@@ -15,7 +11,6 @@ La règle de méthode est simple : concevoir d'abord la politique, puis la tradu
 
 > **Analogie** : Un pare-feu d'entreprise ressemble à un bâtiment avec plusieurs secteurs. Le poste de garde extérieur contrôle l'entrée, les portes entre les secteurs limitent les déplacements, et les badges précisent qui a accès à quelle salle. Un NGFW ajoute des contrôles plus contextuels : il peut reconnaître le type d'activité, examiner certains contenus et déclencher une alerte. Mais une porte sophistiquée ne remplace pas une architecture claire ni la vérification régulière des droits.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -283,7 +278,6 @@ La qualité d'une politique se mesure à sa capacité à répondre à des besoin
 
 > **Astuce :** Rédigez chaque flux en langage simple avant de créer la règle : « Les postes du VLAN utilisateurs peuvent joindre le résolveur DNS interne sur les protocoles requis ; aucune autre communication directe vers le réseau de serveurs n'est autorisée. » Cette phrase facilite la validation technique et métier.
 
----
 
 ## 2. Configuration et pratique
 
@@ -520,7 +514,6 @@ Une sauvegarde est utile seulement si elle peut être restaurée. Vérifiez la p
 
 > **Astuce :** Chaque changement doit posséder quatre éléments avant le déploiement : une justification, un test de succès, un test de non-régression et une condition de retour arrière. Cela transforme un dépannage improvisé en opération reproductible.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -723,7 +716,6 @@ Ce scénario montre que « pare-feu » désigne plusieurs points de contrôle po
 
 **Exercice 8 :** Pas sans analyse. Consulter le propriétaire applicatif, les périodes d'activité, les journaux, les sauvegardes, le plan de continuité et les tickets. Une règle sans compteur peut être utilisée rarement ou dans un scénario de secours. En cas d'inutilité confirmée, supprimer selon la procédure, tester et documenter.
 
----
 
 ## Points à retenir
 

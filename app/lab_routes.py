@@ -275,3 +275,19 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
         conn.close()
 
     return {"ok": True, "xp_gained": xp_gained, "badges_unlocked": badges_unlocked}
+
+@router.get("/lab/v2")
+def list_labs_v2() -> list[dict[str, Any]]:
+    """Catalogue des labs V2 disponibles dans la base SQLite."""
+    conn = _database_connection()
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, title, level, module, schema_version
+            FROM labs
+            ORDER BY module, title
+            """
+        ).fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()

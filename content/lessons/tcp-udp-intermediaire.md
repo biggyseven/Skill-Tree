@@ -4,7 +4,6 @@
 > **Prérequis :** comprendre l'adressage IP, les ports, le handshake TCP et les différences de base entre TCP et UDP.  
 > **Objectif :** analyser les flux, interpréter les numéros de séquence, comprendre les états TCP, vérifier les ports et diagnostiquer des problèmes de transport à partir de preuves.
 
----
 
 ## Sommaire
 
@@ -26,7 +25,6 @@
 16. Exercices corrigés
 17. Glossaire et ressources
 
----
 
 # 1. Rappel du fonctionnement TCP/UDP
 
@@ -64,7 +62,6 @@ TCP fournit un flux d'octets. Les frontières des messages doivent être défini
 
 UDP conserve les frontières des datagrammes au niveau de son service de transport, mais ne garantit ni leur livraison ni leur ordre.
 
----
 
 # 2. Identifier une communication par son tuple
 
@@ -123,7 +120,6 @@ Ces deux lignes représentent des transports différents, même si les adresses 
 
 Dans une règle de filtrage, dans un journal ou dans une capture, le protocole de transport est donc indispensable.
 
----
 
 # 3. Les états d'une connexion TCP
 
@@ -176,7 +172,6 @@ Un nombre élevé de sockets dans cet état doit être interprété en fonction 
 
 Ne cherchez pas à supprimer systématiquement `TIME-WAIT` sans comprendre le problème que vous tentez de résoudre.
 
----
 
 # 4. Schéma SVG animé — Cycle d'une connexion TCP
 
@@ -216,7 +211,6 @@ Ne cherchez pas à supprimer systématiquement `TIME-WAIT` sans comprendre le pr
 
 Ce dessin n'est pas une machine à états complète. Pour une analyse experte, les transitions détaillées doivent être étudiées dans la spécification TCP et dans le contexte des segments réellement observés.
 
----
 
 # 5. Numéros de séquence et acquittements
 
@@ -283,7 +277,6 @@ SACK ne supprime pas les pertes et ne signifie pas que chaque connexion utilise 
 </g>
 </svg>
 
----
 
 # 6. Fenêtre de réception et contrôle de flux
 
@@ -322,7 +315,6 @@ Cette option se négocie pendant l'établissement de la connexion. Elle est impo
 
 Ne confondez pas la fenêtre annoncée par le récepteur avec la fenêtre de congestion de l'émetteur : les deux jouent des rôles différents.
 
----
 
 # 7. Retransmissions et temporisateurs
 
@@ -360,7 +352,6 @@ Pour interpréter la cause, vérifiez :
 - l'emplacement de la capture ;
 - les autres flux et mesures réseau disponibles.
 
----
 
 # 8. Contrôle de congestion
 
@@ -392,7 +383,6 @@ Un RTT élevé peut être lié à la distance, à la propagation, aux files d'at
 
 Un RTT élevé n'établit pas automatiquement que le contrôle de congestion est incorrect. Il faut séparer le délai de propagation du délai d'attente et étudier le chemin.
 
----
 
 # 9. Fin et réinitialisation d'une connexion TCP
 
@@ -423,7 +413,6 @@ Un FIN n'indique pas nécessairement une erreur. Un RST n'indique pas nécessair
 
 Pour déterminer ce qui s'est passé, corrélez les flags TCP, les états et le contexte applicatif.
 
----
 
 # 10. Fonctionnement et diagnostic d'UDP
 
@@ -474,7 +463,6 @@ Une absence de réponse peut signifier :
 
 Le diagnostic doit s'appuyer sur le protocole applicatif et la réponse attendue.
 
----
 
 # 11. Ports connus, enregistrés et éphémères
 
@@ -525,7 +513,6 @@ Les commandes et les informations affichées dépendent des privilèges et du sy
 
 Pour UDP, l'état « écoute » ne représente pas le même handshake que TCP. Il indique principalement qu'un socket a été lié à une adresse et à un port.
 
----
 
 # 12. Pare-feu et NAT
 
@@ -557,7 +544,6 @@ Un filtrage peut :
 
 Le symptôme doit être confronté aux journaux et aux captures du réseau concerné.
 
----
 
 # 13. QUIC et HTTP/3
 
@@ -592,7 +578,6 @@ Il est donc incorrect de conclure qu'une application HTTP/3 perd forcément sa f
 
 Il faut distinguer la fiabilité native du protocole UDP des fonctions ajoutées par QUIC au-dessus de celui-ci.
 
----
 
 # 14. Schéma SVG animé — TCP, UDP et QUIC
 
@@ -628,7 +613,6 @@ Il faut distinguer la fiabilité native du protocole UDP des fonctions ajoutées
 </g>
 </svg>
 
----
 
 # 15. Captures Wireshark
 
@@ -674,7 +658,6 @@ Un filtre d'affichage masque les paquets dans l'interface. Un filtre de capture,
 
 Le fait de voir un datagramme UDP sortir de l'interface ne prouve pas qu'il est arrivé au destinataire.
 
----
 
 # 16. Laboratoires
 
@@ -741,7 +724,6 @@ Pour chaque protocole, définissez une question de test précise.
 
 N'utilisez pas un test UDP arbitraire pour déclarer ouvert ou fermé un port dont vous ne connaissez pas le protocole applicatif.
 
----
 
 # 17. Exercices
 
@@ -785,7 +767,6 @@ Pourquoi un serveur qui écoute sur un port TCP localement peut-il rester inacce
 
 Distinguez la fermeture normale par FIN de la réinitialisation associée à RST.
 
----
 
 # 18. Corrigés commentés
 
@@ -829,7 +810,6 @@ Le service peut être lié à la mauvaise adresse, un pare-feu peut filtrer le t
 
 FIN est associé à une fermeture ordonnée d'une direction du flux. RST est associé à une réinitialisation ou à un rejet de connexion selon le contexte.
 
----
 
 # 19. Glossaire intermédiaire
 
@@ -861,7 +841,6 @@ FIN est associé à une fermeture ordonnée d'une direction du flux. RST est ass
 
 **Window Scale :** option TCP permettant de représenter des fenêtres plus grandes.
 
----
 
 # 20. Ressources de référence
 
@@ -871,7 +850,6 @@ FIN est associé à une fermeture ordonnée d'une direction du flux. RST est ass
 - [QUIC — RFC 9000](https://www.rfc-editor.org/rfc/rfc9000.html)
 - [Registre officiel des ports — IANA](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml)
 
----
 
 ## Conclusion
 

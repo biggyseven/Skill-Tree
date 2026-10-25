@@ -17,7 +17,6 @@ Ce cours présente les concepts communs aux grands fournisseurs cloud. Les noms 
 
 > **Analogie :** imagine un campus avec plusieurs bâtiments. Le réseau virtuel est le campus, les sous-réseaux sont des zones ou des bâtiments, les adresses IP sont les numéros des locaux, les routes sont les indications de circulation et les règles de sécurité sont les contrôles aux portes. Le fournisseur cloud fournit les routes et les infrastructures physiques, tandis que tu définis une grande partie de l’organisation logique.
 
----
 
 ## 1. Qu’est-ce que le cloud networking ?
 
@@ -610,7 +609,6 @@ Pour apprendre à configurer un réseau réel, utilise la documentation officiel
 
 Les documentations fournisseurs sont les références à privilégier pour les paramètres exacts, les limitations, les coûts et les comportements par défaut. Les services évoluent : vérifie les pages actuelles avant toute configuration de production.
 
----
 
 ## À retenir
 

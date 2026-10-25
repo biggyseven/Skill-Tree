@@ -1,8 +1,3 @@
----
-node_id: ntp-syslog-debutant
-title: NTP & Syslog - Débutant
----
-
 # NTP & Syslog - Débutant
 
 **Niveau :** Débutant
@@ -21,7 +16,6 @@ Syslog est un mécanisme normalisé de transmission de messages d’événements
 >
 > Une nuance importante : le service qui synchronise les montres ne tient pas le carnet à la place des techniciens. NTP ne collecte pas les événements, et Syslog ne synchronise pas l’heure. Les deux fonctions se complètent. Une politique efficace doit donc configurer et vérifier séparément la synchronisation horaire, la journalisation locale, l’envoi distant, la conservation des messages et la protection des accès.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -317,7 +311,6 @@ Plusieurs erreurs sont fréquentes lors de la mise en œuvre de NTP et Syslog.
        les commandes d'état et les tests confirment le résultat.
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -641,7 +634,6 @@ Pour exploiter ces services, il faut vérifier la source de temps, l’état de 
 
 > **Astuce :** Pour tout incident, compare d’abord l’heure de `show clock` et l’état `show ntp status`, puis examine `show logging`. Si les messages sont présents localement mais absents du collecteur, concentre le diagnostic sur l’adresse source, les routes, les ACL, le transport et le service récepteur. Si tous les équipements affichent des heures incohérentes, résous d’abord NTP avant de tirer des conclusions à partir de l’ordre des événements.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -786,7 +778,6 @@ Les commandes de ce cours visent principalement Cisco IOS/IOS XE classique. Avan
 - **La configuration ne prouve pas le fonctionnement.** Vérifie l’état NTP, les associations, les horodatages, les messages locaux et la réception effective sur le collecteur.
 - **La qualité de l’heure et la sécurité des journaux participent directement à la qualité du dépannage.** Utilise des sources approuvées, protège les accès, règle les niveaux de journalisation en fonction du besoin et définis une politique de conservation.
 
----
 
 ## Références techniques
 

@@ -1,0 +1,7 @@
+{
+  "node_id": "isis-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de IS-IS - Intermédiaire.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

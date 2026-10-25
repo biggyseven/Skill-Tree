@@ -1,8 +1,3 @@
----
-node_id: routing-intermediaire
-title: Routage statique & tables - Intermédiaire
----
-
 # Routage statique & tables - Intermédiaire
 
 **Niveau :** Intermédiaire
@@ -19,7 +14,6 @@ Ce cours approfondit la logique des tables IPv4, le choix du prochain saut, les 
 >
 > Le centre de tri conserve aussi plusieurs informations sur la manière dont une destination a été apprise. Une route configurée manuellement peut être préférée à une route apprise automatiquement, sauf si l’administrateur lui attribue une préférence moins favorable. Une route de secours reste comme un itinéraire de remplacement : elle n’est utilisée que lorsque la route principale ne peut plus être installée. Enfin, le centre doit distinguer l’adresse du destinataire et le prochain centre de tri. Le prochain saut n’est pas la destination finale : c’est simplement l’étape vers laquelle le colis doit être transmis.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -567,7 +561,6 @@ Une stratégie de sécurité et d’exploitation doit assurer l’autorisation d
 - **La configuration n’est pas la table installée.** Vérifie les interfaces, le prochain saut, la résolution récursive, la table de routage et le chemin retour. Une route statique peut rester configurée sans être active si son prochain saut est invalide ou si une route concurrente plus préférée est installée.
 - **Les routes de secours exigent une conception complète.** Une route flottante utilise une préférence moins favorable, mais elle ne détecte pas nécessairement les pannes applicatives. Les mécanismes de suivi, les résumés, ECMP et les routes par défaut doivent être testés avec des scénarios de panne réalistes.
 
----
 
 ## Références techniques
 

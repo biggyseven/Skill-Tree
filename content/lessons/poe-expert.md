@@ -5,7 +5,6 @@
 **Prérequis :** maîtriser les standards PoE, les mécanismes de classification, le calcul du budget et le diagnostic des ports.  
 **Objectif général :** concevoir et exploiter une infrastructure PoE fiable, explicable, dimensionnée et vérifiable.
 
----
 
 # 1. Le PoE comme ressource critique d'infrastructure
 
@@ -24,7 +23,6 @@ La conception doit intégrer :
 
 La question de conception n'est pas uniquement « combien de watts consomment les appareils ? ». Il faut aussi savoir quelle capacité doit rester disponible pour garantir un comportement déterminé dans les conditions prévues.
 
----
 
 # 2. Les quatre niveaux de capacité
 
@@ -54,7 +52,6 @@ Le PD doit être conçu pour le standard et la puissance prévus. Le câblage do
 
 Une installation ne peut être déclarée conforme à partir du seul fait que le voyant de lien s'allume.
 
----
 
 # 3. Construire un modèle de charge réaliste
 
@@ -100,7 +97,6 @@ Une campagne de mesure permet d'observer les comportements réels :
 
 Les mesures complètent les fiches techniques, sans les remplacer. Il faut enregistrer l'heure, le contexte, la fréquence de mesure et les limites du compteur pour pouvoir interpréter correctement les résultats.
 
----
 
 # 4. Type, classe, négociation et admission
 
@@ -130,7 +126,6 @@ IEEE 802.3bt a introduit des fonctions supplémentaires, dont AutoClass lorsqu'e
 
 Il ne faut pas supposer que chaque switch et chaque PD prennent en charge toutes les fonctionnalités de 802.3bt. Avant d'en tenir compte pour le dimensionnement, vérifier la documentation et le comportement du matériel concerné.
 
----
 
 # 5. Schéma animé — Architecture de décision d'admission
 
@@ -199,7 +194,6 @@ Ce schéma sépare les contrôles. La décision ne repose pas exclusivement sur 
   <text class="poee1-note" x="30" y="350">Modèle logique générique ; l'ordre et les règles détaillés dépendent du PSE et de sa configuration.</text>
 </svg>
 
----
 
 # 6. Distinguer capacité, réservation et consommation
 
@@ -230,7 +224,6 @@ La différence entre réservation et consommation est de 80 W.
 
 Il ne faut pas conclure automatiquement que 80 W peuvent être réaffectés. Le contrôleur peut continuer à retenir la réservation selon la classe, les capacités et la politique d'admission. La capacité disponible pour un nouveau PD doit être évaluée selon le fonctionnement réel du système.
 
----
 
 # 7. Schéma animé — Réservations et mesures
 
@@ -290,7 +283,6 @@ Les barres utilisent une échelle commune de 0 à 400 W. L'animation remplit pro
   <text class="poee2-note" x="30" y="342">La capacité non réservée est une marge arithmétique ; les règles d'admission restent applicables.</text>
 </svg>
 
----
 
 # 8. Dimensionnement en mode nominal et en mode dégradé
 
@@ -327,7 +319,6 @@ Par exemple, les besoins d'une caméra de sécurité critique peuvent être diff
 
 La criticité doit donc être documentée et traduite dans une configuration adaptée à la plate-forme réelle.
 
----
 
 # 9. Résilience : redondance électrique et redondance réseau
 
@@ -401,7 +392,6 @@ Le dessin représente un PD expressément conçu pour deux entrées. Il ne s'app
   <text class="poee3-note" x="480" y="350" text-anchor="middle">Ne pas mettre en parallèle des sorties PoE sans prise en charge explicite.</text>
 </svg>
 
----
 
 # 10. Câblage et environnement thermique
 
@@ -422,7 +412,6 @@ Il ne faut pas définir de limite thermique universelle sans se référer à l'i
 
 Un lien Ethernet qui fonctionne ne suffit pas pour confirmer toutes les exigences électriques du PoE.
 
----
 
 # 11. Observabilité : suivre l'état, les allocations et les incidents
 
@@ -468,7 +457,6 @@ Une mesure non disponible doit être distinguée de la valeur zéro. Il faut con
 
 La corrélation temporelle est importante. Si plusieurs PD tombent en même temps, les horodatages peuvent permettre de relier les incidents à un événement commun.
 
----
 
 # 12. Schéma animé — Cycle de traitement d'un incident
 
@@ -526,7 +514,6 @@ Le processus distingue la détection, la collecte, le diagnostic et la validatio
   <text class="poee4-note" x="30" y="330">Le retour au vert ne suffit pas : valider aussi la fonction applicative et la stabilité après remise en service.</text>
 </svg>
 
----
 
 # 13. Alarmes et supervision proactive
 
@@ -547,7 +534,6 @@ Elle doit aussi déclencher une action compréhensible : collecte de données, v
 
 Les seuils sont à définir suivant le modèle de switch, les exigences de service et le comportement attendu du parc.
 
----
 
 # 14. Automatisation PoE
 
@@ -578,7 +564,6 @@ Un système automatisé fiable sépare les étapes suivantes :
 
 Les opérations de lecture seule doivent être privilégiées au début du développement. Les modifications de ports critiques doivent exiger des contrôles d'autorisation, une procédure de retour arrière et des preuves d'exécution.
 
----
 
 # 15. Stratégie de validation d'un déploiement
 
@@ -615,7 +600,6 @@ Les tests électriques doivent suivre les procédures prévues par le fabricant 
 
 Toute intervention susceptible d'interrompre un service critique doit faire l'objet d'une évaluation de risque et d'une autorisation appropriée.
 
----
 
 # 16. Runbook expert : incident PoE sur un équipement critique
 
@@ -681,7 +665,6 @@ Le dossier doit contenir :
 
 Un incident ne doit pas être considéré comme définitivement résolu uniquement parce qu'un voyant est revenu à son état normal.
 
----
 
 # 17. Études de cas expertes
 
@@ -709,7 +692,6 @@ Plusieurs switches existent, mais un équipement perd son alimentation lors d'un
 
 **Analyse :** déterminer le chemin réel de l'énergie et la configuration électrique du PD. La redondance des données et la redondance de l'alimentation doivent être évaluées séparément.
 
----
 
 # 18. Exercices experts avec corrigés
 
@@ -747,7 +729,6 @@ Une infrastructure doit maintenir le service après la perte d'une alimentation 
 
 **Corrigé :** connaître la capacité nominale et dégradée, identifier les PD critiques, établir les critères de réussite, mesurer le budget et les statuts pendant le test, puis consigner la récupération. Le test doit suivre une procédure approuvée.
 
----
 
 # 19. Liste de contrôle de conception
 
@@ -784,7 +765,6 @@ Une infrastructure doit maintenir le service après la perte d'une alimentation 
 - [ ] Comportement de récupération vérifié.
 - [ ] Résultats archivés.
 
----
 
 # 20. Glossaire expert
 
@@ -804,7 +784,6 @@ Une infrastructure doit maintenir le service après la perte d'une alimentation 
 | Admission | Décision du PSE d'accorder ou de refuser une demande d'alimentation |
 | Marge d'ingénierie | Capacité conservée pour répondre aux exigences de continuité et aux incertitudes du dimensionnement |
 
----
 
 # 21. Références techniques
 

@@ -46,7 +46,6 @@ Le fil conducteur est de séparer quatre objets : la MTU configurée sur une int
 26. Références techniques officielles
 27. Ce qui différencie le niveau expert
 
----
 
 ## 1. Modèle d’analyse expert et définition du problème
 

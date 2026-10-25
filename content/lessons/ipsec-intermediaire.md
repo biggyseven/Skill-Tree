@@ -8,7 +8,6 @@ Le cours progresse depuis les bases du niveau Débutant vers les décisions de c
 
 > **Analogie** : imagine deux bâtiments avec un sas sécurisé. IKEv2 est le protocole par lequel les responsables du sas vérifient l’identité, choisissent les règles et remettent les clés. ESP est le dispositif qui protège réellement les colis pendant leur transport. Un sas ouvert ne prouve pas que le bon colis est autorisé, et un colis chiffré ne prouve pas qu’il prend le bon chemin.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -260,7 +259,6 @@ Aucun modèle n’est automatiquement meilleur. Un VTI peut faciliter des archit
 
 Une enquête reproductible commence par une hypothèse et une mesure, pas par une modification aléatoire. Choisis un flux source/destination unique, note l’heure, fais un test simple, observe une seule catégorie de compteurs, puis modifie une variable à la fois.
 
----
 
 ## 2. Configuration et pratique
 
@@ -443,7 +441,6 @@ Lors d’une capture externe, ESP natif est généralement identifiable comme pr
 
 Les secrets partagés, clés privées, clés de session, exports complets de configuration et captures internes peuvent être sensibles. Nettoie les captures avant de les partager, restreins les accès et définis une durée de conservation.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -565,7 +562,6 @@ Un changement IPsec peut interrompre l’accès distant, notamment si la route d
 
 > **Astuce :** un retour arrière doit être préparé avant le changement, pas inventé pendant la panne. Le fichier de configuration sauvegardé doit aussi être protégé comme un secret, car il peut contenir des informations d’infrastructure sensibles.
 
----
 
 ## Points à retenir
 

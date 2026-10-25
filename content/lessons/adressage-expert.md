@@ -17,7 +17,6 @@ Pour un ingénieur réseau expert, maîtriser l'adressage implique de savoir con
 
 > **Analogie** : Imagine un réseau mondial de villes, de quartiers, de bâtiments et de pièces. Le préfixe IP est l'adresse du quartier ; les bits restants identifient l'interface à l'intérieur de ce quartier. Les routeurs sont des carrefours qui ne mémorisent pas nécessairement chaque porte de chaque bâtiment : ils retiennent surtout les directions vers des quartiers et des ensembles de quartiers. Une route agrégée ressemble à un panneau « tous les quartiers de cette zone par cette avenue ». Elle réduit le nombre de panneaux, mais devient dangereuse si elle prétend desservir une zone dont certaines parties ne sont pas réellement accessibles. Le *longest prefix match* revient à suivre le panneau le plus précis : si un panneau général indique toute la zone par l'avenue A, mais qu'un panneau spécifique indique un sous-quartier par l'avenue B, c'est ce dernier qui gagne pour les adresses qu'il couvre. Un plan d'adressage bien conçu donne aux bâtiments voisins des adresses cohérentes, permet de résumer les quartiers et évite qu'une extension de voirie oblige à renuméroter toute la ville.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -313,7 +312,6 @@ Les erreurs les plus coûteuses ne sont pas toujours des erreurs de calcul. Ce s
    attribution documentée et croissance contrôlée.
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -497,7 +495,6 @@ Une configuration doit rester compréhensible pour un ingénieur qui reprend le 
 
 > **Astuce :** En présence d'une panne, demande d'abord trois réponses factuelles : « Quelle adresse et quel préfixe l'hôte possède-t-il ? », « Quelle route exacte le routeur utilise-t-il pour cette destination ? » et « Quel prochain saut de couche 2 est réellement résolu sur le lien ? ». Ces questions séparent le calcul du sous-réseau, la sélection de route et la résolution de voisinage. Elles évitent de changer au hasard le masque, la passerelle ou les routes statiques.
 
----
 
 ## 3. Dépannage et Sécurité
 

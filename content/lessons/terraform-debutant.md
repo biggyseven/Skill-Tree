@@ -5,7 +5,6 @@
 > **Niveau actuel :** Débutant  
 > **Objectif :** apprendre à décrire une infrastructure dans des fichiers, comprendre le fonctionnement de Terraform et effectuer ses premières opérations de manière contrôlée.
 
----
 
 ## Sommaire
 
@@ -25,7 +24,6 @@
 14. Évaluation corrigée
 15. Préparation du niveau intermédiaire
 
----
 
 # 1. Contexte et objectifs
 
@@ -67,7 +65,6 @@ Vous devez savoir :
 
 Aucun compte cloud n'est nécessaire pour l'atelier local de ce cours.
 
----
 
 # 2. Comprendre l'Infrastructure as Code
 
@@ -105,7 +102,6 @@ Ce bloc est illustratif : `exemple_reseau` n'est pas un type de ressource Terraf
 
 L'IaC ne garantit pas automatiquement une infrastructure correcte. Un fichier erroné peut produire un changement erroné. Les règles de validation, l'examen du plan et les permissions restent essentiels.
 
----
 
 # 3. Découvrir Terraform
 
@@ -172,7 +168,6 @@ Un script impératif décrit directement une suite d'actions à exécuter. Terra
 
 Cela ne signifie pas que Terraform élimine toute dépendance à l'ordre. Les références entre ressources définissent des dépendances que Terraform utilise pour ordonner les opérations.
 
----
 
 # 4. Installer et vérifier Terraform
 
@@ -201,7 +196,6 @@ cd terraform-debutant
 
 Chaque exercice doit se trouver dans son propre dossier ou dans un projet clairement organisé. Évitez de mélanger l'état et les fichiers produits par des projets indépendants.
 
----
 
 # 5. Comprendre la structure d'un projet
 
@@ -232,7 +226,6 @@ Ces fichiers sont des conventions de rangement, pas une obligation : Terraform c
 
 Les fichiers `.tfvars` peuvent contenir des données sensibles. Ils doivent être traités en conséquence.
 
----
 
 # 6. Découvrir le langage HCL
 
@@ -296,7 +289,6 @@ terraform fmt -check
 
 Le formatage améliore la cohérence du code. Il ne garantit pas que la configuration produira l'infrastructure attendue.
 
----
 
 # 7. Créer ses premières ressources
 
@@ -395,7 +387,6 @@ output "inventory_note_path" {
 
 Cette sortie expose le chemin du fichier créé par Terraform.
 
----
 
 # 8. Comprendre le cycle de vie Terraform
 
@@ -475,7 +466,6 @@ La destruction retire la ressource gérée par Terraform, selon le plan présent
 
 **Attention :** sur un projet réel, `terraform destroy` peut supprimer des ressources importantes et entraîner une interruption de service ou une perte de données. Ne l'exécutez jamais sans vérifier le périmètre et le plan.
 
----
 
 # 9. Comprendre le state
 
@@ -512,7 +502,6 @@ Le state local est simple pour un laboratoire, mais présente des limites en éq
 
 Les équipes utilisent généralement un backend distant approprié, avec protection d'accès, sauvegarde et mécanisme de verrouillage lorsqu'il est disponible.
 
----
 
 # 10. Variables, sorties et fichiers de valeurs
 
@@ -556,7 +545,6 @@ La propriété `sensitive` masque certaines valeurs dans l'affichage, mais n'emp
 
 Dans cet exercice, aucun jeton réel n'est nécessaire. N'en ajoutez pas pour tester la configuration locale.
 
----
 
 # 11. Sécurité et bonnes pratiques
 
@@ -619,7 +607,6 @@ Vérifier le résultat
 
 Ne remplacez pas l'examen du plan par une confiance aveugle dans la configuration.
 
----
 
 # 12. Atelier pratique complet
 
@@ -695,7 +682,6 @@ Vérifiez le plan de destruction avant de confirmer.
 
 Le laboratoire est terminé lorsque la ressource a été créée, identifiée dans le state, vérifiée puis supprimée selon le plan attendu.
 
----
 
 # 13. Dépannage
 
@@ -723,7 +709,6 @@ Un changement manuel ou une suppression externe peut créer un décalage. Examin
 
 Traitez le state comme une donnée sensible. Révoquez ou renouvelez les secrets exposés et mettez en œuvre la procédure de sécurisation de l'organisation.
 
----
 
 # 14. Évaluation corrigée
 
@@ -753,7 +738,6 @@ Traitez le state comme une donnée sensible. Révoquez ou renouvelez les secrets
 9. Pour conserver les sélections et contrôles des versions de providers du projet.
 10. Parce que Terraform applique une configuration qui peut être incorrecte ou inadaptée. Les validations et revues restent essentielles.
 
----
 
 # 15. Préparation du niveau intermédiaire
 
@@ -771,7 +755,6 @@ Le niveau intermédiaire prolongera ce socle avec :
 
 **À retenir :** Terraform décrit l'état attendu, calcule les écarts et applique un plan. Le rôle de l'administrateur est de s'assurer que le plan correspond bien à l'intention.
 
----
 
 ## Références officielles
 

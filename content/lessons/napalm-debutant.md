@@ -9,7 +9,6 @@
 **Prérequis :** bases de Python, adressage IP, SSH et configuration élémentaire d'équipements réseau  
 **Objectif :** apprendre à se connecter à un équipement réseau avec NAPALM, récupérer des informations structurées, comprendre l'abstraction multi-constructeurs et réaliser les premières opérations d'automatisation dans un environnement de laboratoire.
 
----
 
 # AVANT-PROPOS — LA PREMIÈRE ÉTAPE DU PARCOURS NAPALM
 
@@ -62,7 +61,6 @@ Nous n'allons donc pas considérer le code du niveau Débutant comme du code jet
 
 > **Règle fondamentale :** la réussite d'une connexion NAPALM ne prouve pas que l'état du réseau est correct. L'automatisation doit vérifier les données obtenues et, lorsqu'elle modifie une configuration, contrôler le résultat de cette modification.
 
----
 
 # SOMMAIRE
 
@@ -89,7 +87,6 @@ Nous n'allons donc pas considérer le code du niveau Débutant comme du code jet
 21. Glossaire
 22. Références officielles
 
----
 
 # 1. COMPRENDRE L'AUTOMATISATION RÉSEAU
 
@@ -207,7 +204,6 @@ NAPALM ne garantit pas automatiquement :
 
 Ces limites ne sont pas des défauts du cours. Elles constituent précisément une partie importante de l'apprentissage de l'automatisation réseau.
 
----
 
 # 2. QU'EST-CE QUE NAPALM ?
 
@@ -341,7 +337,6 @@ Attention : les champs retournés peuvent être absents, vides ou particuliers s
   <text x="470" y="324" class="nap-driver-small">Une API commune ne rend pas toutes les fonctionnalités universelles.</text>
 </svg>
 
----
 
 # 3. INSTALLER L'ENVIRONNEMENT PYTHON
 
@@ -454,7 +449,6 @@ reports/
 
 Ne mettez pas de vrais mots de passe dans le code, dans l'inventaire ou dans les fichiers de test.
 
----
 
 # 4. CHOISIR LE BON PILOTE
 
@@ -530,7 +524,6 @@ Ce programme vérifie que la fabrique retourne un pilote. Il ne prouve pas que l
 
 La compatibilité réelle doit être vérifiée par un test sur un équipement ou un environnement de laboratoire autorisé.
 
----
 
 # 5. ÉTABLIR SA PREMIÈRE CONNEXION
 
@@ -650,7 +643,6 @@ Cette distinction est utile lorsqu'on doit classer les erreurs : le problème pe
   <text x="470" y="299" class="nap-connection-small">Un échec doit aussi déclencher la fermeture de la session ouverte.</text>
 </svg>
 
----
 
 # 6. COMPRENDRE `get_facts()`
 
@@ -783,7 +775,6 @@ Les facts peuvent identifier la version et la liste d'interfaces, mais ils ne do
 
 Pour ces besoins, le programme doit utiliser les getters adaptés.
 
----
 
 # 7. COLLECTER L'ÉTAT DES INTERFACES
 
@@ -931,7 +922,6 @@ Un écart ne signifie pas nécessairement une panne. Les données peuvent avoir 
 
 Ce type de comparaison est néanmoins utile pour apprendre à contrôler la cohérence des informations.
 
----
 
 # 8. RÉCUPÉRER LES ADRESSES IP ET LES VOISINS LLDP
 
@@ -1040,7 +1030,6 @@ Dans les niveaux suivants, nous réutiliserons ces données pour construire des 
   <path class="nap-facts-link" d="M812 205 V233 H710 V255"/>
 </svg>
 
----
 
 # 9. LIRE UNE CONFIGURATION
 
@@ -1134,7 +1123,6 @@ Une comparaison est une aide à l'analyse, mais elle ne remplace pas les contrô
 
 Avant d'appliquer un changement, déterminez ce que le diff représente et quels sont ses effets possibles.
 
----
 
 # 10. COMPRENDRE LES DONNÉES STRUCTURÉES
 
@@ -1242,7 +1230,6 @@ Cette fonction produit un résumé, pas une copie complète des facts.
 
 La validation doit correspondre aux besoins du rapport. Si le numéro de série est obligatoire, ajoutez une règle explicite plutôt que de supposer qu'il sera toujours fourni.
 
----
 
 # 11. GÉRER LES ERREURS ET FERMER LES CONNEXIONS
 
@@ -1348,7 +1335,6 @@ La méthode `is_alive()` renvoie des informations sur la disponibilité du dispo
 
 Ce résultat ne remplace pas une collecte métier. Une session qui semble active peut ne pas permettre une opération particulière ; inversement, une méthode de vérification de disponibilité peut avoir un périmètre propre au pilote.
 
----
 
 # 12. AUTOMATISER PLUSIEURS ÉQUIPEMENTS
 
@@ -1575,7 +1561,6 @@ La concurrence sera abordée au niveau Intermédiaire, lorsque la collecte simpl
   <text x="470" y="317" class="nap-inv-small">Une cible en erreur ne doit pas effacer les résultats des autres.</text>
 </svg>
 
----
 
 # 13. PRÉPARER UN CHANGEMENT DE CONFIGURATION
 
@@ -1720,7 +1705,6 @@ Avant d'abandonner, vérifiez que vous comprenez l'état du processus. Ne suppos
   <text x="470" y="322" class="nap-change-small">Les capacités de commit et de récupération dépendent du pilote.</text>
 </svg>
 
----
 
 # 14. COMPARER, VALIDER, APPLIQUER OU ABANDONNER
 
@@ -1830,7 +1814,6 @@ Le nom d'interface et le nom du champ doivent correspondre à la plateforme et �
 
 Le principe reste fondamental : un commit techniquement réussi doit être suivi de vérifications adaptées à l'objectif.
 
----
 
 # 15. TESTER LES FONCTIONS SANS ÉQUIPEMENT RÉEL
 
@@ -1999,7 +1982,6 @@ Il faudra donc compléter les tests locaux par des essais sur une plateforme aut
 | Test de récupération | Vérifier une restauration ou un commit confirmé | Laboratoire représentatif indispensable |
 | Test d'exploitation | Collecter un groupe de cibles et examiner les résultats | Environnement contrôlé |
 
----
 
 # 16. LABORATOIRES PROGRESSIFS
 
@@ -2190,7 +2172,6 @@ L'application doit :
 
 **Livrable final :** code source, inventaire de laboratoire, exemples de résultats, tests locaux, rapport JSON et documentation de lancement.
 
----
 
 # 17. PROJET FINAL — NAPALM NETWORK AUDITOR
 
@@ -2318,7 +2299,6 @@ Un projet ne devrait pas être considéré comme réussi si :
 - le pilote sélectionné n'est pas compatible avec les équipements ;
 - les rapports déclarent un succès sans vérifier les données essentielles.
 
----
 
 # 18. DÉPANNAGE
 
@@ -2415,7 +2395,6 @@ Il faut vérifier si la fonction est supportée, si elle est simulée ou si elle
 
 N'utilisez pas une procédure universelle supposée fonctionner sur chaque équipement. Testez le cycle de changement et de récupération dans le laboratoire.
 
----
 
 # 19. EXERCICES D'ÉVALUATION
 
@@ -2457,7 +2436,6 @@ Le programme doit continuer la collecte du second équipement si le premier éch
 
 Une fois ce résultat obtenu, vous disposerez des bases nécessaires pour aborder le niveau Intermédiaire : validation plus poussée, inventaires structurés, concurrence contrôlée et workflow de modification plus robuste.
 
----
 
 # 20. GLOSSAIRE
 
@@ -2487,7 +2465,6 @@ Une fois ce résultat obtenu, vous disposerez des bases nécessaires pour aborde
 
 **Validation** — Contrôle permettant de vérifier que les données ou l'état répondent à des critères définis.
 
----
 
 # 21. RÉFÉRENCES OFFICIELLES
 
@@ -2545,7 +2522,6 @@ Consultez la documentation de la version installée avant de développer un work
 
 Les liens de documentation peuvent évoluer avec les versions. Si une page présente des différences avec votre installation, vérifiez la documentation liée à la release utilisée et les éventuelles limitations du pilote.
 
----
 
 # CONCLUSION — LES FONDATIONS DU PARCOURS NAPALM
 

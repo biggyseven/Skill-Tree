@@ -1,8 +1,3 @@
----
-node_id: ipv4-intermediaire
-title: Adressage IPv4 & sous-réseaux - Intermédiaire
----
-
 # Adressage IPv4 & sous-réseaux - Intermédiaire
 
 **Niveau :** Intermédiaire
@@ -23,7 +18,6 @@ Une bonne conception IPv4 doit être lisible par un autre administrateur, exploi
 >
 > L’analogie a toutefois une limite importante : les routeurs ne raisonnent pas à partir d’une carte dessinée mais à partir d’opérations binaires. La validité d’un résumé dépend de l’alignement des bits, pas de la proximité visuelle des nombres. Deux réseaux qui semblent proches dans leur écriture décimale ne sont pas nécessairement agrégeables. Le calcul doit donc être vérifié en binaire ou à l’aide d’une méthode mathématique rigoureuse.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -362,7 +356,6 @@ Enfin, l’adressage doit être documenté et géré comme une donnée d’explo
              Routage local / agrégation selon le design
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -580,7 +573,6 @@ La base d’adressage doit être la source de vérité. Si le tableau, la config
 
 > **Astuce :** Pour un calcul rapide, repère l’octet où le masque n’est ni `255` ni `0`, puis calcule `256 − masque`. Cette taille de bloc donne les frontières possibles dans cet octet. Pour valider un résumé, fais l’opération inverse : calcule le nombre d’adresses couvertes, vérifie l’alignement de l’adresse de départ et assure-toi que tous les préfixes internes sont contenus dans l’agrégat sans englober involontairement d’autres allocations.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -726,7 +718,6 @@ Après la mise en service, les tests vérifient l’obtention du bail DHCP, la c
 
 - **L’adressage, le VLAN, le DHCP, les routes et la sécurité forment un seul système opérationnel.** Un masque incorrect modifie la décision locale/distance d’un hôte ; un mauvais pool DHCP distribue des paramètres erronés ; une passerelle ou une route de retour incohérente peut bloquer le trafic. Toujours vérifier la configuration effective, la table de routage, les chemins aller-retour et la documentation.
 
----
 
 ### Références techniques
 

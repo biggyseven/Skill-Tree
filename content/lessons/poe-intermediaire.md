@@ -15,7 +15,6 @@
 - dépanner méthodiquement un refus d'alimentation ;
 - établir un rapport à partir de mesures et d'événements observés.
 
----
 
 # 1. Pourquoi le dimensionnement PoE exige-t-il plus qu'une simple addition ?
 
@@ -32,7 +31,6 @@ L'administration doit donc considérer trois dimensions :
 
 Il faut également connaître la politique d'admission du switch : le comportement en cas de budget insuffisant varie selon les matériels et leur configuration.
 
----
 
 # 2. Les standards PoE et leurs limites de puissance
 
@@ -76,7 +74,6 @@ Pour une installation à puissance élevée, la qualité des conducteurs et des 
 
 Un câble qui permet une liaison Ethernet n'est pas automatiquement une preuve de conformité pour tous les profils PoE.
 
----
 
 # 3. Schéma animé — Comparaison des puissances
 
@@ -148,7 +145,6 @@ L'échelle est commune aux quatre barres. La longueur de chaque barre est propor
   <text class="poei1-sub" x="30" y="313">Repères côté PSE. La puissance garantie au PD est inférieure en raison des pertes et dépend du type exact.</text>
 </svg>
 
----
 
 # 4. Détection, classification, LLDP et admission
 
@@ -249,7 +245,6 @@ Ce schéma sépare les étapes et montre explicitement les résultats possibles 
   <text class="poei2-note" x="30" y="340">Un budget global positif ne garantit pas à lui seul l'admissibilité d'un port.</text>
 </svg>
 
----
 
 # 5. Calculer le budget PoE
 
@@ -354,7 +349,6 @@ La demande semble compatible avec le budget global. Il reste à vérifier la cap
   <text class="poei3-note" x="30" y="325">La barre représente des allocations, pas la consommation mesurée instantanément.</text>
 </svg>
 
----
 
 # 6. Dimensionner un parc PoE
 
@@ -394,7 +388,6 @@ Dans un réseau critique, il faut déterminer quels services doivent rester disp
 
 Le pourcentage de réserve n'est pas universel. Il doit être justifié par les profils de charge, le niveau de redondance, les exigences de continuité et les règles de l'organisation.
 
----
 
 # 7. Méthode de dépannage intermédiaire
 
@@ -457,7 +450,6 @@ Les incidents doivent pouvoir être rapprochés des événements de l'infrastruc
 
 Sans horodatage cohérent, il devient beaucoup plus difficile de corréler les événements du switch aux alertes du système de supervision et aux observations du PD.
 
----
 
 # 8. Travaux pratiques
 
@@ -496,7 +488,6 @@ Après remplacement d'un switch :
 
 Deux switches possédant le même nombre de ports ne garantissent pas les mêmes capacités d'alimentation.
 
----
 
 # 9. Étude de cas corrigée
 
@@ -522,7 +513,6 @@ Parce que la consommation peut varier et que le contrôleur peut retenir la puis
 
 Consulter les événements et le statut de puissance, puis contrôler les limites de port, la compatibilité et la configuration avant de modifier quoi que ce soit.
 
----
 
 # 10. Évaluation intermédiaire
 
@@ -546,7 +536,6 @@ Consulter les événements et le statut de puissance, puis contrôler les limite
 7. Une perte de capacité commune peut affecter plusieurs ports simultanément.
 8. Il faut vérifier les capacités réelles du PSE, du PD et du câblage avant d'appliquer une modification.
 
----
 
 # 11. Références techniques
 

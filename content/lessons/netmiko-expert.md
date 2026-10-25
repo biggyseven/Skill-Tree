@@ -7,7 +7,6 @@
 **Public cible :** administrateurs réseau, ingénieurs réseau, ingénieurs infrastructure, NetDevOps et responsables d'automatisation  
 **Objectif final :** construire une application d'automatisation qui ne se contente pas d'envoyer des commandes, mais qui contrôle les entrées, limite les risques, vérifie les résultats, conserve des preuves et sait réagir aux échecs.
 
----
 
 # AVANT-PROPOS — LE NIVEAU EXPERT EST LA SUITE DU PARCOURS
 
@@ -78,7 +77,6 @@ Si ces bases ne sont pas encore suffisamment maîtrisées, révisez les niveaux 
 
 > **Principe essentiel :** Netmiko facilite l'interaction avec une interface CLI. Il ne garantit pas à lui seul que la commande est valide, que le changement est correct, que la configuration est sauvegardée ou que le service réseau fonctionne comme prévu. Ces garanties doivent être construites autour de lui.
 
----
 
 # TABLE DES MATIÈRES
 
@@ -105,7 +103,6 @@ Si ces bases ne sont pas encore suffisamment maîtrisées, révisez les niveaux 
 21. Évaluation de sortie
 22. Références officielles
 
----
 
 # 1. LE CONTRAT DE PROGRESSION
 
@@ -195,7 +192,6 @@ En revanche, le périmètre d'autorisation, la fenêtre de maintenance, les crit
 
 Un programme ne doit pas considérer qu'un changement est acceptable simplement parce que sa syntaxe Python est correcte ou parce que Netmiko n'a pas levé d'exception.
 
----
 
 # 2. COMPRENDRE LA PLACE DE NETMIKO DANS UNE ARCHITECTURE EXPERTE
 
@@ -253,7 +249,6 @@ D'autres options peuvent être mieux adaptées à certains besoins :
 
 Ces approches ne sont pas nécessairement concurrentes. L'architecture doit sélectionner l'outil qui fournit le meilleur contrôle de l'état et le meilleur contrat de résultat pour l'opération visée.
 
----
 
 # 3. ENVIRONNEMENT DE DÉVELOPPEMENT ET REPRODUCTIBILITÉ
 
@@ -336,7 +331,6 @@ Elle doit permettre de répondre à ces questions :
 
 Ces informations deviennent essentielles pendant un incident ou un audit.
 
----
 
 # 4. ORGANISATION DU PROJET
 
@@ -408,7 +402,6 @@ Les configurations réseau et les journaux de session peuvent contenir des infor
 
 L'exclusion Git ne remplace toutefois pas une politique de conservation. Si une organisation doit conserver des sauvegardes ou des journaux, elle doit le faire dans un stockage approprié, avec des permissions, une rétention et des mécanismes de protection adaptés.
 
----
 
 # 5. ARCHITECTURE CIBLE ET RESPONSABILITÉS
 
@@ -498,7 +491,6 @@ La lecture et la modification ne devraient pas utiliser le même niveau de privi
 
 L'application doit pouvoir expliquer ce qu'elle a exécuté, sur quelle cible, à quel moment, avec quel statut et selon quel plan autorisé.
 
----
 
 # 6. INVENTAIRE : VALIDATION ET SÉLECTION DU PÉRIMÈTRE
 
@@ -787,7 +779,6 @@ Ne traitez pas l'intégralité de l'inventaire par défaut. Le programme doit re
 
 Pour les changements sensibles, ajoutez un contrôle d'autorisation externe à l'inventaire : identifiant de changement, approbation, environnement et liste de cibles autorisées.
 
----
 
 # 7. SECRETS, COMPTES DE SERVICE ET SÉCURITÉ SSH
 
@@ -893,7 +884,6 @@ Les options `alt_host_keys` et `alt_key_file` peuvent être pertinentes selon vo
 
 Ne désactivez pas les contrôles de clés d'hôte uniquement parce qu'une connexion échoue. Une clé changée doit être vérifiée via une source de confiance avant de mettre à jour le fichier de confiance.
 
----
 
 # 8. GESTION ROBUSTE DES CONNEXIONS
 
@@ -1007,7 +997,6 @@ Cette commande peut générer une charge importante et produire des informations
 
 Les vérifications de transport et les validations métier sont deux niveaux distincts.
 
----
 
 # 9. COLLECTE DES DONNÉES ET COMMANDES AUTORISÉES
 
@@ -1182,7 +1171,6 @@ Les valeurs sont illustratives.
 
 Indiquez clairement si `payload` contient du texte brut ou une structure normalisée. Ne laissez pas le consommateur supposer qu'une sortie CLI est déjà un objet métier valide.
 
----
 
 # 10. PARSING ET NORMALISATION DES SORTIES
 
@@ -1243,7 +1231,6 @@ La logique métier ne doit pas dépendre directement d'un format de console. Une
 
 Cette séparation simplifie les tests et évite de mélanger extraction des données et présentation.
 
----
 
 # 11. EXÉCUTION CONCURRENTE CONTRÔLÉE
 
@@ -1482,7 +1469,6 @@ Le rapport doit indiquer :
 
 Un résultat partiel est souvent acceptable pour une collecte indépendante. Pour un changement distribué, il peut au contraire signaler une situation incohérente qui exige un arrêt immédiat.
 
----
 
 # 12. GESTION DES ERREURS ET DES REPRISES
 
@@ -1554,7 +1540,6 @@ Le journal technique protégé peut contenir davantage de contexte. Il doit néa
 
 Ne supposez pas qu'un journal de session est inoffensif. Il peut révéler la configuration complète, la topologie et les détails d'accès.
 
----
 
 # 13. GESTION PROFESSIONNELLE DES CHANGEMENTS DE CONFIGURATION
 
@@ -1762,7 +1747,6 @@ La validation métier doit définir ce qui constitue l'état conforme.
 
 Pour une description d'interface, par exemple, la vérification peut être relativement simple. Pour un changement de routage, de sécurité ou de redondance, elle nécessite des contrôles adaptés à l'impact potentiel.
 
----
 
 # 14. IDEMPOTENCE, VALIDATION ET STRATÉGIE DE RÉCUPÉRATION
 
@@ -1838,7 +1822,6 @@ Les animations sont limitées aux liaisons et aux contours des blocs. Elles ne r
   <text x="470" y="316" fill="#c2cee0" text-anchor="middle" font-size="12" font-family="sans-serif">Les critères d'arrêt doivent être définis avant l'exécution.</text>
 </svg>
 
----
 
 # 15. OBSERVABILITÉ, JOURNAUX ET RAPPORTS
 
@@ -1989,7 +1972,6 @@ Le rapport doit afficher les nombres absolus et les détails des échecs.
 
 Il doit également préciser le dénominateur : le total prévu, le total tenté et le total réellement validé ne sont pas nécessairement identiques.
 
----
 
 # 16. TESTS UNITAIRES ET INTÉGRATION CONTINUE
 
@@ -2195,7 +2177,6 @@ Attention : un code qui passe tous les linters ne prouve pas qu'il est sûr pour
 
 La réussite du pipeline de code ne doit pas entraîner automatiquement un changement réseau si l'approbation opérationnelle n'a pas été donnée.
 
----
 
 # 17. INDUSTRIALISATION ET GOUVERNANCE
 
@@ -2269,7 +2250,6 @@ Exemples :
 
 La reprise fait partie du contrat de l'opération. Ce n'est pas une simple boucle ajoutée après coup.
 
----
 
 # 18. LABORATOIRES PROGRESSIFS
 
@@ -2469,7 +2449,6 @@ Préconditions :
 - procédure de récupération ;
 - documentation d'exploitation.
 
----
 
 # 19. PROJET FINAL — NETOPS CHANGE RUNNER
 
@@ -2581,7 +2560,6 @@ Il est terminé lorsque :
 - les dépendances peuvent être reconstruites ;
 - les opérations risquées exigent les autorisations prévues.
 
----
 
 # 20. DÉPANNAGE AVANCÉ
 
@@ -2703,7 +2681,6 @@ Vérifiez la nouvelle clé au moyen d'une source de confiance, puis mettez à jo
 
 Ne supprimez pas globalement les vérifications de clés d'hôte pour contourner le problème.
 
----
 
 # 21. ÉVALUATION DE SORTIE
 
@@ -2740,7 +2717,6 @@ Répondez à ces questions en justifiant vos réponses et en vous appuyant sur d
 
 **Prêt pour une exploitation contrôlée :** les opérations sont testées sur les plateformes réelles, la gestion des autorisations est effective, les critères d'arrêt sont actifs et les procédures de récupération sont éprouvées.
 
----
 
 # 22. RÉFÉRENCES OFFICIELLES
 
@@ -2758,7 +2734,6 @@ Les exemples doivent être adaptés à la version de Netmiko, au constructeur et
 
 Une plateforme mentionnée par un projet comme étant supportée n'implique pas que toutes les commandes fonctionnent sur toutes les versions logicielles d'une gamme. Il faut valider les couples plateforme-version-commande réellement exploités.
 
----
 
 # CONCLUSION — CE QUI DISTINGUE L'EXPERT
 

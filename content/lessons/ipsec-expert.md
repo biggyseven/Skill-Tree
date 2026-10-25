@@ -41,7 +41,6 @@ Les exemples Cisco IOS/IOS XE sont des modèles conceptuels : commandes, noms de
 
 > **Analogie** : un déploiement IPsec à grande échelle ressemble à un réseau de postes-frontières. IKEv2 est le protocole par lequel les postes s'identifient, négocient les règles et renouvellent leurs autorisations ; ESP est le mécanisme qui protège les colis sur le trajet. Les routes définissent les itinéraires, les sélecteurs décrivent les colis autorisés, et la supervision vérifie que les postes fonctionnent réellement. Un poste « ouvert » ne garantit ni un itinéraire correct, ni la livraison.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -412,7 +411,6 @@ Approche de migration recommandée :
 
 Ne pas conserver deux chemins actifs non maîtrisés vers les mêmes préfixes sans comprendre l'ECMP, la symétrie, les SA et les politiques de sélection. Une migration qui « fonctionne » pour un ping peut encore casser des transferts TCP, le DNS, une application utilisant UDP ou une transaction longue.
 
----
 
 ## 2. Configuration et pratique
 
@@ -526,7 +524,6 @@ Un changement n'est pas validé uniquement parce que l'IKE SA est présente. Uti
 
 > **Astuce :** enregistrer les résultats sous forme de modèle reproductible : heure, pair, version, scénario, sortie des commandes, métriques avant/après et validation par le propriétaire du service. Une bonne fiche d'essai permet de comparer plusieurs versions logicielles et plusieurs constructeurs.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -669,7 +666,6 @@ Les commandes debug, la capture, le clear de SA et les modifications d'ACL/routa
 - [ ] Plan de retour arrière, sauvegarde et propriétaire du service connus.
 - [ ] Inventaire à jour des pairs, versions, SA attendues et dérogations cryptographiques.
 
----
 
 ## Points à retenir
 

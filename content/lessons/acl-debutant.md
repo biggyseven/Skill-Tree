@@ -1,8 +1,3 @@
----
-node_id: acl-debutant
-title: ACL & filtrage - Débutant
----
-
 # ACL & filtrage - Débutant
 
 **Niveau :** Débutant
@@ -17,7 +12,6 @@ La qualité d’une politique ACL dépend autant de la logique de filtrage que d
 
 > **Analogie** : Une ACL ressemble au contrôle d’accès d’un bâtiment. À l’entrée, un agent lit la première condition applicable sur une liste : « laisser entrer les employés identifiés », « refuser les visiteurs non enregistrés », « autoriser les livraisons pendant certaines heures ». Dès qu’une condition correspond, l’agent applique la décision associée et n’examine pas les instructions suivantes pour la même demande. Si le visiteur ne correspond à aucune consigne explicite, le règlement peut prévoir de lui refuser l’accès. Dans un réseau, l’adresse IP source ressemble à l’identité déclarée du demandeur, l’adresse destination correspond au bâtiment ou au service visé, le protocole correspond au type d’accès demandé et le port TCP/UDP représente un service précis, par exemple le Web. Comme un badge peut être falsifié ou emprunté, une adresse IP source ne prouve pas à elle seule l’identité réelle d’un utilisateur. Une ACL est un moyen de faire respecter une politique à un point du réseau ; elle ne remplace donc ni l’authentification, ni la segmentation, ni les contrôles de sécurité complémentaires.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -174,7 +168,6 @@ Ainsi, pour un masque `255.255.255.0` :
 ```text
 255.255.255.255
 -255.255.255.0
------------------
   0.  0.  0.255
 ```
 
@@ -391,7 +384,6 @@ Une politique composée uniquement d’ACL peut devenir difficile à maintenir s
       D'autres règles peuvent toutefois filtrer ce retour.
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -566,7 +558,6 @@ Cette commande sauvegarde la configuration active dans la configuration de déma
 
 Il est préférable d’effectuer un changement ACL à la fois. Si plusieurs règles, interfaces et fonctions sont modifiées simultanément, l’identification d’une régression devient plus difficile. Documente les objectifs, les entrées ajoutées, le point d’application et le résultat des tests.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -732,7 +723,6 @@ Pour les équipements qui prennent en charge des mécanismes de confirmation tem
 
 > **Danger :** Une ACL mal placée ou trop permissive peut couper l’administration d’un routeur, bloquer des services métier, exposer un réseau interne ou perturber des services d’infrastructure. Une autorisation générale placée trop tôt peut neutraliser des refus ultérieurs. Une restriction trop large peut provoquer une panne en raison du refus implicite. Ne déploie jamais une ACL critique sans sauvegarde, tests ciblés, vérification du sens de filtrage et procédure de retour arrière.
 
----
 
 ## Points à retenir
 
@@ -742,7 +732,6 @@ Pour les équipements qui prennent en charge des mécanismes de confirmation tem
 - **Une ACL n’est pas automatiquement stateful et ne remplace ni le routage ni l’authentification.** Le trafic retour, les routes, les services d’infrastructure, l’usurpation d’adresse et les besoins de journalisation doivent être considérés séparément.
 - **La configuration doit être vérifiée et testée.** Utilise notamment `show ip access-lists`, `show ip interface`, `show running-config` et les outils de connectivité. Prépare une sauvegarde et un retour arrière avant toute modification sensible.
 
----
 
 ## Références techniques
 

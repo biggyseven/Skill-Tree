@@ -1,8 +1,3 @@
----
-node_id: routing-expert
-title: Routage statique & tables - Expert
----
-
 # Routage statique & tables - Expert
 
 **Niveau :** Expert
@@ -21,7 +16,6 @@ Le routage statique est particulièrement pertinent pour les réseaux de bordure
 >
 > Enfin, si le registre annonce un grand secteur comme accessible alors qu’une partie de ce secteur n’a aucun itinéraire valide, les colis destinés aux adresses inconnues peuvent tourner en boucle ou être envoyés vers une destination incorrecte. Une route de rejet vers une interface nulle agit comme une zone de traitement des colis non reconnus : elle évite de réinjecter indéfiniment les paquets vers un autre centre qui annonce le même agrégat. Cette analogie rappelle que la justesse d’une route dépend autant de ses conditions et de ses dépendances que de la commande qui la crée.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -418,7 +412,6 @@ Les conventions peuvent inclure : noms de routes explicites lorsque la plateform
 
 Pour les routes de secours, il faut documenter ce qui déclenche le basculement. Une AD supérieure est une préférence, pas un test de connectivité. Pour les agrégats, il faut documenter les préfixes inclus et le comportement attendu en cas de destination absente. Pour les VRF, il faut préciser le contexte de routage associé. Pour les routes IPv6, il faut prendre en compte les link-local et la résolution NDP.
 
----
 
 ## 2. Configuration et Pratique
 
@@ -643,7 +636,6 @@ Sauvegarde ensuite la configuration selon la politique de l’organisation. Ajou
 
 Un plan de retour arrière doit préciser la commande de suppression exacte, les anciens prochains sauts, les critères de retour à l’état antérieur et les commandes de validation. Les modifications d’AD, de routes par défaut, de résumé et de routes de rejet peuvent avoir un impact très large ; elles doivent être réalisées avec une fenêtre et un périmètre clairement définis.
 
----
 
 ## 3. Dépannage et Sécurité
 

@@ -43,6 +43,7 @@ class NodeSpec:
     title: str
     description: str
     category: str
+    module: str
     order: int
     prereqs: tuple[str, ...]
     requirements: tuple[tuple[str, int], ...]
@@ -193,6 +194,10 @@ def _parse_nodes(path: Path) -> list[NodeSpec]:
         title = _text(raw.get("title"), "title", where)
         description = _text(raw.get("description", ""), "description", where, allow_empty=True)
         category = _text(raw.get("category", "Général"), "category", where)
+        
+        # CORRECTION 1 : On extrait le module avec une valeur par défaut
+        module = _text(raw.get("module", "Administration Réseaux"), "module", where)
+        
         order = _integer(raw.get("order", 0), "order", where)
         node_type = _text(raw.get("type", "skill"), "type", where)
         if node_type not in {"skill", "architecture"}:
@@ -275,6 +280,7 @@ def _parse_nodes(path: Path) -> list[NodeSpec]:
                 title=title,
                 description=description,
                 category=category,
+                module=module, # CORRECTION 2 : On passe le module à NodeSpec
                 order=order,
                 prereqs=tuple(prereqs),
                 requirements=tuple(requirements),
@@ -686,15 +692,17 @@ def _write(
             conn.execute("DELETE FROM nodes WHERE id = ?", (node_id,))
 
         for node in nodes:
+            # CORRECTION 3 : La requête SQL inclut maintenant le champ module
             conn.execute(
-                "INSERT INTO nodes (id, title, description, category, sort_order)"
-                " VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO nodes (id, title, description, category, module, sort_order)"
+                " VALUES (?, ?, ?, ?, ?, ?)"
                 " ON CONFLICT(id) DO UPDATE SET"
                 " title = excluded.title,"
                 " description = excluded.description,"
                 " category = excluded.category,"
+                " module = excluded.module,"
                 " sort_order = excluded.sort_order",
-                (node.id, node.title, node.description, node.category, node.order),
+                (node.id, node.title, node.description, node.category, node.module, node.order),
             )
             for prereq in node.prereqs:
                 conn.execute(

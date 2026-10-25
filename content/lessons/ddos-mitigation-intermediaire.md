@@ -13,7 +13,6 @@ L’objectif opérationnel est de savoir **mesurer, classifier, atténuer, valid
 
 > **Analogie** : imagine un stade avec plusieurs portes, un contrôle de sécurité, un couloir d’attente et des guichets. Si trop de personnes arrivent, le goulot d’étranglement peut se situer sur la route, à la porte, au contrôle ou au guichet. Ajouter des guichets n’aide pas si la route est bloquée. La mitigation efficace traite le problème à l’endroit où il apparaît, tout en laissant passer les visiteurs autorisés.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -197,7 +196,6 @@ ENTRÉES : mesures réseau, métriques applicatives, impact utilisateur, archite
 
 > **Astuce :** écris avant la mitigation ce qui te fera conclure qu’elle fonctionne : par exemple, baisse du débit entrant vers l’origine, stabilité des nouvelles sessions, rétablissement du p95 et succès d’une transaction de référence. « Le graphique semble meilleur » n’est pas un critère de validation.
 
----
 
 ## 2. Configuration et pratique
 
@@ -366,7 +364,6 @@ Une politique qui réduit le débit mais fait chuter le taux de réussite des ut
 
 > **Danger :** ne transforme pas un exemple de laboratoire en changement de production sans revue. Une mauvaise ACL, une règle WAF trop large, un seuil de limitation trop bas ou une annonce RTBH mal ciblée peut couper le service que l’on cherche à protéger. Les actions de routage doivent suivre une procédure d’escalade et d’approbation.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -513,7 +510,6 @@ Un post-mortem efficace cherche à améliorer le système, pas à blâmer une pe
 
 > **Danger :** le retour à la normale ne prouve pas que la cause est définitivement corrigée. Le trafic peut avoir cessé temporairement ou changé de vecteur. Maintiens une surveillance renforcée pendant une période définie, puis réduis-la seulement lorsque les métriques et les tests restent stables.
 
----
 
 ## 4. Laboratoires et exercices corrigés
 
@@ -559,7 +555,6 @@ Tu dois ajouter une règle pour rejeter un type de trafic. Avant le changement, 
 
 **Corrigé possible :** motif et preuve ; équipement et interface concernés ; critère de correspondance exact ; impact potentiel sur les services légitimes ; indicateurs de réussite et de faux positifs ; responsable, durée, surveillance et commande de retour arrière. Une seconde personne valide les règles à grande portée.
 
----
 
 ## 5. Points à retenir
 

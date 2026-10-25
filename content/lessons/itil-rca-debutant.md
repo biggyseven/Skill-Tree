@@ -8,7 +8,6 @@
 
 Ce cours présente les pratiques de manière pédagogique, en s’inspirant des concepts ITIL 4 et des méthodes courantes d’analyse post-incident. Il ne remplace pas une formation ou une certification officielle. Les noms de statuts, les délais et les règles de priorité proposés sont des exemples à adapter aux procédures de chaque organisation.
 
----
 
 ## 1. Les objectifs d’apprentissage
 
@@ -723,6 +722,5 @@ Les ressources suivantes aident à approfondir les notions présentées. Les gui
 
 Le niveau débutant apprend à exécuter le processus et à distinguer les concepts. Au niveau intermédiaire, tu pourras approfondir la gestion des incidents majeurs, les modèles de priorisation, la corrélation d’incidents, les erreurs connues, les SLA/SLO, les techniques de facilitation RCA et les indicateurs. Le niveau expert pourra aborder la gouvernance de la pratique, la résilience, l’analyse multi-factorielle, les chaînes de dépendance et la mesure de l’efficacité des actions sur plusieurs mois.
 
----
 
 **À retenir :** un ticket correctement rempli facilite le diagnostic ; une priorité justifiée facilite la décision ; une communication régulière crée de la confiance ; une RCA fondée sur des preuves transforme une panne en opportunité d’amélioration. Le bon résultat n’est pas simplement que le service fonctionne de nouveau : c’est que l’organisation comprenne ce qui s’est passé, réduise le risque et puisse vérifier les progrès réalisés.

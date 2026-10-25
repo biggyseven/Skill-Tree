@@ -1,0 +1,18 @@
+{
+  "node_id": "users-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire pour Utilisateurs et groupes",
+      "choices": [
+        "Réponse A",
+        "Réponse B",
+        "Réponse C",
+        "Réponse D"
+      ],
+      "answer": 0,
+      "explanation": "Ceci est un quiz généré automatiquement."
+    }
+  ]
+}

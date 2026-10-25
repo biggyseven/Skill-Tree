@@ -677,7 +677,6 @@ Consulte la documentation de la même version que celle installée, surtout pour
 - [Manuel officiel editcap](https://www.wireshark.org/docs/man-pages/editcap.html)
 - [Manuel officiel mergecap](https://www.wireshark.org/docs/man-pages/mergecap.html)
 
----
 
 ## À retenir
 

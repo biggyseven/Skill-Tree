@@ -1,8 +1,3 @@
----
-node_id: aaa-debutant
-title: Authentification réseau (AAA) - Débutant
----
-
 # Authentification réseau (AAA) - Débutant
 
 **Niveau :** DÉBUTANT
@@ -15,7 +10,6 @@ Dans ce cours, nous allons nous concentrer sur les bases utiles pour comprendre 
 
 > **Analogie** : imagine un immeuble sécurisé. L’authentification correspond au contrôle de ton identité à l’entrée. L’autorisation correspond aux portes que ton badge permet d’ouvrir. L’accounting correspond au registre des entrées, sorties et actions importantes. Une seule de ces fonctions ne remplace pas les deux autres : vérifier ton identité ne signifie pas que tu peux accéder à toutes les pièces, et un registre ne décide pas à lui seul qui a le droit d’entrer.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -302,7 +296,6 @@ Une panne à chaque étape entraîne un symptôme différent. Un problème de tr
 
 > **Piège :** une liste AAA configurée avec un serveur central et une base locale n’implique pas que l’équipement essayera toujours la base locale après un rejet. Sur beaucoup de systèmes, le repli concerne plutôt l’absence de réponse du serveur. Vérifie ce comportement sur la version exacte, puis teste une authentification acceptée, un rejet explicite et une indisponibilité distincts.
 
----
 
 ## 2. Configuration et pratique
 
@@ -561,7 +554,6 @@ Avant de considérer le laboratoire opérationnel, vérifie chaque élément. Ce
 
 > **Astuce :** fais les tests en ouvrant une deuxième session SSH et garde la première ouverte jusqu’à validation complète. Si tu disposes d’un accès console hors bande, vérifie-le avant la modification. Une procédure de retour arrière utile doit pouvoir être exécutée même si AAA centralisé ne répond plus.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -711,7 +703,6 @@ Cet exemple montre qu’un serveur joignable par ping n’est pas forcément pr�
 
 > **Danger :** ne déploie pas une nouvelle liste AAA sur un équipement distant critique sans avoir validé un accès de secours indépendant, une procédure de retour arrière et les scénarios d’acceptation, de rejet et de panne. La perte d’accès administratif peut empêcher la correction de la configuration qui a provoqué la panne.
 
----
 
 ## Points à retenir
 

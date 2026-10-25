@@ -155,7 +155,6 @@ Le schéma ci-dessous est **intégré directement dans ce fichier Markdown** : i
 
 > **Note de compatibilité :** certains visualiseurs Markdown, notamment ceux qui nettoient le HTML pour des raisons de sécurité, peuvent bloquer les SVG intégrés ou leurs animations. Si le schéma ne s’anime pas dans l’aperçu, ouvre le fichier Markdown dans un éditeur qui prend en charge le SVG intégré, ou ouvre la copie autonome `schema-mtu-pmtud-anime.svg` dans Chrome ou Edge.
 
----
 
 ## 1. Les objectifs d’apprentissage
 
@@ -476,6 +475,5 @@ C. Uniquement si le MTU vaut 1500
 - Microsoft Learn, **Commande ping** (options Windows `/f` et `/l`) : <https://learn.microsoft.com/fr-fr/windows-server/administration/windows-commands/ping>
 - IETF / RFC Editor, **RFC 8900 — IP Fragmentation Considered Fragile** : <https://www.rfc-editor.org/rfc/rfc8900.html>
 
----
 
 **Fin du cours — Dépannage MTU et PMTUD, niveau débutant.**

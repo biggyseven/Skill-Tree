@@ -4,7 +4,6 @@
 > **Prérequis :** maîtrise du modèle OSI, d'IP, du routage, de TCP/UDP, des sockets, des ports et de Wireshark.  
 > **Objectif :** interpréter les comportements avancés du transport, analyser les symptômes de performance, diagnostiquer des problèmes multi-sauts et produire des conclusions reproductibles fondées sur des preuves.
 
----
 
 ## Sommaire
 
@@ -26,7 +25,6 @@
 16. Modèle de rapport d'incident
 17. Références techniques
 
----
 
 # 1. Modèle mental expert du transport
 
@@ -67,7 +65,6 @@ Il ne peut pas garantir qu'un correspondant restera disponible indéfiniment. Un
 
 De même, UDP ne garantit pas que les datagrammes seront livrés, mais une application utilisant UDP peut construire des mécanismes de fiabilité adaptés à son propre modèle de communication.
 
----
 
 # 2. Identification des flux et espaces de ports
 
@@ -113,7 +110,6 @@ Les systèmes d'exploitation peuvent employer des plages éphémères différent
 
 Consultez le [registre officiel IANA des ports](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml) pour vérifier les affectations.
 
----
 
 # 3. Machine à états TCP et gestion des connexions
 
@@ -172,7 +168,6 @@ Pour en déterminer la provenance, examinez :
 
 L'adresse source visible ne suffit pas toujours à prouver l'origine réelle lorsqu'un dispositif intermédiaire fabrique ou réécrit le trafic.
 
----
 
 # 4. Séquences, ACK, SACK et récupération des pertes
 
@@ -247,7 +242,6 @@ Pour une investigation de pertes :
 
 La présence d'un trou apparent dans une capture peut être causée par une perte de capture. Une capture prise en un seul point ne suffit pas toujours à identifier l'emplacement réel de la perte.
 
----
 
 # 5. Calcul du RTO et retransmissions
 
@@ -312,7 +306,6 @@ Une capture qui montre plusieurs retransmissions de la même plage de séquence 
 </g>
 </svg>
 
----
 
 # 6. Fenêtres, contrôle de flux et contrôle de congestion
 
@@ -398,7 +391,6 @@ CUBIC est un algorithme largement déployé, particulièrement étudié pour les
 
 Les implémentations peuvent différer. Il ne faut pas déduire l'algorithme exact d'une connexion uniquement à partir d'un symptôme de débit.
 
----
 
 # 7. Débit, RTT et produit bande passante-délai
 
@@ -475,7 +467,6 @@ Pour une application interactive, il faut considérer le délai et sa variabilit
 </g>
 </svg>
 
----
 
 # 8. Options TCP et particularités des captures
 
@@ -515,7 +506,6 @@ Avant de déclarer une corruption réelle, vérifiez :
 
 Une capture externe peut fournir une observation plus proche des paquets transmis sur le lien, mais elle possède elle aussi ses propres limites.
 
----
 
 # 9. UDP, protocoles applicatifs et contrôle des pertes
 
@@ -562,7 +552,6 @@ Pour les applications qui utilisent UDP, il faut considérer la MTU disponible, 
 
 Un succès local de l'envoi ne prouve pas que l'intégralité du datagramme sera reçue par l'application distante.
 
----
 
 # 10. QUIC et transport moderne
 
@@ -607,7 +596,6 @@ Pour une application Web moderne :
 
 Le port 443 ne signifie pas exclusivement TCP. Les flux HTTP/3 basés sur QUIC utilisent couramment UDP/443.
 
----
 
 # 11. Ports, sockets, NAT et pare-feu à état
 
@@ -648,7 +636,6 @@ L'asymétrie n'est pas automatiquement interdite ni toujours problématique. Ell
 
 Pour confirmer ce scénario, examinez les routes aller et retour, les états des connexions, les journaux de filtrage et les captures effectuées aux points appropriés.
 
----
 
 # 12. Sécurité et limites du transport
 
@@ -674,7 +661,6 @@ Les captures peuvent inclure des métadonnées, des noms d'hôtes, des adresses 
 
 Conservez-les conformément aux règles de l'organisation. Partagez uniquement les données nécessaires avec les personnes autorisées et masquez les secrets lorsque cela est possible sans rendre le diagnostic inexploitable.
 
----
 
 # 13. Méthodologie d'investigation experte
 
@@ -745,7 +731,6 @@ Après une correction :
 
 Le rétablissement apparent d'un seul flux ne prouve pas que tous les scénarios affectés sont corrigés.
 
----
 
 # 14. Schéma SVG animé — Corrélation de captures multi-points
 
@@ -783,7 +768,6 @@ Le rétablissement apparent d'un seul flux ne prouve pas que tous les scénarios
 </g>
 </svg>
 
----
 
 # 15. Laboratoires avancés
 
@@ -848,7 +832,6 @@ Le rétablissement apparent d'un seul flux ne prouve pas que tous les scénarios
 6. Déterminez si le trafic retour est associé à la traduction attendue.
 7. Documentez les preuves qui établissent la relation entre les deux observations.
 
----
 
 # 16. Exercices experts corrigés
 
@@ -950,7 +933,6 @@ Comment investiguer le problème sans supposer immédiatement une fuite de mémo
 
 Vérifiez la durée et la fréquence des états, le comportement attendu de l'application, les journaux, la gestion des exceptions et la fermeture des sockets. Une rétention prolongée peut révéler que l'application ne termine pas sa fermeture, mais le diagnostic doit s'appuyer sur les comportements réels du processus et sur une reproduction du phénomène.
 
----
 
 # 17. Modèle de rapport d'incident transport
 
@@ -1013,7 +995,6 @@ Pour chaque test :
 
 Une cause racine doit être soutenue par des preuves suffisantes. Si plusieurs explications restent possibles, le rapport doit les distinguer au lieu d'en sélectionner arbitrairement une.
 
----
 
 # 18. Glossaire expert
 
@@ -1045,7 +1026,6 @@ Une cause racine doit être soutenue par des preuves suffisantes. Si plusieurs e
 
 **Tuple :** combinaison du protocole et des adresses et ports source/destination qui caractérise un flux.
 
----
 
 # 19. Références techniques officielles
 
@@ -1060,7 +1040,6 @@ Pour approfondir la norme et les mécanismes, consultez directement :
 - [RFC 9001 — Using TLS to Secure QUIC](https://www.rfc-editor.org/rfc/rfc9001.html)
 - [Registre officiel IANA des services et ports](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml)
 
----
 
 ## Conclusion générale
 

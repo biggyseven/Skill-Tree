@@ -5,7 +5,6 @@
 > **Niveau actuel :** Débutant  
 > **Objectif :** apprendre à versionner, contrôler et préparer les changements réseau de manière reproductible et sécurisée.
 
----
 
 ## Sommaire
 
@@ -24,7 +23,6 @@
 13. [Évaluation et corrigé](#13-évaluation-et-corrigé)
 14. [Synthèse et préparation du niveau intermédiaire](#14-synthèse-et-préparation-du-niveau-intermédiaire)
 
----
 
 # 1. Contexte et objectifs
 
@@ -75,7 +73,6 @@ Aucune expérience préalable de Git ou de CI/CD n'est nécessaire.
 9. identifier les risques liés aux secrets et aux déploiements automatiques ;
 10. préparer une méthode de changement comprenant des vérifications et un retour arrière.
 
----
 
 # 2. Pourquoi utiliser Git dans un réseau ?
 
@@ -124,7 +121,6 @@ Git ne configure pas lui-même les équipements. Il fournit une base de traçabi
 
 **Attention :** Git améliore la traçabilité, mais ne remplace ni une sauvegarde opérationnelle ni une procédure de retour arrière testée.
 
----
 
 # 3. Les notions essentielles
 
@@ -151,7 +147,6 @@ Git ne configure pas lui-même les équipements. Il fournit une base de traçabi
 
 **Un pipeline vert n'est pas une garantie absolue.** Il signifie que les contrôles configurés ont réussi. Il ne prouve pas que toutes les situations possibles ont été vérifiées.
 
----
 
 # 4. Créer son premier dépôt réseau
 
@@ -290,7 +285,6 @@ git log --oneline
 
 **À retenir :** `git add` prépare les changements ; `git commit` enregistre les changements préparés dans l'historique.
 
----
 
 # 5. Comprendre le cycle Git
 
@@ -391,7 +385,6 @@ Remplacez le texte entre chevrons par un identifiant réel fourni par Git.
 
 Ne confondez pas la possibilité de retrouver une ancienne version de fichier avec la restauration automatique d'un équipement réseau. Cette opération nécessite une procédure distincte.
 
----
 
 # 6. Branches et revue des changements
 
@@ -515,7 +508,6 @@ La revue doit vérifier, entre autres :
 - le résultat des contrôles automatiques ;
 - les risques et la procédure de retour arrière.
 
----
 
 # 7. Comprendre la CI/CD réseau
 
@@ -609,7 +601,6 @@ C'est pourquoi une équipe peut automatiser les tests tout en conservant une app
 
 Pour commencer, les étapes de déploiement et de vérification peuvent être simulées. Le but est d'apprendre à contrôler les changements avant de donner au pipeline des permissions d'accès aux équipements.
 
----
 
 # 8. Créer son premier pipeline de validation
 
@@ -721,7 +712,6 @@ Un pipeline doit être amélioré au fur et à mesure que les besoins, les plate
 
 **Principe fondamental :** un contrôle doit indiquer clairement s'il réussit ou échoue. Un simple avertissement qui laisse systématiquement passer une erreur ne constitue pas une barrière fiable.
 
----
 
 # 9. Sécurité et protection des équipements
 
@@ -785,7 +775,6 @@ Une mauvaise route, une ACL incorrecte ou un VLAN mal affecté peut couper l'acc
 
 L'objectif n'est pas de refuser l'automatisation. Il est de construire une automatisation adaptée au risque, avec des tests, des limites, des autorisations et une méthode de récupération.
 
----
 
 # 10. Tests et retour arrière
 
@@ -830,7 +819,6 @@ Avant d'appliquer une modification réseau, vérifiez les points suivants :
 - [ ] La fenêtre et les approbations requises sont définies.
 - [ ] Les vérifications après déploiement sont prévues.
 
----
 
 # 11. Atelier pratique complet
 
@@ -921,7 +909,6 @@ Si le changement est accepté, il peut être fusionné selon les règles de l'é
 
 La fusion dans Git ne signifie pas que le VLAN est déjà créé sur les équipements. Un éventuel déploiement constitue une étape opérationnelle distincte.
 
----
 
 # 12. Dépannage
 
@@ -963,7 +950,6 @@ git status
 
 Examinez les modifications non enregistrées. Ne les supprimez pas aveuglément avec une commande destructive. En fonction du besoin, vous pouvez les commiter, les préparer dans un autre endroit ou les mettre de côté avec une procédure appropriée.
 
----
 
 # 13. Évaluation et corrigé
 
@@ -1024,7 +1010,6 @@ Le fichier est une représentation versionnée. La configuration active est l'é
 
 Elle permet de vérifier l'intention, le périmètre, les impacts, les hypothèses et les risques qu'un contrôle automatique ne sait pas nécessairement détecter.
 
----
 
 # 14. Synthèse et préparation du niveau intermédiaire
 
@@ -1121,7 +1106,6 @@ Le niveau expert pourra ensuite traiter l'architecture des pipelines, les strat�
 
 **La priorité du niveau débutant n'est pas de déployer plus vite. C'est de rendre chaque changement compréhensible, traçable, vérifiable et préparé pour une récupération maîtrisée.**
 
----
 
 ## Références utiles
 

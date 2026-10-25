@@ -1,0 +1,7 @@
+{
+  "node_id": "windows-server-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de GPO et gestion de parc Windows.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

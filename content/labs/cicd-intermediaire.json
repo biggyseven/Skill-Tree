@@ -1,0 +1,7 @@
+{
+  "node_id": "cicd-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de CI/CD avec GitHub Actions et GitLab CI.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

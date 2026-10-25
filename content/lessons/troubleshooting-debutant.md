@@ -1,8 +1,3 @@
----
-node_id: troubleshooting-debutant
-title: Méthodologie de dépannage - Débutant
----
-
 # Méthodologie de dépannage - Débutant
 
 **Niveau :** DÉBUTANT
@@ -17,7 +12,6 @@ Les exemples utilisent des adresses privées et des noms fictifs. Les sorties de
 
 > **Analogie** : Le dépannage réseau ressemble au diagnostic d'une fuite d'eau dans une maison. On commence par demander où l'eau manque ou fuit, on vérifie les robinets et les conduites les plus proches, puis on remonte progressivement vers la source. On ne démonte pas toute la plomberie dès le premier symptôme. Chaque test doit permettre d'écarter une hypothèse ou d'en renforcer une, sans provoquer de dommages supplémentaires.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -204,7 +198,6 @@ Une bonne escalade comprend le symptôme exact, le périmètre, l'heure de débu
 
 L'escalade n'est pas un échec. Elle est un mécanisme de contrôle du risque. Il vaut mieux transmettre tôt un incident important que tenter une correction non maîtrisée qui transforme une panne limitée en coupure générale.
 
----
 
 ## 2. Configuration et pratique
 
@@ -490,7 +483,6 @@ Un plan de test liste ce qui doit fonctionner avant et après le changement. Pou
 
 La correction n'est pas terminée parce qu'une commande affiche une réponse positive. Il faut refaire le test d'origine, confirmer que les dépendances principales fonctionnent et s'assurer que la réparation n'a pas créé une nouvelle panne ailleurs.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -679,7 +671,6 @@ Une action préventive doit avoir un propriétaire et une échéance. « Amélio
 
 Les incidents récurrents méritent une analyse spécifique. Un simple retour à la normale ne suffit pas s'ils réapparaissent chaque semaine. Comparez les heures, les événements, les changements et les composants communs pour identifier un motif. Conservez des mesures fiables et évitez de conclure sur la base d'un seul exemple.
 
----
 
 ## Points à retenir
 

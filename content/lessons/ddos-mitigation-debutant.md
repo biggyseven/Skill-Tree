@@ -13,7 +13,6 @@ Ce cours présente les concepts essentiels et une méthode de travail adaptée �
 
 > **Analogie** : imagine une boutique avec une seule porte. En période normale, les clients entrent et sont servis. Pendant un DDoS, une foule immense occupe l'entrée, parfois sans acheter quoi que ce soit. Le problème n'est pas nécessairement la qualité du vendeur : la porte, le trottoir ou la capacité de la boutique peut être saturé. Il faut gérer les files, filtrer les accès abusifs et, si la foule bloque la rue entière, demander de l'aide aux autorités qui contrôlent la rue. Un pare-feu placé à l'intérieur de la boutique ne suffit pas toujours si l'accès extérieur est déjà bouché.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -353,7 +352,6 @@ Ce schéma montre la différence entre les requêtes légitimes, qui continuent 
 
 > **Astuce :** pour le lecteur de cours, garde le schéma de secours dans le Markdown et monte le composant Alpine à partir de `data-lesson-widget="ddos-overload-v1"` après le nettoyage DOMPurify. Le JavaScript et le CSS de la version interactive doivent rester dans les fichiers du frontend, et non dans le contenu fourni par les cours.
 
----
 
 ## 2. Configuration et pratique
 
@@ -585,7 +583,6 @@ Remplissez cette fiche pour un incident fictif :
 
 L'exercice est réussi lorsque les faits sont séparés des hypothèses et que chaque action a un résultat attendu mesurable.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -715,7 +712,6 @@ Mesurez des indicateurs utiles, par exemple le délai entre la détection et l'e
 
 **Conclusion :** le bon réflexe n'est pas de bloquer immédiatement toutes les adresses sources. Il est de localiser la ressource saturée, vérifier le changement récent, tester une correction proportionnée et ne qualifier l'incident de DDoS que lorsque les preuves le soutiennent.
 
----
 
 ## Points à retenir
 

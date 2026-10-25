@@ -5,7 +5,6 @@
 > **Prérequis :** maîtriser HCL, les providers, les modules, les tests, les plans et la gestion élémentaire du state.  
 > **Objectif :** concevoir une plateforme Terraform sécurisée, reproductible, gouvernée et capable de maîtriser les changements d'infrastructure à l'échelle d'une organisation.
 
----
 
 ## Sommaire
 
@@ -26,7 +25,6 @@
 15. Étude de défaillance
 16. Évaluation corrigée
 
----
 
 # 1. Architecture d'entreprise
 
@@ -83,7 +81,6 @@ Une plateforme Terraform d'entreprise doit préserver au minimum les propriété
 
 **Récupération :** les erreurs de state, les changements partiels et les ressources inattendues peuvent être traités méthodiquement.
 
----
 
 # 2. Stratégie des states et backends distants
 
@@ -182,7 +179,6 @@ Une séquence de principe :
 
 N'effacez pas l'ancien state avant d'avoir vérifié que la migration est terminée et que l'état distant est exploitable.
 
----
 
 # 3. Verrouillage et concurrence
 
@@ -218,7 +214,6 @@ Elle ne doit pas être utilisée comme moyen ordinaire de résoudre une attente.
 
 Référence : https://developer.hashicorp.com/terraform/language/state/locking
 
----
 
 # 4. Plans immuables et promotion des changements
 
@@ -328,7 +323,6 @@ Le processus doit gérer cette situation comme un événement nécessitant une n
   <text class="tp-text" x="500" y="365" text-anchor="middle">Protégez l'artefact de plan comme une donnée sensible.</text>
 </svg>
 
----
 
 # 5. Gouvernance et politiques de sécurité
 
@@ -404,7 +398,6 @@ Quelle que soit la technologie retenue, les règles doivent :
 
 Un contrôle de politique ne doit pas se réduire à chercher un texte approximatif dans un fichier de configuration. Il doit analyser les données pertinentes.
 
----
 
 # 6. Modules et contrats d'architecture
 
@@ -486,7 +479,6 @@ Un module partagé sans contrat documenté devient rapidement une source de dép
   <text class="md-text" x="480" y="312" text-anchor="middle">Un module doit proposer une interface documentée et une responsabilité identifiable.</text>
 </svg>
 
----
 
 # 7. Détection des dérives
 
@@ -567,7 +559,6 @@ Les deux situations peuvent être liées, mais elles ne sont pas identiques. Il 
   <text class="dr-text" x="480" y="300" text-anchor="middle">Conservez le rapport, la décision, l'action et les résultats de vérification.</text>
 </svg>
 
----
 
 # 8. Importation et refactorisation
 
@@ -622,7 +613,6 @@ Un bloc `moved` ne transforme pas automatiquement une ressource d'un type en un 
 
 Ces mécanismes ne sont pas interchangeables. Ils doivent être choisis selon l'objectif, et les modifications d'état doivent être sauvegardées et planifiées.
 
----
 
 # 9. Gestion avancée des secrets
 
@@ -674,7 +664,6 @@ Il faut analyser le parcours complet du secret : variable, provider, ressource, 
 
 Référence : https://developer.hashicorp.com/terraform/language/manage-sensitive-data
 
----
 
 # 10. CI/CD de production
 
@@ -767,7 +756,6 @@ Si la configuration ou le state évolue après l'examen du plan, le processus do
 
 Les fichiers de plan et les rapports de production doivent être accessibles uniquement aux personnes et systèmes qui en ont besoin.
 
----
 
 # 11. Reprise après incident
 
@@ -810,7 +798,6 @@ Il peut supprimer des ressources encore nécessaires, interrompre des services e
 
 Dans certains cas, une correction en avant peut être plus sûre qu'un retour à l'état précédent.
 
----
 
 # 12. Observabilité et indicateurs
 
@@ -860,7 +847,6 @@ Après un incident, demandez-vous :
 
 Les réponses doivent conduire à des contrôles testables, des modifications de politique et une documentation corrigée.
 
----
 
 # 13. Architecture de référence
 
@@ -932,7 +918,6 @@ Une plateforme opérationnelle doit permettre d'identifier exactement :
 
 Cette séparation est particulièrement importante pour les ressources réseau, car un changement apparemment limité peut affecter des systèmes et services dépendants.
 
----
 
 # 14. Atelier expert
 
@@ -995,7 +980,6 @@ Définissez la procédure à appliquer si le plan devient obsolète, si le state
 
 La procédure doit commencer par un diagnostic et éviter les modifications manuelles arbitraires du state.
 
----
 
 # 15. Étude de défaillance
 
@@ -1032,7 +1016,6 @@ Les questions à examiner sont :
 
 **Leçon :** détecter une dérive ne suffit pas. Il faut comprendre si elle représente une erreur, une correction légitime ou une divergence de source de vérité.
 
----
 
 # 16. Évaluation corrigée
 
@@ -1101,7 +1084,6 @@ Il peut supprimer un verrou encore légitime, ce qui risque de permettre des éc
 
 Il faut préserver les logs, vérifier l'état et l'infrastructure actuels, déterminer les opérations déjà appliquées et choisir une stratégie de récupération autorisée.
 
----
 
 # Conclusion — Le niveau expert
 
@@ -1130,7 +1112,6 @@ Le parcours est maintenant cohérent :
 
 La maîtrise de Terraform ne consiste pas uniquement à créer rapidement des ressources. Elle consiste à s'assurer que chaque changement est intentionnel, compréhensible, autorisé, vérifiable et récupérable.
 
----
 
 ## Références officielles
 

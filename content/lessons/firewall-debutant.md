@@ -1,7 +1,3 @@
----
-node_id: firewall-debutant
-title: Pare-feu & NGFW - Débutant
----
 # Pare-feu & NGFW - Débutant
 **Niveau :** DÉBUTANT
 
@@ -15,7 +11,6 @@ Le fil conducteur est une petite entreprise qui possède un réseau de postes, u
 
 > **Analogie** : Imaginez un bâtiment avec plusieurs zones. Le portail vérifie qui entre, les portes intérieures séparent les bureaux, et le registre note certains passages. Un pare-feu joue un rôle comparable pour les communications numériques : il applique des règles aux échanges, mais il ne remplace ni les serrures des serveurs ni la prudence des utilisateurs.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -191,7 +186,6 @@ Procédez ensuite ainsi :
 
 Cette méthode vaut mieux qu'une règle ajoutée uniquement parce qu'un utilisateur dit « Internet ne marche pas ». Le dépannage doit d'abord établir où le flux échoue et quels services doivent fonctionner. Une règle temporaire d'autorisation générale peut masquer le problème et créer une exposition durable.
 
----
 
 ## 2. Configuration et pratique
 
@@ -384,7 +378,6 @@ Les commandes dépendent du système. Un échec de `ping` ne prouve pas toujours
 
 > **Danger :** Ne testez pas une règle destructive ou une politique d'administration directement sur un équipement de production sans sauvegarde, autorisation et moyen de récupération. Une configuration de pare-feu peut couper l'accès au réseau entier, y compris à l'outil utilisé pour corriger l'erreur.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -544,7 +537,6 @@ Si une session distante est utilisée pour appliquer la restriction, préparez u
 
 > **Danger :** Ne confondez jamais « le trafic est autorisé » avec « le trafic est sûr ». Une politique de pare-feu réduit certains chemins de communication ; elle ne garantit ni l'absence de vulnérabilité ni l'innocuité des données qui circulent par un service légitime.
 
----
 
 ## Points à retenir
 

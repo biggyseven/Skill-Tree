@@ -1,0 +1,7 @@
+{
+  "node_id": "db-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Administration de bases de données.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

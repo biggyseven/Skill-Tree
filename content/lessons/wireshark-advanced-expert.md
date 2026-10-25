@@ -448,7 +448,6 @@ Pour approfondir ou vérifier un comportement dépendant d’une implémentation
 
 Les détails d’interface et certains champs évoluent selon les versions. Lorsque l’analyse dépend d’un comportement précis, vérifiez la documentation correspondant à la version utilisée et conservez la version dans le rapport.
 
----
 
 ## Synthèse opérationnelle
 

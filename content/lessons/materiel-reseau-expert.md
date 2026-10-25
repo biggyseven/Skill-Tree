@@ -5,7 +5,6 @@
 > **Prérequis :** maîtriser les équipements réseau, les interfaces, les modules optiques, le PoE et le dimensionnement élémentaire.  
 > **Objectif :** concevoir, dimensionner et maintenir une infrastructure réseau matérielle performante, sécurisée et résiliente, y compris dans les conditions de charge et les situations de panne.
 
----
 
 ## Sommaire
 
@@ -25,7 +24,6 @@
 14. Étude de défaillance
 15. Évaluation corrigée
 
----
 
 # 1. Démarche d'ingénierie matérielle
 
@@ -83,7 +81,6 @@ Avant de consulter les fiches techniques, définissez :
 
 Chaque exigence doit être associée à un critère de vérification.
 
----
 
 # 2. Architecture interne des switches et routeurs
 
@@ -180,7 +177,6 @@ La quantité de mémoire de buffers ne suffit toutefois pas à déterminer la pe
   <text class="as-text" x="480" y="355" text-anchor="middle">Les performances doivent être vérifiées sur la plateforme et le profil de trafic retenus.</text>
 </svg>
 
----
 
 # 3. Évaluer les performances réelles
 
@@ -261,7 +257,6 @@ Il faut notamment tenir compte de :
 
 Un test réalisé entre deux serveurs peut mesurer le chemin complet entre eux. Il ne démontre pas nécessairement la capacité maximale de chaque équipement intermédiaire.
 
----
 
 # 4. Dimensionner les liens et les chemins de trafic
 
@@ -298,7 +293,6 @@ Une architecture avec des interfaces de 100 Gb/s en cœur ne garantit pas un tra
 
 Le diagnostic doit examiner l'ensemble du chemin et les conditions de fonctionnement.
 
----
 
 # 5. Ingénierie optique et budget de liaison
 
@@ -423,7 +417,6 @@ Le simple constat que le lien est « up » ne garantit ni la marge optique adéq
   <text class="op-text" x="500" y="325" text-anchor="middle">Comparer la mesure à la sensibilité et à la limite maximale du récepteur.</text>
 </svg>
 
----
 
 # 6. Alimentation, PoE et distribution électrique
 
@@ -485,7 +478,6 @@ Avant le test :
 
 Après le test, vérifiez l'état des équipements, les événements signalés et la reprise complète des services.
 
----
 
 # 7. Refroidissement et contraintes physiques
 
@@ -521,7 +513,6 @@ Le plan de refroidissement doit donc être dimensionné selon les charges, la de
 
 Il faut aussi prévoir la maintenance des ventilateurs, filtres et systèmes de climatisation, ainsi que les moyens de signaler une hausse de température avant qu'elle n'affecte le service.
 
----
 
 # 8. Haute disponibilité et domaines de panne
 
@@ -594,7 +585,6 @@ Il faut valider la bascule dans des conditions représentatives, puis vérifier 
 
 Les tests de disponibilité doivent avoir des critères de succès, des moyens de surveillance et une procédure d'arrêt maîtrisée.
 
----
 
 # 9. Fiabilité et cycle de vie matériel
 
@@ -649,7 +639,6 @@ Un stock contenant des modules optiques ou des alimentations non validés ne gar
 
 Précisez les composants critiques, les quantités minimales, les conditions de stockage, la vérification périodique et les délais de réapprovisionnement.
 
----
 
 # 10. Mesures, télémétrie et analyse matérielle
 
@@ -699,7 +688,6 @@ Ces données sont complémentaires. Une capture ne voit que ce qui atteint son p
 
 Pour une panne matérielle, croisez les mesures avec le plan de câblage, l'état des interfaces, les journaux et les conditions de charge.
 
----
 
 # 11. Sélection technique et validation
 
@@ -755,7 +743,6 @@ Une recette peut comprendre des essais de :
 
 Les résultats doivent être associés à des versions, des conditions de test et des critères d'acceptation explicites.
 
----
 
 # 12. Architecture de référence
 
@@ -825,7 +812,6 @@ Une infrastructure matérielle doit garantir, selon ses exigences :
 
 **Récupération :** le remplacement ou la bascule peut être exécuté et vérifié.
 
----
 
 # 13. Atelier expert
 
@@ -884,7 +870,6 @@ Définissez les sauvegardes, l'identification des câbles, les procédures de re
 
 L'atelier est réussi lorsque le choix matériel repose sur des besoins mesurables et une stratégie de validation réaliste.
 
----
 
 # 14. Étude de défaillance
 
@@ -926,7 +911,6 @@ Une interface rapide ne garantit pas la performance de l'ensemble du chemin.
 
 La performance est une propriété du système : interfaces, capacités de transfert, mémoire, charge, politiques, supports et chemins doivent fonctionner ensemble.
 
----
 
 # 15. Évaluation corrigée
 
@@ -995,7 +979,6 @@ Elle permet de comparer le comportement présent à une référence et de repér
 
 Ils rendent possible une décision objective sur la conformité du matériel et sur son aptitude à être accepté.
 
----
 
 # Conclusion — Le niveau expert
 
@@ -1022,7 +1005,6 @@ La progression est maintenant complète :
 
 **Le meilleur choix matériel n'est pas l'équipement qui affiche le plus grand nombre : c'est celui qui répond aux exigences mesurables, s'intègre correctement à l'architecture et peut être maintenu et vérifié tout au long de son cycle de vie.**
 
----
 
 ## Références utiles
 

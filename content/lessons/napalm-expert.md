@@ -6,7 +6,6 @@
 > **Révision documentaire :** 23 octobre 2026. Au moment de la vérification, PyPI et les versions publiées du dépôt officiel indiquaient NAPALM 5.2.0 comme dernière version publiée ; PyPI indiquait Python ≥ 3.10. Vérifiez néanmoins la version réellement installée, les dépendances du pilote choisi et les notes de version de votre environnement avant de déployer.  
 > **Orientation :** ingénierie de production, gouvernance des changements, fiabilité, évolutivité et maîtrise du risque.
 
----
 
 ## 0. La place du niveau Expert dans le parcours
 
@@ -57,7 +56,6 @@ Si vous n'avez pas encore séparé les données, la logique métier et les effet
 
 Tous les exemples de configuration sont illustratifs. Les adresses des exemples appartiennent aux plages de documentation ou sont fictives. N'exécutez aucun laboratoire d'écriture sur un équipement de production. Les opérations de configuration seront montrées en deux temps : **préparer et inspecter**, puis décrire les conditions d'application. Les extraits qui appliquent effectivement une modification resteront séparés, marqués comme exemples de laboratoire et encadrés par des préconditions. Une capacité NAPALM peut dépendre du pilote, de sa version, du système d'exploitation réseau, de la version du système et parfois du type de transport. N'inférez donc jamais une capacité de production uniquement parce qu'une méthode existe dans l'API de base.
 
----
 
 # 1. Passer d'un outil à une plateforme d'automatisation
 
@@ -190,7 +188,6 @@ et un état de transaction vérifiable.
 
 Documentez également les limites de NAPALM sur votre parc : les méthodes autorisées, les profils de pilotes testés, les délais par plateforme, les formats de résultats, la stratégie de retour arrière et les cas non pris en charge. Cette documentation est un composant de l'architecture, pas une formalité.
 
----
 
 # 2. Contrats de données, modèles et versionnement
 
@@ -344,7 +341,6 @@ Une comparaison entre deux instantanés est valide seulement si les données ont
 
 Si le schéma a changé, utilisez une migration explicite et testée ou refusez la comparaison. Une conversion improvisée pendant l'audit risque de transformer une différence de modèle en différence réseau.
 
----
 
 # 3. Capabilities registry : connaître les limites réelles de chaque pilote
 
@@ -449,7 +445,6 @@ Pour chaque profil approuvé, créez une suite qui confirme :
 
 Ne lancez pas ces tests de modification sur les équipements de production. Le jeu d'essai doit inclure une topologie isolée, un compte technique avec droits limités et un plan de restauration vérifié.
 
----
 
 # 4. Secrets, identités et modèle de menace
 
@@ -546,7 +541,6 @@ Principes :
 - appliquez un contrôle de taille et de durée de vie aux artefacts ;
 - testez automatiquement les logs avec des chaînes-canaris correspondant à des faux secrets, et vérifiez qu'elles n'apparaissent pas dans les sorties.
 
----
 
 # 5. Résilience : délais, tentatives, disjoncteurs et résultats incertains
 
@@ -674,7 +668,6 @@ def classify_collection(*, supported: bool, succeeded: bool, value: Any) -> Obse
 
 Cette fonction n'est qu'un exemple générique ; le sens d'une valeur vide dépend du getter. `empty` ne veut pas dire « conforme » : c'est simplement une observation. La politique métier décide ensuite si le vide est attendu.
 
----
 
 # 6. Orchestration multi-équipements à grande échelle
 
@@ -821,7 +814,6 @@ Une plateforme expert possède un mécanisme d'arrêt global et des mécanismes 
 
 Définissez clairement les effets du bouton d'arrêt : bloque-t-il seulement les nouveaux travaux, annule-t-il les candidats non commis, tente-t-il un rollback, ou place-t-il les changements en état `UNKNOWN` ? Il serait dangereux de supposer qu'un arrêt logiciel arrête une opération déjà acceptée par l'équipement. La politique d'urgence doit faire partie des répétitions de simulation d'incident.
 
----
 
 # 7. Collecte avancée, fraîcheur et cohérence temporelle
 
@@ -892,7 +884,6 @@ Adoptez une matrice explicite :
 
 Cette matrice est une politique de sûreté, pas une règle NAPALM. Chaque équipe doit préciser les données critiques pour ses propres changements.
 
----
 
 # 8. Construire un moteur de politique explicite
 
@@ -1037,7 +1028,6 @@ Chaque résultat de politique doit inclure les références vers les preuves uti
 
 Une décision n'est pas une preuve par elle-même. Le rapport doit permettre de remonter de « autorisé » vers les données de base, de vérifier leur fraîcheur et de reproduire la règle. Si l'artefact manque, si l'horodatage est incohérent ou si la version de politique n'est pas disponible, signalez explicitement que la décision ne peut pas être reconstruite complètement.
 
----
 
 # 9. Gestion des changements comme machine à états
 
@@ -1212,7 +1202,6 @@ def transition(
 
 Cet exemple illustre le contrat, pas une implémentation complète de base de données. En production, la lecture de l'état et l'ajout de l'événement doivent être une opération atomique (par exemple une transaction ou une comparaison-et-échange), sinon deux workers peuvent valider la même transition à partir du même ancien état. Ajoutez une contrainte de version, une unicité de transition ou un verrou. Les changements de schéma et les transitions doivent être testés avant migration.
 
----
 
 # 10. Préparer et examiner une configuration candidate de manière déterministe
 
@@ -1361,7 +1350,6 @@ Un diff vide peut signifier qu'aucun changement n'est nécessaire ; cela peut au
 - si le pilote ne produit pas un diff fiable sur ce type de configuration, exiger un contrôle alternatif qualifié ;
 - ne pas exécuter un commit pour « forcer » l'application d'un état qui semble déjà présent.
 
----
 
 # 11. Déploiement progressif : canari, vagues et rayon d'impact
 
@@ -1448,7 +1436,6 @@ Quand une gate échoue, arrêtez les vagues nouvelles immédiatement. Décidez e
 
 Un retour arrière automatique peut être aussi dangereux que le changement initial si la situation a évolué depuis sa préparation. Une procédure de restauration est un plan, pas un réflexe inconditionnel.
 
----
 
 # 12. Validation post-changement et réconciliation
 
@@ -1528,7 +1515,6 @@ Les identifiants et résultats sont fictifs. Ce résultat n'est pas « presque c
 
 Pour chaque contrôle, définissez ce qui permet de le déclarer réussi, échoué ou indéterminé. Un contrôle du type « aucune erreur trouvée » sans vérifier que la collecte a réussi n'est pas réfutable : il ne permet pas de distinguer une situation normale d'une absence de données. Un contrôle expert doit expliquer ses conditions de succès et ses limites.
 
----
 
 # 13. Retour arrière, commit-confirm et stratégies de récupération
 
@@ -1636,7 +1622,6 @@ Ne marquez pas un changement `ROLLED_BACK` simplement parce que le constructeur 
 
 Le rollback peut réussir sur la configuration et échouer sur le service si la convergence prend du temps ou si un état externe a changé. Le résultat peut aussi être partiel ; la plateforme doit rester capable d'afficher l'incertitude et de lancer un runbook d'incident.
 
----
 
 # 14. NAPALM Validate et contrôles de conformité à grande échelle
 
@@ -1693,7 +1678,6 @@ Avant de rendre une nouvelle règle bloquante, exécutez-la en mode observation 
 
 Cet exercice ne doit pas être interprété comme la permission d'ignorer un défaut critique pendant une période d'observation. Les contrôles de sécurité impératifs peuvent rester bloquants dès le départ. Le mode observation convient aux règles dont le périmètre ou le seuil doit être calibré, pas aux protections essentielles.
 
----
 
 # 15. CI/CD et GitOps pour l'automatisation réseau
 
@@ -1783,7 +1767,6 @@ Séparez au minimum :
 
 Une boucle de réconciliation qui corrige toute différence sans contexte peut écraser une restauration d'urgence ou créer une oscillation permanente. La boucle doit respecter les fenêtres de maintenance, les verrous, le budget de changements et les états `UNKNOWN`.
 
----
 
 # 16. Stratégie de tests de niveau Expert
 
@@ -1892,7 +1875,6 @@ Le test le plus intéressant ne simule pas uniquement une exception à l'intéri
 
 Un test de charge doit être prudent avec les équipements réels : commencez par le laboratoire ou par des lectures à faible impact, annoncez la fenêtre et surveillez les sessions de management. Faites varier la concurrence de façon contrôlée et mesurez le débit utile, le temps P95, les timeouts, les erreurs et la charge système. Le but n'est pas de maximiser le nombre de sessions, mais de trouver un régime fiable avec de la capacité de réserve.
 
----
 
 # 17. Observabilité : journaux, métriques, traces et preuves
 
@@ -2004,7 +1986,6 @@ Une plateforme d'automatisation peut définir des SLO : délai de génération d
 
 Suivez séparément l'efficacité et la sécurité. Exemple : « 98 % des collectes terminées dans le délai » est un indicateur de capacité ; « 100 % des changements appliqués ont des preuves d'approbation et un résultat de validation conservés » est un indicateur de gouvernance. Une plateforme rapide mais incapable de prouver ce qu'elle a fait n'est pas une plateforme fiable.
 
----
 
 # 18. Performance, capacité et maîtrise de la charge
 
@@ -2081,7 +2062,6 @@ Tous les getters n'ont pas besoin d'être appelés pour chaque demande. Conserve
 
 Le profil doit préciser les getters requis, optionnels et interdits pour la tâche. Si une collecte requise échoue, elle doit être marquée partielle ou échouée selon la politique. Les getters optionnels ne doivent pas masquer les échecs des champs nécessaires à une décision critique.
 
----
 
 # 19. Étendre NAPALM sans fragiliser l'abstraction
 
@@ -2156,7 +2136,6 @@ Dans une architecture plus complexe, séparez les tâches par domaine : lecture 
 
 Ne cachez pas l'origine d'une donnée derrière un modèle « universel » qui prétend que tous les champs ont les mêmes garanties. Chaque champ normalisé peut porter un attribut de provenance ou de qualité. Le contrat commun doit simplifier la logique métier sans mentir sur les capacités des sources.
 
----
 
 # 20. Exposer une CLI ou une API opérationnelle
 
@@ -2213,7 +2192,6 @@ Une revue de sécurité doit tester les voies directes et indirectes. Une person
 
 Les clients ont besoin d'erreurs utiles, mais pas de traces internes complètes ou de sorties de configuration. Retournez un code stable (`INVALID_INVENTORY`, `CAPABILITY_NOT_QUALIFIED`, `PREFLIGHT_INCONCLUSIVE`, `APPROVAL_EXPIRED`, `CHANGE_STATE_UNKNOWN`) et un identifiant de corrélation. Les détails internes sont accessibles aux opérateurs autorisés via le système de journalisation.
 
----
 
 # 21. Projet intégrateur — construire une plateforme de changement contrôlée
 
@@ -2405,7 +2383,6 @@ Le projet est accepté si :
 9. une personne autre que l'auteur peut suivre le runbook et comprendre les états ;
 10. la documentation indique les limites du parc qualifié et les opérations interdites.
 
----
 
 # 22. Travaux pratiques experts progressifs
 
@@ -2483,7 +2460,6 @@ Les travaux pratiques doivent être exécutés dans un laboratoire autorisé. Il
 
 **Livrables :** diagramme, ADR, matrice de menaces, tests ajoutés à la suite et plan de remédiation. **Réussite :** les recommandations identifiées comme critiques sont traitées ou acceptées explicitement avec un responsable et une date.
 
----
 
 # 23. Runbooks : que faire quand la plateforme échoue
 
@@ -2580,7 +2556,6 @@ Les runbooks sont une partie du système. Ils doivent nommer les symptômes, les
 
 **Ne pas faire :** seulement supprimer la ligne d'une vue si les données restent dans l'index, les sauvegardes ou les exports.
 
----
 
 # 24. Checklist de mise en production
 
@@ -2655,7 +2630,6 @@ Cette checklist doit être traitée comme un blocage de déploiement. Elle peut 
 - [ ] Restauration manuelle documentée si l'automatisation est indisponible.
 - [ ] Plan de déploiement contient critères d'arrêt, de retour et d'escalade.
 
----
 
 # 25. Grille d'auto-évaluation du niveau Expert
 
@@ -2697,7 +2671,6 @@ Vous devriez pouvoir répondre sans consulter le code :
 11. Quels types de tâches doivent être arrêtés lors d'une saturation du plan de management ?
 12. Comment gérez-vous une exception de conformité expirée mais encore présente dans le réseau ?
 
----
 
 # 26. Glossaire opérationnel
 
@@ -2729,7 +2702,6 @@ Vous devriez pouvoir répondre sans consulter le code :
 - **Unknown state :** état où l'effet d'une opération n'est pas connu de façon suffisamment fiable pour poursuivre en sécurité.
 - **Vague :** lot de cibles traité comme une phase distincte d'un déploiement.
 
----
 
 # 27. Références officielles et stratégie de veille
 
@@ -2759,7 +2731,6 @@ La documentation et les matrices peuvent évoluer. Utilisez ces sources comme po
 
 Une mise à jour du paquet ne doit pas être déployée directement en production parce qu'elle est « mineure ». Elle peut modifier un parsing, une dépendance, une valeur retournée ou un comportement du pilote. La qualification doit être proportionnée au risque et aux zones touchées.
 
----
 
 # Conclusion — l'expertise est la capacité de ne pas agir sans preuve
 

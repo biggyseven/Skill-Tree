@@ -1,0 +1,7 @@
+{
+  "node_id": "git-debutant",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Git et gestion de versions.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

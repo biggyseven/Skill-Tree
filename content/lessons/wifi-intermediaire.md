@@ -53,7 +53,6 @@ Une bonne analyse distingue donc :
 4. le débit utile mesuré par application;
 5. l’expérience utilisateur (latence, gigue, pertes, coupures).
 
----
 
 ## 2. La couche MAC : comment plusieurs appareils partagent le canal
 
@@ -108,7 +107,6 @@ Wi-Fi 6 correspond à IEEE 802.11ax. Parmi ses mécanismes figurent :
 
 Ces fonctions ne sont utiles que si les clients, les AP, le contrôleur et les paramètres prennent en charge le scénario. Elles ne suppriment pas les limites de propagation, le bruit ou la concurrence entre appareils anciens et récents. Voir les ressources de Cisco sur [Wi-Fi 6](https://blogs.cisco.com/networking/wi-fi-6-powers-real-world-enterprise-applications) et [BSS Coloring](https://www.cisco.com/c/en/us/td/docs/wireless/controller/9800/26-1/configuration-guide/wl-26-1-cg/bss-coloring/bss-coloring-overview.html).
 
----
 
 ## 3. Bandes, canaux et largeur de canal
 
@@ -160,7 +158,6 @@ Augmenter la puissance de l’AP ne garantit pas une meilleure connexion. Le cli
 
 L’emplacement des AP, le type d’antenne, l’orientation, les matériaux, la hauteur, les personnes et les obstacles influencent la propagation. Une planification professionnelle combine l’étude de site, le prédictif quand il est adapté, puis des mesures après installation. Un RSSI brut doit être interprété avec le SNR, la qualité des trames, le débit de données et le comportement applicatif.
 
----
 
 ## 4. Évaluer la qualité radio et la capacité
 
@@ -191,7 +188,6 @@ Le débit PHY dépend entre autres de la modulation et du codage (MCS), de la la
 
 Une baisse du débit PHY peut être une réaction normale à une variation de signal; elle devient un problème si elle s’accompagne de retries, d’une latence excessive ou d’un débit utile insuffisant. À l’inverse, un débit PHY élevé n’empêche pas la congestion du canal ou la lenteur d’un service distant.
 
----
 
 ## 5. Association, authentification et sécurité
 
@@ -251,7 +247,6 @@ Protected Management Frames (PMF), introduit par 802.11w et intégré aux profil
 
 Mesures de base en entreprise : séparer les réseaux employés, invités et IoT; appliquer le moindre privilège aux VLAN/ACL; utiliser une authentification individuelle lorsqu’elle est appropriée; valider les certificats EAP; éliminer les mots de passe partagés non maîtrisés; journaliser les échecs d’authentification; maintenir firmware et contrôleurs; réviser périodiquement les comptes, certificats et secrets. Un portail captif ne doit pas être confondu avec le chiffrement radio ou un contrôle d’accès réseau complet.
 
----
 
 ## 6. Itinérance entre points d’accès
 
@@ -288,7 +283,6 @@ Pour une application temps réel, vérifier la durée pendant laquelle les paque
 
 Ne conclure pas à une « mauvaise itinérance » à partir d’un seul RSSI. La transition peut échouer à cause d’une authentification complète trop lente, d’une politique VLAN incohérente, d’une couverture faible, d’un client qui retarde le roam, d’une surcharge radio ou d’un problème de chemin filaire.
 
----
 
 ## 7. Concevoir et exploiter un WLAN fiable
 
@@ -342,7 +336,6 @@ Après déploiement, comparer la conception aux mesures sur site. Une salle peut
 
 La QoS Wi-Fi s’appuie sur EDCA et des marquages de priorité, mais le marquage doit rester cohérent de l’application jusqu’au réseau filaire. Une application qui marque tout en priorité maximale finit par rendre la politique inutile. Valider la correspondance entre DSCP, catégories d’accès, politique contrôleur, commutateurs et éventuelles passerelles; observer aussi les pertes, la gigue, le temps d’antenne et les retransmissions. La priorité ne répare pas une couverture dégradée ou une radio saturée.
 
----
 
 ## 8. Méthode opérationnelle de dépannage
 
@@ -404,7 +397,6 @@ Procéder par étapes : tester la passerelle locale, vérifier la table ARP/ND e
 
 Relever la chronologie, la variation de BSSID, la durée de coupure, les messages de roaming, la couverture du trajet et la cohérence de sécurité/VLAN. Tester 802.11k/v/r sur un petit groupe pilote après avoir vérifié le support du terminal et les contraintes de compatibilité. Ne pas régler un seuil de déconnexion très agressif sans mesure : cela peut provoquer des bascules répétées plutôt qu’un itinérance stable.
 
----
 
 ## 9. Outils de diagnostic
 
@@ -465,7 +457,6 @@ Utiliser les journaux et métriques correspondant au constructeur : état d’as
 
 Un tableau de bord agrégé peut masquer un problème localisé. Une moyenne de signal élevée ne prouve pas que le client affecté dispose d’une liaison fiable; une moyenne de charge raisonnable peut cacher un canal saturé dans une salle particulière.
 
----
 
 ## 10. Études de cas guidées
 
@@ -501,7 +492,6 @@ Un tableau de bord agrégé peut masquer un problème localisé. Une moyenne de 
 
 **Point important :** la présence de 802.11r ne garantit pas à elle seule un roaming fluide. La couverture, la décision du client, la continuité du réseau de distribution et le comportement de l’application doivent tous être vérifiés.
 
----
 
 ## 11. Ateliers pratiques et exercices
 
@@ -560,7 +550,6 @@ Utiliser deux AP de laboratoire avec le même SSID et une politique cohérente. 
 11. Le client peut ne pas émettre à une puissance équivalente; la liaison montante peut rester faible et les cellules peuvent trop se chevaucher.
 12. Les appareils et pilotes ne prennent pas tous en charge les mêmes modes et certains peuvent avoir des problèmes de compatibilité.
 
----
 
 ## 12. Checklist d’intervention Wi-Fi
 
@@ -589,7 +578,6 @@ Utiliser deux AP de laboratoire avec le même SSID et une politique cohérente. 
 - [ ] Documenter la configuration avant/après, les résultats et le plan de retour arrière utilisé ou non.
 - [ ] Communiquer la cause confirmée, les limites restantes et le plan de surveillance.
 
----
 
 ## 13. Glossaire de révision
 
@@ -614,7 +602,6 @@ Utiliser deux AP de laboratoire avec le même SSID et une politique cohérente. 
 - **SSID** : nom logique utilisé pour identifier le WLAN à l’utilisateur.
 - **WPA2/WPA3** : familles de profils de sécurité Wi-Fi dont les possibilités dépendent des modes et appareils compatibles.
 
----
 
 ## 14. Références techniques
 
@@ -628,7 +615,6 @@ Les ressources suivantes permettent d’approfondir des mécanismes précis. Les
 6. [Aruba — Campus Wireless Networks: Planning and Overview](https://www.arubanetworks.com/assets/vrd/2018_01_02_Campus_6_x_Planning_and_Overview.pdf) — principes de planification radio (document de génération antérieure, à compléter par la documentation actuelle du constructeur).
 7. [Cisco — Présentation des capacités Wi-Fi 6](https://blogs.cisco.com/networking/wi-fi-6-powers-real-world-enterprise-applications) — OFDMA, MU-MIMO, TWT et BSS Coloring.
 
----
 
 ## Conclusion
 

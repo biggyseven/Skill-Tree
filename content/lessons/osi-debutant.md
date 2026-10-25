@@ -4,7 +4,6 @@
 > **Domaine :** Réseaux informatiques  
 > **Objectif :** comprendre le chemin parcouru par les données entre deux applications et acquérir une méthode simple de dépannage réseau.
 
----
 
 ## Sommaire
 
@@ -22,7 +21,6 @@
 12. Exercices et corrigés
 13. Glossaire et fiche de révision
 
----
 
 # 1. Pourquoi modéliser les réseaux ?
 
@@ -78,7 +76,6 @@ Dans un réseau informatique, les opérations sont numériques, les règles sont
 
 Attention : l’analogie explique l’idée générale, mais une communication réseau est bien plus dynamique qu’une lettre. Les paquets peuvent suivre des chemins différents, être retransmis, être filtrés ou être traités par plusieurs intermédiaires.
 
----
 
 # 2. Comprendre les couches et les protocoles
 
@@ -117,7 +114,6 @@ Deux applications peuvent communiquer à travers plusieurs équipements. Les fon
 
 Le modèle est donc à la fois vertical, car les couches coopèrent sur une machine, et horizontal, car des protocoles organisent la communication entre les participants.
 
----
 
 # 3. Les sept couches du modèle OSI
 
@@ -281,7 +277,6 @@ Exemples de problèmes physiques :
 
 Un câble connecté ne garantit pas que toute la communication fonctionne, mais l’absence de lien physique peut empêcher le reste des couches d’être utilisable.
 
----
 
 # 4. Schéma SVG animé — Les sept couches OSI
 
@@ -318,7 +313,6 @@ Le schéma suivant présente les couches dans l’ordre. La surbrillance animée
 </g>
 </svg>
 
----
 
 # 5. Le modèle TCP/IP
 
@@ -355,7 +349,6 @@ Cette différence ne signifie pas que les fonctions de présentation et de sessi
 
 Cette correspondance est approximative. Il s’agit d’une comparaison conceptuelle, pas d’une équivalence parfaite entre toutes les technologies.
 
----
 
 # 6. Encapsulation et décapsulation
 
@@ -432,7 +425,6 @@ La trame de départ n’est donc généralement pas conservée de bout en bout.
 
 En revanche, l’adresse IP de destination reste normalement celle de la destination finale. Des mécanismes comme NAT, les proxys et les tunnels peuvent modifier cette observation.
 
----
 
 # 7. Adresses MAC, adresses IP et ports
 
@@ -483,7 +475,6 @@ Si un poste souhaite communiquer avec une destination qui n’est pas sur son so
 
 La trame locale utilise alors l’adresse MAC de la passerelle comme adresse MAC de destination. L’adresse IP de destination du paquet reste normalement celle de l’hôte final.
 
----
 
 # 8. Les équipements réseau et leurs rôles
 
@@ -519,7 +510,6 @@ Il ne se contente pas de regarder l’adresse MAC de destination de la trame ent
 
 Le routeur traite le paquet IP, applique les contrôles nécessaires et choisit un prochain saut.
 
----
 
 # 9. Comprendre un échange Web de bout en bout
 
@@ -584,7 +574,6 @@ Selon la version HTTP, le transport et les mécanismes de sécurité employés, 
 </g>
 </svg>
 
----
 
 # 10. Méthode de dépannage par couches
 
@@ -650,7 +639,6 @@ L’échec d’un ping ne prouve pas non plus que la machine distante est arrêt
 
 Le diagnostic repose sur une accumulation de preuves.
 
----
 
 # 11. Laboratoires pratiques
 
@@ -745,7 +733,6 @@ Ces commandes ne font pas toutes exactement le même test.
 
 N’effectuez les tests que sur des systèmes que vous êtes autorisé à examiner.
 
----
 
 # 12. Exercices
 
@@ -806,7 +793,6 @@ C. Acheminer des paquets entre réseaux IP.
 
 Un poste ne peut pas accéder à un site par son nom. Donnez une procédure de diagnostic qui distingue un problème DNS d’un problème de transport ou de service Web.
 
----
 
 # 13. Corrigés commentés
 
@@ -873,7 +859,6 @@ Une procédure possible :
 
 L’ordre peut être adapté au symptôme. Il est essentiel de séparer les observations des hypothèses.
 
----
 
 # 14. Fiche de révision
 
@@ -918,7 +903,6 @@ L’ordre peut être adapté au symptôme. Il est essentiel de séparer les obse
 
 **Wireshark :** outil d’analyse de trafic réseau.
 
----
 
 ## Conclusion
 

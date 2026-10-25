@@ -5,7 +5,6 @@
 > **Prérequis :** maîtriser les modèles en couches, les sous-réseaux, les VLAN, les tables de routage et les principaux protocoles réseau.  
 > **Objectif :** concevoir, analyser et dépanner des architectures réseau complexes en tenant compte de la disponibilité, de la sécurité, des performances et de l'exploitation.
 
----
 
 ## Sommaire
 
@@ -25,7 +24,6 @@
 14. Atelier expert
 15. Évaluation corrigée
 
----
 
 # 1. Vision systémique du réseau
 
@@ -67,7 +65,6 @@ La qualité d'une architecture dépend donc de la façon dont les composants s'a
 11. conduire un diagnostic d'incident complexe ;
 12. transformer les enseignements d'un incident en améliorations techniques.
 
----
 
 # 2. Architecture et plans de fonctionnement
 
@@ -154,7 +151,6 @@ Ces structures sont liées, mais elles ne sont pas identiques. Toutes les routes
 
 Lorsqu'un routeur connaît une route dans son processus de routage mais ne l'installe pas dans la structure de transfert, il faut examiner le processus de sélection, les dépendances et les contraintes propres à la plateforme.
 
----
 
 # 3. Conception du plan d'adressage
 
@@ -214,7 +210,6 @@ Un chevauchement peut provoquer une sélection de chemin inattendue, une difficu
 
 Une base de données d'adressage ou un outil de gestion IP (IPAM) permet de réserver les allocations, de documenter les propriétaires et d'éviter les doublons.
 
----
 
 # 4. Routage dynamique et politiques de chemin
 
@@ -309,7 +304,6 @@ Les routes statiques peuvent être tout à fait appropriées dans un réseau con
   <text class="er-text" x="480" y="301" text-anchor="middle">Un échec peut se situer à n'importe quelle étape du parcours.</text>
 </svg>
 
----
 
 # 5. Commutation, boucles et redondance
 
@@ -383,7 +377,6 @@ Deux liens ne constituent pas une vraie diversité si les deux passent par le m�
 
 L'analyse doit distinguer la redondance logique et la diversité physique.
 
----
 
 # 6. IPv6 et coexistence IPv4/IPv6
 
@@ -441,7 +434,6 @@ Il faut contrôler :
 
 Une politique qui ne filtre que l'IPv4 peut laisser des chemins IPv6 insuffisamment contrôlés.
 
----
 
 # 7. Segmentation et architecture de sécurité
 
@@ -508,7 +500,6 @@ Une politique de sécurité devrait préciser :
 
 Des règles trop permissives augmentent la portée d'un incident. Des règles trop restrictives peuvent interrompre des services. La bonne configuration résulte d'une analyse et de tests appropriés.
 
----
 
 # 8. Haute disponibilité et convergence
 
@@ -554,7 +545,6 @@ Pour chaque composant critique, demandez-vous :
 
 Un mécanisme de secours qui n'a jamais été testé peut échouer au moment précis où il est nécessaire.
 
----
 
 # 9. Performances, QoS et MTU
 
@@ -601,7 +591,6 @@ Une méthode correcte doit distinguer :
 
 Un test isolé ne reflète pas nécessairement l'expérience réelle de tous les utilisateurs.
 
----
 
 # 10. Observabilité et télémétrie
 
@@ -652,7 +641,6 @@ Elle permet de comparer l'état présent aux périodes habituelles : charge, tra
 
 Les anomalies doivent être interprétées dans leur contexte. Une hausse de trafic est parfois normale ; à d'autres moments, elle peut indiquer une boucle, une attaque ou une dégradation.
 
----
 
 # 11. Méthode d'analyse des incidents complexes
 
@@ -745,7 +733,6 @@ La capture peut également contenir des données sensibles. Contrôlez la collec
   <text class="xt-text" x="480" y="358" text-anchor="middle">Toute modification doit respecter le périmètre, les autorisations et les procédures de changement.</text>
 </svg>
 
----
 
 # 12. Architecture de référence
 
@@ -783,7 +770,6 @@ La complexité doit être justifiée par des exigences identifiables : disponibi
 
 Ajouter des équipements ou des protocoles sans définir leur rôle augmente les coûts, les risques de configuration et la difficulté de diagnostic.
 
----
 
 # 13. Étude de panne
 
@@ -850,7 +836,6 @@ Lorsque la cause est suffisamment étayée :
 
 Ne clôturez pas l'incident au seul motif que l'interface physique est remontée ou qu'un test ICMP réussit.
 
----
 
 # 14. Atelier expert
 
@@ -916,7 +901,6 @@ Choisissez une faiblesse identifiée et formulez une mesure concrète : corriger
 
 La mesure doit posséder un critère de réussite vérifiable.
 
----
 
 # 15. Évaluation corrigée
 
@@ -995,7 +979,6 @@ Des tailles incompatibles ou une mauvaise gestion des messages nécessaires à l
 
 Il faut établir le symptôme, former des hypothèses testables, recueillir des preuves, localiser le point de divergence, appliquer une correction autorisée et confirmer le résultat réel.
 
----
 
 # Conclusion — Comprendre un réseau au niveau expert
 
@@ -1023,7 +1006,6 @@ Le parcours complet est désormais structuré :
 
 **La compétence réseau ne consiste pas seulement à faire communiquer deux appareils : elle consiste à concevoir, maintenir et vérifier un système de communication qui reste maîtrisé lorsque les conditions changent et que des composants tombent en panne.**
 
----
 
 ## Références utiles
 

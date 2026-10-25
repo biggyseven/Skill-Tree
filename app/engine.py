@@ -61,15 +61,7 @@ def normalize(text: str) -> str:
 
 
 def check_lab(spec: LabSpec, answer: str) -> tuple[bool, str]:
-    """Corrige une réponse de lab. Retourne (réussi, explication).
-
-    Mode « contains » : recherche avec délimiteurs de mots.
-        "switchport mode trunk"                        -> OK
-        "interface Gi0/1; switchport mode trunk"       -> OK
-        "fooswitchport mode trunk"                     -> KO (pas de word boundary)
-        "switchport mode trunking"                     -> KO (trunking != trunk)
-        "switchport mode access"                       -> KO
-    """
+    """Corrige une réponse de lab. Retourne (réussi, explication)."""
     if spec.mode == "exact":
         return normalize(answer) == normalize(spec.pattern), f"réponse attendue : {spec.pattern}"
 
@@ -128,8 +120,9 @@ class SkillTree:
 
     # --- lecture ---------------------------------------------------------
     def nodes(self) -> list[Node]:
+        # CORRECTION 1 : Ajout de "module" dans la requête SQL
         rows = self.conn.execute(
-            "SELECT id, title, description, category, sort_order FROM nodes"
+            "SELECT id, title, description, category, module, sort_order FROM nodes"
             " ORDER BY sort_order, id"
         ).fetchall()
 
@@ -170,6 +163,7 @@ class SkillTree:
                     title=row["title"],
                     description=row["description"],
                     category=row["category"],
+                    module=row["module"], # CORRECTION 2 : Ajout de module ici
                     sort_order=row["sort_order"],
                     prereqs=tuple(prereqs.get(node_id, ())),
                     requirements=tuple(
@@ -280,7 +274,10 @@ class SkillTree:
         self.conn.commit()
         touch_daily_streak(self.conn)
         self.last_reward = award_attempt_xp(self.conn, kind) if passed else None
-        self.last_badges = check_badges(self)
+        
+        # CORRECTION 3 : Appel correct de la méthode check_badges
+        self.last_badges = self.check_badges(node_id, kind, passed, score)
+        
         attempt = Attempt(
             id=cursor.lastrowid,
             node_id=node_id,
@@ -322,7 +319,6 @@ class SkillTree:
         self.conn.commit()
         return cursor.rowcount
 
-
     def check_badges(self, node_id: str, kind: ProofKind, passed: bool, score: int) -> list[dict]:
         """Vérifie et débloque les badges après une tentative."""
         if not passed:
@@ -358,7 +354,6 @@ class SkillTree:
 
     def _unlock_badge(self, badge_id: str, nom: str, desc: str, icone: str, unlocked_list: list):
         """Fonction utilitaire pour insérer un badge s'il n'existe pas."""
-        from datetime import datetime
         existing = self.conn.execute("SELECT id FROM badges WHERE id = ?", (badge_id,)).fetchone()
         if not existing:
             now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -421,13 +416,7 @@ def get_daily_plan(
     limit: int = 3,
     now: datetime | None = None,
 ) -> dict:
-    """Sélectionne une session équilibrée : travaux en cours, révisions et découvertes.
-
-    Une révision espacée est proposée lorsque la validation complète du nœud
-    date de plus de ``DAILY_REVIEW_AFTER_DAYS`` jours. Les nœuds disponibles
-    n'ont jamais reçu de tentative. Seuls les labs et défis déjà commencés sont
-    retenus dans la catégorie « en cours ».
-    """
+    """Sélectionne une session équilibrée : travaux en cours, révisions et découvertes."""
     limit = max(1, int(limit))
     now = now or datetime.now()
 

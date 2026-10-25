@@ -770,6 +770,5 @@ Les ressources suivantes complètent ce cours. Les procédures d’incident ITSM
 5. **Atlassian Incident Management Handbook — Postmortems.** Structure du rapport, facteurs contributifs et suivi des actions : https://www.atlassian.com/incident-management/handbook/postmortems
 6. **NIST — Incident Response.** Pour la dimension spécifique des incidents de cybersécurité, consulter la page du projet et SP 800-61 Rev. 3 : https://csrc.nist.gov/projects/incident-response
 
----
 
 **À retenir :** une réponse intermédiaire efficace combine triage discipliné, mitigation contrôlée, communication vérifiable, collecte de preuves, analyse causale sans accusation et actions suivies jusqu’à la preuve d’efficacité. Le service peut être rétabli avant que toutes les causes soient expliquées ; le risque, lui, ne doit pas être considéré comme traité tant que les améliorations convenues ne sont pas vérifiées.

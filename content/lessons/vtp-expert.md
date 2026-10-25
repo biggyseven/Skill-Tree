@@ -1,777 +1,842 @@
-# VTP et gestion des VLANs - Expert
+# VTP et gestion des VLANs — Expert
 
-**Niveau :** Expert
+**Niveau :** Expert  
+**Durée indicative :** 90 à 150 minutes  
+**Prérequis :** maîtriser le fonctionnement des VLAN et des trunks 802.1Q, les modes VTP, le numéro de révision, VTPv3, le serveur primaire, le pruning et le dépannage abordés aux niveaux Débutant et Intermédiaire.
 
-Le VLAN Trunking Protocol (VTP) est un protocole de gestion de couche 2 historiquement associé aux commutateurs Cisco Catalyst. Sa fonction principale est de distribuer et de maintenir une base de données VLAN cohérente à travers un domaine de commutation. Lorsqu'il est correctement conçu, VTP réduit le nombre d'opérations répétitives et limite les divergences entre commutateurs. Lorsqu'il est mal conçu, il peut au contraire propager une modification erronée sur une partie importante du réseau, supprimer des VLANs attendus ou rendre des segments entiers inaccessibles. À un niveau expert, VTP doit donc être traité comme un mécanisme de contrôle du plan de couche 2, et non comme une simple commande destinée à créer des VLANs en une seule fois.
+Ce cours ne reprend pas la configuration VTP élémentaire étape par étape. Il traite VTP comme une fonction d'exploitation sensible : modèle de confiance, contrôle des changements, migration entre versions, diagnostic par preuves, analyse des annonces et procédures de récupération. L'objectif n'est pas de « faire fonctionner une commande », mais de pouvoir expliquer pourquoi une base VLAN a changé, déterminer l'étendue d'un incident et prouver qu'un changement est sûr.
 
-Historiquement, VTP a été conçu pour les architectures de commutation administrées de manière centralisée. Les premières versions, VTP version 1 et version 2, reposent sur un domaine de gestion, un numéro de révision de configuration et la propagation d'annonces à travers les trunks. Cette conception facilite la synchronisation, mais elle introduit une dépendance importante à l'intégrité de la base de données et à la provenance des mises à jour. Une configuration de laboratoire ou un commutateur réutilisé peut conserver un numéro de révision élevé et influencer un domaine si les conditions de compatibilité et les règles de version le permettent. Cette caractéristique explique pourquoi une opération apparemment anodine, comme connecter un équipement récupéré en stock, peut devenir une panne majeure lorsque le domaine utilise VTP v1/v2.
-
-VTP version 3 a été conçu pour corriger plusieurs limites des premières versions, notamment le contrôle des modifications par l'intermédiaire d'un serveur primaire et la prise en charge de fonctionnalités supplémentaires. Il permet de gérer les VLANs de plage étendue sur les plateformes qui l'implémentent et, selon les versions Cisco, de distribuer également des informations liées à la base MST. VTPv3 ne rend toutefois pas le réseau automatiquement sûr : le serveur primaire, les identifiants, les trunks, les mots de passe, les mécanismes d'administration et les procédures de changement restent des éléments critiques. La compatibilité exacte doit toujours être vérifiée par famille de commutateurs et version logicielle, car les commandes et certaines limites varient selon IOS, IOS XE et les gammes matérielles.
-
-L'approche experte consiste à raisonner en termes de cycle de vie de la base VLAN, de version du protocole, d'autorité de modification, de révision, de propagation et de domaine de panne. Il faut distinguer la base VLAN locale, les annonces VTP, le transport des annonces par le réseau de trunks, la liste des VLANs autorisés sur chaque trunk et le fonctionnement de STP. VTP ne configure pas à lui seul les ports d'accès, ne crée pas automatiquement les sous-interfaces des routeurs, ne garantit pas que chaque VLAN est transporté sur tous les trunks et ne remplace pas les politiques de segmentation. Une conception solide choisit délibérément entre l'exploitation de VTP, son usage limité à un périmètre précis ou une gestion locale/automatisée des VLANs sans domaine VTP partagé.
-
-> **Analogie** : Imagine une grande entreprise disposant de dizaines de bâtiments. Chaque bâtiment possède une liste officielle de départements : Finance, Ressources humaines, Production, Invités, Téléphonie et Administration. Les VLANs représentent les départements logiques ; les commutateurs représentent les répartiteurs réseau ; les trunks représentent les liaisons qui transportent plusieurs départements entre bâtiments. Le protocole VTP fonctionne comme un registre partagé qui annonce les changements de la liste officielle aux répartiteurs participants.
+> **Objectifs d'apprentissage**
 >
-> Le registre ne fait cependant pas tout le travail. Il ne décide pas quel employé doit se trouver dans quel département, ne vérifie pas à lui seul que les couloirs entre bâtiments sont ouverts et ne garantit pas que chaque bâtiment a besoin de tous les départements. C'est l'administrateur qui définit les ports d'accès, les trunks, les politiques de sécurité et les règles de routage inter-VLAN. VTP fournit surtout une méthode de distribution des informations concernant l'existence et certaines propriétés des VLANs.
+> À la fin de ce cours, tu dois pouvoir :
 >
-> Dans un ancien système de registre, une copie portant le numéro d'édition 42 peut être considérée comme plus récente qu'une copie portant le numéro 17, même si son contenu est erroné. Si un répartiteur inconnu arrive avec une copie ancienne mais un numéro d'édition plus élevé, les autres répartiteurs peuvent croire que cette copie constitue la référence la plus récente. C'est l'analogie du risque de numéro de révision en VTP v1/v2. La date d'arrivée de l'équipement n'est pas nécessairement la même chose que l'autorité réelle du contenu. VTPv3 ajoute un contrôle d'autorité : une mise à jour de la base VLAN doit être validée par un serveur primaire désigné pour cette instance. Ce contrôle diminue le risque de remplacement incontrôlé, sans dispenser l'administrateur de vérifier l'identité du commutateur, la base attendue et le scénario de reprise.
->
-> Enfin, le registre peut annoncer que le département « Finance » existe, mais il ne construit pas les portes d'accès, ne configure pas les contrôles de passage et ne s'assure pas que chaque bâtiment possède un chemin utile vers ce département. De la même manière, la présence d'un VLAN dans la base locale ne signifie pas que le VLAN traverse tous les trunks, qu'un port d'accès y est affecté, que STP y a ouvert un chemin ou que la passerelle de couche 3 est joignable. Le dépannage expert sépare donc toujours la cohérence de la base VTP de la connectivité réelle de bout en bout.
+> - modéliser les frontières de confiance et les sources autorisées de la base VLAN ;
+> - expliquer les états VTPv3, la différence entre serveur et serveur primaire, et les bases de données distinctes ;
+> - préparer une migration VTPv1/v2 vers VTPv3 en contrôlant les compatibilités et les possibilités de retour arrière ;
+> - diagnostiquer des conflits, des erreurs de digest, des annonces absentes ou des divergences de base à partir de plusieurs preuves ;
+> - analyser une capture VTP avec Wireshark et corréler les trames avec les compteurs du commutateur ;
+> - distinguer une panne de synchronisation VTP d'une panne de transport de VLAN, STP ou routage ;
+> - rédiger un plan de changement avec critères d'entrée, critères de succès, arrêt et retour arrière ;
+> - concevoir une politique d'exploitation où la propagation centralisée est utilisée uniquement lorsqu'elle apporte un bénéfice démontré.
 
----
+> **Important — plateforme de référence** : les exemples utilisent la CLI Cisco IOS/IOS XE et s'appuient sur la documentation Cisco disponible en octobre 2026. Les options, valeurs par défaut, champs de sortie et commandes disponibles varient selon le modèle et la version logicielle. Vérifie toujours les commandes sur l'équipement exact. Les manipulations qui peuvent modifier ou remplacer la base VLAN doivent être réalisées uniquement dans un laboratoire isolé ou dans une fenêtre de changement formellement approuvée.
 
-## 1. La théorie et les algorithmes
 
-### 1.1. Périmètre fonctionnel de VTP
+## 1. VTP comme plan de contrôle et modèle de confiance
 
-VTP distribue des informations de base VLAN dans un domaine de gestion. Selon la version et la plateforme, ces informations incluent notamment l'identifiant VLAN, le nom, l'état et des attributs de type de VLAN. VTP ne transporte pas les trames utilisateur à la place de 802.1Q : il transporte des annonces de contrôle. Le trafic utilisateur continue à être commuté selon les tables MAC, l'appartenance des ports aux VLANs, les trunks, les politiques de sécurité et l'état du spanning tree.
+### 1.1. Le problème à résoudre n'est pas simplement « distribuer des VLAN »
 
-Il faut distinguer les opérations suivantes :
+Dans un campus multi-commutateurs, la base VLAN est une dépendance de couche 2. VTP peut diffuser les changements de cette base, mais il ne prouve pas que l'architecture entière est correcte. Une base synchronisée peut être uniformément erronée ; un VLAN peut exister partout et être bloqué par une liste de VLAN autorisés ; un trunk peut être opérationnel tout en omettant le VLAN requis ; STP peut bloquer le chemin ; la passerelle peut être absente.
 
-1. **Créer ou supprimer une définition VLAN** dans la base de données d'un commutateur.
-2. **Diffuser la définition** aux équipements membres du domaine VTP.
-3. **Autoriser le VLAN sur un trunk** donné.
-4. **Affecter un port d'accès** au VLAN.
-5. **Permettre un acheminement de couche 3**, si le VLAN doit communiquer avec d'autres sous-réseaux.
-6. **Garantir un chemin de couche 2 sans boucle**, généralement au moyen de STP ou d'une technologie appropriée.
+Une exploitation experte sépare donc trois plans :
 
-VTP intervient surtout sur les deux premières opérations. Les autres doivent être validées indépendamment. Une base VLAN synchronisée ne garantit pas une topologie fonctionnelle.
+| Plan | Question clé | Preuves à collecter |
+|---|---|---|
+| **Gestion VTP** | Qui publie quelle base et qui l'accepte ? | domaine, version, mode, serveur primaire, compteurs, état du digest, historique du changement |
+| **Transport de couche 2** | Le VLAN est-il présent et transporté sur chaque segment du chemin ? | `show vlan brief`, `show interfaces trunk`, état des ports, STP, table MAC |
+| **Service de bout en bout** | Le terminal atteint-il les services attendus ? | adressage IP, passerelle, routage inter-VLAN, ACL, tests depuis les terminaux |
 
-VTP est traditionnellement un protocole propriétaire Cisco, même si son format et son comportement sont documentés dans la documentation technique du constructeur. Sa présence et ses limites dépendent de la plate-forme. Sur un réseau multi-constructeurs, il faut vérifier si l'interopérabilité recherchée existe réellement ; il ne faut pas supposer qu'un équipement tiers participe à la synchronisation uniquement parce qu'il prend en charge IEEE 802.1Q.
+VTP est un protocole de plan de contrôle Cisco de couche 2. Ce n'est pas un protocole de routage, et ce n'est pas une garantie de disponibilité de bout en bout.
 
-### 1.2. Domaine VTP et identités des équipements
+### 1.2. Définir une frontière de confiance VTP
 
-Un domaine VTP est l'ensemble logique des commutateurs qui partagent les paramètres de gestion correspondants et acceptent de participer à la même distribution. Pour les modes serveur et client classiques, le nom de domaine est une condition importante de l'échange. Le mot de passe, lorsqu'il est configuré, doit également être cohérent entre les équipements concernés. La version VTP prise en charge et activée constitue une autre condition de compatibilité.
+Un domaine VTP doit être traité comme une frontière d'administration : les équipements qui y participent acceptent une partie des informations de contrôle provenant d'autres membres compatibles. Avant de choisir le mode VTP, réponds par écrit à ces questions :
 
-Un domaine VTP n'est pas synonyme de domaine de broadcast. Un même domaine de gestion peut contenir plusieurs VLANs distincts, et un même VLAN peut traverser plusieurs commutateurs lorsque le réseau de trunks le transporte. Inversement, des commutateurs reliés physiquement peuvent ne pas participer au même domaine VTP si leur mode, leur version ou leur configuration l'empêche.
+1. Quelle équipe est responsable de la base VLAN de référence ?
+2. Quels commutateurs sont autorisés à publier des modifications ?
+3. Comment un nouvel équipement est-il inspecté avant d'être raccordé ?
+4. Comment une base VLAN erronée est-elle détectée, et qui a le droit de la rétablir ?
+5. Existe-t-il un inventaire daté de la base VLAN et une sauvegarde vérifiée ?
+6. Comment les commutateurs qui ne doivent pas participer à VTP sont-ils isolés ?
 
-Le nom de domaine doit être explicitement planifié. Des noms de domaine qui diffèrent d'un seul caractère peuvent empêcher la synchronisation attendue. À l'inverse, un nom identique ne suffit pas à prouver que deux équipements doivent être fusionnés : la compatibilité de version, l'autorité des mises à jour, les mots de passe et le plan de VLAN doivent également être examinés. Il est prudent de ne pas brancher directement un commutateur d'un environnement de test dans le réseau de production sans une procédure d'intégration contrôlée.
+Si l'organisation ne peut pas répondre à ces questions, activer la propagation automatique ne résout pas le défaut de processus : cela peut au contraire amplifier l'impact d'une erreur.
 
-Les équipements en mode transparent ou off ont un comportement différent des équipements serveur/client. Un commutateur transparent gère localement sa propre base VLAN et ne remplace pas sa base par les annonces reçues. Selon la version et la plateforme, il peut néanmoins relayer certaines annonces VTP reçues sur ses trunks. Le mode off se comporte en général comme transparent sur la base locale, mais ne relaie pas les annonces. Les détails exacts doivent être confirmés dans le guide de configuration de la version utilisée.
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img" aria-labelledby="vtptrust-title vtptrust-desc">
+  <title id="vtptrust-title">Frontière de confiance du domaine VTP</title><desc id="vtptrust-desc">Une source autorisée publie la base VLAN vers les membres approuvés. Un commutateur inconnu demeure isolé tant que son état n'a pas été contrôlé.</desc>
+  <rect width="960" height="300" rx="18" fill="#0b1220"/>
+  <text x="480" y="30" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="700">VTP : propager uniquement depuis une source maîtrisée</text>
+  <rect x="35" y="70" width="590" height="180" rx="16" fill="#102b28" stroke="#34d399" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="55" y="96" fill="#6ee7b7" font-size="13" font-weight="700">DOMAINE APPROUVÉ</text>
+  <rect x="65" y="125" width="150" height="75" rx="10" fill="#064e3b" stroke="#6ee7b7"/><text x="140" y="151" text-anchor="middle" fill="#ecfdf5" font-size="14" font-weight="700">Source</text><text x="140" y="171" text-anchor="middle" fill="#d1fae5" font-size="12">VTP primaire</text><text x="140" y="187" text-anchor="middle" fill="#d1fae5" font-size="11">base validée</text>
+  <path d="M215 162 H290 M290 162 l-9 -6 M290 162 l-9 6" stroke="#34d399" stroke-width="3" fill="none"/>
+  <rect x="300" y="125" width="120" height="75" rx="10" fill="#172554" stroke="#60a5fa"/><text x="360" y="151" text-anchor="middle" fill="#dbeafe" font-size="14" font-weight="700">SW-EDGE-1</text><text x="360" y="174" text-anchor="middle" fill="#bfdbfe" font-size="12">membre approuvé</text>
+  <path d="M420 162 H475 M475 162 l-9 -6 M475 162 l-9 6" stroke="#60a5fa" stroke-width="3" fill="none"/>
+  <rect x="485" y="125" width="110" height="75" rx="10" fill="#172554" stroke="#60a5fa"/><text x="540" y="151" text-anchor="middle" fill="#dbeafe" font-size="14" font-weight="700">SW-EDGE-2</text><text x="540" y="174" text-anchor="middle" fill="#bfdbfe" font-size="12">membre approuvé</text>
+  <rect x="690" y="94" width="225" height="126" rx="14" fill="#3b1720" stroke="#fb7185" stroke-width="2"/><text x="802" y="123" text-anchor="middle" fill="#fecdd3" font-size="14" font-weight="700">Commutateur inconnu</text><text x="802" y="148" text-anchor="middle" fill="#ffe4e6" font-size="12">Ne pas raccorder</text><text x="802" y="166" text-anchor="middle" fill="#ffe4e6" font-size="12">avant inspection</text><text x="802" y="194" text-anchor="middle" fill="#fda4af" font-size="11">domaine · version · révision</text>
+  <path d="M690 158 H650" stroke="#fb7185" stroke-width="3" stroke-dasharray="6 5"/><path d="M658 151 l-12 7 12 7" stroke="#fb7185" stroke-width="3" fill="none"/>
+  <text x="480" y="278" text-anchor="middle" fill="#94a3b8" font-size="12">L'appartenance au domaine est une décision d'exploitation, pas une simple connexion physique.</text>
+</svg>
 
-### 1.3. Les modes opérationnels
+### 1.3. Révision VTP : interpréter le signal, pas seulement le nombre
 
-| Mode | Peut modifier localement la base VLAN ? | Applique les mises à jour VTP reçues ? | Peut annoncer des mises à jour ? | Usage typique |
+Le numéro de révision n'est pas un identifiant global de configuration, ni une preuve que la base est correcte. Il doit être interprété avec le domaine, la version, le mode, les paramètres d'authentification et le mécanisme VTP effectivement actif.
+
+Dans les scénarios VTPv1/v2 classiques, une révision plus élevée peut amener les membres compatibles du domaine à accepter une base provenant d'un commutateur qui vient d'être raccordé. C'est pourquoi un équipement inconnu ne doit jamais être connecté directement à un domaine opérationnel avant inspection. L'expert ne se contente pas de constater « la révision est haute » : il vérifie si la base observée correspond à la base de référence, identifie l'événement qui a provoqué l'écart, et examine les changements effectifs de VLAN.
+
+La comparaison de révision reste un indice ; elle ne remplace pas la comparaison de la base VLAN, le contrôle des trunks, ni l'analyse des journaux. En VTPv3, le modèle de serveur primaire améliore le contrôle des mises à jour, mais ne rend pas sans danger une modification non validée.
+
+### Schéma animé — propagation et validation de l'annonce
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img" aria-labelledby="vtpprop-title vtpprop-desc">
+  <title id="vtpprop-title">Du changement VLAN à la validation</title><desc id="vtpprop-desc">Une modification contrôlée met à jour la base de référence, une annonce traverse le trunk, les membres compatibles mettent à jour leur base puis l'administrateur vérifie les résultats.</desc>
+  <rect width="960" height="300" rx="18" fill="#0b1220"/><text x="480" y="30" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="700">Un changement n'est terminé qu'après vérification</text>
+  <g font-family="Arial, sans-serif"><rect x="30" y="75" width="170" height="94" rx="12" fill="#0f2d29" stroke="#34d399" stroke-width="2"/><text x="115" y="103" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">1 · Changement</text><text x="115" y="127" text-anchor="middle" fill="#d1fae5" font-size="12">VLAN validé</text><text x="115" y="146" text-anchor="middle" fill="#d1fae5" font-size="12">dans le plan</text>
+  <rect x="270" y="75" width="170" height="94" rx="12" fill="#172554" stroke="#60a5fa" stroke-width="2"/><text x="355" y="103" text-anchor="middle" fill="#bfdbfe" font-size="14" font-weight="700">2 · Publication</text><text x="355" y="127" text-anchor="middle" fill="#dbeafe" font-size="12">annonce VTP</text><text x="355" y="146" text-anchor="middle" fill="#dbeafe" font-size="12">sur trunk</text>
+  <rect x="510" y="75" width="170" height="94" rx="12" fill="#312e81" stroke="#a5b4fc" stroke-width="2"/><text x="595" y="103" text-anchor="middle" fill="#e0e7ff" font-size="14" font-weight="700">3 · Réception</text><text x="595" y="127" text-anchor="middle" fill="#e0e7ff" font-size="12">membres compatibles</text><text x="595" y="146" text-anchor="middle" fill="#e0e7ff" font-size="12">appliquent la base</text>
+  <rect x="750" y="75" width="180" height="94" rx="12" fill="#3b1720" stroke="#fb7185" stroke-width="2"/><text x="840" y="103" text-anchor="middle" fill="#fecdd3" font-size="14" font-weight="700">4 · Validation</text><text x="840" y="127" text-anchor="middle" fill="#ffe4e6" font-size="12">VLAN + trunks</text><text x="840" y="146" text-anchor="middle" fill="#ffe4e6" font-size="12">+ services</text>
+  <path d="M200 122 H263 M253 115 l10 7 -10 7" stroke="#94a3b8" stroke-width="2.5" fill="none"/><path d="M440 122 H503 M493 115 l10 7 -10 7" stroke="#94a3b8" stroke-width="2.5" fill="none"/><path d="M680 122 H743 M733 115 l10 7 -10 7" stroke="#94a3b8" stroke-width="2.5" fill="none"/>
+  <circle cx="200" cy="122" r="5" fill="#fef08a" stroke="#fff7ed" stroke-width="1.5"><animateMotion path="M 0 0 L 63 0" dur="1.2s" repeatCount="indefinite"/></circle>
+  <circle cx="440" cy="122" r="5" fill="#fef08a" stroke="#fff7ed" stroke-width="1.5"><animateMotion path="M 0 0 L 63 0" dur="1.2s" begin="0.4s" repeatCount="indefinite"/></circle>
+  <circle cx="680" cy="122" r="5" fill="#fef08a" stroke="#fff7ed" stroke-width="1.5"><animateMotion path="M 0 0 L 63 0" dur="1.2s" begin="0.8s" repeatCount="indefinite"/></circle>
+  <rect x="92" y="208" width="776" height="48" rx="10" fill="#111827" stroke="#475569"/><text x="480" y="228" text-anchor="middle" fill="#cbd5e1" font-size="13">Preuves : `show vtp status` · `show vtp counters` · `show vlan brief`</text><text x="480" y="245" text-anchor="middle" fill="#94a3b8" font-size="12">Puis `show interfaces trunk`, STP, table MAC et tests de bout en bout.</text></g>
+</svg>
+
+### 1.4. VTPv3 : base, instance et serveur primaire
+
+VTPv3 introduit un contrôle plus strict des mises à jour et prend en charge des bases supplémentaires. Il faut distinguer :
+
+- **mode serveur** : l'équipement est configuré pour fonctionner comme serveur VTP ;
+- **serveur primaire** : état opérationnel obtenu par une action explicite, pour une base donnée ;
+- **serveur secondaire** : reçoit les mises à jour et peut conserver les informations selon la version et la plateforme, sans être la source primaire autorisée pour les changements de base ;
+- **base concernée** : par exemple la base VLAN ou la base MST ; la fonction primaire est associée à la base sélectionnée.
+
+Un domaine VTPv3 peut exister sans serveur primaire actif en permanence. Le rôle primaire est requis pour publier des mises à jour de base au moyen du mécanisme prévu par VTPv3. Sur les plateformes documentées par Cisco, l'état primaire peut être perdu après un rechargement, un basculement ou une modification de paramètres du domaine : il doit donc être vérifié au moment d'un changement, et non supposé permanent.
+
+La commande opérationnelle se lance généralement depuis le mode EXEC privilégié, sur une plateforme compatible :
+
+```cisco
+show vtp status
+show vtp devices
+! Lorsque la base VLAN est correcte et le changement autorisé :
+vtp primary vlan
+! La commande peut demander une confirmation et/ou le secret VTP.
+```
+
+`vtp primary vlan force` peut prendre le dessus sur des serveurs en conflit selon le comportement de la plateforme. **Ne l'utilise pas comme commande de dépannage par réflexe.** Avant de forcer un takeover, sauvegarde les états, identifie chaque serveur en conflit, compare les bases et obtiens l'autorisation explicite du responsable du changement.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="310" viewBox="0 0 960 310" role="img" aria-labelledby="vtpprimary-title vtpprimary-desc">
+  <title id="vtpprimary-title">Serveur primaire VTPv3 et serveurs secondaires</title><desc id="vtpprimary-desc">Le serveur primaire autorisé publie la base VLAN de référence. Les serveurs secondaires reçoivent la mise à jour. Le rôle primaire doit être revalidé après certains événements opérationnels.</desc>
+  <rect width="960" height="310" rx="18" fill="#0b1220"/><text x="480" y="30" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="700">VTPv3 : autorité de publication de la base VLAN</text>
+  <rect x="45" y="76" width="230" height="110" rx="14" fill="#064e3b" stroke="#34d399" stroke-width="2"/><text x="160" y="103" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">SW-CORE-1</text><text x="160" y="128" text-anchor="middle" fill="#ecfdf5" font-size="14">VTP Server</text><text x="160" y="151" text-anchor="middle" fill="#ecfdf5" font-size="13">PRIMARY · VLAN DB</text><text x="160" y="171" text-anchor="middle" fill="#d1fae5" font-size="11">changement autorisé</text>
+  <path d="M275 130 H365 M354 122 l11 8 -11 8" stroke="#34d399" stroke-width="3" fill="none"/>
+  <rect x="375" y="76" width="205" height="110" rx="14" fill="#172554" stroke="#60a5fa" stroke-width="2"/><text x="478" y="104" text-anchor="middle" fill="#bfdbfe" font-size="14" font-weight="700">SW-CORE-2</text><text x="478" y="130" text-anchor="middle" fill="#dbeafe" font-size="14">Server secondaire</text><text x="478" y="151" text-anchor="middle" fill="#dbeafe" font-size="12">base reçue / sauvegardée</text>
+  <path d="M580 130 H675 M664 122 l11 8 -11 8" stroke="#60a5fa" stroke-width="3" fill="none"/>
+  <rect x="685" y="76" width="230" height="110" rx="14" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/><text x="800" y="104" text-anchor="middle" fill="#ddd6fe" font-size="14" font-weight="700">SW-DIST-1</text><text x="800" y="130" text-anchor="middle" fill="#ede9fe" font-size="14">Membre VTPv3</text><text x="800" y="151" text-anchor="middle" fill="#ede9fe" font-size="12">base synchronisée</text>
+  <circle cx="275" cy="130" r="5" fill="#fef08a" stroke="#fff7ed" stroke-width="1.5"><animateMotion path="M 0 0 L 90 0" dur="1.5s" repeatCount="indefinite"/></circle>
+  <circle cx="580" cy="130" r="5" fill="#fef08a" stroke="#fff7ed" stroke-width="1.5"><animateMotion path="M 0 0 L 95 0" dur="1.5s" begin="0.6s" repeatCount="indefinite"/></circle>
+  <rect x="90" y="222" width="780" height="52" rx="10" fill="#3b1720" stroke="#fb7185"/><text x="480" y="243" text-anchor="middle" fill="#fecdd3" font-size="13" font-weight="700">Après reload, switchover ou changement du domaine : revérifier l'état primaire.</text><text x="480" y="261" text-anchor="middle" fill="#ffe4e6" font-size="12">Ne pas employer `force` sans analyse des conflits et plan de changement.</text>
+</svg>
+
+### 1.5. VTPv3 et les bases de données distinctes
+
+VTPv3 peut propager des informations associées à différentes bases. Dans les guides Cisco, la base VLAN et la base Multiple Spanning Tree (MST) font l'objet de fonctions distinctes. Il ne faut donc pas considérer qu'un seul état « VTP primaire » couvre nécessairement toutes les bases : la commande primaire doit sélectionner la base voulue, et la vérification doit porter sur la bonne instance.
+
+Le fait de recevoir les VLAN ne prouve pas que la base MST est cohérente, et l'inverse est également vrai. Lors d'une modification d'architecture MST, documente séparément :
+
+- la base VLAN et les identifiants réellement utilisés ;
+- les régions MST, les noms/révisions et les correspondances VLAN-vers-instance ;
+- l'état VTP et le type de base publié ;
+- l'état STP effectif après le changement.
+
+Ne migre pas simultanément les bases VLAN, les trunks et la conception STP sans étapes de validation intermédiaires. Les changements couplés rendent le retour arrière plus difficile et compliquent l'identification de la cause en cas de boucle ou de perte de trafic.
+
+### 1.6. Interopérabilité et VLAN étendus : décider avant de migrer
+
+VTPv1/v2 classiques propagent la plage normale de VLAN, alors que VTPv3 prend en charge la propagation de VLAN étendus (1006–4094) sur les équipements compatibles. VTP pruning, lui, reste une fonction de portée plus limitée : les guides Cisco indiquent qu'il s'applique aux VLAN 1–1005, et non aux VLAN étendus. La prise en charge précise et les VLAN réservés restent dépendants de la plateforme.
+
+Le point critique pour une migration est qu'un équipement VTPv3 qui possède des VLAN étendus n'est pas un candidat à une simple rétrogradation v1/v2. Il faut tester les fonctions employées et traiter l'aller/retour comme un projet de migration, pas comme une commande isolée.
+
+| Sujet | Question experte avant changement |
+|---|---|
+| Version | La plateforme prend-elle en charge la version cible et les fonctionnalités utilisées ? |
+| Domaine | Tous les équipements visés appartiennent-ils au même domaine prévu ? |
+| Authentification | Le secret et son mode de stockage sont-ils compatibles et connus des administrateurs autorisés ? |
+| VLAN étendus | Le plan utilise-t-il des VLAN 1006–4094, et quelles plateformes doivent recevoir leur définition ? |
+| Pruning | Le besoin concerne-t-il des VLAN éligibles et tous les liens ont-ils été cartographiés ? |
+| Équipements anciens | Les commutateurs hérités traitent-ils correctement les annonces reçues et transmettent-ils celles nécessaires ? |
+| Retour arrière | Peut-on revenir à la version précédente sans perdre une fonction de base ou la cohérence du plan VLAN ? |
+
+**Règle pratique :** n'assume jamais une compatibilité parce que deux commutateurs partagent le même nom de domaine. Le nom de domaine n'est qu'un des paramètres du plan de contrôle.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="305" viewBox="0 0 960 305" role="img" aria-labelledby="vtpmatrix-title vtpmatrix-desc">
+  <title id="vtpmatrix-title">Choisir une trajectoire de migration VTP</title><desc id="vtpmatrix-desc">L'audit des versions, bases VLAN et fonctions décide si la migration peut continuer en laboratoire ou doit être arrêtée pour traiter une incompatibilité.</desc>
+  <rect width="960" height="305" rx="18" fill="#0b1220"/><text x="480" y="30" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="700">Une migration commence par l'inventaire</text>
+  <rect x="340" y="58" width="280" height="57" rx="11" fill="#172554" stroke="#60a5fa" stroke-width="2"/><text x="480" y="82" text-anchor="middle" fill="#dbeafe" font-size="14" font-weight="700">Auditer tous les équipements</text><text x="480" y="101" text-anchor="middle" fill="#bfdbfe" font-size="12">version · base VLAN · authentification</text>
+  <path d="M480 115 V140 M480 140 H240 V160 M480 140 H720 V160" stroke="#94a3b8" stroke-width="2.5" fill="none"/><path d="M233 151 l7 9 7 -9 M713 151 l7 9 7 -9" stroke="#94a3b8" stroke-width="2.5" fill="none"/>
+  <rect x="50" y="160" width="380" height="68" rx="12" fill="#0f2d29" stroke="#34d399" stroke-width="2"/><text x="240" y="185" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">Compatibilité démontrée</text><text x="240" y="205" text-anchor="middle" fill="#d1fae5" font-size="12">Poursuivre en laboratoire et valider</text>
+  <rect x="530" y="160" width="380" height="68" rx="12" fill="#3b1720" stroke="#fb7185" stroke-width="2"/><text x="720" y="185" text-anchor="middle" fill="#fecdd3" font-size="14" font-weight="700">Incompatibilité ou inconnue</text><text x="720" y="205" text-anchor="middle" fill="#ffe4e6" font-size="12">Arrêter, isoler, documenter, remédier</text>
+  <path d="M240 228 V251 H720 V228" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5" fill="none"/><text x="480" y="273" text-anchor="middle" fill="#cbd5e1" font-size="12">Aucun changement en production avant validation des critères et du retour arrière.</text>
+  <circle cx="480" cy="115" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 0 25 L -240 25 L -240 45" dur="2.8s" repeatCount="indefinite"/></circle>
+  <circle cx="480" cy="140" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 240 0 L 240 20" dur="2.8s" begin="1.2s" repeatCount="indefinite"/></circle>
+</svg>
+
+### 1.7. Le pruning n'est pas une politique de sécurité
+
+VTP pruning limite certains trafics de diffusion, multicast et unicast inconnu sur les trunks qui n'ont pas besoin de les transporter jusqu'aux segments aval. Il ne remplace pas les listes de VLAN autorisés, les ACL, la segmentation, les protections de ports ou une politique de filtrage. Le pruning concerne la diffusion de certains trafics, et non la suppression du VLAN de la base.
+
+Pour expertiser un incident après activation du pruning, sépare les vérifications :
+
+1. le VLAN existe-t-il dans la base locale ?
+2. le trunk est-il opérationnel ?
+3. le VLAN est-il autorisé par la configuration ?
+4. le VLAN est-il actif sur le trunk et non pruné dans les conditions testées ?
+5. STP permet-il le chemin ?
+6. le trafic testé relève-t-il du type de trafic affecté par pruning ?
+
+Sur les équipements compatibles, VTP pruning reste limité à la plage 1–1005. Vérifie la documentation du modèle et les résultats réels plutôt que de généraliser la fonction à tous les VLAN étendus.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img" aria-labelledby="vtpprune-title vtpprune-desc">
+  <title id="vtpprune-title">Effet conceptuel du VTP pruning</title><desc id="vtpprune-desc">Le trafic de diffusion est transmis vers les trunks nécessaires à atteindre un VLAN actif en aval et n'est pas envoyé sur une branche qui n'en a pas besoin, quand les conditions d'éligibilité le permettent.</desc>
+  <rect width="960" height="300" rx="18" fill="#0b1220"/><text x="480" y="30" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="700">Pruning : réduire le transit inutile, pas supprimer le VLAN</text>
+  <rect x="40" y="92" width="170" height="90" rx="12" fill="#0f2d29" stroke="#34d399" stroke-width="2"/><text x="125" y="120" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">SW-DIST</text><text x="125" y="143" text-anchor="middle" fill="#d1fae5" font-size="12">VLAN 20 actif</text><text x="125" y="161" text-anchor="middle" fill="#d1fae5" font-size="12">diffusion locale</text>
+  <path d="M210 125 H365 L435 90 H540" stroke="#34d399" stroke-width="4" fill="none"/><path d="M530 82 l10 8 -10 8" stroke="#34d399" stroke-width="3" fill="none"/><rect x="550" y="57" width="170" height="68" rx="10" fill="#172554" stroke="#60a5fa"/><text x="635" y="82" text-anchor="middle" fill="#bfdbfe" font-size="13" font-weight="700">Branche utile</text><text x="635" y="103" text-anchor="middle" fill="#dbeafe" font-size="12">VLAN présent</text><rect x="760" y="57" width="155" height="68" rx="10" fill="#0f2d29" stroke="#34d399"/><text x="837" y="82" text-anchor="middle" fill="#a7f3d0" font-size="13" font-weight="700">SW-ACCÈS</text><text x="837" y="103" text-anchor="middle" fill="#d1fae5" font-size="12">destination VLAN 20</text><path d="M720 91 H753 M743 83 l10 8 -10 8" stroke="#60a5fa" stroke-width="3" fill="none"/>
+  <path d="M210 155 H370 L440 212 H545" stroke="#fb7185" stroke-width="3" stroke-dasharray="8 6" fill="none"/><path d="M533 202 l12 10 -12 10" stroke="#fb7185" stroke-width="3" fill="none"/><path d="M398 190 L426 234 M426 190 L398 234" stroke="#fb7185" stroke-width="4"/><rect x="550" y="185" width="170" height="58" rx="10" fill="#3b1720" stroke="#fb7185"/><text x="635" y="208" text-anchor="middle" fill="#fecdd3" font-size="13" font-weight="700">Branche inutile</text><text x="635" y="227" text-anchor="middle" fill="#ffe4e6" font-size="12">trafic éligible limité</text><text x="480" y="276" text-anchor="middle" fill="#94a3b8" font-size="12">Le trunk peut rester opérationnel et le VLAN autorisé même si le trafic éligible n'est pas relayé sur cette branche.</text>
+  <circle cx="210" cy="125" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 155 0 L 225 -35 L 330 -35" dur="3.2s" repeatCount="indefinite"/></circle>
+</svg>
+
+### 1.8. Modes transparent/off et VTP par interface
+
+Le mode transparent conserve une base VLAN locale qui n'est pas synchronisée avec la base reçue. Selon VTPv2/v3 et la plateforme, les annonces reçues peuvent néanmoins être relayées sur les trunks. Le mode off, lorsqu'il est disponible, fonctionne de manière similaire pour la base locale, mais ne relaie pas les annonces. Il faut vérifier le comportement effectif de la version logicielle et ne pas confondre la fonction VTP d'un commutateur avec l'état de ses trunks.
+
+Certaines plateformes IOS XE documentent aussi un contrôle de VTP par interface trunk, utile pour préciser sur quels ports une instance VTP peut émettre ou recevoir. La commande exacte dépend de la plateforme. Avant de l'utiliser, consulte `vtp interface ?` ou la référence CLI du logiciel installé et vérifie avec les commandes d'observation disponibles, notamment `show vtp interface` si prise en charge.
+
+La règle d'architecture est la suivante : les trunks physiques à travers lesquels VTP doit transiter doivent être identifiés et leur rôle documenté. Une restriction VTP par interface doit être cohérente des deux côtés et ne doit pas être utilisée à la place d'une liste explicite des VLAN transportés.
+
+### 1.9. Authentification, stockage du secret et sécurité des opérations
+
+Le mot de passe VTP contribue à l'acceptation des annonces dans les conditions prévues par la version ; ce n'est pas une protection universelle du réseau. Il ne remplace pas une administration sécurisée, les protections des trunks, le contrôle d'accès à la CLI, ni la gestion des changements.
+
+VTPv3 fournit des options d'authentification améliorées sur les plateformes compatibles. Certaines documentations Cisco décrivent les mots-clés `hidden` et `secret`, dont le sens et la syntaxe doivent être confirmés dans la version cible. Un secret masqué dans la configuration n'élimine pas le besoin de le conserver en lieu sûr : une opération de takeover peut demander à nouveau le mot de passe.
+
+Bonnes pratiques :
+
+- répartir les secrets uniquement aux administrateurs qui en ont besoin ;
+- éviter d'inclure la clé réelle dans des captures, tickets ou exemples de documentation ;
+- vérifier explicitement que les équipements utilisent les mêmes paramètres d'authentification requis ;
+- traiter une erreur de digest ou de mot de passe comme un problème à investiguer, pas comme une invitation à désactiver la sécurité ;
+- sauvegarder les configurations et la base de référence avant toute rotation ;
+- tester le changement de secret sur une maquette représentative avant la production.
+
+### 1.10. Données persistantes : running-config, startup-config et base VLAN
+
+Une confusion fréquente est de croire que `copy running-config startup-config` sauvegarde obligatoirement chaque état VTP et la base VLAN de la même manière sur toutes les versions. La base VLAN/VTP peut être conservée par des mécanismes différents selon le mode, la version et la plateforme. Le mode transparent présente également des particularités de persistance du mode et du nom de domaine dans la configuration.
+
+Un plan de sauvegarde expert doit identifier et vérifier séparément :
+
+- la configuration active et la configuration de démarrage ;
+- les informations VTP et le domaine ;
+- la liste réelle des VLAN, leurs noms et types ;
+- l'état du serveur primaire VTPv3 pour la base concernée ;
+- les trunks et les VLAN autorisés ;
+- les paramètres STP/MST associés ;
+- la preuve que les fichiers de sauvegarde peuvent être relus et utilisés pour restaurer une base cohérente.
+
+Ne supprime pas un fichier de base VLAN ni ne restaure une sauvegarde dans le but de « remettre la révision à zéro » sans suivre une procédure spécifique à la plateforme. En production, une manipulation directe du stockage est une action à haut risque.
+
+
+## 2. Observabilité : transformer les commandes en preuves
+
+### 2.1. Jeu minimal de commandes d'observation
+
+Les sorties exactes varient selon le matériel et le logiciel, mais les commandes suivantes constituent un point de départ utile lorsque le modèle les prend en charge.
+
+```cisco
+show vtp status
+show vtp counters
+show vtp devices
+show vtp devices conflict
+show vtp interface
+show vtp password
+show vlan brief
+show interfaces trunk
+show interfaces status
+show spanning-tree vlan 20
+show mac address-table dynamic vlan 20
+show logging
+```
+
+Toutes les commandes VTP ne sont pas disponibles sur chaque équipement. Par exemple, `show vtp devices` et la vue `conflict` sont associés à VTPv3 sur les plateformes qui les prennent en charge. Une commande non reconnue doit être remplacée par sa variante documentée ; elle ne prouve pas, à elle seule, qu'un mécanisme est inactif.
+
+### 2.2. Interpréter `show vtp status`
+
+Ne lis pas la sortie ligne par ligne sans contexte. Construis plutôt une fiche d'état :
+
+| Champ ou information | Ce que tu dois en déduire | Ce que cela ne prouve pas |
+|---|---|---|
+| Version en cours | Version réellement utilisée par ce commutateur | Compatibilité complète de tous les voisins |
+| Nom du domaine | Domaine configuré ou appris | Que la base est souhaitée et correcte |
+| Mode opératoire | Serveur, client, transparent ou off selon le support | Que les annonces circulent réellement sur tous les trunks |
+| Révision de configuration | État relatif de la base dans les mécanismes qui utilisent ce numéro | Qu'une révision élevée est valide ou qu'un service fonctionne |
+| Nombre de VLAN | État local annoncé par la sortie | Que la liste est identique au fichier de référence |
+| État primaire, si affiché | Autorité de publication de la base VTPv3 concernée | Que toutes les autres bases (ex. MST) ont le même état |
+| État digest/authentification | Indice lié à l'intégrité/acceptation des annonces | Que la politique d'administration est sûre |
+
+La preuve de cohérence est obtenue en comparant les résultats aux valeurs attendues et en vérifiant les équipements du chemin. Prends des sorties datées avant et après un changement pour permettre une comparaison fiable.
+
+### 2.3. Utiliser les compteurs VTP
+
+`show vtp counters` peut exposer des compteurs d'annonces récapitulatives, d'annonces de sous-ensemble, de requêtes ou d'erreurs de révision/digest selon la plateforme. Compare les compteurs avant et après une opération contrôlée :
+
+1. relève les compteurs sur les deux extrémités ;
+2. effectue une modification uniquement dans un laboratoire ;
+3. relève de nouveau les compteurs ;
+4. compare l'évolution aux événements attendus ;
+5. vérifie simultanément la base VLAN et l'état du trunk.
+
+Un compteur qui augmente montre qu'un type de message a été observé ou transmis selon sa définition. Il ne prouve pas à lui seul que la base a été appliquée. Une absence d'incrément peut signifier aucun changement, aucun message correspondant, une absence de trunk VTP, une restriction d'interface ou un détail de l'implémentation. Il faut corréler les données.
+
+### 2.4. Analyse de trames avec Wireshark
+
+Une capture peut confirmer si des messages de contrôle VTP sont visibles sur le segment étudié. Le trafic VTP est de couche 2 : un filtre IP générique n'est donc pas le bon point de départ. Sur les environnements où l'adresse de destination Cisco 01:00:0c:cc:cc:cc apparaît, ce filtre Ethernet peut aider à repérer le trafic de contrôle Cisco :
+
+```text
+eth.dst == 01:00:0c:cc:cc:cc
+```
+
+Ce filtre peut aussi afficher d'autres protocoles Cisco ; il ne signifie donc pas que chaque trame sélectionnée est VTP. Si le décodeur reconnaît VTP, applique ensuite le filtre d'affichage de protocole proposé par la version de Wireshark, par exemple `vtp`, puis inspecte l'arbre de décodage. Le filtre d'affichage disponible dépend de la version du logiciel et des trames capturées.
+
+Méthode de capture :
+
+1. capture sur un lien trunk entre deux commutateurs du domaine, pas sur un port d'accès ordinaire ;
+2. enregistre une courte capture de référence sans changement ;
+3. en laboratoire, déclenche un changement de VLAN autorisé ;
+4. capture les trames, horaires, directions et adresses source/destination ;
+5. corrèle les trames avec `show vtp counters` sur les deux commutateurs ;
+6. vérifie l'évolution de la base VLAN à la fin ;
+7. conserve la capture sans secrets et avec une note précisant la version du commutateur.
+
+La capture seule ne donne pas le contexte administratif complet : elle ne te dit pas si un VLAN vu dans l'annonce est approuvé, ni si les terminaux disposent d'une connectivité opérationnelle.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="310" viewBox="0 0 960 310" role="img" aria-labelledby="vtpcap-title vtpcap-desc">
+  <title id="vtpcap-title">Corréler une capture avec les compteurs et la base VLAN</title><desc id="vtpcap-desc">Trois sources de preuves indépendantes sont collectées : trames sur le trunk, compteurs VTP et base VLAN locale. Leur corrélation aide à établir la cause sans s'appuyer sur une seule sortie.</desc>
+  <rect width="960" height="310" rx="18" fill="#0b1220"/><text x="480" y="30" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="700">Une conclusion fiable repose sur plusieurs sources</text>
+  <rect x="55" y="76" width="230" height="100" rx="13" fill="#172554" stroke="#60a5fa" stroke-width="2"/><text x="170" y="103" text-anchor="middle" fill="#bfdbfe" font-size="14" font-weight="700">Capture Wireshark</text><text x="170" y="128" text-anchor="middle" fill="#dbeafe" font-size="12">les trames sont-elles visibles ?</text><text x="170" y="148" text-anchor="middle" fill="#dbeafe" font-size="12">qui parle et quand ?</text>
+  <rect x="365" y="76" width="230" height="100" rx="13" fill="#312e81" stroke="#a5b4fc" stroke-width="2"/><text x="480" y="103" text-anchor="middle" fill="#e0e7ff" font-size="14" font-weight="700">Compteurs VTP</text><text x="480" y="128" text-anchor="middle" fill="#e0e7ff" font-size="12">émission / réception</text><text x="480" y="148" text-anchor="middle" fill="#e0e7ff" font-size="12">erreurs ou requêtes ?</text>
+  <rect x="675" y="76" width="230" height="100" rx="13" fill="#0f2d29" stroke="#34d399" stroke-width="2"/><text x="790" y="103" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">Base VLAN locale</text><text x="790" y="128" text-anchor="middle" fill="#d1fae5" font-size="12">VLAN attendus présents ?</text><text x="790" y="148" text-anchor="middle" fill="#d1fae5" font-size="12">avant / après comparés ?</text>
+  <path d="M170 176 V214 H480 M480 176 V214 M790 176 V214 H480 V234" stroke="#94a3b8" stroke-width="2.5" fill="none"/><path d="M472 224 l8 10 8 -10" stroke="#94a3b8" stroke-width="2.5" fill="none"/><rect x="300" y="235" width="360" height="44" rx="10" fill="#1e293b" stroke="#64748b"/><text x="480" y="253" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Hypothèse corroborée</text><text x="480" y="270" text-anchor="middle" fill="#cbd5e1" font-size="11">+ trunk · STP · table MAC · test service</text>
+  <circle cx="170" cy="176" r="5" fill="#7dd3fc" stroke="#e0f2fe"><animateMotion path="M 0 0 L 0 38 L 310 38" dur="3s" repeatCount="indefinite"/></circle>
+  <circle cx="480" cy="176" r="5" fill="#c4b5fd" stroke="#ede9fe"><animateMotion path="M 0 0 L 0 38" dur="1.8s" begin="0.4s" repeatCount="indefinite"/></circle>
+  <circle cx="790" cy="176" r="5" fill="#86efac" stroke="#dcfce7"><animateMotion path="M 0 0 L 0 38 L -310 38 L -310 58" dur="3s" begin="0.8s" repeatCount="indefinite"/></circle>
+</svg>
+
+### 2.5. Construire une ligne de temps d'incident
+
+En situation de panne, l'heure d'une observation vaut presque autant que la valeur observée. Construis une chronologie simple :
+
+| Heure | Événement / observation | Équipement | Preuve | Hypothèse en cours |
 |---|---|---|---|---|
-| Server VTP v1/v2 | Oui | Oui | Oui | Commutateur de gestion de base dans les domaines classiques |
-| Client VTP v1/v2 | Non, pas de modification locale ordinaire de la base partagée | Oui | Relaye les informations selon le fonctionnement du protocole | Accès à gestion centralisée, environnements historiques |
-| Server secondaire VTPv3 | Oui selon les règles de version, mais les mises à jour VLAN nécessitent l'autorité primaire | Oui | Sauvegarde/réception et participation au domaine | Redondance et préparation d'un rôle primaire |
-| Primary server VTPv3 | Oui, autorité de modification pour l'instance concernée | Oui | Oui, diffuse les mises à jour autorisées | Source autorisée de changements de base |
-| Transparent | Oui, base locale indépendante | Non pour sa propre base | Pas en tant que source d'une base partagée ; peut relayer selon version | Autonomie locale, segmentation administrative ou laboratoire |
-| Off | Oui localement lorsque la plateforme le permet | Non pour sa propre base | N'émet pas ou ne relaie pas les annonces VTP selon la définition de la plateforme | Désactivation de VTP dans le périmètre considéré |
+| T−10 min | VLAN 20 présent | SW-DIST-1 | sortie enregistrée | état normal |
+| T0 | changement approuvé ou événement non identifié | SW-CORE-1 | ticket/log/console | événement déclencheur |
+| T+1 min | compteurs VTP et base relus | SW-CORE-1 / SW-DIST-1 | commandes et capture | propagation ou défaut de transport |
+| T+5 min | trunks, STP, table MAC testés | chemin concerné | sorties datées | étendue réelle |
+| T+10 min | mesure de confinement / restauration | équipement contrôlé | journal d'action | retour à l'état validé |
 
-Les termes serveur et client n'ont pas exactement le même sens en VTPv3. Il ne faut pas appliquer mécaniquement à VTPv3 la règle historique selon laquelle tout commutateur en mode server peut propager une modification VLAN. En VTPv3, le rôle de **primary server** est un état opérationnel d'autorité associé à une instance, et non simplement un synonyme permanent de `vtp mode server`.
+Ne réinitialise pas prématurément les compteurs et ne remplace pas la base de référence avant d'avoir collecté les preuves nécessaires. Tu risquerais d'effacer l'indice qui permet de comprendre l'origine de l'incident.
 
-Un domaine peut fonctionner avec une base VTPv3 sans que chaque serveur secondaire soit primaire à tout instant. Le rôle primaire est obtenu par une opération explicite et doit être revalidé selon les procédures de reprise. Le fait qu'un équipement soit configuré en mode server ne prouve donc pas qu'il est le serveur primaire actuel.
 
-### 1.4. Trunks : le canal de transport des annonces
+## 3. Déploiement avancé et migration
 
-Pour échanger les annonces entre commutateurs, VTP dépend d'un réseau de trunks fonctionnels. Sur les trunks Ethernet classiques, les trames VTP sont associées à l'encapsulation de couche 2 prise en charge par la plateforme. Historiquement, la documentation Cisco décrit des annonces encapsulées dans des trames ISL ou 802.1Q selon la génération et la configuration des équipements. ISL est aujourd'hui une technologie historique ; 802.1Q est le mécanisme de marquage standard utilisé dans les réseaux Ethernet modernes.
+### 3.1. Étape 0 — décision d'architecture
 
-La destination MAC bien connue documentée par Cisco pour VTP est `01-00-0C-CC-CC-CC`. VTP utilise une encapsulation de contrôle spécifique ; ce n'est pas une annonce IP routée et elle n'est pas transférée à travers un routeur IP ordinaire comme un paquet applicatif. Elle suit le périmètre de couche 2 où les équipements peuvent échanger les annonces.
+Avant toute migration, justifie pourquoi VTP est utilisé. VTPv3 est recommandé par les guides Cisco pour les nouveaux déploiements qui ont besoin de VTP sur des plateformes compatibles, mais ce conseil ne signifie pas qu'il faut activer VTP dans chaque réseau. Une gestion locale explicite en mode transparent/off peut être plus appropriée si la centralisation ne répond pas à un besoin concret.
 
-La présence physique d'un câble entre deux commutateurs ne suffit pas. Il faut que la liaison soit en trunk, que les paramètres de trunk soient compatibles, que le port ne soit pas dans un état qui bloque le transport des annonces pertinentes et que les versions soient compatibles. Une incohérence de native VLAN peut être un défaut de conception ou de sécurité, même si elle n'empêche pas systématiquement tout échange VTP.
+Décisions à documenter :
 
-Les annonces VTP et les trames utilisateur ne répondent pas exactement aux mêmes règles. La liste des VLANs autorisés sur un trunk limite le transport des trames de ces VLANs, mais il ne faut pas déduire sans vérification que chaque restriction de VLAN autorisé entraîne la même restriction pour tous les messages de contrôle VTP. Le comportement dépend de la plateforme et du traitement des trames de contrôle. L'observation de l'état VTP et du trunk doit précéder toute conclusion.
+- portée du domaine et frontières de site ;
+- base VLAN autoritaire et procédure de changement ;
+- versions et capacités de tous les commutateurs ;
+- usage éventuel de VLAN étendus, PVLAN ou base MST ;
+- gestion des secrets et des accès administratifs ;
+- mécanisme de surveillance et de retour arrière ;
+- règles d'intégration des nouveaux commutateurs.
 
-### 1.5. Types d'annonces VTP
+### 3.2. Étape 1 — inventaire et export des états
 
-Les versions classiques de VTP s'appuient sur différents types d'annonces qui coordonnent la vérification de la base et le transfert d'informations VLAN.
-
-| Type d'annonce | Rôle conceptuel | Utilité opérationnelle |
-|---|---|---|
-| Summary Advertisement | Présente l'identité du domaine et l'état de révision | Permet à un voisin de déterminer s'il doit demander une base plus récente |
-| Subset Advertisement | Transporte des enregistrements de VLAN | Communique le contenu de la base, parfois réparti en plusieurs annonces |
-| Advertisement Request | Demande les informations nécessaires pour synchroniser la base | Utilisée lorsqu'un commutateur détecte qu'il lui manque une version plus récente |
-| Join message | Aide au fonctionnement de certaines fonctions historiques, notamment liées au pruning | Participe aux mécanismes de gestion du trafic selon la version et le contexte |
-
-Dans les versions classiques, une annonce récapitulative contient notamment le nom de domaine, la version VTP, le numéro de révision et d'autres informations d'identification. Une annonce de sous-ensemble fournit les informations VLAN détaillées. Lorsque plusieurs VLANs sont présents, plusieurs annonces peuvent être nécessaires.
-
-Ces messages sont des mécanismes de contrôle, pas des commandes de configuration textuelles. Le commutateur reçoit, valide et interprète les données selon l'état local, le mode VTP, le mot de passe, la version et les règles d'autorité applicables. L'administrateur ne doit donc pas se limiter à constater qu'un paquet VTP circule : le contenu doit être accepté et la base locale doit présenter le résultat attendu.
-
-### 1.6. Numéro de révision : mécanisme et risques
-
-Le numéro de révision est un compteur de 32 bits utilisé dans VTP pour distinguer les versions successives de la base de configuration. Dans les scénarios VTP v1/v2 classiques, une modification VLAN sur un serveur augmente le compteur et provoque des annonces. Un commutateur recevant une annonce du même domaine compare le numéro distant au numéro local. Si la base annoncée est considérée comme plus récente, le commutateur peut demander les informations et remplacer sa base correspondante selon les règles du protocole.
-
-Le numéro de révision ne constitue pas un contrôle de qualité. Il ne prouve pas que la base distante est correcte, qu'elle correspond au plan d'adressage actuel ou qu'elle a été approuvée par l'équipe réseau. Il représente une notion de fraîcheur relative au protocole. La conséquence est importante : dans les domaines v1/v2, le raccordement d'un équipement possédant un numéro élevé et une base incohérente peut provoquer la diffusion de cette base dans le domaine lorsque les conditions d'acceptation sont réunies.
-
-Exemple conceptuel : un réseau de production possède 42 VLANs et une révision VTP de 18. Un commutateur de laboratoire contient seulement 5 VLANs, mais sa révision vaut 93. Si ce commutateur est connecté sans préparation dans un domaine VTP v1/v2 compatible, ses annonces peuvent être interprétées comme une version plus récente. Dans le pire des cas, des VLANs attendus sont supprimés de la base des commutateurs du domaine, même si les configurations des ports et certaines interfaces de couche 3 n'ont pas été modifiées. Le trafic associé devient alors indisponible jusqu'à la restauration de la base et la correction des dépendances.
-
-Le numéro de révision doit être vérifié avant l'intégration d'un équipement. Dans certains environnements historiques, une procédure courante consistait à isoler le commutateur, changer temporairement son nom de domaine, puis le restaurer, afin de remettre le compteur à zéro. Cette procédure est dépendante de la version et ne doit pas être appliquée aveuglément en production. Avec VTPv3, il faut plutôt examiner l'état primaire, la version, la base VLAN et la procédure de prise de contrôle prévue.
-
-Un numéro plus grand n'est pas toujours « meilleur » au sens opérationnel. Il indique une révision associée à la base, mais il ne garantit ni l'intégrité du plan de VLAN ni la légitimité de la source. Les sauvegardes de la base VLAN, les exports de configuration, les contrôles avant raccordement et les procédures de retour arrière sont plus importants qu'une confiance aveugle dans le compteur.
-
-### 1.7. Fonctionnement du processus de synchronisation
-
-Un cycle de synchronisation classique peut être représenté ainsi :
-
-```text
-   Commutateur A                         Commutateur B
-   Base VLAN rev. 18                     Base VLAN rev. 12
-          |                                      |
-          |---- Summary Advertisement ---------->| 
-          |     domaine CAMPUS, rev. 18          |
-          |                                      |
-          |                         Compare domaine/version/revision
-          |                                      |
-          |<--- Advertisement Request ------------|
-          |                                      |
-          |---- Subset Advertisement(s) --------->|
-          |     liste des VLANs                   |
-          |                                      |
-          |                         Valide et met à jour la base
-          |                                      |
-          |                         Base VLAN rev. 18
-```
-
-Le schéma est conceptuel et représente le chemin classique d'une demande suivie d'annonces. Les échanges exacts, leur fréquence, les champs présents et les décisions dépendent de la version VTP et du contexte. Il ne faut pas supposer que chaque mise à jour s'effectue toujours avec exactement un paquet de chaque type.
-
-La séquence doit être évaluée à partir de plusieurs conditions : le domaine doit correspondre, les versions doivent être compatibles, le mot de passe doit être correct si configuré, la connexion trunk doit transporter les annonces et le mode local doit autoriser la participation à la synchronisation. Sous VTPv3, le contrôle supplémentaire du serveur primaire entre également en jeu pour les modifications de base.
-
-L'opération n'affecte pas automatiquement les ports d'accès. Si VLAN 120 est ajouté à la base, les commutateurs apprennent sa définition, mais aucun port ne rejoint spontanément ce VLAN. Le trunk doit aussi autoriser VLAN 120. Le spanning tree doit permettre le chemin, et une passerelle L3 doit être configurée si les hôtes doivent joindre d'autres sous-réseaux.
-
-### 1.8. Différences entre VTP v1, v2 et v3
-
-| Fonction | VTP v1 | VTP v2 | VTP v3 |
-|---|---|---|---|
-| Domaine de gestion | Oui | Oui | Oui, avec mécanismes adaptés à la version |
-| Numéro de révision | Oui | Oui | Oui, avec contrôle d'autorité supplémentaire |
-| Prise en charge des VLANs étendus | Limitée / non prise en charge dans les scénarios classiques | Limitée / non prise en charge dans les scénarios classiques | Prise en charge sur les plateformes compatibles |
-| Prise en charge des Private VLANs par la base VTP | Non dans les versions historiques | Non dans les versions historiques | Oui sur les plateformes compatibles, avec précautions de mode |
-| Serveur primaire explicite | Non | Non | Oui |
-| Distribution de la base MST | Non comme fonction VTPv3 | Non comme fonction VTPv3 | Possible selon la plateforme et l'instance |
-| TLV inconnus | Comportement plus restrictif | Support amélioré | Contrôle et extensions liés à la version |
-| Compatibilité avec la version antérieure | Dépend de la version et du domaine | V1 et V2 ne doivent pas être considérées comme interchangeables dans le même domaine | VTPv3 n'accepte pas les informations de configuration provenant d'un équipement v1/v2 comme source de mise à jour valide |
-
-VTP v2 ajoute notamment la prise en charge de certains types de VLAN historiques, la propagation de TLV inconnus par les équipements compatibles et une différence de traitement du mode transparent. Ces fonctionnalités sont importantes dans les environnements anciens, mais elles ne doivent pas être confondues avec le contrôle du serveur primaire introduit par VTPv3.
-
-VTPv3 doit être activé explicitement sur chaque équipement concerné ; il ne faut pas supposer que le mécanisme d'activation automatique historique de VTPv2 s'applique à VTPv3. La documentation Cisco précise également que VTPv1 et VTPv2 ne sont pas interopérables au sein d'un même domaine de façon générale, et que les équipements uniquement compatibles v1 ne peuvent pas participer à un domaine VTPv3. Dans une migration, il faut donc inventarier les modèles et les versions logicielles avant de choisir la stratégie.
-
-Les changements de version ne sont pas des opérations cosmétiques. Ils peuvent modifier le comportement d'acceptation des annonces, la disponibilité des types de VLAN et la façon de valider les mises à jour. Il est indispensable de réaliser une matrice de compatibilité à partir de la documentation constructeur de chaque gamme de commutateurs.
-
-### 1.9. VTPv3 : primaire, secondaires et autorité de modification
-
-VTPv3 distingue le mode de fonctionnement du commutateur et le rôle primaire pour une instance de base. Tous les serveurs VTPv3 ne sont pas primaires en permanence. L'opération de prise de rôle primaire autorise un serveur donné à diffuser les mises à jour de la base concernée. Une instance peut concerner la base VLAN ou, sur les plateformes compatibles, la base MST.
-
-La commande Cisco typique pour activer la version 3 est `vtp version 3`. Le rôle primaire pour la base VLAN est ensuite obtenu en mode privilégié par une commande telle que `vtp primary vlan`, sous réserve de la syntaxe de la version. Une variante `force` permet de prendre le contrôle en outrepassant certains conflits, et doit être réservée à une procédure explicitement validée. Ce n'est pas une commande de réparation à essayer sans sauvegarde.
-
-Le rôle primaire est opérationnel et peut être perdu après un redémarrage, un changement de paramètres du domaine ou une transition de rôle selon la plateforme. La procédure d'exploitation doit donc prévoir comment reconnaître le primaire actif, comment en réélire un de façon contrôlée et comment vérifier la cohérence après bascule. Une simple configuration `vtp mode server` ne prouve pas qu'un équipement détient encore l'autorité primaire.
-
-Un serveur secondaire est utile pour maintenir un équipement préparé à prendre la responsabilité de la base, mais cela ne signifie pas que plusieurs serveurs peuvent modifier librement la base VLAN en même temps. VTP a été conçu pour favoriser un processus de changements contrôlé, pas pour résoudre de manière générale les conflits multi-maîtres comme un système de base de données distribué conçu à cet effet.
-
-La désignation du serveur primaire doit être traitée comme une opération de changement. Avant la prise de rôle, l'administrateur compare les VLANs existants, exporte les configurations, vérifie le domaine, le mot de passe, la version et l'état des trunks. Après la prise de rôle, il vérifie la révision, la base, la diffusion et le résultat sur les commutateurs du domaine. Le recours à `force` peut écraser des informations concurrentes ; l'option ne doit donc pas être intégrée à un script de routine sans garde-fous.
-
-### 1.10. Plages de VLAN et implications de version
-
-Les VLANs sont identifiés par un ID. Dans l'environnement Cisco classique, on distingue généralement une plage normale de 1 à 1005 et une plage étendue au-delà de 1005, jusqu'à 4094 pour le format VLAN ID 12 bits, avec des réserves et limites liées à la plateforme. Le traitement des VLANs 1002 à 1005 est historique : ils sont réservés à des usages particuliers et ne doivent pas être traités comme des VLANs utilisateurs ordinaires. Les limites exactes d'utilisation et de propagation dépendent de la version de VTP et de l'équipement.
-
-VTPv1/v2 et VTPv3 n'ont pas les mêmes capacités pour les VLANs étendus. Dans un environnement qui exige des VLANs au-dessus de 1005, il faut vérifier que chaque équipement et chaque version de logiciel prend en charge la base et le mode attendus. VTPv3 est la version à examiner pour les environnements compatibles qui nécessitent la distribution de VLANs étendus.
-
-Un piège consiste à confondre la capacité de créer un VLAN localement et la capacité de le distribuer par VTP. Un commutateur en mode transparent peut accepter localement une définition qui ne se propage pas comme une mise à jour VTP partagée. De même, un VLAN présent dans la base ne signifie pas que le VLAN est autorisé dans les listes de trunk. Ces mécanismes sont indépendants et doivent être testés séparément.
-
-### 1.11. VTP pruning : principe et limites
-
-Le VTP pruning cherche à limiter la diffusion de certains trafics de couche 2 sur des trunks où les VLANs concernés ne sont pas nécessaires en aval. Il vise principalement à réduire le transport inutile de broadcasts, d'unicasts inconnus et de certains flux qui seraient autrement propagés au sein d'un VLAN.
-
-Exemple : SW1 est relié à SW2 et SW3. Le VLAN 30 est utilisé uniquement derrière SW2 ; aucun port ni équipement participant à VLAN 30 ne se trouve derrière SW3. Sans mécanisme de pruning, les trames de diffusion de VLAN 30 peuvent être envoyées sur le trunk vers SW3 si VLAN 30 est transporté. Le pruning peut permettre à SW1 de ne pas envoyer certains trafics de ce VLAN sur un trunk lorsque le voisinage aval n'en a pas besoin.
-
-```text
-                    +-------------+
-                    |     SW1     |
-                    +-------------+
-                      /         \
-             trunk A /           \ trunk B
-                    /             \
-              +---------+      +---------+
-              |   SW2   |      |   SW3   |
-              +---------+      +---------+
-              VLAN 30           Aucun port
-              utilisé           VLAN 30
-
-   Sans pruning : certains broadcasts VLAN 30 peuvent
-   être transportés vers SW3 si le trunk le permet.
-
-   Avec pruning : le transport peut être réduit sur le
-   trunk B si les conditions d'élagage sont réunies.
-```
-
-Le pruning ne remplace pas la commande `switchport trunk allowed vlan`. La liste des VLANs autorisés définit quels VLANs peuvent être transportés sur le trunk. Le pruning détermine si certains trafics de VLANs pourtant transportables sont nécessaires en aval, selon le mécanisme de signalisation pris en charge. Pour réduire la surface d'exposition, on doit définir explicitement des listes de VLANs autorisés plutôt que de compter uniquement sur le pruning.
-
-La documentation Cisco précise que VTP pruning ne s'applique pas à tous les VLANs : VLAN 1, VLANs 1002 à 1005 et VLANs étendus au-delà de 1005 sont non éligibles dans les contextes documentés. Le pruning prend effet après un délai de convergence et ne doit pas être supposé immédiat. Son comportement exact doit être confirmé sur la version et la gamme utilisées.
-
-Le pruning est annoncé et coordonné dans le domaine et dépend de la connaissance des VLANs qui sont nécessaires derrière certains ports. Il ne faut pas l'activer à l'aveugle sur un réseau qui présente des contraintes spécifiques de téléphonie, de services L2, de PVLAN ou des dispositifs qui ne déclarent pas la présence de manière attendue. La validation consiste à tester les flux de broadcast, à examiner les trunks, à confirmer les VLANs autorisés et à vérifier les états de pruning exposés par la plateforme.
-
-### 1.12. Trunk allowed VLAN, native VLAN et VTP : ne pas confondre
-
-Le trunk 802.1Q est un mécanisme de transport multi-VLAN. Sa configuration possède ses propres paramètres, notamment le mode de trunk, l'encapsulation lorsqu'elle est configurable, la VLAN native et la liste des VLANs autorisés. VTP ne remplace aucun de ces paramètres.
-
-| Mécanisme | Question à laquelle il répond | Exemple de commande de vérification |
-|---|---|---|
-| Base VLAN locale | Le commutateur connaît-il la définition de VLAN 120 ? | `show vlan brief` |
-| VTP | La définition est-elle partagée et synchronisée dans le domaine ? | `show vtp status` |
-| Trunk | La liaison transporte-t-elle VLAN 120 ? | `show interfaces trunk` |
-| Port d'accès | Le poste est-il affecté à VLAN 120 ? | `show running-config interface ...` |
-| STP | Le chemin est-il dans un état permettant le transfert dans VLAN 120 ? | `show spanning-tree vlan 120` |
-| Couche 3 | Existe-t-il une passerelle et une route pour le trafic inter-VLAN ? | `show ip interface brief`, `show ip route` |
-
-Une configuration VTP réussie peut donc coexister avec une panne de service. Le VLAN peut être appris partout, mais absent de la liste autorisée d'un trunk. Il peut être autorisé, mais le chemin STP peut être bloqué sur le lien attendu. Il peut circuler en couche 2, mais la passerelle peut être absente ou mal configurée. Le dépannage doit suivre la chaîne complète au lieu d'attribuer tout problème VLAN à VTP.
-
-La VLAN native mérite une attention particulière. Elle concerne le traitement du trafic non étiqueté sur le trunk, et son incohérence peut entraîner des erreurs, des problèmes de sécurité ou des écarts de classification. Il est recommandé d'utiliser une VLAN native dédiée et inutilisée pour les hôtes lorsque la conception le permet, et de faire correspondre les paramètres aux deux extrémités. Les bonnes pratiques exactes dépendent de la plateforme et de l'architecture ; elles ne sont pas assurées par VTP.
-
-### 1.13. Modes transparent et off dans une architecture moderne
-
-Le mode transparent est pertinent lorsque chaque commutateur doit maintenir une base VLAN locale ou lorsque le domaine de synchronisation partagé n'est pas souhaité. Il peut également convenir pour séparer un périmètre d'exploitation tout en relayant certaines annonces dans des scénarios de transit. Le comportement du relais dépend de la version. Le mode off vise une désactivation plus explicite de VTP, y compris la non-transmission des annonces selon la définition Cisco.
-
-Il faut toujours confirmer le résultat opérationnel après changement de mode. Sur certaines familles, la commande de mode et le domaine peuvent être enregistrés dans la configuration, alors que la base VLAN utilise un fichier de base distinct (`vlan.dat`) ou un mécanisme de stockage particulier. En conséquence, la persistance après redémarrage dépend du modèle et de la méthode de configuration. La configuration de sauvegarde ne doit pas être supposée contenir à elle seule toutes les informations de la base VLAN.
-
-Le passage en transparent n'est pas un moyen universel d'effacer une base VTP ou de remettre la révision à zéro. Il modifie le comportement de participation et peut avoir des conséquences sur la persistance de la base. Avant tout changement, exporter la configuration, documenter le domaine, sauvegarder la base lorsque la plateforme le permet et confirmer les conditions de redémarrage.
-
-Dans les réseaux qui choisissent de ne pas utiliser VTP, une approche robuste consiste à configurer les VLANs localement ou au moyen d'un système d'automatisation contrôlé. Cette méthode demande davantage de rigueur pour garantir la cohérence entre commutateurs, mais elle permet d'éviter qu'une seule base VTP mal préparée soit propagée à toute l'infrastructure. Il n'existe pas de stratégie universellement meilleure : la décision dépend du risque accepté, de la taille du domaine, des compétences d'exploitation, des outils d'automatisation et des capacités des équipements.
-
-### 1.14. Sécurité et modèle de menace
-
-Le principal risque VTP n'est pas une simple erreur de nom de VLAN : c'est la possibilité qu'une modification de base non souhaitée soit acceptée puis propagée dans un périmètre plus large. Dans les réseaux v1/v2, le numéro de révision peut amplifier l'impact si un commutateur est raccordé avec une base inattendue. VTPv3 améliore le contrôle de l'autorité de modification, mais le réseau reste vulnérable à une mauvaise opération d'administration, à des secrets exposés ou à des trunks non maîtrisés.
-
-Les mesures de défense doivent être superposées :
-
-- désactiver la négociation de trunk automatique lorsque cela est approprié et configurer explicitement les trunks ;
-- limiter les VLANs autorisés sur chaque trunk au strict nécessaire ;
-- désactiver les ports inutilisés et les placer dans un VLAN de quarantaine ou une configuration de sécurité conforme à la politique ;
-- limiter les interfaces qui peuvent former des liens de couche 2 vers des commutateurs inconnus ;
-- protéger les accès d'administration par SSH, AAA, mots de passe robustes et séparation du réseau de gestion ;
-- documenter et surveiller les changements de VTP, de VLAN, de trunk et de STP ;
-- sauvegarder la base VLAN et la configuration avant les opérations de maintenance ;
-- n'intégrer un commutateur neuf, reconditionné ou de laboratoire qu'après vérification de sa version, de son domaine, de son mode et de sa révision ;
-- privilégier VTPv3 quand la plateforme et les besoins le justifient, tout en contrôlant explicitement le serveur primaire.
-
-Le mot de passe VTP n'est pas une solution magique. Il permet de faire rejeter les annonces non conformes à la valeur configurée, mais il doit être configuré de manière cohérente et conservé en sécurité. Il ne protège pas contre une erreur effectuée par un administrateur légitime, ne remplace pas la restriction des trunks et ne constitue pas à lui seul une architecture de contrôle d'accès complète.
-
-### 1.15. Politique de gestion : changement, sauvegarde et retour arrière
-
-À un niveau expert, toute modification de base VLAN doit être considérée comme un changement de service. Elle peut modifier l'appartenance de ports, l'état de trunks, les instances STP, les passerelles L3, les politiques de sécurité et la connectivité de plusieurs applications. Une opération VTP devrait donc être précédée d'une validation du périmètre d'impact.
-
-Un dossier de changement doit contenir au minimum : l'objectif, les VLANs concernés, le commutateur autorisé à modifier la base, la version VTP, le domaine, l'état primaire si VTPv3 est utilisé, les trunks concernés, la liste des VLANs autorisés, les dépendances STP, les interfaces L3 et les tests de validation.
-
-La sauvegarde doit inclure des sorties structurées telles que `show vtp status`, `show vlan brief`, `show interfaces trunk`, `show spanning-tree summary`, `show running-config` et les informations de sauvegarde supportées par le modèle. Comme la base VLAN peut être stockée indépendamment de la configuration texte, la procédure doit prévoir sa sauvegarde spécifique si le système le permet. Une simple copie de `running-config` n'est pas nécessairement suffisante.
-
-Le retour arrière doit indiquer comment restaurer la base VLAN attendue, comment vérifier la cohérence sur les membres du domaine et comment contrôler que les trunks et ports d'accès restent conformes. Une suppression massive de VLANs puis leur recréation peut être dangereuse si les VLANs sont associés à des politiques, à des interfaces virtuelles ou à des fonctionnalités spécifiques. Les opérations de restauration doivent être testées avant d'être nécessaires.
-
-> **Piège :** Le numéro de révision n'est ni une signature de qualité ni une preuve d'autorité. En VTP v1/v2, un équipement ayant une révision élevée peut présenter une base inattendue et déclencher une synchronisation dommageable si les conditions de domaine et de compatibilité sont réunies. Ne raccorde jamais directement un commutateur récupéré ou issu d'un laboratoire à un domaine de production sans contrôle préalable. En VTPv3, vérifie en plus le primaire actif et n'utilise pas `vtp primary ... force` comme une commande de dépannage improvisée. Enfin, ne confonds pas « VLAN appris par VTP » avec « VLAN transporté sur le trunk » : la base partagée, la liste allowed VLAN, le port d'accès, STP et le routage constituent des couches de contrôle distinctes.
-
-```text
-              DOMAINE DE GESTION VTP
-   +--------------------------------------------------+
-   |                                                  |
-   |    +-------------+      +-------------+          |
-   |    | SW-CORE-1   |======| SW-CORE-2   |          |
-   |    | VTPv3       |      | VTPv3       |          |
-   |    | Primary     |      | Secondary   |          |
-   |    +-------------+      +-------------+          |
-   |            ||                   ||              |
-   |       trunks 802.1Q        trunks 802.1Q         |
-   |            ||                   ||              |
-   |      +-------------+      +-------------+       |
-   |      | SW-ACC-1    |      | SW-ACC-2    |       |
-   |      | client ou   |      | transparent |       |
-   |      | mode adapté |      | base locale |       |
-   |      +-------------+      +-------------+       |
-   |                                                  |
-   +--------------------------------------------------+
-
-   VTP : distribution de la base de VLANs.
-   Trunk : transport de trames multi-VLAN.
-   STP : contrôle des chemins L2 sans boucle.
-   VLAN membership : affectation des ports.
-   Routage L3 : communication entre sous-réseaux.
-```
-
-## 2. Configuration et Pratique
-
-Les exemples qui suivent utilisent une syntaxe de type Cisco IOS / IOS XE courante. La prise en charge et les mots-clés précis peuvent varier selon le modèle, la version logicielle et l'instance VTP. Avant d'appliquer une configuration, confronte les commandes à la documentation de la plate-forme et teste-les dans un laboratoire. Les blocs sont des modèles pédagogiques, pas une instruction de coller toutes les commandes sur un réseau en production sans adaptation.
-
-### 2.1. Topologie de laboratoire
-
-Le laboratoire comprend trois commutateurs : SW1 est le commutateur de distribution choisi pour être serveur primaire VTPv3 ; SW2 est un serveur secondaire de secours ; SW3 est un commutateur d'accès configuré pour participer à la base selon la politique de l'exercice. Les trunks sont explicitement configurés en 802.1Q sur les plateformes qui proposent cette syntaxe.
-
-```text
-                    Domaine VTP : CAMPUS
-                    Version de référence : 3
-
-                      +----------------+
-                      |      SW1       |
-                      | VTP Server     |
-                      | Primary VLAN   |
-                      +----------------+
-                         ||          \\
-                         || trunk     \\ trunk
-                         ||             \\
-                 +----------------+   +----------------+
-                 |      SW2       |===|      SW3       |
-                 | Server /       |   | Client ou      |
-                 | Secondary      |   | mode validé    |
-                 +----------------+   +----------------+
-
-   VLANs du laboratoire :
-   10 USERS
-   20 VOICE
-   30 SERVERS
-   40 GUEST
-   999 NATIVE-UNUSED (exemple de VLAN native dédiée)
-```
-
-La topologie de laboratoire doit être isolée de la production. Avant l'activation de VTP, il faut vérifier qu'aucune liaison de commutation ne connecte le laboratoire à un domaine qui partage involontairement le même nom et la même version. La base VLAN initiale doit être sauvegardée sur les trois commutateurs.
-
-### 2.2. Inventaire avant configuration
-
-Sur chaque commutateur, collecter les informations suivantes :
+Exécute des commandes d'observation sur tous les commutateurs concernés. Adapte le jeu de commandes à la plateforme :
 
 ```cisco
 show version
 show vtp status
-show vtp password
+show vtp counters
+show vtp devices
 show vlan brief
 show interfaces trunk
 show spanning-tree summary
-show running-config
-```
-
-Toutes les commandes ne sont pas disponibles sous la même forme sur chaque modèle. `show vtp password` n'affiche pas nécessairement le secret en clair ; il sert à vérifier la présence du paramètre selon l'implémentation. L'objectif est d'établir la version logicielle, le mode, la version VTP, le domaine, le numéro de révision, l'état de pruning, les VLANs existants et les trunks opérationnels.
-
-Les informations doivent être sauvegardées dans un dossier de changement horodaté. Une sortie de commande est souvent plus utile qu'une capture d'écran seule, car elle peut être recherchée et comparée. Dans les environnements automatisés, un outil de collecte peut produire une base de référence avant et après chaque changement.
-
-### 2.3. Configuration de base du serveur VTPv3
-
-Exemple de configuration sur SW1. Il faut s'assurer que les commandes sont prises en charge par la version IOS/IOS XE utilisée.
-
-```cisco
-hostname SW1
-!
-! Préparer explicitement le domaine VTP et la version.
-vtp domain CAMPUS
-vtp version 3
-vtp mode server
-!
-! Exemple pédagogique : remplacer par un secret fort
-! géré selon la politique de l'organisation.
-vtp password Remplacer-Par-Un-Secret-Fort hidden
-!
-! Exemple d'un trunk vers SW2. Adapter le nom d'interface.
-interface GigabitEthernet1/0/1
- description TRUNK_VERS_SW2
- switchport mode trunk
- switchport trunk native vlan 999
- switchport trunk allowed vlan 10,20,30,40,999
- no shutdown
-!
-! Exemple d'un trunk vers SW3.
-interface GigabitEthernet1/0/2
- description TRUNK_VERS_SW3
- switchport mode trunk
- switchport trunk native vlan 999
- switchport trunk allowed vlan 10,20,30,40,999
- no shutdown
-!
-end
-copy running-config startup-config
-```
-
-Cette configuration prépare SW1 à participer au domaine. Le mot de passe doit être configuré de façon cohérente sur les équipements concernés. Les mots `hidden` et `secret` dépendent des versions récentes de la plateforme ; si la syntaxe n'est pas disponible, utiliser la syntaxe documentée pour le logiciel concerné, sans exposer le secret dans des systèmes de suivi non protégés.
-
-Avant de créer les VLANs, examiner les paramètres VTP. Le passage au rôle primaire intervient en mode privilégié, une fois le domaine et la version préparés et après confirmation que la base locale est celle que l'équipe veut diffuser.
-
-```cisco
-SW1# show vtp status
-SW1# show vlan brief
-SW1# vtp primary vlan
-```
-
-Sur certaines versions, l'opération peut demander une confirmation. La variante `vtp primary vlan force` ne doit être utilisée que lorsque le changement d'autorité a été évalué, que les conséquences de remplacement sont comprises et que la procédure l'autorise. Il faut confirmer dans `show vtp status` l'état primaire et l'identité correspondante avant de procéder à la modification de la base.
-
-### 2.4. Créer les VLANs sur le primaire
-
-Après validation du rôle primaire sur SW1, créer les VLANs nécessaires :
-
-```cisco
-configure terminal
-!
-vlan 10
- name USERS
-!
-vlan 20
- name VOICE
-!
-vlan 30
- name SERVERS
-!
-vlan 40
- name GUEST
-!
-vlan 999
- name NATIVE-UNUSED
-!
-end
-copy running-config startup-config
-```
-
-Les VLANs et les noms sont des exemples. Il faut appliquer la convention d'identification de l'entreprise, limiter les VLANs aux usages réels et vérifier la compatibilité avec les autres fonctions de commutation. Le VLAN 999 est illustratif : il ne suffit pas de nommer un VLAN « native unused » pour rendre sa configuration sûre. Aucun port utilisateur ne doit être affecté à ce VLAN et les paramètres de native VLAN doivent correspondre aux deux extrémités du trunk.
-
-Une fois la base modifiée, vérifier à nouveau le statut et la liste VLAN :
-
-```cisco
-show vtp status
-show vlan brief
-show interfaces trunk
-```
-
-Ensuite, vérifier sur SW2 et SW3 que les VLANs se sont propagés comme prévu. Si la base n'est pas reçue, ne pas enchaîner immédiatement d'autres changements. Contrôler le domaine, la version, le mot de passe, le mode, le trunk et les journaux.
-
-### 2.5. Préparer un serveur secondaire et un membre client
-
-SW2 peut être configuré en serveur VTPv3 secondaire afin de maintenir une capacité opérationnelle de reprise. SW3 peut être configuré suivant la politique retenue ; le mode client convient dans une architecture qui souhaite distribuer la base tout en empêchant les changements locaux de base partagée. Sur les plateformes compatibles, les clients VTPv3 peuvent recevoir les informations de base correspondantes, mais ils ne se comportent pas comme des serveurs primaires.
-
-Exemple pour SW2 :
-
-```cisco
-hostname SW2
-vtp domain CAMPUS
-vtp version 3
-vtp mode server
-vtp password Remplacer-Par-Un-Secret-Fort hidden
-!
-interface GigabitEthernet1/0/1
- description TRUNK_VERS_SW1
- switchport mode trunk
- switchport trunk native vlan 999
- switchport trunk allowed vlan 10,20,30,40,999
- no shutdown
-!
-interface GigabitEthernet1/0/2
- description TRUNK_VERS_SW3
- switchport mode trunk
- switchport trunk native vlan 999
- switchport trunk allowed vlan 10,20,30,40,999
- no shutdown
-end
-copy running-config startup-config
-```
-
-Exemple pour SW3 en mode client :
-
-```cisco
-hostname SW3
-vtp domain CAMPUS
-vtp version 3
-vtp mode client
-vtp password Remplacer-Par-Un-Secret-Fort hidden
-!
-interface GigabitEthernet1/0/1
- description TRUNK_VERS_SW1
- switchport mode trunk
- switchport trunk native vlan 999
- switchport trunk allowed vlan 10,20,30,40,999
- no shutdown
-end
-copy running-config startup-config
-```
-
-Dans un réseau réel, la redondance de la topologie physique et l'état de STP doivent être traités séparément. VTP ne crée pas un chemin redondant fonctionnel à lui seul. Sur SW2, ne lancer une promotion primaire qu'en cas de changement approuvé et après validation de la base locale.
-
-### 2.6. Exemple de mode transparent ou off
-
-Lorsque la conception exige une base VLAN locale indépendante, utiliser le mode transparent ou off selon le besoin de relais des annonces et le comportement pris en charge par la plateforme. Les commandes exactes doivent être vérifiées avant usage.
-
-```cisco
-hostname SW-EDGE
-vtp domain EDGE-LOCAL
-vtp version 3
-vtp mode transparent
-!
-! Les VLANs sont gérés localement sur cet équipement.
-vlan 110
- name EDGE-USERS
-vlan 120
- name EDGE-VOICE
-!
-end
-copy running-config startup-config
-```
-
-Le domaine dans cet exemple est local et n'est pas destiné à rejoindre le domaine de gestion CAMPUS. Il faut vérifier les effets du mode transparent sur la transmission de messages sur cette version. Si la politique impose que VTP ne soit ni traité ni relayé, le mode off peut mieux correspondre à l'objectif, sous réserve des commandes prises en charge.
-
-Le mode transparent doit aussi être évalué avec les Private VLANs et d'autres fonctions spéciales. La documentation Cisco indique, pour les versions et plateformes décrites, des restrictions de mode lorsque des Private VLANs sont configurés. La recommandation est de ne pas changer le mode sans vérifier les dépendances locales.
-
-### 2.7. Pruning : activation et vérification
-
-Le pruning peut être envisagé lorsque la base VTP est cohérente et que le besoin de réduire le trafic diffusé sur certains trunks a été établi. Sur les plateformes qui prennent en charge la commande classique :
-
-```cisco
-configure terminal
-vtp pruning
-end
-```
-
-Cette configuration est typique des environnements IOS traditionnels. Le support, la portée de l'activation et les options peuvent différer sur des versions plus récentes. Vérifier la valeur et l'état opérationnel avec les commandes d'état VTP et de trunk disponibles :
-
-```cisco
-show vtp status
-show interfaces trunk
-show vlan brief
-```
-
-VTP pruning n'élimine pas un VLAN de la base, et n'a pas pour fonction de retirer automatiquement le VLAN de toutes les listes autorisées sur tous les trunks. Il limite certains trafics sur les trunks lorsque les conditions du mécanisme sont réunies. La liste de VLANs autorisés continue de constituer un contrôle distinct et déterministe du transport.
-
-Les VLANs non éligibles au pruning dans la documentation Cisco courante comprennent VLAN 1, VLANs 1002 à 1005 et les VLANs de plage étendue au-delà de 1005. Il faut confirmer ce comportement sur la plateforme. Le pruning ne doit pas servir de justification pour laisser tous les VLANs autorisés sur tous les trunks.
-
-### 2.8. Vérifier systématiquement les résultats
-
-Après chaque modification de VTP, utiliser une matrice de validation :
-
-| Contrôle | Commande ou méthode | Résultat attendu |
-|---|---|---|
-| Version et état VTP | `show vtp status` | Domaine, version, mode et révision conformes |
-| Autorité primaire v3 | `show vtp status`, commande documentée pour le rôle | Le primaire attendu est identifié pour la base visée |
-| Base VLAN | `show vlan brief` | VLANs et noms attendus présents |
-| Trunks opérationnels | `show interfaces trunk` | Les interfaces attendues sont des trunks actifs |
-| VLANs autorisés | `show interfaces trunk` | Liste allowed conforme au modèle de sécurité |
-| STP | `show spanning-tree vlan <id>` | Chemin et rôles STP conformes à la topologie |
-| Port d'accès | Configuration de l'interface | Poste affecté au bon VLAN et fonctions d'accès appliquées |
-| Couche 3 | Vérification des SVI, routes, ACLs et tests | Connectivité attendue, sans ouverture involontaire |
-| Persistance | Sauvegarde puis contrôle après maintenance prévue | Base et mode toujours cohérents après redémarrage contrôlé |
-
-Les sorties doivent être comparées avant/après et non simplement lues de manière isolée. En environnement de production, conserver les résultats dans le ticket de changement. Une alarme de surveillance peut détecter des changements de VLAN, de trunk ou de STP, mais la surveillance n'exclut pas la validation humaine d'une opération à fort impact.
-
-### 2.9. Sauvegarde et documentation
-
-VTP ne dispense pas de maintenir une source de vérité pour le plan VLAN. Pour chaque VLAN, documenter l'identifiant, le nom, la fonction, les plages IP, la passerelle, les zones de sécurité, les trunks qui doivent le transporter, les ports d'accès attendus et les dépendances applicatives.
-
-La sauvegarde doit inclure la configuration du commutateur et, lorsque la plateforme stocke la base dans un fichier séparé, la méthode de sauvegarde de ce fichier. Les systèmes d'exploitation réseau n'ont pas tous la même gestion du fichier de base VLAN ; utiliser uniquement une commande générique sans vérifier le stockage peut laisser la base non sauvegardée.
-
-Exemples de commandes à collecter selon le modèle :
-
-```cisco
 show running-config
 show startup-config
+```
+
+Consigne au minimum : hostname, modèle, version IOS/IOS XE, domaine, version VTP en cours, mode, révision, VLAN locaux, VLAN étendus, trunks actifs, liste autorisée par trunk, mode STP/MST, secrets configurés (sans les recopier en clair) et rôle primaire éventuel.
+
+Crée un inventaire comparatif. L'écart entre deux commutateurs peut être attendu si l'un est transparent/off ; sinon il doit être expliqué avant de continuer.
+
+### 3.3. Étape 2 — sauvegarde et base de référence
+
+Une sauvegarde valide ne se limite pas à exécuter une commande. Il faut vérifier qu'elle correspond au bon équipement et au bon instant, qu'elle peut être relue, et qu'elle contient les données nécessaires au rétablissement. Pour la base VLAN, exporte ou consigne la liste attendue, les identifiants, noms et types de VLAN, et les éléments de conception qui lient les VLAN aux trunks et services.
+
+Prépare :
+
+- les configurations avant changement ;
+- une liste VLAN de référence et sa date ;
+- les valeurs attendues pour les paramètres VTP ;
+- un diagramme de topologie trunk ;
+- le plan de retour arrière et les personnes autorisées à le déclencher ;
+- les tests de succès mesurables.
+
+### 3.4. Étape 3 — maquette de migration VTPv3
+
+La maquette doit inclure les modèles logiciels représentatifs, les trunks, les bases VLAN, l'authentification et la base MST si celle-ci est concernée. Les fonctions VTPv3 ne sont pas uniformément ém ulées par tous les simulateurs. Packet Tracer et d'autres simulateurs peuvent ne pas reproduire tous les détails de VTPv3, du serveur primaire, de l'authentification ou des VLAN étendus. Si l'outil ne prend pas en charge une fonctionnalité, ne considère pas le test comme une preuve : utilise un environnement IOS/IOS XE compatible.
+
+Scénarios à tester au minimum :
+
+1. propagation d'un VLAN ajouté sur la base de référence ;
+2. changement de nom de VLAN et vérification des membres ;
+3. incohérence de domaine ou de mot de passe ;
+4. perte ou changement d'état du serveur primaire ;
+5. conflit de serveurs VTPv3 ;
+6. VLAN étendu avec les équipements qui doivent le recevoir ;
+7. trunk opérationnel mais VLAN retiré de la liste autorisée ;
+8. configuration de pruning sur une branche où le trafic est ou n'est pas requis ;
+9. redémarrage et vérification des états persistants ;
+10. retour à la base et à la version précédentes selon la procédure approuvée.
+
+### 3.5. Étape 4 — activer VTPv3 de façon coordonnée
+
+La procédure exacte dépend de l'IOS/IOS XE. Sur les plateformes qui prennent en charge la syntaxe classique, une préparation peut ressembler à ceci :
+
+```cisco
+configure terminal
+vtp domain CAMPUS-LAB
+vtp version 3
+vtp mode server
+! Mot de passe : appliquer la syntaxe documentée pour la version cible.
+! Exemple quand l'option est prise en charge :
+! vtp password <SECRET_DE_LAB> hidden
+end
+copy running-config startup-config
 show vtp status
+```
+
+Applique la version cible à chaque équipement concerné conformément au plan de migration et aux recommandations de la plateforme ; VTPv3 n'est pas activé de la même manière automatique que certains comportements v1/v2. Ne copie pas l'exemple tel quel en production, ne mets pas un secret réel dans un dépôt de cours et n'assume pas que `hidden` est disponible sur chaque IOS.
+
+Après configuration, compare le domaine, la version en cours, le mode et l'état de la base. Ne promeus pas un serveur primaire avant d'avoir déterminé quelle base est la source de vérité.
+
+### 3.6. Étape 5 — valider le serveur primaire et la base publiée
+
+Sur le candidat primaire :
+
+1. confirme que les VLAN et leurs noms correspondent à la base approuvée ;
+2. compare le plan des VLAN étendus et des VLAN spéciaux avec les capacités de chaque voisin ;
+3. vérifie l'état des trunks et la continuité attendue ;
+4. relève les états VTP des serveurs et les conflits éventuels ;
+5. effectue le takeover de la base voulue pendant la fenêtre autorisée ;
+6. réponds à la confirmation seulement après validation formelle ;
+7. confirme l'état VTPv3 sur le serveur et les membres ;
+8. vérifie la base sur un ensemble représentatif de commutateurs ;
+9. teste des ports d'accès, les VLAN transportés et les services concernés.
+
+Exemples de commandes d'observation et, si elles sont disponibles, d'opération :
+
+```cisco
+show vtp status
+show vtp devices
+show vtp devices conflict
+! Action à exécuter uniquement après autorisation et comparaison de la base :
+vtp primary vlan
+```
+
+La commande `vtp primary vlan` est un acte de contrôle, pas une commande d'inspection. N'exécute pas `force` pour contourner une confirmation ou un conflit sans comprendre la base qui sera publiée.
+
+### 3.7. Étape 6 — surveillance post-changement
+
+Définis une courte période d'observation après la migration. Compare les données avant/après et teste au moins un terminal ou service pour chacun des VLAN critiques. Ne valide pas un changement simplement parce qu'aucune alerte n'est apparue.
+
+Critères de succès possibles :
+
+- tous les équipements attendus affichent le domaine et la version prévus ;
+- l'état primaire est conforme pour la base concernée ;
+- aucun conflit VTPv3 inexpliqué n'est présent ;
+- la liste des VLAN, noms et types correspond à la référence ;
+- tous les trunks requis sont opérationnels et transportent les VLAN attendus ;
+- aucune anomalie STP/MST n'est constatée ;
+- les services de test réussissent ;
+- la configuration et l'inventaire après changement ont été sauvegardés.
+
+### 3.8. Plan de retour arrière et limites de réversibilité
+
+Un retour arrière n'est crédible que si ses préconditions sont connues. Le retour d'une version VTPv3 vers v1/v2 peut être impossible ou inadapté si l'architecture utilise des VLAN étendus ou des fonctions non compatibles. Le plan doit donc décider avant le changement si le retour consiste à restaurer une base, repasser temporairement une frontière en transparent/off, revenir à une version antérieure, ou poursuivre la remédiation sans downgrade.
+
+Ne remplace pas un retour arrière planifié par une commande de reset improvisée. Définis précisément :
+
+- le signal qui déclenche l'arrêt ;
+- la personne qui autorise le retour ;
+- les changements qu'on annule et ceux qu'on ne peut pas annuler ;
+- la base de référence à restaurer ;
+- les étapes empêchant une base erronée de se propager à nouveau ;
+- les tests prouvant que la situation est revenue à un état acceptable.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="320" viewBox="0 0 960 320" role="img" aria-labelledby="vtpchange-title vtpchange-desc">
+  <title id="vtpchange-title">Porte de changement et retour arrière</title><desc id="vtpchange-desc">Une migration doit passer par l'inventaire, la sauvegarde et la validation en laboratoire. Si les critères de succès échouent, une porte d'arrêt mène à un retour arrière documenté.</desc>
+  <rect width="960" height="320" rx="18" fill="#0b1220"/><text x="480" y="30" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="700">Aucun changement ne part sans porte de contrôle</text>
+  <g font-family="Arial,sans-serif"><rect x="45" y="74" width="180" height="65" rx="11" fill="#172554" stroke="#60a5fa" stroke-width="2"/><text x="135" y="99" text-anchor="middle" fill="#bfdbfe" font-size="13" font-weight="700">1 · Inventaire</text><text x="135" y="119" text-anchor="middle" fill="#dbeafe" font-size="12">état de référence</text><rect x="275" y="74" width="180" height="65" rx="11" fill="#172554" stroke="#60a5fa" stroke-width="2"/><text x="365" y="99" text-anchor="middle" fill="#bfdbfe" font-size="13" font-weight="700">2 · Sauvegarde</text><text x="365" y="119" text-anchor="middle" fill="#dbeafe" font-size="12">restauration vérifiée</text><rect x="505" y="74" width="180" height="65" rx="11" fill="#312e81" stroke="#a5b4fc" stroke-width="2"/><text x="595" y="99" text-anchor="middle" fill="#e0e7ff" font-size="13" font-weight="700">3 · Changement</text><text x="595" y="119" text-anchor="middle" fill="#e0e7ff" font-size="12">fenêtre autorisée</text><rect x="735" y="74" width="180" height="65" rx="11" fill="#0f2d29" stroke="#34d399" stroke-width="2"/><text x="825" y="99" text-anchor="middle" fill="#a7f3d0" font-size="13" font-weight="700">4 · Vérification</text><text x="825" y="119" text-anchor="middle" fill="#d1fae5" font-size="12">critères objectifs</text>
+  <path d="M225 106 H268 M258 99 l10 7 -10 7 M455 106 H498 M488 99 l10 7 -10 7 M685 106 H728 M718 99 l10 7 -10 7" stroke="#94a3b8" stroke-width="2.5" fill="none"/>
+  <path d="M825 139 V180 H620 V205" stroke="#fb7185" stroke-width="2.5" stroke-dasharray="7 5" fill="none"/><path d="M612 195 l8 10 8 -10" stroke="#fb7185" stroke-width="2.5" fill="none"/><rect x="420" y="205" width="400" height="65" rx="11" fill="#3b1720" stroke="#fb7185" stroke-width="2"/><text x="620" y="230" text-anchor="middle" fill="#fecdd3" font-size="14" font-weight="700">Critères échoués → STOP</text><text x="620" y="250" text-anchor="middle" fill="#ffe4e6" font-size="12">appliquer le retour arrière convenu</text><path d="M420 238 H165 V140" stroke="#fb7185" stroke-width="2" stroke-dasharray="7 5" fill="none"/><path d="M157 150 l8 -10 8 10" stroke="#fb7185" stroke-width="2" fill="none"/><text x="480" y="300" text-anchor="middle" fill="#94a3b8" font-size="12">Le retour arrière doit être défini et testé avant le début de la fenêtre de changement.</text></g>
+  <circle cx="225" cy="106" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 43 0" dur="1s" repeatCount="indefinite"/></circle>
+  <circle cx="455" cy="106" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 43 0" dur="1s" begin="0.35s" repeatCount="indefinite"/></circle>
+  <circle cx="685" cy="106" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 43 0" dur="1s" begin="0.7s" repeatCount="indefinite"/></circle>
+</svg>
+
+
+## 4. Diagnostic expert par symptômes
+
+### 4.1. Les VLAN disparaissent sur plusieurs commutateurs
+
+**Priorité :** limiter la propagation d'une éventuelle base incorrecte sans détruire les preuves.
+
+1. Identifie l'étendue : quels commutateurs, VLAN et services sont affectés ?
+2. Collecte `show vtp status`, `show vtp counters`, la sortie `show vlan brief` et les journaux sur les équipements critiques.
+3. Repère le dernier événement connu : changement de VLAN, ajout d'un commutateur, reload, takeover ou modification d'authentification.
+4. Compare les informations aux sauvegardes datées ; ne te fie pas uniquement à un numéro de révision.
+5. Vérifie les trunks et STP pour déterminer si les VLAN ont disparu de la base ou sont simplement bloqués dans le transport.
+6. Si une base erronée continue à être publiée, suis la procédure d'incident et d'isolation approuvée ; n'improvise pas un changement de domaine en production.
+7. Restaure depuis une source de vérité validée, en respectant la version et l'autorité de base actives.
+8. Vérifie chaque VLAN critique et les services de bout en bout avant de déclarer l'incident clos.
+
+### 4.2. Les compteurs augmentent, mais la base n'est pas attendue
+
+Une trame reçue n'est pas égale à une mise à jour acceptée. Vérifie le domaine, la version, l'authentification, le mode, la compatibilité des annonces et l'état primaire si VTPv3 est en jeu. Inspecte les messages d'erreur et la capture lorsque possible. Vérifie ensuite si la base de référence est celle qui doit réellement être publiée.
+
+### 4.3. Aucune annonce visible dans la capture
+
+Procède du physique vers le protocole :
+
+1. le port est-il up/up ?
+2. la liaison est-elle réellement un trunk opérationnel ?
+3. la capture est-elle prise sur le bon lien, au bon moment, et dans le bon sens ?
+4. VTP est-il activé globalement et, si la plateforme le permet, sur l'interface concernée ?
+5. les compteurs changent-ils pendant l'opération ?
+6. le protocole de capture reconnaît-il le message ou faut-il examiner le trafic Cisco de couche 2 ?
+
+Ne conclus pas à un défaut de VTP si la capture est faite sur un port miroir mal configuré ou si le changement déclencheur n'a pas eu lieu.
+
+### 4.4. Le domaine semble cohérent mais un seul VLAN ne traverse pas
+
+Ce symptôme pointe souvent vers le transport de couche 2, pas vers la synchronisation : vérifie la présence du VLAN aux commutateurs du chemin, la liste autorisée de chaque trunk, son état opérationnel, STP, l'apprentissage MAC, le port d'accès et les tests IP. Ne crée pas une autre fois le VLAN sur le serveur VTP avant d'avoir prouvé qu'il est absent de la base : cela peut augmenter la confusion et modifier l'état du domaine inutilement.
+
+### 4.5. `show vtp devices conflict` affiche un conflit
+
+Sur les plateformes VTPv3 qui prennent en charge cette commande, conserve la sortie et relève l'identité du serveur primaire en conflit, la base concernée et le contexte du changement. Compare la base de chaque candidat avec l'inventaire de référence. Ne traite pas le conflit avec un takeover forcé avant d'avoir identifié quel état doit gagner. La résolution est une décision de changement : choisir la base, obtenir l'autorisation, prendre une sauvegarde, résoudre le conflit selon la procédure documentée, puis contrôler la cohérence du domaine.
+
+### 4.6. Après un reload ou un basculement, l'état primaire a changé
+
+Le rôle primaire VTPv3 n'est pas à supposer permanent. Vérifie `show vtp status` et les commandes d'observation VTPv3 disponibles. Confirme la base concernée, l'identité de l'autorité de publication et l'absence de conflit. N'initie pas de changement de base simplement pour faire disparaître un indicateur de statut ; détermine si une mise à jour est requise et autorisée.
+
+### 4.7. L'ajout de VLAN étendus semble réussir localement mais échoue ailleurs
+
+Vérifie la version VTPv3 sur les équipements qui doivent recevoir la base, la gamme et le logiciel, les limites de la plateforme, l'état des trunks et les listes de VLAN autorisés. Un VLAN présent localement ne constitue pas une preuve qu'il est propagé à travers tout le domaine. Évalue aussi si un membre ancien doit rester en mode transparent/off ou être remplacé dans le périmètre de propagation.
+
+### 4.8. Après activation du pruning, une application semble perdre sa connectivité
+
+Le pruning n'est pas le premier suspect automatique. Vérifie l'éligibilité du VLAN à la fonction, la topologie aval, le trunk, la liste autorisée, l'état STP, l'emplacement réel de la destination et le type de trafic. N'oublie pas que la portée documentée du pruning s'arrête aux VLAN 1–1005. Toute désactivation ou réactivation doit suivre le processus de changement et être testée sur les ports et services concernés.
+
+### Schéma animé — arbre de diagnostic
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="340" viewBox="0 0 960 340" role="img" aria-labelledby="vtpdiag-title vtpdiag-desc">
+  <title id="vtpdiag-title">Arbre de décision pour une panne VLAN</title><desc id="vtpdiag-desc">Le diagnostic examine d'abord la base VTP, ensuite le trunk et la liste autorisée, puis STP, l'apprentissage MAC et les services IP.</desc>
+  <rect width="960" height="340" rx="18" fill="#0b1220"/><text x="480" y="30" text-anchor="middle" fill="#e2e8f0" font-size="20" font-weight="700">Suivre la couche fautive au lieu de modifier VTP au hasard</text>
+  <rect x="320" y="55" width="320" height="48" rx="10" fill="#172554" stroke="#60a5fa" stroke-width="2"/><text x="480" y="75" text-anchor="middle" fill="#dbeafe" font-size="13" font-weight="700">1 · VLAN présent dans la base locale ?</text><text x="480" y="92" text-anchor="middle" fill="#bfdbfe" font-size="11">show vlan brief / VTP status</text>
+  <path d="M480 103 V127 H235 V145 M480 127 H725 V145" stroke="#94a3b8" stroke-width="2.3" fill="none"/>
+  <rect x="55" y="145" width="360" height="57" rx="10" fill="#3b1720" stroke="#fb7185"/><text x="235" y="168" text-anchor="middle" fill="#fecdd3" font-size="13" font-weight="700">NON → Base VTP / mode / version</text><text x="235" y="187" text-anchor="middle" fill="#ffe4e6" font-size="11">domain, auth, primary, annonces, révision</text>
+  <rect x="545" y="145" width="360" height="57" rx="10" fill="#0f2d29" stroke="#34d399"/><text x="725" y="168" text-anchor="middle" fill="#a7f3d0" font-size="13" font-weight="700">OUI → Le trunk transporte le VLAN ?</text><text x="725" y="187" text-anchor="middle" fill="#d1fae5" font-size="11">show interfaces trunk / VLAN autorisés</text>
+  <path d="M725 202 V226 H480 V244" stroke="#94a3b8" stroke-width="2.3" fill="none"/><path d="M472 234 l8 10 8 -10" stroke="#94a3b8" stroke-width="2.3" fill="none"/><rect x="295" y="244" width="370" height="55" rx="10" fill="#312e81" stroke="#a5b4fc"/><text x="480" y="266" text-anchor="middle" fill="#e0e7ff" font-size="13" font-weight="700">Trunk correct → STP / MAC / IP</text><text x="480" y="285" text-anchor="middle" fill="#e0e7ff" font-size="11">chemin, port d'accès, passerelle, ACL</text>
+  <text x="480" y="324" text-anchor="middle" fill="#94a3b8" font-size="12">Conserve les sorties avant/après et valide chaque couche indépendamment.</text>
+  <circle cx="480" cy="103" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 0 24 L -245 24 L -245 42" dur="3s" repeatCount="indefinite"/></circle>
+  <circle cx="480" cy="127" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 245 0 L 245 18" dur="3s" begin="0.7s" repeatCount="indefinite"/></circle>
+  <circle cx="725" cy="202" r="5" fill="#fef08a" stroke="#fff7ed"><animateMotion path="M 0 0 L 0 24 L -245 24 L -245 42" dur="3s" begin="1.4s" repeatCount="indefinite"/></circle>
+</svg>
+
+
+## 5. Laboratoires experts
+
+### 5.1. Règles de sécurité du laboratoire
+
+Ces exercices doivent être exécutés sur une topologie isolée. N'utilise pas un domaine VTP de production pour provoquer une erreur de révision, tester un conflit primaire ou simuler une base incorrecte. Sauvegarde les états initiaux. Utilise des noms de domaine de laboratoire, des VLAN de test et des équipements virtuels/hardware prévus pour l'exercice.
+
+**Topologie de référence :**
+
+```text
+                SW-CORE (base de référence)
+                   /                \
+                trunk               trunk
+                 /                    \
+          SW-DIST-1                 SW-DIST-2
+              |                         |
+          PC-TEST-A                 PC-TEST-B
+
+Domaine de laboratoire : VTP-LAB-EXPERT
+VLAN de test : 110 (USERS-A), 120 (USERS-B), 130 (MONITORING)
+```
+
+Adapte les interfaces à la plateforme. Vérifie d'abord que les trois commutateurs et les deux postes sont réellement isolés de toute autre topologie.
+
+### 5.2. Lab A — cartographier le domaine sans le modifier
+
+**But :** produire une fiche d'état de référence avant toute modification.
+
+Sur chaque commutateur, récupère les commandes disponibles :
+
+```cisco
+show version
+show vtp status
+show vtp counters
+show vtp devices
+show vtp interface
 show vlan brief
 show interfaces trunk
 show spanning-tree summary
+show running-config
 ```
 
-La sauvegarde de la base VLAN peut nécessiter une commande de fichier, une copie de la configuration ou une procédure propre à la plateforme. Le nom exact du fichier et son emplacement varient. Il faut suivre la documentation de la gamme et tester la restauration dans un environnement non productif.
+**Travail demandé :**
 
-### 2.10. Migrer vers VTPv3
+1. construire un tableau des paramètres VTP et des capacités de chaque commutateur ;
+2. identifier la source de vérité prévue pour la base VLAN ;
+3. comparer les VLAN et noter toute divergence ;
+4. cartographier chaque trunk et sa liste autorisée ;
+5. identifier les champs qui ne sont pas disponibles sur la plateforme et choisir des preuves alternatives ;
+6. rédiger une conclusion qui distingue les faits, les hypothèses et les inconnues.
 
-Une migration doit commencer par un inventaire de tous les membres possibles du domaine : modèles, versions logicielles, modes actuels, domaine, mot de passe, VLANs normaux et étendus, Private VLANs, trunks et éventuelles bases MST partagées. Ensuite, valider que toutes les plateformes visées prennent en charge la version cible et que la fenêtre de changement permet une interruption si une restauration s'avère nécessaire.
+**Livrable attendu :** une fiche d'état avant changement, datée et relue par un autre administrateur.
 
-Une approche rigoureuse suit ces étapes :
+### 5.3. Lab B — analyser une annonce avec Wireshark
 
-1. Exporter la configuration actuelle et les données d'état.
-2. Comparer la base VLAN actuelle sur tous les commutateurs concernés.
-3. Définir la source de vérité et le commutateur qui deviendra primaire.
-4. Vérifier et mettre à jour les versions logicielles si nécessaire.
-5. Configurer un mot de passe commun conformément à la politique.
-6. Appliquer VTPv3 selon une séquence compatible avec la documentation constructeur.
-7. Désigner explicitement le primaire de l'instance VLAN et vérifier son état.
-8. Contrôler la propagation et les révisions sur les membres.
-9. Valider les trunks, STP, les ports d'accès, les passerelles et les applications.
-10. Documenter la procédure de retour arrière et les restrictions de compatibilité.
+**But :** corréler la capture de contrôle avec la base et les compteurs.
 
-Il ne faut pas mélanger dans le même domaine des équipements dont la version et la capacité de traitement ne sont pas compatibles sans avoir validé le comportement prévu. Cisco indique que VTPv3 n'accepte pas la configuration provenant d'équipements VTPv1/v2 comme source d'informations de configuration valide. La transition n'est donc pas équivalente à une simple mise à jour de l'ensemble des commutateurs : elle demande un plan de coexistence ou une migration coordonnée.
+1. capture sur le trunk entre SW-CORE et SW-DIST-1 ;
+2. relève les compteurs VTP avant le test ;
+3. crée le VLAN 130 sur la source de référence dans le domaine isolé ;
+4. capture pendant le changement ;
+5. relève les compteurs une seconde fois ;
+6. vérifie `show vlan brief` sur les équipements prévus ;
+7. classe les observations : trame vue, annonce reconnue, compteur changé, base modifiée, connectivité validée.
 
-> **Astuce :** Avant tout raccordement d'un commutateur de remplacement, collecte au minimum `show vtp status`, `show vlan brief` et `show interfaces trunk`, puis compare le domaine, la version, la révision, la base VLAN et les ports de trunk à l'état de référence. Pour VTPv3, ajoute l'identification du primaire et une preuve que la base locale est celle qui doit faire autorité. La préparation hors ligne d'un équipement neuf ou réutilisé est souvent plus rapide et beaucoup moins risquée qu'une correction en urgence après propagation d'une mauvaise base.
+**Questions :**
 
----
+- Les quatre preuves évoluent-elles toujours en même temps ?
+- Que peut-on conclure si la trame est visible mais que la base du voisin reste inchangée ?
+- Que peut-on conclure si le VLAN apparaît dans la base mais que le terminal reste inaccessible ?
+- Pourquoi un filtre de destination Cisco ne prouve-t-il pas que chaque trame est VTP ?
 
-## 3. Dépannage et Sécurité
+### 5.4. Lab C — conflit de serveur primaire en VTPv3
 
-### 3.1. Méthode de diagnostic par couches
+**Condition :** utiliser uniquement un système qui prend explicitement en charge VTPv3 et les commandes d'observation/gestion associées.
 
-Lorsqu'un VLAN ne fonctionne pas, évite de conclure immédiatement à une panne VTP. Le diagnostic doit isoler successivement la définition VLAN, la diffusion VTP, le trunk, la liste des VLANs autorisés, l'affectation du port, STP et la couche 3.
+**But :** apprendre à résoudre un conflit avec preuve plutôt qu'en forçant le takeover.
 
-**Étape 1 : vérifier la base locale.** `show vlan brief` permet de déterminer si le VLAN existe localement. Si le VLAN est absent, vérifier le mode VTP et les annonces ; si la définition existe, passer à la vérification de trunk et de port.
+1. établis une base de référence contenant les VLAN 110, 120 et 130 ;
+2. vérifie le domaine, le mode, la version, l'authentification et l'état primaire ;
+3. relève `show vtp devices` et `show vtp devices conflict` si disponibles ;
+4. provoque uniquement dans la maquette le scénario contrôlé de conflit défini par la documentation de la version ;
+5. sauvegarde les sorties des deux candidats ;
+6. compare les bases et désigne celle qui doit être conservée ;
+7. résous le conflit selon la procédure documentée, sans utiliser `force` avant autorisation ;
+8. vérifie le statut primaire, la cohérence de la base, les trunks, STP et la connectivité.
 
-**Étape 2 : vérifier l'état VTP.** `show vtp status` doit afficher le domaine, la version, le mode, la révision et les informations prises en charge par la plateforme. Pour VTPv3, vérifier qui est primaire pour l'instance concernée. Une valeur de révision différente peut être attendue lors d'une transition ou selon le mode ; elle doit être interprétée avec la topologie et les règles de la version, pas utilisée comme unique verdict.
+**Critère de réussite :** tu peux justifier par écrit pourquoi une base doit gagner, plutôt que de dire seulement « la commande a fonctionné ».
 
-**Étape 3 : vérifier le transport.** `show interfaces trunk` permet de déterminer si la liaison est réellement en trunk et quels VLANs sont autorisés, actifs et en forwarding selon la présentation du logiciel. Les commandes exactes de sous-catégories varient entre IOS classique, IOS XE et autres systèmes Cisco.
+### 5.5. Lab D — déboguer un VLAN absent sur un trunk
 
-**Étape 4 : vérifier STP et les ports.** Examiner le rôle et l'état STP du VLAN, puis l'affectation du port utilisateur. Le port doit être opérationnel et associé au VLAN attendu. Les fonctions de sécurité de port, les ACLs et les paramètres de voix doivent être inclus dans l'analyse.
+**But :** distinguer la gestion de base du transport réel.
 
-**Étape 5 : contrôler la couche 3.** Si la communication inter-VLAN est attendue, vérifier l'interface VLAN/SVI, son état, l'adressage IP, le routage, les ACLs et les routes de retour.
-
-Cette séquence évite de confondre synchronisation de configuration et transfert effectif de trafic.
-
-### 3.2. Aucun changement VLAN ne se propage
-
-Si le VLAN est créé sur le serveur mais n'apparaît pas sur les membres, vérifier dans cet ordre :
-
-1. le domaine VTP est-il exactement identique ?
-2. la version est-elle compatible et correctement activée ?
-3. le mode local permet-il de participer à la réception de la base ?
-4. le mot de passe est-il présent et identique si utilisé ?
-5. les trunks sont-ils opérationnels entre les équipements ?
-6. l'annonce est-elle reçue et acceptée ?
-7. VTPv3 utilise-t-il le primaire prévu pour la base VLAN ?
-8. la plate-forme prend-elle en charge la plage et le type de VLAN concernés ?
-
-Une cause fréquente est l'hypothèse erronée selon laquelle un serveur en mode server peut toujours pousser des modifications. Sous VTPv3, il faut contrôler l'état primaire. Une autre cause est la présence d'un trunk incorrect ou d'un mot de passe oublié sur un commutateur nouvellement ajouté.
-
-Évite de modifier plusieurs paramètres simultanément. Un changement coordonné d'une seule variable à la fois permet d'observer l'effet et de conserver un diagnostic fiable. Toute modification doit être accompagnée d'une vérification de la base, du trunk et des journaux.
-
-### 3.3. Base incohérente ou révision inattendue
-
-Une différence de révision ne signifie pas toujours que la configuration est erronée. Elle peut refléter un état transitoire, une séparation de domaines, un mode transparent ou des mécanismes propres à la version. Cependant, une révision inattendue associée à une base VLAN incomplète est un signal d'alerte.
-
-En VTP v1/v2, il faut notamment rechercher un commutateur récemment raccordé, un changement de domaine, une réinitialisation, une restauration de base ou une modification effectuée sur un équipement inattendu. Avant toute correction, sauvegarder les états restants et reconstituer quel équipement a émis la dernière mise à jour acceptée.
-
-Ne pas résoudre automatiquement un écart en changeant le nom de domaine ou en recréant les VLANs. Ces opérations peuvent modifier l'état de synchronisation et produire davantage de changements. D'abord, identifier la base autorisée à faire référence, comparer les VLANs attendus et actuels, puis suivre la procédure de récupération adaptée à la version VTP.
-
-Avec VTPv3, vérifier le serveur primaire et l'état de la base de l'instance. Une promotion de primaire doit être planifiée, et `force` doit être réservé à un cas dans lequel l'écrasement des informations concurrentes a été explicitement accepté. Si l'origine d'une base incorrecte est inconnue, isoler le commutateur suspect avant de poursuivre les annonces.
-
-### 3.4. VLAN présent, mais absent du trunk
-
-Le fait qu'un VLAN existe dans la base VTP ne garantit pas qu'il est autorisé sur tous les trunks. Utiliser :
+Dans la maquette, retire volontairement le VLAN 120 de la liste autorisée sur un seul trunk (et sur aucun autre port) ; consigne l'état initial pour le restaurer exactement.
 
 ```cisco
-show interfaces trunk
-show running-config interface GigabitEthernet1/0/1
 show vlan brief
+show interfaces trunk
+show spanning-tree vlan 120
+show mac address-table dynamic vlan 120
 ```
 
-Contrôler séparément : le mode opérationnel du trunk, la liste des VLANs autorisés, les VLANs actifs, les VLANs que STP permet de transférer et le VLAN natif. Une liste allowed VLAN définie manuellement peut ne pas inclure un nouveau VLAN distribué par VTP. C'est souvent une mesure de sécurité intentionnelle : la base peut être commune alors que chaque trunk ne transporte qu'un sous-ensemble des VLANs nécessaires.
+Travail demandé : montrer que le VLAN peut exister dans la base tout en étant absent du transport sur un segment précis. Remets ensuite la liste autorisée conformément à la configuration de référence et prouve la restauration.
 
-Ne pas remplacer systématiquement une liste stricte par `all` pour réparer rapidement une panne. Une telle modification peut exposer des VLANs à des commutateurs ou segments qui ne doivent pas les transporter. Mettre à jour la liste conformément à la matrice d'autorisation et vérifier les deux extrémités du trunk.
+Ne remplace pas la liste autorisée complète par une petite liste sans vérifier l'effet des commandes. Certaines variantes IOS remplacent la liste existante au lieu d'y ajouter un VLAN.
 
-### 3.5. Problèmes liés au mode transparent
+### 5.6. Lab E — migration simulée vers VTPv3
 
-Un commutateur transparent maintient sa propre base VLAN. Il ne doit donc pas être dépanné comme un client dont la base devrait automatiquement refléter toute mise à jour reçue. Le relais des annonces dépend de la version et de la plateforme : dans certains contextes, les annonces peuvent être transférées sans que la base locale soit modifiée ; en mode off, le relais n'est pas effectué.
+**But :** rédiger une procédure de migration contrôlée.
 
-Vérifier le mode réel avec `show vtp status`, les VLANs avec `show vlan brief`, puis le trunk. Si le commutateur devait être autonome, l'absence de synchronisation peut être normale. Si le rôle prévu était client, il faut examiner la configuration du mode, la version, le domaine et les restrictions.
+Le lab peut être pratique si l'environnement prend en charge tous les éléments ; sinon, réalise une revue de conception sur papier et marque clairement les étapes non testées.
 
-Une base locale peut être perdue ou restaurée différemment après un redémarrage selon la manière dont le mode, le domaine et les VLANs sont stockés. Cette particularité rend les tests de persistance indispensables. Il faut suivre la documentation propre à la plate-forme pour confirmer que les VLANs créés localement et le mode transparent sont effectivement sauvegardés et restaurés comme prévu.
+| Phase | Action | Preuve obligatoire | Condition d'arrêt |
+|---|---|---|---|
+| 1 | inventaire complet | états VTP, VLAN, trunks, version | équipement non identifié |
+| 2 | sauvegarde | export lisible et liste VLAN | restauration non vérifiée |
+| 3 | maquette | résultat des scénarios critiques | conflit ou fonction non supportée |
+| 4 | transition version | version réellement active sur les membres prévus | membre incompatible non isolé |
+| 5 | serveur primaire | état primaire et base validée | base de référence ambiguë |
+| 6 | tests de service | VLAN, trunk, STP, table MAC, IP | perte d'un service critique |
+| 7 | clôture | inventaire final et compte-rendu | preuves manquantes |
 
-### 3.6. Pruning inattendu ou trafic de broadcast excessif
+**Livrable :** un runbook d'une page avec opérateur, relecteur, heure de changement, commandes, résultats attendus, seuil d'arrêt et retour arrière.
 
-Si certains trafics d'un VLAN n'apparaissent pas sur un trunk, vérifier si le pruning est activé et si le VLAN est éligible. Examiner ensuite la liste allowed VLAN, l'état du trunk, le voisinage aval et les informations STP. Un flux absent peut résulter d'une restriction de trunk plutôt que du pruning.
+### 5.7. Lab F — créer un rapport d'incident reproductible
 
-Si les broadcasts sont plus importants que prévu, vérifier d'abord la topologie, les boucles, les mécanismes de spanning tree, les ports d'accès et la portée réelle du VLAN. Le pruning ne corrige pas une boucle de couche 2 et ne remplace pas STP. Il réduit certains transports inutiles ; il ne doit pas être utilisé comme mécanisme principal pour limiter les domaines de broadcast.
+Choisis l'un des cas suivants : aucun message VTP visible, erreur d'authentification/digest, disparition d'un VLAN, conflit primaire ou VLAN bloqué sur un trunk.
 
-L'activation du pruning exige une observation post-changement. Attendre le délai de convergence documenté pour la plateforme, puis vérifier l'impact sur les flux requis. Les VLANs non éligibles au pruning et les limites du mécanisme doivent être pris en compte dans l'analyse.
+Le rapport doit inclure :
 
-### 3.7. Sécuriser les nouveaux commutateurs
+- symptôme exact et heure de début ;
+- topologie et équipements concernés ;
+- état initial attendu et éléments de preuve ;
+- commandes et captures réalisées ;
+- hypothèses classées par probabilité, avec éléments pour/contre ;
+- action de confinement et autorité qui l'a approuvée ;
+- correction réalisée ;
+- tests de restauration et résultats ;
+- mesures préventives.
 
-Tout équipement neuf, de remplacement ou de laboratoire doit passer par une procédure d'intégration hors réseau avant de rejoindre les trunks de production. Cette procédure devrait comprendre :
+Une conclusion comme « redémarrage effectué et c'est revenu » est insuffisante sans cause démontrée, preuves avant/après et contrôle des effets secondaires.
 
-- l'identification du modèle et de la version logicielle ;
-- la remise à niveau logicielle selon les standards ;
-- la collecte du statut VTP et de la base VLAN ;
-- la vérification de la version, du domaine, du mode et de la révision ;
-- la suppression des paramètres hérités inutiles selon la procédure approuvée ;
-- la configuration explicite des trunks et la limitation des VLANs autorisés ;
-- la mise en place des identifiants d'administration et de la journalisation ;
-- la validation de la sauvegarde de configuration et de base VLAN ;
-- un test en laboratoire avant connexion en production.
 
-Il ne faut pas dépendre d'un avertissement visuel ou du fait que le commutateur est réputé « neuf ». Les équipements reconditionnés ou réutilisés peuvent conserver un état logiciel ou une base de VLAN antérieure. Une procédure d'intégration est plus fiable qu'une supposition sur l'état initial.
+## 6. Études de cas
 
-### 3.8. Contrôle des trunks et réduction du domaine de diffusion
+### 6.1. Cas — la base est identique, mais l'application ne passe plus
 
-Les trunks doivent être configurés explicitement là où un trunk est nécessaire. Les ports inutilisés devraient être désactivés ou placés dans une configuration de quarantaine conforme à la politique de l'entreprise. La négociation automatique de trunk doit être évaluée et désactivée lorsqu'elle n'est pas nécessaire, en tenant compte de la plateforme et des voisins.
+**Situation :** SW-CORE, SW-DIST-1 et SW-DIST-2 montrent le VLAN 120. Les équipes affirment pourtant que l'application hébergée derrière SW-DIST-2 n'est plus joignable depuis le service correspondant.
 
-La liste des VLANs autorisés doit être définie selon le besoin réel du lien. Un trunk entre distribution et accès peut transporter un ensemble différent de VLANs qu'un trunk vers un serveur, un hyperviseur ou un commutateur d'un autre domaine. Un modèle strict facilite l'audit et réduit le risque d'extension involontaire d'un VLAN sensible.
+**Approche attendue :** ne pas modifier la base VTP. Compare les trunks sur tout le chemin, la liste autorisée, l'état opérationnel, STP, la table MAC, le port d'accès, l'IP et la passerelle. Localise le premier segment où l'état diverge. Si le VLAN est localement présent mais absent du trunk, la cause est au niveau du transport, pas de la distribution VTP.
 
-Une bonne pratique consiste à documenter la matrice des trunks : interface locale, voisin, type de lien, native VLAN, liste des VLANs autorisés, fonction, dépendances STP et justification. L'automatisation peut comparer la configuration courante à ce modèle et générer des alertes si un trunk transporte un VLAN non prévu.
+### 6.2. Cas — un nouveau commutateur porte une configuration inconnue
 
-### 3.9. Sauvegarde et récupération après une propagation incorrecte
+**Situation :** un équipement recyclé est ajouté au réseau pour remplacer un commutateur en panne. Il annonce le même domaine qu'un groupe VTPv1/v2 et affiche une révision inattendue.
 
-Si une base VLAN incorrecte a été propagée, arrêter les changements supplémentaires et éviter de connecter d'autres commutateurs susceptibles de la redistribuer. L'équipe doit établir quelle base représente la référence validée et isoler les équipements à l'origine du changement suspect.
+**Approche attendue :** isoler l'équipement, relever version, mode, domaine, révision et liste VLAN ; comparer avec la référence ; suivre la procédure de préparation propre à la plateforme ; ne le raccorder que lorsque sa participation est conforme. Dans les versions historiques, la révision plus élevée et des paramètres compatibles peuvent conduire les membres à accepter une base indésirable. Dans tous les cas, il faut se fier à la procédure et aux preuves, pas à l'hypothèse qu'un matériel recyclé serait « vierge ».
 
-La récupération doit commencer par les sauvegardes de la base et la configuration. Restaurer l'ensemble des VLANs ne suffit pas si les ports, trunks, interfaces SVI ou règles de sécurité ont eux aussi été modifiés. Il faut comparer les états actuels et attendus, restaurer dans un ordre défini, puis valider l'ensemble des chemins et services affectés.
+### 6.3. Cas — deux serveurs VTPv3 paraissent primaires
 
-Pour VTPv1/v2, le traitement du numéro de révision et la séquence de resynchronisation doivent suivre les recommandations de la plateforme. Une action destinée à remettre le compteur à zéro peut modifier le domaine et affecter la propagation. Pour VTPv3, la base et l'état primaire doivent être vérifiés avant toute prise de contrôle. Ne pas lancer une promotion forcée en pleine incertitude sans identifier quel jeu de données doit être conservé.
+**Situation :** les commandes d'observation sur la plateforme indiquent un conflit associé à des serveurs ou à une base.
 
-Après la restauration, confirmer la base sur tous les commutateurs participants, les listes de trunks, les états STP, les ports d'accès et la connectivité des applications. Fermer l'incident seulement lorsque les contrôles techniques et les tests métiers confirment le retour au service.
+**Approche attendue :** collecter l'état des deux serveurs et la base en cours, identifier si le conflit concerne la base VLAN ou MST, désigner une base de référence, sauvegarder et obtenir l'autorisation. Résoudre le conflit par la procédure supportée, puis vérifier le domaine, les membres, la base, les VLAN transportés et les services. Ne pas lancer immédiatement `vtp primary ... force`.
 
-### 3.10. Journalisation, surveillance et audit
+### 6.4. Cas — les VLAN étendus ne suivent pas la migration
 
-Les changements de VLAN et de trunk doivent être surveillés. En fonction des outils et de la plate-forme, utiliser les journaux système, les mécanismes d'archivage de configuration, les notifications SNMP ou la télémétrie disponible pour repérer les événements pertinents. La surveillance doit inclure l'état du domaine, les révisions, les changements de rôle primaire, les nouveaux VLANs, les suppressions et les modifications de trunk.
+**Situation :** le VLAN 1800 est configuré sur le commutateur de référence mais n'apparaît pas sur un membre héritant d'une configuration antérieure.
 
-Les sauvegardes de configuration peuvent être comparées automatiquement pour déterminer si la liste des VLANs autorisés a été élargie, si une interface a changé de mode ou si le domaine VTP a été modifié. Les alertes doivent être liées à une procédure de réponse afin d'éviter qu'elles ne deviennent un bruit ignoré par les opérateurs.
+**Approche attendue :** vérifier les versions réellement actives, la compatibilité du membre, la plage VLAN prise en charge, le domaine, l'authentification et les trunks. La propagation des VLAN étendus dépend de VTPv3 et des capacités de la plateforme. Un équipement qui ne peut pas les traiter ne doit pas être compté comme une destination correctement synchronisée.
 
-Un audit périodique doit contrôler :
 
-- que chaque domaine VTP dispose d'une source d'autorité connue ;
-- que la version et les modes sont conformes au standard ;
-- que les équipements anciens et non compatibles ont une stratégie explicite ;
-- que chaque trunk transporte uniquement les VLANs requis ;
-- que la VLAN native est cohérente et documentée ;
-- que les VLANs de gestion, utilisateurs, serveurs, invités et voix sont séparés conformément au design ;
-- que les sauvegardes sont récentes et restaurables ;
-- que les changements sont attribuables à un administrateur et associés à un ticket.
+## 7. Validation des connaissances
 
-### 3.11. Arbre de décision rapide
+### 7.1. Questions
 
-```text
-                 VLAN en panne ou absent
-                            |
-                            v
-                Le VLAN existe localement ?
-                     /             \
-                   NON             OUI
-                   |                |
-                   v                v
-           Vérifier VTP,       Le trunk le transporte ?
-           mode, domaine,           /       \
-           version, mot de passe   NON       OUI
-           et primaire             |         |
-                                  v          v
-                         Corriger la liste   Vérifier STP,
-                         allowed VLAN        port, sécurité,
-                                             SVI et routage
+**Question 1.** Une révision VTP élevée signifie-t-elle que la base VLAN est correcte ? Explique.
 
-   Ne pas utiliser VTP comme explication unique avant
-   d'avoir vérifié toute la chaîne de commutation.
-```
+**Question 2.** Quelle est la différence entre un équipement en mode serveur VTPv3 et un serveur primaire pour la base VLAN ?
 
-### 3.12. Scénario expert : intégration d'un commutateur de secours
+**Question 3.** Pourquoi faut-il vérifier séparément la base VLAN et la base MST dans un domaine VTPv3 qui utilise MST ?
 
-Une entreprise dispose d'un domaine VTPv3 CAMPUS avec un primaire actif et un serveur secondaire de secours. Un commutateur en réserve a été utilisé dans un laboratoire ; il est ensuite présenté comme remplacement d'un commutateur d'accès en panne. Le risque n'est pas limité aux ports du commutateur : ses paramètres VTP, son domaine, sa version et son historique peuvent avoir des effets sur le plan de contrôle s'il est raccordé sans préparation.
+**Question 4.** Quelle conclusion est permise si `show vtp counters` confirme la réception d'annonces, mais que le VLAN voulu n'apparaît pas dans la base locale ?
 
-La procédure doit commencer par une inspection en isolation. L'administrateur vérifie la version logicielle, le mode VTP, la base VLAN, les éventuelles fonctions Private VLAN, la révision, l'état d'instance et les paramètres de mot de passe. Il compare les résultats au standard cible. Il prépare ensuite les trunks avec une liste de VLANs minimale et détermine si le commutateur doit participer à VTP ou fonctionner en mode transparent/off.
+**Question 5.** Un VLAN existe sur les deux extrémités d'un trunk, mais les terminaux ne communiquent pas. Cite au moins quatre contrôles hors VTP.
 
-Le choix du rôle est une décision d'architecture. S'il s'agit d'un membre VTPv3, il doit être configuré avec la version, le domaine et le secret adaptés, puis synchronisé selon le mécanisme pris en charge. Il ne doit pas devenir primaire par accident. Si l'architecture locale ne nécessite pas la participation au domaine, un mode transparent ou off peut être préférable, mais la base VLAN locale doit être préparée et sauvegardée.
+**Question 6.** Pourquoi un retour VTPv3 vers v1/v2 doit-il être planifié avant la migration si des VLAN étendus sont utilisés ?
 
-Après l'intégration physique, l'équipe vérifie les trunks, les VLANs autorisés, l'état STP, les ports d'accès et les passerelles. Des tests sont exécutés depuis des postes représentatifs, y compris les VLANs de gestion et de services critiques. L'opération est terminée seulement quand le trafic fonctionne et que la base de référence n'a pas été modifiée au-delà de ce qui était prévu.
+**Question 7.** Le filtre `eth.dst == 01:00:0c:cc:cc:cc` suffit-il à identifier uniquement les trames VTP ? Pourquoi ?
 
-### 3.13. Scénario expert : changement de primaire VTPv3
+**Question 8.** Dans quelles conditions la commande `vtp primary vlan force` est-elle appropriée ?
 
-Le changement de primaire peut être nécessaire pour maintenance, mise à niveau, remplacement matériel ou reprise après panne. Il ne doit pas être confondu avec l'élection STP ou le changement de routeur actif : le rôle primaire VTP concerne l'autorité sur la base de données de l'instance.
+**Question 9.** Quelle est la différence opérationnelle entre mode transparent et mode off, sous réserve du comportement de la plateforme ?
 
-Avant le changement, relever la base courante, le statut primaire, l'état de la synchronisation, les versions de tous les membres et les dépendances liées aux VLANs. Vérifier également qu'aucune opération de création, suppression ou renommage n'est en cours. Les changements simultanés dans un domaine conçu autour d'une source autorisée peuvent créer des divergences difficiles à expliquer.
+**Question 10.** Le pruning VTP supprime-t-il le VLAN de la base ? Sur quelles plages de VLAN est-il généralement applicable selon la documentation Cisco actuelle ?
 
-La procédure d'exploitation doit documenter la commande de transfert ou de prise de rôle adaptée au logiciel. Après la transition, vérifier l'identité du primaire, la réception des annonces, la base des membres et la capacité de modification attendue. Si l'ancien primaire revient, vérifier comment la plateforme traite la situation avant de lui permettre d'effectuer de nouvelles modifications.
+**Question 11.** Un simulateur ne montre pas le comportement du serveur primaire VTPv3. Peut-on conclure que le réseau réel se comportera de la même manière ?
 
-En présence d'une option `force`, analyser le risque de remplacement de bases concurrentes. La commande ne devrait être exécutée qu'avec une validation explicite, une sauvegarde exploitable et un périmètre d'impact connu. Une reprise sûre est une procédure reproductible, pas une commande mémorisée sans contexte.
+**Question 12.** Pourquoi sauvegarder séparément la configuration, la base VLAN et les états VTP avant un changement ?
 
-### 3.14. Synthèse opérationnelle et critères d'acceptation
+**Question 13.** Cite les preuves minimales à recueillir pour montrer qu'un nouveau VLAN a bien été publié, reçu et rendu utilisable.
 
-VTP est correctement exploité lorsque la base VLAN fait autorité clairement, que les versions des équipements sont compatibles, que les trunks transportent les annonces attendues, que les mises à jour sont acceptées par les bons équipements et que les changements sont vérifiables et réversibles.
+**Question 14.** Après un reload, le serveur primaire n'est plus celui attendu. Quelle est la première attitude correcte ?
 
-Un changement VTP ne peut être validé seulement parce que `show vtp status` affiche le domaine attendu. Il faut également comparer la base VLAN, les trunks, STP, l'affectation des ports, les SVI, les routes, les ACLs et les applications. Cette vérification multi-couche évite d'attribuer au protocole une panne liée à une liste de VLANs autorisés ou à une interface de couche 3.
+**Question 15.** Décris une séquence d'arrêt sûre si, après migration, un VLAN critique disparaît sur plusieurs commutateurs.
 
-La politique de sécurité doit réduire le domaine de confiance : chaque commutateur ne doit participer qu'aux domaines qu'il doit connaître ; les trunks doivent être explicites ; les secrets doivent être protégés ; les VLANs transportés doivent être limités ; les changements doivent être journalisés ; la base doit être sauvegardée et la reprise doit être testée.
+### 7.2. Corrigé
 
-> **Danger :** Une annonce VTP non attendue peut avoir un effet de portée supérieure à l'interface qui la reçoit. En particulier dans les environnements v1/v2, une base provenant d'un commutateur mal préparé peut être considérée comme plus récente en fonction du numéro de révision et être propagée dans le domaine. Dans VTPv3, une mauvaise utilisation du rôle primaire ou de l'option `force` peut également écraser des informations concurrentes. Un VLAN supprimé de la base ou absent d'un trunk peut provoquer une interruption de service pour plusieurs applications. Isole les équipements inconnus, contrôle la base et l'autorité avant raccordement, sauvegarde les données, limite les trunks et applique une procédure de changement approuvée.
+**1.** Non. La révision est un élément de contexte pour les mécanismes qui l'utilisent. Elle ne prouve ni que la base correspond à la référence, ni que les trunks, STP ou les services sont opérationnels.
+
+**2.** Le mode serveur décrit le mode VTP configuré. Le statut primaire est un état opérationnel explicite pour une base donnée, permettant au serveur primaire autorisé de publier les mises à jour associées.
+
+**3.** VTPv3 peut gérer des bases distinctes. L'état primaire, la cohérence et les changements doivent être vérifiés pour la base réellement concernée ; synchronisation VLAN ne signifie pas automatiquement cohérence MST.
+
+**4.** Seule la réception de messages a été observée. Il faut contrôler domaine, version, authentification, mode, compatibilité des annonces et état de la base, puis recueillir les erreurs et une capture si nécessaire.
+
+**5.** État trunk opérationnel, liste VLAN autorisée, STP, apprentissage MAC, port d'accès, câblage/état physique, adressage IP, passerelle, routage, ACL et politiques de sécurité.
+
+**6.** Les VLAN étendus (1006–4094) sont pris en charge par VTPv3 sur les plateformes compatibles, pas par VTPv1/v2 classiques pour la propagation. Le downgrade peut donc ne pas préserver le comportement attendu.
+
+**7.** Non. L'adresse est utilisée par plusieurs protocoles de contrôle Cisco ; elle peut aider à trouver des trames mais ne prouve pas que chacune est VTP. Il faut examiner le décodage et le contexte.
+
+**8.** Uniquement lorsque le conflit a été compris, que la base autoritaire est validée, qu'une sauvegarde existe, que le changement est approuvé et que la procédure du modèle permet l'action forcée. Ce n'est pas un raccourci général de diagnostic.
+
+**9.** Le mode transparent maintient une base locale indépendante et peut relayer certaines annonces en v2/v3. Le mode off, lorsqu'il existe, conserve une base locale tout en ne relayant pas les annonces. Vérifier le logiciel et la documentation exacts.
+
+**10.** Non. Le pruning limite certains trafics de flooding sur les branches où ils ne sont pas nécessaires. La documentation Cisco indique une portée VTP pruning limitée aux VLAN 1–1005 ; les VLAN 1006–4094 ne sont pas couverts par cette fonction.
+
+**11.** Non. La maquette ne valide que les comportements effectivement émulés. Il faut tester avec une plateforme/IOS compatible ou documenter la fonctionnalité comme non vérifiée.
+
+**12.** Parce que la configuration de démarrage, les informations VTP et la base VLAN ne sont pas nécessairement stockées/restaurées de façon identique sur toutes les versions et tous les modes. Une sauvegarde doit être vérifiée et adaptée au mécanisme de persistance réel.
+
+**13.** État de la source avant/après, compteurs ou capture d'annonce, base VLAN locale sur la source et les membres attendus, état des trunks et VLAN autorisés, STP/table MAC, test de connectivité ou de service.
+
+**14.** Collecter les états actuels, vérifier la base attendue et rechercher reload/switchover ou changement de paramètres. Ne pas publier une nouvelle base avant d'avoir confirmé l'autorité et la nécessité du takeover.
+
+**15.** Stopper les autres changements, collecter sorties et journaux, identifier la portée, déterminer si la base est absente ou si le transport est bloqué, isoler la source de propagation suspecte selon la procédure approuvée, restaurer une source de vérité validée, puis vérifier chaque VLAN critique et chaque service avant clôture.
+
+
+## 8. Runbook synthétique de l'administrateur expert
+
+### Avant un changement
+
+- [ ] L'objectif architectural de VTP est documenté.
+- [ ] Les modèles et versions logicielles de tous les membres sont inventoriés.
+- [ ] Le domaine, les modes, les versions et l'authentification sont vérifiés.
+- [ ] La base VLAN et, si concerné, la base MST sont sauvegardées et comparées à la référence.
+- [ ] Les trunks, listes autorisées, chemins STP/MST et services impactés sont cartographiés.
+- [ ] Le test a été réalisé dans une maquette supportant réellement les fonctions requises.
+- [ ] Les critères d'arrêt et la procédure de retour arrière sont écrits et relus.
+
+### Pendant un changement
+
+- [ ] Une seule modification principale est effectuée à la fois.
+- [ ] Le changement est appliqué par la source autorisée.
+- [ ] L'état VTP et les compteurs sont relus.
+- [ ] La base réelle est comparée à la référence, pas seulement la révision.
+- [ ] Les conflits primaires ne sont pas contournés sans analyse et autorisation.
+- [ ] Les commandes ayant un effet de remplacement ou de takeover sont traitées comme des opérations à risque.
+
+### Après un changement
+
+- [ ] Tous les membres attendus ont les paramètres et l'état prévus.
+- [ ] La base VLAN/MST correspond à la référence.
+- [ ] Les trunks transportent les VLAN requis ; le pruning n'a pas supprimé le transit nécessaire.
+- [ ] STP/MST est stable et les tables MAC montrent l'apprentissage attendu.
+- [ ] Les tests de services réussissent depuis les segments concernés.
+- [ ] Les configurations, sorties, captures et décisions sont archivées.
+- [ ] La documentation et la base de référence sont mises à jour.
+
+
+## 9. Références techniques
+
+Les références officielles doivent être choisies en fonction du matériel et de la version IOS/IOS XE exacts :
+
+- Cisco, **VLAN Configuration Guide — Configure VTP**, guide IOS XE, comprenant les modes, annonces, VTPv3, mot de passe, serveur primaire, pruning et commandes de supervision : https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/lyr2-fwd/vlan/vlan-configuration-guide/configure-vtp.html
+- Cisco, **Configure VTP on Catalyst Switches** (document de support, mis à jour le 18 août 2026) : https://www.cisco.com/c/en/us/support/docs/lan-switching/vtp/98154-conf-vlan.html
+
+Les points ci-dessus s'appuient sur ces guides Cisco pour les fonctions dépendantes de la version. Les schémas animés et procédures de diagnostic sont des supports pédagogiques ; ils ne remplacent ni la documentation de la plateforme, ni un plan de changement approuvé.
 
 ## Points à retenir
 
-- **VTP distribue des informations de base VLAN ; il ne remplace ni les trunks 802.1Q, ni STP, ni l'affectation des ports, ni le routage inter-VLAN.** La présence d'un VLAN dans la base n'assure pas son transport sur chaque lien ou sa connectivité de bout en bout.
-- **Le numéro de révision indique une version de la base, pas sa qualité ni son autorité.** En VTPv1/v2, un commutateur mal préparé peut provoquer une synchronisation destructive. VTPv3 introduit le rôle primaire et un contrôle renforcé des modifications, mais demande une procédure d'exploitation explicite.
-- **La sécurité VTP repose sur plusieurs contrôles.** Valide version, mode, domaine, mot de passe et rôle primaire ; limite chaque trunk aux VLANs nécessaires ; conserve des sauvegardes de configuration et de base VLAN ; vérifie STP et les services après chaque modification.
-
-## Références techniques
-
-- Cisco, *VLAN Configuration Guide — Configure VTP*, guide IOS XE mis à jour le 17 juillet 2026 : https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/lyr2-fwd/vlan/vlan-configuration-guide/configure-vtp.html
-- Cisco, *Understand VLAN Trunk Protocol (VTP)*, document de support mis à jour le 2 avril 2025 : https://www.cisco.com/c/en/us/support/docs/lan-switching/vtp/10558-21.html
-- Cisco, *Configuring VTP*, guide pour IOS 15.2(7)E : https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst_digital_building_series_switches/software/15-2_7_e/configuration_guide/b_1527e_consolidated_cdb_cg/m_1525ex_vlan_vtp_cg.html
-
-Les commandes, capacités et valeurs par défaut cités dans ce cours sont des exemples issus de la documentation Cisco. Vérifier leur disponibilité sur le modèle et la version logicielle réellement déployés avant toute utilisation en production.
+- **VTP est une fonction de gestion du plan de contrôle.** Il peut distribuer une base VLAN, mais ne prouve pas à lui seul que les trunks, STP, l'adressage IP et les services fonctionnent.
+- **Une révision n'est pas une preuve de justesse.** Compare la base réelle à une référence approuvée et conserve l'état avant/après.
+- **VTPv3 renforce le contrôle des mises à jour**, notamment avec le statut de serveur primaire par base, et apporte la propagation des VLAN étendus sur les plateformes compatibles. Le statut primaire doit être revérifié après les événements opérationnels pertinents.
+- **Les changements VTP sont des opérations à fort impact potentiel.** Inventaire, sauvegarde vérifiée, test compatible, critères d'arrêt et retour arrière doivent précéder toute migration.
+- **Le diagnostic expert triangule les preuves** : `show vtp status`, compteurs, capture de couche 2, base VLAN, trunks, STP, table MAC et tests de services.

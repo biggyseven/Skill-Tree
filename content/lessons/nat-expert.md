@@ -1,8 +1,3 @@
----
-node_id: nat-expert
-title: NAT & PAT - Expert
----
-
 # NAT & PAT - Expert
 
 **Niveau :** Expert
@@ -17,7 +12,6 @@ NAT/PAT n’est pas un protocole de routage, une méthode de chiffrement ou, à 
 
 > **Analogie** : Imagine un grand campus dont chaque bureau utilise un numéro interne, tandis que les visiteurs ne connaissent que l’adresse de l’accueil. La réception tient un registre qui associe les échanges entrants et sortants. Lorsque le bureau 12 appelle un fournisseur, la réception présente un numéro public et inscrit dans le registre que la réponse reçue pour ce numéro doit être remise au bureau 12. Si plusieurs bureaux utilisent le même numéro public, la réception doit aussi distinguer leurs appels par un identifiant de session, comparable au port TCP ou UDP. Pour publier un service, l’administrateur crée une règle explicite qui indique que les demandes visant un numéro public précis doivent être remises à un serveur interne précis. Le registre ne chiffre pas les conversations et ne décide pas si le fournisseur est digne de confiance : il fait correspondre les communications. Si le registre est perdu, si deux règles se contredisent ou si la réponse revient par un autre accueil qui ne possède pas l’état requis, les communications peuvent échouer même si les bureaux et les câbles fonctionnent.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -371,7 +365,6 @@ Les mesures complémentaires comprennent :
 
 > **Piège :** Une translation statique n’est pas un filtre, et l’absence d’une entrée PAT dynamique n’est pas une preuve que l’équipement est correctement sécurisé. Les règles NAT et les règles de pare-feu ont des responsabilités différentes. Il faut analyser la translation, la route, les ACL et l’état de session séparément.
 
----
 
 ## 2. Configuration et Pratique
 
@@ -607,7 +600,6 @@ Ne collecte pas des captures ou journaux contenant des informations personnelles
 
 > **Astuce :** Quand un flux ne fonctionne pas, vérifie séparément **(1)** la création de translation, **(2)** la route aller, **(3)** le filtrage entrant/sortant et **(4)** la route retour. Une translation existante ne prouve pas la connectivité de bout en bout ; l’absence de translation ne prouve pas que le routage est incorrect. Cette séparation réduit fortement le temps de dépannage.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -791,7 +783,6 @@ Après le changement, vérifier les compteurs NAT, les sessions, les interfaces,
 
 > **Danger :** Une règle NAT erronée peut interrompre massivement l’accès Internet, publier un service sensible, contourner une hypothèse de segmentation ou détourner le trafic vers un hôte inattendu. En environnement PAT/CGNAT, une saturation peut empêcher la création de nouvelles connexions pour un grand nombre d’utilisateurs. Avant de changer les mappings, les pools ou la redondance, il faut vérifier les routes, l’unicité des adresses globales, les ACL de sécurité, la capacité et le chemin retour, puis disposer d’un plan de retour arrière testé.
 
----
 
 ## Points à retenir
 

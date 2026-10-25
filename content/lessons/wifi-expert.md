@@ -570,6 +570,5 @@ Les normes définissent le comportement du protocole ; les guides de constructeu
 - [Juniper Mist — principes Wi-Fi 7](https://www.juniper.net/documentation/us/en/software/mist/wi-fi-7-guide/wi-fi-7/topics/concept/how-wi-fi-7-works.html)
 - [Wi-Fi Alliance — programmes de certification](https://www.wi-fi.org/discover-wi-fi)
 
----
 
 **Principe à retenir :** concevoir à partir des besoins, mesurer l’airtime et la qualité applicative, appliquer la sécurité par identité et moindre privilège, et ne considérer une optimisation terminée qu’après un test reproductible.

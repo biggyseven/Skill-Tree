@@ -565,6 +565,5 @@ Dans une fenêtre de test, enregistre les compteurs et la session applicative, p
 
 Ces références sont des points de départ. Pour un déploiement réel, utilise les documents qui correspondent au modèle et à la version logicielle installée.
 
----
 
 **À retenir :** LACP améliore la gestion de l’agrégation et permet d’identifier certaines incompatibilités, mais il ne remplace pas la conception réseau. Pour configurer un LAG correctement, aligne les deux extrémités, vérifie les états du protocole, mesure la distribution réelle des flux et teste explicitement le fonctionnement en condition dégradée.

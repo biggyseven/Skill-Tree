@@ -8,7 +8,6 @@
 **Langage des exemples :** Python, cURL, XML et JSON  
 **Objectif :** apprendre à interroger un équipement réseau et comprendre les mécanismes qui permettent ensuite de l'automatiser sans dépendre exclusivement de commandes CLI.
 
----
 
 # SOMMAIRE
 
@@ -31,7 +30,6 @@
 17. Glossaire
 18. Références officielles
 
----
 
 # 1. COMPRENDRE POURQUOI LES API RÉSEAU EXISTENT
 
@@ -175,7 +173,6 @@ Le mouvement des tirets illustre le sens des échanges entre l'application et le
 
 **À retenir :** une API ne rend pas les commandes CLI obsolètes. Elle ajoute un moyen structuré d'accéder à certaines données et opérations, lorsque l'équipement prend ces fonctions en charge.
 
----
 
 # 2. COMPRENDRE L'ARCHITECTURE MODEL-DRIVEN
 
@@ -287,7 +284,6 @@ Il n'est pas nécessaire de mémoriser tous les RFC pour débuter. Il faut d'abo
 | SSH ou TLS | Comment protéger le transport des échanges ? |
 | Datastore | Quel ensemble de configuration ou d'état est consulté ou modifié ? |
 
----
 
 # 3. YANG : LE LANGAGE QUI DÉCRIT LES DONNÉES RÉSEAU
 
@@ -455,7 +451,6 @@ Avant de construire des requêtes, il faut vérifier :
 
 La YANG Library fournit des informations sur les modules et les schémas utilisés par un serveur lorsque cette fonctionnalité est disponible. Voir le [RFC 8525](https://www.rfc-editor.org/rfc/rfc8525.html).
 
----
 
 # 4. NETCONF : LE PROTOCOLE DE GESTION XML
 
@@ -624,7 +619,6 @@ Exemple conceptuel de lecture :
 
 Une réponse contenant `<ok/>` signifie que l'opération a été acceptée conformément à la sémantique de la méthode. Cela ne prouve pas nécessairement qu'un service réseau fonctionne correctement. Les contrôles métier doivent toujours être adaptés au besoin.
 
----
 
 # 5. RESTCONF : L'API DE GESTION BASÉE SUR HTTP
 
@@ -795,7 +789,6 @@ Dans de nombreuses implémentations RESTCONF, `/restconf` donne accès à la res
 
 Le modèle de données disponible, les chemins corrects et les opérations valides doivent être identifiés avant de construire des requêtes.
 
----
 
 # 6. COMPARER RESTCONF ET NETCONF
 
@@ -863,7 +856,6 @@ Le choix dans une infrastructure réelle dépend :
 
 Il ne faut pas choisir RESTCONF simplement parce que JSON paraît plus familier, ni choisir NETCONF en supposant qu'il offre automatiquement toutes les fonctions souhaitées.
 
----
 
 # 7. PRÉPARER SON ENVIRONNEMENT DE LABORATOIRE
 
@@ -958,7 +950,6 @@ Certaines plateformes nécessitent l'activation de services, d'autres des param�
 
 N'appliquez pas une commande d'activation trouvée pour un produit sur un autre produit sans consulter sa documentation. L'activation d'une API de gestion crée une nouvelle surface d'accès qui doit être protégée.
 
----
 
 # 8. RÉALISER SA PREMIÈRE REQUÊTE RESTCONF
 
@@ -1164,7 +1155,6 @@ Si vous voulez cibler une entrée de liste, le chemin peut inclure sa clé. Pour
 
 Le chemin exact dépend du schéma et de l'implémentation. Les clés contenant des caractères spéciaux doivent être encodées correctement dans l'URI. Vérifiez toujours la syntaxe du chemin dans le modèle et la documentation RESTCONF de l'équipement.
 
----
 
 # 9. INTERROGER NETCONF AVEC PYTHON
 
@@ -1287,7 +1277,6 @@ Il faut distinguer :
 
 Une bibliothèque peut fournir des méthodes pratiques pour certaines opérations, mais elle ne peut pas inventer une capacité absente de l'équipement.
 
----
 
 # 10. LIRE LES DONNÉES, DISTINGUER CONFIGURATION ET ÉTAT OPÉRATIONNEL
 
@@ -1389,7 +1378,6 @@ Une validation simplifiée pourrait comporter :
 
 Une valeur manquante ne doit pas être automatiquement interprétée comme une valeur fausse ou comme une preuve de succès. Le programme doit tenir compte de la structure réellement retournée et de la sémantique du modèle.
 
----
 
 # 11. COMPRENDRE LES ERREURS ET LES RÉPONSES
 
@@ -1459,7 +1447,6 @@ Cela prouve que le serveur a fourni une réponse HTTP avec ce statut. Cela ne pr
 
 Il faut contrôler le schéma de données et les critères métier.
 
----
 
 # 12. SÉCURITÉ DES API DE GESTION
 
@@ -1571,7 +1558,6 @@ Le mécanisme d'accès contrôlé de NETCONF et RESTCONF peut notamment être é
   <path class="security-link" d="M470 265 V289"/>
 </svg>
 
----
 
 # 13. LABORATOIRES PROGRESSIFS
 
@@ -1734,7 +1720,6 @@ Le rapport devrait contenir :
 
 Évitez de consigner des identifiants ou des données sensibles sans nécessité.
 
----
 
 # 14. PROJET FINAL GUIDÉ
 
@@ -1814,7 +1799,6 @@ Seuil recommandé : 80/100.
 
 Une connexion fonctionnelle ne suffit pas si les certificats ne sont pas vérifiés, si les secrets sont codés en dur ou si l'application signale un succès malgré des données incorrectes.
 
----
 
 # 15. DÉPANNAGE
 
@@ -1904,7 +1888,6 @@ Assurez-vous que vous lisez la bonne catégorie de données : configuration ou �
 
 Définissez ensuite les critères métier adaptés à l'objectif du contrôle.
 
----
 
 # 16. EXERCICES D'ÉVALUATION
 
@@ -1942,7 +1925,6 @@ Répondez aux questions suivantes :
 
 Vous pouvez ensuite implémenter le contrôle sous forme d'un petit script Python, puis produire un rapport JSON.
 
----
 
 # 17. GLOSSAIRE
 
@@ -1976,7 +1958,6 @@ Vous pouvez ensuite implémenter le contrôle sous forme d'un petit script Pytho
 
 **YANG Library** — Mécanisme fournissant des informations sur les modules et les schémas YANG utilisés par un serveur lorsqu'il est disponible.
 
----
 
 # 18. RÉFÉRENCES OFFICIELLES
 
@@ -2021,7 +2002,6 @@ Les liens suivants conduisent aux spécifications et aux documentations à utili
 - **Documentation de Python**  
   https://docs.python.org/3/
 
----
 
 # CONCLUSION — LES FONDATIONS DU PARCOURS
 

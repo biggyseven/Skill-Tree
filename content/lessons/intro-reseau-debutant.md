@@ -5,7 +5,6 @@
 > **Niveau actuel :** Débutant  
 > **Objectif :** comprendre comment les équipements sont connectés, comment ils échangent des données et comment reconnaître les principaux composants d'un réseau informatique.
 
----
 
 ## Sommaire
 
@@ -26,7 +25,6 @@
 15. Évaluation corrigée
 16. Préparation du niveau intermédiaire
 
----
 
 # 1. Contexte et objectifs
 
@@ -61,7 +59,6 @@ Aucun prérequis réseau avancé n'est nécessaire.
 
 Il est utile de savoir utiliser un ordinateur, ouvrir un terminal et identifier les appareils connectés à une box Internet.
 
----
 
 # 2. Définition d'un réseau informatique
 
@@ -150,7 +147,6 @@ Une liaison physique ne suffit donc pas. Les équipements doivent aussi être co
   <text class="bn-text" x="480" y="345" text-anchor="middle">Les connexions physiques permettent les échanges ; les protocoles organisent la communication.</text>
 </svg>
 
----
 
 # 3. Pourquoi utiliser un réseau ?
 
@@ -182,7 +178,6 @@ Les équipes informatiques peuvent surveiller les équipements, déployer des co
 
 L'administration à distance doit cependant être protégée : un réseau connecté n'est pas automatiquement un réseau sûr.
 
----
 
 # 4. Les principaux types de réseaux
 
@@ -224,7 +219,6 @@ Un PAN relie des équipements personnels à courte portée, par exemple avec Blu
 
 Ces catégories décrivent surtout la portée et le contexte du réseau. Elles ne définissent pas, à elles seules, le niveau de sécurité.
 
----
 
 # 5. Les équipements réseau
 
@@ -268,7 +262,6 @@ Un pare-feu applique une politique de sécurité aux communications. Il peut aut
 
 Il ne suffit pas d'avoir un pare-feu pour rendre toute l'infrastructure sûre : les règles doivent être correctes et les équipements doivent être maintenus.
 
----
 
 # 6. Câbles, fibres et connexions sans fil
 
@@ -290,7 +283,6 @@ Le Wi-Fi transmet les données par ondes radio. Il évite le câblage de certain
 
 Une bonne puissance du signal ne garantit pas à elle seule une connexion rapide. La congestion et les problèmes d'accès au canal peuvent également limiter les performances.
 
----
 
 # 7. Comprendre une adresse IP
 
@@ -371,7 +363,6 @@ Passerelle  : 192.168.1.1
 
 Cette configuration est illustrative. Une adresse de passerelle doit être choisie selon le plan d'adressage réel.
 
----
 
 # 8. Adresse MAC, switch et routeur
 
@@ -431,7 +422,6 @@ Lorsqu'un paquet traverse un routeur IPv4 ou IPv6, l'adresse IP source et l'adre
   <text class="sr-text" x="480" y="328" text-anchor="middle">Destination hors sous-réseau : le poste envoie le paquet vers sa passerelle.</text>
 </svg>
 
----
 
 # 9. Comment les données circulent
 
@@ -491,7 +481,6 @@ Dans un scénario classique, plusieurs événements se produisent :
 
 Le chemin réel dépend du type de connexion, des caches, du protocole de transport, des mécanismes de sécurité et de l'architecture de réseau.
 
----
 
 # 10. Les protocoles essentiels
 
@@ -560,7 +549,6 @@ HTTPS protège le transport, mais ne signifie pas automatiquement que le site ou
 | NDP | Découverte de voisins IPv6 | Résolution et découverte sur IPv6 |
 | HTTP/HTTPS | Échanges d'applications Web | Navigateur et serveur Web |
 
----
 
 # 11. Comprendre Internet
 
@@ -594,7 +582,6 @@ Une panne peut provenir de différentes couches :
 
 Le bon diagnostic commence donc par identifier à quelle étape la communication échoue.
 
----
 
 # 12. Sécurité et bonnes pratiques
 
@@ -628,7 +615,6 @@ Conservez des sauvegardes protégées et testez les procédures de restauration.
 
 Une sauvegarde qui n'a jamais été vérifiée n'est pas une garantie de récupération.
 
----
 
 # 13. Atelier pratique
 
@@ -726,7 +712,6 @@ Vous devez pouvoir dire si le problème semble concerner :
 
 Ne concluez pas qu'un site fonctionne correctement uniquement parce que le ping réussit : le ping et le service applicatif testent des éléments différents.
 
----
 
 # 14. Dépannage pour débutants
 
@@ -752,7 +737,6 @@ Vérifiez le signal, les interférences, le nombre de clients, la bande utilisé
 
 La mention « connecté » ne signifie pas que l'accès aux services est rapide ou fiable.
 
----
 
 # 15. Évaluation corrigée
 
@@ -821,7 +805,6 @@ La désactiver peut rendre la connexion vulnérable à une interception et masqu
 
 Il faut confirmer que la sauvegarde est disponible, exploitable et qu'elle permet une restauration correcte.
 
----
 
 # 16. Préparation du niveau intermédiaire
 
@@ -838,7 +821,6 @@ Le niveau intermédiaire approfondira :
 
 **À retenir :** un réseau permet aux équipements de communiquer, mais sa fiabilité dépend de l'adressage, des protocoles, des équipements d'interconnexion, de la configuration et des contrôles de sécurité.
 
----
 
 ## Références utiles
 

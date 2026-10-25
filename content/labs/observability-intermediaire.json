@@ -1,0 +1,7 @@
+{
+  "node_id": "observability-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Observabilité : Prometheus et Grafana.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

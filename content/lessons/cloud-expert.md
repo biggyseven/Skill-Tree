@@ -17,7 +17,6 @@ Ce cours présente des modèles génériques que l’on retrouve dans les princi
 
 > **Analogie :** au niveau débutant, tu as appris à relier quelques bâtiments ; au niveau intermédiaire, à organiser le trafic d’une ville. Au niveau expert, tu conçois le réseau de transport de plusieurs métropoles : règles de circulation, interconnexions internationales, contrôle d’accès, capacité de secours, surveillance et procédures pour continuer à fonctionner lorsqu’un pont ou un centre de contrôle tombe en panne.
 
----
 
 ## 1. Le travail d’architecture avant le choix d’un service
 
@@ -971,7 +970,6 @@ Livrables :
 
 Les références fournisseurs décrivent les capacités et limites concrètes à vérifier avant un déploiement. Les RFC décrivent les protocoles ou conventions ; elles ne remplacent pas la documentation opérationnelle du service cloud utilisé.
 
----
 
 ## À retenir
 

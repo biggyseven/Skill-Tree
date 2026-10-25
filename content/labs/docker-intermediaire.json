@@ -1,0 +1,7 @@
+{
+  "node_id": "docker-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Docker Compose et registres.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

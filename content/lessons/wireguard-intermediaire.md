@@ -10,7 +10,6 @@ Les exemples utilisent Linux, `wg` et `wg-quick`. Ils doivent être adaptés aux
 
 > **Piège :** ne traite pas l’état WireGuard comme un indicateur universel « VPN connecté ». Un handshake récent valide la communication cryptographique avec un peer, mais ne prouve pas que les routes des LAN, le forwarding, le pare-feu, le DNS et les applications fonctionnent de bout en bout.
 
----
 
 ## 1. Théorie et mécanismes avancés
 
@@ -115,7 +114,6 @@ Le changement de clé statique est une opération de coordination : générer la
 
 WireGuard établit et renouvelle ses clés de session automatiquement selon son protocole ; les administrateurs n’ont généralement pas besoin de lancer manuellement un rekey comme dans certains autres VPN. Le cycle de vie opérationnel qu’ils doivent gérer porte surtout sur les clés statiques des appareils, l’ajout/retrait des peers, la rotation contrôlée et la sauvegarde sûre des configurations.
 
----
 
 ## 2. Configuration et pratique
 
@@ -250,7 +248,6 @@ sudo tcpdump -ni any udp port 51820
 
 Cette capture peut montrer les datagrammes extérieurs, mais pas le contenu IP intérieur chiffré. Elle ne doit pas contenir les clés privées. Protège les PCAP, car les métadonnées, adresses et heures de connexion restent sensibles.
 
----
 
 ## 3. Scénarios intermédiaires
 
@@ -327,7 +324,6 @@ Avant une configuration de routage par politique :
 
 > **Danger :** `PostUp` et `PreDown` dans `wg-quick` exécutent des commandes shell. Ce sont des outils puissants, pas des options de configuration anodines. Vérifie chaque commande, son idempotence, son effet au redémarrage et sa suppression à l’arrêt ; ne copie pas un script provenant d’un tiers sans audit.
 
----
 
 ## 4. Dépannage structuré
 
@@ -389,7 +385,6 @@ wg show wg0 transfer
 
 La première capture observe le transport extérieur ; la deuxième, sur `wg0`, peut voir le trafic IP intérieur en clair sur l’hôte local. Les captures de l’interface VPN peuvent donc contenir des données applicatives sensibles. Réduis la durée et les filtres, protège le fichier PCAP et supprime-le conformément à la politique de conservation.
 
----
 
 ## 5. Sécurité et exploitation
 
@@ -435,7 +430,6 @@ WireGuard n’offre pas un cluster avec synchronisation automatique des états e
 
 Sur un hub qui héberge de nombreux peers, la perte du hub affecte potentiellement tous les spokes. Deux hubs peuvent réduire ce risque, mais chaque peer et chaque LAN doivent posséder un plan clair de routes primaires/secondaires. Ne distribue pas une configuration à plusieurs hubs sans réfléchir aux préfixes, aux destinations qui peuvent être annoncées par les deux peers et à l’asymétrie de retour.
 
----
 
 ## 6. Laboratoires guidés
 
@@ -468,7 +462,6 @@ Compare un ping simple, un ping avec taille plus grande (si ta plateforme le per
 
 Place un client derrière une box NAT ou simule une inactivité. Vérifie le fonctionnement au début, attends l’expiration éventuelle de l’état NAT et teste à nouveau. Ajoute `PersistentKeepalive = 25` uniquement sur le peer qui en a besoin, observe la différence et explique pourquoi cette option ne remplace ni un test applicatif ni la supervision.
 
----
 
 ## 7. Points à retenir
 
@@ -545,6 +538,5 @@ Place un client derrière une box NAT ou simule une inactivité. Vérifie le fon
 - Noise Protocol Framework — base conceptuelle du handshake utilisé par WireGuard : https://noiseprotocol.org/noise.html
 - Linux `ip-route(8)` et `ip-rule(8)` — routage et routage par politique : https://man7.org/linux/man-pages/man8/ip-route.8.html et https://man7.org/linux/man-pages/man8/ip-rule.8.html
 
----
 
 > **Astuce :** avant de valider une architecture WireGuard, écris cinq éléments sur une seule fiche : identité de chaque peer, `AllowedIPs`, routes système, règles de forwarding et chemin retour. Si ces cinq éléments sont cohérents et observables, le diagnostic et la maintenance deviennent bien plus simples.

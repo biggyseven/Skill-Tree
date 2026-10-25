@@ -1,927 +1,1137 @@
----
-node_id: vpn-expert
-title: VPN & tunnels - Expert
----
+# VPN — Niveau Expert
 
-# VPN & tunnels - Expert
+> **Parcours :** Réseaux et cybersécurité  
+> **Niveau :** Expert  
+> **Public :** Administrateurs réseau, ingénieurs infrastructure, architectes sécurité et techniciens préparant une mise en production  
+> **Prérequis :** Adressage IPv4/IPv6, sous-réseaux, routage, NAT, filtrage stateful, DNS, notions de cryptographie, dépannage TCP/IP  
+> **Fil conducteur :** concevoir, déployer, sécuriser, observer et dépanner un VPN comme un système réseau complet.
 
-**Niveau :** EXPERT
 
-Un service VPN expert doit être conçu comme un système critique, et non comme une simple association de chiffrement entre deux adresses publiques. L'ingénierie doit réunir le modèle de confiance, les identités de pairs, le cycle de vie des clés, la politique de trafic, les domaines de routage, les mécanismes de convergence, la résistance aux pannes, les limites de capacité et les obligations de journalisation. Une SA active est seulement un signal parmi d'autres : elle ne prouve ni que le chemin applicatif est correct, ni que les réseaux atteignables sont les bons, ni que le niveau de sécurité reste conforme aux exigences de l'organisation.
+## 1. Ce que l’on doit savoir faire à la fin
 
-À ce niveau, il faut savoir arbitrer entre plusieurs architectures route-based et policy-based, sélectionner les mécanismes cryptographiques compatibles avec la politique de sécurité, préparer la rotation des certificats et secrets, maîtriser les sélecteurs, concevoir des topologies à grande échelle, contrôler les routes apprises et mesurer la convergence en cas de panne. Il faut également distinguer la disponibilité du plan de contrôle de celle du plan de données, et les mécanismes qui protègent le tunnel de ceux qui autorisent réellement l'accès aux applications.
+À la fin de ce cours, vous devez pouvoir :
 
-Le cours conserve des rappels structurés sur IPsec, IKEv2, ESP, GRE, NAT Traversal, MTU et accès distant, puis les relie à des problématiques expertes : gouvernance cryptographique, PKI, segmentation multi-sites, routage BGP/OSPF, haute disponibilité, VPN dans le cloud, détection d'incident, observabilité, capacité, migration et retour arrière. Les commandes Cisco IOS/IOS XE et les extraits de configuration sont des exemples d'architecture. La syntaxe, les capacités matérielles, les limitations de licences et les algorithmes disponibles varient selon la plateforme et la version ; toute mise en production exige une validation documentaire, un laboratoire représentatif et un plan de changement approuvé.
+- choisir une architecture VPN adaptée à un besoin métier et justifier ce choix ;
+- expliquer le trajet d’un paquet à travers le réseau de transport, le tunnel et le réseau de destination ;
+- distinguer le plan de contrôle, le plan de données, l’authentification, le chiffrement et les décisions de routage ;
+- concevoir un VPN site-à-site et un accès distant avec des règles de moindre privilège ;
+- comparer IPsec/IKEv2, WireGuard et OpenVPN sans les traiter comme des solutions interchangeables en toute circonstance ;
+- anticiper les problèmes de sous-réseaux qui se chevauchent, de DNS, d’IPv6, de MTU, de NAT et de routage asymétrique ;
+- mettre en place une stratégie de supervision, de rotation des clés, de révocation et de reprise après incident ;
+- diagnostiquer une panne par couches au lieu de modifier plusieurs paramètres au hasard ;
+- documenter une solution VPN et démontrer son fonctionnement par des tests reproductibles.
 
-L'objectif est de concevoir un VPN qui demeure sûr, prévisible et observable dans le temps : il doit résister aux erreurs de routage, à la perte d'un lien, à la rotation d'une clé, à la panne d'une passerelle et à une tentative d'accès non autorisée. Le raisonnement attendu est fondé sur les preuves — états, compteurs, journaux corrélés, captures ciblées, mesures de perte et tests d'autorisation — et non sur la seule impression qu'un tunnel « est monté ».
+**Principe d’ingénierie :** un tunnel qui affiche « connecté » n’est pas nécessairement un VPN fonctionnel, sécurisé ou conforme au besoin. Le tunnel peut être établi alors que les routes, les politiques de filtrage, le DNS ou les droits d’accès sont incorrects.
 
-> **Analogie** : Un réseau VPN d'entreprise ressemble à un réseau routier international doté de frontières, de badges, de voies prioritaires et d'un centre de supervision. La cryptographie protège le transport, les identités valident les partenaires, le routage choisit le chemin, la segmentation délimite les destinations autorisées et la télémétrie détecte les anomalies. Ajouter une seconde route sans tester la convergence ne garantit pas la continuité ; créer un tunnel entre deux réseaux sans limiter les destinations peut transformer une interconnexion en raccourci vers tout le système d'information.
----
+## 2. Mode d’emploi du cours
 
-## 1. La théorie et les algorithmes
+Le cours alterne quatre approches complémentaires :
 
-### 1.1. Architecture VPN experte : responsabilités et frontières de confiance
+1. **Modèles mentaux et schémas textuels** : pour comprendre les flux sans dépendre d’un dessin complexe ou d’une animation.
+2. **Conception** : pour traduire une exigence métier en sous-réseaux, routes, identités, règles de sécurité et objectifs de disponibilité.
+3. **Laboratoires** : pour manipuler des configurations et observer le comportement réel des paquets.
+4. **Diagnostic** : pour passer d’un symptôme à une hypothèse testable, puis à une correction vérifiée.
 
-Une architecture VPN comprend au minimum les hôtes ou sous-réseaux qui communiquent, les passerelles ou clients VPN, le réseau de transport, une politique de sécurité et un mécanisme de routage. Selon la solution, elle comprend aussi une autorité de certification, un service d'authentification, une plateforme de journalisation, un service de gestion de configuration et des mécanismes de haute disponibilité.
+Les adresses `192.0.2.0/24`, `198.51.100.0/24` et `203.0.113.0/24` utilisées dans les exemples sont des plages réservées à la documentation. Remplacez-les par les adresses adaptées à votre laboratoire avant tout déploiement réel.
 
-Dans un VPN site-to-site, une passerelle de chaque site représente habituellement le réseau distant. Les hôtes n'ont pas nécessairement de client VPN : ils envoient leurs paquets vers leur passerelle locale, qui décide de les transmettre dans le tunnel. Dans un VPN d'accès distant, le poste de l'utilisateur établit lui-même la connexion vers une passerelle ou un concentrateur. La passerelle attribue ou reconnaît une identité, peut fournir une adresse virtuelle et des routes, puis applique une politique qui limite les ressources atteignables.
 
-Il faut distinguer trois plans de fonctionnement :
+# PARTIE I — RECONSTRUIRE LES FONDATIONS AVANT L’EXPERTISE
 
-- **Plan de contrôle** : découverte du pair, négociation IKE, authentification, création et renouvellement des associations de sécurité, échange éventuel de routes ou de paramètres d'accès.
-- **Plan de données** : paquets applicatifs effectivement transportés et protégés par IPsec ou par un autre protocole VPN.
-- **Plan d'exploitation** : journaux, compteurs, supervision, inventaire de configuration, alertes, sauvegardes, procédures de rotation des secrets et tests périodiques.
+## 3. Parcours pratique de remise à niveau : du débutant à l’expert
 
-Un VPN peut ainsi présenter un plan de contrôle opérationnel sans transporter les flux attendus. Le cas typique est une IKE SA active mais aucune CHILD SA correspondant au trafic, ou bien des associations actives avec des compteurs qui n'augmentent pas. Un autre cas est un plan de données fonctionnel alors que la supervision ne reçoit plus de journaux : le service est temporairement utilisable, mais l'équipe perd une partie de sa capacité à détecter et diagnostiquer les incidents.
+Ce parcours est volontairement inclus dans le cours avancé : les pannes VPN les plus difficiles proviennent souvent d’un détail élémentaire mal vérifié. Il peut aussi servir de feuille de route à une personne qui découvre le sujet.
 
-### 1.2. Choisir la bonne famille de VPN
+### Étape A — Comprendre la connectivité sans VPN
 
-| Technologie | Fonction principale | Chiffrement intégré | Cas d'usage courant | Limite à retenir |
-|---|---|---|---|---|
-| IPsec en mode tunnel | Protéger des paquets IP entre pairs | Oui, avec une SA ESP configurée pour cela | VPN site-to-site | Politiques, sélecteurs et routage doivent être cohérents |
-| IPsec avec interface VTI | Exposer un tunnel logique routable protégé par IPsec | Oui, via un profil IPsec | Interconnexion de plusieurs sous-réseaux, routage dynamique | Syntaxe et fonctions dépendent de la plateforme |
-| GRE sur IPsec | Transporter un tunnel GRE dans IPsec | GRE seul non ; IPsec apporte la protection | Multicast ou protocoles de routage pris en charge par GRE | Surcharge plus élevée et double encapsulation possible |
-| VPN d'accès distant IPsec/IKEv2 | Protéger la connexion d'un poste ou d'un utilisateur | Oui, selon le profil négocié | Télétravail, administration distante | Identité, attribution d'adresse et autorisation sont critiques |
-| TLS VPN | Établir un accès via TLS, souvent au niveau applicatif ou IP selon le produit | TLS assure la protection du canal | Accès distant et applications publiées | Le périmètre varie : portail applicatif ou tunnel réseau complet |
-| WireGuard | Tunnel IP utilisant un protocole cryptographique moderne | Oui | Interconnexion simple ou accès distant | Gestion des pairs, routes et identités à concevoir selon l'environnement |
-| L2TP seul | Transport de trames de couche 2 | Pas nécessairement | Compatibilité ou anciens environnements | Ne pas le traiter comme un mécanisme de confidentialité autonome |
-| GRE seul | Encapsulation générique de paquets | Non | Routage et transport logique | Un observateur du chemin peut examiner les données non protégées |
+**Objectif :** savoir expliquer pourquoi deux machines peuvent ou ne peuvent pas communiquer.
 
-Le choix dépend des contraintes d'exploitation, de l'interopérabilité, des fonctions de routage nécessaires, des exigences de conformité, de la mobilité des pairs, de la capacité de supervision et de la compatibilité avec les équipements. Une technologie plus riche n'est pas toujours la meilleure si l'équipe ne sait pas l'exploiter. À l'inverse, choisir un tunnel simplifié sans authentification ou chiffrement adaptés peut exposer les données. Il faut rédiger les exigences avant de sélectionner la solution.
+1. Relever l’adresse IP, le préfixe, la passerelle et le DNS de chaque poste.
+2. Vérifier qu’une adresse est dans le bon sous-réseau.
+3. Identifier la route qui sera utilisée pour joindre une destination.
+4. Vérifier le filtrage sur l’hôte et sur la passerelle.
+5. Distinguer un problème de résolution DNS d’un problème de connectivité IP.
 
-### 1.3. IPsec : politiques, associations de sécurité et paquets protégés
-
-IPsec est un cadre de sécurité au niveau IP. Il s'appuie notamment sur des politiques qui déterminent quels paquets doivent être protégés, sur des associations de sécurité (*Security Associations*, SA) qui précisent comment le trafic sera traité, et sur ESP (*Encapsulating Security Payload*) pour protéger le trafic utilisateur. IKEv2 sert à authentifier les pairs et à négocier les paramètres nécessaires aux associations de sécurité.
-
-Une SA est un ensemble d'informations qui décrivent, pour un sens et un contexte donnés, les algorithmes, clés, durées de vie et paramètres de protection à utiliser. Une SA IPsec n'est pas une connexion TCP. Les SA ESP sont directionnelles : un trafic de A vers B et un trafic de B vers A sont normalement protégés par des associations correspondantes dans chaque direction. Les interfaces et commandes de supervision peuvent afficher séparément les nombres de SA entrantes et sortantes.
-
-Le vocabulaire historique parle parfois de « phase 1 » et de « phase 2 » pour expliquer IKE et la négociation du trafic. Cette terminologie peut aider à comprendre des documents anciens, mais IKEv2 emploie plus précisément les notions d'IKE SA et de CHILD SA. L'IKE SA protège les échanges de contrôle IKE entre les pairs. Une CHILD SA protège les flux de données IPsec et peut être créée lors de l'établissement initial ou ajoutée ensuite. Il faut donc interpréter les états de la plateforme au lieu de supposer que tous les équipements exposent exactement la même séquence de « phases ».
-
-Dans une politique IPsec classique, des sélecteurs peuvent décrire le trafic à protéger, par exemple le préfixe du site A vers celui du site B. Avec une interface de tunnel routée, la sélection de destination est souvent gérée par la table de routage : le paquet est dirigé vers l'interface virtuelle et le profil IPsec protège ce qui traverse le tunnel. Ce modèle route-based simplifie certains scénarios avec plusieurs préfixes ou des protocoles de routage, mais ne supprime pas le besoin de filtrer les destinations autorisées.
+Schéma de départ :
 
 ```text
-             PLAN DE CONTRÔLE IKEv2
-        identité / algorithmes / création de clés
-       [Passerelle A] <----------------> [Passerelle B]
-             |                                |
-             | crée SA ESP                   | crée SA ESP
-             v                                v
-  Réseau A --+==== paquet protégé IPsec =====+-- Réseau B
-             |     plan de données           |
-             +------ compteurs / journaux ----+
+[PC-A : 10.10.10.10/24]
+          |
+          | réseau local 10.10.10.0/24
+          v
+[Passerelle A : 10.10.10.1]
+          |
+          v
+       [Internet]
+          |
+          v
+[Passerelle B : 10.20.20.1]
+          |
+          | réseau local 10.20.20.0/24
+          v
+[Serveur B : 10.20.20.20/24]
 ```
 
-> **Piège :** Une IKE SA établie ne prouve pas qu'un trafic métier est autorisé ni même qu'une CHILD SA adaptée est active. Vérifie les associations de données, les sélecteurs, les compteurs encapsulés/décapsulés, les routes et les règles de filtrage des deux côtés.
+**Question de contrôle :** sans VPN ni route spécifique, comment la passerelle A sait-elle où envoyer un paquet à destination de `10.20.20.20` ? Réponse attendue : elle applique sa table de routage ; si aucune route plus spécifique n’existe, le paquet suit généralement la route par défaut, mais la passerelle distante ne saura pas nécessairement retourner vers le réseau source.
 
-### 1.4. IKEv2 : négociation et authentification
+### Étape B — Comprendre l’encapsulation
 
-IKEv2 réalise la négociation des capacités, l'authentification mutuelle selon le profil et la création des associations. Les deux extrémités doivent trouver des propositions compatibles. Les paramètres comprennent notamment des algorithmes de chiffrement, une fonction d'intégrité lorsque le mode de chiffrement l'exige, des groupes d'échange de clés, des durées de vie et des méthodes d'authentification. Les détails varient selon l'implémentation et les fonctions activées.
-
-Il ne suffit pas que chaque pair « utilise AES ». Les suites doivent être compatibles dans leur combinaison exacte. AES-GCM, par exemple, est un chiffrement authentifié qui combine confidentialité et intégrité ; dans ce cas, on ne configure généralement pas une fonction d'intégrité séparée pour le trafic ESP comme on le ferait avec un chiffrement de type AES-CBC associé à un HMAC. La liste exacte d'algorithmes disponibles et leur niveau de recommandation doivent être vérifiés dans la documentation courante du fournisseur et dans les recommandations IETF pertinentes.
-
-Les méthodes d'authentification courantes comprennent un secret partagé (*pre-shared key*, PSK) et les certificats avec signatures numériques. Une PSK est facile à comprendre pour un petit laboratoire, mais sa gestion devient risquée si elle est réutilisée sur de nombreux pairs, stockée en clair dans des fichiers ou partagée à des personnes qui n'en ont pas besoin. Les certificats permettent une identité propre à chaque équipement et une révocation centralisée, mais nécessitent une infrastructure de clés publiques, la protection des clés privées et le suivi des expirations.
-
-Le nom d'identité annoncé par un pair n'est pas toujours identique à l'adresse IP externe. Un pair dynamique peut changer d'adresse publique ; un certificat peut identifier un nom DNS ou une autre identité. Il faut accorder la confiance selon une règle claire : identité attendue, chaîne de certification, validité temporelle, usages de clé et éventuellement correspondance de nom. Autoriser simplement toute adresse ou toute identité sans autre restriction peut étendre excessivement la surface d'accès.
-
-La négociation suit une séquence conceptuelle :
-
-1. Les pairs échangent des propositions et établissent un secret partagé à partir d'un échange de clés.
-2. Ils authentifient leurs identités avec la méthode configurée.
-3. Ils établissent et entretiennent l'IKE SA.
-4. Ils négocient une CHILD SA pour le trafic protégé, avec les sélecteurs ou la politique associés.
-5. Ils renouvellent les clés avant ou au terme des durées de vie et suppriment les états qui ne sont plus nécessaires.
-
-Cette séquence n'est pas une recette complète de paquets. Elle représente les responsabilités afin de donner du sens aux journaux et aux états de la plate-forme.
-
-### 1.5. Chiffrement, intégrité, échange de clés et PFS
-
-La confidentialité empêche un observateur qui ne possède pas les clés de lire le contenu protégé. L'intégrité permet de détecter des modifications non autorisées, et l'authentification des données rattache les données reçues à la SA qui les protège. Ces objectifs sont distincts. Un système doit choisir une suite cryptographique appropriée qui fournit les services attendus sans mélange incohérent de paramètres.
-
-Les suites à chiffrement authentifié comme AES-GCM sont courantes dans des conceptions IPsec modernes, mais la disponibilité et le niveau d'efficacité dépendent du matériel. AES-CBC avec un mécanisme d'intégrité peut encore apparaître dans des environnements interopérables existants ; cela ne signifie pas qu'il faut le préférer automatiquement à un mode plus récent. Les algorithmes historiques faibles ou obsolètes doivent être évités, notamment lorsque les recommandations des standards les déprécient. Il faut examiner les capacités des deux pairs et choisir un profil restreint et explicite plutôt que conserver une liste très large uniquement pour « faire marcher » la négociation.
-
-L'échange de clés Diffie-Hellman ou ses variantes permet aux parties de dériver un secret sans envoyer directement ce secret en clair sur le réseau. Le groupe choisi influe sur la sécurité et la charge de calcul. La *Perfect Forward Secrecy* (PFS) désigne une propriété qui limite l'impact d'une compromission de clés à long terme sur la confidentialité d'anciens échanges, selon le mécanisme et les clés effectivement utilisées. Lorsque la politique impose PFS pour les SA de données, les deux extrémités doivent être configurées de façon compatible.
-
-Les durées de vie des SA et des clés ne doivent pas être traitées comme des nombres universels. Elles sont liées au profil de sécurité, aux capacités des équipements, à la charge et aux politiques d'exploitation. Une durée trop courte peut augmenter les renégociations et les risques de microcoupure sur certaines plateformes ; une durée trop longue peut aller à l'encontre des exigences de protection. Il faut documenter le choix, le tester et superviser les renouvellements.
-
-> **Danger :** Ne baisse pas la sécurité cryptographique en production simplement parce que la négociation échoue. Commence par comparer les paramètres et les journaux des deux pairs. Réintroduire des algorithmes faibles pour préserver une interopérabilité de circonstance peut rendre le tunnel vulnérable. Toute exception temporaire doit avoir un propriétaire, une date d'expiration et un plan de retrait.
-
-### 1.6. VPN route-based et policy-based
-
-Un VPN *policy-based* détermine le trafic à protéger à partir de règles ou de sélecteurs, souvent définis par des couples de préfixes locaux et distants. Historiquement, cette approche est courante avec les cartes crypto (*crypto maps*) sur les routeurs Cisco. Elle peut convenir à des liaisons simples et à des partenaires dont les sélecteurs sont connus à l'avance.
-
-Un VPN *route-based* associe la protection IPsec à une interface virtuelle. La table de routage dirige les paquets vers cette interface ; le tunnel peut recevoir une adresse, transporter plusieurs préfixes et, selon le produit, prendre part à un protocole de routage. Les interfaces IPsec virtuelles sont souvent appelées VTI (*Virtual Tunnel Interface*). Dans certains produits Cisco, les options de tunnel et de profil s'appellent `tunnel mode ipsec ipv4` et `tunnel protection ipsec profile`, mais les détails varient selon IOS/IOS XE, les générations et la fonction employée.
-
-| Dimension | Policy-based | Route-based / VTI |
-|---|---|---|
-| Sélection courante | Sélecteurs de sous-réseaux et règles crypto | Table de routage vers l'interface virtuelle |
-| Ajout de préfixes | Peut nécessiter de modifier les sélecteurs et les deux pairs | Souvent géré par la route, sous réserve des politiques de sécurité |
-| Routage dynamique | Peut être limité ou nécessiter une construction supplémentaire | Souvent plus naturel sur l'interface du tunnel |
-| Dépannage | Examiner les sélecteurs et les règles de chiffrement | Examiner la route, l'état de l'interface et le profil IPsec |
-| Compatibilité | Très largement présente dans les équipements classiques | Dépend des versions et des fonctions du fournisseur |
-| Risque typique | Un sélecteur mal aligné exclut le flux | Une route trop large envoie des destinations inattendues vers le tunnel |
-
-Le choix doit être cohérent de bout en bout. Mélanger sans justification un côté qui attend des sélecteurs très précis et un côté qui présente un tunnel routé peut conduire à des négociations partielles ou à une sélection de trafic inattendue. Avant le déploiement, confirme le modèle supporté par les deux plateformes, les capacités de routage, le comportement NAT et les restrictions de sécurité.
-
-### 1.7. GRE protégé par IPsec
-
-GRE permet d'encapsuler des paquets dans un tunnel logique. Il peut être utilisé pour transporter des protocoles de routage ou certains trafics multicast que la politique IPsec de base ne transporte pas directement dans le scénario choisi. GRE seul ne chiffre pas le contenu ; il est donc courant de protéger GRE avec IPsec lorsque le tunnel passe sur un réseau non fiable.
-
-Avec GRE sur IPsec, le paquet applicatif est d'abord transporté dans GRE, puis le paquet résultant est protégé par IPsec. Ce mécanisme facilite certains designs, mais chaque enveloppe consomme de la place dans le MTU. La surcouche est plus importante que pour une conception IPsec qui protège directement les paquets sélectionnés. Il faut donc calculer le MTU effectif, régler éventuellement le MSS TCP et tester les paquets non TCP ainsi que les messages ICMP nécessaires à la découverte de MTU.
-
-L'utilisation de GRE n'implique pas qu'un protocole de routage doit être activé. Il est parfaitement possible d'utiliser des routes statiques sur un tunnel ; inversement, transporter OSPF ou BGP n'est pertinent que si les besoins opérationnels le justifient. Le routage dynamique apporte une convergence et une gestion des chemins utiles dans certains environnements, mais il nécessite des politiques de voisinage, une authentification lorsqu'elle est prise en charge, des filtres de préfixes et une supervision spécifique.
-
-### 1.8. Routage statique, OSPF et BGP sur le VPN
-
-La route doit correspondre à la politique VPN. Dans un tunnel route-based, une route vers le préfixe distant pointe souvent vers l'interface virtuelle. Dans un VPN policy-based, le routage amène généralement le trafic vers l'interface externe, tandis que la politique crypto sélectionne le flux à protéger. Les détails exacts varient par produit ; il est essentiel de distinguer route de transport vers l'adresse publique du pair et route applicative vers le réseau distant.
-
-Un VPN peut exiger deux familles de routes : les routes qui font passer le trafic externe du tunnel vers le fournisseur d'accès, et les routes qui dirigent le trafic interne vers le tunnel. Une route par défaut mal conçue peut envoyer l'adresse externe du pair dans le tunnel lui-même, créant une récursion ou empêchant le tunnel de fonctionner. Les routes de transport doivent donc rester disponibles indépendamment des routes apprises à travers le tunnel.
-
-Les routes statiques sont simples si les préfixes sont peu nombreux et stables. OSPF peut être adapté à une topologie interne maîtrisée ; BGP est souvent utile lorsque plusieurs sites, chemins, opérateurs ou domaines de routage doivent être gérés avec des politiques explicites. Dans tous les cas, ne diffuse pas aveuglément la route par défaut ou tous les préfixes internes. Configure des filtres, des préférences, des limites de nombre de routes et des contrôles de voisinage cohérents avec le besoin.
+Un VPN réseau prend habituellement un paquet intérieur, le protège, puis le transporte dans un paquet extérieur acheminé sur le réseau existant.
 
 ```text
-Site A                                                    Site B
-LAN 10.10.10.0/24                                         LAN 10.20.20.0/24
-       |                                                           |
-   [Routeur A]---- Tunnel VTI protégé par IPsec ----[Routeur B]
-       |          IP tunnel 169.254.10.1/30          |
-       |          OSPF ou routes statiques          |
-       +------------- Internet / WAN ----------------+
-
-Routes attendues :
-- Route externe vers l'adresse publique du pair via le WAN
-- Route interne vers 10.20.20.0/24 via Tunnel0 à A
-- Route interne vers 10.10.10.0/24 via Tunnel0 à B
-- Route retour et filtrage applicatif cohérents des deux côtés
+PAQUET INTÉRIEUR (avant encapsulation)
++--------------------------------------------------+
+| IP source : 10.10.10.10                          |
+| IP destination : 10.20.20.20                     |
+| Données applicatives                             |
++--------------------------------------------------+
+                          |
+                          | encapsulation + protection
+                          v
+PAQUET EXTÉRIEUR (transport sur Internet)
++--------------------------------------------------+
+| IP source publique : 198.51.100.10                |
+| IP destination publique : 203.0.113.20            |
+| UDP / protocole de transport du VPN               |
+| En-tête VPN + paquet intérieur chiffré            |
++--------------------------------------------------+
 ```
 
-### 1.9. NAT, NAT Traversal et pare-feu intermédiaires
+L’équipement de transit voit les adresses extérieures nécessaires à l’acheminement. Il ne doit pas pouvoir lire le contenu intérieur protégé, mais il peut encore observer des métadonnées comme les adresses de transport, les tailles et les rythmes de paquets.
 
-IKEv2 utilise couramment UDP 500 pour la négociation. Lorsque la détection du NAT indique qu'une extrémité se trouve derrière une traduction d'adresses, IPsec peut transporter ESP dans UDP 4500 avec NAT Traversal (NAT-T). ESP natif est le protocole IP 50 ; GRE est le protocole IP 47. Ces nombres ne désignent ni des ports TCP ni des ports UDP. Un pare-feu intermédiaire doit autoriser les échanges nécessaires au transport choisi, tout en appliquant les restrictions de source et de destination possibles.
+### Étape C — Monter un tunnel dans un laboratoire isolé
 
-Le NAT peut aussi perturber la sélection des flux d'un VPN. Un réseau local peut être traduit avant ou après le point où la politique IPsec évalue le paquet, selon le moteur de traitement et la configuration du fournisseur. Il faut connaître le comportement précis de la plateforme. De nombreux sites utilisent une exemption NAT (*NAT exemption* ou règle de non-traduction) pour conserver les adresses internes des flux destinés au VPN, tandis que les flux Internet ordinaires subissent une traduction d'adresse. Une erreur de priorité peut traduire le trafic VPN et le faire sortir des sélecteurs configurés.
+1. Créer deux hôtes Linux ou deux machines virtuelles.
+2. Attribuer aux hôtes des adresses de réseau différentes.
+3. Générer les clés ou certificats nécessaires.
+4. Établir un tunnel entre les deux extrémités.
+5. Vérifier le handshake ou l’état de la négociation.
+6. Vérifier les routes et les règles de pare-feu.
+7. Tester un flux applicatif réel, pas seulement un ping.
+8. Couper puis rétablir le tunnel afin d’observer la reprise.
 
-Quand le VPN échoue derrière une box ou une chaîne de NAT, ne pas se limiter à ouvrir tous les protocoles. Confirmer la route, l'adresse publique réellement vue par le pair, l'existence éventuelle de plusieurs NAT, les ports UDP nécessaires, la prise en charge de NAT-T et les journaux de détection. Un NAT peut aussi expirer une association UDP inactive : les mécanismes de maintien de connexion ou la stratégie de réouverture doivent être compris.
+### Étape D — Passer d’un tunnel fonctionnel à une architecture maîtrisée
 
-### 1.10. MTU, MSS, fragmentation et PMTUD
+Ajouter ensuite, une fonction à la fois :
 
-Chaque en-tête ajouté par GRE, IPsec, UDP ou d'autres encapsulations réduit la place disponible pour le paquet interne. Une interface Ethernet ayant une MTU de 1500 octets ne signifie donc pas qu'un paquet interne de 1500 octets passera sans difficulté à travers un tunnel. La surcharge exacte dépend de l'enveloppe extérieure, des options IP, de la version IPv4/IPv6, du mode ESP, du chiffrement authentifié, de l'alignement et d'éventuelles couches WAN.
+- une route vers un sous-réseau distant ;
+- une politique qui limite les réseaux accessibles ;
+- une résolution DNS prévue pour les noms internes ;
+- un test IPv6 ;
+- une mesure de latence et de débit ;
+- une rotation contrôlée de clé ou de certificat ;
+- une surveillance d’indisponibilité et une procédure de retour arrière.
 
-La découverte de MTU du chemin (*Path MTU Discovery*, PMTUD) dépend des messages et du traitement prévu par le protocole. Un filtrage ICMP trop strict peut empêcher la source de recevoir l'indication qu'un paquet est trop grand. Le symptôme est parfois trompeur : ping avec petit paquet réussi, établissement TCP réussi, mais transfert volumineux ou certaines applications qui se figent. La connexion peut envoyer des segments qui ne traversent pas le chemin ou ne sont jamais retransmis de manière efficace.
+### Étape E — Démontrer la maîtrise
 
-La correction ne consiste pas à fixer arbitrairement une MTU très basse sur toutes les interfaces. Il faut mesurer le chemin, calculer la surcharge du tunnel, vérifier les messages ICMP pertinents, tester différentes tailles et appliquer le réglage au bon endroit. L'ajustement du MSS TCP peut aider les sessions TCP, mais ne résout pas tous les flux UDP ni tous les problèmes PMTUD. Le MSS ne remplace pas une conception correcte du MTU.
+Vous devez pouvoir expliquer, sans vous appuyer uniquement sur l’interface graphique :
 
-> **Astuce :** En cas de transfert bloqué avec un tunnel actif, compare les petits et grands paquets et les compteurs ESP, puis examine les messages ICMP liés à la MTU. Note l'encapsulation exacte avant de calculer une valeur. Teste chaque changement avec un retour arrière prêt, et vérifie plusieurs applications, pas seulement une requête ping.
+- quelle route prend le paquet ;
+- quelle identité est authentifiée ;
+- quelle politique autorise le paquet ;
+- quelle adresse est visible sur le réseau de transport ;
+- quels journaux ou compteurs prouvent le passage du trafic ;
+- comment révoquer l’accès d’un client sans couper tous les autres.
 
-### 1.11. VPN d'accès distant : identité, routes et autorisations
 
-Un VPN d'accès distant ajoute plusieurs fonctions au tunnel : authentification de l'utilisateur, attribution d'une adresse virtuelle, distribution éventuelle de routes et de paramètres DNS, association de l'utilisateur à un groupe ou un rôle, et application d'une politique de sécurité. L'authentification réussie ne doit pas automatiquement autoriser l'accès à l'ensemble du réseau interne. Le modèle de moindre privilège impose de limiter les destinations et services aux besoins de l'utilisateur.
+## 4. Vocabulaire d’architecture
 
-L'authentification multifacteur (MFA) réduit le risque lié au vol d'un seul facteur, mais elle ne protège pas une session déjà compromise et ne remplace pas l'hygiène du poste client. Le contrôle de conformité du terminal, la segmentation des prestataires, la durée des accès, le retrait des comptes inactifs et les journaux d'accès complètent la politique de VPN. En particulier, un poste personnel ou non maîtrisé ne devrait pas obtenir le même périmètre qu'une station d'administration gérée.
-
-Le *split tunneling* dirige uniquement certains préfixes vers le VPN et laisse d'autres flux suivre la connectivité locale du poste. Il peut réduire la charge de la passerelle et améliorer les performances, mais crée deux chemins réseau depuis le poste et peut compliquer les contrôles de sécurité. Le *full tunneling* dirige une part beaucoup plus large du trafic vers la passerelle de l'organisation, où des politiques centralisées peuvent s'appliquer ; il augmente la consommation de bande passante et dépend de la capacité du concentrateur. La décision doit être explicite, justifiée par le risque et documentée.
-
-Les routes et paramètres DNS poussés au client sont aussi importants que l'établissement de la session. Un utilisateur peut être authentifié et disposer d'une adresse VPN, mais ne pas joindre une application à cause d'une route absente ou d'une résolution interne incorrecte. Inversement, une route trop large peut ouvrir un chemin vers des ressources que l'utilisateur ne devrait pas atteindre. Tester l'accès distant nécessite donc une matrice d'autorisations par rôle.
-
-### 1.12. Topologies multi-sites et chemins de secours
-
-Une topologie en étoile, dans laquelle les agences se connectent à un siège ou à un concentrateur, simplifie souvent les règles de sécurité et la sortie vers les applications centrales. Elle peut toutefois créer un point de concentration de la bande passante et une dépendance au site central. Une topologie maillée peut offrir des chemins directs entre sites, mais augmente le nombre de tunnels, les dépendances de routage et la complexité opérationnelle.
-
-Le nombre de tunnels peut croître rapidement. Pour un maillage complet de N sites, le nombre de liaisons pair à pair est N × (N − 1) / 2. Avec 10 sites, cela représente 45 relations de tunnel possibles ; avec 20 sites, 190. Les services de gestion centralisée, les VPN dynamiques ou les technologies SD-WAN peuvent réduire la charge manuelle, mais ils ajoutent leurs propres modèles de contrôle, de confiance et de dépannage. Il faut analyser le besoin avant de choisir la topologie.
-
-La redondance peut être obtenue avec deux accès Internet, plusieurs concentrateurs, des tunnels vers des pairs différents ou des mécanismes de basculement. Mais posséder deux tunnels ne suffit pas à démontrer la résilience. Il faut définir ce qui est surveillé (interface, route, pair, sonde applicative), comment la décision de basculement est prise, quels délais sont acceptables, et si les sessions applicatives se rétablissent. Un tunnel secondaire qui utilise le même opérateur, la même alimentation ou le même équipement amont peut partager un risque de panne majeur.
-
-La haute disponibilité nécessite aussi de comprendre ce qui est synchronisé : état du pair, associations de sécurité, clés, sessions, compteurs ou seules configurations. Certaines architectures imposent une nouvelle négociation et peuvent perdre des sessions lors d'un basculement. Cette conséquence doit être validée en laboratoire et documentée dans le niveau de service attendu.
-
-### 1.13. Observabilité et indicateurs opérationnels
-
-Une supervision utile collecte plusieurs types d'indicateurs : disponibilité de l'interface WAN, état du pair IKE, état des CHILD SA ou SA ESP, compteurs de paquets protégés, erreurs d'authentification, retransmissions ou expirations, latence, perte, utilisation CPU, capacité cryptographique et débit réel. Un seul état vert ne représente pas l'ensemble du service.
-
-Les compteurs encapsulés augmentent lorsque le routeur protège et envoie des paquets. Les compteurs décapsulés augmentent lorsque des paquets protégés arrivent et sont traités. Si l'un augmente sans l'autre, le problème peut se situer dans le retour, le routage, le pair distant, le filtrage ou l'application. Les noms de compteurs varient selon la plateforme ; l'objectif est de comparer les deux directions et de corréler la mesure avec un test contrôlé.
-
-Les journaux IKE et IPsec peuvent révéler une proposition rejetée, une identité non reconnue, une authentification échouée, un sélecteur incompatible ou un renouvellement en erreur. Ils peuvent aussi être trop verbeux et exposer des métadonnées sensibles. Le niveau de journalisation doit être réglé selon l'opération : augmenter temporairement le détail pour un incident, horodater les captures, recueillir les informations pertinentes puis revenir à un niveau normal. Les secrets et les clés privées ne doivent jamais être copiés dans un ticket ou un rapport d'incident.
-
-Une alerte doit être liée à une action exploitable. Par exemple, une IKE SA qui disparaît pendant une courte fenêtre peut être normale lors d'un renouvellement ; un tunnel absent pendant plusieurs minutes alors qu'un trafic est attendu peut justifier une alerte. Il faut calibrer seuils et temporisations sur les caractéristiques du réseau pour éviter les fausses alertes et ne pas masquer les vrais incidents.
-
-### 1.14. Menaces et modèle de confiance
-
-Le tunnel protège les données sur un chemin donné, mais ne rend pas automatiquement les extrémités sûres. Une passerelle compromise, un poste infecté, une clé privée volée ou une politique d'autorisation trop large peut compromettre les ressources internes même si le chiffrement est solide. La sécurité du VPN doit donc être intégrée à la gestion des identités, à la segmentation, aux correctifs, à la surveillance, à la réponse aux incidents et au cycle de vie des équipements.
-
-Les menaces à prendre en compte comprennent le vol de secret, l'utilisation d'une identité légitime par un acteur non autorisé, la force brute sur un accès distant, les algorithmes obsolètes, la confusion d'identité entre pairs, les erreurs de routage, les règles trop larges, le déni de service sur la passerelle, l'exposition d'une interface de gestion et la perte de visibilité dans les journaux.
-
-Une politique robuste utilise des algorithmes actuellement acceptés par les standards et le fournisseur, une authentification adaptée au contexte, des secrets uniques ou une PKI correctement exploitée, une segmentation des ressources, des règles minimales et une revue périodique. Pour les équipements d'administration, employer des chemins d'accès dédiés si possible, limiter les sources autorisées, exiger un contrôle d'identité fort et enregistrer les changements. Le VPN n'est ni un substitut à un pare-feu ni une raison d'accorder une confiance implicite à tout le réseau distant.
-
----
-
-## 2. Configuration et pratique
-
-Les exemples ci-dessous illustrent une interconnexion route-based IPsec sur Cisco IOS/IOS XE. Ils servent de support de laboratoire et doivent être adaptés à la version, à la plate-forme, à la topologie, à la politique cryptographique et aux exigences du site. Les adresses publiques des exemples utilisent les plages de documentation et ne sont pas destinées à être utilisées comme des adresses de production.
-
-### 2.1. Scénario du laboratoire
-
-Deux sites doivent échanger du trafic entre leurs réseaux LAN. Site A : `10.10.10.0/24`, adresse externe de laboratoire `198.51.100.1`. Site B : `10.20.20.0/24`, adresse externe `203.0.113.2`. Le tunnel virtuel utilise `169.254.100.0/30`. Les passerelles disposent déjà d'une connectivité WAN et doivent pouvoir joindre l'adresse externe du pair sans envoyer cette destination dans le tunnel.
-
-```text
- Hôte A            Routeur A                  Routeur B             Hôte B
-10.10.10.10   198.51.100.1                 203.0.113.2          10.20.20.20
-     |              |                            |                     |
-     +--- LAN A ----+==== IPsec / Tunnel0 =======+------ LAN B --------+
-                    169.254.100.1/30  .2/30
-```
-
-Avant la configuration, remplir une fiche de conception : sous-réseaux protégés, adresses publiques, modèle route-based ou policy-based, identité des pairs, méthode d'authentification, suites autorisées, MTU cible, règles de pare-feu externes, routes attendues, capacité requise et processus de retour arrière. Cette fiche est aussi utile pour la revue de changement et pour le dépannage futur.
-
-### 2.2. Paramètres à faire correspondre
-
-| Élément | Site A | Site B | Vérification |
-|---|---|---|---|
-| Adresse publique du pair | `203.0.113.2` | `198.51.100.1` | Adresse joignable par le WAN |
-| Identité distante attendue | Identité de B | Identité de A | Doit correspondre à l'identité réellement présentée |
-| Authentification | PSK de laboratoire ou certificats | Paramètres compatibles | Méthode et secret/certificat valides |
-| Propositions IKE | Profil autorisé | Profil compatible | Chiffrement, PRF/intégrité, groupe et version |
-| Paramètres ESP | Profil de données | Profil compatible | Chiffrement authentifié ou combinaison compatible |
-| Tunnel interne | `169.254.100.1/30` | `169.254.100.2/30` | Adresses uniques et non chevauchantes |
-| Réseau LAN | `10.10.10.0/24` | `10.20.20.0/24` | Aucun chevauchement avec le réseau distant |
-| Route distante | Vers `10.20.20.0/24` | Vers `10.10.10.0/24` | Trafic interne dirigé vers le tunnel |
-| Filtrage | Autorisations explicites | Autorisations explicites | Flux nécessaires seulement |
-
-### 2.3. Exemple conceptuel de configuration IKEv2/IPsec
-
-Les profils ci-après montrent les éléments à configurer sur chaque pair. Des noms de commandes ou champs peuvent varier selon la version. Il faut choisir des algorithmes conformément aux recommandations courantes de l'organisation et aux capacités supportées ; l'exemple de groupe Diffie-Hellman est à considérer comme une valeur illustrative, pas comme une recommandation universelle pour toutes les générations d'équipements.
-
-Exemple de base pour le site A :
-
-```text
-! Exemple pédagogique Cisco IOS/IOS XE : valider la syntaxe sur la version cible
-crypto ikev2 proposal IKEV2-PROP
- encryption aes-cbc-256
- integrity sha256
- group 14
-!
-crypto ikev2 policy IKEV2-POLICY
- proposal IKEV2-PROP
-!
-crypto ikev2 keyring VPN-KEYRING
- peer SITE-B
-  address 203.0.113.2
-  pre-shared-key local <SECRET_SITE_A>
-  pre-shared-key remote <SECRET_SITE_B>
-!
-crypto ikev2 profile IKEV2-PROFILE
- match identity remote address 203.0.113.2 255.255.255.255
- authentication remote pre-share
- authentication local pre-share
- keyring local VPN-KEYRING
-!
-crypto ipsec transform-set ESP-TRANSFORM esp-aes 256 esp-sha256-hmac
- mode tunnel
-!
-crypto ipsec profile IPSEC-PROFILE
- set transform-set ESP-TRANSFORM
- set ikev2-profile IKEV2-PROFILE
-!
-interface Tunnel0
- ip address 169.254.100.1 255.255.255.252
- tunnel source GigabitEthernet0/0
- tunnel destination 203.0.113.2
- tunnel mode ipsec ipv4
- tunnel protection ipsec profile IPSEC-PROFILE
-```
-
-**Important :** `aes-cbc-256` avec `sha256-hmac` est montré ici pour illustrer la séparation des paramètres IKE et ESP et pour offrir un exemple largement reconnaissable dans les maquettes Cisco ; cela ne remplace pas une revue cryptographique. Dans une conception actuelle, privilégier les suites approuvées et prises en charge telles que les modes AEAD appropriés lorsque les deux pairs les supportent, plutôt que copier ce bloc sans évaluation. Le champ `group 14` figure pour la même raison pédagogique et doit être comparé aux recommandations les plus récentes et aux capacités de la plate-forme. Ne jamais utiliser des secrets explicites dans un document partagé : les chaînes entre chevrons sont des espaces réservés.
-
-Le site B reprend la logique en inversant les adresses, les identités et les adresses de tunnel. Le pair de B pointe vers `198.51.100.1`, la source du tunnel est l'interface WAN de B et l'adresse de `Tunnel0` est `169.254.100.2/30`. Les deux côtés doivent négocier des paramètres compatibles ; les noms locaux de profils peuvent être différents, mais ils doivent correspondre fonctionnellement.
-
-Sur certaines versions et certains modèles, le profil peut utiliser une configuration IKEv2 différente, une identité FQDN, une authentification par certificat, un groupe dynamique ou une fonction FlexVPN. Ne force pas la correspondance uniquement par adresse si l'architecture utilise des pairs dynamiques ou des certificats. Vérifie le guide de la version qui tourne réellement sur l'équipement.
-
-### 2.4. Routage à travers le tunnel
-
-Si l'environnement utilise des routes statiques, une idée de configuration sur A consiste à envoyer le réseau B à travers `Tunnel0`, et symétriquement sur B. Exemple conceptuel :
-
-```text
-! Site A
-ip route 10.20.20.0 255.255.255.0 Tunnel0
-!
-! Site B
-ip route 10.10.10.0 255.255.255.0 Tunnel0
-```
-
-Cette route ne remplace pas la route de transport vers l'adresse publique du pair. Il faut conserver un acheminement WAN valable pour `203.0.113.2` depuis A et pour `198.51.100.1` depuis B. Si une route par défaut passe elle-même par `Tunnel0`, une route plus spécifique vers le pair externe peut être nécessaire pour éviter une récursion. Le comportement exact dépend du système de routage et de la conception de la VTI.
-
-Après configuration, examiner la table de routage avant de tester les hôtes. Une route correcte vers `10.20.20.0/24` doit pointer vers la bonne interface virtuelle ou le prochain saut prévu. Vérifier aussi le chemin retour : le routeur B doit pouvoir renvoyer `10.10.10.0/24` via son tunnel, et les hôtes doivent utiliser la passerelle locale correcte. Un trafic qui entre dans le tunnel sans route de retour peut produire des compteurs asymétriques et des sessions applicatives incomplètes.
-
-### 2.5. GRE sur IPsec et routage dynamique
-
-Pour un cas nécessitant GRE, le tunnel logique peut transporter le routage dynamique, puis être protégé avec un profil IPsec. Exemple conceptuel abrégé :
-
-```text
-interface Tunnel10
- ip address 172.31.255.1 255.255.255.252
- tunnel source GigabitEthernet0/0
- tunnel destination 203.0.113.2
- tunnel mode gre ip
- tunnel protection ipsec profile IPSEC-PROFILE
-```
-
-Les commandes disponibles et les combinaisons autorisées dépendent du produit et du mode de tunnel utilisé. Certaines implémentations configurent un tunnel IPsec VTI sans GRE ; d'autres combinent explicitement les deux. Ne superpose pas GRE et IPsec sans besoin réel, car la surcharge supplémentaire réduit la MTU et complique le diagnostic.
-
-Si OSPF est utilisé sur l'interface de tunnel, établir des exigences explicites : types de réseau, timers, authentification si prise en charge, filtrage des préfixes, zones, métrique, passive-interface et comportement de convergence. OSPF ne doit pas devenir un moyen de diffuser par erreur la route par défaut ou des routes sensibles. Dans un déploiement BGP, employer des filtres d'entrée/sortie, des politiques de préférence, une limite de préfixes et une procédure de retrait du pair.
-
-### 2.6. Exemptions NAT et politique de pare-feu
-
-Dans de nombreux réseaux, le trafic Internet ordinaire des postes est traduit par NAT/PAT alors que les flux destinés au VPN conservent leurs adresses internes. La règle de non-traduction doit correspondre à la conception du VPN et à l'ordre de traitement du NAT sur la plate-forme. Ne copie pas un exemple trouvé pour un autre équipement sans comprendre si le NAT se produit avant ou après la sélection IPsec.
-
-La passerelle et les pare-feu intermédiaires doivent autoriser le transport réellement utilisé. Les flux courants comprennent IKE sur UDP 500, NAT-T sur UDP 4500 et, lorsque la topologie le permet sans NAT-T, ESP comme protocole IP 50. GRE est protocole IP 47. Ces numéros ne sont pas des ports TCP/UDP. Un pare-feu à état peut gérer les retours correspondants, mais les politiques précises dépendent du fournisseur, des interfaces et de la manière dont le VPN est terminé.
-
-Il ne faut pas ouvrir IKE depuis l'ensemble d'Internet vers toutes les passerelles quand des sources attendues peuvent être restreintes. Pour un pair à adresse stable, la liste des pairs attendus peut être limitée au niveau du filtrage. Pour les clients mobiles, l'ouverture doit être accompagnée de mécanismes d'authentification solides, d'une protection contre les tentatives abusives et d'une politique d'autorisation stricte.
-
-### 2.7. Commandes de vérification Cisco
-
-Les commandes ci-dessous sont couramment rencontrées dans les environnements Cisco IOS/IOS XE. Les options exactes et la disponibilité dépendent de la version :
-
-```text
-show crypto ikev2 sa
-show crypto ipsec sa
-show crypto session detail
-show interfaces Tunnel0
-show ip interface brief
-show ip route
-show ip route 10.20.20.0
-show access-lists
-show logging
-```
-
-Elles servent à répondre à des questions différentes : le pair IKE est-il établi ? Des SA ESP existent-elles ? Les compteurs de chiffrement et déchiffrement augmentent-ils ? L'interface virtuelle est-elle opérationnelle ? La route choisit-elle le tunnel ? Une ACL ou une politique de pare-feu bloque-t-elle le flux ? Les journaux donnent-ils une cause de rejet ?
-
-Procéder par tests contrôlés. Relever les compteurs, générer un flux précis depuis un hôte du LAN A vers une destination du LAN B, puis relire les compteurs. Un ping émis directement par le routeur peut emprunter une autre interface ou utiliser une adresse source différente de celle de l'hôte ; préciser la source lors des tests et toujours vérifier le chemin retour. Les captures doivent être réalisées sur les points utiles et protégées comme des données d'exploitation, car elles peuvent inclure des adresses internes ou des métadonnées sensibles.
-
-### 2.8. Procédure de validation avant production
-
-Une validation ne doit pas se limiter à vérifier une seule requête ping. La checklist suivante donne une base de tests. Les résultats attendus doivent être consignés dans un ticket de changement, un cahier de test ou une procédure d'exploitation.
-
-| Test | Résultat attendu | Preuve à collecter |
-|---|---|---|
-| Connectivité WAN entre pairs | Adresses externes joignables selon la politique | Route externe, capture ou sonde WAN |
-| Négociation IKEv2 | IKE SA établie et identité correcte | État de SA et journal IKE |
-| Négociation IPsec | CHILD SA/SA ESP appropriées présentes | État ESP et paramètres négociés |
-| Trafic A vers B | Paquets encapsulés puis reçus | Compteurs et test applicatif |
-| Trafic B vers A | Retour symétrique selon la conception | Compteurs inverse, routes de retour |
-| Flux non autorisé | Bloqué selon la matrice de sécurité | Test négatif et journal de refus |
-| DNS interne | Résolution attendue pour les clients autorisés | Requête DNS et paramètres reçus |
-| Transfert volumineux | Pas de blocage dû à MTU/MSS | Test de taille, capture, observation ICMP |
-| Renouvellement des clés | Nouveau SA sans rupture excessive | Journaux et mesure de session |
-| Défaillance d'un lien | Basculement selon le SLA | Test contrôlé et temps de convergence |
-| Redémarrage ou reconnexion | Rétablissement automatique prévu | Trace horodatée, test de récupération |
-| Sauvegarde / retour arrière | Configuration récupérable | Fichier de sauvegarde et procédure testée |
-
-Une matrice de test doit aussi distinguer les différents types de flux : TCP, UDP, ICMP, DNS, gestion, applications métier et protocoles de routage. Autoriser tout le trafic entre les deux LAN peut rendre le premier test très facile, mais ne valide pas la politique de segmentation. Les tests négatifs sont essentiels pour vérifier que les règles de sécurité fonctionnent réellement.
-
----
-
-## 3. Dépannage et sécurité
-
-### 3.1. Une méthode en couches
-
-Le dépannage VPN devient plus efficace lorsqu'on suit une progression stable, de l'infrastructure vers l'application. La méthode suivante limite les modifications au hasard et permet de documenter l'endroit où le paquet disparaît.
-
-1. **Transport WAN** : vérifier l'interface, l'adressage, la route externe vers le pair, le NAT et les pertes. Sans transport, IKE ne peut pas se négocier.
-2. **IKE et identité** : examiner les propositions, l'identité distante, la méthode d'authentification, la validité du certificat ou la PSK, les groupes et les journaux.
-3. **Associations ESP** : vérifier l'existence des SA de données, les suites cryptographiques, les sélecteurs, les durées de vie et les compteurs.
-4. **Routage et NAT interne** : vérifier la route vers les réseaux distants, l'absence de récursion, le NAT exemption si requis et les routes de retour.
-5. **Filtrage et politique applicative** : examiner les ACL, le pare-feu, les politiques de zone, les règles de sécurité des hôtes et les autorisations utilisateur.
-6. **Services et performances** : vérifier DNS, MTU/MSS, latence, perte, fragmentation, charge CPU, débit cryptographique et comportement des applications.
-
-Ne change qu'une variable à la fois si le service est encore partiellement opérationnel. Avant chaque changement, consigner l'état courant ; après, répéter exactement le même test. Sans cela, on ne sait pas si l'amélioration vient du changement effectué, d'un renouvellement de SA ou d'une fluctuation du réseau.
-
-### 3.2. IKE ne se négocie pas
-
-Quand aucune IKE SA n'apparaît, commencer par la connectivité vers l'adresse publique du pair et par le filtrage des paquets de négociation. Vérifier que le pare-feu externe autorise le protocole utilisé : généralement UDP 500 et, selon le NAT-T, UDP 4500. Ne pas ouvrir TCP/50 pour « autoriser ESP » : ESP est un numéro de protocole IP, non un port TCP.
-
-Les causes d'échec courantes sont une mauvaise adresse de pair, une identité distante qui ne correspond pas, une PSK erronée, un certificat expiré, une chaîne de certification non reconnue, une date incorrecte, ou des propositions cryptographiques incompatibles. Un échec d'authentification doit être distingué d'un échec de compatibilité : les journaux peuvent révéler si aucun algorithme commun n'est trouvé ou si le pair a été reconnu puis rejeté.
-
-Un certificat valide dans le navigateur d'un poste n'est pas nécessairement valide pour une passerelle VPN. Vérifier l'identité exacte, les usages de clé, la chaîne de confiance, la révocation lorsque la politique l'exige et l'heure système. Une synchronisation NTP incorrecte peut faire apparaître un certificat valide comme expiré ou pas encore valide.
-
-Ne pas contourner le problème en supprimant toute vérification d'identité ou en autorisant n'importe quel pair. Si un fournisseur tiers ne supporte qu'un ensemble de paramètres étroit, documenter la compatibilité minimale et vérifier que les paramètres restent acceptables selon la politique de sécurité. Une exception doit être circonscrite au seul pair concerné.
-
-### 3.3. IKE fonctionne, mais aucune SA de données n'existe
-
-Si l'IKE SA est établie sans CHILD SA adaptée, analyser les paramètres de protection du trafic et les sélecteurs. Une divergence dans les sous-réseaux locaux et distants, une proposition ESP incompatible, une option PFS différente ou une politique qui ne correspond à aucun flux peuvent empêcher la création de l'association de données.
-
-Sur un VPN policy-based, comparer soigneusement les préfixes source/destination vus par chaque pair. Le site A peut définir `10.10.10.0/24` vers `10.20.20.0/24`, tandis que le site B doit avoir l'équivalent inversé. Si l'une des extrémités inclut seulement un `/25`, l'autre moitié du réseau ne sera pas nécessairement protégée. Si le NAT modifie les adresses avant leur comparaison aux sélecteurs, les paramètres configurés peuvent ne plus correspondre aux paquets réels.
-
-Sur un VPN route-based, ne pas supposer que la présence de `Tunnel0` prouve qu'une association ESP existe. Vérifier le profil attaché, les paramètres IKEv2, l'état du tunnel et les routes. Certaines plateformes créent la SA à la demande lorsqu'un trafic admissible apparaît ; la méthode de déclenchement doit être comprise avant de conclure à une panne.
-
-### 3.4. Tunnel actif, trafic absent
-
-Des compteurs ESP nuls signifient généralement qu'aucun trafic correspondant n'est protégé ou que le test ne passe pas par le point attendu. Vérifier la source utilisée par le test, la route vers le réseau distant, la politique crypto, les sélecteurs, l'ACL sur l'interface et le chemin de retour. Un ping lancé depuis le routeur avec sa propre adresse WAN n'est pas équivalent au ping émis depuis un hôte du LAN.
-
-Si les compteurs encapsulés augmentent à A mais pas les compteurs décapsulés à B, l'enveloppe peut être bloquée ou routée vers une autre extrémité, ou la protection ne correspond pas à ce que B attend. Contrôler les adresses externes, le transport NAT-T, les ACL WAN, les captures et les journaux du pair distant. Si les compteurs décapsulés augmentent à B mais que l'hôte ne répond pas, suivre le paquet à l'intérieur du site B : route LAN, VLAN, ACL, pare-feu local, passerelle de l'hôte et service cible.
-
-Si les compteurs augmentent dans les deux directions mais que l'application reste inaccessible, concentrer l'enquête sur les réseaux internes. Tester la résolution DNS, le port applicatif, la route de retour depuis le serveur, les règles de pare-feu et les journaux côté serveur. Un tunnel protège le transport ; il n'autorise pas automatiquement le service applicatif ni ne corrige les erreurs de l'hôte.
-
-### 3.5. Problèmes NAT et sélecteurs
-
-Une exemption NAT mal positionnée peut transformer une adresse source attendue avant que la sélection du trafic VPN ne soit appliquée. Il faut connaître l'ordre du traitement NAT et du traitement IPsec sur le système en place. Une règle qui exempte les réseaux distants doit être assez précise ; une exemption générale peut supprimer un contrôle attendu ou empêcher une traduction nécessaire pour un autre service.
-
-Pour diagnostiquer, relever les adresses source/destination avant et après la passerelle, examiner les compteurs NAT et comparer le paquet à la politique VPN. Sur une maquette, une capture à chaque interface peut montrer si l'adresse interne est conservée, traduite ou encapsulée comme prévu. En production, respecter la politique de collecte et masquer les identifiants ou métadonnées sensibles dans les rapports.
-
-La présence de plusieurs routeurs NAT, d'une box opérateur ou d'une adresse publique dynamique peut également compliquer la connexion. NAT-T peut permettre de transporter ESP dans UDP, mais ne résout pas toutes les problématiques d'itinéraire ou d'autorisation. Vérifier la stabilité de l'adresse vue par le pair, la durée des mappages UDP et les paramètres de maintien de session pris en charge.
-
-### 3.6. Réseaux chevauchants et route récursive
-
-Deux sites qui utilisent le même préfixe privé, par exemple `192.168.1.0/24`, compliquent fortement la détermination de la destination. Une table de routage classique ne peut pas distinguer deux réseaux identiques simplement parce que les hôtes sont situés dans deux sites VPN différents. La meilleure solution consiste souvent à renuméroter l'un des sites avant le déploiement.
-
-Dans certains environnements où la renumérotation est impossible, une traduction d'adresses ciblée ou un mécanisme de chevauchement peut être étudié. Cette approche ajoute de la complexité : les journaux montrent des adresses traduites, les règles applicatives doivent comprendre le mappage et le diagnostic exige de connaître le chemin avant/après traduction. Toute solution de ce type doit être testée avec des flux aller et retour et documentée avec les adresses visibles par chaque extrémité.
-
-Une route récursive apparaît lorsque le chemin nécessaire pour atteindre le pair externe dépend du tunnel lui-même. Par exemple, une route par défaut envoyée dans `Tunnel0` peut capturer l'adresse externe du pair et empêcher le tunnel de conserver sa connectivité de transport. Il faut identifier la route la plus spécifique qui atteint le pair, vérifier la préférence de route et s'assurer que le plan de transport demeure indépendant du trafic protégé.
-
-### 3.7. MTU, MSS et symptômes applicatifs
-
-Si les petites requêtes passent mais que les transferts volumineux stagnent, vérifier l'encapsulation et la MTU avant de supposer un problème de chiffrement. GRE, ESP, UDP NAT-T et les en-têtes extérieurs diminuent la taille utile du paquet. Le chemin peut aussi inclure un lien opérateur avec une MTU inférieure à celle du LAN. Une politique ICMP qui bloque les messages nécessaires à PMTUD peut empêcher la source de réduire correctement la taille des paquets.
-
-Un test de taille graduelle peut aider à identifier un seuil, mais il faut tenir compte du type de paquet et de la manière dont le système de test utilise le bit DF. Les commandes de ping et leurs options changent selon les systèmes. Tester plusieurs directions et plusieurs applications ; ne pas extrapoler le résultat d'un seul ping à l'ensemble du trafic.
-
-Ajuster la MTU du tunnel ou le MSS TCP peut être approprié après mesure et calcul. Le MSS ne corrige pas tous les flux UDP, ni les problèmes de fragmentation IP, ni un ICMP indispensable qui serait filtré. Une valeur très faible peut réduire l'efficacité du transport et augmenter le nombre de paquets ; il vaut mieux rechercher la bonne taille plutôt que de choisir une valeur arbitraire.
-
-### 3.8. VPN instable, reconnexions et haute disponibilité
-
-Les renégociations, les pertes de pair, les expirations de certificats, les changements de route, les expirations NAT et les interruptions WAN peuvent provoquer des coupures. Pour établir une corrélation, aligner les horodatages des journaux des deux passerelles, des interfaces WAN, du protocole de routage et de la supervision applicative. Une seule ligne de log peut indiquer le symptôme sans montrer la cause initiale.
-
-Les mécanismes de détection de pair mort (*Dead Peer Detection*, DPD) ou des mécanismes proches aident à repérer un pair qui ne répond plus. Des temporisations trop agressives peuvent déclarer à tort une panne en cas de congestion ou de charge CPU. À l'inverse, des temporisations trop longues rallongent le temps de basculement. Elles doivent être choisies et validées dans le contexte des délais attendus, pas copiées sans examen.
-
-Dans une architecture haute disponibilité, tester explicitement la perte du WAN primaire, la panne du pair, la perte d'une route dynamique, le redémarrage d'un équipement et la perte du lien de synchronisation si elle existe. Mesurer non seulement le retour du tunnel, mais aussi la récupération des applications, la durée d'interruption, la perte des sessions et la cohérence des journaux. Une bascule qui rétablit IKE mais laisse une route incorrecte n'est pas un rétablissement complet du service.
-
-### 3.9. Sécurité opérationnelle et cycle de vie
-
-La gestion des secrets doit être formalisée. Les PSK doivent être longues, uniques par relation de confiance, stockées dans un coffre ou un système de gestion adapté et renouvelées selon la politique. Les clés privées de certificats doivent être protégées avec des contrôles d'accès stricts. Les comptes de gestion ne doivent pas partager les mêmes identifiants que les utilisateurs ordinaires et les accès d'administration doivent être limités aux sources et rôles nécessaires.
-
-Le cycle de vie comprend l'inventaire des pairs, la validation des versions, le suivi des certificats, la rotation des clés, les tests de restauration et le retrait des tunnels inutilisés. Un VPN oublié peut exposer un chemin de confiance longtemps après la fin d'un contrat. Les configurations doivent avoir un propriétaire et un motif métier, avec une date de revue. Les routes, règles d'accès et identités doivent être supprimées lorsque la relation de confiance est terminée.
-
-La collecte des journaux doit fournir de quoi reconstruire un incident : identité, heure, pair, résultat d'authentification, changement d'état, volume ou compteur pertinent, cause d'échec et action administrative. Les journaux doivent être protégés contre l'altération et leur accès restreint. Éviter de collecter des secrets ou clés privées ; les données de diagnostic doivent respecter les règles de conservation et de confidentialité de l'organisation.
-
-> **Danger :** Ne partage jamais des captures complètes de configuration qui contiennent des secrets, des clés privées, des identifiants de comptes ou des certificats sensibles. Remplace les valeurs secrètes par des espaces réservés avant de transmettre un fichier de dépannage. Les adresses privées et la topologie peuvent aussi être des informations sensibles selon le contexte.
-
-### 3.10. Cas pratique guidé : diagnostiquer une interconnexion partielle
-
-**Situation :** le tunnel entre deux agences indique un état établi. Les postes du site A peuvent pinguer une adresse du site B, mais les transferts de fichiers échouent après quelques secondes. Les services DNS internes sont intermittents. Les compteurs ESP augmentent dans les deux directions, mais les utilisateurs signalent que certaines applications restent figées.
-
-**Hypothèses initiales :** MTU/MSS incorrects ; ICMP lié à PMTUD filtré ; perte ou fragmentation sur le WAN ; route asymétrique ; serveurs DNS accessibles par un chemin différent ; inspection ou filtrage applicatif sur une passerelle. Le fait que le ping réponde ne permet pas de choisir immédiatement l'une de ces hypothèses.
-
-**Étape 1 — confirmer les mesures :** horodater un test de petite taille, un test de taille graduelle et un transfert applicatif. Vérifier les compteurs IPsec avant et après chaque test. Confirmer que la source est bien un poste du LAN et que les routes du site B reviennent vers le VPN.
-
-**Étape 2 — observer les paquets :** comparer les captures côté LAN et WAN avec les protections appropriées. Identifier si les grands paquets disparaissent avant l'encapsulation, dans le réseau de transport ou après décapsulation. Rechercher les messages ICMP utiles à PMTUD. Examiner les pertes et erreurs d'interface.
-
-**Étape 3 — valider DNS séparément :** demander une résolution directement au serveur DNS attendu, comparer le résultat avec celui du client, vérifier le suffixe de recherche et le chemin vers le résolveur. Si les requêtes passent par un autre tunnel ou un lien local, documenter ce chemin.
-
-**Étape 4 — corriger de façon contrôlée :** si la mesure démontre un problème de MTU/MSS, appliquer une valeur calculée et testée sur l'interface adéquate. Si le filtrage ICMP est fautif, autoriser précisément les messages nécessaires conformément à la politique. Ne pas désactiver tout le filtrage pour régler un cas particulier.
-
-**Étape 5 — vérifier et documenter :** reprendre les tests applicatifs, le test de taille, la résolution DNS, les tests de refus et les mesures de latence. Enregistrer les valeurs, les commandes, le résultat, la modification et le plan de retour arrière. Vérifier le comportement après renouvellement de SA et après une reconnexion.
-
-Le but de ce cas pratique est de montrer que plusieurs symptômes peuvent être liés ou distincts. Le tunnel est une composante du service, mais la bonne analyse doit examiner l'ensemble du chemin réseau et du service applicatif.
-
-### 3.11. Exercices avec corrigés
-
-**Exercice 1 — IKE est établi, aucune donnée ne passe.** Quelles sont les premières vérifications ?
-
-**Corrigé :** vérifier les CHILD SA ou associations ESP, les sélecteurs et les propositions de données ; examiner ensuite les routes, la source réelle du test, les règles de filtrage, le NAT, les compteurs d'encapsulation/décapsulation et le routage retour. Ne pas confondre l'état IKE et l'accès applicatif.
-
-**Exercice 2 — un côté chiffre, l'autre ne reçoit rien.** Quel est le raisonnement ?
-
-**Corrigé :** relever les compteurs des deux côtés et vérifier l'adresse externe du pair, UDP 500/4500, ESP selon le transport, les filtres WAN, le NAT et les captures sur le chemin. Une erreur de route externe peut envoyer les paquets vers une passerelle inattendue.
-
-**Exercice 3 — pourquoi TCP/50 est-il inutile pour ESP ?**
-
-**Corrigé :** ESP est le protocole IP numéro 50. Il ne s'agit pas d'un port TCP. IKE utilise couramment UDP 500 et NAT-T encapsule ESP dans UDP 4500 dans les scénarios concernés. Les règles doivent correspondre au protocole réellement utilisé.
-
-**Exercice 4 — les petits paquets passent, les grands échouent.**
-
-**Corrigé :** tester MTU/MSS, fragmentation, ICMP pour PMTUD et surcharge d'encapsulation. Comparer plusieurs tailles et observer les interfaces avant et après le tunnel. Modifier ensuite la MTU ou le MSS selon les résultats, sans choisir de valeur arbitraire.
-
-**Exercice 5 — deux sites emploient le même sous-réseau.**
-
-**Corrigé :** le routage ne distingue pas naturellement les deux destinations identiques. Préférer la renumérotation. Une traduction ciblée peut être étudiée si elle est impossible, mais doit être documentée et testée dans les deux sens.
-
-**Exercice 6 — connexion utilisateur réussie, accès trop large.**
-
-**Corrigé :** le plan d'autorisation est trop permissif. Limiter les routes, les règles de pare-feu et les groupes par rôle ; utiliser MFA, segmenter les prestataires et journaliser les accès. Une connexion authentifiée ne doit pas conférer automatiquement une confiance totale.
-
-**Exercice 7 — panne après expiration du certificat.**
-
-**Corrigé :** vérifier la date du certificat, sa chaîne de confiance, l'identité attendue, l'heure NTP et le processus de renouvellement. Prévoir des alertes d'expiration et une procédure de rotation testée à l'avance.
-
-**Exercice 8 — basculement du lien primaire réussi mais l'application reste en panne.**
-
-**Corrigé :** valider la route effective après basculement, l'état des SA, la résolution DNS, le chemin retour, le NAT, les sessions applicatives et la capacité du chemin secondaire. La restauration de l'état du tunnel n'est qu'un indicateur parmi d'autres.
-
-### 3.12. Glossaire expert
-
-| Terme | Définition |
+| Terme | Sens opérationnel |
 |---|---|
-| CHILD SA | Association de sécurité IKEv2 servant à protéger le trafic de données, généralement via ESP |
-| DPD | Mécanisme de détection d'un pair VPN qui ne répond plus |
-| ESP | Encapsulating Security Payload, protocole IPsec de protection du trafic |
-| Full tunnel | Modèle où l'essentiel ou la totalité du trafic IP sélectionné passe par le VPN |
-| GRE | Encapsulation générique, utile pour certains scénarios de transport et de routage |
-| IKE SA | Association qui protège les échanges de contrôle IKEv2 entre les pairs |
-| IKEv2 | Protocole de négociation, d'authentification et de gestion des clés pour IPsec |
-| IPsec | Cadre de sécurité IP qui s'appuie sur des politiques et des associations de sécurité |
-| MSS | Taille maximale de segment TCP, utile pour raisonner sur les transferts TCP dans un tunnel |
-| MTU | Taille maximale de paquet IP supportée sans fragmentation au niveau considéré |
-| NAT-T | Encapsulation UDP d'ESP facilitant le transport IPsec à travers certains NAT |
-| PFS | Propriété de confidentialité persistante selon le mécanisme de gestion des clés utilisé |
-| PSK | Secret prépartagé entre les pairs, à protéger et à gérer avec soin |
-| Route-based | Approche où le routage dirige le trafic vers une interface de tunnel protégée |
-| Policy-based | Approche où des règles/sélecteurs déterminent le trafic à protéger |
-| Split tunnel | Modèle où seuls certains flux ou préfixes sont dirigés vers le VPN |
-| VTI | Virtual Tunnel Interface, interface logique associée à une protection IPsec selon la plateforme |
+| **Underlay** | Réseau IP existant qui transporte les paquets extérieurs du VPN : Internet, WAN ou réseau opérateur. |
+| **Overlay** | Réseau logique construit au-dessus de l’underlay, avec ses adresses, routes et politiques. |
+| **Pair / peer** | Extrémité cryptographique d’un tunnel ou d’une relation VPN. Le sens précis dépend du protocole. |
+| **Plan de contrôle** | Négociation, authentification, gestion des clés, établissement et renouvellement des associations de sécurité. |
+| **Plan de données** | Transport des paquets utilisateur protégés à travers le tunnel. |
+| **Route** | Décision indiquant par quelle interface ou prochaine étape envoyer le paquet. Une route n’accorde pas à elle seule un droit d’accès. |
+| **Politique de sécurité** | Règles déterminant quelles identités et quels flux sont autorisés, rejetés ou protégés. |
+| **SA (Security Association)** | État de sécurité utilisé notamment par IPsec ; les SA de données sont directionnelles. |
+| **PFS** | *Perfect Forward Secrecy* : une compromission ultérieure d’une clé à long terme ne doit pas permettre de déduire les clés de session anciennes, sous les hypothèses du protocole et de la configuration. |
+| **Split tunneling** | Une partie du trafic passe par le VPN ; une autre passe directement par le réseau local ou Internet. |
+| **Full tunneling** | Le VPN est utilisé pour l’ensemble du trafic routable prévu par la politique, généralement avec une route par défaut et un traitement cohérent d’IPv6 et du DNS. |
+| **NAT-T** | Encapsulation d’IPsec dans UDP afin de traverser certains mécanismes NAT, souvent sur UDP 4500. |
 
----
+## 5. Choisir le type de VPN à partir du besoin
 
-## 4. Architecture experte, gouvernance et ingénierie à l'échelle
+Ne choisissez pas un protocole avant de savoir qui communique, depuis où, vers quoi et avec quelles contraintes.
 
-Cette section complète les mécanismes fondamentaux par les décisions qui distinguent un tunnel de laboratoire d'un service d'entreprise exploitable. Les principes ne remplacent pas les sections précédentes : ils montrent comment assembler les composants, définir les contrôles et empêcher qu'une solution localement fonctionnelle crée un risque systémique.
+### Principaux scénarios
 
-### 4.1. Définir les exigences avant de choisir le protocole
+**VPN site-à-site** — relie des réseaux derrière deux passerelles : siège, agence, datacenter, cloud ou environnement de secours.
 
-Avant toute configuration, formalise les besoins sous forme d'exigences vérifiables. Une demande comme « relier le siège à l'agence » ne précise ni les applications, ni les volumes, ni les objectifs de disponibilité, ni les obligations d'audit, ni la limite de confiance. Une architecture experte traduit la demande métier en un ensemble de critères d'acceptation.
+```text
+LAN du siège                                      LAN de l'agence
+10.10.10.0/24                                     10.20.20.0/24
+      |                                                 |
+[Passerelle A] == tunnel chiffré sur l'underlay == [Passerelle B]
+      |                                                 |
+ utilisateurs/serveurs                         utilisateurs/serveurs
+```
 
-| Domaine | Question d'ingénierie | Preuve attendue |
+**VPN d’accès distant** — relie un appareil utilisateur à une passerelle, avec une identité et des droits propres à cet utilisateur ou à cet appareil.
+
+```text
+[Portable géré] -- réseau non fiable -- [Concentrateur VPN]
+                                              |
+                              +---------------+---------------+
+                              |               |               |
+                         [DNS interne]   [Applications]   [Bastion]
+```
+
+**VPN hôte-à-hôte** — protège la communication entre deux serveurs ou deux systèmes précis. Le modèle peut être très ciblé, mais exige une bonne gestion des identités, des routes et des mises à jour.
+
+**Architecture en étoile (hub-and-spoke)** — les sites communiquent au travers d’un ou plusieurs hubs. Elle simplifie souvent le contrôle central, mais peut créer une dépendance et un goulot d’étranglement.
+
+**Maillage (mesh)** — des sites ou hôtes établissent des tunnels entre eux. Le nombre de relations possibles augmente rapidement avec le nombre de pairs ; la distribution des clés, la supervision et les changements de topologie deviennent plus complexes.
+
+### Full tunnel ou split tunnel ?
+
+| Critère | Full tunnel | Split tunnel |
 |---|---|---|
-| Identité | Comment chaque pair prouve-t-il son identité ? | Certificat validé, identité IKE attendue, journal d'authentification |
-| Cryptographie | Quels algorithmes et groupes sont autorisés ? | Profil versionné approuvé par la politique cryptographique |
-| Flux | Quels initiateurs, destinations, protocoles et ports sont nécessaires ? | Matrice de flux validée par les responsables applicatifs |
-| Routage | Quels préfixes peuvent être annoncés et acceptés ? | Politique d'import/export, table de routage contrôlée |
-| Disponibilité | Quel objectif de reprise est demandé ? | Mesure de convergence et test de perte d'un chemin |
-| Capacité | Quel débit chiffré, nombre de SA et taux de connexions simultanées ? | Test de charge sur du matériel représentatif |
-| Observabilité | Quelles alertes permettent de distinguer les états dégradés ? | Tableau de bord, journaux corrélés, seuils et responsables |
-| Exploitation | Qui renouvelle les clés et traite les certificats expirés ? | Procédure, propriétaire, calendrier et test de restauration |
-| Sécurité | Que peut atteindre un pair compromis ? | Diagramme de segmentation, règles minimales et tests négatifs |
-| Conformité | Quelles données doivent être tracées et combien de temps ? | Politique de journalisation et de rétention approuvée |
+| Contrôle du trafic Internet | Plus centralisé si la passerelle inspecte effectivement ce trafic | Le trafic direct dépend aussi du réseau local et de sa sécurité |
+| Charge de la passerelle | Peut être élevée : Internet, applications et accès privés traversent le VPN | Habituellement plus faible |
+| Accès aux ressources internes | Centralisé par la politique VPN | Dépend des routes et exceptions définies |
+| Risques de contournement | Moins de chemins directs si IPv4, IPv6, DNS et règles sont cohérents | Davantage de chemins à documenter et à contrôler |
+| Cas d’emploi courant | Environnement réglementé, poste administré, inspection centrale nécessaire | Besoin de conserver un accès local ou de limiter le trafic distant |
 
-Chaque exigence doit avoir un propriétaire, une méthode de test, une preuve enregistrée et une condition de réussite. Une exigence sans test est difficile à maintenir ; une exigence sans propriétaire est généralement oubliée lors du renouvellement du service.
+Le split tunneling n’est pas automatiquement mauvais et le full tunneling n’est pas automatiquement sûr. Le choix doit résulter d’une analyse des risques, de la posture des terminaux, de la bande passante, des applications et des exigences de supervision.
 
-### 4.2. Modèle de menace appliqué aux passerelles VPN
 
-Une passerelle VPN se trouve à une frontière de confiance. Elle peut avoir une interface exposée à Internet, une interface interne et des clés donnant accès à plusieurs zones. Elle est donc une cible prioritaire. Le modèle de menace doit considérer au moins : vol de clés privées ou de secrets prépartagés, vulnérabilité de l'implémentation, erreur de règle d'accès, détournement de routes, usurpation d'identité, déni de service, exploitation d'un compte d'administration, exfiltration via un tunnel autorisé et altération des journaux.
+# PARTIE II — CE QUI SE PASSE DANS LE TUNNEL
 
-Les défenses se répartissent en couches. Premièrement, limiter l'exposition de la surface de gestion : administration depuis un réseau séparé, authentification forte, contrôle d'accès fondé sur des rôles, journalisation et, si la plateforme le permet, restriction des sources d'administration. Deuxièmement, durcir le plan VPN : algorithmes approuvés, authentification robuste, validation stricte de l'identité, limitation des pairs autorisés et mise à jour documentée. Troisièmement, restreindre les routes et les flux au strict nécessaire. Quatrièmement, transmettre les journaux à un système distant afin qu'une compromission de la passerelle ne permette pas de supprimer facilement toutes les preuves. Enfin, prévoir une procédure d'isolement qui n'exige pas l'accès à la passerelle suspecte.
+## 6. Encapsulation, chiffrement et authentification : ne pas confondre
 
-La passerelle ne doit pas devenir un « réseau de confiance » par simple convention. Une interface tunnel active ne doit pas implicitement donner accès à tous les préfixes internes. Les règles d'autorisation doivent être explicites, et les nouvelles routes annoncées par un pair doivent être filtrées. Les plans de gestion, de contrôle et de données sont à protéger séparément.
+Un VPN d’entreprise doit généralement réunir plusieurs propriétés distinctes :
 
-> **Piège :** Une authentification mutuelle valide prouve que le pair contrôle une identité acceptée ; elle ne prouve pas que chaque route annoncée par ce pair est légitime, ni que les hôtes situés derrière lui sont sûrs. L'identité du tunnel et l'autorisation réseau sont deux contrôles distincts.
+- **Confidentialité :** empêcher un observateur non autorisé de lire le contenu protégé.
+- **Intégrité et authentification des données :** détecter une altération et vérifier que le paquet provient d’une source possédant les secrets ou clés attendus.
+- **Authentification du pair :** établir que l’extrémité distante correspond à l’identité prévue.
+- **Protection contre le rejeu :** rejeter, dans les limites prévues par le protocole, des paquets protégés déjà observés.
+- **Contrôle d’accès :** limiter les réseaux, hôtes, services et actions accessibles après établissement du tunnel.
+- **Disponibilité :** conserver le service malgré une panne, une perte de connectivité ou un renouvellement de clés.
 
-### 4.3. Gouvernance cryptographique et agilité
+Le chiffrement ne remplace pas le contrôle d’accès. Un utilisateur correctement authentifié ne doit pas obtenir automatiquement l’accès à toutes les machines du réseau.
 
-Les algorithmes et tailles de clés ne doivent pas être choisis au hasard, copiés d'un ancien exemple ou négociés en ouvrant successivement toutes les options proposées par les équipements. L'équipe doit maintenir un profil cryptographique approuvé qui couvre la négociation IKE, la protection ESP, l'authentification des pairs, les groupes d'échange de clés et les durées de vie. Le profil doit citer ses sources, préciser les exceptions d'interopérabilité et fournir un calendrier de révision.
-
-L'agilité cryptographique signifie pouvoir remplacer un algorithme ou un mécanisme sans réinventer toute l'architecture. Cela exige un inventaire des équipements, de leurs versions, de leurs capacités matérielles et des dépendances externes. Pour chaque tunnel, il faut savoir quel profil est négocié, quels pairs dépendent de lui, quelle fenêtre de maintenance est disponible et comment confirmer que l'ancien profil n'est plus utilisé après la migration.
-
-Les paramètres de chiffrement authentifié, tels qu'AES-GCM lorsqu'ils sont pris en charge conformément aux recommandations du produit, réunissent chiffrement et intégrité dans un mode AEAD ; on ne doit pas leur ajouter mécaniquement un mécanisme d'intégrité séparé comme si toutes les combinaisons étaient interchangeables. Les profils de compatibilité doivent suivre la documentation et les recommandations cryptographiques à jour. L'utilisation de paramètres faibles pour « faire passer » une négociation est une mauvaise réponse à un échec : il faut déterminer quelle proposition manque, pourquoi l'un des équipements n'offre pas le profil prévu et si une mise à jour est nécessaire.
-
-Le secret prépartagé peut être acceptable dans des déploiements limités si sa qualité, son stockage et sa rotation sont correctement gérés. À grande échelle, des identités par certificat facilitent souvent l'identité par équipement et la révocation ciblée, mais introduisent une dépendance opérationnelle à la PKI : publication des autorités de confiance, renouvellement, révocation, validation des noms, synchronisation temporelle et disponibilité des services utiles. Il n'existe pas de méthode d'authentification qui supprime le besoin de gouvernance.
-
-Une feuille de route cryptographique experte inclut :
-
-1. l'inventaire des suites réellement négociées, et non uniquement celles présentes en configuration ;
-2. la détection des paramètres obsolètes ou non autorisés ;
-3. un environnement de préproduction représentatif des pairs ;
-4. une migration compatible avec une courte période de chevauchement si la plateforme l'autorise ;
-5. la suppression des anciennes propositions après validation ;
-6. un contrôle post-changement prouvant que la négociation utilise désormais le profil attendu.
-
-La « confidentialité persistante » (*Perfect Forward Secrecy*, PFS) dépend du mécanisme d'échange de clés et du profil de rekeying, pas d'une simple mention dans la documentation du projet. Le modèle de menace doit aussi prendre en compte la conservation à long terme des données chiffrées, l'évolution des capacités d'attaque et les orientations de migration publiées par les organismes compétents. Ne présente pas une technologie comme « post-quantique » sans vérifier exactement ce qu'implémentent les versions concernées, ce qui est négocié, et si le mécanisme est standardisé, pris en charge et évalué dans le contexte visé.
-
-> **Danger :** Ne copie jamais une clé privée ou un secret VPN dans un ticket, une capture d'écran, un dépôt Git, un script de diagnostic ou un document de cours. Les sauvegardes chiffrées des configurations doivent elles-mêmes être protégées et leur restauration doit être testée.
-
-### 4.4. PKI, certificats et identité des pairs
-
-Une architecture à certificats doit vérifier l'ensemble de la chaîne de confiance et la correspondance entre l'identité attendue et le certificat présenté. La simple présence d'un certificat signé par une autorité connue n'est pas suffisante si le nom, l'usage de clé, les dates de validité ou les contraintes ne correspondent pas à l'usage VPN.
-
-Les contrôles à documenter comprennent :
-
-- l'autorité racine et les autorités intermédiaires acceptées ;
-- le champ d'identité comparé par chaque pair (nom, FQDN ou autre identité autorisée) ;
-- la période de validité et la synchronisation de l'horloge ;
-- les usages de clé et les algorithmes de signature admis ;
-- le comportement lorsque la vérification de révocation est indisponible ;
-- le propriétaire du certificat, l'échéance de renouvellement et la procédure d'urgence ;
-- le traitement du remplacement de certificat sans interruption évitable.
-
-Une erreur de date peut ressembler à une panne cryptographique. Un certificat renouvelé avec un nom différent peut être valide au sens de la PKI, mais refusé par le profil IKE qui attend une identité précise. Pour le diagnostic, conserve les journaux nécessaires à la compréhension de la décision de confiance, tout en masquant les informations privées. Une politique de révocation doit préciser si l'accès est refusé quand le service de statut n'est pas joignable ; cette décision doit être explicite, car les deux choix impliquent un compromis entre disponibilité et assurance de révocation.
-
-### 4.5. Architecture multi-sites : hub-and-spoke, maillage et hiérarchies
-
-Dans un modèle *hub-and-spoke*, les sites distants établissent des tunnels vers un ou plusieurs concentrateurs. Cette approche facilite les politiques centralisées et réduit le nombre de relations de voisinage, mais elle peut imposer un détour du trafic entre deux agences et faire du concentrateur un point de congestion. Dans un maillage complet, chaque paire de sites peut communiquer directement, mais le nombre de relations croît rapidement. Pour N sites, un maillage complet nécessite théoriquement N × (N − 1) / 2 relations bidirectionnelles distinctes ; cette croissance affecte la configuration, l'observabilité et le dépannage.
-
-Une hiérarchie régionale peut placer des hubs locaux devant un noyau central. Elle peut réduire la distance et contenir les domaines de panne, mais elle nécessite une politique claire d'agrégation et de transit. La sélection dépend de la matrice réelle des flux : un schéma logique intuitif peut être inefficace si les applications les plus volumineuses communiquent principalement entre agences.
-
-| Modèle | Avantage typique | Risque principal | Contrôle expert |
-|---|---|---|---|
-| Hub-and-spoke simple | Administration centralisée | Concentrateur et transit central saturés | Mesure du trafic inter-sites, redondance des hubs |
-| Double hub | Chemins de secours et répartition | Asymétrie, état de session et convergence | Tests de panne et politique d'annonce déterministe |
-| Maillage complet | Chemins directs | Explosion du nombre de relations et des politiques | Automatisation, modèle d'identité stable, inventaire |
-| Hiérarchie régionale | Compromis entre proximité et contrôle | Fuites de routes entre régions | Résumé de routes, filtres et frontières de politique |
-| VPN dynamique à pairs multiples | Moins de configuration statique | Contrôle des pairs et du routage plus complexe | Autorisation de chaque identité et limites de routes |
-
-Une redondance purement physique ne garantit pas une redondance fonctionnelle. Deux tunnels qui partagent le même accès opérateur, la même alimentation ou le même équipement de terminaison ne couvrent pas toutes les causes de panne. Le plan de résilience doit inclure les dépendances communes et la perte du service de gestion des identités, si celui-ci est nécessaire à la reconnexion.
-
-### 4.6. Routage dynamique au travers du VPN
-
-Le routage dynamique peut simplifier les déploiements où les préfixes changent fréquemment et permettre une convergence plus contrôlée. Il introduit toutefois un deuxième domaine de sécurité : le pair qui peut établir un tunnel ne doit pas automatiquement pouvoir annoncer des routes arbitraires. Il faut définir les préfixes admissibles, les attributs autorisés, les règles d'import/export, la portée des résumés et le comportement lors d'une perte de voisinage.
-
-BGP convient souvent aux architectures qui exigent une politique d'annonce fine et une séparation claire des domaines de routage. OSPF peut être approprié dans un domaine administré de façon homogène, mais la conception des types de réseau, des zones et de la redistribution doit rester cohérente. Le choix ne doit pas être basé uniquement sur le nombre de commandes nécessaires. Il dépend aussi des objectifs de convergence, du modèle opérationnel et de l'expérience de l'équipe.
-
-Les principes à appliquer comprennent :
-
-- filtrer les préfixes reçus et annoncés ;
-- limiter le nombre maximal de préfixes si la plateforme le permet ;
-- définir explicitement la préférence de chemin et le comportement de secours ;
-- éviter les redistributions multiples et circulaires entre protocoles ;
-- protéger les sessions de routage selon les capacités et recommandations de la plateforme ;
-- surveiller les changements de voisinage et les variations inattendues de table ;
-- prouver qu'une route annoncée par un site ne peut pas détourner le trafic d'autres zones.
-
-Ne fais pas dépendre la route vers l'adresse publique du pair VPN d'un préfixe qui lui-même ne peut être atteint qu'à travers ce tunnel. Cela crée une dépendance récursive : le tunnel doit être actif pour atteindre la destination nécessaire à son propre établissement. La route de transport vers le pair doit être stable et examinée séparément des routes internes.
+### Séquence logique d’un flux
 
 ```text
-                     Réseau de transport non fiable
-                  +--------------------------------+
-                  |                                |
-             [Hub A]                            [Hub B]
-                |                                  |
-        +-------+-------+                  +-------+-------+
-        |               |                  |               |
-     [Site 1]        [Site 2]            [Site 3]        [Site 4]
-        |               |                  |               |
-        +---- routes filtrées / annonces contrôlées --------+
-
-  À vérifier : identité du pair, routes autorisées, chemin retour,
-  convergence après perte d'un hub, et isolation de chaque site.
+1. L'application produit un paquet intérieur
+                    |
+                    v
+2. La table de routage choisit l'interface VPN
+                    |
+                    v
+3. La politique du VPN vérifie le pair / le sélecteur / la destination
+                    |
+                    v
+4. Le protocole protège le paquet (chiffrement + intégrité, selon le protocole)
+                    |
+                    v
+5. L'encapsulation crée un paquet extérieur
+                    |
+                    v
+6. L'underlay achemine le paquet extérieur vers le pair
+                    |
+                    v
+7. Le pair vérifie, déchiffre et désencapsule
+                    |
+                    v
+8. Le routage et le pare-feu locaux traitent le paquet intérieur
+                    |
+                    v
+9. Le serveur ou le poste destinataire reçoit le flux
 ```
 
-> **Piège :** Un tunnel chiffré peut transporter une annonce de route incorrecte tout aussi sûrement qu'une annonce correcte. IPsec protège la communication entre pairs ; il ne valide pas à lui seul la légitimité des préfixes reçus.
+Chaque étape est une zone de panne possible. Un handshake réussi valide certaines étapes de négociation et d’authentification, mais ne démontre pas l’existence d’une route retour ni l’autorisation d’un service applicatif.
 
-### 4.7. Haute disponibilité : détecter, basculer et récupérer
+## 7. Deux niveaux d’adressage à suivre
 
-Une architecture redondante doit distinguer au moins quatre événements : panne de l'interface physique, perte d'accessibilité de l'adresse du pair, disparition des associations de sécurité et défaillance d'une application malgré un tunnel déclaré opérationnel. Chacun demande un mécanisme de détection différent. Un état de tunnel peut rester « up » alors que le service métier est inutilisable, par exemple à cause d'une route retour manquante ou d'une panne DNS.
+Dans un VPN routé, il peut exister des adresses intérieures et extérieures différentes.
 
-Il faut choisir les délais de détection en fonction du type de panne et de la stabilité du réseau. Des sondes trop fréquentes peuvent provoquer des basculements intempestifs en cas de perte transitoire ; des sondes trop lentes prolongent l'interruption. Les mécanismes de type DPD, suivi de route, BFD et sondes applicatives n'observent pas le même objet. Ils ne sont donc pas interchangeables. La supervision doit préciser ce qui est testé et dans quelle couche.
+```text
+Paquet intérieur :
+  source      = 10.10.10.15
+  destination = 10.20.20.45
 
-Une procédure de test de haute disponibilité doit mesurer : le délai de détection, le délai de convergence du routage, la perte de paquets, le temps de rétablissement d'une application, le comportement des sessions existantes, les journaux émis et les routes retenues après retour du chemin principal. Le plan de test doit inclure les scénarios de récupération, car certains systèmes oscillent entre les chemins quand le lien principal flappe.
+Paquet de transport :
+  source      = 198.51.100.10
+  destination = 203.0.113.20
+  protocole   = dépend du VPN et de la configuration
+```
 
-Pour réduire le risque, définis une priorité de retour au chemin préféré, un temporisateur de stabilité lorsqu'il est pris en charge, des seuils de déclenchement justifiés, et un protocole d'escalade si la redondance ne restaure pas le service. Les valeurs par défaut du fabricant ne sont pas nécessairement adaptées à l'application, mais les réduire sans mesure peut rendre l'architecture moins stable.
+Ne concluez pas que le trafic intérieur est impossible parce que ses adresses RFC1918 ne sont pas routables sur Internet. C’est justement l’underlay qui achemine le paquet extérieur. À l’inverse, si le tunnel doit rejoindre un réseau privé, il faut toujours que la route retour et les règles de filtrage existent du côté distant.
 
-### 4.8. VPN et multi-cloud
+## 8. MTU, surcharge et fragmentation
 
-Les connexions entre sites physiques et réseaux cloud ajoutent des contraintes d'adressage, de routage et de responsabilité partagée. Le fournisseur cloud expose souvent une passerelle managée, des paramètres de tunnel, des préfixes à annoncer ou accepter et des exigences concernant la disponibilité du pair. Les fonctions offertes dépendent du produit et de la région ; il faut consulter la documentation active de chaque fournisseur au moment du déploiement.
+L’ajout d’en-têtes de transport, de VPN, d’authentification et parfois de padding réduit la taille maximale du paquet intérieur qui passe sans fragmentation ou perte. La surcharge exacte dépend du protocole, du mode, des algorithmes, d’IPv4 ou d’IPv6, du chemin et des encapsulations supplémentaires.
 
-La conception doit traiter les chevauchements d'adresses privées, les routes propagées automatiquement, la séparation des environnements de production et de test, les limites de débit, les quotas, les changements d'adresse publique de certaines passerelles et les mécanismes de supervision disponibles. L'utilisation de plusieurs tunnels cloud ne garantit pas automatiquement une répartition de charge : certains services les traitent comme chemins redondants et sélectionnent un chemin principal. La répartition doit être prouvée par les règles du produit et par une mesure réelle.
+### Pourquoi le symptôme peut être trompeur
 
-Les préfixes annoncés aux services cloud doivent être aussi précis que nécessaire et éviter une exposition accidentelle de routes de transit internes. Quand une interconnexion relie plusieurs environnements, utilise des domaines de routage et des contrôles d'accès adaptés, plutôt qu'un réseau étendu « plat ». Il faut également déterminer où réside la terminaison cryptographique et quelles traces sont accessibles au client lorsque la passerelle est gérée par le fournisseur.
+```text
+Petits paquets (DNS, ping court)  ---> passent
+Gros paquets (HTTPS, transfert)   ---> ralentissent ou échouent
+Handshake VPN                      ---> reste établi
+```
 
-### 4.9. VPN d'accès distant et accès fondé sur l'identité
+Ce motif peut indiquer un problème de MTU, de PMTUD, de filtrage ICMP nécessaire à la découverte de MTU, ou de MSS TCP. Il ne prouve pas à lui seul que la MTU est en cause : il faut mesurer et confirmer.
 
-Le modèle d'accès distant doit traiter le poste comme potentiellement compromis et l'utilisateur comme une identité qui doit être authentifiée, autorisée et réévaluée selon la politique. Un VPN donnant une adresse dans un sous-réseau interne n'est pas une politique d'autorisation suffisante. Après l'établissement du tunnel, les règles d'accès doivent continuer de limiter les ressources, protocoles, ports et environnements accessibles.
+**Méthode pratique :**
 
-Les contrôles usuels incluent l'authentification multifacteur, les certificats d'appareil quand ils sont adaptés, l'évaluation de conformité du poste, l'expiration des sessions, la révocation rapide des accès, la protection des comptes privilégiés et la journalisation des changements de rôle. Il faut aussi définir la différence entre le tunnel complet et le split tunneling. Le tunnel complet peut accroître la visibilité et le contrôle sur le trafic, mais exige davantage de capacité centrale et une politique claire pour les usages personnels. Le split tunneling peut améliorer les performances, mais demande de documenter les destinations qui ne passent pas par le réseau d'entreprise et les risques qui en découlent.
+1. confirmer la connectivité avec de petits paquets ;
+2. augmenter progressivement la taille des paquets de test en empêchant la fragmentation lorsque l’outil le permet ;
+3. vérifier les compteurs de fragmentation, de rejet et d’erreur sur les interfaces ;
+4. vérifier si les messages ICMP utiles à PMTUD traversent les pare-feu ;
+5. mesurer une MTU compatible avec le chemin ;
+6. tester une correction ciblée, par exemple MTU de l’interface tunnel ou MSS clamping lorsque c’est justifié ;
+7. vérifier à nouveau les flux TCP, UDP, IPv4 et IPv6 concernés.
 
-La décision doit être guidée par le modèle de menace, pas par une règle universelle. Pour les comptes d'administration, l'accès peut être limité à des bastions dédiés, avec une segmentation distincte de celle des utilisateurs ordinaires. Les profils VPN des fournisseurs, sous-traitants et employés ne devraient pas partager un ensemble de routes ou de permissions simplement parce qu'ils utilisent le même concentrateur.
+Une valeur de MTU de `1420` est couramment utilisée comme point de départ dans certains déploiements WireGuard sur Ethernet, mais **ce n’est pas une valeur universelle**. Elle doit être validée sur le chemin réel. Évitez les modifications globales du MSS ou de la MTU sans mesure, car elles peuvent cacher le problème ou dégrader d’autres flux.
 
-### 4.10. Observabilité, SLI, SLO et corrélation
 
-Une surveillance experte ne se limite pas à afficher « tunnel up ». Elle mesure la disponibilité du service, l'établissement et le renouvellement des associations, la latence, la perte, le débit, les erreurs d'encapsulation, la capacité CPU/ASIC, les changements de routes, les rejets de politique et le résultat de sondes applicatives. Les indicateurs doivent être associés à des seuils d'action et à une personne ou équipe qui reçoit l'alerte.
+# PARTIE III — IPsec ET IKEv2
 
-| Indicateur | Ce qu'il révèle | Limite d'interprétation |
+## 9. Architecture IPsec
+
+IPsec est une architecture de sécurité au niveau IP. Il ne désigne pas un seul algorithme ni une unique configuration : il regroupe des protocoles, des associations de sécurité et des politiques qui doivent être négociées de manière compatible.
+
+### ESP et AH
+
+- **ESP (Encapsulating Security Payload)** est le mécanisme le plus couramment utilisé pour protéger le trafic IPsec. Selon le profil choisi, il fournit chiffrement, intégrité et authentification des données, avec protection contre le rejeu.
+- **AH (Authentication Header)** fournit l’authentification et l’intégrité de certains champs IP, mais ne chiffre pas le contenu. Sa compatibilité avec les transformations d’adresse par NAT est limitée ; ESP avec NAT-T est donc plus fréquent dans les déploiements modernes.
+
+Ne retenez pas « IPsec = chiffrement » comme définition complète. Il faut connaître le mode, les sélecteurs, les algorithmes négociés, les clés et les politiques réellement appliquées.
+
+### Mode transport et mode tunnel
+
+```text
+MODE TRANSPORT
++------------------+---------------------------+
+| En-tête IP hôte  | ESP | données protégées    |
++------------------+---------------------------+
+      L'en-tête IP d'origine est conservé en grande partie.
+      Usage fréquent : protection entre deux hôtes.
+
+MODE TUNNEL
++--------------------+--------------------------+
+| Nouvel en-tête IP  | ESP | paquet IP intérieur  |
++--------------------+--------------------------+
+      Le paquet IP intérieur est encapsulé.
+      Usage fréquent : passerelle-à-passerelle ou accès distant.
+```
+
+La représentation est conceptuelle : les champs exacts et leur ordre varient selon le protocole, le mode et les transformations choisies.
+
+## 10. Rôle d’IKEv2
+
+IKEv2 négocie l’authentification des pairs, établit des secrets partagés dérivés de l’échange de clés, choisit les algorithmes compatibles et crée ou renouvelle les associations de sécurité utilisées par IPsec. L’échange initial établit l’association IKE ; des échanges ultérieurs établissent les associations de sécurité pour les données et peuvent les renouveler.
+
+### Cycle simplifié
+
+```text
+Pair A                                          Pair B
+  |                                                |
+  |---- propositions, échange de clés, nonce ----->|
+  |<--- choix, échange de clés, nonce -------------|
+  |                                                |
+  |<---- authentification / création de l'IKE SA -->|
+  |                                                |
+  |<---- création des Child SAs pour les données -->|
+  |                                                |
+  |========== trafic IPsec protégé ================|
+  |                                                |
+  |<------ renouvellement / suppression des SA ---->|
+```
+
+Les messages affichés sont regroupés pour illustrer le déroulement logique ; ce schéma n’est pas une trace paquet par paquet de la machine d’état IKEv2.
+
+### Éléments à maîtriser
+
+- **IKE SA :** protège les échanges de contrôle IKE entre les pairs.
+- **Child SA :** association utilisée pour protéger le trafic, le plus souvent par ESP.
+- **Propositions cryptographiques :** combinaisons d’algorithmes acceptées par les deux extrémités.
+- **Authentification :** certificats, clé prépartagée ou mécanisme pris en charge par l’implémentation et le profil retenu.
+- **Sélecteurs de trafic :** réseaux, adresses ou autres critères indiquant quels flux sont couverts par les SA.
+- **Durées de vie et rekeying :** renouvellement des clés et des associations pour limiter l’exposition et maintenir le service.
+- **Détection de pair inactif :** mécanismes permettant de détecter un état devenu inutilisable et de déclencher une reprise.
+- **NAT-T :** encapsulation UDP d’ESP lorsque la traversée de NAT l’exige.
+
+## 11. Concevoir les propositions IPsec
+
+Une configuration robuste doit définir explicitement des profils compatibles et maintenables. Les choix précis dépendent des équipements, des exigences réglementaires, des performances attendues et des recommandations cryptographiques applicables à l’organisation.
+
+À vérifier dans la documentation de la plateforme et dans la politique de sécurité :
+
+- versions de protocole acceptées ;
+- algorithmes de chiffrement et d’intégrité approuvés ;
+- groupe(s) d’échange de clés jugés appropriés ;
+- utilisation de PFS lors de la création ou du renouvellement des SA de données, selon le profil ;
+- mode d’authentification et règles de validation des certificats ;
+- durées de vie, renouvellement et temporisations ;
+- traitement des sélecteurs et des réseaux distants ;
+- comportement lorsque le pair devient injoignable ;
+- journalisation et alertes sur les échecs de négociation.
+
+Évitez de reprendre aveuglément un exemple ancien trouvé sur un forum. Un équipement peut continuer à accepter des algorithmes obsolètes pour des raisons de compatibilité, sans que cela signifie qu’ils soient adaptés à une nouvelle architecture. Pour IPsec/IKE, utilisez les recommandations actuelles du constructeur et des référentiels de sécurité reconnus ; NIST SP 800-77 Rev. 1 est une référence utile pour la conception et l’exploitation d’IPsec.
+
+## 12. IPsec : panne de négociation ou panne de données ?
+
+| Symptôme | Hypothèses à tester | Vérifications utiles |
 |---|---|---|
-| État IKE | Le pair échange les messages de contrôle | N'assure pas le transport applicatif |
-| Nombre de CHILD SA | Les associations de données sont créées | Une SA inutilisée peut rester établie |
-| Compteurs ESP entrants/sortants | Activité des paquets protégés | Les compteurs seuls ne prouvent pas le succès final |
-| Perte et latence de sonde | Qualité du chemin testé | Une sonde peut emprunter un chemin différent du flux métier |
-| État du voisinage BGP/OSPF | Fonctionnement du routage dynamique | Un voisin actif peut annoncer de mauvais préfixes |
-| Débit chiffré et utilisation CPU | Charge du plan de données | Dépend de l'algorithme, des tailles de paquets et de l'accélération |
-| Événements d'authentification | Succès ou échec d'identité | La journalisation peut être limitée ou retardée |
-| Test applicatif | Résultat de bout en bout | Ne remplace pas le diagnostic réseau détaillé |
+| Aucun échange IKE visible | Mauvaise IP de pair, mauvais chemin, UDP bloqué, mauvais port, NAT ou équipement intermédiaire | Capturer sur l’interface extérieure, vérifier le pare-feu et l’adresse cible |
+| Échange IKE démarre puis échoue | Propositions incompatibles, identité incorrecte, certificat ou clé prépartagée invalide, horloge/certificat | Journaux IKE détaillés, dates de validité, identité attendue et algorithmes autorisés |
+| IKE SA établie, aucune Child SA utile | Sélecteurs incompatibles, absence de sous-réseaux correspondants, politique incohérente | Comparer les sélecteurs locaux/distants et l’état des SA de données |
+| SA présente, aucun trafic | Route absente, filtrage, route retour manquante, mauvaise politique, NAT inattendu | Table de routage, règles de pare-feu, compteurs ESP et capture côté LAN |
+| Trafic dans un seul sens | Routage asymétrique, politique différente, filtrage retour, SA unidirectionnelle incomplète | Capturer aux deux extrémités, inspecter les routes et les compteurs dans chaque direction |
+| Coupures après une période | Rekeying, perte de connectivité, durée de vie incohérente, état NAT, DPD | Journaux autour de l’heure exacte, état IKE/Child SA avant et après la coupure |
 
-La corrélation exige une heure fiable sur les passerelles, les systèmes de journalisation et les équipements réseau. Des horloges divergentes compliquent la reconstruction de la séquence d'événements. Le SIEM doit recevoir les champs utiles : identifiant de pair, identité authentifiée, adresse de transport, profil IKE, changement de SA, raison de fermeture, préfixe appris et action de politique lorsque disponibles. Les secrets et les éléments permettant d'extraire des clés doivent être exclus des journaux.
 
-Les seuils doivent différencier une anomalie momentanée et une panne durable. Une alerte « tunnel down » peut être enrichie de la dernière négociation réussie, de l'état du transport, de la disponibilité de l'adresse du pair, du nombre de SA et du changement récent de routage. L'objectif est d'accélérer la décision, pas de générer un flot d'alarmes identiques.
+# PARTIE IV — WIREGUARD ET OPENVPN
 
-### 4.11. Capacité, performance et limites matérielles
+## 13. WireGuard : simplicité du plan cryptographique, rigueur de l’exploitation
 
-Le débit utile d'un VPN dépend de plusieurs facteurs : capacité cryptographique de la plateforme, algorithme choisi, taille moyenne des paquets, nombre de SA, vitesse des interfaces, traitement des paquets trop petits, nombre de connexions simultanées, taux d'établissement de sessions et fonctions activées en parallèle. Un chiffre maximal publié par un fournisseur peut avoir été mesuré avec des paquets, des fonctions ou une topologie très différents de la production.
+WireGuard est un VPN moderne transporté sur UDP, fondé sur des paires de clés publiques/privées et une liste de pairs autorisés. Son protocole utilise notamment une construction issue de Noise, Curve25519 pour l’échange de clés, ChaCha20-Poly1305 pour la protection des données et BLAKE2s pour les fonctions de hachage. Vérifiez toujours les choix et capacités de la version réellement déployée dans la documentation officielle.
 
-Un test de capacité utile doit séparer au moins le débit avec chiffrement, le débit sans chiffrement, le taux de nouveaux tunnels ou d'associations, la latence sous charge, la perte, la consommation CPU, la température ou les limitations thermiques pertinentes, et le comportement lors d'une bascule. Mesurer uniquement un transfert TCP de longue durée masque les problèmes de créations de sessions et de petits paquets. De même, une charge simulée à partir d'un seul générateur peut devenir le goulot d'étranglement et sous-estimer l'équipement testé.
+### Principes opérationnels
 
-La surcharge d'encapsulation réduit la taille utile du paquet intérieur. Le calcul exact dépend des versions IP, des en-têtes ESP, du mode de chiffrement, du NAT-T et d'éventuels tunnels GRE ou autres encapsulations. Ne mets pas en production une valeur de MTU ou MSS universelle tirée d'un exemple. Calcule un budget d'encapsulation pour chaque chemin et valide le comportement des paquets qui approchent la MTU.
+- Chaque pair possède une clé privée qu’il doit protéger et une clé publique distribuée aux pairs qui doivent le reconnaître.
+- Les clés publiques des pairs jouent un rôle central dans l’authentification cryptographique.
+- `AllowedIPs` sert à la fois à associer des préfixes à un pair et, sur réception, à vérifier les adresses source autorisées pour ce pair. Ce n’est donc pas seulement une déclaration descriptive de réseau.
+- L’interface crée un réseau logique ; les routes effectives dépendent aussi de l’outil de configuration et du système.
+- Le protocole s’occupe du renouvellement des clés de session ; l’administrateur doit, lui, gérer l’inventaire des pairs, la distribution, la révocation et la rotation des clés à long terme.
+- WireGuard ne fournit pas à lui seul un système complet de gestion du cycle de vie des utilisateurs, de contrôle de posture ou de distribution d’identité d’entreprise. Ces fonctions doivent être intégrées dans l’architecture qui l’entoure si elles sont nécessaires.
 
-Le dimensionnement doit inclure une marge de croissance et une situation de panne réaliste : un seul concentrateur restant peut devoir traiter tous les tunnels, toutes les associations et le trafic agrégé. Une paire redondante dont chaque membre est dimensionné à 50 % de la charge en mode normal ne peut pas nécessairement reprendre 100 % de cette charge après une panne, surtout si l'activation de l'inspection supplémentaire augmente le coût de traitement.
-
-> **Astuce :** Conserve un jeu de mesures de référence à charge nominale et pendant une bascule contrôlée. Sans référence, une hausse de latence ou une baisse de débit restera difficile à qualifier.
-
-### 4.12. Automatisation, gestion de configuration et dérive
-
-L'automatisation peut réduire les erreurs de saisie, mais elle amplifie aussi une erreur de modèle si elle pousse une politique incorrecte sur tous les pairs. Une chaîne de gestion experte sépare inventaire, données propres à chaque site, modèles de configuration, secrets, validation, déploiement et preuve de conformité. Les secrets ne doivent pas être conservés en clair dans les dépôts ; un système de gestion des secrets ou un mécanisme équivalent doit contrôler les accès et la rotation.
-
-Avant un déploiement, la pipeline peut vérifier la syntaxe, comparer les profils cryptographiques à la politique approuvée, vérifier que les préfixes annoncés sont présents dans une liste autorisée, détecter les routes par défaut non prévues, et confirmer que les interfaces de transport ne reçoivent pas de réseaux internes par erreur. La validation syntaxique n'est cependant pas une simulation complète du comportement de l'équipement. Les tests doivent inclure l'état réel de la négociation, le routage, le plan de données et les flux applicatifs.
-
-Le système de gestion doit comparer régulièrement la configuration déclarée à la configuration réellement active. Une commande manuelle d'urgence peut être légitime, mais elle doit être enregistrée, évaluée puis réintégrée au modèle ou annulée. La dérive non traitée fait que le prochain redéploiement risque de supprimer une correction de production ou, pire, de réintroduire une configuration vulnérable.
-
-Les déploiements doivent être progressifs : laboratoire, site pilote, petit groupe, puis élargissement contrôlé. Chaque étape doit inclure des critères d'arrêt. La capacité d'annuler doit être vérifiée avant l'exécution, notamment lorsque le tunnel sert au transport du canal d'administration. Ne laisse pas un déploiement couper le seul chemin permettant de le corriger à distance.
-
-## 5. Laboratoire expert : interconnexion routée et validation de bout en bout
-
-### 5.1. Scénario
-
-Considérons deux sites et une passerelle de secours virtuelle. Le site A utilise `10.10.0.0/16`, le site B `10.20.0.0/16`, et les adresses publiques de transport sont des valeurs de documentation réservées qui doivent être remplacées dans le laboratoire. Le tunnel est route-based ; un protocole de routage peut annoncer les préfixes privés à travers le tunnel si cette fonction est prise en charge et prévue dans la conception.
-
-La politique exige que seuls les réseaux des deux sites soient échangés. Le réseau de gestion ne doit pas être annoncé aux agences ; le tunnel ne doit pas devenir une route par défaut sauf exigence distincte, approuvée et testée. Le profil cryptographique doit provenir de la politique approuvée pour la plateforme, et le mode d'authentification doit être explicitement choisi. Les adresses et secrets de cette section sont des valeurs d'exemple ou des espaces réservés, pas des paramètres universels.
+### Schéma de relation entre pairs
 
 ```text
- LAN A 10.10.0.0/16                           LAN B 10.20.0.0/16
-        |                                             |
-    [Edge A] ===== interface Tunnel / IPsec ===== [Edge B]
-        |             transport public               |
-        +------- routage filtré et contrôlé ----------+
+             [Contrôle d'accès / inventaire des clés]
+                           |
+                  distribue les clés publiques
+                  et gère les révocations
+                    /                 \
+                   v                   v
+        [Pair A : clé A]           [Pair B : clé B]
+               |                         |
+               +===== WireGuard / UDP ===+
+               |                         |
+        préfixes autorisés         préfixes autorisés
+        10.10.10.0/24              10.20.20.0/24
 ```
 
-### 5.2. Plan de validation du routage
+Le plan de gestion représenté ici n’est pas nécessairement un composant intégré au protocole. Il peut s’agir d’une procédure, d’un gestionnaire de configuration ou d’une plateforme externe.
 
-L'ordre recommandé est : vérifier les routes de transport vers l'adresse publique du pair, établir l'identité IKE, confirmer les associations ESP, valider l'adresse et l'état de l'interface tunnel, puis examiner les voisins et les routes apprises. Une route de préfixe distant ne doit être acceptée que si elle est attendue et autorisée. Après validation du routage, vérifier les règles de pare-feu, le traitement NAT, les compteurs ESP et enfin un test applicatif depuis un hôte réel de chaque site.
+## 14. Laboratoire WireGuard : relier deux LAN
 
-Un échange de ping entre les adresses des passerelles ou des interfaces tunnel n'est pas suffisant : il peut emprunter un chemin différent de celui du sous-réseau applicatif, et il ne teste pas nécessairement la politique d'autorisation. Le jeu d'essais doit contenir un flux autorisé, un flux interdit, une connexion nouvellement initiée dans chaque sens si elle est prévue, et un test après bascule du chemin.
-
-### 5.3. Contrôle du routage et protection contre les annonces erronées
-
-Le protocole de routage doit recevoir une liste minimale de préfixes et annoncer une liste prévisible. Les filtres doivent être appliqués aussi bien à la réception qu'à l'émission, selon le rôle du voisin. Les résumés sont utiles mais peuvent masquer une route plus spécifique ; vérifie leur effet avec les règles de préférence et les routes de secours. En cas de redistribution entre OSPF, BGP et routes statiques, documente les routes qui peuvent entrer dans chaque domaine et celles qui doivent rester locales.
-
-Le laboratoire doit simuler une annonce indésirable. Le test est réussi si l'annonce est rejetée, si la raison peut être retrouvée dans la configuration ou les journaux et si les routes légitimes continuent de fonctionner. Il faut aussi simuler une disparition du voisinage : la route retirée doit disparaître dans le délai attendu, sans laisser un chemin blackhole persistant.
-
-### 5.4. Plan de test cryptographique
-
-La vérification cryptographique doit confirmer le profil réellement négocié plutôt que se limiter au profil local. Enregistre le type d'authentification du pair, l'identité observée, les suites IKE et ESP utilisées, les groupes d'échange pris en charge, les valeurs de durée de vie et l'état des renouvellements. Si les deux équipements offrent plusieurs propositions, la politique doit déterminer explicitement lesquelles sont acceptables.
-
-Toute migration de chiffrement doit être précédée d'un test d'interopérabilité. Quand la plateforme autorise un chevauchement temporaire, limite-le à la fenêtre nécessaire et supprime les profils historiques une fois les pairs migrés. Le succès d'un test ne doit pas être déduit du simple fait que le tunnel reste actif : il faut contrôler la nouvelle SA après le renouvellement et confirmer qu'elle respecte la nouvelle politique.
-
-## 6. Méthode de dépannage experte
-
-### 6.1. Construire une chronologie vérifiable
-
-Lors d'un incident, note l'heure du début, les changements récents, les pairs affectés, les préfixes concernés, la portée applicative et l'existence d'un chemin de secours. Récupère les états IKE et ESP, les compteurs entrants/sortants, les routes actives, le voisinage de routage et les journaux du pare-feu. Utilise une capture ciblée pour confirmer ce qui sort réellement de l'interface de transport et ce qui arrive sur le pair distant.
-
-Ne lance pas immédiatement plusieurs commandes de remise à zéro. Effacer les SA peut rétablir momentanément le service, mais supprime aussi des indices utiles et ne corrige pas la cause. Avant toute réinitialisation, capture les états, les raisons de fermeture, les temporisateurs et les changements de routes. Les actions perturbatrices doivent respecter les procédures d'exploitation et préciser leur impact.
-
-### 6.2. Arbre de décision
+### 14.1 Topologie cible
 
 ```text
-Le service applicatif échoue
-          |
-          v
-Le pair de transport est-il joignable ? ---- non ---> Transport / ACL / route externe
-          |
-         oui
-          v
-IKE SA présente et identité acceptée ? ----- non ---> Authentification / propositions / PKI
-          |
-         oui
-          v
-CHILD SA / ESP opérationnels ? ------------- non ---> Sélecteurs / proposal / rekey / PFS
-          |
-         oui
-          v
-Compteurs ESP évoluent dans les deux sens ? - non ---> Route / règle / flux non sélectionné
-          |
-         oui
-          v
-Route aller-retour cohérente ? -------------- non ---> Filtres BGP/OSPF / NAT / asymétrie
-          |
-         oui
-          v
-MTU et politique applicative correctes ? ---- non ---> PMTUD / MSS / ACL / DNS / serveur
+LAN A : 10.10.10.0/24                         LAN B : 10.20.20.0/24
+PC-A : 10.10.10.10                            PC-B : 10.20.20.20
+          |                                             |
+    [GW-A / wg0] ===== tunnel WireGuard ===== [GW-B / wg0]
+    LAN : .1                                      LAN : .1
+    WG  : 10.255.0.1/30                           WG  : 10.255.0.2/30
+    WAN : 198.51.100.10                            WAN : 203.0.113.20
 ```
 
-Cet arbre est un ordre de vérification, pas une preuve qu'une cause unique explique tous les symptômes. Une panne peut combiner une route absente et une MTU trop élevée, ou une négociation instable et une saturation du processeur.
+Les adresses WAN sont des exemples documentaires. Dans un laboratoire réel, les deux passerelles doivent pouvoir s’atteindre par l’underlay. Si l’une des extrémités est derrière un NAT, il faut adapter l’endpoint, les règles de transfert et, lorsque nécessaire, le keepalive.
 
-### 6.3. Distinguer les causes proches
+### 14.2 Générer les clés
 
-| Symptôme | Causes possibles | Preuve la plus utile | Test discriminant |
+Sur chaque passerelle, avec WireGuard installé :
+
+```bash
+umask 077
+wg genkey | tee privatekey | wg pubkey > publickey
+```
+
+- Gardez `privatekey` local à l’équipement et protégez-le avec des permissions restrictives.
+- Échangez la **clé publique**, jamais la clé privée.
+- Évitez d’inclure des clés privées dans un dépôt Git, une capture d’écran, une commande copiée dans un ticket ou un journal.
+- Les noms de fichiers et commandes exacts peuvent dépendre de la distribution et de l’outil d’administration utilisé.
+
+### 14.3 Configuration indicative de GW-A
+
+Créez `/etc/wireguard/wg0.conf` sur GW-A, puis remplacez les champs entre chevrons par les valeurs réelles du laboratoire.
+
+```ini
+[Interface]
+Address = 10.255.0.1/30
+ListenPort = 51820
+PrivateKey = <CLE_PRIVEE_DE_GW_A>
+
+[Peer]
+PublicKey = <CLE_PUBLIQUE_DE_GW_B>
+Endpoint = 203.0.113.20:51820
+AllowedIPs = 10.255.0.2/32, 10.20.20.0/24
+```
+
+### 14.4 Configuration indicative de GW-B
+
+```ini
+[Interface]
+Address = 10.255.0.2/30
+ListenPort = 51820
+PrivateKey = <CLE_PRIVEE_DE_GW_B>
+
+[Peer]
+PublicKey = <CLE_PUBLIQUE_DE_GW_A>
+Endpoint = 198.51.100.10:51820
+AllowedIPs = 10.255.0.1/32, 10.10.10.0/24
+```
+
+**Lecture des `AllowedIPs` :** GW-A envoie au pair B les paquets destinés au réseau B et accepte de ce pair les sources correspondant aux préfixes déclarés. La configuration de GW-B fait l’inverse. Ajouter `0.0.0.0/0` ou `::/0` change fortement le périmètre du routage et ne doit pas être fait pour un simple site-à-site sans besoin explicite.
+
+### 14.5 Activer le routage et le filtrage
+
+Sur les deux passerelles, vérifiez les points suivants avant les tests :
+
+1. Le noyau autorise le transfert IPv4, par exemple via `net.ipv4.ip_forward=1` lorsque ce réglage est applicable.
+2. Les règles de pare-feu autorisent le trafic de transfert entre `wg0` et les interfaces LAN, uniquement pour les flux nécessaires.
+3. Le pare-feu de l’underlay autorise le trafic UDP WireGuard sur le port configuré vers la passerelle concernée.
+4. Les postes des LAN savent retourner vers le réseau distant, soit parce que la passerelle VPN est leur routeur par défaut, soit grâce à une route spécifique.
+5. Aucune règle NAT superflue ne masque les adresses sources entre les deux LAN. Pour une interconnexion routée normale, privilégiez des routes explicites plutôt qu’un NAT utilisé uniquement pour contourner un oubli de routage.
+6. Les sous-réseaux locaux et distants ne se chevauchent pas.
+
+Commandes Linux à adapter à l’environnement :
+
+```bash
+# Charger l'interface (selon le paquet et la distribution)
+sudo wg-quick up wg0
+
+# Examiner les paramètres et le dernier handshake
+sudo wg show
+
+# Examiner les routes
+ip route
+ip route get 10.20.20.20
+
+# Examiner les adresses et l'état de l'interface
+ip address show wg0
+```
+
+La syntaxe et les outils d’activation peuvent varier. Ne réactivez pas aveuglément une interface déjà gérée par NetworkManager, systemd-networkd ou une plateforme d’orchestration.
+
+### 14.6 Vérifier dans le bon ordre
+
+```text
+[1] GW-A joint-il l'endpoint public de GW-B ?
+       |
+       v
+[2] Des paquets UDP WireGuard atteignent-ils GW-B ?
+       |
+       v
+[3] Le handshake apparaît-il dans wg show ?
+       |
+       v
+[4] La route vers 10.20.20.0/24 passe-t-elle par wg0 ?
+       |
+       v
+[5] Les compteurs de transfert progressent-ils dans les deux sens ?
+       |
+       v
+[6] GW-B a-t-il une route retour vers 10.10.10.0/24 ?
+       |
+       v
+[7] Le pare-feu autorise-t-il le flux de bout en bout ?
+       |
+       v
+[8] Une application réelle fonctionne-t-elle ?
+```
+
+Ne considérez pas le test terminé tant qu’un flux initié depuis chaque LAN a été vérifié selon la politique attendue. Un ping peut être bloqué sans que le tunnel soit en panne ; inversement, un ping réussi ne démontre pas que les applications et règles exigées fonctionnent.
+
+### 14.7 Cas de client derrière NAT
+
+Un pair situé derrière un NAT peut perdre l’état de traduction lorsqu’il reste inactif. `PersistentKeepalive` permet, lorsque c’est nécessaire, d’envoyer périodiquement un paquet pour maintenir le mapping NAT actif. Une valeur de `25` secondes est souvent utilisée comme point de départ pour un pair derrière NAT, mais elle doit être justifiée par le comportement réel du réseau et les contraintes de consommation ou de politique. Elle n’est pas nécessaire sur tous les pairs.
+
+## 15. OpenVPN : flexibilité, PKI et transport
+
+OpenVPN utilise TLS pour la négociation et l’authentification selon le profil configuré, puis transporte le trafic VPN dans un canal de données protégé. Il peut utiliser TCP ou UDP et des interfaces virtuelles de type TUN ou TAP selon le besoin et le mode.
+
+- **TUN** sert typiquement au transport de paquets IP routés.
+- **TAP** fonctionne au niveau Ethernet et peut transporter des trames de couche 2 ; il n’est pas requis pour la majorité des architectures routées modernes.
+- **UDP** est souvent privilégié pour le transport VPN général, car le transport retransmettant les pertes est généralement géré par les applications qui en ont besoin.
+- **TCP** peut être utile dans des environnements particuliers, mais encapsuler des flux TCP à l’intérieur d’une session TCP peut provoquer des effets de performance liés aux retransmissions et au contrôle de congestion imbriqués (*TCP-over-TCP*).
+- Les certificats doivent être correctement validés : identité attendue, chaîne de confiance, période de validité, révocation et protection des clés privées.
+- Il faut éviter les compatibilités anciennes ou les paramètres qui réintroduisent des mécanismes obsolètes ; les valeurs recommandées évoluent avec les versions.
+
+### Exemple de chemin OpenVPN routé
+
+```text
+[Client OpenVPN]
+      |
+      | tunnel IP virtuel (TUN)
+      v
+[Canal de données OpenVPN protégé]
+      |
+      v
+[Serveur OpenVPN]
+      |
+      +---- route + filtrage ----> [Réseau applicatif interne]
+```
+
+Une configuration OpenVPN opérationnelle dépend de plusieurs fichiers et directives : certificat/clé du serveur, certificat/clé du client si l’authentification par certificat est retenue, autorité de certification, paramètres TLS, paramètres de canal de données, pool d’adresses, routes distribuées, DNS et règles de pare-feu. Les paramètres exacts doivent être adaptés à la version et au modèle d’authentification de la plateforme.
+
+## 16. Comparaison : IPsec/IKEv2, WireGuard et OpenVPN
+
+| Critère | IPsec / IKEv2 | WireGuard | OpenVPN |
 |---|---|---|---|
-| Tunnel déclaré actif, application indisponible | Route, filtre, serveur, DNS | Route des deux côtés et journal pare-feu | Tester une destination et un port autorisés précis |
-| Compteurs sortants seulement | Perte de retour, peer down, ACL distante | Capture des deux extrémités | Comparer les paquets sur les interfaces externes |
-| Échec lors du rekey | Profil incompatible, horloge, ressource ou bug | Journaux au moment précis du renouvellement | Observer un cycle complet en préproduction |
-| Débit bon sur petits paquets seulement | MTU, PMTUD, fragmentation | Capture ICMP et taille des segments | Tester une gamme de tailles sans fragmentation locale aveugle |
-| Connexion intermittente | Flapping du transport, DPD trop agressif, HA | Chronologie des événements et pertes | Corréler route, IKE, interface et SLA applicatif |
-| Une seule agence affectée | Politique, adressage chevauchant, préfixe manquant | Différences de configuration et table de routage | Comparer avec un site fonctionnel de même rôle |
-| Nouveaux tunnels échouent, anciens restent actifs | PKI, quotas, rate limit, propositions nouvelles | Journaux d'authentification et métriques de capacité | Tenter depuis un pair de test approuvé et isolé |
-| Après bascule, certaines sessions restent bloquées | État non synchronisé, asymétrie, cache applicatif | Logs HA, session table, routes | Test de perte planifié avec flux long et nouveau flux |
+| Approche | Architecture IP standardisée, négociation IKE et ESP | Protocole VPN compact sur UDP basé sur des pairs cryptographiques | Solution VPN flexible avec TLS et canal de données dédié |
+| Usage fréquent | Site-à-site, équipements d’entreprise, mobilité selon les clients | Site-à-site et accès distant, notamment quand l’écosystème le prend en charge | Accès distant et interconnexion lorsque flexibilité et compatibilité sont importantes |
+| Gestion d’identité | Certificats, clés prépartagées ou mécanismes compatibles avec le profil | Clés publiques des pairs ; gestion utilisateur et cycle de vie souvent à intégrer séparément | Certificats et autres mécanismes selon le serveur et la configuration |
+| Interopérabilité | Large mais la compatibilité des propositions et comportements doit être testée | Très bonne entre implémentations compatibles, mais intégration à l’outillage existant à vérifier | Large avec ses clients et profils, mais les paramètres et versions doivent être alignés |
+| Transport | ESP, souvent UDP 4500 avec NAT-T ; IKE généralement sur UDP 500/4500 | UDP | UDP ou TCP |
+| Complexité dominante | Négociation, propositions, SA, sélecteurs, NAT-T et compatibilité interconstructeurs | Inventaire/distribution des clés, `AllowedIPs`, routage et intégration de gestion | PKI, fichiers de configuration, options TLS/data-channel, pool, routes et compatibilité |
+| Attention particulière | Un tunnel établi peut n’autoriser aucun flux utile si les sélecteurs ou routes sont incohérents | `AllowedIPs` a des implications de routage et d’authentification de source | Ne pas reprendre d’anciens paramètres ou des options de compatibilité qui abaissent la sécurité |
 
-### 6.4. Captures réseau et données sensibles
+Il n’existe pas de gagnant universel. Le choix dépend de l’architecture, des clients supportés, du système de gestion des identités, de l’interopérabilité des équipements, des contraintes de conformité, de la performance et de la capacité de l’équipe à maintenir le système.
 
-Les captures sont utiles pour confirmer les transports et les tailles de paquets, mais le contenu ESP reste chiffré sans matériel autorisé de déchiffrement. Une capture publique peut montrer les adresses et ports externes, le volume, le timing et certains métadonnées. Ces informations peuvent déjà être sensibles. Limite la capture dans le temps et dans la portée, protège le fichier, consigne la personne qui y a accès et supprime-le selon la politique de rétention.
 
-Les extraits de journal ne doivent pas révéler de secrets, de clés, de tokens, de chaînes de communauté ou de données personnelles non nécessaires. Les fichiers de configuration partagés en dehors de l'équipe doivent être nettoyés avec une méthode qui ne laisse pas les secrets dans un historique ou une section masquée. Après diagnostic, vérifie que le débogage détaillé a été désactivé si sa poursuite risquait de consommer des ressources ou d'exposer trop de données.
+# PARTIE V — ROUTAGE, DNS ET POLITIQUES D’ACCÈS
 
-## 7. Changement, migration et reprise
+## 17. Le routage décide du chemin, pas du droit d’accès
 
-### 7.1. Procédure de changement maîtrisée
+Pour qu’un paquet atteigne un serveur distant, il faut plusieurs conditions simultanées :
 
-Une modification de VPN peut couper la communication entre des sites entiers ou supprimer le seul canal d'administration. Le plan de changement doit indiquer le périmètre, les dépendances, les commandes ou objets modifiés, les tests avant/après, le point de décision de retour arrière, les responsables et le canal de communication. Le plan doit être validé sur un environnement représentatif et ne pas se contenter de vérifier que les commandes sont acceptées.
+1. une route utilisable vers la destination ;
+2. un tunnel et un pair en état d’acheminer le trafic ;
+3. une politique VPN qui couvre le flux ;
+4. un pare-feu qui autorise le flux dans le sens nécessaire ;
+5. une route retour vers la source ;
+6. un service qui écoute sur l’adresse et le port attendus.
 
-Séquence type :
+### Exemple de table de routage logique
 
-1. exporter et protéger la configuration actuelle ;
-2. relever les états de référence, les routes, les compteurs et la latence ;
-3. vérifier l'accès de secours indépendant du tunnel à modifier ;
-4. appliquer le changement sur un pair pilote ou un site non critique ;
-5. confirmer la négociation et la politique cryptographique effectivement appliquée ;
-6. tester les flux autorisés et les flux devant rester interdits ;
-7. tester le chemin retour, le renouvellement de SA et la panne du chemin principal si cela fait partie du changement ;
-8. conserver les preuves, puis élargir le déploiement selon les critères d'acceptation.
+```text
+Destination           Prochaine étape / interface
+10.10.10.0/24         LAN local
+10.20.20.0/24         interface VPN (wg0 ou interface équivalente)
+0.0.0.0/0             passerelle Internet par défaut
+```
 
-Le retour arrière doit être une procédure exécutable, non une phrase telle que « restaurer si nécessaire ». Il faut connaître la configuration antérieure, les données qui ont changé, l'ordre de restauration, les impacts de sessions et les critères déclenchant l'annulation. Si le changement modifie un certificat, la restauration peut exiger que l'ancien certificat soit encore valide et accepté par le pair distant.
+Ce tableau est un exemple conceptuel ; les routes les plus spécifiques l’emportent habituellement sur les routes moins spécifiques. Le routage par politique, les règles de marquage, plusieurs tables, les namespaces ou les routes imposées par un client peuvent changer la décision finale. Utilisez un outil comme `ip route get <adresse>` sur Linux pour examiner la décision effective du noyau dans le contexte courant.
 
-### 7.2. Migration entre fournisseurs ou plateformes
+## 18. Sous-réseaux qui se chevauchent
 
-Une migration entre deux systèmes VPN n'est pas toujours une simple traduction de commandes. Les produits peuvent interpréter différemment les identités, les sélecteurs, les interfaces virtuelles, le routage, les temporisateurs, le NAT-T, l'état HA ou les routes reçues. Il faut faire correspondre les capacités et les propriétés attendues, pas seulement les noms des champs.
+Le chevauchement est un problème d’architecture, pas uniquement un problème de tunnel.
 
-Établis une matrice de correspondance indiquant la fonction requise, l'implémentation ancienne, l'implémentation cible, les limites, le test associé et le résultat. Déploie le nouvel équipement en mode parallèle lorsque l'architecture le permet ; valide son transport, son identité, les routes et les flux avant le basculement. Vérifie ensuite les journaux, les règles de pare-feu, les flux retour et le comportement après rekey. Retire l'ancienne configuration seulement quand la nouvelle est stable et qu'un retour n'est plus nécessaire.
+Exemple : le siège et une agence utilisent tous deux `192.168.1.0/24`. Un poste du siège veut joindre `192.168.1.50`. La table de routage locale considère normalement cette destination comme locale : le paquet ne part donc pas spontanément vers l’agence.
 
-### 7.3. Rotation urgente de clé ou compromission d'identité
+```text
+SIÈGE                                      AGENCE
+192.168.1.0/24                             192.168.1.0/24
+PC : 192.168.1.20                          Serveur : 192.168.1.50
+       |                                          |
+       +------ tunnel VPN entre passerelles ------+
 
-En cas de suspicion de compromission d'un secret ou d'une clé, la priorité est de déterminer le périmètre : quels pairs utilisent l'élément compromis, quelles routes ils peuvent annoncer, quelles zones sont atteignables et quels journaux sont disponibles. Le plan de réponse peut exiger l'isolement d'un pair, la révocation d'un certificat, la rotation des secrets, la création d'un profil temporaire plus restrictif et l'examen des flux récents.
+Le même préfixe désigne deux réseaux différents : le routage est ambigu.
+```
 
-Évite une rotation globale non coordonnée lorsqu'elle risque de couper simultanément tous les chemins de secours. La stratégie doit définir l'ordre des pairs, le canal de communication de confiance, le moment de révocation, la preuve de suppression des anciens secrets et la validation que plus aucune SA ne dépend du mécanisme compromis. Dans un contexte de compromission avérée, la disponibilité peut devoir céder devant le confinement : cette décision revient au processus de gestion d'incident et aux responsables habilités.
+**Solutions par ordre de préférence selon le contexte :**
 
-## 8. Exercices experts avec corrigés
+- renuméroter l’un des réseaux avec un plan d’adressage géré ;
+- utiliser une translation d’adresses documentée et strictement limitée si la renumérotation est impossible ;
+- concevoir une architecture d’accès par proxy ou bastion lorsqu’un accès applicatif contrôlé est plus approprié qu’un routage complet.
 
-### Exercice 1 — IKE actif mais pas de trafic
+Le NAT de contournement a des coûts : diagnostic plus difficile, journalisation moins directe, règles supplémentaires et comportement inattendu pour certains protocoles. Documentez les adresses traduites et les limites du modèle.
 
-Deux passerelles négocient une IKE SA, mais aucune CHILD SA adaptée au trafic entre `10.10.0.0/16` et `10.20.0.0/16` n'est visible. Propose les vérifications dans l'ordre.
+## 19. Split tunnel, full tunnel et routes IPv6
 
-**Corrigé :** comparer les sélecteurs et le modèle route-based/policy-based des deux côtés ; examiner la proposition ESP et les paramètres de PFS ; confirmer les routes de transport et les règles qui déclenchent le tunnel ; lire les journaux au moment d'un trafic initiateur ; vérifier que la version et les fonctions des pairs supportent le mode choisi. Une remise à zéro ne vient qu'après la collecte des éléments de diagnostic.
+Un profil full tunnel doit être vérifié sur l’ensemble de la pile réseau. Il ne suffit pas d’envoyer la route IPv4 `0.0.0.0/0` vers le tunnel si le système possède aussi une connectivité IPv6 utilisable qui continue à sortir directement.
 
-### Exercice 2 — Préfixe imprévu appris depuis un site distant
+Checklist d’un profil full tunnel :
 
-Un pair correctement authentifié annonce `0.0.0.0/0`, alors que seul `10.20.0.0/16` devait être échangé.
+- route IPv4 par défaut prévue dans le VPN ;
+- route IPv6 par défaut ou politique IPv6 cohérente ;
+- accès à l’endpoint VPN conservé par une route de transport qui évite de faire boucler le tunnel sur lui-même ;
+- DNS prévu dans le profil ;
+- règles de fuite ou *kill switch* adaptées au système, notamment en cas de coupure du tunnel ;
+- gestion des réseaux locaux explicitement décidée ;
+- tests d’adresse de sortie IPv4 et IPv6, de DNS et de reconnexion ;
+- comportement documenté lorsqu’un réseau Wi-Fi, une interface Ethernet ou un partage mobile change.
 
-**Corrigé :** filtrer immédiatement le préfixe par une politique d'import, vérifier les routes actives et les flux qui ont pu être détournés, confirmer la politique d'annonce du voisin et inspecter toute redistribution. Ne pas considérer l'authentification réussie comme preuve de légitimité de la route. Documenter la portée de l'incident et tester qu'un préfixe non autorisé reste rejeté.
+Dans certains clients, la route vers le serveur VPN doit rester accessible par l’underlay, même lorsque le reste du trafic est envoyé dans le tunnel. Une mauvaise route peut faire perdre le serveur et empêcher le tunnel de se rétablir.
 
-### Exercice 3 — Tunnel de secours actif, trafic toujours interrompu
+## 20. DNS : le tunnel peut fonctionner alors que les noms échouent
 
-Après la panne du tunnel principal, la route est annoncée via le secours, mais les sessions applicatives expirent.
+Exemples typiques :
 
-**Corrigé :** mesurer le délai de détection et la convergence, vérifier que les deux sens empruntent un chemin cohérent, examiner les états de session et la synchronisation HA, confirmer que le chemin secondaire a une capacité suffisante, et tester à la fois les nouvelles sessions et les sessions existantes. Le succès du ping ne garantit pas la reprise des sessions longues.
+- les adresses IP internes répondent, mais `app.intra.example` ne se résout pas ;
+- les noms publics se résolvent, mais les noms privés échouent ;
+- le DNS privé ne répond que depuis certains sous-réseaux ;
+- le suffixe de recherche manque ;
+- le poste conserve un serveur DNS du réseau local ;
+- plusieurs interfaces publient des serveurs DNS concurrents ;
+- une reconnexion du VPN ne restaure pas la configuration DNS attendue.
 
-### Exercice 4 — Les fichiers volumineux échouent, les connexions sont établies
+### Diagnostic DNS
 
-**Corrigé :** vérifier le budget d'encapsulation, la MTU du chemin, la découverte de MTU, les messages ICMP requis, le MSS TCP négocié et les captures sur les deux extrémités. Réduire arbitrairement la MTU peut masquer la cause sans restaurer correctement toutes les applications.
+```text
+Nom applicatif échoue
+       |
+       +--> Le service est-il joignable par IP ?
+       |         |
+       |         +--> NON : vérifier route, filtre, service et retour
+       |         |
+       |         +--> OUI : continuer
+       |
+       +--> Quel serveur DNS le poste interroge-t-il réellement ?
+       |
+       +--> Le serveur DNS est-il joignable via le VPN ?
+       |
+       +--> Le serveur connaît-il la zone et le nom demandé ?
+       |
+       +--> Le suffixe de recherche et les politiques par domaine sont-ils corrects ?
+```
 
-### Exercice 5 — Certificat renouvelé, reconnexion impossible
+La façon d’afficher et de modifier les DNS dépend du système d’exploitation et du client VPN. Vérifiez la configuration réellement appliquée par le système après connexion, après déconnexion et après reconnexion.
 
-**Corrigé :** vérifier la chaîne de confiance, l'identité attendue par le profil IKE, les dates et usages du certificat, l'horloge, la révocation et la disponibilité de l'intermédiaire. Comparer le certificat présenté avec les politiques d'identité, plutôt que d'abaisser la validation à un profil moins strict.
+## 21. Pare-feu et moindre privilège
 
-### Exercice 6 — Dimensionnement en mode dégradé
+Une architecture VPN ne devrait pas rendre tout un LAN accessible à tout utilisateur distant simplement parce qu’il est connecté.
 
-Un concentrateur traite 3 Gbit/s en nominal. Son pair de secours doit reprendre la charge en cas de panne. Quel test mener ?
+### Exemple de matrice d’accès
 
-**Corrigé :** ne pas se contenter de vérifier une capacité catalogue. Reproduire le trafic utile, les distributions de taille des paquets, le nombre de SA et de connexions, les fonctions d'inspection activées et une bascule réelle. Mesurer débit, latence, pertes, charge processeur et temps de convergence ; prévoir une marge en plus de la charge nominale.
+| Origine | Destination | Service | Décision de départ |
+|---|---|---|---|
+| Groupe support | Bastion d’administration | SSH/RDP selon la plateforme | Autoriser, journaliser, MFA si applicable |
+| Utilisateur métier | Application métier | HTTPS | Autoriser uniquement vers l’application nécessaire |
+| Utilisateur métier | Réseau d’administration | Tous services | Refuser par défaut |
+| Client VPN | Réseau de gestion des hyperviseurs | Tous services | Refuser sauf rôle explicitement autorisé |
+| Pair site-à-site | Sous-réseau applicatif distant | Services documentés | Autoriser les flux nécessaires uniquement |
 
-## 9. Checklist de mise en production
+Une adresse source issue du pool VPN n’est pas une identité suffisante. Selon le risque, reliez la décision d’accès au compte, au certificat ou à la clé, au rôle, à l’état du terminal, à la destination et au service. Un VPN peut fournir une connectivité réseau privée sans fournir à lui seul un modèle complet de contrôle d’accès applicatif.
 
-- [ ] Chaque pair possède une identité définie et validée selon la politique.
-- [ ] Le profil cryptographique est approuvé, documenté et testé sur la version cible.
-- [ ] Les secrets et clés sont stockés selon une procédure contrôlée et leur rotation est planifiée.
-- [ ] Les routes entrantes et sortantes sont filtrées et conformes à la matrice d'autorisation.
-- [ ] Les domaines de gestion, utilisateurs, serveurs et sites distants sont segmentés.
-- [ ] Le routage externe vers le pair reste indépendant des routes transportées à travers le tunnel.
-- [ ] Les règles NAT et de filtrage ont été testées dans les deux sens.
-- [ ] Les contraintes MTU/MSS ont été mesurées sur les chemins pertinents.
-- [ ] Les journaux permettent d'identifier le pair, le profil, la SA, les changements de route et les rejets pertinents.
-- [ ] Les alertes ont un propriétaire, une procédure d'escalade et des seuils éprouvés.
-- [ ] La bascule et le retour au chemin principal ont été testés et mesurés.
-- [ ] La procédure de changement comprend un retour arrière réalisable sans dépendre du tunnel modifié.
-- [ ] Les configurations de référence et les preuves de test sont conservées de façon protégée.
-- [ ] Les flux non autorisés ont été testés et sont effectivement bloqués.
 
-## Points à retenir
+# PARTIE VI — SÉCURISER L’EXPLOITATION
 
-- Un VPN expert est un service complet : identité, cryptographie, sélection de trafic, routage, autorisation, capacité, supervision et cycle de vie doivent être conçus ensemble.
-- Une SA active indique un état technique précis ; elle ne garantit ni l'accessibilité applicative ni le respect des exigences métier.
-- Le routage dynamique à travers un tunnel exige des filtres de préfixes et une gouvernance des annonces aussi rigoureux que ceux du réseau physique.
-- La redondance doit être démontrée par des tests de panne et de reprise, pas déduite du nombre d'interfaces ou de tunnels configurés.
-- Les politiques cryptographiques doivent être maintenues, et les paramètres historiques retirés après des migrations contrôlées.
-- Les captures, configurations et journaux peuvent contenir des informations sensibles ; leur collecte et leur partage doivent être limités et documentés.
-- Les mesures de capacité doivent représenter le trafic, les petites tailles de paquets, les nouvelles sessions et le fonctionnement en mode dégradé.
-- Une procédure de changement doit prévoir une voie de récupération indépendante du tunnel qu'elle modifie.
+## 22. Modèle de menace : que protège le VPN et que ne protège-t-il pas ?
 
-### Références techniques
+Un VPN peut protéger les paquets pendant leur transport entre des pairs correctement authentifiés. Il ne protège pas automatiquement :
 
-1. IETF, RFC 4301 — *Security Architecture for the Internet Protocol*. https://www.rfc-editor.org/rfc/rfc4301.html
-2. IETF, RFC 7296 — *Internet Key Exchange Protocol Version 2 (IKEv2)*. https://www.rfc-editor.org/rfc/rfc7296.html
-3. IETF, RFC 3948 — *UDP Encapsulation of IPsec ESP Packets*. https://www.rfc-editor.org/rfc/rfc3948.html
-4. IETF, RFC 4106 — *The Use of Galois/Counter Mode (GCM) in IPsec ESP*. https://www.rfc-editor.org/rfc/rfc4106.html
-5. IETF, RFC 8221 — *Cryptographic Algorithm Implementation Requirements and Usage Guidance for ESP and AH*, à lire avec RFC 9395 qui le met à jour. https://www.rfc-editor.org/rfc/rfc8221.html et https://www.rfc-editor.org/rfc/rfc9395.html
-6. NIST, SP 800-77 Rev. 1 — *Guide to IPsec VPNs*. https://csrc.nist.gov/pubs/sp/800/77/r1/final
-7. Cisco, *Security and VPN Configuration Guide, Cisco IOS XE 17.x*. https://www.cisco.com/c/en/us/td/docs/routers/ios/config/17-x/sec-vpn/b-security-vpn.html
-8. WireGuard, documentation officielle. https://www.wireguard.com/
-9. OpenVPN, documentation et ressources officielles. https://openvpn.net/community-resources/
+- un poste compromis avant le chiffrement ou après le déchiffrement ;
+- des identifiants volés ou une session applicative déjà détournée ;
+- un serveur interne vulnérable accessible derrière le tunnel ;
+- des données copiées ou enregistrées après leur arrivée ;
+- un administrateur autorisé qui dispose de privilèges excessifs ;
+- des métadonnées de trafic visibles sur l’underlay ;
+- une mauvaise configuration de routage, de DNS ou de pare-feu ;
+- une interruption volontaire ou accidentelle de connectivité.
 
-Les références doivent être vérifiées avant le déploiement, en particulier pour les recommandations cryptographiques et les fonctions propres à une version donnée. Les extraits de configuration de ce cours servent à l'apprentissage et à l'élaboration de tests ; ils ne constituent pas une configuration universelle prête à appliquer sans adaptation.
+Le VPN est un contrôle dans une défense en profondeur. Il doit être combiné à des mises à jour, au durcissement des systèmes, à la gestion des identités, à la segmentation et à la supervision.
+
+## 23. Identités, clés, certificats et révocation
+
+### Pour les certificats
+
+- établir une autorité de certification (CA) et une politique d’émission contrôlées ;
+- protéger les clés privées de la CA plus strictement que les certificats des clients ;
+- distinguer les certificats de serveur, d’utilisateur, de machine et d’administration selon le besoin ;
+- vérifier le nom ou l’identité attendue du serveur côté client ;
+- vérifier les dates de validité, la chaîne de confiance et les mécanismes de révocation disponibles ;
+- prévoir le renouvellement avant expiration et surveiller les certificats proches de leur fin de validité ;
+- définir une procédure de compromission : révoquer, remplacer, désactiver le pair, vérifier les journaux, puis confirmer que l’ancien accès ne fonctionne plus.
+
+### Pour les clés WireGuard
+
+- tenir un inventaire reliant chaque clé publique à un équipement, un propriétaire, une fonction et une date d’émission ;
+- protéger les clés privées par les permissions, les mécanismes de stockage et les contrôles d’accès disponibles ;
+- retirer la clé publique d’un pair autorisé lorsqu’il doit perdre l’accès ;
+- remplacer une clé compromise et vérifier la suppression de l’ancienne autorisation partout où elle est distribuée ;
+- ne pas confondre le renouvellement périodique des clés de session avec la rotation des clés d’identité à long terme.
+
+### Authentification multifacteur
+
+Pour l’accès distant utilisateur, l’authentification multifacteur peut réduire le risque lié à un mot de passe volé, à condition qu’elle soit réellement intégrée au flux d’authentification et qu’elle ne soit pas contournable par un ancien portail ou un chemin alternatif. Un certificat de machine, une clé de pair et une authentification utilisateur ne sont pas des concepts identiques : associez-les selon le modèle de menace.
+
+## 24. Journalisation et supervision
+
+Superviser le tunnel ne signifie pas seulement surveiller le ping de l’endpoint.
+
+### Indicateurs utiles
+
+- disponibilité et dernier établissement réussi ;
+- dernier handshake ou âge des SA ;
+- échecs d’authentification et de négociation ;
+- nombre de pairs actifs et évolution du nombre de clients ;
+- compteurs d’octets et paquets entrants/sortants ;
+- pertes, latence et débit des flux utiles ;
+- expiration prochaine de certificat ;
+- changements de configuration, de clés, de routes ou de politiques ;
+- charge CPU, mémoire, interfaces et liens WAN ;
+- taux d’échec des applications accessibles à travers le tunnel.
+
+### Alertes à prioriser
+
+1. tunnel critique indisponible au-delà du seuil convenu ;
+2. échec répété d’authentification ou comportement inhabituel ;
+3. certificat proche d’expirer ou clé compromise ;
+4. hausse anormale des pairs, du trafic ou des erreurs ;
+5. écart de configuration entre les deux extrémités ;
+6. tunnel déclaré actif mais application métier indisponible.
+
+Ne stockez pas de secrets ou de données utilisateur excessives dans les journaux. Les journaux doivent être protégés, horodatés de manière cohérente, conservés selon une politique définie et accessibles aux seuls rôles qui en ont besoin.
+
+## 25. Disponibilité, redondance et reprise
+
+Un VPN réellement critique doit traiter les pannes de WAN, de passerelle, de processus, de clés, de DNS et de routage.
+
+```text
+                   +--------------------+
+                   | Clients / sites     |
+                   +---------+----------+
+                             |
+                    routes / politiques
+                             |
+                +------------+------------+
+                |                         |
+           [VPN Gateway A]           [VPN Gateway B]
+                |                         |
+                +------------+------------+
+                             |
+                  Réseau interne segmenté
+```
+
+Ce schéma ne définit pas un mécanisme de haute disponibilité : il représente deux chemins potentiels. En production, il faut choisir et tester le mode exact, par exemple redondance de passerelle, bascule de route, cluster d’équipements, deux tunnels ou reprise sur un second site.
+
+À documenter et tester :
+
+- mode de détection de panne et temporisation ;
+- convergence du routage et risque de route asymétrique ;
+- disponibilité des deux endpoints depuis les sites distants ;
+- synchronisation ou distribution des clés et certificats ;
+- capacité de la seconde passerelle à supporter la charge ;
+- comportement des sessions applicatives lors de la bascule ;
+- tests de retour à la passerelle primaire ;
+- procédure de changement de clé ou de certificat sur les deux chemins.
+
+La disponibilité du tunnel ne garantit pas la continuité des sessions TCP. Une bascule peut conserver la route mais changer l’adresse source, l’état NAT ou l’association de sécurité ; l’application peut alors devoir se reconnecter.
+
+## 26. Performance et capacité
+
+Le débit réel peut être limité par :
+
+- le débit WAN disponible dans chaque sens ;
+- la capacité CPU à chiffrer et vérifier les paquets ;
+- le nombre de paquets par seconde, pas seulement le débit en bits/s ;
+- les capacités cryptographiques de la plateforme ;
+- la MTU, la fragmentation et les retransmissions ;
+- le nombre de tunnels, de pairs, de routes et de politiques ;
+- la journalisation, l’inspection, l’antivirus ou les autres fonctions de sécurité ;
+- la latence et les pertes sur l’underlay.
+
+Pour dimensionner, mesurez des scénarios réalistes : plusieurs utilisateurs simultanés, plusieurs flux par utilisateur, transferts de fichiers, applications interactives et pics de charge. Distinguez le débit d’un seul flux du débit agrégé. Comparez les résultats avant et après tunnel dans les mêmes conditions.
+
+
+# PARTIE VII — MÉTHODE DE DÉPANNAGE EXPERTE
+
+## 27. Règle de diagnostic : ne modifier qu’une variable à la fois
+
+Pour chaque incident :
+
+1. écrire le symptôme exact et l’heure de début ;
+2. définir le périmètre : un utilisateur, un site, une destination, un protocole ou tous les flux ;
+3. identifier ce qui fonctionne encore ;
+4. proposer une hypothèse et le test qui peut la confirmer ou l’infirmer ;
+5. collecter les preuves avant de modifier la configuration ;
+6. effectuer une modification réversible ;
+7. rejouer les tests et comparer les résultats ;
+8. documenter la cause racine et la prévention.
+
+Évitez le dépannage par « redémarrer tout », qui peut effacer les indices ou aggraver une panne étendue. Un redémarrage peut être une action de rétablissement valide, mais il ne remplace pas le diagnostic.
+
+## 28. Matrice symptôme → test
+
+| Symptôme | Causes plausibles | Test discriminant |
+|---|---|---|
+| Pas de handshake | Endpoint incorrect, port filtré, clé/identité incorrecte, service non à l’écoute | Capturer l’underlay, vérifier l’endpoint, les règles et les journaux du protocole |
+| Handshake présent, aucun paquet utile | Mauvais `AllowedIPs` ou sélecteurs, route absente, pare-feu, forwarding désactivé | Vérifier route effective, compteur de trafic, règle de transfert et route retour |
+| Un seul sens fonctionne | Route retour absente, filtrage stateful, NAT inattendu, asymétrie | Capture aux deux côtés et comparaison des routes dans les deux sens |
+| Les pings fonctionnent, l’application échoue | Port fermé, ACL applicative, DNS, MTU, certificat applicatif ou proxy | Tester le port et le service, résoudre le nom séparément, mesurer la MTU |
+| Les petits paquets passent mais pas les gros | MTU/PMTUD, fragmentation filtrée, MSS inadapté | Tests de taille, compteurs et capture ICMP/fragmentation |
+| Connexion instable en mobilité | Changement d’adresse, NAT, roaming, Wi-Fi qui change, temporisations | Comparer les horaires des changements d’interface, des handshakes et des pertes |
+| Certains sites ne sont pas accessibles | Route manquante, chevauchement de sous-réseau, sélecteur incomplet | Comparer plan d’adressage, route choisie et préfixes déclarés |
+| Les IP fonctionnent mais les noms échouent | DNS absent, mauvaise zone, suffixe ou résolution par mauvaise interface | Interroger explicitement le DNS prévu et comparer la réponse |
+| VPN connecté mais Internet ne passe plus | Route par défaut, DNS, NAT de sortie ou filtrage du full tunnel | Examiner routes IPv4/IPv6, DNS et sortie Internet depuis la passerelle VPN |
+| Fuite hors tunnel | Route IPv6 ou DNS non gérée, kill switch incomplet, exception non voulue | Test IPv4/IPv6/DNS avant, pendant, après déconnexion et après reconnexion |
+| Panne périodique | Expiration de certificat, rekey, NAT timeout, rotation ou tâche de maintenance | Corréler la panne avec les journaux et changements d’état horodatés |
+
+## 29. Outils et preuves à collecter
+
+Les commandes varient selon l’OS, la distribution et le client. La liste ci-dessous est une boîte à outils, pas une séquence à exécuter intégralement sur tous les systèmes.
+
+### Linux : routes et interfaces
+
+```bash
+ip address
+ip route
+ip route get 10.20.20.20
+ip rule
+ip -s link
+```
+
+### WireGuard
+
+```bash
+sudo wg show
+sudo wg show wg0
+```
+
+Inspectez notamment la clé publique du pair, le dernier handshake et les compteurs reçus/envoyés. Masquez les informations sensibles dans les captures partagées et ne publiez jamais de clé privée.
+
+### Écoute et capture
+
+```bash
+# Vérifier les sockets UDP, selon les outils disponibles
+sudo ss -lunp
+
+# Capture indicative ; adapter l'interface et le filtre
+sudo tcpdump -ni <interface_wan> udp port 51820
+sudo tcpdump -ni <interface_lan> host 10.20.20.20
+```
+
+Pour IPsec, ajoutez des captures adaptées à IKE et ESP/NAT-T, puis examinez les journaux natifs de la plateforme. Le trafic ESP peut ne pas apparaître comme un simple flux UDP si NAT-T n’est pas utilisé.
+
+### Tests applicatifs
+
+- vérifier une résolution DNS ;
+- tester la connexion au port TCP ou UDP réellement utilisé ;
+- effectuer une requête HTTP(S) vers le service attendu ;
+- comparer un test depuis le LAN local et depuis le VPN ;
+- tester le sens retour ;
+- répéter après reconnexion ou bascule.
+
+Une capture peut révéler des adresses privées, noms internes, identifiants ou métadonnées sensibles. Limitez le périmètre, protégez les fichiers de capture et effacez-les selon la politique de l’organisation.
+
+## 30. Arbre de décision général
+
+```text
+Le VPN est-il établi ?
+ |
+ +-- NON --> L'endpoint est-il joignable depuis l'underlay ?
+ |              |
+ |              +-- NON --> routes WAN / DNS public / NAT / pare-feu
+ |              |
+ |              +-- OUI --> authentification / certificats / clés /
+ |                           propositions / port / version / logs
+ |
+ +-- OUI --> La route vers la destination utilise-t-elle le VPN ?
+                |
+                +-- NON --> route / AllowedIPs / sélecteurs / table de routage
+                |
+                +-- OUI --> Les compteurs et captures montrent-ils le trafic ?
+                               |
+                               +-- NON --> pare-feu local / interface / application
+                               |
+                               +-- OUI --> Le retour est-il routé et autorisé ?
+                                              |
+                                              +-- NON --> route retour / ACL / NAT
+                                              |
+                                              +-- OUI --> DNS / MTU / service / politique
+```
+
+Cet arbre est un guide de triage : plusieurs causes peuvent coexister. Les symptômes doivent toujours être confrontés à des observations du système réel.
+
+
+# PARTIE VIII — LABORATOIRES D’EXPERTISE
+
+## 31. Laboratoire 1 — VPN site-à-site sécurisé
+
+**Objectif :** déployer ou simuler l’interconnexion de deux sous-réseaux non chevauchants.
+
+**Contexte :** siège `10.10.10.0/24`, agence `10.20.20.0/24`, deux passerelles, underlay IP entre les passerelles.
+
+**Travail demandé :**
+
+1. dessiner la topologie et attribuer les adresses ;
+2. définir les préfixes autorisés ;
+3. choisir IPsec/IKEv2 ou WireGuard et justifier ce choix ;
+4. configurer le tunnel et les routes ;
+5. limiter les flux au besoin métier ;
+6. vérifier les routes aller/retour ;
+7. vérifier les logs et compteurs ;
+8. simuler la perte du tunnel et documenter la reprise.
+
+**Critères de réussite :** un hôte autorisé de chaque LAN peut joindre le service cible ; un flux non autorisé est bloqué ; la cause d’une panne simulée peut être identifiée grâce aux journaux et tests.
+
+## 32. Laboratoire 2 — Accès distant avec droits limités
+
+**Objectif :** concevoir un accès distant qui n’ouvre pas tout le réseau interne.
+
+**Environnement :** un client, une passerelle VPN, un DNS interne, une application métier et un réseau d’administration séparé.
+
+**Travail demandé :**
+
+1. distinguer l’identité utilisateur et l’identité machine si les deux sont requises ;
+2. choisir le mécanisme d’authentification ;
+3. définir le pool d’adresses VPN ;
+4. distribuer les routes strictement nécessaires ;
+5. distribuer le DNS interne et les suffixes utiles ;
+6. autoriser uniquement les services métier prévus ;
+7. prouver que le réseau d’administration reste inaccessible à l’utilisateur ordinaire ;
+8. révoquer un compte, certificat ou pair de test et vérifier que l’accès est effectivement coupé.
+
+**Livrable :** matrice d’accès, diagramme textuel, configuration expurgée de secrets, résultats des tests avant/après révocation.
+
+## 33. Laboratoire 3 — Full tunnel, split tunnel et fuite
+
+**Objectif :** prouver le chemin suivi par IPv4, IPv6 et DNS.
+
+**Travail demandé :**
+
+1. établir un profil split tunnel vers un sous-réseau privé ;
+2. comparer une destination interne et une destination Internet ;
+3. passer à un profil full tunnel dans un environnement contrôlé ;
+4. tester la route IPv4 par défaut ;
+5. tester le chemin IPv6 ;
+6. confirmer le serveur DNS utilisé ;
+7. simuler une coupure du tunnel et vérifier le comportement prévu ;
+8. écrire une procédure de test reproductible.
+
+**Attention :** un test de fuite doit être réalisé sur un environnement et un terminal dont vous êtes autorisé à vérifier la configuration. Évitez de modifier globalement la connectivité d’un poste de production.
+
+## 34. Laboratoire 4 — Diagnostic MTU
+
+**Objectif :** reconnaître un tunnel établi qui perd les grands paquets.
+
+**Scénario :** petits échanges fonctionnels, transfert de fichier instable.
+
+**Travail demandé :**
+
+1. reproduire le problème avec une destination contrôlée ;
+2. mesurer les tailles de paquets qui passent ;
+3. observer les compteurs et messages ICMP disponibles ;
+4. comparer le comportement sur tunnel et hors tunnel ;
+5. modifier un seul paramètre à la fois ;
+6. confirmer la correction sur plusieurs flux et après reconnexion ;
+7. expliquer pourquoi l’ajustement choisi est approprié au chemin.
+
+## 35. Laboratoire 5 — Haute disponibilité et rotation
+
+**Objectif :** valider l’exploitation au-delà du cas nominal.
+
+**Travail demandé :**
+
+- simuler une panne de l’endpoint principal ;
+- mesurer le délai de détection et de reprise ;
+- vérifier les routes retour pendant la convergence ;
+- renouveler une clé ou un certificat selon la procédure prévue ;
+- retirer un pair et vérifier qu’il ne peut plus établir le tunnel ;
+- confirmer que les journaux permettent de reconstituer la chronologie ;
+- documenter les conséquences sur les sessions applicatives.
+
+
+# PARTIE IX — ÉVALUATION ET SYNTHÈSE
+
+## 36. Questions de vérification
+
+Répondez sans relire le cours, puis vérifiez vos réponses.
+
+1. Pourquoi un handshake VPN réussi ne prouve-t-il pas qu’un serveur distant est accessible ?
+2. Quelle est la différence entre une route et une règle de pare-feu ?
+3. Pourquoi le réseau de transport utilise-t-il des adresses différentes de celles du paquet intérieur ?
+4. Dans IPsec, à quoi servent IKE SA et Child SA ?
+5. Pourquoi ESP est-il généralement plus pertinent qu’AH lorsque NAT est présent ?
+6. Que représente `AllowedIPs` dans WireGuard au-delà de la sélection de route ?
+7. Pourquoi ne faut-il pas envoyer un préfixe `0.0.0.0/0` à tous les pairs sans réfléchir au besoin ?
+8. Quel symptôme peut faire suspecter un problème de MTU et quelles autres causes faut-il éliminer ?
+9. Pourquoi un full tunnel doit-il traiter IPv4, IPv6 et DNS de manière cohérente ?
+10. Quelles données faut-il inventorier pour pouvoir révoquer rapidement un accès ?
+11. Pourquoi un chevauchement entre deux sous-réseaux rend-il le routage ambigu ?
+12. Quelle différence existe entre renouveler des clés de session et faire tourner une clé d’identité ?
+13. Quels tests démontrent qu’une politique de moindre privilège fonctionne réellement ?
+14. Quelles preuves collecter avant de redémarrer un tunnel en panne ?
+15. Pourquoi un tunnel redondant n’assure-t-il pas nécessairement la continuité des sessions applicatives ?
+
+## 37. Corrigé synthétique
+
+1. Le handshake valide l’établissement cryptographique, pas les routes, les règles de transfert, le retour, le DNS ni le service applicatif.
+2. La route décide du chemin ; le pare-feu autorise ou bloque un flux selon les règles en place.
+3. Le paquet intérieur porte les adresses logiques des systèmes communicants ; le paquet extérieur porte les adresses utilisées par l’underlay pour acheminer le tunnel.
+4. L’IKE SA protège les échanges IKE ; les Child SAs protègent le trafic de données IPsec.
+5. AH authentifie certains champs IP qui peuvent être modifiés par NAT ; cette modification complique son fonctionnement. ESP avec NAT-T est plus répandu.
+6. `AllowedIPs` associe les préfixes aux pairs pour l’envoi et contraint les adresses source attendues des paquets reçus du pair.
+7. Cela peut détourner tout le trafic, exposer le poste à des erreurs de route, surcharger la passerelle ou provoquer une coupure si le chemin vers l’endpoint n’est pas préservé.
+8. Les petits paquets passent et les gros échouent ou se bloquent. Il faut tester MTU/PMTUD mais aussi filtrage ICMP, service, pertes et autres causes réseau.
+9. Sinon une famille d’adresses ou les requêtes DNS peuvent sortir par le chemin local alors que l’autre trafic passe dans le tunnel.
+10. Identité ou propriétaire, pair/équipement, clé publique ou certificat, droits accordés, expiration, emplacement de configuration et procédure de révocation.
+11. La destination peut sembler directement connectée localement, donc le trafic ne suit pas le tunnel attendu ; une renumérotation ou une translation contrôlée peut être nécessaire.
+12. Le renouvellement des clés de session protège le trafic courant et limite la durée d’utilisation d’une clé ; la rotation d’identité change le secret ou certificat qui identifie à long terme le pair.
+13. Un flux requis passe, un flux non autorisé échoue, les journaux reflètent le résultat et la révocation bloque réellement le pair concerné.
+14. Symptôme précis, heure, périmètre, routes, état du tunnel, journaux, compteurs, captures limitées et tests de flux.
+15. La bascule peut modifier l’adresse source ou l’état réseau, et les sessions applicatives ont leur propre état et leurs propres temporisations.
+
+## 38. Projet de synthèse : rédiger un dossier de conception VPN
+
+Rédigez un dossier qui comporte au minimum :
+
+1. **Besoin métier** — utilisateurs, applications, sites, contraintes et objectifs de disponibilité.
+2. **Modèle de menace** — réseaux non fiables, terminaux, identité, données et risques résiduels.
+3. **Architecture** — schémas textuels, points de terminaison, underlay, overlay et zones de sécurité.
+4. **Plan d’adressage** — pools, sous-réseaux, routes, absence de chevauchement et traitement d’IPv6.
+5. **Choix du protocole** — comparaison documentée des options retenues et rejetées.
+6. **Authentification et clés** — génération, stockage, rotation, révocation et responsabilité opérationnelle.
+7. **Politiques d’accès** — matrice origine/destination/service, accès refusés et journalisation.
+8. **DNS et routage** — split/full tunnel, routes de secours et comportement de reconnexion.
+9. **Performance** — capacité, MTU, latence, débit attendu et seuils d’alerte.
+10. **Exploitation** — supervision, sauvegardes, changements, procédures de panne et reprise.
+11. **Tests de recette** — connectivité, autorisations, refus, DNS, IPv6, MTU, rotation et bascule.
+12. **Risques résiduels** — limites du VPN, contrôles complémentaires et plan d’amélioration.
+
+Le dossier doit permettre à une autre personne qualifiée de reconstruire le laboratoire, de comprendre les décisions prises et de diagnostiquer une panne sans dépendre de la mémoire de l’auteur.
+
+
+# GLOSSAIRE
+
+- **ACL :** liste de contrôle d’accès déterminant les flux autorisés ou refusés.
+- **CA :** autorité de certification qui émet et valide les certificats selon une politique.
+- **Child SA :** association IPsec utilisée pour la protection du trafic de données.
+- **ESP :** protocole IPsec assurant la protection des paquets selon les algorithmes et le mode retenus.
+- **Full tunnel :** politique où tout le trafic visé est dirigé vers le VPN.
+- **Handshake :** échange initial ou renouvelé permettant d’établir des clés ou un état de sécurité.
+- **IKEv2 :** protocole de négociation et de gestion des associations de sécurité IPsec.
+- **IPsec :** architecture de sécurité au niveau IP.
+- **MTU :** taille maximale d’un paquet ou d’une unité de transmission sur une interface, selon le contexte.
+- **NAT-T :** transport d’ESP dans UDP pour faciliter la traversée de NAT.
+- **Overlay :** réseau logique construit sur un réseau de transport.
+- **PFS :** propriété de sécurité visant à préserver les clés de session passées si une clé à long terme est compromise ultérieurement, selon le protocole et le profil.
+- **PMTUD :** découverte de la MTU du chemin.
+- **SA :** association de sécurité qui définit notamment les paramètres de protection d’un trafic.
+- **Split tunnel :** séparation entre le trafic envoyé dans le VPN et celui qui suit un autre chemin.
+- **TAP :** interface virtuelle de couche Ethernet.
+- **TUN :** interface virtuelle de couche IP.
+- **Underlay :** réseau existant qui transporte les paquets extérieurs du tunnel.
+- **VPN :** réseau privé virtuel permettant de créer une connectivité logique protégée au-dessus d’un réseau existant.
+
+
+# RÉFÉRENCES TECHNIQUES
+
+Les références ci-dessous sont des sources de départ pour approfondir le protocole et actualiser les choix opérationnels. Les paramètres de sécurité doivent être validés au moment du déploiement, dans la version exacte du logiciel ou du matériel concerné.
+
+1. **NIST — Guide to IPsec VPNs, SP 800-77 Rev. 1** : guide de conception et d’exploitation d’IPsec.  
+   https://csrc.nist.gov/pubs/sp/800/77/r1/final
+2. **IETF — RFC 4301, Security Architecture for the Internet Protocol** : architecture de sécurité IPsec.  
+   https://www.rfc-editor.org/rfc/rfc4301.html
+3. **IETF — RFC 7296, Internet Key Exchange Protocol Version 2 (IKEv2)** : spécification IKEv2, mise à jour par plusieurs RFC ultérieures.  
+   https://www.rfc-editor.org/rfc/rfc7296.html
+4. **WireGuard — Protocol & Cryptography** : description officielle des primitives et du protocole.  
+   https://www.wireguard.com/protocol/
+5. **OpenVPN — Manuel de référence 2.6** : options et comportement d’OpenVPN selon la version.  
+   https://openvpn.net/community-docs/community-articles/openvpn-2-6-manual.html
+
+
+## Check-list finale avant mise en production
+
+- [ ] Besoin métier, périmètre et modèle de menace documentés.
+- [ ] Plan d’adressage sans chevauchement ou stratégie de traduction explicitement validée.
+- [ ] Choix du protocole justifié par l’interopérabilité, la sécurité et l’exploitation.
+- [ ] Clés/certificats générés, protégés, inventoriés et révocables.
+- [ ] Authentification et droits associés aux rôles réels.
+- [ ] Routes aller et retour vérifiées.
+- [ ] Règles de pare-feu limitées aux services nécessaires.
+- [ ] DNS interne, IPv4, IPv6 et comportement full/split tunnel testés.
+- [ ] MTU et flux applicatifs représentatifs testés.
+- [ ] Journaux, alertes, sauvegardes et procédure de retour arrière en place.
+- [ ] Scénarios de perte de tunnel, de rotation et de bascule exécutés.
+- [ ] Secrets absents des dépôts, tickets, captures d’écran et fichiers de journalisation.
+
+**Règle d’or :** la réussite d’un VPN se mesure à la connectivité requise, aux accès interdits, à la sécurité des identités, à la capacité de diagnostiquer les incidents et à la qualité de la reprise — pas au seul voyant « connecté ».

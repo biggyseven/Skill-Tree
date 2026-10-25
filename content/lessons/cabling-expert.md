@@ -5,7 +5,6 @@
 > **Prérequis :** maîtriser les familles de câble, l'architecture horizontale/backbone, la terminologie de certification cuivre et les bases de mesure optique.  
 > **Objectif :** traduire les exigences de service et de bâtiment en une spécification testable, analyser les risques, contrôler les travaux et produire un dossier d'infrastructure maintenable.
 
----
 
 ## 1. L'expert conçoit un système complet
 
@@ -206,6 +205,5 @@ Les conventions de nommage doivent être définies par le projet ; l'exemple n'e
 - [IEC 60332-1-2:2025 — essai de propagation verticale de flamme](https://webstore.iec.ch/en/publication/80873).
 - [Fluke Networks — inspection/nettoyage optique](https://fr.flukenetworks.com/edocs/wp-fiber-cleaning-and-inspection-white-paper).
 
----
 
 **Fin de la série :** `cabling-debutant.md` → `cabling-intermediaire.md` → `cabling-expert.md`.

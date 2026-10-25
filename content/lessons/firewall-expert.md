@@ -1,8 +1,3 @@
----
-node_id: firewall-expert
-title: Pare-feu & NGFW - Expert
----
-
 # Pare-feu & NGFW - Expert
 
 **Niveau :** EXPERT
@@ -17,7 +12,6 @@ L’objectif n’est pas d’empiler un maximum de fonctions. Il est de construi
 
 > **Analogie** : imaginez un poste frontière doté d’un registre de voyageurs, d’un contrôle des bagages, d’un système d’identification et d’une caméra. Le pare-feu stateful suit le dossier d’une connexion ; le NGFW enrichit ce dossier avec l’application, l’identité et les menaces détectées. Mais si une route secondaire contourne le poste frontière, même le contrôle le plus avancé devient inutile. L’architecture complète compte autant que le moteur d’inspection.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -256,7 +250,6 @@ Pour un flux autorisé mais dangereux, posez les questions inverses : pourquoi e
 
 La collecte doit respecter les règles de confidentialité. Évitez de capturer le contenu de communications sans autorisation. Les captures peuvent contenir des identifiants, des jetons, des données métier ou des informations personnelles. Préférez les métadonnées nécessaires, limitez la durée de conservation et protégez les fichiers d’analyse.
 
----
 
 ## 2. Configuration et pratique
 
@@ -432,7 +425,6 @@ Appliquez d’abord en laboratoire ou en préproduction. En production, limitez 
 
 **Exercice E — Visibilité TLS.** Un tableau de bord affiche beaucoup de trafic HTTPS mais très peu de sessions déchiffrées. Distinguez la classification de métadonnées, le déchiffrement réel et les exceptions. Proposez des indicateurs permettant de mesurer la couverture d’inspection sans collecter de contenu inutile.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -530,7 +522,6 @@ Après l’incident, examinez la cause racine, le temps de détection, les règl
 
 > **Danger :** une règle de test large laissée en production, une interface de gestion exposée ou une exception TLS/IPS globale peut annuler les bénéfices du reste de la politique. Traitez chaque exception comme une modification de sécurité, avec une portée mesurée, un responsable et une révision planifiée.
 
----
 
 ## Points à retenir
 
@@ -560,6 +551,5 @@ Après l’incident, examinez la cause racine, le temps de détection, les règl
 
 Les standards et guides évoluent. Avant toute mise en production, vérifiez les versions récentes des références, les notes de version constructeur, les avis de sécurité et les recommandations applicables à votre contexte réglementaire et opérationnel.
 
----
 
 *Fin du cours — Pare-feu & NGFW, niveau Expert.*

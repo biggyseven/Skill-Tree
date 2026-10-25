@@ -5,7 +5,6 @@
 > **Prérequis :** maîtriser les familles cuivre/fibre, T568A/B, la notion de canal et les contrôles de base.  
 > **Objectif :** transformer un besoin réseau en design de câblage vérifiable, choisir les classes de composants, comprendre les paramètres électriques/optique et préparer une recette professionnelle.
 
----
 
 ## 1. Raisonner en lien complet, pas en bobine de câble
 

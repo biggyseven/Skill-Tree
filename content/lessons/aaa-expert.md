@@ -1,8 +1,3 @@
----
-node_id: aaa-expert
-title: Authentification réseau (AAA) - Expert
----
-
 # Authentification réseau (AAA) - Expert
 
 **Niveau :** EXPERT
@@ -15,7 +10,6 @@ Le cours aborde l’architecture de confiance, les modèles de privilèges, la s
 
 > **Analogie** : un système AAA d’entreprise ressemble à une chaîne de contrôle d’accès composée d’un service d’identité, d’un bureau qui attribue des habilitations, de lecteurs de badges installés sur les portes et d’un système de journalisation inviolable. Le lecteur n’invente pas les droits ; il applique la décision qu’il sait comprendre. Le service central ne peut pas non plus compenser une porte mal configurée. La sécurité réelle dépend de l’ensemble : identité, politique, point d’application, canal de communication, preuve et procédure de secours.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -328,7 +322,6 @@ fonction decision_AAA(demande):
 
 Ce modèle doit intégrer le traitement explicite des erreurs, des timeouts et du cache. Il ne faut pas conserver une décision en cache au-delà de la durée prévue, en particulier pour les désactivations de comptes et les retraits de privilèges. Le cache peut améliorer la disponibilité, mais il étend la période pendant laquelle une information ancienne reste applicable. Cette fenêtre doit être choisie en fonction de la sensibilité de l’accès.
 
----
 
 ## 2. Configuration et pratique
 
@@ -556,7 +549,6 @@ Après le changement :
 - [ ] Les flux anciens ont été retirés lorsque la migration est validée.
 - [ ] La documentation et le plan de retour arrière sont mis à jour.
 
----
 
 ## 3. Dépannage et sécurité
 
@@ -717,7 +709,6 @@ Après migration, le service est exploité par des indicateurs : latence, taux d
 11. Quelles preuves démontrent que les journaux ont été générés, transportés, normalisés et conservés correctement ?
 12. Quels critères permettent de décider si une exception AAA doit être conservée, remplacée ou retirée ?
 
----
 
 ## Points à retenir
 

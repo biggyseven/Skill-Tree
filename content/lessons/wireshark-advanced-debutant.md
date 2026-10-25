@@ -16,7 +16,6 @@ Les manipulations de capture doivent être faites sur une machine et un réseau 
 
 Tu devras pouvoir ouvrir une capture, distinguer filtre de capture et filtre d’affichage, sélectionner une conversation, lire les colonnes principales, comprendre les drapeaux TCP élémentaires, suivre une résolution DNS, repérer les étapes visibles d’une connexion TLS, interpréter avec prudence les alertes d’Expert Information, exporter des éléments utiles et rédiger un compte rendu reproductible. Tu sauras aussi dire quand les preuves ne suffisent pas et quand une capture prise à un seul endroit ne permet pas de conclure.
 
----
 
 ## 1. À quoi sert réellement Wireshark ?
 
@@ -610,7 +609,6 @@ Les menus, noms de champs et fonctions peuvent varier selon la version installé
 
 Quand une information est importante dans un rapport professionnel, cite la documentation et la version du logiciel effectivement utilisée. Les champs calculés par Wireshark dépendent en partie de ce que l’analyseur a observé et de l’implémentation de ses dissectors : une référence de champ permet de comprendre la définition, tandis que les paquets de la capture permettent de juger le cas concret.
 
----
 
 ## Conclusion : du paquet à une explication vérifiable
 

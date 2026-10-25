@@ -18,7 +18,6 @@ Ce cours présente les notions nécessaires pour comprendre et configurer VTP su
 >
 > Cette analogie met également en évidence le risque principal : si le registre centralisé est remplacé par un registre erroné mais considéré comme plus récent, les changements peuvent affecter plusieurs bâtiments. C'est pourquoi l'administrateur doit connaître l'origine des annonces, le domaine, la version et le numéro de révision avant de raccorder un commutateur inconnu à un réseau VTP. La centralisation réduit les oublis, mais elle ne dispense jamais de contrôle du changement ni de sauvegarde.
 
----
 
 ## 1. Fondamentaux et fonctionnement
 
@@ -253,7 +252,6 @@ La bonne pratique consiste à exécuter toute modification de VLAN selon une pro
 
 <div class="diagram-wrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 390" role="img" aria-label="Différence entre la base VTP, les trunks 802.1Q, STP et le routage inter-VLAN" width="960" height="390" style="width:100%;height:auto;display:block"><defs><marker id="vtpLayArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#67d9ff"/></marker></defs><style>.vlaccent{fill:none;stroke:#67d9ff;stroke-width:3;stroke-dasharray:8 7;animation:vtpLayDash 2.5s linear infinite}@keyframes vtpLayDash{to{stroke-dashoffset:-30}}@media(prefers-reduced-motion:reduce){.vlaccent{animation:none}}</style><rect x="14" y="14" width="932" height="362" rx="20" fill="#0b1220" stroke="#263b54" stroke-width="2"/><text x="480" y="43" text-anchor="middle" font-family="system-ui,sans-serif" font-size="19" font-weight="700" fill="#edf5ff">QUATRE FONCTIONS COMPLÉMENTAIRES</text><rect x="42" y="72" width="420" height="100" rx="13" fill="#173451" stroke="#67d9ff" stroke-width="2"/><text x="66" y="102" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#eff8ff">VTP</text><text x="66" y="127" font-family="system-ui,sans-serif" font-size="14" fill="#cfe5f8">Gère les définitions VLAN dans le domaine</text><text x="66" y="149" font-family="system-ui,sans-serif" font-size="13" fill="#a9c5dc">« Quels VLAN existent ? »</text><rect x="498" y="72" width="420" height="100" rx="13" fill="#183a2e" stroke="#73e0a0" stroke-width="2"/><text x="522" y="102" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#effff5">Trunk 802.1Q</text><text x="522" y="127" font-family="system-ui,sans-serif" font-size="14" fill="#d3f4df">Transporte les VLAN autorisés sur un lien</text><text x="522" y="149" font-family="system-ui,sans-serif" font-size="13" fill="#a9ddbc">« Quels VLAN passent ici ? »</text><rect x="42" y="205" width="420" height="100" rx="13" fill="#3a2c19" stroke="#f3bd66" stroke-width="2"/><text x="66" y="235" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#fff4e3">STP / RSTP</text><text x="66" y="260" font-family="system-ui,sans-serif" font-size="14" fill="#ffebc9">Prévient les boucles de couche 2</text><text x="66" y="282" font-family="system-ui,sans-serif" font-size="13" fill="#f0c77f">« Quelle topologie évite la boucle ? »</text><rect x="498" y="205" width="420" height="100" rx="13" fill="#2a2938" stroke="#b9a3ff" stroke-width="2"/><text x="522" y="235" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#f5f0ff">Routage inter-VLAN</text><text x="522" y="260" font-family="system-ui,sans-serif" font-size="14" fill="#e7ddff">Fait communiquer des réseaux IP distincts</text><text x="522" y="282" font-family="system-ui,sans-serif" font-size="13" fill="#d2c5ff">« Comment joindre un autre sous-réseau ? »</text><path class="vlaccent" d="M66 158 L438 158"/><path class="vlaccent" d="M522 158 L894 158"/><path class="vlaccent" d="M66 293 L438 293"/><path class="vlaccent" d="M522 293 L894 293"/><text x="480" y="343" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#aabbd0">Un VLAN peut exister dans la base sans être autorisé sur tous les trunks.</text><text x="480" y="362" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#aabbd0">Aucune de ces fonctions ne remplace les trois autres.</text></svg></div>
 
----
 
 ## 2. Configuration et Pratique
 
@@ -635,7 +633,6 @@ Cette configuration suppose que les interfaces existent et que le modèle accept
 
 > **Astuce :** La commande `show vtp status` est la première vérification à réaliser après une modification VTP ou avant le raccordement d'un commutateur. Compare le domaine, le mode, la version et la révision. Ensuite, utilise `show vlan brief` pour la base locale et `show interfaces trunk` pour les VLAN transportés. Ces trois vérifications évitent de confondre la synchronisation VTP avec l'acheminement réel du trafic utilisateur.
 
----
 
 ## 3. Dépannage et Sécurité
 

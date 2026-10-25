@@ -6,7 +6,6 @@ Ce cours s’adresse aux personnes qui doivent **concevoir, gouverner, sécurise
 
 > **Analogie :** une PKI experte ressemble à un réseau bancaire de confiance. La cryptographie fournit les serrures et les signatures ; la gouvernance définit qui peut ouvrir quel coffre ; les procédures de cérémonie contrôlent les opérations sensibles ; la supervision surveille les transactions ; et la réponse à incident détermine comment rétablir la confiance sans détruire inutilement toute l’infrastructure.
 
----
 
 ## 1. Objectifs du niveau expert
 
@@ -36,7 +35,6 @@ Ce cours s’adresse aux personnes qui doivent **concevoir, gouverner, sécurise
 
 Ne créez pas de CA de laboratoire dans le magasin de confiance de votre système principal. Ne copiez pas les clés privées vers un dépôt Git, un outil de ticketing, une image de conteneur ou une sauvegarde non chiffrée. N’utilisez pas une clé de démonstration pour signer des certificats destinés à des services réels. La création d’une CA interne de production exige une procédure formelle et une séparation des responsabilités ; une commande OpenSSL n’est pas à elle seule une procédure de production.
 
----
 
 ## 2. Concevoir l’architecture à partir des frontières de confiance
 
@@ -96,7 +94,6 @@ La **couche de contrôle** gère les comptes opérateurs, les demandes, les vali
 
 Il ne faut pas supposer qu’un composant portant le nom « CA » réalise nécessairement toutes ces fonctions dans un seul processus. Une architecture plus robuste sépare autant que raisonnable les systèmes de gestion de demandes, les bases d’audit, les systèmes de stockage de clés, les services de signature et les services de publication. Les interfaces entre ces composants deviennent des frontières de sécurité à documenter et à surveiller.
 
----
 
 ## 3. Modéliser la menace PKI
 
@@ -137,7 +134,6 @@ Pour chaque scénario, décrivez l’actif ciblé, la précondition, l’événe
 
 La sécurité d’une PKI ne peut pas être évaluée seulement par l’algorithme ou la taille de clé. Le scénario le plus probable est souvent un abus d’autorisation ou une erreur opérationnelle autour d’une primitive cryptographique solide.
 
----
 
 ## 4. Gouvernance : politique de certification et procédure d’exploitation
 
@@ -171,7 +167,6 @@ Traitez les profils de certificats comme du code : fichiers source versionnés, 
 
 Un test négatif est particulièrement important : envoyer une demande qui tente de demander un SAN interdit, une EKU hors profil, une durée excessive, une contrainte de nom absente ou une clé trop faible. Le test doit prouver que le système refuse la demande, et que le refus apparaît dans les journaux avec un motif utile. Une suite qui ne teste que les cas heureux ne prouve pas que la politique résiste à un appelant malveillant.
 
----
 
 ## 5. Maîtriser les clés : HSM, quorum et cérémonie
 
@@ -212,7 +207,6 @@ Un appel au service de signature doit lui-même être autorisé. Utilisez des id
 
 L’expression « clé non exportable » ne veut pas dire que l’usage de cette clé est impossible à détourner. Il faut réduire les capacités des logiciels autorisés à appeler le HSM et distinguer l’autorité qui peut créer une clé de l’autorité qui peut demander une signature. Lorsque le produit le permet, liez les opérations à des objets ou à des politiques précis plutôt qu’à un accès générique « signer tout contenu ».
 
----
 
 ## 6. Chaîne d’émission avancée et sécurité du plan de contrôle
 
@@ -240,7 +234,6 @@ Une RA peut authentifier des identités, approuver des demandes et appliquer cer
 
 Un endpoint de publication ne doit pas devenir un endpoint de signature déguisé. Une base de certificats ne doit pas être considérée comme source de vérité pour les droits. Un certificat présent dans un annuaire n’est pas nécessairement actuel, valide, non révoqué ou associé au bon appareil. La lecture du certificat et l’autorisation d’accès doivent rester des décisions distinctes.
 
----
 
 ## 7. Construire des chaînes robustes et gérer la compatibilité
 
@@ -290,7 +283,6 @@ Une PKI privée n’est utile que si les validateurs nécessaires font confiance
 
 Ne conseillez pas de contourner l’erreur TLS ou de désactiver la validation du certificat pour rétablir un service. Le diagnostic consiste à identifier l’élément incorrect — nom, chaîne, date, usage, ancre, statut — puis à le corriger. Un contournement temporaire peut transformer une panne visible en vulnérabilité silencieuse.
 
----
 
 ## 8. Révocation à grande échelle : sémantique et disponibilité
 
@@ -328,7 +320,6 @@ Les procédures doivent définir qui peut révoquer, comment les demandes d’ur
 
 Documentez les cas où il faut révoquer un certificat final, suspendre une émission, révoquer un certificat de CA subordonnée ou retirer une ancre de confiance. Ces actions ont des portées différentes. Une révocation de certificat final ne corrige pas une clé de CA compromise ; une révocation de CA intermédiaire ne garantit pas que chaque système a supprimé cette CA de son magasin ; le retrait d’une racine nécessite un mécanisme de distribution aux validateurs concernés.
 
----
 
 ## 9. Certificate Transparency et surveillance externe
 
@@ -358,7 +349,6 @@ Ne vous appuyez pas seulement sur des expressions régulières ou sur une liste 
 
 Lorsqu’un certificat inattendu apparaît, comparez d’abord les noms, l’émetteur, les dates, les références de changement et le propriétaire du domaine. Confirmez si le certificat a été émis par une CA publique légitime et s’il est utilisable, si l’émission respecte les politiques de l’écosystème, et si le domaine est réellement sous contrôle de l’organisation. Si l’événement reste inexpliqué, escaladez à l’équipe DNS/domaine et à l’équipe PKI ; selon la situation, ouvrez une investigation auprès de l’émetteur. Ne révoquez pas à l’aveugle un certificat légitime exploité par un fournisseur critique sans connaître l’impact, mais ne laissez pas non plus une anomalie ouverte sans propriétaire ni échéance.
 
----
 
 ## 10. Automatisation de l’émission et des renouvellements
 
@@ -399,7 +389,6 @@ Concevez un test qui :
 - confirme que la clé privée et les secrets ne sont pas dans les journaux ;
 - démontre que le renouvellement est relançable sans effet indésirable.
 
----
 
 ## 11. Gestion de parc, inventaire et observabilité
 
@@ -434,7 +423,6 @@ Les SLO doivent être formulés en fonction de l’expérience des services et d
 
 Les alertes ont besoin d’un propriétaire, d’une sévérité, d’une condition de déclenchement, d’un runbook, d’un délai d’action et d’un mécanisme d’escalade. Une alerte d’expiration dans 60 jours est différente d’une alerte sur une CA dont la clé peut être compromise. Les alertes répétitives qui ne conduisent à aucune action finissent par être ignorées ; mesurez le bruit et supprimez les signaux redondants sans masquer les risques.
 
----
 
 ## 12. Incident PKI : clé de service, CA émettrice ou racine
 
@@ -468,7 +456,6 @@ Un runbook de réponse doit préciser qui dirige l’incident, qui décide de la
 
 Conservez les CSR, numéros de série, empreintes, journaux d’approbation, traces d’accès au HSM, événements d’administration et preuves de déploiement pertinents, avec des contrôles d’intégrité et un accès limité. N’ajoutez pas de secrets ou de clés privées au dossier d’incident. Une revue post-incident doit identifier les causes racines, les contrôles manquants, les mesures de détection ratées et les tests qui empêcheront la répétition.
 
----
 
 ## 13. Agilité cryptographique et préparation aux transitions
 
@@ -496,7 +483,6 @@ Les standards NIST pour la cryptographie post-quantique, notamment FIPS 203 (ML-
 
 Le travail expert à mener immédiatement est l’inventaire, la classification des données selon leur durée de sensibilité, la cartographie des dépendances, les essais avec les fournisseurs et la capacité à renouveler les certificats et clés rapidement. Une migration cryptographique sérieuse est un programme de changement, pas une modification isolée d’une option de configuration.
 
----
 
 ## 14. Conformité des certificats TLS publics et internes
 
@@ -518,7 +504,6 @@ L’échantillonnage doit couvrir les cas risqués, pas seulement les certificat
 
 Les dérogations techniques doivent préciser le risque, le périmètre, le propriétaire, les compensations, la date d’expiration, la validation par l’autorité appropriée et la méthode de retrait. Une dérogation sans date de fin est une nouvelle politique non déclarée. Une dérogation qui n’est pas revue régulièrement peut maintenir une dépendance historique ou un algorithme fragile après la fin de sa justification.
 
----
 
 ## 15. TLS, identité et certificats spécialisés
 
@@ -540,7 +525,6 @@ Les certificats de signature de code, S/MIME, signature de document, authentific
 
 La portée d’un certificat résulte de plusieurs facteurs : identités, clés, usages, politiques, contraintes de chaîne et décision de l’application. Aucun champ seul ne doit être traité comme une preuve universelle de l’autorisation métier.
 
----
 
 ## 16. Laboratoire expert : inspection et vérifications négatives
 
@@ -610,7 +594,6 @@ Consultez les points de publication CRL/OCSP indiqués par le certificat, dans l
 9. Pourquoi un certificat présent dans un magasin de confiance ne constitue-t-il pas une autorisation métier universelle ?
 10. Comment définir un SLO de renouvellement qui ne récompense pas l’abaissement des contrôles d’identité ?
 
----
 
 ## 17. Étude de cas finale : PKI d’entreprise critique
 
@@ -647,7 +630,6 @@ Concevez une architecture et un plan d’exploitation qui répondent aux exigenc
 
 La meilleure réponse n’est pas forcément l’architecture avec le plus de composants. Elle est celle qui réduit le risque avec des responsabilités compréhensibles, une automatisation sûre et des preuves que les contrôles fonctionnent dans la réalité.
 
----
 
 ## 18. Anti-patterns d’une PKI mal gouvernée
 
@@ -662,7 +644,6 @@ La meilleure réponse n’est pas forcément l’architecture avec le plus de co
 - **Sauvegarde jamais restaurée.** Le plan de reprise est un document non prouvé. Conséquence : impossibilité de reprendre ou contrôle moins strict à l’urgence.
 - **Suppression d’une racine prise à la légère.** Une équipe retire la CA d’un seul serveur sans inventaire des applications et appareils. Conséquence : panne ou maintien de confiance non contrôlé ailleurs.
 
----
 
 ## 19. Checklist opérationnelle avant mise en production
 
@@ -702,7 +683,6 @@ La meilleure réponse n’est pas forcément l’architecture avec le plus de co
 - [ ] Les dérogations sont datées, approuvées et révisées.
 - [ ] Les dépendances cryptographiques sont inventoriées ; les migrations comprennent un pilote, des tests et un retour arrière.
 
----
 
 ## 20. Références normatives et ressources
 
@@ -721,7 +701,6 @@ Les standards et politiques peuvent être révisés. Avant une implémentation o
 - **NIST FIPS 205 — Stateless Hash-Based Digital Signature Standard (SLH-DSA)**. <https://csrc.nist.gov/pubs/fips/205/final>
 - **OpenSSL documentation** : syntaxe et options propres à la version installée. <https://docs.openssl.org/>
 
----
 
 ## Conclusion
 

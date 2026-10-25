@@ -9,7 +9,6 @@
 **Prérequis :** avoir suivi le niveau Débutant ou posséder les connaissances équivalentes  
 **Objectif général :** passer des requêtes isolées à un client Python structuré, capable de découvrir les ressources, sélectionner les données utiles, contrôler les erreurs et exécuter des opérations autorisées avec des garanties supplémentaires.
 
----
 
 # AVANT-PROPOS — NOUS CONTINUONS LE MÊME PARCOURS
 
@@ -78,7 +77,6 @@ Le niveau Expert ne remplacera pas le client RESTCONF que nous allons construire
 
 > **Règle de ce niveau :** toute lecture doit être vérifiée, toute modification doit être explicitement autorisée et toute opération critique doit être suivie d'un contrôle de l'état obtenu.
 
----
 
 # SOMMAIRE
 
@@ -107,7 +105,6 @@ Le niveau Expert ne remplacera pas le client RESTCONF que nous allons construire
 23. Glossaire
 24. Références officielles
 
----
 
 # 1. RAPPEL DES FONDATIONS ET OBJECTIFS INTERMÉDIAIRES
 
@@ -172,7 +169,6 @@ Pour chaque opération, le programme doit différencier au moins trois questions
 
 Par exemple, `200 OK` peut être un succès HTTP, mais le programme peut découvrir ensuite qu'un champ important manque dans la réponse. Dans ce cas, la lecture a réussi techniquement, mais la validation métier a échoué.
 
----
 
 # 2. ARCHITECTURE D'UN CLIENT RESTCONF
 
@@ -264,7 +260,6 @@ Il est préférable de séparer :
 
 Cette séparation permet de réutiliser le même client sur plusieurs équipements.
 
----
 
 # 3. ENVIRONNEMENT DE DÉVELOPPEMENT
 
@@ -388,7 +383,6 @@ dans le code source.
 
 Les variables d'environnement constituent un moyen de séparer les paramètres sensibles du programme, mais elles ne sont pas automatiquement un coffre de secrets.
 
----
 
 # 4. CONCEVOIR UN CLIENT PYTHON RÉUTILISABLE
 
@@ -700,7 +694,6 @@ Cet exemple suppose que le serveur expose le module `ietf-interfaces`, que le ch
 
 Il ne garantit pas que tous les équipements exposent cette ressource sous cette forme.
 
----
 
 # 5. CONSTRUIRE ET ENCODER LES URI RESTCONF
 
@@ -816,7 +809,6 @@ print(resource)
 
 La séparation entre constructeur de ressource et code de requête facilite les tests et réduit les erreurs de chemin.
 
----
 
 # 6. SÉLECTIONNER LES DONNÉES AVEC LES PARAMÈTRES RESTCONF
 
@@ -972,7 +964,6 @@ La sélection est utile pour :
 
 Mais une réponse réduite n'est pas nécessairement une réponse complète. Il faut vérifier que tous les champs obligatoires pour l'opération se trouvent bien dans les données reçues.
 
----
 
 # 7. DÉCOUVRIR LES MODÈLES YANG ET LA YANG LIBRARY
 
@@ -1102,7 +1093,6 @@ Ne conservez pas ce cache indéfiniment sans mécanisme d'invalidation. Si les m
   <path class="library-link" d="M450 169 V212"/>
 </svg>
 
----
 
 # 8. COMPRENDRE LES DÉTAILS DE L'ENCODAGE JSON POUR YANG
 
@@ -1245,7 +1235,6 @@ La solution habituelle consiste à :
 
 Le niveau Expert pourra ensuite aller plus loin avec une validation plus systématique fondée sur les modèles disponibles.
 
----
 
 # 9. GÉRER LES RÉPONSES ET LES ERREURS
 
@@ -1345,7 +1334,6 @@ L'exemple illustre un point important : une requête peut fonctionner au niveau 
 
 Cette distinction doit être reprise dans les rapports et les tests.
 
----
 
 # 10. SÉCURISER LES REQUÊTES ET CONTRÔLER LES DROITS
 
@@ -1409,7 +1397,6 @@ Les sorties peuvent contenir des informations de topologie, de configuration ou 
 
 Le meilleur journal est celui qui permet de diagnostiquer l'opération sans exposer les informations qui ne sont pas nécessaires.
 
----
 
 # 11. MODIFIER UNE RESSOURCE AVEC PATCH
 
@@ -1496,7 +1483,6 @@ Une erreur peut survenir si :
 
 Une bonne application classe l'erreur et conserve l'état initial pour aider au diagnostic.
 
----
 
 # 12. COMPRENDRE PUT, POST ET DELETE
 
@@ -1579,7 +1565,6 @@ N'utilisez pas `DELETE` comme mécanisme de nettoyage automatique sans définir 
 
 Aucune méthode ne doit être choisie uniquement parce que son nom paraît correspondre au besoin. Il faut respecter la sémantique RESTCONF, le modèle et la ressource exacte.
 
----
 
 # 13. APPLIQUER YANG PATCH
 
@@ -1679,7 +1664,6 @@ Vérifiez la prise en charge effective de YANG Patch et le comportement document
 - Utilisez PUT uniquement si la représentation de remplacement est correctement construite.
 - Évitez de confondre plusieurs opérations HTTP séquentielles avec une transaction atomique.
 
----
 
 # 14. DÉTECTER LES MODIFICATIONS CONCURRENTES AVEC ETAG
 
@@ -1802,7 +1786,6 @@ La bonne démarche est :
 
 Un conflit est une information importante. Il indique que les hypothèses utilisées lors de la préparation du changement doivent être réévaluées.
 
----
 
 # 15. VÉRIFIER L'ÉTAT AVANT ET APRÈS UN CHANGEMENT
 
@@ -1902,7 +1885,6 @@ L'écart peut être légitime, volontaire ou lié à un changement en cours. Ava
   <text x="474" y="326" class="verify-small">Une réponse HTTP favorable ne remplace jamais la vérification des données obtenues.</text>
 </svg>
 
----
 
 # 16. ORGANISER LES COLLECTES SUR PLUSIEURS ÉQUIPEMENTS
 
@@ -2065,7 +2047,6 @@ Une modification de configuration est différente. Plusieurs changements simulta
 
 Ne réutilisez pas automatiquement le même modèle de concurrence pour une opération de lecture et une opération de modification.
 
----
 
 # 17. TESTER LE CLIENT RESTCONF
 
@@ -2222,7 +2203,6 @@ python -m pytest -q
 
 Les tests unitaires valident la logique applicative. Il faut également des tests d'intégration dans un laboratoire autorisé pour vérifier les modèles, les ressources et les opérations réellement prises en charge.
 
----
 
 # 18. RELIER RESTCONF ET NETCONF
 
@@ -2273,7 +2253,6 @@ Il est également pratique dans de nombreux environnements d'automatisation Pyth
 
 Le choix doit être fondé sur les besoins réels et la compatibilité des équipements.
 
----
 
 # 19. LABORATOIRES PROGRESSIFS
 
@@ -2456,7 +2435,6 @@ Le rapport doit inclure :
 
 N'ajoutez pas de secrets ni de données sensibles inutiles.
 
----
 
 # 20. PROJET FINAL : RESTCONF INVENTORY AUDITOR
 
@@ -2559,7 +2537,6 @@ Une bonne solution devrait inclure :
 
 Un bon score ne compense pas une faille majeure. L'utilisation d'un secret en clair, la désactivation systématique de TLS ou une modification exécutée sans contrôle de périmètre doivent empêcher l'acceptation du projet.
 
----
 
 # 21. DÉPANNAGE INTERMÉDIAIRE
 
@@ -2658,7 +2635,6 @@ Relisez la ressource. L'état peut avoir été modifié par un autre client.
 
 Comparez la version actuelle à l'objectif et déterminez si le changement demeure nécessaire. Un ETag constitue une information de concurrence, pas une erreur à ignorer.
 
----
 
 # 22. EXERCICES ET CRITÈRES D'ÉVALUATION
 
@@ -2695,7 +2671,6 @@ Répondez avec des exemples de votre client.
 
 **Prêt pour le niveau Expert :** vous savez tester les opérations sur les équipements réels, gérer les préconditions et les conflits, préserver les preuves et expliquer les risques avant une modification.
 
----
 
 # 23. GLOSSAIRE
 
@@ -2737,7 +2712,6 @@ Répondez avec des exemples de votre client.
 
 **YANG Patch** — Format et mécanisme permettant de décrire des opérations de modification à l'aide des données YANG.
 
----
 
 # 24. RÉFÉRENCES OFFICIELLES
 
@@ -2787,7 +2761,6 @@ Les références suivantes doivent être consultées lors de l'adaptation des ex
 - **RFC 6242 — NETCONF over SSH**  
   https://www.rfc-editor.org/rfc/rfc6242.html
 
----
 
 # CONCLUSION — DE LA REQUÊTE ISOLÉE AU CLIENT RÉUTILISABLE
 

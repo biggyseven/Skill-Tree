@@ -1,0 +1,7 @@
+{
+  "node_id": "web-server-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Reverse Proxy et Load Balancing.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

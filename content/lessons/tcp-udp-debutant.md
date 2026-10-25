@@ -5,7 +5,6 @@
 > **Prérequis :** connaître les notions élémentaires d'adresse IP et de réseau local.  
 > **Objectif :** comprendre le rôle de TCP, UDP et des ports, reconnaître leurs différences, identifier les principaux services réseau et effectuer les premiers tests de connectivité.
 
----
 
 ## Sommaire
 
@@ -26,7 +25,6 @@
 15. Exercices et corrigés
 16. Glossaire et fiche de révision
 
----
 
 # 1. Introduction aux protocoles de transport
 
@@ -59,7 +57,6 @@ TCP apporte notamment un transport fiable et ordonné sous la forme d'un flux d'
 
 Le choix du transport dépend de l'application et de son protocole.
 
----
 
 # 2. Pourquoi TCP et UDP sont-ils nécessaires ?
 
@@ -119,7 +116,6 @@ On peut comparer les deux protocoles à deux stratégies d'échange.
 
 Cette analogie reste simplifiée. TCP et UDP ne sont pas des garanties absolues de réussite : une connexion TCP peut échouer et un protocole applicatif basé sur UDP peut être fiable.
 
----
 
 # 3. Comprendre les ports réseau
 
@@ -215,7 +211,6 @@ UDP/443 : peut notamment transporter QUIC et HTTP/3
 
 Il ne faut donc jamais considérer un numéro de port isolément. Le numéro doit être associé au protocole de transport et au contexte du service.
 
----
 
 # 4. Fonctionnement fondamental de TCP
 
@@ -273,7 +268,6 @@ Il évite qu'un émetteur continue indéfiniment à envoyer des données alors q
 
 Le contrôle de flux est différent du contrôle de congestion, qui porte sur la capacité et l'état du réseau.
 
----
 
 # 5. Schéma SVG animé — Établissement d'une connexion TCP
 
@@ -329,7 +323,6 @@ Une fois l'établissement classique achevé, les extrémités peuvent commencer 
 
 Il existe des exceptions et extensions au scénario pédagogique, et toutes les communications modernes ne reposent pas sur TCP. QUIC, par exemple, utilise UDP tout en fournissant ses propres mécanismes de connexion et de transport.
 
----
 
 # 6. Fiabilité, acquittements et retransmissions
 
@@ -361,7 +354,6 @@ Ces mécanismes sont utiles, mais peuvent entraîner des délais supplémentaire
 
 TCP n'est donc pas intrinsèquement « lent », pas plus qu'UDP n'est toujours « rapide ». Les performances dépendent de l'application, du chemin réseau, de la taille des échanges et des mécanismes employés.
 
----
 
 # 7. Schéma SVG animé — Perte et retransmission TCP
 
@@ -407,7 +399,6 @@ TCP n'est donc pas intrinsèquement « lent », pas plus qu'UDP n'est toujours �
 
 Le diagramme illustre le mécanisme général. En pratique, l'émetteur ne sait pas toujours immédiatement quel segment a été perdu. Il peut devoir attendre un indice suffisant ou l'expiration d'un temporisateur.
 
----
 
 # 8. Fonctionnement fondamental d'UDP
 
@@ -453,7 +444,6 @@ Les requêtes DNS classiques sont souvent transportées sur UDP. Toutefois, DNS 
 
 Il faut donc éviter une règle simpliste telle que « DNS = UDP uniquement ».
 
----
 
 # 9. Schéma SVG animé — UDP et les datagrammes
 
@@ -492,7 +482,6 @@ Il faut donc éviter une règle simpliste telle que « DNS = UDP uniquement ».
 </g>
 </svg>
 
----
 
 # 10. TCP contre UDP : comparaison complète
 
@@ -522,7 +511,6 @@ QUIC illustre un troisième cas important : il fonctionne au-dessus d'UDP mais f
 
 La vraie distinction est donc entre les fonctions intégrées au transport et celles qui sont prises en charge par un protocole supérieur.
 
----
 
 # 11. Client, serveur, socket et connexion
 
@@ -554,7 +542,6 @@ Un socket UDP sert notamment à envoyer ou recevoir des datagrammes. Il n'impliq
 
 Dans un cours de réseau, gardez cette distinction : **un port est un numéro du protocole de transport, tandis qu'un socket est un concept plus large lié au point d'extrémité et à l'interface de communication.**
 
----
 
 # 12. Pare-feu, NAT et filtrage des ports
 
@@ -603,7 +590,6 @@ Causes possibles :
 
 Le test local et le test distant ne répondent donc pas à la même question.
 
----
 
 # 13. Schéma SVG animé — Ports et distribution vers les applications
 
@@ -642,7 +628,6 @@ Le test local et le test distant ne répondent donc pas à la même question.
 </g>
 </svg>
 
----
 
 # 14. Premiers tests en ligne de commande
 
@@ -718,7 +703,6 @@ Un outil peut donc envoyer un datagramme sans recevoir de réponse, et l'absence
 
 Pour diagnostiquer UDP, il faut connaître le protocole applicatif et savoir quelle réponse est normalement attendue.
 
----
 
 # 15. Exercices
 
@@ -762,7 +746,6 @@ Une application basée sur UDP a besoin d'une livraison fiable des messages. Com
 
 Pourquoi ne faut-il pas conclure qu'un service HTTPS fonctionne uniquement parce qu'un test TCP vers le port 443 réussit ?
 
----
 
 # 16. Corrigés commentés
 
@@ -806,7 +789,6 @@ Le protocole applicatif peut utiliser des identifiants de message, accusés de r
 
 Un test TCP ne valide pas nécessairement TLS, le certificat, le protocole HTTP, l'authentification ou l'état applicatif du serveur. Il ne teste qu'une partie de la chaîne de communication.
 
----
 
 # 17. Glossaire
 
@@ -834,7 +816,6 @@ Un test TCP ne valide pas nécessairement TLS, le certificat, le protocole HTTP,
 
 **QUIC :** protocole de transport moderne s'appuyant sur UDP et fournissant notamment des mécanismes de fiabilité, de sécurité et de contrôle de flux.
 
----
 
 # 18. Fiche de révision
 
@@ -858,7 +839,6 @@ Un test TCP ne valide pas nécessairement TLS, le certificat, le protocole HTTP,
 - [Registre officiel des ports — IANA](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml)
 - [Spécification QUIC — RFC 9000](https://www.rfc-editor.org/rfc/rfc9000.html)
 
----
 
 ## Conclusion
 

@@ -1,0 +1,7 @@
+{
+  "node_id": "scripting-debutant",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Scripting Bash.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

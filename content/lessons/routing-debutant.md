@@ -1,8 +1,3 @@
----
-node_id: routing-debutant
-title: Routage statique & tables - Débutant
----
-
 # Routage statique & tables - Débutant
 
 **Niveau :** Débutant
@@ -19,7 +14,6 @@ Le routage statique consiste à configurer explicitement un chemin vers une dest
 >
 > Le répertoire peut contenir une instruction générale, par exemple « pour toutes les destinations que tu ne connais pas, envoie le colis au centre de sortie ». C’est l’équivalent de la route par défaut `0.0.0.0/0`. Il peut aussi contenir une instruction très précise, par exemple « pour cette seule adresse, utilise tel centre ». Cette route d’hôte, souvent représentée par `/32` en IPv4, est plus spécifique qu’une route vers tout un réseau. Lorsque plusieurs instructions correspondent, le routeur retient normalement la plus spécifique, car elle décrit plus précisément la destination.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -371,7 +365,6 @@ Une fois la route sélectionnée, le routeur détermine le prochain saut et l’
                                        Transmettre le paquet
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -627,7 +620,6 @@ Lorsque le problème est plus complexe, des captures ou des commandes de diagnos
 
 > **Astuce :** Pour vérifier une route statique, pose-toi toujours trois questions dans cet ordre : « La route apparaît-elle dans `show running-config` ? », « Est-elle installée dans `show ip route` ? », puis « Le prochain saut et le chemin de retour fonctionnent-ils ? ». Cette séquence distingue rapidement une erreur de configuration, un problème d’installation et un problème de transfert.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -752,7 +744,6 @@ Le but est d’isoler chaque couche plutôt que de modifier plusieurs routes san
 
 > **Danger :** Une route statique trop large ou une route par défaut incorrecte peut détourner le trafic d’une grande partie du réseau. Avant de modifier une route en production, vérifie son préfixe exact, son prochain saut, les routes concurrentes, les chemins retour et l’impact potentiel sur les utilisateurs. Conserve la configuration précédente et prépare une procédure de retour arrière. Ne considère jamais le simple fait qu’une commande est acceptée par l’équipement comme une preuve que le routage est correct.
 
----
 
 ## Points à retenir
 
@@ -762,7 +753,6 @@ Le but est d’isoler chaque couche plutôt que de modifier plusieurs routes san
 
 - **Une route statique doit être vérifiée dans les deux sens et sur tout le chemin.** Valide les interfaces, les prochains sauts, les routes de retour, la table installée et la connectivité de bout en bout. Documente les changements et prépare un retour arrière, surtout lorsqu’ils concernent une route par défaut ou une destination critique.
 
----
 
 ## Références techniques
 

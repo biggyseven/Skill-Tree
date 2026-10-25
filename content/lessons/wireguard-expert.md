@@ -10,7 +10,6 @@ Les exemples sont centrés sur Linux avec `wireguard-tools`, `iproute2`, `nftabl
 
 > **Piège :** un handshake récent ne signifie pas « VPN opérationnel ». Il indique qu’un échange cryptographique est récent entre deux clés configurées. La route du LAN, `AllowedIPs`, le forwarding Linux, le pare-feu, la MTU, le DNS et l’application restent des dépendances séparées.
 
----
 
 ## 1. Théorie et architecture experte
 
@@ -192,7 +191,6 @@ Une approche d’exploitation experte utilise plusieurs niveaux d’observation.
 <path d="M235 132 H278" class="flow flow-blue"/><path d="M483 132 H526" class="flow flow-green"/><path d="M731 132 H774" class="flow flow-amber"/><circle cx="256" cy="132" r="4.5" class="packet" fill="#60a5fa"/><circle cx="504" cy="132" r="4.5" class="packet d1" fill="#4ade80"/><circle cx="752" cy="132" r="4.5" class="packet d2" fill="#fbbf24"/>
 <rect x="238" y="244" width="524" height="77" rx="12" class="blue" fill="#10243b" stroke="#60a5fa"/><text x="500" y="274" text-anchor="middle" class="title">Corrélation temporelle</text><text x="500" y="298" text-anchor="middle">peer + destination + interface + horodatage + résultat</text><text x="500" y="365" text-anchor="middle" class="small">Un handshake récent ne garantit pas la disponibilité d’une application.</text></svg><p class="wg-visual__caption" style="color:#cbd5e1">Une supervision fiable combine compteurs WireGuard, routes, règles de filtrage, pertes et sonde applicative. N’envoie jamais les clés privées ou les configurations contenant des secrets dans un SIEM.</p></div>
 
----
 
 ## 2. Configuration et pratique
 
@@ -372,7 +370,6 @@ La rotation se prépare comme un changement de configuration, pas comme une acti
 Pour une installation de production, collecte au minimum l’âge du dernier handshake par peer attendu, les octets reçus/envoyés, l’existence de l’interface, les routes critiques, les changements d’endpoint, les pertes d’interface, la santé du service distant et les changements de configuration. L’âge du handshake ne doit pas être alerté de la même manière pour un peer qui n’envoie rien pendant des jours et un site qui doit échanger continuellement. La sonde doit dépendre du rôle du peer et du niveau de service attendu.
 
 
----
 
 ## 3. Dépannage, sécurité et exploitation
 
@@ -519,7 +516,6 @@ Lors d’une panne, préserver les preuves avant de modifier l’état si cela n
 
 **Pistes :** le secondaire n’a pas la même politique de préfixes ; les règles firewall ne sont pas synchronisées ; le LAN distant a une route de retour vers l’ancien hub ; un service dépend d’une IP source autorisée ; le contrôle HA vérifie seulement le port UDP. Valide le chemin aller/retour, la politique d’accès et une sonde de l’application. La décision de bascule doit être basée sur des critères de santé définis, pas un seul indicateur WireGuard.
 
----
 
 ## 4. Procédures opérationnelles
 
@@ -561,7 +557,6 @@ Identifier tous les hubs et configurations où la clé publique est autorisée ;
 | Kill switch | Politique qui empêche la sortie hors tunnel du trafic qu’on veut protéger. |
 | Plan de contrôle | Gestion de l’état, des clés, des routes et des changements ; à distinguer des paquets applicatifs transportés. |
 
----
 
 ## Points à retenir
 
@@ -614,7 +609,6 @@ Identifier tous les hubs et configurations où la clé publique est autorisée ;
 
 **Correction :** élargir les critères de santé : vérifier handshake, routes, prefix mappings, firewall, service et route retour. Utiliser une sonde applicative indépendante et documenter le temps de convergence. Un contrôle du transport n’est pas une preuve de service disponible.
 
----
 
 ## Références et lectures complémentaires
 

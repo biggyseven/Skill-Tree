@@ -1,249 +1,553 @@
-# Qualité de Service (QoS) - Expert
+# QoS — Niveau Expert
 
-**Niveau :** Expert
+> **Fichier :** `qos-expert.md`  
+> **Parcours :** Réseaux — Expert  
+> **Prérequis :** maîtriser `qos-debutant.md` et `qos-intermediaire.md`, DiffServ, DSCP, MQC, LLQ/CBWFQ, policing/shaping, HQoS, AQM/ECN et analyse des compteurs.  
+> **Objectif :** concevoir et exploiter une architecture QoS à grande échelle qui conserve un comportement prévisible à travers plusieurs domaines, plateformes, tunnels et goulots d’étranglement.
 
-**Prérequis :** QoS Intermédiaire (`qos-intermediaire.md`), solide maîtrise des protocoles WAN (MPLS, IPsec), de l'architecture d'interconnexion Data Center, de la théorie du contrôle de congestion TCP et de la ligne de commande CLI avancée (Cisco IOS-XE, NX-OS, Junos).
 
-Ce cours aborde la Qualité de Service sous l'angle de l'ingénierie système et réseau avancée. Il traite des architectures QoS dans les réseaux d'opérateurs (**MPLS Exp/Traffic Engineering**), des mécanismes matériels de buffering ASIC dans les commutateurs Data Center (**RoCEv2, ECN, PFC**), des algorithmes mathématiques du Token Bucket, ainsi que de l'implémentation de la QoS dynamique dans les architectures **SD-WAN**.
+## Objectifs pédagogiques
 
----
+À la fin de ce parcours, tu devrais pouvoir :
 
-## 1. Modélisation Mathématique des Algorithmes de Régulation (Token Bucket)
+- traduire des SLA applicatifs en budgets de latence, gigue, perte et débit par domaine ;
+- concevoir une stratégie DiffServ multi-domaines sans supposer que les DSCP sont préservés partout ;
+- raisonner sur l’interaction entre politique logique, programmateur matériel, buffers, files et interfaces ;
+- dimensionner et vérifier la voix, la vidéo interactive, le trafic transactionnel, le transfert massif et le contrôle réseau ;
+- concevoir HQoS pour un service agrégé et analyser les effets d’un shaping au mauvais niveau ;
+- décider où utiliser LLQ, CBWFQ, policing, shaping, WRED, ECN et des files équitables par flux ;
+- traiter QoS au travers de MPLS, d’IPsec, de GRE, du SD-WAN, du Wi-Fi et de frontières opérateur ;
+- établir une campagne de test reproductible, collecter les preuves et conduire un changement avec retour arrière ;
+- diagnostiquer une dégradation end-to-end sans confondre perte physique, congestion, limitation de débit et problème applicatif ;
+- documenter une politique comme un contrat opérationnel maintenable.
 
-La régulation du débit (*Policing* et *Shaping*) s'appuie sur le modèle algorithmique du **Jeton de Seau** (*Token Bucket*).
+## Positionnement de ce niveau
 
-```
-                 MÉCANISME DU TOKEN BUCKET (SINGLE RATE 2-COLOR)
+Le niveau expert n’est pas une collection d’options avancées. Il traite des systèmes dans lesquels plusieurs fonctions interagissent : une classe peut être reconnue correctement, mais ne pas être envoyée vers la file matérielle attendue ; le DSCP peut être conservé dans l’en-tête interne mais réécrit dans l’en-tête du tunnel ; une LLQ peut rendre la voix meilleure au prix d’une famine pour une autre classe ; un lien peut afficher 0 % de drops dans le routeur alors que le goulot d’étranglement se situe chez l’opérateur. La méthode consiste à rendre chaque hypothèse vérifiable.
 
-       Arrivée de jetons au débit CIR
-                 │
-                 ▼
-       ┌───────────────────┐
-       │     RESERVOIR     │
-       │   (Capacité Bc)   │
-       └─────────┬─────────┘
-                 │
-                 ▼
-     [ Paquet de taille B octets ]
-                 │
-        ┌────────┴────────┐
-        │ Jetons $\ge$ B ? │
-        └───┬─────────┬───┘
-         OUI│         │NON
-            ▼         ▼
-     [ Conforme ]   [ Non-Conforme ]
-     (Jetons -= B)   (Drop / Remarque)
-```
+Les exemples Cisco IOS/IOS XE de ce document sont des patrons pédagogiques. La syntaxe précise, les niveaux HQoS, les actions disponibles, le nombre de files et les limitations de programmation dépendent du modèle, de l’ASIC et de la version logicielle. Valide toujours la configuration dans le guide de la plateforme visée avant de l’appliquer en production.
 
-### Le Single Rate Three-Color Marker (srTCM - RFC 2697)
+## 1. Concevoir autour de SLO et de budgets de performance
 
-Le **srTCM** évalue le trafic selon trois couleurs (Vert, Jaune, Rouge) en utilisant un seul débit **CIR** (*Committed Information Rate*) et deux capacités de jetons : **Bc** (*Committed Burst Size*) et **Be** (*Excess Burst Size*).
+### 1.1 De la promesse métier au budget réseau
 
-#### Algorithme de calcul des jetons :
+Une application n’a généralement pas un unique objectif « QoS ». Elle peut avoir des exigences distinctes sur la latence de bout en bout, la variation de délai, les pertes, le débit minimal, le débit de pointe, les transactions réussies et la disponibilité. Il faut distinguer l’objectif applicatif, ce que le réseau peut influencer et ce qu’il ne peut pas promettre seul. La QoS ne compense pas un serveur saturé, un encodeur vidéo sous-dimensionné, une radio perturbée ou une route géographiquement trop longue.
 
-À chaque arrivée de paquet de taille $B$ octets au temps $t$ :
+Décomposer le budget de délai : délai de propagation, sérialisation, traitement, mise en file et traitement applicatif. La QoS agit surtout sur le traitement de congestion et, indirectement, sur l’attente devant une file. Elle ne réduit pas la distance physique et ne peut pas créer du débit à un goulot d’étranglement déjà saturé.
 
-1. Les jetons sont ajoutés aux réservoirs $C$ (capacité $Bc$) et $E$ (capacité $Be$) selon le temps écoulé $\Delta t$ :
-   $$T_C(t) = \min(Bc, T_C(t_{prev}) + CIR \times \Delta t)$$
-   $$T_E(t) = \min(Be, T_E(t_{prev}) + (CIR \times \Delta t - (Bc - T_C(t_{prev}))))$$
+Pour chaque SLO, précise : source et destination, chemin, sens, période, percentile, population, méthode de mesure, valeur de référence, seuil d’alerte et critère de sortie. La moyenne seule est souvent insuffisante : une moyenne stable peut masquer des microbursts ou un p99 dégradé. Un RTT applicatif ne doit pas être interprété comme une mesure unidirectionnelle de la gigue.
 
-2. **Évaluation de la conformité :**
-   * **Vert (Conform) :** Si $T_C(t) \ge B \implies$ Le paquet passe, $T_C = T_C - B$.
-   * **Jaune (Exceed) :** Si $T_C(t) < B$ et $T_E(t) \ge B \implies$ Le paquet passe mais est remarqué (ex: AFx1 $\to$ AFx3), $T_E = T_E - B$.
-   * **Rouge (Violate) :** Si $T_E(t) < B \implies$ Le paquet est supprimé (*Drop*).
+### Schéma 1 — Architecture de décision QoS
 
----
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Architecture de décision QoS"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Architecture de décision QoS</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Partir du service rendu, pas des commandes</text><rect x="35" y="155" width="185" height="106" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="127.5" y="201.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">1. Intention</text><text x="127.5" y="225.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">SLO + application</text><rect x="270" y="155" width="185" height="106" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="362.5" y="201.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">2. Politique</text><text x="362.5" y="225.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">classes + contrat</text><rect x="505" y="155" width="185" height="106" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="597.5" y="201.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">3. Mécanismes</text><text x="597.5" y="225.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">queues / AQM</text><rect x="740" y="155" width="185" height="106" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="832.5" y="201.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">4. Ressources</text><text x="832.5" y="225.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">ASIC / buffers</text><rect x="975" y="155" width="185" height="106" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1067.5" y="201.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">5. Preuve</text><text x="1067.5" y="225.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">mesures + test</text><line x1="220" y1="208" x2="268" y2="208" stroke="#93c5fd" stroke-width="3"/><polygon points="268.0,208.0 255.0,201.0 255.0,215.0" fill="#93c5fd"/><line x1="455" y1="208" x2="503" y2="208" stroke="#93c5fd" stroke-width="3"/><polygon points="503.0,208.0 490.0,201.0 490.0,215.0" fill="#93c5fd"/><line x1="690" y1="208" x2="738" y2="208" stroke="#93c5fd" stroke-width="3"/><polygon points="738.0,208.0 725.0,201.0 725.0,215.0" fill="#93c5fd"/><line x1="925" y1="208" x2="973" y2="208" stroke="#93c5fd" stroke-width="3"/><polygon points="973.0,208.0 960.0,201.0 960.0,215.0" fill="#93c5fd"/><text x="600" y="324" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" text-anchor="middle">Une politique n’est réussie que si le traitement mesuré correspond au SLO.</text><text x="600" y="358" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">Configuration, programmation matérielle et chemin réel du paquet doivent concorder.</text></svg>
 
-## 2. QoS dans les Réseaux Opérateurs et MPLS
+### 1.2 Construire un budget par domaine
 
-Dans un réseau MPLS, les en-têtes IP d'origine sont masqués par un ou plusieurs labels MPLS. Le champ **DSCP** (6 bits) n'est plus directement accessible aux routeurs du cœur du réseau (*P Routers*).
+Pour un appel vocal, une visioconférence et une transaction critique, construis des budgets séparés. Le budget réseau s’applique au trajet effectivement emprunté ; le budget d’application inclut le terminal et le serveur. Ne répartis pas arbitrairement un budget total en parts égales entre les routeurs : les délais de sérialisation et de propagation des liens, le nombre de sauts et la congestion probable varient. La règle doit être fondée sur des mesures ou un modèle documenté.
 
-```
-                    EN-TÊTE DU LABEL MPLS (32 Bits)
+Une table exploitable peut contenir : classe logique, population, DSCP d’entrée, action au domaine de confiance, traitement aux nœuds clés, débit et rafales attendus, réservation/ordonnancement, protection contre l’abus, métriques, et équipes propriétaires. Elle doit aussi préciser ce qui arrive au trafic inconnu ou mal marqué.
 
-   ┌───────────────────────────────────┬───────────┬───┬───────────┐
-   │          LABEL (20 bits)          │ TC (3 bits│ S │ TTL (8b)  │
-   └───────────────────────────────────┴─────┬─────┴───┴───────────┘
-                                             │
-                                  Anciennement nommé EXP
-                                (Traffic Class / 8 bits CoS)
-```
+### 1.3 Mesurer les goulots et la direction
 
-### Modèles d'Alignement QoS IP $\leftrightarrow$ MPLS
+Chaque mécanisme de mise en file est local à un point de sortie. Un policy egress sur le routeur A n’ordonnance pas la sortie du routeur B. Un shaping peut déplacer l’endroit où la congestion se matérialise, mais uniquement si son débit et ses paramètres sont cohérents avec le service qui suit. La visibilité doit inclure les deux sens : les flux applicatifs sont souvent asymétriques et le trafic retour peut emprunter un autre chemin.
 
-```
-              COMPARAISON DES MODÈLES MPLS QOS
+## 2. DiffServ à travers plusieurs domaines administratifs
 
- 1. UNIFORM MODEL (Modifications propagées bout-en-bout)
-    [ IP DSCP ] ──(Copy)──> [ MPLS TC ] ──(DiffServ)──> [ IP DSCP Modifié ]
+### 2.1 Le DSCP est un code de comportement, pas un billet garanti
 
- 2. PIPE MODEL (Préservation du marquage client)
-    [ IP DSCP Client ] ────> [ MPLS TC Opérateur ] ────> [ IP DSCP Client Intact ]
-                                (Utilisé dans le cœur)
+Le champ DS IP contient six bits de DSCP et deux bits réservés à ECN dans le champ DS. Le DSCP permet de choisir un *Per-Hop Behavior* dans un domaine qui a configuré ce mapping. Il ne réserve pas automatiquement une capacité, ne configure pas une file et ne garantit pas que le réseau d’un tiers conserve la valeur. Le comportement final dépend de la classification, du conditioning, du scheduler, des buffers et des règles de frontière.
 
- 3. SHORT-PIPE MODEL (Traitement local en sortie de réseau)
-    [ IP DSCP Client ] ────> [ MPLS TC Opérateur ] ────> [ Traitement d'Egress basé sur IP DSCP ]
-```
+Une architecture réaliste définit des domaines DiffServ : accès, cœur d’entreprise, WAN privé, Internet, cloud et domaines opérateur. Au passage d’une frontière, le contrat doit préciser si l’on conserve le DSCP, si l’on applique un mapping vers une classe locale, si l’on remplace le marquage ou si tout le trafic est ramené en best effort. Il faut éviter l’hypothèse qu’une valeur EF ou AF gardera partout une file et des garanties identiques.
 
-* **Uniform Model :** Utilisé lorsque le client et l'opérateur partagent le même domaine de confiance QoS. Si un routeur P remarque la valeur TC (ex: réjection WRED), la modification est copiée dans l'en-tête IP à la sortie du tunnel.
-* **Pipe Model :** L'opérateur applique sa propre politique QoS au niveau MPLS TC sans toucher au champ DSCP IP d'origine du client. Le traitement Egress du routeur PE de sortie est basé sur le label MPLS TC.
-* **Short-Pipe Model :** Similaire au Pipe Model, à la différence que le traitement Egress sur le routeur PE de destination s'effectue en fonction du champ DSCP IP d'origine du client et non du champ MPLS TC.
+### Schéma 2 — QoS multi-domaines
 
----
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="QoS multi-domaines"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">QoS multi-domaines</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Le marquage ne garantit pas à lui seul un comportement de bout en bout</text><rect x="28" y="153" width="175" height="104" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="115.5" y="198.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">LAN / campus</text><text x="115.5" y="221.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">classify + trust</text><rect x="270" y="153" width="175" height="104" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="357.5" y="198.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">WAN edge</text><text x="357.5" y="221.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">meter + remark</text><rect x="512" y="153" width="175" height="104" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="599.5" y="198.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Opérateur</text><text x="599.5" y="221.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">mapping contractualisé</text><rect x="754" y="153" width="175" height="104" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="841.5" y="198.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Cloud / VPN</text><text x="841.5" y="221.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">inner / outer DSCP</text><rect x="996" y="153" width="175" height="104" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1083.5" y="198.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Destination</text><text x="1083.5" y="221.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">valider le service</text><line x1="203" y1="205" x2="267" y2="205" stroke="#93c5fd" stroke-width="3"/><polygon points="267.0,205.0 254.0,198.0 254.0,212.0" fill="#93c5fd"/><line x1="445" y1="205" x2="509" y2="205" stroke="#93c5fd" stroke-width="3"/><polygon points="509.0,205.0 496.0,198.0 496.0,212.0" fill="#93c5fd"/><line x1="687" y1="205" x2="751" y2="205" stroke="#93c5fd" stroke-width="3"/><polygon points="751.0,205.0 738.0,198.0 738.0,212.0" fill="#93c5fd"/><line x1="929" y1="205" x2="993" y2="205" stroke="#93c5fd" stroke-width="3"/><polygon points="993.0,205.0 980.0,198.0 980.0,212.0" fill="#93c5fd"/><text x="600" y="315" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" text-anchor="middle">DSCP est un code de traitement : ce n’est pas une réservation de débit.</text><text x="600" y="350" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">Aux frontières, définir explicitement conserver, traduire, remarker ou rejeter.</text></svg>
 
-## 3. QoS Data Center : Ultra-faible Latence et Lossless Ethernet
+### 2.2 Établir une matrice de translation explicite
 
-Dans les Data Centers modernes supportant le stockage distribué (NVMe-oF) ou le calcul IA/HPC via **RoCEv2** (RDMA over Converged Ethernet), la perte de paquets est inacceptable.
+Il n’est pas nécessaire que chaque domaine utilise le même DSCP. Il faut surtout qu’il existe une table de correspondance connue entre classe de service et traitement. Une classe opérateur « Real-time » peut être contractuellement associée à EF, à un CoS Ethernet ou à un champ TC MPLS spécifique ; ce mapping doit être documenté et testé. La même valeur DSCP peut être traitée différemment par deux réseaux qui n’ont pas les mêmes politiques.
 
-```
-                  ARCHITECTURE LOSSLESS ETHERNET (RoCEv2)
+Pour toute translation, documente la classe d’origine, le marquage entrant, le mapping local, le marquage sortant, la règle de conservation à la décapsulation, les compteurs attendus et le propriétaire du comportement. Assure-toi que le traitement par défaut est explicite : les paquets non classés ne doivent ni entrer silencieusement dans une file prioritaire, ni être supprimés sans que ce comportement soit voulu.
 
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ 1. PFC (Priority-Based Flow Control - IEEE 802.1Qbb)             │
-  │    Pause par classe de CoS au lieu de pauser tout le lien L2.    │
-  ├──────────────────────────────────────────────────────────────────┤
-  │ 2. ECN (Explicit Congestion Notification - RFC 3168)              │
-  │    Marquage CE (Congestion Encountered) dans l'en-tête IP.        │
-  ├──────────────────────────────────────────────────────────────────┤
-  │ 3. DCBX (Data Center Bridging Exchange)                          │
-  │    Négociation LLDP des capacités QoS entre serveurs et switches.  │
-  └──────────────────────────────────────────────────────────────────┘
-```
+### 2.3 Frontières de confiance et stratégie anti-abus
 
-### Mécanisme combiné PFC et ECN/DCQCN
+Les terminaux ne sont pas systématiquement autorisés à déclarer leur trafic prioritaire. Le réseau d’accès peut vérifier la provenance (port, VLAN, identité, ACL, application reconnue), normaliser le marquage puis policer les classes qui ont un coût. Une source qui marque arbitrairement un transfert massif EF peut occuper la file prioritaire sans être de la voix. La défense combine classification fiable, limites de débit, compteurs, alertes et tests avec marquage falsifié.
 
-```
- [ Emetteur RoCEv2 ] ───────────────────────────────────────────> [ Commutateur DC ]
-         ▲                                                             │
-         │                                               (Congestion détectée via WRED)
-         │                                                             │
-         │                                                             ▼
-         │                                                 Marque le champ ECN = 11
-         │                                                 (Congestion Encountered)
-         │                                                             │
-         │               [ Paquet CNP (Notification) ]                 │
-         └─────────────────────────────────────────────────────────────┘
-                         (Reçu du destinataire,
-                          l'émetteur réduit son débit)
-```
+### 2.4 Contrôler la dérive de marquage
 
-1. **PFC (IEEE 802.1Qbb) :** Fonctionne au niveau de la couche 2. Lorsque le buffer d'une file d'attente spécifique d'un switch franchit le xoff threshold, une trame **PFC PAUSE** est envoyée à l'équipement en amont uniquement pour la classe de priorité impactée, sans bloquer le reste du trafic.
-2. **ECN (Explicit Congestion Notification) :** Utilisé conjointement avec WRED. Lorsque la file atteint le seuil minimum, au lieu de supprimer le paquet, le switch modifie les bits ECN dans l'en-tête IP ($11_2$). Le destinataire renvoie un paquet **CNP** (*Congestion Notification Packet*) pour que la source réduise le débit de transmission RoCEv2 de manière fluide.
+Le marquage peut dériver après une mise à jour d’application, un changement du profil téléphonique, un nouveau VPN ou une règle d’entreprise. Compare périodiquement les distributions DSCP observées avec les lignes de base ; une hausse brusque de EF, CS6 ou d’une classe AF peut révéler un changement légitime, une mauvaise configuration ou un abus. Les compteurs agrégés seuls n’identifient pas nécessairement l’application : combine-les avec les flows, les ACL, les captures et l’inventaire des applications en respectant la confidentialité.
 
----
+## 3. Politique logique versus comportement matériel
 
-## 4. QoS Dynamique dans les Architectures SD-WAN
+### 3.1 Le pipeline du paquet
 
-Dans les réseaux WAN traditionnels, les politiques QoS sont statiques. En **SD-WAN**, la QoS devient dynamique et réactive aux conditions de transport en temps réel.
+Sur un routeur ou un switch, la QoS peut être représentée par une chaîne logique : classifier, actions d’entrée, méta-données internes, affectation aux files, scheduler et sortie. Cette représentation ne signifie pas que toutes les plateformes emploient exactement ce pipeline ou exposent tous les compteurs. L’équipement peut programmer une partie de la classification dans l’ASIC et traiter certaines options dans le plan de contrôle ou sur un chemin logiciel spécifique.
 
-```
-              QOS DYNAMIQUE ET OVERLAY / UNDERLAY SD-WAN
+### Schéma 3 — Pipeline de traitement
 
-  [ Applications / VNF ]
-          │
-          ▼  (Classification Applicative DPI / NBAR2)
-  ┌───────────────────────────────┐
-  │  SD-WAN Edge Controller       │
-  ├───────────────────────────────┤  Probes BFD (Latence, Gigue, Loss)
-  │ Dynamic Path Selection (AAR)  │ <────────────────────────────────┐
-  └──────────────┬────────────────┘                                  │
-                 │                                                   │
-        ┌────────┴────────┐                                          │
-        ▼                 ▼                                          │
- ┌─────────────┐   ┌─────────────┐                                   │
- │ WAN1 (MPLS) │   │ WAN2 (INET) │ ──────────────────────────────────┘
- └─────────────┘   └─────────────┘
-```
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Pipeline de traitement d’un paquet"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Pipeline de traitement d’un paquet</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Classifier → actions → files logiques → scheduler matériel</text><rect x="30" y="165" width="160" height="95" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="110.0" y="205.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Ingress</text><text x="110.0" y="229.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">classifier</text><line x1="190" y1="212" x2="250" y2="212" stroke="#93c5fd" stroke-width="3"/><polygon points="250.0,212.0 237.0,205.0 237.0,219.0" fill="#93c5fd"/><rect x="255" y="130" width="205" height="160" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="357.5" y="191.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Classify</text><text x="357.5" y="215.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">mark / policer</text><text x="357.5" y="239.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">internal metadata</text><line x1="460" y1="212" x2="520" y2="212" stroke="#93c5fd" stroke-width="3"/><polygon points="520.0,212.0 507.0,205.0 507.0,219.0" fill="#93c5fd"/><rect x="530" y="102" width="210" height="42" rx="8" fill="#132238" stroke="#4ade80" stroke-width="2"/><text x="635" y="129" fill="#4ade80" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Priority</text><rect x="530" y="160" width="210" height="42" rx="8" fill="#132238" stroke="#60a5fa" stroke-width="2"/><text x="635" y="187" fill="#60a5fa" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Assured A</text><rect x="530" y="218" width="210" height="42" rx="8" fill="#132238" stroke="#c084fc" stroke-width="2"/><text x="635" y="245" fill="#c084fc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Assured B</text><rect x="530" y="276" width="210" height="42" rx="8" fill="#132238" stroke="#94a3b8" stroke-width="2"/><text x="635" y="303" fill="#94a3b8" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Default</text><line x1="740" y1="212" x2="800" y2="212" stroke="#93c5fd" stroke-width="3"/><polygon points="800.0,212.0 787.0,205.0 787.0,219.0" fill="#93c5fd"/><rect x="805" y="158" width="155" height="105" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="882.5" y="203.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Scheduler</text><text x="882.5" y="227.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">hardware queue</text><line x1="960" y1="212" x2="1020" y2="212" stroke="#93c5fd" stroke-width="3"/><polygon points="1020.0,212.0 1007.0,205.0 1007.0,219.0" fill="#93c5fd"/><rect x="1025" y="165" width="145" height="95" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1097.5" y="205.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Egress</text><text x="1097.5" y="229.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">link</text><text x="600" y="385" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">La policy visible en CLI ne prouve pas toujours que les files matérielles sont programmées comme attendu.</text></svg>
 
-### Concepts Clés :
+### 3.2 Pourquoi `show running-config` ne suffit pas
 
-* **Per-Packet Site-to-Site Performance Monitoring :** Utilisation de sondes BFD (*Bidirectional Forwarding Detection*) injectées dans les tunnels IPsec pour mesurer la latence, la gigue et la perte de paquets toutes les millisecondes.
-* **AAR (Application-Aware Routing) :** Basculement dynamique d'un flux applicatif (ex: Zoom, Microsoft 365) d'un lien à un autre sans rupture de session si un SLA QoS est franchi.
-* **Adaptive Shaping / Rate Adaptation :** Ajustement dynamique de la valeur du *shaper* en sortie de l'équipement SD-WAN en cas de variation de la bande passante disponible sur un lien Internet grand public (ex: 4G/5G ou liaison Satellite Starlink).
+La configuration montre l’intention, pas nécessairement la programmation réalisée. Certaines fonctions peuvent être non supportées sur une interface donnée, exiger un mode de QoS particulier, entrer en conflit avec une autre fonction matérielle ou consommer une ressource partagée de l’ASIC. Selon la plateforme, le diagnostic inclut la politique attachée, ses compteurs, l’état de la QoS matérielle, la correspondance classe-vers-file, l’occupation des buffers, les drops et les statistiques du port.
 
----
+Une méthode rigoureuse est de comparer la policy prévue, l’état après programmation, les compteurs qui augmentent avec un trafic connu et un test applicatif. Si la classe `VOICE` compte zéro paquet alors que la capture voit des flux EF, examine d’abord l’interface, la direction, les critères de match et la présence d’un remarking en amont avant de changer le scheduler.
 
-## 5. Cas Pratique d'Ingénierie : Configuration Avancée Opérateur/Enterprise
+### 3.3 Compteurs, granularité et échantillonnage
 
-Voici une configuration complète sur **Cisco IOS-XE (Router ASR 1000)** implémentant un marquage à deux débits/trois couleurs (srTCM), du shaping hiérarchique (HQoS) et l'activation d'ECN.
+Certains compteurs sont agrégés par classe, d’autres par file physique, par ASIC, par port ou par type de drop. Une statistique moyenne peut cacher des microbursts si l’intervalle de collecte est long. Prends des snapshots avant et après un test de durée connue, calcule les deltas et associe-les à l’horodatage de la mesure applicative. Vérifie si le compteur compte les paquets, les octets, les drops en entrée ou les drops d’ordonnancement.
 
-```
-! =================================================================
-! 1. CLASSIFICATION AVANCÉE VIA NBAR2 ET ACL
-! =================================================================
-class-map match-any CM_VOICE_CRITICAL
- match protocol rtp audio
- match ip dscp ef
+## 4. HQoS à grande échelle
 
-class-map match-any CM_REALTIME_VIDEO
- match protocol zoom
- match protocol ms-teams
+### 4.1 Séparer le service agrégé et les classes internes
 
-class-map match-all CM_BULK_DATA
- match protocol ftp
- match protocol bittorrent
+HQoS est utile lorsque plusieurs classes partagent un service contractuel. La policy parent impose généralement un débit agrégé via shaping ; la policy enfant arbitre entre les classes à ce point de sortie. Le parent protège le débit acheté, tandis que l’enfant peut préserver les besoins de voix, signalisation, vidéo et données. La relation exacte dépend du niveau de hiérarchie supporté : ne transpose pas une policy parent/enfant entre familles d’équipements sans vérification.
 
-! =================================================================
-! 2. POLICER TWO-RATE THREE-COLOR (2R3C - RFC 2698)
-! =================================================================
-policy-map PM_INGRESS_POLICING
- class CM_BULK_DATA
-  police cir 10000000 pir 20000000 conform-action transmit exceed-action set-dscp-transmit af13 violate-action drop
+### Schéma 4 — HQoS parent / enfant
 
-! =================================================================
-! 3. POLITIQUE HIÉRARCHIQUE HQOS (CHILD & PARENT POLICY)
-! =========================================================
-! Politique Fille (Child Policy) : Allocation par classe
-policy-map PM_CHILD_QUEUING
- class CM_VOICE_CRITICAL
-  priority level 1
-  police cir percent 10
-  
- class CM_REALTIME_VIDEO
-  priority level 2
-  police cir percent 20
-  
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="HQoS parent / enfant"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">HQoS parent / enfant</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Le parent plafonne le service ; les classes enfant arbitrent la congestion</text><rect x="40" y="142" width="190" height="112" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="135.0" y="191.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Débit accès</text><text x="135.0" y="215.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">1 Gb/s physique</text><line x1="230" y1="198" x2="290" y2="198" stroke="#93c5fd" stroke-width="3"/><polygon points="290.0,198.0 277.0,191.0 277.0,205.0" fill="#93c5fd"/><rect x="295" y="100" width="330" height="85" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="460.0" y="135.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Parent shaper</text><text x="460.0" y="159.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">ex. 95 Mb/s au débit opérateur</text><line x1="460" y1="185" x2="460" y2="222" stroke="#93c5fd" stroke-width="3"/><polygon points="460.0,222.0 467.0,209.0 453.0,209.0" fill="#93c5fd"/><rect x="285" y="220" width="690" height="122" rx="14" fill="#0f1c2f" stroke="#2dd4bf" stroke-width="2"/><text x="630" y="245" fill="#5eead4" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Policy enfant : ordonnancement par classe</text><rect x="305" y="264" width="150" height="54" rx="12" fill="#15263b" stroke="#4ade80" stroke-width="2"/><text x="380.0" y="295.76" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">LLQ</text><rect x="470" y="264" width="150" height="54" rx="12" fill="#15263b" stroke="#60a5fa" stroke-width="2"/><text x="545.0" y="295.76" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Assurée A</text><rect x="635" y="264" width="150" height="54" rx="12" fill="#15263b" stroke="#c084fc" stroke-width="2"/><text x="710.0" y="295.76" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Assurée B</text><rect x="800" y="264" width="150" height="54" rx="12" fill="#15263b" stroke="#94a3b8" stroke-width="2"/><text x="875.0" y="295.76" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Best effort</text><line x1="975" y1="280" x2="1030" y2="280" stroke="#93c5fd" stroke-width="3"/><polygon points="1030.0,280.0 1017.0,273.0 1017.0,287.0" fill="#93c5fd"/><rect x="1035" y="245" width="130" height="72" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1100.0" y="274.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">WAN</text><text x="1100.0" y="297.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">sortie</text><text x="600" y="391" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Architecture conceptuelle : vérifier le nombre de niveaux et les actions supportées par la plateforme.</text></svg>
+
+### 4.2 Calculer le débit de shaping avec les bonnes unités
+
+Le débit physique Ethernet n’est pas nécessairement le débit utile mesuré par le fournisseur. Les encapsulations, VLAN, PPPoE, IPsec, GRE, MPLS, préambule, inter-frame gap et façon dont le fournisseur facture le service peuvent changer le point de comparaison. Le shaping doit cibler le goulot d’étranglement connu, pas une valeur choisie uniquement pour rendre les compteurs locaux non nuls.
+
+Si le fournisseur garantit un CIR et un profil de rafales, détermine avec lui si le policer observe les octets IP ou une taille d’encapsulation plus large. Commence par une marge justifiée, puis valide le débit utile, la latence de file et les drops sous charge. Trop bas, le shaping réduit inutilement le débit ; trop haut, il peut laisser le policer du fournisseur supprimer des paquets sans contrôle local.
+
+### 4.3 Dimensionner les classes d’une policy enfant
+
+Les garanties doivent être cohérentes avec la capacité parent. Il ne suffit pas d’additionner des pourcentages en supposant que chaque classe recevra sa valeur comme une réservation absolue dans toutes les conditions. Il faut vérifier le comportement de la plateforme quand certaines classes sont inactives, quand la priorité atteint son plafond, quand le parent est saturé et quand plusieurs files d’une même classe débordent.
+
+Le test doit inclure des périodes où la voix est absente, des périodes de charge voix maximale prévue et des rafales de données. Contrôle que l’inactivité d’une classe permet aux autres de consommer la ressource si le scheduler est conçu pour le faire, et que la classe par défaut garde une progression acceptable en situation de congestion.
+
+## 5. LLQ, CBWFQ et équité avancée
+
+### 5.1 La priorité stricte n’est pas un SLA illimité
+
+LLQ sert à réduire l’attente pour du trafic temps réel, mais une file prioritaire mal maîtrisée peut pénaliser toutes les autres classes. Le budget doit provenir du nombre maximal de sessions, du codec et de son packetization, des octets réellement transmis, de l’overhead et d’une marge calculée. Il faut inclure les rafales et le trafic d’appel de contrôle dans la planification, sans faire passer tout trafic faible latence dans la même classe par commodité.
+
+### Schéma 5 — Arbitrage des files
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Arbitrage LLQ / CBWFQ / default"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Arbitrage LLQ / CBWFQ / default</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Une priorité mal contrôlée peut protéger une classe et dégrader tout le reste</text><rect x="35" y="175" width="170" height="100" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="120.0" y="218.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Trafic classé</text><text x="120.0" y="242.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">match confirmé</text><line x1="205" y1="225" x2="250" y2="225" stroke="#93c5fd" stroke-width="3"/><polygon points="250.0,225.0 237.0,218.0 237.0,232.0" fill="#93c5fd"/><rect x="255" y="116" width="420" height="66" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="465.0" y="142.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Voix / LLQ</text><text x="465.0" y="166.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">priorité stricte, plafond impératif</text><rect x="255" y="199" width="420" height="66" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="465.0" y="225.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Classes garanties</text><text x="465.0" y="249.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">scheduler pondéré</text><rect x="255" y="282" width="420" height="66" rx="12" fill="#334155" stroke="#94a3b8" stroke-width="2"/><text x="465.0" y="308.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Default</text><text x="465.0" y="332.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">part résiduelle + protection</text><line x1="675" y1="225" x2="765" y2="225" stroke="#93c5fd" stroke-width="3"/><polygon points="765.0,225.0 752.0,218.0 752.0,232.0" fill="#93c5fd"/><rect x="770" y="172" width="165" height="105" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="852.5" y="217.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Scheduler</text><text x="852.5" y="241.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">arbitrage en sortie</text><line x1="935" y1="225" x2="995" y2="225" stroke="#93c5fd" stroke-width="3"/><polygon points="995.0,225.0 982.0,218.0 982.0,232.0" fill="#93c5fd"/><rect x="1000" y="175" width="165" height="100" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="1082.5" y="218.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Lien de sortie</text><text x="1082.5" y="242.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">capacité finie</text><text x="600" y="405" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">LLQ surchargée = délai ou famine pour les autres ; le plafond doit refléter un budget réel.</text></svg>
+
+### 5.2 Estimation illustrative du budget voix
+
+Un flux G.711 transporte 64 kbit/s de payload audio ; cela n’équivaut pas au débit réellement consommé sur le lien. Avec un paquet toutes les 20 ms, le payload fait 160 octets et il y a 50 paquets par seconde. Ajouter RTP/UDP/IP, les en-têtes de couche 2, le FCS, les périodes physiques ou l’encapsulation applicables. Le débit exact dépend de la technologie et de l’endroit où il est mesuré. Pour dimensionner la LLQ, effectue le calcul pour le nombre maximal d’appels simultanés par sens et intègre la signalisation dans la classe appropriée.
+
+Exemple simplifié : 50 paquets/s × 242 octets par trame comptabilisée × 8 = 96 800 bit/s pour un flux. Ce nombre suppose que 242 octets représentent le total observé sur le lien, avec l’overhead choisi dans le modèle. Si le point de mesure ou l’encapsulation diffère, refais le calcul. Cent appels donnent environ 9,68 Mbit/s dans ce modèle, avant marge. Ce n’est pas une valeur universelle à copier.
+
+### 5.3 CBWFQ et classes non prioritaires
+
+Une classe à bande passante garantie reçoit un traitement relatif au scheduler lorsque la ressource est disputée, mais la sémantique détaillée varie selon le mécanisme de planification. Vérifie la configuration de la classe par défaut et la façon dont la plateforme partage les ressources inutilisées. Une garantie sous congestion n’est pas la même chose qu’un débit fixe en toutes circonstances.
+
+### 5.4 Équité par flux, quand elle est disponible
+
+Les files par flux peuvent empêcher une seule connexion volumineuse de monopoliser une classe et offrir une expérience plus équitable aux petits flux interactifs. Elles reposent sur la possibilité d’identifier les flux et dépendent de ce qui est visible dans l’en-tête. Le chiffrement, les tunnels, les fragments IP, le matériel et les limites de suivi influencent leur efficacité. Elles n’annulent pas la nécessité de classifier les applications et de contrôler les ressources totales.
+
+## 6. Policing, shaping et conformité au contrat
+
+### 6.1 Trois actions ne répondent pas au même objectif
+
+Le policing mesure un profil et choisit une action immédiate sur les paquets non conformes : drop, remark ou transmission selon la politique. Le shaping met généralement des paquets en attente pour lisser le débit, jusqu’à la limite de tampon et de délai. Le remarking adapte la classe de traitement mais ne réduit pas à lui seul le débit. Les mélanger rend le diagnostic difficile si le contrat n’indique pas ce qui est attendu de chaque classe.
+
+### Schéma 6 — Policing et profils de trafic
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Policing avancé et profils de trafic"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Policing avancé et profils de trafic</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Définir le comportement des paquets conformes, excédentaires et très excédentaires</text><rect x="30" y="145" width="180" height="100" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="120.0" y="188.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Classification</text><text x="120.0" y="212.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">flux autorisé</text><line x1="210" y1="195" x2="265" y2="195" stroke="#93c5fd" stroke-width="3"/><polygon points="265.0,195.0 252.0,188.0 252.0,202.0" fill="#93c5fd"/><rect x="270" y="110" width="250" height="165" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="395.0" y="173.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Token bucket</text><text x="395.0" y="197.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">CIR / PIR</text><text x="395.0" y="221.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">Bc / Be ou rafales</text><line x1="520" y1="160" x2="590" y2="120" stroke="#4ade80" stroke-width="3"/><polygon points="590.0,120.0 575.2,120.4 582.2,132.5" fill="#4ade80"/><text x="555.0" y="112" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" text-anchor="middle">conforme</text><line x1="520" y1="215" x2="590" y2="264" stroke="#f87171" stroke-width="3"/><polygon points="590.0,264.0 583.4,250.8 575.3,262.3" fill="#f87171"/><text x="555.0" y="253" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" text-anchor="middle">excès</text><rect x="595" y="85" width="265" height="80" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="727.5" y="118.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Transmettre</text><text x="727.5" y="141.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">conserver la marque</text><rect x="595" y="240" width="265" height="80" rx="12" fill="#4c1d1d" stroke="#f87171" stroke-width="2"/><text x="727.5" y="273.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Remark / drop</text><text x="727.5" y="296.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">action de non-conformité</text><line x1="860" y1="125" x2="925" y2="125" stroke="#4ade80" stroke-width="3"/><polygon points="925.0,125.0 912.0,118.0 912.0,132.0" fill="#4ade80"/><line x1="860" y1="280" x2="925" y2="280" stroke="#f87171" stroke-width="3"/><polygon points="925.0,280.0 912.0,273.0 912.0,287.0" fill="#f87171"/><rect x="930" y="90" width="240" height="70" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="1050.0" y="118.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Compteurs</text><text x="1050.0" y="141.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">conform / exceed</text><rect x="930" y="245" width="240" height="70" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="1050.0" y="273.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Analyse</text><text x="1050.0" y="296.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">impact applicatif</text><text x="600" y="375" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Le policer applique immédiatement une action ; le shaper régule par mise en tampon.</text></svg>
+
+### 6.2 CIR, rafales et trafic à comportement en dents de scie
+
+Un profil de jetons définit le rythme et la quantité de trafic pouvant être transmis dans une période ou une rafale selon le modèle du policer. Une application peut être conforme sur une minute moyenne et dépasser le profil sur quelques millisecondes. C’est une raison pour laquelle les débits moyens ne suffisent pas à analyser les drops. Observe l’intervalle de collecte, les rafales, le packet size et la sémantique exacte des compteurs.
+
+### 6.3 Où placer le shaping
+
+Place un shaper sur le chemin réellement goulot d’étranglement afin que l’attente soit gérée là où tu peux mesurer et contrôler. Si le shaping est très au-dessus du débit aval, le fournisseur peut continuer à jeter les rafales. S’il est trop bas, il ajoute du délai et réduit l’utilisation. Si l’accès est variable, des paramètres statiques peuvent nécessiter une politique selon les profils ou les changements de capacité, mais cette automatisation doit rester bornée et auditée.
+
+## 7. AQM, WRED, ECN, bufferbloat et L4S
+
+### 7.1 Pourquoi le nombre de drops n’est pas l’unique indicateur
+
+Une file profonde peut ajouter de longs délais sans perte visible. Une interface qui affiche zéro drop peut encore souffrir de latence si les paquets attendent longtemps dans un buffer. À l’inverse, quelques drops peuvent être le comportement attendu d’un AQM qui signale tôt la congestion aux flux capables de réagir. Interprète les drops avec la taille de file, la latence, la retransmission, le débit utile et les mesures applicatives.
+
+### Schéma 7 — AQM et queueing delay
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="AQM, queueing delay et congestion"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">AQM, queueing delay et congestion</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Les files longues ajoutent de la latence même avant les pertes</text><text x="600" y="96" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">Profondeur de file — représentation qualitative</text><line x1="95" y1="325" x2="1105" y2="325" stroke="#94a3b8" stroke-width="2"/><line x1="95" y1="140" x2="95" y2="325" stroke="#94a3b8" stroke-width="2"/><text x="58" y="230" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" text-anchor="middle">File</text><line x1="110" y1="305" x2="270" y2="275" stroke="#60a5fa" stroke-width="4"/><line x1="270" y1="275" x2="430" y2="230" stroke="#60a5fa" stroke-width="4"/><line x1="430" y1="230" x2="590" y2="185" stroke="#60a5fa" stroke-width="4"/><line x1="590" y1="185" x2="750" y2="160" stroke="#60a5fa" stroke-width="4"/><line x1="750" y1="160" x2="910" y2="138" stroke="#60a5fa" stroke-width="4"/><line x1="910" y1="138" x2="1080" y2="126" stroke="#60a5fa" stroke-width="4"/><line x1="110" y1="305" x2="270" y2="280" stroke="#4ade80" stroke-width="4"/><line x1="270" y1="280" x2="430" y2="260" stroke="#4ade80" stroke-width="4"/><line x1="430" y1="260" x2="590" y2="250" stroke="#4ade80" stroke-width="4"/><line x1="590" y1="250" x2="750" y2="265" stroke="#4ade80" stroke-width="4"/><line x1="750" y1="265" x2="910" y2="250" stroke="#4ade80" stroke-width="4"/><line x1="910" y1="250" x2="1080" y2="260" stroke="#4ade80" stroke-width="4"/><text x="910" y="115" fill="#93c5fd" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Tail drop : accumulation</text><text x="875" y="290" fill="#86efac" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">AQM : gérer avant saturation</text><text x="600" y="367" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Courbes illustratives, sans échelle : le résultat dépend de l’algorithme, du trafic et de la configuration.</text></svg>
+
+### 7.2 WRED et classes de perte
+
+WRED est un mécanisme de gestion de congestion qui peut commencer à abandonner aléatoirement des paquets avant la saturation, selon des seuils et un profil. Les implémentations diffèrent sur la façon dont DSCP ou précédence IP définissent les courbes. Les seuils ne doivent pas être copiés d’une plateforme à l’autre : la taille des buffers, les unités, la granularité matérielle, les classes et les profils du trafic changent le résultat. WRED convient mieux aux flux élastiques qui réagissent à la perte ; ne l’applique pas sans analyse à une classe temps réel inélastique.
+
+### 7.3 ECN et signalisation sans perte
+
+ECN permet, lorsque les endpoints et le chemin le prennent en charge, de marquer un paquet comme signal de congestion au lieu de le perdre. Vérifie l’état ECN aux extrémités, l’algorithme qui génère le marquage, l’existence d’un bottleneck compatible et la réaction du transport. Le simple fait d’activer ECN sur une interface ne prouve pas que le chemin fonctionne comme attendu.
+
+### Schéma 8 — ECN
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="ECN et contrôle actif de congestion"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">ECN et contrôle actif de congestion</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Un marquage ECN n’est utile que si les endpoints et le chemin le prennent en charge</text><rect x="35" y="160" width="200" height="100" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="135.0" y="203.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">File congestionnée</text><text x="135.0" y="227.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">ECN-capable ?</text><line x1="235" y1="210" x2="300" y2="210" stroke="#93c5fd" stroke-width="3"/><polygon points="300.0,210.0 287.0,203.0 287.0,217.0" fill="#93c5fd"/><rect x="305" y="130" width="230" height="155" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="420.0" y="188.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">AQM</text><text x="420.0" y="212.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">seuil / algorithme</text><text x="420.0" y="236.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">état ECN du paquet</text><line x1="535" y1="165" x2="605" y2="125" stroke="#4ade80" stroke-width="3"/><polygon points="605.0,125.0 590.2,125.4 597.2,137.5" fill="#4ade80"/><text x="570.0" y="116" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" text-anchor="middle">ECN valide</text><line x1="535" y1="235" x2="605" y2="280" stroke="#f87171" stroke-width="3"/><polygon points="605.0,280.0 597.8,267.1 590.3,278.9" fill="#f87171"/><text x="570.0" y="270" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" text-anchor="middle">drop possible</text><rect x="610" y="90" width="250" height="75" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="735.0" y="121.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Marquage CE</text><text x="735.0" y="144.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">signal de congestion</text><rect x="610" y="250" width="250" height="75" rx="12" fill="#4c1d1d" stroke="#f87171" stroke-width="2"/><text x="735.0" y="281.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Perte paquet</text><text x="735.0" y="304.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">retransmission / réaction</text><line x1="860" y1="128" x2="925" y2="128" stroke="#4ade80" stroke-width="3"/><polygon points="925.0,128.0 912.0,121.0 912.0,135.0" fill="#4ade80"/><line x1="860" y1="287" x2="925" y2="287" stroke="#f87171" stroke-width="3"/><polygon points="925.0,287.0 912.0,280.0 912.0,294.0" fill="#f87171"/><rect x="930" y="88" width="235" height="80" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="1047.5" y="121.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Émetteur ECN</text><text x="1047.5" y="144.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">doit traiter le signal</text><rect x="930" y="250" width="235" height="80" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="1047.5" y="283.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Transport</text><text x="1047.5" y="306.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">réagit à la perte</text><text x="600" y="378" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">ECN ne supprime pas la congestion : il la signale sans perte lorsque le chemin le permet.</text></svg>
+
+### 7.4 L4S : technologie spécialisée à valider
+
+L4S vise une faible latence, une faible perte et un débit évolutif à travers des mécanismes de congestion utilisant ECN et une architecture de files associées. Il suppose des comportements spécifiques côté émetteur, classificateur et AQM. Ce n’est pas un alias DSCP universel ni une fonctionnalité à activer à l’aveugle. L’architecture IETF et les mécanismes DualQ sont spécifiés par plusieurs RFC ; l’interopérabilité dépend de la prise en charge de toute la chaîne. Dans un réseau d’entreprise, traite L4S comme un projet d’interopérabilité borné avec des endpoints et un chemin clairement identifiés, des tests de coexistence et un moyen de revenir au comportement classique.
+
+### Schéma 9 — L4S et DualQ
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="L4S et DualQ — extension spécialisée"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">L4S et DualQ — extension spécialisée</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Approche basse latence/ faible perte : vérifier le statut normatif et l’interopérabilité</text><rect x="30" y="135" width="210" height="110" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="135.0" y="183.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Émetteurs L4S</text><text x="135.0" y="207.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">congestion scalable</text><line x1="240" y1="190" x2="295" y2="190" stroke="#93c5fd" stroke-width="3"/><polygon points="295.0,190.0 282.0,183.0 282.0,197.0" fill="#93c5fd"/><rect x="300" y="105" width="220" height="170" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="410.0" y="172.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Classifier</text><text x="410.0" y="195.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">ECT(1) / CE</text><text x="410.0" y="218.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">selon RFC 9331</text><line x1="520" y1="155" x2="585" y2="130" stroke="#4ade80" stroke-width="3"/><polygon points="585.0,130.0 570.4,128.1 575.4,141.2" fill="#4ade80"/><line x1="520" y1="225" x2="585" y2="270" stroke="#60a5fa" stroke-width="3"/><polygon points="585.0,270.0 578.3,256.8 570.3,268.4" fill="#60a5fa"/><rect x="590" y="90" width="265" height="85" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="722.5" y="126.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Queue low-latency</text><text x="722.5" y="149.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">ECN marking</text><rect x="590" y="240" width="265" height="85" rx="12" fill="#334155" stroke="#94a3b8" stroke-width="2"/><text x="722.5" y="276.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Classic queue</text><text x="722.5" y="299.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">AQM classique</text><line x1="855" y1="130" x2="930" y2="190" stroke="#4ade80" stroke-width="3"/><polygon points="930.0,190.0 924.2,176.4 915.5,187.3" fill="#4ade80"/><line x1="855" y1="280" x2="930" y2="220" stroke="#94a3b8" stroke-width="3"/><polygon points="930.0,220.0 915.5,222.7 924.2,233.6" fill="#94a3b8"/><rect x="935" y="155" width="230" height="105" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="1050.0" y="201.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Bottleneck</text><text x="1050.0" y="224.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">DualQ coupled AQM</text><text x="600" y="375" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">L4S exige une prise en charge explicite et de bout en bout ; ce n’est pas une simple classe DSCP.</text></svg>
+
+## 8. QoS dans MPLS, tunnels, SD-WAN et cloud
+
+### 8.1 La question des en-têtes internes et externes
+
+Les tunnels ajoutent un en-tête externe et un nouveau point de classification. Le DSCP interne peut être préservé, copié, réécrit ou rendu invisible à certains équipements du transport. Le réseau sous-jacent applique ses propres files au trafic externe. Lorsque la congestion se produit sur l’underlay, un DSCP interne correct n’aide que si la politique extérieure le mappe au traitement approprié.
+
+### Schéma 10 — QoS des overlays
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="QoS dans un chemin overlay"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">QoS dans un chemin overlay</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Les en-têtes externe/interne peuvent avoir des traitements différents</text><rect x="25" y="150" width="180" height="100" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="115.0" y="193.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Application</text><text x="115.0" y="217.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">DSCP interne</text><line x1="205" y1="200" x2="260" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="260.0,200.0 247.0,193.0 247.0,207.0" fill="#93c5fd"/><rect x="265" y="115" width="220" height="170" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="375.0" y="182.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Classification</text><text x="375.0" y="205.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">trust boundary</text><text x="375.0" y="228.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">policies / tunnel</text><line x1="485" y1="200" x2="540" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="540.0,200.0 527.0,193.0 527.0,207.0" fill="#93c5fd"/><rect x="545" y="105" width="230" height="190" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="660.0" y="170.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Encapsulation</text><text x="660.0" y="193.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">en-tête externe</text><text x="660.0" y="216.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">DSCP/TC mapping</text><text x="660.0" y="239.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">chiffrement possible</text><line x1="775" y1="200" x2="830" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="830.0,200.0 817.0,193.0 817.0,207.0" fill="#93c5fd"/><rect x="835" y="150" width="160" height="100" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="915.0" y="193.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">WAN / cloud</text><text x="915.0" y="216.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">underlay QoS</text><line x1="995" y1="200" x2="1040" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="1040.0,200.0 1027.0,193.0 1027.0,207.0" fill="#93c5fd"/><rect x="1045" y="150" width="125" height="100" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1107.5" y="193.76" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Décap</text><text x="1107.5" y="215.76" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" text-anchor="middle">egress</text><text x="600" y="376" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Il faut vérifier le DSCP interne et externe, le remarking, l’overhead et la congestion réelle.</text></svg>
+
+Pour IPsec/GRE/SD-WAN, documente le traitement avant encapsulation, le DSCP outer, la valeur inner conservée, l’overhead de tunnel, les politiques de sortie et le traitement à la décapsulation. Si la classification ne peut pas inspecter l’en-tête intérieur, utilise une fonction de préclassification supportée ou un mapping configuré explicitement. Valide les deux sens ainsi que les chemins de secours.
+
+### 8.2 QoS sur MPLS
+
+La couche MPLS dispose d’un champ Traffic Class (TC), historiquement appelé EXP, utilisé par les équipements pour certains comportements QoS. Il comporte trois bits. Le mapping entre DSCP IP et TC MPLS n’est pas universel ; il est défini par le fournisseur, l’edge ou la politique. Vérifie le traitement à l’imposition du label, dans le cœur, au swap et à la sortie ; certaines opérations peuvent traiter différemment les labels internes et externes.
+
+### Schéma 11 — QoS sur MPLS
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="QoS sur VPN MPLS"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">QoS sur VPN MPLS</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">La classe client ne devient pas automatiquement la classe opérateur</text><rect x="25" y="150" width="170" height="100" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="110.0" y="193.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">IP client</text><text x="110.0" y="217.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">DSCP / classe</text><line x1="195" y1="200" x2="255" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="255.0,200.0 242.0,193.0 242.0,207.0" fill="#93c5fd"/><rect x="260" y="120" width="220" height="160" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="370.0" y="182.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Ingress PE</text><text x="370.0" y="205.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">classify + police</text><text x="370.0" y="228.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">map DSCP → TC</text><line x1="480" y1="200" x2="535" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="535.0,200.0 522.0,193.0 522.0,207.0" fill="#93c5fd"/><rect x="540" y="125" width="220" height="150" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="650.0" y="182.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Core MPLS</text><text x="650.0" y="205.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">TC + scheduler</text><text x="650.0" y="228.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">queue/drop policy</text><line x1="760" y1="200" x2="815" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="815.0,200.0 802.0,193.0 802.0,207.0" fill="#93c5fd"/><rect x="820" y="120" width="220" height="160" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="930.0" y="182.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Egress PE</text><text x="930.0" y="205.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">TC/DSCP mapping</text><text x="930.0" y="228.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">customer policy</text><line x1="1040" y1="200" x2="1085" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="1085.0,200.0 1072.0,193.0 1072.0,207.0" fill="#93c5fd"/><rect x="1090" y="155" width="75" height="90" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1127.5" y="205.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">CE</text><text x="600" y="367" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">TC (anciennement EXP dans la terminologie historique) a 3 bits : mapping explicite nécessaire.</text></svg>
+
+### 8.3 WAN et contrat opérateur
+
+Le contrat doit préciser le CIR, les rafales, la méthode de mesure, le point où les octets sont comptés, les classes reconnues et la manière dont les paquets excédentaires sont traités. Le shaping client est conçu à partir de ces données, puis testé sous charge. Si le fournisseur applique une politique différente de la politique convenue, documente les observations et corrèle-les avec les statistiques de frontière.
+
+### 8.4 Wi-Fi et WMM
+
+Le marquage IP ne représente pas à lui seul les contraintes radio. La correspondance DSCP vers User Priority et catégorie d’accès WMM dépend du mapping et de la configuration ; la qualité perçue dépend également du temps d’antenne, des interférences, des retransmissions et de la charge. Analyse séparément la QoS radio et la QoS WAN, puis vérifie comment les catégories s’alignent aux autres domaines.
+
+### Schéma 12 — DSCP vers WMM
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Mapping QoS Wi‑Fi et WMM"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Mapping QoS Wi‑Fi et WMM</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Une classe Wi‑Fi n’est pas un débit réservé de bout en bout</text><rect x="30" y="135" width="210" height="115" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="135.0" y="185.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Terminal / AP</text><text x="135.0" y="209.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">DSCP IP</text><line x1="240" y1="192" x2="300" y2="192" stroke="#93c5fd" stroke-width="3"/><polygon points="300.0,192.0 287.0,185.0 287.0,199.0" fill="#93c5fd"/><rect x="305" y="110" width="220" height="165" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="415.0" y="174.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Mapping WLAN</text><text x="415.0" y="197.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">DSCP ↔ UP</text><text x="415.0" y="220.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">WMM access category</text><line x1="525" y1="192" x2="585" y2="192" stroke="#93c5fd" stroke-width="3"/><polygon points="585.0,192.0 572.0,185.0 572.0,199.0" fill="#93c5fd"/><rect x="590" y="130" width="220" height="125" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="700.0" y="174.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Radio</text><text x="700.0" y="197.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">contention medium</text><text x="700.0" y="220.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">airtime / retries</text><line x1="810" y1="192" x2="870" y2="192" stroke="#93c5fd" stroke-width="3"/><polygon points="870.0,192.0 857.0,185.0 857.0,199.0" fill="#93c5fd"/><rect x="875" y="135" width="290" height="115" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1020.0" y="174.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">LAN / WAN</text><text x="1020.0" y="197.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">mapping inverse éventuel</text><text x="1020.0" y="220.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">politique de sortie</text><text x="600" y="340" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">La priorité Wi‑Fi repose aussi sur le temps d’antenne, les retransmissions, la charge radio et le roaming.</text></svg>
+
+### 8.5 Réseaux de datacenter : microbursts, incast et trafic est-ouest
+
+Un datacenter peut disposer de liens à très haut débit dont les moyennes sur une minute paraissent faibles, alors que des rafales de quelques microsecondes remplissent les buffers d’un port de sortie. C’est fréquent avec les communications many-to-one, les barrières de synchronisation distribuées et les transferts simultanés vers un même serveur. Les drops peuvent augmenter sans qu’une moyenne d’interface élevée soit observée ; la collecte doit donc être suffisamment fine ou complétée par les compteurs matériels de queue et de buffer.
+
+Sépare trois questions : quel trafic arrive simultanément, où plusieurs flux convergent-ils, et quelles ressources partagées sont épuisées ? Une politique de priorité ne répare pas un oversubscription mal dimensionné ni un fan-in massif. Compare la capacité des ports d’entrée à celle du port de sortie, examine la distribution de trafic et vérifie la granularité des files matérielles. Une petite queue profonde peut réduire les drops mais allonger l’attente ; une queue courte peut réduire la latence au prix de drops sous rafales. Il faut mesurer le compromis.
+
+Dans un réseau Ethernet de datacenter, les mécanismes Data Center Bridging (DCB), ETS (Enhanced Transmission Selection) et PFC (Priority-based Flow Control) peuvent apparaître. PFC s’utilise avec prudence : il arrête temporairement une priorité au niveau lien, mais peut propager la congestion vers l’amont et créer des risques de dépendance circulaire ou de deadlock s’il est conçu sans contrôle. « Lossless » ne signifie ni latence basse ni absence de tout drop dans l’ensemble du chemin. Définis les classes lossless de façon limitée, teste les scénarios de panne et vérifie la compatibilité de bout en bout.
+
+### 8.6 Interactions entre QoS et politiques de sécurité
+
+Une classe QoS ne doit pas devenir un contournement du contrôle d’accès. Les applications peuvent être identifiées par des attributs chiffrés ou visibles, mais la classification peut être limitée lorsque l’en-tête transport n’est pas accessible. N’utilise pas une seule adresse IP ou un seul port comme identité durable d’une application cloud dont les points de présence changent. Associe QoS, identité, segmentation et règles de sécurité, tout en documentant la visibilité perdue au chiffrement. Une règle de sécurité qui bloque un flux ne doit pas être interprétée comme un problème d’ordonnancement ; inversement, un flux autorisé mais ralenti peut être soumis au policing ou au mauvais traitement de file.
+
+## 9. Calculs avancés et limites des modèles
+
+### 9.1 Délai de sérialisation
+
+Le délai de sérialisation d’un paquet de longueur L bits sur un lien R bit/s est `t = L / R`. Un paquet de 1500 octets sur un lien de 10 Mbit/s occupe le lien environ 1,2 ms, sans compter les autres overheads. Sur un lien lent, quelques paquets volumineux déjà en transmission peuvent provoquer un délai qui précède la file QoS, car un paquet ne peut généralement pas interrompre un paquet déjà sérialisé. Les mécanismes de fragmentation/interleaving ou de lien dédié peuvent être pertinents selon les technologies et support de plateforme.
+
+### 9.2 Budget voix calculé à partir du débit filaire
+
+Ne multiplie pas simplement le débit du codec par le nombre d’appels. Compte le payload, les en-têtes RTP/UDP/IP, les en-têtes Ethernet et la surcharge réelle du lien. Si une encapsulation s’ajoute, ajuste les octets par paquet. La taille exacte dépend de l’endroit où tu mesures et de la convention opérateur. Mesure si possible un appel connu dans un environnement contrôlé et compare le débit réel avec le calcul.
+
+### 9.3 Capacité utile et overhead des tunnels
+
+Un lien physique de 100 Mbit/s ne transporte pas 100 Mbit/s de payload applicatif. Les encapsulations, les couches 2/3 et les services de chiffrement consomment de la capacité. Les valeurs de MTU et MSS doivent être vérifiées pour empêcher fragmentation, pertes ou effets inattendus sur TCP. Le shaping doit viser la capacité contractuelle mesurée au bon niveau et non une valeur de débit purement nominale.
+
+### Schéma 13 — Débit physique vers utile
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Du débit physique au débit utile"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Du débit physique au débit utile</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Établir où se trouve le goulot d’étranglement réel</text><rect x="30" y="145" width="230" height="100" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="145.0" y="188.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Débit nominal</text><text x="145.0" y="212.44" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">interface physique</text><line x1="260" y1="195" x2="320" y2="195" stroke="#93c5fd" stroke-width="3"/><polygon points="320.0,195.0 307.0,188.0 307.0,202.0" fill="#93c5fd"/><rect x="325" y="105" width="235" height="180" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="442.5" y="165.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Overhead</text><text x="442.5" y="188.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">L2 / VLAN / PPP</text><text x="442.5" y="211.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">tunnel / crypto</text><text x="442.5" y="234.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">burst / police</text><line x1="560" y1="195" x2="620" y2="195" stroke="#93c5fd" stroke-width="3"/><polygon points="620.0,195.0 607.0,188.0 607.0,202.0" fill="#93c5fd"/><rect x="625" y="130" width="230" height="125" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="740.0" y="185.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Débit utile</text><text x="740.0" y="209.94" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" text-anchor="middle">service rate réel</text><line x1="855" y1="195" x2="915" y2="195" stroke="#93c5fd" stroke-width="3"/><polygon points="915.0,195.0 902.0,188.0 902.0,202.0" fill="#93c5fd"/><rect x="920" y="120" width="245" height="145" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1042.5" y="174.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Configurer shaping</text><text x="1042.5" y="197.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">en-dessous du bottleneck</text><text x="1042.5" y="220.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">selon mesure / contrat</text><text x="600" y="360" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Un chiffre en Mbit/s n’a de sens qu’avec son point de mesure et l’overhead inclus.</text></svg>
+
+### 9.4 Microbursts et limites de la moyenne
+
+La moyenne calculée sur plusieurs secondes est un outil de capacité, pas un détecteur universel de congestion instantanée. Une interface 100 Gb/s peut recevoir un burst synchronisé qui s’accumule dans un port de sortie même si son utilisation moyenne reste basse. Pour le diagnostiquer, collecte les compteurs de queue et de buffer au plus près du matériel, vérifie la période d’échantillonnage et recherche la corrélation avec les drops d’interface, les retransmissions et les événements applicatifs. Les plateformes n’exposent pas toutes la même granularité ; lorsque les compteurs sont insuffisants, un test contrôlé ou un outil de télémétrie plus fin peut être nécessaire.
+
+### 9.5 Produit bande passante-délai (BDP) et trafic longue distance
+
+Le produit bande passante-délai, ou BDP, est la quantité de données qui peut se trouver « en vol » à travers un chemin : `BDP = débit × RTT`. À 1 Gbit/s et 80 ms de RTT, le BDP vaut 80 Mbit, soit environ 10 Mo de données en vol. Si les fenêtres TCP, les buffers ou les contrôles de congestion ne permettent pas de maintenir suffisamment de données en vol, le débit peut rester faible sans que la QoS soit en cause. À l’inverse, augmenter aveuglément les buffers peut allonger la file et provoquer du bufferbloat. QoS, gestion des buffers et comportement de transport doivent donc être analysés ensemble.
+
+### 9.6 Sérialisation, fragmentation et petits paquets
+
+Sur des interfaces lentes, un paquet de grande taille déjà en cours de transmission peut retarder un paquet voix même si celui-ci se trouve dans la file prioritaire. Le scheduler ne peut pas toujours préempter une trame déjà sérialisée. Des mécanismes tels que la fragmentation/interleaving de couche 2 ne sont applicables que dans les contextes où ils sont pris en charge ; sur les liens modernes à haut débit, le problème peut être beaucoup moins important, mais l’overhead de petits paquets reste pertinent. Établis le calcul à partir de la longueur réellement transmise et du débit effectif.
+
+## 10. Mesure, télémétrie et assurance de service
+
+### 10.1 Trois catégories de preuves
+
+Les mesures applicatives (latence, qualité média, transactions réussies), les compteurs de routeur (classes, files, policers, shaping, drops) et les mesures de chemin (RTT, pertes, interface, IP SLA) répondent à des questions différentes. Une conclusion fiable associe les données par horodatage, direction, interface et chemin. Une seule source peut conduire à une fausse causalité.
+
+### Schéma 14 — Corrélation des mesures
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Assurance de service par corrélation"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Assurance de service par corrélation</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Application, compteurs de classes et mesures du chemin doivent partager le temps et le contexte</text><rect x="35" y="130" width="190" height="115" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="130.0" y="181.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">SLO applicatif</text><text x="130.0" y="204.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">RTT / pertes / gigue</text><line x1="225" y1="187" x2="280" y2="187" stroke="#93c5fd" stroke-width="3"/><polygon points="280.0,187.0 267.0,180.0 267.0,194.0" fill="#93c5fd"/><rect x="285" y="115" width="205" height="145" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="387.5" y="169.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Mesures réseau</text><text x="387.5" y="192.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">queue depth</text><text x="387.5" y="215.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">drops / ECN</text><line x1="490" y1="187" x2="545" y2="187" stroke="#93c5fd" stroke-width="3"/><polygon points="545.0,187.0 532.0,180.0 532.0,194.0" fill="#93c5fd"/><rect x="550" y="115" width="205" height="145" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="652.5" y="169.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Mesures équipement</text><text x="652.5" y="192.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">policy counters</text><text x="652.5" y="215.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">ASIC / interfaces</text><line x1="755" y1="187" x2="810" y2="187" stroke="#93c5fd" stroke-width="3"/><polygon points="810.0,187.0 797.0,180.0 797.0,194.0" fill="#93c5fd"/><rect x="815" y="115" width="160" height="145" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="895.0" y="181.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Corrélation</text><text x="895.0" y="204.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">temps + chemin</text><line x1="975" y1="187" x2="1025" y2="187" stroke="#93c5fd" stroke-width="3"/><polygon points="1025.0,187.0 1012.0,180.0 1012.0,194.0" fill="#93c5fd"/><rect x="1030" y="130" width="145" height="115" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1102.5" y="181.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Décision</text><text x="1102.5" y="204.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">preuve / action</text><text x="600" y="335" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Ne pas extrapoler une preuve locale en garantie de bout en bout sans couverture des autres domaines.</text></svg>
+
+### 10.2 Baseline, deltas et fréquence de collecte
+
+Avant un changement, enregistre une baseline pendant les périodes représentatives. Collecte les compteurs à intervalle approprié aux microbursts et conserve les deltas, pas seulement les valeurs cumulées depuis le dernier redémarrage. Vérifie la synchronisation des horloges et l’état des compteurs après un changement d’interface ou une bascule. Une collecte toutes les cinq minutes peut être utile pour la capacité mensuelle mais trop lente pour identifier une rafale de 100 ms.
+
+### 10.3 Mesures actives et passives
+
+Les mesures actives génèrent du trafic de test et peuvent vérifier le chemin entre deux points ; elles dépendent du traitement reçu par le test lui-même. Les mesures passives analysent le trafic existant, mais peuvent avoir des limites de visibilité sur les tunnels, le chiffrement ou l’échantillonnage. Ne compare pas des mesures qui n’utilisent pas le même chemin, la même classe ou la même direction.
+
+### 10.4 Tableau de bord utile
+
+Surveille par classe et interface : octets et paquets, débit, drops, profondeur ou délai de file si disponibles, compteurs de policing, utilisation du scheduler, erreurs physiques, retransmissions TCP observables, ECN CE et résultats SLO. Les métriques doivent déclencher une investigation, pas être considérées comme une preuve de faute sans corrélation. Un graphique moyen par interface peut masquer l’impact sur une classe particulière.
+
+### 10.5 Qualité des données de supervision
+
+Une télémétrie incorrecte peut conduire à une mauvaise décision QoS. Vérifie l’unité, le reset du compteur, les rollover, la période de collecte, les pertes de télémétrie et la synchronisation des horloges. Un taux de drops calculé sur un compteur cumulatif sans delta peut être présenté comme un événement soudain alors qu’il représente plusieurs jours. Un taux de queue peut utiliser des paquets, des octets ou des cellules matérielles selon le dispositif : ne juxtapose pas ces valeurs sans normalisation.
+
+Définis un schéma d’événement commun : identifiant d’équipement, interface, direction, classe logique, file matérielle si connue, horodatage, compteur brut, delta, débit de référence, version logicielle et fenêtre de calcul. Conserve le brut pour permettre une réanalyse. Si un événement est corrélé avec une mesure applicative, confirme la proximité temporelle et le même chemin. Ne transforme pas automatiquement toute hausse de drops en incident majeur : une AQM correctement configurée peut volontairement marquer ou supprimer des paquets élastiques dans des conditions définies.
+
+## 11. Automatisation, gouvernance et changement
+
+### 11.1 Traiter les policies comme du code
+
+Stocke la matrice de marquage, les class-maps, les policy-maps, les paramètres de shaping, les exceptions et les critères de validation dans un dépôt contrôlé. Utilise des modèles versionnés, une revue par pair et une comparaison avant/après. La configuration générée doit être adaptée au matériel, et le rendu final doit être audité. Le simple fait de générer la même configuration sur tous les équipements peut produire des erreurs si certains ports, débits ou ASIC ne supportent pas les mêmes fonctionnalités.
+
+### 11.2 Changements progressifs et rollback
+
+Commence par un pilote représentatif, un lien non critique ou un nombre limité de sites. Mesure le comportement de référence, applique la policy, vérifie le plan de contrôle et les compteurs, exécute une charge contrôlée et compare les résultats au SLO. Le rollback doit rétablir une configuration connue et doit être testé, pas seulement documenté. Précise le propriétaire du changement, la fenêtre, les seuils d’arrêt et la méthode pour confirmer que le rollback a fonctionné.
+
+### Schéma 15 — Déploiement gouverné
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Cycle de vie d’une politique QoS"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Cycle de vie d’une politique QoS</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">La QoS est une politique gouvernée et mesurée, pas un changement ponctuel</text><rect x="24" y="150" width="165" height="103" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="106.5" y="195.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Spécifier</text><text x="106.5" y="217.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" text-anchor="middle">SLO + classes</text><line x1="189" y1="200" x2="212" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="212.0,200.0 199.0,193.0 199.0,207.0" fill="#93c5fd"/><rect x="219" y="150" width="165" height="103" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="301.5" y="195.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Modéliser</text><text x="301.5" y="217.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" text-anchor="middle">chemins / goulots</text><line x1="384" y1="200" x2="407" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="407.0,200.0 394.0,193.0 394.0,207.0" fill="#93c5fd"/><rect x="414" y="150" width="165" height="103" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="496.5" y="195.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Implémenter</text><text x="496.5" y="217.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" text-anchor="middle">policy ciblée</text><line x1="579" y1="200" x2="602" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="602.0,200.0 589.0,193.0 589.0,207.0" fill="#93c5fd"/><rect x="609" y="150" width="165" height="103" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="691.5" y="195.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Tester</text><text x="691.5" y="217.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" text-anchor="middle">congestion / panne</text><line x1="774" y1="200" x2="797" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="797.0,200.0 784.0,193.0 784.0,207.0" fill="#93c5fd"/><rect x="804" y="150" width="165" height="103" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="886.5" y="195.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Surveiller</text><text x="886.5" y="217.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" text-anchor="middle">dérive / alertes</text><line x1="969" y1="200" x2="992" y2="200" stroke="#93c5fd" stroke-width="3"/><polygon points="992.0,200.0 979.0,193.0 979.0,207.0" fill="#93c5fd"/><rect x="999" y="150" width="165" height="103" rx="12" fill="#334155" stroke="#94a3b8" stroke-width="2"/><text x="1081.5" y="195.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Retirer</text><text x="1081.5" y="217.26" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" text-anchor="middle">retour arrière</text><text x="600" y="330" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Garder la matrice de marquage, versions, exception et rollback au même endroit.</text></svg>
+
+### 11.3 Détecter la dérive
+
+Les nouveaux logiciels, les migrations de VPN, les configurations WLAN et les changements opérateur peuvent faire varier la classification ou les mappings. Compare périodiquement la politique de référence et les politiques réellement déployées. Alerte sur des classes vides, des volumes EF inattendus, des drops qui progressent et des changements de taux de remarking. Évite les alertes sur seuils isolés sans tenir compte de la durée et du débit normal de la classe.
+
+### 11.4 Policy-as-code : contrôles à faire avant l’application
+
+Un modèle d’automatisation devrait exprimer l’intention, pas uniquement des chaînes de commandes. Par exemple, il peut décrire la classe applicative, les sources autorisées, le DSCP cible, le plafond, les métriques de validation et les plateformes compatibles. Un générateur rend ensuite les objets spécifiques à IOS XE ou à une autre famille. Avant d’appliquer la config, un pipeline peut contrôler : unicité des noms, classes sans match, priorités non plafonnées, pourcentages incompatibles, classes sans action, interfaces sans vitesse connue, mappings non approuvés et lignes de commande non supportées dans l’inventaire.
+
+Après déploiement, le contrôle doit comparer l’intention et la réalité : configuration présente, compteurs incrémentés par un trafic de test, files matérielles programmées si l’outil les expose, et critères SLO respectés. L’automatisation ne doit jamais remplacer un rollback testé, ni appliquer une modification globale sans canari et garde-fous.
+
+## 12. Laboratoire de synthèse : WAN multi-classes
+
+### 12.1 Topologie proposée
+
+Deux sites LAN communiquent à travers un routeur de sortie par site et un WAN simulé, contracté à 20 Mbit/s dans chaque sens. Les clients produisent de la voix, des transactions, de la vidéo et des transferts bulk. Le but n’est pas d’obtenir une configuration universelle ; il s’agit de formuler les hypothèses, appliquer une policy supportée par les routeurs du laboratoire et vérifier la preuve observable.
+
+### Schéma 16 — Topologie du laboratoire
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img" aria-label="Topologie de laboratoire multi-sites"><rect x="1" y="1" width="1198" height="468" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2"/><text x="600.0" y="38" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">Topologie de laboratoire multi-sites</text><text x="600.0" y="67" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="16" text-anchor="middle">Un WAN partagé permet de tester classes, shaping, mapping et asymétrie</text><rect x="25" y="155" width="175" height="110" rx="12" fill="#172554" stroke="#818cf8" stroke-width="2"/><text x="112.5" y="203.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Site A</text><text x="112.5" y="226.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">LAN / edge</text><line x1="200" y1="210" x2="260" y2="210" stroke="#93c5fd" stroke-width="3"/><polygon points="260.0,210.0 247.0,203.0 247.0,217.0" fill="#93c5fd"/><rect x="265" y="145" width="200" height="130" rx="12" fill="#123b3b" stroke="#2dd4bf" stroke-width="2"/><text x="365.0" y="192.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Edge A</text><text x="365.0" y="215.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">classify / shape</text><text x="365.0" y="238.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">DSCP policy</text><line x1="465" y1="210" x2="520" y2="210" stroke="#93c5fd" stroke-width="3"/><polygon points="520.0,210.0 507.0,203.0 507.0,217.0" fill="#93c5fd"/><rect x="525" y="130" width="200" height="160" rx="12" fill="#422006" stroke="#f59e0b" stroke-width="2"/><text x="625.0" y="192.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">WAN / provider</text><text x="625.0" y="215.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">class mappings</text><text x="625.0" y="238.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">queue / SLA</text><line x1="725" y1="210" x2="780" y2="210" stroke="#93c5fd" stroke-width="3"/><polygon points="780.0,210.0 767.0,203.0 767.0,217.0" fill="#93c5fd"/><rect x="785" y="145" width="200" height="130" rx="12" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/><text x="885.0" y="192.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Edge B</text><text x="885.0" y="215.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">verify markings</text><text x="885.0" y="238.1" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">queues / drops</text><line x1="985" y1="210" x2="1040" y2="210" stroke="#93c5fd" stroke-width="3"/><polygon points="1040.0,210.0 1027.0,203.0 1027.0,217.0" fill="#93c5fd"/><rect x="1045" y="155" width="125" height="110" rx="12" fill="#14532d" stroke="#4ade80" stroke-width="2"/><text x="1107.5" y="203.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Site B</text><text x="1107.5" y="226.6" fill="#f8fafc" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" text-anchor="middle">apps</text><text x="600" y="363" fill="#fbbf24" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Mesurer le trafic dans les deux directions : l’asymétrie est fréquente.</text></svg>
+
+### 12.2 Exemple de policy parent/enfant
+
+Les noms de classe ci-dessous sont illustratifs. La policy enfant représente l’ordonnancement par classe, tandis que la policy parent limite le débit agrégé. La syntaxe exacte, les capacités de nesting, les commandes d’inspection et les unités de `shape average` ou de `priority percent` doivent être validées pour la plateforme et IOS XE ciblés.
+
+```text
+class-map match-any REALTIME
+ match dscp ef
+!
+class-map match-any SIGNALING
+ match dscp cs5
+!
+class-map match-any INTERACTIVE
+ match dscp af21 af22 af23
+!
+class-map match-any BULK
+ match dscp af11 af12 af13
+!
+policy-map CHILD-WAN
+ class REALTIME
+  priority percent 10
+ class SIGNALING
+  bandwidth percent 5
+ class INTERACTIVE
+  bandwidth percent 25
+ class BULK
+  bandwidth percent 20
  class class-default
-  bandwidth remaining percent 100
-  random-detect dscp-based
-  random-detect dscp 0 20 40 10    ! Minimum, Maximum, Drop-Probability
-  random-detect ecn                ! Activation d'ECN (Explicit Congestion Notification)
-
-! Politique Mère (Parent Policy) : Shaping global de la sous-interface WAN
-policy-map PM_PARENT_HQOS
+  fair-queue
+!
+policy-map PARENT-WAN
  class class-default
-  shape average 100000000          ! Shaping global du lien physique à 100 Mbps
-  service-policy PM_CHILD_QUEUING
-
-! =================================================================
-! 4. APPLICATION ET OPTIMISATION DE L'INTERFACE
-! =================================================================
-interface GigabitEthernet0/0/0.100
- encapsulation dot1Q 100
- ip address 192.168.100.1 255.255.255.252
- service-policy input PM_INGRESS_POLICING
- service-policy output PM_PARENT_HQOS
+  shape average 19000000
+  service-policy CHILD-WAN
+!
+interface GigabitEthernet0/0/0
+ service-policy output PARENT-WAN
 ```
 
----
+**Ne pas appliquer cet exemple tel quel en production.** Les noms DSCP et le support de `match dscp` dans la forme listée dépendent de l’OS ; certaines plateformes peuvent demander plusieurs critères/commandes. Les pourcentages et la priorité doivent être calculés pour la capacité réelle et les besoins des classes. Une classe réservée ne signifie pas que le débit est garanti dans toutes les conditions, et une priorité stricte mal dimensionnée peut affecter les autres classes.
 
-## Synthèse comparative des technologies QoS Expert
+### 12.3 Exécuter le laboratoire
 
-| Domaine | Problématique Clé | Technologie Majeure | Solution QoS associée |
-| :--- | :--- | :--- | :--- |
-| **MPLS WAN** | Masquage des en-têtes IP dans le backbone | MPLS Traffic Class (TC) | Pipe, Short-Pipe, Uniform Models |
-| **Data Center / Storage** | Zero-Packet-Loss obligatoire pour NVMe/RoCE | IEEE 802.1Qbb / RFC 3168 | PFC (Priority Flow Control) + ECN/CNP |
-| **Enterprise WAN** | Congestion sur liens asymétriques | HQoS (Hierarchical QoS) | Parent-Child Shaping + LLQ Multi-niveau |
-| **SD-WAN** | Fluctuations des accès Internet publics | Application-Aware Routing | Sondes BFD dynamiques + Dynamic Shaping |
+1. Construis et documente le plan d’adressage et le débit simulé. Synchronise les horloges des équipements de mesure.
+2. Avant QoS, capture le débit, la latence, les pertes et les compteurs d’interface sous charge. Ne suppose pas que le routeur est le seul goulot.
+3. Vérifie le marquage avec des paquets connus ; teste aussi un flux qui prétend avoir un DSCP prioritaire sans être autorisé.
+4. Déploie la policy en fenêtre contrôlée. Inspecte l’attachement et les compteurs de classification et de sortie.
+5. Génére de la congestion en combinant voix synthétique, trafic interactif et bulk, séparément dans chaque sens.
+6. Observe les drops, le shaping, les classes garanties, l’équité du best effort et la mesure applicative. Compare les mêmes périodes et durées.
+7. Coupe un lien ou retire une route dans l’environnement de test ; mesure la convergence et vérifie que la nouvelle route applique bien la QoS.
+8. Teste le DSCP externe et interne si un tunnel est présent, puis vérifie la classe à la frontière de décapsulation.
+9. Répète après retour arrière. Documente les résultats et les écarts.
 
----
+### 12.4 Critères d’acceptation
 
-## Points à Retenir
+- Les paquets de test autorisés sont classés dans la classe prévue.
+- Les paquets non autorisés ne peuvent pas monopoliser une classe prioritaire.
+- La priorité respecte le budget calculé en charge maximale prévue.
+- Les classes interactives restent conformes aux SLO définis sous congestion.
+- Le best effort progresse et ne subit pas de famine non approuvée.
+- Les compteurs et mesures confirment le point de congestion réellement traité.
+- Le chemin de secours conserve un mapping connu et des résultats acceptables.
+- Le changement et le rollback sont reproductibles.
 
-1. **Token Bucket :** Le mécanisme mathématique sous-jacent au policing/shaping repose sur la gestion de réservoirs de jetons ($CIR, Bc, Be$).
-2. **QoS MPLS :** Le choix entre les modèles *Uniform*, *Pipe*, et *Short-Pipe* détermine si le marquage QoS du client est préservé ou synchronisé avec le réseau d'infrastructures de l'opérateur.
-3. **Lossless Ethernet (DC) :** RoCEv2 utilise **PFC** au niveau L2 pour bloquer les paquets sélectivement par classe et **ECN** au niveau L3/L4 pour avertir les émetteurs de réduire leur débit sans jeter de paquets.
-4. **HQoS (Hierarchical QoS) :** Structure indispensable pour appliquer un lissage global (*Shaping*) tout en maintenant un ordonnancement fin (*Queuing/Priority*) à l'intérieur du canal lissé.
-```
+### 12.5 Matrice de stress experte
 
-The **Expert** level module `qos-expert.md` completes the three-tier QoS learning path. Let me know if you would like to explore any of these topics further or create additional technical resources!
+Le laboratoire gagne en valeur lorsque chaque essai isole une variable. Exécute au minimum les scénarios suivants : (a) tous les flux arrivent simultanément en rafale ; (b) le trafic prioritaire atteint le plafond prévu ; (c) une classe garantie reste inactive tandis que la classe par défaut est chargée ; (d) une bascule déplace les flux sur une interface avec un autre débit ; (e) l’overhead d’un tunnel augmente après migration ; (f) une partie du trafic IPv6 utilise une classe différente ; (g) le collecteur perd quelques intervalles de télémétrie ; (h) un terminal tente d’usurper EF.
+
+Pour chaque scénario, écris avant l’essai la prédiction, les compteurs qui devraient changer, les SLO à observer et la condition d’arrêt. Après l’essai, compare la prédiction au résultat. Si les preuves sont contradictoires, ne marque pas le test comme réussi : identifie la différence de point de mesure, de direction, de fenêtre temporelle ou de granularité. Un test est reproductible uniquement si le débit, le profil des paquets, la durée et le chemin sont documentés.
+
+## 13. Études de cas expert
+
+### Cas 1 — La voix se dégrade mais la file LLQ ne montre aucun drop
+
+**Hypothèse première :** la voix n’est peut-être pas congestionnée à la sortie sur laquelle on regarde. Elle peut être retardée par une file d’entrée, un goulot chez l’opérateur, un tunnel ou un chemin retour différent. Vérifie l’horodatage, la direction, le point d’observation et la gigue réellement mesurée. Contrôle aussi la sérialisation sur un lien lent et le délai radio si le terminal est Wi-Fi.
+
+**Preuve recherchée :** corrélation entre la dégradation média et un compteur de file/port ou une mesure active au même moment et sur le même chemin. Si aucune congestion n’apparaît, élargis le diagnostic vers l’application et les endpoints plutôt que d’augmenter immédiatement la priorité.
+
+### Cas 2 — Le taux de EF augmente de dix fois après une migration
+
+**Causes possibles :** mapping incorrect, trust boundary manquante, nouveaux endpoints, application bulk qui utilise EF par défaut, ou remarking à un point de sortie. Identifie le port d’origine, compare la capture avant/après, vérifie le volume par flux et contrôle les compteurs LLQ. Ne diminue pas le plafond avant d’avoir compris si les flux sont légitimes et si la capacité d’appels prévue a changé.
+
+**Action :** restaurer un marquage fiable à la frontière, policer le trafic autorisé selon le contrat et surveiller le volume EF ainsi que l’impact sur les classes restantes.
+
+### Cas 3 — Les drops WAN se produisent malgré un shaping local
+
+Vérifie la valeur de shaping, la convention de mesure du fournisseur, la cadence des rafales, la taille des paquets, les encapsulations et le débit réel négocié. Compare les drops sur la policy locale avec les mesures ou rapports opérateur. Un shaper réglé au-dessus du taux effectif du fournisseur peut laisser passer des rafales que son policer rejettera. Un shaper trop bas peut réduire l’usage sans éliminer les drops provenant d’un autre goulot.
+
+### Cas 4 — La policy fonctionne en IPv4, pas en IPv6
+
+Vérifie si la classification couvre les deux familles, si le système traite le champ Traffic Class IPv6 et si le chemin matériel applique la policy. Teste avec des paquets IPv6 connus, regarde les compteurs de classe, puis compare les en-têtes à l’entrée et à la sortie. Vérifie aussi les tunnels et le mappage des marquages à chaque frontière. Évite de déduire le comportement IPv6 de la seule policy IPv4.
+
+### Cas 5 — Après une bascule, les statistiques QoS restent à zéro
+
+La policy peut ne pas avoir été appliquée à l’interface de secours, ou elle peut être liée à une sous-interface ou à une direction différente. Vérifie le chemin de routage choisi, la configuration de l’interface nouvellement active, l’état matériel et les compteurs en générant un flux contrôlé. Le diagnostic doit différencier « policy absente », « classe sans match » et « interface sans congestion ».
+
+### Cas 6 — Un flux L4S reçoit le traitement classique
+
+L4S exige un chemin et des endpoints compatibles avec les règles de signalisation ECN, le classificateur et l’AQM. Vérifie l’identification des paquets, l’éventuel remarking aux frontières, le mode de file et la réaction de l’émetteur/récepteur. Ne considère pas un DSCP spécifique comme une preuve de fonctionnement L4S. Si la prise en charge complète n’est pas vérifiée, garde le domaine d’essai isolé ou reviens au comportement classique.
+
+### Cas 7 — Latence p99 dégradée, moyenne et débit corrects
+
+Cette combinaison évoque un phénomène intermittent : microbursts, incast, file matériellement saturée pendant de courtes périodes, ou variation de chemin. Vérifie la résolution temporelle des mesures et les compteurs de buffer/queue, pas seulement l’utilisation moyenne sur plusieurs minutes. Corrèle la fenêtre de dégradation avec les événements d’application et les retransmissions. Si le problème n’est pas visible sur le routeur, étends l’observation au switch de sortie, au WAN opérateur et aux endpoints.
+
+### Cas 8 — Le débit TCP est faible alors que les queues sont peu utilisées
+
+La QoS n’est pas nécessairement la cause. Vérifie RTT, pertes, retransmissions, MTU/MSS, fenêtrage TCP, capacité CPU côté serveur, contrôle de congestion et éventuel shaping/policing sur un chemin distant. Sur un trajet à grand produit bande passante-délai, le débit peut être limité par la quantité de données en vol ou les fenêtres, même quand le lien local n’est pas congestionné. Compare une mesure d’interface, une capture aux extrémités et un test applicatif cohérent avant de modifier les classes.
+
+## 14. Exercices corrigés
+
+### Exercice 1 — Distinguer SLO et mécanisme
+
+**Énoncé :** une application réclame moins de 50 ms de délai réseau dans 99 % des mesures, mais la moyenne mesurée est de 20 ms. Est-ce suffisant ?
+
+**Correction :** non. Il faut connaître le point de mesure, la direction, la période, le chemin et le percentile. La moyenne de 20 ms ne prouve pas que le 99e percentile respecte 50 ms. Il faut identifier la part de délai contrôlable par la QoS et établir une mesure suffisamment fréquente pour détecter les pics.
+
+### Exercice 2 — Budget voix
+
+**Énoncé :** un appel est modélisé à 96,8 kbit/s sur le lien. Combien de débit filaire prévoir pour 60 appels simultanés, sans marge ?
+
+**Correction :** `60 × 96,8 kbit/s = 5 808 kbit/s`, soit environ 5,81 Mbit/s. Ajoute la marge définie par le modèle de rafales et les exigences de service, puis revérifie avec le nombre maximal d’appels simultanés et les en-têtes réellement utilisés.
+
+### Exercice 3 — Shaping du fournisseur
+
+**Énoncé :** le WAN est vendu à 20 Mbit/s. Un shaping à 20 Mbit/s supprime-t-il toutes les pertes ?
+
+**Correction :** pas nécessairement. Il faut savoir comment le fournisseur mesure et police le débit, quels overheads sont inclus, comment les rafales sont traitées et où le goulot se situe. La valeur locale doit être définie à partir de ce contrat puis validée en charge.
+
+### Exercice 4 — Compteurs nuls
+
+**Énoncé :** le match DSCP EF semble correct dans le fichier de configuration, mais la classe reste à zéro.
+
+**Correction :** inspecter l’interface et la direction d’application, les compteurs de la classification, le marquage réellement reçu dans une capture, les politiques parent/enfant, puis la programmation matérielle si elle est accessible. Un DSCP attendu n’est pas la preuve qu’il a été conservé.
+
+### Exercice 5 — L4S
+
+**Énoncé :** le routeur accepte un marquage DSCP particulier. Le trafic peut-il être déclaré L4S opérationnel ?
+
+**Correction :** non. La prise en charge doit couvrir les endpoints, l’identification ECN, le classificateur, l’architecture de files/AQM et le comportement de bout en bout. Le DSCP à lui seul ne définit pas tout le mécanisme L4S.
+
+## 15. Quiz de validation
+
+1. Pourquoi DSCP ne constitue-t-il pas une réservation de bande passante ?
+2. Quelle est la différence entre le budget applicatif et le budget réseau ?
+3. Pourquoi la configuration CLI ne prouve-t-elle pas toujours le traitement matériel ?
+4. Quel est le rôle d’une policy parent dans HQoS ?
+5. Pourquoi une LLQ doit-elle être limitée et dimensionnée ?
+6. Quelle différence opérationnelle existe entre shaping et policing ?
+7. Pourquoi une longue file peut-elle dégrader un flux sans augmenter immédiatement les drops ?
+8. Que faut-il vérifier pour prouver l’efficacité d’ECN ?
+9. Comment vérifier une traduction DSCP vers TC MPLS ?
+10. Pourquoi tester IPv4 ne suffit-il pas pour certifier IPv6 ?
+11. Pourquoi la direction retour doit-elle être analysée ?
+12. Quelle donnée permet de comparer deux captures de compteurs ?
+13. Pourquoi la mesure au routeur client peut-elle différer du compteur opérateur ?
+14. Quel est le risque principal d’un trust boundary mal conçu ?
+15. Quels critères doivent provoquer un rollback ?
+
+### Réponses
+
+1. DSCP choisit un comportement per-hop dans un domaine dont la politique doit être configurée ; il ne réserve pas les ressources par lui-même.
+2. Le budget applicatif inclut terminaux et traitement applicatif ; le budget réseau concerne le chemin et ses ressources contrôlables.
+3. La plateforme peut limiter une fonction, la programmer différemment dans le matériel ou ne pas la prendre en charge dans ce contexte d’interface.
+4. Elle définit généralement le shaping agrégé du service et contient la policy enfant de répartition par classe, si le modèle supporte cette hiérarchie.
+5. Une priorité excessive peut consommer une part disproportionnée des ressources et affamer les autres classes.
+6. Le shaper met en tampon pour lisser le débit ; le policer applique une action immédiate aux paquets non conformes.
+7. Les paquets peuvent attendre dans le buffer : le délai de queue augmente avant qu’il y ait nécessairement un drop.
+8. Le support ECN côté émetteur/récepteur, le chemin, les règles de marquage et la réaction du transport.
+9. Inspecter la politique à l’entrée MPLS, la valeur TC, le comportement au cœur et la policy de sortie, sur une capture ou des compteurs pris au bon endroit.
+10. Les règles de classification et les chemins de traitement IPv6 peuvent être différents.
+11. Les routes peuvent être asymétriques et la congestion n’est pas nécessairement la même dans les deux sens.
+12. Horodatage, interface, direction, période et delta du compteur.
+13. Le goulot peut être ailleurs et le fournisseur peut compter l’overhead ou appliquer un profil différent.
+14. Un terminal peut usurper un marquage prioritaire et consommer des ressources destinées à un trafic légitime.
+15. Le dépassement du SLO, la famine d’une classe, les drops inattendus, une policy absente ou la perte de capacité/chemin de secours selon les critères définis avant changement.
+
+## 16. Checklist de mise en production
+
+- [ ] Les classes répondent à des applications et des SLO approuvés.
+- [ ] La matrice de marquage et les frontières de confiance sont documentées.
+- [ ] Le traitement des DSCP non reconnus est défini.
+- [ ] La LLQ est dimensionnée à partir des appels/flux maximums et de l’overhead réel.
+- [ ] Les garanties CBWFQ restent cohérentes avec la capacité effective.
+- [ ] HQoS est confirmée compatible avec modèle, ASIC, interface et version.
+- [ ] Policing, shaping, rafales et unités de compte sont compris.
+- [ ] Le mécanisme AQM est testé sur le trafic adapté ; ECN est vérifié de bout en bout s’il est utilisé.
+- [ ] Les mappings DSCP/TC MPLS, DSCP tunnel et DSCP/WMM sont documentés.
+- [ ] IPv4 et IPv6 sont testés si le réseau est double pile.
+- [ ] Les compteurs de classe et de file sont corrélés aux mesures applicatives.
+- [ ] Les classes non prioritaires continuent à progresser sous congestion.
+- [ ] Les tests de panne couvrent les routes de secours et les deux directions.
+- [ ] La dérive de marquage et les drops sont surveillés.
+- [ ] Le changement est versionné, revu, piloté et assorti d’un rollback testé.
+
+## 17. Glossaire
+
+- **AQM** : mécanismes de gestion active des files, qui peuvent signaler la congestion avant la saturation.
+- **CBWFQ** : ordonnancement pondéré par classes, sous réserve de la sémantique de la plateforme.
+- **CIR/Bc/Be** : paramètres de débit et de rafales de modèles de policing/shaping.
+- **DiffServ / DSCP / PHB** : architecture de services différenciés, codepoint de classe et traitement par saut.
+- **ECN / CE** : signalisation explicite de congestion dans le champ IP.
+- **HQoS** : hiérarchie de politiques QoS, avec niveaux exacts dépendant de la plateforme.
+- **L4S / DualQ** : architecture spécialisée à basse latence et faible perte, exigeant une chaîne compatible.
+- **LLQ** : mécanisme de priorité faible latence, à budget et plafond contrôlés.
+- **MQC** : modèle Cisco de classification et de policy.
+- **SLO** : objectif de niveau de service mesurable.
+- **WRED** : mécanisme de gestion active de congestion pondéré.
+
+## 18. Références techniques
+
+- Cisco, **Quality of Service Configuration Guide — IOS XE** : https://www.cisco.com/c/en/us/td/docs/routers/ios/config/17-x/qos/b-quality-of-service.html
+- Cisco, **Quality of Service Configuration Guide — Catalyst 9000** : https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/qos/quality-of-service-configuration-guide/m-quality-of-service.html
+- Cisco, **Applying QoS Features Using the MQC** : https://www.cisco.com/c/en/us/td/docs/routers/ios-xe/quality-of-service/quality-of-service/m_qos-apply.html
+- Cisco, **Policing and Shaping Overview** : https://www.cisco.com/c/en/us/td/docs/routers/ios-xe/quality-of-service/quality-of-service/m_qos-plcshp-oview-0.html
+- IETF, **RFC 2474 — Differentiated Services Field** : https://www.rfc-editor.org/rfc/rfc2474
+- IETF, **RFC 4594 — DiffServ Service Classes** : https://www.rfc-editor.org/rfc/rfc4594
+- IETF, **RFC 3168 — ECN** : https://www.rfc-editor.org/rfc/rfc3168
+- IETF, **RFC 9330 — L4S Architecture** : https://www.rfc-editor.org/rfc/rfc9330
+- IETF, **RFC 9331 — L4S ECN Protocol** : https://www.rfc-editor.org/rfc/rfc9331
+- IETF, **RFC 9332 — DualQ Coupled AQM** : https://www.rfc-editor.org/rfc/rfc9332
+
+
+## Conclusion
+
+À ce niveau, une politique QoS est une architecture de traitement qui doit rester cohérente entre les frontières, le plan de contrôle, les mécanismes de file, le hardware, les tunnels et les applications. L’expert ne se contente pas de prouver qu’une classe existe : il démontre quels paquets l’atteignent, quel traitement ils reçoivent réellement, quelles ressources sont disponibles, quel SLO est tenu et quel effet secondaire est créé pour les autres classes. La réussite se mesure à la stabilité du résultat, à sa capacité d’être expliqué et à la possibilité de restaurer rapidement un état connu.

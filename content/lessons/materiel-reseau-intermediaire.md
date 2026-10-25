@@ -5,7 +5,6 @@
 > **Prérequis :** connaître les équipements réseau, les supports de transmission, les ports et les notions élémentaires d'adressage.  
 > **Objectif :** choisir et dimensionner du matériel réseau adapté, comprendre les interfaces et modules, planifier une installation et diagnostiquer méthodiquement les problèmes physiques.
 
----
 
 ## Sommaire
 
@@ -24,7 +23,6 @@
 13. Évaluation corrigée
 14. Préparation du niveau expert
 
----
 
 # 1. Objectifs et méthode de conception
 
@@ -68,7 +66,6 @@ Avant de sélectionner un appareil, précisez :
 
 Une fiche technique doit être interprétée dans ce contexte. La caractéristique la plus élevée n'est pas nécessairement la plus utile pour le besoin réel.
 
----
 
 # 2. Choisir un switch
 
@@ -131,7 +128,6 @@ Il faut donc étudier le trafic agrégé, les destinations, les flux entre utili
 | Environnement | Le refroidissement, le bruit et les dimensions conviennent-ils ? |
 | Support logiciel | Pendant combien de temps les mises à jour sont-elles prévues ? |
 
----
 
 # 3. Comprendre les ports et les capacités
 
@@ -196,7 +192,6 @@ De même, le nombre de ports, les capacités de routage, la table MAC maximale, 
 
 Une comparaison pertinente vérifie les propriétés qui comptent pour l'architecture envisagée.
 
----
 
 # 4. Concevoir une architecture physique
 
@@ -278,7 +273,6 @@ Une documentation utile précise notamment :
 
 Un câble non identifié augmente le temps d'intervention et le risque de déconnecter un service incorrect.
 
----
 
 # 5. Choisir les câbles et modules optiques
 
@@ -345,7 +339,6 @@ Un test de continuité ne garantit toutefois pas que le câble respecte toutes l
 
 Pour certifier une installation de câblage structuré, utilisez un instrument adapté et suivez les normes et critères du projet.
 
----
 
 # 6. Dimensionner le PoE
 
@@ -401,7 +394,6 @@ Si un appareil dispose de deux alimentations, vérifiez :
 
 Deux modules d'alimentation branchés sur le même circuit ou la même source défaillante ne garantissent pas une continuité d'alimentation complète.
 
----
 
 # 7. Alimentations, refroidissement et baies
 
@@ -447,7 +439,6 @@ Une unité rack correspond à une hauteur normalisée de 44,45 mm. Les équipeme
 
 La compatibilité mécanique doit également tenir compte du poids, de la profondeur, des rails, du dégagement pour les câbles et de la ventilation.
 
----
 
 # 8. Routeurs et pare-feu matériels
 
@@ -493,7 +484,6 @@ Une version virtuelle dépend alors également de l'hôte, de l'hyperviseur, des
 
 L'évaluation doit porter sur la solution complète plutôt que sur le seul logiciel ou le seul serveur.
 
----
 
 # 9. Redondance et disponibilité
 
@@ -574,7 +564,6 @@ Un plan de continuité doit préciser :
 
 Les tests doivent être réalisés dans un cadre autorisé, de préférence sur un environnement de laboratoire avant de toucher une infrastructure critique.
 
----
 
 # 10. Diagnostic matériel structuré
 
@@ -664,7 +653,6 @@ Arrêtez l'investigation et appliquez une procédure adaptée si :
 
 La sécurité et la continuité de service priment sur un diagnostic improvisé.
 
----
 
 # 11. Atelier de dimensionnement
 
@@ -729,7 +717,6 @@ La fiche de décision doit indiquer :
 
 Le dimensionnement est terminé lorsque les choix sont justifiés par des données et vérifiés dans les fiches techniques.
 
----
 
 # 12. Étude de panne
 
@@ -760,7 +747,6 @@ Un point d'accès Wi-Fi se met à redémarrer lorsque plusieurs clients se conne
 
 Ne concluez pas que le switch est défectueux uniquement parce que le point d'accès redémarre. Le symptôme doit être rattaché à des preuves.
 
----
 
 # 13. Évaluation corrigée
 
@@ -829,7 +815,6 @@ C'est un composant dont la panne peut interrompre une fonction essentielle en l'
 
 La comparaison permet de voir si les erreurs ou abandons évoluent avec la modification ou avec les conditions de charge.
 
----
 
 # 14. Préparation du niveau expert
 
@@ -849,7 +834,6 @@ Le niveau expert approfondira :
 
 **Le niveau intermédiaire apprend à sélectionner, dimensionner et diagnostiquer les composants. Le niveau expert apprend à concevoir une infrastructure matérielle cohérente, mesurable et capable de fonctionner en mode dégradé.**
 
----
 
 ## Références utiles
 

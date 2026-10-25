@@ -1,8 +1,3 @@
----
-node_id: arp-expert
-title: ARP & résolution L2/L3 - Expert
----
-
 # ARP & résolution L2/L3 - Expert
 
 **Niveau :** Expert
@@ -21,7 +16,6 @@ Une analyse experte d’ARP doit relier plusieurs tables et décisions : table d
 >
 > Le problème de sécurité apparaît parce que les réponses ne sont pas accompagnées d’une preuve cryptographique que l’expéditeur possède réellement l’adresse IP annoncée. Un imposteur peut donc tenter de faire inscrire son identifiant de poste à la place de celui du routeur ou d’un serveur. Le carnet devient incorrect, et le courrier peut passer par l’imposteur. Le contrôle des associations, la segmentation, la surveillance des annonces et les protections des commutateurs jouent donc le rôle d’un registre officiel plutôt que de faire confiance à toute annonce entendue dans le bâtiment.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -391,7 +385,6 @@ Si la mise à jour est acceptée, certaines trames vers
 la passerelle peuvent être dirigées vers l'attaquant.
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -592,7 +585,6 @@ La surveillance après changement est aussi importante que la validation immédi
 
 > **Astuce :** Avant d’effacer un cache ARP, capture d’abord la correspondance suspecte et l’état de la table MAC du commutateur. Note la MAC, le VLAN, le port et l’horodatage. Ensuite seulement, dans une fenêtre maîtrisée, provoque une nouvelle résolution et compare le résultat. Cette séquence conserve les indices de la panne et permet de distinguer une entrée simplement obsolète d’un apprentissage incorrect qui se reproduit.
 
----
 
 ## 3. Dépannage et Sécurité
 

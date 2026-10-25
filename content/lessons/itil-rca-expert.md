@@ -1026,6 +1026,5 @@ Les pratiques et la terminologie peuvent varier selon l’édition, les guides s
 
 Ces références éclairent des aspects complémentaires : gestion de la pratique ITIL, commandement des incidents, culture de postmortem et réponse cyber. Les processus cyber et les obligations légales nécessitent une adaptation à la juridiction, aux contrats et au contexte réel.
 
----
 
 **Fin du cours — Gestion d’incident (ITIL et RCA), niveau Expert.**

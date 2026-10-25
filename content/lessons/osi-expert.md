@@ -4,7 +4,6 @@
 > **Prérequis :** maîtrise du routage IPv4/IPv6, des VLAN, de TCP/UDP, de DNS, de la MTU et des principes de Wireshark.  
 > **Objectif :** expliquer un incident réseau à partir de preuves, distinguer le comportement des protocoles de celui des équipements intermédiaires et produire un diagnostic reproductible.
 
----
 
 ## Sommaire
 
@@ -23,7 +22,6 @@
 13. Modèle de rapport d’incident
 14. Glossaire technique
 
----
 
 # 1. La valeur et les limites des modèles OSI et TCP/IP
 
@@ -71,7 +69,6 @@ Une panne physique peut empêcher une communication avant même qu’un paquet a
 
 Une analyse rigoureuse recherche le point où le comportement observé diverge de celui attendu. Elle ne suppose pas qu’une seule couche explique toujours toute la panne.
 
----
 
 # 2. Plans de données, de contrôle et de gestion
 
@@ -136,7 +133,6 @@ Séparez toujours les questions suivantes :
 
 Ces questions ne sont pas équivalentes. Elles réduisent le risque de conclure à tort qu’un équipement fonctionne complètement parce qu’un seul test réussit.
 
----
 
 # 3. Encapsulation avancée et points de terminaison
 
@@ -252,7 +248,6 @@ Conséquences :
 
 Les captures et les journaux des deux côtés sont souvent nécessaires pour déterminer où se situe la défaillance.
 
----
 
 # 4. Routage multi-sauts et asymétrie
 
@@ -336,7 +331,6 @@ Pour analyser un incident potentiellement lié à l’asymétrie :
 6. Vérifiez si un équipement à état nécessite de voir les deux directions.
 7. Distinguez une différence de chemin d’une véritable perte.
 
----
 
 # 5. MTU de chemin, PMTUD et MSS
 
@@ -405,7 +399,6 @@ De même, un échec de ping de grande taille doit être interprété selon les o
 </g>
 </svg>
 
----
 
 # 6. TCP : séquences, retransmissions et fenêtres
 
@@ -474,7 +467,6 @@ Une capture locale peut donc afficher des objets différents de ceux qui sont ob
 
 Avant de conclure à une corruption sur le réseau, examinez les propriétés de la carte, le point de capture et les résultats d’une éventuelle capture indépendante.
 
----
 
 # 7. Wireshark : limites et méthodes d’analyse
 
@@ -535,7 +527,6 @@ Ne contournez pas les protections d’accès et n’essayez pas de recueillir de
 
 Une analyse professionnelle se limite aux données nécessaires à l’incident, respecte les règles de conservation et protège les fichiers de capture.
 
----
 
 # 8. Méthode experte de diagnostic multicouche
 
@@ -659,7 +650,6 @@ Lorsque la modification est susceptible d'affecter la production :
 </g>
 </svg>
 
----
 
 # 9. Sécurité et observation multi-couches
 
@@ -700,7 +690,6 @@ Un paquet qui n’atteint pas un destinataire peut avoir été :
 
 Les symptômes chez le client peuvent sembler identiques. Les captures et journaux associés sont nécessaires pour départager ces cas.
 
----
 
 # 10. Laboratoires avancés
 
@@ -790,7 +779,6 @@ Préparez un rapport qui inclut :
 
 Un rapport ne doit pas présenter une hypothèse comme une cause racine si les preuves ne suffisent pas à la démontrer.
 
----
 
 # 11. Exercices experts
 
@@ -840,7 +828,6 @@ Citez les vérifications à effectuer aux niveaux transport, TLS et applicatif. 
 
 Quelles données minimales un technicien doit-il inclure dans un rapport de diagnostic pour qu’un autre technicien puisse reproduire les tests et vérifier les conclusions ?
 
----
 
 # 12. Corrigés commentés
 
@@ -876,7 +863,6 @@ La poignée de main TCP prouve que l’établissement du transport a suffisammen
 
 Incluez le périmètre, les heures, la topologie pertinente, les commandes, les filtres, les résultats, les points de capture, les hypothèses, la cause racine avec les preuves disponibles, les modifications appliquées et les résultats de validation. Précisez également les limites et incertitudes.
 
----
 
 # 13. Modèle de rapport d’incident
 
@@ -931,7 +917,6 @@ Ne marquez une cause comme confirmée que lorsque les observations la soutiennen
 - Résultats :
 - Risques ou limites restant à surveiller :
 
----
 
 # 14. Glossaire expert
 
@@ -965,7 +950,6 @@ Ne marquez une cause comme confirmée que lorsque les observations la soutiennen
 
 **Tunnel :** mécanisme qui transporte une unité de données au moyen d’une autre encapsulation.
 
----
 
 # 15. Fiche de validation d’un diagnostic expert
 
@@ -983,7 +967,6 @@ Avant de déclarer un incident résolu, vérifiez que :
 - un plan de retour arrière existe pour les modifications sensibles ;
 - les limites de l’analyse sont clairement consignées.
 
----
 
 ## Conclusion générale
 

@@ -1,8 +1,3 @@
----
-node_id: ntp-syslog-intermediaire
-title: NTP & Syslog - Intermédiaire
----
-
 # NTP & Syslog - Intermédiaire
 
 **Niveau :** Intermédiaire
@@ -17,7 +12,6 @@ Ce cours se concentre sur le déploiement intermédiaire en environnement Cisco 
 
 > **Analogie** : Imagine une entreprise dans laquelle chaque équipe tient son propre journal de bord. Si l’horloge de l’équipe réseau avance de trois minutes, celle du serveur de sécurité retarde de deux minutes et celle du centre de données est à l’heure exacte, il devient presque impossible de reconstituer la séquence d’un incident à partir des journaux bruts. NTP joue le rôle d’un service de référence horaire partagé : les horloges se comparent à une ou plusieurs références et corrigent progressivement leur dérive. Syslog joue le rôle d’un registre central dans lequel les différentes équipes déposent leurs événements, accompagnés de l’heure et de métadonnées qui permettent de les classer. Une bonne architecture exige donc à la fois une référence de temps fiable et un circuit d’acheminement des journaux sûr. Le registre central ne doit pas être considéré comme infaillible : les messages UDP peuvent être perdus, une source peut être compromise, et des événements peuvent être supprimés localement avant leur transmission. C’est pourquoi la synchronisation, la collecte, la protection et la rétention doivent être conçues ensemble.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -372,7 +366,6 @@ Tous les équipements doivent atteindre les serveurs NTP approuvés et les colle
 
 > **Piège :** Une heure affichée avec des millisecondes n’est pas nécessairement exacte à la milliseconde. La précision de l’affichage, l’état de synchronisation NTP, la qualité de la source et les délais du réseau sont des notions différentes. De la même manière, une commande qui configure un serveur Syslog ne prouve pas que le serveur reçoit les messages. Il faut valider le chemin complet avec les commandes d’état et un événement de test observé côté collecteur.
 
----
 
 ## 2. Configuration et Pratique
 
@@ -589,7 +582,6 @@ Après la modification, contrôle l’état NTP, la stabilité de l’offset, la
 
 > **Astuce :** Pour isoler rapidement un problème, traite séparément le plan de contrôle NTP et le pipeline Syslog. Contrôle d’abord `show ntp status` et `show ntp associations`, puis vérifie les messages locaux avec `show logging`, la configuration avec `show running-config` et enfin la réception côté collecteur. Un ping vers le serveur ne teste ni UDP/123 ni UDP/514. Pour Syslog, l’ultime preuve est l’apparition d’un événement de test connu dans le collecteur avec l’identité et l’horodatage attendus.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -728,7 +720,6 @@ La commande `show running-config` permet d’examiner une partie de la configura
 
 > **Danger :** Une attaque ou une erreur de configuration qui fausse l’heure ou interrompt la journalisation peut dégrader simultanément la détection, la corrélation et la preuve d’un incident. Un équipement peut continuer à transférer les paquets alors que ses événements ne sont plus visibles au centre de supervision. Il faut donc surveiller activement l’état NTP et la présence des journaux, restreindre les sources et destinations, privilégier un transport protégé quand il est supporté, et protéger les journaux centralisés contre la modification et la suppression non autorisées.
 
----
 
 ## Points à retenir
 

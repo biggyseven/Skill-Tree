@@ -1,282 +1,442 @@
-## node_id: segment-routing-expert
+# Segment Routing — Niveau Expert
 
-title: Segment Routing (SR-MPLS et SRv6) - Expert
+> **Objectif :** concevoir, déployer, sécuriser et dépanner une architecture Segment Routing à grande échelle, depuis la distribution des SIDs jusqu’au steering des services, à la protection FRR et à l’observabilité de bout en bout.
 
-# Segment Routing (SR-MPLS et SRv6) - Expert
+> **Prérequis :** les niveaux `segment-routing-debutant.md` et `segment-routing-intermediaire.md`, routage à état de liens, MPLS, BGP, lecture de RIB/FIB/LFIB, politiques de trafic et bases IPv6. Les syntaxes de CLI dans ce support sont des modèles pédagogiques : les commandes exactes, options et sorties dépendent du système, de la version et de la plate-forme matérielle.
 
-**Niveau :** Expert
+## 1. Objectifs de maîtrise
 
-**Prérequis :** Segment Routing Débutant (`segment-routing-debutant`), Segment Routing Intermédiaire (`segment-routing-intermediaire`)
+À la fin du parcours, tu dois pouvoir :
 
-Dans les modules précédents, nous avons analysé les fondations du *Source Routing* (SR-MPLS/SRv6), les extensions IGP (IS-IS/OSPF), la mécanique du TI-LFA (Espaces P et Q), ainsi que l'ingénierie de trafic par **SR Policy** et **Color Extended Community**.
+- bâtir un design SR-MPLS ou SRv6 avec un plan d’adressage, un plan SID et des frontières de domaines explicites ;
+- distinguer annonce du SID, calcul du chemin, sélection d’une candidate path, installation dans la FIB/LFIB et steering des flux ;
+- concevoir SR Policies dynamiques et explicites avec contraintes, couleurs, préférences, segment-lists et BSID ;
+- comprendre la relation entre Flex-Algorithm, TI-LFA, affinités et chemins après convergence ;
+- prévoir les limites de pile, la MTU, l’ECMP, les comportements PHP/explicit-null et les interactions service/transport ;
+- intégrer SR à BGP, aux VPN, à PCEP, à la télémétrie et aux outils OAM ;
+- diagnostiquer un écart en collectant des preuves à chaque étage plutôt que modifier plusieurs variables à la fois.
 
-Au niveau **Expert**, l'objectif est d'aborder les architectures d'opérateurs à très grande échelle (*Hyperscale / Multi-Domain Carriers*). Ce cours traite du calcul de chemin centralisé via **PCE/PCEP (Path Computation Element Protocol)**, de la programmation réseau **SRv6 Network Programming** (Locators, Functions, Arguments), de la technologie de compression d'en-tête **uSID (Micro-Segment)**, de la segmentation de la topologie via **Flex-Algo (Flexible Algorithm)**, de l'automatisation programmatique par gNMI/Telemetry, ainsi que des techniques de diagnostic système à bas niveau.
+## 2. Modèle d’architecture de référence
 
-## 1. Architecture SR-TE Inter-Domaine & PCE / PCEP (Path Computation Element)
+Segment Routing utilise un modèle source-routing : le headend impose une suite ordonnée d’instructions, et les nœuds intermédiaires appliquent leur sémantique de forwarding. Le chemin n’est donc pas uniquement un tunnel ; il combine un endpoint, une intention, des segments, une condition de sélection du trafic et une preuve que le plan de données réalise le trajet attendu.
 
-Dans une infrastructure multi-domaines (multi-AS ou multi-aires IGP), aucun routeur Ingress n'a une visibilité complète sur la topologie globale du réseau. Le calcul de politiques SR-TE nécessitant une garantie de bout en bout (latence minimale, disjonction stricte de chemin physique) fait alors appel à un **PCE (Path Computation Element)** centralisé.
+Le contrôle peut être distribué par l’IGP, centralisé ou hybride. Dans un design distribué, l’IGP annonce la topologie et les SIDs ; le headend peut calculer une policy localement. Dans un design avec PCE, le calcul ou la distribution de policies peut être centralisé, mais la programmation et le transfert restent exécutés par les nœuds réseau.
 
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Domaine SR, plan de contrôle, contrôleur, headend et plan de données"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Domaine SR : IGP, policy et transfert</text><line x1="225" y1="137.0" x2="262" y2="137.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="270,137.0 260,132.0 260,142.0" fill="#6dd3ce"/><text x="247.5" y="129.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">TED / infos SR</text><line x1="460" y1="137.0" x2="497" y2="137.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="505,137.0 495,132.0 495,142.0" fill="#6dd3ce"/><text x="482.5" y="129.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">PCEP / BGP / API</text><line x1="695" y1="137.0" x2="732" y2="137.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="740,137.0 730,132.0 730,142.0" fill="#6dd3ce"/><text x="717.5" y="129.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">stack / SRH</text><rect x="35" y="94" width="190" height="86" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="130.0" y="133.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">IGP / LSDB</text><text x="130.0" y="151.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">Topologie et SID</text><rect x="270" y="94" width="190" height="86" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="365.0" y="133.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">PCE / contrôleur</text><text x="365.0" y="151.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">Calcul sous contraintes</text><rect x="505" y="94" width="190" height="86" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="600.0" y="133.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Headend SR</text><text x="600.0" y="151.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">Policy + steering</text><rect x="740" y="94" width="185" height="86" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="832.5" y="133.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Transit / egress</text><text x="832.5" y="151.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">Push, swap, pop</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Le contrôleur est optionnel : un SR Policy peut aussi être calculé localement.</text><text x="480.0" y="352" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Le plan de contrôle et le plan de données doivent être validés séparément.</text></svg>
+
+### 2.1 Les quatre questions de conception
+
+1. **Qui annonce ?** IGP, BGP, PCEP ou contrôleur selon le type d’information et le modèle retenu.
+2. **Qui calcule ?** SPF, Flex-Algorithm, calcul local de SR Policy ou PCE.
+3. **Qui décide d’appliquer ?** le headend via route resolution, color/endpoint, classification, binding ou mécanisme de steering.
+4. **Qui prouve le résultat ?** FIB/LFIB, compteurs, probes, télémétrie, traces et essais de panne.
+
+Une policy peut être configurée sans être éligible ; une candidate peut être valide sans être active ; une policy active peut être correcte sans qu’aucun trafic ne lui soit associé. Ces états doivent être mesurés séparément.
+
+## 3. Plan de SIDs : gouvernance et portée
+
+Un plan de SID n’est pas une liste de labels isolée. Il définit des espaces, conventions de portée, règles d’allocation, processus de changement et contrôles d’interopérabilité.
+
+### 3.1 SR-MPLS
+
+- **Prefix-SID / Node-SID :** référence globalement interprétée dans le domaine, liée à un préfixe et au calcul IGP correspondant.
+- **Adj-SID :** représente une adjacence ; la portée et la persistance varient selon qu’il est local ou global et selon les options de l’implémentation.
+- **Binding SID (BSID) :** label local au headend qui fait référence à une SR Policy. Il fournit une abstraction d’une policy derrière un SID.
+- **SRGB :** plage de labels prévue pour les Prefix-SID globaux.
+- **SRLB :** plage locale utilisée pour des labels/SIDs à sémantique locale, selon le plan d’allocation de la plate-forme.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Le plan SID relie nom logique, portée, index, annonce et forwarding"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Plan de SID : allocation et vérification</text><line x1="240" y1="140.0" x2="267" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,140.0 265,135.0 265,145.0" fill="#6dd3ce"/><text x="257.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">définir</text><line x1="480" y1="140.0" x2="507" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="515,140.0 505,135.0 505,145.0" fill="#6dd3ce"/><text x="497.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">allouer</text><line x1="720" y1="140.0" x2="747" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="755,140.0 745,135.0 745,145.0" fill="#6dd3ce"/><text x="737.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">vérifier</text><rect x="35" y="96" width="205" height="88" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="137.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Inventaire</text><text x="137.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">préfixe / nœud / service</text><rect x="275" y="96" width="205" height="88" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="377.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Portée SID</text><text x="377.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">global / local</text><rect x="515" y="96" width="205" height="88" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="617.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Mapping</text><text x="617.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">SRGB / SRLB / locator</text><rect x="755" y="96" width="170" height="88" rx="12" fill="#1d4934" stroke="#8be2a8" stroke-width="2"/><text x="840.0" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">FIB/LFIB</text><text x="840.0" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">installation réelle</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Un plan SID gouverné évite les collisions, erreurs de portée et changements non maîtrisés.</text></svg>
+
+### 3.2 Gouverner les index et les plages
+
+Le mapping entre index et label dépend du SRGB annoncé/configuré et de la sémantique prévue par le protocole et l’implémentation. Une opération sur le SRGB exige un inventaire préalable : plages, index utilisés, labels locaux, labels réservés, services en production et comportement pendant la transition. Ne jamais supposer que « SID 120 » signifie toujours un label numérique identique dans tous les contextes.
+
+Pour chaque SID documenter : nom logique, nœud propriétaire, type, valeur/index, portée, fonction, domaine IGP, dépendances, usages de policy, méthode de validation et plan de retour arrière.
+
+### 3.3 Discipline de changement
+
+1. Collecter la configuration et l’état opérationnel avant modification.
+2. Comparer la plage prévue au label annoncé et installé.
+3. Tester l’annonce dans le domaine pilote et observer la convergence.
+4. Contrôler FIB/LFIB et un trajet data-plane complet.
+5. Élargir par lots ; garder le retour arrière possible et documenté.
+
+## 4. SR Policy : modèle, éligibilité et sélection
+
+Une SR Policy est généralement identifiée par le triplet **headend, color, endpoint**. Elle contient des candidate paths et, au sein d’une candidate, une ou plusieurs segment-lists ou un chemin calculé. La policy n’est pas synonyme d’une liste de labels figée ; son état dépend de l’éligibilité, de la préférence, de la validité des segments, des contraintes et du calcul du chemin.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Identité, candidate paths, segment-lists et sélection active"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Objet SR Policy</text><line x1="235" y1="139.0" x2="267" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,139.0 265,134.0 265,144.0" fill="#6dd3ce"/><text x="255.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">candidate</text><line x1="235" y1="139.0" x2="497" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="505,139.0 495,134.0 495,144.0" fill="#6dd3ce"/><text x="370.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">candidate</text><line x1="465" y1="139.0" x2="727" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="735,139.0 725,134.0 725,144.0" fill="#6dd3ce"/><text x="600.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">éligible</text><line x1="695" y1="139.0" x2="727" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="735,139.0 725,134.0 725,144.0" fill="#6dd3ce"/><text x="715.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">secours</text><rect x="45" y="95" width="190" height="88" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="140.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Policy</text><text x="140.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">headend + color + endpoint</text><rect x="275" y="95" width="190" height="88" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="370.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Candidate Path A</text><text x="370.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">préférence 200</text><rect x="505" y="95" width="190" height="88" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="600.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Candidate Path B</text><text x="600.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">préférence 100</text><rect x="735" y="95" width="190" height="88" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="830.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Active path</text><text x="830.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">résultat de sélection</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Une candidate configurée n’est pas nécessairement valide, sélectionnée ou installée.</text></svg>
+
+### 4.1 Candidate path : questions opérationnelles
+
+Pour chaque candidate, vérifier :
+
+- l’origine et le type de calcul : configuration explicite, calcul dynamique, PCE ou mécanisme d’orchestration ;
+- la préférence et la règle de sélection ;
+- les contraintes qui réduisent la topologie admissible ;
+- la résolution de chaque SID / endpoint ;
+- l’acceptation par l’implémentation et la programmation FIB/LFIB ;
+- l’état du chemin primaire et des alternatives.
+
+Une liste explicite peut être syntaxiquement acceptée tout en ne donnant pas le résultat prévu si un SID n’est pas joignable, si la sémantique de portée est incorrecte ou si le segment final aboutit à un autre comportement qu’attendu.
+
+### 4.2 Preference et fallback
+
+Ne pas assimiler la préférence à une métrique IGP. La préférence ordonne des candidates selon le mécanisme de SR Policy ; le coût du chemin, la disponibilité des segments et les contraintes déterminent ensuite l’éligibilité et le chemin réalisable. Il faut tester au moins : candidate préférée disponible, candidate préférée invalide, disparition d’un segment, perte du PCE si utilisé, et retour à l’état normal.
+
+### 4.3 Steering et absence de trafic
+
+Une policy « up » n’implique pas que la production l’utilise. Contrôle le mécanisme de steering effectif : résolution de route, association à une couleur, règle de service, classification ou entrée de forwarding. Vérifie les compteurs et une capture/trace à l’entrée et à la sortie. Évite d’inférer l’utilisation du chemin à partir du seul écran du contrôleur.
+
+## 5. Segment-lists, BSID et hiérarchie
+
+Une segment-list décrit des segments ordonnés. La première instruction active est encodée selon le plan de données choisi. Le BSID permet de référencer une policy locale comme un seul objet, ce qui aide à composer des chemins ou à masquer des détails internes. Cela ne supprime pas les coûts de profondeur de pile ni les responsabilités de validation.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Un BSID local peut représenter une policy imbriquée"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Binding SID et hiérarchie de policies</text><line x1="240" y1="143.0" x2="272" y2="143.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="280,143.0 270,138.0 270,148.0" fill="#6dd3ce"/><text x="260.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">référence</text><line x1="480" y1="143.0" x2="512" y2="143.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="520,143.0 510,138.0 510,148.0" fill="#6dd3ce"/><text x="500.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">résolution locale</text><line x1="720" y1="143.0" x2="752" y2="143.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="760,143.0 750,138.0 750,148.0" fill="#6dd3ce"/><text x="740.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">transport</text><rect x="40" y="100" width="200" height="86" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="140.0" y="139.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Policy principale</text><text x="140.0" y="157.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">service / steering</text><rect x="280" y="100" width="200" height="86" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="380.0" y="139.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">BSID</text><text x="380.0" y="157.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">entrée vers la policy</text><rect x="520" y="100" width="200" height="86" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="620.0" y="139.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Policy segment</text><text x="620.0" y="157.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">chemin de transport</text><rect x="760" y="100" width="165" height="86" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="842.5" y="139.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Egress</text><text x="842.5" y="157.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">endpoint</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Ne pas supposer qu’un BSID a une signification globale : sa portée est définie par l’architecture et l’implémentation.</text></svg>
+
+### 5.1 Modèle d’ingénierie
+
+Pour une policy donnée, consigne :
+
+- endpoint et classe de trafic visés ;
+- candidate path active et candidates alternatives ;
+- segments traversés, leur portée et leur résolution ;
+- profondeur totale, y compris service label, segments de transport et éventuelles fonctions de réparation ;
+- hypothèses ECMP ;
+- comportement en cas d’échec partiel ;
+- critères de succès et de rollback.
+
+### 5.2 Node-SID contre Adj-SID
+
+Le Node-SID permet généralement de joindre un nœud en suivant le calcul d’acheminement de l’algorithme associé. Un Adj-SID peut contraindre un passage par une adjacency précise. Cette précision supplémentaire peut augmenter la profondeur et rendre la policy plus sensible aux changements de topologie. N’introduis pas des Adj-SID partout par défaut : utilise-les lorsque la contrainte de chemin l’exige réellement.
+
+## 6. BGP, color et distribution d’intentions
+
+BGP peut transporter des informations qui servent au steering, par exemple des routes de service associées à une couleur et à un endpoint, selon le modèle et les extensions déployés. Il faut séparer le rôle de BGP dans la distribution de l’intention du rôle de l’IGP dans la topologie et les SIDs du domaine.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Une route de service associe une couleur à un endpoint pour l’intention SR"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Steering par couleur et endpoint</text><line x1="235" y1="136.0" x2="267" y2="136.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,136.0 265,131.0 265,141.0" fill="#6dd3ce"/><text x="255.0" y="128.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">matching</text><line x1="475" y1="136.0" x2="507" y2="136.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="515,136.0 505,131.0 505,141.0" fill="#6dd3ce"/><text x="495.0" y="128.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">résolution</text><line x1="715" y1="136.0" x2="747" y2="136.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="755,136.0 745,131.0 745,141.0" fill="#6dd3ce"/><text x="735.0" y="128.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">steering</text><rect x="35" y="94" width="200" height="84" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="135.0" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Route BGP</text><text x="135.0" y="150.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">endpoint + couleur</text><rect x="275" y="94" width="200" height="84" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="375.0" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Policy lookup</text><text x="375.0" y="150.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">color + endpoint</text><rect x="515" y="94" width="200" height="84" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="615.0" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">SR Policy</text><text x="615.0" y="150.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">candidate active</text><rect x="755" y="94" width="170" height="84" rx="12" fill="#1d4934" stroke="#8be2a8" stroke-width="2"/><text x="840.0" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Forwarding</text><text x="840.0" y="150.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">trafic sélectionné</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">La couleur est une valeur de classification/politique, pas une propriété physique du lien.</text></svg>
+
+### 6.1 Checklist de résolution
+
+- La route BGP est-elle présente et sélectionnée ?
+- Les attributs de service et la couleur correspondent-ils à la policy attendue ?
+- L’endpoint de la policy est-il correct et atteignable ?
+- La candidate path est-elle éligible et active ?
+- Le steering est-il programmé ?
+- Le trafic concerné correspond-il aux critères attendus ?
+
+Les noms exacts de communautés, attributs, commandes et mécanismes de résolution varient selon les implémentations. Ne pas copier une syntaxe d’un constructeur à un autre sans vérifier le guide de version.
+
+## 7. PCE, PCEP et contrôle centralisé
+
+Un Path Computation Element (PCE) peut calculer un chemin à partir d’une base d’ingénierie de trafic (TED) et de contraintes. PCEP peut servir à échanger demandes, résultats et mises à jour entre un PCC/headend et un PCE. Les modèles d’initiation, délégation, état persistant, synchronisation, haute disponibilité et protection de session sont propres aux extensions supportées par l’équipement.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Le PCE calcule ou propose un chemin ; la policy doit être acceptée et installée"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">PCE/PCEP : calcul et instanciation</text><line x1="225" y1="139.0" x2="262" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="270,139.0 260,134.0 260,144.0" fill="#6dd3ce"/><text x="247.5" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">request</text><line x1="460" y1="139.0" x2="497" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="505,139.0 495,134.0 495,144.0" fill="#6dd3ce"/><text x="482.5" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">compute</text><line x1="695" y1="139.0" x2="732" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="740,139.0 730,134.0 730,144.0" fill="#6dd3ce"/><text x="717.5" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">reply / update</text><rect x="35" y="95" width="190" height="88" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="130.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Headend</text><text x="130.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">demande / objectifs</text><rect x="270" y="95" width="190" height="88" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="365.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">PCEP</text><text x="365.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">signalisation des intents</text><rect x="505" y="95" width="190" height="88" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="600.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">PCE</text><text x="600.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">TED + calcul de chemin</text><rect x="740" y="95" width="185" height="88" rx="12" fill="#1d4934" stroke="#8be2a8" stroke-width="2"/><text x="832.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Headend</text><text x="832.5" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">validate + install</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Le support PCEP, les sessions, les paramètres de policy et les modèles de délégation dépendent de l’implémentation.</text></svg>
+
+### 7.1 PCE n’est pas le plan de données
+
+Le PCE peut calculer un chemin souhaité, mais le headend et les nœuds doivent encore valider les segments, programmer le forwarding et acheminer les paquets. En cas de panne du PCE, le comportement dépend de la politique locale : conservation des policies existantes, réoptimisation différée, fallback ou retrait. Ce comportement doit être explicitement testé, pas supposé.
+
+### 7.2 Haute disponibilité et gouvernance
+
+- authentifier et limiter les sessions de contrôle ;
+- contrôler qui peut créer ou modifier une policy ;
+- journaliser l’identité de l’émetteur et le changement demandé ;
+- définir l’état attendu si la session de contrôleur tombe ;
+- surveiller l’écart entre policy attendue et policy installée ;
+- tester redémarrage, reprise et réconciliation d’état.
+
+## 8. Flex-Algorithm et chemins contraints par l’IGP
+
+Flex-Algorithm permet à des routeurs participants de calculer des chemins basés sur une définition d’algorithme, avec type de métrique et contraintes partagés. Cela fournit une base IGP pour des classes de chemin, sans exiger que toutes les intentions soient codées sous forme d’une longue liste explicite de segments.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Les contraintes définissent une topologie logique à partir de la topologie IGP"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Flex-Algorithm : calcul sous contraintes</text><line x1="245" y1="134.0" x2="277" y2="134.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="285,134.0 275,129.0 275,139.0" fill="#6dd3ce"/><text x="265.0" y="126.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">définition</text><line x1="485" y1="134.0" x2="517" y2="134.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="525,134.0 515,129.0 515,139.0" fill="#6dd3ce"/><text x="505.0" y="126.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">sélection</text><line x1="725" y1="134.0" x2="757" y2="134.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="765,134.0 755,129.0 755,139.0" fill="#6dd3ce"/><text x="745.0" y="126.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">calcul</text><rect x="45" y="92" width="200" height="84" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="145.0" y="130.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Topologie IGP</text><text x="145.0" y="148.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">liens + métriques</text><rect x="285" y="92" width="200" height="84" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="385.0" y="130.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">FAD</text><text x="385.0" y="148.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">algo + métrique + contraintes</text><rect x="525" y="92" width="200" height="84" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="625.0" y="130.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Pruning</text><text x="625.0" y="148.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">retirer liens/nœuds exclus</text><rect x="765" y="92" width="160" height="84" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="845.0" y="130.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">SPF Flex</text><text x="845.0" y="148.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">chemin contraint</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Un chemin ne respecte les contraintes que si tous les nœuds concernés participent et calculent l’algorithme compatible.</text></svg>
+
+### 8.1 Règles de conception
+
+1. Attribuer les identifiants d’algorithmes et leurs définitions de manière coordonnée.
+2. Vérifier la participation des routeurs et les attributs des liens.
+3. Vérifier que les métriques utilisées par l’algorithme expriment l’intention opérationnelle.
+4. Éviter des contraintes qui isolent une partie de la topologie ou produisent des chemins inattendus.
+5. Valider les SIDs associés à l’algorithme, le calcul et le forwarding dans chaque nœud.
+
+Un calcul Flex-Algorithm n’est pas une simple ACL sur les interfaces. C’est une topologie logique calculée à partir des règles d’admissibilité annoncées. Si un nœud ou un lien n’est pas admissible, le chemin résultant peut différer fortement du shortest-path par défaut.
+
+## 9. Flex-Algorithm et TI-LFA
+
+TI-LFA calcule une réparation locale destinée à protéger contre certaines défaillances de lien ou de nœud et à acheminer le trafic vers le chemin attendu après convergence. La réparation dépend du point de réparation (PLR), de la défaillance, de la topologie, des SIDs disponibles et de l’algorithme utilisé.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Le PLR détourne localement le trafic pendant la convergence IGP"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">TI-LFA : protection locale</text><line x1="235" y1="127.5" x2="272" y2="127.5" stroke="#6dd3ce" stroke-width="3"/><polygon points="280,127.5 270,122.5 270,132.5" fill="#6dd3ce"/><text x="257.5" y="119.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">chemin primaire</text><line x1="460" y1="127.5" x2="502" y2="127.5" stroke="#6dd3ce" stroke-width="3"/><polygon points="510,127.5 500,122.5 500,132.5" fill="#6dd3ce"/><text x="485.0" y="119.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">local repair</text><line x1="690" y1="127.5" x2="732" y2="127.5" stroke="#6dd3ce" stroke-width="3"/><polygon points="740,127.5 730,122.5 730,132.5" fill="#6dd3ce"/><text x="715.0" y="119.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">détour</text><rect x="55" y="90" width="180" height="75" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="145.0" y="123.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Source</text><text x="145.0" y="141.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">trafic entrant</text><rect x="280" y="90" width="180" height="75" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="370.0" y="123.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">PLR</text><text x="370.0" y="141.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">panne détectée</text><rect x="510" y="90" width="180" height="75" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="600.0" y="123.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Repair list</text><text x="600.0" y="141.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">segments de réparation</text><rect x="740" y="90" width="180" height="75" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="830.0" y="123.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Destination</text><text x="830.0" y="141.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">post-convergence</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">TI-LFA s’appuie sur l’analyse de la topologie et du chemin attendu après convergence.</text><text x="480.0" y="352" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Vérifier la couverture réelle, les contraintes Flex-Algorithm et les SIDs de réparation.</text></svg>
+
+### 9.1 Contraintes et limites
+
+- Une couverture « théorique » ne remplace pas les tests de panne sur le matériel réel.
+- Les listes de réparation consomment des ressources et peuvent accroître la profondeur de pile.
+- Les objectifs d’un Flex-Algorithm doivent être respectés par le calcul de réparation lorsque le support existe ; sinon, il faut reconnaître et documenter la limite.
+- Une policy locale peut modifier le chemin attendu et influer sur les hypothèses de boucle utilisées par les mécanismes de réparation.
+- Les temps de détection (par exemple BFD), de bascule locale, de convergence IGP et de convergence applicative sont différents : les mesurer séparément.
+
+### 9.2 Plan de test de panne
+
+Pour chaque lien/nœud critique : établir l’état stable, lancer une mesure de flux, provoquer la panne en environnement de test, mesurer pertes et temps d’interruption, vérifier le chemin de réparation, attendre la convergence, vérifier le retour ou la réoptimisation et collecter les preuves. Répéter avec des directions de trafic distinctes.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="350" viewBox="0 0 960 350" role="img" aria-label="La couverture dépend du domaine à protéger, du PLR et de la topologie"><rect x="1" y="1" width="958" height="348" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">TI-LFA : raisonner sur les chemins</text><polyline points="150.0,166 150.0,128.0 480.0,128.0 480.0,82" fill="none" stroke="#6dd3ce" stroke-width="3" stroke-linejoin="round"/><polygon points="480.0,90 475.0,81 485.0,81" fill="#6dd3ce"/><text x="315.0" y="120.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">calcul P</text><polyline points="150.0,166 150.0,128.0 810.0,128.0 810.0,82" fill="none" stroke="#6dd3ce" stroke-width="3" stroke-linejoin="round"/><polygon points="810.0,90 805.0,81 815.0,81" fill="#6dd3ce"/><text x="480.0" y="120.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">calcul Q</text><polyline points="565,128.0 480.0,128.0 480.0,248.0 387,248.0" fill="none" stroke="#6dd3ce" stroke-width="3" stroke-linejoin="round"/><polygon points="395,248.0 385,243.0 385,253.0" fill="#6dd3ce"/><text x="480.0" y="121.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">P ∩ Q</text><polyline points="895,128.0 645.0,128.0 645.0,248.0 387,248.0" fill="none" stroke="#6dd3ce" stroke-width="3" stroke-linejoin="round"/><polygon points="395,248.0 385,243.0 385,253.0" fill="#6dd3ce"/><text x="645.0" y="121.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">repair</text><rect x="65" y="90" width="170" height="76" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="150.0" y="124.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">PLR</text><text x="150.0" y="142.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">point de réparation</text><rect x="395" y="90" width="170" height="76" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="480.0" y="124.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">P-space</text><text x="480.0" y="142.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">nœuds atteignables sans le risque</text><rect x="725" y="90" width="170" height="76" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="810.0" y="124.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Q-space</text><text x="810.0" y="142.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">nœuds rejoignant la destination</text><rect x="395" y="210" width="170" height="76" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="480.0" y="244.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Repair path</text><text x="480.0" y="262.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">intersection exploitable</text><text x="480.0" y="302" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Vue conceptuelle : les détails de calcul dépendent de la défaillance et de l’algorithme utilisé.</text></svg>
+
+## 10. SR-MPLS : capacité et budgets de forwarding
+
+SR-MPLS représente les segments comme une pile de labels. Les labels de service, labels de transport, segments explicites, BSID et labels supplémentaires éventuels contribuent à la profondeur et à la taille d’encapsulation. La limite pertinente est celle du chemin complet : matériel d’entrée, transit, lien à MTU réduite, matériel d’égress et comportement de réparation.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="L’ingénierie doit tenir compte des labels de service, de transport et des segments explicites"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Profondeur et budget de pile</text><line x1="250" y1="137.5" x2="267" y2="137.5" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,137.5 265,132.5 265,142.5" fill="#6dd3ce"/><text x="262.5" y="129.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">empiler</text><line x1="480" y1="137.5" x2="497" y2="137.5" stroke="#6dd3ce" stroke-width="3"/><polygon points="505,137.5 495,132.5 495,142.5" fill="#6dd3ce"/><text x="492.5" y="129.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">outer labels</text><line x1="710" y1="137.5" x2="727" y2="137.5" stroke="#6dd3ce" stroke-width="3"/><polygon points="735,137.5 725,132.5 725,142.5" fill="#6dd3ce"/><text x="722.5" y="129.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">valider</text><rect x="45" y="90" width="205" height="95" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="147.5" y="133.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Segments explicites</text><text x="147.5" y="151.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">waypoints / adjacency</text><rect x="275" y="90" width="205" height="95" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="377.5" y="133.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Service / VPN</text><text x="377.5" y="151.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">label ou contexte service</text><rect x="505" y="90" width="205" height="95" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="607.5" y="133.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Encapsulation</text><text x="607.5" y="151.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">entropy / transport</text><rect x="735" y="90" width="190" height="95" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="830.0" y="133.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">ASIC / MTU</text><text x="830.0" y="151.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">limites effectives</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Mesurer la profondeur réellement installée, la MTU sous encapsulation et la marge en cas de réparation.</text></svg>
+
+### 10.1 Budget de pile
+
+Établis un budget au minimum pour le chemin normal et pour le chemin de réparation. Exemple de tableau à remplir :
+
+| Élément | Chemin normal | Réparation | Commentaire |
+|---|---:|---:|---|
+| Segment(s) explicite(s) |  |  | Node-SID, Adj-SID ou autre SID |
+| Transport / service |  |  | Selon le service et le modèle |
+| Encapsulation additionnelle |  |  | Vérifier l’implémentation |
+| Total estimé |  |  | À vérifier en opérationnel |
+
+Ne traite pas l’exemple comme une garantie : les comportements PHP/explicit-null, BSID, ELI/EL et la programmation de l’ASIC modifient le nombre de labels observés.
+
+### 10.2 MTU et paquet effectif
+
+Vérifie l’encapsulation réelle et la MTU disponible le long du chemin. Une policy peut être active et un ping petit réussir tandis que les paquets applicatifs plus grands échouent. Les sondes OAM doivent tester des tailles pertinentes et leurs résultats doivent être comparés aux compteurs d’interface, aux erreurs de fragmentation et aux captures utiles.
+
+## 11. SRv6 : SID, locator et SRH
+
+SRv6 encode les segments sous forme de SID IPv6 et peut utiliser un Segment Routing Header (SRH) pour porter la liste ordonnée des segments. L’adresse de destination IPv6 désigne le segment actif ; le traitement du SRH fait évoluer le prochain segment selon la fonction appliquée. La sémantique dépend du type de SID/fonction annoncé, pas seulement de la forme visuelle de l’adresse.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Le SID représente une fonction et l’adresse de destination active désigne l’étape courante"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">SRv6 Network Programming</text><line x1="245" y1="139.0" x2="277" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="285,139.0 275,134.0 275,144.0" fill="#6dd3ce"/><text x="265.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">DA = SID A</text><line x1="485" y1="139.0" x2="517" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="525,139.0 515,134.0 515,144.0" fill="#6dd3ce"/><text x="505.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">SL / next SID</text><line x1="725" y1="139.0" x2="757" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="765,139.0 755,134.0 755,144.0" fill="#6dd3ce"/><text x="745.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">terminaison</text><rect x="45" y="95" width="200" height="88" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="145.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Ingress IPv6</text><text x="145.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">ajoute SRH / segments</text><rect x="285" y="95" width="200" height="88" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="385.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">SID A</text><text x="385.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">fonction locale / transit</text><rect x="525" y="95" width="200" height="88" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="625.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">SID B</text><text x="625.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">fonction suivante</text><rect x="765" y="95" width="160" height="88" rx="12" fill="#1d4934" stroke="#8be2a8" stroke-width="2"/><text x="845.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Egress</text><text x="845.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">fin de policy</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Le comportement exact dépend du type de SID (End, End.X, service SID, etc.) et de la configuration locale.</text></svg>
+
+### 11.1 Plan d’adressage
+
+Un plan SRv6 doit documenter les locators, la taille des préfixes, les règles d’allocation de fonctions, les frontières de domaine et les annonces requises. Il faut tenir compte de l’agrégation, des fonctions locales et globales, de la sécurité, de la MTU et de la capacité de traitement du SRH. Le choix d’architecture ne doit pas être fondé uniquement sur la comparaison « labels contre adresses » : matériel, services, exploitation, interopérabilité et trajectoire de migration comptent également.
+
+### 11.2 Sécurité SRv6
+
+Définis des frontières claires pour l’entrée de paquets SRv6, le traitement des en-têtes de routage, le filtrage des types d’extension, la validation des SIDs et les autorisations d’injection de policies. Les dispositifs de sécurité doivent être testés avec les paquets et extensions réellement utilisés ; les politiques génériques IPv6 peuvent ne pas suffire pour tous les scénarios.
+
+## 12. Migration et coexistence
+
+Une migration LDP vers SR-MPLS ou un passage graduel vers SRv6 doit préserver les services en cours. Il faut documenter les domaines, mécanismes de transport, capacités d’interopérabilité, frontières d’encapsulation, scénarios de retour arrière et conditions de retrait de l’ancien mécanisme.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Une migration contrôlée compare les chemins et garde un plan de retour explicite"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Migration LDP vers SR-MPLS</text><line x1="235" y1="143.0" x2="262" y2="143.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="270,143.0 260,138.0 260,148.0" fill="#6dd3ce"/><text x="252.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">prérequis</text><line x1="465" y1="143.0" x2="492" y2="143.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="500,143.0 490,138.0 490,148.0" fill="#6dd3ce"/><text x="482.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">validation</text><line x1="695" y1="143.0" x2="722" y2="143.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="730,143.0 720,138.0 720,148.0" fill="#6dd3ce"/><text x="712.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">go/no-go</text><rect x="40" y="100" width="195" height="86" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="137.5" y="139.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Préparation</text><text x="137.5" y="157.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">inventaire / SRGB / IGP</text><rect x="270" y="100" width="195" height="86" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="367.5" y="139.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Coexistence</text><text x="367.5" y="157.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">LDP + SR validés</text><rect x="500" y="100" width="195" height="86" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="597.5" y="139.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Bascule pilote</text><text x="597.5" y="157.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">services + OAM</text><rect x="730" y="100" width="195" height="86" rx="12" fill="#1d4934" stroke="#8be2a8" stroke-width="2"/><text x="827.5" y="139.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Extension</text><text x="827.5" y="157.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">vagues / rollback</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Ne retire jamais LDP sur la seule base d’une annonce SR : vérifie les services et le transfert de bout en bout.</text></svg>
+
+### 12.1 Portes de validation (gates)
+
+- **Inventaire :** versions, capacités SR, MTU, ressources, services dépendants et protocoles actifs.
+- **Préparation :** plan SID/locator, IGP, sécurité de contrôle, monitoring et rollback.
+- **Pilote :** quelques chemins et services représentatifs ; pas uniquement des pings locaux.
+- **Convergence :** tests de panne, limites de pile, MTU, asymétrie et comportement du trafic réel.
+- **Élargissement :** vagues de migration, observation et critère de retour arrière.
+- **Nettoyage :** retirer l’ancien mécanisme uniquement quand la matrice de dépendances est vide et validée.
+
+## 13. QoS, services et politiques de transport
+
+Une SR Policy exprime un chemin, mais ne garantit pas à elle seule la bande passante, une faible latence ou une absence de congestion. Les exigences de performance doivent être traitées de manière explicite : capacité des liens, classes de service, files d’attente, policers/shapers, SLA, chemin aller/retour et mesure. Les attributs d’une policy ou son objectif ne doivent pas être assimilés à une réservation de ressources sauf si un mécanisme qui offre cette réservation est réellement présent et provisionné.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="La policy choisit un chemin ; la QoS et la capacité déterminent le traitement réel"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">SR-TE et QoS : objectifs distincts</text><line x1="240" y1="140.0" x2="267" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,140.0 265,135.0 265,145.0" fill="#6dd3ce"/><text x="257.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">calcul</text><line x1="480" y1="140.0" x2="507" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="515,140.0 505,135.0 505,145.0" fill="#6dd3ce"/><text x="497.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">provisionner</text><line x1="720" y1="140.0" x2="747" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="755,140.0 745,135.0 745,145.0" fill="#6dd3ce"/><text x="737.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">observer</text><rect x="35" y="96" width="205" height="88" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="137.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Intention SR</text><text x="137.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">chemin / latence cible</text><rect x="275" y="96" width="205" height="88" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="377.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Admission</text><text x="377.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">capacité / contraintes</text><rect x="515" y="96" width="205" height="88" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="617.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">QoS</text><text x="617.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">classes / queues / shapers</text><rect x="755" y="96" width="170" height="88" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="840.0" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Mesures</text><text x="840.0" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">pertes / délai / gigue</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Une SR Policy ne réserve pas automatiquement de bande passante. Mesurer la performance et contrôler la congestion.</text></svg>
+
+### 13.1 Séparer objectif et mesure
+
+- **Objectif :** par exemple latence maximale ou usage d’une famille de liens.
+- **Contrainte de calcul :** ce qui est exprimé et utilisé par l’algorithme.
+- **Capacité :** ressources réellement disponibles sur les liens.
+- **Traitement QoS :** classification, marquage, files et ordonnancement configurés.
+- **Mesure :** délais, pertes, gigue, utilisation et traces réelles.
+
+La validation doit inclure les chemins de retour, les scénarios de saturation et la cohérence des classes sur chaque domaine traversé.
+
+## 14. Interactions avec BGP, VPN et services
+
+Le transport SR peut porter des services BGP/MPLS VPN, L3VPN ou d’autres services supportés par le réseau. La policy de transport et la route de service sont deux niveaux distincts : une route VPN sélectionnée n’implique pas que la policy de transport souhaitée soit utilisée ; à l’inverse, une policy fonctionnelle ne répare pas une route VPN manquante ou un next-hop non résolu.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Le transport de l’underlay SR et la résolution de la route de service sont deux couches"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Séparer transport SR et service VPN</text><line x1="240" y1="140.0" x2="267" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,140.0 265,135.0 265,145.0" fill="#6dd3ce"/><text x="257.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">route</text><line x1="480" y1="140.0" x2="507" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="515,140.0 505,135.0 505,145.0" fill="#6dd3ce"/><text x="497.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">transport</text><line x1="720" y1="140.0" x2="747" y2="140.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="755,140.0 745,135.0 745,145.0" fill="#6dd3ce"/><text x="737.5" y="132.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">acheminer</text><rect x="35" y="96" width="205" height="88" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="137.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Route VPN</text><text x="137.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">VRF / RD-RT / next-hop</text><rect x="275" y="96" width="205" height="88" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="377.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Résolution</text><text x="377.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">service label / endpoint</text><rect x="515" y="96" width="205" height="88" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="617.5" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Policy SR</text><text x="617.5" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">transport choisi</text><rect x="755" y="96" width="170" height="88" rx="12" fill="#1d4934" stroke="#8be2a8" stroke-width="2"/><text x="840.0" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">PE distant</text><text x="840.0" y="154.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">service / VRF</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Une policy de transport opérationnelle ne compense pas une route de service absente ou un label VPN erroné.</text></svg>
+
+### 14.1 Dépannage par couches
+
+1. Vérifier l’existence et la sélection de la route de service.
+2. Vérifier next-hop, VRF, attributs et résolutions de transport.
+3. Contrôler color/endpoint/steering quand ils sont utilisés.
+4. Vérifier la candidate path et les segments de la policy.
+5. Contrôler FIB/LFIB ou SRv6 forwarding et les interfaces.
+6. Lancer OAM avec les tailles de paquet adaptées.
+7. Corréler les compteurs, les événements de contrôle et la télémétrie.
+
+## 15. Observabilité et preuves de bon fonctionnement
+
+L’exploitation experte ne dépend pas d’une seule commande `show`. Elle combine état du contrôle, état du forwarding, mesures actives, télémétrie et tests d’acceptation. La collecte doit être horodatée, associée à un identifiant de changement et conservée avant/après l’opération.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Corréler contrôle, FIB/LFIB, OAM et télémétrie"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Observabilité SR de bout en bout</text><line x1="245" y1="139.0" x2="267" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,139.0 265,134.0 265,144.0" fill="#6dd3ce"/><text x="260.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">programming</text><line x1="480" y1="139.0" x2="502" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="510,139.0 500,134.0 500,144.0" fill="#6dd3ce"/><text x="495.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">probe</text><line x1="715" y1="139.0" x2="737" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="745,139.0 735,134.0 735,144.0" fill="#6dd3ce"/><text x="730.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">corréler</text><rect x="40" y="95" width="205" height="88" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="142.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Control plane</text><text x="142.5" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">IGP / BGP / PCEP</text><rect x="275" y="95" width="205" height="88" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="377.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Forwarding</text><text x="377.5" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">FIB / LFIB / ASIC</text><rect x="510" y="95" width="205" height="88" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="612.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">OAM active</text><text x="612.5" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">ping / trace / probes</text><rect x="745" y="95" width="180" height="88" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="835.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Telemetry</text><text x="835.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">latence / pertes / events</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Une policy affichée up n’est pas une preuve suffisante : associer des mesures et le chemin réel.</text></svg>
+
+### 15.1 Indicateurs pertinents
+
+- état des adjacences IGP et stabilité des annonces ;
+- SIDs attendus, mappings, profondeur de pile et installation dans FIB/LFIB ;
+- nombre de policies/candidates valides et actives ;
+- nombre de changements de candidate, réoptimisations et échecs de calcul ;
+- temps de détection, réparation locale, convergence IGP et retour à l’état stable ;
+- perte, délai, gigue, MTU, utilisation et files d’attente ;
+- divergence entre configuration déclarée, policy calculée et forwarding installé.
+
+### 15.2 Éviter les faux positifs
+
+Une trace de contrôle peut prouver que la policy a été signalée sans prouver qu’elle transporte les flux attendus. Un compteur de policy peut augmenter sans démontrer la performance applicative. Une probe peut suivre un autre chemin que l’application réelle. Croise donc plusieurs sources et marque les hypothèses qui ne peuvent pas être directement observées.
+
+## 16. Sécurité, gouvernance et protection du domaine
+
+Les SIDs et policies influencent les chemins que les paquets peuvent prendre. Restreins qui peut injecter des informations IGP/BGP/PCEP, qui peut modifier la configuration des policies, et quelles sources peuvent faire du steering. Journalise les modifications, valide les endpoints, filtre à la frontière de domaine et surveille les comportements inattendus de pile/SRH.
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Protéger le domaine, les contrôleurs et l’usage des policies"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Sécurité opérationnelle du Segment Routing</text><line x1="245" y1="139.0" x2="267" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,139.0 265,134.0 265,144.0" fill="#6dd3ce"/><text x="260.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">authentifier</text><line x1="480" y1="139.0" x2="502" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="510,139.0 500,134.0 500,144.0" fill="#6dd3ce"/><text x="495.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">appliquer</text><line x1="715" y1="139.0" x2="737" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="745,139.0 735,134.0 735,144.0" fill="#6dd3ce"/><text x="730.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">observer</text><rect x="40" y="96" width="205" height="86" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="142.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Contrôle accès</text><text x="142.5" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">IGP / BGP / PCEP</text><rect x="275" y="96" width="205" height="86" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="377.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Validation intent</text><text x="377.5" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">endpoint / color / ACL</text><rect x="510" y="96" width="205" height="86" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="612.5" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Enforcement</text><text x="612.5" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">stack / SRH / policers</text><rect x="745" y="96" width="180" height="86" rx="12" fill="#1d4934" stroke="#8be2a8" stroke-width="2"/><text x="835.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Audit</text><text x="835.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">logs / alertes</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Limiter qui peut injecter des policies et valider les contraintes des listes de segments.</text><text x="480.0" y="352" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Pour SRv6, appliquer les mesures de filtrage et de validation adaptées au domaine.</text></svg>
+
+### 16.1 Contrôles recommandés
+
+- authentification et protection des sessions de contrôle supportées ;
+- contrôle d’accès aux API et aux plateformes d’orchestration ;
+- séparation des rôles pour proposition, approbation et déploiement ;
+- limites de fréquence et validation des intentions ;
+- politiques explicites aux frontières et filtrage adapté au plan de données ;
+- gestion des secrets, journaux, versions et retours arrière ;
+- tests de sécurité et de déni de service dans un environnement autorisé.
+
+## 17. Laboratoire de synthèse à cinq routeurs
+
+### 17.1 Topologie
+
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Architecture pédagogique à cinq nœuds avec primaire et secours"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Laboratoire de synthèse : objectif puis preuve</text><line x1="190" y1="139.0" x2="207" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="215,139.0 205,134.0 205,144.0" fill="#6dd3ce"/><text x="202.5" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">SR</text><line x1="375" y1="139.0" x2="392" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="400,139.0 390,134.0 390,144.0" fill="#6dd3ce"/><text x="387.5" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">primaire</text><line x1="560" y1="139.0" x2="762" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="770,139.0 760,134.0 760,144.0" fill="#6dd3ce"/><text x="665.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">vers PE2</text><line x1="375" y1="139.0" x2="577" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="585,139.0 575,134.0 575,144.0" fill="#6dd3ce"/><text x="480.0" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">repair</text><line x1="745" y1="139.0" x2="762" y2="139.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="770,139.0 760,134.0 760,144.0" fill="#6dd3ce"/><text x="757.5" y="131.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">secours</text><rect x="30" y="100" width="160" height="78" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="110.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">PE1</text><text x="110.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">headend</text><rect x="215" y="100" width="160" height="78" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="295.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">P1</text><text x="295.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">transit</text><rect x="400" y="100" width="160" height="78" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="480.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">P2</text><text x="480.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">chemin primaire</text><rect x="585" y="100" width="160" height="78" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="665.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">P3</text><text x="665.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">chemin secours</text><rect x="770" y="100" width="160" height="78" rx="12" fill="#1d4934" stroke="#8be2a8" stroke-width="2"/><text x="850.0" y="135.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">PE2</text><text x="850.0" y="153.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">endpoint</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Objectif : activer une policy, prouver le steering, provoquer une panne et mesurer le délai de réparation.</text></svg>
+
+Utilise cinq routeurs (R1 à R5) avec un IGP à état de liens et un adressage loopback stable. Le chemin normal traverse R2/R3 ; un chemin alternatif traverse R4. L’objectif est de créer une SR Policy explicite puis une alternative, de démontrer le steering et d’observer la protection lors d’une panne. Les labels, index et commandes doivent être choisis selon le plan de ta plateforme.
+
+### 17.2 Séquence de travail
+
+1. Documente interfaces, loopbacks, coûts IGP, MTU et rôle de chaque routeur.
+2. Vérifie la convergence IGP et la reachability de toutes les loopbacks.
+3. Active SR-MPLS dans un environnement de laboratoire et annonce les SIDs.
+4. Vérifie SRGB/SRLB et résous les SIDs sur chaque routeur.
+5. Crée une SR Policy avec une candidate explicite primaire et une alternative.
+6. Vérifie l’éligibilité, la sélection, le BSID si utilisé, puis l’installation FIB/LFIB.
+7. Applique le steering à un préfixe/flux de test et mesure son parcours.
+8. Simule une panne de lien contrôlée, mesure pertes et temps de réparation.
+9. Vérifie MTU, profondeur de pile et comportement de retour à la normale.
+10. Retire proprement les configurations et compare l’état final à la baseline.
+
+### 17.3 Exemples de commandes d’observation
+
+Les noms exacts dépendent de la plate-forme ; utilise la commande équivalente documentée pour le système concerné :
+
+```text
+show isis adjacency
+show isis database detail
+show segment-routing mpls connected-prefix-sid-map
+show mpls forwarding-table
+show ip route <endpoint>
+show segment-routing traffic-eng policy
+show segment-routing traffic-eng forwarding
+traceroute <endpoint>
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                      PCE CENTRALISÉ / CONTRÔLEUR SDN                   │
-│                        (Cisco Crosswork / OpenDaylight)                │
-└───────────────▲────────────────────────────────────────▲───────────────┘
-                │ BGP-LS (Topology / TE)                 │ PCEP (RFC 5440)
-                │                                        │ (Path Report & Instantiation)
-┌───────────────┴─────────────────┐    ┌─────────────────┴───────────────┐
-│          DOMAINE IGP 1          │    │          DOMAINE IGP 2          │
-│                                 │    │                                 │
-│  [ Headend PE1 ] ──── [ ABR1 ] ─┼────┼─ [ ABR2 ] ──── [ Egress PE2 ]   │
-│   (Ingress Node)                │    │                                 │
-└─────────────────────────────────┘    └─────────────────────────────────┘
 
-```
+Ces lignes sont des exemples représentatifs, pas une syntaxe universelle. Certaines commandes sont propres à IOS XR ou à des versions IOS XE ; ne les colle pas sans vérifier l’aide CLI et le guide correspondant.
 
-### 1. Protocole BGP-LS (BGP Link-State)
+## 18. Études de cas
 
-Pour que le PCE centralisé dispose d'une carte topologique temps réel du réseau, tous les routeurs ABR/ASBR exportent leur base de données IGP (IS-IS ou OSPF) vers le PCE au moyen de l'Address Family **BGP Link-State (BGP-LS)** :
+### Cas A — Policy active mais chemin non respecté
 
-* **NLRI BGP-LS** : Transporte les nœuds (Node Attribute), les liaisons (Link Attribute), la métrique de latence unidirectionnelle (SR Delay Measurement) et les SIDs associés (Prefix-SID, Adj-SID, Flex-Algo SID).
+**Symptôme :** la console montre une policy active, mais la trace suit l’IGP par défaut.
 
-### 2. Protocole PCEP (Path Computation Element Communication Protocol)
+**Enquête :** vérifier le steering, la route réellement choisie, la correspondance color/endpoint, la candidate active et les entrées de forwarding. Capturer le trafic à l’entrée et vérifier les compteurs. Corriger uniquement la couche qui échoue.
 
-Le routeur source (*Path Computation Client* - PCC) communique avec le PCE centralisé en PCEP (TCP port 4189) :
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="380" viewBox="0 0 960 380" role="img" aria-label="Diagnostic par preuves successives plutôt que supposition"><rect x="1" y="1" width="958" height="378" rx="18" fill="#0b1424" stroke="#28415f" stroke-width="2"/><text x="480.0" y="34" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Étude de panne : policy installée mais trafic inchangé</text><line x1="235" y1="144.0" x2="267" y2="144.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="275,144.0 265,139.0 265,149.0" fill="#6dd3ce"/><text x="255.0" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">vérifier</text><line x1="475" y1="144.0" x2="507" y2="144.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="515,144.0 505,139.0 505,149.0" fill="#6dd3ce"/><text x="495.0" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">résoudre</text><line x1="715" y1="144.0" x2="747" y2="144.0" stroke="#6dd3ce" stroke-width="3"/><polygon points="755,144.0 745,139.0 745,149.0" fill="#6dd3ce"/><text x="735.0" y="136.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#f8fafc">prouver</text><rect x="35" y="100" width="200" height="88" rx="12" fill="#193654" stroke="#70a7e0" stroke-width="2"/><text x="135.0" y="140.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">1. Steering</text><text x="135.0" y="158.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">route/classification ?</text><rect x="275" y="100" width="200" height="88" rx="12" fill="#382b55" stroke="#c0a5ff" stroke-width="2"/><text x="375.0" y="140.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">2. Policy active</text><text x="375.0" y="158.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">candidate / validity</text><rect x="515" y="100" width="200" height="88" rx="12" fill="#16483f" stroke="#69d8bc" stroke-width="2"/><text x="615.0" y="140.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">3. FIB/LFIB</text><text x="615.0" y="158.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">label list / BSID ?</text><rect x="755" y="100" width="170" height="88" rx="12" fill="#5a3a17" stroke="#f4bd65" stroke-width="2"/><text x="840.0" y="140.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#f8fafc">4. OAM</text><text x="840.0" y="158.0" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="400" fill="#cbd5e1">trace / counters</text><text x="480.0" y="332" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="400" fill="#cbd5e1">Ne pas changer la policy avant de prouver quel étage ne fonctionne pas.</text></svg>
 
-* **PCC-Initiated** : Le PCC demande au PCE de calculer une trajectoire sous contraintes.
+### Cas B — Panne provoquant une perte prolongée
 
-* **PCE-Initiated (Stateful PCE)** : Le PCE instancie dynamiquement une SR Policy directement sur le routeur Headend sans intervention manuelle (Message `PCRpt` / `PCUpd`).
+**Symptôme :** le trafic chute après la perte d’un lien malgré TI-LFA annoncé comme activé.
 
-## 2. SRv6 Network Programming & Micro-Segments (uSID)
+**Enquête :** vérifier détection de panne, installation d’une réparation, portée des SIDs de réparation, contraintes Flex-Algorithm, ressources de pile et délai de convergence. Tester également la panne du nœud, pas seulement du lien.
 
-Le **SRv6 (Segment Routing over IPv6)** remplace l'encapsulation MPLS par des adresses IPv6 natives de 128 bits. Chaque instruction SRv6 est codée dans une adresse IPv6 appelée **SRv6 SID**.
+### Cas C — Service VPN inaccessible
 
-### 1. Structure d'un SRv6 SID (128 bits)
+**Symptôme :** le transport SR fonctionne vers le PE de sortie, mais le préfixe client ne répond pas.
 
-Un SRv6 SID n'est pas une simple adresse IP destination : c'est un exécutable sous forme d'adresse IP découpé en trois parties :
+**Enquête :** séparer route service et transport : table VRF, route BGP, next-hop VPN, label de service, politique de transport, retour et filtres de sécurité. Ne pas déduire l’état de la VRF de l’état de la SR Policy.
 
-```
- 0                                 48               80               128
-+---------------------------------+----------------+----------------+
-|          LOCATOR (48 bits)      | FUNCTION (32b) | ARGUMENT (48b) |
-+---------------------------------+----------------+----------------+
- \───────────────────────────────/ \──────────────/ \──────────────/
-   Routable sur le réseau IPv6       Action exécutée   Paramètres
-   (Acheminement IGP/BGP)            sur le nœud       supplémentaires
+### Cas D — Dégradation sur gros paquets
 
-```
+**Symptôme :** petites probes réussies, applications lentes ou bloquées.
 
-* **Locator** : Partie routable du SID. Utilisée par les routeurs de transit pour acheminer le paquet vers le nœud cible via le routage IPv6 le plus court (IPv6 Prefix).
+**Enquête :** mesurer la MTU de bout en bout avec l’encapsulation réelle, profondeur de pile/SRH, compteurs d’erreurs et fragmentation, puis comparer les chemins aller/retour. Tester des tailles progressives et appliquer un changement à la fois.
 
-* **Function** : Code d'instruction (*Opcode*) exécuté par le processeur/ASIC du routeur récepteur (ex: décapsuler, rediriger vers une VRF, appliquer une fonction réseau VNF).
+### Cas E — Réoptimisation non souhaitée après restauration
 
-* **Argument** : Paramètres optionnels d'exécution (ex: Flow Label, métadonnées de service).
+**Symptôme :** après le retour d’un lien, le trafic bascule plusieurs fois.
 
-### 2. Fonctions SRv6 fondamentales (SRv6 Behaviors - RFC 8986)
+**Enquête :** corréler métriques, hystérésis ou timers supportés, préférence des candidates, état PCE, changements IGP et objectifs de policy. Définir un critère de stabilité et tester la séquence panne/restauration.
 
-| Fonction SRv6 | Nom Complet | Description / Action du plan de données |
-| :--- | :--- | :--- |
-| **End** | Endpoint | Instruction de base. Avance le pointeur `Segments Left` dans l'en-tête SRH et réachemine le paquet. |
-| **End.X** | Endpoint with Layer-3 Cross-Connect | Équivalent à un Adj-SID. Transfère le paquet directement sur une interface de sortie spécifique. |
-| **End.DT4 / End.DT6** | Endpoint with Decapsulation and IPv4/IPv6 Table Lookup | Décapsule l'en-tête IPv6/SRH externe et recherche l'IP interne dans la table de routage d'une **VRF L3VPN**. |
-| **End.DX4 / End.DX6** | Endpoint with Decapsulation and Cross-Connect | Décapsule et envoie directement le paquet IPv4/IPv6 sur une sous-interface/cross-connect spécifique. |
-| **End.DT2U / End.DT2M** | Endpoint with Decapsulation and L2 Table Lookup | Décapsule et injecte la trame Ethernet dans une instance **EVPN (Bridge Domain)** pour le trafic Unicast/Multicast. |
+## 19. Quiz de validation — niveau Expert
 
-### 3. SRv6 uSID (Micro-Segment - RFC 9256)
+1. Pourquoi faut-il distinguer une candidate path configurée d’une candidate éligible et active ?
+2. Quel est le rôle d’un BSID et quelle précaution faut-il prendre concernant sa portée ?
+3. Pourquoi un Node-SID n’impose-t-il pas toujours un lien précis ?
+4. Que faut-il vérifier avant de conclure que TI-LFA respecte une contrainte Flex-Algorithm ?
+5. Pourquoi une policy SR active ne garantit-elle pas une latence de bout en bout ?
+6. Quels contrôles faut-il effectuer avant de retirer LDP lors d’une migration vers SR-MPLS ?
+7. Comment distinguer un problème de route de service d’un problème de transport SR ?
+8. Pourquoi tester uniquement avec des petits pings ne suffit-il pas pour valider la MTU ?
+9. Quelles sources de preuve faut-il corréler pour prouver le steering réel ?
+10. Quels garde-fous mettre en place pour limiter l’injection non autorisée de policies ?
 
-L'un des défis majeurs du SRv6 classique est la taille de l'en-tête IPv6 lorsque plusieurs SIDs de 128 bits sont empilés dans le **SRH (Segment Routing Header)**, générant un surcoût d'en-tête (*Overhead*) important.
+### Corrigé
 
-La technologie **uSID (Micro-Segment)** résout ce problème en compactant plusieurs SIDs de 16 bits au sein d'une seule et même adresse IPv6 de 128 bits :
+1. La configuration ne garantit ni la validité des segments, ni la satisfaction des contraintes, ni la sélection par l’algorithme de préférence.
+2. Le BSID représente une policy locale par un SID ; il faut connaître sa portée et vérifier sa résolution sur le headend concerné.
+3. Le Node-SID suit généralement le calcul du routage de l’algorithme associé et peut utiliser ECMP ; un Adj-SID peut contraindre une adjacency.
+4. La topologie post-convergence, le type de panne, les SIDs disponibles, la participation Flex-Algorithm, la réparation installée et le comportement réel.
+5. La policy choisit un chemin ; capacité, congestion, files, QoS, distance, chemin retour et mesures restent déterminants.
+6. La couverture SR, les services, les labels, le forwarding, la MTU, la convergence, l’interopérabilité et le rollback.
+7. Examiner séparément table de service/VRF/BGP et résolution du transport/segments/FIB-LFIB, puis tester bout en bout.
+8. L’encapsulation peut réduire la MTU effective ; les gros paquets peuvent échouer alors que les petits passent.
+9. État contrôle, candidate active, forwarding installé, probes/trace, compteurs et télémétrie.
+10. Authentification, contrôle d’accès aux API, validation des intentions, contrôle de changement, filtrage aux frontières et audit.
 
-```
- 0                  16         32         48         64                  128
-+------------------+----------+----------+----------+-------------------+
-|  uSID Block (16) | Node 1   | Node 2   | Node 3   |  End.X / Active   |
-|   (ex: 2001:db8) |  (uN 1)  |  (uN 2)  |  (uN 3)  |   Shift Pointer   |
-+------------------+----------+----------+----------+-------------------+
- \────────────────/ \──────────────────────────────/
-   Prefix commun       3 SIDs de nœuds dans 1 seule 
-   du domaine SRv6     adresse IPv6 de 128 bits !
+## 20. Checklist de production
 
-```
+- [ ] Les objectifs de la policy sont traduits en critères mesurables.
+- [ ] Le plan SID/locator est documenté, gouverné et audité.
+- [ ] Les candidats primaire et secours sont validés sur le forwarding.
+- [ ] Les contraintes et leur compatibilité avec FRR/TI-LFA sont testées.
+- [ ] La pile de labels/SRH et la MTU ont été testées pour les paquets représentatifs.
+- [ ] Le steering des flux est prouvé par plusieurs sources indépendantes.
+- [ ] Les services VPN et le chemin retour sont validés.
+- [ ] Les comportements de perte de contrôleur et de restauration sont connus.
+- [ ] Le contrôle d’accès, le journal d’audit et le rollback sont opérationnels.
+- [ ] Une baseline avant/après changement est conservée.
 
-Au fur et à mesure que le paquet traverse les nœuds `Node 1` $\rightarrow$ `Node 2` $\rightarrow$ `Node 3`, l'adresse IPv6 destination subit une rotation de décalage vers la gauche (*Shift Operation*), éliminant complètement le besoin d'un en-tête SRH pour les chemins courts !
+## 21. Glossaire expert
 
-## 3. Topologies Virtuelles : Flex-Algo (Flexible Algorithm)
+- **BSID :** Binding SID, identifiant associé à une SR Policy locale.
+- **Candidate path :** option de chemin qui peut être évaluée et sélectionnée par une SR Policy.
+- **FAD :** Flex-Algorithm Definition, combinaison d’algorithme, de métrique et de contraintes.
+- **Headend :** nœud sur lequel la policy SR est instanciée et où le steering démarre.
+- **LFIB :** table de forwarding MPLS basée sur les labels.
+- **PLR :** Point of Local Repair, nœud qui applique une réparation locale.
+- **PCE/PCEP :** élément de calcul de chemin / protocole de communication associé.
+- **SRGB/SRLB :** plages de labels SR globales/locales.
+- **SRH :** Segment Routing Header pour SRv6.
+- **Steering :** mécanisme qui associe un trafic à une policy.
+- **TI-LFA :** Topology Independent Loop-Free Alternate Fast Reroute.
+- **TED :** Traffic Engineering Database.
 
-Le **Flexible Algorithm (Flex-Algo)** permet de créer plusieurs sous-topologies de routage indépendantes (Slices) à l'intérieur d'un même domaine IGP (IS-IS ou OSPF), sans nécessiter le déploiement de contrôleur centralisé ni de tunnels SR-TE complexes.
+## 22. Références officielles
 
-```
-                    ┌──────────────────────────────────────┐
-                    │       TOPOLOGIE PHYSIQUE UNIQUE      │
-                    └──────────────────┬───────────────────┘
-                                       │
-            ┌──────────────────────────┴──────────────────────────┐
-            ▼                                                     ▼
-┌───────────────────────────────────────┐ ┌───────────────────────────────────────┐
-│        FLEX-ALGO 128 (LATENCY)        │ │        FLEX-ALGO 129 (MACSEC)        │
-│ - Métrique = Delay Unidirectional     │ │ - Exclut les liens non-chiffrés     │
-│ - Optimisé pour la Voix / 5G URLLC    │ │ - Dédié aux flux bancaires/critiques  │
-└───────────────────────────────────────┘ └───────────────────────────────────────┘
+- [RFC 8402 — Segment Routing Architecture](https://www.rfc-editor.org/rfc/rfc8402.html) — architecture SR, mise à jour par RFC 9256 pour SR Policy.
+- [RFC 9256 — Segment Routing Policy Architecture](https://www.rfc-editor.org/rfc/rfc9256.html) — modèles de policy et steering.
+- [RFC 9350 — IGP Flexible Algorithm](https://www.rfc-editor.org/rfc/rfc9350.html) — base du Flex-Algorithm.
+- [RFC 9843 — IGP Flexible Algorithms: Bandwidth, Delay, Metrics, and Constraints](https://www.rfc-editor.org/rfc/rfc9843.html) — contraintes de bande passante, délai, métriques et pruning.
+- [RFC 9917 — IGP Flexible Algorithms Reverse Affinity Constraint](https://www.rfc-editor.org/rfc/rfc9917.html) — contrainte d’affinité dans la direction inverse ; met à jour RFC 9350 et RFC 9843.
+- [RFC 9855 — Topology Independent Fast Reroute Using Segment Routing](https://www.rfc-editor.org/rfc/rfc9855.html) — TI-LFA.
+- [RFC 8986 — SRv6 Network Programming](https://www.rfc-editor.org/rfc/rfc8986.html) — fonctions et SIDs SRv6.
+- [Cisco Segment Routing Configuration Guide](https://www.cisco.com/c/en/us/td/docs/routers/ios-xe/segment-routing/segment-routing-guide.html) — configuration, limites de plateforme et fonctionnalités.
 
-```
-
-### Structure de définition d'un Flex-Algo (FAD - Flex-Algo Definition)
-
-Un **Flex-Algo** est identifié par une valeur numérique comprise entre `128` et `255`. Il est défini par un triplet :
-
-1. **Calculation Type** : Algorithme de calcul (0 = SPF standard, 1 = Strict SPF).
-
-2. **Metric Type** : Métrique utilisée pour le calcul du plus court chemin (0 = IGP metric, 1 = TE metric, 2 = Delay Unidirectional).
-
-3. **Constraints** : Règles d'inclusion ou d'exclusion de liaisons basées sur les **Affinity Colors / SRLG** (ex: *Exclude Link Color RED*).
-
-Chaque routeur se voient attribuer un **Flex-Algo Prefix-SID** spécifique pour chaque algorithme auquel il participe (ex: Node-SID standard = `16001`, Flex-Algo 128 SID = `16801`).
-
-## 4. Configuration Avancée SRv6 & Flex-Algo (Cisco IOS-XR)
-
-La configuration suivante sur **Cisco IOS-XR (ASR 9000 / NCS 5500)** illustre la mise en œuvre de **SRv6 uSID**, l'allocation de services L3VPN via `End.DT4`, ainsi que la définition d'un **Flex-Algo 128** basé sur la latence minimale.
-
-```
-! =====================================================================
-! SECTION 1 : CONFIGURATION DU LOCATOR SRv6 ET uSID
-! =====================================================================
-segment-routing
- srv6
-  encapsulation
-   source-address 2001:db8:1::3
-  !
-  locators
-   locator MAIN-uSID
-    prefix 2001:db8:1:3::/64 micro-segment behavior unode pshift-0
-   !
-   locator LATENCY-uSID
-    prefix 2001:db8:1:f128::/64 micro-segment behavior unode pshift-0
-   !
-  !
- !
-!
-
-! =====================================================================
-! SECTION 2 : DEFINITION DU FLEX-ALGO 128 DANS IS-IS
-! =====================================================================
-router isis CORE-SRv6
- net 49.0001.0000.0000.0003.00
- metric-style wide
- 
- flex-algo 128
-  metric-type delay
-  advertise-definition
- !
-
- address-family ipv6 unicast
-  metric-style wide
-  segment-routing srv6
-   locator MAIN-uSID
-   !
-   locator LATENCY-uSID level 2
-    algo 128
-   !
-  !
- !
-
- interface TenGigE0/0/0/0
-  point-to-point
-  address-family ipv6 unicast
-   fast-reroute per-prefix ti-lfa
-  !
- !
-!
-
-! =====================================================================
-! SECTION 3 : ASSOCIATION L3VPN AVEC SRv6 End.DT4 (VRF BANQUE)
-! =====================================================================
-vrf BANQUE
- address-family ipv4 unicast
-  import route-target
-   100:10
-  !
-  export route-target
-   100:10
-  !
-  segment-routing srv6
-   alloc mode per-vrf
-   locator MAIN-uSID
-  !
- !
-!
-
-```
-
-## 5. Automation Programmatique & Diagnostic Bas-Niveau
-
-À l'échelle Expert, le monitoring des architectures SRv6 et SR-TE s'appuie sur la télémétrie en temps réel (**gNMI / gRPC**) et sur les outils de sondage OAM natifs (RFC 8402 / RFC 8287).
-
-### 1. Diagnostic SRv6 / SR-TE via Ping et Trace OAM
-
-Contrairement au Ping/Traceroute IP classique, les paquets **MPLS/SRv6 OAM** interrogent directement le plan de contrôle du nœud distant pour valider l'alignement entre le segment sollicité et la VRF/Service sous-jacent.
-
-```
-# Test de connectivité vers un SRv6 SID spécifique (End.DT4)
-ping srv6 2001:db8:1:3::fe10 source 2001:db8:1::1
-
-# Inspection du chemin explicite d'une SR Policy avec affichage des SIDs
-traceroute sr-te policy name POLICY_VOICE_LOW_LATENCY verbose
-
-```
-
-### 2. Monitoring Programmatique gNMI / YANG (Telemetry Stream)
-
-L'extraction de l'état des tunnels SR-TE et des erreurs de basculement TI-LFA s'effectue au travers du modèle OpenConfig YANG `openconfig-segment-routing.yang` via **gNMI (gRPC Network Management Interface)**.
-
-```python
-#!/usr/bin/env python3
-"""
-Script Expert gNMI Client:
-Abonnement en streaming aux métriques de trafic SR Policy (Cisco IOS-XR / Junos)
-"""
-
-from pygnmi.client import gNMIclient
-import json
-
-TARGET = ("10.0.0.3", 57400)
-USER = "admin"
-PASS = "Cisco123!"
-
-# Chemin OpenConfig YANG pour les statistiques SR-TE
-SR_POLICY_PATH = [
-    "openconfig-network-instance:network-instances/network-instance[name=default]/"
-    "segment-routing/te-policies/te-policy"
-]
-
-def stream_sr_telemetry():
-    with gNMIclient(target=TARGET, username=USER, password=PASS, skip_verify=True) as client:
-        print("[+] Etablissement de la session gNMI Streaming...")
-        
-        subscribe_args = {
-            'path': SR_POLICY_PATH,
-            'mode': 'stream',
-            'submode': 'sample',
-            'sample_interval': 10000000000  # 10 secondes
-        }
-        
-        for response in client.subscribe(subscribe_args=subscribe_args):
-            update = response.get('update', {})
-            if 'update' in update:
-                for val in update['update']:
-                    path = val.get('path', '')
-                    data = val.get('val', {})
-                    print(f"[TELEMETRY DATA] Path: {path} | Content: {json.dumps(data)}")
-
-if __name__ == "__main__":
-    stream_sr_telemetry()
-```
-
-## Points à retenir
-
-* **PCE / PCEP & BGP-LS** : Permet le calcul de chemin SR-TE centralisé inter-domaines. BGP-LS remonte la topologie au PCE, et PCEP (RFC 5440) instancie les politiques sur les routeurs Ingress.
-
-* **SRv6 Network Programming** : Codé sur des adresses IPv6 de 128 bits structurées en `Locator`, `Function` (ex: `End.DT4` pour L3VPN, `End.X` pour Adj-SID) et `Argument`.
-
-* **uSID (Micro-Segment)** : Compresse plusieurs SIDs de 16 bits au sein d'une unique adresse IPv6 de 128 bits, éliminant le surcoût de l'en-tête SRH.
-
-* **Flex-Algo (Flexible Algorithm)** : Découpe l'IGP en topologies virtuelles autonomes (Slices 128-255) basées sur des métriques personnalisées (ex: Delay Unidirectional) ou des contraintes d'exclusion de liaisons.
+> **Règle d’ingénierie :** une SR Policy est validée lorsque son intention, son chemin installé, le steering du trafic, la performance réelle et le comportement pendant une panne ont tous été mesurés. Une policy qui apparaît « up » n’est qu’un élément de preuve.

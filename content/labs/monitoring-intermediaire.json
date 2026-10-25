@@ -1,0 +1,7 @@
+{
+  "node_id": "monitoring-intermediaire",
+  "mode": "contains",
+  "prompt": "Saisissez le mot 'ok' pour valider le lab temporaire de Supervision avec Prometheus et Grafana.",
+  "hint": "Tapez ok",
+  "pattern": "ok"
+}

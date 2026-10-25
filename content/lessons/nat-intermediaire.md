@@ -1,8 +1,3 @@
----
-node_id: nat-intermediaire
-title: NAT & PAT - Intermédiaire
----
-
 # NAT & PAT - Intermédiaire
 
 **Niveau :** Intermédiaire
@@ -19,7 +14,6 @@ Ce cours approfondit le fonctionnement de NAT/PAT au niveau intermédiaire. Il �
 >
 > La comparaison a toutefois une limite importante : le NAT n’est pas un standard de sécurité équivalent à un pare-feu. L’accueil peut garder une table des appels en cours, mais ce registre ne constitue pas à lui seul une politique complète d’autorisation. Un service explicitement publié par une traduction statique peut rester accessible si le routage et les filtres le permettent. De même, certains protocoles transportent des adresses ou des ports dans leur charge utile ; remplacer uniquement l’en-tête IP peut ne pas suffire à maintenir leur fonctionnement. Il faut donc considérer NAT comme une fonction de traduction d’adresses et d’état, puis traiter séparément le filtrage, la sécurité et la compatibilité applicative.
 
----
 
 ## 1. La théorie et les algorithmes
 
@@ -342,7 +336,6 @@ Les traductions statiques et les port-forwardings sont particulièrement importa
   de traduction, sauf architecture explicitement conçue pour l'éviter.
 ```
 
----
 
 ## 2. Configuration et Pratique
 
@@ -527,7 +520,6 @@ Utilise-la uniquement lorsque l’impact est compris et qu’une interruption es
 
 Pour les diagnostics courants, il est préférable de commencer par `show ip nat translations` et `show ip nat statistics`, plutôt que de supprimer immédiatement la table. La conservation des entrées et des compteurs peut être utile pour déterminer l’origine du problème.
 
----
 
 ## 3. Dépannage et Sécurité
 
@@ -693,7 +685,6 @@ Avant toute modification d’une règle NAT, conserve la configuration, identifi
 
 > **Danger :** Une traduction statique ou une redirection de port peut rendre un service interne accessible depuis l’extérieur lorsque le routage et le filtrage le permettent. NAT ne remplace pas un pare-feu et ne protège pas automatiquement le serveur. Avant toute publication, limite les ports, contrôle les sources autorisées si c’est approprié, sécurise et mets à jour l’application, active une journalisation proportionnée et vérifie depuis un réseau réellement externe ce qui est exposé.
 
----
 
 ## Points à retenir
 
@@ -703,7 +694,6 @@ Avant toute modification d’une règle NAT, conserve la configuration, identifi
 
 - **Le PAT économise des adresses, mais introduit de l’état et des limites opérationnelles.** Surveille les traductions actives, les pools, les temporisateurs et les sessions. Le double NAT, le CGNAT, les chemins asymétriques, le DNS et les protocoles qui transportent des adresses dans leur charge utile peuvent compliquer l’accès entrant et le dépannage.
 
----
 
 ## Références techniques
 
