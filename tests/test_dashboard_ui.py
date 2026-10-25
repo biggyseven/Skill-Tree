@@ -708,6 +708,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Révisions espacées", DASHBOARD_HTML)
         # The revisions section remains accessible even when the server has no review action due today.
         self.assertIn("même lorsqu’aucune révision n’est encore due dans le plan du jour", DASHBOARD_HTML)
+        self.assertIn("['tree','labs','exam','challenges','memo','diagnostic','stats']", DASHBOARD_HTML)
+        self.assertIn("grid-template-columns: repeat(7, minmax(0,1fr))", DASHBOARD_HTML)
+        self.assertIn("item.id === 'memo' ? 'Réviser' : item.label", DASHBOARD_HTML)
 
     def test_topology_navigation_is_replaced_by_challenges_and_lab_workspace_is_independent(self):
         self.assertIn("tab === 'challenges'", DASHBOARD_HTML)
