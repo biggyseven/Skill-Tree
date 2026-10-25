@@ -3443,7 +3443,15 @@
         stepDone(i) { return !!(this.detail && this.labSteps[this.detail.id + ':' + i]); },
         toggleStep(i) { const k = this.detail.id + ':' + i; const o = { ...this.labSteps }; if (o[k]) delete o[k]; else o[k] = 1; this.labSteps = o; LS.set('lab-steps', o); },
         onLabValidated(data) {
-          if (data && data.passed && this.detail && !this.labsDone.includes(this.detail.id)) { this.labsDone = [...this.labsDone, this.detail.id]; LS.set('labs-done', this.labsDone); this.celebrate(); this.checkRewards(); }
+          // Un bac à sable peut répondre à son contrôle technique, mais ne valide
+          // ni le cours ni le compteur local de labs réussis.
+          if (!data || !data.passed || data.sandbox === true || data.attempt_recorded === false) return;
+          const nodeId = this.detail && this.detail.id;
+          if (!nodeId || this.labsDone.includes(nodeId)) return;
+          this.labsDone = [...this.labsDone, nodeId];
+          LS.set('labs-done', this.labsDone);
+          this.celebrate();
+          this.checkRewards();
         },
 
         // ---------- récompenses et diplômes ----------
