@@ -2055,6 +2055,508 @@
     ]
   },
   {
+    "id": "lab_netns",
+    "module": "Administration Réseaux",
+    "title": "Lab : routage entre namespaces",
+    "category": "Labs pratiques",
+    "order": 200,
+    "description": "Configurer l'adressage et les routes entre 3 namespaces Linux.",
+    "prereqs": [
+      "routing-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "lab_bridge",
+    "module": "Administration Réseaux",
+    "title": "Lab : bridge Linux et connectivité L2",
+    "category": "Labs pratiques",
+    "order": 210,
+    "description": "Attacher deux veths à un bridge.",
+    "prereqs": [
+      "ethernet-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "lab_troubleshoot_vlan",
+    "module": "Administration Réseaux",
+    "title": "Lab : dépannage VLAN",
+    "category": "Labs pratiques",
+    "order": 215,
+    "description": "Erreur L2 volontaire à diagnostiquer.",
+    "prereqs": [
+      "vlan-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "lab_tshoot_dns",
+    "module": "Administration Réseaux",
+    "title": "Lab : dépannage DNS",
+    "category": "Labs pratiques",
+    "order": 216,
+    "description": "Enregistrement DNS mal configuré.",
+    "prereqs": [
+      "troubleshooting-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "lab_tshoot_route",
+    "module": "Administration Réseaux",
+    "title": "Lab : dépannage de routage",
+    "category": "Labs pratiques",
+    "order": 217,
+    "description": "Route par défaut manquante.",
+    "prereqs": [
+      "troubleshooting-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "lab_tshoot_mtu",
+    "module": "Administration Réseaux",
+    "title": "Lab : dépannage MTU",
+    "category": "Labs pratiques",
+    "order": 218,
+    "description": "MTU trop petit sur le chemin.",
+    "prereqs": [
+      "troubleshooting-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "challenge-osi",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi d'architecture : réseau de bureau",
+    "category": "Défis d'Architecture",
+    "order": 220,
+    "description": "Connecte un Routeur à un Switch et un PC.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 120,
+      "expected_topology": {
+        "nodes": {
+          "router": 1,
+          "switch": 1,
+          "pc": 1
+        },
+        "connections": [
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "pc"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-small-business",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi : Réseau PME (Small Business)",
+    "category": "Défis d'Architecture",
+    "order": 301,
+    "description": "Concevoir un réseau d'entreprise sécurisé (Cloud, Firewall, Routeur, Switch, PC, Serveur).",
+    "prereqs": [
+      "challenge-osi"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 300,
+      "expected_topology": {
+        "nodes": {
+          "cloud": 1,
+          "firewall": 1,
+          "router": 1,
+          "switch": 1,
+          "pc": 1,
+          "server": 1
+        },
+        "connections": [
+          {
+            "from": "cloud",
+            "to": "firewall"
+          },
+          {
+            "from": "firewall",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "pc"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-datacenter",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi : Datacenter Redondant",
+    "category": "Défis d'Architecture",
+    "order": 302,
+    "description": "Architecture haute disponibilité avec redondance des liens (Full Mesh).",
+    "prereqs": [
+      "challenge-small-business"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 420,
+      "expected_topology": {
+        "nodes": {
+          "router": 2,
+          "switch": 2,
+          "server": 2
+        },
+        "connections": [
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-hybrid-cloud",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi : Architecture Hybride (Cloud)",
+    "category": "Défis d'Architecture",
+    "order": 303,
+    "description": "Relier un réseau local sécurisé à un environnement Cloud (DMZ, VPC).",
+    "prereqs": [
+      "challenge-datacenter"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 360,
+      "expected_topology": {
+        "nodes": {
+          "cloud": 1,
+          "firewall": 1,
+          "router": 1,
+          "switch": 2,
+          "server": 2
+        },
+        "connections": [
+          {
+            "from": "cloud",
+            "to": "firewall"
+          },
+          {
+            "from": "firewall",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "firewall",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "switch"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-spine-leaf",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi : Datacenter Spine/Leaf",
+    "category": "Défis d'Architecture",
+    "order": 310,
+    "description": "Conçois une architecture Datacenter moderne avec 2 routeurs Spine, 2 switchs Leaf et 4 serveurs. Chaque Leaf doit être relié aux deux Spine.",
+    "prereqs": [
+      "spine-leaf-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 480,
+      "expected_topology": {
+        "nodes": {
+          "router": 2,
+          "switch": 2,
+          "server": 4
+        },
+        "connections": [
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "router",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-backbone-segment-routing",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi : Backbone Segment Routing multi-chemins",
+    "category": "Défis d'Architecture",
+    "order": 311,
+    "description": "Concevez un backbone opérateur SR-MPLS : deux CE, deux PE, un cœur P1/P2 maillé, un route-reflector et un contrôleur SR-TE.",
+    "prereqs": [
+      "segment-routing-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 420,
+      "expected_topology": {
+        "nodes": {
+          "router": 7,
+          "server": 3
+        },
+        "connections": [
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "router"
+          },
+          {
+            "from": "router",
+            "to": "server"
+          },
+          {
+            "from": "router",
+            "to": "server"
+          },
+          {
+            "from": "router",
+            "to": "server"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "challenge-fabric-aci-multi-tenant",
+    "module": "Administration Réseaux",
+    "type": "architecture",
+    "title": "Défi : Fabric ACI spine-leaf avec sortie externe",
+    "category": "Défis d'Architecture",
+    "order": 312,
+    "description": "Construisez une fabric Cisco ACI : 2 spines, 3 leafs, un cluster APIC, des serveurs applicatifs et un routeur WAN.",
+    "prereqs": [
+      "cisco-aci-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "manual",
+        "min_score": 100
+      }
+    ],
+    "challenge": {
+      "time_limit": 600,
+      "expected_topology": {
+        "nodes": {
+          "router": 1,
+          "switch": 5,
+          "server": 5
+        },
+        "connections": [
+          {
+            "from": "switch",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "server"
+          },
+          {
+            "from": "switch",
+            "to": "router"
+          }
+        ]
+      }
+    }
+  },
+  {
     "id": "mpls-debutant",
     "module": "Administration Réseaux",
     "title": "MPLS & VRF - Débutant",
@@ -3007,6 +3509,23 @@
     ]
   },
   {
+    "id": "incident-ospf",
+    "module": "Administration Réseaux",
+    "title": "WAR GAME : Routeur muet (Routage)",
+    "category": "War Games (Scénarios de crise)",
+    "order": 900,
+    "description": "Un incident a coupé la connectivité. Tu as 3 minutes pour diagnostiquer et réparer.",
+    "prereqs": [
+      "routing-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
     "id": "wireshark-debutant",
     "module": "Administration Réseaux",
     "title": "Analyse de paquets avec Wireshark - Débutant",
@@ -3513,525 +4032,6 @@
       {
         "kind": "quiz",
         "min_score": 85
-      }
-    ]
-  },
-  {
-    "id": "lab_netns",
-    "module": "Administration Réseaux",
-    "title": "Lab : routage entre namespaces",
-    "category": "Labs pratiques",
-    "order": 200,
-    "description": "Configurer l'adressage et les routes entre 3 namespaces Linux.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
-  },
-  {
-    "id": "lab_bridge",
-    "module": "Administration Réseaux",
-    "title": "Lab : bridge Linux et connectivité L2",
-    "category": "Labs pratiques",
-    "order": 210,
-    "description": "Attacher deux veths à un bridge.",
-    "prereqs": [
-      "ethernet-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
-  },
-  {
-    "id": "lab_troubleshoot_vlan",
-    "module": "Administration Réseaux",
-    "title": "Lab : dépannage VLAN",
-    "category": "Labs pratiques",
-    "order": 215,
-    "description": "Erreur L2 volontaire à diagnostiquer.",
-    "prereqs": [
-      "vlan-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
-  },
-  {
-    "id": "lab_tshoot_dns",
-    "module": "Administration Réseaux",
-    "title": "Lab : dépannage DNS",
-    "category": "Labs pratiques",
-    "order": 216,
-    "description": "Enregistrement DNS mal configuré.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
-  },
-  {
-    "id": "lab_tshoot_route",
-    "module": "Administration Réseaux",
-    "title": "Lab : dépannage de routage",
-    "category": "Labs pratiques",
-    "order": 217,
-    "description": "Route par défaut manquante.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
-  },
-  {
-    "id": "lab_tshoot_mtu",
-    "module": "Administration Réseaux",
-    "title": "Lab : dépannage MTU",
-    "category": "Labs pratiques",
-    "order": 218,
-    "description": "MTU trop petit sur le chemin.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
-  },
-  {
-    "id": "challenge-osi",
-    "module": "Administration Réseaux",
-    "type": "architecture",
-    "title": "Défi d'architecture : réseau de bureau",
-    "category": "Défis d'Architecture",
-    "order": 220,
-    "description": "Connecte un Routeur à un Switch et un PC.",
-    "prereqs": [],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
-    "challenge": {
-      "time_limit": 120,
-      "expected_topology": {
-        "nodes": {
-          "router": 1,
-          "switch": 1,
-          "pc": 1
-        },
-        "connections": [
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "pc"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "challenge-small-business",
-    "module": "Administration Réseaux",
-    "type": "architecture",
-    "title": "Défi : Réseau PME (Small Business)",
-    "category": "Défis d'Architecture",
-    "order": 301,
-    "description": "Concevoir un réseau d'entreprise sécurisé (Cloud, Firewall, Routeur, Switch, PC, Serveur).",
-    "prereqs": [
-      "challenge-osi"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
-    "challenge": {
-      "time_limit": 300,
-      "expected_topology": {
-        "nodes": {
-          "cloud": 1,
-          "firewall": 1,
-          "router": 1,
-          "switch": 1,
-          "pc": 1,
-          "server": 1
-        },
-        "connections": [
-          {
-            "from": "cloud",
-            "to": "firewall"
-          },
-          {
-            "from": "firewall",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "pc"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "challenge-datacenter",
-    "module": "Administration Réseaux",
-    "type": "architecture",
-    "title": "Défi : Datacenter Redondant",
-    "category": "Défis d'Architecture",
-    "order": 302,
-    "description": "Architecture haute disponibilité avec redondance des liens (Full Mesh).",
-    "prereqs": [
-      "challenge-small-business"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
-    "challenge": {
-      "time_limit": 420,
-      "expected_topology": {
-        "nodes": {
-          "router": 2,
-          "switch": 2,
-          "server": 2
-        },
-        "connections": [
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "challenge-hybrid-cloud",
-    "module": "Administration Réseaux",
-    "type": "architecture",
-    "title": "Défi : Architecture Hybride (Cloud)",
-    "category": "Défis d'Architecture",
-    "order": 303,
-    "description": "Relier un réseau local sécurisé à un environnement Cloud (DMZ, VPC).",
-    "prereqs": [
-      "challenge-datacenter"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
-    "challenge": {
-      "time_limit": 360,
-      "expected_topology": {
-        "nodes": {
-          "cloud": 1,
-          "firewall": 1,
-          "router": 1,
-          "switch": 2,
-          "server": 2
-        },
-        "connections": [
-          {
-            "from": "cloud",
-            "to": "firewall"
-          },
-          {
-            "from": "firewall",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "firewall",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "challenge-spine-leaf",
-    "module": "Administration Réseaux",
-    "type": "architecture",
-    "title": "Défi : Datacenter Spine/Leaf",
-    "category": "Défis d'Architecture",
-    "order": 310,
-    "description": "Conçois une architecture Datacenter moderne avec 2 routeurs Spine, 2 switchs Leaf et 4 serveurs. Chaque Leaf doit être relié aux deux Spine.",
-    "prereqs": [
-      "spine-leaf-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
-    "challenge": {
-      "time_limit": 480,
-      "expected_topology": {
-        "nodes": {
-          "router": 2,
-          "switch": 2,
-          "server": 4
-        },
-        "connections": [
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "challenge-backbone-segment-routing",
-    "module": "Administration Réseaux",
-    "type": "architecture",
-    "title": "Défi : Backbone Segment Routing multi-chemins",
-    "category": "Défis d'Architecture",
-    "order": 311,
-    "description": "Concevez un backbone opérateur SR-MPLS : deux CE, deux PE, un cœur P1/P2 maillé, un route-reflector et un contrôleur SR-TE.",
-    "prereqs": [
-      "segment-routing-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
-    "challenge": {
-      "time_limit": 420,
-      "expected_topology": {
-        "nodes": {
-          "router": 7,
-          "server": 3
-        },
-        "connections": [
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "server"
-          },
-          {
-            "from": "router",
-            "to": "server"
-          },
-          {
-            "from": "router",
-            "to": "server"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "challenge-fabric-aci-multi-tenant",
-    "module": "Administration Réseaux",
-    "type": "architecture",
-    "title": "Défi : Fabric ACI spine-leaf avec sortie externe",
-    "category": "Défis d'Architecture",
-    "order": 312,
-    "description": "Construisez une fabric Cisco ACI : 2 spines, 3 leafs, un cluster APIC, des serveurs applicatifs et un routeur WAN.",
-    "prereqs": [
-      "cisco-aci-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
-    "challenge": {
-      "time_limit": 600,
-      "expected_topology": {
-        "nodes": {
-          "router": 1,
-          "switch": 5,
-          "server": 5
-        },
-        "connections": [
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "router"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "incident-ospf",
-    "module": "Administration Réseaux",
-    "title": "WAR GAME : Routeur muet (Routage)",
-    "category": "War Games (Scénarios de crise)",
-    "order": 900,
-    "description": "Un incident a coupé la connectivité. Tu as 3 minutes pour diagnostiquer et réparer.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
       }
     ]
   },
@@ -5143,15 +5143,22 @@
       }
     ]
   },
-    {
+  {
     "id": "cloud-aws-debutant",
     "module": "Cloud Computing",
     "title": "AWS - Débutant",
     "category": "AWS",
     "order": 4000,
     "description": "Comprendre les bases d'AWS, l'IAM, EC2 et S3.",
-    "prereqs": ["linux-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "prereqs": [
+      "linux-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "cloud-aws-intermediaire",
@@ -5160,8 +5167,19 @@
     "category": "AWS",
     "order": 4001,
     "description": "VPC avancé, RDS, Load Balancers et Auto Scaling.",
-    "prereqs": ["cloud-aws-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
+    "prereqs": [
+      "cloud-aws-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
   },
   {
     "id": "cloud-aws-expert",
@@ -5170,8 +5188,15 @@
     "category": "AWS",
     "order": 4002,
     "description": "Architectures multi-régions, Transit Gateway et FinOps.",
-    "prereqs": ["cloud-aws-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 85 }]
+    "prereqs": [
+      "cloud-aws-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   },
   {
     "id": "cloud-azure-debutant",
@@ -5180,8 +5205,15 @@
     "category": "Azure",
     "order": 4003,
     "description": "Portail Azure, Entra ID (AD) et Machines Virtuelles.",
-    "prereqs": ["linux-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "prereqs": [
+      "linux-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "cloud-azure-intermediaire",
@@ -5190,8 +5222,19 @@
     "category": "Azure",
     "order": 4004,
     "description": "VNet, App Services, Azure SQL et Load Balancer.",
-    "prereqs": ["cloud-azure-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
+    "prereqs": [
+      "cloud-azure-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
   },
   {
     "id": "cloud-azure-expert",
@@ -5200,8 +5243,15 @@
     "category": "Azure",
     "order": 4005,
     "description": "Azure Virtual WAN, ExpressRoute et gouvernance.",
-    "prereqs": ["cloud-azure-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 85 }]
+    "prereqs": [
+      "cloud-azure-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   },
   {
     "id": "cloud-gcp-debutant",
@@ -5210,8 +5260,15 @@
     "category": "GCP",
     "order": 4006,
     "description": "Google Cloud, IAM, Compute Engine et Cloud Storage.",
-    "prereqs": ["linux-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "prereqs": [
+      "linux-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "cloud-gcp-intermediaire",
@@ -5220,8 +5277,36 @@
     "category": "GCP",
     "order": 4007,
     "description": "VPC, GKE (Kubernetes managé), Cloud SQL.",
-    "prereqs": ["cloud-gcp-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
+    "prereqs": [
+      "cloud-gcp-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "cloud-serverless-debutant",
+    "module": "Cloud Computing",
+    "title": "Architectures Serverless — Débutant",
+    "category": "Cloud",
+    "order": 4007,
+    "description": "Fonctions à la demande, événements, API managées, stockage durable et sécurité de base.",
+    "prereqs": [
+      "cloud-aws-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "cloud-gcp-expert",
@@ -5230,8 +5315,32 @@
     "category": "GCP",
     "order": 4008,
     "description": "Anthos, Interconnect et Big Data.",
-    "prereqs": ["cloud-gcp-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 85 }]
+    "prereqs": [
+      "cloud-gcp-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "cloud-serverless-intermediaire",
+    "module": "Cloud Computing",
+    "title": "Architectures Serverless — Intermédiaire",
+    "category": "Cloud",
+    "order": 4008,
+    "description": "Traitement asynchrone, idempotence, reprises, DLQ, concurrence et observabilité.",
+    "prereqs": [
+      "cloud-serverless-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "cloud-serverless-expert",
@@ -5240,8 +5349,16 @@
     "category": "Cloud",
     "order": 4009,
     "description": "Lambda, Azure Functions, API Gateway et Event-Driven.",
-    "prereqs": ["cloud-aws-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 85 }]
+    "prereqs": [
+      "cloud-serverless-intermediaire",
+      "cloud-aws-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   },
   {
     "id": "telecom-dwdm-debutant",
@@ -5250,38 +5367,204 @@
     "category": "Télécoms",
     "order": 4100,
     "description": "Comprendre la lumière, les multiplexeurs et les longueurs d'onde.",
-    "prereqs": ["cabling-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "prereqs": [
+      "cabling-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "telecom-dwdm-intermediaire",
+    "module": "Opérateurs & Télécoms",
+    "title": "Fibre Optique & DWDM — Intermédiaire",
+    "category": "Télécoms",
+    "order": 4101,
+    "description": "Budget optique, canaux DWDM, EDFA, OSNR et diagnostic de liaison.",
+    "prereqs": [
+      "telecom-dwdm-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "telecom-dwdm-expert",
+    "module": "Opérateurs & Télécoms",
+    "title": "Fibre Optique & DWDM — Expert",
+    "category": "Télécoms",
+    "order": 4102,
+    "description": "Ingénierie DWDM cohérente, OSNR, effets non linéaires, capacité et protection.",
+    "prereqs": [
+      "telecom-dwdm-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "telecom-mpls-tp-debutant",
+    "module": "Opérateurs & Télécoms",
+    "title": "MPLS-TP et Métro Ethernet — Débutant",
+    "category": "Télécoms",
+    "order": 4103,
+    "description": "Transport Ethernet opérateur, labels, LSP, UNI/NNI, OAM et protection.",
+    "prereqs": [
+      "mpls-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "telecom-mpls-tp-intermediaire",
     "module": "Opérateurs & Télécoms",
     "title": "MPLS-TP et Métro Ethernet",
     "category": "Télécoms",
-    "order": 4101,
+    "order": 4104,
     "description": "Transport de paquets pour les opérateurs.",
-    "prereqs": ["mpls-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "prereqs": [
+      "telecom-mpls-tp-debutant",
+      "mpls-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "telecom-mpls-tp-expert",
+    "module": "Opérateurs & Télécoms",
+    "title": "MPLS-TP et Métro Ethernet — Expert",
+    "category": "Télécoms",
+    "order": 4105,
+    "description": "Conception transport déterministe, OAM, protection, QoS et tests de restauration.",
+    "prereqs": [
+      "telecom-mpls-tp-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "telecom-bgp-peering-debutant",
+    "module": "Opérateurs & Télécoms",
+    "title": "BGP Peering & Routage Internet — Débutant",
+    "category": "Télécoms",
+    "order": 4106,
+    "description": "AS, préfixes, eBGP, peering, transit et politiques de routage de base.",
+    "prereqs": [
+      "bgp-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "telecom-bgp-peering-intermediaire",
+    "module": "Opérateurs & Télécoms",
+    "title": "BGP Peering & Routage Internet — Intermédiaire",
+    "category": "Télécoms",
+    "order": 4107,
+    "description": "Filtres de préfixes, communautés, sélection de routes, max-prefix et validation RPKI.",
+    "prereqs": [
+      "telecom-bgp-peering-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "telecom-bgp-peering-expert",
     "module": "Opérateurs & Télécoms",
     "title": "BGP Peering & Routage Internet",
     "category": "Télécoms",
-    "order": 4102,
+    "order": 4108,
     "description": "IXP, RPKI, filtrage BGP et ingénierie de trafic Internet.",
-    "prereqs": ["bgp-expert"],
-    "requirements": [{ "kind": "quiz", "min_score": 85 }]
+    "prereqs": [
+      "telecom-bgp-peering-intermediaire",
+      "bgp-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   },
   {
     "id": "telecom-5g-debutant",
     "module": "Opérateurs & Télécoms",
     "title": "Réseaux Mobiles (4G/5G)",
     "category": "Télécoms",
-    "order": 4103,
+    "order": 4109,
     "description": "Architecture RAN, Core Network et Network Slicing.",
-    "prereqs": ["wifi-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "prereqs": [
+      "wifi-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "telecom-5g-intermediaire",
+    "module": "Opérateurs & Télécoms",
+    "title": "Réseaux Mobiles (4G/5G) — Intermédiaire",
+    "category": "Télécoms",
+    "order": 4110,
+    "description": "NSA/SA, EPC/5GC, PDU session, QoS, mobilité et diagnostic multi-domaines.",
+    "prereqs": [
+      "telecom-5g-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "telecom-5g-expert",
+    "module": "Opérateurs & Télécoms",
+    "title": "Réseaux Mobiles (4G/5G) — Expert",
+    "category": "Télécoms",
+    "order": 4111,
+    "description": "Architecture 5G SA, slicing, QoS flows, edge UPF, résilience et observabilité.",
+    "prereqs": [
+      "telecom-5g-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   },
   {
     "id": "voice-cucm-debutant",
@@ -5290,28 +5573,157 @@
     "category": "Voix",
     "order": 4200,
     "description": "Cisco Unified Communications Manager, enregistrement des téléphones.",
-    "prereqs": ["routing-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "prereqs": [
+      "routing-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "voice-cucm-intermediaire",
+    "module": "Voix & Collaboration",
+    "title": "Téléphonie IP (CUCM) — Intermédiaire",
+    "category": "Voix",
+    "order": 4201,
+    "description": "Partitions/CSS, dial plan, régions, locations, ressources média et diagnostic RTP.",
+    "prereqs": [
+      "voice-cucm-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "voice-cucm-expert",
+    "module": "Voix & Collaboration",
+    "title": "Téléphonie IP (CUCM) — Expert",
+    "category": "Voix",
+    "order": 4202,
+    "description": "Résilience CUCM, survivabilité, sécurité TLS/SRTP, QoE et procédures de reprise.",
+    "prereqs": [
+      "voice-cucm-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "voice-sip-debutant",
+    "module": "Voix & Collaboration",
+    "title": "Protocole SIP & Dial Peers — Débutant",
+    "category": "Voix",
+    "order": 4203,
+    "description": "Messages SIP, SDP, RTP, codes de réponse et sélection simple des dial peers.",
+    "prereqs": [
+      "voice-cucm-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "voice-sip-intermediaire",
     "module": "Voix & Collaboration",
     "title": "Protocole SIP & Dial Peers",
     "category": "Voix",
-    "order": 4201,
+    "order": 4204,
     "description": "Invitations SIP, SDP, et configuration de trunks SIP.",
-    "prereqs": ["voice-cucm-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
+    "prereqs": [
+      "voice-sip-debutant",
+      "voice-cucm-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      },
+      {
+        "kind": "lab",
+        "min_score": 100
+      }
+    ]
+  },
+  {
+    "id": "voice-sip-expert",
+    "module": "Voix & Collaboration",
+    "title": "Protocole SIP & Dial Peers — Expert",
+    "category": "Voix",
+    "order": 4205,
+    "description": "Trunks multi-opérateurs, SBC, normalisation E.164, sécurité et diagnostic d’interopérabilité.",
+    "prereqs": [
+      "voice-sip-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "voice-qos-debutant",
+    "module": "Voix & Collaboration",
+    "title": "QoS pour la Voix et Vidéo — Débutant",
+    "category": "Voix",
+    "order": 4206,
+    "description": "Latence, gigue, perte, DSCP, classification et priorisation des médias temps réel.",
+    "prereqs": [
+      "voice-sip-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "voice-qos-intermediaire",
+    "module": "Voix & Collaboration",
+    "title": "QoS pour la Voix et Vidéo — Intermédiaire",
+    "category": "Voix",
+    "order": 4207,
+    "description": "Classes de trafic, LLQ, CBWFQ, shaping, policing, dimensionnement et validation de bout en bout.",
+    "prereqs": [
+      "voice-qos-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
     "id": "voice-qos-expert",
     "module": "Voix & Collaboration",
     "title": "QoS pour la Voix et Vidéo",
     "category": "Voix",
-    "order": 4202,
+    "order": 4208,
     "description": "LLQ, marquage DSCP EF, et tolérance aux pannes.",
-    "prereqs": ["qos-expert", "voice-sip-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 85 }]
+    "prereqs": [
+      "voice-qos-intermediaire",
+      "qos-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   },
   {
     "id": "ot-scada-debutant",
@@ -5320,18 +5732,49 @@
     "category": "OT/ICS",
     "order": 4300,
     "description": "Différences IT/OT, automates programmables (PLC).",
-    "prereqs": ["ethernet-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "prereqs": [
+      "ethernet-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   },
   {
-    "id": "ot-profinet-modbus-intermediaire",
+    "id": "ot-scada-intermediaire",
     "module": "Réseaux Industriels (OT)",
-    "title": "Protocoles Industriels (Modbus, Profinet)",
+    "title": "Introduction aux Réseaux OT / ICS — Intermédiaire",
     "category": "OT/ICS",
     "order": 4301,
-    "description": "Comprendre les protocoles de l'usine et leur supervision.",
-    "prereqs": ["ot-scada-debutant"],
-    "requirements": [{ "kind": "quiz", "min_score": 80 }]
+    "description": "Cartographie OT, cellules, zones/conduits, DMZ, flux industriels et gestion des changements.",
+    "prereqs": [
+      "ot-scada-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ot-scada-expert",
+    "module": "Réseaux Industriels (OT)",
+    "title": "Introduction aux Réseaux OT / ICS — Expert",
+    "category": "OT/ICS",
+    "order": 4302,
+    "description": "Architecture OT résiliente, modes dégradés, sauvegardes, détection passive et exercices d’incident.",
+    "prereqs": [
+      "ot-scada-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   },
   {
     "id": "ot-securite-expert",
@@ -5340,7 +5783,102 @@
     "category": "OT/ICS",
     "order": 4302,
     "description": "Segmentation de l'usine, DMZ industrielle, normes IEC 62443.",
-    "prereqs": ["secu-l2-expert", "ot-profinet-modbus-intermediaire"],
-    "requirements": [{ "kind": "quiz", "min_score": 85 }]
+    "prereqs": [
+      "ot-securite-intermediaire",
+      "secu-l2-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "ot-profinet-modbus-debutant",
+    "module": "Réseaux Industriels (OT)",
+    "title": "Protocoles Industriels (Modbus, PROFINET) — Débutant",
+    "category": "OT/ICS",
+    "order": 4303,
+    "description": "Rôles Modbus, coils et registres, PLC, IO-Controller et échanges PROFINET.",
+    "prereqs": [
+      "ot-scada-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ot-profinet-modbus-intermediaire",
+    "module": "Réseaux Industriels (OT)",
+    "title": "Protocoles Industriels (Modbus, Profinet)",
+    "category": "OT/ICS",
+    "order": 4304,
+    "description": "Comprendre les protocoles de l'usine et leur supervision.",
+    "prereqs": [
+      "ot-profinet-modbus-debutant",
+      "ot-scada-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ot-profinet-modbus-expert",
+    "module": "Réseaux Industriels (OT)",
+    "title": "Protocoles Industriels (Modbus, PROFINET) — Expert",
+    "category": "OT/ICS",
+    "order": 4305,
+    "description": "Diagnostic de cycle, topologie PROFINET, robustesse Modbus, captures passives et incidents.",
+    "prereqs": [
+      "ot-profinet-modbus-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "ot-securite-debutant",
+    "module": "Réseaux Industriels (OT)",
+    "title": "Cybersécurité OT — Débutant",
+    "category": "OT/ICS",
+    "order": 4306,
+    "description": "Bases de sécurité industrielle, actifs OT, niveaux Purdue et accès distant contrôlé.",
+    "prereqs": [
+      "ot-scada-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ot-securite-intermediaire",
+    "module": "Réseaux Industriels (OT)",
+    "title": "Cybersécurité OT — Intermédiaire",
+    "category": "OT/ICS",
+    "order": 4307,
+    "description": "Zones et conduits, segmentation OT, bastion, surveillance passive et gestion des changements.",
+    "prereqs": [
+      "ot-securite-debutant",
+      "ot-profinet-modbus-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   }
 ]
