@@ -522,6 +522,15 @@ def get_daily_plan(
                 action = "challenge"
                 label = f"Relever {node.title}"
                 reason = "Défi d'architecture disponible"
+            elif node.id in lab_nodes or any(
+                requirement.kind == ProofKind.LAB for requirement in node.requirements
+            ):
+                # Une exigence LAB doit ouvrir directement l'environnement de lab.
+                # Le spec legacy est un indice supplémentaire, pas le seul contrat :
+                # les labs v2 peuvent exister sans entrée dans lab_specs.
+                action = "lab"
+                label = f"Commencer le lab {node.title}"
+                reason = "Laboratoire disponible"
             else:
                 action = "start"
                 label = f"Commencer {node.title}"
