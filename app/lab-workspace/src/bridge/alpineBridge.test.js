@@ -83,6 +83,31 @@ after(() => {
   else globalThis.fetch = originalFetch;
 });
 
+test('la vérification transmet la topologie dans le champ attendu par l’API', async () => {
+  seedLab();
+  let capturedRequest = null;
+  globalThis.fetch = async (url, options) => {
+    capturedRequest = { url, options };
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ passed: true, score: 1, results: [] }),
+    };
+  };
+
+  fakeWindow.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
+  await waitFor(
+    () => capturedRequest !== null && useLabStore.getState().loading === false,
+    'La vérification de topologie n’a pas reçu sa réponse.',
+  );
+
+  assert.equal(capturedRequest.url, '/api/lab/v2/lab-test/check');
+  const payload = JSON.parse(capturedRequest.options.body);
+  assert.equal(payload.topology.nodes[0].id, 'R1');
+  assert.equal(Array.isArray(payload.topology.nodes), true);
+  assert.equal(useLabStore.getState().checkResult.passed, true);
+});
+
 test('une soumission validée est transmise au dashboard à la même origine', async () => {
   seedLab();
   fakeWindow.dispatchEvent(new CustomEvent('lab:submit', { detail: {} }));
