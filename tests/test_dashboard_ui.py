@@ -19,6 +19,28 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('@click.stop="openMobileSearch()"', DASHBOARD_HTML)
         self.assertIn('@keydown.enter.prevent="openSearchResult(searchResults[searchActive])"', DASHBOARD_HTML)
 
+    def test_course_reader_surfaces_load_errors_and_ignores_stale_requests(self):
+        start = DASHBOARD_HTML.index("        async show(nodeId) {")
+        end = DASHBOARD_HTML.index("        close() {", start)
+        show_method = DASHBOARD_HTML[start:end]
+
+        self.assertIn("const requestId = ++this._detailRequestId;", show_method)
+        self.assertIn("encodeURIComponent(nodeKey)", show_method)
+        self.assertIn("if (!r.ok) throw new Error", show_method)
+        self.assertGreaterEqual(show_method.count("requestId !== this._detailRequestId"), 4)
+        self.assertIn("this.detailLoadError =", show_method)
+        self.assertIn("this.detail = null;", show_method)
+        self.assertIn('x-show="!detailLoading && detailLoadError"', DASHBOARD_HTML)
+        self.assertIn('role="alert" aria-live="assertive"', DASHBOARD_HTML)
+        self.assertIn('@click="detailRequestedNodeId && show(detailRequestedNodeId)"', DASHBOARD_HTML)
+        self.assertIn("detailLoadError: null, detailRequestedNodeId: null, _detailRequestId: 0", DASHBOARD_HTML)
+
+        close_start = DASHBOARD_HTML.index("        close() {")
+        close_end = DASHBOARD_HTML.index("        canStartExercise()", close_start)
+        close_method = DASHBOARD_HTML[close_start:close_end]
+        self.assertIn("this._detailRequestId += 1;", close_method)
+        self.assertIn("this.detailLoadError = null;", close_method)
+
     def test_global_search_shortcut_opens_mobile_search_on_small_screens(self):
         self.assertIn("window.matchMedia('(max-width: 1023px)').matches", DASHBOARD_HTML)
         self.assertIn("this.openMobileSearch()", DASHBOARD_HTML)
