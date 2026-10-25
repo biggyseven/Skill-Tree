@@ -3217,13 +3217,38 @@
         },
         async startChallenge(id) {
           try {
-            const r = await fetch(`/api/node/${id}`); const d = await r.json(); const ch = d.challenge || {};
-            if (!ch.expected_summary) throw new Error('résumé du défi indisponible');
-            this.clearTopology(); const req = (d.requirements || []).find(item => item.kind === 'manual') || {};
-            this.challenge = { id, title: d.title, description: d.description, expectedSummary: ch.expected_summary, minScore: req.min_score || 100, builtin: false };
-            this.challengeResult = null; this.challengeLeft = ch.time_limit || 300; clearInterval(this.challengeTimer);
-            this.challengeTimer = setInterval(() => { this.challengeLeft--; if (this.challengeLeft <= 0) this.checkChallenge(true); }, 1000);
-          } catch (e) { this.notify('Défi indisponible : ' + e.message); }
+            const response = await fetch(`/api/node/${encodeURIComponent(String(id))}`);
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.detail || `Erreur HTTP ${response.status}`);
+            const challenge = data.challenge || {};
+            if (!challenge.expected_summary) throw new Error('résumé du défi indisponible');
+
+            // On ne détruit le canevas qu'après avoir confirmé que le scénario existe côté serveur.
+            this.clearTopology();
+            const requirement = (data.requirements || []).find(item => item.kind === 'manual') || {};
+            this.challenge = {
+              id: data.id || String(id),
+              title: data.title,
+              description: data.description,
+              expectedSummary: challenge.expected_summary,
+              minScore: requirement.min_score || 100,
+              builtin: false,
+            };
+            this.challengeResult = null;
+            const timeLimit = Number(challenge.time_limit);
+            this.challengeLeft = Number.isFinite(timeLimit) && timeLimit > 0 ? Math.floor(timeLimit) : 300;
+            clearInterval(this.challengeTimer);
+            this.challengeTimer = setInterval(() => {
+              if (!this.challenge || this.challengeResult) {
+                clearInterval(this.challengeTimer);
+                return;
+              }
+              this.challengeLeft = Math.max(0, this.challengeLeft - 1);
+              if (this.challengeLeft === 0) this.checkChallenge(true);
+            }, 1000);
+          } catch (error) {
+            this.notify('Défi indisponible : ' + error.message);
+          }
         },
         endChallenge() { if (this.challengeSubmissionBusy) { this.notify('La vérification du défi est en cours. Attends son résultat avant de quitter.'); return; } clearInterval(this.challengeTimer); this.challenge = null; this.challengeResult = null; },
         checkChallenge(timeout) {
