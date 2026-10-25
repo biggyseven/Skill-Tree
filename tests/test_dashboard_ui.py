@@ -78,6 +78,28 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("focus-visible:ring-emerald-400/70", DASHBOARD_HTML)
         self.assertIn("Ouvrir l’activité", DASHBOARD_HTML)
 
+    def test_daily_plan_avoids_duplicating_the_resume_and_current_path_nodes(self):
+        start = DASHBOARD_HTML.index("        get planActions() {")
+        end = DASHBOARD_HTML.index("        get notifications()", start)
+        plan_getters = DASHBOARD_HTML[start:end]
+
+        self.assertIn("this.resumeNode?.id", plan_getters)
+        self.assertIn("this.parcours.cur?.id", plan_getters)
+        self.assertIn(
+            "return this.dailyPlan.filter(action => !visibleNodeIds.includes(String(action.node_id)));",
+            plan_getters,
+        )
+        self.assertIn(
+            ".filter(n => n.status === 'available' && !visibleNodeIds.includes(String(n.id)))",
+            plan_getters,
+        )
+        self.assertIn("get planEmptyMessage()", plan_getters)
+        self.assertIn(
+            "Les priorités du jour sont déjà mises en évidence dans les cartes de reprise et du parcours.",
+            plan_getters,
+        )
+        self.assertIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
+
     def test_daily_plan_continuation_opens_the_backend_selected_exercise_kind(self):
         self.assertIn("next_requirement_kind=target_kind.value if target_kind is not None else None", (ROOT / "app" / "engine.py").read_text(encoding="utf-8"))
         self.assertIn("exercisePreferredKind: null", DASHBOARD_HTML)
