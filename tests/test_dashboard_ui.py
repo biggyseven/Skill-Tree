@@ -62,6 +62,22 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("label: 'Révision'", DASHBOARD_HTML)
         self.assertIn("label: 'Défi à poursuivre'", DASHBOARD_HTML)
 
+    def test_daily_plan_highlights_server_priority_and_supports_keyboard_navigation(self):
+        self.assertIn('x-for="(action, actionIndex) in planActions"', DASHBOARD_HTML)
+        self.assertIn(
+            "actionIndex === 0 && dailyPlan.length > 0 ? '!border-emerald-400/35 shadow-lg' : ''",
+            DASHBOARD_HTML,
+        )
+        self.assertIn('x-show="actionIndex === 0 && dailyPlan.length > 0"', DASHBOARD_HTML)
+        self.assertIn(">Priorité du jour</span>", DASHBOARD_HTML)
+        self.assertIn(
+            ":aria-label=\"action.label + '. ' + (action.reason || 'Action du parcours') + '. Ouvrir cette activité.'\"",
+            DASHBOARD_HTML,
+        )
+        self.assertIn("min-h-[164px]", DASHBOARD_HTML)
+        self.assertIn("focus-visible:ring-emerald-400/70", DASHBOARD_HTML)
+        self.assertIn("Ouvrir l’activité", DASHBOARD_HTML)
+
     def test_daily_plan_continuation_opens_the_backend_selected_exercise_kind(self):
         self.assertIn("next_requirement_kind=target_kind.value if target_kind is not None else None", (ROOT / "app" / "engine.py").read_text(encoding="utf-8"))
         self.assertIn("exercisePreferredKind: null", DASHBOARD_HTML)
