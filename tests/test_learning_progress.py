@@ -227,6 +227,11 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         self.assertTrue(result["validated"])
         self.assertEqual(result["status"], "validated")
         self.assertTrue(result["attempt_recorded"])
+        self.assertEqual(result["xp_gained"], 30)
+        stats = self.conn.execute(
+            "SELECT total_xp, coins FROM user_stats WHERE id = 1"
+        ).fetchone()
+        self.assertEqual(tuple(stats), (30, 10))
         attempt = self.conn.execute(
             "SELECT kind, score, passed FROM attempts WHERE node_id = ?",
             ("challenge-network",),
@@ -281,12 +286,18 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         second = submit_challenge("challenge-network", {"topology": self.drawflow_topology()}, self.tree)
 
         self.assertTrue(first["attempt_recorded"])
+        self.assertEqual(first["xp_gained"], 30)
         self.assertFalse(second["attempt_recorded"])
+        self.assertEqual(second["xp_gained"], 0)
         self.assertTrue(second["passed"])
         self.assertEqual(
             self.conn.execute("SELECT COUNT(*) FROM attempts WHERE node_id = ?", ("challenge-network",)).fetchone()[0],
             1,
         )
+        stats = self.conn.execute(
+            "SELECT total_xp, coins FROM user_stats WHERE id = 1"
+        ).fetchone()
+        self.assertEqual(tuple(stats), (30, 10))
 
     def test_challenge_with_no_required_links_can_be_validated(self) -> None:
         self.add_node("challenge-single-router", "Défi routeur isolé", "Administration Réseaux", 1)
