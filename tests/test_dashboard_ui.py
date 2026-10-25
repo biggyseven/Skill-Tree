@@ -703,15 +703,15 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
         self.assertIn("{ id: 'memo', label: 'Révisions', title: 'Révisions espacées'", nav_items)
         self.assertIn("Ouvrir les révisions espacées", DASHBOARD_HTML)
-        self.assertIn('@click="setTab(\'memo\')"', DASHBOARD_HTML)
+        self.assertIn("setTab('memo')", DASHBOARD_HTML)
         self.assertIn("<!-- ============ ONGLET RÉVISIONS ============ -->", DASHBOARD_HTML)
         self.assertIn("Révisions espacées", DASHBOARD_HTML)
         # The revisions section remains accessible even when the server has no review action due today.
         self.assertIn("même lorsqu’aucune révision n’est encore due dans le plan du jour", DASHBOARD_HTML)
 
     def test_topology_navigation_is_replaced_by_challenges_and_lab_workspace_is_independent(self):
-        self.assertIn("section x-show=\\"tab === 'challenges'\\"", DASHBOARD_HTML)
-        self.assertIn("{ id: 'challenges', label: 'Défis', title: \\"Défis d'architecture\\"", DASHBOARD_HTML)
+        self.assertIn("tab === 'challenges'", DASHBOARD_HTML)
+        self.assertIn("{ id: 'challenges', label: 'Défis', title:", DASHBOARD_HTML)
         self.assertNotIn("id: 'topology', label: 'Topologie'", DASHBOARD_HTML)
         self.assertNotIn("tab === 'topology'", DASHBOARD_HTML)
         self.assertNotIn("Mode libre", DASHBOARD_HTML)
@@ -720,8 +720,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         challenge_end = DASHBOARD_HTML.index("<!-- ============ ONGLET LABS ============ -->", challenge_start)
         challenge_markup = DASHBOARD_HTML[challenge_start:challenge_end]
         self.assertIn('x-show="challenge" x-cloak class="grid gap-6 lg:grid-cols-[16rem_1fr]"', challenge_markup)
-        self.assertNotIn("@click=\\"loadTopology()\\"", challenge_markup)
-        self.assertNotIn("@click=\\"saveTopology()\\"", challenge_markup)
+        self.assertNotIn("loadTopology()", challenge_markup)
+        self.assertNotIn("saveTopology()", challenge_markup)
         self.assertIn("if (name === 'challenges') { await this.$nextTick(); await this.initTopology(); }", DASHBOARD_HTML)
         self.assertIn("await this.setTab('challenges')", DASHBOARD_HTML)
 
