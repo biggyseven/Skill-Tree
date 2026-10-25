@@ -25,6 +25,8 @@ from .lab_schema_v2 import (
 
 router = APIRouter(tags=["Lab Workspace v2"])
 DB_PATH = Path(os.environ.get("SKILLTREE_DB", DEFAULT_DB))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+LABS_V2_DIR = PROJECT_ROOT / "labs_v2"
 
 
 def _database_connection() -> sqlite3.Connection:
@@ -36,38 +38,129 @@ def _database_connection() -> sqlite3.Connection:
         raise HTTPException(status_code=503, detail=f"Base SQLite indisponible : {error}")
 
 
-def _fetch_lab(lab_id: str) -> dict[str, Any]:
-    conn = _database_connection()
+def _lab_payload_from_definition(
+    lab_id: str,
+    definition: LabDefinition,
+    *,
+    schema_version: int = 2,
+) -> dict[str, Any]:
+    """Normalise la réponse du lab pour les clients du Lab Workspace."""
+    return {
+        "id": lab_id,
+        "schema_version": schema_version,
+        "definition": definition,
+        "initial_topology": definition.initial_topology,
+    }
+
+
+def _load_lab_file(lab_id: str) -> dict[str, Any] | None:
+    """Charge un lab v2 depuis labs_v2/ quand SQLite ne fournit pas de définition exploitable."""
+    labs_root = LABS_V2_DIR.resolve()
+    lab_path = (labs_root / f"{lab_id}.json").resolve()
+
+    # Empêche un lab_id malveillant de sortir du répertoire labs_v2.
+    if lab_path.parent != labs_root:
+        return None
+    if not lab_path.is_file():
+        return None
+
     try:
-        columns = {row["name"] for row in conn.execute('PRAGMA table_info("labs")')}
-        if not columns or "id" not in columns:
-            raise HTTPException(status_code=404, detail="Lab introuvable")
-        row = conn.execute("SELECT * FROM labs WHERE id = ?", (lab_id,)).fetchone()
-        if row is None:
-            raise HTTPException(status_code=404, detail="Lab introuvable")
-        data = dict(row)
-        raw_definition = data.get("definition_json")
-        if not raw_definition:
-            raise HTTPException(
-                status_code=409,
-                detail="La définition v2 de ce lab n'est pas encore disponible. Exécute la migration M1.",
-            )
+        raw_payload = json.loads(lab_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Fichier JSON du lab '{lab_id}' illisible ({lab_path.name}) : {error}",
+        )
+
+    if not isinstance(raw_payload, dict):
+        raise HTTPException(
+            status_code=500,
+            detail=f"Définition du lab '{lab_id}' invalide : un objet JSON était attendu.",
+        )
+
+    file_lab_id = str(raw_payload.get("id") or lab_id)
+    if file_lab_id != lab_id:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                f"Identifiant incohérent dans {lab_path.name} : "
+                f"'{file_lab_id}' au lieu de '{lab_id}'."
+            ),
+        )
+
+    try:
+        definition = LabDefinition(**raw_payload)
+    except (TypeError, ValueError) as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Définition v2 invalide dans {lab_path.name} : {error}",
+        )
+
+    return _lab_payload_from_definition(
+        lab_id,
+        definition,
+        schema_version=int(raw_payload.get("schema_version") or definition.schema_version or 2),
+    )
+
+
+def _fetch_lab(lab_id: str) -> dict[str, Any]:
+    """Cherche d'abord SQLite, puis le fichier JSON local en solution de repli."""
+    db_issue: str | None = None
+    invalid_db_definition: str | None = None
+    conn: sqlite3.Connection | None = None
+
+    try:
+        conn = _database_connection()
+    except HTTPException as error:
+        # Une DB absente/indisponible ne doit pas empêcher un lab fichier de s'ouvrir.
+        db_issue = str(error.detail)
+    except sqlite3.Error as error:
+        db_issue = str(error)
+
+    if conn is not None:
         try:
-            payload = json.loads(raw_definition)
-            definition = LabDefinition(**payload)
-        except (json.JSONDecodeError, TypeError, ValueError) as error:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Définition v2 invalide pour le lab {lab_id} : {error}",
-            )
-        return {
-            "id": str(data["id"]),
-            "schema_version": int(data.get("schema_version") or 1),
-            "definition": definition,
-            "initial_topology": definition.initial_topology,
-        }
-    finally:
-        conn.close()
+            columns = {row["name"] for row in conn.execute('PRAGMA table_info("labs")')}
+            if columns and "id" in columns:
+                row = conn.execute("SELECT * FROM labs WHERE id = ?", (lab_id,)).fetchone()
+                if row is not None:
+                    data = dict(row)
+                    raw_definition = data.get("definition_json")
+                    if raw_definition:
+                        try:
+                            payload = json.loads(raw_definition)
+                            definition = LabDefinition(**payload)
+                        except (json.JSONDecodeError, TypeError, ValueError) as error:
+                            invalid_db_definition = str(error)
+                        else:
+                            return _lab_payload_from_definition(
+                                str(data["id"]),
+                                definition,
+                                schema_version=int(data.get("schema_version") or 1),
+                            )
+                    else:
+                        invalid_db_definition = (
+                            "la ligne existe mais le champ definition_json est vide"
+                        )
+            else:
+                db_issue = "la table labs n'existe pas ou ne contient pas de colonne id"
+        except sqlite3.Error as error:
+            db_issue = str(error)
+        finally:
+            conn.close()
+
+    file_payload = _load_lab_file(lab_id)
+    if file_payload is not None:
+        return file_payload
+
+    details = [
+        f"Lab '{lab_id}' introuvable : aucune définition exploitable en SQLite",
+        f"et le fichier '{LABS_V2_DIR / (lab_id + '.json')}' est absent.",
+    ]
+    if invalid_db_definition:
+        details.append(f"Détail SQLite : {invalid_db_definition}.")
+    elif db_issue:
+        details.append(f"Détail SQLite : {db_issue}.")
+    raise HTTPException(status_code=404, detail=" ".join(details))
 
 
 def _path_tokens(path: str) -> list[str | int]:
