@@ -79,6 +79,10 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("checkResult.xp_gained", toolbar)
         self.assertIn("checkResult.first_success", toolbar)
         self.assertIn("checkResult.course_attempt_recorded", toolbar)
+        self.assertIn("Détails des vérifications", toolbar)
+        self.assertIn('aria-label="Détails des vérifications"', toolbar)
+        self.assertIn("checkResult.results.map((item, index)", toolbar)
+        self.assertIn("item.passed ? 'text-[var(--emerald-400)]' : 'text-[var(--rose-400)]'", toolbar)
         self.assertIn("Badge(s) débloqué(s)", toolbar)
 
     def test_workspace_uses_single_panel_navigation_below_desktop_breakpoint(self):
