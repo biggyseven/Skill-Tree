@@ -98,5 +98,26 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("'Revoir l’arbre complet'", DASHBOARD_HTML)
 
 
+    def test_locked_last_opened_lesson_is_not_offered_as_resume_target(self):
+        start = DASHBOARD_HTML.rindex("get resumableLastNode()")
+        end = DASHBOARD_HTML.index("get resumeNode()", start)
+        resumable_getter = DASHBOARD_HTML[start:end]
+
+        self.assertIn("return node && node.status !== 'locked' ? node : null;", resumable_getter)
+        self.assertIn("return this.resumableLastNode || this.parcours.cur", DASHBOARD_HTML)
+        self.assertIn("x-text=\"resumableLastNode ? 'Reprise disponible'", DASHBOARD_HTML)
+        self.assertIn('x-show="resumableLastNode"', DASHBOARD_HTML)
+        self.assertIn("x-text=\"resumableLastNode ? (lastLessonProgress", DASHBOARD_HTML)
+
+    def test_daily_path_does_not_promote_an_available_challenge_to_in_progress(self):
+        start = DASHBOARD_HTML.rindex("get parcours()")
+        end = DASHBOARD_HTML.index("get planActions()", start)
+        parcours_getter = DASHBOARD_HTML[start:end]
+
+        self.assertIn("action.status === 'in_progress'", parcours_getter)
+        self.assertIn("['continue', 'lab', 'challenge'].includes(action.action)", parcours_getter)
+        self.assertIn("pool.findIndex(node => node.status === 'in_progress')", parcours_getter)
+        self.assertIn("pool.findIndex(node => node.status === 'available')", parcours_getter)
+
 if __name__ == "__main__":
     unittest.main()
