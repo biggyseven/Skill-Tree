@@ -36,6 +36,22 @@ class DashboardUiRegressionTests(unittest.TestCase):
         )
         self.assertIn("Aucun favori pour le moment", DASHBOARD_HTML)
 
+    def test_graphite_is_the_default_without_overwriting_saved_theme(self):
+        self.assertIn(
+            "var t = localStorage.getItem('skilltree-theme2') || (localStorage.getItem('skilltree-theme') === 'light' ? 'lumiere' : 'graphite');",
+            DASHBOARD_HTML,
+        )
+        self.assertIn("this.themes.some(x => x.id === stored) ? stored : 'graphite'", DASHBOARD_HTML)
+        self.assertIn("this.setTheme(k === 'dark' ? 'lumiere' : 'graphite')", DASHBOARD_HTML)
+
+    def test_ambient_glows_are_subtle_and_status_motion_is_not_continuous(self):
+        self.assertEqual(DASHBOARD_HTML.count("--halo:.55;"), 5)
+        self.assertIn(".glow-lime { box-shadow:", DASHBOARD_HTML)
+        self.assertIn(".glow-fuchsia { box-shadow:", DASHBOARD_HTML)
+        self.assertNotIn(".glow-lime { animation:", DASHBOARD_HTML)
+        self.assertNotIn(".glow-fuchsia { animation:", DASHBOARD_HTML)
+        self.assertIn("@media (prefers-reduced-motion: reduce)", DASHBOARD_HTML)
+
     def test_daily_plan_routes_each_action_to_the_matching_workspace(self):
         self.assertIn('@click="openPlanAction(action)"', DASHBOARD_HTML)
         self.assertIn("if (action.action === 'challenge')", DASHBOARD_HTML)
