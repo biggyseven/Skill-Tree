@@ -72,6 +72,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("JSON.stringify({ topology: graph, timeout: !!timeout })", DASHBOARD_HTML)
         self.assertIn("if (!ch.builtin) {", DASHBOARD_HTML)
         self.assertIn("challengeResult.pending", DASHBOARD_HTML)
+        self.assertIn("clearInterval(this.challengeTimer);\n            this.challengeSubmissionBusy = true;", DASHBOARD_HTML)
         self.assertIn("expectedSummary: ch.expected_summary", DASHBOARD_HTML)
         self.assertNotIn("expected: ch.expected_topology", DASHBOARD_HTML)
         self.assertIn("challengeResult.attemptRecorded", DASHBOARD_HTML)
