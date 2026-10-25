@@ -1025,7 +1025,7 @@
                   <p x-show="challengeResult.attemptRecorded && challengeResult.validated && challengeResult.passed" class="mt-1 text-xs text-emerald-300">Validation enregistrée dans ton parcours.</p>
                   <p x-show="challengeResult.attemptRecorded && challengeResult.passed && !challengeResult.validated" class="mt-1 text-xs text-amber-200">Défi réussi : d'autres exigences du cours restent à valider.</p>
                   <p x-show="challengeResult.timeout" class="text-xs text-zinc-400">Temps écoulé.</p>
-                  <p x-show="!challengeResult.pending && challengeResult.attemptRecorded && challengeResult.passed && challengeResult.xpGained > 0" class="mt-2 text-sm font-semibold text-emerald-300" x-text="'+' + challengeResult.xpGained + ' XP obtenus.'"></p>
+                  <p x-show="!challengeResult.pending && challengeResult.attemptRecorded && challengeResult.passed && (challengeResult.xpGained > 0 || challengeResult.coinsGained > 0)" class="mt-2 text-sm font-semibold text-emerald-300" x-text="[challengeResult.xpGained > 0 ? '+' + challengeResult.xpGained + ' XP' : '', challengeResult.coinsGained > 0 ? '+' + challengeResult.coinsGained + ' pièces' : ''].filter(Boolean).join(' · ') + ' obtenus.'"></p>
                   <div x-show="!challengeResult.pending && challengeResult.attemptRecorded && challengeResult.passed && challengeResult.badgesUnlocked.length > 0" class="mt-2 rounded-lg bg-emerald-500/10 p-2 text-xs text-emerald-200">
                     <p class="mb-1 font-semibold">Badges débloqués</p>
                     <div class="flex flex-wrap gap-2">
@@ -4750,6 +4750,7 @@
                 validated: !!result.validated,
                 attemptRecorded: !!result.attempt_recorded,
                 xpGained: Number(result.xp_gained) || 0,
+                coinsGained: Number(result.coins_gained) || 0,
                 badgesUnlocked: result.badges_unlocked || [],
               };
               // Un défi serveur réussi doit aussi alimenter le compteur de défis local,
@@ -4762,6 +4763,7 @@
 
               const rewardParts = [];
               if (Number(result.xp_gained) > 0) rewardParts.push(`+${Number(result.xp_gained)} XP`);
+              if (Number(result.coins_gained) > 0) rewardParts.push(`+${Number(result.coins_gained)} pièces`);
               (Array.isArray(result.badges_unlocked) ? result.badges_unlocked : []).forEach(badge => {
                 const label = typeof badge === 'string' ? badge : (badge.nom || badge.id || badge.name || 'Badge');
                 rewardParts.push(`Badge : ${label}`);
