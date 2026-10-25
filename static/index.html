@@ -2130,7 +2130,10 @@
             this.exerciseMode = 'terminal'; this.exerciseQuestion = this.detail.terminal;
           } else {
             const r = await fetch(`/api/node/${this.detail.id}/quiz`);
-            if (!r.ok) throw new Error('Impossible de charger le quiz (' + r.status + ').');
+            if (!r.ok) {
+              this.notify('Impossible de charger le quiz (' + r.status + ').');
+              return;
+            }
             this.quiz = await r.json();
             this.exerciseMode = 'quiz'; this.quizAnswers = this.quiz.questions.map(q => null);
           }
