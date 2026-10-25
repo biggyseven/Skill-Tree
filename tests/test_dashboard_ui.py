@@ -446,5 +446,37 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
         self.assertIn("Aucun cours disponible", DASHBOARD_HTML)
 
+    def test_desktop_mobile_and_header_navigation_controls_are_consistent(self):
+        sidebar_start = DASHBOARD_HTML.index("<!-- Navigation -->")
+        sidebar_end = DASHBOARD_HTML.index("<!-- Focus -->", sidebar_start)
+        sidebar = DASHBOARD_HTML[sidebar_start:sidebar_end]
+
+        self.assertIn(':aria-label="item.label"', sidebar)
+        self.assertIn(':title="sidebarCollapsed ? item.label : null"', sidebar)
+        self.assertIn('class="nav-item-icon', sidebar)
+        self.assertIn("tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200", sidebar)
+        self.assertIn("focus-visible:ring-emerald-400/70", sidebar)
+        self.assertIn(':aria-pressed="focusMode"', DASHBOARD_HTML)
+
+        mobile_start = DASHBOARD_HTML.index('<!-- Barre de navigation mobile')
+        mobile_end = DASHBOARD_HTML.index('<!-- Notification de mise à jour WebSocket -->', mobile_start)
+        mobile_nav = DASHBOARD_HTML[mobile_start:mobile_end]
+        self.assertIn('aria-label="Navigation mobile"', mobile_nav)
+        self.assertIn(':aria-label="item.id === \'tree\' ? \'Accueil\' : item.label"', mobile_nav)
+        self.assertIn(':aria-current="tab === item.id ? \'page\' : null"', mobile_nav)
+        self.assertIn(".mobile-bottom-nav button.is-active::after", DASHBOARD_HTML)
+        self.assertIn("min-height: 48px", DASHBOARD_HTML)
+        self.assertIn("@media (max-width: 360px)", DASHBOARD_HTML)
+
+        for label in ("Choisir un thème", "Ouvrir les notifications", "Modifier le profil", "Ouvrir les paramètres"):
+            self.assertIn(f'aria-label="{label}"', DASHBOARD_HTML)
+        for state in ("themeMenuOpen", "notificationsOpen", "profileMenuOpen", "settingsMenuOpen"):
+            self.assertIn(f':aria-expanded="{state}"', DASHBOARD_HTML)
+        self.assertGreaterEqual(DASHBOARD_HTML.count('class="nav-action-btn'), 5)
+
+        profile_start = DASHBOARD_HTML.index("        editProfile() {")
+        profile_end = DASHBOARD_HTML.index("        saveProfile() {", profile_start)
+        self.assertIn("this.themeMenuOpen = false", DASHBOARD_HTML[profile_start:profile_end])
+
 if __name__ == "__main__":
     unittest.main()
