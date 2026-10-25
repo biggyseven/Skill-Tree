@@ -596,19 +596,39 @@
             </div>
           </div>
         </div>
-        <button type="button" @click.stop="notificationsOpen = !notificationsOpen; settingsMenuOpen = false; profileMenuOpen = false; themeMenuOpen = false" title="Notifications" aria-label="Ouvrir les notifications" aria-haspopup="true" :aria-expanded="notificationsOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <button type="button" @click.stop="notificationsOpen = !notificationsOpen; settingsMenuOpen = false; profileMenuOpen = false; themeMenuOpen = false" :title="unreadNotificationCount ? 'Notifications non lues : ' + unreadNotificationCount : 'Notifications'" :aria-label="unreadNotificationCount > 0 ? 'Ouvrir les notifications, ' + unreadNotificationCount + ' non lues' : 'Ouvrir les notifications'" aria-haspopup="true" :aria-expanded="notificationsOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span x-show="unreadNotificationCount > 0" x-cloak x-text="unreadNotificationCount > 9 ? '9+' : unreadNotificationCount" class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full border border-[color:var(--s1)] bg-rose-500 px-1 text-[9px] font-bold leading-none text-white"></span>
         </button>
-        <div x-show="notificationsOpen" x-cloak @click.outside="notificationsOpen = false" class="absolute top-14 right-24 z-50 w-80 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-5 shadow-2xl">
-          <h3 class="text-sm font-bold text-white mb-4">Notifications</h3>
-          <div class="space-y-4">
-            <template x-for="(n, i) in notifications" :key="i">
-              <button type="button" class="flex w-full gap-4 text-left" @click="n.node ? (show(n.node), notificationsOpen = false) : null">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm" :class="n.cls" x-text="n.icon"></div>
-                <div class="min-w-0"><p class="text-xs font-semibold text-white" x-text="n.title"></p><p class="mt-0.5 truncate text-[11px] text-zinc-500" x-text="n.sub"></p></div>
+        <div x-show="notificationsOpen" x-cloak @click.outside="notificationsOpen = false" @keydown.escape.window="notificationsOpen = false" class="absolute top-14 right-20 z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-white/10 bg-[color:var(--s1)] shadow-2xl">
+          <div class="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3.5">
+            <div class="min-w-0">
+              <h3 class="text-sm font-bold text-white">Notifications</h3>
+              <p class="mt-0.5 text-[10px] text-zinc-500" x-text="unreadNotificationCount ? unreadNotificationCount + ' non lue' + (unreadNotificationCount > 1 ? 's' : '') : 'Tout est à jour'"></p>
+            </div>
+            <button type="button" @click="markAllNotificationsRead()" :disabled="unreadNotificationCount === 0" class="shrink-0 rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] font-semibold text-zinc-300 transition hover:border-emerald-400/30 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">Tout lire</button>
+          </div>
+          <div x-show="notifications.length > 0" class="max-h-[min(65vh,28rem)] space-y-1 overflow-y-auto p-2">
+            <template x-for="n in notifications" :key="n.id">
+              <button type="button" @click="openNotification(n)" :aria-label="n.title + '. ' + (n.sub || 'Événement Skill-Tree') + (n.read ? '' : '. Non lue')" :class="n.read ? 'border-transparent hover:bg-white/[0.04]' : 'border-emerald-400/15 bg-emerald-500/[0.045] hover:bg-emerald-500/[0.08]'" class="flex w-full items-start gap-3 rounded-xl border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+                <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base" :class="n.cls" x-text="n.icon" aria-hidden="true"></span>
+                <span class="min-w-0 flex-1">
+                  <span class="flex items-start justify-between gap-2">
+                    <span class="text-xs font-semibold leading-relaxed text-white" x-text="n.title"></span>
+                    <span x-show="!n.read" class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-300" aria-label="Non lue"></span>
+                  </span>
+                  <span class="mt-1 block break-words text-[11px] leading-relaxed text-zinc-400" x-text="n.sub || 'Un événement vient de se produire dans Skill-Tree.'"></span>
+                  <span class="mt-2 block text-[9px] text-zinc-600" x-text="notificationTime(n.createdAt)"></span>
+                </span>
               </button>
             </template>
-            <p x-show="!notifications.length" class="text-xs text-zinc-500">Rien de nouveau pour le moment.</p>
+          </div>
+          <div x-show="notifications.length === 0" class="px-5 py-8 text-center">
+            <span class="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-zinc-400">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </span>
+            <p class="mt-3 text-xs font-semibold text-zinc-300">Aucune notification pour le moment</p>
+            <p class="mt-1 text-[10px] leading-relaxed text-zinc-500">Les nouveaux cours, déblocages, validations, séries et badges apparaîtront ici.</p>
           </div>
         </div>
 
@@ -626,7 +646,7 @@
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
         </button>
         <div x-show="settingsMenuOpen" x-cloak @click.outside="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-64 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-2 shadow-2xl">
-          <button @click="themeMenuOpen = true; settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
+          <button @click="syncTheme(); themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
             <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> Changer de thème
           </button>
           <button @click="reloadContent(); settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
@@ -3203,18 +3223,32 @@
     function skilltreeTheme() {
       const TONE = { cyan: 'bg-cyan-500/10 text-cyan-400', emerald: 'bg-emerald-500/10 text-emerald-400', fuchsia: 'bg-fuchsia-500/10 text-fuchsia-400', orange: 'bg-orange-500/10 text-orange-400' };
       return {
-        themes: window.THEMES, themeMenuOpen: false, theme: document.documentElement.dataset.theme || 'graphite', liveEvents: [], radarSelectedDomain: null,
+        themes: window.THEMES, themeMenuOpen: false, theme: document.documentElement.dataset.theme || 'graphite',
+        liveEvents: (() => {
+          try {
+            const saved = JSON.parse(localStorage.getItem('skilltree-notifications-v1') || '[]');
+            return Array.isArray(saved) ? saved.filter(n => n && typeof n === 'object').slice(0, 30) : [];
+          } catch (_) { return []; }
+        })(),
+        radarSelectedDomain: null,
         syncTheme() {
-          const applied = document.documentElement.dataset.theme;
+          const root = document.documentElement;
+          const applied = root.dataset.theme;
           const stored = (() => { try { return localStorage.getItem('skilltree-theme2'); } catch (_) { return null; } })();
-          const id = this.themes.some(x => x.id === applied) ? applied : (this.themes.some(x => x.id === stored) ? stored : 'graphite');
-          const m = this.themes.find(x => x.id === id);
+          // La préférence persistée est la source de vérité ; l'attribut HTML est resynchronisé ensuite.
+          const id = this.themes.some(x => x.id === stored)
+            ? stored
+            : (this.themes.some(x => x.id === applied) ? applied : 'graphite');
+          const selected = this.themes.find(x => x.id === id);
+          if (!selected) return;
           this.theme = id;
-          if (m && applied !== id) { const r = document.documentElement; r.dataset.theme = id; r.classList.toggle('dark', m.kind === 'dark'); r.classList.toggle('light', m.kind === 'light'); r.style.colorScheme = m.kind; }
-          // Réconcilie aussi la préférence stockée pour que le thème ne change pas au prochain rechargement.
-          try { if (m && stored !== id) localStorage.setItem('skilltree-theme2', id); } catch (_) { }
+          root.dataset.theme = id;
+          root.classList.toggle('dark', selected.kind === 'dark');
+          root.classList.toggle('light', selected.kind === 'light');
+          root.style.colorScheme = selected.kind;
+          try { if (stored !== id) localStorage.setItem('skilltree-theme2', id); } catch (_) { }
         },
-        themeIsActive(id) { return (document.documentElement.dataset.theme || this.theme) === id; },
+        themeIsActive(id) { return this.theme === id; },
         closeThemeOnOutside(event) {
           const target = event && event.target;
           if (!target || !target.closest || !target.closest('[data-theme-picker]')) this.themeMenuOpen = false;
@@ -3360,10 +3394,57 @@
           return 'Aucune action recommandée pour le moment. Consulte les prérequis des cours ou explore un module.';
         },
         get notifications() {
-          const out = this.liveEvents.map(e => ({ ...e }));
-          this.planActions.slice(0, 3).forEach(a => out.push({ icon: a.action === 'lab' ? '🧪' : '📘', tone: a.action === 'lab' ? 'orange' : 'cyan', title: a.label, sub: a.reason, node: a.node_id }));
-          if (this.streakDays > 0) out.push({ icon: '🔥', tone: 'orange', title: `Série de ${this.streakDays} jour${this.streakDays > 1 ? 's' : ''}`, sub: 'Reviens demain pour la prolonger' });
-          return out.slice(0, 8).map(n => ({ ...n, cls: TONE[n.tone] || TONE.cyan }));
+          return this.liveEvents.slice(0, 30).map(n => ({
+            ...n,
+            read: n.read === true,
+            cls: TONE[n.tone] || TONE.cyan,
+          }));
+        },
+        get unreadNotificationCount() {
+          return this.liveEvents.filter(n => n.read !== true).length;
+        },
+        persistNotifications() {
+          this.liveEvents = this.liveEvents.slice(0, 30);
+          try { localStorage.setItem('skilltree-notifications-v1', JSON.stringify(this.liveEvents)); } catch (_) { }
+        },
+        addNotification(event) {
+          if (!event || !event.title) return;
+          const id = String(event.id || (Date.now() + '-' + Math.random().toString(36).slice(2, 9)));
+          if (this.liveEvents.some(n => String(n.id) === id)) return;
+          const notification = {
+            icon: '🔔', tone: 'cyan', sub: '', node: null,
+            ...event,
+            id,
+            createdAt: event.createdAt || new Date().toISOString(),
+            read: false,
+          };
+          this.liveEvents = [notification, ...this.liveEvents.filter(n => String(n.id) !== id)].slice(0, 30);
+          this.persistNotifications();
+        },
+        markNotificationRead(id) {
+          if (!this.liveEvents.some(n => String(n.id) === String(id) && n.read !== true)) return;
+          this.liveEvents = this.liveEvents.map(n => String(n.id) === String(id) ? { ...n, read: true } : n);
+          this.persistNotifications();
+        },
+        markAllNotificationsRead() {
+          if (!this.unreadNotificationCount) return;
+          this.liveEvents = this.liveEvents.map(n => ({ ...n, read: true }));
+          this.persistNotifications();
+        },
+        openNotification(notification) {
+          if (!notification) return;
+          this.markNotificationRead(notification.id);
+          this.notificationsOpen = false;
+          if (notification.node && this.nodes.some(n => String(n.id) === String(notification.node))) {
+            this.show(notification.node);
+          }
+        },
+        notificationTime(value) {
+          try {
+            const date = new Date(value);
+            if (!Number.isFinite(date.getTime())) return '';
+            return date.toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+          } catch (_) { return ''; }
         },
         startSync() {
           if (this._sync) return; const go = () => { if (!document.hidden && !this.open) this.refreshAll(); };
@@ -3376,17 +3457,104 @@
       Object.defineProperties(base, Object.getOwnPropertyDescriptors(skilltreeExt()));
       Object.defineProperties(base, Object.getOwnPropertyDescriptors(skilltreeTheme()));
       const origLoad = base.loadTree, origInit = base.init;
-      base.loadTree = async function () {
-        const prev = new Map((this.nodes || []).map(n => [n.id, n.status]));
-        await origLoad.call(this);
-        if (!prev.size) return; const ev = [];
-        const added = this.nodes.filter(n => !prev.has(n.id));
-        if (added.length) ev.push({ icon: '🆕', tone: 'cyan', title: `${added.length} nouveau${added.length > 1 ? 'x' : ''} cours`, sub: added.slice(0, 3).map(n => n.title).join(', '), node: added[0].id });
-        this.nodes.forEach(n => { const o = prev.get(n.id); if (!o || o === n.status) return;
-          if (n.status === 'validated') ev.push({ icon: '✅', tone: 'emerald', title: 'Cours validé', sub: n.title, node: n.id });
-          else if (o === 'locked' && n.status === 'available') ev.push({ icon: '🔓', tone: 'fuchsia', title: 'Cours débloqué', sub: n.title, node: n.id }); });
-        if (ev.length) this.liveEvents = [...ev, ...this.liveEvents].slice(0, 8);
+      const origLoadStreak = base.loadStreak;
+      const origCheckRewards = base.checkRewards;
+      const nodeSnapshotKey = 'skilltree-node-snapshot-v1';
+      const streakSnapshotKey = 'skilltree-streak-snapshot-v1';
+      const readNodeSnapshot = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(nodeSnapshotKey) || 'null');
+          return saved && saved.nodes && typeof saved.nodes === 'object' ? saved.nodes : null;
+        } catch (_) { return null; }
       };
+      const saveNodeSnapshot = (nodes) => {
+        const snapshot = {};
+        nodes.forEach(n => { snapshot[String(n.id)] = { title: n.title, status: n.status, module: n.module }; });
+        try { localStorage.setItem(nodeSnapshotKey, JSON.stringify({ nodes: snapshot })); } catch (_) { }
+      };
+      base.loadTree = async function () {
+        const savedBefore = readNodeSnapshot();
+        const previousInMemory = new Map((this.nodes || []).map(n => [String(n.id), { title: n.title, status: n.status, module: n.module }]));
+        await origLoad.call(this);
+        if (this.treeError || !Array.isArray(this.nodes)) return;
+
+        // Le snapshot local permet de détecter les ajouts/modifications même après fermeture ou rechargement de la page.
+        const previous = savedBefore || (previousInMemory.size ? Object.fromEntries(previousInMemory) : null);
+        if (previous) {
+          const added = this.nodes.filter(n => !Object.prototype.hasOwnProperty.call(previous, String(n.id)));
+          if (added.length) {
+            const titles = added.slice(0, 3).map(n => n.title).join(', ');
+            const extra = added.length > 3 ? ' et ' + (added.length - 3) + ' autre(s)' : '';
+            this.addNotification({
+              id: 'courses-added:' + added.map(n => String(n.id)).sort().join('|'),
+              icon: '🆕', tone: 'cyan',
+              title: added.length + ' nouveau' + (added.length > 1 ? 'x' : '') + ' cours disponible' + (added.length > 1 ? 's' : ''),
+              sub: titles + extra,
+              node: added[0].id,
+            });
+          }
+          this.nodes.forEach(n => {
+            const old = previous[String(n.id)];
+            if (!old) return;
+            if (old.status === 'locked' && n.status === 'available') {
+              this.addNotification({
+                id: 'course-unlocked:' + String(n.id),
+                icon: '🔓', tone: 'fuchsia', title: 'Cours débloqué', sub: n.title, node: n.id,
+              });
+            } else if (old.status !== 'validated' && n.status === 'validated') {
+              this.addNotification({
+                id: 'course-validated:' + String(n.id),
+                icon: '✅', tone: 'emerald', title: 'Cours validé', sub: n.title, node: n.id,
+              });
+            }
+          });
+        }
+        saveNodeSnapshot(this.nodes);
+      };
+
+      if (typeof origLoadStreak === 'function') {
+        base.loadStreak = async function () {
+          let previous = null;
+          try {
+            const stored = localStorage.getItem(streakSnapshotKey);
+            if (stored !== null && Number.isInteger(Number(stored)) && Number(stored) >= 0) previous = Number(stored);
+          } catch (_) { }
+          await origLoadStreak.call(this);
+          if (this.dashboardDataErrors?.streak || !Number.isInteger(this.streakDays) || this.streakDays < 0) return;
+          const current = this.streakDays;
+          if (previous !== null && current > previous) {
+            const milestones = [3, 7, 14, 30, 50, 100];
+            const milestone = milestones.filter(day => previous < day && current >= day).pop();
+            this.addNotification({
+              id: milestone ? 'streak-milestone:' + milestone : 'streak-days:' + current,
+              icon: '🔥', tone: 'orange',
+              title: milestone ? 'Série de ' + milestone + ' jours atteinte !' : 'Série quotidienne prolongée',
+              sub: 'Tu as étudié ' + current + ' jours consécutifs.',
+            });
+          }
+          try { localStorage.setItem(streakSnapshotKey, String(current)); } catch (_) { }
+        };
+      }
+
+      if (typeof origCheckRewards === 'function') {
+        base.checkRewards = function (...args) {
+          let previouslySeen = null;
+          try {
+            const raw = localStorage.getItem('st:badges-seen');
+            previouslySeen = raw ? JSON.parse(raw) : null;
+          } catch (_) { }
+          const newlyUnlocked = Array.isArray(previouslySeen) && this.nodes.length
+            ? this.badges.filter(b => b.ok && !previouslySeen.includes(b.id))
+            : [];
+          const result = origCheckRewards.apply(this, args);
+          newlyUnlocked.forEach(b => this.addNotification({
+            id: 'badge-unlocked:' + b.id,
+            icon: b.icon || '🏅', tone: 'orange',
+            title: 'Badge débloqué : ' + b.name, sub: b.desc,
+          }));
+          return result;
+        };
+      }
       base.init = async function () { this.syncTheme?.(); await origInit.call(this); this.syncTheme?.(); this.startSync(); };
       return base;
     }
