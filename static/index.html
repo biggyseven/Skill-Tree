@@ -2694,18 +2694,25 @@
         },
         openVisualLab() {
           if (!this.detail?.id) return;
-          window.open('/lab.html?id=' + encodeURIComponent(this.detail.id), '_blank');
+          this.openLab(this.detail.id, true);
         },
-        async openLab(id) {
+        async openLab(id, openInNewTab = false) {
           const nodeId = String(id || '');
           if (!nodeId) return;
+
+          // Ouvrir la fenêtre avant le fetch pour ne pas être bloqué par le navigateur.
+          const labWindow = openInNewTab ? window.open('about:blank', '_blank') : null;
+          const navigate = url => {
+            if (labWindow && !labWindow.closed) labWindow.location.replace(url);
+            else window.location.assign(url);
+          };
 
           // Le nouveau workspace React Flow est prioritaire quand une définition v2 existe.
           // Les nœuds historiques sans définition v2 conservent leur lecteur classique.
           try {
             const response = await fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`);
             if (response.ok) {
-              window.location.assign(`/lab/?id=${encodeURIComponent(nodeId)}`);
+              navigate(`/lab/?id=${encodeURIComponent(nodeId)}`);
               return;
             }
             if (response.status !== 404) {
@@ -2715,6 +2722,11 @@
             this.notify('Le Lab Workspace ne répond pas ; ouverture du laboratoire classique.');
           }
 
+          if (openInNewTab) {
+            navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`);
+            return;
+          }
+          if (labWindow && !labWindow.closed) labWindow.close();
           await this.show(nodeId);
           this.modalTab = 'lab';
         },
