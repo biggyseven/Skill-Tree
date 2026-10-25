@@ -5,28 +5,27 @@ export function CableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePositi
     sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition,
   });
 
-  // Couleurs forcées en dur pour garantir la visibilité
-  let strokeColor = '#0ea5e9'; // Bleu (Câble droit)
+  let strokeColor = '#0ea5e9'; // Bleu
   let strokeDasharray = 'none';
 
-  if (data?.cable_type === 'copper_cross') {
-    strokeColor = '#fb923c'; // Orange (Câble croisé)
-    strokeDasharray = '5,5';
-  } else if (data?.cable_type === 'fiber') {
-    strokeColor = '#c084fc'; // Violet (Fibre)
-  }
-
-  if (data?.state === 'down') {
-    strokeColor = '#f43f5e'; // Rouge (Down)
-    strokeDasharray = '4,4';
-  }
-  if (selected) {
-    strokeColor = '#10b981'; // Vert émeraude si sélectionné
-  }
+  if (data?.cable_type === 'copper_cross') { strokeColor = '#f97316'; strokeDasharray = '6,4'; } // Orange
+  if (data?.cable_type === 'fiber') { strokeColor = '#a855f7'; } // Violet
+  if (data?.state === 'down') { strokeColor = '#ef4444'; strokeDasharray = '4,4'; } // Rouge
+  if (selected) { strokeColor = '#10b981'; }
 
   return (
     <>
-      {/* Le chemin du câble */}
+      {/* Ombre du câble pour l'effet 3D */}
+      <path
+        d={edgePath}
+        style={{
+          stroke: 'rgba(0,0,0,0.6)',
+          strokeWidth: 5,
+          fill: 'none',
+          transform: 'translate(2px, 2px)',
+        }}
+      />
+      {/* Le câble */}
       <path
         id={id}
         className="react-flow__edge-path"
@@ -39,11 +38,11 @@ export function CableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePositi
           transition: 'stroke 0.2s'
         }}
       />
-      {/* L'étiquette du câble */}
+      {/* Étiquette */}
       {data?.label && (
         <EdgeLabelRenderer>
           <div
-            className="pointer-events-none absolute rounded border border-[#334155] bg-[#0f172a] px-2 py-0.5 font-mono text-[10px] font-bold text-white shadow-md"
+            className="pointer-events-none absolute rounded border border-[#334155] bg-[#0d1117] px-2 py-0.5 font-mono text-[10px] font-bold text-[#cbd5e1] shadow-xl"
             style={{ transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)` }}
           >
             {data.label}

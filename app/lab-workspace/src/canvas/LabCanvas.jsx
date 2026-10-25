@@ -73,25 +73,24 @@ export function LabCanvas() {
   }
 
   return (
-    <div className={`relative flex-1 min-h-0 bg-[#0f172a] ${activeTool !== 'select' ? 'cursor-crosshair' : ''}`} onDrop={onDrop} onDragOver={onDragOver}>
+    <div className={`relative flex-1 min-h-0 bg-[#0d1117] ${activeTool !== 'select' ? 'cursor-crosshair' : ''}`} onDrop={onDrop} onDragOver={onDragOver}>
       <ReactFlow nodes={flowNodes} edges={flowEdges} onNodesChange={onNodesChange} onNodeClick={onNodeClick}
         onConnect={onConnect}
         nodeTypes={nodeTypes} edgeTypes={edgeTypes} defaultEdgeOptions={defaultEdgeOptions}
         fitView fitViewOptions={{ padding: 0.2 }} proOptions={{ hideAttribution: true }}>
         
-        <Background variant={BackgroundVariant.Dots} color="#1e293b" gap={24} size={2} />
+        <Background variant={BackgroundVariant.Dots} color="#21262d" gap={24} size={2} />
         
-        {/* FIX DES CARRES BLANCS : on force le background en style inline */}
         <Controls 
           showInteractive={false} 
-          style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#94a3b8' }}
+          style={{ backgroundColor: '#161b22', border: '1px solid #30363d', borderRadius: '8px', color: '#8b949e' }}
         />
         
         <MiniMap 
           pannable zoomable 
-          style={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} 
+          style={{ backgroundColor: '#161b22', border: '1px solid #30363d', borderRadius: '8px' }} 
           nodeColor="#0ea5e9" 
-          maskColor="rgba(15, 23, 42, 0.7)" 
+          maskColor="rgba(13, 17, 23, 0.7)" 
         />
       </ReactFlow>
 
