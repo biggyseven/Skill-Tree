@@ -44,7 +44,12 @@ export function LabCanvas() {
         fitView fitViewOptions={{ padding: 0.2 }} proOptions={{ hideAttribution: true }}>
         <Background variant={BackgroundVariant.Dots} color="var(--s2)" gap={18} size={1.2} />
         <Controls />
-        <MiniMap pannable zoomable />
+        <MiniMap 
+          pannable zoomable 
+          style={{ backgroundColor: 'var(--s1)', border: '1px solid var(--s2)' }}
+          nodeColor="var(--cyan-400)"
+          maskColor="rgba(0,0,0,0.5)"
+        />
       </ReactFlow>
     </div>
   );

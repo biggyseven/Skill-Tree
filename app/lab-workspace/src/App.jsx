@@ -3,7 +3,7 @@ import { useLabStore } from './store/useLabStore.js';
 import { LabCanvas } from './canvas/LabCanvas.jsx';
 import { TopologyToolbar } from './canvas/TopologyToolbar.jsx';
 import { BriefPanel } from './brief/BriefPanel.jsx';
-
+import { InspectorPanel } from './inspector/InspectorPanel.jsx';
 function fetchLabFromUrl(labId) {
   return fetch('/api/lab/v2/' + labId).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
 }
@@ -48,10 +48,8 @@ export default function App() {
         <TopologyToolbar />
         <LabCanvas />
       </main>
-      <aside className="overflow-y-auto border-l border-[var(--s2)] bg-[var(--s1)]">
-        <div className="p-6 text-center text-xs leading-relaxed text-[var(--text-muted)]">
-          Inspector<br /><small>(Config · CLI · PDU — viendra en M4/M5/M6)</small>
-        </div>
+      <aside className="overflow-hidden border-l border-[var(--s2)] bg-[var(--s1)]">
+        <InspectorPanel />
       </aside>
     </div>
   );
