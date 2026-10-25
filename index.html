@@ -707,7 +707,7 @@
                           @click="window.open('/lab.html?id=' + encodeURIComponent(detail.id), '_blank', 'noopener')"
                           :disabled="detail?.status === 'locked'"
                           class="rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
-                    🧪 Ouvrir le Lab Workspace
+                    🧪 Ouvrir les Labs V2
                   </button>
                   <div x-show="detail?.status === 'locked'" class="mt-3 text-sm text-orange-400">
                     🔒 Ce lab est verrouillé. Tu dois d'abord valider les nœuds prérequis.
