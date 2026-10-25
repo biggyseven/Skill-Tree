@@ -46,6 +46,14 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("label: 'Révision'", DASHBOARD_HTML)
         self.assertIn("label: 'Défi à poursuivre'", DASHBOARD_HTML)
 
+    def test_daily_plan_continuation_opens_the_backend_selected_exercise_kind(self):
+        self.assertIn("next_requirement_kind=target_kind.value if target_kind is not None else None", (ROOT / "app" / "engine.py").read_text(encoding="utf-8"))
+        self.assertIn("exercisePreferredKind: null", DASHBOARD_HTML)
+        self.assertIn("this.exercisePreferredKind = action.next_requirement_kind;", DASHBOARD_HTML)
+        self.assertIn("const preferredKind = this.exercisePreferredKind;", DASHBOARD_HTML)
+        self.assertIn("if ((preferredKind === 'terminal' || (!preferredKind && this.detail.terminal)) && this.detail.terminal)", DASHBOARD_HTML)
+        self.assertIn("['quiz', 'terminal'].includes(action.next_requirement_kind)", DASHBOARD_HTML)
+
     def test_daily_plan_challenge_badge_distinguishes_available_and_in_progress(self):
         self.assertIn('planMeta(action).classes', DASHBOARD_HTML)
         self.assertIn('x-text="planMeta(action).label"', DASHBOARD_HTML)
