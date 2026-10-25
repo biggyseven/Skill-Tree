@@ -132,7 +132,7 @@ export default function App() {
 
           <section className="flex h-[290px] shrink-0 flex-col border-t border-[#30363d] bg-[#0d1117]/50">
             <PanelHeader eyebrow="02 / Device library" title="Bibliothèque d'équipements" />
-            <div className="lab-scrollbar min-h-0 flex-1 overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-hidden">
               <Palette />
             </div>
           </section>
