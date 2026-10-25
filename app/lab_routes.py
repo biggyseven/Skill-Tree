@@ -180,8 +180,8 @@ def _fetch_lab(lab_id: str) -> dict[str, Any]:
         return file_payload
 
     details = [
-        f"Lab '{lab_id}' introuvable : aucune définition exploitable en SQLite",
-        f"et le fichier '{LABS_V2_DIR / (lab_id + '.json')}' est absent.",
+        f"Lab '{lab_id}' introuvable : aucune définition exploitable en SQLite "
+        f"et aucun fichier JSON correspondant à '{lab_id}.json' dans '{LABS_V2_DIR}'.",
     ]
     if invalid_db_definition:
         details.append(f"Détail SQLite : {invalid_db_definition}.")
@@ -247,6 +247,15 @@ def _resolve_rule_path(
 
 
 def _contains_network(actual: Any, expected: Any) -> bool:
+    # OSPF stocke les déclarations sous forme de liste d'objets {area, network}.
+    # Autoriser l'opérateur sur cette liste, tout en conservant son usage sur une IP
+    # ou un préfixe isolé pour les autres laboratoires.
+    if isinstance(actual, (list, tuple)):
+        return any(
+            _contains_network(item.get("network") if isinstance(item, dict) else item, expected)
+            for item in actual
+        )
+
     try:
         expected_net = ipaddress.ip_network(str(expected), strict=False)
         actual_text = str(actual)
