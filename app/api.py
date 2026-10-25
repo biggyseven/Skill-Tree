@@ -823,7 +823,7 @@ async def trigger_update():
 
 @app.get("/lab.html")
 async def lab_workspace_page():
-    return FileResponse("lab.html")
+    return FileResponse(PROJECT_ROOT / "lab.html")
 
 STATIC_DIR.mkdir(exist_ok=True)
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
