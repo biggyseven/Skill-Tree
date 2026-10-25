@@ -190,7 +190,10 @@ def _streak_payload(tree: SkillTree) -> dict:
     if latest is None:
         streak = 0
     elif latest < today - timedelta(days=1):
-        streak = 1
+        # Une série est « actuelle » seulement si la dernière activité date
+        # d'aujourd'hui ou d'hier. Une ancienne activité ne doit pas afficher
+        # artificiellement une série de 1 jour après plusieurs jours d'absence.
+        streak = 0
     else:
         streak = 0
         cursor = latest
