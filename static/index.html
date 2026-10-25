@@ -4114,7 +4114,7 @@
         app.startChallenge = async function (id) {
           const local = BUILTIN_TOPO_CHALLENGES.find(c => c.id === id);
           const count = Object.keys(this.topoData()).length;
-          if (count && !window.confirm(`Démarrer ce défi remplacera la topologie actuelle (${count} équipement(s)). Sauvegarde-la si tu veux la conserver. Continuer ?`)) return;
+          if (count && !window.confirm(`Démarrer ce défi effacera les ${count} équipement(s) du défi précédent. Continuer ?`)) return;
           if (local) {
             this._allowChallengeClear = true;
             try { originalClearTopology(); }
