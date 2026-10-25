@@ -361,8 +361,8 @@ def _expected_topology_histograms(expected_topology: Any) -> tuple[Counter, Coun
             raise HTTPException(500, "La définition des connexions attendues est invalide.")
         link_counts[tuple(sorted((source.strip().lower(), target.strip().lower())))] += 1
 
-    if not node_counts or not link_counts:
-        raise HTTPException(500, "La définition du défi doit contenir des équipements et des connexions.")
+    if not node_counts:
+        raise HTTPException(500, "La définition du défi doit contenir au moins un équipement.")
     return node_counts, link_counts
 
 
