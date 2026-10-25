@@ -7,12 +7,13 @@ export function TopologyToolbar() {
   const loadLab = useLabStore(s => s.loadLab);
   const checkResult = useLabStore(s => s.checkResult);
   const loading = useLabStore(s => s.loading);
-  const [persistenceBusy, setPersistenceBusy] = useState(false);
+  const [persistenceAction, setPersistenceAction] = useState(null);
+  const persistenceBusy = persistenceAction !== null;
   const [persistenceMessage, setPersistenceMessage] = useState('');
 
   async function handleSave() {
     if (!lab?.id || lab.id === 'demo' || !topology || persistenceBusy) return;
-    setPersistenceBusy(true);
+    setPersistenceAction('save');
     setPersistenceMessage('');
     try {
       const response = await fetch('/api/lab/v2/' + encodeURIComponent(lab.id) + '/save', {
@@ -26,13 +27,13 @@ export function TopologyToolbar() {
     } catch (error) {
       setPersistenceMessage('Échec de sauvegarde : ' + error.message);
     } finally {
-      setPersistenceBusy(false);
+      setPersistenceAction(null);
     }
   }
 
   async function handleLoad() {
     if (!lab?.id || lab.id === 'demo' || persistenceBusy) return;
-    setPersistenceBusy(true);
+    setPersistenceAction('load');
     setPersistenceMessage('');
     try {
       const response = await fetch('/api/lab/v2/' + encodeURIComponent(lab.id) + '/load');
@@ -44,7 +45,7 @@ export function TopologyToolbar() {
     } catch (error) {
       setPersistenceMessage('Échec de chargement : ' + error.message);
     } finally {
-      setPersistenceBusy(false);
+      setPersistenceAction(null);
     }
   }
 
@@ -70,12 +71,12 @@ export function TopologyToolbar() {
         <button type="button" onClick={handleSave} disabled={persistenceDisabled}
           title={lab?.id === 'demo' ? 'Indisponible dans la démo' : 'Enregistrer la topologie'}
           className="rounded-md border border-[#30363d] bg-[#161b22] px-3 py-1.5 text-xs font-semibold text-[#c9d1d9] hover:border-[#0ea5e9] hover:text-white disabled:cursor-not-allowed disabled:opacity-40">
-          {persistenceBusy ? '…' : 'Sauvegarder'}
+          {persistenceAction === 'save' ? 'Enregistrement…' : 'Sauvegarder'}
         </button>
         <button type="button" onClick={handleLoad} disabled={persistenceDisabled}
           title={lab?.id === 'demo' ? 'Indisponible dans la démo' : 'Charger la dernière topologie sauvegardée'}
           className="rounded-md border border-[#30363d] bg-[#161b22] px-3 py-1.5 text-xs font-semibold text-[#c9d1d9] hover:border-[#0ea5e9] hover:text-white disabled:cursor-not-allowed disabled:opacity-40">
-          Charger
+          {persistenceAction === 'load' ? 'Chargement…' : 'Charger'}
         </button>
         <button type="button" onClick={handleCheck} disabled={loading}
           className="rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
