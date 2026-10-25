@@ -6,57 +6,116 @@
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --s1: #101827;
-  --s2: #263449;
-  --emerald-400: #34d399;
-  --emerald-300: #6ee7b7;
-  --cyan-400: #22d3ee;
-  --red-400: #f87171;
-  --text-primary: #f1f5f9;
+  --s0: #0d1117;
+  --s1: #161b22;
+  --s2: #30363d;
+  --s3: #484f58;
+  --s4: #21262d;
+  --emerald-300: #34d399;
+  --emerald-400: #10b981;
+  --cyan-300: #38bdf8;
+  --cyan-400: #0ea5e9;
+  --rose-400: #f85149;
+  --on-accent: #061b22;
+  --text-primary: #e6edf3;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
   color: var(--text-primary);
-  background: var(--s1);
+  background: var(--s0);
+}
+
+[data-theme="aurore"] {
+  --s0: #0d1117;
+  --s1: #161b22;
+  --s2: #30363d;
+  --s3: #484f58;
+  --s4: #21262d;
+  --emerald-300: #34d399;
+  --emerald-400: #10b981;
+  --cyan-300: #38bdf8;
+  --cyan-400: #0ea5e9;
+  --rose-400: #f85149;
+  --on-accent: #061b22;
+  --text-primary: #e6edf3;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
+}
+
+[data-theme="lumiere"] {
+  --s0: #f5f7fa;
+  --s1: #ffffff;
+  --s2: #d0d7de;
+  --s3: #afb8c1;
+  --s4: #eaeef2;
+  --emerald-300: #047857;
+  --emerald-400: #059669;
+  --cyan-300: #0369a1;
+  --cyan-400: #0284c7;
+  --rose-400: #e11d48;
+  --on-accent: #ffffff;
+  --text-primary: #1f2328;
+  --text-secondary: #424a53;
+  --text-muted: #656d76;
 }
 
 * { box-sizing: border-box; }
-html, body, #root { min-width: 320px; min-height: 100%; width: 100%; margin: 0; }
-body { min-height: 100vh; }
-.theme-root { background: var(--s1); color: var(--text-primary); transition: background-color 160ms ease, color 160ms ease; }
-.theme-root[data-theme='light'] {
-  --s1: #f8fafc;
-  --s2: #d8e1ec;
-  --emerald-400: #059669;
-  --emerald-300: #10b981;
-  --cyan-400: #0891b2;
-  --red-400: #dc2626;
-  --text-primary: #0f172a;
-}
-.react-flow { background: var(--s1); }
-.react-flow__controls, .react-flow__minimap { border: 1px solid var(--s2); overflow: hidden; }
-.react-flow__controls-button { background: var(--s1); fill: var(--text-primary); border-bottom-color: var(--s2); }
-.react-flow__controls-button:hover { background: var(--s2); }
-.react-flow__minimap { background: var(--s1); }
-.react-flow__attribution { background: var(--s1); color: var(--text-primary); }
 
-/* === CSS vars pour le Lab Workspace (ajout M2) === */
-:root, [data-theme="aurore"] {
-  --s0:#100d21; --s1:#16122b; --s2:#201b3c; --s3:#292249; --s4:#1c1736;
-  --w:255 255 255;
-  --on-accent:6 32 31;
-  --emerald-300:110 231 183; --emerald-400:52 211 153;
-  --cyan-300:94 234 212; --cyan-400:45 212 191;
-  --rose-400:251 113 133;
-  --text-primary:rgb(235 233 241);
-  --text-secondary:rgb(194 190 213);
-  --text-muted:rgb(132 124 171);
+html, body, #lab-root, #root {
+  min-width: 320px;
+  min-height: 100%;
+  width: 100%;
+  margin: 0;
 }
-[data-theme="lumiere"] {
-  --s0:#f8f7fd; --s1:#ffffff; --s2:#eae7f8; --s3:#dedaf1; --s4:#e7e4f6;
-  --w:25 20 52;
-  --on-accent:255 255 255;
-  --emerald-300:4 120 87; --emerald-400:5 150 105;
-  --cyan-300:3 105 161; --cyan-400:2 132 199;
-  --rose-400:225 29 72;
-  --text-primary:rgb(35 32 50);
-  --text-secondary:rgb(61 56 87);
-  --text-muted:rgb(100 91 143);
+
+html, body { height: 100%; }
+body { min-height: 100vh; background: var(--s0); color: var(--text-primary); }
+button { -webkit-tap-highlight-color: transparent; }
+
+.react-flow { background: var(--s0); }
+.react-flow__controls,
+.react-flow__minimap {
+  overflow: hidden;
+  border: 1px solid var(--s2);
+  border-radius: 8px;
+  background: var(--s1);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+}
+.react-flow__controls-button {
+  display: grid;
+  place-items: center;
+  background: var(--s1);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--s2);
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.react-flow__controls-button:last-child { border-bottom: 0; }
+.react-flow__controls-button:hover {
+  background: var(--s4);
+  color: var(--cyan-300);
+}
+.react-flow__controls-button svg { fill: currentColor; stroke: currentColor; }
+.react-flow__minimap { background: var(--s1); }
+.react-flow__attribution { background: var(--s1); color: var(--text-muted); }
+
+.lab-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--s3) var(--s0);
+}
+.lab-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.lab-scrollbar::-webkit-scrollbar-track { background: var(--s0); }
+.lab-scrollbar::-webkit-scrollbar-thumb {
+  border: 2px solid var(--s0);
+  border-radius: 999px;
+  background: var(--s3);
+}
+.lab-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+@keyframes lab-selected-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(14, 165, 233, 0.18)); }
+  50% { filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.34)); }
+}
+.react-flow__node.selected { animation: lab-selected-glow 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .react-flow__node.selected { animation: none; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }
