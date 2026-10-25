@@ -74,6 +74,7 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("lab?.sandbox === true", toolbar)
         self.assertIn("Bac à sable — non noté", toolbar)
         self.assertIn("checkResult.xp_gained", toolbar)
+        self.assertIn("checkResult.first_success", toolbar)
         self.assertIn("checkResult.course_attempt_recorded", toolbar)
         self.assertIn("Badge(s) débloqué(s)", toolbar)
 
