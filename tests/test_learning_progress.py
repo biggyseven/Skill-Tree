@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import sqlite3
 import unittest
 from datetime import datetime, timedelta
 
-from app.api import read_tree
+from app.api import read_node, read_profile, read_tree
 from app.db import connect, initialize
 from app.engine import SkillTree, get_daily_plan
 
@@ -38,13 +37,33 @@ class LearningProgressConsistencyTests(unittest.TestCase):
             (node_id, score, int(passed), created_at.strftime("%Y-%m-%d %H:%M:%S")),
         )
 
-    def test_tree_api_exposes_canonical_module(self) -> None:
+    def test_tree_and_detail_apis_expose_canonical_module(self) -> None:
         self.add_node("cloud-aws-debutant", "AWS débutant", "Cloud Computing", 1)
         payload = read_tree(self.tree)
 
         course = next(node for node in payload["nodes"] if node["id"] == "cloud-aws-debutant")
+        detail = read_node("cloud-aws-debutant", self.tree)
         self.assertEqual(course["module"], "Cloud Computing")
+        self.assertEqual(detail["module"], "Cloud Computing")
         self.assertEqual(course["status"], "available")
+        self.assertEqual(payload["progress_percent"], 0)
+
+    def test_progress_percentage_is_consistent_between_tree_and_profile(self) -> None:
+        now = datetime(2026, 10, 25, 12, 0, 0)
+        for index in range(1, 4):
+            node_id = f"course-{index}"
+            self.add_node(node_id, f"Cours {index}", "Administration Réseaux", index)
+            if index < 3:
+                self.add_quiz_requirement(node_id)
+                self.add_attempt(node_id, 90, True, now - timedelta(days=1))
+
+        tree_payload = read_tree(self.tree)
+        profile_payload = read_profile(self.tree)
+        expected_percent = round(tree_payload["validated"] / tree_payload["total"] * 100)
+
+        self.assertEqual(tree_payload["validated"], 2)
+        self.assertEqual(tree_payload["progress_percent"], 67)
+        self.assertEqual(profile_payload["progress_percent"], expected_percent)
 
     def test_incomplete_non_lab_course_is_recommended_before_new_content(self) -> None:
         now = datetime(2026, 10, 25, 12, 0, 0)
