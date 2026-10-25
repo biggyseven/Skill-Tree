@@ -239,6 +239,7 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(first["xp_gained"], 25)
         self.assertTrue(first["first_success"])
         self.assertFalse(second["first_success"])
+        self.assertEqual(first["lab_id"], "lab-1")
         self.assertTrue(first["attempt_recorded"])
         self.assertTrue(first["course_attempt_recorded"])
         self.assertEqual(second["xp_gained"], 0)
