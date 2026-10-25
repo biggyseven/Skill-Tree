@@ -254,6 +254,59 @@ def _fetch_lab(lab_id: str) -> dict[str, Any]:
     raise HTTPException(status_code=404, detail=" ".join(details))
 
 
+def _ensure_lab_catalog_row(
+    conn: sqlite3.Connection,
+    lab_id: str,
+    definition: LabDefinition,
+) -> None:
+    """Crée l'entrée minimale du catalogue si un lab JSON doit être soumis pour la première fois."""
+    tables = {
+        row["name"]
+        for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+    }
+    if "labs" not in tables:
+        raise HTTPException(
+            status_code=503,
+            detail="La table labs n'existe pas. Exécute la migration M1 avant de soumettre ce laboratoire.",
+        )
+
+    columns = {
+        row["name"] for row in conn.execute('PRAGMA table_info("labs")')
+    }
+    if "id" not in columns:
+        raise HTTPException(status_code=503, detail="La table labs ne contient pas de colonne id.")
+
+    existing = conn.execute("SELECT 1 FROM labs WHERE id = ?", (lab_id,)).fetchone()
+    if existing:
+        return
+
+    definition_payload = model_to_dict(definition, by_alias=True)
+    definition_payload["id"] = lab_id
+    row_values: dict[str, Any] = {
+        "id": lab_id,
+        "title": definition.title or lab_id,
+        "level": definition.level,
+        "module": definition.module,
+        "prompt": definition.prompt,
+        "objectives": json.dumps(definition.objectives, ensure_ascii=False),
+        "hints": json.dumps(definition.hints, ensure_ascii=False),
+        "duration_min": definition.duration_min,
+        "difficulty": definition.difficulty,
+        "xp_reward": definition.xp_reward,
+        "badges": json.dumps(definition.badges, ensure_ascii=False),
+        "schema_version": definition.schema_version,
+        "definition_json": json.dumps(definition_payload, ensure_ascii=False),
+        "migration_note": "Catalogue synchronisé depuis la définition labs_v2 lors de la première soumission.",
+    }
+    available = [(name, value) for name, value in row_values.items() if name in columns]
+    quoted_columns = ", ".join('"' + name.replace('"', '""') + '"' for name, _ in available)
+    placeholders = ", ".join("?" for _ in available)
+    conn.execute(
+        f"INSERT INTO labs ({quoted_columns}) VALUES ({placeholders})",
+        tuple(value for _, value in available),
+    )
+
+
 def _course_lab_context(conn: sqlite3.Connection, lab_id: str) -> dict[str, Any] | None:
     """Retourne le lien vers une exigence de lab du parcours, si les schémas le permettent."""
     tables = {
@@ -561,6 +614,9 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
             raise HTTPException(status_code=503, detail="La table lab_attempts n'existe pas. Exécute la migration M1.")
 
         conn.execute("BEGIN IMMEDIATE")
+        # Un lab servi depuis labs_v2/*.json peut ne pas encore avoir été versé
+        # dans la table labs ; il faut créer la ligne référencée par lab_attempts.
+        _ensure_lab_catalog_row(conn, lab_id, definition)
         course_context = _course_lab_context(conn, lab_id)
         check_result = _enforce_course_lab_score(check_result, course_context)
         passed = bool(check_result["passed"])
