@@ -186,6 +186,19 @@ class LabValidationTests(unittest.TestCase):
         self.assertFalse(result["passed"])
         self.assertTrue(result["manual_review_required"])
 
+    def test_check_route_can_grade_a_file_lab_when_database_is_unavailable(self) -> None:
+        with self._mock_lab(self._definition()), patch.object(
+            lab_routes,
+            "_database_connection",
+            side_effect=lab_routes.HTTPException(status_code=503, detail="SQLite indisponible"),
+        ):
+            result = lab_routes.check_lab_v2(
+                "lab-1", CheckRequest(topology=self._topology("edge-1"))
+            )
+
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["score"], 1.0)
+
     def test_empty_rule_set_fails_closed(self) -> None:
         with self._mock_lab(self._definition(rules=[])), patch.object(
             lab_routes, "_database_connection", side_effect=self._connect
@@ -235,11 +248,14 @@ class LabValidationTests(unittest.TestCase):
                 "SELECT kind, score, passed FROM attempts WHERE node_id = 'lab-1' ORDER BY id"
             ).fetchall()
             streaks = conn.execute("SELECT COUNT(*) FROM daily_streak").fetchone()[0]
+            conn.row_factory = sqlite3.Row
+            canonical_status = lab_routes.SkillTree(conn).status("lab-1").value
         finally:
             conn.close()
         self.assertEqual(stats[0], 25)
         self.assertEqual([tuple(row) for row in attempts], [("lab", 100, 1), ("lab", 100, 1)])
         self.assertEqual(streaks, 1)
+        self.assertEqual(canonical_status, "validated")
 
     def test_sandbox_submit_is_never_reported_as_a_course_validation(self) -> None:
         sandbox = {
