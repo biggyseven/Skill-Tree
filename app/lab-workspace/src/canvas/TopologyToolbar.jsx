@@ -1,36 +1,92 @@
-﻿import { useLabStore } from '../store/useLabStore.js';
+import { useState } from 'react';
+import { useLabStore } from '../store/useLabStore.js';
 
 export function TopologyToolbar() {
   const topology = useLabStore(s => s.topology);
   const lab = useLabStore(s => s.lab);
+  const loadLab = useLabStore(s => s.loadLab);
   const checkResult = useLabStore(s => s.checkResult);
   const loading = useLabStore(s => s.loading);
+  const [persistenceBusy, setPersistenceBusy] = useState(false);
+  const [persistenceMessage, setPersistenceMessage] = useState('');
+
+  async function handleSave() {
+    if (!lab?.id || lab.id === 'demo' || !topology || persistenceBusy) return;
+    setPersistenceBusy(true);
+    setPersistenceMessage('');
+    try {
+      const response = await fetch('/api/lab/v2/' + encodeURIComponent(lab.id) + '/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topology }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+      setPersistenceMessage('Topologie sauvegardée');
+    } catch (error) {
+      setPersistenceMessage('Échec de sauvegarde : ' + error.message);
+    } finally {
+      setPersistenceBusy(false);
+    }
+  }
+
+  async function handleLoad() {
+    if (!lab?.id || lab.id === 'demo' || persistenceBusy) return;
+    setPersistenceBusy(true);
+    setPersistenceMessage('');
+    try {
+      const response = await fetch('/api/lab/v2/' + encodeURIComponent(lab.id) + '/load');
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+      if (!payload.topology) throw new Error('La réponse ne contient aucune topologie.');
+      loadLab(lab.id, lab, payload.topology);
+      setPersistenceMessage('Topologie chargée');
+    } catch (error) {
+      setPersistenceMessage('Échec de chargement : ' + error.message);
+    } finally {
+      setPersistenceBusy(false);
+    }
+  }
 
   const handleCheck = () => window.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
   const handleSubmit = () => window.dispatchEvent(new CustomEvent('lab:submit', { detail: {} }));
   const handleClose = () => window.dispatchEvent(new CustomEvent('lab:close', { detail: {} }));
+  const persistenceDisabled = persistenceBusy || !lab || lab.id === 'demo';
 
   return (
-    <div className="flex shrink-0 items-center justify-between border-b border-[var(--s2)] bg-[var(--s1)] px-5 py-3">
-      <div className="font-mono text-xs text-[var(--text-secondary)]">
-        {topology?.nodes?.length || 0} devices · {topology?.links?.length || 0} links
-        {checkResult && (
-          <span className={checkResult.passed ? 'ml-4 text-[var(--emerald-400)]' : 'ml-4 text-[var(--rose-400)]'}>
-            {checkResult.passed ? '✓ Passé' : 'Score ' + Math.round((checkResult.score || 0) * 100) + '%'}
-          </span>
-        )}
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--s2)] bg-[var(--s1)] px-4 py-2.5">
+      <div className="min-w-0">
+        <div className="font-mono text-xs text-[var(--text-secondary)]">
+          {topology?.nodes?.length || 0} équipements · {topology?.links?.length || 0} liaisons
+          {checkResult && (
+            <span className={checkResult.passed ? 'ml-3 text-[var(--emerald-400)]' : 'ml-3 text-[var(--rose-400)]'}>
+              {checkResult.passed ? '✓ Réussi' : 'Score ' + Math.round((checkResult.score || 0) * 100) + '%'}
+            </span>
+          )}
+        </div>
+        {persistenceMessage && <p role="status" className="mt-1 text-[10px] text-[var(--text-secondary)]">{persistenceMessage}</p>}
       </div>
-      <div className="flex gap-2">
-        <button onClick={handleCheck} disabled={loading}
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={handleSave} disabled={persistenceDisabled}
+          title={lab?.id === 'demo' ? 'Indisponible dans la démo' : 'Enregistrer la topologie'}
+          className="rounded-md border border-[#30363d] bg-[#161b22] px-3 py-1.5 text-xs font-semibold text-[#c9d1d9] hover:border-[#0ea5e9] hover:text-white disabled:cursor-not-allowed disabled:opacity-40">
+          {persistenceBusy ? '…' : 'Sauvegarder'}
+        </button>
+        <button type="button" onClick={handleLoad} disabled={persistenceDisabled}
+          title={lab?.id === 'demo' ? 'Indisponible dans la démo' : 'Charger la dernière topologie sauvegardée'}
+          className="rounded-md border border-[#30363d] bg-[#161b22] px-3 py-1.5 text-xs font-semibold text-[#c9d1d9] hover:border-[#0ea5e9] hover:text-white disabled:cursor-not-allowed disabled:opacity-40">
+          Charger
+        </button>
+        <button type="button" onClick={handleCheck} disabled={loading}
           className="rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
           {loading ? '…' : '✓ Vérifier'}
         </button>
-        <button onClick={handleSubmit} disabled={loading || lab?.id === 'demo'}
+        <button type="button" onClick={handleSubmit} disabled={loading || lab?.id === 'demo'}
           title={lab?.id === 'demo' ? 'La démo ne peut pas être soumise' : 'Recalculer et enregistrer le résultat côté serveur'}
           className="rounded-lg border border-[var(--s2)] bg-[var(--s2)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--s3)] disabled:opacity-40">
           ↑ Soumettre
         </button>
-        <button onClick={handleClose}
+        <button type="button" onClick={handleClose}
           className="rounded-lg border border-[var(--s2)] bg-[var(--s2)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--s3)]">
           ✕ Fermer
         </button>
