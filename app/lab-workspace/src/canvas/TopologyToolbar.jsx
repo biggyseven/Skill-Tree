@@ -101,6 +101,22 @@ export function TopologyToolbar() {
             </span>
           )}
         </div>
+        {Array.isArray(checkResult?.results) && checkResult.results.length > 0 && checkResult.sandbox !== true && (
+          <div role="region" aria-label="Détails des vérifications" aria-live="polite" className="mt-2 max-h-36 overflow-y-auto rounded-lg border border-[var(--s2)] bg-[var(--s0)] p-2">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">Détails des vérifications</p>
+            <ul className="space-y-1.5">
+              {checkResult.results.map((item, index) => (
+                <li
+                  key={String(item.rule_id || 'rule') + '-' + index}
+                  className={`flex items-start gap-2 text-xs ${item.passed ? 'text-[var(--emerald-400)]' : 'text-[var(--rose-400)]'}`}
+                >
+                  <span aria-hidden="true" className="shrink-0 font-bold">{item.passed ? '✓' : '✕'}</span>
+                  <span className="min-w-0 break-words">{item.message || item.rule_id || 'Règle sans description'}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {persistenceMessage && <p role="status" className="mt-1 text-[10px] text-[var(--text-secondary)]">{persistenceMessage}</p>}
         {checkResult?.sandbox === true && (
           <p role="status" className="mt-1 text-xs text-[var(--text-secondary)]">
