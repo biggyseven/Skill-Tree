@@ -249,7 +249,21 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
     challenge = _challenge_row(tree, node.id)
     terminal = tree.conn.execute("SELECT prompt, explanation FROM terminal_specs WHERE node_id = ?", (node.id,)).fetchone()
     terminal_spec = tree.terminal_spec(node.id)
-    
+
+    challenge_payload = None
+    if challenge:
+        try:
+            expected_topology = json.loads(challenge["expected_topology"])
+        except (TypeError, ValueError) as error:
+            raise HTTPException(500, "La définition de la topologie attendue est invalide.") from error
+        if not isinstance(expected_topology, dict):
+            raise HTTPException(500, "La définition de la topologie attendue est invalide.")
+        challenge_payload = {
+            "prompt": node.description,
+            "time_limit": challenge["time_limit"],
+            "expected_topology": expected_topology,
+        }
+
     return {
         "id": node.id,
         "title": node.title,
@@ -261,7 +275,177 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
         "requirements": [{"kind": r.kind.value, "min_score": r.min_score, "met": requirement_met(r, node)} for r in node.requirements],
         "lab": {"kind": lab.kind, "prompt": lab.prompt, "hint": lab.hint} if lab else None,
         "terminal": terminal_spec,
-        "challenge": {"prompt": node.description, "time_limit": challenge["time_limit"]} if challenge else None,
+        "challenge": challenge_payload,
+    }
+
+
+def _topology_histograms(topology: Any) -> tuple[Counter, Counter]:
+    """Construit les histogrammes de types et de liens depuis l'export Drawflow."""
+    if not isinstance(topology, dict):
+        raise HTTPException(422, "La topologie envoyée doit être un objet Drawflow.")
+    if len(topology) > 200:
+        raise HTTPException(422, "La topologie dépasse la limite de 200 équipements.")
+
+    node_types: dict[str, str] = {}
+    for raw_id, raw_node in topology.items():
+        if not isinstance(raw_node, dict):
+            raise HTTPException(422, "Un équipement de la topologie est invalide.")
+        name = raw_node.get("name")
+        if not isinstance(name, str) or not name.strip():
+            raise HTTPException(422, "Chaque équipement doit avoir un type valide.")
+        node_types[str(raw_id)] = name.strip().lower()
+
+    node_counts = Counter(node_types.values())
+    link_counts: Counter = Counter()
+    connection_total = 0
+    for raw_id, raw_node in topology.items():
+        outputs = raw_node.get("outputs") or {}
+        if not isinstance(outputs, dict):
+            raise HTTPException(422, "Les sorties d'un équipement sont invalides.")
+        for output in outputs.values():
+            if not isinstance(output, dict):
+                raise HTTPException(422, "Un port de sortie est invalide.")
+            connections = output.get("connections") or []
+            if not isinstance(connections, list):
+                raise HTTPException(422, "La liste de connexions d'un port est invalide.")
+            connection_total += len(connections)
+            if connection_total > 1000:
+                raise HTTPException(422, "La topologie dépasse la limite de 1 000 connexions.")
+            for connection in connections:
+                if not isinstance(connection, dict):
+                    raise HTTPException(422, "Une connexion est invalide.")
+                target_id = str(connection.get("node", ""))
+                if target_id not in node_types:
+                    raise HTTPException(422, "Une connexion pointe vers un équipement inexistant.")
+                pair = tuple(sorted((node_types[str(raw_id)], node_types[target_id])))
+                link_counts[pair] += 1
+
+    return node_counts, link_counts
+
+
+def _expected_topology_histograms(expected_topology: Any) -> tuple[Counter, Counter]:
+    if not isinstance(expected_topology, dict):
+        raise HTTPException(500, "La définition du défi est invalide.")
+    expected_nodes = expected_topology.get("nodes")
+    expected_connections = expected_topology.get("connections")
+    if not isinstance(expected_nodes, dict) or not isinstance(expected_connections, list):
+        raise HTTPException(500, "La définition du défi est invalide.")
+
+    node_counts: Counter = Counter()
+    for node_type, count in expected_nodes.items():
+        if not isinstance(node_type, str) or not node_type.strip() or isinstance(count, bool):
+            raise HTTPException(500, "La définition des équipements attendus est invalide.")
+        try:
+            count = int(count)
+        except (TypeError, ValueError) as error:
+            raise HTTPException(500, "Le nombre d'équipements attendus est invalide.") from error
+        if count < 0:
+            raise HTTPException(500, "Le nombre d'équipements attendus est invalide.")
+        if count:
+            node_counts[node_type.strip().lower()] += count
+
+    link_counts: Counter = Counter()
+    for connection in expected_connections:
+        if not isinstance(connection, dict):
+            raise HTTPException(500, "La définition des connexions attendues est invalide.")
+        source, target = connection.get("from"), connection.get("to")
+        if not isinstance(source, str) or not isinstance(target, str) or not source.strip() or not target.strip():
+            raise HTTPException(500, "La définition des connexions attendues est invalide.")
+        link_counts[tuple(sorted((source.strip().lower(), target.strip().lower())))] += 1
+
+    if not node_counts or not link_counts:
+        raise HTTPException(500, "La définition du défi doit contenir des équipements et des connexions.")
+    return node_counts, link_counts
+
+
+def _compare_topology_counts(actual: Counter, expected: Counter, render) -> tuple[float, list[str], list[str]]:
+    keys = set(actual) | set(expected)
+    matched = sum(min(actual.get(key, 0), expected.get(key, 0)) for key in keys)
+    denominator = max(sum(actual.values()), sum(expected.values()))
+    ratio = matched / denominator if denominator else 1.0
+    missing = [render(key, expected[key] - actual.get(key, 0)) for key in sorted(expected) if expected[key] > actual.get(key, 0)]
+    extra = [render(key, actual[key] - expected.get(key, 0)) for key in sorted(actual) if actual[key] > expected.get(key, 0)]
+    return ratio, missing, extra
+
+
+@app.post("/api/node/{node_id}/challenge")
+def submit_challenge(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    """Calcule et enregistre un défi d'architecture à partir de la topologie reçue."""
+    node = _get_node(tree, node_id)
+    challenge = _challenge_row(tree, node_id)
+    if challenge is None:
+        raise HTTPException(404, "Aucun défi d'architecture n'est défini pour ce cours.")
+
+    try:
+        expected_topology = json.loads(challenge["expected_topology"])
+    except (TypeError, ValueError) as error:
+        raise HTTPException(500, "La définition de la topologie attendue est invalide.") from error
+
+    requirement = node.requirement(ProofKind.MANUAL)
+    if requirement is None:
+        raise HTTPException(409, "Ce défi ne possède pas d'exigence de validation manuelle.")
+
+    topology = payload.get("topology")
+    actual_nodes, actual_links = _topology_histograms(topology)
+    expected_nodes, expected_links = _expected_topology_histograms(expected_topology)
+
+    node_ratio, missing_nodes, extra_nodes = _compare_topology_counts(
+        actual_nodes, expected_nodes,
+        lambda name, count: f"{count} × {name}",
+    )
+    link_ratio, missing_links, extra_links = _compare_topology_counts(
+        actual_links, expected_links,
+        lambda pair, count: f"{count} × {pair[0]} ↔ {pair[1]}",
+    )
+    score = round(100 * (0.5 * node_ratio + 0.5 * link_ratio))
+    timed_out = payload.get("timeout") is True
+    passed = score >= requirement.min_score and not timed_out
+    current_status = tree.status(node_id)
+
+    if current_status is Status.LOCKED:
+        missing_prereqs = [prereq for prereq in node.prereqs if tree.status(prereq) is not Status.VALIDATED]
+        raise HTTPException(
+            409,
+            f"Défi verrouillé. Prérequis manquants : {', '.join(missing_prereqs)}.",
+        )
+
+    if current_status is Status.VALIDATED:
+        return {
+            "success": True, "score": score, "passed": passed, "timeout": timed_out,
+            "validated": True, "status": Status.VALIDATED.value,
+            "attempt_recorded": False, "xp_gained": 0, "badges_unlocked": [],
+            "missing_nodes": missing_nodes, "extra_nodes": extra_nodes,
+            "missing_links": missing_links, "extra_links": extra_links,
+        }
+
+    evidence = json.dumps(
+        {"nodes": dict(actual_nodes), "links": {f"{a}|{b}": count for (a, b), count in actual_links.items()}},
+        ensure_ascii=False,
+    )[:4000]
+    detail = f"Défi d'architecture : {score}/100"
+    if timed_out:
+        detail += " (temps écoulé)"
+    try:
+        _attempt, validated = tree.record(
+            node_id, ProofKind.MANUAL, score, passed, evidence=evidence, detail=detail,
+        )
+    except DomainError as error:
+        raise HTTPException(409, str(error)) from error
+
+    return {
+        "success": True,
+        "score": score,
+        "passed": passed,
+        "timeout": timed_out,
+        "validated": validated,
+        "status": tree.status(node_id).value,
+        "attempt_recorded": True,
+        "xp_gained": (tree.last_reward or {}).get("xp", 0),
+        "badges_unlocked": tree.last_badges,
+        "missing_nodes": missing_nodes,
+        "extra_nodes": extra_nodes,
+        "missing_links": missing_links,
+        "extra_links": extra_links,
     }
 
 @app.post("/api/node/{node_id}/quiz")
