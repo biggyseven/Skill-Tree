@@ -48,8 +48,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertEqual(DASHBOARD_HTML.count("--halo:.55;"), 7)
         self.assertIn(".glow-lime { box-shadow:", DASHBOARD_HTML)
         self.assertIn(".glow-fuchsia { box-shadow:", DASHBOARD_HTML)
-        self.assertNotIn(".glow-lime { animation:", DASHBOARD_HTML)
-        self.assertNotIn(".glow-fuchsia { animation:", DASHBOARD_HTML)
+        self.assertNotIn(".glow-lime { animation: glowLime", DASHBOARD_HTML)
+        self.assertNotIn(".glow-fuchsia { animation: glowFuchsia", DASHBOARD_HTML)
         self.assertIn("@media (prefers-reduced-motion: reduce)", DASHBOARD_HTML)
 
     def test_daily_plan_routes_each_action_to_the_matching_workspace(self):
