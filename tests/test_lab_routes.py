@@ -21,10 +21,54 @@ class LabValidationTests(unittest.TestCase):
             conn.execute("PRAGMA foreign_keys = ON")
             conn.execute("CREATE TABLE labs (id TEXT PRIMARY KEY, title TEXT NOT NULL DEFAULT '')")
             conn.execute("INSERT INTO labs (id, title) VALUES (?, ?)", ("lab-1", "Lab de test"))
-            conn.execute("CREATE TABLE nodes (id TEXT PRIMARY KEY, title TEXT NOT NULL)")
+            conn.execute(
+                """
+                CREATE TABLE nodes (
+                    id TEXT PRIMARY KEY, title TEXT NOT NULL,
+                    description TEXT NOT NULL DEFAULT '', category TEXT NOT NULL DEFAULT 'Général',
+                    module TEXT NOT NULL DEFAULT 'Administration Réseaux',
+                    sort_order INTEGER NOT NULL DEFAULT 0
+                )
+                """
+            )
+            conn.execute(
+                "INSERT INTO nodes (id, title) VALUES (?, ?)",
+                ("lab-1", "Lab de test"),
+            )
             conn.execute(
                 "INSERT INTO nodes (id, title) VALUES (?, ?)",
                 ("node-sandbox", "Cours de test sans laboratoire"),
+            )
+            conn.execute(
+                "CREATE TABLE edges (node_id TEXT NOT NULL, prereq_id TEXT NOT NULL, PRIMARY KEY (node_id, prereq_id))"
+            )
+            conn.execute(
+                """
+                CREATE TABLE requirements (
+                    node_id TEXT NOT NULL, kind TEXT NOT NULL, min_score INTEGER NOT NULL DEFAULT 80,
+                    PRIMARY KEY (node_id, kind)
+                )
+                """
+            )
+            conn.execute(
+                "INSERT INTO requirements (node_id, kind, min_score) VALUES ('lab-1', 'lab', 100)"
+            )
+            conn.execute(
+                """
+                CREATE TABLE attempts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, node_id TEXT NOT NULL, kind TEXT NOT NULL,
+                    score INTEGER NOT NULL DEFAULT 0, passed INTEGER NOT NULL DEFAULT 0,
+                    evidence TEXT NOT NULL DEFAULT '', detail TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE daily_streak (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, date_jour TEXT NOT NULL UNIQUE,
+                    minutes_etudiees INTEGER NOT NULL DEFAULT 0
+                )
+                """
             )
             conn.execute(
                 """
@@ -120,24 +164,32 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(definition.level, "Sandbox")
         self.assertEqual(definition.initial_topology.nodes, [])
         self.assertEqual(definition.initial_topology.links, [])
-        self.assertTrue(checked["passed"])
-        self.assertEqual(checked["score"], 1.0)
+        self.assertFalse(checked["passed"])
+        self.assertEqual(checked["score"], 0.0)
+        self.assertTrue(checked["sandbox"])
+        self.assertTrue(checked["manual_review_required"])
         self.assertEqual(checked["results"][0]["rule_id"], "sandbox")
 
     def test_matching_server_rules_can_pass(self) -> None:
-        with self._mock_lab(self._definition()):
+        with self._mock_lab(self._definition()), patch.object(
+            lab_routes, "_database_connection", side_effect=self._connect
+        ):
             result = lab_routes.check_lab_v2("lab-1", CheckRequest(topology=self._topology("edge-1")))
         self.assertTrue(result["passed"])
         self.assertEqual(result["score"], 1.0)
 
     def test_manual_review_cannot_pass_automatically(self) -> None:
-        with self._mock_lab(self._definition(check_type="manual_review")):
+        with self._mock_lab(self._definition(check_type="manual_review")), patch.object(
+            lab_routes, "_database_connection", side_effect=self._connect
+        ):
             result = lab_routes.check_lab_v2("lab-1", CheckRequest(topology=self._topology("edge-1")))
         self.assertFalse(result["passed"])
         self.assertTrue(result["manual_review_required"])
 
     def test_empty_rule_set_fails_closed(self) -> None:
-        with self._mock_lab(self._definition(rules=[])):
+        with self._mock_lab(self._definition(rules=[])), patch.object(
+            lab_routes, "_database_connection", side_effect=self._connect
+        ):
             result = lab_routes.check_lab_v2("lab-1", CheckRequest(topology=self._topology("edge-1")))
         self.assertFalse(result["passed"])
         self.assertEqual(result["score"], 0.0)
@@ -172,13 +224,39 @@ class LabValidationTests(unittest.TestCase):
             second = lab_routes.submit_lab_v2("lab-1", request)
         self.assertTrue(first["passed"])
         self.assertEqual(first["xp_gained"], 25)
+        self.assertTrue(first["attempt_recorded"])
+        self.assertTrue(first["course_attempt_recorded"])
         self.assertEqual(second["xp_gained"], 0)
+        self.assertTrue(second["course_attempt_recorded"])
         conn = sqlite3.connect(str(self.db_path))
         try:
             stats = conn.execute("SELECT total_xp FROM user_stats WHERE id = 1").fetchone()
+            attempts = conn.execute(
+                "SELECT kind, score, passed FROM attempts WHERE node_id = 'lab-1' ORDER BY id"
+            ).fetchall()
+            streaks = conn.execute("SELECT COUNT(*) FROM daily_streak").fetchone()[0]
         finally:
             conn.close()
         self.assertEqual(stats[0], 25)
+        self.assertEqual([tuple(row) for row in attempts], [("lab", 100, 1), ("lab", 100, 1)])
+        self.assertEqual(streaks, 1)
+
+    def test_sandbox_submit_is_never_reported_as_a_course_validation(self) -> None:
+        sandbox = {
+            "id": "node-sandbox",
+            "sandbox": True,
+            "definition": self._definition(),
+        }
+        request = SubmitRequest(topology=self._topology("edge-1"))
+        with patch.object(lab_routes, "_fetch_lab", return_value=sandbox):
+            result = lab_routes.submit_lab_v2("node-sandbox", request)
+
+        self.assertTrue(result["sandbox"])
+        self.assertFalse(result["passed"])
+        self.assertFalse(result["attempt_recorded"])
+        self.assertFalse(result["course_attempt_recorded"])
+        self.assertEqual(result["xp_gained"], 0)
+        self.assertEqual(result["badges_unlocked"], [])
 
     def test_vlan_and_cross_cable_survive_schema_validation(self) -> None:
         topology = self._topology("edge-1")
