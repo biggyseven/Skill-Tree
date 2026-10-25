@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Cybersécurité OT (Purdue Model)",
+      "prompt": "Quel est le rôle de la DMZ industrielle ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Contrôler les échanges IT/OT via des services intermédiaires",
+        "Autoriser tout trafic vers les PLC",
+        "Remplacer les sauvegardes",
+        "Accélérer la radio 5G"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La DMZ héberge notamment bastions, relais et réplication contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Purdue est-il une topologie obligatoire ?",
+      "choices": [
+        "Non, c'est un modèle de référence à adapter au risque",
+        "Oui, chaque usine doit être identique",
+        "Oui, il remplace l'inventaire",
+        "Il interdit les pare-feu"
+      ],
+      "answer": 0,
+      "explanation": "Les architectures varient ; flux et frontières doivent être documentés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une isolation immédiate peut-elle être risquée ?",
+      "choices": [
+        "Elle peut perturber un procédé critique",
+        "Elle améliore toujours la sûreté",
+        "Elle chiffre les automates",
+        "Elle restaure les PLC"
+      ],
+      "answer": 0,
+      "explanation": "Coordonner les actions avec OT et sûreté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider les règles inter-zones ?",
+      "choices": [
+        "Refus par défaut avec flux nécessaires validés",
+        "Autoriser tout le réseau industriel",
+        "Ouvrir les interfaces PLC à Internet",
+        "Utiliser un compte partagé"
+      ],
+      "answer": 0,
+      "explanation": "Les conduits doivent limiter les flux au nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle priorité guidera la réponse à un incident OT ?",
+      "choices": [
+        "Protéger les personnes et stabiliser le procédé",
+        "Redémarrer tous les contrôleurs",
+        "Effacer les journaux",
+        "Tout déconnecter sans analyse"
+      ],
+      "answer": 0,
+      "explanation": "La réponse doit tenir compte de la sûreté et des conséquences physiques."
     }
   ]
 }
