@@ -4703,16 +4703,72 @@
         resetExam() { this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false; },
 
         // ---------- labs ----------
-        labIndex: {}, labIndexBusy: false, labIndexDone: 0, labFilter: { module: 'all', level: 'all' },
+        labIndex: {}, labIndexBusy: false, labIndexDone: 0, labCatalogLoaded: false, labFilter: { module: 'all', level: 'all' },
         labsDone: LS.get('labs-done', []), labSteps: LS.get('lab-steps', {}), labHints: {},
         get labNodes() { return this.nodes.filter(n => this.labIndex[n.id] && (this.labFilter.module === 'all' || this.moduleOf(n) === this.labFilter.module) && (this.labFilter.level === 'all' || this.levelOf(n) === this.labFilter.level)); },
         async loadLabIndex() {
           // Les résultats déjà résolus restent en mémoire quand on quitte puis revient dans Labs.
           // En revanche, une erreur réseau/HTTP ne doit pas être mise en cache comme « aucun lab ».
-          if (this.labIndexBusy) return; const todo = this.nodes.filter(n => !(n.id in this.labIndex)); if (!todo.length) return;
-          this.labIndexBusy = true; this.labIndexDone = 0; let i = 0;
-          const worker = async () => { while (i < todo.length) { const n = todo[i++]; try { const r = await fetch(`/api/node/${encodeURIComponent(n.id)}`); if (!r.ok) throw new Error(`HTTP ${r.status}`); const d = await r.json(); this.labIndex[n.id] = d.lab || null; } catch (e) { delete this.labIndex[n.id]; console.warn(`Impossible de charger l’index du lab ${n.id}; une nouvelle tentative sera faite au prochain accès.`, e); } this.labIndexDone++; } };
-          await Promise.all([worker(), worker(), worker(), worker(), worker()]); this.labIndexBusy = false;
+          if (this.labIndexBusy) return;
+          const todo = this.nodes.filter(n => !(n.id in this.labIndex));
+          const needsCatalog = !this.labCatalogLoaded;
+          if (!todo.length && !needsCatalog) return;
+
+          this.labIndexBusy = true;
+          this.labIndexDone = 0;
+          let i = 0;
+          try {
+            const worker = async () => {
+              while (i < todo.length) {
+                const n = todo[i++];
+                try {
+                  const r = await fetch(`/api/node/${encodeURIComponent(n.id)}`);
+                  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                  const d = await r.json();
+                  this.labIndex[n.id] = d.lab || null;
+                } catch (e) {
+                  delete this.labIndex[n.id];
+                  console.warn(`Impossible de charger l’index du lab ${n.id}; une nouvelle tentative sera faite au prochain accès.`, e);
+                }
+                this.labIndexDone++;
+              }
+            };
+            await Promise.all([worker(), worker(), worker(), worker(), worker()]);
+
+            // Les labs v2 sont enregistrés dans la table « labs » et ne possèdent
+            // pas toujours de propriété lab dans le nœud du cours. Fusionner les deux
+            // sources permet de les afficher sans supprimer les labs historiques.
+            if (!this.labCatalogLoaded) {
+              try {
+                const response = await fetch('/api/lab/v2');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const catalog = await response.json();
+                if (!Array.isArray(catalog)) throw new Error('Format de catalogue invalide');
+                const nodeIds = new Set(this.nodes.map(n => String(n.id)));
+                for (const lab of catalog) {
+                  const id = String(lab?.id || '');
+                  if (!id || !nodeIds.has(id)) continue;
+                  const current = this.labIndex[id] && typeof this.labIndex[id] === 'object'
+                    ? this.labIndex[id]
+                    : {};
+                  this.labIndex[id] = {
+                    ...current,
+                    kind: 'workspace-v2',
+                    duration: Number(lab.duration_min ?? current.duration) || null,
+                    difficulty: String(lab.difficulty || current.difficulty || ''),
+                    schema_version: Number(lab.schema_version || 2),
+                  };
+                }
+                this.labCatalogLoaded = true;
+              } catch (e) {
+                // Ne pas mémoriser un échec : le prochain accès à Labs réessaiera.
+                console.warn('Impossible de charger le catalogue Lab Workspace v2; une nouvelle tentative sera faite au prochain accès.', e);
+              }
+            }
+          } finally {
+            // Une erreur inattendue ne doit jamais laisser le catalogue bloqué en chargement.
+            this.labIndexBusy = false;
+          }
         },
         openVisualLab() {
           if (!this.detail?.id) return;
