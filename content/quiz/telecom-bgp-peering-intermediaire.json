@@ -44,7 +44,7 @@
         "Ils remplacent la nécessité de tout protocole de routage IP",
         "Ils chiffrent les annonces BGP sans configuration supplémentaire",
         "Ils suppriment la nécessité de définir des politiques d’import/export eBGP",
-        "Ils évitent d’exiger un maillage iBGP complet entre tous les routeurs grâce à la réflexion contrôlée des routes"
+        "Ils permettent à un route reflector de distribuer des routes iBGP sans maillage complet entre tous les routeurs"
       ],
       "answer": 3,
       "explanation": "Un route reflector permet de distribuer des routes iBGP sans configurer une session directe entre chaque paire de routeurs. Il demande une conception et une redondance adaptées."
