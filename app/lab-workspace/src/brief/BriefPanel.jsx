@@ -25,6 +25,17 @@ export function BriefPanel() {
         </div>
       )}
 
+      {Array.isArray(lab.hints) && lab.hints.length > 0 && (
+        <section className="rounded-xl border border-[#d29922]/25 bg-[#d29922]/[0.06] p-3.5" aria-label="Indices pour réussir">
+          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#e3b341]">
+            <span aria-hidden="true">💡</span> Indices
+          </div>
+          <ol className="list-decimal space-y-2 pl-4 text-xs leading-relaxed text-[#e6edf3]">
+            {lab.hints.map((hint, i) => <li key={i}>{hint}</li>)}
+          </ol>
+        </section>
+      )}
+
       {/* ZONE DE RESULTAT DU CHECK */}
       {checkResult?.stale && (
         <div role="status" className="rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-3 py-2 text-xs leading-relaxed text-[#fcd34d]">

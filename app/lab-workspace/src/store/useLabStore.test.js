@@ -57,6 +57,22 @@ test('déplacer un équipement conserve le résultat car la position n’est pas
   assert.deepEqual(useLabStore.getState().checkResult, { passed: true, score: 1 });
 });
 
+test('le workspace ouvert sans identifiant démarre vide et non noté', () => {
+  useLabStore.getState().loadFreeWorkspace();
+  const state = useLabStore.getState();
+  assert.equal(state.lab.id, 'workspace-libre');
+  assert.equal(state.lab.sandbox, true);
+  assert.equal(state.lab.title, 'Espace de travail libre');
+  assert.deepEqual(state.topology.nodes, []);
+  assert.deepEqual(state.topology.links, []);
+  assert.equal(state.topology.metadata.name, 'Espace de travail libre');
+});
+
+test('un scenario canonique conserve l’identifiant du cours demandé', () => {
+  useLabStore.getState().loadLab('ipv4-debutant', { id: 'ipv4', title: 'Adressage IPv4' }, makeTopology());
+  assert.equal(useLabStore.getState().lab.id, 'ipv4-debutant');
+});
+
 test('les actions matérielles restent sûres avant le chargement d’un lab', () => {
   assert.doesNotThrow(() => useLabStore.getState().removePort('R1', 'Fa0/0'));
   assert.doesNotThrow(() => useLabStore.getState().togglePortState('R1', 'Fa0/0'));

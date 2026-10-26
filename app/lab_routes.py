@@ -37,6 +37,16 @@ DB_PATH = Path(os.environ.get("SKILLTREE_DB", DEFAULT_DB))
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 LABS_V2_DIR = PROJECT_ROOT / "labs_v2"
 
+# Les scénarios v2 sont parfois nommés selon le scénario plutôt que l'identifiant du cours.
+# Ces alias relient uniquement les cours dont le niveau et le contenu correspondent réellement.
+LAB_FILE_ALIASES = {
+    "ipv4-debutant": "ipv4",
+    "vlan-debutant": "vlan-trunk",
+    "vlan-intermediaire": "inter-vlan",
+    "ospf-debutant": "ospf-3-routers",
+    "nat-intermediaire": "dhcp-nat",
+}
+
 
 def _database_connection() -> sqlite3.Connection:
     # Résolu à chaque requête : app.api charge .env après l'import de ce module.
@@ -63,9 +73,10 @@ def _lab_payload_from_definition(
 
 
 def _load_lab_file(lab_id: str) -> dict[str, Any] | None:
-    """Charge un lab v2 depuis labs_v2/ quand SQLite ne fournit pas de définition exploitable."""
+    """Charge un lab v2, en résolvant les alias de cours sans perdre son identifiant."""
+    source_lab_id = LAB_FILE_ALIASES.get(lab_id, lab_id)
     labs_root = LABS_V2_DIR.resolve()
-    lab_path = (labs_root / f"{lab_id}.json").resolve()
+    lab_path = (labs_root / f"{source_lab_id}.json").resolve()
 
     # Empêche un lab_id malveillant de sortir du répertoire labs_v2.
     if lab_path.parent != labs_root:
@@ -87,18 +98,25 @@ def _load_lab_file(lab_id: str) -> dict[str, Any] | None:
             detail=f"Définition du lab '{lab_id}' invalide : un objet JSON était attendu.",
         )
 
-    file_lab_id = str(raw_payload.get("id") or lab_id)
-    if file_lab_id != lab_id:
+    file_lab_id = str(raw_payload.get("id") or source_lab_id)
+    if file_lab_id != source_lab_id:
         raise HTTPException(
             status_code=500,
             detail=(
                 f"Identifiant incohérent dans {lab_path.name} : "
-                f"'{file_lab_id}' au lieu de '{lab_id}'."
+                f"'{file_lab_id}' au lieu de '{source_lab_id}'."
             ),
         )
 
     try:
         definition = LabDefinition(**raw_payload)
+        if lab_id != source_lab_id:
+            # Garder l'identifiant du cours pour l'historique et la progression,
+            # même si le JSON de scénario possède son propre identifiant canonique.
+            if hasattr(definition, "model_copy"):
+                definition = definition.model_copy(update={"id": lab_id})
+            else:
+                definition = definition.copy(update={"id": lab_id})
     except (TypeError, ValueError) as error:
         raise HTTPException(
             status_code=500,
@@ -170,7 +188,14 @@ def _load_sandbox_lab(lab_id: str) -> dict[str, Any] | None:
     return payload
 
 def _fetch_lab(lab_id: str) -> dict[str, Any]:
-    """Cherche d'abord SQLite, puis le fichier JSON local en solution de repli."""
+    """Charge d'abord un scénario v2 explicite, puis SQLite et les replis historiques."""
+    # Un scénario pédagogique complet prévaut sur une ancienne ligne SQLite de compatibilité
+    # (souvent migrée avec une topologie vide et une règle temporaire « ok »).
+    if lab_id in LAB_FILE_ALIASES:
+        curated_payload = _load_lab_file(lab_id)
+        if curated_payload is not None:
+            return curated_payload
+
     db_issue: str | None = None
     invalid_db_definition: str | None = None
     conn: sqlite3.Connection | None = None
@@ -222,6 +247,9 @@ def _fetch_lab(lab_id: str) -> dict[str, Any]:
                                 if file_topology is not None and getattr(file_topology, "nodes", None):
                                     return file_payload
 
+                            # Une définition de compatibilité avec une topologie vide ne constitue
+                            # pas un véritable lab V2 noté. Le tableau de bord la traitera comme bac à sable.
+                            db_payload["sandbox"] = True
                             return db_payload
                     else:
                         invalid_db_definition = (

@@ -1,8 +1,8 @@
 ﻿import { create } from 'zustand';
 
 const emptyTopology = () => ({
-  schema_version: 2, topology_id: 'demo-' + Date.now(),
-  metadata: { name: 'Sans titre', author: 'user', created_at: new Date().toISOString(), mode: 'lab' },
+  schema_version: 2, topology_id: 'workspace-' + Date.now(),
+  metadata: { name: 'Espace de travail libre', author: 'user', created_at: new Date().toISOString(), mode: 'lab' },
   nodes: [], links: [], simulation: { state: 'idle', event_log: [] },
 });
 
@@ -34,7 +34,29 @@ export const useLabStore = create((set, get) => ({
 
   setTool(tool) { set({ activeTool: tool }); },
   loadLab(labId, definition, initialTopology) {
-    set({ lab: { id: labId, ...(definition || {}) }, topology: initialTopology || emptyTopology(), loading: false, error: null, selectedDevice: null, checkResult: null, activePacket: null, activeTool: 'select' });
+    set({ lab: { ...(definition || {}), id: labId }, topology: initialTopology || emptyTopology(), loading: false, error: null, selectedDevice: null, checkResult: null, activePacket: null, activeTool: 'select' });
+  },
+  loadFreeWorkspace() {
+    set({
+      lab: {
+        id: 'workspace-libre',
+        title: 'Espace de travail libre',
+        level: 'Libre',
+        module: 'Atelier libre',
+        prompt: 'Construisez votre propre topologie réseau. Ajoutez des équipements, reliez leurs interfaces et explorez leur configuration sans être noté sur un scénario de cours.',
+        objectives: [
+          'Ajouter les équipements nécessaires à votre réseau',
+          'Relier les ports compatibles avec des câbles',
+          'Sélectionner chaque équipement pour examiner et modifier sa configuration',
+        ],
+        hints: [],
+        xp_reward: 0,
+        badges: [],
+        sandbox: true,
+      },
+      topology: emptyTopology(), loading: false, error: null,
+      selectedDevice: null, checkResult: null, activePacket: null, activeTool: 'select',
+    });
   },
   loadDemo() {
     set({ lab: { id: 'demo', title: 'Démo', level: 'debutant', prompt: 'Gérez le matériel depuis l’inspecteur.', objectives: [] }, topology: demoTopology(), loading: false, error: null, selectedDevice: null, checkResult: null, activePacket: null, activeTool: 'select' });

@@ -24,6 +24,20 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertTrue((STATIC_LAB / "main.css").is_file(), "Published Lab Workspace CSS bundle is missing")
         self.assertIn('app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")', api_source)
 
+    def test_free_workspace_is_blank_by_default_and_demo_is_explicit(self):
+        app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
+        store = (ROOT / "app" / "lab-workspace" / "src" / "store" / "useLabStore.js").read_text(encoding="utf-8-sig")
+        brief = (ROOT / "app" / "lab-workspace" / "src" / "brief" / "BriefPanel.jsx").read_text(encoding="utf-8-sig")
+
+        self.assertIn("if (demo === '1')", app)
+        self.assertIn("if (!labId)", app)
+        self.assertIn("loadFreeWorkspace()", app)
+        self.assertIn("loadDemo()", app)
+        self.assertIn("loadFreeWorkspace() {", store)
+        self.assertIn("lab: { ...(definition || {}), id: labId }", store)
+        self.assertIn("lab.hints.map((hint, i)", brief)
+        self.assertIn('aria-label="Indices pour réussir"', brief)
+
     def test_cli_rebinds_to_current_device_and_submit_requires_fresh_check(self):
         cli = (ROOT / "app" / "lab-workspace" / "src" / "cli" / "CLITab.jsx").read_text(encoding="utf-8-sig")
         toolbar = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "TopologyToolbar.jsx").read_text(encoding="utf-8")

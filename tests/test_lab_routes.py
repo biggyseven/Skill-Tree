@@ -170,6 +170,56 @@ class LabValidationTests(unittest.TestCase):
         self.assertTrue(checked["manual_review_required"])
         self.assertEqual(checked["results"][0]["rule_id"], "sandbox")
 
+    def test_ipv4_beginner_course_loads_the_real_v2_scenario(self) -> None:
+        with patch.object(lab_routes, "_database_connection", side_effect=self._connect):
+            result = lab_routes.get_lab_v2("ipv4-debutant")
+
+        definition = result["definition"]
+        self.assertFalse(result.get("sandbox", False))
+        self.assertEqual(result["id"], "ipv4-debutant")
+        self.assertEqual(definition.id, "ipv4-debutant")
+        self.assertEqual(definition.title, "Adressage IPv4 et sous-réseaux")
+        self.assertIn("192.168.10.10", definition.prompt)
+        self.assertGreaterEqual(len(definition.objectives), 4)
+        self.assertGreaterEqual(len(definition.hints), 2)
+        self.assertEqual([node.id for node in definition.initial_topology.nodes], ["PC-A", "SW1", "PC-B"])
+        self.assertEqual(len(definition.initial_topology.links), 2)
+
+    def test_empty_legacy_v2_definition_is_treated_as_sandbox(self) -> None:
+        db_path = Path(self.temp_dir.name) / "empty-legacy-v2.sqlite3"
+        labs_dir = Path(self.temp_dir.name) / "no_v2_files"
+        labs_dir.mkdir()
+        conn = sqlite3.connect(str(db_path))
+        definition = {
+            "schema_version": 2,
+            "id": "legacy-empty",
+            "title": "Ancien lab temporaire",
+            "level": "débutant",
+            "module": "Réseaux",
+            "prompt": "Ancienne consigne de compatibilité",
+            "initial_topology": {"schema_version": 2, "nodes": [], "links": []},
+            "check": {"type": "manual_review", "rules": []},
+        }
+        try:
+            conn.execute("CREATE TABLE labs (id TEXT PRIMARY KEY, title TEXT, level TEXT, module TEXT, prompt TEXT, objectives TEXT, hints TEXT, duration_min INTEGER, difficulty TEXT, xp_reward INTEGER, badges TEXT, schema_version INTEGER, definition_json TEXT, migration_note TEXT)")
+            conn.execute("CREATE TABLE nodes (id TEXT PRIMARY KEY, title TEXT NOT NULL)")
+            conn.execute("INSERT INTO nodes (id, title) VALUES (?, ?)", ("legacy-empty", "Ancien cours"))
+            conn.execute("INSERT INTO labs (id, title, level, module, prompt, objectives, hints, duration_min, difficulty, xp_reward, badges, schema_version, definition_json, migration_note) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", ("legacy-empty", definition["title"], "débutant", "Réseaux", definition["prompt"], "[]", "[]", 15, "débutant", 0, "[]", 2, json.dumps(definition, ensure_ascii=False), "legacy"))
+            conn.commit()
+        finally:
+            conn.close()
+
+        def connect_test_db():
+            connection = sqlite3.connect(str(db_path))
+            connection.row_factory = sqlite3.Row
+            return connection
+
+        with patch.object(lab_routes, "_database_connection", side_effect=connect_test_db), patch.object(lab_routes, "LABS_V2_DIR", labs_dir):
+            result = lab_routes.get_lab_v2("legacy-empty")
+
+        self.assertTrue(result["sandbox"])
+        self.assertEqual(result["definition"].initial_topology.nodes, [])
+
     def test_matching_server_rules_can_pass(self) -> None:
         with self._mock_lab(self._definition()), patch.object(
             lab_routes, "_database_connection", side_effect=self._connect

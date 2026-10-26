@@ -128,8 +128,12 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const labId = params.get('id');
     const demo = params.get('demo');
-    if (demo === '1' || !labId) {
+    if (demo === '1') {
       useLabStore.getState().loadDemo();
+      return;
+    }
+    if (!labId) {
+      useLabStore.getState().loadFreeWorkspace();
       return;
     }
 
