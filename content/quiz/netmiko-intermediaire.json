@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Scripting Python/Netmiko - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Avant de lancer une collecte sur un inventaire JSON, quel contrôle doit être réalisé ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Valider les champs requis, le type des valeurs et les paramètres autorisés avant d’ouvrir les sessions",
+        "Chiffrer automatiquement tous les fichiers de sortie avec le mot de passe SSH",
+        "Considérer toutes les adresses comme accessibles",
+        "Lancer directement toutes les commandes de configuration"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un inventaire doit avoir un contrat de données explicite. Sa validation évite de découvrir une mauvaise valeur au milieu d’une collecte multi-équipements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence pratique existe entre `send_command()` et `send_command_timing()` ?",
+      "choices": [
+        "`send_command_timing()` exécute toujours les commandes de configuration et l’autre jamais",
+        "`send_command()` attend généralement un motif de fin de commande/prompt ; `send_command_timing()` s’appuie davantage sur le silence et les délais pour gérer certains prompts interactifs",
+        "Elles garantissent toutes deux les mêmes délais sur chaque constructeur",
+        "`send_command()` fonctionne uniquement sans SSH"
+      ],
+      "answer": 1,
+      "explanation": "Les commandes qui posent des questions interactives ou ont des prompts atypiques peuvent nécessiter une approche temporelle. Le choix doit être testé sur le CLI et la version cibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un parseur TextFSM renvoie une liste vide alors que la commande a produit du texte. Quel comportement est correct ?",
+      "choices": [
+        "Transformer automatiquement la sortie en données conformes sans contrôle",
+        "Marquer l’équipement comme conforme",
+        "Signaler l’échec de parsing ou le résultat vide, puis vérifier le template, la plateforme et la sortie réelle",
+        "Ignorer les données et afficher uniquement « succès »"
+      ],
+      "answer": 2,
+      "explanation": "Une collecte réussie ne signifie pas que l’extraction métier a réussi. Les résultats vides doivent être distingués d’une configuration réellement vide."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un équipement dépasse son délai d’attente pendant une collecte de 30 équipements. Quel traitement est préférable ?",
+      "choices": [
+        "Arrêter le processus et supprimer les résultats précédents",
+        "Marquer les appareils non testés comme conformes",
+        "Réessayer sans borne jusqu’à ce que le réseau réponde",
+        "Enregistrer l’échec de cet appareil et continuer les collectes indépendantes, avec un statut explicite"
+      ],
+      "answer": 3,
+      "explanation": "L’isolation par appareil préserve les résultats partiels et l’observabilité. Les nouvelles tentatives doivent être limitées et adaptées à la catégorie de l’erreur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter et mesurer la concurrence des sessions Netmiko ?",
+      "choices": [
+        "Pour éviter de saturer les équipements, les connexions de management ou les ressources du contrôleur",
+        "Parce que Python ne peut jamais ouvrir deux connexions SSH",
+        "Pour supprimer le besoin de traiter les exceptions",
+        "Parce que tous les équipements imposent une seule session dans tous les cas"
+      ],
+      "answer": 0,
+      "explanation": "Un parallélisme excessif peut augmenter les erreurs et la charge. Choisis une limite mesurée selon la capacité des équipements et de la plateforme d’automatisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie teste utilement un parseur CLI sans équipement réel à chaque modification ?",
+      "choices": [
+        "Désactiver les assertions du parseur",
+        "Utiliser des fixtures de sorties connues et des tests de résultat nominal, vide, invalide et de version inattendue",
+        "Utiliser une sortie inventée à chaque test sans la valider",
+        "Exécuter toutes les variantes directement en production"
+      ],
+      "answer": 1,
+      "explanation": "Les fixtures rendent le parsing reproductible et couvrent les cas anormaux. Des essais d’intégration contrôlés restent nécessaires avec les plateformes cibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir une liste autorisée de commandes de collecte peut-il améliorer la sécurité ?",
+      "choices": [
+        "Cela permet de supprimer les contrôles d’accès du compte",
+        "Cela garantit qu’une commande ne peut jamais modifier la configuration",
+        "Cela limite ce que le programme peut exécuter si l’inventaire ou une entrée est erroné ou compromis",
+        "Cela force toutes les commandes à retourner le même texte"
+      ],
+      "answer": 2,
+      "explanation": "Une allow-list limite les entrées et réduit les possibilités de commandes inattendues. Le compte de service doit aussi avoir les droits minimums requis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après extraction TextFSM, quelle validation ajoute de la valeur ?",
+      "choices": [
+        "Vérifier uniquement que le texte n’est pas vide",
+        "Changer les valeurs manquantes en zéro sans indication",
+        "Ignorer les erreurs de parsing si la connexion SSH a réussi",
+        "Contrôler le schéma, les types, les champs requis et la cohérence métier des valeurs"
+      ],
+      "answer": 3,
+      "explanation": "Le résultat structuré doit satisfaire un contrat de données avant l’analyse. Un parseur peut produire des valeurs syntactiquement plausibles mais sémantiquement erronées."
     }
   ]
 }

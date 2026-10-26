@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Scripting Python/Netmiko - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel est le rôle de `ConnectHandler()` dans un script Netmiko ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Ouvrir une connexion vers un équipement en utilisant les paramètres et le type de périphérique fournis",
+        "Parser les sorties Syslog en temps réel sans connexion",
+        "Générer des routes IP automatiquement",
+        "Remplacer l’authentification SSH du système"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "`ConnectHandler` établit la session selon le pilote et les paramètres. Le code doit encore gérer la confiance SSH, les erreurs, les commandes et la fermeture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode est généralement adaptée pour exécuter une commande CLI de lecture comme `show version` ?",
+      "choices": [
+        "`send_config_set()`",
+        "`send_command()`",
+        "`commit_config()`",
+        "`get_config()`"
+      ],
+      "answer": 1,
+      "explanation": "`send_command()` sert couramment à envoyer une commande d’exploitation et récupérer sa sortie. Les méthodes et le comportement exact peuvent varier selon le pilote."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le paramètre `device_type` est-il important ?",
+      "choices": [
+        "Il indique le fuseau horaire de l’appareil",
+        "Il choisit automatiquement un mot de passe administrateur universel",
+        "Il permet à Netmiko de sélectionner le comportement adapté à la plateforme CLI ciblée",
+        "Il définit le nombre de routes à collecter"
+      ],
+      "answer": 2,
+      "explanation": "Les équipements n’ont pas tous le même prompt ou le même comportement CLI. Le type de périphérique doit correspondre à la plateforme réellement utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas désactiver sans vérification le contrôle de la clé d’hôte SSH dans une automatisation ?",
+      "choices": [
+        "Parce que la clé SSH définit la MTU maximale",
+        "Parce qu’une session SSH ne chiffre jamais les commandes",
+        "Parce que Netmiko exige toujours le même hôte dans toutes les sessions",
+        "Parce que la clé aide à vérifier l’identité de l’équipement distant et qu’un changement inattendu peut signaler un risque"
+      ],
+      "answer": 3,
+      "explanation": "Le chiffrement ne suffit pas si l’identité du serveur n’est pas contrôlée. Les clés doivent être approuvées selon une source fiable, surtout lorsqu’elles changent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où faut-il éviter de conserver les secrets de connexion dans un projet partagé ?",
+      "choices": [
+        "En clair dans le code source ou dans un fichier versionné",
+        "Dans un gestionnaire de secrets adapté",
+        "Dans un mécanisme de saisie masquée pour un usage interactif",
+        "Dans une variable d’environnement injectée par un environnement de confiance"
+      ],
+      "answer": 0,
+      "explanation": "Un secret versionné peut être exposé à tous les lecteurs et rester dans l’historique Git. Utilise une méthode de gestion des secrets appropriée et des droits minimaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le script doit-il fermer la connexion dans un bloc `finally` ou une structure équivalente ?",
+      "choices": [
+        "Pour appliquer toutes les commandes de configuration en attente",
+        "Pour libérer la session même si une commande ou le traitement de la sortie provoque une exception",
+        "Pour ignorer les erreurs de connexion",
+        "Pour garantir que l’équipement redémarrera proprement"
+      ],
+      "answer": 1,
+      "explanation": "La fermeture doit être exécutée aussi lors d’un échec. Une gestion propre des ressources évite les sessions abandonnées et facilite la reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal risque lorsqu’on traite une sortie CLI comme un texte stable ?",
+      "choices": [
+        "Toutes les sorties CLI sont automatiquement du JSON conforme à un schéma",
+        "La sortie texte ne peut contenir aucun compteur",
+        "Un changement de format, de version ou de pagination peut rendre une extraction naïve incorrecte",
+        "Le prompt est identique sur toutes les plateformes"
+      ],
+      "answer": 2,
+      "explanation": "Les sorties CLI sont souvent textuelles et peuvent varier. Pour extraire des données, utilise un parseur approprié et vérifie que le résultat contient les informations attendues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un script de collecte ne se connecte pas à un équipement. Quel ordre de vérification est utile ?",
+      "choices": [
+        "Désactiver tous les filtres réseau sans limite",
+        "Remplacer les identifiants par le compte administrateur partagé",
+        "Modifier tous les types de périphériques jusqu’à obtenir une réponse",
+        "Confirmer l’adresse et la route, le service SSH et le filtrage, les identifiants, la clé d’hôte et le type de périphérique"
+      ],
+      "answer": 3,
+      "explanation": "Une panne de connexion peut venir du réseau, de SSH, de l’authentification, de la confiance de l’hôte ou d’un mauvais pilote. Vérifie ces causes sans contourner la sécurité."
     }
   ]
 }

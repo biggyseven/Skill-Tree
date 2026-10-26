@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Scripting Python/Netmiko - Expert. Avez-vous lu le cours ?",
+      "prompt": "Dans une architecture d’automatisation experte, quelle est la limite principale de Netmiko ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il automatise l’interaction avec une CLI mais ne garantit pas à lui seul la validité du changement ni l’état métier final",
+        "Il ne permet jamais d’interroger des équipements réseau",
+        "Il remplace tous les contrôles d’accès des équipements",
+        "Il garantit le rollback de toute commande envoyée"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Netmiko gère l’échange CLI. Les contrats de changement, validations, preuves post-déploiement et procédures de récupération doivent être construits autour de lui."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un appel qui envoyait une commande de configuration perd la session avant que le script reçoive la réponse. Quelle décision est la plus sûre ?",
+      "choices": [
+        "Renvoyer automatiquement la même commande à tous les équipements",
+        "Traiter le résultat comme incertain, reconnecter de façon contrôlée et vérifier l’état réel avant de décider de réessayer",
+        "Déclarer le changement réussi parce que la commande a été transmise",
+        "Effacer les journaux de l’exécution"
+      ],
+      "answer": 1,
+      "explanation": "Une déconnexion ne prouve ni réussite ni échec. Répéter aveuglément une écriture peut produire un effet doublé ou aggraver la situation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel garde-fou devrait précéder une vague de changements de configuration sur un parc réseau ?",
+      "choices": [
+        "La simple présence d’un appel `send_config_set()` dans le code",
+        "Une vérification du formatage Python uniquement",
+        "Un diff ou plan compréhensible, des préconditions, une approbation, un canari et des critères explicites d’arrêt",
+        "La même commande lancée simultanément sur tout le parc"
+      ],
+      "answer": 2,
+      "explanation": "Un workflow sûr définit la cible, le changement prévu, les préconditions, la validation après application, l’arrêt automatique et la stratégie de récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une session SSH chiffrée ne suffit-elle pas à garantir la sécurité de l’automatisation ?",
+      "choices": [
+        "Parce que SSH transmet toujours les mots de passe en clair",
+        "Parce que la clé d’hôte est identique sur tous les équipements",
+        "Parce que le chiffrement désactive la journalisation",
+        "Il faut aussi valider l’identité de l’hôte, protéger les secrets et limiter les privilèges du compte de service"
+      ],
+      "answer": 3,
+      "explanation": "La sécurité dépend de l’authentification des deux côtés, de la gestion des secrets, du moindre privilège et de l’audit, pas seulement du chiffrement du transport."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan de déploiement limite le rayon d’impact d’un changement automatisé ?",
+      "choices": [
+        "Appliquer d’abord à un petit groupe représentatif, vérifier les résultats, puis étendre par vagues selon des critères définis",
+        "Pousser la configuration partout avant de collecter les résultats",
+        "Désactiver les contrôles des changements qui semblent simples",
+        "Réutiliser indéfiniment le même résultat de validation"
+      ],
+      "answer": 0,
+      "explanation": "Le canari permet de tester les hypothèses avant un déploiement étendu. Il doit être suivi de contrôles et de conditions d’arrêt mesurables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les artefacts d’audit doivent-ils identifier la cible, le changement et la version du code ?",
+      "choices": [
+        "Pour exposer le mot de passe avec chaque commande",
+        "Pour pouvoir reconstituer ce qui a été demandé, exécuté, autorisé et observé après incident",
+        "Pour éviter de consigner les erreurs",
+        "Pour remplacer la validation post-déploiement"
+      ],
+      "answer": 1,
+      "explanation": "Une piste d’audit corrèle demande, identité, cible, version, résultat et validation. Les artefacts doivent éviter de contenir des secrets en clair."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un changement de syntaxe CLI rend un parseur silencieusement incorrect après une mise à jour de firmware. Quelle mesure est la plus utile ?",
+      "choices": [
+        "Considérer qu’une commande porte le même format sur toutes les versions",
+        "Désactiver les tests de parsing",
+        "Associer les parsers à des exemples versionnés, détecter les sorties inattendues et tester les profils de plateforme avant le déploiement",
+        "Remplacer tous les champs absents par des valeurs arbitraires"
+      ],
+      "answer": 2,
+      "explanation": "La sortie CLI et les comportements dépendent des versions. Des fixtures versionnées et des validations de contrat permettent d’échouer explicitement quand l’extraction n’est plus fiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement le rollback avec Netmiko ?",
+      "choices": [
+        "Toute session Netmiko dispose d’un rollback atomique universel",
+        "La fermeture SSH annule toutes les modifications",
+        "Une commande de configuration est toujours idempotente",
+        "Le rollback doit être conçu et vérifié selon la plateforme ; Netmiko n’annule pas automatiquement les commandes déjà exécutées"
+      ],
+      "answer": 3,
+      "explanation": "Netmiko transmet des commandes à la CLI et ne fournit pas une transaction universelle. La reprise dépend des capacités de l’appareil et d’un plan de récupération préparé."
     }
   ]
 }
