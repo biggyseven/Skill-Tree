@@ -89,3 +89,25 @@ test('les actions matérielles restent sûres avant le chargement d’un lab', (
   assert.doesNotThrow(() => useLabStore.getState().togglePortState('R1', 'Fa0/0'));
   assert.equal(useLabStore.getState().topology, null);
 });
+
+
+test('tous les ports physiques peuvent être utilisés comme extrémités de câble', () => {
+  useLabStore.getState().loadLab('lab-test', { title: 'Lab de test' }, makeTopology());
+
+  const connections = [
+    { source: 'R1', target: 'R2', sourceHandle: 'Fa0/0', targetHandle: 'Fa0/1' },
+    { source: 'R2', target: 'R1', sourceHandle: 'Fa0/1', targetHandle: 'Fa0/0' },
+  ];
+
+  for (const connection of connections) {
+    const previousCount = useLabStore.getState().topology.links.length;
+    useLabStore.getState().addLink(connection, 'fiber');
+    const state = useLabStore.getState();
+    assert.equal(state.topology.links.length, previousCount + 1);
+    assert.equal(state.topology.links.at(-1).from.node, connection.source);
+    assert.equal(state.topology.links.at(-1).from.port, connection.sourceHandle);
+    assert.equal(state.topology.links.at(-1).to.node, connection.target);
+    assert.equal(state.topology.links.at(-1).to.port, connection.targetHandle);
+    assert.equal(state.topology.links.at(-1).cable_type, 'fiber');
+  }
+});
