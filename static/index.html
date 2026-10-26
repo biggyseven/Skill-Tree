@@ -4711,11 +4711,24 @@
         notify(text) { this.toast = { show: true, text }; clearTimeout(this._toastT); this._toastT = setTimeout(() => { this.toast.show = false; }, 4200); },
         celebrate() { try { if (window.confetti) window.confetti({ particleCount: 140, spread: 75, origin: { y: 0.65 } }); } catch (e) { } },
         saveFile(name, blob) {
+          if (!(blob instanceof Blob)) throw new TypeError('Le fichier à télécharger doit être un Blob.');
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = name;
-          a.hidden = true;
+          a.download = String(name || 'skilltree-export');
+          a.setAttribute('aria-hidden', 'true');
+          a.tabIndex = -1;
+          // L’ancre doit rester activable : hidden/display:none peut faire échouer
+          // certains chemins de téléchargement du navigateur.
+          Object.assign(a.style, {
+            position: 'fixed',
+            left: '-10000px',
+            top: '0',
+            width: '1px',
+            height: '1px',
+            opacity: '0',
+            pointerEvents: 'none'
+          });
           document.body.appendChild(a);
           a.click();
           // Laisser le navigateur amorcer le téléchargement avant de retirer le lien.
