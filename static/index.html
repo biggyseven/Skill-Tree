@@ -2358,8 +2358,10 @@
           const saved = savedPosition || this.lessonPositions[nodeId] || null;
           const goToHeading = (headingId, extraOffset = 0) => {
             if (!headingId) return false;
-            const heading = document.getElementById(String(headingId));
-            if (!heading || !container.contains(heading)) return false;
+            const wantedId = String(headingId);
+            const heading = Array.from(container.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]'))
+              .find(element => element.id === wantedId);
+            if (!heading) return false;
             const top = heading.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
             container.scrollTop = Math.max(0, top + Math.max(0, Number(extraOffset) || 0));
             return true;
@@ -2368,7 +2370,11 @@
           if (this.startSectionSelection === '__top__') {
             container.scrollTop = 0;
           } else if (this.startSectionSelection && this.startSectionSelection !== '__resume__') {
-            if (!goToHeading(this.startSectionSelection)) container.scrollTop = 0;
+            if (!goToHeading(this.startSectionSelection)) {
+              this.speechError = 'La section choisie est introuvable. Sélectionne une autre section ou le début du cours.';
+              this.notify(this.speechError);
+              return;
+            }
           } else if (saved && saved.sectionId && goToHeading(saved.sectionId, saved.sectionOffset)) {
             // La section mémorisée reste prioritaire quand la longueur du cours a changé.
           } else if (saved && Number.isFinite(Number(saved.scrollTop))) {
@@ -3151,7 +3157,11 @@
 
         goToSection(id) {
           this.startSectionSelection = String(id || '__resume__');
-          const el = document.getElementById(id);
+          const article = this.$refs.lessonArticle;
+          const wantedId = String(id || '');
+          const el = article && wantedId
+            ? Array.from(article.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]')).find(heading => heading.id === wantedId)
+            : null;
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
 
