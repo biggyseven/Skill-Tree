@@ -211,7 +211,6 @@ test('le bouton pause flottant reste en bas à droite pendant le défilement et 
 
   const controls = page.getByRole('group', { name: 'Commandes flottantes de lecture vocale' });
   await expect(controls).toBeVisible();
-  const reader = page.locator('.modal-panel[role="dialog"]');
   const scroll = page.locator('[x-ref="modalScroll"]');
   await expect.poll(() => scroll.evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
 
