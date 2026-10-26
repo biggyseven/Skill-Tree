@@ -221,42 +221,40 @@ test('les cartes du catalogue des labs ouvrent un nouvel onglet sans remplacer l
   await labPage.close();
 });
 
-test('le catalogue v2 affiche un lab même si le nœud de cours ne déclare pas de lab legacy', async ({ page }) => {
+test('le catalogue v2 affiche le lab ACL même si le nœud manque dans le graphe SQLite', async ({ page }) => {
+  await page.route('**/api/tree', async route => {
+    const response = await route.fetch();
+    const payload = await response.json();
+    if (Array.isArray(payload.nodes)) {
+      payload.nodes = payload.nodes.filter(node => node.id !== 'secu-acl-intermediaire');
+    }
+    await route.fulfill({ response, body: JSON.stringify(payload) });
+  });
+
   await page.route('**/api/lab/v2', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify([{
-      id: 'acl-debutant',
-      title: 'ACL & filtrage - Débutant',
-      level: 'débutant',
-      module: 'Administration Réseaux',
+      id: 'secu-acl-intermediaire',
+      title: 'ACL et filtrage avancé - Intermédiaire',
+      level: 'intermédiaire',
+      module: 'Cybersécurité',
       duration_min: 20,
-      difficulty: 'débutant',
+      difficulty: 'intermédiaire',
       schema_version: 2,
     }]),
   }));
-
-  await page.route('**/api/node/acl-debutant', async route => {
-    const response = await route.fetch();
-    if (!response.ok()) {
-      await route.fulfill({ response });
-      return;
-    }
-    const payload = await response.json();
-    payload.lab = null;
-    await route.fulfill({ response, body: JSON.stringify(payload) });
-  });
 
   await openDashboard(page);
   const nav = page.getByRole('navigation', { name: 'Navigation principale' });
   await nav.getByRole('button', { name: 'Labs' }).click();
 
   const aclLab = page.locator('a[data-lab-card="catalog"]').filter({
-    hasText: 'ACL & filtrage - Débutant',
+    hasText: 'ACL et filtrage avancé - Intermédiaire',
   }).first();
   await expect(aclLab).toBeVisible();
-  await expect(aclLab).toHaveAttribute('href', '/?openLab=acl-debutant');
-  await expect(aclLab).toContainText('⏱ 20 · débutant');
+  await expect(aclLab).toHaveAttribute('href', '/?openLab=secu-acl-intermediaire');
+  await expect(aclLab).toContainText('⏱ 20 · intermédiaire');
 });
 
 test('le catalogue des labs réutilise son cache après avoir quitté puis rouvert la section', async ({ page }) => {
