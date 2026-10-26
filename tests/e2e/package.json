@@ -1,0 +1,12 @@
+{
+  "name": "skilltree-browser-ui-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Tests de régression Playwright des parcours UI Skill-Tree",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}
