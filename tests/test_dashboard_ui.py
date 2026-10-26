@@ -53,7 +53,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("lesson-section-back", DASHBOARD_HTML)
         self.assertIn("Retour au sommaire des sections", DASHBOARD_HTML)
         self.assertIn("Sections du cours sur mobile", DASHBOARD_HTML)
-        self.assertIn("block.append(readable.ownerDocument.createTextNode('\\n'))", DASHBOARD_HTML)
+        self.assertIn("block.append(readable.ownerDocument.createTextNode('\\n\\n'))", DASHBOARD_HTML)
         self.assertNotIn("createTextNode('.\\n')", DASHBOARD_HTML)
         self.assertNotIn("replace(/([^\\n.!?…:;])\\n(?=\\S)/gu, '$1.\\n')", DASHBOARD_HTML)
 
