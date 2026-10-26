@@ -317,6 +317,57 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(tuple(catalog_row), ("file-lab", "Lab de test"))
         self.assertEqual(tuple(stored_attempt), ("file-lab", 1))
 
+    def test_locked_course_lab_explains_missing_prerequisite_and_blocks_rewards(self) -> None:
+        conn = self._connect()
+        try:
+            conn.execute(
+                "INSERT INTO nodes (id, title) VALUES (?, ?)",
+                ("prereq-1", "Prérequis de test"),
+            )
+            conn.execute(
+                "INSERT INTO edges (node_id, prereq_id) VALUES (?, ?)",
+                ("lab-1", "prereq-1"),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+        definition = self._definition()
+        request = SubmitRequest(
+            topology=self._topology("edge-1"),
+            check_result={"passed": True, "score": 1.0},
+        )
+        with patch.object(
+            lab_routes, "_fetch_lab",
+            return_value={"id": "lab-1", "definition": definition},
+        ), patch.object(lab_routes, "_database_connection", side_effect=self._connect):
+            opened = lab_routes.get_lab_v2("lab-1")
+            self.assertTrue(opened["course_locked"])
+            self.assertIn("prereq-1", opened["course_lock_message"])
+
+            checked = lab_routes.check_lab_v2(
+                "lab-1", CheckRequest(topology=self._topology("edge-1"))
+            )
+            self.assertFalse(checked["passed"])
+            self.assertTrue(checked["locked"])
+            self.assertIn("prereq-1", checked["results"][0]["message"])
+
+            with self.assertRaises(lab_routes.HTTPException) as raised:
+                lab_routes.submit_lab_v2("lab-1", request)
+            self.assertEqual(raised.exception.status_code, 423)
+            self.assertIn("prérequis", raised.exception.detail.lower())
+
+        conn = self._connect()
+        try:
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM lab_attempts").fetchone()[0], 0)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM attempts").fetchone()[0], 0)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM badges").fetchone()[0], 0)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM daily_streak").fetchone()[0], 0)
+            stats = conn.execute("SELECT total_xp, coins FROM user_stats WHERE id = 1").fetchone()
+        finally:
+            conn.close()
+        self.assertEqual(tuple(stats), (0, 0))
+
     def test_success_reward_is_persisted_once_per_lab(self) -> None:
         request = SubmitRequest(topology=self._topology("edge-1"), check_result={"passed": False})
         with self._mock_lab(self._definition()), patch.object(

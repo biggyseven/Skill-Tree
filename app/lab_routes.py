@@ -385,14 +385,50 @@ def _course_lab_context(conn: sqlite3.Connection, lab_id: str) -> dict[str, Any]
         requirement = node.requirement(ProofKind.LAB)
         if requirement is None:
             return None
+        status = tree.status(lab_id)
+        validated_ids = tree.validated_ids()
+        missing_prerequisites = [
+            prerequisite for prerequisite in node.prereqs
+            if prerequisite not in validated_ids
+        ]
         return {
             "min_score": int(requirement.min_score),
-            "unlocked": tree.status(lab_id) is not Status.LOCKED,
+            "unlocked": status is not Status.LOCKED,
+            "missing_prerequisites": missing_prerequisites,
         }
     except (sqlite3.Error, DomainError, KeyError, TypeError, ValueError):
         # Un lab autonome reste utilisable même si aucune correspondance de parcours
         # n'existe ou si la base ne possède pas le schéma complet du skill tree.
         return None
+
+
+def _course_lock_message(course_context: dict[str, Any]) -> str:
+    """Explique pourquoi un scénario du parcours n'est pas encore accessible."""
+    missing = [str(item) for item in course_context.get("missing_prerequisites", [])]
+    if missing:
+        return (
+            "Ce laboratoire est verrouillé par le parcours. Validez d'abord les "
+            f"prérequis suivants : {', '.join(missing)}."
+        )
+    return (
+        "Ce laboratoire est verrouillé par le parcours. Validez ses prérequis "
+        "avant de continuer."
+    )
+
+
+def _locked_course_check(course_context: dict[str, Any]) -> dict[str, Any]:
+    message = _course_lock_message(course_context)
+    return {
+        "passed": False,
+        "score": 0.0,
+        "locked": True,
+        "results": [{
+            "rule_id": "course-locked",
+            "passed": False,
+            "message": message,
+        }],
+        "message": message,
+    }
 
 
 def _enforce_course_lab_score(
@@ -602,7 +638,27 @@ def _evaluate_lab_check(
 
 @router.get("/lab/v2/{lab_id}", response_class=UTF8JSONResponse)
 def get_lab_v2(lab_id: str) -> dict[str, Any]:
-    return _fetch_lab(lab_id)
+    payload = _fetch_lab(lab_id)
+    if payload.get("sandbox"):
+        return payload
+
+    conn: sqlite3.Connection | None = None
+    try:
+        conn = _database_connection()
+        course_context = _course_lab_context(conn, lab_id)
+    except HTTPException:
+        # La définition JSON reste consultable si SQLite est temporairement indisponible.
+        return payload
+    finally:
+        if conn is not None:
+            conn.close()
+
+    if course_context is not None:
+        payload = dict(payload)
+        payload["course_locked"] = not course_context["unlocked"]
+        if not course_context["unlocked"]:
+            payload["course_lock_message"] = _course_lock_message(course_context)
+    return payload
 
 
 @router.post("/lab/v2/{lab_id}/check", response_class=UTF8JSONResponse)
@@ -631,6 +687,8 @@ def check_lab_v2(lab_id: str, body: CheckRequest) -> dict[str, Any]:
             # SQLite est temporairement indisponible ; la soumission, elle, exige DB.
             return result
         course_context = _course_lab_context(conn, lab_id)
+        if course_context is not None and not course_context["unlocked"]:
+            return _locked_course_check(course_context)
         return _enforce_course_lab_score(result, course_context)
     finally:
         if conn is not None:
@@ -681,6 +739,10 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
         # dans la table labs ; il faut créer la ligne référencée par lab_attempts.
         _ensure_lab_catalog_row(conn, lab_id, definition)
         course_context = _course_lab_context(conn, lab_id)
+        if course_context is not None and not course_context["unlocked"]:
+            # Une réussite avant déblocage ne doit pas consommer la première
+            # récompense ni créer une tentative de progression.
+            raise HTTPException(status_code=423, detail=_course_lock_message(course_context))
         check_result = _enforce_course_lab_score(check_result, course_context)
         passed = bool(check_result["passed"])
         score_percent = round(max(0.0, min(1.0, float(check_result.get("score", 0)))) * 100)

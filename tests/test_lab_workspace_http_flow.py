@@ -63,6 +63,13 @@ class LabWorkspaceHttpFlowTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
 
+    def test_unknown_lab_id_returns_404_instead_of_a_fictitious_sandbox(self) -> None:
+        with TestClient(api.app) as client:
+            response = client.get("/api/lab/v2/lab-id-that-does-not-exist")
+
+        self.assertEqual(response.status_code, 404, response.text)
+        self.assertIn("introuvable", response.json()["detail"].lower())
+
     def test_open_save_reload_check_and_submit_real_ipv4_scenario_over_http(self) -> None:
         with TestClient(api.app) as client:
             opened = client.get("/api/lab/v2/ipv4-debutant")
