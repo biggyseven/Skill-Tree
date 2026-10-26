@@ -579,6 +579,18 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(action.node_id)\"", DASHBOARD_HTML)
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", DASHBOARD_HTML)
 
+    def test_course_modules_courses_and_sidebar_sections_offer_new_tabs(self):
+        self.assertIn("newTabUrl(kind, id)", DASHBOARD_HTML)
+        self.assertIn("newTabUrl('tab', item.id)", DASHBOARD_HTML)
+        self.assertIn("newTabUrl('module', m.id)", DASHBOARD_HTML)
+        self.assertIn("newTabUrl('course', node.id)", DASHBOARD_HTML)
+        self.assertIn("get('openTab')", DASHBOARD_HTML)
+        self.assertIn("get('openModule')", DASHBOARD_HTML)
+        self.assertIn("get('openCourse')", DASHBOARD_HTML)
+        self.assertIn("Ouvrir le module ", DASHBOARD_HTML)
+        self.assertIn("Ouvrir le cours ", DASHBOARD_HTML)
+        self.assertIn('target="_blank" rel="noopener noreferrer"', DASHBOARD_HTML)
+
     def test_v2_lab_opens_react_flow_workspace_and_keeps_legacy_fallback(self):
         start = DASHBOARD_HTML.rindex("async openLab(id, openInNewTab = false) {")
         end = DASHBOARD_HTML.index("        isLabDone(id)", start)

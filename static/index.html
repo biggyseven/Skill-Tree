@@ -566,12 +566,20 @@
     <!-- Navigation -->
     <nav class="flex-1 space-y-2 overflow-y-auto" aria-label="Navigation principale">
       <template x-for="item in navItems" :key="item.id">
-        <button type="button" @click="setTab(item.id)" :title="sidebarCollapsed ? item.label : null" :aria-label="item.label" :aria-current="tab === item.id ? 'page' : null" class="group flex w-full items-center gap-3 rounded-2xl py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)] active:scale-[0.99]" :class="[tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_22px_-18px_rgba(52,211,153,0.9)]' : 'border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/[0.045] hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-3']">
+        <div class="flex min-w-0 items-center gap-1">
+        <button type="button" @click="setTab(item.id)" :title="sidebarCollapsed ? item.label : null" :aria-label="item.label" :aria-current="tab === item.id ? 'page' : null" class="group flex min-w-0 flex-1 items-center gap-3 rounded-2xl py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)] active:scale-[0.99]" :class="[tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_22px_-18px_rgba(52,211,153,0.9)]' : 'border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/[0.045] hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-3']">
           <span class="nav-item-icon flex shrink-0 items-center justify-center rounded-xl border border-transparent transition" :class="tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200' : 'text-zinc-500 group-hover:bg-white/5 group-hover:text-zinc-200'">
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" x-html="item.svg"></svg>
           </span>
           <span x-show="!sidebarCollapsed" class="min-w-0 truncate whitespace-nowrap" x-text="item.label"></span>
         </button>
+        <a :href="newTabUrl('tab', item.id)" target="_blank" rel="noopener noreferrer"
+           :title="`Ouvrir ${item.label} dans un nouvel onglet`"
+           :aria-label="`Ouvrir ${item.label} dans un nouvel onglet`"
+           class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-zinc-500 opacity-70 transition hover:bg-white/10 hover:text-emerald-300 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+          <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"></path></svg>
+        </a>
+        </div>
       </template>
     </nav>
 
@@ -958,7 +966,8 @@
         <!-- Cartes modules compactes -->
         <div class="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <template x-for="m in moduleCards" :key="m.id">
-            <button type="button" @click="setModule(m.id)" :aria-pressed="moduleFilter === m.id" :aria-label="`${m.label}, ${m.validated} cours validés sur ${m.total}, ${m.pct} %. ${moduleFilter === m.id ? 'Module sélectionné' : 'Afficher ce module'}`" class="card-sm !p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70" :class="moduleFilter === m.id ? '!border-emerald-400/60 !bg-emerald-500/5' : 'hover:border-white/20'">
+            <div class="relative">
+            <button type="button" @click="setModule(m.id)" :aria-pressed="moduleFilter === m.id" :aria-label="`${m.label}, ${m.validated} cours validés sur ${m.total}, ${m.pct} %. ${moduleFilter === m.id ? 'Module sélectionné' : 'Afficher ce module'}`" class="card-sm !p-3 !pr-10 w-full text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70" :class="moduleFilter === m.id ? '!border-emerald-400/60 !bg-emerald-500/5' : 'hover:border-white/20'">
               <div class="flex items-center gap-2">
                 <span class="shrink-0 text-base" x-text="m.icon"></span>
                 <span class="min-w-0 flex-1 truncate text-[11px] font-bold text-white" x-text="m.label"></span>
@@ -969,6 +978,13 @@
               </div>
               <div class="bar mt-1.5" role="progressbar" :aria-label="`Progression du module ${m.label}`" :aria-valuenow="m.pct" aria-valuemin="0" aria-valuemax="100"><i :style="`width:${m.pct}%`"></i></div>
             </button>
+            <a :href="newTabUrl('module', m.id)" target="_blank" rel="noopener noreferrer"
+               :title="`Ouvrir le module ${m.label} dans un nouvel onglet`"
+               :aria-label="`Ouvrir le module ${m.label} dans un nouvel onglet`"
+               class="absolute right-2 top-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-lg border border-white/10 bg-[color:var(--s1)] text-zinc-500 transition hover:border-emerald-400/40 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"></path></svg>
+            </a>
+            </div>
           </template>
         </div>
 
@@ -986,7 +1002,7 @@
               <div class="mb-5 flex items-center gap-4"><h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white" x-text="category.name"></h2><span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-400"><span x-text="category.validated"></span>/<span x-text="category.items.length"></span></span><div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div></div>
               <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <template x-for="(node, nodeIndex) in category.items" :key="node.id">
-                  <div class="animate-rise" :style="`animation-delay: ${Math.min(categoryIndex * 60 + nodeIndex * 45, 500)}ms`">
+                  <div class="animate-rise relative h-full" :style="`animation-delay: ${Math.min(categoryIndex * 60 + nodeIndex * 45, 500)}ms`">
                     <button type="button" @click="show(node.id)" class="card-shine group relative h-full w-full rounded-3xl p-px text-left transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80" :class="cardShell(node.status)">
                       <div class="relative flex h-full flex-col rounded-[23px] bg-[color:var(--s1)] p-6 shadow-xl">
                         <div class="flex items-start justify-between gap-3">
@@ -996,9 +1012,15 @@
                         <h3 class="mt-4 text-[16px] font-bold leading-snug text-white" x-text="node.title"></h3>
                         <div class="mt-2 flex flex-wrap gap-1.5"><span class="chip" x-text="levelLabel(node)"></span><span class="chip" x-show="moduleFilter === 'all'" x-text="moduleMeta(moduleOf(node)).short"></span></div>
                         <div class="mt-4 flex flex-wrap gap-2"><template x-for="req in node.requirements_detail" :key="req.kind"><span class="rounded-lg border border-white/5 bg-white/5 px-2.5 py-1 font-mono text-[10px] tracking-wide text-zinc-300" x-text="`${kindLabel(req.kind)} ≥ ${req.min_score}`"></span></template></div>
-                        <div class="mt-5 flex items-center justify-between text-[11px] text-zinc-500"><span x-text="node.prereqs.length ? `${node.prereqs.length} prérequis` : 'Nœud racine'"></span><span class="flex items-center gap-1 transition group-hover:text-white">Détails <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></div>
+                        <div class="mt-5 flex items-center justify-between pr-10 text-[11px] text-zinc-500"><span x-text="node.prereqs.length ? `${node.prereqs.length} prérequis` : 'Nœud racine'"></span><span class="flex items-center gap-1 transition group-hover:text-white">Détails <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></div>
                       </div>
                     </button>
+                    <a :href="newTabUrl('course', node.id)" target="_blank" rel="noopener noreferrer"
+                       :title="`Ouvrir le cours ${node.title} dans un nouvel onglet`"
+                       :aria-label="`Ouvrir le cours ${node.title} dans un nouvel onglet`"
+                       class="absolute bottom-3 right-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-[color:var(--s1)] text-zinc-500 shadow-lg transition hover:border-emerald-400/40 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"></path></svg>
+                    </a>
                   </div>
                 </template>
               </div>
@@ -2272,11 +2294,29 @@
           await this.refreshAll();
           this.examCategory = this.examCategories[0]?.name || '';
           this.connectWebSocket();
-          const requestedLabId = new URLSearchParams(window.location.search).get('openLab');
+          const requestedUrl = new URL(window.location.href);
+          const requestedLabId = requestedUrl.searchParams.get('openLab');
+          const requestedCourseId = requestedUrl.searchParams.get('openCourse');
+          const requestedModuleId = requestedUrl.searchParams.get('openModule');
+          const requestedTabId = requestedUrl.searchParams.get('openTab');
+          if (requestedLabId || requestedCourseId || requestedModuleId || requestedTabId) {
+            ['openLab', 'openCourse', 'openModule', 'openTab'].forEach(key => requestedUrl.searchParams.delete(key));
+            const cleanUrl = requestedUrl.pathname + requestedUrl.search + requestedUrl.hash;
+            try { window.history.replaceState(window.history.state, '', cleanUrl); } catch (_) { }
+          }
+          if (requestedTabId && this.navItems.some(item => item.id === requestedTabId)) {
+            await this.setTab(requestedTabId);
+          }
+          if (requestedModuleId && (requestedModuleId === 'all' || this.modules.some(module => module.id === requestedModuleId))) {
+            this.moduleFilter = requestedModuleId;
+            await this.setTab('tree');
+          }
+          if (requestedCourseId) {
+            await this.setTab('tree');
+            await this.show(requestedCourseId);
+          }
           if (requestedLabId) {
-            // La page racine sert de point d’entrée ouvrable avec clic droit/Ctrl+clic,
-            // puis redirige vers le workspace v2 ou ouvre le lab classique dans cette fenêtre.
-            try { window.history.replaceState(window.history.state, '', window.location.pathname); } catch (_) { }
+            // Conserver l’ouverture directe des laboratoires dans le nouvel onglet.
             await this.openLab(requestedLabId, false);
           }
         },
@@ -4383,6 +4423,14 @@
         fmtClock(sec) { const s = Math.max(0, sec | 0); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); },
 
         // ---------- modules et niveaux ----------
+        newTabUrl(kind, id) {
+          const paramsByKind = { tab: 'openTab', module: 'openModule', course: 'openCourse' };
+          const param = paramsByKind[kind];
+          if (!param || id === null || id === undefined || String(id) === '') return '/';
+          const params = new URLSearchParams();
+          params.set(param, String(id));
+          return '/?' + params.toString();
+        },
         moduleMeta(id) { return this.modules.find(m => m.id === id) || { id: 'all', label: 'Tous les modules', short: 'Tous', icon: '🧭', roadmap: {} }; },
         levelMeta(id) { return this.levels.find(l => l.id === id) || null; },
                 moduleOf(n) {
