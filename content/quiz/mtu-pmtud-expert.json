@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Dépannage MTU et PMTUD - Expert. Avez-vous lu le cours ?",
+      "prompt": "Un service IPv6 tombe après l’ajout d’un tunnel alors que les petits paquets fonctionnent. Quelle action de diagnostic est la plus pertinente ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Désactiver ICMPv6 sur tous les segments",
+        "Imposer immédiatement des trames jumbo sur le réseau entier",
+        "Mesurer le budget d’en-têtes du tunnel, capturer les ICMPv6 Packet Too Big et tester la PMTU dans les deux sens",
+        "Remplacer le protocole de routage sans mesurer le chemin"
+      ],
+      "answer": 2,
+      "explanation": "Le tunnel consomme une partie du budget MTU. En IPv6, les messages ICMPv6 Packet Too Big sont essentiels à la découverte classique de PMTU ; ils doivent être filtrés avec discernement, pas supprimés globalement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence essentielle distingue PMTUD classique et PLPMTUD ?",
+      "choices": [
+        "PLPMTUD s’appuie sur des sondes et des retours de la couche de paquetisation au lieu de dépendre exclusivement d’erreurs ICMP",
+        "PMTUD classique ne fonctionne qu’en Ethernet et PLPMTUD seulement en Wi-Fi",
+        "PLPMTUD augmente toujours la MTU au maximum possible",
+        "PMTUD classique désactive automatiquement la congestion TCP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "PLPMTUD détermine une taille utilisable par des sondes et des indications de réussite au niveau de paquetisation. Le mécanisme classique s’appuie notamment sur les messages ICMP prévus pour signaler une MTU trop faible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel contexte le DPLPMTUD est-il particulièrement pertinent ?",
+      "choices": [
+        "Pour distribuer des adresses IPv4 par DHCP",
+        "Pour remplacer le routage unicast par PIM",
+        "Pour configurer les VRF de tous les routeurs",
+        "Pour adapter la découverte de MTU à des transports datagrammes, par exemple UDP ou QUIC"
+      ],
+      "answer": 3,
+      "explanation": "DPLPMTUD adapte le principe de découverte de MTU à la couche de paquetisation pour des transports datagrammes. Il est particulièrement utile lorsque la dépendance aux messages ICMP seuls serait fragile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe propose d’activer la MTU jumbo sur tous les équipements pour supprimer les pertes. Quelle réponse est la plus robuste ?",
+      "choices": [
+        "C’est toujours sûr si le cœur dispose de liens rapides",
+        "Une MTU jumbo ne corrige pas automatiquement un chemin hétérogène ; il faut vérifier la cohérence de bout en bout et les besoins réels",
+        "Les routeurs fragmentent toujours les paquets plus petits automatiquement",
+        "La PMTU ne s’applique pas aux réseaux avec commutation"
+      ],
+      "answer": 1,
+      "explanation": "Des tailles jumbo doivent être prises en charge sur tout le chemin concerné et par les équipements/charges utiles. Les activer sans analyse peut déplacer ou aggraver le problème au lieu de le résoudre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel calcul permet de justifier la MTU intérieure maximale d’un tunnel ?",
+      "choices": [
+        "Ajouter la surcharge d’encapsulation à la MTU extérieure",
+        "Utiliser uniquement le nombre de sauts IP",
+        "Soustraire de la MTU extérieure l’ensemble des en-têtes et surcharges effectivement ajoutés, puis vérifier les options et le protocole intérieur",
+        "Utiliser toujours 1500 moins 20 octets, quelle que soit l’encapsulation"
+      ],
+      "answer": 2,
+      "explanation": "Le budget doit compter l’encapsulation réellement utilisée : en-têtes IP/UDP, sécurité, labels ou autres éléments selon le tunnel. Une valeur générique ne convient pas à toutes les technologies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les mesures montrent une PMTU différente selon le sens du flux. Quelle conduite convient avant de modifier une configuration globale ?",
+      "choices": [
+        "Supposer que la mesure la plus grande prévaut dans les deux sens",
+        "Comparer les routes, les liens limitants, les tunnels et les messages de contrôle dans chaque sens avant de définir une correction limitée",
+        "Désactiver tous les contrôles ICMP",
+        "Augmenter la MSS à la valeur maximale du système"
+      ],
+      "answer": 1,
+      "explanation": "Les chemins peuvent être asymétriques et rencontrer des MTU différentes. Le diagnostic doit cartographier le chemin dans les deux sens et éviter de déduire une limite unique à partir d’un seul test."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle politique est adaptée pour éviter les black holes PMTUD tout en conservant un filtrage de sécurité ?",
+      "choices": [
+        "Bloquer tous les messages ICMP entrants et sortants sans exception",
+        "Autoriser aveuglément tous les paquets de tout protocole",
+        "Ignorer les plaintes applicatives si les interfaces affichent la bonne MTU",
+        "Autoriser les messages ICMP/ICMPv6 de contrôle nécessaires selon une politique précise, journaliser les rejets pertinents et tester les chemins réels"
+      ],
+      "answer": 3,
+      "explanation": "Il faut permettre les messages requis de découverte de PMTU sans ouvrir le trafic de façon indiscriminée. Des règles précises, des compteurs et des tests en environnement contrôlé permettent de vérifier la politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon garde-fou pour déployer un changement de MTU ou de MSS sur un service critique ?",
+      "choices": [
+        "Déployer progressivement sur un canari, mesurer les tailles/erreurs, tester les flux et prévoir un retour arrière vérifiable",
+        "Changer simultanément les MTU du LAN, du WAN, des tunnels et des serveurs",
+        "Se contenter de redémarrer les équipements après la modification",
+        "Confondre une validation de syntaxe avec la preuve du bon fonctionnement applicatif"
+      ],
+      "answer": 0,
+      "explanation": "Une modification de taille peut impacter de nombreux flux. Un déploiement canari avec critères de validation et de rollback réduit le rayon d’impact et permet de prouver le résultat."
     }
   ]
 }

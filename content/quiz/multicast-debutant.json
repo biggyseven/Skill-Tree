@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Multicast - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle différence décrit le mieux la communication multicast ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Chaque paquet est toujours envoyé par une connexion TCP à un seul destinataire",
+        "Le multicast signifie que toutes les interfaces du réseau reçoivent nécessairement chaque paquet",
+        "Un émetteur peut envoyer à un groupe de récepteurs intéressés sans dupliquer la transmission applicative vers chaque destinataire dès la source",
+        "Le multicast est un synonyme de broadcast Ethernet"
+      ],
+      "answer": 2,
+      "explanation": "Le multicast cible un groupe. Le réseau construit les branches nécessaires vers les segments intéressés, selon les protocoles et la configuration ; il ne s’agit pas d’un broadcast universel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un réseau IPv4, quel protocole permet aux hôtes de signaler leur intérêt pour un groupe multicast sur le lien local ?",
+      "choices": [
+        "IGMP",
+        "BGP",
+        "DHCP",
+        "NTP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "IGMP sert à gérer les adhésions multicast IPv4 entre les hôtes et les routeurs du réseau local. IPv6 utilise MLD."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole est couramment utilisé pour construire des arbres multicast entre routeurs IP ?",
+      "choices": [
+        "FTP",
+        "LLDP",
+        "ARP",
+        "PIM"
+      ],
+      "answer": 3,
+      "explanation": "PIM (Protocol Independent Multicast) utilise les informations de routage pour construire des chemins multicast. Le mode et la conception dépendent du besoin de diffusion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le contrôle RPF dans le transfert multicast ?",
+      "choices": [
+        "Il vérifie le chiffrement du paquet à la passerelle",
+        "Il vérifie que le paquet arrive par l’interface attendue selon la route vers la source ou le point de référence utilisé",
+        "Il affecte une adresse IP au récepteur",
+        "Il convertit le multicast en une session TCP"
+      ],
+      "answer": 1,
+      "explanation": "Le Reverse Path Forwarding vérifie le chemin d’arrivée par rapport à l’information de routage vers la source ou le point de référence. Un mauvais chemin peut empêcher le transfert multicast."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle plage IPv4 est réservée aux adresses multicast ?",
+      "choices": [
+        "192.168.0.0/16",
+        "127.0.0.0/8",
+        "224.0.0.0/4",
+        "169.254.0.0/16"
+      ],
+      "answer": 2,
+      "explanation": "La plage IPv4 multicast est 224.0.0.0/4. L’usage exact de chaque groupe dépend des conventions et protocoles concernés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement IGMP snooping sur un commutateur de couche 2 ?",
+      "choices": [
+        "À chiffrer tous les flux multicast",
+        "À calculer les routes BGP vers les sources",
+        "À découvrir les Route Targets MPLS",
+        "À éviter l’inondation inutile de trafic multicast sur des ports sans récepteurs intéressés, quand le snooping fonctionne correctement"
+      ],
+      "answer": 3,
+      "explanation": "IGMP snooping observe les messages d’adhésion pour diriger le trafic multicast vers les ports concernés. Il ne remplace pas le routage multicast entre sous-réseaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans PIM Sparse Mode (PIM-SM), quel est le rôle général du Rendezvous Point (RP) pour les groupes ASM ?",
+      "choices": [
+        "Fournir les adresses DHCP des récepteurs",
+        "Servir de point de rendezvous logique pour l’échange initial des informations de source et de groupe",
+        "Remplacer IGMP sur les hôtes",
+        "Chiffrer les paquets à l’entrée du réseau"
+      ],
+      "answer": 1,
+      "explanation": "Dans ASM avec PIM-SM, les routeurs utilisent le RP pour établir l’arbre partagé et traiter l’information des sources. Le détail du chemin varie ensuite selon les mécanismes utilisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un récepteur ne reçoit pas un flux multicast. Quel premier constat aide à séparer un problème d’abonnement d’un problème de routage ?",
+      "choices": [
+        "Vérifier si le récepteur a bien rejoint le groupe et si son rapport IGMP est observé sur le segment",
+        "Réinitialiser tous les routeurs du domaine",
+        "Changer l’adresse IP de la source sans diagnostic",
+        "Désactiver le protocole PIM sur tous les routeurs"
+      ],
+      "answer": 0,
+      "explanation": "Avant d’analyser le plan inter-routeurs, confirme que le récepteur exprime son intérêt pour le groupe et que l’équipement de couche 2 et le routeur local voient l’adhésion."
     }
   ]
 }

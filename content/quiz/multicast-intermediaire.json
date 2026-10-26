@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Multicast - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "En PIM-SM ASM, que représente généralement une entrée (*,G) ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le trafic unicast vers l’adresse du RP",
+        "Un seul paquet de contrôle IGMP",
+        "L’intérêt pour le groupe G indépendamment d’une source S précise, associé à l’arbre partagé",
+        "Une route vers toutes les adresses IPv4 publiques"
+      ],
+      "answer": 2,
+      "explanation": "(*,G) représente un état partagé pour un groupe sans identifier une source unique. Un état (S,G) identifie une source et un groupe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un routeur multicast, quelle interface est généralement désignée comme IIF dans une entrée (S,G) ?",
+      "choices": [
+        "L’interface vers le récepteur le plus proche",
+        "L’interface attendue vers la source d’après le contrôle RPF",
+        "Toutes les interfaces physiques du châssis",
+        "L’interface de gestion hors bande dans tous les cas"
+      ],
+      "answer": 1,
+      "explanation": "L’interface entrante (IIF) doit correspondre au chemin RPF vers la source. Le routeur peut ensuite répliquer vers les interfaces de sortie (OIF) où des récepteurs sont intéressés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tous les routeurs PIM d’un domaine ASM doivent-ils utiliser une correspondance cohérente entre plages de groupes et RP ?",
+      "choices": [
+        "Pour rendre tous les groupes multicast identiques à des adresses unicast",
+        "Pour supprimer la nécessité d’un routage unicast",
+        "Pour garantir le chiffrement des flux",
+        "Pour que les routeurs construisent les états d’arbre avec une référence de rendezvous compatible"
+      ],
+      "answer": 3,
+      "explanation": "Une incohérence de mapping peut conduire à des états de contrôle différents selon le routeur, avec des chemins ou abonnements qui ne se rejoignent pas comme prévu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un hôte rejoint un groupe et IGMP snooping fonctionne, mais les récepteurs d’un autre sous-réseau n’obtiennent pas le flux. Quelle couche faut-il vérifier ensuite ?",
+      "choices": [
+        "Le routage multicast inter-sous-réseaux, les voisins PIM, le RPF et les états de groupe/source",
+        "Le serveur NTP uniquement",
+        "Le VLAN de management hors bande seulement",
+        "La résolution de noms DNS du nom du commutateur uniquement"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "IGMP snooping limite la diffusion sur le lien local ; il ne construit pas les arbres entre sous-réseaux. Vérifie PIM, le chemin RPF et les entrées multicast sur les routeurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle propriété distingue SSM de l’ASM classique ?",
+      "choices": [
+        "SSM exige un RP central pour chaque source",
+        "SSM remplace les adresses de groupe par des ports TCP",
+        "SSM permet au récepteur de demander explicitement le couple source-groupe, réduisant la dépendance au RP",
+        "SSM transporte uniquement le trafic broadcast"
+      ],
+      "answer": 2,
+      "explanation": "En Source-Specific Multicast, l’intérêt se porte sur un couple (S,G). Cela simplifie certains services où le récepteur connaît la source et évite le besoin d’un RP pour ce modèle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un flux est reçu par le routeur d’entrée du réseau mais aucune branche de sortie n’apparaît. Quel diagnostic est le plus utile ?",
+      "choices": [
+        "Changer immédiatement le groupe IP",
+        "Vérifier l’état des adhésions en aval, les joins/prunes PIM, l’interface RPF, les politiques et la programmation de l’entrée multicast",
+        "Augmenter la MTU de tous les clients",
+        "Désactiver le routage unicast"
+      ],
+      "answer": 1,
+      "explanation": "L’absence d’OIF peut venir d’un manque d’abonnés, d’un état PIM non construit, d’un filtre ou d’un écart entre le plan de contrôle et la programmation de transfert. Corrélez les éléments."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle vérification est adaptée lorsqu’un flux multicast disparaît après un changement du routage unicast ?",
+      "choices": [
+        "Vérifier le nouveau chemin RPF vers la source et la cohérence des états multicast après convergence",
+        "Supprimer IGMP snooping sur tout le campus sans mesure",
+        "Changer les adresses MAC des récepteurs",
+        "Remplacer PIM par DHCP"
+      ],
+      "answer": 0,
+      "explanation": "PIM s’appuie sur l’information de routage pour le RPF dans la conception habituelle. Une modification unicast peut changer l’IIF attendue et interrompre la distribution si le chemin multicast n’est pas cohérent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de l’IGMP snooping querier sur un segment où aucun routeur ne joue ce rôle ?",
+      "choices": [
+        "Distribuer les labels MPLS aux routeurs P",
+        "Générer des annonces BGP de la source",
+        "Remplacer le serveur d’adresses IP",
+        "Émettre les requêtes IGMP nécessaires pour maintenir correctement l’état des adhésions dans le commutateur"
+      ],
+      "answer": 3,
+      "explanation": "Sur certains segments, un querier est nécessaire pour maintenir l’état d’adhésion observé par le commutateur. Sans requêtes appropriées, les entrées peuvent expirer ou le comportement de transfert changer."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Dépannage MTU et PMTUD - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Dans un réseau Ethernet courant configuré avec une MTU IP de 1500 octets, que désigne généralement cette valeur ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La taille maximale du paquet IP transporté sur le lien, dans les conditions de cette configuration",
+        "La taille maximale de la charge utile applicative uniquement",
+        "La taille de la trame Ethernet complète avec tous les champs de couche 2",
+        "La taille maximale d’un fichier TCP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Dans l’exemple Ethernet courant, la MTU 1500 compte le paquet IP, pas toute la trame Ethernet. Il faut préciser le niveau mesuré avant de comparer des tailles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce que la Path MTU (PMTU) d’un chemin ?",
+      "choices": [
+        "La taille maximale d’un paquet acceptée uniquement par le serveur final",
+        "La MTU minimale parmi les liens traversés par le chemin considéré",
+        "La taille de l’en-tête TCP d’une connexion",
+        "Une valeur fixe identique pour toutes les routes vers Internet"
+      ],
+      "answer": 1,
+      "explanation": "La PMTU est déterminée par le maillon limitant du chemin réellement suivi. Elle peut changer avec le routage, les tunnels ou le sens du trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "En IPv4, que peut signaler un routeur lorsqu’un datagramme dépasse la MTU de sortie et que le bit DF interdit la fragmentation ?",
+      "choices": [
+        "Un message DHCP Offer",
+        "Une annonce ARP gratuite",
+        "Un message ICMP Destination Unreachable indiquant que la fragmentation est nécessaire",
+        "Un message TCP FIN confirmant la fermeture de la connexion"
+      ],
+      "answer": 2,
+      "explanation": "Le message ICMP IPv4 « fragmentation nécessaire » permet à l’émetteur de réduire la taille des paquets. Si ce message est bloqué, une connexion peut échouer de manière peu évidente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme un routeur IPv6 utilise-t-il normalement lorsqu’un paquet est trop grand pour le prochain lien ?",
+      "choices": [
+        "Il fragmente silencieusement le paquet IPv6 comme un routeur IPv4 sans DF",
+        "Il convertit le paquet en TCP",
+        "Il supprime obligatoirement tous les en-têtes d’extension",
+        "Il renvoie un message ICMPv6 Packet Too Big à l’émetteur"
+      ],
+      "answer": 3,
+      "explanation": "Les routeurs IPv6 ne fragmentent pas les paquets en transit. L’émetteur doit adapter la taille à partir du message Packet Too Big ou d’un mécanisme de découverte approprié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour une MTU de 1500, IPv4 sans options et TCP sans options, quelle MSS est un repère classique ?",
+      "choices": [
+        "1500 octets, car les en-têtes ne sont pas comptés",
+        "1460 octets, après les en-têtes IP de 20 et TCP de 20 octets",
+        "1480 octets, car seul l’en-tête IP est soustrait",
+        "1400 octets dans tous les réseaux"
+      ],
+      "answer": 1,
+      "explanation": "La MSS TCP classique est 1500 − 20 octets d’en-tête IPv4 − 20 octets d’en-tête TCP, soit 1460. Les options et encapsulations peuvent réduire la capacité effective."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un site web charge le texte mais bloque lors du transfert de gros fichiers. Pourquoi un problème de PMTUD est-il une hypothèse plausible ?",
+      "choices": [
+        "Parce que les grandes tailles peuvent rencontrer une MTU limitante que les petits paquets ne dépassent pas",
+        "Parce que DNS ne peut résoudre que les petites réponses",
+        "Parce que TCP ne fonctionne qu’avec des paquets de taille constante",
+        "Parce que la MTU est uniquement une propriété du navigateur"
+      ],
+      "answer": 0,
+      "explanation": "De petits paquets peuvent passer tandis que les plus grands sont perdus si la découverte de PMTU ou la gestion de fragmentation ne fonctionne pas. D’autres causes restent possibles et doivent être testées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque si les messages ICMP nécessaires à la découverte de MTU sont bloqués sans mécanisme alternatif ?",
+      "choices": [
+        "Le routeur augmente automatiquement la MTU de tous les liens",
+        "Tous les paquets sont convertis en broadcast",
+        "Des flux peuvent subir un « black hole » : la connexion démarre, puis certains paquets restent perdus",
+        "Les adresses IP des serveurs sont changées"
+      ],
+      "answer": 2,
+      "explanation": "Un filtrage trop large d’ICMP peut empêcher l’émetteur d’apprendre qu’il doit réduire ses paquets. Il faut autoriser les messages de contrôle requis selon une politique de sécurité précise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode constitue un bon premier test pour rechercher une limite de taille sur un chemin ?",
+      "choices": [
+        "Modifier simultanément la MTU de tous les équipements",
+        "Désactiver durablement le pare-feu pour voir si le problème disparaît",
+        "Remplacer TCP par UDP sans contrôler la route",
+        "Tester progressivement des tailles de paquet adaptées, en indiquant les options DF ou leurs équivalents, puis interpréter les retours"
+      ],
+      "answer": 3,
+      "explanation": "Un test de taille contrôlé aide à localiser la limite, mais il faut comprendre si l’outil mesure la charge utile ou le paquet IP complet et tenir compte du filtrage ICMP."
     }
   ]
 }
