@@ -4025,6 +4025,41 @@
             if (label && !/^[|+\-_=<>~.\s]+$/u.test(label) && !labels.some(item => item.toLocaleLowerCase('fr-FR') === label.toLocaleLowerCase('fr-FR'))) labels.push(label);
           };
           const connectors = /(\s*(?:<-->|<->|<--|<-|-->>|->>|-->|-\.->|==>|---|--o|--x|->|=>|←|↔|→|⇒|⇢|↑|↓|⇧|⇩)\s*)/gu;
+          const isConnectorOnlyLine = line => {
+            const value = String(line || '').trim();
+            return Boolean(value)
+              && /^[|│┃┌┐└┘├┤┬┴┼─━╭╮╰╯╔╗╚╝╠╣╦╩╬║+\-_=<>~.^v↑↓⇧⇩\s]+$/u.test(value)
+              && /[|│┃^v↑↓⇧⇩]/u.test(value);
+          };
+          const hasInlineConnector = line =>
+            /(?:<-->|<->|<--|<-|-->>|->>|-->|-\.->|==>|---|--o|--x|->|=>|←|↔|→|⇒|⇢|↑|↓|⇧|⇩)/u.test(line);
+          const labelledLines = lines
+            .map((line, index) => ({ index, label: normalizeSegment(line) }))
+            .filter(item => item.label && !isConnectorOnlyLine(lines[item.index]) && !hasInlineConnector(lines[item.index]));
+
+          // Les schémas ASCII verticaux placent souvent la flèche sur sa propre ligne.
+          // Relier les deux libellés voisins, sans transformer « v » ou « | » en éléments du schéma.
+          for (let index = 0; index < labelledLines.length - 1; index += 1) {
+            const upper = labelledLines[index];
+            const lower = labelledLines[index + 1];
+            const connectorLines = lines.slice(upper.index + 1, lower.index);
+            if (!connectorLines.length || !connectorLines.some(isConnectorOnlyLine)) continue;
+            const marks = connectorLines.join(' ');
+            const pointsUp = /[\^↑⇧]/u.test(marks);
+            const pointsDown = /(?:↓|⇩|(?:^|\s)v(?:\s|$))/u.test(marks);
+            let from = upper.label;
+            let to = lower.label;
+            if (pointsUp && !pointsDown) [from, to] = [lower.label, upper.label];
+            addLabel(from);
+            addLabel(to);
+            const relation = pointsUp && !pointsDown
+              ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
+              : pointsDown && !pointsUp
+                ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
+                : 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés verticalement';
+            if (!relationships.includes(relation)) relationships.push(relation);
+          }
+
           const relationLine = line => {
             if (!/[<>→←↔⇒⇢↑↓⇧⇩]|--|==|->/u.test(line)) return;
             const pieces = line.split(connectors).filter(Boolean);
@@ -4054,6 +4089,7 @@
             }
           };
           lines.forEach(line => {
+            if (isConnectorOnlyLine(line)) return;
             relationLine(line);
             const withoutBorders = line
               .replace(/[┌┐└┘├┤┬┴┼─━│┃╭╮╰╯╔╗╚╝╠╣╦╩╬║]/gu, ' ')
@@ -4068,7 +4104,7 @@
           if (relationships.length) spoken.push('Schéma textuel. ' + relationships.map(value => value + '.').join(' '));
           const unmentioned = labels.filter(label => !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR'))));
           if (unmentioned.length) spoken.push('Autres éléments représentés : ' + unmentioned.join(', ') + '.');
-          const connectorOnlyLines = lines.filter(line => !/[A-Za-z0-9]/u.test(line) && /[|+^v<>_\\/\\-]/u.test(line)).length;
+          const connectorOnlyLines = lines.filter(isConnectorOnlyLine).length;
           if (!spoken.length && labels.length && connectorOnlyLines > 0) {
             spoken.push('Schéma textuel. Les éléments sont reliés dans l’ordre suivant : ' + labels.join(', puis ') + '.');
           } else if (!spoken.length && labels.length) {
