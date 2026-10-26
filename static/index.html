@@ -538,12 +538,72 @@
       animation-iteration-count: 1 !important;
       transition-duration: .01ms !important;
     }
-    body.compact-ui .skill-sidebar { padding-top: .85rem !important; padding-bottom: .85rem !important; }
-    body.compact-ui main { padding-bottom: 1.5rem !important; }
-    body.compact-ui .nav-action-btn { width: 2.25rem !important; height: 2.25rem !important; }
+    body.compact-ui .skill-sidebar { padding-top: .75rem !important; padding-bottom: .75rem !important; }
+    body.compact-ui main { padding-bottom: 1.25rem !important; }
+    /* La largeur fixe ne s'applique qu'aux vrais boutons carrés d'icône, jamais aux actions avec libellé. */
+    body.compact-ui .nav-action-btn.w-10 { width: 2.25rem !important; height: 2.25rem !important; }
     body.compact-ui .lesson-content { padding: 1rem !important; }
-    body.compact-ui .lesson-prose :where(p, li) { margin-bottom: .55em !important; }
+    body.compact-ui .lesson-prose :where(p, li) { margin-bottom: .5em !important; }
     body.compact-ui .lesson-toc-panel nav a { padding-top: .35rem !important; padding-bottom: .35rem !important; }
+
+    /* Mode compact : la navbar devient une grille, au lieu de superposer les éléments par position absolue. */
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: .5rem;
+      height: 4.25rem !important;
+      padding-inline: .75rem !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div:first-child {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute {
+      display: none !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div:nth-child(3) {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: .35rem !important;
+      width: max-content;
+      max-width: 100%;
+      min-width: 0;
+      flex: none !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header .nav-action-btn {
+      height: 2.25rem !important;
+      min-height: 2.25rem !important;
+    }
+    /* Au format XL, les indicateurs ont une vraie colonne et ne se placent plus par-dessus le titre. */
+    @media (min-width: 1280px) {
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute {
+        display: flex !important;
+        position: static !important;
+        inset: auto !important;
+        transform: none !important;
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        gap: .35rem !important;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div:nth-child(3) {
+        grid-column: 3;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute > :is(div, button) {
+        padding-inline: .6rem !important;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute > div:last-child {
+        gap: .5rem !important;
+      }
+    }
 
   </style>
 </head>
