@@ -1,18 +1,102 @@
 {
   "node_id": "voice-cucm-expert",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel rôle général distingue le Publisher des Subscribers dans un cluster CUCM ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Le Publisher héberge la base de configuration principale en écriture, tandis que les nœuds de traitement peuvent aussi gérer des appels selon leur rôle et leur configuration",
+        "Le Publisher transporte toujours seul le RTP et les Subscribers ne traitent jamais d’appels",
+        "Le Publisher est le serveur TFTP obligatoire pour tous les déploiements et les Subscribers sont de simples commutateurs",
+        "Le Publisher remplace les passerelles téléphoniques du réseau"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Le Publisher porte notamment la base de configuration principale en écriture. Les nœuds abonnés peuvent assurer des services et le traitement des appels selon leur rôle, les groupes CallManager et l’architecture déployée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour diagnostiquer une route d’appel inattendue, quelle preuve aide le plus à confirmer l’analyse du numéro par CUCM ?",
+      "choices": [
+        "Le seul état « up » du trunk SIP, sans détail du numéro",
+        "Les traces de digit analysis, le numéro appelant/composé, le CSS effectif, les partitions et le pattern sélectionné",
+        "La puissance radio LTE du téléphone IP",
+        "Le nombre total de serveurs DNS du site"
+      ],
+      "answer": 1,
+      "explanation": "Les traces de digit analysis permettent d’observer le contexte de recherche et le pattern utilisé. Elles aident à expliquer pourquoi une destination est accessible, transformée, mal routée ou refusée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une modification de routage, un SIP trunk répond aux keepalives mais les appels sortants échouent. Quelle démarche est la plus ciblée ?",
+      "choices": [
+        "Redémarrer d’emblée tous les nœuds du cluster",
+        "Augmenter la capacité RTP sans vérifier le plan d’appel",
+        "Vérifier le pattern et sa partition, le CSS de l’appelant, la route list/group, les transformations et les réponses SIP/traces",
+        "Désactiver les contrôles d’accès afin d’autoriser toute destination"
+      ],
+      "answer": 2,
+      "explanation": "Un keepalive valide une partie de la connectivité de signalisation, pas la sélection de route pour chaque numéro. Le diagnostic doit suivre la décision de routage, les transformations et la réponse du trunk."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre un MTP et un transcoder est correcte ?",
+      "choices": [
+        "Tous deux ne servent qu’à stocker les CDR",
+        "Le MTP remplace toujours le contrôle d’appel CUCM",
+        "Le transcoder distribue les fichiers de configuration TFTP",
+        "Un MTP fournit des fonctions d’intermédiation média/protocole selon le scénario, tandis qu’un transcoder convertit entre codecs incompatibles"
+      ],
+      "answer": 3,
+      "explanation": "Les ressources média répondent à des besoins différents. Un transcoder convertit les codecs ; un MTP peut fournir certaines fonctions d’intermédiation, de DTMF ou de négociation selon le scénario. Leur insertion doit correspondre au besoin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment la redondance du traitement d’appel est-elle généralement organisée pour les téléphones CUCM ?",
+      "choices": [
+        "Avec les groupes CallManager et une liste ordonnée de nœuds d’enregistrement disponibles pour le terminal",
+        "En envoyant tous les appels à une adresse DNS publique aléatoire",
+        "En dupliquant automatiquement le DN sur tous les clusters sans relation",
+        "En remplaçant le protocole SIP par BGP"
+      ],
+      "answer": 0,
+      "explanation": "Les groupes CallManager permettent d’ordonner les serveurs de traitement d’appel proposés aux terminaux. La reprise dépend aussi du fonctionnement des nœuds, des paramètres des périphériques et du réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu’un SIP trunk utilise TLS, quelle affirmation de sécurité est correcte ?",
+      "choices": [
+        "TLS garantit automatiquement le chiffrement du média RTP de bout en bout",
+        "Il faut vérifier la confiance et la validité des certificats et profils de sécurité ; TLS pour la signalisation ne remplace pas SRTP pour le média",
+        "TLS élimine les risques liés aux plans de numérotation permissifs",
+        "TLS garantit que toute destination composée est autorisée"
+      ],
+      "answer": 1,
+      "explanation": "La sécurité TLS dépend des certificats, des profils et de la configuration de confiance. Elle protège la signalisation de la session, mais ne chiffre pas par elle-même le média RTP : la protection du média doit être prévue séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour analyser une plainte de qualité audio sur un appel déjà terminé, quelles sources de données sont complémentaires ?",
+      "choices": [
+        "La seule liste des DN, sans horodatage",
+        "Le statut d’enregistrement du téléphone plusieurs jours plus tard uniquement",
+        "Les CDR pour le contexte d’appel, les CMR/indicateurs de qualité disponibles et les traces/mesures média corrélées dans le temps",
+        "Un test DNS isolé sans données d’appel"
+      ],
+      "answer": 2,
+      "explanation": "Les CDR donnent le contexte d’appel et les CMR peuvent fournir des indicateurs de qualité selon le déploiement. Les corréler aux traces et aux mesures réseau aide à localiser le problème, avec les limites des données collectées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan de validation est le plus solide avant de déclarer une stratégie de survivabilité de site fonctionnelle ?",
+      "choices": [
+        "Vérifier uniquement que la passerelle répond à un ping",
+        "Tester une seule communication interne alors que le traitement central est disponible",
+        "Se fier à la configuration prévue sans déclencher ni observer les scénarios convenus",
+        "Exécuter un test de bascule planifié : perte de connectivité centrale, réenregistrement local, appels critiques, accès d’urgence selon les règles locales et retour contrôlé"
+      ],
+      "answer": 3,
+      "explanation": "La survivabilité doit être démontrée par des scénarios mesurables, avec des limites de sécurité et un plan de retour. Les tests d’accès d’urgence doivent respecter les règles locales et être réalisés de façon contrôlée."
     }
-  ],
-  "scope": "quiz"
+  ]
 }
