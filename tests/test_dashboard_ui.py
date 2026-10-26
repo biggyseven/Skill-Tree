@@ -130,6 +130,18 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertEqual(submissions.count("if (!refreshed.tree || !refreshed.dailyPlan)"), 2)
         self.assertIn("if (this.allNodesValidated)", DASHBOARD_HTML)
 
+    def test_dashboard_separates_resume_lesson_from_next_recommended_lesson(self):
+        resume_start = DASHBOARD_HTML.index("        get resumeButtonLabel() {")
+        resume_end = DASHBOARD_HTML.index("        get parcours() {", resume_start)
+        resume_methods = DASHBOARD_HTML[resume_start:resume_end]
+        self.assertIn("get nextLessonNode()", resume_methods)
+        self.assertIn("if (!this.resumableLastNode) return null", resume_methods)
+        self.assertIn("String(next.id) === String(this.resumableLastNode.id)", resume_methods)
+        self.assertIn('x-show="nextLessonNode"', DASHBOARD_HTML)
+        self.assertIn("nextLessonNode ? nextLessonNode.title : ''", DASHBOARD_HTML)
+        self.assertIn("nextLessonNode && show(nextLessonNode.id)", DASHBOARD_HTML)
+        self.assertIn("Prochaine leçon →", DASHBOARD_HTML)
+
     def test_reading_progress_and_resume_status_survive_reload_and_external_validation(self):
         self.assertIn("lastOpenedNodeStatus: localStorage.getItem('skilltree-last-status') || ''", DASHBOARD_HTML)
         self.assertIn("lastLessonProgress: Math.max(0, Math.min(100, Number(localStorage.getItem('skilltree-last-progress') || 0) || 0))", DASHBOARD_HTML)
