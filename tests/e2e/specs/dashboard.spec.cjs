@@ -222,3 +222,65 @@ test('les commandes vocales flottantes permettent pause, reprise et arrêt', asy
   await controls.getByRole('button', { name: 'Arrêter la lecture vocale' }).click();
   await expect(controls).toBeHidden();
 });
+
+
+test('le lecteur reprend la dernière section après fermeture et respecte le départ demandé', async ({ page }) => {
+  await openDashboard(page);
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+  const lessonResult = results.locator('button').filter({
+    hasText: "Qu'est-ce qu'un réseau ? - Débutant",
+  }).first();
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
+
+  const article = page.locator('[x-ref="lessonArticle"]');
+  await expect(article).toBeVisible();
+  const headings = article.locator('h2[id]');
+  await expect.poll(() => headings.count()).toBeGreaterThan(1);
+  const targetHeading = headings.last();
+  const targetId = await targetHeading.getAttribute('id');
+  const targetText = (await targetHeading.innerText()).replace(/\s+/g, ' ').trim();
+  const startSelector = page.getByRole('combobox', {
+    name: 'Choisir le point de départ de la lecture du cours',
+  });
+  const scroll = page.locator('[x-ref="modalScroll"]');
+
+  await startSelector.selectOption({ value: targetId });
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).startSectionSelection)).toBe(targetId);
+  await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  await expect.poll(() => page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return state.lessonPositions[String(state.detail.id)]?.sectionId || '';
+  })).toBe(targetId);
+  await expect(targetHeading).toBeVisible();
+  const beforeClose = await scroll.evaluate(el => el.scrollTop);
+  expect(beforeClose).toBeGreaterThan(0);
+
+  await page.getByRole('button', { name: 'Fermer le cours' }).click().catch(async () => {
+    await page.keyboard.press('Escape');
+  });
+  await expect(page.locator('div[x-show="open"].fixed.inset-0')).toBeHidden();
+
+  // Réouverture via la même recherche : le lecteur doit reprendre la position persistée.
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
+  await expect(article).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return state.lessonPositions[String(state.detail.id)]?.sectionId || '';
+  })).toBe(targetId);
+  await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).activeSection)).toBe(targetId);
+  const afterReopen = await scroll.evaluate(el => el.scrollTop);
+  expect(Math.abs(afterReopen - beforeClose)).toBeLessThan(180);
+
+  // « Début du cours » doit annuler l'effet de la reprise automatique.
+  await startSelector.selectOption({ value: '__top__' });
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).startSectionSelection)).toBe('__top__');
+  await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBe(0);
+  expect(targetText.length).toBeGreaterThan(0);
+});
