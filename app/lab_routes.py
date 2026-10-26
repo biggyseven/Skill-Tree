@@ -804,16 +804,113 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
 
 @router.get("/lab/v2")
 def list_labs_v2() -> list[dict[str, Any]]:
-    """Catalogue des labs V2 disponibles dans la base SQLite."""
+    """Liste les labs v2 réellement ouvrables associés au catalogue de cours.
+
+    Certaines migrations historiques ont créé des entrées schema_version=2
+    avec une topologie vide pour préserver un ancien exercice texte. Elles ne
+    doivent pas être présentées comme des labs Workspace jouables.
+    """
     conn = _database_connection()
     try:
-        rows = conn.execute(
-            """
-            SELECT id, title, level, module, schema_version
-            FROM labs
-            ORDER BY module, title
-            """
-        ).fetchall()
-        return [dict(row) for row in rows]
+        tables = {
+            row["name"]
+            for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+        }
+        db_rows: dict[str, dict[str, Any]] = {}
+        if "labs" in tables:
+            lab_columns = {row["name"] for row in conn.execute('PRAGMA table_info("labs")')}
+            if "id" in lab_columns:
+                fields = ["id"] + [
+                    f'"{name}"' if name in lab_columns else f"NULL AS {name}"
+                    for name in (
+                        "title", "level", "module", "duration_min", "difficulty",
+                        "schema_version", "definition_json",
+                    )
+                ]
+                for row in conn.execute("SELECT " + ", ".join(fields) + " FROM labs").fetchall():
+                    if row["id"]:
+                        db_rows[str(row["id"])] = dict(row)
+
+        # Le contenu versionné reste la source de vérité quand SQLite n'a pas
+        # encore été synchronisé avec les nouveaux nœuds du catalogue.
+        course_metadata: dict[str, dict[str, Any]] = {}
+        course_ids: set[str] = set()
+        if "nodes" in tables:
+            node_columns = {row["name"] for row in conn.execute('PRAGMA table_info("nodes")')}
+            if "id" in node_columns:
+                fields = ["id"]
+                fields.append('"title"' if "title" in node_columns else "'' AS title")
+                fields.append('"module"' if "module" in node_columns else "'' AS module")
+                fields.append('"category"' if "category" in node_columns else "'' AS category")
+                for row in conn.execute("SELECT " + ", ".join(fields) + " FROM nodes").fetchall():
+                    if not row["id"]:
+                        continue
+                    node_id = str(row["id"])
+                    course_ids.add(node_id)
+                    course_metadata[node_id] = {
+                        "title": str(row["title"] or ""),
+                        "module": str(row["module"] or row["category"] or ""),
+                    }
+
+        nodes_path = PROJECT_ROOT / "content" / "nodes.json"
+        try:
+            configured_nodes = json.loads(nodes_path.read_text(encoding="utf-8-sig"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            configured_nodes = []
+        if isinstance(configured_nodes, list):
+            for node in configured_nodes:
+                if not isinstance(node, dict) or not isinstance(node.get("id"), str):
+                    continue
+                node_id = node["id"].strip()
+                if not node_id:
+                    continue
+                course_ids.add(node_id)
+                course_metadata[node_id] = {
+                    "title": str(node.get("title") or ""),
+                    "module": str(node.get("module") or node.get("category") or ""),
+                }
+
+        catalog: list[dict[str, Any]] = []
+        for lab_id in sorted(course_ids):
+            row = db_rows.get(lab_id, {})
+            definition: LabDefinition | None = None
+            raw_definition = row.get("definition_json")
+            if raw_definition:
+                try:
+                    raw_payload = json.loads(raw_definition)
+                    if isinstance(raw_payload, dict):
+                        candidate = LabDefinition(**raw_payload)
+                        if candidate.initial_topology.nodes and int(candidate.schema_version or 2) >= 2:
+                            definition = candidate
+                except (json.JSONDecodeError, TypeError, ValueError):
+                    definition = None
+
+            # Une ancienne entrée SQLite vide ne doit masquer un vrai scénario
+            # versionné sous le même identifiant ou un alias de cours.
+            if definition is None:
+                try:
+                    file_payload = _load_lab_file(lab_id)
+                except HTTPException:
+                    file_payload = None
+                if file_payload is not None:
+                    candidate = file_payload["definition"]
+                    if candidate.initial_topology.nodes and int(candidate.schema_version or 2) >= 2:
+                        definition = candidate
+
+            if definition is None:
+                continue
+
+            metadata = course_metadata.get(lab_id, {})
+            catalog.append({
+                "id": lab_id,
+                "title": str(metadata.get("title") or definition.title or row.get("title") or lab_id),
+                "level": str(definition.level or row.get("level") or "débutant"),
+                "module": str(metadata.get("module") or definition.module or row.get("module") or "Général"),
+                "duration_min": int(definition.duration_min or row.get("duration_min") or 15),
+                "difficulty": str(definition.difficulty or row.get("difficulty") or definition.level or "débutant"),
+                "schema_version": int(definition.schema_version or row.get("schema_version") or 2),
+            })
+
+        return sorted(catalog, key=lambda item: (item["module"].casefold(), item["title"].casefold()))
     finally:
         conn.close()
