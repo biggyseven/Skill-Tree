@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Architecture de pare-feu (NGFW) » : à rédiger après le cours complet.",
+      "prompt": "Quelle différence importante distingue souvent un NGFW d'un filtrage classique limité aux adresses et ports ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Il supprime la nécessité du routage IP",
+        "Il peut identifier les applications et appliquer des profils de sécurité supplémentaires selon sa visibilité",
+        "Il chiffre automatiquement toutes les applications du LAN",
+        "Il autorise le trafic interne sans politique"
+      ],
+      "answer": 1,
+      "explanation": "Un NGFW ajoute généralement de l'identification applicative et des contrôles tels qu'IPS, URL ou inspection de fichiers. Les fonctions et la visibilité dépendent du produit, de la version et des licences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une règle qui autorise TCP/443 ne garantit-elle pas qu'une seule application professionnelle est utilisée ?",
+      "choices": [
+        "Parce que TCP ne peut pas transporter HTTPS",
+        "Parce que les applications HTTPS ont toujours des adresses MAC identiques",
+        "Parce que plusieurs applications différentes peuvent utiliser HTTPS sur le même port",
+        "Parce que les ports ne sont jamais visibles pour un pare-feu"
+      ],
+      "answer": 2,
+      "explanation": "Le port est un indice L4, pas une identité applicative. L'identification applicative apporte plus de contexte lorsqu'elle est prise en charge et que le trafic est suffisamment visible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel objectif principal ont les zones de sécurité dans une architecture NGFW ?",
+      "choices": [
+        "Organiser les frontières de confiance et appliquer des politiques explicites entre segments",
+        "Donner les mêmes permissions à tous les hôtes d'une zone",
+        "Remplacer la table de routage",
+        "Empêcher automatiquement tout trafic chiffré"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Les zones regroupent des interfaces ou segments selon le modèle de sécurité. Les communications entre zones doivent être autorisées explicitement et une zone n'est pas une confiance absolue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement un système IPS intégré ou associé au NGFW ?",
+      "choices": [
+        "Attribuer des adresses IP aux postes",
+        "Traduire les noms DNS en adresses",
+        "Remplacer les sauvegardes",
+        "Détecter certains exploits, comportements ou anomalies et éventuellement bloquer le trafic selon la politique"
+      ],
+      "answer": 3,
+      "explanation": "Un IPS compare le trafic à des signatures, règles ou anomalies de protocole. Les détections dépendent des capacités, mises à jour, faux positifs et profils activés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l'inspection TLS intermédiaire doit-elle être déployée avec précaution ?",
+      "choices": [
+        "Elle fonctionne uniquement si le serveur est arrêté",
+        "Elle peut créer deux sessions TLS, nécessiter une CA de confiance et affecter confidentialité, compatibilité et performances",
+        "Elle remplace automatiquement l'authentification utilisateur",
+        "Elle supprime toute nécessité de vérifier les certificats"
+      ],
+      "answer": 1,
+      "explanation": "L'inspection TLS termine une session et en établit une autre. La chaîne de confiance, la clé privée, les exclusions, les applications incompatibles, la vie privée et les performances doivent être traitées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un flux est autorisé par la règle mais l'application échoue. Que vérifier ensuite ?",
+      "choices": [
+        "Désactiver toutes les règles",
+        "Supprimer le routage",
+        "Routes retour, NAT, état de session, DNS, profils de menace et service cible",
+        "Remplacer TCP par UDP systématiquement"
+      ],
+      "answer": 2,
+      "explanation": "Une règle d'accès n'est qu'un point du chemin. Le routage retour, la traduction, l'inspection, la résolution DNS, le pare-feu hôte ou le service peuvent encore expliquer l'échec."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure première réponse à un faux positif IPS confirmé ?",
+      "choices": [
+        "Désactiver l'ensemble des profils IPS sur tous les flux",
+        "Autoriser tous les protocoles de la source",
+        "Ignorer tous les événements du moteur",
+        "Documenter les preuves puis appliquer une exception minimale et revue, en conservant les autres contrôles"
+      ],
+      "answer": 3,
+      "explanation": "Une exception étroite réduit l'impact sur les protections restantes. Elle doit être fondée sur des preuves, avoir un propriétaire et être revue notamment après les mises à jour de signatures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il mesurer pour évaluer les performances d'un NGFW avec inspection activée ?",
+      "choices": [
+        "Débit avec les profils réels, latence, sessions, nouvelles connexions, ressources et erreurs",
+        "Uniquement la vitesse nominale des interfaces",
+        "Uniquement le nombre de règles configurées",
+        "Uniquement un ping vers la passerelle"
+      ],
+      "answer": 0,
+      "explanation": "Le débit nominal sans les profils ne représente pas nécessairement le débit réel avec IPS, inspection TLS et contrôle de fichiers. Mesure les flux et les ressources dans des conditions représentatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les journaux d'un NGFW doivent-ils être corrélés avec d'autres sources ?",
+      "choices": [
+        "Parce que les journaux NGFW ne peuvent jamais être utiles",
+        "Parce qu'un refus prouve toujours une attaque",
+        "Parce que l'identité, les endpoints, DNS et les applications apportent un contexte supplémentaire pour distinguer blocage attendu et incident",
+        "Parce que la corrélation remplace les sauvegardes"
+      ],
+      "answer": 2,
+      "explanation": "La corrélation avec identité, DNS, endpoint et application aide à interpréter le trafic. Une alerte seule ne prouve pas toujours la compromission et l'absence d'alerte ne garantit pas l'absence de menace."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un test essentiel pendant la validation d'une nouvelle politique NGFW ?",
+      "choices": [
+        "Tester uniquement un accès autorisé",
+        "Tester les flux autorisés et des flux qui doivent être refusés, vérifier les règles réellement appliquées et préparer un rollback",
+        "Supprimer les journaux avant le déploiement",
+        "Activer toutes les exceptions pour ne pas couper le service"
+      ],
+      "answer": 1,
+      "explanation": "La validation comprend tests positifs et négatifs, journaux, profils appliqués, impact opérationnel et possibilité de retour arrière. Une autorisation n'est correcte que si elle respecte le besoin et refuse le reste."
     }
   ]
 }
