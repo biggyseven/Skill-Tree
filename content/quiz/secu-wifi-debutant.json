@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-wifi-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole Wi-Fi faut-il privilégier quand il est pris en charge ?",
+      "choices": [
+        "WEP",
+        "WPA3",
+        "Aucun chiffrement",
+        "Telnet"
+      ],
+      "answer": 1,
+      "explanation": "WPA3 est à privilégier sur les équipements compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un réseau invité doit-il être isolé ?",
+      "choices": [
+        "Pour augmenter la portée radio",
+        "Pour empêcher les invités d’accéder directement aux ressources internes",
+        "Pour cacher le nom du Wi-Fi",
+        "Pour éviter les mises à jour"
+      ],
+      "answer": 1,
+      "explanation": "L’isolation limite les possibilités de mouvement vers le réseau interne."
+    }
+  ]
+}
