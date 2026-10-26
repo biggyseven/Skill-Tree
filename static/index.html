@@ -5466,9 +5466,9 @@
         };
 
         // Thèmes : rafraîchir l’interface du cours et les graphiques Chart.js.
-        const originalSetTheme = app.setTheme.bind(app);
+        const originalSetTheme = app.setTheme;
         app.setTheme = function (id) {
-          originalSetTheme(id);
+          originalSetTheme.call(this, id);
           this.$nextTick(() => { this.fixLessonContrast(); if (this.tab === 'stats') this.renderSpiderChart(); });
         };
 
