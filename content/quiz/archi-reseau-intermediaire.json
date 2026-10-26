@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Architecture Réseau - Intermédiaire",
+      "prompt": "Quelle différence entre segmentation L2 et L3 ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "La segmentation L2 sépare les domaines de broadcast ; L3 sépare des réseaux IP routés",
+        "La segmentation L3 n’utilise jamais d’adresses",
+        "L2 correspond toujours à BGP",
+        "Les deux notions sont identiques"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les VLAN séparent des domaines L2 ; le routage L3 permet les communications contrôlées entre sous-réseaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter de placer toutes les politiques sur un seul équipement sans secours ?",
+      "choices": [
+        "Cela réduit toujours la latence",
+        "Cela empêche les erreurs",
+        "Cela supprime les dépendances",
+        "Cet équipement devient un point de défaillance et de capacité critique"
+      ],
+      "answer": 3,
+      "explanation": "Le design doit considérer capacité, redondance, domaines de panne et convergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle jouent les passerelles virtuelles redondantes dans un campus ?",
+      "choices": [
+        "Remplacer les adresses MAC des clients",
+        "Chiffrer les liens WAN",
+        "Maintenir une passerelle logique disponible malgré la panne d’un équipement",
+        "Attribuer les VLAN sans configuration"
+      ],
+      "answer": 2,
+      "explanation": "Un protocole de redondance de premier saut permet à une adresse logique de rester disponible si un routeur tombe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi documenter les flux entre zones plutôt que de seulement lister les VLAN ?",
+      "choices": [
+        "Les VLAN remplacent les ports TCP",
+        "Les zones décrivent quelles communications sont autorisées et pourquoi",
+        "Les flux sont indépendants des applications",
+        "Les zones rendent le routage inutile"
+      ],
+      "answer": 1,
+      "explanation": "La segmentation est utile lorsque les flux nécessaires et les restrictions sont également définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une DMZ ?",
+      "choices": [
+        "Isoler des services exposés dans une zone contrôlée entre domaines de confiance",
+        "Placer tous les serveurs internes sur le segment utilisateur",
+        "Supprimer les contrôles entre Internet et le LAN",
+        "Remplacer le routage dynamique"
+      ],
+      "answer": 0,
+      "explanation": "Une DMZ limite les chemins directs entre les services exposés et les réseaux internes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il évaluer lors de l’agrégation de liens ?",
+      "choices": [
+        "La couleur des jarretières",
+        "Le nombre de DNS publics",
+        "La version du navigateur",
+        "Compatibilité des ports, répartition, capacité et comportement en panne"
+      ],
+      "answer": 3,
+      "explanation": "L’agrégation ne garantit pas que chaque flux utilise tous les liens ; la distribution dépend de l’implémentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi dimensionner les liens en tenant compte de la perte d’un chemin ?",
+      "choices": [
+        "La bande passante ne varie jamais",
+        "La redondance réduit toujours tout le trafic",
+        "Le lien survivant peut devoir transporter la charge des chemins restants",
+        "La latence ne dépend que du routage"
+      ],
+      "answer": 2,
+      "explanation": "La capacité doit rester acceptable après une défaillance prévue, et pas seulement en régime nominal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ordre de diagnostic est raisonnable pour un service inaccessible ?",
+      "choices": [
+        "Changer la passerelle et désactiver les ACL immédiatement",
+        "Vérifier lien/VLAN, adresse et passerelle, routes, filtrage, puis service",
+        "Redémarrer tout sans collecte",
+        "Modifier DNS même si l’IP échoue aussi"
+      ],
+      "answer": 1,
+      "explanation": "Une démarche par couches réduit les hypothèses et évite des changements non justifiés."
     }
   ]
 }

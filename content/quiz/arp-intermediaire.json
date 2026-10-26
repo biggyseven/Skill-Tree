@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour ARP & résolution L2/L3 - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quel risque est associé à ARP spoofing ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il peut changer tous les masques via DHCP uniquement",
+        "ARP chiffre de bout en bout",
+        "Un attaquant peut annoncer une association IP-MAC trompeuse",
+        "La table OSPF est toujours supprimée"
+      ],
+      "answer": 2,
+      "explanation": "Des annonces ARP mensongères peuvent détourner du trafic ou faciliter une attaque de type homme du milieu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de Dynamic ARP Inspection sur un commutateur compatible ?",
+      "choices": [
+        "Attribuer les IP aux clients",
+        "Valider certains messages ARP selon des informations de confiance",
+        "Remplacer l’apprentissage MAC",
+        "Définir les routes BGP"
+      ],
+      "answer": 1,
+      "explanation": "DAI vérifie les messages ARP à l’aide d’associations de confiance, souvent alimentées par DHCP snooping."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi DHCP snooping peut-il aider DAI ?",
+      "choices": [
+        "Il fournit des associations de confiance IP, MAC, VLAN et port",
+        "Il remplace ARP par DNS",
+        "Il chiffre TCP",
+        "Il fournit les routes par défaut"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les bindings DHCP aident à reconnaître les associations légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel effet peut avoir Proxy ARP ?",
+      "choices": [
+        "Il traduit les noms DNS",
+        "Il empêche tout routage inter-VLAN",
+        "Il active le trunk",
+        "Un routeur répond à une requête ARP au nom d’une autre IP selon sa configuration"
+      ],
+      "answer": 3,
+      "explanation": "Proxy ARP permet à un routeur de répondre pour une destination qu’il peut atteindre, mais peut masquer un mauvais plan d’adressage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il comparer dans une capture pendant un incident ARP ?",
+      "choices": [
+        "Ports TCP uniquement",
+        "Fichiers de sauvegarde",
+        "Requêtes, réponses, adresses IP/MAC et fréquence",
+        "Certificats TLS du serveur"
+      ],
+      "answer": 2,
+      "explanation": "Une capture peut révéler des associations inattendues ou des réponses concurrentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une entrée ARP statique n’est-elle pas universelle ?",
+      "choices": [
+        "Elle empêche toutes les usurpations globalement",
+        "Elle augmente la charge d’administration et peut devenir obsolète",
+        "Elle remplace la supervision",
+        "Elle est un pare-feu complet"
+      ],
+      "answer": 1,
+      "explanation": "Les entrées statiques peuvent aider dans des cas ciblés, mais sont difficiles à maintenir à grande échelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel symptôme peut évoquer un problème ARP sur un LAN ?",
+      "choices": [
+        "Associations IP-MAC changeantes ou connectivité intermittente",
+        "Certificat TLS expiré uniquement",
+        "Erreur YAML",
+        "Quota cloud dépassé"
+      ],
+      "answer": 0,
+      "explanation": "Des changements inattendus d’association peuvent signaler un conflit ou une usurpation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test est utile après activation de DAI ?",
+      "choices": [
+        "Désactiver DHCP snooping sans plan",
+        "Bloquer tous les ports utilisateur",
+        "Valider uniquement le portail de gestion",
+        "Tester les associations légitimes et vérifier le blocage des messages incohérents"
+      ],
+      "answer": 3,
+      "explanation": "La validation doit couvrir le trafic normal et les messages ARP qui doivent être rejetés."
     }
   ]
 }

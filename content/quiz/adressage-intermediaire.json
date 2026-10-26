@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour L'adressage IP (bases) - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quel est l’objectif principal de VLSM ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Forcer tous les segments à utiliser /24",
+        "Supprimer le routage inter-VLAN",
+        "Attribuer des sous-réseaux de tailles différentes selon les besoins réels",
+        "Attribuer des adresses MAC"
+      ],
+      "answer": 2,
+      "explanation": "VLSM dimensionne les sous-réseaux au besoin et réduit le gaspillage d’adresses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Combien d’hôtes classiques sont utilisables dans un préfixe IPv4 /28 ?",
+      "choices": [
+        "16",
+        "14",
+        "30",
+        "6"
+      ],
+      "answer": 1,
+      "explanation": "Un /28 contient 16 adresses, dont le réseau et le broadcast en usage IPv4 classique, soit 14 hôtes utilisables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel préfixe IPv6 est généralement prévu pour un sous-réseau LAN classique dans la plupart des architectures ?",
+      "choices": [
+        "/64",
+        "/24",
+        "/32 pour chaque interface LAN",
+        "/128 pour chaque LAN"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un /64 est le préfixe conventionnel d’un sous-réseau IPv6 LAN dans de nombreuses architectures et mécanismes d’autoconfiguration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence majeure existe entre IPv4 et IPv6 concernant le broadcast ?",
+      "choices": [
+        "IPv6 utilise uniquement le broadcast Ethernet classique",
+        "IPv4 ne possède pas de broadcast",
+        "IPv6 remplace toutes les adresses par des MAC",
+        "IPv6 n’utilise pas le broadcast ; Neighbor Discovery s’appuie notamment sur le multicast"
+      ],
+      "answer": 3,
+      "explanation": "IPv6 n’a pas de broadcast IP ; plusieurs fonctions sont assurées par le multicast et Neighbor Discovery."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt de construire un plan d’adressage hiérarchique ?",
+      "choices": [
+        "Faire dépendre les routes du nom d’hôte",
+        "Éviter tout besoin de documentation",
+        "Faciliter l’agrégation des routes et la segmentation par sites ou fonctions",
+        "Garantir une latence constante"
+      ],
+      "answer": 2,
+      "explanation": "Des blocs contigus attribués par site/fonction sont plus faciles à résumer et à exploiter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un sous-réseau IPv4 classique /27, combien d’adresses sont au total ?",
+      "choices": [
+        "30",
+        "32",
+        "64",
+        "16"
+      ],
+      "answer": 1,
+      "explanation": "/27 laisse cinq bits hôte : 2^5 = 32 adresses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une adresse IPv6 ULA commençant par fd00::/8 ?",
+      "choices": [
+        "Une adresse locale unique prévue pour un usage interne, non routée globalement sur Internet",
+        "Une adresse IPv4 mappée",
+        "Une adresse publique garantie par un registre",
+        "Une adresse de broadcast IPv6"
+      ],
+      "answer": 0,
+      "explanation": "Les ULA IPv6 sont destinées à l’usage local et ne sont pas annoncées comme des préfixes globalement routables sur Internet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi documenter les préfixes, passerelles et allocations statiques/DHCP ?",
+      "choices": [
+        "Créer automatiquement les routes BGP",
+        "Remplacer le contrôle d’accès",
+        "Accélérer la résolution ARP à l’échelle d’Internet",
+        "Éviter les conflits, les chevauchements et les écarts entre configuration et inventaire"
+      ],
+      "answer": 3,
+      "explanation": "La documentation partagée est nécessaire pour maintenir une source de vérité cohérente sur l’adressage."
     }
   ]
 }

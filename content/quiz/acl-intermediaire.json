@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour ACL & filtrage - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quels critères une ACL étendue IPv4 peut-elle généralement utiliser ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Adresse MAC uniquement pour tous les protocoles",
+        "Nom DNS seulement",
+        "Type de câble et puissance PoE",
+        "Protocole, adresses source et destination et ports quand ils s’appliquent"
+      ],
+      "answer": 3,
+      "explanation": "Les ACL étendues peuvent filtrer plusieurs champs de couche réseau et transport."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment calculer une wildcard mask IPv4 à partir d’un masque de sous-réseau ?",
+      "choices": [
+        "Copier le masque sans changement",
+        "Ajouter 1 à chaque octet",
+        "Inverser chaque bit du masque de sous-réseau",
+        "Utiliser l’adresse de broadcast"
+      ],
+      "answer": 2,
+      "explanation": "Dans les ACL Cisco utilisant des wildcard masks, un bit à 0 doit correspondre et un bit à 1 est ignoré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi placer une ACL étendue près de la source est-il souvent recommandé ?",
+      "choices": [
+        "Forcer tous les flux à passer par le cœur",
+        "Éviter que le trafic indésirable traverse inutilement le réseau",
+        "Rendre les logs inutiles",
+        "Éviter de considérer la destination"
+      ],
+      "answer": 1,
+      "explanation": "Filtrer tôt économise des ressources et limite la propagation du trafic non souhaité, si l’intention métier le permet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une règle large autorise déjà un sous-ensemble de trafic qu’une règle plus basse devrait refuser. Quel problème se produit ?",
+      "choices": [
+        "La règle de refus peut être masquée par la règle large",
+        "Le routage devient automatiquement dynamique",
+        "Le masque se transforme en préfixe IPv6",
+        "L’ACL se copie sur tous les routeurs"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "L’ordre de traitement peut rendre la règle spécifique inatteignable ; les règles doivent être ordonnées et relues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier les compteurs de correspondance d’une ACL ?",
+      "choices": [
+        "Ils donnent la table complète des mots de passe",
+        "Ils garantissent l’absence de faux positifs",
+        "Ils remplacent les tests de connectivité",
+        "Ils aident à confirmer quelles entrées traitent réellement le trafic"
+      ],
+      "answer": 3,
+      "explanation": "Les compteurs permettent de comparer l’intention avec le trafic observé, mais doivent être interprétés avec le contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier quand une ACL DNS bloque le service malgré une règle UDP 53 ?",
+      "choices": [
+        "Le numéro de série du commutateur",
+        "La puissance des antennes Wi-Fi",
+        "Le transport utilisé, les réponses et les éventuels flux DNS sur TCP",
+        "L’état du ventilateur"
+      ],
+      "answer": 2,
+      "explanation": "DNS utilise souvent UDP, mais TCP peut aussi être requis, notamment pour certaines réponses ou opérations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les tests d’ACL doivent-ils couvrir les flux autorisés et interdits ?",
+      "choices": [
+        "Pour augmenter le nombre de règles",
+        "Pour vérifier l’application de la politique et détecter une règle trop large",
+        "Pour éviter d’étudier l’ordre de traitement",
+        "Pour que tous les ports restent ouverts"
+      ],
+      "answer": 1,
+      "explanation": "Un test uniquement positif ne révèle pas qu’une ACL laisse passer trop de trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque crée une règle permissive temporaire laissée en place ?",
+      "choices": [
+        "Elle peut maintenir une surface d’accès plus large que nécessaire",
+        "Elle accélère toujours le routage sans impact",
+        "Elle supprime l’implicit deny",
+        "Elle convertit une ACL en pare-feu stateful"
+      ],
+      "answer": 0,
+      "explanation": "Toute dérogation doit être limitée, datée et supprimée après usage."
     }
   ]
 }

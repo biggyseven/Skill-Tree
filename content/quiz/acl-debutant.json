@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour ACL & filtrage - Débutant. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert une ACL réseau ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Autoriser ou refuser certains flux selon des critères",
+        "Attribuer automatiquement une adresse MAC",
+        "Résoudre les noms DNS",
+        "Synchroniser l’heure des équipements"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une ACL filtre les paquets ou les accès selon des critères comme source, destination, protocole ou port."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie généralement le refus implicite à la fin d’une ACL ?",
+      "choices": [
+        "Tout trafic non décrit est autorisé",
+        "Les règles précédentes sont ignorées",
+        "Le routeur redémarre",
+        "Tout trafic qui ne correspond à aucune règle explicite est refusé"
+      ],
+      "answer": 3,
+      "explanation": "De nombreux systèmes appliquent un deny implicite final ; il faut donc prévoir les autorisations requises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’ordre des règles d’une ACL est-il important ?",
+      "choices": [
+        "Les règles sont toujours évaluées par ordre alphabétique",
+        "La dernière règle est toujours ignorée",
+        "La première règle correspondante peut décider du traitement",
+        "L’ordre change les adresses IP des paquets"
+      ],
+      "answer": 2,
+      "explanation": "Les ACL classiques évaluent les entrées dans leur ordre de traitement : une règle large trop tôt peut masquer des règles plus précises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale entre ACL standard et étendue sur les équipements Cisco ?",
+      "choices": [
+        "Une standard filtre les paquets IPv6 uniquement",
+        "Une standard filtre surtout sur l’adresse source, une étendue peut aussi considérer protocole, destination et ports",
+        "Une étendue ne peut jamais refuser un flux",
+        "Une standard remplace le routage"
+      ],
+      "answer": 1,
+      "explanation": "Cette distinction est courante sur Cisco IOS ; les capacités précises dépendent de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente l’application inbound sur une interface ?",
+      "choices": [
+        "Le filtrage du trafic entrant par cette interface",
+        "Le filtrage du trafic qui quitte l’interface uniquement",
+        "L’activation automatique du NAT",
+        "La création d’un VLAN"
+      ],
+      "answer": 0,
+      "explanation": "La direction doit être comprise du point de vue de l’interface ; inbound traite le trafic qui y entre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi documenter chaque règle avec son objectif ?",
+      "choices": [
+        "Pour autoriser plus de trafic automatiquement",
+        "Pour rendre l’ACL impossible à modifier",
+        "Pour remplacer les tests",
+        "Pour faciliter la revue, le diagnostic et le retrait de règles obsolètes"
+      ],
+      "answer": 3,
+      "explanation": "Les commentaires et l’intention rendent les règles auditables et limitent les erreurs lors des changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une ACL autorise le trafic web vers un serveur mais bloque la réponse. Que vérifier ?",
+      "choices": [
+        "La couleur du câble",
+        "Le masque de la console",
+        "La direction, les règles de retour et la nature stateful ou stateless du filtrage",
+        "La version de navigateur du client"
+      ],
+      "answer": 2,
+      "explanation": "Une ACL stateless ne suit pas automatiquement l’état de connexion ; les flux de retour peuvent nécessiter des règles dédiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon premier test après l’application d’une ACL ?",
+      "choices": [
+        "Tester uniquement le ping depuis le routeur",
+        "Tester un flux autorisé et un flux qui doit être bloqué",
+        "Supprimer toutes les règles",
+        "Redémarrer tous les équipements sans journal"
+      ],
+      "answer": 1,
+      "explanation": "Les tests positifs et négatifs confirment que l’ACL respecte l’intention, pas seulement qu’un accès fonctionne."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Adressage IPv4 & sous-réseaux - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Combien de bits contient une adresse IPv4 ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "16 bits",
+        "48 bits",
+        "128 bits",
+        "32 bits"
+      ],
+      "answer": 3,
+      "explanation": "IPv4 utilise 32 bits, généralement représentés en quatre octets décimaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle du masque ou préfixe IPv4 ?",
+      "choices": [
+        "Définir l’adresse MAC de destination",
+        "Chiffrer les paquets",
+        "Séparer la partie réseau de la partie hôte",
+        "Choisir automatiquement le serveur DNS"
+      ],
+      "answer": 2,
+      "explanation": "Le préfixe détermine quels bits identifient le réseau et quels bits identifient l’interface dans ce sous-réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle adresse appartient à une plage privée IPv4 définie par RFC 1918 ?",
+      "choices": [
+        "8.8.8.8",
+        "10.24.8.15",
+        "192.0.2.5",
+        "203.0.113.10"
+      ],
+      "answer": 1,
+      "explanation": "10.0.0.0/8 fait partie des plages privées RFC 1918. Les plages 192.0.2.0/24 et 203.0.113.0/24 sont réservées à la documentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le réseau 192.168.10.0/24, quelle adresse désigne le réseau ?",
+      "choices": [
+        "192.168.10.0",
+        "192.168.10.1",
+        "192.168.10.254",
+        "192.168.10.255"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Avec /24, les 24 premiers bits sont le réseau ; l’adresse dont la partie hôte est entièrement à zéro désigne le réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le broadcast dirigé du sous-réseau 192.168.10.0/24 ?",
+      "choices": [
+        "192.168.10.0",
+        "192.168.10.1",
+        "192.168.11.0",
+        "192.168.10.255"
+      ],
+      "answer": 3,
+      "explanation": "Pour un /24 classique, l’adresse de broadcast a tous les bits hôte à 1, soit .255."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Combien d’hôtes IPv4 classiques sont utilisables dans un /26 ?",
+      "choices": [
+        "64",
+        "30",
+        "62",
+        "126"
+      ],
+      "answer": 2,
+      "explanation": "Un /26 laisse 6 bits hôte : 2^6 = 64 adresses au total, moins réseau et broadcast, soit 62 hôtes classiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux postes IPv4 du même sous-réseau veulent communiquer. Quel élément indique cette appartenance ?",
+      "choices": [
+        "Le nom d’hôte uniquement",
+        "Le préfixe et le masque configurés",
+        "Le serveur DNS uniquement",
+        "La vitesse du port Ethernet"
+      ],
+      "answer": 1,
+      "explanation": "L’hôte compare les adresses avec le masque pour déterminer si la destination est locale ou doit passer par la passerelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand un poste envoie vers un réseau distant, quelle destination de couche 2 utilise-t-il d’abord ?",
+      "choices": [
+        "L’adresse MAC de sa passerelle par défaut",
+        "La MAC du serveur distant à travers Internet",
+        "L’adresse broadcast IPv4",
+        "L’adresse MAC du serveur DNS dans tous les cas"
+      ],
+      "answer": 0,
+      "explanation": "Le poste envoie la trame au prochain saut local, généralement la passerelle, qui route ensuite le paquet."
     }
   ]
 }

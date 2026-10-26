@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Authentification réseau (AAA) - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel risque opérationnel faut-il analyser avant de basculer tous les équipements vers une nouvelle politique AAA ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Perdre l’accès d’administration si les identités ou le serveur central échouent",
+        "Augmenter automatiquement la capacité des liens",
+        "Réduire le nombre de VLAN",
+        "Changer les adresses MAC des clients"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une erreur AAA peut verrouiller les administrateurs ; il faut une validation progressive et une procédure de secours contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel choix convient le mieux pour limiter les privilèges d’administration réseau ?",
+      "choices": [
+        "Un compte partagé avec niveau maximal",
+        "Le même secret pour toutes les équipes",
+        "Une autorisation fondée uniquement sur l’adresse IP publique",
+        "Des rôles et permissions par commande ou par fonction lorsque le système le permet"
+      ],
+      "answer": 3,
+      "explanation": "Des rôles précis limitent l’impact d’un compte compromis et séparent les responsabilités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’accès de secours local ne doit-il pas devenir le chemin normal d’administration ?",
+      "choices": [
+        "Il garantit une meilleure attribution individuelle",
+        "Il remplace automatiquement la rotation des secrets",
+        "Il contournerait la centralisation et pourrait réduire l’auditabilité",
+        "Il rend le protocole AAA inutile en cas de panne"
+      ],
+      "answer": 2,
+      "explanation": "Le secours doit rester contrôlé et audité, pas servir à éviter les règles centrales."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie réduit le risque d’une panne AAA pendant une migration ?",
+      "choices": [
+        "Modifier tous les équipements en une seule opération",
+        "Déployer sur un petit groupe, vérifier les refus et garder un accès de secours testé",
+        "Supprimer l’ancien serveur avant le test",
+        "Permettre tous les accès pendant la bascule"
+      ],
+      "answer": 1,
+      "explanation": "Une migration progressive permet de détecter les erreurs de politique avant qu’elles ne touchent l’ensemble du parc."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal doit déclencher une investigation de sécurité ?",
+      "choices": [
+        "Des authentifications réussies ou refusées inhabituelles liées à un compte privilégié",
+        "Un tableau de bord ouvert par un opérateur autorisé",
+        "Une sauvegarde planifiée réussie",
+        "Une session de test documentée"
+      ],
+      "answer": 0,
+      "explanation": "Les événements atypiques autour des comptes privilégiés peuvent indiquer une tentative d’accès ou un compte compromis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle des journaux AAA dans une analyse forensique ?",
+      "choices": [
+        "Remplacer toutes les sauvegardes réseau",
+        "Prouver l’absence absolue d’incident",
+        "Donner automatiquement les droits manquants",
+        "Reconstituer l’identité, la période et les actions associées aux sessions"
+      ],
+      "answer": 3,
+      "explanation": "La journalisation améliore la traçabilité, à condition que les horodatages, la rétention et l’intégrité soient maîtrisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les politiques AAA doivent-elles être revues après un changement d’organisation ?",
+      "choices": [
+        "Les adresses IPv4 deviennent automatiquement invalides",
+        "Les paquets RADIUS ne sont plus routables",
+        "Les rôles et responsabilités peuvent avoir changé",
+        "La revue désactive l’authentification multifacteur"
+      ],
+      "answer": 2,
+      "explanation": "Une politique doit refléter les responsabilités actuelles et retirer les permissions devenues inutiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est essentiel lors d’un test de panne du serveur AAA ?",
+      "choices": [
+        "Faire échouer la connexion sans analyser l’accès de secours",
+        "Vérifier que le comportement de secours correspond à la politique et qu’il est journalisé",
+        "Activer un compte administrateur partagé permanent",
+        "Supprimer les comptes locaux avant le test"
+      ],
+      "answer": 1,
+      "explanation": "Le test doit prouver à la fois la disponibilité maîtrisée et la sécurité du comportement de secours."
     }
   ]
 }

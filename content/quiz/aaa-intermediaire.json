@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Authentification réseau (AAA) - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quel protocole est couramment utilisé pour transporter des requêtes AAA d’accès réseau vers un serveur central ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "ARP",
+        "STP",
+        "RADIUS",
+        "NTP"
+      ],
+      "answer": 2,
+      "explanation": "RADIUS est très utilisé pour l’authentification réseau, par exemple avec 802.1X et des accès distants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un contraste important entre RADIUS et TACACS+ dans les usages réseau classiques ?",
+      "choices": [
+        "RADIUS transporte uniquement des messages ICMP",
+        "TACACS+ est souvent utilisé pour l’administration des équipements et sépare authentification, autorisation et accounting",
+        "TACACS+ ne prend en charge aucune authentification",
+        "RADIUS remplace le routage IP"
+      ],
+      "answer": 1,
+      "explanation": "TACACS+ est souvent choisi pour les accès d’administration aux équipements ; RADIUS est fréquent pour l’accès réseau. Les capacités exactes dépendent de l’implémentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel port TCP est classiquement associé à TACACS+ ?",
+      "choices": [
+        "TCP 49",
+        "UDP 53",
+        "TCP 443",
+        "UDP 67"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le port de service traditionnel de TACACS+ est TCP 49."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une politique AAA, que faut-il planifier si le serveur central devient indisponible ?",
+      "choices": [
+        "Un accès administrateur illimité pour tous",
+        "La suppression des journaux locaux",
+        "Une désactivation permanente de l’authentification",
+        "Un comportement de secours explicite et limité, testé à l’avance"
+      ],
+      "answer": 3,
+      "explanation": "Le choix entre refuser l’accès et autoriser un secours local doit tenir compte du risque et être documenté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les comptes de secours locaux doivent-ils être protégés ?",
+      "choices": [
+        "Ils remplacent toujours les identités nominatives",
+        "Ils n’ont jamais de privilèges",
+        "Ils peuvent contourner la politique centrale en cas d’urgence",
+        "Ils désactivent automatiquement les sessions distantes"
+      ],
+      "answer": 2,
+      "explanation": "Les comptes de secours sont sensibles ; leurs secrets, leurs usages et leurs journaux doivent être contrôlés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle donnée est utile dans l’accounting pour investiguer une session d’administration ?",
+      "choices": [
+        "La couleur du câble uniquement",
+        "Identité, équipement, heure et résultat de la session",
+        "Le nom du fournisseur de navigateur",
+        "Un mot de passe stocké en clair"
+      ],
+      "answer": 1,
+      "explanation": "Les événements horodatés et associés à une identité permettent de relier une action à une session."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi synchroniser l’heure des équipements et du serveur AAA ?",
+      "choices": [
+        "Corréler correctement les événements et la chronologie d’incident",
+        "Améliorer le débit physique du lien",
+        "Rendre les mots de passe plus longs",
+        "Remplacer le contrôle d’autorisation"
+      ],
+      "answer": 0,
+      "explanation": "Des horloges cohérentes facilitent la corrélation des journaux et des événements de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test valide le mieux une configuration AAA avant généralisation ?",
+      "choices": [
+        "Vérifier seulement que le serveur répond au ping",
+        "Désactiver les logs et tester une seule connexion",
+        "Appliquer immédiatement la configuration à tous les équipements",
+        "Tester succès, refus, panne du serveur et accès de secours sur un équipement de laboratoire"
+      ],
+      "answer": 3,
+      "explanation": "Les cas positifs et négatifs ainsi que le comportement de panne doivent être validés avant un déploiement global."
     }
   ]
 }

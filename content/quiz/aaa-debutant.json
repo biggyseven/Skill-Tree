@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Authentification réseau (AAA) - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Que signifient les trois lettres AAA dans la gestion des accès ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Addressing, Aggregation, Availability",
+        "Authentication, Addressing, Audit-only",
+        "Access, Application, Architecture",
+        "Authentication, Authorization, Accounting"
+      ],
+      "answer": 3,
+      "explanation": "AAA distingue la vérification de l’identité, les droits accordés et la traçabilité des actions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle question relève de l’authentification ?",
+      "choices": [
+        "Quelles commandes cette personne peut-elle exécuter ?",
+        "Combien de temps la session a-t-elle duré ?",
+        "Qui essaie de se connecter ?",
+        "Quel VLAN doit être créé ?"
+      ],
+      "answer": 2,
+      "explanation": "L’authentification vérifie l’identité présentée par un utilisateur ou un équipement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle question relève de l’autorisation ?",
+      "choices": [
+        "Quel mot de passe a été fourni ?",
+        "Quelles ressources ou actions sont permises ?",
+        "À quelle heure la session a-t-elle commencé ?",
+        "Quelle adresse MAC est apprise sur un port ?"
+      ],
+      "answer": 1,
+      "explanation": "L’autorisation décide des actions permises après l’identification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le volet Accounting d’AAA ?",
+      "choices": [
+        "Enregistrer les événements et l’usage d’une session",
+        "Attribuer une adresse IP automatiquement",
+        "Chiffrer tous les paquets de données",
+        "Remplacer la sauvegarde de configuration"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "L’accounting conserve des éléments d’audit comme le début, la fin ou les actions d’une session."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi centraliser l’authentification des équipements réseau ?",
+      "choices": [
+        "Éviter toute journalisation",
+        "Donner les droits administrateur à chaque utilisateur",
+        "Supprimer les comptes nominatifs",
+        "Appliquer une politique commune et faciliter la révocation des accès"
+      ],
+      "answer": 3,
+      "explanation": "Une source centralisée simplifie la gestion des comptes et l’application de politiques cohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider les droits attribués à un opérateur ?",
+      "choices": [
+        "Le privilège maximal par défaut",
+        "Le partage de compte pour toute l’équipe",
+        "Le moindre privilège",
+        "L’autorisation sans vérification"
+      ],
+      "answer": 2,
+      "explanation": "Le moindre privilège accorde uniquement les permissions nécessaires au rôle de la personne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser une authentification multifacteur lorsque c’est possible ?",
+      "choices": [
+        "Éviter de contrôler l’identité",
+        "Réduire le risque qu’un mot de passe volé suffise à se connecter",
+        "Remplacer les permissions par un mot de passe plus long",
+        "Désactiver les journaux"
+      ],
+      "answer": 1,
+      "explanation": "Un second facteur ajoute une preuve indépendante et réduit les effets d’un secret compromis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une personne est correctement authentifiée mais ne peut pas accéder à une commande. Quelle couche doit être examinée en premier ?",
+      "choices": [
+        "L’autorisation et le rôle attribué",
+        "La résolution DNS publique uniquement",
+        "Le câblage du réseau d’accès",
+        "Le format du fichier de sauvegarde"
+      ],
+      "answer": 0,
+      "explanation": "Une identité valide n’implique pas que toutes les actions soient autorisées."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour ARP & résolution L2/L3 - Débutant. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert ARP dans un réseau IPv4 Ethernet ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Résoudre un nom de domaine",
+        "Attribuer un masque",
+        "Choisir un chemin vers un réseau distant",
+        "Associer une adresse IPv4 locale à une adresse MAC"
+      ],
+      "answer": 3,
+      "explanation": "ARP découvre l’adresse MAC du prochain saut IPv4 sur le lien local."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment un hôte cherche-t-il une adresse MAC absente de son cache ?",
+      "choices": [
+        "Il envoie une requête DHCP au serveur DNS",
+        "Il lance un ping au routeur distant",
+        "Il diffuse une requête ARP sur le réseau local",
+        "Il interroge NTP"
+      ],
+      "answer": 2,
+      "explanation": "La requête ARP est diffusée dans le domaine local pour trouver le propriétaire de l’adresse IPv4 demandée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que contient habituellement la réponse ARP ?",
+      "choices": [
+        "La table de routage complète",
+        "L’association entre l’adresse IPv4 demandée et une MAC",
+        "Le mot de passe Wi-Fi",
+        "La liste DNS publique"
+      ],
+      "answer": 1,
+      "explanation": "La réponse fournit l’adresse de couche 2 à utiliser pour joindre la cible sur le segment."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un hôte envoie un paquet vers un autre sous-réseau. Quelle MAC utilise-t-il sur le lien local ?",
+      "choices": [
+        "Celle de la passerelle par défaut",
+        "Celle de l’hôte distant sur un autre lien",
+        "Toujours celle du serveur DNS",
+        "Une MAC aléatoire"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "L’hôte envoie sa trame à la passerelle ; le routage prend le relais vers le réseau distant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le cache ARP ?",
+      "choices": [
+        "Remplacer la table de routage",
+        "Attribuer les IP publiques",
+        "Chiffrer les trames Ethernet",
+        "Éviter de rediffuser une requête pour chaque paquet"
+      ],
+      "answer": 3,
+      "explanation": "Le cache conserve temporairement les correspondances IPv4-MAC."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie souvent une entrée ARP dynamique ?",
+      "choices": [
+        "Elle est toujours permanente",
+        "Elle vient du DNS",
+        "Elle a été apprise automatiquement et peut expirer",
+        "Elle appartient nécessairement à un routeur"
+      ],
+      "answer": 2,
+      "explanation": "Les entrées dynamiques sont apprises et leur durée dépend du système et de sa politique de cache."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil Linux aide à examiner les voisins de couche 2/3 ?",
+      "choices": [
+        "ip route show seulement",
+        "ip neigh",
+        "dig",
+        "ss -lnt"
+      ],
+      "answer": 1,
+      "explanation": "ip neigh affiche le cache de voisinage IPv4/IPv6 sur Linux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ARP ne résout-il pas directement les MAC pour tout Internet ?",
+      "choices": [
+        "Il fonctionne sur le lien local ; les routeurs servent d’intermédiaires",
+        "C’est un protocole HTTP",
+        "Il utilise seulement DNS public",
+        "Il chiffre les routes"
+      ],
+      "answer": 0,
+      "explanation": "ARP résout le prochain saut local, pas la couche 2 de bout en bout à travers les routeurs."
     }
   ]
 }

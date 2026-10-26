@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour ARP & résolution L2/L3 - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel contrôle précède une activation DAI à grande échelle ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Vérifier VLAN, ports de confiance, bindings DHCP et équipements statiques",
+        "Bloquer tous les ARP sans exception",
+        "Supprimer DHCP",
+        "Désactiver les logs"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Des bindings incomplets ou un port trusted mal choisi peuvent interrompre des communications légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi traiter séparément ARP IPv4 et Neighbor Discovery IPv6 ?",
+      "choices": [
+        "IPv6 encapsule ARP dans TCP",
+        "Les règles ARP filtrent automatiquement IPv6",
+        "NDP n’utilise pas la couche 2",
+        "IPv6 utilise NDP/ICMPv6 et non ARP, avec ses propres protections"
+      ],
+      "answer": 3,
+      "explanation": "Le voisinage IPv6 est un mécanisme distinct, qui nécessite des contrôles IPv6 adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment réduire le risque d’un port de confiance trop permissif ?",
+      "choices": [
+        "Déclarer tous les ports utilisateurs trusted",
+        "Désactiver les bindings",
+        "Limiter précisément les ports trusted et surveiller les changements",
+        "Autoriser toutes les adresses"
+      ],
+      "answer": 2,
+      "explanation": "Un port trusted trop large peut contourner les vérifications de DAI."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une analyse de cause racine après un empoisonnement ARP ?",
+      "choices": [
+        "Changer toutes les MAC sans preuve",
+        "Identifier le port source, la confiance exploitée et l’impact sur les flux",
+        "Désactiver les VLAN",
+        "Remplacer le routage par des routes statiques"
+      ],
+      "answer": 1,
+      "explanation": "L’investigation doit relier les annonces aux ports et bindings pour traiter la cause et l’étendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi documenter et réviser les exceptions DAI ?",
+      "choices": [
+        "Elles peuvent contourner le contrôle et devenir des faiblesses persistantes",
+        "Elles améliorent automatiquement la sécurité",
+        "Elles empêchent le cache d’expirer",
+        "Elles remplacent les contrôles L3"
+      ],
+      "answer": 0,
+      "explanation": "Les exceptions peuvent être nécessaires pour certains équipements, mais leur portée et leur durée doivent être maîtrisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prévoir pour un équipement à IP statique sur un réseau protégé par DAI ?",
+      "choices": [
+        "Une IP publique obligatoire",
+        "La suppression de son adresse MAC",
+        "Le passage de tous les ports en trusted",
+        "Une association statique ou méthode compatible avec la plateforme"
+      ],
+      "answer": 3,
+      "explanation": "Les équipements sans bail DHCP peuvent demander un binding explicite selon la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur peut aider à repérer une tentative d’usurpation ?",
+      "choices": [
+        "Température du navigateur",
+        "Nombre de questions du quiz",
+        "Rejets DAI, associations multiples ou changements de voisin inattendus",
+        "Présence d’un MX DNS"
+      ],
+      "answer": 2,
+      "explanation": "Les rejets et changements d’associations doivent être corrélés au contexte réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure complète la protection contre ARP spoofing ?",
+      "choices": [
+        "Un filtre HTTP seulement",
+        "Segmentation, contrôle des ports, supervision et restrictions complémentaires",
+        "Une seule IPv4 pour tout le réseau",
+        "La désactivation des logs"
+      ],
+      "answer": 1,
+      "explanation": "Plusieurs contrôles complémentaires réduisent l’exposition, aucun mécanisme unique ne couvrant tous les chemins."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour L'adressage IP (bases) - Expert. Avez-vous lu le cours ?",
+      "prompt": "Que choisit normalement un routeur lorsque deux routes correspondent à une destination IPv4 et qu’une a un préfixe plus long ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La route au préfixe le plus long, sous réserve des règles normales de sélection et d’installation",
+        "Toujours la route statique la plus courte en caractères",
+        "La route qui a été créée en premier",
+        "Toujours la route par défaut"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le longest prefix match privilégie la route la plus spécifique parmi les entrées correspondantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un résumé IPv4 bien conçu pour une architecture multi-site ?",
+      "choices": [
+        "Remplacer toutes les routes spécifiques sans vérification",
+        "Supprimer les ACL",
+        "Garantir la disponibilité des services",
+        "Réduire le nombre de préfixes annoncés sans attirer à tort du trafic étranger"
+      ],
+      "answer": 3,
+      "explanation": "L’agrégation facilite la gestion des tables, mais le résumé doit rester aligné avec les réseaux réellement joignables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Combien d’adresses contient un préfixe IPv4 /20 ?",
+      "choices": [
+        "2048",
+        "1024",
+        "4096",
+        "256"
+      ],
+      "answer": 2,
+      "explanation": "Un /20 laisse douze bits hôte, soit 2^12 = 4096 adresses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un préfixe /31 peut-il être utilisé sur un lien point à point ?",
+      "choices": [
+        "Il permet 31 sous-réseaux de 32 hôtes",
+        "Les deux adresses peuvent servir d’extrémités sur les liens compatibles, selon RFC 3021",
+        "Il représente une adresse unique",
+        "Il est obligatoire sur tous les LAN"
+      ],
+      "answer": 1,
+      "explanation": "RFC 3021 autorise les /31 sur les liens point à point IPv4, où les extrémités utilisent les deux adresses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle conséquence peut avoir un chevauchement de préfixes entre deux sites interconnectés ?",
+      "choices": [
+        "Le choix de route devient ambigu et certains réseaux peuvent être injoignables sans mécanisme dédié",
+        "Les routeurs fusionnent les deux LAN sans risque",
+        "Le DNS élimine automatiquement les conflits",
+        "Les adresses MAC deviennent uniques globalement"
+      ],
+      "answer": 0,
+      "explanation": "Des préfixes qui se recouvrent nécessitent généralement renumérotation, segmentation particulière ou traduction explicitement conçue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle des adresses IPv6 ULA dans un plan d’adressage ?",
+      "choices": [
+        "Remplacer systématiquement les préfixes globaux",
+        "Créer des broadcasts IPv6",
+        "Attribuer des ports TCP",
+        "Fournir des préfixes à usage local qui ne sont pas globalement routables sur Internet"
+      ],
+      "answer": 3,
+      "explanation": "Les ULA sont destinées aux communications internes sans être annoncées globalement sur Internet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas supposer qu’IPv6 utilise les mêmes mécanismes de voisinage qu’IPv4 ?",
+      "choices": [
+        "IPv6 utilise ARP dans tous les VLAN",
+        "IPv4 utilise Neighbor Discovery uniquement",
+        "IPv6 utilise Neighbor Discovery sur ICMPv6 plutôt qu’ARP",
+        "Les deux protocoles n’utilisent pas la couche liaison"
+      ],
+      "answer": 2,
+      "explanation": "Neighbor Discovery IPv6 assure notamment la découverte de voisins et de routeurs ; les contrôles doivent être propres à IPv6."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble de livrables sécurise le mieux une migration d’adressage à l’échelle de plusieurs sites ?",
+      "choices": [
+        "Un nouveau plan sans inventaire des usages",
+        "Matrice des préfixes, dépendances, plan de routes, tests ciblés, fenêtre et rollback",
+        "Une seule commande de modification de passerelle",
+        "Le retrait des alertes le temps de la migration"
+      ],
+      "answer": 1,
+      "explanation": "La migration doit couvrir réseaux, services, règles, dépendances et preuves de retour à un état stable."
     }
   ]
 }
