@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Administration Linux Avancée",
+      "prompt": "Quelle commande systemd affiche l’état d’un service appelé `nginx` ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`systemctl status nginx`",
+        "`ip route nginx`",
+        "`journalctl add nginx`",
+        "`chmod status nginx`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "`systemctl status` donne l’état courant d’une unité et des informations utiles au diagnostic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet de consulter les journaux d’un service systemd ?",
+      "choices": [
+        "`ls /proc/nginx` uniquement",
+        "`ip link show nginx`",
+        "`journalctl -u nginx`",
+        "`useradd -u nginx`"
+      ],
+      "answer": 2,
+      "explanation": "`journalctl -u nginx` filtre les journaux associés à l’unité nginx, ce qui aide à identifier les erreurs de démarrage et d’exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi privilégier une identité de service dédiée plutôt que d’exécuter tous les démons comme root ?",
+      "choices": [
+        "Pour éviter d’avoir à mettre à jour les paquets",
+        "Pour appliquer le moindre privilège et limiter l’impact d’une compromission du service",
+        "Parce que root ne peut jamais démarrer un service",
+        "Pour garantir que les fichiers n’ont pas de propriétaire"
+      ],
+      "answer": 1,
+      "explanation": "Une identité dédiée limite l’accès aux ressources et aux fichiers. Les permissions doivent être adaptées au fonctionnement exact du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande affiche l’espace utilisé et libre des systèmes de fichiers montés, dans un format lisible ?",
+      "choices": [
+        "`ps aux`",
+        "`free -m`",
+        "`lsmod`",
+        "`df -h`"
+      ],
+      "answer": 3,
+      "explanation": "`df -h` affiche l’utilisation des systèmes de fichiers montés en unités lisibles. `du` répond à une question différente sur la taille des répertoires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment identifier les processus qui consomment le plus de ressources en première analyse ?",
+      "choices": [
+        "Utiliser `top` ou `ps` avec les colonnes adaptées, puis confirmer le symptôme avec des mesures",
+        "Modifier les priorités de tous les processus sans diagnostic",
+        "Supprimer les journaux du noyau",
+        "Redémarrer la machine à chaque pic"
+      ],
+      "answer": 0,
+      "explanation": "`top` et `ps` offrent une vue des processus. Il faut comparer aux métriques et à la période de l’incident avant de modifier les ressources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une sauvegarde de configuration doit-elle être accompagnée d’un test de restauration ?",
+      "choices": [
+        "Parce qu’une sauvegarde ne peut pas contenir de configuration",
+        "Parce qu’un fichier compressé est toujours corrompu",
+        "Pour confirmer que la copie est exploitable et que la procédure de retour permet réellement de rétablir le système",
+        "Pour éviter d’avoir besoin d’un inventaire"
+      ],
+      "answer": 2,
+      "explanation": "Une sauvegarde réussie ne prouve pas que les données sont complètes ou restaurables. Des essais de restauration valident la procédure et les dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est utile lorsqu’un service échoue après un changement de configuration ?",
+      "choices": [
+        "Réinstaller Linux en premier",
+        "Comparer les journaux, la syntaxe et la différence du fichier configuré, puis revenir à une version connue si nécessaire",
+        "Désactiver toutes les unités systemd",
+        "Remplacer le mot de passe de tous les utilisateurs"
+      ],
+      "answer": 1,
+      "explanation": "La chronologie du changement et les logs permettent de vérifier l’hypothèse. Le retour arrière doit utiliser une configuration connue et validée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier les permissions du répertoire partagé en plus des permissions du fichier ?",
+      "choices": [
+        "Le répertoire n’influence jamais l’accès au fichier",
+        "Les permissions d’un fichier remplacent complètement celles du répertoire parent",
+        "Seul le propriétaire root peut écrire dans n’importe quel dossier",
+        "Les droits de traversée et de création dans les répertoires parents peuvent autoriser ou bloquer l’accès même si le fichier est lisible"
+      ],
+      "answer": 3,
+      "explanation": "Les permissions de répertoire contrôlent notamment l’accès/traversée et la création/suppression d’entrées. Elles doivent être analysées avec celles du fichier et les ACL éventuelles."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Bases de données (SQL)",
+      "prompt": "Que représente une table dans une base relationnelle ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Un fichier de configuration du serveur",
+        "Un ensemble de commandes exécutées à chaque connexion",
+        "Des lignes organisées selon des colonnes définies",
+        "Un mécanisme qui remplace toute clé primaire"
+      ],
+      "answer": 2,
+      "explanation": "Une table regroupe des enregistrements selon un schéma. Les colonnes décrivent les attributs et les lignes représentent les enregistrements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d’une clé primaire ?",
+      "choices": [
+        "Identifier chaque ligne de manière unique et non nulle",
+        "Autoriser les doublons pour accélérer les requêtes",
+        "Relier obligatoirement la table à un serveur externe",
+        "Chiffrer les valeurs stockées"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Une clé primaire identifie chaque ligne. Ses valeurs doivent être uniques et ne peuvent pas être NULL."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une clé étrangère ?",
+      "choices": [
+        "À trier automatiquement les lignes",
+        "À remplacer les index de toutes les colonnes",
+        "À empêcher toute lecture de la table",
+        "À exprimer une relation et préserver l’intégrité référentielle"
+      ],
+      "answer": 3,
+      "explanation": "Une clé étrangère référence une clé candidate d’une autre table et permet au SGBD de contrôler la cohérence des relations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle requête sélectionne les clients dont la ville vaut « Douala » ?",
+      "choices": [
+        "SELECT clients WHERE ville = 'Douala';",
+        "SELECT * FROM clients WHERE ville = 'Douala';",
+        "GET clients FILTER ville 'Douala';",
+        "UPDATE clients SET ville = 'Douala';"
+      ],
+      "answer": 1,
+      "explanation": "SELECT lit les données et WHERE filtre les lignes. UPDATE modifierait des données au lieu de simplement les consulter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment rechercher les lignes pour lesquelles une colonne est absente, donc NULL ?",
+      "choices": [
+        "colonne = NULL",
+        "colonne IS NULL",
+        "colonne == EMPTY",
+        "colonne IS EMPTY"
+      ],
+      "answer": 1,
+      "explanation": "SQL utilise IS NULL et IS NOT NULL. Une comparaison ordinaire avec = NULL ne produit pas le résultat attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand GROUP BY est-il utile ?",
+      "choices": [
+        "Pour imposer une clé primaire",
+        "Pour supprimer toutes les lignes identiques",
+        "Pour créer un compte de connexion",
+        "Pour calculer des agrégats par catégorie, par exemple le nombre de commandes par client"
+      ],
+      "answer": 3,
+      "explanation": "GROUP BY forme des groupes de lignes afin d’appliquer des fonctions comme COUNT, SUM ou AVG à chaque groupe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet une transaction correctement utilisée ?",
+      "choices": [
+        "Regrouper des opérations et valider ou annuler leur ensemble",
+        "Garantir que le disque ne tombera jamais en panne",
+        "Remplacer toutes les sauvegardes",
+        "Autoriser un utilisateur à ignorer les privilèges"
+      ],
+      "answer": 0,
+      "explanation": "Une transaction permet notamment de valider les changements avec COMMIT ou de les annuler avec ROLLBACK selon les conditions prévues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique réduit le risque d’injection SQL dans une application ?",
+      "choices": [
+        "Concaténer directement les valeurs reçues dans la requête",
+        "Masquer les erreurs sans changer la construction SQL",
+        "Utiliser des requêtes paramétrées et des privilèges minimaux",
+        "Donner le rôle administrateur au compte applicatif"
+      ],
+      "answer": 2,
+      "explanation": "Les requêtes paramétrées séparent les instructions SQL des valeurs. Le compte applicatif ne doit disposer que des droits nécessaires."
     }
   ]
 }

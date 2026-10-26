@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Git et gestion de versions",
+      "prompt": "Quel problème un système de gestion de versions comme Git aide-t-il à résoudre ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il remplace les tests logiciels",
+        "Il suit l’évolution des fichiers et conserve un historique de changements récupérable",
+        "Il héberge obligatoirement le dépôt sur Internet",
+        "Il garantit qu’un code ne contiendra aucun bug"
+      ],
+      "answer": 1,
+      "explanation": "Git permet de suivre les modifications, de comparer des versions et de récupérer un état antérieur. Il ne remplace ni les tests ni la revue du code."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre le répertoire de travail et la zone d’index de Git ?",
+      "choices": [
+        "Le répertoire de travail contient les fichiers actuels ; l’index prépare précisément le contenu du prochain commit",
+        "L’index est une copie du dépôt distant",
+        "Le répertoire de travail ne contient que les fichiers supprimés",
+        "Ces deux termes désignent exactement le même état"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Git distingue les changements présents dans les fichiers, ceux préparés dans l’index et l’historique déjà enregistré par commit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande prépare un fichier pour le prochain commit ?",
+      "choices": [
+        "git push fichier.txt",
+        "git commit fichier.txt",
+        "git merge fichier.txt",
+        "git add fichier.txt"
+      ],
+      "answer": 3,
+      "explanation": "`git add` place le contenu courant d’un fichier dans l’index. Le commit enregistre ensuite le contenu préparé dans l’historique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les commits devraient-ils avoir un message explicite ?",
+      "choices": [
+        "Pour rendre le dépôt distant privé",
+        "Pour garantir que le commit n’aura jamais de conflit",
+        "Pour expliquer l’intention d’un changement et faciliter la revue et le diagnostic futurs",
+        "Pour obliger Git à compresser le fichier"
+      ],
+      "answer": 2,
+      "explanation": "Un bon message aide l’équipe à comprendre pourquoi le changement a été fait, notamment lors d’une revue ou d’une recherche de régression."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet une branche Git ?",
+      "choices": [
+        "D’effacer les branches de tous les collaborateurs",
+        "De travailler sur une ligne de développement distincte sans remplacer immédiatement la branche principale",
+        "De chiffrer automatiquement le dépôt",
+        "De créer un compte GitHub"
+      ],
+      "answer": 1,
+      "explanation": "Une branche est une référence vers un historique de commits, ce qui permet d’isoler des évolutions avant de les intégrer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait généralement `git fetch origin` ?",
+      "choices": [
+        "Récupère les références et objets distants sans fusionner automatiquement ces changements dans la branche courante",
+        "Supprime la branche locale",
+        "Crée un commit de fusion obligatoire",
+        "Publie les modifications locales vers le serveur"
+      ],
+      "answer": 0,
+      "explanation": "`git fetch` met à jour les références distantes et télécharge les objets, mais ne fusionne pas de lui-même ces changements dans la branche courante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lors d’un conflit de fusion, quelle démarche est correcte ?",
+      "choices": [
+        "Supprimer tout le dépôt pour le recréer",
+        "Utiliser systématiquement la version distante sans lecture",
+        "Terminer le commit sans résoudre les marqueurs de conflit",
+        "Examiner les deux changements, choisir ou combiner le contenu voulu, tester puis marquer le fichier résolu"
+      ],
+      "answer": 3,
+      "explanation": "Git ne peut pas décider automatiquement de l’intention lorsqu’il détecte des modifications concurrentes. Le fichier doit être résolu et vérifié avant de terminer l’opération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale entre `git revert` et `git reset` est utile au débutant ?",
+      "choices": [
+        "Les deux suppriment toujours le dépôt distant",
+        "`git revert` crée un nouveau commit qui inverse un changement ; `git reset` déplace une référence locale et peut modifier l’état de travail selon l’option",
+        "`git reset` est toujours la méthode la plus sûre sur une branche partagée",
+        "`git revert` ne fonctionne que sur les fichiers non suivis"
+      ],
+      "answer": 1,
+      "explanation": "Revert conserve l’historique en ajoutant une inversion. Reset peut réécrire la position locale et doit être utilisé avec prudence, surtout si des commits sont partagés."
     }
   ]
 }

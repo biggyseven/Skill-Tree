@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Équipements L1/L2 - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel élément relève principalement de la couche physique L1 ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Une entrée de table MAC",
+        "Une règle de filtrage inter-VLAN",
+        "Un câble ou un transceiver qui transporte le signal",
+        "Une route IP vers un autre réseau"
+      ],
+      "answer": 2,
+      "explanation": "La couche physique concerne les supports, connecteurs, signaux et transceivers. La table MAC est une fonction de commutation de couche 2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment un switch Ethernet apprend-il normalement où envoyer une trame connue ?",
+      "choices": [
+        "Il apprend l’adresse IP à partir du TTL",
+        "Il associe l’adresse MAC source reçue au port d’entrée et au VLAN",
+        "Il interroge systématiquement le serveur DNS",
+        "Il copie chaque trame sur tous les ports du châssis"
+      ],
+      "answer": 1,
+      "explanation": "Le switch apprend les adresses MAC sources sur le port d’entrée et dans le contexte VLAN, puis utilise cette table pour transférer les trames unicast connues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le modèle Ethernet classique, quel comportement caractérise un hub plutôt qu’un switch moderne ?",
+      "choices": [
+        "Il route les paquets entre sous-réseaux",
+        "Il sépare toujours chaque poste dans un VLAN",
+        "Il apprend une table MAC dédiée par port",
+        "Il répète le signal vers ses autres ports, créant un domaine partagé"
+      ],
+      "answer": 3,
+      "explanation": "Un hub répète les signaux sur ses autres ports. Un switch transfère les trames selon les adresses MAC et segmente les domaines de collision par port."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle vérification est importante lorsqu’un module SFP fonctionne mal ?",
+      "choices": [
+        "Vérifier que le format du module, le type de fibre, les longueurs d’onde et les niveaux optiques sont compatibles",
+        "Changer immédiatement le VLAN du port",
+        "Augmenter la taille du pool DHCP",
+        "Désactiver la table MAC"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le format mécanique ne garantit pas la compatibilité. Le type de fibre, la longueur d’onde, la portée, les connecteurs et le budget optique doivent correspondre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une liaison PoE, que désignent PSE et PD ?",
+      "choices": [
+        "PSE est le poste client et PD le serveur DNS",
+        "PSE est le protocole de commutation et PD le VLAN natif",
+        "PSE désigne une clé primaire et PD une base physique",
+        "PSE est l’équipement qui fournit l’alimentation et PD l’équipement alimenté"
+      ],
+      "answer": 3,
+      "explanation": "Le PSE (par exemple un switch PoE) fournit l’alimentation ; le PD (téléphone IP, caméra, point d’accès compatible) la reçoit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un lien négocié à une vitesse inattendue présente des erreurs et des performances faibles. Quelle piste est pertinente ?",
+      "choices": [
+        "Modifier la zone DNS du poste",
+        "Supprimer la clé primaire du serveur",
+        "Comparer vitesse/duplex et paramètres de négociation aux deux extrémités",
+        "Créer un nouveau scope DHCP sans mesurer le lien"
+      ],
+      "answer": 2,
+      "explanation": "Un désaccord de vitesse ou de duplex peut provoquer erreurs et faibles performances. Il faut comparer les deux extrémités et les compteurs avant modification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle séquence de diagnostic est raisonnable face à un port sans lien ?",
+      "choices": [
+        "Contrôler câble/connecteurs, alimentation et transceiver, puis état/compteurs et compatibilité des deux côtés",
+        "Modifier toutes les ACL puis redémarrer le réseau",
+        "Changer d’abord les serveurs DNS",
+        "Supprimer le VLAN du switch avant inspection"
+      ],
+      "answer": 0,
+      "explanation": "Le diagnostic commence par les causes physiques les plus directes et des vérifications observables. Les changements de configuration viennent après la collecte et l’identification d’une cause plausible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une trame unicast inconnue doit être diffusée par le switch. Où cette diffusion reste-t-elle normalement limitée ?",
+      "choices": [
+        "À tous les VLAN du réseau",
+        "Au VLAN concerné, selon les règles de commutation et les ports actifs de ce VLAN",
+        "Uniquement au serveur DNS",
+        "Au réseau Internet entier"
+      ],
+      "answer": 1,
+      "explanation": "Le flooding d’un unicast inconnu est limité au domaine de commutation/VLAN concerné ; il ne traverse pas automatiquement les frontières de couche 3."
     }
   ]
 }

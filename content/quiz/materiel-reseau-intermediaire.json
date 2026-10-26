@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Le matériel réseau - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Que mesure le débit de commutation annoncé d’un switch, et pourquoi faut-il aussi vérifier le débit de transfert ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La taille de son écran de supervision",
+        "La capacité de traitement des flux selon la spécification ; les métriques de paquets/s, les conditions de mesure et le trafic attendu doivent aussi être examinés",
+        "Le nombre de comptes utilisateurs seulement",
+        "La puissance PoE de chaque port exclusivement"
+      ],
+      "answer": 1,
+      "explanation": "Les fiches techniques peuvent présenter capacité de commutation, débit de paquets, buffers et conditions de duplex différentes. Il faut comparer des métriques compatibles au besoin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le nombre de ports ne suffit-il pas pour choisir un switch d’entreprise ?",
+      "choices": [
+        "Il garantit que toutes les interfaces peuvent fonctionner au débit maximal",
+        "Il détermine la route par défaut du réseau",
+        "Il remplace la vérification des transceivers",
+        "Il faut aussi vérifier uplinks, capacité réelle, fonctions L2/L3, redondance, budget PoE et marges de croissance"
+      ],
+      "answer": 3,
+      "explanation": "Le nombre de ports n’exprime pas à lui seul les capacités du châssis, des uplinks, des fonctions logicielles ou de l’alimentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels paramètres faut-il confirmer avant de raccorder un module optique ?",
+      "choices": [
+        "Format et support de fibre, longueur d’onde, portée, connecteurs, vitesse et budget optique compatibles aux deux extrémités",
+        "Seulement la couleur du module",
+        "Le serveur DNS du réseau",
+        "Les permissions Linux des administrateurs"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La compatibilité doit être vérifiée sur toute la chaîne optique. Un module mécaniquement compatible peut néanmoins être incompatible sur la longueur d’onde, la portée ou le type de fibre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi planifier les uplinks d’un switch d’accès ?",
+      "choices": [
+        "Pour éviter de documenter la baie",
+        "Parce que les uplinks sont toujours plus lents que les ports d’accès",
+        "Pour éviter qu’ils ne deviennent un goulot de congestion et vérifier les besoins de redondance et d’agrégation",
+        "Pour remplacer tous les VLAN par un seul"
+      ],
+      "answer": 2,
+      "explanation": "Les uplinks transportent souvent le trafic agrégé de nombreux ports. Leur capacité, la répartition de charge et les chemins de secours doivent être dimensionnés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un budget optique ?",
+      "choices": [
+        "À choisir le nom DNS d’une interface",
+        "À vérifier que la puissance reçue reste dans la plage du transceiver en tenant compte des pertes de fibre, connecteurs et épissures",
+        "À estimer le nombre d’utilisateurs Wi-Fi",
+        "À déterminer la priorité ITIL d’un incident"
+      ],
+      "answer": 1,
+      "explanation": "Le budget compare puissance émise, pertes et puissance reçue aux limites du matériel, avec une marge d’exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit figurer dans une documentation de baie utile ?",
+      "choices": [
+        "Uniquement les noms des fournisseurs de matériels",
+        "Les mots de passe en clair collés sur les panneaux",
+        "La dernière capture de l’écran du navigateur",
+        "Le repérage des ports et câbles, équipements, liens entre baies et informations nécessaires au diagnostic"
+      ],
+      "answer": 3,
+      "explanation": "Une documentation de baie doit permettre d’identifier le chemin physique et les connexions sans divulguer les secrets d’accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une liaison cuivre négocie une vitesse inférieure à celle attendue. Quelle démarche convient ?",
+      "choices": [
+        "Examiner catégorie/longueur du câble, connecteurs, compatibilité des ports, vitesse/duplex et compteurs avant remplacement ciblé",
+        "Modifier les enregistrements DNS",
+        "Augmenter le MTU au maximum sans test",
+        "Supprimer le VLAN de tous les ports"
+      ],
+      "answer": 0,
+      "explanation": "Les causes possibles incluent le câblage, l’état des connecteurs, les paramètres et les capacités des deux ports. Les compteurs permettent d’étayer le diagnostic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faire un choix de matériel plus fiable à partir d’une fiche technique ?",
+      "choices": [
+        "Choisir le modèle le moins cher sans critères",
+        "Considérer uniquement le débit de port annoncé",
+        "Comparer un profil de charge et de panne réaliste aux capacités, fonctionnalités, redondance, support et limites de la plateforme",
+        "Supposer que toutes les références d’un fournisseur sont interchangeables"
+      ],
+      "answer": 2,
+      "explanation": "Le choix doit être lié aux exigences et à un scénario réaliste, y compris le mode dégradé, les fonctionnalités nécessaires et le cycle de vie."
     }
   ]
 }

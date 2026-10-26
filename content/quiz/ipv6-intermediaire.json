@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IPv6 - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Que signifie généralement le drapeau M dans un Router Advertisement IPv6 ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le client doit utiliser uniquement des adresses MAC statiques",
+        "Le réseau est nécessairement privé",
+        "L’usage de DHCPv4 est obligatoire",
+        "Des informations d’adressage géré via DHCPv6 sont indiquées, selon les paramètres du RA"
+      ],
+      "answer": 3,
+      "explanation": "Le drapeau M annonce que l’adressage géré par DHCPv6 est disponible/indiqué. Il doit être interprété avec les autres drapeaux, options et la politique du réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ICMPv6 Packet Too Big est-il important pour PMTUD ?",
+      "choices": [
+        "Il permet de signaler qu’un paquet dépasse la MTU du prochain lien, afin que la source adapte la taille des paquets",
+        "Il attribue une adresse IPv6 globale",
+        "Il chiffre le paquet pour traverser un tunnel",
+        "Il remplace les messages Neighbor Solicitation"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "PMTUD IPv6 s’appuie notamment sur les messages Packet Too Big ; les bloquer peut provoquer des connexions qui fonctionnent pour de petits paquets mais échouent pour des échanges plus volumineux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue le lien-local dans NDP ?",
+      "choices": [
+        "Il permet de router directement des paquets vers Internet sans passerelle",
+        "Il identifie un serveur DHCP central pour toute l’entreprise",
+        "Il fournit le préfixe global annoncé aux autres sites",
+        "Il sert à des échanges de voisinage sur le lien local, où NDP découvre routeurs et voisins"
+      ],
+      "answer": 3,
+      "explanation": "NDP se déroule sur le lien local et utilise des adresses link-local dans de nombreux échanges. Il ne remplace pas le routage global."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type d’enregistrement DNS doit-on vérifier pour un incident de résolution IPv6 par nom ?",
+      "choices": [
+        "MX uniquement",
+        "AAAA, ainsi que les réponses A et le comportement du client dans un environnement double pile",
+        "PTR sur le serveur DHCP uniquement",
+        "SRV obligatoirement pour chaque site web"
+      ],
+      "answer": 1,
+      "explanation": "Un client double pile peut recevoir A et AAAA et choisir sa stratégie de connexion. Il faut vérifier les réponses, le cache, la route et la connectivité pour chaque famille."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé sur les RA et DHCPv6 est correct ?",
+      "choices": [
+        "Un RA peut annoncer les préfixes et certains paramètres ; DHCPv6 peut fournir d’autres paramètres et, selon le mode, des adresses",
+        "DHCPv6 remplace systématiquement NDP et tous les RA",
+        "Les RA servent uniquement à annoncer les serveurs DNS publics",
+        "IPv6 ne peut pas fonctionner sans DHCPv6 avec état"
+      ],
+      "answer": 0,
+      "explanation": "IPv6 peut utiliser SLAAC, DHCPv6 ou des combinaisons. Les RA restent importants pour la découverte de routeur et l’information de préfixe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter un risque de Router Advertisement non autorisé sur un LAN ?",
+      "choices": [
+        "Activer uniquement NAT66 sur chaque client",
+        "Désactiver toutes les fonctions ICMPv6",
+        "Utiliser des contrôles adaptés au switch et à l’architecture, tels que RA Guard lorsque supporté, et valider la topologie légitime",
+        "Bloquer tout ICMPv6 sans exception"
+      ],
+      "answer": 2,
+      "explanation": "RA Guard peut limiter les RA provenant de ports non autorisés si la plateforme et la configuration sont adaptées. ICMPv6 reste nécessaire à plusieurs fonctions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel diagnostic est pertinent lorsque seules les connexions IPv6 échouent, alors qu’IPv4 fonctionne ?",
+      "choices": [
+        "Désactiver IPv4 immédiatement",
+        "Vérifier adressage et route IPv6, voisinage NDP, RA, filtrage IPv6, DNS AAAA et MTU/PMTUD",
+        "Changer le DNS A de tous les noms en premier",
+        "Supprimer les routes IPv4"
+      ],
+      "answer": 1,
+      "explanation": "Le succès IPv4 ne valide pas le chemin IPv6. Le dépannage doit isoler la famille défaillante et comparer les états d’adresse, routes, filtrage, DNS et MTU."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester la connectivité IPv6 avec des paquets de tailles différentes ?",
+      "choices": [
+        "Pour augmenter arbitrairement le TTL",
+        "Pour vérifier uniquement le fonctionnement du serveur DNS",
+        "Parce que les petits paquets prouvent toujours l’absence d’un problème de MTU",
+        "Pour détecter des problèmes PMTUD, de filtrage ICMPv6 ou d’encapsulation qui ne touchent pas tous les paquets"
+      ],
+      "answer": 3,
+      "explanation": "Une panne de MTU peut laisser passer de petits paquets mais bloquer des paquets plus grands. Des tests contrôlés doivent être corrélés aux captures et aux erreurs."
     }
   ]
 }

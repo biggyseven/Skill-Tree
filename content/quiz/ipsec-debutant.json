@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour VPN IPsec - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel rôle joue IKEv2 dans un VPN IPsec ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il attribue les adresses MAC aux routeurs",
+        "Il choisit le chemin BGP vers Internet",
+        "Il aide les pairs à s’authentifier et à négocier les associations de sécurité et leurs paramètres",
+        "Il remplace le chiffrement ESP par du DNS"
+      ],
+      "answer": 2,
+      "explanation": "IKEv2 négocie les paramètres, authentifie les pairs et contribue à établir les associations de sécurité nécessaires au trafic protégé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une configuration IPsec site-à-site en mode tunnel, que protège ESP typiquement ?",
+      "choices": [
+        "Le paquet IP intérieur, encapsulé dans un nouveau paquet extérieur pour traverser le réseau intermédiaire",
+        "Uniquement l’adresse MAC des routeurs",
+        "Seulement les messages ARP",
+        "Le fichier de configuration des routeurs"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "En mode tunnel, le paquet IP intérieur est protégé et encapsulé dans un en-tête IP extérieur qui permet l’acheminement entre les pairs du tunnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole et ports sont couramment utilisés par IKEv2 et NAT Traversal ?",
+      "choices": [
+        "TCP 22 et TCP 443",
+        "UDP 53 et UDP 123",
+        "UDP 67 et UDP 68",
+        "IKE utilise UDP 500 ; lorsque NAT Traversal est utilisé, le trafic IPsec est généralement encapsulé dans UDP 4500"
+      ],
+      "answer": 3,
+      "explanation": "IKEv2 utilise UDP 500. En présence de NAT, le NAT Traversal transporte généralement les paquets IPsec dans UDP 4500 ; ESP natif utilise le numéro de protocole IP 50 lorsqu’il n’est pas encapsulé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les deux pairs IPsec doivent-ils avoir des propositions cryptographiques compatibles ?",
+      "choices": [
+        "Pour éviter d’avoir à configurer des routes IP",
+        "Pour qu’ils puissent négocier un ensemble commun de paramètres de sécurité",
+        "Pour attribuer des adresses IPv6 aux clients",
+        "Pour rendre les SA identiques dans tous les tunnels de l’entreprise"
+      ],
+      "answer": 1,
+      "explanation": "Les deux extrémités doivent trouver un jeu commun d’algorithmes et de paramètres supportés. Une incompatibilité peut empêcher la création de l’association de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre mode transport et mode tunnel est la plus pertinente ?",
+      "choices": [
+        "Le mode transport chiffre nécessairement le LAN entier",
+        "Le mode tunnel ne nécessite jamais d’adresse IP extérieure",
+        "Le mode transport protège principalement la charge utile IP du paquet existant, tandis que le mode tunnel encapsule un paquet IP intérieur complet",
+        "Les deux modes désignent exactement la même encapsulation"
+      ],
+      "answer": 2,
+      "explanation": "Le mode transport et le mode tunnel diffèrent dans la partie encapsulée. Le mode tunnel est fréquent pour connecter des réseaux distants au travers d’un réseau IP intermédiaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un VPN est établi, mais les sous-réseaux distants ne communiquent pas. Quel point faut-il vérifier ?",
+      "choices": [
+        "Les routes, les sélecteurs de trafic, les règles de pare-feu et l’éventuelle exemption NAT",
+        "Uniquement le nom d’hôte du routeur",
+        "La couleur des interfaces dans le schéma",
+        "Le cache navigateur de l’utilisateur"
+      ],
+      "answer": 0,
+      "explanation": "Un tunnel établi ne prouve pas que le trafic voulu correspond aux sélecteurs et aux routes. NAT et pare-feu peuvent aussi empêcher les flux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi correspond une association de sécurité (SA) ?",
+      "choices": [
+        "Un utilisateur du service DNS",
+        "Un câble logique reliant les deux routeurs",
+        "Un groupe d’adresses MAC globales",
+        "Un ensemble de paramètres cryptographiques et de contexte utilisé pour protéger un trafic dans un sens donné"
+      ],
+      "answer": 3,
+      "explanation": "Les SA contiennent notamment les paramètres et le contexte utilisés pour protéger le trafic. Les SA ESP sont directionnelles ; les deux sens utilisent généralement des SA distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier l’état des SA et les compteurs ESP pendant le dépannage ?",
+      "choices": [
+        "Parce qu’une SA active garantit que tous les paquets applicatifs sont corrects",
+        "Pour confirmer si le tunnel négocie les SA et si les paquets protégés sont envoyés/reçus, sans s’arrêter au seul état de l’interface",
+        "Pour connaître la durée des baux DHCP",
+        "Pour remplacer un test de connectivité de bout en bout"
+      ],
+      "answer": 1,
+      "explanation": "L’état des SA et les compteurs aident à différencier une négociation échouée, un trafic absent, ou un trafic protégé qui ne revient pas. Un test applicatif reste nécessaire."
     }
   ]
 }

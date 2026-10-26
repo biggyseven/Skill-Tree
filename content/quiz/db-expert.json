@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Haute Disponibilité BDD",
+      "prompt": "Que distinguent le RPO et le RTO dans une architecture de haute disponibilité ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Le RPO mesure le débit SQL, le RTO la taille des journaux",
+        "Le RPO est le temps de basculement, le RTO la fréquence des sauvegardes",
+        "Le RPO correspond au nombre de réplicas, le RTO au nombre de connexions",
+        "Le RPO borne la perte de données acceptable ; le RTO borne le délai acceptable de rétablissement"
+      ],
+      "answer": 3,
+      "explanation": "Le RPO s’exprime en perte de données admissible, tandis que le RTO porte sur la durée de reprise. Ils doivent être définis selon le besoin métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le compromis principal d’une réplication asynchrone ?",
+      "choices": [
+        "Elle impose toujours une écriture confirmée par tous les secondaires",
+        "Elle peut réduire la latence des écritures, mais des transactions récentes peuvent être perdues si le primaire disparaît avant leur réplication",
+        "Elle empêche tout retard de réplication",
+        "Elle garantit que les sauvegardes sont inutiles"
+      ],
+      "answer": 1,
+      "explanation": "En asynchrone, l’acquittement peut précéder la réception du changement par le secondaire ; un basculement peut donc perdre les dernières transactions non répliquées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le split-brain est-il dangereux ?",
+      "choices": [
+        "Il ralentit seulement les lectures sans toucher aux données",
+        "Il empêche les clients de résoudre les noms DNS",
+        "Deux nœuds peuvent accepter des écritures comme primaires, entraînant des divergences difficiles à réconcilier",
+        "Il signifie simplement que la sauvegarde est terminée"
+      ],
+      "answer": 2,
+      "explanation": "Le split-brain crée plusieurs autorités d’écriture incompatibles. Le système doit contrôler l’élection du primaire et empêcher l’ancien primaire de continuer à accepter des écritures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de Patroni dans une architecture PostgreSQL HA ?",
+      "choices": [
+        "Superviser le rôle des nœuds et orchestrer l’élection/le basculement à l’aide d’un mécanisme de coordination",
+        "Remplacer le moteur SQL par un proxy HTTP",
+        "Chiffrer automatiquement toutes les sauvegardes",
+        "Garantir l’absence de panne matérielle"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Patroni aide à gérer l’état et le basculement d’un cluster PostgreSQL. Il nécessite une architecture de coordination et une configuration cohérentes ; il ne supprime pas tous les risques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment organiser les connexions pour séparer lectures et écritures en exploitation ?",
+      "choices": [
+        "Envoyer chaque requête au hasard vers n’importe quel nœud",
+        "Exposer des points d’accès adaptés au rôle des nœuds et router les écritures vers le primaire, en validant la cohérence des lectures",
+        "Envoyer toujours les écritures vers le secondaire le plus en retard",
+        "Supprimer les contrôles de rôle pendant le basculement"
+      ],
+      "answer": 1,
+      "explanation": "La séparation dépend du routage et de la politique d’accès. Un endpoint de lecture n’est sûr que si l’application tient compte du retard de réplication et du comportement après basculement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert `pg_rewind` dans une procédure de réintégration ?",
+      "choices": [
+        "À recalculer le RPO à partir des journaux applicatifs",
+        "À convertir une sauvegarde logique en base physique",
+        "À remplacer la réplication synchrone",
+        "À réaligner un ancien primaire sur la chronologie du nouveau primaire lorsque les conditions préalables sont réunies"
+      ],
+      "answer": 3,
+      "explanation": "`pg_rewind` peut éviter une réinitialisation complète en resynchronisant un ancien primaire divergent. Son usage dépend notamment de l’état du cluster, des journaux disponibles et des prérequis PostgreSQL."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation concernant la reprise à un instant précis est correcte ?",
+      "choices": [
+        "Elle complète la HA en permettant de viser un état antérieur à une erreur logique, si sauvegarde et WAL sont disponibles",
+        "Elle est automatiquement garantie par deux serveurs répliqués",
+        "Elle fonctionne sans sauvegarde de base ni WAL",
+        "Elle remplace les exercices de restauration"
+      ],
+      "answer": 0,
+      "explanation": "La réplication peut propager une suppression accidentelle. Le PITR sert à revenir à un état antérieur si la sauvegarde et la chaîne WAL le permettent ; il doit être testé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une réplication synchrone peut-elle affecter la disponibilité ou la latence ?",
+      "choices": [
+        "Elle évite toute communication avec les réplicas",
+        "Elle rend le RTO automatiquement nul",
+        "Une écriture peut attendre l’accusé de réception exigé ; une panne ou une forte latence du chemin synchrone peut ralentir ou bloquer les écritures selon la configuration",
+        "Elle garantit qu’il n’existe plus de point de panne commun"
+      ],
+      "answer": 2,
+      "explanation": "La réplication synchrone peut réduire la perte de données confirmées, mais son niveau d’attente a un coût opérationnel. Il faut choisir et tester la politique adaptée au RPO, au RTO et aux domaines de panne."
     }
   ]
 }

@@ -1,18 +1,102 @@
 {
   "node_id": "lab_netns",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Que permet `ip netns exec ns-a <commande>` ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "D’exécuter une commande dans l’espace de noms réseau `ns-a`",
+        "De créer un utilisateur Linux nommé ns-a",
+        "D’appliquer une règle au pare-feu physique de l’hôte uniquement",
+        "De déplacer le namespace vers un autre serveur"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "`ip netns exec` exécute une commande dans le contexte réseau du namespace indiqué, ce qui permet de consulter et configurer ses interfaces et routes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels réseaux relient `ns-a` au routeur puis le routeur à `ns-b` dans ce lab ?",
+      "choices": [
+        "10.0.0.0/8 des deux côtés",
+        "192.168.100.0/24 des deux côtés",
+        "172.16.0.0/16 et 172.17.0.0/16",
+        "10.0.1.0/24 puis 10.0.2.0/24"
+      ],
+      "answer": 3,
+      "explanation": "La consigne établit 10.0.1.0/24 entre ns-a et ns-router puis 10.0.2.0/24 entre ns-router et ns-b."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle adresse doit recevoir l’interface `veth-ra` dans `ns-router` ?",
+      "choices": [
+        "10.0.2.20/24",
+        "10.0.1.254/24",
+        "10.0.1.10/24",
+        "10.0.2.254/24"
+      ],
+      "answer": 1,
+      "explanation": "`veth-ra` fait face à ns-a sur le réseau 10.0.1.0/24 ; l’adresse du routeur sur ce segment est 10.0.1.254/24."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il configurer des routes sur `ns-a` et `ns-b` ?",
+      "choices": [
+        "Parce que les namespaces partagent automatiquement toutes leurs tables de routage",
+        "Pour remplacer les adresses IP du routeur",
+        "Pour que chacun sache envoyer le trafic vers le réseau distant via l’adresse du routeur sur son lien local",
+        "Pour activer le serveur DNS sur chaque namespace"
+      ],
+      "answer": 2,
+      "explanation": "Les namespaces disposent de leurs propres tables de routage. Pour atteindre le réseau opposé, chaque extrémité doit diriger le trafic vers le routeur local."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le forwarding IP est déjà activé dans `ns-router`. Quelle tâche principale reste à effectuer ?",
+      "choices": [
+        "Configurer l’adressage et les routes attendus dans les namespaces",
+        "Installer un serveur DHCP public",
+        "Supprimer les interfaces veth",
+        "Activer le NAT pour chaque ping"
+      ],
+      "answer": 0,
+      "explanation": "Le lab indique que le routage est déjà activé. Le travail porte sur les adresses et routes, pas sur l’installation d’un nouveau service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester `ns-b` vers `ns-a` en plus du ping aller ?",
+      "choices": [
+        "Le ping retour est toujours identique à l’aller et n’apporte aucune information",
+        "Un ping ne traverse jamais un routeur Linux",
+        "Le test bidirectionnel est obligatoire pour toute interface Ethernet",
+        "Un chemin aller fonctionnel ne prouve pas que la route de retour est correcte"
+      ],
+      "answer": 3,
+      "explanation": "Le routage doit fonctionner dans les deux sens pour établir une communication bidirectionnelle. Les tables des deux extrémités et le transfert du routeur sont distincts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande Linux ajoute une route par défaut dans `ns-a` vers le routeur du segment ?",
+      "choices": [
+        "`ip netns exec ns-a ip route add default via 10.0.2.254`",
+        "`ip netns exec ns-a ip route add default via 10.0.1.254`",
+        "`ip netns exec ns-a ip addr add default 10.0.1.254`",
+        "`ip netns exec ns-a bridge vlan add 10.0.1.254`"
+      ],
+      "answer": 1,
+      "explanation": "Le prochain saut de ns-a doit être joignable sur son lien local. Dans ce lab, il s’agit de 10.0.1.254."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode est la plus utile si le ping entre ns-a et ns-b échoue après configuration ?",
+      "choices": [
+        "Modifier toutes les adresses au hasard",
+        "Redémarrer l’hôte avant toute observation",
+        "Vérifier les adresses, l’état des interfaces, les routes dans les trois namespaces et les tests de ping de proche en proche",
+        "Supprimer toutes les routes de ns-router"
+      ],
+      "answer": 2,
+      "explanation": "Le diagnostic doit suivre le chemin : adresses et liens, route de la source, forwarding et routes du routeur, puis route retour."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

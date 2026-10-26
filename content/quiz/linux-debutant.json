@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Introduction à Linux et au shell",
+      "prompt": "Quelle commande affiche le répertoire de travail courant du shell ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`pwd`",
+        "`whoami`",
+        "`lsblk`",
+        "`uname -r`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "`pwd` signifie *print working directory*. Elle affiche le chemin du répertoire courant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande liste les fichiers et répertoires, y compris les entrées cachées, avec des détails ?",
+      "choices": [
+        "`cd -a`",
+        "`find --hidden-only`",
+        "`ls -la`",
+        "`pwd -la`"
+      ],
+      "answer": 2,
+      "explanation": "`ls -la` affiche les entrées cachées avec un format détaillé, dont les permissions, propriétaire, taille et date."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la commande `sudo` doit-elle être utilisée prudemment ?",
+      "choices": [
+        "Elle fonctionne toujours sans authentification",
+        "Elle donne des droits étendus pour exécuter certaines commandes et peut modifier le système",
+        "Elle ne change que l’affichage du terminal",
+        "Elle remplace toute gestion de comptes"
+      ],
+      "answer": 1,
+      "explanation": "sudo permet d’exécuter une commande avec des privilèges autorisés. Une erreur de commande élevée peut modifier ou endommager le système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale entre un chemin absolu et un chemin relatif ?",
+      "choices": [
+        "Un chemin relatif commence toujours par `/`",
+        "Un chemin absolu dépend obligatoirement du dossier courant",
+        "Les deux désignent toujours le même fichier",
+        "Un chemin absolu part de la racine `/`, tandis qu’un chemin relatif est interprété depuis le répertoire courant"
+      ],
+      "answer": 3,
+      "explanation": "Le chemin absolu décrit l’emplacement depuis la racine ; le relatif dépend du répertoire courant au moment où la commande est exécutée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de `chmod` ?",
+      "choices": [
+        "Modifier les permissions d’accès d’un fichier ou d’un répertoire",
+        "Changer le nom d’hôte du système",
+        "Afficher les routes réseau",
+        "Créer un nouveau système de fichiers automatiquement"
+      ],
+      "answer": 0,
+      "explanation": "`chmod` modifie les permissions de fichiers et répertoires, par exemple les droits de lecture, écriture et exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande aide à chercher un mot dans un fichier texte ?",
+      "choices": [
+        "`chmod mot fichier`",
+        "`ls mot fichier`",
+        "`grep 'mot' fichier`",
+        "`systemctl mot fichier`"
+      ],
+      "answer": 2,
+      "explanation": "`grep` recherche des lignes correspondant à un motif dans les fichiers indiqués. Les guillemets évitent des interprétations indésirables du shell."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet une redirection comme `commande > sortie.txt` ?",
+      "choices": [
+        "De supprimer la commande du shell",
+        "D’écrire la sortie standard dans un fichier, en remplaçant son contenu existant selon le comportement habituel",
+        "De modifier l’adresse IP par défaut",
+        "De rendre le fichier exécutable"
+      ],
+      "answer": 1,
+      "explanation": "`>` redirige stdout vers le fichier et le tronque généralement s’il existe. `>>` ajoute à la fin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est la plus sûre pour apprendre une commande destructive ?",
+      "choices": [
+        "L’exécuter directement comme root sur le système principal",
+        "Copier la commande d’un forum sans lire les options",
+        "Supprimer tous les fichiers pour comprendre le résultat",
+        "Lire l’aide, vérifier la portée et tester dans un répertoire ou une machine virtuelle sans données importantes"
+      ],
+      "answer": 3,
+      "explanation": "Une VM ou un répertoire de test permet de comprendre les effets d’une commande avant de l’utiliser sur un système réel."
     }
   ]
 }

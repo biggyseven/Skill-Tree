@@ -1,18 +1,102 @@
 {
   "node_id": "lab_tshoot_mtu",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel MTU limite le chemin entre r1 et h2 dans le lab ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "1400 octets",
+        "9000 octets",
+        "128 octets",
+        "1500 octets sur tous les liens sans exception"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La consigne définit un MTU de 1400 octets sur l’interface de transit r1 vers h2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande reproduit le test de 1500 octets IP en IPv4 avec fragmentation interdite ?",
+      "choices": [
+        "`ping -s 1400 10.60.2.10`",
+        "`ip route get 10.60.2.10`",
+        "`ping -M do -s 1472 10.60.2.10` depuis h1",
+        "`ping -M dont -s 1372 10.60.2.10`"
+      ],
+      "answer": 2,
+      "explanation": "1472 octets de données ICMP plus 8 octets ICMP et 20 octets IPv4 représentent 1500 octets IP. `-M do` interdit la fragmentation dans cette commande Linux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le ping classique peut-il réussir alors que les gros paquets échouent ?",
+      "choices": [
+        "Le DNS tronque tous les paquets à 64 octets",
+        "La MTU limite peut affecter les paquets plus grands, et le comportement de fragmentation/PMTUD détermine le résultat",
+        "Le routage n’est jamais concerné par la taille des paquets",
+        "Le MTU n’existe que sur la couche applicative"
+      ],
+      "answer": 1,
+      "explanation": "Les petits paquets peuvent passer tandis que les plus gros échouent au niveau d’un lien plus contraint, révélant un problème de MTU ou de découverte de MTU."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle modification est attendue sur l’hôte h1 ?",
+      "choices": [
+        "Désactiver IPv4",
+        "Augmenter le MTU à 9000",
+        "Changer la passerelle par défaut sans vérifier les routes",
+        "Abaisser le MTU de `veth-h1` à 1400"
+      ],
+      "answer": 3,
+      "explanation": "Le contrôle du lab vérifie que le MTU de veth-h1 est inférieur ou égal à 1400 et que le ping de 1400 octets IP avec DF passe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle taille de données ICMP correspond à un paquet IPv4 de 1400 octets sans options ?",
+      "choices": [
+        "1372 octets",
+        "1400 octets",
+        "1472 octets",
+        "1500 octets"
+      ],
+      "answer": 0,
+      "explanation": "20 octets d’en-tête IPv4 et 8 octets d’en-tête ICMP laissent 1372 octets de données pour un paquet IP total de 1400 octets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire normalement un routeur IPv4 si un paquet trop grand ne peut pas être fragmenté à cause de DF ?",
+      "choices": [
+        "L’augmenter automatiquement à 9000 octets",
+        "Ignorer définitivement la source et supprimer toutes les routes",
+        "Le rejeter et normalement renvoyer un message ICMP Fragmentation Needed",
+        "Le transformer en requête DNS"
+      ],
+      "answer": 2,
+      "explanation": "Un routeur IPv4 qui ne peut pas transmettre le paquet avec DF doit signaler que la fragmentation est nécessaire, si le message ICMP n’est pas filtré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet de lire le MTU d’une interface dans le namespace h1 ?",
+      "choices": [
+        "`ip netns exec h1 ip route`",
+        "`ip netns exec h1 ip link show veth-h1`",
+        "`nslookup veth-h1`",
+        "`journalctl --vacuum-time=1s`"
+      ],
+      "answer": 1,
+      "explanation": "`ip link show` affiche les propriétés de l’interface, dont le MTU configuré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan de vérification suit le mieux la consigne après correction ?",
+      "choices": [
+        "Tester uniquement le DNS et fermer le lab",
+        "Changer le MTU sur h2 sans lire l’état de h1",
+        "Vérifier seulement que le fichier setup.sh existe",
+        "Confirmer MTU h1, ping classique, puis ping avec DF et taille correspondant à 1400 octets IP"
+      ],
+      "answer": 3,
+      "explanation": "La validation doit couvrir la taille du MTU et les pings attendus. Un simple ping petit ne prouve pas que la panne de gros paquets est corrigée."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

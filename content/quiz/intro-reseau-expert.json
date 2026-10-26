@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Qu'est-ce qu'un réseau ? - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quelle distinction existe entre le plan de contrôle et le plan de données ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le plan de contrôle décide/calcul les informations de transfert ; le plan de données applique les décisions pour transférer les paquets",
+        "Le plan de contrôle désigne les câbles et le plan de données les utilisateurs",
+        "Le plan de données conserve obligatoirement tous les logs",
+        "Il s’agit de deux noms pour le plan de gestion"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le plan de contrôle calcule et distribue les informations nécessaires au transfert. Le plan de données applique les entrées de transfert pour traiter le trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre RIB et FIB est la plus juste ?",
+      "choices": [
+        "La RIB est une sauvegarde et la FIB un fichier DNS",
+        "La FIB conserve les mots de passe des routeurs",
+        "La RIB représente les routes connues par le système de routage ; la FIB contient les informations utilisées par le plan de données pour transférer les paquets",
+        "Elles contiennent forcément les mêmes entrées dans le même format sur toutes les plateformes"
+      ],
+      "answer": 2,
+      "explanation": "La RIB est la base d’information de routage, tandis que la FIB est adaptée à la décision de transfert. Leur format et leur relation exacte dépendent du système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un résumé de routes doit-il être conçu avec attention ?",
+      "choices": [
+        "Il augmente toujours le nombre de routes détaillées",
+        "Il peut simplifier la table, mais un agrégat trop large peut attirer du trafic vers des destinations non réellement joignables",
+        "Il remplace le plan d’adressage",
+        "Il n’a jamais d’impact sur la sélection de chemin"
+      ],
+      "answer": 1,
+      "explanation": "L’agrégation réduit la taille de la table mais peut masquer des préfixes absents. Il faut vérifier la couverture, les routes spécifiques et le comportement en cas de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une architecture est redondante sur le papier. Quelle preuve est nécessaire avant de revendiquer sa résilience ?",
+      "choices": [
+        "La présence de deux routes dans le dessin seulement",
+        "Le nombre de VLAN dans le fichier de configuration",
+        "Un ping réussi en fonctionnement nominal",
+        "Des tests de défaillance et de convergence, l’analyse des domaines de panne communs et la mesure des services pendant la bascule"
+      ],
+      "answer": 3,
+      "explanation": "La résilience se mesure lors des défaillances pertinentes. Les chemins peuvent partager un opérateur, un conduit ou un équipement qui constitue un point de panne commun."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi IPv6 doit-il être traité comme un chemin opérationnel réel et non simplement activé ?",
+      "choices": [
+        "Il faut vérifier adressage, routes, filtrage, DNS, mécanismes de voisinage et comportement applicatif pour éviter un chemin moins maîtrisé que l’IPv4",
+        "IPv6 ne nécessite aucun contrôle de sécurité",
+        "IPv6 désactive automatiquement les firewalls",
+        "IPv6 garantit une meilleure disponibilité sans configuration"
+      ],
+      "answer": 0,
+      "explanation": "Une double pile peut créer des différences de routage ou de sécurité. L’exploitation doit vérifier le chemin IPv6 complet et pas seulement l’existence d’une adresse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment choisir entre route statique et routage dynamique dans une architecture ?",
+      "choices": [
+        "Toujours remplacer toute route statique par BGP",
+        "Utiliser un protocole dynamique pour chaque lien, même isolé",
+        "Selon la complexité, la stabilité, les exigences de convergence, l’échelle, la gouvernance et les risques de politique",
+        "Laisser chaque routeur décider sans convention d’équipe"
+      ],
+      "answer": 2,
+      "explanation": "Le choix dépend du besoin et de l’échelle. Les routes statiques conviennent à certains cas simples ou contrôlés ; les protocoles dynamiques apportent adaptation et convergence, mais nécessitent une politique maîtrisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi surveiller à la fois la disponibilité d’un protocole de routage et la santé du service applicatif ?",
+      "choices": [
+        "Parce qu’un voisinage OSPF établi garantit le fonctionnement de toutes les applications",
+        "Parce qu’un voisinage ou une route active ne prouve pas que DNS, pare-feu, MTU, serveur et dépendances sont fonctionnels",
+        "Parce que le service applicatif ne dépend jamais du routage",
+        "Pour remplacer la télémétrie de flux"
+      ],
+      "answer": 1,
+      "explanation": "La santé du plan de contrôle et celle du service sont différentes. Les tests doivent couvrir le chemin et le comportement visible par l’utilisateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu rend un plan d’adressage exploitable à grande échelle ?",
+      "choices": [
+        "Une liste d’adresses sans propriétaires ni justification",
+        "Des préfixes choisis au cas par cas sans vérification de chevauchement",
+        "Une capture du routeur principal sans contexte",
+        "Une allocation hiérarchique, des propriétaires, des conventions, des réserves, une vérification de chevauchement et une politique de résumé documentée"
+      ],
+      "answer": 3,
+      "explanation": "Un plan hiérarchique soutient le routage, la segmentation, l’automatisation et le dépannage. La documentation doit être fiable et maintenue avec les changements."
     }
   ]
 }

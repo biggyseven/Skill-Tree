@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour DHCP & DNS - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert généralement le champ `giaddr` ajouté par un relais DHCPv4 ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "À chiffrer la requête du client",
+        "À identifier le serveur DNS primaire",
+        "À contenir le mot de passe du client",
+        "À donner au serveur un contexte d’adresse de relais pour sélectionner le sous-réseau ou le scope correspondant"
+      ],
+      "answer": 3,
+      "explanation": "Le relais renseigne le contexte réseau du client ; le serveur l’utilise notamment pour choisir le pool adapté. Le fonctionnement exact dépend de la configuration du relais et du serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un client dans un VLAN distant n’atteint-il généralement pas directement un serveur DHCP par simple diffusion ?",
+      "choices": [
+        "Les routeurs ne relaient normalement pas les diffusions IP de couche 2 ; il faut un relais DHCP configuré",
+        "Le DNS doit d’abord convertir DHCP en TCP",
+        "DHCP fonctionne uniquement sur IPv6",
+        "Les trames Ethernet sont automatiquement chiffrées entre VLAN"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les routeurs séparent les domaines de diffusion. Un relais DHCP transmet les messages au serveur et renseigne le contexte du réseau client."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que peut transporter l’option DHCP 82 dans une architecture équipée pour l’utiliser ?",
+      "choices": [
+        "La clé privée DNSSEC du serveur",
+        "Le résultat de la réplication de base de données",
+        "Des informations de circuit ou de distant insérées par l’infrastructure de relais/accès",
+        "Le contenu complet des requêtes HTTP du client"
+      ],
+      "answer": 2,
+      "explanation": "L’option 82 peut porter des identifiants tels que circuit-id et remote-id. Il faut contrôler quels équipements sont autorisés à l’insérer afin de ne pas faire confiance à un contexte usurpé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’effet pratique d’un TTL DNS élevé lors d’un changement d’adresse de service ?",
+      "choices": [
+        "Tous les caches sont vidés immédiatement",
+        "Des clients peuvent conserver l’ancienne réponse jusqu’à expiration du cache",
+        "Le serveur DHCP prolonge automatiquement les baux",
+        "Le TTL chiffre les réponses DNS"
+      ],
+      "answer": 1,
+      "explanation": "Un cache peut conserver une réponse pendant le TTL annoncé. Un changement DNS n’est pas forcément visible immédiatement ; il faut planifier la transition en tenant compte des caches."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une mise à jour DNS dynamique sécurisée ?",
+      "choices": [
+        "Autoriser les acteurs authentifiés et autorisés à modifier les enregistrements, plutôt que d’accepter toute mise à jour",
+        "Permettre à n’importe quel client de remplacer toutes les zones",
+        "Désactiver la validation des noms",
+        "Remplacer le mécanisme de bail DHCP"
+      ],
+      "answer": 0,
+      "explanation": "Les mises à jour dynamiques doivent être restreintes selon l’identité et la politique de la zone. Les droits de modification ne doivent pas être accordés à tous les clients."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel point doit être vérifié avant de déclarer un service DHCP redondant ?",
+      "choices": [
+        "Que les deux serveurs affichent le même nom DNS",
+        "Que chaque client utilise une adresse statique",
+        "Que les deux machines sont simplement allumées",
+        "Le mode de failover ou de partage, la cohérence des baux, les conditions de bascule et les risques de conflits"
+      ],
+      "answer": 3,
+      "explanation": "La haute disponibilité DHCP dépend du mécanisme réellement pris en charge et configuré. Deux serveurs actifs sans synchronisation ou partage correctement défini peuvent distribuer des baux incohérents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que garantit DNSSEC lorsqu’il est correctement déployé et validé ?",
+      "choices": [
+        "La confidentialité du contenu des requêtes DNS",
+        "L’authenticité et l’intégrité des données DNS signées, dans le cadre d’une chaîne de confiance valide",
+        "L’absence de panne de serveur autoritaire",
+        "Le chiffrement de tous les paquets UDP"
+      ],
+      "answer": 1,
+      "explanation": "DNSSEC permet de valider l’origine et l’intégrité des données signées via une chaîne de confiance ; il ne chiffre pas la requête et ne garantit pas la disponibilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un client reçoit un bail mais ne résout que certains noms. Quelle approche de diagnostic est la plus complète ?",
+      "choices": [
+        "Redémarrer tous les switches sans relevé",
+        "Augmenter immédiatement le pool DHCP",
+        "Comparer les serveurs DNS reçus, tester les noms concernés, vérifier le cache, la zone, la délégation et les réponses du résolveur",
+        "Modifier l’adresse MAC du poste"
+      ],
+      "answer": 2,
+      "explanation": "Le bail obtenu ne prouve pas que le DNS fonctionne. La comparaison des paramètres et des réponses permet de distinguer un problème de configuration client, de cache, de délégation ou de serveur."
     }
   ]
 }

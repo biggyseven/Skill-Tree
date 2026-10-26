@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IDS / IPS et DPI - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quel compromis faut-il examiner lorsqu’on place un IPS en ligne ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le seul format des journaux",
+        "La visibilité sur le trafic, le risque de faux positifs, la capacité, la latence et le comportement en cas de panne du capteur",
+        "La résolution DNS du poste d’administration uniquement",
+        "La longueur du nom d’hôte du capteur"
+      ],
+      "answer": 1,
+      "explanation": "Un IPS peut bloquer des trafics et participe au chemin réseau. Il faut décider des modes de panne, valider le débit et gérer les faux positifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un moteur d’inspection doit-il reconstituer les flux TCP et gérer les fragments IP ?",
+      "choices": [
+        "Pour réassembler le contexte observable et éviter qu’un découpage de paquet fasse échapper ou fausse une détection",
+        "Pour transformer chaque flux TCP en protocole DNS",
+        "Pour remplacer les tables de routage",
+        "Pour éviter d’avoir besoin de règles de détection"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le contexte peut être réparti entre plusieurs segments TCP ou fragments. La reconstitution et la normalisation influencent ce que le moteur détecte et ses angles morts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but de la réduction du bruit d’alertes (*tuning*) ?",
+      "choices": [
+        "Masquer toutes les alertes de sévérité élevée",
+        "Désactiver les capteurs pendant les heures de pointe",
+        "Réduire les alertes non pertinentes tout en conservant la détection des événements importants, avec justification et suivi des exceptions",
+        "Utiliser une seule signature pour toutes les applications"
+      ],
+      "answer": 2,
+      "explanation": "Le tuning doit améliorer le rapport signal/bruit sans créer d’angle mort injustifié. Les exceptions doivent être documentées et réévaluées après évolution du trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit inclure une validation de règle Suricata dans un laboratoire ?",
+      "choices": [
+        "Le changement direct de politique sur toute la production",
+        "Le simple nom de la signature dans la console",
+        "La supposition qu’une alerte signifie une attaque réussie",
+        "Un trafic de test autorisé, une vérification de syntaxe et de déclenchement, l’observation des faux positifs et un plan de déploiement/retrait"
+      ],
+      "answer": 3,
+      "explanation": "Une règle doit être testée avec un scénario maîtrisé. Il faut vérifier qu’elle déclenche sur le cas visé et ne classe pas excessivement du trafic légitime."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi synchroniser l’heure des capteurs et des sources SIEM ?",
+      "choices": [
+        "Pour corréler correctement la chronologie des événements observés par différents systèmes",
+        "Pour rendre l’adresse IP du capteur privée",
+        "Pour remplacer l’analyse des paquets",
+        "Pour garantir que chaque signature soit exacte"
+      ],
+      "answer": 0,
+      "explanation": "Des horloges décalées compliquent la corrélation et la reconstitution d’un incident. La synchronisation et la surveillance de l’heure contribuent à la qualité des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’apporte l’inspection hors bande par rapport à une inspection inline ?",
+      "choices": [
+        "Elle bloque toujours le trafic avant qu’il atteigne sa destination",
+        "Elle peut observer une copie du trafic sans être directement dans le chemin ; le blocage immédiat nécessite un mécanisme d’intervention séparé",
+        "Elle garantit que le capteur reçoit toutes les trames sans perte",
+        "Elle permet de déchiffrer n’importe quel contenu TLS"
+      ],
+      "answer": 1,
+      "explanation": "Un capteur hors bande est moins susceptible de provoquer directement une panne de transmission mais ne bloque pas nécessairement le paquet observé. La visibilité dépend aussi du SPAN/TAP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment analyser une alerte déclenchée par une signature d’exploitation ?",
+      "choices": [
+        "Conclure qu’un hôte est compromis sans autre vérification",
+        "Désactiver la signature définitivement à la première alerte",
+        "Comparer les éléments réseau, la version/ exposition du service, les journaux hôte et les indices de succès ou d’échec de l’exploitation",
+        "Bloquer toutes les adresses internes"
+      ],
+      "answer": 2,
+      "explanation": "La signature peut indiquer une tentative ou un contenu ressemblant à une exploitation. Les preuves complémentaires permettent de distinguer tentative bloquée, faux positif et compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’effet possible d’une capture SPAN sur la qualité d’analyse ?",
+      "choices": [
+        "Une session SPAN ne copie jamais les paquets",
+        "Le port miroir garantit la capture de chaque paquet à toute charge",
+        "Le capteur reçoit automatiquement la charge utile après déchiffrement",
+        "Le port miroir ou le capteur peut perdre des paquets en surcharge, réduisant la confiance dans la couverture et les conclusions"
+      ],
+      "answer": 3,
+      "explanation": "La copie de trafic et le capteur ont des limites de capacité. La perte de paquets doit être mesurée avant de conclure qu’aucun événement n’a eu lieu."
     }
   ]
 }

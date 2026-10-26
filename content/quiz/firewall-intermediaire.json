@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Pare-feu & NGFW - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Qu’appelle-t-on une règle de pare-feu masquée (*shadowed rule*) ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Une règle cryptée illisible par l’administrateur",
+        "Une règle qui ne peut jamais être sauvegardée",
+        "Une règle dont la plage ou l’ordre fait qu’une règle précédente traite déjà le trafic visé",
+        "Une règle qui concerne uniquement une interface physique"
+      ],
+      "answer": 2,
+      "explanation": "Une règle masquée peut ne jamais être atteinte parce qu’une règle plus large située avant elle correspond déjà au trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment différencier généralement SNAT et DNAT ?",
+      "choices": [
+        "SNAT traduit la source ; DNAT traduit la destination du paquet",
+        "SNAT chiffre le flux ; DNAT le déchiffre",
+        "SNAT gère les baux DHCP ; DNAT les zones DNS",
+        "Les deux termes signifient toujours exactement la même chose"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "SNAT modifie normalement l’adresse source ; DNAT modifie normalement l’adresse de destination. L’ordre de traitement et les interactions avec les règles varient selon la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une session TCP échoue alors que le SYN semble atteindre sa destination. Quelle piste est utile ?",
+      "choices": [
+        "Changer le nom de l’interface de gestion",
+        "Examiner le routage retour, l’asymétrie, l’état de session, les règles et la traduction NAT",
+        "Désactiver tous les contrôles de sécurité sans mesure",
+        "Modifier la date du serveur DNS"
+      ],
+      "answer": 1,
+      "explanation": "Le chemin retour et l’état de session peuvent être déterminants. Une asymétrie de routage ou une traduction incohérente peut empêcher le pare-feu de suivre la session."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une politique de moindre privilège inter-zones ?",
+      "choices": [
+        "Autoriser tous les flux puis masquer les logs",
+        "Créer une règle unique indépendante du rôle des réseaux",
+        "Éviter de documenter les applications",
+        "Limiter les communications à la source, la destination et au service strictement nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "Une politique inter-zones doit minimiser la portée des règles, documenter leur justification et permettre le contrôle des flux autorisés et interdits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une inspection IPS peut-elle nécessiter une phase de réglage avant un blocage strict ?",
+      "choices": [
+        "Parce que les signatures ne peuvent jamais analyser du trafic",
+        "Parce qu’un IPS ne peut agir que sur le DNS",
+        "Parce qu’une détection peut produire des faux positifs et que le blocage doit être validé sur le trafic légitime",
+        "Parce que l’inspection garantit l’absence d’attaque"
+      ],
+      "answer": 2,
+      "explanation": "Les signatures et profils peuvent identifier des comportements suspects mais aussi produire des faux positifs. Il faut mesurer, ajuster et appliquer une politique adaptée au risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant d’introduire une règle NAT dans une politique existante ?",
+      "choices": [
+        "Les objets source/destination, le chemin, l’ordre de traitement propre à la plateforme, les ports et les flux retour",
+        "Uniquement le nom de la règle",
+        "Le nombre de comptes utilisateurs du poste client",
+        "La couleur de la zone de sécurité"
+      ],
+      "answer": 0,
+      "explanation": "NAT et politique de filtrage interagissent selon les règles et l’ordre de traitement du fournisseur. Une validation précise est nécessaire avant le déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un trafic est autorisé par le pare-feu mais l’application reste indisponible. Quelle conclusion est correcte ?",
+      "choices": [
+        "Le pare-feu garantit la santé du service",
+        "Le contrôle d’autorisation ne prouve pas que DNS, routage, TLS, serveur applicatif ou dépendances fonctionnent",
+        "Le routage retour ne peut jamais être en cause",
+        "Il faut obligatoirement remplacer le pare-feu"
+      ],
+      "answer": 1,
+      "explanation": "Une règle autorisée ne prouve pas que le service de bout en bout est sain. Il faut suivre le flux jusqu’à l’application et vérifier les dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est recommandée pour retirer des règles devenues inutiles ?",
+      "choices": [
+        "Supprimer toutes les règles sans analyse",
+        "Effacer les logs avant la revue",
+        "Conserver indéfiniment toutes les règles au cas où",
+        "S’appuyer sur l’usage observé, la justification métier, l’analyse des dépendances et un retrait testé avec retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "Le nettoyage de règles doit être fondé sur des preuves d’usage et une validation métier. Un retrait progressif et réversible réduit le risque de couper un flux oublié."
     }
   ]
 }

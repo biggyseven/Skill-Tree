@@ -1,18 +1,102 @@
 {
   "node_id": "lab_bridge",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel rôle joue un bridge Linux dans le lab ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Il fournit un serveur DNS récursif",
+        "Il commute des trames de couche 2 entre les interfaces qui lui sont attachées",
+        "Il remplace nécessairement la table de routage IPv4",
+        "Il chiffre le trafic des namespaces"
+      ],
+      "answer": 1,
+      "explanation": "Un bridge Linux relie logiquement des interfaces au niveau 2. Il permet aux namespaces connectés de communiquer dans le même domaine Ethernet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande attache une interface au bridge `br-lab` ?",
+      "choices": [
+        "`ip link set <if> master br-lab`",
+        "`ip route add default br-lab`",
+        "`ip netns del br-lab`",
+        "`bridge dns add <if>`"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La commande `ip link set <if> master br-lab` attache une interface au bridge. L’interface doit ensuite être mise en état UP pour acheminer des trames."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les deux veths du lab doivent-ils être attachés au bridge ?",
+      "choices": [
+        "Pour que DHCP attribue un préfixe public",
+        "Pour créer automatiquement un tunnel IPsec",
+        "Pour remplacer les adresses IP déjà configurées",
+        "Sans rattachement, les interfaces ne partagent pas le domaine L2 permettant au trafic des deux namespaces d’être commuté"
+      ],
+      "answer": 3,
+      "explanation": "Les adresses IP dans un même sous-réseau ne suffisent pas sans connectivité de niveau 2 entre les interfaces."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait `ip link set veth1-b up` ?",
+      "choices": [
+        "Elle ajoute une route par défaut au namespace",
+        "Elle active le serveur DNS",
+        "Elle place l’interface dans l’état opérationnel UP côté Linux, sans l’attacher à un bridge à elle seule",
+        "Elle donne une adresse IP automatiquement"
+      ],
+      "answer": 2,
+      "explanation": "La mise en état UP et l’attachement au bridge sont deux opérations distinctes. Il faut réaliser les deux conformément à la consigne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test est explicitement adapté pour vérifier le chemin entre les deux namespaces du lab ?",
+      "choices": [
+        "`ip netns exec ns1 ping -c 2 192.168.100.2`",
+        "`git status --short`",
+        "`systemctl status dnsmasq`",
+        "`ip route get 8.8.8.8` uniquement"
+      ],
+      "answer": 0,
+      "explanation": "Le ping depuis ns1 vers l’adresse de ns2 vérifie la connectivité IP sur le lien simulé. Un test dans les deux sens renforce la validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les deux namespaces ont des adresses dans `192.168.100.0/24`, mais le ping échoue. Quelle conclusion est correcte ?",
+      "choices": [
+        "Les routes Internet doivent obligatoirement être supprimées",
+        "Le même sous-réseau garantit que les interfaces sont physiquement ou logiquement connectées",
+        "Les adresses IPv4 ne peuvent pas communiquer à travers un bridge",
+        "Il faut vérifier l’état des interfaces, leur appartenance au bridge et les compteurs avant de modifier l’adressage"
+      ],
+      "answer": 3,
+      "explanation": "Un préfixe IP cohérent ne crée pas à lui seul un chemin de couche 2. Vérifier la configuration du lien est plus pertinent que changer les adresses qui sont déjà celles du scénario."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet de contrôler l’état d’une interface Linux ?",
+      "choices": [
+        "`ip dns show`",
+        "`ip link show veth1-b`",
+        "`show ip ospf database` sur tout Linux",
+        "`nslookup veth1-b`"
+      ],
+      "answer": 1,
+      "explanation": "`ip link show` affiche l’état et les propriétés du lien. Pour ce lab, il faut examiner les deux interfaces avant de tester la connectivité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat constitue une preuve plus complète de réussite du lab ?",
+      "choices": [
+        "Le fichier de configuration a été ouvert",
+        "Le bridge apparaît dans la liste des interfaces même si les ports restent down",
+        "Les deux interfaces sont attachées au bridge et UP, puis les pings attendus réussissent",
+        "Les deux namespaces ont le même nom"
+      ],
+      "answer": 2,
+      "explanation": "La validation combine l’état attendu des interfaces avec un test de connectivité réel, conformément aux objectifs du lab."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Infrastructure as Code avec Terraform - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Dans un module Terraform réseau, quelle est la principale raison de définir une interface d’entrées et de sorties ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Permettre au module d’accéder sans restriction à tout compte cloud",
+        "Éviter de documenter les hypothèses du réseau",
+        "Encapsuler une fonction réutilisable avec des paramètres et des résultats explicites",
+        "Forcer toutes les équipes à partager le même état"
+      ],
+      "answer": 2,
+      "explanation": "Une interface de module explicite facilite la réutilisation, la revue et les tests sans masquer les paramètres de conception importants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les clés utilisées par `for_each` doivent-elles être stables ?",
+      "choices": [
+        "Parce que Terraform les utilise pour identifier les instances de ressource ; des clés modifiées peuvent entraîner des mouvements ou remplacements",
+        "Parce que les clés désactivent la gestion des dépendances",
+        "Parce qu’elles stockent les secrets de l’environnement",
+        "Parce qu’elles remplacent les contraintes de version des providers"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les clés font partie de l’adresse des instances. Les modifier peut faire apparaître une suppression et une création si aucun mouvement n’est déclaré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une dépendance implicite apparaît-elle dans Terraform ?",
+      "choices": [
+        "Quand deux ressources portent des noms similaires",
+        "Quand une ressource référence un attribut produit par une autre ressource",
+        "Uniquement lorsqu’un opérateur écrit `depends_on`",
+        "Quand deux fichiers HCL sont dans des dossiers différents"
+      ],
+      "answer": 1,
+      "explanation": "Une référence à un attribut crée généralement une dépendance dans le graphe. `depends_on` sert aux dépendances qui ne sont pas exprimées par une référence directe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence distingue une ressource d’une source de données Terraform ?",
+      "choices": [
+        "Une source de données détruit les objets avant de les lire",
+        "Une ressource est toujours en lecture seule",
+        "Une source de données crée automatiquement une ressource manquante",
+        "Une ressource gère le cycle de vie d’un objet ; une source de données lit des informations sur un objet ou une donnée existante"
+      ],
+      "answer": 3,
+      "explanation": "Une ressource est déclarée pour gérer un objet. Une source de données permet d’interroger des informations sans prendre à elle seule la responsabilité de créer cet objet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent des tests de configuration dans un projet Terraform intermédiaire ?",
+      "choices": [
+        "À garantir qu’aucune erreur cloud ne pourra jamais survenir",
+        "À vérifier des comportements et contraintes définis, idéalement sans créer d’infrastructure réelle lorsque ce n’est pas nécessaire",
+        "À remplacer la revue du plan de production",
+        "À enregistrer les identifiants cloud dans le dépôt"
+      ],
+      "answer": 1,
+      "explanation": "Les tests complètent le formatage, la validation et la revue. Leur périmètre doit être maîtrisé pour éviter des ressources accidentelles ou facturables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel bénéfice un backend distant correctement configuré peut-il fournir ?",
+      "choices": [
+        "Un emplacement partagé pour le state et, si le backend le prend en charge, un mécanisme de coordination des opérations concurrentes",
+        "L’application automatique de tout changement sans revue",
+        "La suppression du besoin de contrôler les permissions",
+        "La garantie qu’un état ne contiendra jamais de données sensibles"
+      ],
+      "answer": 0,
+      "explanation": "Le backend distant peut faciliter la collaboration et le verrouillage. Les droits, la sauvegarde, le chiffrement et les capacités exactes doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle chaîne convient le mieux à une pull request qui modifie une configuration d’infrastructure ?",
+      "choices": [
+        "Appliquer en production dès l’ouverture de la pull request",
+        "Ignorer les tests dès que le formatage passe",
+        "Vérifier la configuration, exécuter les tests, examiner le plan et obtenir l’approbation requise avant une application protégée",
+        "Stocker une clé administrateur durable directement dans les fichiers HCL"
+      ],
+      "answer": 2,
+      "explanation": "Une pipeline peut automatiser les contrôles mais doit séparer la validation de l’autorisation d’appliquer. L’identité d’exécution doit être limitée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un plan propose une destruction inattendue d’un sous-réseau. Quelle mesure est la plus appropriée ?",
+      "choices": [
+        "Ajouter immédiatement `ignore_changes` sans étudier la cause",
+        "Supprimer les tests pour réduire les messages d’erreur",
+        "Appliquer le plan si `terraform validate` réussit",
+        "Examiner les références, les changements de configuration et les conséquences sur les dépendances avant de corriger le plan"
+      ],
+      "answer": 3,
+      "explanation": "La validation syntaxique ne prouve pas que le changement est sûr. Il faut comprendre le remplacement ou la destruction et corriger la cause avant l’application."
     }
   ]
 }

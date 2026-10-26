@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Attaques DDoS et mitigation - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quelles mesures faut-il corréler pour localiser un goulot d’étranglement DDoS ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La seule consommation CPU du serveur",
+        "Uniquement le débit total entrant",
+        "bit/s, paquets/s, connexions, requêtes/s, latence et taux d’erreur le long de la chaîne réseau/application",
+        "Le nombre d’enregistrements DNS dans la zone"
+      ],
+      "answer": 2,
+      "explanation": "Le point de saturation peut se trouver sur le lien, le routeur, le pare-feu, le proxy, l’application ou une dépendance. Des métriques complémentaires permettent de localiser la ressource limitante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel effet opérationnel a normalement une annonce RTBH visant une destination ?",
+      "choices": [
+        "Elle augmente la capacité de cette destination",
+        "Elle chiffre les flux vers le service",
+        "Elle migre automatiquement la base de données",
+        "Elle rejette le trafic vers la destination ciblée, ce qui protège l’infrastructure mais rend habituellement cette destination inaccessible"
+      ],
+      "answer": 3,
+      "explanation": "Le Remote Triggered Black Hole est une mesure radicale : il peut préserver le reste du réseau, mais le trafic de la destination visée est volontairement supprimé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe est important avant de déployer des règles BGP FlowSpec ?",
+      "choices": [
+        "Vérifier la compatibilité, le périmètre d’annonce, les contrôles d’autorisation et le risque de filtrage excessif",
+        "L’envoyer sans validation à tous les routeurs disponibles",
+        "Désactiver les politiques BGP existantes",
+        "Considérer FlowSpec comme un substitut à la supervision"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "FlowSpec peut distribuer des filtres plus granulaires sur les équipements compatibles. Les règles doivent être validées, autorisées et retirables rapidement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une limitation applicative devrait-elle parfois tenir compte de l’identité, de la route ou du coût de l’opération plutôt que de la seule IP ?",
+      "choices": [
+        "La couche application ne peut jamais mesurer une requête",
+        "Des clients légitimes peuvent partager une IP et des opérations ont des coûts très différents pour le serveur",
+        "Toute requête issue d’une IP partagée est une attaque",
+        "Le DNS garantit l’identité du client"
+      ],
+      "answer": 1,
+      "explanation": "Une limite unique par IP peut pénaliser des utilisateurs derrière un NAT et ne protège pas toujours les opérations très coûteuses. Des quotas complémentaires doivent rester explicites et observables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une application est placée derrière un CDN, mais son adresse d’origine répond encore directement depuis Internet. Quel problème subsiste ?",
+      "choices": [
+        "Le CDN ne peut jamais mettre en cache du contenu",
+        "Le TTL DNS devient nécessairement nul",
+        "Le pare-feu ne peut plus journaliser les requêtes",
+        "Un flux peut contourner la protection CDN/WAF en visant directement l’origine, sauf si l’accès à celle-ci est restreint"
+      ],
+      "answer": 3,
+      "explanation": "La protection d’origine consiste à limiter les chemins directs non autorisés, tout en conservant les accès nécessaires aux opérateurs et aux services légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il mesurer à la fois bit/s et paquets par seconde ?",
+      "choices": [
+        "Les deux métriques mesurent exactement la même ressource",
+        "Un trafic de petits paquets peut épuiser les capacités de traitement même si le débit en bit/s reste sous la capacité nominale",
+        "Les paquets/s ne peuvent jamais être mesurés",
+        "Le débit en bit/s ne dépend pas de la taille des paquets"
+      ],
+      "answer": 1,
+      "explanation": "Un grand nombre de petits paquets peut saturer les capacités de traitement de certains équipements. Le débit en bit/s, les paquets/s et l’état des files donnent des informations complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment évaluer une nouvelle mitigation avant son déploiement généralisé ?",
+      "choices": [
+        "Déployer progressivement dans un périmètre contrôlé, mesurer les faux positifs et la qualité de service, puis conserver un retour arrière",
+        "Supprimer la baseline pour éviter les alertes",
+        "Évaluer seulement le nombre de règles ajoutées",
+        "Laisser la mitigation active sans date de réévaluation"
+      ],
+      "answer": 0,
+      "explanation": "Une validation progressive permet de vérifier que la règle réduit l’attaque sans casser le trafic légitime. Les critères, la supervision et le retour arrière doivent être définis avant activation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une protection locale ne peut-elle pas suffire face à un DDoS volumétrique ?",
+      "choices": [
+        "Quand le serveur dispose de disques rapides",
+        "Quand le nom DNS comporte plus d’un label",
+        "Quand le trafic saturant dépasse déjà la capacité du lien ou atteint l’infrastructure avant le point de filtrage",
+        "Quand un site utilise HTTPS"
+      ],
+      "answer": 2,
+      "explanation": "La défense doit agir avant le point saturé. Si le lien d’accès est plein, la coordination opérateur, le scrubbing ou une mesure amont peut être nécessaire."
     }
   ]
 }

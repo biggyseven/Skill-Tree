@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Agrégation de liens - Expert. Avez-vous lu le cours ?",
+      "prompt": "Lorsqu’une architecture utilise une agrégation multi-châssis (MLAG/vPC ou équivalent), quel risque supplémentaire doit être traité ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le DNS ne peut plus résoudre le nom du switch",
+        "LACP devient systématiquement inutile",
+        "Le débit de chaque membre devient illimité",
+        "La cohérence d’état entre les deux châssis, les scénarios de partition et le comportement dual-active/split-brain selon l’implémentation"
+      ],
+      "answer": 3,
+      "explanation": "L’agrégation multi-châssis ajoute une dépendance de coordination entre pairs. Les mécanismes de peer-link, keepalive et les règles de partition doivent être compris selon la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un agrégat peut-il afficher tous ses membres actifs tout en donnant un service médiocre ?",
+      "choices": [
+        "Parce que LACP garantit un routage optimal pour tous les flux",
+        "Parce que le hachage, les erreurs physiques, les drops ou un goulot d’étranglement ailleurs dans le chemin peuvent limiter les performances",
+        "Parce que les compteurs de port n’ont jamais de valeur",
+        "Parce qu’un lien actif ne transporte pas de trames Ethernet"
+      ],
+      "answer": 1,
+      "explanation": "L’état LACP indique que les liens participent à l’agrégat, pas que le trafic est bien équilibré ni que le chemin complet est sain. Il faut inspecter compteurs et métriques de bout en bout."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle le seuil `min-links` joue-t-il dans une conception résiliente ?",
+      "choices": [
+        "Il définit le débit maximal de tous les ports du switch",
+        "Il remplace les tests de basculement",
+        "Il permet de choisir un nombre minimum de membres requis pour que l’agrégat soit considéré opérationnel",
+        "Il augmente automatiquement les ressources d’alimentation"
+      ],
+      "answer": 2,
+      "explanation": "Un seuil trop haut peut provoquer l’arrêt du service après une panne de membres ; trop bas, il peut maintenir un service sous-dimensionné. Il doit suivre les exigences métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment diagnostiquer efficacement un agrégat instable lors d’une panne d’un lien ?",
+      "choices": [
+        "Corréler les événements LACP, la perte de porteuse, les changements de hash, les erreurs et le comportement applicatif autour de l’instant de panne",
+        "Se fier uniquement à la dernière configuration enregistrée",
+        "Réinitialiser les compteurs avant de les lire",
+        "Désactiver la télémétrie afin d’alléger le switch"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La chronologie des événements et les compteurs permettent de distinguer une défaillance physique, une négociation, un changement de membre ou un problème situé plus loin dans le chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une redondance multi-châssis doit-elle être testée avec un scénario de perte du peer-link ou du mécanisme de keepalive ?",
+      "choices": [
+        "Parce que tous les liens doivent toujours être actifs",
+        "Pour confirmer que la plateforme continue à envoyer les mêmes paquets dans toutes les conditions",
+        "Pour vérifier les réactions prévues à une partition et éviter une situation dual-active ou une coupure non maîtrisée",
+        "Pour mettre à jour automatiquement le firmware"
+      ],
+      "answer": 2,
+      "explanation": "Les scénarios de partition déterminent quel pair conserve le service et comment les ports sont traités. Les résultats dépendent du constructeur et doivent être validés dans son modèle documenté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle du hash de répartition dans la capacité observable d’un agrégat ?",
+      "choices": [
+        "Il chiffre le contenu de chaque trame",
+        "Il décide uniquement de la route IP par défaut",
+        "Il assure que chaque paquet d’un même flux passe par un membre différent",
+        "Il détermine le membre de l’agrégat qui transporte un flux à partir de champs sélectionnés ; sa qualité doit être évaluée avec le profil de trafic"
+      ],
+      "answer": 3,
+      "explanation": "L’algorithme de hash vise notamment à conserver l’ordre des paquets d’un flux en les associant à un membre. Les champs sélectionnés et le profil de trafic influencent l’équilibre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il éviter lors d’une migration entre une agrégation simple et une architecture multi-châssis ?",
+      "choices": [
+        "Basculer sans valider compatibilité, domaines de panne, convergence, passerelles, STP et plan de retour arrière",
+        "Vérifier la charge des membres",
+        "Documenter les dépendances physiques",
+        "Tester le retour au service avant l’intervention"
+      ],
+      "answer": 0,
+      "explanation": "Une migration affecte les chemins, la coordination des pairs et les mécanismes L2/L3. Elle exige une conception et un essai spécifiques, pas seulement la réutilisation de la configuration de ports."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment présenter une preuve de bon fonctionnement après un changement d’agrégat ?",
+      "choices": [
+        "Dire simplement que la commande de configuration n’a renvoyé aucune erreur",
+        "Fournir l’état des membres, la répartition, les compteurs, le résultat des essais de panne autorisés et les mesures applicatives avant/après",
+        "Supprimer les journaux d’événements après le changement",
+        "Vérifier un seul ping et en déduire une haute disponibilité garantie"
+      ],
+      "answer": 1,
+      "explanation": "Une validation solide comporte plusieurs sources de preuve. Un ping unique ne garantit ni la capacité, ni la résilience, ni le comportement des applications lors de panne."
     }
   ]
 }

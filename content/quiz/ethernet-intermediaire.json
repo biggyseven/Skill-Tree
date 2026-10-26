@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Ethernet & couche 2 - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi le tag 802.1Q est-il important sur une liaison trunk ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il chiffre les trames de bout en bout",
+        "Il indique le VLAN associé à une trame pour transporter plusieurs domaines L2 sur la liaison",
+        "Il remplace les adresses MAC",
+        "Il permet à un port d’accès de devenir automatiquement un routeur"
+      ],
+      "answer": 1,
+      "explanation": "Le tag 802.1Q permet de distinguer les VLAN transportés sur un trunk. Les VLAN autorisés et le traitement du VLAN natif doivent être cohérents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une MAC se déplace très rapidement entre plusieurs ports. Quelle première vérification permet de différencier une panne de commutation d’une boucle ?",
+      "choices": [
+        "Modifier immédiatement le plan d’adressage IP",
+        "Désactiver tous les trunks sans vérifier",
+        "Corréler les événements MAC avec la topologie, l’état STP, les trunks et les agrégations",
+        "Changer tous les câbles sans collecter de compteurs"
+      ],
+      "answer": 2,
+      "explanation": "Les mouvements MAC peuvent résulter d’une boucle, d’un câblage inattendu, d’un terminal mobile ou d’une agrégation incohérente. Les événements doivent être corrélés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement STP et LACP ?",
+      "choices": [
+        "STP empêche les boucles L2 ; LACP négocie et suit une agrégation de liens compatibles",
+        "STP chiffre les trunks ; LACP fournit les adresses IP",
+        "Les deux sont des protocoles DNS",
+        "LACP remplace toujours le routage inter-VLAN"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les deux mécanismes sont complémentaires : STP contrôle la topologie sans boucle, tandis que LACP forme une agrégation logique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qui doit être aligné aux deux extrémités d’un trunk ?",
+      "choices": [
+        "La version du navigateur de chaque terminal",
+        "Les enregistrements MX de la zone DNS",
+        "Les identifiants des utilisateurs uniquement",
+        "Les VLAN autorisés, le rôle des ports et le traitement du VLAN natif lorsque celui-ci est utilisé"
+      ],
+      "answer": 3,
+      "explanation": "Une incohérence du trunk ou du VLAN natif peut produire des pertes ou une segmentation inattendue. La configuration doit être revue aux deux extrémités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une interface peut-elle avoir des erreurs physiques tout en restant administrativement et opérationnellement active ?",
+      "choices": [
+        "Le DNS empêche toute erreur Ethernet",
+        "Parce qu’un lien actif ne garantit pas l’absence de pertes, d’erreurs CRC, de négociation incorrecte ou de problèmes optiques",
+        "Parce que STP corrige automatiquement tous les défauts de câble",
+        "Parce qu’une interface `up` prouve que le VLAN est correct"
+      ],
+      "answer": 1,
+      "explanation": "L’état du lien est un indicateur limité. Les compteurs, la qualité du média et la négociation doivent être vérifiés avant de conclure que le niveau physique est sain."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure convient avant de modifier un trunk de production ?",
+      "choices": [
+        "Changer tous les VLAN en une fois pour gagner du temps",
+        "Désactiver la collecte d’événements",
+        "Vérifier les VLAN attendus, relever l’état initial, planifier la fenêtre et préparer une validation avec retour arrière",
+        "Supprimer la configuration actuelle sans sauvegarde"
+      ],
+      "answer": 2,
+      "explanation": "Un changement de trunk peut isoler des segments. La vérification préalable, la fenêtre autorisée et la procédure de retour limitent l’impact."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’apprentissage MAC et les compteurs de port sont-ils complémentaires ?",
+      "choices": [
+        "Ils donnent des informations différentes : la table MAC indique où les adresses sont apprises, les compteurs décrivent le comportement et les erreurs du lien",
+        "Ils sont identiques et il suffit d’en lire un",
+        "La table MAC mesure le débit applicatif en temps réel avec précision",
+        "Les compteurs identifient toujours l’utilisateur qui a envoyé chaque paquet"
+      ],
+      "answer": 0,
+      "explanation": "La table MAC aide à comprendre la localisation logique des terminaux ; les compteurs aident à repérer erreurs, drops ou déséquilibres de trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une station est raccordée au bon switch mais reste dans le mauvais domaine de broadcast. Quel contrôle est prioritaire ?",
+      "choices": [
+        "Le certificat TLS du site web",
+        "La version du système d’exploitation du poste uniquement",
+        "Le serveur NTP de l’entreprise",
+        "L’affectation du port au VLAN, les trunks de transport et le routage requis entre les VLAN"
+      ],
+      "answer": 3,
+      "explanation": "Une présence physique correcte ne garantit pas la bonne segmentation. Il faut vérifier l’affectation VLAN et le chemin L2/L3 nécessaire."
     }
   ]
 }

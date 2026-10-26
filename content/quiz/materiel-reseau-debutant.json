@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Le matériel réseau - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel équipement commute habituellement les trames d’un réseau Ethernet local ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Un switch",
+        "Un modem seul",
+        "Un serveur DNS",
+        "Un point d’accès utilisé comme routeur dans tous les cas"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un switch apprend les adresses MAC et transfère les trames dans le domaine de couche 2, selon sa configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un transceiver SFP/QSFP ?",
+      "choices": [
+        "À attribuer une adresse IP à un port",
+        "À remplacer la table MAC d’un switch",
+        "À convertir les signaux électriques/optiques selon le module et le support compatible de la liaison",
+        "À fournir automatiquement des baux DHCP"
+      ],
+      "answer": 2,
+      "explanation": "Le module doit correspondre aux ports, au support, à la longueur d’onde, à la portée et aux spécifications des deux extrémités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant de brancher un équipement PoE ?",
+      "choices": [
+        "Le nom DNS public uniquement",
+        "La compatibilité du PSE/PD et la disponibilité du budget de puissance",
+        "La version du navigateur de l’administrateur",
+        "La longueur du fichier de configuration"
+      ],
+      "answer": 1,
+      "explanation": "Le PSE fournit l’alimentation et le PD la reçoit. Il faut confirmer la compatibilité et le budget PoE du switch."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue un routeur dans un réseau ?",
+      "choices": [
+        "Il répète toujours la même trame vers tous les ports",
+        "Il sert uniquement à alimenter les téléphones IP",
+        "Il remplace le câblage structuré",
+        "Il transfère des paquets entre réseaux IP selon une table de routage"
+      ],
+      "answer": 3,
+      "explanation": "Le routeur intervient à la couche réseau et utilise la table de routage pour choisir un chemin vers une destination."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre fibre monomode et multimode est pertinente ?",
+      "choices": [
+        "Elles diffèrent notamment par leur cœur et les distances/optique typiquement visées ; la compatibilité du transceiver et de la fibre doit être vérifiée",
+        "La fibre multimode ne transporte aucun signal lumineux",
+        "La fibre monomode utilise obligatoirement le Wi-Fi",
+        "La monomode est toujours interchangeable avec tout module SFP"
+      ],
+      "answer": 0,
+      "explanation": "Le type de fibre et le transceiver sont liés aux longueurs d’onde, à la portée et au budget optique. Les catégories ne doivent pas être mélangées sans validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement indique généralement un lien Ethernet physique actif ?",
+      "choices": [
+        "Le DNS résout le nom de chaque poste",
+        "Un serveur DHCP est toujours présent",
+        "Les deux ports peuvent détecter le lien physique et afficher un état opérationnel approprié, sans garantir pour autant le bon VLAN ou service",
+        "L’interface possède nécessairement une adresse IPv4 publique"
+      ],
+      "answer": 2,
+      "explanation": "Un lien `up` est un indice physique, pas une preuve de connectivité de bout en bout ou de bonne configuration de VLAN et d’IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi étiqueter les câbles et ports dans une baie réseau ?",
+      "choices": [
+        "Pour augmenter le débit de transmission",
+        "Pour faciliter le suivi des connexions, la maintenance et le diagnostic sans débrancher au hasard",
+        "Pour remplacer les sauvegardes",
+        "Pour rendre les ports plus sécurisés par chiffrement"
+      ],
+      "answer": 1,
+      "explanation": "Un étiquetage cohérent réduit les erreurs de brassage et accélère l’identification du chemin physique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel matériel est généralement nécessaire pour connecter un réseau local à un fournisseur Internet ?",
+      "choices": [
+        "Un panneau de brassage seul",
+        "Un switch non configuré sans aucun accès opérateur",
+        "Un transceiver sans port réseau",
+        "Un équipement d’accès/routeur adapté au lien opérateur, complété par les fonctions de sécurité et de distribution nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "Le chemin exact dépend de la technologie d’accès, mais il faut un équipement compatible avec l’interface du fournisseur et la fonction de routage/accès requise."
     }
   ]
 }

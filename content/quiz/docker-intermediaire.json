@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Docker Compose et registres",
+      "prompt": "Dans un fichier Compose, comment un service joint-il normalement un autre service sur le même réseau Compose ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "En utilisant obligatoirement l’adresse IP publique de l’hôte",
+        "En partageant le système de fichiers racine",
+        "En utilisant le nom du service comme nom DNS sur le réseau Compose",
+        "En ouvrant tous les ports sur Internet"
+      ],
+      "answer": 2,
+      "explanation": "Compose fournit habituellement la résolution des noms de service sur le réseau commun. Les adresses IP des conteneurs peuvent changer à leur recréation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que garantit généralement `depends_on` dans sa forme simple ?",
+      "choices": [
+        "Il attend toujours que l’application dépendante ait fini toute son initialisation métier",
+        "Il rend le service dépendant hautement disponible",
+        "Il garantit que tous les appels HTTP réussiront",
+        "Il définit un ordre de démarrage, mais ne prouve pas à lui seul que le service est prêt à traiter les requêtes"
+      ],
+      "answer": 3,
+      "explanation": "L’ordre de démarrage n’équivaut pas à un contrôle de disponibilité applicative. Un healthcheck et une stratégie de reprise adaptée sont nécessaires lorsque la disponibilité est importante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi garder les identifiants hors d’un fichier Compose versionné ?",
+      "choices": [
+        "Parce que le dépôt peut exposer les secrets et que l’historique Git conserve les valeurs divulguées",
+        "Parce que Compose ne permet aucune variable d’environnement",
+        "Parce que tous les secrets sont automatiquement chiffrés par Git",
+        "Parce que le registre efface les mots de passe au démarrage"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Un dépôt ne doit pas contenir de secrets. Une valeur divulguée doit être révoquée ou renouvelée ; la supprimer du dernier fichier ne l’efface pas nécessairement de l’historique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un fichier `compose.yaml` qui décrit plusieurs services ?",
+      "choices": [
+        "Il remplace la nécessité de versionner les fichiers de l’application",
+        "Il décrit de façon reproductible services, réseaux, volumes et configuration d’une application multi-conteneurs",
+        "Il garantit que les conteneurs n’auront aucune vulnérabilité",
+        "Il crée automatiquement un cluster Kubernetes"
+      ],
+      "answer": 1,
+      "explanation": "Compose permet de décrire et de piloter une application multi-services. Il ne remplace ni les tests de santé ni les contrôles de sécurité ou de production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de publier une image vers un registre, que faut-il vérifier ?",
+      "choices": [
+        "Le nombre de couleurs du logo du registre",
+        "Que l’image n’a pas de tag",
+        "Que l’image fonctionne sur n’importe quelle architecture sans test",
+        "Le nom, le tag, l’authentification du registre, les résultats de validation et la politique de publication"
+      ],
+      "answer": 3,
+      "explanation": "Le nom complet identifie le registre et le dépôt. Il faut également valider les tests et les permissions ; un push réussi ne prouve pas que l’image est prête pour la production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode améliore la reproductibilité d’un déploiement utilisant une image ?",
+      "choices": [
+        "Utiliser `latest` sans jamais vérifier le contenu",
+        "Identifier précisément la version, conserver la provenance et, lorsque cela convient, référencer le digest de l’image",
+        "Retélécharger une image choisie au hasard à chaque démarrage",
+        "Inclure les secrets de production dans les labels de l’image"
+      ],
+      "answer": 1,
+      "explanation": "Un tag peut être déplacé. Une version contrôlée et/ou un digest, associés à la provenance et aux validations, rendent le contenu déployé plus identifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert `docker compose config` ?",
+      "choices": [
+        "À afficher la configuration Compose résolue et à détecter certaines erreurs de structure ou d’interpolation",
+        "À exécuter automatiquement une sauvegarde de base de données",
+        "À supprimer les volumes orphelins sans confirmation",
+        "À vérifier la sécurité du code source à la place de SAST"
+      ],
+      "answer": 0,
+      "explanation": "La commande rend visible la configuration Compose résultante, notamment après interpolation. Les valeurs sensibles doivent être protégées car la sortie peut les révéler."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ajouter un `healthcheck` à un service important ?",
+      "choices": [
+        "Pour chiffrer tous les échanges du réseau Compose",
+        "Pour éviter tout besoin de logs",
+        "Pour fournir un signal de santé basé sur une vérification définie, distinct du seul état du processus",
+        "Pour publier automatiquement le port du service"
+      ],
+      "answer": 2,
+      "explanation": "Un processus peut être actif tout en étant incapable de répondre correctement. Le healthcheck observe un signal défini et doit être conçu selon le service."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Le matériel réseau - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi évaluer un switch en paquets par seconde en plus du débit en bit/s ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Parce qu’un équipement ne traite jamais les paquets individuellement",
+        "Parce qu’un trafic de petits paquets peut saturer le traitement même si le débit en bit/s reste inférieur à la capacité nominale",
+        "Parce que les paquets par seconde ne changent jamais avec la taille des paquets",
+        "Pour estimer uniquement le budget PoE"
+      ],
+      "answer": 1,
+      "explanation": "Le débit en bit/s ne décrit pas entièrement la charge du plan de données. Le débit en paquets/s et les profils de trames complètent l’analyse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel effet peut avoir une contention de buffers ou de files d’attente ?",
+      "choices": [
+        "Elle change automatiquement les préfixes de routage",
+        "Elle améliore systématiquement la latence",
+        "Elle garantit qu’aucun paquet ne sera perdu",
+        "Elle peut provoquer pertes ou latences variables sous charge, même si le débit moyen semble acceptable"
+      ],
+      "answer": 3,
+      "explanation": "La gestion des files et buffers influence la perte, la latence et les microbursts. Les tests doivent inclure des charges et profils de trafic réalistes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi calculer une capacité en mode dégradé ?",
+      "choices": [
+        "Pour vérifier que les chemins restants supportent la charge essentielle après la perte d’un lien, d’un module ou d’un châssis",
+        "Pour ignorer les scénarios de panne",
+        "Pour éviter de mesurer les uplinks",
+        "Pour rendre inutile le dimensionnement des buffers"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un réseau peut être dimensionné pour le nominal mais saturer lors d’une panne. Le mode dégradé doit être évalué selon les exigences de service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque peut survenir si la puissance optique reçue est trop élevée ?",
+      "choices": [
+        "Un dépassement de durée de bail DHCP",
+        "Une suppression des VLAN du switch",
+        "Une surcharge du récepteur optique ou un fonctionnement en dehors des limites spécifiées, même si la perte est faible",
+        "Une rotation automatique des clés SSH"
+      ],
+      "answer": 2,
+      "explanation": "Un budget optique doit respecter la plage minimale et maximale du récepteur. Une puissance trop forte peut nécessiter un atténuateur ou un module adapté selon les spécifications."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment vérifier qu’un switch conserve une capacité suffisante pendant une panne d’un uplink ?",
+      "choices": [
+        "Lire uniquement la capacité de commutation maximale du constructeur",
+        "Tester le basculement dans un environnement autorisé et mesurer débit, pertes, latence et utilisation des chemins restants",
+        "Comparer le numéro de série des transceivers",
+        "Désactiver les compteurs avant l’essai"
+      ],
+      "answer": 1,
+      "explanation": "Le résultat dépend du routage, de l’agrégation, de la capacité restante et du profil de trafic. Il doit être vérifié avec des mesures de service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la valeur d’un test de performance reproductible ?",
+      "choices": [
+        "Une valeur unique relevée sans charge ni configuration décrite",
+        "Un benchmark d’un modèle différent",
+        "Une capture d’écran de la fiche produit seulement",
+        "Un scénario documenté avec versions, configuration, profil de trafic, charge, métriques, conditions d’arrêt et résultats comparables"
+      ],
+      "answer": 3,
+      "explanation": "La reproductibilité permet de comparer les équipements et les versions sur des conditions cohérentes, et de détecter les changements de comportement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier les domaines de panne physiques dans une architecture redondante ?",
+      "choices": [
+        "Deux liens logiques peuvent partager le même conduit, châssis, alimentation ou équipement opérateur, ce qui annule une partie de la redondance",
+        "Parce que la redondance empêche toujours les pannes",
+        "Pour retirer toute supervision de l’infrastructure",
+        "Parce que le nombre de ports garantit la diversité des chemins"
+      ],
+      "answer": 0,
+      "explanation": "La diversité physique doit être confirmée au-delà du schéma logique. Des ressources communes peuvent créer un point de panne unique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble constitue une bonne preuve avant de déclarer une plateforme réseau adaptée à la production ?",
+      "choices": [
+        "Le numéro de modèle et le logo fournisseur uniquement",
+        "La quantité de mémoire système sans profil de trafic",
+        "La mesure des performances, les limites documentées, la compatibilité, les modes dégradés testés et les résultats de sécurité",
+        "Le fait que les interfaces soient affichées dans l’inventaire"
+      ],
+      "answer": 2,
+      "explanation": "La qualification d’un équipement doit s’appuyer sur les besoins et des essais contrôlés, y compris dans les scénarios de charge et de panne pertinents."
     }
   ]
 }
