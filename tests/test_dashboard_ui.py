@@ -73,6 +73,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("readable.querySelectorAll('.lesson-diagram-block').forEach(root =>", DASHBOARD_HTML)
         self.assertIn("Les colonnes sont :", DASHBOARD_HTML)
         self.assertIn("mène vers", DASHBOARD_HTML)
+        self.assertIn("Le schéma se lit ainsi :", DASHBOARD_HTML)
+        self.assertIn("Les flèches insérées dans les phrases ou schémas inline", DASHBOARD_HTML)
+        self.assertIn("let group = '';", DASHBOARD_HTML)
         self.assertIn("Lecture naturelle des cours, schémas textuels et tableaux ligne par ligne", DASHBOARD_HTML)
 
     def test_course_reader_restores_position_per_course_and_allows_start_selection(self):
