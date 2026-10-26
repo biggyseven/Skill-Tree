@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Parser CLI Cisco-like.
  */
 function isIPv4Address(value) {
@@ -83,6 +83,20 @@ export class CLIParser {
         this.device.label = tokens[1];
         return { output: '' };
       }
+
+      // ACL IPv4 numérotées : la règle est stockée sans le préfixe de commande.
+      if (['access-list', 'acc-l', 'acl'].includes(cmd)) {
+        const action = String(tokens[2] || '').toLowerCase();
+        if (!/^\d+$/.test(tokens[1] || '') ||
+            !['permit', 'deny', 'remark'].includes(action) ||
+            tokens.length < 4) {
+          return { output: '% Invalid access-list syntax. Use access-list <number> <permit|deny|remark> ...' };
+        }
+        if (!Array.isArray(this.device.config.acls)) this.device.config.acls = [];
+        const rule = raw.slice(raw.indexOf(tokens[1])).trim();
+        if (!this.device.config.acls.includes(rule)) this.device.config.acls.push(rule);
+        return { output: '' };
+      }
       if (cmd === 'interface' && tokens[1]) {
         const port = this.findPort(tokens[1]);
         if (!port) return { output: '% Interface not found.' };
@@ -120,6 +134,17 @@ export class CLIParser {
       const port = this.findPort(this.context.interface);
       if (!port) { this.mode = 'config'; return { output: '% Interface not found.' }; }
       
+      if (cmd === 'ip' && String(tokens[1] || '').toLowerCase() === 'access-group') {
+        const aclNumber = Number(tokens[2]);
+        const direction = String(tokens[3] || '').toLowerCase();
+        if (!Number.isInteger(aclNumber) || aclNumber < 1 || aclNumber > 2147483647 ||
+            !['in', 'out'].includes(direction) || tokens.length !== 4) {
+          return { output: '% Invalid input. Use ip access-group <number> <in|out>.' };
+        }
+        port[direction === 'in' ? 'access_group_in' : 'access_group_out'] = aclNumber;
+        return { output: '' };
+      }
+
       if (cmd === 'ip' && tokens[1] === 'address' && tokens[2] && tokens[3]) {
         if (!isIPv4Address(tokens[2])) {
           return { output: '% Invalid IPv4 address. Use four octets between 0 and 255.' };
@@ -181,6 +206,15 @@ export class CLIParser {
       c.vlans.forEach(v => { out += `vlan ${v.id}\n name ${v.name}\n!\n`; });
     }
 
+    // ACL IPv4 numérotées
+    if (Array.isArray(c.acls) && c.acls.length) {
+      c.acls.forEach(rule => {
+        const text = typeof rule === 'string' ? rule.trim() : '';
+        if (text) out += `access-list ${text.startsWith('access-list ') ? text.slice(12) : text}\n`;
+      });
+      out += '!\n';
+    }
+
     // Interfaces
     (this.device.ports || []).forEach(p => {
       out += `interface ${p.name || p.id}\n`;
@@ -188,6 +222,12 @@ export class CLIParser {
       if (p.mode && p.mode !== 'routed') out += ` switchport mode ${p.mode}\n`;
       if (p.vlan) out += ` switchport access vlan ${p.vlan}\n`;
       if (p.ip && p.mask) out += ` ip address ${p.ip} ${p.mask}\n`;
+      if (p.access_group_in !== undefined && p.access_group_in !== null && p.access_group_in !== '') {
+        out += ` ip access-group ${p.access_group_in} in\n`;
+      }
+      if (p.access_group_out !== undefined && p.access_group_out !== null && p.access_group_out !== '') {
+        out += ` ip access-group ${p.access_group_out} out\n`;
+      }
       out += ` ${p.state === 'up' ? 'no ' : ''}shutdown\n!\n`;
     });
 
