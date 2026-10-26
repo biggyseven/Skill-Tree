@@ -1,18 +1,102 @@
 {
   "node_id": "lab_tshoot_dns",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Dans ce scénario, quel est le problème principal ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Le client pointe vers un mauvais serveur DNS",
+        "Le serveur DNS est nécessairement arrêté",
+        "L’enregistrement `intranet.lab` renvoie 10.70.1.99 au lieu de 10.70.1.53",
+        "Le client n’a pas d’adresse IPv4"
+      ],
+      "answer": 2,
+      "explanation": "La consigne indique que le client atteint son bon résolveur et que le serveur répond, mais que la donnée d’adresse du nom est incorrecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet d’interroger le serveur DNS en demandant un enregistrement A ?",
+      "choices": [
+        "`nslookup -type=A intranet.lab 10.70.1.53`",
+        "`ip route get intranet.lab`",
+        "`systemctl enable IPv4`",
+        "`bridge vlan show intranet.lab`"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "`nslookup -type=A` interroge le type A. Préciser 10.70.1.53 permet de tester directement le résolveur du lab."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle ligne est volontairement incorrecte dans la configuration dnsmasq du lab ?",
+      "choices": [
+        "`interface=lo`",
+        "`port=443`",
+        "`listen-address=10.70.1.53`",
+        "`address=/intranet.lab/10.70.1.99`"
+      ],
+      "answer": 3,
+      "explanation": "La consigne fournit la ligne erronée : elle fait pointer `intranet.lab` vers 10.70.1.99 au lieu de la bonne adresse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après modification du fichier de configuration, pourquoi faut-il recharger ou redémarrer dnsmasq ?",
+      "choices": [
+        "Le DNS ne lit jamais de configuration",
+        "Le processus en cours peut continuer d’utiliser la configuration chargée au démarrage",
+        "Le client a besoin d’un autre VLAN",
+        "Les adresses IP changent automatiquement"
+      ],
+      "answer": 1,
+      "explanation": "Modifier le fichier ne modifie pas nécessairement l’état en mémoire du processus déjà démarré. Le lab demande de relancer dnsmasq puis de refaire le test."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel diagnostic est soutenu si `ping 10.70.1.53` réussit mais la réponse A de `intranet.lab` est incorrecte ?",
+      "choices": [
+        "La couche IP et l’accès au serveur sont probablement fonctionnels ; il faut examiner la donnée DNS servie",
+        "Il faut obligatoirement remplacer le câble client",
+        "La passerelle ne peut pas être joignable",
+        "Le serveur doit être reconfiguré en IPv6 uniquement"
+      ],
+      "answer": 0,
+      "explanation": "Le ping par adresse valide une partie de la connectivité, tandis que la résolution erronée indique plutôt un problème de donnée publiée ou de configuration DNS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où le lab laisse-t-il le fichier de configuration fautif ?",
+      "choices": [
+        "Dans `/etc/hosts` de l’ordinateur local uniquement",
+        "Dans la base de données de l’application",
+        "Dans `/tmp/dnsmasq-tshoot.conf`",
+        "Dans le fichier `.gitignore`"
+      ],
+      "answer": 2,
+      "explanation": "La consigne précise que setup.sh place volontairement la mauvaise ligne dans `/tmp/dnsmasq-tshoot.conf`."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet de vérifier que le nom utilise désormais la bonne réponse depuis le client ?",
+      "choices": [
+        "`ip netns list`",
+        "`ip netns exec client nslookup -type=A intranet.lab`",
+        "`systemctl list-units --type=target`",
+        "`ip link set lo up`"
+      ],
+      "answer": 1,
+      "explanation": "La résolution sans serveur explicitement indiqué vérifie également que le client utilise le résolveur configuré, en plus de la valeur de l’enregistrement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère confirme la réussite complète du lab ?",
+      "choices": [
+        "Le fichier a été édité sans relire son contenu",
+        "Le ping du serveur fonctionne et suffit à prouver le DNS",
+        "Le processus dnsmasq existe, quelle que soit sa configuration",
+        "Le client utilise le bon résolveur, joint le serveur et obtient 10.70.1.53 pour `intranet.lab`"
+      ],
+      "answer": 3,
+      "explanation": "La validation combine la configuration du client, la connectivité au serveur et la réponse DNS attendue, et pas seulement le fait que le service existe."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

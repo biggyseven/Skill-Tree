@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Journaux et supervision",
+      "prompt": "Quelle différence entre journal et métrique est la plus utile ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Un journal est un événement horodaté avec contexte ; une métrique est une mesure numérique suivie dans le temps",
+        "Une métrique contient toujours la totalité d’une trace d’application",
+        "Un journal remplace les alertes",
+        "Les deux termes désignent seulement des fichiers texte"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les logs décrivent des événements précis, tandis que les métriques représentent des mesures agrégées ou échantillonnées au fil du temps."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande aide à consulter les journaux d’une unité systemd appelée `nginx` ?",
+      "choices": [
+        "`ip link show nginx`",
+        "`journalctl -u nginx`",
+        "`chmod nginx logs`",
+        "`kubectl get journal nginx`"
+      ],
+      "answer": 1,
+      "explanation": "`journalctl -u` filtre les événements du service indiqué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue Prometheus dans une architecture classique de supervision ?",
+      "choices": [
+        "Il configure automatiquement toutes les ACL réseau",
+        "Il remplace le système de logs",
+        "Il fournit une base de métriques et collecte généralement des métriques en scrutant des cibles configurées",
+        "Il fournit un accès administrateur à tous les systèmes"
+      ],
+      "answer": 2,
+      "explanation": "Prometheus scrape les cibles configurées, stocke les séries temporelles et permet leur interrogation et leur utilisation dans des règles d’alerte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une alerte devrait-elle être fondée sur un symptôme ou un seuil pertinent pour le service ?",
+      "choices": [
+        "Pour créer un maximum de notifications, même inutiles",
+        "Pour remplacer les objectifs de disponibilité",
+        "Pour rendre impossible toute fausse alerte",
+        "Pour attirer l’attention sur un risque ou impact significatif, sans noyer les équipes sous des alertes non actionnables"
+      ],
+      "answer": 3,
+      "explanation": "Une bonne alerte appelle une action et possède un contexte. Des seuils mal adaptés produisent du bruit ou font manquer des incidents importants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle métrique donne souvent une indication directe de saturation de disque ?",
+      "choices": [
+        "Le pourcentage d’espace utilisé, complété par l’évolution et les besoins d’inodes si pertinent",
+        "Le nombre de requêtes DNS uniquement",
+        "La température du navigateur",
+        "Le nombre de règles de pare-feu"
+      ],
+      "answer": 0,
+      "explanation": "L’espace disponible doit être surveillé avec la tendance et, sous Linux, le nombre d’inodes peut également limiter la création de fichiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la synchronisation de l’heure est-elle importante pour corréler les journaux ?",
+      "choices": [
+        "Elle augmente le débit Ethernet",
+        "Elle supprime automatiquement les erreurs dans les logs",
+        "Elle évite que plusieurs sources écrivent des événements en ordre trompeur à cause d’horloges décalées",
+        "Elle remplace les identifiants de corrélation"
+      ],
+      "answer": 2,
+      "explanation": "Des horloges décalées peuvent inverser la chronologie apparente et compliquer l’analyse. Les sources doivent être synchronisées et leur décalage connu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une alerte sans contexte ni procédure associée ?",
+      "choices": [
+        "Elle confirme toujours un incident critique",
+        "Elle peut être difficile à traiter parce que la gravité, les vérifications et l’action attendue ne sont pas claires",
+        "Elle remplace une investigation",
+        "Elle est plus utile qu’un signal contextualisé"
+      ],
+      "answer": 1,
+      "explanation": "L’alerte doit préciser le service, le symptôme, la gravité, les liens de diagnostic et la procédure d’escalade afin d’être actionnable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon premier exercice pour valider une alerte de supervision ?",
+      "choices": [
+        "Désactiver la collecte et attendre une panne réelle",
+        "Créer des notifications externes sans autorisation",
+        "Vérifier uniquement la couleur du tableau de bord",
+        "Provoquer un scénario de test autorisé, vérifier le déclenchement, la notification et le retour à l’état normal"
+      ],
+      "answer": 3,
+      "explanation": "Une alerte doit être testée de bout en bout dans un environnement sûr, notamment la condition, le canal de notification et le comportement au rétablissement."
     }
   ]
 }
