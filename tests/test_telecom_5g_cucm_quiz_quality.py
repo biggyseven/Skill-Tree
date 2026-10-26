@@ -27,7 +27,7 @@ EXPECTED_ANCHORS = {
     ),
     "telecom-5g-expert": (
         "Quel rôle joue le Network Repository Function (NRF) dans l’architecture 5G basée sur les services ?",
-        0, "NRF"
+        0, "fonctions réseau"
     ),
     "voice-cucm-debutant": (
         "Quel est le rôle principal de CUCM ?", 0, "contrôle d’appel"
@@ -105,4 +105,4 @@ def test_5g_and_cucm_core_concepts_are_covered():
     assert "UPF".casefold() in all_content["telecom-5g-expert"]
     assert "calling search space" in all_content["voice-cucm-debutant"]
     assert "route group" in all_content["voice-cucm-intermediaire"]
-    assert "SRTP" in all_content["voice-cucm-expert"]
+    assert "srtp" in all_content["voice-cucm-expert"]
