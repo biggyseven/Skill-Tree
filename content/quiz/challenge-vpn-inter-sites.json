@@ -1,0 +1,102 @@
+{
+  "node_id": "challenge-vpn-inter-sites",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans le défi VPN intersites, que désigne l’underlay ?",
+      "choices": [
+        "La connectivité IP de transport qui permet aux passerelles de s’atteindre",
+        "Les réseaux internes chiffrés du tunnel",
+        "Les règles applicatives du pare-feu",
+        "Le résultat du test de débit du LAN"
+      ],
+      "answer": 0,
+      "explanation": "L’underlay fournit la connectivité entre passerelles ; le tunnel IPsec constitue l’overlay qui protège les flux sélectionnés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel chemin doit exister dans chaque site selon le brief du défi ?",
+      "choices": [
+        "PC → cloud directement",
+        "Routeur → pare-feu → switch → poste",
+        "Pare-feu → PC → switch, sans routeur",
+        "Switch → cloud et routeur isolé"
+      ],
+      "answer": 1,
+      "explanation": "Les critères demandent un chemin complet entre la passerelle, le pare-feu, le switch et le poste de chaque agence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente le lien logique entre les deux routeurs ?",
+      "choices": [
+        "Une preuve de négociation IKE réussie",
+        "Une règle de firewall qui autorise toutes les applications",
+        "La représentation du tunnel VPN dans le schéma, pas sa configuration réelle",
+        "Un câble physique obligatoire entre les deux routeurs à travers Internet"
+      ],
+      "answer": 2,
+      "explanation": "Le moteur valide la topologie de démonstration. IKE, clés, chiffrement, sélecteurs et routes doivent être configurés et testés séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi chaque routeur doit-il atteindre le réseau Internet dans le schéma ?",
+      "choices": [
+        "Pour que les postes soient automatiquement accessibles depuis Internet",
+        "Pour remplacer le tunnel IPsec par des routes publiques",
+        "Pour que les deux LAN partagent le même sous-réseau",
+        "Parce que le transport sous-jacent doit permettre aux passerelles d’échanger avant d’établir le tunnel"
+      ],
+      "answer": 3,
+      "explanation": "Un tunnel ne peut s’établir si les passerelles ne disposent pas d’une connectivité underlay utilisable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les sélecteurs de trafic IPsec ?",
+      "choices": [
+        "À définir les réseaux ou flux qui doivent être protégés par le tunnel",
+        "À choisir la couleur des connexions",
+        "À remplacer l’adressage des LAN",
+        "À garantir la disponibilité du fournisseur Internet"
+      ],
+      "answer": 0,
+      "explanation": "Les sélecteurs précisent les flux protégés et doivent être compatibles aux deux extrémités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel groupe d’éléments est nécessaire pour valider un VPN réel, au-delà du dessin ?",
+      "choices": [
+        "La position graphique des icônes uniquement",
+        "Paramètres IKE/IPsec compatibles, authentification, sélecteurs, routes aller-retour et tests de trafic",
+        "Un câble entre les deux postes clients seulement",
+        "La présence du pare-feu sans aucune règle"
+      ],
+      "answer": 1,
+      "explanation": "Le tunnel réel dépend de la négociation, de l’authentification, des flux protégés, des routes et des contrôles de bout en bout."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi deux LAN doivent-ils rester clairement distincts dans la conception du VPN ?",
+      "choices": [
+        "Pour que chaque site utilise la même adresse IP partout",
+        "Pour que le tunnel soit visible sur le dessin",
+        "Pour identifier les réseaux protégés et permettre un routage non ambigu entre les sites",
+        "Pour supprimer le besoin de règles firewall"
+      ],
+      "answer": 2,
+      "explanation": "Les préfixes et réseaux des sites doivent être connus et compatibles avec les sélecteurs et routes du VPN."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le contrôle de topologie réussit. Quelle conclusion est justifiée ?",
+      "choices": [
+        "Le tunnel est chiffré et authentifié",
+        "Les routes de retour sont correctes",
+        "Tous les flux applicatifs sont autorisés",
+        "La structure demandée est présente ; l’établissement IPsec et la sécurité réelle restent à tester"
+      ],
+      "answer": 3,
+      "explanation": "Le brief précise explicitement que le moteur ne valide pas IKE, les clés, les sélecteurs ni les routes retour."
+    }
+  ]
+}

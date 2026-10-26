@@ -1,0 +1,102 @@
+{
+  "node_id": "challenge-dual-isp-ha",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Avec deux routeurs et deux fournisseurs, combien de paires routeur–fournisseur le critère `all_pairs` exige-t-il ?",
+      "choices": [
+        "Quatre, chaque routeur devant atteindre chacun des fournisseurs",
+        "Deux, chaque routeur devant atteindre un seul fournisseur",
+        "Trois, une par équipement central",
+        "Huit, car chaque lien doit être bidirectionnel dans le dessin"
+      ],
+      "answer": 0,
+      "explanation": "Deux routeurs multipliés par deux fournisseurs donnent quatre relations distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le routeur A possède deux liens vers le fournisseur 1 mais aucun vers le fournisseur 2. La contrainte est-elle satisfaite ?",
+      "choices": [
+        "Oui, car le nombre de liens est suffisant",
+        "Non, la relation avec le fournisseur 2 reste absente",
+        "Oui, si le routeur B atteint les deux fournisseurs",
+        "Oui, si le pare-feu est présent"
+      ],
+      "answer": 1,
+      "explanation": "Le critère contrôle chaque paire requise : une liaison dupliquée ne remplace pas un accès manquant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que vérifie la liaison inter-routeurs ?",
+      "choices": [
+        "Que BGP converge correctement après panne",
+        "Que les deux fournisseurs partagent la même AS",
+        "Que les routeurs sont interconnectés, sans prouver pour autant le basculement opérationnel",
+        "Que le pare-feu est en haute disponibilité"
+      ],
+      "answer": 2,
+      "explanation": "Le schéma valide la présence de la liaison ; BGP, détection de panne et convergence ne sont pas simulés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le pare-feu doit-il rejoindre les deux switches dans ce défi ?",
+      "choices": [
+        "Pour créer automatiquement un cluster de pare-feu",
+        "Pour éliminer les routeurs d’accès Internet",
+        "Pour que les deux serveurs soient connectés directement aux fournisseurs",
+        "Pour préserver les deux segments internes demandés et les rendre accessibles depuis la périphérie de sécurité"
+      ],
+      "answer": 3,
+      "explanation": "Les critères incluent les deux segments switch–serveur et les liaisons du pare-feu vers les deux switches."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue le mieux la redondance logique de la haute disponibilité réelle ?",
+      "choices": [
+        "Deux chemins dessinés sont nécessaires mais ne prouvent ni détection, ni convergence, ni indépendance physique",
+        "Deux fournisseurs garantissent toujours zéro perte",
+        "Un lien inter-routeurs suffit à remplacer BGP",
+        "Le statut actif d’un pare-feu prouve que tous les flux basculeront"
+      ],
+      "answer": 0,
+      "explanation": "La disponibilité doit être testée avec défaillances contrôlées et mesures, en vérifiant aussi les domaines de panne communs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi BGP est-il souvent utilisé pour une périphérie multi-fournisseur ?",
+      "choices": [
+        "Pour remplacer le pare-feu",
+        "Pour échanger des routes inter-domaines avec des politiques d’annonce et de sélection",
+        "Pour connecter directement les serveurs aux switches",
+        "Pour créer automatiquement le tunnel IPsec"
+      ],
+      "answer": 1,
+      "explanation": "BGP permet des échanges de routes et des politiques ; les annonces et préférences doivent être conçues selon les engagements opérateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels éléments faut-il mesurer lors d’un test de bascule d’accès Internet ?",
+      "choices": [
+        "Le nombre d’icônes dans le schéma",
+        "Le seul état administratif du port",
+        "Le temps de détection, pertes, convergence, routes actives et maintien des services",
+        "Le nom de l’AS uniquement"
+      ],
+      "answer": 2,
+      "explanation": "La recette doit mesurer le comportement réel lors de la panne et vérifier les services affectés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le pare-feu central est unique dans la topologie. Quelle limite doit être étudiée avant production ?",
+      "choices": [
+        "Aucune, car deux routeurs rendent tout le système redondant",
+        "Le pare-feu ne peut jamais devenir indisponible",
+        "La présence de deux fournisseurs rend l’alimentation sans importance",
+        "Le pare-feu peut rester un point de panne unique si aucun mécanisme HA indépendant n’est déployé"
+      ],
+      "answer": 3,
+      "explanation": "Le brief indique que deux routeurs ne prouvent pas la haute disponibilité du pare-feu ou la synchronisation d’état."
+    }
+  ]
+}

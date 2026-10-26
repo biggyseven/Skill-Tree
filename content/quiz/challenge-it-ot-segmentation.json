@@ -1,0 +1,102 @@
+{
+  "node_id": "challenge-it-ot-segmentation",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle architecture de commutation le défi demande-t-il pour séparer IT et OT ?",
+      "choices": [
+        "Un switch dédié aux postes IT et un autre aux automates OT",
+        "Un seul switch partagé sans VLAN",
+        "Un switch relié seulement aux automates",
+        "Aucun switch dans les deux zones"
+      ],
+      "answer": 0,
+      "explanation": "Le brief demande un switch par zone afin de séparer les chemins de communication."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle le pare-feu doit-il jouer entre les réseaux IT et OT ?",
+      "choices": [
+        "Servir de serveur d’adresses DHCP uniquement",
+        "Être le point de passage obligé entre les deux zones",
+        "Relier directement chaque PC à chaque automate",
+        "Remplacer les deux switches"
+      ],
+      "answer": 1,
+      "explanation": "La contrainte `separated_by` vérifie que les chemins PC–PLC ne contournent pas le pare-feu dans le graphe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif de la segmentation IT/OT dans une usine ?",
+      "choices": [
+        "Permettre à tous les postes d’accéder aux automates sans contrôle",
+        "Rendre les automates accessibles directement depuis Internet",
+        "Limiter les mouvements latéraux et contrôler les flux entre systèmes bureautiques et équipements industriels",
+        "Remplacer les procédures de sûreté industrielle"
+      ],
+      "answer": 2,
+      "explanation": "Les systèmes OT peuvent agir sur des processus physiques ; les communications doivent être limitées et contrôlées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Si un PC peut atteindre un PLC en suivant un lien direct entre les deux switches, le défi est-il conforme ?",
+      "choices": [
+        "Oui, si les deux switches sont dans le même rack",
+        "Oui, si le firewall est présent ailleurs dans le schéma",
+        "Oui, si le ping fonctionne",
+        "Non, cette liaison crée un chemin qui contourne le pare-feu"
+      ],
+      "answer": 3,
+      "explanation": "La validation examine les chemins du graphe, pas la simple présence d’un pare-feu quelque part."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test logique permet de vérifier le point de passage obligé ?",
+      "choices": [
+        "Vérifier qu’il n’existe aucun chemin PC–PLC lorsque le pare-feu est retiré du graphe",
+        "Vérifier uniquement les noms des équipements",
+        "Compter les ports du firewall",
+        "Placer les deux switches éloignés sur l’écran"
+      ],
+      "answer": 0,
+      "explanation": "Si un chemin subsiste sans le pare-feu, la topologie possède un contournement et échoue au critère."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le graphe est conforme. Qu’est-ce qui reste à configurer et tester dans un environnement réel ?",
+      "choices": [
+        "Aucune règle supplémentaire n’est nécessaire",
+        "VLAN, règles explicites, flux autorisés et refusés, accès d’administration et supervision",
+        "Le même sous-réseau pour toute l’usine",
+        "Uniquement une nouvelle couleur de lien"
+      ],
+      "answer": 1,
+      "explanation": "Le graphe ne valide pas VLAN, ACL ni règles du pare-feu ; ces contrôles doivent être configurés puis testés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les changements réseau en OT doivent-ils être encadrés ?",
+      "choices": [
+        "Les équipements OT ont toujours les mêmes protocoles",
+        "Un pare-feu garantit qu’aucune panne industrielle ne peut survenir",
+        "Une interruption ou une latence imprévue peut affecter disponibilité et sûreté du procédé",
+        "Les tests d’accès sont inutiles en usine"
+      ],
+      "answer": 2,
+      "explanation": "Les contraintes d’exploitation OT exigent analyse d’impact, autorisation, fenêtre et plan de restauration adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle conclusion convient après réussite du contrôle de segmentation structurelle ?",
+      "choices": [
+        "Les règles du pare-feu ont été automatiquement appliquées",
+        "Les communications non autorisées sont déjà bloquées en production",
+        "La sûreté du procédé est garantie sans autre validation",
+        "Le schéma évite les chemins de contournement ; les politiques et flux réels restent à tester"
+      ],
+      "answer": 3,
+      "explanation": "L’évaluation confirme la séparation dans le graphe, pas l’efficacité des règles ou la sûreté industrielle de bout en bout."
+    }
+  ]
+}
