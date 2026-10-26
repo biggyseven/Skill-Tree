@@ -45,6 +45,11 @@ class ContextualTutorApiTests(unittest.TestCase):
         messages = groq_client.chat.completions.create.call_args.kwargs["messages"]
         self.assertEqual(messages[0]["role"], "system")
         self.assertIn("CONTENU DU COURS", messages[0]["content"])
+        self.assertIn("progression logique", messages[0]["content"])
+        self.assertIn("objectif du dessin", messages[0]["content"])
+        self.assertIn("trajet d'un exemple concret, étape par étape", messages[0]["content"])
+        self.assertIn("agréable à lire à voix haute", messages[0]["content"])
+        self.assertIn("N'invente ni port, adresse IP, câble", messages[0]["content"])
         self.assertIn("PASSAGE SÉLECTIONNÉ PAR L'APPRENANT", messages[0]["content"])
         self.assertIn("Le passage à expliquer", messages[0]["content"])
         self.assertEqual(messages[1]["content"], "Explique la notion")

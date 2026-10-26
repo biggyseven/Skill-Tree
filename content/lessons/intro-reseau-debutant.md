@@ -147,6 +147,29 @@ Une liaison physique ne suffit donc pas. Les équipements doivent aussi être co
   <text class="bn-text" x="480" y="345" text-anchor="middle">Les connexions physiques permettent les échanges ; les protocoles organisent la communication.</text>
 </svg>
 
+### Comment lire le schéma, étape par étape
+
+Ce dessin représente un petit réseau local (LAN, *Local Area Network*) qui peut aussi communiquer avec des réseaux distants. Pour bien le comprendre, suivons le rôle des équipements et le trajet des données.
+
+**Étape 1 — Les ordinateurs sont des clients.**  
+Les ordinateurs A et B peuvent demander un service, comme imprimer un document ou ouvrir un site Web. « Client » décrit leur rôle dans un échange ; cela ne signifie pas qu'ils ne peuvent jamais recevoir de données.
+
+**Étape 2 — Le switch relie le réseau local.**  
+Chaque ordinateur dispose de sa propre liaison vers le switch. Un switch Ethernet de couche 2 transmet les trames dans le réseau local en s'appuyant notamment sur les adresses MAC. Il permet aux équipements du même réseau local de communiquer sans faire passer chaque échange par le routeur.
+
+**Étape 3 — L'imprimante est une ressource locale partagée.**  
+Pour imprimer, le trajet simplifié est : ordinateur A → switch → imprimante. La réponse de l'imprimante revient ensuite vers le poste. Cet échange ne nécessite pas Internet, à condition que l'imprimante soit correctement connectée et autorisée.
+
+**Étape 4 — Le routeur permet de joindre un autre réseau.**  
+Pour consulter un site situé à l'extérieur du LAN, l'ordinateur A envoie les données au switch, puis à sa passerelle par défaut — représentée ici par le routeur. Le routeur examine l'adresse IP de destination et choisit où transmettre les paquets. Le trafic poursuit ensuite son chemin à travers d'autres équipements et réseaux, non détaillés ici.
+
+**Étape 5 — Internet représente plusieurs réseaux interconnectés.**  
+Le bloc « Internet » n'est ni un appareil unique ni un câble. Il représente un ensemble de réseaux. Les réponses d'un service distant reviennent vers le réseau d'origine, même si ce trajet de retour n'est pas dessiné.
+
+**Comment interpréter les flèches ?**  
+Les flèches animées donnent un trajet simplifié à suivre ; l'animation est un effet visuel, pas la preuve qu'un transfert est en cours. Une flèche orientée dans un seul sens ne signifie pas que le câble ne transporte des données que dans ce sens : les communications nécessitent généralement des échanges dans les deux sens. Le dessin ne montre pas chaque protocole, chaque adresse ni tous les équipements intermédiaires.
+
+**À retenir :** le switch organise les échanges locaux, tandis que le routeur achemine les paquets IP entre réseaux. Les liaisons physiques transportent les signaux ; Ethernet, IP et les protocoles des applications définissent comment les données sont transportées et interprétées.
 
 # 3. Pourquoi utiliser un réseau ?
 

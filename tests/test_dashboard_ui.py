@@ -31,6 +31,15 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('x-show="open && tutorOpen && modalTab === \'lesson\'"', DASHBOARD_HTML)
         self.assertIn("speakTutorMessage(message.text)", DASHBOARD_HTML)
         self.assertIn("selected_text: selectedText, history", DASHBOARD_HTML)
+        self.assertIn("course-tutor-panel", DASHBOARD_HTML)
+        self.assertIn("resize: both", DASHBOARD_HTML)
+        self.assertIn("setTutorSize('compact')", DASHBOARD_HTML)
+        self.assertIn("setTutorSize('normal')", DASHBOARD_HTML)
+        self.assertIn("setTutorSize('large')", DASHBOARD_HTML)
+        self.assertIn("skilltree-tutor-size", DASHBOARD_HTML)
+        self.assertIn("Titre du cours", DASHBOARD_HTML)
+        self.assertIn("Sous-section", DASHBOARD_HTML)
+        self.assertIn("readable.querySelectorAll('li, p, blockquote, figcaption')", DASHBOARD_HTML)
 
     def test_mobile_search_dialog_uses_shared_search_state(self):
         self.assertIn('role="dialog" aria-modal="true" aria-labelledby="mobile-search-title"', DASHBOARD_HTML)
