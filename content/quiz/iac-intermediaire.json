@@ -4,99 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Pourquoi utiliser un module Terraform réutilisable ?",
+      "prompt": "Quel facteur doit guider le choix entre monorepo et multirepo pour l’IaC ?",
       "choices": [
-        "Pour encapsuler une fonctionnalité d’infrastructure avec des entrées/sorties définies et réduire la duplication entre configurations",
-        "Pour remplacer le fichier d’état par un fichier texte public",
-        "Pour éviter tous les tests",
-        "Pour autoriser le module à créer n’importe quelle ressource sans contrôle"
-      ],
-      "answer": 0,
-      "explanation": "Un module permet de réutiliser une configuration avec des interfaces explicites. Il faut le versionner, le documenter et tester ses comportements."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel est le rôle d’un backend distant Terraform correctement configuré ?",
-      "choices": [
-        "Héberger seulement le code source en lecture seule",
-        "Remplacer les providers et les ressources",
-        "Stocker l’état dans un emplacement partagé et permettre, si la solution le prend en charge et est configurée, un verrouillage des opérations concurrentes",
-        "Appliquer automatiquement les changements sans plan"
-      ],
-      "answer": 2,
-      "explanation": "Un backend distant facilite la collaboration et peut fournir un verrouillage. Les capacités exactes dépendent du backend ; les droits d’accès et la reprise doivent être testés."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi faut-il protéger le fichier d’état Terraform ?",
-      "choices": [
-        "Parce qu’il ne contient que des noms de ressources publics",
-        "Il peut contenir des données sensibles et des détails d’infrastructure ; l’accès, le chiffrement, la sauvegarde et les journaux doivent être maîtrisés",
-        "Parce que l’état doit être publié dans tous les dépôts",
-        "Parce qu’il remplace les identifiants du fournisseur"
+        "Le fait qu’un modèle soit toujours plus moderne que l’autre",
+        "Les propriétaires, les frontières de responsabilité, les droits d’accès, les dépendances et le cycle de livraison",
+        "Le nombre maximal de fichiers Markdown autorisés",
+        "L’obligation de mettre tous les environnements dans le même périmètre de sécurité"
       ],
       "answer": 1,
-      "explanation": "Le state peut inclure des attributs sensibles même si les sorties sont masquées. Son accès doit être limité et sa conservation sécurisée."
+      "explanation": "Les deux modèles ont des avantages et des coûts. La structure doit suivre les équipes, les permissions, les dépendances et les besoins de livraison."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle d’un bloc `moved` dans une refactorisation Terraform ?",
+      "prompt": "Pourquoi chaque ressource devrait-elle avoir un propriétaire et un système de gestion de référence clairement identifiés ?",
       "choices": [
-        "Il supprime immédiatement l’infrastructure distante",
-        "Il force tous les objets à être recréés",
-        "Il remplace `terraform plan`",
-        "Il indique à Terraform qu’une adresse de ressource a changé dans la configuration, afin d’éviter une destruction/recréation non nécessaire lorsque le mouvement est valide"
+        "Pour permettre à plusieurs outils de modifier la ressource sans se coordonner",
+        "Pour qu’aucune équipe ne soit responsable des incidents",
+        "Pour éviter de conserver une trace des changements",
+        "Pour prévenir les modifications concurrentes contradictoires et clarifier qui décide et intervient"
       ],
       "answer": 3,
-      "explanation": "Les blocs moved permettent de faire évoluer les adresses d’état de manière déclarative. Le plan doit être inspecté pour confirmer le résultat attendu."
+      "explanation": "Une responsabilité explicite évite que deux processus se corrigent mutuellement et permet d’identifier qui doit approuver ou traiter un problème."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi un `terraform plan` est-il important avant un `apply` ?",
+      "prompt": "Que devrait décrire le contrat d’un composant IaC réutilisable ?",
       "choices": [
-        "Il présente les opérations prévues afin de repérer destructions, remplacements ou changements inattendus avant application",
-        "Il garantit l’absence de tout incident de cloud",
-        "Il sauvegarde à lui seul le state sur un site séparé",
-        "Il exécute toutes les opérations puis les annule"
+        "Ses entrées, ses sorties, ses hypothèses, ses garanties, ses dépendances et ses responsabilités de sécurité",
+        "Uniquement le nom du fichier source",
+        "Seulement la personne qui a créé la première version",
+        "Tous les secrets nécessaires pour exécuter le pipeline"
       ],
       "answer": 0,
-      "explanation": "Le plan donne une prévisualisation des changements proposés. Il faut le lire dans le bon contexte et comprendre ses écarts avant d’appliquer."
+      "explanation": "Un contrat explicite permet aux consommateurs de connaître les attentes et les limites sans dépendre de détails internes non documentés."
     },
     {
       "type": "qcm",
-      "prompt": "Quand un import Terraform est-il utile ?",
+      "prompt": "Comment gérer un changement incompatible dans un composant partagé ?",
       "choices": [
-        "Pour générer automatiquement les secrets du fournisseur",
-        "Pour remplacer la facturation de l’infrastructure",
-        "Pour faire entrer une ressource existante dans la gestion Terraform, après avoir préparé une configuration correspondant à cette ressource",
-        "Pour supprimer une ressource non connue du state"
+        "Modifier silencieusement son comportement sous la même version",
+        "Supprimer toutes les anciennes versions sans prévenir",
+        "Publier une nouvelle version, documenter la migration et accompagner les consommateurs concernés",
+        "Copier les fichiers dans chaque dépôt et laisser chaque équipe découvrir les différences"
       ],
       "answer": 2,
-      "explanation": "L’import rattache une ressource existante à l’état Terraform mais ne crée pas à lui seul la configuration cible. Il faut vérifier le plan avant toute modification."
+      "explanation": "Le versionnement et une stratégie de migration rendent les changements incompatibles visibles et permettent de planifier leur adoption."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi les environnements Terraform doivent-ils être séparés ou explicitement gouvernés ?",
+      "prompt": "Pourquoi une stratégie de tests IaC devrait-elle combiner plusieurs types de vérification ?",
       "choices": [
-        "Pour permettre à chaque développeur d’appliquer n’importe quoi en production",
-        "Pour limiter les erreurs de ciblage, les collisions d’état et les changements accidentels entre environnements",
-        "Pour supprimer le besoin de revue",
-        "Pour éviter de versionner les fichiers HCL"
+        "Parce qu’un test unitaire garantit toujours l’état réel du cloud",
+        "Parce que les tests de contrat, tests de composants, contrôles de politique et vérifications post-déploiement détectent des classes de risques différentes",
+        "Pour remplacer les approbations sensibles par une seule commande",
+        "Pour exécuter tous les tests avec des permissions administrateur"
       ],
       "answer": 1,
-      "explanation": "Des états, accès et paramètres d’environnement bien séparés ou gouvernés limitent le risque d’appliquer un changement au mauvais périmètre."
+      "explanation": "Les différentes vérifications se complètent. Une configuration valide peut tout de même violer une règle métier ou échouer une fois déployée."
     },
     {
       "type": "qcm",
-      "prompt": "Quel contrôle est approprié pour un pipeline Terraform ?",
+      "prompt": "Qu’est-ce qu’une promotion contrôlée entre test et production ?",
       "choices": [
-        "Exécuter `apply` en production pour tout pull request sans revue",
-        "Stocker une clé cloud à privilèges complets dans le dépôt",
-        "Ignorer la dérive dès qu’un plan a réussi une fois",
-        "Exécuter format, validation et tests, produire un plan revu puis appliquer avec une identité limitée et une approbation adaptée au risque"
+        "Reconstruire un changement non identifié juste avant la mise en production",
+        "Copier les secrets de test dans tous les environnements",
+        "Appliquer chaque changement directement en production avant de le tester",
+        "Conserver l’identité de la version, ses résultats de contrôle et ses approbations, tout en documentant les paramètres spécifiques à chaque environnement"
       ],
       "answer": 3,
-      "explanation": "Une pipeline peut automatiser les contrôles mais doit protéger l’accès et les étapes d’application. Le plan appliqué doit correspondre au changement approuvé et aux pratiques de la plateforme."
+      "explanation": "La promotion doit rendre traçable ce qui est livré. Les paramètres spécifiques peuvent différer mais doivent être explicitement définis, validés et audités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle séparation de permissions est recommandée dans une chaîne de livraison ?",
+      "choices": [
+        "Les validations de contributions non fiables n’obtiennent pas les secrets de production ; l’application utilise une identité dédiée et limitée",
+        "Tous les tests utilisent la même identité administrateur permanente",
+        "Un jeton de production est stocké dans le dépôt pour éviter les étapes de connexion",
+        "Les permissions ne sont nécessaires que si le pipeline échoue"
+      ],
+      "answer": 0,
+      "explanation": "La séparation des identités limite les conséquences d’une contribution compromise. Les exécuteurs, déclencheurs et permissions de chaque étape doivent être examinés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une remédiation automatique veut annuler une modification manuelle faite pendant un incident. Quelle réponse est la plus sûre ?",
+      "choices": [
+        "Laisser la remédiation s’exécuter, car toute dérive est forcément mauvaise",
+        "Désactiver définitivement tous les contrôles de dérive",
+        "Évaluer le contexte, l’impact et l’origine de l’écart, puis décider d’une correction contrôlée ou d’une exception temporaire",
+        "Effacer l’historique Git pour éliminer l’écart"
+      ],
+      "answer": 2,
+      "explanation": "Une modification d’urgence peut être nécessaire pour rétablir le service. La correction doit tenir compte du contexte et réconcilier ensuite la référence approuvée."
     }
   ]
 }
