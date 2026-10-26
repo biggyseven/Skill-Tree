@@ -749,12 +749,18 @@ def read_profile(tree: SkillTree = Depends(get_tree)) -> dict:
     exams = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='exam' AND passed=1").fetchone()[0]
     try:
         stored_exam_passes = tree.conn.execute(
-            "SELECT COUNT(*) FROM exam_submissions WHERE passed = 1"
+            "SELECT COUNT(*) FROM exam_submissions WHERE passed = 1 AND node_id IS NULL"
         ).fetchone()[0]
         exams += int(stored_exam_passes or 0)
     except sqlite3.OperationalError:
-        # Compatibilité avec une base préparée avant la création de la table de soumissions.
-        pass
+        # Compatibilité avec une base préparée avant la création de la table de soumissions ou de sa colonne node_id.
+        try:
+            stored_exam_passes = tree.conn.execute(
+                "SELECT COUNT(*) FROM exam_submissions WHERE passed = 1"
+            ).fetchone()[0]
+            exams += int(stored_exam_passes or 0)
+        except sqlite3.OperationalError:
+            pass
     return {
         "level": stats, "total_nodes": total_nodes, "validated_nodes": validated_nodes,
         "progress_percent": round((validated_nodes / total_nodes) * 100) if total_nodes else 0,
@@ -833,45 +839,92 @@ def validate_lab_route(payload: dict = Body(...), tree: SkillTree = Depends(get_
 
 @app.post("/api/exam/start")
 def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
-    """Crée une session d'examen de catégorie sans exposer les réponses attendues."""
+    """Crée un examen blanc par catégorie ou l'examen de validation d'un cours."""
     if not isinstance(payload, dict):
         raise HTTPException(status_code=422, detail="Un objet JSON est attendu.")
-    category = payload.get("category")
-    if not isinstance(category, str) or not category.strip():
-        raise HTTPException(status_code=422, detail="category manquante ou invalide.")
-    category = category.strip()
-    nodes = [node for node in tree.nodes() if node.category == category]
-    if not nodes:
-        raise HTTPException(status_code=404, detail="Catégorie d'examen introuvable.")
 
-    pool = [
-        (node, question)
-        for node in nodes
-        for question in tree.questions(node.id, ProofKind.QUIZ)
-        if question.question_type == "qcm"
-    ]
+    requested_node_id = payload.get("node_id")
+    node = None
+    if requested_node_id is not None:
+        if not isinstance(requested_node_id, str) or not requested_node_id.strip():
+            raise HTTPException(status_code=422, detail="node_id manquant ou invalide.")
+        try:
+            node = tree.node(requested_node_id.strip())
+        except DomainError as error:
+            raise HTTPException(status_code=404, detail=str(error)) from error
+        requirement = node.requirement(ProofKind.EXAM)
+        if requirement is None:
+            raise HTTPException(status_code=409, detail="Ce cours ne possède pas d'exigence d'examen dédiée.")
+        try:
+            tree.playable(node.id)
+        except DomainError as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+
+        question_scope = ProofKind.EXAM
+        question_scope_name = ProofKind.EXAM.value
+        pool = [
+            (node, question)
+            for question in tree.questions(node.id, question_scope)
+            if question.question_type == "qcm"
+        ]
+        display_category = node.title
+        passing_score = requirement.min_score
+        exam_type = "course"
+    else:
+        category = payload.get("category")
+        if not isinstance(category, str) or not category.strip():
+            raise HTTPException(status_code=422, detail="category manquante ou invalide.")
+        category = category.strip()
+        nodes = [candidate for candidate in tree.nodes() if candidate.category == category]
+        if not nodes:
+            raise HTTPException(status_code=404, detail="Catégorie d'examen introuvable.")
+        question_scope = ProofKind.QUIZ
+        question_scope_name = ProofKind.QUIZ.value
+        pool = [
+            (candidate, question)
+            for candidate in nodes
+            for question in tree.questions(candidate.id, question_scope)
+            if question.question_type == "qcm"
+        ]
+        display_category = category
+        passing_score = EXAM_PASS_SCORE
+        exam_type = "category"
+
     if not pool:
-        raise HTTPException(status_code=422, detail="Aucune question QCM disponible pour cette catégorie.")
+        message = (
+            "Aucune question QCM d'examen dédiée n'est disponible pour ce cours."
+            if exam_type == "course"
+            else "Aucune question QCM disponible pour cette catégorie."
+        )
+        raise HTTPException(status_code=422, detail=message)
 
     selected = random.sample(pool, min(EXAM_QUESTION_COUNT, len(pool)))
     now = int(time.time())
     session_id = uuid.uuid4().hex
     question_refs = [
-        {"node_id": node.id, "question_id": question.id}
-        for node, question in selected
+        {"node_id": selected_node.id, "question_id": question.id, "scope": question_scope_name}
+        for selected_node, question in selected
     ]
     tree.conn.execute(
         "INSERT INTO exam_sessions (session_id, category, question_ids, started_at, expires_at) "
         "VALUES (?, ?, ?, ?, ?)",
-        (session_id, category, json.dumps(question_refs, ensure_ascii=False), now, now + EXAM_DURATION_SECONDS),
+        (session_id, display_category, json.dumps(question_refs, ensure_ascii=False), now, now + EXAM_DURATION_SECONDS),
     )
     tree.conn.commit()
     return {
         "id": session_id,
-        "category": category,
+        "category": display_category,
+        "exam_type": exam_type,
+        "node_id": node.id if node is not None else None,
+        "passing_score": passing_score,
         "duration_seconds": EXAM_DURATION_SECONDS,
         "questions": [
-            {"id": question.id, "type": question.question_type, "prompt": question.prompt, "choices": list(question.choices)}
+            {
+                "id": question.id,
+                "type": question.question_type,
+                "prompt": question.prompt,
+                "choices": list(question.choices),
+            }
             for _, question in selected
         ],
     }
@@ -879,7 +932,7 @@ def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tr
 
 @app.post("/api/exam/submit")
 def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
-    """Corrige côté serveur une session d'examen et rend toute soumission idempotente."""
+    """Corrige côté serveur une session et enregistre son résultat de manière idempotente."""
     if not isinstance(payload, dict):
         raise HTTPException(status_code=422, detail="Un objet JSON est attendu.")
     session_id = payload.get("session_id")
@@ -918,17 +971,27 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
     all_nodes = {node.id: node for node in tree.nodes()}
     selected: list[tuple[Node, Question]] = []
     if isinstance(stored_refs[0], dict):
-        cache: dict[str, dict[int, Question]] = {}
+        cache: dict[tuple[str, str], dict[int, Question]] = {}
         for ref in stored_refs:
             if not isinstance(ref, dict):
                 raise HTTPException(status_code=409, detail="Les références de questions de cette session sont invalides.")
             node_id = ref.get("node_id")
             question_id = ref.get("question_id")
-            if not isinstance(node_id, str) or type(question_id) is not int or node_id not in all_nodes:
-                raise HTTPException(status_code=409, detail="Une question de la session n'existe plus.")
-            if node_id not in cache:
-                cache[node_id] = {question.id: question for question in tree.questions(node_id, ProofKind.QUIZ)}
-            question = cache[node_id].get(question_id)
+            scope_name = ref.get("scope", ProofKind.QUIZ.value)
+            if (
+                not isinstance(node_id, str)
+                or type(question_id) is not int
+                or node_id not in all_nodes
+                or scope_name not in {ProofKind.QUIZ.value, ProofKind.EXAM.value}
+            ):
+                raise HTTPException(status_code=409, detail="Une référence de question de la session est invalide.")
+            cache_key = (node_id, scope_name)
+            if cache_key not in cache:
+                cache[cache_key] = {
+                    question.id: question
+                    for question in tree.questions(node_id, ProofKind(scope_name))
+                }
+            question = cache[cache_key].get(question_id)
             if question is None:
                 raise HTTPException(status_code=409, detail="Une question de la session n'existe plus.")
             selected.append((all_nodes[node_id], question))
@@ -953,6 +1016,24 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
             detail=f"Nombre de réponses incorrect : {len(answers)} reçues pour {len(selected)} questions.",
         )
 
+    course_exam_nodes = {
+        node.id for node, question in selected if question.scope is ProofKind.EXAM
+    }
+    has_course_exam = bool(course_exam_nodes)
+    if has_course_exam and (
+        len(course_exam_nodes) != 1
+        or any(question.scope is not ProofKind.EXAM for _, question in selected)
+    ):
+        raise HTTPException(status_code=409, detail="Les questions de la session mélangent des périmètres d'examen incompatibles.")
+    course_exam_node_id = next(iter(course_exam_nodes)) if has_course_exam else None
+    passing_score = EXAM_PASS_SCORE
+    if course_exam_node_id:
+        course_node = all_nodes[course_exam_node_id]
+        requirement = course_node.requirement(ProofKind.EXAM)
+        if requirement is None:
+            raise HTTPException(status_code=409, detail="Le cours ne possède plus d'exigence d'examen.")
+        passing_score = requirement.min_score
+
     details = []
     correct = 0
     for (_, question), answer in zip(selected, answers):
@@ -974,18 +1055,43 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
 
     total = len(selected)
     score = round(100 * correct / total)
+    passed = score >= passing_score
     result = {
         "success": True,
         "score": score,
-        "passed": score >= EXAM_PASS_SCORE,
+        "passed": passed,
+        "passing_score": passing_score,
         "correct": correct,
         "total": total,
         "details": details,
+        "node_id": course_exam_node_id,
         "submitted_at": int(time.time()),
     }
+
+    if course_exam_node_id:
+        try:
+            _attempt, validated = tree.record(
+                course_exam_node_id,
+                ProofKind.EXAM,
+                score,
+                passed,
+                evidence=json.dumps(
+                    {"session_id": session_id, "question_ids": [question.id for _, question in selected]},
+                    ensure_ascii=False,
+                ),
+                detail=f"Examen : {correct}/{total} bonnes réponses",
+            )
+        except DomainError as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        result["validated"] = validated
+        result["status"] = tree.status(course_exam_node_id).value
+        result["xp_gained"] = (tree.last_reward or {}).get("xp", 0)
+        result["badges_unlocked"] = tree.last_badges
+
     tree.conn.execute(
-        "INSERT OR IGNORE INTO exam_submissions (session_id, submitted_at, result_json, passed) VALUES (?, ?, ?, ?)",
-        (session_id, result["submitted_at"], json.dumps(result, ensure_ascii=False), int(result["passed"])),
+        "INSERT OR IGNORE INTO exam_submissions (session_id, submitted_at, result_json, passed, node_id) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (session_id, result["submitted_at"], json.dumps(result, ensure_ascii=False), int(passed), course_exam_node_id),
     )
     tree.conn.commit()
     saved = tree.conn.execute(
