@@ -301,11 +301,9 @@ def _fetch_lab(lab_id: str) -> dict[str, Any]:
     if file_payload is not None:
         return file_payload
 
-    # Aucun lab défini ? Si le cours existe dans l'arbre, ouvrir un workspace vierge.
-    sandbox_payload = _load_sandbox_lab(lab_id)
-    if sandbox_payload is not None:
-        return sandbox_payload
-
+    # Ne jamais remplacer silencieusement un laboratoire de cours manquant par
+    # une topologie vide : cela donne l'impression que le scénario a été chargé.
+    # L'atelier libre s'ouvre séparément via /lab.html sans paramètre id.
     details = [
         f"Lab '{lab_id}' introuvable : aucune définition exploitable en SQLite "
         f"et aucun fichier JSON correspondant à '{lab_id}.json' dans '{LABS_V2_DIR}'.",
