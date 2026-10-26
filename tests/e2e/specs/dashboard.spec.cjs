@@ -198,13 +198,13 @@ test('un cours cybersécurité en attente affiche un état de préparation au li
 
   const searchInput = page.locator('input[x-ref="searchBox"]');
   const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
-  await searchInput.fill('La Triade CIA');
+  await searchInput.fill('Analyse de malwares');
 
-  const lessonResult = results.locator('button').filter({ hasText: 'La Triade CIA' }).first();
+  const lessonResult = results.locator('button').filter({ hasText: 'Analyse de malwares' }).first();
   await expect(lessonResult).toBeVisible();
   await lessonResult.click();
 
-  await expect(page.locator('#course-reader-title')).toHaveText('La Triade CIA');
+  await expect(page.locator('#course-reader-title')).toHaveText('Analyse de malwares');
   await expect(page.getByText('Contenu en préparation', { exact: true })).toBeVisible();
   await expect(page.locator('[x-ref="lessonArticle"]')).toHaveCount(0);
   await expect(page.getByText(/Contenu de 5000 mots à rédiger/i)).toHaveCount(0);
