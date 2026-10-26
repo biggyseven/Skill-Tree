@@ -4703,9 +4703,39 @@
         resetExam() { this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false; },
 
         // ---------- labs ----------
-        labIndex: {}, labIndexBusy: false, labIndexDone: 0, labCatalogLoaded: false, labFilter: { module: 'all', level: 'all' },
+        labIndex: {}, labIndexBusy: false, labIndexDone: 0, labCatalogLoaded: false, labCatalog: [], labFilter: { module: 'all', level: 'all' },
         labsDone: LS.get('labs-done', []), labSteps: LS.get('lab-steps', {}), labHints: {},
-        get labNodes() { return this.nodes.filter(n => this.labIndex[n.id] && (this.labFilter.module === 'all' || this.moduleOf(n) === this.labFilter.module) && (this.labFilter.level === 'all' || this.levelOf(n) === this.labFilter.level)); },
+        get labNodes() {
+          const catalogById = new Map((this.labCatalog || []).map(lab => [String(lab.id), lab]));
+          const courseById = new Map(this.nodes.map(node => [String(node.id), node]));
+          const ids = new Set([
+            ...this.nodes
+              .filter(node => this.labIndex[node.id] || catalogById.has(String(node.id)))
+              .map(node => String(node.id)),
+            ...this.labCatalog
+              .filter(lab => !courseById.has(String(lab.id)))
+              .map(lab => String(lab.id)),
+          ]);
+
+          return [...ids].map(id => {
+            const course = courseById.get(id);
+            const catalog = catalogById.get(id);
+            const node = course ? { ...course } : {
+              id,
+              title: String(catalog?.title || id),
+              module: String(catalog?.module || ''),
+              level: String(catalog?.level || ''),
+              category: '',
+            };
+            if (!node.module && catalog?.module) node.module = String(catalog.module);
+            if (!node.level && catalog?.level) node.level = String(catalog.level);
+            return node;
+          }).filter(node =>
+            this.labIndex[node.id] &&
+            (this.labFilter.module === 'all' || this.moduleOf(node) === this.labFilter.module) &&
+            (this.labFilter.level === 'all' || this.levelOf(node) === this.labFilter.level)
+          );
+        },
         async loadLabIndex() {
           // Les résultats déjà résolus restent en mémoire quand on quitte puis revient dans Labs.
           // En revanche, une erreur réseau/HTTP ne doit pas être mise en cache comme « aucun lab ».
@@ -4744,10 +4774,9 @@
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const catalog = await response.json();
                 if (!Array.isArray(catalog)) throw new Error('Format de catalogue invalide');
-                const nodeIds = new Set(this.nodes.map(n => String(n.id)));
-                for (const lab of catalog) {
-                  const id = String(lab?.id || '');
-                  if (!id || !nodeIds.has(id)) continue;
+                this.labCatalog = catalog.filter(lab => lab && typeof lab.id === 'string' && lab.id.trim());
+                for (const lab of this.labCatalog) {
+                  const id = String(lab.id);
                   const current = this.labIndex[id] && typeof this.labIndex[id] === 'object'
                     ? this.labIndex[id]
                     : {};
