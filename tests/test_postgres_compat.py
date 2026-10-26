@@ -93,5 +93,39 @@ class PostgresCompatibilityTests(unittest.TestCase):
         self.assertTrue(inserted_id)
 
 
+    @unittest.skipUnless(os.environ.get("TEST_POSTGRES_URL"), "Dedicated PostgreSQL test database not configured")
+    def test_postgres_backend_bootstraps_catalogue_and_records_progress(self) -> None:
+        from app.db import ensure_ready
+        from app.domain import ProofKind
+        from app.engine import SkillTree
+
+        database_url = os.environ["TEST_POSTGRES_URL"]
+        with patch.dict(
+            os.environ,
+            {"DATABASE_URL": database_url, "SKILLTREE_DATABASE_URL": ""},
+        ):
+            connection = db_compat.connect()
+            try:
+                ensure_ready(connection)
+                tree = SkillTree(connection)
+                self.assertIn("intro-reseau-debutant", {node.id for node in tree.nodes()})
+                cursor = connection.execute("SELECT COUNT(*) FROM requirements")
+                self.assertGreater(cursor.fetchone()[0], 300)
+
+                attempt, validated = tree.record(
+                    "intro-reseau-debutant",
+                    ProofKind.QUIZ,
+                    85,
+                    True,
+                    evidence="postgres-integration-test",
+                    detail="Neon backend smoke test",
+                )
+                self.assertGreater(attempt.id, 0)
+                self.assertTrue(validated)
+                self.assertIn("intro-reseau-debutant", tree.validated_ids())
+            finally:
+                connection.close()
+
+
 if __name__ == "__main__":
     unittest.main()
