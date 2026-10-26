@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-endpoint-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure constitue une bonne base de sécurité endpoint ?",
+      "choices": [
+        "Désactiver les mises à jour",
+        "Utiliser un compte administrateur pour tout",
+        "Appliquer les correctifs et le moindre privilège",
+        "Partager un compte unique"
+      ],
+      "answer": 2,
+      "explanation": "Les mises à jour et le moindre privilège réduisent les risques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle typique d’un EDR ?",
+      "choices": [
+        "Remplacer les sauvegardes",
+        "Détecter et aider à investiguer ou contenir les comportements suspects",
+        "Attribuer les adresses IP publiques",
+        "Chiffrer tout le trafic Wi-Fi"
+      ],
+      "answer": 1,
+      "explanation": "Un EDR collecte des signaux endpoint pour détecter et répondre aux menaces."
+    }
+  ]
+}
