@@ -148,7 +148,7 @@ export default function App() {
       .catch(err => {
         console.error('Lab Workspace could not load the requested lab:', err);
         useLabStore.getState().setError(
-          new Error(`Impossible de charger le lab "${labId}". Vérifiez que la migration M1 a été exécutée et que l'API est disponible. Détail : ${err.message}`)
+          new Error(`Impossible de charger le laboratoire "${labId}". Vérifiez que cet identifiant possède un scénario configuré et que l'API est disponible. Détail : ${err.message}`)
         );
       });
   }, []);
