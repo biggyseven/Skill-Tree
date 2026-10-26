@@ -1,1 +1,102 @@
-{"node_id":"bgp-debutant","scope":"quiz","questions":[{"type":"qcm","prompt":"Que signifie BGP ?","choices":["Border Gateway Protocol","Broadband Global Protocol","Basic Gateway Path","Bridge Gateway Protocol"],"answer":0,"explanation":"BGP signifie Border Gateway Protocol."},{"type":"qcm","prompt":"Quel type de protocole est BGP ?","choices":["Path-Vector","Link-State","Distance-Vector","Hybride"],"answer":0,"explanation":"BGP est un protocole de type Path-Vector (vecteur de chemin)."},{"type":"qcm","prompt":"Quelle commande permet de vérifier l'état des voisins BGP ?","choices":["show ip bgp summary","show ip route bgp","show ip bgp neighbor","show ip protocols"],"answer":0,"explanation":"La commande 'show ip bgp summary' montre l'état des sessions BGP."},{"type":"qcm","prompt":"Quel est l'état normal d'une session BGP qui fonctionne ?","choices":["Established","Active","Idle","Connect"],"answer":0,"explanation":"L'état 'Established' indique que la session BGP est établie et fonctionnelle."}]}
+{
+  "node_id": "bgp-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que signifie BGP ?",
+      "choices": [
+        "Border Gateway Protocol",
+        "Broadband Global Protocol",
+        "Basic Gateway Path",
+        "Bridge Gateway Protocol"
+      ],
+      "answer": 0,
+      "explanation": "BGP signifie Border Gateway Protocol ; il échange des informations de joignabilité entre systèmes autonomes et applique des politiques de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel modèle décrit le mieux BGP ?",
+      "choices": [
+        "Un protocole de routage à état de liens qui utilise Dijkstra",
+        "Un protocole de boucle de niveau 2",
+        "Un protocole path-vector qui transporte notamment des attributs de chemin et de politique",
+        "Un protocole d’attribution automatique d’adresses IP"
+      ],
+      "answer": 2,
+      "explanation": "BGP est un protocole path-vector : il transporte des préfixes et des attributs comme AS_PATH, NEXT_HOP et LOCAL_PREF pour la sélection et les politiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel port de transport BGP utilise-t-il pour établir ses sessions ?",
+      "choices": [
+        "UDP 67",
+        "TCP 179",
+        "TCP 443",
+        "UDP 520"
+      ],
+      "answer": 1,
+      "explanation": "BGP établit ses sessions sur TCP port 179. La joignabilité IP, les filtres et la configuration des voisins doivent également être corrects."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre eBGP et iBGP est correcte ?",
+      "choices": [
+        "eBGP relie toujours deux interfaces dans le même AS et iBGP relie deux AS différents",
+        "eBGP est réservé aux réseaux Wi-Fi",
+        "iBGP n’annonce jamais de préfixes",
+        "eBGP relie des pairs dans des AS différents ; iBGP relie des pairs à l’intérieur du même AS"
+      ],
+      "answer": 3,
+      "explanation": "eBGP est utilisé entre systèmes autonomes différents et iBGP à l’intérieur d’un AS. Les politiques et règles de transmission diffèrent selon le type de session."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel attribut aide BGP à détecter un chemin qui contient déjà le numéro de son propre AS ?",
+      "choices": [
+        "AS_PATH",
+        "VLAN ID",
+        "Root ID",
+        "DNS TTL"
+      ],
+      "answer": 0,
+      "explanation": "AS_PATH répertorie les numéros d’AS traversés dans le chemin. Un routeur peut utiliser la présence de son propre AS dans le chemin pour prévenir les boucles inter-AS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur Cisco IOS classique, quel couple permet d’observer rapidement le statut des sessions BGP ?",
+      "choices": [
+        "`show spanning-tree` et `show vlan brief`",
+        "`show ip dhcp binding` et `show ip nat translations`",
+        "`show ip bgp summary` et, si nécessaire, `show ip bgp neighbors`",
+        "`show ntp associations` uniquement"
+      ],
+      "answer": 2,
+      "explanation": "`show ip bgp summary` donne une vue d’ensemble des voisins et de l’état des sessions ; les détails d’un voisin s’examinent avec la commande associée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans la machine à états BGP, quel état indique qu’une session est établie et que le protocole peut échanger des UPDATE ?",
+      "choices": [
+        "Active",
+        "Established",
+        "Idle",
+        "OpenSent"
+      ],
+      "answer": 1,
+      "explanation": "Established est l’état opérationnel dans lequel les peers peuvent échanger des messages UPDATE, KEEPALIVE et NOTIFICATION selon les événements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur Cisco IOS, que faut-il généralement réunir pour qu’un préfixe soit annoncé par une configuration BGP `network` ?",
+      "choices": [
+        "Que le préfixe soit seulement mentionné dans le DNS",
+        "Que le voisin ait le même nom d’hôte",
+        "Que toutes les routes statiques soient supprimées",
+        "Que le préfixe correspondant soit présent dans la table de routage selon les règles de correspondance de la commande, en plus de la session et des politiques nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "Avec la commande BGP `network` classique de Cisco IOS, le préfixe correspondant doit normalement être présent dans la table de routage. Une session établie ne garantit pas à elle seule que le réseau sera annoncé."
+    }
+  ]
+}
