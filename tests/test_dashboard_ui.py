@@ -591,6 +591,16 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(action.node_id)\"", DASHBOARD_HTML)
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", DASHBOARD_HTML)
 
+    def test_switching_modules_opens_first_course_in_learning_reader(self):
+        start = DASHBOARD_HTML.index("        async setModule(id) {")
+        end = DASHBOARD_HTML.index("        get categories()", start)
+        set_module = DASHBOARD_HTML[start:end]
+
+        self.assertIn("this.moduleFilter = id;", set_module)
+        self.assertIn("const firstCourse = this.nodesIn(id)[0];", set_module)
+        self.assertIn("await this.show(firstCourse.id);", set_module)
+        self.assertIn("await this.setModule(requestedModuleId);", DASHBOARD_HTML)
+
     def test_course_modules_courses_and_sidebar_sections_offer_new_tabs(self):
         self.assertIn("newTabUrl(kind, id)", DASHBOARD_HTML)
         self.assertIn("newTabUrl('tab', item.id)", DASHBOARD_HTML)
