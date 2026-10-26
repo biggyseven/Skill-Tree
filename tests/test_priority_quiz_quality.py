@@ -235,7 +235,7 @@ class PriorityQuizQualityTests(unittest.TestCase):
     def test_new_system_quiz_answer_keys_match_reviewed_options(self) -> None:
         cases = (
             ("users-debutant", 0, 1, "`/etc/passwd`"),
-            ("users-intermediaire", 1, 0, "Le DN qui identifie une entrée dans l’arborescence de l’annuaire"),
+            ("users-intermediaire", 1, 0, "Le chemin qui identifie une entrée dans l’annuaire à partir de ses composants, par exemple `uid=alice,ou=people,dc=example,dc=org`"),
             ("users-expert", 0, 2, "Des clés secrètes associées à un ou plusieurs principaux Kerberos du service"),
             ("scripting-debutant", 0, 0, "`#!/usr/bin/env bash`"),
             ("scripting-intermediaire", 5, 0, "Le relancer sans changement d’entrée ne provoque pas de modifications supplémentaires inutiles"),
