@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Authentification et MFA » : à rédiger après le cours complet.",
+      "prompt": "Quelle distinction entre authentification et autorisation est correcte ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "L'authentification vérifie les preuves de contrôle du compte ; l'autorisation détermine les actions permises",
+        "L'autorisation vérifie toujours le mot de passe et l'authentification donne tous les droits",
+        "Les deux notions sont identiques",
+        "L'authentification sert uniquement à chiffrer les fichiers"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "L'authentification établit le contrôle des moyens d'accès associés au compte. L'autorisation décide des ressources et actions accessibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi deux mots de passe ne constituent-ils pas à eux seuls une authentification multifacteur ?",
+      "choices": [
+        "Les mots de passe ne sont jamais des facteurs",
+        "Les deux secrets appartiennent à la catégorie de ce que l'on connaît",
+        "La MFA exige trois mots de passe",
+        "Il faut obligatoirement utiliser un SMS"
+      ],
+      "answer": 1,
+      "explanation": "La MFA exige au moins deux facteurs distincts issus de catégories différentes, par exemple connaissance et possession."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal avantage d'un gestionnaire de mots de passe correctement utilisé ?",
+      "choices": [
+        "Il rend tous les comptes invulnérables",
+        "Il remplace systématiquement la MFA",
+        "Il aide à créer et conserver des mots de passe uniques et robustes",
+        "Il garantit qu'aucun appareil ne peut être compromis"
+      ],
+      "answer": 2,
+      "explanation": "Un gestionnaire réduit la réutilisation et facilite la création de secrets uniques. Le coffre et l'appareil doivent eux aussi être protégés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur reçoit une notification MFA alors qu'il n'essaie pas de se connecter. Que doit-il faire ?",
+      "choices": [
+        "L'approuver pour faire cesser les notifications",
+        "Transmettre le code au collègue",
+        "La refuser et suivre la procédure de signalement et de protection du compte",
+        "Désactiver toutes les protections de sécurité"
+      ],
+      "answer": 2,
+      "explanation": "Une demande inattendue peut signaler une tentative d'accès. Il ne faut ni l'approuver ni divulguer les codes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle limitation concerne les codes OTP saisis manuellement ?",
+      "choices": [
+        "Ils ne peuvent jamais être utilisés sur Internet",
+        "Ils peuvent parfois être relayés en temps réel par un faux site",
+        "Ils sont toujours identiques et permanents",
+        "Ils garantissent la confidentialité des fichiers"
+      ],
+      "answer": 1,
+      "explanation": "Un code temporaire peut être demandé par un site d'hameçonnage puis relayé rapidement au service légitime. La durée limitée ne suffit pas à le rendre résistant au phishing."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les clés FIDO2/WebAuthn correctement mises en œuvre résistent-elles mieux au phishing ?",
+      "choices": [
+        "Elles transmettent le mot de passe en clair à chaque site",
+        "Elles sont liées cryptographiquement au contexte et à l'origine du service",
+        "Elles désactivent les autorisations de l'application",
+        "Elles empêchent toute compromission de l'appareil"
+      ],
+      "answer": 1,
+      "explanation": "La réponse cryptographique est liée au contexte du site attendu, ce qui rend plus difficile son relais vers un faux domaine. Les autres risques subsistent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce que la fatigue MFA ?",
+      "choices": [
+        "Une panne matérielle du téléphone",
+        "La perte automatique de tous les mots de passe",
+        "Des demandes répétées visant à pousser un utilisateur à approuver une connexion qu'il n'a pas initiée",
+        "Une méthode de chiffrement du disque"
+      ],
+      "answer": 2,
+      "explanation": "Un attaquant peut déclencher des demandes répétées en espérant que la victime approuve l'une d'elles par erreur ou par lassitude."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une MFA ne protège-t-elle pas nécessairement contre le vol d'une session déjà établie ?",
+      "choices": [
+        "Une session ne peut jamais expirer",
+        "Un jeton ou cookie valide peut parfois être réutilisé sans refaire le parcours MFA",
+        "La MFA désactive toujours HTTPS",
+        "Une session est un autre nom pour un antivirus"
+      ],
+      "answer": 1,
+      "explanation": "L'authentification initiale et la session sont deux mécanismes distincts. Les sessions doivent être protégées, limitées et révocables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel compte doit généralement faire l'objet des contrôles les plus rigoureux ?",
+      "choices": [
+        "Un compte administrateur capable de modifier les permissions et les paramètres",
+        "Un compte de démonstration sans accès aux données",
+        "Un compte désactivé et confirmé comme inutilisé",
+        "Un compte public de consultation sans fonction sensible"
+      ],
+      "answer": 0,
+      "explanation": "Une compromission d'un compte privilégié peut affecter de nombreux utilisateurs et ressources. Il nécessite une MFA robuste, des permissions limitées et une surveillance appropriée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit prévoir une procédure de récupération après la perte d'un authentificateur ?",
+      "choices": [
+        "Retirer toute MFA sans vérification",
+        "Partager le compte d'un collègue",
+        "Vérifier la demande, révoquer le facteur perdu et inscrire un nouveau facteur de manière sûre",
+        "Conserver l'ancien facteur comme actif pour toujours"
+      ],
+      "answer": 2,
+      "explanation": "La récupération doit rétablir l'accès sans ouvrir une voie facile à l'usurpation. Les facteurs perdus ou compromis doivent pouvoir être révoqués."
     }
   ]
 }

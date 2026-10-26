@@ -4,15 +4,73 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité des Endpoints » : à rédiger après le cours complet.",
-      "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
-      ],
+      "prompt": "Quel énoncé décrit le mieux un endpoint ?",
+      "choices": ["Uniquement un ordinateur portable", "Un appareil qui communique avec un réseau ou un service informatique, comme un PC, un téléphone ou un serveur", "Uniquement un pare-feu réseau", "Uniquement une application cloud"],
+      "answer": 1,
+      "explanation": "Un endpoint peut être un ordinateur, un appareil mobile, un serveur ou une machine virtuelle. Les mesures doivent être adaptées à son rôle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif du durcissement d'un endpoint ?",
+      "choices": ["Désactiver arbitrairement toutes les fonctions", "Réduire la surface d'attaque tout en conservant les besoins légitimes", "Installer autant d'applications que possible", "Donner des droits administrateur à tous les utilisateurs"],
+      "answer": 1,
+      "explanation": "Le durcissement retire ou contrôle les fonctions inutiles, limite les privilèges et applique une configuration de référence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un inventaire précis des appareils est-il important ?",
+      "choices": ["Il remplace la protection anti-malware", "Il permet de connaître les appareils, leurs responsables, leur état et les écarts à corriger", "Il garantit qu'aucun appareil ne tombera en panne", "Il permet de supprimer tous les journaux"],
+      "answer": 1,
+      "explanation": "Un inventaire incomplet crée des angles morts : les appareils inconnus ou non maintenus peuvent rester vulnérables sans suivi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique suit le principe du moindre privilège ?",
+      "choices": ["Utiliser un compte administrateur pour toutes les tâches", "Partager un même compte privilégié entre toute l'équipe", "Utiliser un compte standard au quotidien et des privilèges élevés seulement lorsque nécessaire", "Désactiver l'authentification sur les postes"],
+      "answer": 2,
+      "explanation": "Réduire les privilèges permanents limite l'impact potentiel d'une compromission ou d'une erreur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur les mises à jour est la plus juste ?",
+      "choices": ["L'activation des mises à jour automatiques prouve que tous les appareils sont à jour", "Il faut identifier les actifs, prioriser les correctifs, vérifier le déploiement et suivre les exceptions", "Il faut désactiver les mises à jour pour éviter les redémarrages", "Seuls les systèmes d'exploitation ont besoin de correctifs"],
+      "answer": 1,
+      "explanation": "Les correctifs concernent aussi les applications et autres composants. Il faut vérifier leur installation effective et traiter les échecs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence importante existe entre antivirus et EDR ?",
+      "choices": ["Un EDR ne fournit aucune information sur l'appareil", "Un antivirus garantit que toute attaque sera bloquée", "Un EDR peut collecter des événements du terminal et aider à investiguer et répondre aux incidents", "L'EDR remplace automatiquement les sauvegardes"],
+      "answer": 2,
+      "explanation": "Un EDR apporte des capacités de détection et de réponse plus larges sur les terminaux, mais nécessite une configuration et une capacité de traitement des alertes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le chiffrement du disque ne suffit-il pas à lui seul ?",
+      "choices": ["Il protège seulement si le mécanisme de déverrouillage et le contexte fonctionnent comme prévu ; une session ouverte compromise peut encore exposer des données", "Il rend toujours les sauvegardes inutiles", "Il protège automatiquement les mots de passe contre tous les vols", "Il remplace toutes les mises à jour"],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le chiffrement réduit surtout le risque d'accès aux données stockées lorsque l'appareil est verrouillé. Il ne remplace pas les protections de session et d'exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ordinateur présente des signes crédibles de rançongiciel. Quelle réaction est généralement appropriée ?",
+      "choices": ["Continuer à l'utiliser et ignorer les alertes", "Copier tous les fichiers suspects vers d'autres postes", "Appliquer la procédure d'incident, limiter la propagation et préserver les éléments utiles", "Désactiver immédiatement tous les outils de journalisation"],
+      "answer": 2,
+      "explanation": "La réaction vise à contenir l'incident, préserver les informations utiles et engager une investigation selon la procédure de l'organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une sauvegarde accessible en écriture depuis un poste compromis peut-elle être vulnérable ?",
+      "choices": ["Une sauvegarde ne peut jamais contenir de données", "Un attaquant peut parfois chiffrer ou supprimer les copies accessibles avec les privilèges obtenus", "Une sauvegarde est toujours publique", "Toutes les sauvegardes sont automatiquement chiffrées par le poste"],
+      "answer": 1,
+      "explanation": "Les sauvegardes doivent être protégées contre l'accès et la suppression non autorisés, isolées si nécessaire et testées par des restaurations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur donne une meilleure vision de la posture de sécurité du parc ?",
+      "choices": ["La présence d'un antivirus sur un seul poste", "Un tableau qui affiche 100 % même si des appareils sont absents de l'inventaire", "Des mesures vérifiables de couverture d'inventaire, de correctifs, de protection et de restauration", "Le nombre total de fichiers sur les postes"],
+      "answer": 2,
+      "explanation": "Les indicateurs doivent être liés à des sources vérifiables et inclure les appareils qui ne communiquent plus ou qui restent hors gestion."
     }
   ]
 }

@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Hachage et signatures » : à rédiger après le cours complet.",
+      "prompt": "Quel est le rôle principal d'une fonction de hachage cryptographique comme SHA-256 ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Chiffrer le contenu pour le rendre secret",
+        "Calculer une empreinte permettant notamment de comparer des contenus",
+        "Prouver automatiquement l'identité de l'auteur",
+        "Compresser un fichier sans perte"
+      ],
+      "answer": 1,
+      "explanation": "Une fonction de hachage calcule une empreinte. Elle ne chiffre pas le contenu et ne prouve pas, à elle seule, l'identité de son auteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux fichiers ont exactement la même taille. Peut-on conclure qu'ils sont identiques ?",
+      "choices": [
+        "Oui, la taille est une preuve suffisante",
+        "Oui, si leurs noms sont identiques",
+        "Non, des fichiers différents peuvent avoir la même taille",
+        "Non, car un fichier ne peut pas être haché"
+      ],
+      "answer": 2,
+      "explanation": "La taille et le nom ne suffisent pas à identifier le contenu. Une empreinte calculée sur les octets permet une comparaison beaucoup plus fiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une collision pour une fonction de hachage ?",
+      "choices": [
+        "Deux entrées différentes produisent la même empreinte",
+        "Un fichier est automatiquement chiffré",
+        "Une clé privée est supprimée",
+        "Le hachage devient toujours réversible"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Une collision est une paire d'entrées différentes avec la même empreinte. Une fonction robuste doit rendre la recherche de collisions impraticable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il obtenir l'empreinte de référence depuis une source fiable ?",
+      "choices": [
+        "Pour que l'empreinte soit plus courte",
+        "Parce qu'une empreinte provenant d'un canal compromis peut aussi être remplacée",
+        "Parce que SHA-256 nécessite toujours un compte utilisateur",
+        "Pour permettre de reconstruire le fichier à partir de l'empreinte"
+      ],
+      "answer": 1,
+      "explanation": "Si un attaquant remplace le fichier et la référence non protégée, les valeurs peuvent encore correspondre. La provenance de la référence est essentielle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement une signature numérique ?",
+      "choices": [
+        "Elle chiffre toujours le document",
+        "Elle garantit que le logiciel ne contient aucune vulnérabilité",
+        "Elle est produite avec une clé privée et vérifiée avec la clé publique correspondante",
+        "Elle n'a pas besoin d'être vérifiée"
+      ],
+      "answer": 2,
+      "explanation": "La signature est créée avec la clé privée et vérifiée avec une clé publique correspondante. Elle ne chiffre pas nécessairement les données et ne garantit pas qu'elles sont sans défaut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles clés sont nécessaires pour vérifier une signature numérique classique à clé publique ?",
+      "choices": [
+        "La clé privée du signataire uniquement",
+        "La clé publique correspondant à la clé privée du signataire",
+        "Le mot de passe du fichier dans tous les cas",
+        "Une clé de chiffrement symétrique partagée obligatoirement"
+      ],
+      "answer": 1,
+      "explanation": "Le vérificateur utilise la clé publique correspondante. Il doit aussi établir que cette clé est bien associée au signataire attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence importante distingue HMAC d'une signature numérique ?",
+      "choices": [
+        "HMAC fonctionne sans aucun secret",
+        "Une signature ne peut jamais être vérifiée",
+        "HMAC utilise une clé secrète partagée, tandis qu'une signature utilise une clé privée et une clé publique",
+        "HMAC rend le fichier confidentiel automatiquement"
+      ],
+      "answer": 2,
+      "explanation": "Les parties utilisant HMAC partagent un secret et peuvent donc toutes deux produire des codes valides. Les signatures se vérifient avec une clé publique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi SHA-256 seul est-il inadapté au stockage des mots de passe ?",
+      "choices": [
+        "Parce qu'il est rapide et permet de tester des mots de passe candidats à grande vitesse",
+        "Parce qu'il produit toujours une empreinte différente pour la même entrée",
+        "Parce qu'il chiffre les mots de passe et permet de les retrouver",
+        "Parce qu'il n'accepte que des fichiers binaires"
+      ],
+      "answer": 0,
+      "explanation": "Le stockage des mots de passe doit utiliser une fonction spécialisée, avec paramètres adaptés et sel unique, telle qu'Argon2id, scrypt, bcrypt ou PBKDF2 selon les exigences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "L'empreinte d'un fichier téléchargé ne correspond pas à la référence officielle. Quelle est la meilleure réaction ?",
+      "choices": [
+        "Renommer le fichier puis l'installer",
+        "Ignorer le résultat si le téléchargement est rapide",
+        "Suspendre l'installation et examiner la version, la source et la cause de l'écart",
+        "Supprimer la référence afin d'éviter un autre avertissement"
+      ],
+      "answer": 2,
+      "explanation": "Une différence indique que le contenu ne correspond pas à la référence. Il faut comprendre l'origine de l'écart avant toute installation sensible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une signature est mathématiquement valide, mais la clé publique n'a jamais été authentifiée. Que manque-t-il ?",
+      "choices": [
+        "La vérification de la provenance et de l'identité associée à la clé publique",
+        "Un renommage de fichier",
+        "Une conversion systématique en Base64",
+        "Un second hachage qui prouve automatiquement l'identité"
+      ],
+      "answer": 0,
+      "explanation": "La validité mathématique et la confiance dans l'identité du signataire sont deux questions différentes. La clé doit être authentifiée par un mécanisme adapté."
     }
   ]
 }
