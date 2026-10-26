@@ -235,7 +235,7 @@ class PriorityQuizQualityTests(unittest.TestCase):
     def test_new_system_quiz_answer_keys_match_reviewed_options(self) -> None:
         cases = (
             ("users-debutant", 0, 1, "`/etc/passwd`"),
-            ("users-intermediaire", 1, 0, "Le chemin qui identifie une entrée dans l’annuaire à partir de ses composants, par exemple `uid=alice,ou=people,dc=example,dc=org`"),
+            ("users-intermediaire", 1, 0, "Le chemin qui identifie une entrée dans l’arborescence de l’annuaire"),
             ("users-expert", 0, 2, "Des clés secrètes associées à un ou plusieurs principaux Kerberos du service"),
             ("scripting-debutant", 0, 0, "`#!/usr/bin/env bash`"),
             ("scripting-intermediaire", 5, 0, "Le relancer sans changement d’entrée ne provoque pas de modifications supplémentaires inutiles"),
@@ -243,7 +243,7 @@ class PriorityQuizQualityTests(unittest.TestCase):
             ("web-server-debutant", 1, 1, "`nginx -t`"),
             ("web-server-intermediaire", 2, 3, "Lorsque l’en-tête est posé/normalisé par un proxy de confiance et que la chaîne de proxies est interprétée selon une politique définie"),
             ("web-server-expert", 1, 1, "20 requêtes"),
-            ("virt-debutant", 0, 0, "Un hyperviseur de type 1 fonctionne sur la plateforme physique sans nécessiter un système d’exploitation généraliste hôte de type bureau comme dans le modèle 2."),
+            ("virt-debutant", 0, 0, "Il s’exécute directement sur le matériel ou dans une architecture bare-metal conçue pour héberger les VM"),
             ("virt-intermediaire", 0, 1, "La compatibilité CPU/versions, la connectivité, l’accès aux disques ou leur migration et les contraintes de la plateforme"),
             ("virt-expert", 1, 0, "Keystone"),
         )
