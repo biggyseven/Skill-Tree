@@ -2706,15 +2706,8 @@
             localData,
           };
           const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          const anchor = document.createElement('a');
-          anchor.href = url;
-          anchor.download = 'skilltree-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json';
-          anchor.style.display = 'none';
-          document.body.appendChild(anchor);
-          anchor.click();
-          anchor.remove();
-          window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+          const name = 'skilltree-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json';
+          this.saveFile(name, blob);
           if (typeof this.notify === 'function') this.notify('Sauvegarde JSON téléchargée.');
           return snapshot;
         },
