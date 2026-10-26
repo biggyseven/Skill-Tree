@@ -6916,5 +6916,139 @@
         "min_score": 80
       }
     ]
+  },
+  {
+    "id": "secu-cia-debutant",
+    "module": "Cybersécurité",
+    "title": "La Triade CIA - Débutant",
+    "category": "Cybersécurité",
+    "order": 900,
+    "description": "Confidentialité, intégrité et disponibilité : les trois objectifs fondamentaux de la sécurité.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-menaces-debutant",
+    "module": "Cybersécurité",
+    "title": "Panorama des menaces - Débutant",
+    "category": "Cybersécurité",
+    "order": 901,
+    "description": "Identifier les menaces, les vulnérabilités et les risques courants.",
+    "prereqs": [
+      "secu-cia-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-crypto-debutant",
+    "module": "Cybersécurité",
+    "title": "Cryptographie - Débutant",
+    "category": "Cybersécurité",
+    "order": 902,
+    "description": "Comprendre les bases du chiffrement symétrique et asymétrique.",
+    "prereqs": [
+      "secu-menaces-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-hachage-debutant",
+    "module": "Cybersécurité",
+    "title": "Hachage et signatures - Débutant",
+    "category": "Cybersécurité",
+    "order": 903,
+    "description": "Comprendre les empreintes cryptographiques et les signatures numériques.",
+    "prereqs": [
+      "secu-crypto-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-auth-debutant",
+    "module": "Cybersécurité",
+    "title": "Authentification et MFA - Débutant",
+    "category": "Cybersécurité",
+    "order": 904,
+    "description": "Différencier identification, authentification et autorisation.",
+    "prereqs": [
+      "secu-hachage-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-endpoint-debutant",
+    "module": "Cybersécurité",
+    "title": "Sécurité des Endpoints - Débutant",
+    "category": "Cybersécurité",
+    "order": 905,
+    "description": "Appliquer les contrôles essentiels de protection des appareils.",
+    "prereqs": [
+      "secu-auth-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-wifi-debutant",
+    "module": "Cybersécurité",
+    "title": "Sécurité Wi-Fi - Débutant",
+    "category": "Cybersécurité",
+    "order": 906,
+    "description": "Sécuriser un point d’accès et isoler les réseaux invités.",
+    "prereqs": [
+      "secu-endpoint-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-firewall-debutant",
+    "module": "Cybersécurité",
+    "title": "Introduction aux pare-feu - Débutant",
+    "category": "Cybersécurité",
+    "order": 907,
+    "description": "Lire une règle de filtrage et appliquer le moindre privilège réseau.",
+    "prereqs": [
+      "secu-wifi-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   }
 ]
