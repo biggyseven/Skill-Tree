@@ -271,14 +271,14 @@ test('le catalogue des labs réutilise son cache après avoir quitté puis rouve
 
   const links = page.locator('a[data-lab-card="catalog"]');
   await expect(links.first()).toBeVisible();
-  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).labIndexBusy)).toBe(false);
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).labIndexTask === null), { timeout: 45_000 }).toBe(true);
   const requestsAfterFirstLoad = nodeDetailRequests;
   expect(requestsAfterFirstLoad).toBeGreaterThan(0);
 
   await nav.getByRole('button', { name: 'Tableau de bord' }).click();
   await labsButton.click();
   await expect(links.first()).toBeVisible();
-  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).labIndexBusy)).toBe(false);
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).labIndexTask === null), { timeout: 45_000 }).toBe(true);
   expect(nodeDetailRequests).toBe(requestsAfterFirstLoad);
 });
 
