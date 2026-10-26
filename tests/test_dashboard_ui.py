@@ -65,6 +65,19 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.setTab(target, { skipHistory: true })", DASHBOARD_HTML)
         self.assertNotIn("createTextNode('.\\n')", DASHBOARD_HTML)
 
+    def test_voice_reader_describes_tables_and_visual_schematics(self):
+        self.assertIn("speechTextFromTable(table)", DASHBOARD_HTML)
+        self.assertIn("Ligne ' + (rowIndex + 1)", DASHBOARD_HTML)
+        self.assertIn("speechTextFromAsciiDiagram(source)", DASHBOARD_HTML)
+        self.assertIn("speechTextFromMermaidDiagram(source, svg)", DASHBOARD_HTML)
+        self.assertIn("readable.querySelectorAll('.lesson-diagram-block').forEach(root =>", DASHBOARD_HTML)
+        self.assertIn("Les colonnes sont :", DASHBOARD_HTML)
+        self.assertIn("mène vers", DASHBOARD_HTML)
+        self.assertIn("Le schéma se lit ainsi :", DASHBOARD_HTML)
+        self.assertIn("Les flèches insérées dans les phrases ou schémas inline", DASHBOARD_HTML)
+        self.assertIn("let group = '';", DASHBOARD_HTML)
+        self.assertIn("Lecture naturelle des cours, schémas textuels et tableaux ligne par ligne", DASHBOARD_HTML)
+
     def test_course_reader_restores_position_per_course_and_allows_start_selection(self):
         self.assertIn("skilltree-lesson-positions", DASHBOARD_HTML)
         self.assertIn("loadLessonPositions()", DASHBOARD_HTML)
