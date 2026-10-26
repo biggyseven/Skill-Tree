@@ -1,1 +1,102 @@
-{"node_id":"stp-intermediaire","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel est le rôle d'un Root Port (RP) ?","choices":["C'est le port avec le meilleur coût vers le Root Bridge","C'est le port qui bloque les données","C'est le port qui connecte les PC","C'est le port qui crée les boucles"],"answer":0,"explanation":"Le Root Port est le port le plus rapide (coût le plus bas) pour atteindre le pont racine."},{"type":"qcm","prompt":"Combien de temps un port met-il pour passer de l'état Blocking à Forwarding en STP classique (802.1D) ?","choices":["50 secondes","5 secondes","10 secondes","1 minute"],"answer":0,"explanation":"20s (Blocking) + 15s (Listening) + 15s (Learning) = 50 secondes."},{"type":"qcm","prompt":"Quel protocole est une version rapide de STP ?","choices":["RSTP (802.1w)","VTP","OSPF","LACP"],"answer":0,"explanation":"RSTP (Rapid Spanning Tree Protocol) converge en quelques secondes."},{"type":"qcm","prompt":"À quoi sert la fonction PortFast ?","choices":["À faire passer un port immédiatement en mode Forwarding","À bloquer le port","À changer le VLAN du port","À augmenter le coût du port"],"answer":0,"explanation":"PortFast contourne les étapes d'écoute et d'apprentissage pour les PC, accélérant la connexion."}]}
+{
+  "node_id": "stp-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel critère détermine d’abord le Root Port sur un switch non racine ?",
+      "choices": [
+        "Le numéro de VLAN le plus élevé",
+        "Le plus faible coût cumulé vers le Root Bridge, suivi des critères de départage STP si nécessaire",
+        "Le port ayant la plus grande adresse IP",
+        "Le port qui a été activé en dernier"
+      ],
+      "answer": 1,
+      "explanation": "Le coût du chemin vers le pont racine est le critère principal. En cas d’égalité, STP applique des règles de départage basées sur les identifiants de pont et de port."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un scénario classique STP 802.1D où le délai Max Age expire avant les deux temporisations Forward Delay, quel calcul conventionnel peut expliquer une convergence d’environ 50 secondes ?",
+      "choices": [
+        "Deux fois le temps HELLO, soit 4 secondes",
+        "La somme des délais DNS et DHCP",
+        "Max Age de 20 s + deux étapes Forward Delay de 15 s, soit environ 50 s avec les valeurs par défaut usuelles",
+        "Le délai d’authentification 802.1X de 300 secondes"
+      ],
+      "answer": 2,
+      "explanation": "La durée conventionnelle d’environ 50 s correspond souvent à 20 s de Max Age plus deux transitions de 15 s (Listening et Learning). Le délai réel dépend du scénario, des paramètres et du protocole ; il ne faut pas compter 20 s dans l’état Blocking lui-même."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’effet attendu de PortFast sur un port d’accès relié à un terminal final ?",
+      "choices": [
+        "Il permet au port de passer rapidement à Forwarding sans attendre les transitions STP classiques, tout en gardant STP actif",
+        "Il désactive toutes les protections STP sur le switch",
+        "Il rend automatiquement le port root port",
+        "Il active le routage IP sur le port"
+      ],
+      "answer": 0,
+      "explanation": "PortFast/edge est prévu pour les ports connectés à des terminaux. Il accélère le passage à Forwarding mais ne remplace pas STP ; BPDU Guard est souvent associé pour éviter qu’un switch soit branché par erreur sur ce port."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble décrit les états classiques de RSTP ?",
+      "choices": [
+        "Blocking, Listening, Disabled seulement",
+        "Idle, Connect, Active, Established",
+        "Root, Designated, Alternate, Backup",
+        "Discarding, Learning et Forwarding"
+      ],
+      "answer": 3,
+      "explanation": "RSTP simplifie les états de ports en Discarding, Learning et Forwarding. Les rôles de port (root, designated, alternate, backup) sont une classification distincte des états."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un segment Ethernet broadcast avec plusieurs routeurs OSPF, quelles adjacences établissent généralement les routeurs DROTHER ?",
+      "choices": [
+        "Une adjacency FULL avec chaque DROTHER dans tous les cas",
+        "Des adjacences complètes principalement avec le DR et le BDR, selon le type de réseau OSPF",
+        "Aucune adjacency avec les autres routeurs",
+        "Seulement une adjacency avec le serveur DNS"
+      ],
+      "answer": 1,
+      "explanation": "Sur un réseau OSPF de type broadcast, le DR/BDR réduisent le nombre d’adjacences complètes ; un routeur DROTHER devient typiquement FULL avec le DR et le BDR, tandis que d’autres voisins peuvent rester 2-WAY."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une différence de MTU peut-elle empêcher une adjacency OSPF d’atteindre FULL ?",
+      "choices": [
+        "Parce que la MTU détermine le numéro d’aire OSPF",
+        "Parce que le routeur ne peut plus répondre à ARP sur toute interface",
+        "Les routeurs peuvent rejeter les paquets de description de base de données dont la MTU annoncée est incompatible et rester en EXSTART/EXCHANGE",
+        "Parce que OSPF exige toujours TCP 179"
+      ],
+      "answer": 2,
+      "explanation": "Les messages Database Description transportent une information de MTU dans plusieurs implémentations. Une divergence peut bloquer le voisinage en EXSTART/EXCHANGE ; il faut vérifier les interfaces avant d’utiliser un contournement spécifique à la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel changement est susceptible de réduire les bénéfices de RSTP dans une topologie ?",
+      "choices": [
+        "Un câblage point-à-point/full-duplex compatible permet un handshake rapide",
+        "Des rôles et chemins redondants correctement conçus",
+        "Des versions compatibles sur les équipements voisins",
+        "Une incompatibilité de protocole ou de configuration qui empêche les transitions rapides prévues"
+      ],
+      "answer": 3,
+      "explanation": "La convergence rapide dépend de compatibilités et de conditions d’exploitation : liens point-à-point, ports edge correctement désignés et échange de BPDUs. Un mélange ou un paramétrage incorrect peut modifier le comportement attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure pratique avant d’utiliser PortFast sur un port ?",
+      "choices": [
+        "Le réserver à un port réellement edge vers un terminal et associer les protections pertinentes, notamment BPDU Guard selon la politique",
+        "L’activer indistinctement sur chaque trunk inter-switch",
+        "Désactiver les BPDUs sur tous les switches",
+        "Utiliser PortFast pour élire le Root Bridge"
+      ],
+      "answer": 0,
+      "explanation": "PortFast est adapté aux ports d’accès edge, pas aux liens inter-switch ordinaires. BPDU Guard peut mettre le port en erreur s’il reçoit une BPDU inattendue."
+    }
+  ]
+}
