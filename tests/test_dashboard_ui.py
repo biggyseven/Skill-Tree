@@ -330,7 +330,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("await this.setTab('challenges')", DASHBOARD_HTML)
         self.assertIn("await this.startChallenge(nodeId)", DASHBOARD_HTML)
         self.assertIn("if (action.action === 'lab')", DASHBOARD_HTML)
-        self.assertIn("await this.openLab(nodeId)", DASHBOARD_HTML)
+        self.assertIn("await this.openLab(nodeId, true)", DASHBOARD_HTML)
+        self.assertIn('data-lab-card="plan"', DASHBOARD_HTML)
+        self.assertIn("encodeURIComponent(action.node_id)", DASHBOARD_HTML)
         self.assertIn("lab: status === 'available'", DASHBOARD_HTML)
         self.assertIn("label: 'Lab à lancer'", DASHBOARD_HTML)
         self.assertIn("label: 'Lab à poursuivre'", DASHBOARD_HTML)
@@ -848,7 +850,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("await this.initTopology();", DASHBOARD_HTML)
         self.assertIn("await this.setTab('challenges')", DASHBOARD_HTML)
 
-        self.assertIn("window.open('/lab.html', '_blank', 'noopener,noreferrer')", DASHBOARD_HTML)
+        self.assertIn('href="/lab.html"', DASHBOARD_HTML)
+        self.assertIn('target="_blank" rel="noopener noreferrer"', DASHBOARD_HTML)
+        self.assertIn("Ouvrir l’atelier libre, sans scénario de cours", DASHBOARD_HTML)
         self.assertIn("Ouvrir l’atelier libre, sans scénario de cours", DASHBOARD_HTML)
 
     def test_server_challenge_loading_handles_api_errors_and_bounds_the_timer(self):
