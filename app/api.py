@@ -717,7 +717,13 @@ def read_profile(tree: SkillTree = Depends(get_tree)) -> dict:
     return {
         "level": stats, "total_nodes": total_nodes, "validated_nodes": validated_nodes,
         "progress_percent": round((validated_nodes / total_nodes) * 100) if total_nodes else 0,
-        "streak": {"days": days}, "labs_validated": labs, "exams_passed": exams, "badges": [],
+        "streak": {"days": days}, "labs_validated": labs, "exams_passed": exams,
+        "badges": [
+            dict(row) for row in tree.conn.execute(
+                "SELECT id, nom, description, icone, condition_debloquee_le "
+                "FROM badges ORDER BY condition_debloquee_le, id"
+            ).fetchall()
+        ],
         "certificate": {"name": CERTIFICATE_NAME, "date": date.today().isoformat()}
     }
 
