@@ -57,10 +57,6 @@ test('le thème choisi est persisté après rechargement', async ({ page }) => {
 });
 
 test('le marqueur actif reflète le thème appliqué', async ({ page }) => {
-  test.fail(
-    true,
-    'Défaut navigateur confirmé : le thème devient « ocean », mais le bouton Océan reste aria-pressed=false. La correction exige une modification coordonnée de static/index.html.',
-  );
   await openDashboard(page);
 
   await page.getByRole('button', { name: 'Ouvrir les paramètres' }).click();
