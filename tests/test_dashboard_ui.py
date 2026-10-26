@@ -954,6 +954,17 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("brief: challenge.brief || {}", DASHBOARD_HTML)
         self.assertIn("BUILTIN_CHALLENGE_BRIEFS[id] || {}", DASHBOARD_HTML)
 
+    def test_placeholder_lessons_show_a_preparation_state_not_the_empty_reader(self):
+        self.assertIn("lessonIsPlaceholder: false", DASHBOARD_HTML)
+        self.assertIn("isLessonPlaceholder(md)", DASHBOARD_HTML)
+        self.assertIn("if (this.isLessonPlaceholder(md))", DASHBOARD_HTML)
+        self.assertIn('x-if="lessonHtml && !lessonIsPlaceholder"', DASHBOARD_HTML)
+        self.assertIn('x-show="lessonMissing || lessonIsPlaceholder"', DASHBOARD_HTML)
+        self.assertIn('aria-labelledby="lesson-preparation-title"', DASHBOARD_HTML)
+        self.assertIn("Contenu en préparation", DASHBOARD_HTML)
+        self.assertIn("Leçon enregistrée · rédaction à terminer", DASHBOARD_HTML)
+        self.assertIn("!!lessonHtml", DASHBOARD_HTML)
+
     def test_course_reader_width_and_mobile_controls_are_persisted(self):
         self.assertIn('aria-labelledby="course-reader-title"', DASHBOARD_HTML)
         self.assertIn('aria-label="Commandes de lecture"', DASHBOARD_HTML)
