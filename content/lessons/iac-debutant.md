@@ -1,214 +1,233 @@
-# Infrastructure as Code avec Terraform — Débutant
+# Fondamentaux de l’Infrastructure as Code — Débutant
 
-> **Mise en contexte.** Une petite équipe recrée chaque mois le même réseau cloud à la main. Les environnements finissent par différer, les règles de sécurité sont oubliées et personne ne sait exactement ce qui a changé. L’Infrastructure as Code (IaC) décrit l’infrastructure dans des fichiers versionnés et permet d’examiner les changements avant de les appliquer.
+> **Mise en contexte.** Une équipe recrée manuellement son environnement de test à chaque nouvelle version. Les paramètres changent d’une personne à l’autre, certaines règles de sécurité sont oubliées et il devient difficile de savoir pourquoi deux environnements ne se comportent pas de la même façon. L’Infrastructure as Code (IaC) vise à rendre ces changements explicites, revus et reproductibles. Ce cours enseigne les principes communs à différentes familles d’outils. Le cours Terraform du parcours Administration Réseaux reste la référence pour apprendre en détail HCL, les ressources et les commandes Terraform.
 
 ## Objectifs d’apprentissage
 
-Tu dois comprendre les principes de l’IaC, reconnaître les blocs Terraform, déclarer un fournisseur et une ressource, utiliser variables et sorties, suivre le cycle init/plan/apply, comprendre le rôle de l’état et protéger les données sensibles.
+À la fin de ce cours, tu dois pouvoir expliquer les avantages et les limites de l’IaC, distinguer une approche déclarative d’une approche impérative, décrire le cycle de livraison d’un changement d’infrastructure, reconnaître les principaux types d’outils, repérer les risques liés aux secrets et aux droits d’accès, et préparer une demande de changement qui peut être revue par une équipe.
 
 ## Prérequis
 
-Connaître les bases du cloud, des réseaux et de Git. Les premiers exemples utilisent uniquement une ressource locale Terraform afin de ne pas créer de ressource cloud facturable. N’applique jamais un exemple à un compte de production sans vérifier la facturation, les permissions et les effets sur les ressources.
+Il est utile de connaître les bases de Git, des réseaux et des environnements cloud, mais aucun compte cloud n’est nécessaire pour les activités de ce cours. Les ateliers portent sur la conception et la revue d’un changement. Ils ne créent aucune ressource payante.
 
-## 1. Pourquoi décrire l’infrastructure ?
+## 1. Pourquoi décrire l’infrastructure dans des fichiers ?
 
-L’IaC permet de représenter des ressources telles qu’un réseau, un sous-réseau, un pare-feu, une machine virtuelle, un stockage ou un service géré. Le code décrit l’état désiré. L’outil compare cet état à l’état connu et prépare un plan.
+Une infrastructure peut inclure des réseaux virtuels, des sous-réseaux, des machines, des bases de données, des règles de pare-feu, des comptes, des politiques d’accès et des services applicatifs. Lorsqu’une personne configure tout depuis une console, le résultat peut fonctionner, mais une partie de la procédure reste dans sa mémoire.
 
-Avantages :
-- historique des changements ;
-- revue avant application ;
-- reproductibilité entre environnements ;
-- meilleure détection des écarts ;
-- tests et politiques automatisables.
+Cette connaissance implicite produit plusieurs difficultés :
 
-Limites :
-- le code peut contenir une erreur dangereuse ;
-- le plan peut affecter des ressources existantes ;
-- le fichier d’état peut contenir des données sensibles ;
-- les fournisseurs et leurs APIs changent ;
-- un système réel comporte aussi des données et dépendances extérieures au code.
+- une autre personne ne peut pas reproduire précisément l’environnement ;
+- les étapes oubliées sont difficiles à identifier ;
+- l’historique des changements est dispersé entre des journaux et des souvenirs ;
+- la comparaison entre développement, test et production devient compliquée ;
+- une modification urgente peut être appliquée sans revue ni procédure de retour.
 
-## 2. Cycle de travail Terraform
+L’IaC consiste à représenter tout ou partie de l’infrastructure dans des fichiers maintenus comme du code. Ces fichiers deviennent un support de discussion, de validation et d’automatisation. Ils ne remplacent toutefois ni la supervision, ni les sauvegardes, ni les décisions d’architecture.
 
-~~~text
-Fichiers .tf
-   |
-terraform fmt / validate
-   |
-terraform init  -> modules et providers
-   |
-terraform plan  -> changements prévus
-   |
-Revue du plan
-   |
-terraform apply -> modification des ressources
-   |
-vérification + suivi de l'état
-~~~
+## 2. Les notions fondamentales
 
-- init prépare le répertoire et récupère les providers nécessaires.
-- fmt normalise le format des fichiers.
-- validate vérifie la cohérence de la configuration.
-- plan prépare un aperçu des actions proposées.
-- apply applique les changements approuvés.
-- destroy supprime les ressources gérées par la configuration : cette commande a un impact important et ne doit pas être lancée sans revue du périmètre.
+### 2.1 L’état souhaité et l’état réel
 
-## 3. Premier exemple sans fournisseur cloud
+L’**état souhaité** décrit ce que l’équipe entend obtenir. L’**état réel** correspond aux ressources qui existent effectivement dans l’environnement. L’outil ou le processus de livraison compare ces deux états afin d’identifier les opérations nécessaires.
 
-Crée un fichier main.tf dans un répertoire isolé :
+Exemple : la configuration approuvée indique qu’un sous-réseau de test doit utiliser une plage réseau précise et que l’accès administratif doit être limité à un point d’entrée connu. Si une intervention manuelle élargit le filtrage, l’état réel ne correspond plus à l’état souhaité.
 
-~~~hcl
-terraform {
-  required_version = ">= 1.5.0"
-}
+Le code ne garantit pas à lui seul que l’état réel restera conforme. Il faut également des permissions adaptées, une détection des écarts et des procédures de correction.
 
-variable "environment" {
-  type        = string
-  description = "Nom de l'environnement de laboratoire"
-  default     = "lab"
-}
+### 2.2 Déclaratif et impératif
 
-resource "terraform_data" "example" {
-  input = var.environment
-}
+Une approche déclarative exprime le résultat attendu. Une approche impérative décrit les actions à exécuter dans un ordre donné.
 
-output "environment_name" {
-  value = terraform_data.example.output
-}
-~~~
+Exemple conceptuel :
 
-La ressource intégrée terraform_data permet de découvrir le cycle Terraform sans provisionner de machine, de réseau ou de service cloud. Elle nécessite une version de Terraform compatible avec ce type de ressource (Terraform 1.4 ou ultérieur).
+    Déclaratif :
+      service web = présent
+      capacité = 2 instances
+      accès public = HTTPS seulement
 
-Exécute :
+    Impératif :
+      créer une instance
+      configurer le service
+      ajouter une règle HTTPS
+      vérifier que l’instance est opérationnelle
 
-~~~bash
-terraform fmt
-terraform init
-terraform validate
-terraform plan
-~~~
+Les deux approches peuvent être utiles. La déclaration facilite la comparaison entre le résultat attendu et les ressources existantes. Un script impératif peut être pertinent pour une procédure spécifique, mais il faut réfléchir à ce qui se passe si le script est relancé après une interruption.
 
-Lis le plan avant de l’appliquer :
+### 2.3 Répétabilité, idempotence et dérive
 
-~~~bash
-terraform plan -out=tfplan
-terraform show tfplan
-terraform apply tfplan
-terraform output environment_name
-~~~
+La **répétabilité** signifie qu’une procédure documentée peut être reproduite dans des conditions connues. L’**idempotence** désigne, dans un contexte donné, une opération dont la répétition ne produit pas de changement supplémentaire une fois le résultat atteint. La **dérive** est un écart entre la configuration de référence et l’infrastructure réelle.
 
-L’application crée ici l’objet de données local géré par Terraform, pas une machine virtuelle. Le fichier de plan et l’état peuvent contenir des valeurs sensibles dans d’autres configurations ; protège-les par défaut. Après le TP, inspecte le périmètre puis utilise destroy seulement dans le répertoire de test que tu viens de créer.
+Ces notions sont liées mais ne sont pas synonymes. Un processus peut être répétable sans être idempotent. Une dérive peut apparaître après une intervention manuelle, un incident, une mise à jour externe ou une erreur de configuration.
 
-## 4. Providers et ressources
+## 3. Comprendre le cycle de changement
 
-Un provider est un plugin qui permet à Terraform de dialoguer avec une API, par exemple celle d’un fournisseur cloud. Une ressource représente un objet géré. La configuration nécessaire dépend du provider, des versions supportées, de l’authentification et des attributs réellement pris en charge.
+Un changement d’infrastructure ne devrait pas commencer directement par une commande d’application. Il doit suivre un cycle contrôlé.
 
-Avant d’utiliser une ressource réelle :
-1. choisis le fournisseur et l’API cible ;
-2. consulte la documentation de la version de provider retenue ;
-3. épingle une plage de version compatible ;
-4. prépare des identifiants aux permissions minimales ;
-5. confirme compte, région et environnement ;
-6. lis le plan et identifie chaque suppression ou remplacement possible.
+    Demande de changement
+            |
+            v
+    Analyse du besoin et du risque
+            |
+            v
+    Modification versionnée
+            |
+            v
+    Vérifications automatiques
+            |
+            v
+    Revue humaine et aperçu des effets
+            |
+            v
+    Approbation adaptée au risque
+            |
+            v
+    Application contrôlée
+            |
+            v
+    Vérification du résultat et traçabilité
 
-Ne copie pas un exemple de fournisseur inconnu en production : la syntaxe seule ne prouve ni la compatibilité ni l’innocuité d’une ressource.
+Chaque étape répond à une question. La demande explique pourquoi la modification est nécessaire. La revue vérifie si le changement répond au besoin. L’aperçu des effets permet de repérer les opérations inattendues. La vérification post-déploiement confirme que le service fonctionne réellement.
 
-## 5. Variables, types et sorties
+Une validation technique réussie ne vaut pas approbation métier. Un fichier peut être syntaxiquement valide tout en autorisant une règle de réseau trop large ou en supprimant une ressource critique.
 
-Les variables rendent la configuration adaptable sans dupliquer les fichiers. Elles peuvent avoir un type, une description, une valeur par défaut et des validations. Les sorties exposent une information utile après la création d’une ressource.
+## 4. Les grandes familles d’outils
 
-~~~hcl
-variable "service_port" {
-  type        = number
-  description = "Port du service de laboratoire"
-  default     = 8080
-  validation {
-    condition     = var.service_port >= 1 && var.service_port <= 65535
-    error_message = "Le port doit être compris entre 1 et 65535."
-  }
-}
+Les outils d’IaC ont des domaines d’application qui se recoupent parfois.
 
-output "service_port" {
-  value = var.service_port
-}
-~~~
+| Famille | Exemples | Usage fréquent |
+|---|---|---|
+| Provisionnement déclaratif multi-environnements | Terraform, OpenTofu | Décrire et gérer des ressources d’infrastructure au moyen de providers |
+| Services d’infrastructure d’un fournisseur | AWS CloudFormation, Azure Bicep | Décrire les ressources d’un environnement cloud donné |
+| Gestion de configuration | Ansible | Configurer des systèmes, des services et des équipements après leur création |
+| Infrastructure définie en langage de programmation | Pulumi | Décrire l’infrastructure avec des langages de programmation pris en charge |
+| Construction d’images et déploiement applicatif | Packer, Helm et outils associés | Préparer des images ou déployer des composants qui s’appuient sur une infrastructure |
 
-Ne considère pas une valeur comme un secret simplement parce qu’elle n’est pas codée en dur. Les valeurs sensibles peuvent se retrouver dans l’état ou dans les journaux. Utilise le mécanisme de secrets adapté à ton environnement.
+Ce tableau n’est pas un classement universel. Le choix dépend du périmètre, des compétences de l’équipe, des contraintes de sécurité, des plateformes prises en charge, de la maintenance et du coût d’exploitation.
 
-## 6. Lire un plan avec méthode
+Il est fréquent de combiner plusieurs outils. La difficulté est alors de délimiter clairement les responsabilités : deux systèmes ne doivent pas gérer indépendamment le même objet sans stratégie explicite.
 
-Dans le plan, distingue la création, la mise à jour et la suppression. Une suppression suivie d’une création peut être nécessaire lorsqu’un attribut ne peut pas être modifié sur place. Les détails dépendent de la ressource et du provider, mais la question reste : quelles ressources vont changer, avec quelles dépendances et quelles conséquences ?
+## 5. Les fichiers font partie d’un processus d’équipe
 
-Ne valide pas un plan uniquement parce qu’il ne contient pas d’erreur syntaxique. Compare-le à l’objectif du changement. Si une suppression imprévue apparaît, arrête-toi et recherche la cause.
+Un dépôt IaC utile doit permettre à un collègue de comprendre ce qui est géré et comment un changement est autorisé. Une organisation simple peut ressembler à ceci :
 
-Quand le plan a été revu, la pratique la plus stricte consiste à enregistrer un plan ciblé puis à appliquer précisément ce plan :
+    infrastructure/
+      README.md
+      environments/
+        dev/
+        test/
+        prod/
+      components/
+      policies/
+      tests/
+      docs/
 
-~~~bash
-terraform plan -out=tfplan
-terraform show tfplan
-terraform apply tfplan
-~~~
+Cette structure est illustrative, pas une règle à appliquer mécaniquement. Un petit projet peut utiliser une structure plus simple. Une organisation importante peut séparer les dépôts par domaine ou par responsabilité. La décision doit refléter le périmètre réel de gestion et les droits nécessaires.
 
-Un plan peut contenir des informations sensibles. Ne le publie pas dans un emplacement ouvert et ne le considère pas comme un artefact anodin.
+Les fichiers de référence doivent expliquer les entrées attendues, les environnements concernés, les commandes ou processus autorisés, les tests à lancer et les conditions d’approbation. Les secrets et les données d’état ne doivent pas être ajoutés au dépôt par commodité.
 
-## 7. État Terraform et prudence
+### 5.1 Pourquoi Git est essentiel
 
-L’état relie les objets déclarés à des objets réels. Il est nécessaire pour comprendre ce que Terraform gère. L’état local est utile pour un TP, mais une équipe doit généralement utiliser une solution d’état distant avec contrôle d’accès, sauvegarde et verrouillage adaptés.
+Git fournit un historique des modifications et permet de proposer une modification sans l’appliquer immédiatement à l’infrastructure. Une pull request ou une merge request sert à expliquer le besoin, examiner la différence, lancer des contrôles et conserver la décision de revue.
 
-Règles essentielles :
-- n’édite pas manuellement le fichier d’état comme un fichier de configuration ;
-- ne le publie pas dans un dépôt public ;
-- ne supprime pas l’état pour « repartir de zéro » sans plan de migration ;
-- protège les sauvegardes et les permissions ;
-- vérifie le compte, la région et le workspace avant de modifier des ressources ;
-- conserve les fichiers de configuration, les verrous de dépendances et le plan approuvé selon la politique de l’équipe.
+Le message de commit doit expliquer l’intention. Le titre d’une demande de fusion devrait indiquer le résultat recherché. Le contenu de la revue doit porter sur les conséquences du changement, pas uniquement sur la mise en forme du fichier.
 
-Le state peut contenir des valeurs sensibles même si le code utilise une variable marquée sensible. Limite l’accès à l’état comme à une donnée confidentielle.
+## 6. Les risques à connaître dès le début
 
-## 8. Environnements et conventions
+### 6.1 Secrets et identités
 
-Sépare les environnements avec une stratégie explicite : répertoires et racines distincts, variables contrôlées, espaces de travail ou modules partagés selon les exigences. Un workspace Terraform ne constitue pas à lui seul une frontière de sécurité suffisante entre développement et production.
+Les mots de passe, clés d’accès et jetons ne doivent pas être commis dans le dépôt. Il faut préférer un gestionnaire de secrets et des identités temporaires lorsque la plateforme le permet. Les identités d’exécution doivent disposer uniquement des permissions nécessaires à leur tâche.
 
-Conserve les fichiers lisibles, exécute fmt et validate en CI, et demande une revue sur les plans qui touchent au réseau, au stockage, aux identités ou aux ressources facturées. Le nom de l’environnement, le compte et la région doivent être visibles dans les paramètres contrôlés.
+### 6.2 Destruction involontaire
 
-N’ajoute pas à Git les répertoires locaux de plugins, les fichiers d’état, leurs sauvegardes ou des plans contenant des valeurs sensibles. Ajoute des règles d’ignorance adaptées, puis vérifie avec le statut Git que ces fichiers ne sont pas suivis.
+Une modification courte peut supprimer une base de données, remplacer une adresse ou interrompre des connexions. Avant de l’appliquer, il faut examiner les effets prévus et identifier les ressources critiques. Une sauvegarde utile doit être testée : la présence d’un fichier de sauvegarde ne prouve pas qu’une restauration est possible.
 
-## 9. TP guidé : produire et comparer deux plans
+### 6.3 Écart entre validation et réalité
 
-**But :** apprendre le cycle Terraform et la revue du plan sans créer de ressource cloud.
+Un contrôle statique peut repérer une erreur de format ou une valeur interdite, mais il ne prouve pas que l’application fonctionnera. Il faut des tests adaptés et une vérification après déploiement.
 
-1. Crée un répertoire iac-lab et le fichier main.tf avec la ressource terraform_data de l’exemple.
-2. Exécute fmt, init et validate.
-3. Exécute plan et lis chaque action.
-4. Enregistre un plan dans un fichier dédié, puis affiche-le.
-5. Modifie la valeur de la variable environment.
-6. Produis un second plan et explique la différence.
-7. Exécute apply uniquement dans ce répertoire de TP.
-8. Vérifie la sortie, inspecte le state local et confirme qu’aucune ressource cloud n’a été créée.
-9. Examine le statut Git et vérifie que l’état et les plans n’ont pas été ajoutés au dépôt.
+### 6.4 Coûts et nettoyage
 
-**Critères de réussite :** le cycle de base est compris, les fichiers de configuration sont versionnés, l’état n’est pas publié et aucun service cloud facturable n’a été créé.
+Un environnement de laboratoire peut consommer des ressources ou laisser des ressources actives après l’exercice. Le propriétaire, le budget, la durée de vie et la procédure de nettoyage doivent être définis avant de créer les ressources.
 
-## Exercices corrigés
+## 7. TP guidé : préparer une demande de changement IaC
 
-**1. À quoi sert plan ?**  
-À préparer un aperçu des changements que Terraform envisage avec la configuration et l’état disponibles. Il aide à détecter les créations, mises à jour et suppressions avant application.
+### Situation
 
-**2. Pourquoi init doit-il être répété dans un environnement CI neuf ?**  
-Parce que le runner doit récupérer les plugins et modules déclarés. L’étape prépare un environnement de travail reproductible.
+Une équipe veut créer un environnement de test pour une nouvelle application. L’environnement doit être isolé de la production, accessible uniquement aux personnes de l’équipe et automatiquement supprimé lorsqu’il n’est plus utilisé. Le travail demandé consiste à préparer une demande de changement sûre, pas à créer réellement des ressources.
 
-**3. Le code ne contient aucun mot de passe. L’état peut-il contenir un secret ?**  
-Oui. Certains attributs renvoyés par un provider sont enregistrés dans l’état. Il faut protéger le stockage, les sauvegardes et les permissions.
+### Étape A — Décrire le résultat attendu
 
-**4. Pourquoi ne faut-il pas appliquer un plan sans le lire ?**  
-Le plan peut supprimer ou remplacer des ressources. La validation syntaxique ne prouve pas que les effets sont conformes au besoin métier.
+Rédige les exigences sous forme vérifiable : isolation réseau, identité autorisée, journalisation, durée de vie, responsable et procédure de nettoyage. Évite les formulations vagues telles que « sécurisé » ou « correctement configuré ».
 
-## Défi final corrigé
+### Étape B — Définir le périmètre
 
-Prépare une configuration d’équipe qui accepte un nom d’environnement et un port validé, applique le formatage et la validation en CI, produit un plan pour revue et empêche l’état d’être publié dans le dépôt.
+Identifie les objets concernés, le dépôt propriétaire, les systèmes qui les gèrent et les dépendances. Si une ressource est déjà contrôlée par un autre outil, il faut convenir d’un transfert de responsabilité ou d’une interface entre outils.
 
-**Solution attendue :** utiliser des variables typées avec validation, fmt -check, validate, publier le plan dans un espace protégé et exiger une approbation avant application. Ignorer les états, leurs sauvegardes et les fichiers de plan sensibles. Aucun apply automatique ne doit se produire sans que les protections du pipeline aient été conçues et testées.
+### Étape C — Préparer la revue
 
-## À retenir
+La demande de fusion doit comprendre le contexte, les objets affectés, les contrôles exécutés, les effets attendus, les risques, le plan de retour et la personne chargée de vérifier le déploiement.
 
-Terraform décrit une infrastructure souhaitée, mais ne décide pas si chaque changement est acceptable pour le métier. La discipline essentielle consiste à contrôler les versions, inspecter le plan, protéger l’état et appliquer uniquement le périmètre approuvé.
+### Étape D — Préparer la fin de vie
+
+Définis comment détecter les ressources encore présentes, qui autorise le nettoyage et comment préserver les données qui doivent être conservées. La suppression d’un environnement ne doit pas entraîner celle d’une donnée partagée ou d’une ressource de production.
+
+## 8. Exercices corrigés
+
+### Exercice 1 — Choisir une approche
+
+Une équipe veut décrire la création de réseaux et de sous-réseaux dans plusieurs environnements cloud. Elle souhaite versionner les changements et revoir les effets avant application.
+
+**Correction :** un outil de provisionnement déclaratif comme Terraform ou OpenTofu peut convenir, sous réserve de vérifier les providers, la gouvernance, les contraintes et les compétences. Le choix ne doit pas être fait uniquement parce qu’un outil est populaire.
+
+### Exercice 2 — Repérer l’approche impérative
+
+Un script crée systématiquement une nouvelle règle de filtrage à chaque exécution, sans vérifier si cette règle existe déjà.
+
+**Correction :** le script risque de produire des doublons et ne garantit pas un résultat stable après plusieurs exécutions. Il faut rendre l’opération idempotente ou utiliser un mécanisme déclaratif qui compare l’état attendu à l’état existant.
+
+### Exercice 3 — Identifier une dérive
+
+Un administrateur élargit manuellement une règle d’accès après le déploiement. Aucun changement n’est enregistré dans le dépôt.
+
+**Correction :** l’état réel ne correspond plus à la configuration versionnée. Il faut évaluer le risque immédiat, enregistrer l’écart, décider si la correction doit être appliquée dans le code ou si le changement manuel est légitime, puis rétablir une référence approuvée.
+
+### Exercice 4 — Validation réussie, changement dangereux
+
+Un contrôle automatique réussit, mais l’aperçu indique la suppression d’une base de données contenant des données utiles.
+
+**Correction :** il ne faut pas appliquer automatiquement le changement. Le responsable doit comprendre la cause, vérifier les dépendances et les sauvegardes, puis faire corriger le plan ou approuver explicitement la suppression selon une procédure adaptée.
+
+## 9. Défi final corrigé : définir un processus de changement sûr
+
+### Travail demandé
+
+Propose un processus de livraison pour un environnement de test. Il doit inclure le dépôt de référence, la revue, les validations, l’approbation, la gestion des secrets, la vérification après déploiement et le nettoyage.
+
+### Correction attendue
+
+Une solution acceptable contient les éléments suivants :
+
+1. Une demande documentée avec un propriétaire, un périmètre, des critères d’acceptation et un budget.
+2. Une modification versionnée proposée par branche, puis relue par une autre personne.
+3. Des contrôles automatiques portant sur la structure, les tests, les règles de sécurité et les politiques de l’équipe.
+4. Un aperçu des opérations prévues, examiné avant toute application.
+5. Une identité d’exécution limitée et aucun secret stocké dans le dépôt.
+6. Une approbation proportionnée au risque, avec une approbation renforcée pour toute destruction sensible.
+7. Une vérification après déploiement, une trace de la décision et une procédure de retour.
+8. Un mécanisme de nettoyage assorti d’une date d’expiration et d’une protection des données à conserver.
+
+### Critères d’évaluation
+
+La proposition est complète si chaque étape a un responsable, si les contrôles ne sont pas confondus avec les approbations, si les ressources critiques sont protégées et si le nettoyage ne peut pas supprimer involontairement une ressource partagée.
+
+## 10. À retenir
+
+L’IaC est une méthode de gestion et de livraison de l’infrastructure, pas seulement un format de fichier. Elle repose sur une configuration explicite, un historique versionné, des contrôles, une revue proportionnée au risque et une observation de l’état réel. Les cours Terraform du parcours Administration Réseaux approfondissent la mise en œuvre technique de ces principes avec un outil précis. Le parcours IaC les replace dans une démarche utilisable par une équipe, quel que soit l’outil retenu.
+
+## Références utiles
+
+- Principes Terraform : https://developer.hashicorp.com/terraform/intro
+- Documentation OpenTofu : https://opentofu.org/docs/
+- AWS CloudFormation : https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html
+- Azure Bicep : https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview
+- Ansible : https://docs.ansible.com/ansible/latest/getting_started/index.html
