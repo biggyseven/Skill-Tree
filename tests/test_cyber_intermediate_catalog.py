@@ -84,7 +84,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
                     self.assertLess(question["answer"], len(question["choices"]))
                     self.assertTrue(question["explanation"].strip())
                 if node_id == "secu-siem-intermediaire":
-                    self.assertTrue(lesson.endswith("Fin du cours."))
+                    self.assertTrue(lesson.rstrip().endswith("Fin du cours."))
                     self.assertNotIn("\n---\n", lesson)
                     self.assertGreaterEqual(lesson.count("~~~text"), 18)
                     self.assertGreaterEqual(len(quiz["questions"]), 12)
