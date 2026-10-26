@@ -74,3 +74,49 @@ test('show ip interface brief affiche un état de protocole cohérent avec celui
   assert.match(output, /administratively down\s+down/);
   assert.match(output, /10\.0\.12\.2\s+YES manual up\s+up/);
 });
+
+
+test('les commandes access-list, acc-l et acl enregistrent les règles sans préfixe', () => {
+  const device = makeDevice();
+  const parser = new CLIParser(device);
+  parser.execute('enable');
+  parser.execute('configure terminal');
+
+  assert.equal(parser.execute('access-list 100 deny ip host 192.168.1.10 host 10.0.0.5').output, '');
+  assert.equal(parser.execute('acc-l 100 permit ip any any').output, '');
+  assert.equal(parser.execute('acl 100 remark règle de test').output, '');
+  assert.deepEqual(device.config.acls, [
+    '100 deny ip host 192.168.1.10 host 10.0.0.5',
+    '100 permit ip any any',
+    '100 remark règle de test',
+  ]);
+});
+
+test('ip access-group stocke le numéro ACL sur le port et running-config l’affiche', () => {
+  const device = makeDevice();
+  const parser = new CLIParser(device);
+  parser.execute('enable');
+  parser.execute('configure terminal');
+  assert.equal(parser.execute('access-list 100 deny ip host 192.168.1.10 host 10.0.0.5').output, '');
+  assert.equal(parser.execute('access-list 100 permit ip any any').output, '');
+  parser.execute('interface Fa0/0');
+
+  assert.equal(parser.execute('ip access-group 100 in').output, '');
+  assert.equal(device.ports[0].access_group_in, 100);
+
+  parser.execute('end');
+  const output = parser.execute('show running-config').output;
+  assert.match(output, /access-list 100 deny ip host 192\.168\.1\.10 host 10\.0\.0\.5/);
+  assert.match(output, /access-list 100 permit ip any any/);
+  assert.match(output, /interface Fa0\/0[\s\S]*ip access-group 100 in/);
+});
+
+test('ip access-group refuse une direction ou un numéro invalide', () => {
+  const device = makeDevice();
+  const parser = new CLIParser(device);
+  enterInterfaceConfig(parser);
+
+  assert.match(parser.execute('ip access-group 100 both').output, /Invalid input/);
+  assert.match(parser.execute('ip access-group nope in').output, /Invalid input/);
+  assert.equal(device.ports[0].access_group_in, undefined);
+});
