@@ -517,6 +517,62 @@ test('les ports peuvent être reliés même lorsque les deux handles sont du mê
   await expect(edges).toHaveCount(2, { timeout: 10_000 });
 });
 
+test('la lecture vocale raconte les tableaux, les schémas ASCII et les relations Mermaid', async ({ page }) => {
+  await openDashboard(page);
+  await page.evaluate(async () => {
+    const state = window.Alpine.$data(document.body);
+    await state.show('linux-expert');
+    state.startSectionSelection = '__top__';
+    const article = state.$refs.lessonArticle;
+    article.innerHTML = `
+      <h1 id="voice-visual-test">Lecture des représentations</h1>
+      <p>Les représentations suivantes résument l’architecture.</p>
+      <div class="lesson-diagram-block" data-diagram-type="tableau">
+        <table>
+          <caption>Ports réseau</caption>
+          <thead><tr><th>Protocole</th><th>Port</th><th>Usage</th></tr></thead>
+          <tbody>
+            <tr><td>HTTPS</td><td>443</td><td>Web chiffré</td></tr>
+            <tr><td>DNS</td><td>53</td><td>Résolution de noms</td></tr>
+          </tbody>
+        </table>
+        <div class="lesson-diagram-guide"><p>Texte guide qui ne doit pas remplacer les données.</p></div>
+      </div>
+      <div class="lesson-diagram-block" data-diagram-type="schéma textuel">
+        <div class="code-container">
+          <div class="code-header"><span class="code-lang">ASCII</span><button>Copier</button></div>
+          <pre><code>Client --> Serveur
+Serveur --> Base de données</code></pre>
+        </div>
+        <div class="lesson-diagram-guide"><p>Guide générique du schéma.</p></div>
+      </div>
+      <div class="lesson-diagram-block" data-diagram-type="diagramme Mermaid">
+        <div class="mermaid"></div>
+      </div>
+    `;
+    article.querySelector('.mermaid').dataset.originalSource =
+      'flowchart LR\\nA[Client] -->|HTTPS| B[API]\\nB --> C[Base de données]';
+  });
+
+  const narration = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return state.speechTextFromArticle();
+  });
+
+  expect(narration).toContain('Tableau : Ports réseau.');
+  expect(narration).toContain('Protocole : HTTPS');
+  expect(narration).toContain('Port : 443');
+  expect(narration).toContain('Usage : Web chiffré');
+  expect(narration).toContain('Protocole : DNS');
+  expect(narration).toContain('Port : 53');
+  expect(narration).toContain('Client mène vers Serveur.');
+  expect(narration).toContain('Serveur mène vers Base de données.');
+  expect(narration).toContain('Client mène vers API par HTTPS.');
+  expect(narration).toContain('API mène vers Base de données.');
+  expect(narration).not.toContain('Copier');
+  expect(narration).not.toContain('Texte guide qui ne doit pas remplacer les données.');
+});
+
 test('le menu contextuel démarre la lecture vocale depuis la section visée', async ({ page }) => {
   await openDashboard(page);
 
