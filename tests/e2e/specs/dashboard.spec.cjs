@@ -90,7 +90,7 @@ test('l’export des données depuis Paramètres déclenche le téléchargement 
   await settings.getByRole('button', { name: /Exporter mes données/ }).click();
   const download = await downloadPromise;
 
-  expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-\\d{4}-\\d{2}-\\d{2}\\.json$/);
+  expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-[0-9]{4}-[0-9]{2}-[0-9]{2}[.]json$/);
   const filePath = await download.path();
   expect(filePath).toBeTruthy();
   const snapshot = JSON.parse(await require('node:fs/promises').readFile(filePath, 'utf8'));
