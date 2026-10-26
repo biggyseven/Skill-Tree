@@ -88,7 +88,7 @@ test('l’export des données depuis Paramètres déclenche le téléchargement 
   await settings.getByRole('button', { name: /Exporter mes données/ }).click();
   const download = await downloadPromise;
 
-  expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-\\d{4}-\\d{2}-\\d{2}\\.json$/);
+  expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-\d{4}-\d{2}-\d{2}\.json$/);
   await expect(settings).toBeHidden();
 });
 
