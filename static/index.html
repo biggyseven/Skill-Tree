@@ -1908,7 +1908,7 @@
       </div> <!-- Fin Scrollable -->
 
       <!-- Commande vocale flottante : pause et reprise accessibles pendant le défilement. -->
-      <div x-show="open && modalTab === 'lesson' && speechKind === 'lesson' && speechState !== 'idle'" x-cloak
+      <div x-show="open && speechKind === 'lesson' && speechState !== 'idle'" x-cloak
            class="absolute bottom-4 right-5 z-[55] flex max-w-[min(92%,28rem)] items-center gap-2 rounded-2xl border border-cyan-300/25 bg-slate-950/95 px-3 py-2 shadow-2xl backdrop-blur"
            role="group" aria-label="Commandes flottantes de lecture vocale">
         <div class="hidden min-w-0 max-w-[14rem] flex-1 sm:block">
