@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-firewall-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle politique de pare-feu est généralement la plus sûre ?",
+      "choices": [
+        "Autoriser tout trafic par défaut",
+        "Autoriser uniquement les flux nécessaires et bloquer le reste",
+        "Désactiver les journaux",
+        "Créer une règle sans destination"
+      ],
+      "answer": 1,
+      "explanation": "Le principe du moindre privilège s’applique aussi aux flux réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que suit typiquement un pare-feu à états ?",
+      "choices": [
+        "L’état des connexions réseau",
+        "La température du processeur",
+        "Les versions des documents",
+        "Les comptes bancaires"
+      ],
+      "answer": 0,
+      "explanation": "Un pare-feu à états suit les sessions afin de reconnaître le trafic associé."
+    }
+  ]
+}
