@@ -767,7 +767,3 @@ Le niveau intermédiaire prolongera ce socle avec :
 - Gestion du state : https://developer.hashicorp.com/terraform/language/state
 - Gestion des données sensibles : https://developer.hashicorp.com/terraform/language/manage-sensitive-data
 - Tutoriels officiels : https://developer.hashicorp.com/terraform/tutorials
-
-**Fichier :** `terraform-debutant.md`  
-**Niveau :** Débutant  
-**Fin du cours**
