@@ -166,62 +166,6 @@ def _load_lab_file(lab_id: str) -> dict[str, Any] | None:
 
 
 
-def _load_sandbox_lab(lab_id: str) -> dict[str, Any] | None:
-    """Construit un bac à sable vide pour un cours connu sans définition de lab."""
-    if not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", lab_id):
-        return None
-
-    conn: sqlite3.Connection | None = None
-    try:
-        conn = _database_connection()
-        columns = {
-            row["name"] for row in conn.execute('PRAGMA table_info("nodes")')
-        }
-        if not {"id", "title"}.issubset(columns):
-            return None
-        row = conn.execute(
-            "SELECT title FROM nodes WHERE id = ?", (lab_id,)
-        ).fetchone()
-        if row is None:
-            return None
-        title = str(row["title"] or lab_id)
-    except (HTTPException, sqlite3.Error, KeyError, TypeError):
-        # Une base non disponible ne doit pas masquer le 404 d'un cours inconnu.
-        return None
-    finally:
-        if conn is not None:
-            conn.close()
-
-    definition = LabDefinition(
-        schema_version=2,
-        id=lab_id,
-        title=title,
-        level="Sandbox",
-        module="Sandbox",
-        difficulty="débutant",
-        prompt=(
-            f"Bienvenue dans l'espace de travail pour le cours : {title}.\n\n"
-            "Cet espace est vierge. Glissez des équipements depuis la palette "
-            "pour construire votre propre topologie."
-        ),
-        objectives=[
-            "Construire une topologie",
-            "Tester vos configurations",
-        ],
-        hints=[],
-        initial_topology=Topology(schema_version=2, nodes=[], links=[]),
-        check=CheckDefinition(
-            type="manual_review",
-            rules=[],
-            pass_threshold=1.0,
-        ),
-        xp_reward=0,
-        badges=[],
-    )
-    payload = _lab_payload_from_definition(lab_id, definition)
-    payload["sandbox"] = True
-    return payload
-
 def _fetch_lab(lab_id: str) -> dict[str, Any]:
     """Charge d'abord un scénario v2 explicite, puis SQLite et les replis historiques."""
     # Un scénario pédagogique complet prévaut sur une ancienne ligne SQLite de compatibilité
