@@ -141,7 +141,7 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
 
     def test_dashboard_uses_the_v2_route_before_legacy_fallback(self):
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        start = dashboard.rindex("async openLab(id, openInNewTab = false) {")
+        start = dashboard.rindex("async openLab(id, openInNewTab = true) {")
         end = dashboard.index("        isLabDone(id)", start)
         open_lab_method = dashboard[start:end]
 
@@ -154,7 +154,7 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertGreater(sandbox_check, v2_check)
         self.assertGreater(workspace_route, sandbox_check)
         self.assertGreater(legacy_fallback, workspace_route)
-        self.assertIn("if (openInNewTab && labWindow && !labWindow.closed) labWindow.close();", open_lab_method)
+        self.assertIn("navigate(`/?openLegacyLab=${encodeURIComponent(nodeId)}`)", open_lab_method)
 
 
     def test_standalone_workspace_route_resolves_entrypoint_from_project_root(self):
@@ -168,9 +168,11 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
 
     def test_course_lab_button_uses_resolver_and_free_workspace_is_explicit(self):
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn('@click="openLab(detail.id, true)"', dashboard)
+        self.assertIn('@click.prevent="openLab(detail.id, true)"', dashboard)
         self.assertNotIn("@click=\"window.open('/lab.html?id=' + (detail?.id || ''), '_blank')\"", dashboard)
         self.assertIn("Ouvrir l’atelier libre, sans scénario de cours", dashboard)
+        self.assertIn('target="_blank" rel="noopener noreferrer"', dashboard)
+        self.assertIn("openLab=", dashboard)
 
 
 if __name__ == "__main__":
