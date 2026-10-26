@@ -80,6 +80,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.startSpeech(this.speechTextFromArticle(targetId), 'lesson')", DASHBOARD_HTML)
         self.assertIn("data-speech-start-id", DASHBOARD_HTML)
         self.assertIn("refreshLessonHeadingOffsets()", DASHBOARD_HTML)
+        self.assertIn("observeLessonHeadingLayout()", DASHBOARD_HTML)
         self.assertIn("const limit = el.scrollTop + 100", DASHBOARD_HTML)
         self.assertIn("Recherche binaire O(log n)", DASHBOARD_HTML)
         self.assertNotIn("el.querySelectorAll('.lesson-prose h2[id]').forEach(h => { if (h.getBoundingClientRect().top <= limit)", DASHBOARD_HTML)
