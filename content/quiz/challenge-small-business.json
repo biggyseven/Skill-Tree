@@ -1,18 +1,102 @@
 {
   "node_id": "challenge-small-business",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel ordre décrit le chemin périphérie–LAN prévu dans le défi PME ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Cloud → firewall → routeur → switch → PC/serveur",
+        "Cloud → PC → firewall → serveur",
+        "Cloud → switch → routeur → PC, sans firewall",
+        "Firewall → cloud → serveur puis routeur isolé"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La topologie attend le firewall à la périphérie, le routeur vers le LAN, puis le switch qui dessert PC et serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la présence d’un firewall dans le schéma ne suffit-elle pas à démontrer la sécurité ?",
+      "choices": [
+        "Le firewall ne peut jamais filtrer un trafic IP",
+        "Les règles, zones, NAT éventuel et tests de flux doivent encore être configurés et validés",
+        "La sécurité dépend uniquement de la couleur des liens",
+        "Le switch remplace toujours le firewall"
+      ],
+      "answer": 1,
+      "explanation": "Le défi valide la structure et les liaisons, pas la politique réelle du pare-feu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle différencie le routeur du switch dans cette architecture ?",
+      "choices": [
+        "Le routeur héberge nécessairement le serveur Web",
+        "Le switch filtre toutes les connexions Internet à la place du firewall",
+        "Le routeur achemine entre réseaux IP et le switch distribue le trafic du LAN",
+        "Le switch fournit obligatoirement l’accès WAN"
+      ],
+      "answer": 2,
+      "explanation": "Le routage et la commutation locale remplissent des fonctions complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle relation est nécessaire pour que le serveur soit intégré au LAN attendu ?",
+      "choices": [
+        "Il suffit de placer le serveur à côté du switch",
+        "Il doit être relié directement au cloud",
+        "Il doit être relié au firewall uniquement",
+        "Le serveur doit avoir une liaison au switch du LAN"
+      ],
+      "answer": 3,
+      "explanation": "Un équipement isolé ne peut pas rendre son service accessible par le LAN."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test convient après la construction du schéma mais avant la mise en production ?",
+      "choices": [
+        "Vérifier les routes, les règles firewall, l’adressage et tester les flux autorisés et interdits",
+        "Supposer que le schéma garantit la sécurité",
+        "Autoriser tous les ports sans consigner la décision",
+        "Supprimer le firewall pour simplifier le chemin"
+      ],
+      "answer": 0,
+      "explanation": "Le défi ne simule pas les règles ; une validation de configuration et de flux reste nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un pare-feu et un routeur ne doivent-ils pas être considérés comme interchangeables ?",
+      "choices": [
+        "Ils ont toujours les mêmes règles et rôles",
+        "Le firewall applique une politique de filtrage tandis que le routeur détermine le chemin IP",
+        "Le routeur relie obligatoirement chaque PC à Internet sans switch",
+        "Le firewall attribue automatiquement toutes les adresses"
+      ],
+      "answer": 1,
+      "explanation": "Leurs responsabilités peuvent se recouper selon les produits, mais filtrage et routage restent des fonctions distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie « périmètre de sécurité » dans le défi ?",
+      "choices": [
+        "Le bord extérieur de l’icône dessinée",
+        "La distance graphique entre cloud et serveur",
+        "La frontière entre zones de confiance où s’appliquent des contrôles d’accès",
+        "Le nombre de câbles utilisés"
+      ],
+      "answer": 2,
+      "explanation": "Le périmètre décrit une frontière de confiance et la politique qui contrôle les flux entre zones."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat satisfait le contrôle structurel prévu ?",
+      "choices": [
+        "Un cloud et un PC seuls",
+        "Un serveur raccordé au cloud sans périphérie",
+        "Un firewall placé sur le dessin mais sans connexion",
+        "Un chemin externe–firewall–routeur–switch, avec PC et serveur reliés au switch"
+      ],
+      "answer": 3,
+      "explanation": "Ces relations reprennent les liaisons demandées par la topologie attendue."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

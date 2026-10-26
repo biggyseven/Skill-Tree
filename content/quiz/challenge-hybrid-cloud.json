@@ -1,18 +1,102 @@
 {
   "node_id": "challenge-hybrid-cloud",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quels rôles doivent apparaître entre le cloud et le réseau local dans le chemin principal ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Cloud → firewall → routeur → switch(s) du LAN",
+        "Cloud → serveur → PC directement",
+        "Cloud → routeur puis firewall isolé",
+        "Cloud → switch local sans périphérie de sécurité"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Le scénario demande un chemin externe vers firewall, routeur et réseau local."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le défi confirme-t-il qu’un VPN ou une connexion privée cloud est opérationnel ?",
+      "choices": [
+        "Oui, l’existence d’un trait prouve le tunnel chiffré",
+        "Non, le moteur vérifie la structure mais ne configure pas le VPN, les routes ou les règles cloud",
+        "Oui, si le serveur est proche du cloud dans le dessin",
+        "Oui, si tous les éléments possèdent une étiquette"
+      ],
+      "answer": 1,
+      "explanation": "L’évaluation mentionne explicitement que les connexions VPN, routes et politiques ne sont pas configurées par le contrôle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il intégrer les deux switches et les deux serveurs au schéma ?",
+      "choices": [
+        "Pour que chaque équipement ait la même adresse IP",
+        "Pour faire monter le nombre de liens sans raison",
+        "Parce que les critères indiquent que tous doivent participer à la topologie",
+        "Parce qu’un serveur doit se connecter directement au cloud"
+      ],
+      "answer": 2,
+      "explanation": "La mission impose la participation réelle des équipements, pas seulement leur présence dans le canevas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle de réseau hybride doit suivre la construction de la topologie ?",
+      "choices": [
+        "Vérifier uniquement que le cloud est affiché",
+        "Supprimer le routeur si le firewall est présent",
+        "Valider seulement la présence des serveurs",
+        "Tester routes aller-retour, résolution DNS et flux autorisés après configuration de la liaison"
+      ],
+      "answer": 3,
+      "explanation": "Une liaison dessinée ne prouve pas la connectivité réelle ; routes retour, DNS et règles sont nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le pare-feu est-il important à la frontière hybride ?",
+      "choices": [
+        "Il aide à contrôler les flux entre environnements de niveaux de confiance différents",
+        "Il remplace les routes vers le cloud",
+        "Il configure automatiquement les DNS privés",
+        "Il garantit à lui seul la disponibilité de la connexion"
+      ],
+      "answer": 0,
+      "explanation": "La frontière doit appliquer une politique de sécurité ; la connectivité et la disponibilité demandent d’autres configurations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un serveur est dessiné mais pas relié à un switch. Quel est le problème ?",
+      "choices": [
+        "Il recevra automatiquement le réseau grâce à sa position",
+        "Il reste isolé et n’est pas intégré au LAN par une liaison",
+        "Il devient automatiquement routeur",
+        "Il configure lui-même le VPN"
+      ],
+      "answer": 1,
+      "explanation": "La proximité graphique ne constitue pas une connexion. Le critère demande que tous les serveurs participent à la topologie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles couches complémentaires faudrait-il documenter pour une vraie architecture hybride ?",
+      "choices": [
+        "Uniquement la taille des icônes",
+        "Les couleurs des traits seulement",
+        "Adressage, routes, VPN/liaison privée, DNS, règles cloud et règles firewall",
+        "Le nombre de fichiers JSON dans le dépôt"
+      ],
+      "answer": 2,
+      "explanation": "Ces paramètres ne sont pas validés par la topologie mais sont essentiels à la communication réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel constat est le plus juste après réussite du contrôle visuel ?",
+      "choices": [
+        "Le service cloud est garanti conforme au SLA",
+        "Le DNS et toutes les applications fonctionnent nécessairement",
+        "Les routes retour et les contrôles sont tous configurés",
+        "La structure demandée est validée, mais la connectivité et la sécurité réelles restent à tester"
+      ],
+      "answer": 3,
+      "explanation": "Le moteur confirme les relations structurelles et laisse les configurations réseau et sécurité en dehors de son périmètre."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

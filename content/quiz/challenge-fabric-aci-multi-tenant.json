@@ -1,18 +1,102 @@
 {
   "node_id": "challenge-fabric-aci-multi-tenant",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Dans une fabric Cisco ACI, quel rôle est associé aux Spine ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Relier la couche Leaf et assurer le transit de la fabric",
+        "Héberger obligatoirement les serveurs applicatifs",
+        "Remplacer les contrôleurs APIC",
+        "Appliquer seuls toutes les politiques des tenants"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Les Spine relient les Leaf dans la fabric ; les hôtes se raccordent normalement aux Leaf."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Combien de liens Spine–Leaf faut-il pour deux Spine et trois Leaf si chaque Spine doit rejoindre chaque Leaf ?",
+      "choices": [
+        "Trois",
+        "Six",
+        "Cinq",
+        "Neuf"
+      ],
+      "answer": 1,
+      "explanation": "La matrice complète contient 2 × 3 = 6 relations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle les APIC jouent-ils dans l’architecture ACI ?",
+      "choices": [
+        "Transmettre systématiquement tout le trafic des serveurs",
+        "Remplacer le routeur WAN",
+        "Contrôler et orchestrer la fabric et ses politiques, sans remplacer les Spine comme couche de transit",
+        "Servir de câbles physiques entre les Leaf"
+      ],
+      "answer": 2,
+      "explanation": "L’APIC est le contrôleur de la fabric ; la structure de données passe par les équipements de fabric."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle condition est demandée pour chaque APIC dans ce défi ?",
+      "choices": [
+        "Une liaison directe vers les deux Spine uniquement",
+        "Aucune liaison, car le contrôleur est virtuel",
+        "Une connexion directe à chacun des cinq serveurs",
+        "Au moins deux connexions vers les Leaf"
+      ],
+      "answer": 3,
+      "explanation": "Les contraintes du défi demandent au moins deux Leaf voisins par APIC et aussi au moins deux APIC par Leaf."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le contrôle réussi prouve-t-il que les tenants, EPG et contrats ACI sont configurés ?",
+      "choices": [
+        "Non, il vérifie quantités et relations structurelles, pas les objets et politiques ACI réels",
+        "Oui, un trait dessiné crée automatiquement tous les tenants",
+        "Oui, dès que l’APIC est connecté",
+        "Non, car la structure Spine–Leaf n’est pas évaluée"
+      ],
+      "answer": 0,
+      "explanation": "Le périmètre exclut les tenants, VRF, EPG, contrats, domaines VMM et enregistrement APIC réels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle relation est attendue pour les cinq serveurs ?",
+      "choices": [
+        "Chaque serveur se relie directement à chaque Spine",
+        "Chaque serveur doit être connecté à au moins un Leaf",
+        "Tous les serveurs doivent être reliés au routeur WAN uniquement",
+        "Les serveurs ne peuvent pas être raccordés à ACI"
+      ],
+      "answer": 1,
+      "explanation": "Les serveurs se connectent généralement aux Leaf ; la contrainte exige au moins un Leaf par serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le plan de contrôle et le plan de données doivent-ils être distingués ?",
+      "choices": [
+        "Le plan de contrôle transporte toujours les trames des utilisateurs",
+        "Ils désignent le même composant dans toutes les architectures",
+        "Le contrôle pilote état et politiques tandis que le plan de données transporte les paquets",
+        "Le plan de données ne nécessite pas de liens physiques"
+      ],
+      "answer": 2,
+      "explanation": "Le contrôleur orchestre la fabric et ses politiques ; les Spine/Leaf transportent les paquets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel travail doit suivre la validation structurelle avant d’accepter l’architecture ACI ?",
+      "choices": [
+        "Modifier les icônes pour montrer la hiérarchie",
+        "Compter uniquement les serveurs",
+        "Supposer la segmentation correcte dès que les APIC sont connectés",
+        "Vérifier état APIC/fabric, tenants et objets de politique, puis tester les flux autorisés et refusés"
+      ],
+      "answer": 3,
+      "explanation": "La topologie n’exécute ni ne valide les politiques ACI ; la recette doit couvrir le contrôle et le comportement du trafic."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

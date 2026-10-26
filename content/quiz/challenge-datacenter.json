@@ -1,18 +1,102 @@
 {
   "node_id": "challenge-datacenter",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Combien de paires routeur–switch sont nécessaires avec deux routeurs et deux switches selon le critère all_pairs ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Deux",
+        "Quatre",
+        "Trois",
+        "Six"
+      ],
+      "answer": 1,
+      "explanation": "Chaque routeur doit rejoindre chacun des deux switches : 2 × 2 = 4 paires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi compter simplement huit liens ne suffit-il pas à prouver que la matrice est complète ?",
+      "choices": [
+        "Parce que tous les liens doivent être en fibre optique",
+        "Parce que chaque lien doit rejoindre le même switch",
+        "Parce que plusieurs liens peuvent répéter un voisin et laisser une paire requise absente",
+        "Parce que le défi n’autorise aucun lien routeur–switch"
+      ],
+      "answer": 2,
+      "explanation": "Le moteur contrôle les paires d’équipements spécifiques, pas seulement le nombre de connexions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel motif entre les switches et serveurs est attendu ?",
+      "choices": [
+        "Chaque switch doit être relié à chacun des deux serveurs",
+        "Chaque serveur doit être relié uniquement au premier switch",
+        "Chaque routeur doit relier directement chaque serveur",
+        "Un seul serveur doit être utilisé"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La seconde matrice complète contient également 2 × 2 = 4 relations switch–serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un routeur a deux liens vers le switch A et aucun vers le switch B. Le contrôle all_pairs est-il satisfait ?",
+      "choices": [
+        "Oui, le nombre de liens est suffisant",
+        "Oui, car les deux routeurs existent",
+        "Oui si les serveurs répondent",
+        "Non, il manque une relation entre ce routeur et le switch B"
+      ],
+      "answer": 3,
+      "explanation": "Un doublon de voisin ne remplace pas une paire manquante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un point de défaillance unique ?",
+      "choices": [
+        "Un élément dont la panne peut interrompre le service visé",
+        "Un équipement qui possède deux connexions",
+        "Un lien redondant qui fonctionne toujours",
+        "Un serveur avec un nom identique à l’autre"
+      ],
+      "answer": 0,
+      "explanation": "Un point de défaillance unique n’a pas d’alternative suffisante pour préserver le service concerné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La matrice complète du défi garantit-elle une indépendance physique de bout en bout ?",
+      "choices": [
+        "Oui, la structure logique le prouve entièrement",
+        "Non, il faut aussi vérifier les chemins, alimentations, équipements et domaines de panne réels",
+        "Oui, dès que le nombre de liens est huit",
+        "Non, car deux routeurs ne peuvent pas être redondants"
+      ],
+      "answer": 1,
+      "explanation": "Le périmètre ne simule ni les pannes ni les alimentations ; la diversité doit être vérifiée séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles fonctions ne sont pas validées par le moteur de ce défi ?",
+      "choices": [
+        "La présence des équipements attendus",
+        "Les paires de liaisons",
+        "STP/LACP, routage, alimentation et indépendance physique des chemins",
+        "Les types de nœuds dessinés"
+      ],
+      "answer": 2,
+      "explanation": "Le contrôle se limite à la structure prévue et n’émule pas les protocoles ou les domaines de défaillance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel livrable complète le plus utilement le schéma redondant ?",
+      "choices": [
+        "Un dessin sans test de panne",
+        "Une liste des couleurs des câbles",
+        "Un relevé des noms d’icônes seulement",
+        "Une matrice de liens, des scénarios de panne et des tests de convergence autorisés"
+      ],
+      "answer": 3,
+      "explanation": "La redondance opérationnelle doit être démontrée avec des scénarios et des tests, pas uniquement dessinée."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

@@ -1,18 +1,102 @@
 {
   "node_id": "challenge-spine-leaf",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Dans une fabric Spine/Leaf, quel est le rôle courant des Leaf ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Relier les serveurs à la fabric",
+        "Remplacer le système de stockage",
+        "Fournir seulement un plan de contrôle sans ports serveurs",
+        "Agir obligatoirement comme firewall Internet"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Les Leaf constituent généralement la couche d’accès pour les serveurs et rejoignent les Spine pour le transit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avec deux Spine et deux Leaf, combien de relations Spine–Leaf la contrainte all_pairs exige-t-elle ?",
+      "choices": [
+        "Deux",
+        "Quatre",
+        "Trois",
+        "Huit"
+      ],
+      "answer": 1,
+      "explanation": "Chaque Spine doit être relié à chaque Leaf : quatre relations au total."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie ECMP dans le contexte du réseau datacenter ?",
+      "choices": [
+        "Chiffrement automatique des paquets",
+        "Extension du CIDR sur les serveurs",
+        "Répartition du trafic sur des chemins de coût égal lorsque le routage et la topologie le permettent",
+        "Un type de connecteur fibre"
+      ],
+      "answer": 2,
+      "explanation": "ECMP peut utiliser des chemins de même coût, mais demande une configuration de routage compatible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le moteur réclame-t-il au moins deux serveurs par Leaf dans ce défi ?",
+      "choices": [
+        "Pour que chaque serveur ait deux adresses publiques",
+        "Pour que les Spine se connectent directement aux serveurs",
+        "Pour éviter toute liaison entre Spine et Leaf",
+        "Pour répartir les hôtes sur les Leaf et empêcher un Leaf de rester inutilisé"
+      ],
+      "answer": 3,
+      "explanation": "La réussite exige une répartition d’au moins deux serveurs sur chaque Leaf."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qui ne suffit pas pour satisfaire une matrice complète ?",
+      "choices": [
+        "Quatre liens qui répètent certaines paires en laissant une paire Spine–Leaf absente",
+        "Les quatre combinaisons Spine–Leaf présentes",
+        "Deux Spine et deux Leaf présents",
+        "La répartition de tous les serveurs"
+      ],
+      "answer": 0,
+      "explanation": "Le moteur vérifie chaque paire, pas seulement le nombre total de connexions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La topologie réussie prouve-t-elle que BGP/OSPF et ECMP fonctionnent ?",
+      "choices": [
+        "Oui, tous les protocoles sont simulés par le placement des icônes",
+        "Non, l’évaluation porte sur la structure, pas sur le routage ni la convergence",
+        "Oui, dès que les huit liens sont présents",
+        "Non, parce que Spine/Leaf ne peut pas utiliser ECMP"
+      ],
+      "answer": 1,
+      "explanation": "Le périmètre exclut la configuration du routage et le comportement lors de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle répartition respecte la contrainte quatre serveurs / deux Leaf / minimum deux par Leaf ?",
+      "choices": [
+        "Quatre serveurs sur le Leaf 1, aucun sur le Leaf 2",
+        "Trois sur un Leaf, un sur l’autre",
+        "Deux serveurs sur chacun des deux Leaf",
+        "Aucun serveur relié directement à un Leaf"
+      ],
+      "answer": 2,
+      "explanation": "Répartir deux serveurs sur chaque Leaf respecte la contrainte minimale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle validation supplémentaire est nécessaire dans un vrai datacenter ?",
+      "choices": [
+        "Modifier les icônes uniquement",
+        "Vérifier uniquement le compte de liens",
+        "Se contenter du statut vert d’une interface",
+        "Tester routage/ECMP, scénarios de panne, convergence et indépendance des liaisons"
+      ],
+      "answer": 3,
+      "explanation": "La structure logique doit être complétée par la configuration et des essais de résilience."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

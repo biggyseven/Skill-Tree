@@ -1,18 +1,102 @@
 {
   "node_id": "challenge-osi",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quelle chaîne de liaisons correspond au défi de raccordement du PC à la passerelle ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "PC → routeur → switch",
+        "PC → switch → routeur",
+        "Routeur → PC → switch, sans autre lien",
+        "PC et routeur reliés directement, switch isolé"
+      ],
+      "answer": 1,
+      "explanation": "Le scénario demande le PC relié au switch, puis le switch relié au routeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle le switch remplit-il principalement dans le petit LAN du défi ?",
+      "choices": [
+        "Distribuer les trames entre équipements du même LAN",
+        "Assurer seul le routage vers tous les réseaux IP",
+        "Filtrer le trafic Internet comme pare-feu dédié",
+        "Attribuer tous les masques de sous-réseau"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Le switch commute les trames localement ; la fonction de passerelle inter-réseaux revient au routeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le moteur accepte-t-il l’adresse IP et la passerelle configurées sur le PC ?",
+      "choices": [
+        "Oui, il valide toute la configuration IP",
+        "Oui, dès que le routeur est présent",
+        "Non, le périmètre de validation porte sur les équipements et liaisons dessinés",
+        "Non, car le défi ne permet pas de raccorder un PC"
+      ],
+      "answer": 2,
+      "explanation": "Le périmètre indiqué contrôle la topologie, pas l’adressage IP, le masque ni la table de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi connecter le PC directement au routeur n’est-il pas la topologie attendue ?",
+      "choices": [
+        "Parce qu’un PC ne peut jamais communiquer avec un routeur",
+        "Parce que le routeur doit être sans liaison physique",
+        "Parce que le switch n’a pas de rôle dans un LAN",
+        "Parce que le défi attend les deux segments PC–switch et switch–routeur"
+      ],
+      "answer": 3,
+      "explanation": "Le critère est la chaîne de liaisons attendue à travers le switch."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel constat démontre qu’un équipement isolé doit être corrigé ?",
+      "choices": [
+        "Il est présent dans le canevas mais ne possède pas la liaison attendue vers les voisins",
+        "Son nom contient des chiffres",
+        "Il est situé en haut du schéma",
+        "Son icône est plus grande"
+      ],
+      "answer": 0,
+      "explanation": "La proximité visuelle ne crée pas une liaison ; chaque segment requis doit réellement exister."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le chemin de bout en bout est-il un concept utile dans ce défi ?",
+      "choices": [
+        "Il dispense de vérifier les connexions physiques",
+        "Il permet de suivre la chaîne réelle des liaisons jusqu’à la passerelle",
+        "Il configure automatiquement le DNS",
+        "Il prouve que la route Internet est fonctionnelle"
+      ],
+      "answer": 1,
+      "explanation": "Le défi valide les liaisons ; le test IP réel vient ensuite et n’est pas effectué par ce contrôle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après validation de la topologie, quel contrôle resterait nécessaire en laboratoire réel ?",
+      "choices": [
+        "Aucun contrôle ne serait utile",
+        "Uniquement changer le nom du switch",
+        "Vérifier le plan IP, la passerelle configurée et la connectivité de bout en bout",
+        "Supprimer le routeur et garder le switch seul"
+      ],
+      "answer": 2,
+      "explanation": "La validation structurelle ne confirme ni adressage ni routage ; ces éléments doivent être configurés puis testés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat correspond aux critères de réussite ?",
+      "choices": [
+        "Un routeur présent, même si le PC est isolé",
+        "Trois équipements posés côte à côte sans liens",
+        "Le PC relié au routeur sans utiliser le switch",
+        "Les équipements requis sont présents et les liaisons PC–switch–routeur existent sans lien superflu"
+      ],
+      "answer": 3,
+      "explanation": "Le contrôle attend les trois équipements, les deux liaisons et l’absence d’équipement superflu."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

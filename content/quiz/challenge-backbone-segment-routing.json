@@ -1,18 +1,102 @@
 {
   "node_id": "challenge-backbone-segment-routing",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Qu’est-ce qui rend le groupe des routeurs connecté au sens du défi ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Chaque routeur est atteignable depuis les autres en suivant les liaisons du groupe",
+        "Chaque routeur possède exactement deux liens",
+        "Chaque serveur a une adresse publique",
+        "Tous les routeurs sont placés sur une même ligne graphique"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La connexité exige un chemin dans le graphe entre tous les routeurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre topologie connectée et Segment Routing configuré ?",
+      "choices": [
+        "Aucune : le dessin configure automatiquement les SID",
+        "La topologie définit les liaisons ; Segment Routing nécessite aussi identifiants de segments, plan de contrôle et politiques",
+        "Segment Routing ne repose jamais sur une topologie",
+        "La connectivité du graphe configure automatiquement BGP"
+      ],
+      "answer": 1,
+      "explanation": "Le moteur évalue la structure, pas les identifiants de segment ou la configuration SR-MPLS/SRv6."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle de base faut-il faire quand on soupçonne un routeur isolé ?",
+      "choices": [
+        "Compter seulement le nombre total de liens",
+        "Regarder la position visuelle de l’icône",
+        "Parcourir les voisins depuis un routeur et vérifier que les six autres sont atteignables",
+        "Vérifier seulement que les trois serveurs sont présents"
+      ],
+      "answer": 2,
+      "explanation": "Un nombre de liens suffisant peut toujours laisser deux composantes séparées ; il faut contrôler la connexité réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que demande le scénario pour chacun des trois serveurs ?",
+      "choices": [
+        "Être directement relié à tous les routeurs",
+        "Être connecté à l’Internet public",
+        "Être relié à un autre serveur seulement",
+        "Disposer d’au moins une liaison vers un routeur"
+      ],
+      "answer": 3,
+      "explanation": "La contrainte est une attache minimale à un routeur, pas un lien à chaque routeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un cycle peut-il être utile dans le backbone ?",
+      "choices": [
+        "Il peut fournir un chemin alternatif, sans garantir à lui seul des chemins disjoints ni une résilience complète",
+        "Il configure automatiquement les SID",
+        "Il remplace l’IGP",
+        "Il signifie que tous les liens ont une même capacité"
+      ],
+      "answer": 0,
+      "explanation": "Un cycle peut offrir une alternative, mais la résilience dépend aussi des ressources et domaines de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que vérifie le moteur pour ce défi ?",
+      "choices": [
+        "La configuration de tous les SID",
+        "La connexité du groupe des routeurs et l’attachement des serveurs",
+        "La convergence BGP et la sélection de politique SR",
+        "La conformité du firmware"
+      ],
+      "answer": 1,
+      "explanation": "Le périmètre de validation est explicitement structurel et ne configure pas les mécanismes de Segment Routing."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après connexion de tous les routeurs, pourquoi faut-il encore vérifier les serveurs ?",
+      "choices": [
+        "Le serveur est automatiquement connecté par la connexité des routeurs",
+        "Le graphe ne doit jamais contenir de serveurs",
+        "La connexité des routeurs ne garantit pas que les nœuds serveur sont raccordés",
+        "Les serveurs ne peuvent pas être dans ce défi"
+      ],
+      "answer": 2,
+      "explanation": "La contrainte routeur connectée s’applique au groupe routeur ; les serveurs doivent être reliés séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel dossier est nécessaire pour passer de la topologie à une mise en service Segment Routing ?",
+      "choices": [
+        "Une capture d’écran des icônes",
+        "Le nombre de nœuds uniquement",
+        "Un nom de fichier de configuration sans tests",
+        "Plan IGP, SID, politiques de chemin, tests de résilience et validation des chemins"
+      ],
+      "answer": 3,
+      "explanation": "La topologie constitue une base ; elle ne configure ni le plan de contrôle ni les politiques de chemin."
     }
-  ],
-  "scope": "quiz"
+  ]
 }
