@@ -1,1 +1,102 @@
-{"node_id":"vlan-debutant","scope":"quiz","questions":[{"type":"qcm","prompt":"Que signifie VLAN ?","choices":["Virtual Local Area Network","Very Large Area Network","Virtual Link Access Node","Variable Local Access Network"],"answer":0,"explanation":"VLAN signifie Virtual Local Area Network."},{"type":"qcm","prompt":"Quel est le principal avantage des VLANs ?","choices":["Réduire le trafic de broadcast en segmentant le réseau","Augmenter la vitesse des câbles","Remplacer les adresses IP","Éviter l'utilisation de switches"],"answer":0,"explanation":"Les VLANs créent des domaines de broadcast séparés, réduisant ainsi le trafic inutile."},{"type":"qcm","prompt":"Quel type de port est connecté à un PC et n'appartient qu'à un seul VLAN ?","choices":["Port Access","Port Trunk","Port Console","Port Mirror"],"answer":0,"explanation":"Un port Access est destiné à un équipement final (PC) et est assigné à un seul VLAN."},{"type":"qcm","prompt":"Dans quel VLAN un port se trouve-t-il par défaut si l'on ne fait rien ?","choices":["Le VLAN 1","Le VLAN 100","Le VLAN 999","Le VLAN 0"],"answer":0,"explanation":"Par défaut, tous les ports d'un switch Cisco sont dans le VLAN 1."}]}
+{
+  "node_id": "vlan-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que permet un VLAN sur un commutateur ?",
+      "choices": [
+        "Remplacer une adresse IP par une adresse MAC",
+        "Séparer logiquement des domaines de diffusion de couche 2",
+        "Chiffrer automatiquement les flux",
+        "Créer une route par défaut"
+      ],
+      "answer": 1,
+      "explanation": "Un VLAN isole logiquement des trames de niveau 2 et limite le domaine de broadcast."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type de port est généralement utilisé pour un poste de travail appartenant à un seul VLAN ?",
+      "choices": [
+        "Un port access",
+        "Un trunk transportant plusieurs VLAN sans restriction",
+        "Un port SPAN uniquement",
+        "Un port de routage WAN obligatoire"
+      ],
+      "answer": 0,
+      "explanation": "Un port access associe le terminal à un VLAN, tandis qu’un trunk transporte généralement plusieurs VLAN."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un trunk Ethernet 802.1Q ?",
+      "choices": [
+        "Attribuer une adresse IP au poste",
+        "Remplacer le protocole STP",
+        "Chiffrer le lien point à point",
+        "Transporter des trames de plusieurs VLAN avec une identification de VLAN"
+      ],
+      "answer": 3,
+      "explanation": "802.1Q ajoute une information de VLAN aux trames transportées sur le trunk, selon le comportement prévu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un domaine de broadcast ?",
+      "choices": [
+        "L’ensemble des réseaux Internet routés",
+        "Un groupe de comptes AAA",
+        "Un ensemble de ports où une diffusion de couche 2 peut être propagée",
+        "La table des serveurs DNS"
+      ],
+      "answer": 2,
+      "explanation": "Les diffusions de couche 2 sont normalement limitées au VLAN concerné et ne sont pas routées automatiquement vers les autres VLAN."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les VLAN aux deux extrémités d’un trunk doivent-ils être compatibles ?",
+      "choices": [
+        "Les VLAN compatibles augmentent l’adresse MAC",
+        "Une incohérence peut placer le trafic dans le mauvais domaine ou le bloquer",
+        "Le trunk détermine seul les routes BGP",
+        "Chaque VLAN doit utiliser une adresse IPv6 publique"
+      ],
+      "answer": 1,
+      "explanation": "Une incohérence de VLAN autorisés ou de VLAN natif peut provoquer une perte ou un mauvais classement de trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi créer un VLAN de gestion distinct ?",
+      "choices": [
+        "Limiter l’accès aux interfaces d’administration aux sources autorisées",
+        "Rendre les interfaces d’administration publiques",
+        "Supprimer les mots de passe",
+        "Remplacer les sauvegardes"
+      ],
+      "answer": 0,
+      "explanation": "La séparation réduit l’exposition du plan de gestion et facilite les ACL et l’audit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux postes sont sur des VLAN différents. Peuvent-ils communiquer automatiquement au niveau 2 ?",
+      "choices": [
+        "Oui, un VLAN n’a aucun effet sur la diffusion",
+        "Seulement s’ils ont le même nom d’hôte",
+        "Oui si leurs adresses MAC se ressemblent",
+        "Non, un équipement de couche 3 ou un mécanisme de routage doit relier leurs sous-réseaux"
+      ],
+      "answer": 3,
+      "explanation": "Les VLAN délimitent des domaines L2 ; la communication IP entre eux demande un chemin de couche 3 et des politiques compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est utile après un changement de VLAN sur un port access ?",
+      "choices": [
+        "Changer tous les masques du réseau",
+        "Désactiver STP sur tous les commutateurs",
+        "Vérifier le VLAN effectif, l’adresse IP et l’accès aux services attendus",
+        "Supprimer le trunk du cœur"
+      ],
+      "answer": 2,
+      "explanation": "Il faut vérifier que le terminal est dans le bon VLAN et peut joindre la passerelle et ses services légitimes."
+    }
+  ]
+}

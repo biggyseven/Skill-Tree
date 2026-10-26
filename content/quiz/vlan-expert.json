@@ -1,1 +1,102 @@
-{"node_id":"vlan-expert","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel type de port dans un Private VLAN peut communiquer avec tous les autres ports (isolés et promiscuous) ?","choices":["Port Promiscuous","Port Isolated","Port Community","Port Access"],"answer":0,"explanation":"Le port Promiscuous (souvent relié à un routeur) peut parler à tout le monde."},{"type":"qcm","prompt":"Quelle attaque consiste à configurer son PC en mode Trunk pour recevoir tous les VLANs ?","choices":["Switch Spoofing","Double Tagging","ARP Spoofing","MAC Flooding"],"answer":0,"explanation":"Le Switch Spoofing utilise le protocole DTP pour négocier un lien Trunk avec le switch."},{"type":"qcm","prompt":"Comment se protéger contre l'attaque de Double Tagging ?","choices":["Changer le VLAN Natif pour un VLAN inutilisé","Utiliser le VLAN 1 partout","Activer le protocole VTP","Désactiver le spanning-tree"],"answer":0,"explanation":"Le Double Tagging exploite le VLAN Natif (souvent le VLAN 1). Le changer sécurise le réseau."},{"type":"qcm","prompt":"Quelle commande configure un port pour qu'il accepte un téléphone IP et un PC en même temps ?","choices":["switchport voice vlan X","switchport mode trunk","switchport access vlan voice","vlan voice enable"],"answer":0,"explanation":"La commande 'switchport voice vlan' permet d'assigner un VLAN spécifique aux téléphones IP."}]}
+{
+  "node_id": "vlan-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel risque augmente lorsque le VLAN natif est utilisé pour du trafic utilisateur sensible ?",
+      "choices": [
+        "La passerelle cesse toujours de répondre aux paquets ICMP",
+        "Le protocole DNS devient non routable",
+        "Le traitement des trames non taguées peut créer des incohérences et des risques de mauvaise segmentation",
+        "La table MAC disparaît après 60 secondes"
+      ],
+      "answer": 2,
+      "explanation": "Un VLAN natif inutilisé ou explicitement contrôlé réduit les ambiguïtés autour des trames non taguées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi réduire l’étendue des domaines de couche 2 dans un réseau de grande taille ?",
+      "choices": [
+        "Supprimer la nécessité d’adressage IP",
+        "Limiter la propagation des broadcasts, des boucles et des incidents de segmentation",
+        "Forcer tout le trafic à travers Internet",
+        "Empêcher l’usage de routage dynamique"
+      ],
+      "answer": 1,
+      "explanation": "Des domaines plus maîtrisés limitent l’impact d’un défaut L2 et facilitent les frontières de politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel danger associe-t-on à une mauvaise configuration des ports trunk ?",
+      "choices": [
+        "Un terminal peut accéder à des VLAN qui ne devraient pas lui être accessibles",
+        "Les adresses IPv4 deviennent automatiquement publiques",
+        "Le routage statique est supprimé de tous les routeurs",
+        "Le système de fichiers des switches est chiffré"
+      ],
+      "answer": 0,
+      "explanation": "Un port utilisateur mal configuré en trunk peut exposer plusieurs VLAN ou faciliter des contournements selon la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est important avant d’activer une fonction de gestion centralisée des VLAN sur un parc ?",
+      "choices": [
+        "Activer les changements sans sauvegarde",
+        "Autoriser tout client à modifier le catalogue VLAN",
+        "Désactiver la surveillance des changements",
+        "Valider les rôles, domaines, révisions et mécanismes de propagation sur un périmètre de test"
+      ],
+      "answer": 3,
+      "explanation": "La gestion centralisée des VLAN peut propager rapidement une erreur ; les domaines et changements doivent être gouvernés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment démontrer une segmentation VLAN efficace ?",
+      "choices": [
+        "Montrer uniquement le numéro des VLAN",
+        "Vérifier que chaque port est à 1 Gbit/s",
+        "Tester les flux nécessaires et prouver que les flux non autorisés sont bloqués",
+        "Compter le nombre de trames broadcast sans contexte"
+      ],
+      "answer": 2,
+      "explanation": "La segmentation est une politique de communication ; les tests doivent vérifier les accès positifs et négatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la conception doit-elle prendre en compte STP et le routage conjointement ?",
+      "choices": [
+        "STP remplace toutes les routes IP",
+        "La topologie L2, les passerelles L3 et les chemins redondants déterminent les flux et la convergence",
+        "Le routage désactive forcément les VLAN",
+        "Les deux mécanismes ne peuvent jamais coexister"
+      ],
+      "answer": 1,
+      "explanation": "Les choix L2 et L3 influencent la résilience, l’utilisation de liens et les chemins de retour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque crée une base de VLANs obsolète avec des ports non révisés ?",
+      "choices": [
+        "Des segments ou trunks inutiles peuvent exposer des accès non justifiés",
+        "Les serveurs deviennent automatiquement plus rapides",
+        "Les adresses MAC ne sont plus apprises",
+        "Les certificats d’administration sont renouvelés"
+      ],
+      "answer": 0,
+      "explanation": "Une revue périodique des affectations et trunks aide à retirer des accès résiduels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est attendue avant un changement massif de segmentation ?",
+      "choices": [
+        "Un message indiquant que la configuration est syntaxiquement valide",
+        "Une seule capture d’écran du switch",
+        "La présence de la documentation constructeur uniquement",
+        "Une matrice de flux, un diff de configuration, des tests ciblés et un plan de retour"
+      ],
+      "answer": 3,
+      "explanation": "La revue doit vérifier l’intention de sécurité, les effets, les critères de validation et le retour arrière."
+    }
+  ]
+}

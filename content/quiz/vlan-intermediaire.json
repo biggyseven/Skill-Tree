@@ -1,1 +1,114 @@
-{"node_id":"vlan-intermediaire","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel protocole est utilisé pour le tagging des VLANs sur un lien Trunk ?","choices":["802.1Q","802.11","802.3af","802.1X"],"answer":0,"explanation":"La norme IEEE 802.1Q définit le tagging des VLANs."},{"type":"qcm","prompt":"Qu'est-ce que le VLAN Natif sur un lien Trunk ?","choices":["Le VLAN dont les trames circulent sans étiquette","Le VLAN avec l'ID le plus élevé","Le VLAN de gestion","Le VLAN réservé aux routeurs"],"answer":0,"explanation":"Les trames du VLAN Natif ne reçoivent pas de tag 802.1Q."},{"type":"qcm","prompt":"Quel mode VTP permet de créer des VLANs localement sans les propager ?","choices":["Transparent","Server","Client","Off"],"answer":0,"explanation":"Le mode Transparent permet de créer des VLANs localement, mais ne participe pas à la synchronisation."},{"type":"qcm","prompt":"Quelle méthode de routage inter-VLAN utilise des sous-interfaces sur un routeur ?","choices":["Router-on-a-stick","SVI","VLAN Hopping","Trunking"],"answer":0,"explanation":"Le Router-on-a-stick utilise des sous-interfaces (une par VLAN) sur un seul lien physique."}]}
+{
+  "node_id": "vlan-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle fonction permet le routage entre VLAN dans un campus ?",
+      "choices": [
+        "Un routeur ou un commutateur de couche 3 avec interfaces L3/SVI",
+        "Un câble croisé uniquement",
+        "Un serveur NTP",
+        "Un trunk sans passerelle"
+      ],
+      "answer": 0,
+      "explanation": "Le routage inter-VLAN est assuré par une fonction de couche 3, souvent via des SVI sur un commutateur L3."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter la liste de VLAN autorisés sur un trunk ?",
+      "choices": [
+        "Augmenter le nombre de broadcast d’un VLAN",
+        "Forcer chaque paquet à utiliser un tunnel public",
+        "Empêcher toute redondance",
+        "Éviter de transporter inutilement des VLAN et réduire des chemins non voulus"
+      ],
+      "answer": 3,
+      "explanation": "L’allow-list réduit la portée des VLAN sur les liens et simplifie la segmentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle STP joue-t-il dans une topologie avec liens redondants de couche 2 ?",
+      "choices": [
+        "Attribuer les adresses IP aux clients",
+        "Appliquer des règles HTTP",
+        "Éviter les boucles L2 en bloquant certains chemins selon sa logique",
+        "Synchroniser les journaux AAA"
+      ],
+      "answer": 2,
+      "explanation": "STP ou une variante empêche les boucles de diffusion tout en permettant des chemins de secours."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un poste reçoit une adresse correcte mais ne joint pas sa passerelle après un changement de port. Quelle première vérification est pertinente ?",
+      "choices": [
+        "Les certificats du serveur DNS public",
+        "Le VLAN d’accès réel et la correspondance du sous-réseau avec la passerelle",
+        "Le nombre de sessions BGP",
+        "La version du navigateur"
+      ],
+      "answer": 1,
+      "explanation": "Un mauvais VLAN peut placer le poste dans un autre domaine L2 ou sous-réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un VLAN natif doit-il être configuré de manière cohérente de chaque côté du trunk ?",
+      "choices": [
+        "Des trames non taguées peuvent être classées différemment selon les extrémités",
+        "Il détermine les routes par défaut pour tous les VLAN",
+        "Il garantit le chiffrement du lien",
+        "Il remplace la liste des VLAN autorisés"
+      ],
+      "answer": 0,
+      "explanation": "Une différence de VLAN natif peut entraîner une classification incohérente des trames non taguées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une architecture avec SVI, quel élément est généralement la passerelle d’un sous-réseau VLAN ?",
+      "choices": [
+        "L’adresse MAC de chaque poste",
+        "L’adresse broadcast du VLAN",
+        "Le numéro de VLAN sans adresse IP",
+        "L’adresse IP configurée sur l’interface VLAN de couche 3"
+      ],
+      "answer": 3,
+      "explanation": "Une SVI peut fournir la passerelle IP aux hôtes du VLAN, selon la conception."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une modification de VLAN doit-elle être suivie d’un test de DHCP et DNS ?",
+      "choices": [
+        "DHCP est toujours local et ne traverse jamais les VLAN",
+        "DNS ne dépend pas de l’adresse IP du client",
+        "Le VLAN affecte le chemin vers les services et peut nécessiter un relais ou une politique adaptée",
+        "Un VLAN modifie le protocole de nommage de la machine"
+      ],
+      "answer": 2,
+      "explanation": "Le changement peut modifier l’accès au serveur DHCP, au relais, au DNS et aux règles de filtrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel symptôme suggère une incohérence de trunk ?",
+      "choices": [
+        "Tous les hôtes ont une heure synchronisée",
+        "Un VLAN fonctionne sur certains liens mais pas sur d’autres et n’apparaît pas dans la liste autorisée",
+        "L’authentification SSH fonctionne",
+        "Le disque du serveur est plein"
+      ],
+      "answer": 1,
+      "explanation": "Il faut vérifier l’état trunk, les VLAN autorisés, le VLAN natif et l’état STP sur le chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas utiliser le VLAN par défaut pour tous les usages ?",
+      "choices": [
+        "La séparation par fonction facilite la sécurité, l’exploitation et la limitation d’impact",
+        "Le VLAN par défaut est toujours chiffré",
+        "Il permet plusieurs domaines de broadcast sans routage",
+        "Il rend les ports trunks inutiles"
+      ],
+      "answer": 0,
+      "explanation": "Un plan de VLAN explicite réduit les erreurs d’affectation et permet des politiques adaptées."
+    }
+  ]
+}
