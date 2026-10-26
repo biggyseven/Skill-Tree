@@ -51,6 +51,34 @@ test('les changements de configuration invalident le contrôle précédent', () 
   assert.equal(useLabStore.getState().checkResult, null);
 });
 
+test('les ports de n’importe quel côté peuvent servir de départ et d’arrivée de câble', () => {
+  useLabStore.getState().loadLab('lab-test', { title: 'Lab de test' }, makeTopology());
+  useLabStore.getState().addLink({
+    source: 'R1',
+    target: 'R2',
+    sourceHandle: 'Fa0/1::source',
+    targetHandle: 'Fa0/0::target',
+  }, 'cable_straight');
+
+  let topology = useLabStore.getState().topology;
+  assert.equal(topology.links.length, 1);
+  assert.deepEqual(topology.links[0].from, { node: 'R1', port: 'Fa0/1' });
+  assert.deepEqual(topology.links[0].to, { node: 'R2', port: 'Fa0/0' });
+
+  useLabStore.getState().addLink({
+    source: 'R2',
+    target: 'R1',
+    sourceHandle: 'Fa0/1::source',
+    targetHandle: 'Fa0/0::target',
+  }, 'fiber');
+
+  topology = useLabStore.getState().topology;
+  assert.equal(topology.links.length, 2);
+  assert.equal(topology.links[1].cable_type, 'fiber');
+  assert.deepEqual(topology.links[1].from, { node: 'R2', port: 'Fa0/1' });
+  assert.deepEqual(topology.links[1].to, { node: 'R1', port: 'Fa0/0' });
+});
+
 test('la configuration IPv4 d’un port est enregistrée et invalide le contrôle précédent', () => {
   seedCheckedLab();
   useLabStore.getState().updatePortAddress('R1', 'Fa0/0', '192.168.10.10', '255.255.255.0');
