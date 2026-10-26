@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-siem-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi normaliser les journaux dans un SIEM ?",
+      "choices": [
+        "Effacer leur provenance",
+        "Éviter toute conservation",
+        "Faire disparaître tous les faux positifs",
+        "Harmoniser les champs pour faciliter recherches et corrélations"
+      ],
+      "answer": 3,
+      "explanation": "La normalisation rend les événements de sources variées comparables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un cas d’usage de détection exploitable ?",
+      "choices": [
+        "Scénario, données, logique, sévérité et étapes d’investigation",
+        "Uniquement un nom",
+        "Une liste d’utilisateurs sans contexte",
+        "Un blocage irréversible systématique"
+      ],
+      "answer": 0,
+      "explanation": "Le cas d’usage décrit quoi détecter et comment traiter l’alerte."
+    }
+  ]
+}

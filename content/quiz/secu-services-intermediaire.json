@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-services-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel choix améliore la sécurité de la supervision SNMP ?",
+      "choices": [
+        "SNMPv1 avec communauté publique",
+        "Communauté partagée publiée",
+        "SNMPv3 avec authentification et confidentialité si disponible",
+        "Aucun contrôle d’accès"
+      ],
+      "answer": 2,
+      "explanation": "SNMPv3 peut fournir authentification et confidentialité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle aide à bloquer des serveurs DHCP non autorisés ?",
+      "choices": [
+        "Autoriser toutes les réponses DHCP",
+        "Activer DHCP Snooping et définir les ports de confiance si disponible",
+        "Désactiver les VLAN",
+        "Supprimer la synchronisation horaire"
+      ],
+      "answer": 1,
+      "explanation": "DHCP Snooping restreint les réponses venant de ports non fiables."
+    }
+  ]
+}

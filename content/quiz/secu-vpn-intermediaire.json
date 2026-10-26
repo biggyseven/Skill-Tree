@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-vpn-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle habituel d’IKEv2 dans IPsec ?",
+      "choices": [
+        "Distribuer les baux DHCP",
+        "Négocier les paramètres et clés des associations de sécurité",
+        "Remplacer les routes",
+        "Compresser les journaux"
+      ],
+      "answer": 1,
+      "explanation": "IKEv2 authentifie les pairs et négocie paramètres et clés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est important pour l’accès VPN distant ?",
+      "choices": [
+        "Désactiver la MFA",
+        "Partager un compte",
+        "Autoriser tous les sous-réseaux par défaut",
+        "Exiger une MFA et limiter les droits"
+      ],
+      "answer": 3,
+      "explanation": "La MFA réduit le risque des identifiants compromis et les droits doivent rester limités."
+    }
+  ]
+}

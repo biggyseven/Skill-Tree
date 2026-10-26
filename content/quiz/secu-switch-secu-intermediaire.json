@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-switch-secu-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert DHCP Snooping ?",
+      "choices": [
+        "À chiffrer Ethernet",
+        "À accélérer BGP",
+        "À distinguer les ports DHCP de confiance et limiter les réponses non autorisées",
+        "À remplacer STP"
+      ],
+      "answer": 2,
+      "explanation": "DHCP Snooping aide à bloquer les réponses venant de ports non fiables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur quel port BPDU Guard est-il généralement pertinent ?",
+      "choices": [
+        "Un port d’accès qui ne doit pas recevoir de BPDU",
+        "Un trunk principal entre commutateurs",
+        "Un lien WAN routé",
+        "Un port console hors bande"
+      ],
+      "answer": 0,
+      "explanation": "BPDU Guard protège les ports d’accès contre des BPDU inattendues."
+    }
+  ]
+}

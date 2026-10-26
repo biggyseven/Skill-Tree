@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-ad-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer les comptes d’administration des comptes bureautiques ?",
+      "choices": [
+        "Réduire l’exposition des identifiants privilégiés",
+        "Partager les mots de passe",
+        "Désactiver Kerberos",
+        "Supprimer les journaux"
+      ],
+      "answer": 0,
+      "explanation": "Les identifiants privilégiés ne doivent pas être exposés aux usages quotidiens."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une GPO dans Active Directory ?",
+      "choices": [
+        "Remplacer les contrôleurs de domaine",
+        "Gérer centralement paramètres et restrictions",
+        "Chiffrer toutes les sauvegardes",
+        "Réserver les ports TCP"
+      ],
+      "answer": 1,
+      "explanation": "Les GPO déploient des paramètres centralisés sur utilisateurs et ordinateurs."
+    }
+  ]
+}

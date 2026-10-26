@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-linux-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande liste notamment les sockets réseau en écoute sous Linux ?",
+      "choices": [
+        "chmod -R 777 /",
+        "ss -lntup",
+        "echo $PATH",
+        "pwd"
+      ],
+      "answer": 1,
+      "explanation": "`ss -lntup` permet d’identifier des sockets en écoute."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution prendre avant de modifier à distance le pare-feu ?",
+      "choices": [
+        "Supprimer les journaux",
+        "Fermer l’unique accès sans test",
+        "Prévoir un accès de secours et vérifier les règles",
+        "Désactiver les mises à jour"
+      ],
+      "answer": 2,
+      "explanation": "Une règle incorrecte peut couper l’accès d’administration."
+    }
+  ]
+}

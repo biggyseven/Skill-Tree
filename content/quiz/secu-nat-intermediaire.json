@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-nat-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que permet PAT (NAT overload) ?",
+      "choices": [
+        "Chiffrer les paquets",
+        "Remplacer un pare-feu",
+        "Partager une adresse traduite et différencier les sessions par les ports",
+        "Bloquer automatiquement toutes les connexions entrantes"
+      ],
+      "answer": 2,
+      "explanation": "PAT utilise les ports pour distinguer les sessions partageant une adresse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi associer une publication NAT à du filtrage ?",
+      "choices": [
+        "NAT ne remplace pas une politique d’autorisation",
+        "NAT désactive TLS",
+        "Les adresses privées deviennent publiques",
+        "Le filtrage empêche toute traduction"
+      ],
+      "answer": 0,
+      "explanation": "La traduction d’adresse ne remplace pas les contrôles d’accès."
+    }
+  ]
+}

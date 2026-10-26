@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-ngfw-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle capacité distingue souvent un NGFW du filtrage basé seulement sur les ports ?",
+      "choices": [
+        "Supprimer les journaux",
+        "Identifier les applications et inspecter le contexte",
+        "Attribuer toutes les adresses IP",
+        "Garantir l’absence de vulnérabilités"
+      ],
+      "answer": 1,
+      "explanation": "Un NGFW peut classifier les applications et appliquer des contrôles contextuels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel point de vigilance concerne l’inspection TLS ?",
+      "choices": [
+        "Elle supprime la gestion des certificats",
+        "Elle doit être activée partout",
+        "Elle ne consomme aucune ressource",
+        "Elle implique performance, certificats et confidentialité"
+      ],
+      "answer": 3,
+      "explanation": "L’inspection TLS demande une conception prudente et des exclusions justifiées."
+    }
+  ]
+}

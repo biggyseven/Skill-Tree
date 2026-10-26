@@ -7050,5 +7050,213 @@
         "min_score": 80
       }
     ]
+  },
+  {
+    "id": "secu-acl-intermediaire",
+    "module": "Cybersécurité",
+    "title": "ACL et filtrage avancé - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 908,
+    "description": "Concevoir des ACL standard et étendues, maîtriser leur ordre et vérifier leur application.",
+    "prereqs": [
+      "secu-firewall-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ],
+    "lab": {
+      "kind": "security",
+      "prompt": "Configurez une ACL étendue sur R1 pour bloquer le trafic du PC Attaquant vers le Serveur."
+    }
+  },
+  {
+    "id": "secu-nat-intermediaire",
+    "module": "Cybersécurité",
+    "title": "NAT et sécurité du périmètre - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 909,
+    "description": "Comprendre les variantes de NAT et les contrôles protégeant les services exposés au périmètre.",
+    "prereqs": [
+      "secu-acl-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-vpn-intermediaire",
+    "module": "Cybersécurité",
+    "title": "VPN Site-to-Site et d'accès distant - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 910,
+    "description": "Comparer VPN site-à-site et accès distant, puis sécuriser la négociation IPsec, les identités et les routes.",
+    "prereqs": [
+      "secu-nat-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-switch-secu-intermediaire",
+    "module": "Cybersécurité",
+    "title": "Sécurité des commutateurs (Couche 2) - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 911,
+    "description": "Durcir la couche 2 avec port security, DHCP Snooping, inspection ARP et protections STP.",
+    "prereqs": [
+      "secu-vpn-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-ngfw-intermediaire",
+    "module": "Cybersécurité",
+    "title": "Architecture de pare-feu (NGFW) - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 912,
+    "description": "Concevoir une politique NGFW avec inspection à états, contrôle applicatif, identité et prévention d’intrusion.",
+    "prereqs": [
+      "secu-switch-secu-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-ids-intermediaire",
+    "module": "Cybersécurité",
+    "title": "IDS/IPS et détection d'intrusion - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 913,
+    "description": "Comparer IDS/IPS, signatures et anomalies, puis améliorer la qualité des alertes.",
+    "prereqs": [
+      "secu-ngfw-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-segmentation-intermediaire",
+    "module": "Cybersécurité",
+    "title": "Segmentation réseau - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 914,
+    "description": "Définir des zones réseau et des politiques de flux pour limiter les mouvements latéraux.",
+    "prereqs": [
+      "secu-ids-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-linux-intermediaire",
+    "module": "Cybersécurité",
+    "title": "Sécurité des systèmes Linux - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 915,
+    "description": "Renforcer comptes, permissions, services, mises à jour, pare-feu et journaux sous Linux.",
+    "prereqs": [
+      "secu-segmentation-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-ad-intermediaire",
+    "module": "Cybersécurité",
+    "title": "Sécurité Active Directory - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 916,
+    "description": "Protéger Active Directory par la séparation des privilèges, les GPO et la supervision des identités.",
+    "prereqs": [
+      "secu-linux-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-siem-intermediaire",
+    "module": "Cybersécurité",
+    "title": "Introduction aux SIEM - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 917,
+    "description": "Collecter et normaliser les événements, corréler des signaux et construire des détections exploitables.",
+    "prereqs": [
+      "secu-ad-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-services-intermediaire",
+    "module": "Cybersécurité",
+    "title": "Sécurité des services réseau - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 918,
+    "description": "Sécuriser DNS, DHCP, NTP, SNMP, SSH et syslog grâce au durcissement et à la supervision.",
+    "prereqs": [
+      "secu-siem-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-web-intermediaire",
+    "module": "Cybersécurité",
+    "title": "Sécurité Web de base - Intermédiaire",
+    "category": "Cybersécurité",
+    "order": 919,
+    "description": "Protéger les applications Web grâce à la validation des entrées, l’autorisation, les sessions et TLS.",
+    "prereqs": [
+      "secu-services-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   }
 ]

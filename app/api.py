@@ -15,6 +15,7 @@ import uuid
 from fastapi import WebSocket, WebSocketDisconnect
 from collections import Counter
 from contextlib import asynccontextmanager
+from functools import lru_cache
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterator
@@ -241,11 +242,41 @@ def read_lesson(node_id: str, tree: SkillTree = Depends(get_tree)):
 
     return PlainTextResponse(content, media_type="text/markdown; charset=utf-8")
 
+@lru_cache(maxsize=1)
+def _configured_node_labs() -> dict[str, dict[str, Any]]:
+    """Lit les métadonnées de lab attachées aux nœuds du catalogue JSON."""
+    path = CONTENT_DIR / "nodes.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(payload, list):
+        return {}
+    return {
+        str(item["id"]): item["lab"]
+        for item in payload
+        if isinstance(item, dict)
+        and isinstance(item.get("id"), str)
+        and isinstance(item.get("lab"), dict)
+        and isinstance(item["lab"].get("prompt"), str)
+        and item["lab"]["prompt"].strip()
+    }
+
+
 @app.get("/api/node/{node_id}")
 def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
     node = _get_node(tree, node_id)
     status = tree.status(node.id)
     lab = tree.lab_spec(node.id)
+    lab_payload = {"kind": lab.kind, "prompt": lab.prompt, "hint": lab.hint} if lab else None
+    if lab_payload is None:
+        configured_lab = _configured_node_labs().get(node.id)
+        if configured_lab:
+            lab_payload = {
+                "kind": str(configured_lab.get("kind") or "text"),
+                "prompt": str(configured_lab.get("prompt") or ""),
+                "hint": str(configured_lab.get("hint") or ""),
+            }
     challenge = _challenge_row(tree, node.id)
     terminal = tree.conn.execute("SELECT prompt, explanation FROM terminal_specs WHERE node_id = ?", (node.id,)).fetchone()
     terminal_spec = tree.terminal_spec(node.id)
@@ -285,7 +316,7 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
         "status": status.value,
         "prereqs": [{"id": p, "title": tree.node(p).title, "status": tree.status(p).value} for p in node.prereqs],
         "requirements": [{"kind": r.kind.value, "min_score": r.min_score, "met": requirement_met(r, node)} for r in node.requirements],
-        "lab": {"kind": lab.kind, "prompt": lab.prompt, "hint": lab.hint} if lab else None,
+        "lab": lab_payload,
         "terminal": terminal_spec,
         "challenge": challenge_payload,
     }
