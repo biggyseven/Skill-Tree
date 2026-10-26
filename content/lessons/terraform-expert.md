@@ -6,6 +6,8 @@
 > **Objectif :** concevoir une plateforme Terraform sécurisée, reproductible, gouvernée et capable de maîtriser les changements d'infrastructure à l'échelle d'une organisation.
 
 
+> **Lien avec le parcours DevOps IaC :** ce cours approfondit les mécanismes Terraform de production, notamment le state, les plans, la dérive et les opérations contrôlées. Le cours expert IaC traite plutôt du modèle opérationnel d’entreprise, de la gouvernance multi-outils, du catalogue, des coûts et de la résilience de la plateforme.
+
 ## Sommaire
 
 1. Architecture d'entreprise
@@ -1126,7 +1128,3 @@ La maîtrise de Terraform ne consiste pas uniquement à créer rapidement des re
 - Meta-arguments : https://developer.hashicorp.com/terraform/language/meta-arguments
 - Tests : https://developer.hashicorp.com/terraform/language/tests
 - Tutoriels officiels : https://developer.hashicorp.com/terraform/tutorials
-
-**Fichier :** `terraform-expert.md`  
-**Niveau :** Expert  
-**Fin du cours**
