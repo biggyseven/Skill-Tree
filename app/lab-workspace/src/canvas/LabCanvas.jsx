@@ -1,5 +1,5 @@
 ﻿import { useCallback, useMemo } from 'react';
-import { ConnectionMode, ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useReactFlow } from '@xyflow/react';
+import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useReactFlow } from '@xyflow/react';
 import { useLabStore } from '../store/useLabStore.js';
 import { nodeTypes, edgeTypes } from './nodeTypes.js';
 import { Toolbar } from './Toolbar.jsx';
@@ -31,7 +31,7 @@ export function LabCanvas() {
     if (!topology) return [];
     return topology.links.map(l => ({
       id: l.id, source: l.from.node, target: l.to.node, type: 'cable',
-      sourceHandle: l.from.port, targetHandle: l.to.port,
+      sourceHandle: `${l.from.port}::source`, targetHandle: `${l.to.port}::target`,
       data: { state: l.state, cable_type: l.cable_type, label: `${l.from.port} → ${l.to.port}` },
     }));
   }, [topology]);
@@ -74,7 +74,7 @@ export function LabCanvas() {
 
   return (
     <div className={`relative flex-1 min-h-0 bg-[#0d1117] ${activeTool !== 'select' ? 'cursor-crosshair' : ''}`} onDrop={onDrop} onDragOver={onDragOver}>
-      <ReactFlow nodes={flowNodes} edges={flowEdges} connectionMode={ConnectionMode.Loose} onNodesChange={onNodesChange} onNodeClick={onNodeClick}
+      <ReactFlow nodes={flowNodes} edges={flowEdges} onNodesChange={onNodesChange} onNodeClick={onNodeClick}
         onConnect={onConnect}
         nodeTypes={nodeTypes} edgeTypes={edgeTypes} defaultEdgeOptions={defaultEdgeOptions}
         fitView fitViewOptions={{ padding: 0.2 }} proOptions={{ hideAttribution: true }}>
