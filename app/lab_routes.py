@@ -662,11 +662,34 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
             )
             course_attempt_recorded = True
             if "daily_streak" in tables:
-                touch_daily_streak(conn)
+                # Ne pas valider la transaction ici : tentative, série, XP et pièces
+                # doivent être enregistrés ensemble.
+                touch_daily_streak(conn, commit=False)
 
-        if xp_gained:
-            # add_xp committe également lab_attempts et attempts en une transaction.
-            add_xp(conn, xp_gained)
+        # Récompenses du Lab Workspace : une prime de pièces à la première réussite
+        # uniquement, comme pour les labs du parcours classique.
+        coins_gained = 20 if first_success else 0
+        for badge_id in badges_unlocked:
+            # Les badges du JSON sont des identifiants de récompense. Ne créer que
+            # des entrées compatibles avec le catalogue connu et ne jamais écraser.
+            if isinstance(badge_id, str) and badge_id in {
+                "first_blood", "war_machine", "architect", "flawless"
+            }:
+                badge_info = {
+                    "first_blood": ("Premier Sang", "Valider son premier nœud", "🩸"),
+                    "war_machine": ("Machine de Guerre", "Valider cinq labs", "⚔️"),
+                    "architect": ("Architecte", "Sauvegarder une topologie", "🏛️"),
+                    "flawless": ("Sans Faute", "Obtenir 100 % à un examen", "🎯"),
+                }[badge_id]
+                conn.execute(
+                    "INSERT OR IGNORE INTO badges (id, nom, description, icone, condition_debloquee_le) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (badge_id, *badge_info, now),
+                )
+
+        if xp_gained or coins_gained:
+            # add_xp committe aussi les tentatives, la série et les récompenses.
+            add_xp(conn, xp_gained, coins=coins_gained)
         else:
             conn.commit()
     except HTTPException:
@@ -686,6 +709,7 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
         "lab_id": lab_id,
         **check_result,
         "xp_gained": xp_gained,
+        "coins_gained": coins_gained,
         "badges_unlocked": badges_unlocked,
         "first_success": bool(first_success),
         "sandbox": False,
