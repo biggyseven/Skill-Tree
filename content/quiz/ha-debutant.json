@@ -1,1 +1,102 @@
-{"node_id":"ha-debutant","scope":"quiz","questions":[{"type":"qcm","prompt":"Que signifie l'acronyme HA ?","choices":["Haute Disponibilité","High Access","Hardware Architecture","Hybrid Availability"],"answer":0,"explanation":"HA signifie Haute Disponibilité."},{"type":"qcm","prompt":"Quel est le but principal de la Haute Disponibilité ?","choices":["Garantir la continuité de service malgré les pannes","Augmenter la vitesse du réseau","Réduire le coût du matériel","Bloquer les attaques informatiques"],"answer":0,"explanation":"La HA vise à éviter l'interruption de service en cas de panne."},{"type":"qcm","prompt":"Qu'est-ce qu'une adresse IP virtuelle dans un contexte de redondance ?","choices":["Une adresse partagée par deux routeurs que les PC utilisent comme passerelle","Une adresse réservée pour le Wi-Fi","Une adresse qui change tout le temps","L'adresse IP d'un serveur web"],"answer":0,"explanation":"L'IP virtuelle est partagée entre un routeur actif et un routeur de secours."}]}
+{
+  "node_id": "ha-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que signifie HA dans la conception d’un service informatique ?",
+      "choices": [
+        "Haute disponibilité (High Availability) : réduire l’interruption du service lors de certaines pannes",
+        "High Access : augmenter le nombre de VLAN",
+        "Hardware Allocation : réserver la mémoire d’un routeur",
+        "Host Addressing : distribuer des adresses IP"
+      ],
+      "answer": 0,
+      "explanation": "La haute disponibilité vise à maintenir ou restaurer le service malgré certaines défaillances. Elle n’implique pas une disponibilité absolue et doit être définie pour un service concret."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un réseau possède deux routeurs, mais tous deux dépendent de la même alimentation électrique non secourue. Quel risque subsiste ?",
+      "choices": [
+        "Aucun : deux routeurs garantissent toujours la continuité",
+        "Le routage dynamique désactive l’alimentation partagée",
+        "L’alimentation commune reste un point unique de défaillance",
+        "Une adresse IP virtuelle élimine la panne électrique"
+      ],
+      "answer": 2,
+      "explanation": "La redondance des routeurs ne supprime pas une dépendance commune. Il faut identifier les points uniques de défaillance dans toute la chaîne, notamment alimentation, accès, amont et services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale distingue une architecture active/passive d’une architecture active/active ?",
+      "choices": [
+        "En active/passive, les deux nœuds doivent traiter la même charge en permanence",
+        "En active/passive, un nœud assure le rôle principal et un autre attend ou reste en secours ; en active/active, plusieurs nœuds servent effectivement la charge",
+        "En active/active, aucun nœud ne transmet de trafic",
+        "Ces termes désignent uniquement deux protocoles Wi-Fi"
+      ],
+      "answer": 1,
+      "explanation": "Active/passive et active/active décrivent la répartition de la charge. L’architecture ne garantit pas à elle seule la réplication d’état, l’absence d’interruption ni la capacité suffisante après panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi plusieurs postes configurent-ils une adresse de passerelle virtuelle dans un scénario HSRP ou VRRP ?",
+      "choices": [
+        "Pour attribuer une adresse MAC unique à chaque poste",
+        "Pour contourner le routage IPv4",
+        "Pour désactiver le routeur physique",
+        "Pour utiliser une adresse logique stable dont le routeur responsable peut changer lors d’une bascule"
+      ],
+      "answer": 3,
+      "explanation": "Les hôtes utilisent la passerelle virtuelle au lieu de dépendre de l’adresse d’un seul routeur physique. Le protocole de redondance transfère la responsabilité, mais ne garantit pas que toutes les dépendances amont fonctionnent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une procédure de continuité, que désigne le failover ?",
+      "choices": [
+        "Le transfert du service vers une ressource de secours après la détection d’une panne ou d’un état dégradé",
+        "Le retour systématique au routeur d’origine sans contrôle",
+        "La suppression des routes redondantes",
+        "La mise à jour des logiciels de tous les commutateurs"
+      ],
+      "answer": 0,
+      "explanation": "Le failover transfère la responsabilité du service vers une ressource capable de l’assurer. Il doit être déclenché par des critères de santé définis et vérifié depuis un point de vue client."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur indicateur pour vérifier que la haute disponibilité fonctionne du point de vue de l’utilisateur ?",
+      "choices": [
+        "Le voyant d’alimentation est vert",
+        "Le routeur de secours répond au ping de gestion uniquement",
+        "Un test depuis un client confirme que le service visé reste accessible après la bascule",
+        "Le fichier de configuration contient le mot standby"
+      ],
+      "answer": 2,
+      "explanation": "Un état de contrôle ou un ping de gestion ne prouve pas que tout le chemin fonctionne. Il faut tester la destination et, si possible, une transaction représentative du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation concernant LACP et STP est correcte ?",
+      "choices": [
+        "LACP remplace toujours le routage IP",
+        "STP négocie les membres d’un port-channel",
+        "LACP désactive les boucles sur toute la topologie",
+        "LACP agrège des liens physiques compatibles ; STP garde son rôle de prévention des boucles de couche 2"
+      ],
+      "answer": 3,
+      "explanation": "LACP négocie l’agrégation des liens. STP contrôle les chemins de couche 2 pour éviter les boucles ; ce sont deux mécanismes distincts qui peuvent fonctionner ensemble."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour une période de 365 jours, environ combien d’indisponibilité annuelle correspond à une disponibilité de 99,9 %, si l’on compte toute interruption ?",
+      "choices": [
+        "52 minutes",
+        "8 h 46 min",
+        "24 heures exactement",
+        "3 jours et demi"
+      ],
+      "answer": 1,
+      "explanation": "Une indisponibilité de 0,1 % sur 365 jours représente 525,6 minutes, soit environ 8 h 46 min. Les objectifs contractuels peuvent définir différemment les maintenances exclues ou le périmètre mesuré."
+    }
+  ]
+}
