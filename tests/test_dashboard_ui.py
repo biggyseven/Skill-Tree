@@ -556,11 +556,13 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Tu as validé tout le parcours disponible.", DASHBOARD_HTML)
 
     def test_v2_lab_opens_react_flow_workspace_and_keeps_legacy_fallback(self):
-        start = DASHBOARD_HTML.rindex("async openLab(id, openInNewTab = false) {")
+        start = DASHBOARD_HTML.rindex("async openLab(id, openInNewTab = true) {")
         end = DASHBOARD_HTML.index("        isLabDone(id)", start)
         open_lab_method = DASHBOARD_HTML[start:end]
 
         self.assertIn("fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`)", open_lab_method)
+        self.assertIn("async openLab(id, openInNewTab = true)", open_lab_method)
+        self.assertIn("navigate(`/?openLegacyLab=${encodeURIComponent(nodeId)}`)", open_lab_method)
         self.assertIn("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
         self.assertIn("if (response.status !== 404)", open_lab_method)
         self.assertIn("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
