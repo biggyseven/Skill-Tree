@@ -555,6 +555,19 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("if (this.allNodesValidated) return 'Parcours terminé';", DASHBOARD_HTML)
         self.assertIn("Tu as validé tout le parcours disponible.", DASHBOARD_HTML)
 
+    def test_lab_index_keeps_successful_cache_and_retries_failed_requests(self):
+        start = DASHBOARD_HTML.index("async loadLabIndex() {")
+        end = DASHBOARD_HTML.index("        openVisualLab()", start)
+        load_index = DASHBOARD_HTML[start:end]
+
+        self.assertIn("if (this.labIndexBusy) return;", load_index)
+        self.assertIn("const todo = this.nodes.filter(n => !(n.id in this.labIndex))", load_index)
+        self.assertIn("const r = await fetch(\`/api/node/\${encodeURIComponent(n.id)}\`)", load_index)
+        self.assertIn("if (!r.ok) throw new Error(\`HTTP \${r.status}\`)", load_index)
+        self.assertIn("this.labIndex[n.id] = d.lab || null;", load_index)
+        self.assertIn("delete this.labIndex[n.id];", load_index)
+        self.assertIn("une nouvelle tentative sera faite au prochain accès", load_index)
+
     def test_v2_lab_opens_react_flow_workspace_and_keeps_legacy_fallback(self):
         start = DASHBOARD_HTML.rindex("async openLab(id, openInNewTab = true) {")
         end = DASHBOARD_HTML.index("        isLabDone(id)", start)
