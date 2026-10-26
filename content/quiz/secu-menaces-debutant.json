@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Panorama des menaces » : à rédiger après le cours complet.",
+      "prompt": "Quelle est la différence entre menace et vulnérabilité ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Une menace est toujours un logiciel",
+        "La menace est une cause potentielle ; la vulnérabilité est une faiblesse",
+        "Une vulnérabilité est toujours une attaque réussie",
+        "Les deux mots ont le même sens"
+      ],
+      "answer": 1,
+      "explanation": "Une menace peut exploiter une vulnérabilité, mais les notions restent distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un message réclame le mot de passe en menaçant de supprimer le compte dans dix minutes. Quel est le meilleur réflexe ?",
+      "choices": [
+        "Répondre immédiatement",
+        "Cliquer sur le lien depuis un téléphone",
+        "Vérifier la demande via un canal officiel et signaler le message",
+        "Transférer le lien à toute l'équipe"
+      ],
+      "answer": 2,
+      "explanation": "L'urgence et la demande de secret sont des signaux suspects."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un poste ralentit et un processus est inconnu. Que peut-on conclure ?",
+      "choices": [
+        "Il est forcément infecté",
+        "Le processus est forcément légitime",
+        "Il faut examiner le contexte et les éléments de preuve",
+        "Il faut supprimer immédiatement tous les processus"
+      ],
+      "answer": 2,
+      "explanation": "Un signe isolé ne permet pas de confirmer une compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester la restauration des sauvegardes ?",
+      "choices": [
+        "Pour supprimer les journaux",
+        "Pour vérifier que les données et la procédure de récupération fonctionnent",
+        "Pour rendre les sauvegardes publiques",
+        "Pour éviter les mises à jour"
+      ],
+      "answer": 1,
+      "explanation": "Une tâche de sauvegarde réussie ne prouve pas que la restauration réussira."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une attaque par déni de service cherche principalement à compromettre quoi ?",
+      "choices": [
+        "La disponibilité",
+        "La signature numérique",
+        "La confidentialité uniquement",
+        "La classification des données"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le but est de rendre un service inaccessible ou dégradé pour les utilisateurs légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi des comptes individuels sont-ils préférables à un compte administrateur partagé ?",
+      "choices": [
+        "Ils facilitent l'attribution des actions et le contrôle des droits",
+        "Ils rendent tous les mots de passe publics",
+        "Ils remplacent les sauvegardes",
+        "Ils empêchent les pannes physiques"
+      ],
+      "answer": 0,
+      "explanation": "Des identités distinctes améliorent la responsabilité et la traçabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on faire avec une clé USB inconnue trouvée dans un lieu public ?",
+      "choices": [
+        "La brancher pour découvrir son propriétaire",
+        "La connecter à un poste de production",
+        "Suivre la procédure sans la brancher à un poste ordinaire",
+        "Copier ses fichiers dans le serveur"
+      ],
+      "answer": 2,
+      "explanation": "Le support peut être dangereux ou contenir des informations inconnues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un compte de prestataire reste actif après la fin de contrat. Quel est le risque ?",
+      "choices": [
+        "Aucun, car le contrat est terminé",
+        "Un accès inutile reste disponible",
+        "Le certificat devient automatiquement invalide",
+        "Le réseau gagne en disponibilité"
+      ],
+      "answer": 1,
+      "explanation": "Les accès doivent être révoqués lorsque le besoin légitime prend fin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur a saisi ses identifiants sur une page suspecte. Quelle action est adaptée ?",
+      "choices": [
+        "Ne rien dire",
+        "Signaler rapidement et suivre la procédure de sécurisation du compte",
+        "Supprimer tous les fichiers du poste",
+        "Publier le mot de passe pour prévenir les collègues"
+      ],
+      "answer": 1,
+      "explanation": "Un signalement rapide permet de révoquer les sessions et d'examiner les connexions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi corréler les journaux de plusieurs systèmes ?",
+      "choices": [
+        "Pour inventer une origine",
+        "Pour comprendre la séquence d'événements au lieu d'interpréter un signal isolé",
+        "Pour supprimer les événements contradictoires",
+        "Pour éviter la supervision"
+      ],
+      "answer": 1,
+      "explanation": "La corrélation aide à distinguer un incident d'une activité légitime."
     }
   ]
 }

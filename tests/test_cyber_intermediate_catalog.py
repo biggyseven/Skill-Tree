@@ -53,7 +53,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
         cls.nodes = json.loads((CONTENT / "nodes.json").read_text(encoding="utf-8"))
         cls.node_by_id = {node["id"]: node for node in cls.nodes}
 
-    def test_35_lessons_and_quizzes_are_placeholders_without_bom(self) -> None:
+    def test_35_lessons_and_quizzes_are_present_without_bom(self) -> None:
         for node_id, title, _prereq in TRACK:
             lesson_path = CONTENT / "lessons" / f"{node_id}.md"
             quiz_path = CONTENT / "quiz" / f"{node_id}.json"
@@ -65,15 +65,31 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
             self.assertFalse(lesson_bytes.startswith(bom), f"BOM du cours {node_id}")
             self.assertFalse(quiz_bytes.startswith(bom), f"BOM du quiz {node_id}")
             lesson = lesson_bytes.decode("utf-8")
-            self.assertEqual(lesson.splitlines(), [f"# {title}", "", "[Contenu de 5000 mots à rédiger]"])
             quiz = json.loads(quiz_bytes.decode("utf-8"))
             self.assertEqual(quiz["node_id"], node_id)
-            self.assertEqual(len(quiz["questions"]), 1)
-            question = quiz["questions"][0]
-            self.assertEqual(question["type"], "qcm")
-            self.assertIn("placeholder", question["prompt"].lower())
-            self.assertEqual(len(question["choices"]), 4)
-            self.assertEqual(question["answer"], 0)
+            if node_id in {"secu-cia-debutant", "secu-menaces-debutant", "secu-crypto-debutant"}:
+                self.assertTrue(
+                    lesson.startswith(f"# {title}\n\n> **Mise en contexte**")
+                    or lesson.startswith(f"# {title}\n\n> **Encadré de mise en contexte**")
+                )
+                self.assertNotIn("[Contenu de 5000 mots à rédiger]", lesson)
+                self.assertGreaterEqual(len(lesson.split()), 5000, f"Le cours {node_id} doit contenir au moins 5000 mots.")
+                self.assertGreaterEqual(len(quiz["questions"]), 10)
+                for question in quiz["questions"]:
+                    self.assertEqual(question["type"], "qcm")
+                    self.assertNotIn("placeholder", question["prompt"].lower())
+                    self.assertEqual(len(question["choices"]), 4)
+                    self.assertGreaterEqual(question["answer"], 0)
+                    self.assertLess(question["answer"], len(question["choices"]))
+                    self.assertTrue(question["explanation"].strip())
+            else:
+                self.assertEqual(lesson.splitlines(), [f"# {title}", "", "[Contenu de 5000 mots à rédiger]"])
+                self.assertEqual(len(quiz["questions"]), 1)
+                question = quiz["questions"][0]
+                self.assertEqual(question["type"], "qcm")
+                self.assertIn("placeholder", question["prompt"].lower())
+                self.assertEqual(len(question["choices"]), 4)
+                self.assertEqual(question["answer"], 0)
 
     def test_node_titles_modules_and_exact_prerequisites(self) -> None:
         self.assertEqual(len(self.node_by_id), len(self.nodes), "Des identifiants sont dupliqués.")

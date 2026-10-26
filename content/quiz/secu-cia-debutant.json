@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « La Triade CIA » : à rédiger après le cours complet.",
+      "prompt": "Une employée envoie accidentellement un dossier confidentiel à une personne non autorisée. Quelle propriété est directement compromise ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "La disponibilité",
+        "La confidentialité",
+        "La redondance",
+        "La maintenance"
+      ],
+      "answer": 1,
+      "explanation": "La confidentialité protège les informations contre les accès et divulgations non autorisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une facture est modifiée sans approbation. Quelle propriété est principalement touchée ?",
+      "choices": [
+        "L'intégrité",
+        "La disponibilité uniquement",
+        "La segmentation",
+        "L'authentification uniquement"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "L'intégrité vise à préserver l'exactitude et l'état autorisé des données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une panne empêche les clients d'accéder au portail. Quelle propriété est directement concernée ?",
+      "choices": [
+        "La confidentialité",
+        "La signature",
+        "La disponibilité",
+        "Le chiffrement au repos uniquement"
+      ],
+      "answer": 2,
+      "explanation": "La disponibilité concerne l'accès aux informations et aux services lorsque nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la MFA ne remplace-t-elle pas les autorisations applicatives ?",
+      "choices": [
+        "Elle chiffre toutes les bases",
+        "Elle vérifie l'authentification mais ne décide pas seule des ressources accessibles",
+        "Elle empêche toute panne",
+        "Elle remplace les sauvegardes"
+      ],
+      "answer": 1,
+      "explanation": "L'authentification et l'autorisation sont des contrôles différents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que démontre principalement une comparaison d'empreintes SHA-256 fiables ?",
+      "choices": [
+        "L'identité de l'auteur dans tous les cas",
+        "Que les contenus correspondent avec une forte confiance",
+        "Que le fichier est confidentiel",
+        "Que le service est toujours disponible"
+      ],
+      "answer": 1,
+      "explanation": "La comparaison permet de vérifier la correspondance du contenu si la référence est fiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif du moindre privilège ?",
+      "choices": [
+        "Donner tous les droits à chacun",
+        "Accorder uniquement les droits nécessaires à la mission",
+        "Désactiver les journaux",
+        "Chiffrer toutes les URL"
+      ],
+      "answer": 1,
+      "explanation": "Limiter les droits réduit les conséquences d'une erreur ou d'une compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une sauvegarde a été réalisée mais jamais restaurée. Que manque-t-il ?",
+      "choices": [
+        "Une garantie absolue de confidentialité",
+        "La preuve que la procédure de restauration fonctionne",
+        "Un mot de passe pour chaque fichier public",
+        "La preuve que la base ne change jamais"
+      ],
+      "answer": 1,
+      "explanation": "La restauration doit être testée pour vérifier la récupérabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un rançongiciel chiffre des fichiers et l'attaquant a également copié des données. Quelles propriétés peuvent être touchées ?",
+      "choices": [
+        "Seulement l'intégrité",
+        "Confidentialité et disponibilité, et éventuellement l'intégrité",
+        "Seulement la confidentialité",
+        "Aucune propriété CIA"
+      ],
+      "answer": 1,
+      "explanation": "Le vol et l'indisponibilité peuvent affecter plusieurs propriétés en même temps."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le serveur est allumé mais l'application ne répond pas. Peut-on conclure que le service est disponible ?",
+      "choices": [
+        "Oui, un serveur allumé suffit",
+        "Non, il faut vérifier le service et ses dépendances",
+        "Oui, si le disque est chiffré",
+        "Non, tous les serveurs doivent être arrêtés"
+      ],
+      "answer": 1,
+      "explanation": "La disponibilité doit être évaluée au niveau du service réellement utilisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode est la plus appropriée pour examiner un incident ?",
+      "choices": [
+        "Supposer qu'il s'agit d'une attaque",
+        "Identifier les faits, les actifs, les conséquences, puis vérifier les hypothèses",
+        "Effacer immédiatement les journaux",
+        "Désactiver tous les contrôles"
+      ],
+      "answer": 1,
+      "explanation": "Une analyse rigoureuse sépare observations et hypothèses."
     }
   ]
 }

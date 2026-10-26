@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Cryptographie » : à rédiger après le cours complet.",
+      "prompt": "Base64 permet-il de protéger la confidentialité d'un secret ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Oui, car l'encodage est un chiffrement",
+        "Non, c'est un encodage réversible sans clé secrète",
+        "Oui si la chaîne est longue",
+        "Seulement dans les bases SQL"
+      ],
+      "answer": 1,
+      "explanation": "Base64 est une méthode de représentation, pas un mécanisme de chiffrement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une paire de clés asymétriques, quelle clé doit rester secrète ?",
+      "choices": [
+        "La clé publique",
+        "La clé privée",
+        "Le certificat public uniquement",
+        "Aucune des clés"
+      ],
+      "answer": 1,
+      "explanation": "La clé privée doit être protégée contre l'accès non autorisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme est adapté au stockage des mots de passe ?",
+      "choices": [
+        "Stockage en clair",
+        "Base64",
+        "Une fonction spécialisée telle qu'Argon2id correctement configurée",
+        "AES avec une clé publiée dans le code"
+      ],
+      "answer": 2,
+      "explanation": "Les mots de passe doivent être stockés avec un mécanisme spécialisé plutôt qu'en clair ou avec un simple encodage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que peut démontrer une comparaison d'empreintes fiable ?",
+      "choices": [
+        "Que deux contenus correspondent avec une forte confiance",
+        "Qui a créé le fichier avec certitude",
+        "Que le fichier est chiffré",
+        "Que le service sera disponible"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Une empreinte aide à comparer le contenu, mais n'authentifie pas automatiquement l'auteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une signature numérique rend-elle automatiquement le fichier confidentiel ?",
+      "choices": [
+        "Oui toujours",
+        "Non, elle contribue à vérifier l'intégrité et l'origine cryptographique",
+        "Oui si le document est PDF",
+        "Non, elle supprime le contenu"
+      ],
+      "answer": 1,
+      "explanation": "La signature et le chiffrement ont des objectifs différents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement un certificat TLS dans un navigateur ?",
+      "choices": [
+        "À prouver que chaque phrase du site est vraie",
+        "À contribuer à vérifier l'identité du serveur et établir une connexion protégée",
+        "À remplacer tous les mots de passe",
+        "À sauvegarder la base"
+      ],
+      "answer": 1,
+      "explanation": "Un certificat associe une clé publique au nom du serveur selon une chaîne de confiance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi AES-GCM exige-t-il une gestion correcte du nonce ?",
+      "choices": [
+        "Parce que le nonce remplace toujours la clé",
+        "Parce qu'une réutilisation dangereuse avec la même clé peut compromettre la sécurité",
+        "Parce que le nonce doit être un mot de passe",
+        "Parce qu'il n'accepte que des fichiers texte"
+      ],
+      "answer": 1,
+      "explanation": "Il faut respecter les contraintes du mode et utiliser une bibliothèque appropriée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que se passe-t-il si une clé de chiffrement est perdue et qu'aucune récupération n'existe ?",
+      "choices": [
+        "Le fichier se déchiffre automatiquement",
+        "Les données peuvent devenir irrécupérables",
+        "Le certificat devient une sauvegarde",
+        "La clé publique remplace toujours la clé privée"
+      ],
+      "answer": 1,
+      "explanation": "La gestion des clés doit prévoir les besoins légitimes de récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une empreinte publiée sur une source potentiellement compromise peut-elle être insuffisante ?",
+      "choices": [
+        "Parce qu'une empreinte ne peut jamais être calculée",
+        "Parce qu'un attaquant peut remplacer le fichier et la référence ensemble",
+        "Parce que SHA-256 chiffre le fichier",
+        "Parce que le fichier doit être imprimé"
+      ],
+      "answer": 1,
+      "explanation": "La référence doit provenir d'un canal de confiance ou être authentifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit le mieux le chiffrement symétrique ?",
+      "choices": [
+        "Il utilise une clé secrète commune pour chiffrer et déchiffrer",
+        "Il n'utilise aucune clé",
+        "Il sert uniquement aux signatures",
+        "Il est identique à Base64"
+      ],
+      "answer": 0,
+      "explanation": "Le chiffrement symétrique repose sur un secret commun et nécessite une gestion sûre de cette clé."
     }
   ]
 }
