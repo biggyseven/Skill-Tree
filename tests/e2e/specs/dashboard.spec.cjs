@@ -186,7 +186,7 @@ test('le menu contextuel démarre la lecture vocale depuis la section visée', a
   await expect(page.getByRole('group', { name: 'Commandes flottantes de lecture vocale' })).toBeVisible();
 });
 
-test('les commandes vocales flottantes permettent pause, reprise et arrêt', async ({ page }) => {
+test('le bouton pause flottant reste en bas à droite pendant le défilement et permet pause/reprise/arrêt', async ({ page }) => {
   await openDashboard(page);
 
   const searchInput = page.locator('input[x-ref="searchBox"]');
@@ -211,6 +211,38 @@ test('les commandes vocales flottantes permettent pause, reprise et arrêt', asy
 
   const controls = page.getByRole('group', { name: 'Commandes flottantes de lecture vocale' });
   await expect(controls).toBeVisible();
+  const reader = page.locator('.modal-panel[role="dialog"]');
+  const scroll = page.locator('[x-ref="modalScroll"]');
+  await expect.poll(() => scroll.evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
+
+  const readPosition = () => page.evaluate(() => {
+    const dialog = document.querySelector('.modal-panel[role="dialog"]');
+    const floating = document.querySelector('[aria-label="Commandes flottantes de lecture vocale"]');
+    const dialogRect = dialog.getBoundingClientRect();
+    const floatingRect = floating.getBoundingClientRect();
+    return {
+      rightGap: dialogRect.right - floatingRect.right,
+      bottomGap: dialogRect.bottom - floatingRect.bottom,
+      left: floatingRect.left,
+      top: floatingRect.top,
+    };
+  });
+
+  const positionBeforeScroll = await readPosition();
+  expect(positionBeforeScroll.rightGap).toBeGreaterThanOrEqual(0);
+  expect(positionBeforeScroll.rightGap).toBeLessThan(40);
+  expect(positionBeforeScroll.bottomGap).toBeGreaterThanOrEqual(0);
+  expect(positionBeforeScroll.bottomGap).toBeLessThan(40);
+
+  await scroll.evaluate(el => {
+    el.scrollTop = Math.min(320, el.scrollHeight - el.clientHeight);
+    el.dispatchEvent(new Event('scroll', { bubbles: true }));
+  });
+  await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  const positionAfterScroll = await readPosition();
+  expect(Math.abs(positionAfterScroll.left - positionBeforeScroll.left)).toBeLessThan(2);
+  expect(Math.abs(positionAfterScroll.top - positionBeforeScroll.top)).toBeLessThan(2);
+  await expect(controls.getByRole('button', { name: 'Mettre en pause la lecture vocale' })).toHaveText(/Pause lecture/);
   const pause = controls.getByRole('button', { name: 'Mettre en pause la lecture vocale' });
   await pause.click();
   await expect(controls.getByRole('button', { name: 'Reprendre la lecture vocale' })).toBeVisible();
