@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Wi-Fi 802.11 - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pour dimensionner un WLAN d’entreprise dense, quel critère doit compléter le débit PHY maximal annoncé par les points d’accès ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le nombre de caractères du SSID uniquement",
+        "La quantité d’espace disque sur le contrôleur",
+        "Le nombre d’adresses MAC autorisées par le commutateur, pris isolément",
+        "La capacité radio réellement disponible : airtime, distribution des clients, retransmissions, applications et contention"
+      ],
+      "answer": 3,
+      "explanation": "Le débit PHY annoncé ne représente pas le débit utile par client. Le dimensionnement doit prendre en compte l’occupation radio, les profils clients, les applications, la contention et les conditions du site."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode fournit une base plus solide pour choisir canaux et puissances dans un déploiement complexe ?",
+      "choices": [
+        "Activer la puissance maximale et la largeur maximale sur tous les points d’accès",
+        "Combiner les plans et exigences du site avec des mesures RF, des données de capacité et une validation après déploiement",
+        "Choisir le même canal partout sans mesurer les réseaux voisins",
+        "Se fier uniquement au nombre de barres affiché sur un téléphone"
+      ],
+      "answer": 1,
+      "explanation": "La planification RF nécessite des mesures et une validation représentatives. L’uniformité des paramètres ou l’indicateur de signal d’un seul client ne suffit pas à juger la capacité ni la couverture réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi augmenter uniquement la puissance d’émission des points d’accès peut-il ne pas résoudre un problème de couverture ?",
+      "choices": [
+        "Le Wi-Fi ne dépend jamais de la puissance reçue",
+        "La puissance du point d’accès change automatiquement l’adresse IP des clients",
+        "La liaison montante du client peut rester limitée par sa propre puissance, son antenne, le bruit ou les obstacles, ce qui crée une liaison asymétrique",
+        "Le point d’accès ne reçoit pas les trames de données des clients"
+      ],
+      "answer": 2,
+      "explanation": "Le budget de liaison doit être évalué dans les deux sens. Un point d’accès plus puissant peut être entendu du client sans que celui-ci soit capable de lui répondre avec une qualité suffisante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle description des fonctions de roaming 802.11k, 802.11v et 802.11r est la plus juste ?",
+      "choices": [
+        "802.11k aide à fournir des informations de voisinage, 802.11v peut assister la gestion de transition BSS et 802.11r réduit certains délais de transition sécurisée",
+        "802.11k fournit DHCP, 802.11v fournit DNS et 802.11r remplace le chiffrement",
+        "Les trois extensions forcent toujours le client à rejoindre le point d’accès ayant le RSSI le plus élevé",
+        "Les trois fonctions sont exclusivement des normes de câblage Ethernet"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "802.11k/v/r ont des rôles complémentaires : information de voisinage, assistance à la transition BSS et transition rapide sécurisée. Elles ne garantissent pas à elles seules le comportement de chaque client."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence fonctionnelle générale entre OFDMA et MU-MIMO est la plus exacte ?",
+      "choices": [
+        "OFDMA attribue des adresses IP ; MU-MIMO sélectionne le serveur DNS",
+        "OFDMA divise une ressource de fréquence en unités allouables à plusieurs transmissions ; MU-MIMO utilise plusieurs flux spatiaux pour communiquer avec plusieurs utilisateurs dans des conditions compatibles",
+        "OFDMA est réservé aux réseaux câblés ; MU-MIMO est une méthode d’authentification",
+        "OFDMA et MU-MIMO sont deux noms de la même méthode d’attribution de clés"
+      ],
+      "answer": 1,
+      "explanation": "OFDMA partage des ressources fréquentielles en unités d’allocation, tandis que MU-MIMO exploite des flux spatiaux. Leur efficacité varie selon la norme, les clients, le trafic et les conditions radio."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu’on active un WLAN sur la bande 6 GHz, quelle précaution est essentielle ?",
+      "choices": [
+        "Supposer que tous les anciens clients 2,4/5 GHz peuvent utiliser cette bande",
+        "Désactiver le chiffrement pour permettre la découverte des points d’accès",
+        "Vérifier la réglementation locale, les capacités des clients et les exigences de sécurité/support de la plateforme",
+        "Utiliser obligatoirement le même canal que tous les réseaux 2,4 GHz voisins"
+      ],
+      "answer": 2,
+      "explanation": "La disponibilité et les conditions d’usage de la bande 6 GHz varient selon les pays et la plateforme. Les clients doivent prendre en charge cette bande et la conception doit respecter les exigences réglementaires et de sécurité applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour mesurer le roaming d’un terminal qui utilise une application temps réel, quelle vérification est la plus révélatrice ?",
+      "choices": [
+        "Noter uniquement le nom du SSID avant et après le déplacement",
+        "Regarder seulement l’adresse MAC du point d’accès de destination",
+        "Vérifier uniquement que l’interface du contrôleur est verte",
+        "Mesurer la durée de transition, les pertes et la latence applicatives, puis corréler les événements radio et réseau"
+      ],
+      "answer": 3,
+      "explanation": "La réussite du roaming doit se mesurer du point de vue du service : durée de coupure, pertes, latence et comportement applicatif. Les journaux radio et réseau aident à expliquer les résultats."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un réglage radio, la couverture s’améliore mais les performances dans la zone dense baissent. Quelle démarche d’ingénierie est appropriée ?",
+      "choices": [
+        "Comparer les mesures avant/après, analyser airtime, réutilisation de canaux, bruit et retransmissions, puis ajuster une variable à la fois",
+        "Laisser le réglage car davantage de couverture garantit toujours plus de capacité",
+        "Désactiver la supervision radio pour réduire le bruit des mesures",
+        "Agrandir tous les canaux sans refaire les mesures"
+      ],
+      "answer": 0,
+      "explanation": "Couverture et capacité ne sont pas équivalentes. Comparer les mesures et changer une variable à la fois permet de comprendre l’effet du réglage et d’éviter d’aggraver la contention ou le co-canal."
     }
   ]
 }
