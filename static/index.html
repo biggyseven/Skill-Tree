@@ -3874,11 +3874,11 @@
         },
         cleanSpeechVisualText(value) {
           return String(value || '')
-            .replace(/\\u00a0/gu, ' ')
-            .replace(/<br\\s*\\/?\\s*>/giu, ', ')
+            .replace(/\u00a0/gu, ' ')
+            .replace(/<br\s*\/?\s*>/giu, ', ')
             .replace(/&nbsp;/giu, ' ')
-            .replace(/\\s+/gu, ' ')
-            .replace(/\\s+([,.;:!?])/gu, '$1')
+            .replace(/\s+/gu, ' ')
+            .replace(/\s+([,.;:!?])/gu, '$1')
             .trim();
         },
         speechTextFromTable(table) {
@@ -3921,23 +3921,23 @@
           return spoken;
         },
         speechTextFromAsciiDiagram(source) {
-          const raw = String(source || '').replace(/\\r\\n?/gu, '\\n');
-          const lines = raw.split('\\n').map(line => line.trim()).filter(Boolean);
+          const raw = String(source || '').replace(/\r\n?/gu, '\n');
+          const lines = raw.split('\n').map(line => line.trim()).filter(Boolean);
           if (!lines.length) return [];
           const normalizeSegment = value => this.cleanSpeechVisualText(String(value || '')
             .replace(/[┌┐└┘├┤┬┴┼─━│┃╭╮╰╯╔╗╚╝╠╣╦╩╬║]/gu, ' ')
-            .replace(/^[\\s|+<>\\-=_~.]+|[\\s|+<>\\-=_~.]+$/gu, '')
-            .replace(/[\\[\\]{}]/gu, ' ')
-            .replace(/^[\\s|+]+|[\\s|+]+$/gu, ''));
+            .replace(/^[\s|+<>\-=_~.]+|[\s|+<>\-=_~.]+$/gu, '')
+            .replace(/[\[\]{}]/gu, ' ')
+            .replace(/^[\s|+]+|[\s|+]+$/gu, ''));
           const labelFor = value => normalizeSegment(value)
-            .replace(/^(?:client|serveur|routeur|switch|firewall|internet)\\s*$/iu, match => match);
+            .replace(/^(?:client|serveur|routeur|switch|firewall|internet)\s*$/iu, match => match);
           const relationships = [];
           const labels = [];
           const addLabel = value => {
             const label = labelFor(value);
-            if (label && !/^[|+\\-_=<>~.\\s]+$/u.test(label) && !labels.some(item => item.toLocaleLowerCase('fr-FR') === label.toLocaleLowerCase('fr-FR'))) labels.push(label);
+            if (label && !/^[|+\-_=<>~.\s]+$/u.test(label) && !labels.some(item => item.toLocaleLowerCase('fr-FR') === label.toLocaleLowerCase('fr-FR'))) labels.push(label);
           };
-          const connectors = /(\\s*(?:<-->|<->|<--|<-|-->>|->>|-->|-\\.->|==>|---|--o|--x|->|=>|←|↔|→|⇒|⇢)\\s*)/gu;
+          const connectors = /(\s*(?:<-->|<->|<--|<-|-->>|->>|-->|-\.->|==>|---|--o|--x|->|=>|←|↔|→|⇒|⇢)\s*)/gu;
           const relationLine = line => {
             if (!/[<>→←↔⇒⇢]|--|==|->/u.test(line)) return;
             const pieces = line.split(connectors).filter(Boolean);
@@ -3970,11 +3970,11 @@
             relationLine(line);
             const withoutBorders = line
               .replace(/[┌┐└┘├┤┬┴┼─━│┃╭╮╰╯╔╗╚╝╠╣╦╩╬║]/gu, ' ')
-              .replace(/^[\\s|+]+|[\\s|+]+$/gu, '')
+              .replace(/^[\s|+]+|[\s|+]+$/gu, '')
               .replace(/[-=<>~]{2,}/gu, ' ')
-              .replace(/\\s{2,}/gu, ', ');
-            if (withoutBorders && !/^[\\s|+\\-_=<>~.]*$/u.test(withoutBorders)) {
-              withoutBorders.split(/\\s*,\\s*/u).forEach(addLabel);
+              .replace(/\s{2,}/gu, ', ');
+            if (withoutBorders && !/^[\s|+\-_=<>~.]*$/u.test(withoutBorders)) {
+              withoutBorders.split(/\s*,\s*/u).forEach(addLabel);
             }
           });
           const spoken = [];
@@ -3986,24 +3986,24 @@
           return spoken;
         },
         speechTextFromMermaidDiagram(source, svg) {
-          const raw = String(source || '').replace(/\\r\\n?/gu, '\\n');
+          const raw = String(source || '').replace(/\r\n?/gu, '\n');
           const nodes = new Map();
           const cleanLabel = value => this.cleanSpeechVisualText(String(value || '')
-            .replace(/<br\\s*\\/?\\s*>/giu, ', ')
+            .replace(/<br\s*\/?\s*>/giu, ', ')
             .replace(/<[^>]*>/gu, ' ')
             .replace(/^['"`]|['"`]$/gu, ''));
-          const nodePattern = /(?:^|[\\s,])([A-Za-z_][\\w.-]*)\\s*(?:\\[\\[([^\\]]+)\\]\\]|\\[\\(([^)]+)\\)\\]|\\(\\(([^)]+)\\)\\)|\\[([^\\]]+)\\]|\\(([^)]+)\\)|\\{([^}]+)\\})/gu;
-          for (const line of raw.split('\\n')) {
-            if (/^\\s*(?:%%|#)/u.test(line)) continue;
+          const nodePattern = /(?:^|[\s,])([A-Za-z_][\w.-]*)\s*(?:\[\[([^\]]+)\]\]|\[\(([^)]+)\)\]|\(\(([^)]+)\)\)|\[([^\]]+)\]|\(([^)]+)\)|\{([^}]+)\})/gu;
+          for (const line of raw.split('\n')) {
+            if (/^\s*(?:%%|#)/u.test(line)) continue;
             for (const match of line.matchAll(nodePattern)) {
               const label = cleanLabel(match.slice(2).find(Boolean) || '');
               if (label) nodes.set(match[1], label);
             }
-            const participant = line.match(/^\\s*(?:participant|actor)\\s+([A-Za-z_][\\w.-]*)\\s+as\\s+(.+?)\\s*$/iu);
+            const participant = line.match(/^\s*(?:participant|actor)\s+([A-Za-z_][\w.-]*)\s+as\s+(.+?)\s*$/iu);
             if (participant) nodes.set(participant[1], cleanLabel(participant[2]));
           }
           const resolveNode = token => {
-            const idMatch = String(token || '').match(/[A-Za-z_][\\w.-]*/u);
+            const idMatch = String(token || '').match(/[A-Za-z_][\w.-]*/u);
             if (!idMatch) return '';
             const id = idMatch[0];
             return nodes.get(id) || id.replace(/[-_]+/gu, ' ');
@@ -4015,9 +4015,9 @@
             const key = clean.toLocaleLowerCase('fr-FR');
             if (clean && !seen.has(key)) { seen.add(key); relationships.push(clean); }
           };
-          for (const line of raw.split('\\n')) {
-            if (/^\\s*(?:%%|#|flowchart\\b|graph\\b|sequenceDiagram\\b|classDiagram\\b|stateDiagram\\b|erDiagram\\b|journey\\b|gantt\\b|mindmap\\b|subgraph\\b|end\\s*$|direction\\b|participant\\b|actor\\b|autonumber\\b)/iu.test(line)) continue;
-            const sequence = line.match(/^\\s*([A-Za-z_][\\w.-]*)\\s*(-{1,}(?:>>|>|x|o)|={1,}>|\\.{1,}-{1,}>|<-->|<--|<->)\\s*([A-Za-z_][\\w.-]*)\\s*:\\s*(.+?)\\s*$/u);
+          for (const line of raw.split('\n')) {
+            if (/^\s*(?:%%|#|flowchart\b|graph\b|sequenceDiagram\b|classDiagram\b|stateDiagram\b|erDiagram\b|journey\b|gantt\b|mindmap\b|subgraph\b|end\s*$|direction\b|participant\b|actor\b|autonumber\b)/iu.test(line)) continue;
+            const sequence = line.match(/^\s*([A-Za-z_][\w.-]*)\s*(-{1,}(?:>>|>|x|o)|={1,}>|\.{1,}-{1,}>|<-->|<--|<->)\s*([A-Za-z_][\w.-]*)\s*:\s*(.+?)\s*$/u);
             if (sequence) {
               const from = resolveNode(sequence[1]);
               const to = resolveNode(sequence[3]);
@@ -4025,9 +4025,9 @@
               addRelation(from + ' envoie ' + (message ? 'le message « ' + message + ' »' : 'un message') + ' à ' + to + '.');
               continue;
             }
-            const labelledEdge = line.match(/^\\s*([A-Za-z_][\\w.-]*)\\s*(-->|-\\.->|==>|---|->|=>|→|⇒)\\s*\\|([^|]+)\\|\\s*([A-Za-z_][\\w.-]*)/u);
-            const dashedLabelEdge = line.match(/^\\s*([A-Za-z_][\\w.-]*)\\s+--\\s+(.+?)\\s+-->\\s*([A-Za-z_][\\w.-]*)/u);
-            const simpleEdge = line.match(/^\\s*([A-Za-z_][\\w.-]*)\\s*(<-->|<->|<--|<-|-->|-\\.->|==>|---|--o|--x|->|=>|→|←|↔|⇒|⇢)\\s*([A-Za-z_][\\w.-]*)/u);
+            const labelledEdge = line.match(/^\s*([A-Za-z_][\w.-]*)\s*(-->|-\.->|==>|---|->|=>|→|⇒)\s*\|([^|]+)\|\s*([A-Za-z_][\w.-]*)/u);
+            const dashedLabelEdge = line.match(/^\s*([A-Za-z_][\w.-]*)\s+--\s+(.+?)\s+-->\s*([A-Za-z_][\w.-]*)/u);
+            const simpleEdge = line.match(/^\s*([A-Za-z_][\w.-]*)\s*(<-->|<->|<--|<-|-->|-\.->|==>|---|--o|--x|->|=>|→|←|↔|⇒|⇢)\s*([A-Za-z_][\w.-]*)/u);
             const edge = labelledEdge
               ? { from: labelledEdge[1], to: labelledEdge[4], label: cleanLabel(labelledEdge[3]), arrow: labelledEdge[2] }
               : dashedLabelEdge
@@ -4094,7 +4094,7 @@
             || /(?:--+>|-{2,}|==>|->|<->|→|←|↔)/u.test(source);
           const spoken = [];
           if (caption) spoken.push((root.dataset.diagramType || 'Schéma') + ' : ' + caption + '.');
-          if (source && /(?:flowchart\\b|graph\\s+(?:TD|TB|BT|RL|LR)|sequenceDiagram\\b|classDiagram\\b|stateDiagram\\b|erDiagram\\b)/iu.test(source)) {
+          if (source && /(?:flowchart\b|graph\s+(?:TD|TB|BT|RL|LR)|sequenceDiagram\b|classDiagram\b|stateDiagram\b|erDiagram\b)/iu.test(source)) {
             spoken.push(...this.speechTextFromMermaidDiagram(source, svg));
           } else if (source && ascii) {
             spoken.push(...this.speechTextFromAsciiDiagram(source));
