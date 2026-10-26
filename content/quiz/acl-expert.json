@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour ACL & filtrage - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel est le premier contrôle avant une modification globale d’ACL sur un réseau critique ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Remplacer toutes les ACL par permit any",
+        "Analyser le diff, le périmètre, les dépendances et un plan de retour arrière",
+        "Supprimer les compteurs avant la revue",
+        "Appliquer le changement sans test"
+      ],
+      "answer": 1,
+      "explanation": "Les ACL peuvent couper l’administration ou des flux applicatifs ; l’impact doit être évalué avant le déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une ACL stateless peut-elle être insuffisante pour certaines politiques applicatives ?",
+      "choices": [
+        "Elle ne suit pas à elle seule l’état d’une session de transport",
+        "Elle ne peut pas comparer d’adresse IP",
+        "Elle chiffre automatiquement les flux",
+        "Elle remplace la table de routage"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une ACL classique traite les paquets selon les règles ; un pare-feu stateful suit l’état des connexions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème peut provoquer une règle de journalisation trop large ?",
+      "choices": [
+        "La suppression du routage IPv4",
+        "L’invalidation des certificats TLS",
+        "La modification des adresses source",
+        "Un volume de logs élevé qui surcharge la supervision ou masque les événements importants"
+      ],
+      "answer": 3,
+      "explanation": "La journalisation doit être ciblée et son débit maîtrisé pour garder des logs exploitables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’une règle masquée ou shadowed ?",
+      "choices": [
+        "Une règle qui remplace physiquement le câble",
+        "Une règle sans adresse IP source",
+        "Une règle qui ne peut jamais correspondre parce qu’une règle précédente couvre déjà son trafic",
+        "Une règle qui désactive le serveur DHCP"
+      ],
+      "answer": 2,
+      "explanation": "L’analyse d’ordre aide à détecter les entrées inatteignables ou redondantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les ACL IPv6 nécessitent-elles leur propre revue au lieu de supposer que l’ACL IPv4 suffit ?",
+      "choices": [
+        "IPv6 utilise toujours la même adresse que IPv4",
+        "IPv4 et IPv6 sont des plans de filtrage distincts et peuvent suivre des règles différentes",
+        "Une ACL IPv4 filtre automatiquement tous les paquets IPv6",
+        "IPv6 n’utilise aucun protocole de contrôle"
+      ],
+      "answer": 1,
+      "explanation": "Il faut contrôler explicitement les chemins IPv4 et IPv6 pour éviter qu’un protocole non filtré contourne la politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle prévient le mieux un verrouillage d’administration pendant une migration d’ACL ?",
+      "choices": [
+        "Une fenêtre de changement, un accès de secours testé et une application progressive",
+        "Le retrait des comptes locaux avant le test",
+        "La suppression de l’ancienne configuration au début",
+        "L’ouverture temporaire de tous les ports"
+      ],
+      "answer": 0,
+      "explanation": "Le plan doit permettre de restaurer l’accès si une règle coupe le canal de gestion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus complète après le déploiement d’une ACL ?",
+      "choices": [
+        "Le fait que la configuration soit acceptée par la CLI uniquement",
+        "Une capture d’écran de la liste des règles",
+        "Une seule connexion réussie",
+        "Tests positifs et négatifs, compteurs de règles, logs utiles et vérification des services"
+      ],
+      "answer": 3,
+      "explanation": "L’acceptation syntaxique ne garantit pas que les flux réels correspondent à la politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il réviser périodiquement les règles rarement utilisées ?",
+      "choices": [
+        "Elles augmentent la vitesse du lien",
+        "Elles ne peuvent jamais créer de risque",
+        "Elles peuvent être obsolètes ou conserver une autorisation injustifiée",
+        "Elles désactivent automatiquement le routage"
+      ],
+      "answer": 2,
+      "explanation": "Les règles inutiles augmentent la complexité, gênent le diagnostic et peuvent conserver des accès devenus injustifiés."
     }
   ]
 }
