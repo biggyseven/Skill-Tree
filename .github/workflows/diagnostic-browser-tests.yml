@@ -1,0 +1,57 @@
+name: Diagnostic browser regressions
+
+on:
+  pull_request:
+    branches:
+      - "feature/diagnostic-adaptive-feedback-20261026"
+      - "feature/lab-workspace"
+    paths:
+      - "static/**"
+      - "content/diagnostics/**"
+      - "tests/diagnostic-e2e/**"
+      - ".github/workflows/diagnostic-browser-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic-browser:
+    name: diagnostic-browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install application dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Install diagnostic Playwright runner
+        run: npm install --prefix tests/diagnostic-e2e --no-audit --no-fund
+
+      - name: Install Chromium and OS dependencies
+        run: tests/diagnostic-e2e/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Run diagnostic browser suite
+        run: npm --prefix tests/diagnostic-e2e test
+
+      - name: Upload Playwright diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostic-browser-test-results
+          path: tests/diagnostic-e2e/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
