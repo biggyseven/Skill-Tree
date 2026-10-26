@@ -312,3 +312,27 @@ test('la fenêtre du cours confine le focus clavier et le restitue à la fermetu
   await expect(reader).toBeHidden();
   await expect(searchInput).toBeFocused();
 });
+
+
+test('la navigation mobile garde des cibles tactiles suffisantes et indique la section active', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDashboard(page);
+
+  const nav = page.getByRole('navigation', { name: 'Navigation mobile' });
+  await expect(nav).toBeVisible();
+  const buttons = nav.getByRole('button');
+  await expect(buttons).toHaveCount(7);
+
+  const dimensions = await buttons.evaluateAll(items => items.map(button => ({
+    label: button.getAttribute('aria-label'),
+    height: button.getBoundingClientRect().height,
+  })));
+  expect(dimensions.every(item => item.height >= 48)).toBe(true);
+
+  const home = nav.getByRole('button', { name: 'Accueil', exact: true });
+  const labs = nav.getByRole('button', { name: 'Labs', exact: true });
+  await expect(home).toHaveAttribute('aria-current', 'page');
+  await labs.click();
+  await expect(labs).toHaveAttribute('aria-current', 'page');
+  await expect(home).not.toHaveAttribute('aria-current', 'page');
+});
