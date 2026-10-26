@@ -6,12 +6,67 @@ public /lab/ URL. A browser smoke test is still needed for end-to-end behavior.
 from pathlib import Path
 import unittest
 
+from app.db import connect, initialize
+from app.lab_routes import seed_lab_v2_catalog
+
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC_LAB = ROOT / "static" / "lab"
 
 
 class LabWorkspaceIntegrationTests(unittest.TestCase):
+    def test_database_initialization_provisions_lab_workspace_v2_tables(self):
+        conn = connect(":memory:")
+        try:
+            initialize(conn)
+            tables = {
+                row["name"]
+                for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            }
+            self.assertIn("labs", tables)
+            self.assertIn("lab_attempts", tables)
+
+            lab_columns = {row["name"] for row in conn.execute('PRAGMA table_info("labs")')}
+            self.assertTrue({
+                "id", "title", "level", "module", "prompt", "objectives", "hints",
+                "duration_min", "difficulty", "xp_reward", "badges", "schema_version",
+                "definition_json", "migration_note",
+            }.issubset(lab_columns))
+
+            attempt_columns = {row["name"] for row in conn.execute('PRAGMA table_info("lab_attempts")')}
+            self.assertTrue({
+                "id", "lab_id", "user_id", "started_at", "finished_at", "passed",
+                "config_snapshot", "check_result_json",
+            }.issubset(attempt_columns))
+        finally:
+            conn.close()
+
+    def test_startup_catalog_seed_imports_tracked_scenarios_idempotently(self):
+        conn = connect(":memory:")
+        try:
+            initialize(conn)
+            inserted = seed_lab_v2_catalog(conn)
+            ids = {
+                row["id"]
+                for row in conn.execute("SELECT id FROM labs")
+            }
+            self.assertGreaterEqual(inserted, 7)
+            self.assertIn("acl-debutant", ids)
+            self.assertIn("vlan-trunk", ids)
+            self.assertIn("secu-acl-intermediaire", ids)
+
+            # The bootstrap is safe across repeated starts and does not overwrite
+            # metadata that already exists in a user's persistent database.
+            conn.execute("UPDATE labs SET title = ? WHERE id = ?", ("Titre conservé", "acl-debutant"))
+            conn.commit()
+            self.assertEqual(seed_lab_v2_catalog(conn), 0)
+            title = conn.execute(
+                "SELECT title FROM labs WHERE id = ?", ("acl-debutant",)
+            ).fetchone()["title"]
+            self.assertEqual(title, "Titre conservé")
+        finally:
+            conn.close()
+
     def test_vite_base_matches_the_published_static_mount(self):
         vite_config = (ROOT / "app" / "lab-workspace" / "vite.config.js").read_text(encoding="utf-8-sig")
         entrypoint = (STATIC_LAB / "index.html").read_text(encoding="utf-8")

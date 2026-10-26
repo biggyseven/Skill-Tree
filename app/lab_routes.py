@@ -312,6 +312,28 @@ def _ensure_lab_catalog_row(
     )
 
 
+def seed_lab_v2_catalog(conn: sqlite3.Connection) -> int:
+    """Insère sans écraser les scénarios v2 distribués avec le code source.
+
+    La base SQLite est volontairement ignorée par Git : un déploiement neuf doit
+    reconstruire le catalogue depuis les fichiers versionnés, pas depuis la base
+    personnelle d'un développeur.
+    """
+    inserted = 0
+    for lab_path in sorted(LABS_V2_DIR.glob("*.json")):
+        payload = _load_lab_file(lab_path.stem)
+        if payload is None:
+            continue
+        existed = conn.execute(
+            "SELECT 1 FROM labs WHERE id = ?", (lab_path.stem,)
+        ).fetchone()
+        _ensure_lab_catalog_row(conn, lab_path.stem, payload["definition"])
+        if existed is None:
+            inserted += 1
+    conn.commit()
+    return inserted
+
+
 def _course_lab_context(conn: sqlite3.Connection, lab_id: str) -> dict[str, Any] | None:
     """Retourne le lien vers une exigence de lab du parcours, si les schémas le permettent."""
     tables = {

@@ -1,0 +1,174 @@
+{
+  "schema_version": 2,
+  "id": "acl-debutant",
+  "title": "ACL standard — Bloquer un poste invité",
+  "level": "debutant",
+  "module": "Cybersécurité",
+  "duration_min": 15,
+  "difficulty": "débutant",
+  "prompt": "Un poste invité (192.168.10.50) ne doit pas pouvoir accéder au réseau du serveur. Configurez une ACL standard numérotée 10 sur R1 : bloquez ce poste, autorisez les autres sources, puis appliquez l'ACL en entrée sur Fa0/0, côté réseau invité.",
+  "objectives": [
+    "Créer une ACL standard numérotée 10 qui refuse la source 192.168.10.50.",
+    "Autoriser les autres sources avec permit any.",
+    "Appliquer l'ACL 10 en entrée sur l'interface Fa0/0 de R1.",
+    "Comprendre pourquoi l'ordre des règles et le deny implicite sont importants."
+  ],
+  "hints": [
+    "Une ACL standard filtre principalement sur l'adresse IP source.",
+    "Ajoutez d'abord la règle deny, puis la règle permit any.",
+    "Sur R1 : access-list 10 deny host 192.168.10.50 puis access-list 10 permit any.",
+    "Sur Fa0/0 : ip access-group 10 in."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "acl-debutant-topology",
+    "metadata": {
+      "name": "ACL standard : réseau invité et serveur",
+      "author": "Skill-Tree",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 390,
+        "y": 210,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "access_group_in": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "routed",
+            "ip": "10.0.0.1",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "acls": []
+        }
+      },
+      {
+        "id": "INVITE",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 100,
+        "y": 210,
+        "label": "Poste invité",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "mode": "access",
+            "ip": "192.168.10.50",
+            "mask": "255.255.255.0",
+            "description": "Source à bloquer"
+          }
+        ],
+        "config": {
+          "hostname": "INVITE"
+        }
+      },
+      {
+        "id": "SERVEUR",
+        "type": "server",
+        "model": "generic-server",
+        "x": 720,
+        "y": 210,
+        "label": "Serveur",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "mode": "access",
+            "ip": "10.0.0.5",
+            "mask": "255.255.255.0",
+            "description": "Serveur protégé"
+          }
+        ],
+        "config": {
+          "hostname": "SERVEUR"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "acl-link-invite",
+        "from": {
+          "node": "INVITE",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "acl-link-serveur",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "SERVEUR",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "acl10-deny-guest",
+        "description": "L'ACL 10 bloque le poste invité",
+        "device": "R1",
+        "path": "config.acls",
+        "operator": "contains",
+        "expected": "10 deny host 192.168.10.50"
+      },
+      {
+        "id": "acl10-permit-rest",
+        "description": "L'ACL 10 autorise les autres sources",
+        "device": "R1",
+        "path": "config.acls",
+        "operator": "contains",
+        "expected": "10 permit any"
+      },
+      {
+        "id": "acl10-applied-inbound",
+        "description": "L'ACL 10 est appliquée en entrée sur Fa0/0",
+        "device": "R1",
+        "path": "ports[0].access_group_in",
+        "operator": "equals",
+        "expected": 10
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 50,
+  "badges": []
+}

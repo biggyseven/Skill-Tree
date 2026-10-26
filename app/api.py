@@ -42,7 +42,7 @@ from .labs_runner import (
     LabRunnerError, LabSessionError, exec_in_lab, start_interactive_lab, validate_lab,
 )
 from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons
-from .lab_routes import router as lab_v2_router
+from .lab_routes import router as lab_v2_router, seed_lab_v2_catalog
 from .lab_schema_v2 import Topology
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -138,6 +138,7 @@ async def lifespan(_app: FastAPI):
     conn = connect(DB_PATH)
     try:
         ensure_ready(conn)
+        seed_lab_v2_catalog(conn)
     finally:
         conn.close()
     yield

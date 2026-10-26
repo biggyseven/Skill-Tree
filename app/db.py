@@ -52,6 +52,39 @@ CREATE TABLE IF NOT EXISTS lab_specs (
     hint    TEXT NOT NULL DEFAULT ''
 );
 
+-- Schéma persistant du Lab Workspace v2. Ces tables doivent exister sur tout
+-- environnement démarré depuis le dépôt, sans dépendre d'une base locale ignorée.
+CREATE TABLE IF NOT EXISTS labs (
+    id              TEXT PRIMARY KEY,
+    title           TEXT NOT NULL,
+    level           TEXT NOT NULL DEFAULT 'débutant',
+    module          TEXT NOT NULL DEFAULT 'Général',
+    prompt          TEXT NOT NULL DEFAULT '',
+    objectives      TEXT NOT NULL DEFAULT '[]',
+    hints           TEXT NOT NULL DEFAULT '[]',
+    duration_min    INTEGER NOT NULL DEFAULT 15,
+    difficulty      TEXT NOT NULL DEFAULT 'débutant',
+    xp_reward       INTEGER NOT NULL DEFAULT 0 CHECK (xp_reward >= 0),
+    badges          TEXT NOT NULL DEFAULT '[]',
+    schema_version  INTEGER NOT NULL DEFAULT 2,
+    definition_json TEXT NOT NULL DEFAULT '{}',
+    migration_note  TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS lab_attempts (
+    id                TEXT PRIMARY KEY,
+    lab_id            TEXT NOT NULL REFERENCES labs(id) ON DELETE CASCADE,
+    user_id           TEXT,
+    started_at        TEXT NOT NULL,
+    finished_at       TEXT NOT NULL,
+    passed            INTEGER NOT NULL DEFAULT 0 CHECK (passed IN (0, 1)),
+    config_snapshot   TEXT NOT NULL DEFAULT '{}',
+    check_result_json TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE INDEX IF NOT EXISTS idx_lab_attempts_lab_finished
+    ON lab_attempts(lab_id, finished_at);
+
 CREATE TABLE IF NOT EXISTS questions (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     node_id     TEXT NOT NULL REFERENCES nodes(id) ON DELETE CASCADE,
