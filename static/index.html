@@ -4703,7 +4703,7 @@
         resetExam() { this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false; },
 
         // ---------- labs ----------
-        labIndex: {}, labIndexBusy: false, labIndexDone: 0, labCatalogLoaded: false, labCatalog: [], labFilter: { module: 'all', level: 'all' },
+        labIndex: {}, labIndexBusy: false, labIndexDone: 0, labCatalogLoaded: false, labCatalog: [], labIndexTask: null, labFilter: { module: 'all', level: 'all' },
         labsDone: LS.get('labs-done', []), labSteps: LS.get('lab-steps', {}), labHints: {},
         get labNodes() {
           const catalogById = new Map((this.labCatalog || []).map(lab => [String(lab.id), lab]));
@@ -4737,67 +4737,77 @@
           );
         },
         async loadLabIndex() {
-          // Les résultats déjà résolus restent en mémoire quand on quitte puis revient dans Labs.
-          // En revanche, une erreur réseau/HTTP ne doit pas être mise en cache comme « aucun lab ».
-          if (this.labIndexBusy) return;
+          // Le catalogue v2 pilote l'affichage initial; l'index historique se remplit en parallèle.
+          // Une tâche unique empêche de relancer des centaines de requêtes lors d'un aller-retour d'onglet.
+          if (this.labIndexTask) return;
           const todo = this.nodes.filter(n => !(n.id in this.labIndex));
           const needsCatalog = !this.labCatalogLoaded;
           if (!todo.length && !needsCatalog) return;
 
-          this.labIndexBusy = true;
+          this.labIndexBusy = needsCatalog;
           this.labIndexDone = 0;
           let i = 0;
-          try {
-            const worker = async () => {
-              while (i < todo.length) {
-                const n = todo[i++];
-                try {
-                  const r = await fetch(`/api/node/${encodeURIComponent(n.id)}`);
-                  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-                  const d = await r.json();
-                  this.labIndex[n.id] = d.lab || null;
-                } catch (e) {
-                  delete this.labIndex[n.id];
-                  console.warn(`Impossible de charger l’index du lab ${n.id}; une nouvelle tentative sera faite au prochain accès.`, e);
-                }
-                this.labIndexDone++;
-              }
-            };
-            await Promise.all([worker(), worker(), worker(), worker(), worker()]);
-
-            // Les labs v2 sont enregistrés dans la table « labs » et ne possèdent
-            // pas toujours de propriété lab dans le nœud du cours. Fusionner les deux
-            // sources permet de les afficher sans supprimer les labs historiques.
-            if (!this.labCatalogLoaded) {
+          const worker = async () => {
+            while (i < todo.length) {
+              const n = todo[i++];
               try {
-                const response = await fetch('/api/lab/v2');
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const catalog = await response.json();
-                if (!Array.isArray(catalog)) throw new Error('Format de catalogue invalide');
-                this.labCatalog = catalog.filter(lab => lab && typeof lab.id === 'string' && lab.id.trim());
-                for (const lab of this.labCatalog) {
-                  const id = String(lab.id);
-                  const current = this.labIndex[id] && typeof this.labIndex[id] === 'object'
-                    ? this.labIndex[id]
-                    : {};
-                  this.labIndex[id] = {
-                    ...current,
-                    kind: 'workspace-v2',
-                    duration: Number(lab.duration_min ?? current.duration) || null,
-                    difficulty: String(lab.difficulty || current.difficulty || ''),
-                    schema_version: Number(lab.schema_version || 2),
-                  };
-                }
-                this.labCatalogLoaded = true;
+                const r = await fetch(`/api/node/${encodeURIComponent(n.id)}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const d = await r.json();
+                const legacyLab = d.lab || null;
+                const current = this.labIndex[n.id];
+                // Un résultat tardif du chargement historique ne doit pas effacer un lab v2.
+                this.labIndex[n.id] = current?.kind === 'workspace-v2'
+                  ? { ...(legacyLab && typeof legacyLab === 'object' ? legacyLab : {}), ...current }
+                  : legacyLab;
               } catch (e) {
-                // Ne pas mémoriser un échec : le prochain accès à Labs réessaiera.
-                console.warn('Impossible de charger le catalogue Lab Workspace v2; une nouvelle tentative sera faite au prochain accès.', e);
+                if (this.labIndex[n.id]?.kind !== 'workspace-v2') delete this.labIndex[n.id];
+                console.warn(`Impossible de charger l’index du lab ${n.id}; une nouvelle tentative sera faite au prochain accès.`, e);
               }
+              this.labIndexDone++;
             }
-          } finally {
-            // Une erreur inattendue ne doit jamais laisser le catalogue bloqué en chargement.
+          };
+
+          const loadCatalog = async () => {
+            if (this.labCatalogLoaded) return;
+            try {
+              const response = await fetch('/api/lab/v2');
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              const catalog = await response.json();
+              if (!Array.isArray(catalog)) throw new Error('Format de catalogue invalide');
+              this.labCatalog = catalog.filter(lab => lab && typeof lab.id === 'string' && lab.id.trim());
+              for (const lab of this.labCatalog) {
+                const id = String(lab.id);
+                const current = this.labIndex[id] && typeof this.labIndex[id] === 'object'
+                  ? this.labIndex[id]
+                  : {};
+                this.labIndex[id] = {
+                  ...current,
+                  kind: 'workspace-v2',
+                  duration: Number(lab.duration_min ?? current.duration) || null,
+                  difficulty: String(lab.difficulty || current.difficulty || ''),
+                  schema_version: Number(lab.schema_version || 2),
+                };
+              }
+              this.labCatalogLoaded = true;
+            } catch (e) {
+              // Ne pas mémoriser un échec : le prochain accès à Labs réessaiera.
+              console.warn('Impossible de charger le catalogue Lab Workspace v2; une nouvelle tentative sera faite au prochain accès.', e);
+            } finally {
+              // L'interface peut afficher les cartes v2 dès que le catalogue a répondu.
+              this.labIndexBusy = false;
+            }
+          };
+
+          const catalogTask = loadCatalog();
+          const legacyTask = Promise.all([worker(), worker(), worker(), worker(), worker()]);
+          this.labIndexTask = Promise.allSettled([catalogTask, legacyTask]).finally(() => {
+            this.labIndexTask = null;
             this.labIndexBusy = false;
-          }
+          });
+
+          // Ne bloque pas l'ouverture de Labs sur toutes les requêtes de détail historiques.
+          await catalogTask;
         },
         openVisualLab() {
           if (!this.detail?.id) return;
