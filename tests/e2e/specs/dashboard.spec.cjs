@@ -488,6 +488,45 @@ test('le bouton pause flottant reste en bas à droite pendant le défilement et 
 });
 
 
+
+test('le sélecteur Démarrer à fait aussi commencer la lecture à la section choisie', async ({ page }) => {
+  await openDashboard(page);
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+  const lessonResult = results.locator('button').filter({
+    hasText: "Qu'est-ce qu'un réseau ? - Débutant",
+  }).first();
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
+
+  const article = page.locator('[x-ref="lessonArticle"]');
+  await expect(article).toBeVisible();
+  const headings = article.locator('h2[id]');
+  await expect.poll(() => headings.count()).toBeGreaterThan(1);
+  const targetHeading = headings.last();
+  const targetId = await targetHeading.getAttribute('id');
+  const targetText = (await targetHeading.innerText()).replace(/\s+/g, ' ').trim()
+    .replace(/^\s*\d+(?:\.\d+)*[.)]?\s+/u, '')
+    .replace(/[.!?…:;]+$/u, '')
+    .trim();
+
+  await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    state.playSpeechChunk = () => {};
+  });
+
+  await page.getByRole('combobox', {
+    name: 'Choisir le point de départ de la lecture du cours',
+  }).selectOption({ value: targetId });
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).startSectionSelection)).toBe(targetId);
+  await page.getByRole('button', { name: 'Écouter le cours' }).click();
+
+  const speechText = await page.evaluate(() => window.Alpine.$data(document.body).speechQueue.join(' '));
+  expect(speechText.startsWith('Section : ' + targetText + '.')).toBe(true);
+});
+
 test('le lecteur reprend la dernière section après fermeture et respecte le départ demandé', async ({ page }) => {
   await openDashboard(page);
 
