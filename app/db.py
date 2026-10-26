@@ -430,12 +430,13 @@ def _consume_streak_freezes(conn: sqlite3.Connection, last_day: date, today: dat
     )
 
 
-def _ensure_user_stats(conn: sqlite3.Connection) -> None:
+def _ensure_user_stats(conn: sqlite3.Connection, *, commit: bool = True) -> None:
     conn.execute(
         "INSERT OR IGNORE INTO user_stats (id, total_xp, current_level, coins)"
         " VALUES (1, 0, 1, 0)"
     )
-    conn.commit()
+    if commit:
+        conn.commit()
 
 
 def level_for_xp(total_xp: int) -> dict:
@@ -491,7 +492,8 @@ def get_user_stats(conn: sqlite3.Connection) -> dict:
 def add_xp(conn: sqlite3.Connection, amount: int, coins: int = 0) -> dict:
     amount = max(0, int(amount))
     coins = max(0, int(coins))
-    _ensure_user_stats(conn)
+    # Ne pas interrompre une transaction englobante (ex. soumission d'un lab).
+    _ensure_user_stats(conn, commit=False)
     row = conn.execute("SELECT total_xp, coins FROM user_stats WHERE id = 1").fetchone()
     total_xp = (int(row["total_xp"] or 0) if row else 0) + amount
     total_coins = (int(row["coins"] or 0) if row else 0) + coins
