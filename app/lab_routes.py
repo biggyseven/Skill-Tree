@@ -904,7 +904,7 @@ def list_labs_v2() -> list[dict[str, Any]]:
             catalog.append({
                 "id": lab_id,
                 "title": str(metadata.get("title") or definition.title or row.get("title") or lab_id),
-                "level": str(row.get("level") or definition.level or "débutant"),
+                "level": str(definition.level or row.get("level") or "débutant"),
                 "module": str(metadata.get("module") or definition.module or row.get("module") or "Général"),
                 "duration_min": int(definition.duration_min or row.get("duration_min") or 15),
                 "difficulty": str(definition.difficulty or row.get("difficulty") or definition.level or "débutant"),
