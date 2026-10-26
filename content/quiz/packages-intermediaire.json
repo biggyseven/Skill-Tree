@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Gestion de parc et patch management",
+      "prompt": "Quelle commande aide à voir la version installée, la version candidate et les sources de version d’un paquet `nginx` ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`dpkg -L nginx`",
+        "`apt-mark showhold nginx`",
+        "`systemctl status nginx`",
+        "`apt-cache policy nginx`"
+      ],
+      "answer": 3,
+      "explanation": "`apt-cache policy` montre notamment la version installée, la candidate et les priorités des sources disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment simuler une mise à niveau avec APT pour examiner les changements avant de les appliquer ?",
+      "choices": [
+        "`apt-get -s upgrade`",
+        "`apt-get --purge /`",
+        "`dpkg --force-all upgrade`",
+        "`systemctl restart apt`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "L’option `-s` simule l’opération et affiche les actions prévues sans effectuer la transaction habituelle d’installation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’effet de `sudo apt-mark hold paquet` ?",
+      "choices": [
+        "Il supprime le paquet et ses dépendances",
+        "Il met en pause tous les services Linux",
+        "Il marque le paquet comme retenu pour empêcher sa mise à niveau automatique ordinaire",
+        "Il efface les index des dépôts"
+      ],
+      "answer": 2,
+      "explanation": "Un paquet retenu est exclu des mises à niveau ordinaires tant que la retenue n’est pas levée ; cette exception doit être suivie et réévaluée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande affiche les chemins de fichiers installés par le paquet `nginx` selon la base `dpkg` ?",
+      "choices": [
+        "`apt update nginx`",
+        "`dpkg -L nginx`",
+        "`ip -s link nginx`",
+        "`journalctl -u nginx --files`"
+      ],
+      "answer": 1,
+      "explanation": "`dpkg -L` liste les chemins enregistrés pour le paquet installé ; les fichiers créés après installation peuvent ne pas être tous répertoriés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une interruption laissant des paquets dépaquetés mais non configurés, quelle commande peut terminer leur configuration ?",
+      "choices": [
+        "`apt purge /var/lib/dpkg`",
+        "`rm -rf /var/lib/dpkg/lock*`",
+        "`systemctl enable dpkg`",
+        "`sudo dpkg --configure -a`"
+      ],
+      "answer": 3,
+      "explanation": "`dpkg --configure -a` tente de configurer les paquets dépaquetés en attente ; il faut d’abord vérifier qu’aucune autre opération de paquetage n’est en cours."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande peut tenter de corriger des dépendances APT non satisfaites ?",
+      "choices": [
+        "`sudo apt --fix-broken install`",
+        "`sudo chmod -R 777 /usr`",
+        "`sudo apt autoremove --purge '*'`",
+        "`sudo dpkg -i --force-all /`"
+      ],
+      "answer": 0,
+      "explanation": "`apt --fix-broken install` demande à APT de proposer une résolution des dépendances cassées ; il faut examiner le plan proposé avant de confirmer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’option `signed-by=` est-elle utile dans une source APT ?",
+      "choices": [
+        "Elle désactive la signature des paquets",
+        "Elle force l’installation en root sans contrôle",
+        "Elle restreint la clé utilisée pour authentifier les métadonnées de cette source au trousseau indiqué",
+        "Elle rend tous les paquets disponibles hors ligne"
+      ],
+      "answer": 2,
+      "explanation": "Lier une source à un trousseau dédié limite les clés considérées pour cette source au lieu d’accorder une confiance globale et implicite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement le pinning APT défini dans les préférences ?",
+      "choices": [
+        "À donner une adresse IP fixe au serveur de dépôt",
+        "À influencer la sélection des versions selon des priorités configurées",
+        "À chiffrer tous les fichiers de configuration",
+        "À lancer les mises à jour à heure fixe sans ordonnanceur"
+      ],
+      "answer": 1,
+      "explanation": "Les priorités APT permettent d’influencer la version candidate entre versions ou dépôts ; une règle trop large peut sélectionner une version inattendue."
     }
   ]
 }
