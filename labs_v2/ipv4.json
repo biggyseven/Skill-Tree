@@ -6,7 +6,7 @@
   "module": "Réseaux",
   "duration_min": 20,
   "difficulty": "débutant",
-  "prompt": "Une petite agence possède deux postes qui doivent communiquer sur le même réseau local. La topologie PC-A — SW1 — PC-B est déjà préparée. Sélectionnez PC-A puis PC-B : dans l’onglet Hardware, renseignez l’adresse IPv4 et le masque, puis cliquez « Appliquer l’adresse ». Activez leurs interfaces. Sélectionnez ensuite SW1, ouvrez Hardware et activez les ports Fa0/1 et Fa0/2. Les deux postes doivent utiliser le réseau 192.168.10.0/24. Vous pouvez aussi configurer les PC depuis la console CLI. Quand les huit contrôles passent, cliquez sur « Vérifier », puis sur « Soumettre » pour enregistrer la tentative.",
+  "prompt": "Une petite agence possède deux postes qui doivent communiquer sur le même réseau local. La topologie PC-A — SW1 — PC-B est déjà préparée. Configurez PC-A en 192.168.10.10/24 et PC-B en 192.168.10.20/24. Sélectionnez PC-A puis PC-B : dans l’onglet Hardware, renseignez l’adresse IPv4 et le masque, puis cliquez « Appliquer l’adresse ». Activez leurs interfaces. Sélectionnez ensuite SW1, ouvrez Hardware et activez les ports Fa0/1 et Fa0/2. Les deux postes doivent utiliser le réseau 192.168.10.0/24. Vous pouvez aussi configurer les PC depuis la console CLI. Quand les huit contrôles passent, cliquez sur « Vérifier », puis sur « Soumettre » pour enregistrer la tentative.",
   "objectives": [
     "Vérifier la topologie préchargée PC-A — SW1 — PC-B",
     "Configurer PC-A : 192.168.10.10 avec le masque 255.255.255.0 (/24)",
