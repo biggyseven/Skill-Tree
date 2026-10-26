@@ -8,6 +8,8 @@
 
 > **Lien avec le parcours DevOps IaC :** ce cours met en pratique Terraform sur des architectures réseau, des modules et des dépendances. Le niveau intermédiaire IaC se concentre sur l’organisation des équipes, les contrats de composants et les contrôles de livraison, indépendamment de la syntaxe d’un outil.
 
+> **Mise en contexte.** Une équipe réseau doit maintenir une architecture cloud composée d’un réseau virtuel et de plusieurs sous-réseaux, puis reproduire le modèle dans les environnements de test et de production. Le défi porte sur les modules, les CIDR, les dépendances, les tests et la revue du plan. Les exemples doivent être contrôlés avant toute application afin d’éviter une création facturable ou le remplacement imprévu d’une ressource partagée.
+
 ## Sommaire
 
 1. Contexte et objectifs
@@ -24,7 +26,8 @@
 12. Atelier pratique
 13. Dépannage
 14. Évaluation corrigée
-15. Préparation du niveau expert
+15. Défi final corrigé : livrer une infrastructure réseau contrôlée
+16. Préparation du niveau expert
 
 
 # 1. Contexte et objectifs
@@ -906,7 +909,73 @@ Vérifiez si une opération est toujours active avant de tenter de récupérer u
 10. Pour limiter les effets d'un workflow compromis, d'un code non fiable ou d'une erreur de configuration.
 
 
-# 15. Préparation du niveau expert
+# 15. Défi final corrigé : livrer une infrastructure réseau contrôlée
+
+## Situation
+
+Une équipe souhaite ajouter un sous-réseau à un réseau cloud existant. Le changement doit être réutilisable dans les environnements de test et de production. Le premier plan proposé annonce le remplacement du réseau virtuel et la recréation d’un sous-réseau déjà utilisé.
+
+## Travail demandé
+
+1. Propose l’interface d’un module réseau réutilisable : entrées, sorties, hypothèses et responsabilités.
+2. Indique les contrôles nécessaires sur le CIDR du réseau et des sous-réseaux.
+3. Décris la stratégie d’identification des ressources afin qu’une modification de clé ne provoque pas inutilement une suppression et une création.
+4. Prépare une chaîne de validation qui sépare les tests et la génération du plan de l’autorisation d’appliquer.
+5. Explique comment traiter le plan qui annonce un remplacement inattendu.
+6. Précise ce qui doit varier entre les environnements et ce qui doit rester versionné et revu.
+
+## Correction attendue
+
+**Interface et responsabilités du module**
+
+- Entrées : identifiant d’environnement, CIDR du réseau, CIDR des sous-réseaux, options explicitement documentées et paramètres nécessaires à la plateforme.
+- Sorties : identifiants des ressources créées et valeurs que les autres modules peuvent consommer.
+- Contrat : limites de gestion, contraintes de CIDR, dépendances, politique de tags et exigences de sécurité.
+- Responsabilité : une ressource doit avoir une source de gestion de référence. Deux outils ne doivent pas la modifier indépendamment sans stratégie documentée.
+
+**Validation réseau**
+
+Vérifie que chaque sous-réseau appartient au réseau parent, que les plages ne se chevauchent pas et que les tailles sont adaptées au besoin. Ne te contente pas de comparer des chaînes de texte : applique des contrôles adaptés aux valeurs CIDR. Utilise des clés stables pour les instances gérées et conserve la stratégie de versions des providers et modules.
+
+**Chaîne de livraison recommandée**
+
+~~~text
+Pull request
+    |
+    v
+Formatage + validation
+    |
+    v
+Tests de modules et de contraintes
+    |
+    v
+Plan pour l'environnement ciblé
+    |
+    v
+Revue des créations, mises à jour,
+remplacements et destructions
+    |
+    v
+Approbation protégée
+    |
+    v
+Application du plan approuvé
+    |
+    v
+Vérification post-déploiement
+~~~
+
+Les vérifications statiques et les tests doivent s’exécuter sans privilèges de production lorsque c’est possible. L’application utilise une identité dédiée avec les droits nécessaires et intervient uniquement après approbation. Les valeurs d’environnement doivent être visibles et validées ; les secrets restent dans un mécanisme dédié.
+
+**Traitement du remplacement inattendu**
+
+N’applique pas le plan. Identifie l’attribut qui entraîne le remplacement, les modifications de configuration, les dépendances, la version du provider et l’état réel des ressources. Vérifie si le changement était intentionnel. Si la proposition est justifiée, prépare une procédure de migration ou une fenêtre adaptée, avec critères de réussite et retour arrière. Produis ensuite un nouveau plan et fais-le examiner. Une validation syntaxique réussie ne constitue pas une approbation opérationnelle.
+
+## Critères de réussite
+
+Le livrable montre une interface de module explicite, des contrôles CIDR testables, des clés de ressources stables, une chaîne de validation distincte de l’application et une réaction sûre face à un remplacement inattendu.
+
+# 16. Préparation du niveau expert
 
 Le niveau expert abordera :
 
