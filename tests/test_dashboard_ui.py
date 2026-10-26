@@ -567,11 +567,12 @@ class DashboardUiRegressionTests(unittest.TestCase):
         end = DASHBOARD_HTML.index("openVisualLab()", start)
         load_index = DASHBOARD_HTML[start:end]
 
-        self.assertIn("if (this.labIndexBusy) return;", load_index)
+        self.assertIn("if (this.labIndexTask) return;", load_index)
         self.assertIn("const todo = this.nodes.filter(n => !(n.id in this.labIndex))", load_index)
         self.assertIn('const r = await fetch(`/api/node/${encodeURIComponent(n.id)}`)', load_index)
         self.assertIn("if (!r.ok) throw new Error(`HTTP ${r.status}`)", load_index)
-        self.assertIn("this.labIndex[n.id] = d.lab || null;", load_index)
+        self.assertIn("const legacyLab = d.lab || null;", load_index)
+        self.assertIn("this.labIndex[n.id] = current?.kind === 'workspace-v2'", load_index)
         self.assertIn("delete this.labIndex[n.id];", load_index)
         self.assertIn("une nouvelle tentative sera faite au prochain accès", load_index)
 
