@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Observabilité avancée (Tracing, Logs)",
+      "prompt": "Quel signal est la principale valeur ajoutée du distributed tracing par rapport aux seules métriques ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il remplace la supervision de capacité",
+        "Il permet de suivre une requête à travers plusieurs composants et d’examiner les durées et relations entre spans",
+        "Il garantit que tous les appels sont sans erreur",
+        "Il stocke automatiquement tous les journaux dans Prometheus"
+      ],
+      "answer": 1,
+      "explanation": "Une trace relie les opérations d’une requête distribuée à l’aide de spans et de leurs relations. Elle facilite l’analyse d’un parcours lent ou en erreur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent `trace_id` et `span_id` ?",
+      "choices": [
+        "Le `trace_id` identifie la trace globale et le `span_id` identifie un span au sein de celle-ci",
+        "Le `trace_id` contient le mot de passe du service et le `span_id` l’adresse IP",
+        "Ils servent uniquement à identifier les métriques Prometheus",
+        "Le `span_id` est toujours identique à celui du span parent"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le trace ID corrèle les spans d’une même trace ; le span ID identifie une opération précise. Ils peuvent aussi être ajoutés aux logs pour la corrélation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi propager le contexte distribué entre les services ?",
+      "choices": [
+        "Pour éviter que les services aient des horloges",
+        "Pour chiffrer automatiquement toutes les requêtes",
+        "Pour attribuer une adresse IP virtuelle aux spans",
+        "Pour conserver le lien de corrélation entre spans lors du passage d’une requête d’un service à l’autre"
+      ],
+      "answer": 3,
+      "explanation": "Sans propagation du contexte, une requête peut être fragmentée en traces indépendantes. Des en-têtes comme W3C Trace Context portent le contexte à travers les frontières de service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un OpenTelemetry Collector ?",
+      "choices": [
+        "Il remplace le code de chaque application et l’instrumentation de toute bibliothèque",
+        "Il peut recevoir, traiter et exporter les signaux, en centralisant des fonctions comme filtrage, enrichissement et batch selon sa configuration",
+        "Il est obligatoire pour chaque déploiement OpenTelemetry, quelles que soient les contraintes",
+        "Il stocke par défaut toutes les traces indéfiniment"
+      ],
+      "answer": 1,
+      "explanation": "Le Collector peut découpler l’instrumentation des backends et appliquer des processors/exporters. Il faut dimensionner les pipelines, la mémoire et les mécanismes de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le tail sampling peut-il conserver certaines traces après observation de leur contenu ou de leur statut ?",
+      "choices": [
+        "Parce qu’il prend la décision après avoir collecté les spans nécessaires, selon une politique, au prix de mémoire et de coordination supplémentaires",
+        "Parce qu’il sélectionne toutes les traces avant l’arrivée du premier span",
+        "Parce qu’il ne nécessite aucune capacité de stockage ou de traitement",
+        "Parce qu’il transforme automatiquement les traces en métriques"
+      ],
+      "answer": 0,
+      "explanation": "Le tail sampling décide à partir des spans observés pour une trace, par exemple selon l’erreur ou la latence. Il nécessite une configuration et un dimensionnement adaptés, notamment en déploiement distribué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque existe si des identifiants utilisateur ou des données secrètes sont ajoutés comme attributs de span ?",
+      "choices": [
+        "Ils rendent toujours les traces plus rapides à rechercher",
+        "Ils empêchent de créer un span parent",
+        "Ils peuvent exposer des données sensibles et faire croître fortement la cardinalité ou le coût de stockage",
+        "Ils sont automatiquement anonymisés par OpenTelemetry"
+      ],
+      "answer": 2,
+      "explanation": "Les attributs de télémétrie doivent être minimisés et gouvernés. Les secrets et données personnelles ne doivent pas être capturés sans justification, contrôle et protection adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi corréler les logs à des `trace_id` et `span_id` lorsqu’ils sont disponibles ?",
+      "choices": [
+        "Pour supprimer la nécessité de synchroniser l’heure",
+        "Pour retrouver les événements applicatifs associés à une trace et examiner leur contexte sans se fier uniquement au message textuel",
+        "Pour remplacer les métriques de service",
+        "Pour garantir que chaque log correspond à un incident"
+      ],
+      "answer": 1,
+      "explanation": "Les identifiants permettent de naviguer entre la trace et les journaux corrélés. Ils complètent les horodatages et les autres preuves sans garantir qu’une trace existe pour chaque requête."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche permet de réduire le coût de l’observabilité en production sans perdre aveuglément les signaux critiques ?",
+      "choices": [
+        "Supprimer les logs d’erreur et les métriques métier",
+        "Échantillonner toutes les traces de manière identique sans analyser leur utilité",
+        "Conserver indéfiniment toutes les données et labels",
+        "Définir les objectifs, gérer la cardinalité et la rétention, appliquer un échantillonnage adapté et mesurer la couverture/qualité des données"
+      ],
+      "answer": 3,
+      "explanation": "Le coût doit être traité avec des objectifs et des garde-fous. L’échantillonnage, la rétention et les attributs doivent préserver la capacité d’analyse des incidents importants."
     }
   ]
 }
