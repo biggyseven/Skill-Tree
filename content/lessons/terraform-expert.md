@@ -8,6 +8,8 @@
 
 > **Lien avec le parcours DevOps IaC :** ce cours approfondit les mécanismes Terraform de production, notamment le state, les plans, la dérive et les opérations contrôlées. Le cours expert IaC traite plutôt du modèle opérationnel d’entreprise, de la gouvernance multi-outils, du catalogue, des coûts et de la résilience de la plateforme.
 
+> **Mise en contexte.** Une équipe exploite Terraform en production avec un state distant et plusieurs chaînes d’exécution. Un plan généré la veille propose aujourd’hui de remplacer une passerelle partagée, tandis qu’un verrou de state semble toujours détenu par un autre traitement. La mission consiste à déterminer les preuves à collecter, les contrôles à réexécuter et les autorisations nécessaires avant de modifier la production.
+
 ## Sommaire
 
 1. Architecture d'entreprise
@@ -26,6 +28,7 @@
 14. Atelier expert
 15. Étude de défaillance
 16. Évaluation corrigée
+17. Défi final corrigé : sécuriser un changement Terraform en production
 
 
 # 1. Architecture d'entreprise
@@ -1086,6 +1089,35 @@ Il peut supprimer un verrou encore légitime, ce qui risque de permettre des éc
 
 Il faut préserver les logs, vérifier l'état et l'infrastructure actuels, déterminer les opérations déjà appliquées et choisir une stratégie de récupération autorisée.
 
+
+# 17. Défi final corrigé : sécuriser un changement Terraform en production
+
+## Situation
+
+Une pull request déplace des ressources dans un module. Le plan initial annonçait des changements limités, mais un plan sauvegardé la veille propose maintenant de remplacer une passerelle partagée. L’infrastructure a évolué depuis sa génération et le backend indique qu’un verrou de state est détenu par un autre traitement. L’équipe demande une application urgente.
+
+## Travail demandé
+
+1. Définis les opérations à suspendre et les informations à conserver avant toute action.
+2. Explique comment déterminer si le remplacement est causé par un renommage d’adresse, une modification d’attribut ou une évolution externe.
+3. Décris la procédure sûre pour examiner le verrou sans interrompre un traitement encore actif.
+4. Explique pourquoi le plan sauvegardé ne doit pas être appliqué aveuglément.
+5. Décris les contrôles et approbations avant une nouvelle application, puis les preuves à conserver après le changement.
+6. Distingue la sauvegarde du state de la sauvegarde des données applicatives et du plan de reprise.
+
+## Correction attendue
+
+1. **Suspendre l’application.** Ne pas exécuter le plan périmé et ne pas forcer le déverrouillage par réflexe. Préserver les journaux, le commit, le plan, les détails du backend, l’environnement, l’identité d’exécution et les informations disponibles sur le verrou.
+2. **Établir la cause.** Comparer la configuration actuelle à celle du plan, inspecter les attributs qui imposent un remplacement, les références, les versions des providers et l’état réel de la ressource. Si seule l’adresse Terraform a changé lors d’une refactorisation compatible, évaluer un bloc moved. Ne l’ajouter que si l’identité de la ressource distante est effectivement la même.
+3. **Vérifier le verrou.** Identifier le traitement qui le détient et vérifier s’il est encore actif. Consulter les journaux CI et les métadonnées du backend. Un déverrouillage forcé ne se justifie qu’après avoir établi que le détenteur est arrêté et qu’aucune opération ne peut encore écrire dans cet état, suivant la procédure de l’équipe.
+4. **Régénérer une proposition valide.** Après avoir réglé le problème de coordination et vérifié le state courant, générer un nouveau plan dans le bon workspace. Réexécuter les tests et les politiques. Le plan doit correspondre au commit et à l’environnement examinés.
+5. **Autoriser et appliquer.** Utiliser une identité dédiée et limitée, demander une approbation indépendante adaptée au risque, puis appliquer exactement le plan approuvé. Si le contexte change ou que le plan devient périmé, arrêter et recommencer la revue plutôt que de réutiliser un artefact ancien.
+6. **Vérifier et documenter.** Contrôler la passerelle, les routes et les services dépendants après application. Relier la demande, le commit, le plan, les résultats de politiques, l’identité, l’approbation et les contrôles post-déploiement dans les journaux.
+7. **Préparer la récupération.** Protéger et sauvegarder le state selon les capacités du backend, mais ne pas le confondre avec les sauvegardes de données applicatives. Le plan de reprise doit inclure les ressources, les données, les dépendances et des essais de restauration.
+
+## Critères de réussite
+
+La réponse doit éviter l’application d’un plan périmé, le déverrouillage forcé sans diagnostic, et toute modification destructive sans revue. Elle doit produire une séquence vérifiable allant du diagnostic aux contrôles post-déploiement.
 
 # Conclusion — Le niveau expert
 
