@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Paquets et mises à jour",
+      "prompt": "Que fait principalement `sudo apt update` ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il met automatiquement à niveau tous les paquets installés",
+        "Il actualise les index locaux des dépôts configurés",
+        "Il supprime les dépendances inutilisées",
+        "Il restaure le système à son état de la veille"
+      ],
+      "answer": 1,
+      "explanation": "`apt update` actualise les listes de paquets disponibles depuis les dépôts configurés ; l’installation ou la mise à niveau est une opération distincte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande installe un paquet nommé `curl` sur Debian ou Ubuntu ?",
+      "choices": [
+        "`sudo systemctl curl`",
+        "`sudo chmod curl`",
+        "`sudo apt install curl`",
+        "`sudo mount curl`"
+      ],
+      "answer": 2,
+      "explanation": "`apt install` demande au gestionnaire de paquets d’installer le paquet et de résoudre les dépendances selon les dépôts et règles configurés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil interroge la base locale de paquets Debian, y compris l’état d’installation ?",
+      "choices": [
+        "`dpkg -l`",
+        "`ip link`",
+        "`journalctl -u dpkg`",
+        "`lsblk -f`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "`dpkg -l` liste les paquets connus de la base locale et affiche leur état ; il ne remplace pas la recherche des versions disponibles dans les dépôts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale entre `apt remove paquet` et `apt purge paquet` ?",
+      "choices": [
+        "`remove` supprime le noyau ; `purge` installe un noyau",
+        "`remove` efface le dépôt distant ; `purge` le recrée",
+        "Les deux signifient toujours réinstaller le paquet",
+        "`purge` retire aussi les fichiers de configuration gérés par le paquet, alors que `remove` les conserve généralement"
+      ],
+      "answer": 3,
+      "explanation": "`purge` retire les fichiers de configuration gérés par le paquet ; cela ne garantit pas la suppression de toutes les données créées par l’application dans d’autres répertoires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment rechercher le nom d’un paquet dans les dépôts APT configurés ?",
+      "choices": [
+        "`chmod -R paquet`",
+        "`apt search paquet`",
+        "`kill -0 paquet`",
+        "`mount -a paquet`"
+      ],
+      "answer": 1,
+      "explanation": "`apt search` recherche dans les métadonnées locales des dépôts ; pour obtenir des résultats récents, il faut actualiser les index si nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique réduit le risque d’installer un paquet altéré ou provenant d’une source douteuse ?",
+      "choices": [
+        "Utiliser les dépôts approuvés et vérifier leur configuration et les signatures de métadonnées",
+        "Désactiver toutes les vérifications de signature",
+        "Installer systématiquement le premier fichier trouvé sur un site inconnu",
+        "Renommer le fichier téléchargé en `.deb`"
+      ],
+      "answer": 0,
+      "explanation": "Les dépôts approuvés et la validation cryptographique de leurs métadonnées réduisent le risque d’accepter des paquets d’une source non autorisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après `apt install`, quelle commande permet de consulter les informations locales d’un paquet nommé `curl` ?",
+      "choices": [
+        "`ip route curl`",
+        "`findmnt curl`",
+        "`dpkg -s curl`",
+        "`ss -lnt curl`"
+      ],
+      "answer": 2,
+      "explanation": "`dpkg -s` affiche les informations et l’état local d’un paquet connu de la base Debian."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution est utile avant de confirmer une mise à niveau importante sur un serveur ?",
+      "choices": [
+        "Supprimer le cache APT sans lire le résumé",
+        "Désactiver les sauvegardes",
+        "Lancer plusieurs gestionnaires de paquets simultanément",
+        "Lire les changements proposés, vérifier les dépendances et prévoir une fenêtre de maintenance adaptée"
+      ],
+      "answer": 3,
+      "explanation": "Le résumé peut révéler des suppressions ou mises à niveau importantes ; sur un serveur, il faut aussi vérifier les sauvegardes, les dépendances et la possibilité de retour."
     }
   ]
 }
