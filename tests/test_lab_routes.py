@@ -137,8 +137,31 @@ class LabValidationTests(unittest.TestCase):
     def _mock_lab(self, definition):
         return patch.object(lab_routes, "_fetch_lab", return_value={"id": "lab-1", "definition": definition})
 
-    def test_lab_v2_catalog_exposes_card_metadata(self) -> None:
+    def test_lab_v2_catalog_lists_real_json_lab_and_excludes_empty_compatibility_sandbox(self) -> None:
         catalog_db = Path(self.temp_dir.name) / "catalog.sqlite3"
+        legacy_definition = {
+            "schema_version": 2,
+            "id": "acl-debutant",
+            "title": "ACL & filtrage - Débutant",
+            "level": "débutant",
+            "module": "Administration Réseaux",
+            "prompt": "Ancien exercice de compatibilité",
+            "objectives": [],
+            "hints": [],
+            "duration_min": 15,
+            "difficulty": "débutant",
+            "xp_reward": 0,
+            "badges": [],
+            "initial_topology": {
+                "schema_version": 2,
+                "topology_id": "legacy-empty",
+                "metadata": {},
+                "nodes": [],
+                "links": [],
+                "simulation": {"state": "idle", "event_log": []},
+            },
+            "check": {"type": "manual_review", "rules": [], "pass_threshold": 1.0, "time_bonus": {}},
+        }
         with sqlite3.connect(str(catalog_db)) as conn:
             conn.execute(
                 """
@@ -149,14 +172,24 @@ class LabValidationTests(unittest.TestCase):
                     module TEXT NOT NULL,
                     duration_min INTEGER NOT NULL,
                     difficulty TEXT NOT NULL,
-                    schema_version INTEGER NOT NULL
+                    schema_version INTEGER NOT NULL,
+                    definition_json TEXT
                 )
                 """
             )
             conn.execute(
-                "INSERT INTO labs (id, title, level, module, duration_min, difficulty, schema_version) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                ("acl-debutant", "ACL & filtrage - Débutant", "débutant", "Administration Réseaux", 20, "débutant", 2),
+                "INSERT INTO labs (id, title, level, module, duration_min, difficulty, schema_version, definition_json) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    "acl-debutant",
+                    "ACL & filtrage - Débutant",
+                    "débutant",
+                    "Administration Réseaux",
+                    15,
+                    "débutant",
+                    2,
+                    json.dumps(legacy_definition, ensure_ascii=False),
+                ),
             )
 
         def connect_catalog_db():
@@ -167,11 +200,13 @@ class LabValidationTests(unittest.TestCase):
         with patch.object(lab_routes, "_database_connection", side_effect=connect_catalog_db):
             catalog = lab_routes.list_labs_v2()
 
-        self.assertEqual(len(catalog), 1)
-        self.assertEqual(catalog[0]["id"], "acl-debutant")
-        self.assertEqual(catalog[0]["duration_min"], 20)
-        self.assertEqual(catalog[0]["difficulty"], "débutant")
-        self.assertEqual(catalog[0]["schema_version"], 2)
+        lab_ids = {lab["id"] for lab in catalog}
+        self.assertIn("secu-acl-intermediaire", lab_ids)
+        self.assertNotIn("acl-debutant", lab_ids)
+        acl_lab = next(lab for lab in catalog if lab["id"] == "secu-acl-intermediaire")
+        self.assertEqual(acl_lab["title"], "ACL et filtrage avancé - Intermédiaire")
+        self.assertEqual(acl_lab["duration_min"], 20)
+        self.assertEqual(acl_lab["schema_version"], 2)
 
     def test_bom_json_lab_definition_loads(self) -> None:
         labs_dir = Path(self.temp_dir.name) / "labs_v2"
