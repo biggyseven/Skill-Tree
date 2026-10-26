@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Authentification centralisée (LDAP/AD)",
+      "prompt": "Quel rôle joue LDAP dans une architecture d’identité centralisée ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il chiffre à lui seul tout le trafic applicatif",
+        "Il remplace nécessairement Kerberos et Active Directory",
+        "Il fournit un protocole d’accès à des informations d’annuaire structurées",
+        "Il distribue les adresses IP aux clients"
+      ],
+      "answer": 2,
+      "explanation": "LDAP est un protocole d’accès à un annuaire. L’authentification, les stratégies et les services associés peuvent faire intervenir d’autres composants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente un DN (Distinguished Name) dans LDAP ?",
+      "choices": [
+        "Le chemin qui identifie une entrée dans l’arborescence de l’annuaire",
+        "Le mot de passe en clair d’un utilisateur",
+        "Une adresse MAC assignée au contrôleur de domaine",
+        "Le certificat TLS du serveur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le DN identifie une entrée dans l’annuaire à partir de ses composants, par exemple `uid=alice,ou=people,dc=example,dc=org`."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel choix protège correctement les échanges LDAP sur le réseau ?",
+      "choices": [
+        "Utiliser obligatoirement Telnet",
+        "Désactiver la validation des certificats pour éviter les erreurs",
+        "Envoyer les identifiants dans une requête HTTP non chiffrée",
+        "Utiliser LDAPS ou StartTLS avec une validation correcte du certificat du serveur"
+      ],
+      "answer": 3,
+      "explanation": "Le chiffrement protège la confidentialité du transport. La validation de la chaîne de confiance et du nom du serveur évite d’accepter un endpoint usurpé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre NSS et PAM est correcte sur Linux ?",
+      "choices": [
+        "NSS chiffre les disques et PAM attribue les adresses IP",
+        "NSS résout les informations de comptes/groupes ; PAM encadre les étapes d’authentification et de session",
+        "NSS est un protocole de routage et PAM un serveur DNS",
+        "Les deux outils servent uniquement à synchroniser l’heure"
+      ],
+      "answer": 1,
+      "explanation": "NSS fournit des sources pour résoudre utilisateurs, groupes et autres bases de noms. PAM fournit une chaîne de modules pour l’authentification, le contrôle de compte et la session."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert couramment SSSD sur un poste Linux joint à un annuaire ?",
+      "choices": [
+        "À remplacer le noyau Linux",
+        "À effectuer le routage inter-VLAN",
+        "À intégrer des sources d’identité et d’authentification, avec mise en cache et gestion de disponibilité selon la configuration",
+        "À distribuer les certificats des sites Web publics uniquement"
+      ],
+      "answer": 2,
+      "explanation": "SSSD peut relier Linux à des sources comme LDAP ou Active Directory, résoudre les identités et mettre en cache certaines informations selon la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans Kerberos, à quoi sert principalement le Ticket Granting Ticket (TGT) ?",
+      "choices": [
+        "À permettre au client de demander des tickets de service sans ressaisir son secret pour chaque service",
+        "À remplacer les enregistrements DNS de tous les serveurs",
+        "À accorder automatiquement les droits administratifs sur chaque hôte",
+        "À servir de certificat TLS pour tous les sites"
+      ],
+      "answer": 0,
+      "explanation": "Après l’authentification initiale, le TGT permet au client de solliciter auprès du service de tickets les tickets nécessaires à des services Kerberos."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande est un contrôle simple pour vérifier si le système peut résoudre un compte via les sources NSS configurées ?",
+      "choices": [
+        "`chmod -R 777 /etc`",
+        "`mkfs /dev/sda`",
+        "`ip route flush table main`",
+        "`getent passwd alice`"
+      ],
+      "answer": 3,
+      "explanation": "`getent passwd alice` interroge les sources NSS configurées. Un résultat vide invite à contrôler le nom, la connectivité à la source et les paramètres NSS/SSSD."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une connexion centralisée échoue après une modification de groupe. Quel diagnostic initial est le plus utile ?",
+      "choices": [
+        "Créer immédiatement un doublon local du compte",
+        "Vérifier la résolution d’identité, l’état du domaine SSSD, les journaux, l’accès à l’annuaire, DNS et la synchronisation temporelle",
+        "Désactiver toutes les politiques PAM",
+        "Réinitialiser tous les mots de passe de l’entreprise"
+      ],
+      "answer": 1,
+      "explanation": "Il faut isoler la couche en échec : résolution d’identité, authentification, autorisation et état du service d’annuaire. Créer un doublon local peut masquer le problème et produire des identités incohérentes."
     }
   ]
 }
