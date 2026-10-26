@@ -26,7 +26,7 @@ EXPECTED_ANCHORS = {
     "expert": (
         "Sur un routeur appliquant le comportement défini par RFC 8212, que se passe-t-il sur une session eBGP sans politique d’import ou d’export explicite applicable ?",
         0,
-        "RFC 8212",
+        "routes reçues",
     ),
 }
 
