@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - "feature/diagnostic-adaptive-feedback-20261026"
+      - "feature/lab-workspace"
     paths:
       - "static/**"
       - "content/diagnostics/**"
