@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Ansible Avancé et AWX",
+      "prompt": "Quelle distinction entre Ansible Core et AWX est correcte ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "AWX est uniquement un format de playbook YAML",
+        "AWX remplace SSH par DNS",
+        "Ansible Core fournit l’automatisation en ligne de commande ; AWX ajoute notamment une interface, une API, des inventaires, des identifiants et la planification des jobs",
+        "AWX est un hyperviseur"
+      ],
+      "answer": 2,
+      "explanation": "Ansible Core exécute les playbooks et fournit le moteur d’automatisation. AWX apporte une plateforme pour organiser, déléguer, planifier et auditer les exécutions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que contient un environnement d’exécution Ansible (Execution Environment) ?",
+      "choices": [
+        "Une image reproductible regroupant notamment le runtime, Ansible et les dépendances/collections nécessaires au job",
+        "La copie en clair de tous les mots de passe de l’organisation",
+        "Le système de fichiers de tous les hôtes cibles",
+        "Uniquement une interface Web statique"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "L’environnement d’exécution standardise les dépendances du job afin que les exécutions soient reproductibles entre contrôleurs et environnements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un playbook appelle la commande `useradd` à chaque passage et annonce toujours un changement. Quelle amélioration correspond le mieux à l’idempotence Ansible ?",
+      "choices": [
+        "Augmenter les privilèges du compte de connexion",
+        "Supprimer l’inventaire et cibler tous les hôtes",
+        "Ignorer toutes les erreurs de commande",
+        "Utiliser le module Ansible adapté à la gestion des utilisateurs et décrire l’état attendu"
+      ],
+      "answer": 3,
+      "explanation": "Les modules Ansible expriment généralement un état souhaité et peuvent éviter des changements inutiles. Une commande brute exige de gérer explicitement le changement et les codes de retour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment protéger un secret requis par un job AWX ?",
+      "choices": [
+        "Le placer en clair dans un dépôt Git public",
+        "Le stocker dans un mécanisme de secrets/credential protégé et éviter son affichage dans les sorties",
+        "Le passer dans un nom de job visible par tous",
+        "L’imprimer en début de playbook pour vérifier sa valeur"
+      ],
+      "answer": 1,
+      "explanation": "Les credentials AWX ou un coffre de secrets adapté centralisent l’accès. Le contrôle d’accès et la prévention de fuite dans les journaux sont aussi nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une valeur de variable inattendue est appliquée en production. Quel diagnostic est approprié ?",
+      "choices": [
+        "Ajouter une autre variable globale sans examiner les sources",
+        "Désactiver la validation YAML",
+        "Inspecter la provenance et la précédence des variables, les inventaires ciblés et la configuration effective du job",
+        "Relancer le même job en boucle sans modification"
+      ],
+      "answer": 2,
+      "explanation": "Ansible possède plusieurs sources et niveaux de précédence. Il faut identifier la valeur effective, sa provenance et l’inventaire ou le modèle de job réellement utilisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle conception d’un workflow d’automatisation de production est la plus sûre ?",
+      "choices": [
+        "Séparer les inventaires et credentials, limiter les privilèges et exiger une approbation adaptée au risque avant l’action sensible",
+        "Utiliser le même compte administrateur partagé pour chaque environnement",
+        "Autoriser tous les utilisateurs à modifier les jobs de production",
+        "Fusionner les secrets et les variables dans un fichier non protégé"
+      ],
+      "answer": 0,
+      "explanation": "Une séparation claire des environnements, des rôles et des identifiants réduit le rayon d’impact et permet une approbation indépendante pour les opérations à risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert `serial` dans un playbook Ansible lors d’un déploiement sur un groupe d’hôtes ?",
+      "choices": [
+        "À réécrire le fichier d’inventaire en ordre alphabétique",
+        "À désactiver tous les handlers",
+        "À supprimer l’hôte à la fin de la tâche",
+        "À contrôler le nombre ou le groupe d’hôtes traités simultanément, pour permettre des déploiements progressifs"
+      ],
+      "answer": 3,
+      "explanation": "`serial` permet de traiter les hôtes par lots. Cela facilite un déploiement progressif, à condition de définir des contrôles de santé et une stratégie de retour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel objet AWX décrit généralement le playbook à exécuter ainsi que le projet, l’inventaire et les credentials associés ?",
+      "choices": [
+        "Le fichier `/etc/hosts` de l’administrateur",
+        "Un Job Template",
+        "Une zone DNS",
+        "Un volume de stockage virtuel"
+      ],
+      "answer": 1,
+      "explanation": "Un Job Template rassemble les paramètres de lancement d’un job. Il doit être protégé par des rôles RBAC et utiliser les identifiants nécessaires, pas davantage."
     }
   ]
 }
