@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 
 from .db import DEFAULT_DB, add_xp, connect, touch_daily_streak
 from .domain import ProofKind, Status
-from .engine import DomainError, SkillTree
+from .engine import BADGE_DEFINITIONS, DomainError, SkillTree
 from .lab_schema_v2 import (
     CheckDefinition,
     CheckRequest,
@@ -46,6 +46,41 @@ LAB_FILE_ALIASES = {
     "ospf-debutant": "ospf-3-routers",
     "nat-intermediaire": "dhcp-nat",
 }
+
+# Métadonnées des badges spécifiques aux scénarios v2. Les identifiants canoniques
+# (first-blood, war-machine, architect, flawless) viennent de app.engine.
+LAB_BADGE_DEFINITIONS: dict[str, dict[str, str]] = {
+    "dhcp-nat-master": {
+        "nom": "Maître DHCP/NAT",
+        "description": "Réussir le laboratoire « DHCP et préparation NAT ».",
+        "icone": "🌐",
+    },
+    "inter-vlan": {
+        "nom": "Spécialiste inter-VLAN",
+        "description": "Réussir le laboratoire de routage inter-VLAN.",
+        "icone": "🔀",
+    },
+    "vlan-basics": {
+        "nom": "Fondations VLAN",
+        "description": "Réussir le laboratoire VLAN 10 et trunk entre deux switches.",
+        "icone": "🔗",
+    },
+}
+LAB_BADGE_ID_ALIASES = {
+    "first_blood": "first-blood",
+    "war_machine": "war-machine",
+}
+
+
+def _resolve_badge_definition(badge_id: Any) -> tuple[str, dict[str, str]] | None:
+    """Résout les anciens alias et les badges v2 sans annoncer de badge inconnu."""
+    if not isinstance(badge_id, str) or not badge_id.strip():
+        return None
+    canonical_id = LAB_BADGE_ID_ALIASES.get(badge_id, badge_id)
+    definition = BADGE_DEFINITIONS.get(canonical_id) or LAB_BADGE_DEFINITIONS.get(canonical_id)
+    if definition is None:
+        return None
+    return canonical_id, definition
 
 
 def _database_connection() -> sqlite3.Connection:
@@ -656,7 +691,8 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
         ).fetchone()
         first_success = passed and previous_success is None
         xp_gained = int(definition.xp_reward) if first_success else 0
-        badges_unlocked = list(definition.badges) if first_success else []
+        badge_candidates = list(definition.badges) if passed else []
+        badges_unlocked: list[dict[str, str]] = []
 
         conn.execute(
             "INSERT INTO lab_attempts "
@@ -697,23 +733,21 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
         # Récompenses du Lab Workspace : une prime de pièces à la première réussite
         # uniquement, comme pour les labs du parcours classique.
         coins_gained = 20 if first_success else 0
-        for badge_id in badges_unlocked:
-            # Les badges du JSON sont des identifiants de récompense. Ne créer que
-            # des entrées compatibles avec le catalogue connu et ne jamais écraser.
-            if isinstance(badge_id, str) and badge_id in {
-                "first_blood", "war_machine", "architect", "flawless"
-            }:
-                badge_info = {
-                    "first_blood": ("Premier Sang", "Valider son premier nœud", "🩸"),
-                    "war_machine": ("Machine de Guerre", "Valider cinq labs", "⚔️"),
-                    "architect": ("Architecte", "Sauvegarder une topologie", "🏛️"),
-                    "flawless": ("Sans Faute", "Obtenir 100 % à un examen", "🎯"),
-                }[badge_id]
-                conn.execute(
-                    "INSERT OR IGNORE INTO badges (id, nom, description, icone, condition_debloquee_le) "
-                    "VALUES (?, ?, ?, ?, ?)",
-                    (badge_id, *badge_info, now),
-                )
+        # Les badges sont attribués lorsqu'un lab est réussi, indépendamment de
+        # la prime XP : cela permet aussi de réparer une récompense manquante sur
+        # une ancienne réussite. INSERT OR IGNORE garantit l'idempotence.
+        for requested_badge_id in badge_candidates:
+            resolved = _resolve_badge_definition(requested_badge_id)
+            if resolved is None:
+                continue
+            badge_id, badge_info = resolved
+            cursor = conn.execute(
+                "INSERT OR IGNORE INTO badges (id, nom, description, icone, condition_debloquee_le) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (badge_id, badge_info["nom"], badge_info["description"], badge_info["icone"], now),
+            )
+            if cursor.rowcount == 1:
+                badges_unlocked.append({"id": badge_id, **badge_info})
 
         if xp_gained or coins_gained:
             # add_xp committe aussi les tentatives, la série et les récompenses.

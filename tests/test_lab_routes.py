@@ -23,6 +23,14 @@ class LabValidationTests(unittest.TestCase):
             conn.execute("INSERT INTO labs (id, title) VALUES (?, ?)", ("lab-1", "Lab de test"))
             conn.execute(
                 """
+                CREATE TABLE badges (
+                    id TEXT PRIMARY KEY, nom TEXT NOT NULL, description TEXT NOT NULL,
+                    icone TEXT NOT NULL, condition_debloquee_le TEXT
+                )
+                """
+            )
+            conn.execute(
+                """
                 CREATE TABLE nodes (
                     id TEXT PRIMARY KEY, title TEXT NOT NULL,
                     description TEXT NOT NULL DEFAULT '', category TEXT NOT NULL DEFAULT 'Général',
@@ -340,6 +348,61 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual([tuple(row) for row in attempts], [("lab", 100, 1), ("lab", 100, 1)])
         self.assertEqual(streaks, 1)
         self.assertEqual(canonical_status, "validated")
+
+    def test_custom_lab_badges_are_persisted_and_returned_once(self) -> None:
+        definition = self._definition()
+        definition.badges = ["dhcp-nat-master", "first_blood"]
+        request = SubmitRequest(
+            topology=self._topology("edge-1"),
+            check_result={"passed": False, "score": 0},
+        )
+
+        with self._mock_lab(definition), patch.object(
+            lab_routes, "_database_connection", side_effect=self._connect
+        ):
+            first = lab_routes.submit_lab_v2("lab-1", request)
+            second = lab_routes.submit_lab_v2("lab-1", request)
+
+        self.assertTrue(first["passed"])
+        self.assertEqual(
+            first["badges_unlocked"],
+            [
+                {
+                    "id": "dhcp-nat-master",
+                    "nom": "Maître DHCP/NAT",
+                    "description": "Réussir le laboratoire « DHCP et préparation NAT ».",
+                    "icone": "🌐",
+                },
+                {
+                    "id": "first-blood",
+                    "nom": "Premier Sang",
+                    "description": "Valider son premier nœud du skill tree.",
+                    "icone": "🩸",
+                },
+            ],
+        )
+        self.assertEqual(second["badges_unlocked"], [])
+        conn = self._connect()
+        try:
+            badges = conn.execute("SELECT id, nom FROM badges ORDER BY id").fetchall()
+            stats = conn.execute("SELECT total_xp, coins FROM user_stats WHERE id = 1").fetchone()
+        finally:
+            conn.close()
+        self.assertEqual([tuple(row) for row in badges], [
+            ("dhcp-nat-master", "Maître DHCP/NAT"),
+            ("first-blood", "Premier Sang"),
+        ])
+        self.assertEqual(tuple(stats), (25, 20))
+
+    def test_all_json_lab_badges_have_resolvable_catalog_definitions(self) -> None:
+        for path in lab_routes.LABS_V2_DIR.glob("*.json"):
+            with self.subTest(lab=path.name):
+                definition = json.loads(path.read_text(encoding="utf-8-sig"))
+                for badge_id in definition.get("badges", []):
+                    self.assertIsNotNone(
+                        lab_routes._resolve_badge_definition(badge_id),
+                        f"{path.name} référence un badge sans définition : {badge_id}",
+                    )
 
     def test_sandbox_submit_is_never_reported_as_a_course_validation(self) -> None:
         sandbox = {
