@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Architecture Zero Trust - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel rôle SPIFFE/SPIRE peut-il jouer dans une architecture Zero Trust pour les charges de travail ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Remplacer toutes les politiques d’autorisation par des adresses IP",
+        "Garantir qu’une application est exempte de vulnérabilités",
+        "Fournir une identité cryptographique de charge de travail vérifiable, par exemple via des SVID à durée limitée, que d’autres contrôles peuvent utiliser",
+        "Créer automatiquement des routes BGP entre les clouds"
+      ],
+      "answer": 2,
+      "explanation": "SPIFFE définit des identités de workload et des formats de justificatifs tels que X.509-SVID ou JWT-SVID ; SPIRE peut attester et délivrer ces identités. Cette identité aide l’authentification, mais ne remplace pas la politique d’autorisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester une politique d’autorisation comme du code avant son déploiement global ?",
+      "choices": [
+        "Pour vérifier les cas autorisés et refusés, détecter les régressions et conserver une justification vérifiable des décisions",
+        "Pour remplacer les journaux de production par des tests unitaires",
+        "Pour garantir qu’aucune décision ne devra jamais évoluer",
+        "Pour désactiver les contrôles de contexte pendant les mises à jour"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les tests de politiques doivent contenir des cas positifs et négatifs ainsi que les situations limites. Ils permettent de détecter les droits trop larges ou les blocages accidentels avant la mise en production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel invariant est essentiel lorsque plusieurs points d’application (PEP) protègent une même ressource ?",
+      "choices": [
+        "Tous les PEP doivent utiliser la même adresse MAC",
+        "Un seul PEP doit autoriser l’accès même si le trafic le contourne",
+        "Les identités de workload rendent inutile le contrôle du chemin",
+        "Aucun chemin ne doit permettre d’atteindre la ressource en contournant les points d’application et les décisions de politique prévus"
+      ],
+      "answer": 3,
+      "explanation": "Une politique est inefficace si un chemin direct contourne le PEP. L’architecture doit identifier et tester les chemins réseau, les accès d’administration et les interfaces alternatives vers la ressource."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment déployer une intention Zero Trust cohérente dans plusieurs clouds aux contrôles natifs différents ?",
+      "choices": [
+        "Copier littéralement la même règle de syntaxe sur tous les fournisseurs en supposant un comportement identique",
+        "Définir le résultat de sécurité attendu, mapper les contrôles vers les mécanismes de chaque plateforme et vérifier les politiques effectives ainsi que les chemins de contournement",
+        "Faire confiance au réseau privé de chaque fournisseur sans examiner les identités",
+        "Désactiver la journalisation pour éviter des formats différents"
+      ],
+      "answer": 1,
+      "explanation": "Les fournisseurs n’ont pas nécessairement les mêmes primitives ni la même sémantique. Une politique logique commune doit être traduite, testée et contrôlée sur chaque plateforme, y compris les exceptions et les chemins de contournement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que devrait provoquer un changement significatif du contexte de risque pendant une session longue, si la politique et le système le prévoient ?",
+      "choices": [
+        "Aucune réévaluation possible une fois la connexion établie",
+        "La promotion automatique de l’utilisateur au rôle administrateur",
+        "Une réévaluation pouvant ajuster, restreindre ou révoquer l’accès, selon les règles et capacités de la plateforme",
+        "Le redémarrage obligatoire de tous les commutateurs"
+      ],
+      "answer": 2,
+      "explanation": "Zero Trust peut réévaluer l’accès quand l’identité, la posture ou le risque change. La manière de mettre à jour ou de terminer une session dépend du PEP, du protocole et de la politique définie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le service de décision de politique (PDP) devient temporairement indisponible. Quelle approche est la plus rigoureuse pour choisir le comportement des points d’application ?",
+      "choices": [
+        "Définir à l’avance une stratégie proportionnée au risque, avec les limites du cache éventuel, la durée, la journalisation et un test de dégradation ; il n’existe pas de réponse universelle",
+        "Autoriser systématiquement tous les accès quelle que soit la ressource",
+        "Refuser systématiquement tous les accès pour toutes les ressources, sans exception ni analyse",
+        "Ignorer l’incident et considérer que les contrôles continuent toujours à fonctionner"
+      ],
+      "answer": 0,
+      "explanation": "Le comportement en cas de perte du PDP dépend du risque, de la ressource, de la politique et des capacités du système. Les décisions mises en cache doivent avoir des limites explicites ; les modes de dégradation doivent être testés et journalisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test apporte une preuve forte qu’une ressource ne peut pas être atteinte en contournant l’architecture Zero Trust ?",
+      "choices": [
+        "Tester uniquement la page d’accueil du portail d’accès",
+        "Tester seulement une connexion depuis le réseau de gestion",
+        "Vérifier uniquement que le logiciel PEP est démarré",
+        "Essayer les chemins alternatifs et directs depuis des identités autorisées et non autorisées, puis confirmer le résultat côté ressource et dans les journaux"
+      ],
+      "answer": 3,
+      "explanation": "La présence d’un PEP ne prouve pas l’absence de chemin de contournement. Les tests doivent couvrir les chemins directs, les accès d’administration et les différents profils d’identité, avec validation de bout en bout."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle donnée faut-il éviter d’enregistrer telle quelle dans les journaux de décision Zero Trust ?",
+      "choices": [
+        "L’identifiant de corrélation d’une requête",
+        "Les mots de passe, secrets privés et jetons d’accès complets, sauf exigence exceptionnelle strictement contrôlée — généralement à exclure",
+        "Le résultat autorisé/refusé et son horodatage",
+        "L’identifiant de ressource, lorsqu’il est permis par la politique de journalisation"
+      ],
+      "answer": 1,
+      "explanation": "Les journaux doivent être utiles à l’audit sans devenir une source de secrets. Les identifiants et raisons de décision sont utiles ; les mots de passe, clés privées et jetons complets ne doivent pas être copiés dans les événements ordinaires."
     }
   ]
 }
