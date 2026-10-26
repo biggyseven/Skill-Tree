@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Adressage IPv4 & sous-réseaux - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Combien d’adresses totales contient un sous-réseau IPv4 /27 ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "30",
+        "64",
+        "32",
+        "16"
+      ],
+      "answer": 2,
+      "explanation": "Il reste 32−27 = 5 bits hôte ; 2^5 donne 32 adresses totales."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la plage d’hôtes classiques de 192.168.10.64/26 ?",
+      "choices": [
+        "192.168.10.64 à 192.168.10.127",
+        "192.168.10.65 à 192.168.10.126",
+        "192.168.10.1 à 192.168.10.62",
+        "192.168.10.65 à 192.168.10.190"
+      ],
+      "answer": 1,
+      "explanation": "Un /26 avance par blocs de 64 adresses : réseau .64, broadcast .127, hôtes .65 à .126."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe décrit VLSM ?",
+      "choices": [
+        "Utiliser des préfixes de tailles différentes selon les besoins des segments",
+        "Attribuer le même masque à tous les VLAN obligatoirement",
+        "Remplacer IPv4 par IPv6",
+        "Utiliser uniquement des adresses publiques"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "VLSM permet de dimensionner chaque sous-réseau selon son besoin tout en conservant un plan non chevauchant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels réseaux /24 contigus 192.168.0.0 à 192.168.3.0 peuvent être résumés par quel préfixe ?",
+      "choices": [
+        "192.168.0.0/24",
+        "192.168.0.0/21",
+        "192.168.1.0/22",
+        "192.168.0.0/22"
+      ],
+      "answer": 3,
+      "explanation": "Quatre /24 alignés couvrant les troisièmes octets 0 à 3 constituent 1024 adresses, soit un /22 aligné sur 192.168.0.0."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’agrégation CIDR peut-elle réduire la taille d’une table de routage ?",
+      "choices": [
+        "Les routeurs n’ont plus besoin d’examiner les destinations",
+        "Toute route privée devient une route par défaut",
+        "Plusieurs préfixes contigus peuvent être représentés par un préfixe commun valide",
+        "Les routes agrégées chiffrent les paquets"
+      ],
+      "answer": 2,
+      "explanation": "L’agrégation remplace plusieurs entrées par un préfixe plus large lorsque les réseaux sont contigus et correctement alignés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il éviter le chevauchement entre sous-réseaux d’un plan d’adressage ?",
+      "choices": [
+        "Cela oblige les adresses MAC à changer à chaque paquet",
+        "Le routage et le choix du réseau local peuvent devenir ambigus ou incorrects",
+        "Cela ralentit toujours DNS uniquement",
+        "Le masque ne peut plus être affiché"
+      ],
+      "answer": 1,
+      "explanation": "Des préfixes chevauchants sur des interfaces ou sites distincts créent des ambiguïtés de transfert et compliquent la connectivité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel masque décimal correspond à un préfixe /26 ?",
+      "choices": [
+        "255.255.255.192",
+        "255.255.255.0",
+        "255.255.255.224",
+        "255.255.255.128"
+      ],
+      "answer": 0,
+      "explanation": "/26 correspond à 24 bits à 1, puis deux bits à 1 dans le dernier octet : 192."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de résumer des routes, quelle vérification est essentielle ?",
+      "choices": [
+        "Que chaque réseau utilise le même nom DNS",
+        "Que tous les hôtes ont la même MAC",
+        "Que les réseaux utilisent uniquement DHCP",
+        "Que les préfixes sont contigus, alignés et que le résumé ne couvre pas des réseaux étrangers"
+      ],
+      "answer": 3,
+      "explanation": "Un résumé trop large peut annoncer une destination qui n’est pas réellement joignable via ce routeur."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Adressage IPv4 & sous-réseaux - Expert. Avez-vous lu le cours ?",
+      "prompt": "Que signifie le principe de longest prefix match dans le routage IPv4 ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Choisir la route correspondant au préfixe le plus spécifique",
+        "Choisir la route ayant la plus petite métrique toujours",
+        "Choisir la route installée en premier",
+        "Choisir le préfixe qui contient le moins de bits réseau"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Lorsque plusieurs routes correspondent à une destination, la route avec le préfixe le plus long est normalement la plus spécifique et est privilégiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la principale contrainte d’un résumé de routes ?",
+      "choices": [
+        "Il doit toujours être un /24",
+        "Il doit utiliser une adresse publique",
+        "Il doit être plus long que chaque route résumée",
+        "Le préfixe résumé doit couvrir les réseaux annoncés sans englober involontairement des destinations étrangères"
+      ],
+      "answer": 3,
+      "explanation": "Un résumé trop large peut attirer du trafic vers un routeur incapable d’acheminer certaines destinations incluses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle taille d’espace d’adresses contient un préfixe IPv4 /20 ?",
+      "choices": [
+        "1024 adresses",
+        "512 adresses",
+        "4096 adresses",
+        "8192 adresses"
+      ],
+      "answer": 2,
+      "explanation": "Un /20 laisse 12 bits hôte, donc 2^12 = 4096 adresses au total."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un plan d’adressage hiérarchique par site et fonction est-il utile ?",
+      "choices": [
+        "Il garantit qu’il n’y aura jamais de panne",
+        "Il facilite l’agrégation, l’exploitation et l’application de politiques",
+        "Il supprime la nécessité de documenter les VLAN",
+        "Il empêche le routage inter-VLAN"
+      ],
+      "answer": 1,
+      "explanation": "Des allocations contiguës et prévisibles favorisent la synthèse des routes et la compréhension du réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux sites utilisent tous deux 10.10.0.0/16 et sont ensuite interconnectés. Quel problème peut survenir ?",
+      "choices": [
+        "Le routage vers des destinations qui se chevauchent devient ambigu",
+        "Les routes s’agrègent toujours sans impact",
+        "Les hôtes changent automatiquement de sous-réseau",
+        "Le DNS corrige le chevauchement automatiquement"
+      ],
+      "answer": 0,
+      "explanation": "Les préfixes qui se chevauchent rendent la sélection d’une destination distante difficile ; une renumérotation ou une traduction contrôlée peut être nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel cas un préfixe /31 peut-il être approprié ?",
+      "choices": [
+        "Pour un LAN de 100 postes",
+        "Comme broadcast de tout un site",
+        "Pour remplacer une adresse MAC",
+        "Sur certains liens point à point IPv4 où les deux adresses sont utilisées comme extrémités"
+      ],
+      "answer": 3,
+      "explanation": "RFC 3021 autorise les /31 sur des liens point à point ; la formule classique réseau/broadcast moins deux ne s’applique pas de la même manière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un préfixe /32 est-il utilisé dans certains contextes de routage ?",
+      "choices": [
+        "Il contient 32 hôtes",
+        "Il signifie qu’il n’y a pas de masque",
+        "Il représente une seule adresse hôte, souvent utilisée pour une route d’hôte ou une loopback",
+        "Il est équivalent à /24"
+      ],
+      "answer": 2,
+      "explanation": "Un /32 fixe les 32 bits et représente une adresse unique dans la table de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est nécessaire avant une renumérotation majeure multi-site ?",
+      "choices": [
+        "Changer seulement la passerelle sur le cœur",
+        "Inventaire des dépendances, plan de migration, tests de routes/ACL/DHCP/DNS et rollback",
+        "Appliquer le nouveau préfixe partout sans période de transition",
+        "Désactiver les logs pour réduire la charge"
+      ],
+      "answer": 1,
+      "explanation": "La renumérotation touche les routes, ACL, services d’adressage, DNS, systèmes et dépendances applicatives ; elle doit être préparée et validée."
     }
   ]
 }

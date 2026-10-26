@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Configuration avec Ansible",
+      "prompt": "Quel est l’intérêt principal d’un rôle Ansible ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Remplacer tous les inventaires par des adresses IP fixes",
+        "Exécuter uniquement une commande interactive",
+        "Stocker des mots de passe en clair",
+        "Encapsuler des tâches, variables, handlers et fichiers dans une structure réutilisable"
+      ],
+      "answer": 3,
+      "explanation": "Un rôle permet de structurer et réutiliser une automatisation avec des interfaces et valeurs par défaut documentées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand un handler Ansible est-il normalement exécuté ?",
+      "choices": [
+        "À chaque ligne du playbook même sans changement",
+        "Avant que l’inventaire soit chargé",
+        "Lorsqu’une tâche qui le notifie a signalé un changement, au moment prévu par le play",
+        "Uniquement lors d’un échec SSH"
+      ],
+      "answer": 2,
+      "explanation": "Les handlers sont généralement déclenchés par notify et exécutés dans les phases prévues du play si un changement a été signalé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel module est généralement adapté pour déployer un fichier calculé à partir de variables ?",
+      "choices": [
+        "ansible.builtin.ping",
+        "ansible.builtin.template",
+        "ansible.builtin.gather_facts",
+        "ansible.builtin.debug uniquement"
+      ],
+      "answer": 1,
+      "explanation": "template rend un fichier Jinja à partir de variables puis le déploie sur l’hôte cible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi valider la syntaxe et utiliser --check/--diff avant un changement sensible ?",
+      "choices": [
+        "Repérer certains problèmes et examiner les changements envisagés avant modification réelle",
+        "Prouver que chaque module simulera parfaitement ses effets",
+        "Garantir automatiquement la disponibilité métier",
+        "Remplacer les tests en environnement de staging"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Syntax-check, check et diff sont des garde-fous utiles mais ne remplacent pas les tests d’intégration ni la revue du périmètre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt des fichiers group_vars et host_vars ?",
+      "choices": [
+        "Remplacer les rôles",
+        "Stocker obligatoirement tous les secrets en clair",
+        "Définir les règles de routage BGP",
+        "Définir des paramètres adaptés à un groupe ou à un hôte"
+      ],
+      "answer": 3,
+      "explanation": "Ces fichiers rendent les paramètres d’inventaire explicites ; les secrets doivent rester protégés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter les tâches shell lorsque un module Ansible spécialisé existe ?",
+      "choices": [
+        "Les tâches shell ne peuvent jamais exécuter de commande",
+        "Un module spécialisé nécessite toujours root",
+        "Les modules décrivent mieux l’état attendu et sont souvent plus idempotents",
+        "Les tâches shell sont automatiquement chiffrées"
+      ],
+      "answer": 2,
+      "explanation": "Des modules dédiés comparent l’état réel et l’état désiré plus proprement que des commandes arbitraires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’ansible-lint apporte au dépôt ?",
+      "choices": [
+        "Une preuve que le service est disponible en production",
+        "Des contrôles automatisés de style et de nombreuses erreurs de conception courantes",
+        "Un mécanisme de chiffrement des secrets",
+        "Un inventaire dynamique cloud"
+      ],
+      "answer": 1,
+      "explanation": "Le lint détecte des problèmes statiques, mais doit être complété par des tests sur les rôles et services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur moyen d’éviter une modification à tous les hôtes par erreur ?",
+      "choices": [
+        "Examiner --list-hosts et limiter les groupes cibles avant l’exécution",
+        "Utiliser hosts: all sans inspection",
+        "Désactiver le mode check",
+        "Réutiliser un compte admin partagé"
+      ],
+      "answer": 0,
+      "explanation": "La validation du périmètre est un garde-fou essentiel avant de lancer un playbook à fort impact."
     }
   ]
 }
