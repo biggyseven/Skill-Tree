@@ -30,7 +30,7 @@ export function BriefPanel() {
 
       {lab.courseLocked === true && (
         <section role="status" aria-label="Prérequis du parcours" className="rounded-xl border border-[#f85149]/35 bg-[#f85149]/[0.08] p-4">
-          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#ff7b72]">Mode entraînement — validation du parcours verrouillée</div>
+          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#ff7b72]">Laboratoire verrouillé — mode entraînement</div>
           <p className="text-xs leading-relaxed text-[#e6edf3]">
             {lab.courseLockMessage || 'Validez les prérequis du parcours avant de soumettre ce laboratoire.'}
           </p>
