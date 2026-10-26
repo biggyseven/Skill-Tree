@@ -34,6 +34,21 @@ Les symptômes à surveiller comprennent les changements inhabituels d'adresses 
 
 ## 4. VLAN et segmentation
 
+**Schéma pédagogique — Les VLAN séparent les domaines de diffusion ; les règles L3 contrôlent les flux qui franchissent les frontières.**
+
+~~~text
+                [Commutateur / routage L3]
+                /          |          \
+               v           v           v
+          VLAN 10       VLAN 30      VLAN 40
+          Employes      Equipements  Invites
+               |           |           |
+               +------ [ACL / pare-feu] ------+
+
+Un VLAN ne remplace pas le filtrage des flux inter-VLAN.
+~~~
+
+
 Un VLAN délimite un domaine de diffusion logique sur l'infrastructure commutée. Il permet de séparer les catégories de terminaux, par exemple postes de travail, téléphones IP, invités, imprimantes, serveurs, équipements IoT et gestion. Les VLAN doivent être associés à des règles cohérentes de routage et de filtrage : séparer deux VLAN ne suffit pas si le routage inter-VLAN autorise ensuite tous les flux.
 
 Une conception raisonnable utilise des VLAN qui correspondent à des usages et des profils de sécurité identifiables. Évite un VLAN unique pour tous les appareils quand leurs exigences de confiance sont distinctes. Évite aussi des centaines de VLAN sans propriétaires, règles ou besoins clairs : une segmentation qui n'est pas documentée devient difficile à maintenir.
@@ -43,6 +58,20 @@ Les identifiants VLAN connus dans l'environnement doivent être documentés, not
 Pour chaque VLAN, documente les sous-réseaux, la passerelle, les serveurs DHCP, les DNS, les règles inter-VLAN, les ports d'accès attendus et les trunks qui doivent transporter ce VLAN. En cas d'incident, cette cartographie permet de déterminer si le VLAN observé est cohérent ou s'il apparaît sur un lien inattendu.
 
 ## 5. Port d'accès et trunk 802.1Q
+
+**Schéma pédagogique — Un port d'accès sert généralement un VLAN terminal ; un trunk transporte une liste contrôlée de VLAN.**
+
+~~~text
+PC ---- access VLAN 10 ---- [Switch]
+                              |
+                              | trunk 802.1Q
+                              | VLAN 10,20,30 seulement
+                              v
+                         [Distribution]
+
+Verifier les deux extremites, la liste autorisee et le VLAN natif prevu.
+~~~
+
 
 Un port d'accès transporte généralement le trafic d'un VLAN non tagué pour un terminal final. Un trunk transporte plusieurs VLAN avec des étiquettes 802.1Q, habituellement entre commutateurs ou vers des équipements qui ont réellement besoin de plusieurs VLAN. Les détails exacts dépendent de l'équipement et de la plateforme.
 
@@ -103,6 +132,21 @@ Le sticky learning aide à retenir les adresses observées, mais peut enregistre
 
 ## 9. DHCP Snooping
 
+**Schéma pédagogique — Le commutateur distingue les ports fiables pour les réponses DHCP des ports terminaux non fiables.**
+
+~~~text
+[Client DHCP] --> [Port untrusted]
+                       |
+                       v
+                  [Switch] <---- reponse autorisee ---- [DHCP / relais]
+                       ^                                  |
+                       +--------- uplink trusted --------+
+
+Binding appris: VLAN + IP + MAC + port
+Un port terminal ne doit pas etre trusted sans justification.
+~~~
+
+
 DHCP Snooping observe les échanges DHCP et distingue les interfaces autorisées à recevoir des réponses serveur des ports terminaux non fiables. Il permet au commutateur de bloquer certaines réponses DHCP provenant d'un port non fiable et construit généralement une base de correspondance entre adresse IP attribuée, adresse MAC, VLAN et port. Cette base peut alimenter des contrôles supplémentaires comme Dynamic ARP Inspection et IP Source Guard.
 
 Le modèle de confiance dépend du chemin réel. Les ports vers un serveur DHCP légitime ou vers un relais/trunk qui transporte les réponses autorisées peuvent avoir besoin d'un statut de confiance ; les ports de terminaux restent non fiables. Le statut trusted n'est pas un label décoratif : un port de bordure configuré par erreur comme fiable peut permettre à un serveur DHCP clandestin de contourner le contrôle.
@@ -130,6 +174,22 @@ L'exemple montre un uplink de confiance et une limite indicative sur un port ter
 DHCP Snooping doit être déployé prudemment dans un réseau existant. Si la base de liaison n'est pas alimentée, les fonctionnalités qui en dépendent peuvent bloquer des hôtes disposant d'adresses dynamiques. Les équipements utilisant des adresses statiques peuvent nécessiter une association statique ou une ACL ARP adaptée. Avant une activation générale, vérifie la population de la base et prépare un test pilote.
 
 ## 10. Dynamic ARP Inspection (DAI)
+
+**Schéma pédagogique — DAI compare les messages ARP reçus aux bindings ou exceptions explicitement configurées.**
+
+~~~text
+[Trame ARP entrante]
+        |
+        v
+ [DAI sur le VLAN]
+        |
+        +---- correspondance IP/MAC/port valide --> [Transmettre]
+        |
+        +---- non-correspondance / politique -----> [Rejeter + compteur]
+
+Les hôtes statiques peuvent nécessiter des bindings ou ACL compatibles.
+~~~
+
 
 ARP associe une adresse IPv4 locale à une adresse MAC. Les hôtes utilisent normalement ARP pour découvrir l'adresse MAC qui correspond à la passerelle ou à un voisin du même sous-réseau. Sans validation, une machine sur le même domaine de diffusion peut tenter d'envoyer de fausses annonces ARP afin d'associer l'adresse IP d'une victime ou de la passerelle à sa propre adresse MAC.
 
@@ -173,6 +233,22 @@ Un déploiement sûr commence par le VLAN pilote, une cartographie des ports de 
 
 ## 13. Spanning Tree : prévenir les boucles et les manipulations
 
+**Schéma pédagogique — STP conserve une topologie sans boucle ; les protections doivent correspondre au rôle de chaque port.**
+
+~~~text
+             [Switch racine]
+              /           \
+             v             v
+       [Switch A] ------- [Switch B]
+             \             /
+              \\ chemins redondants
+                \\ un port peut etre bloque par STP
+
+Port terminal : PortFast selon plateforme + BPDU Guard si aucune BPDU attendue.
+Lien inter-switch : ne pas appliquer aveuglement les protections terminal.
+~~~
+
+
 Spanning Tree Protocol (STP) évite les boucles de couche 2 en calculant une topologie active qui bloque certains chemins redondants. Les variantes et optimisations modernes, comme Rapid Spanning Tree, réduisent les temps de convergence mais conservent le besoin de contrôler les équipements qui envoient des BPDU et les ports qui doivent participer à la topologie.
 
 Un équipement non autorisé qui envoie des BPDU peut influencer le choix de racine ou modifier la topologie. Sur les ports terminaux où aucun commutateur n'est attendu, PortFast accélère le passage à l'état forwarding dans les déploiements Cisco concernés, mais il ne remplace pas BPDU Guard. BPDU Guard peut mettre le port en état de protection lorsqu'une BPDU inattendue arrive.
@@ -201,6 +277,23 @@ Un seuil trop strict peut bloquer des comportements légitimes, notamment au dé
 Storm control protège la disponibilité, mais ne prouve pas l'identité de la source. Combine-le avec la segmentation, le filtrage, des protections DHCP/ARP, la limitation de débit adaptée et des alertes. Une tempête peut être due à une attaque, à une boucle physique, à un mauvais paramétrage ou à une panne matérielle ; le diagnostic doit considérer ces causes.
 
 ## 15. 802.1X et contrôle d'accès au réseau
+
+**Schéma pédagogique — 802.1X autorise un port selon une décision d'authentification plutôt que de faire confiance à toute prise physique.**
+
+~~~text
+[Supplicant / terminal] -- EAPOL --> [Switch authenticator]
+                                          |
+                                          | RADIUS
+                                          v
+                                  [Serveur authentification]
+                                          |
+                               resultat / role / VLAN
+                                          v
+                                  [Port autorise ou refuse]
+
+MAB peut dépanner les appareils incompatibles, mais n'offre pas la même garantie qu'un certificat.
+~~~
+
 
 IEEE 802.1X fournit un cadre de contrôle d'accès au port basé sur l'authentification. Le commutateur ou l'équipement d'accès joue le rôle d'authenticator et échange avec le terminal, le supplicant, via le protocole EAPOL. Un serveur d'authentification, souvent RADIUS, valide l'identité ou le certificat selon la méthode configurée. Après la décision, la politique peut attribuer un VLAN, un rôle ou des autorisations, selon les capacités de l'infrastructure.
 

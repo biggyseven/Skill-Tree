@@ -183,6 +183,17 @@ Il ne faut pas confondre ce modèle simplifié avec tous les pare-feu modernes :
 
 ### 4.2. Le pare-feu à états (*stateful firewall*)
 
+**Schéma pédagogique — Un pare-feu stateful associe les paquets à l'état d'une connexion.**
+
+~~~text
+Client ---- SYN ----> [Pare-feu stateful] ----> Serveur
+Client <--- SYN/ACK -- [Etat de session] <------ Serveur
+Client ---- ACK ----> [Etat suivi] -----------> Serveur
+
+L'etat de session ne dispense pas de la règle d'autorisation initiale.
+~~~
+
+
 Un pare-feu à états suit les connexions et peut tenir compte de leur progression.
 
 Lorsqu'un client interne ouvre une session Web sortante autorisée, le pare-feu mémorise des informations sur l'échange. Les paquets de réponse appartenant à cette session peuvent alors être reconnus comme du trafic de retour attendu.
@@ -325,6 +336,24 @@ Le silence peut limiter certaines informations communiquées à l'émetteur, mai
 
 ### 5.4. L'ordre des règles
 
+**Schéma pédagogique — Les règles sont généralement évaluées dans un ordre défini ; une règle large peut masquer une règle restrictive.**
+
+~~~text
+Paquet
+  |
+  v
+[Regle 1 : correspond ?] -- oui --> [Action 1] --> fin
+  | non
+  v
+[Regle 2 : correspond ?] -- oui --> [Action 2] --> fin
+  | non
+  v
+[Autres regles] --> [Politique par defaut]
+
+L'ordre exact dépend du moteur de politique du produit.
+~~~
+
+
 Certains pare-feu évaluent les règles dans un ordre déterminé. D'autres utilisent des mécanismes plus complexes avec objets, priorités, politiques et règles spécifiques.
 
 Considérons cette liste fictive :
@@ -384,6 +413,18 @@ Exemples :
 Un poste peut disposer d'un pare-feu très restrictif pour les connexions entrantes mais d'une politique sortante permissive. Cela ne signifie pas qu'il est entièrement protégé : un programme compromis pourrait encore initier des communications sortantes dans la limite des règles autorisées.
 
 ### 6.3. Trafic transféré (*forwarded*)
+
+**Schéma pédagogique — Le trafic transféré traverse l'équipement ; il diffère du trafic destiné au pare-feu lui-même.**
+
+~~~text
+[VLAN Employes] ---> entree [Pare-feu] sortie ---> [Zone serveurs]
+          source         politique forward          destination
+
+Trafic vers l'interface du pare-feu : plan local / input.
+Trafic émis par le pare-feu : plan output.
+Trafic qui traverse : forwarding, selon la plateforme.
+~~~
+
 
 Un pare-feu ou un routeur peut faire transiter des paquets d'un réseau vers un autre.
 
@@ -480,6 +521,24 @@ La politique de sécurité pourrait définir les principes suivants :
 
 ### 8.2. Représentation simplifiée
 
+**Schéma pédagogique — La DMZ isole les services publiés des réseaux internes ; ses flux sortants doivent eux aussi être limités.**
+
+~~~text
+Internet
+   |
+   v
+[Pare-feu perimetrique]
+   |                 \
+   v                  v
+[DMZ Web]          [LAN utilisateurs]
+   |                  |
+   +-- flux precis ---+--> [Serveur donnees]
+       uniquement si autorise
+
+La DMZ n'est pas une zone de confiance totale.
+~~~
+
+
 ```text
                      Internet
                         |
@@ -562,6 +621,21 @@ Cette règle donne une autorisation extrêmement large. Si elle est appliquée �
 Elle peut parfois être requise dans un scénario très particulier et documenté, mais elle doit provoquer une revue de sécurité. Il faut pouvoir expliquer pourquoi elle existe, quelles sont ses limites et comment elle sera remplacée ou contrôlée.
 
 ### 9.2. Exemple de règle plus précise
+
+**Schéma pédagogique — Une règle exploitable décrit clairement source, destination, service, action et justification.**
+
+~~~text
+Autoriser:
+Source: 192.0.2.10/32
+Destination: 198.51.100.20/32
+Service: TCP/443
+Action: ALLOW
+Motif: poste supervise vers portail approuve
+Expiration / responsable: documentes
+
+Tout le reste suit les règles existantes et la politique par défaut.
+~~~
+
 
 ```text
 Source      : serveur applicatif identifié

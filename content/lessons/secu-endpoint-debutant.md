@@ -56,6 +56,20 @@ Le poste est donc à la fois une cible et parfois un point de départ pour attaq
 
 ### 2.4. Endpoint, réseau et serveur
 
+**Schéma pédagogique — La sécurité de l'endpoint complète les protections réseau et serveur.**
+
+~~~text
+[Identite + poste protege]
+          |
+          v
+[Switch / Wi-Fi / VPN] --> [Pare-feu / segmentation] --> [Serveur / application]
+          |                         |                         |
+      EDR / patchs              filtrage                  droits minimaux
+          +-------------------------+-------------------------+
+                    journaux et supervision
+~~~
+
+
 La sécurité des endpoints ne remplace pas celle du réseau ou des serveurs. Un pare-feu réseau peut limiter les communications entre segments. Un pare-feu local contrôle certaines communications de l'appareil. Un EDR observe des activités sur le terminal. Un serveur d'identité applique des règles aux comptes.
 
 Ces contrôles se complètent :
@@ -157,6 +171,20 @@ Une organisation peut utiliser la gestion centralisée des terminaux, un annuair
 
 ### 4.3. Enrôler un appareil
 
+**Schéma pédagogique — Un appareil géré doit avoir une identité, une configuration attendue et un processus de retrait.**
+
+~~~text
+Inventaire --> verifier proprietaire et modele --> Enroler
+    ^                                            |
+    |                                            v
+Retirer et effacer <--- Revue periodique <-- Appliquer baseline
+    |                                            |
+    +--> revoquer certificat / acces <------------+
+
+L'enrôlement n'est terminé qu'après vérification des politiques effectives.
+~~~
+
+
 Lorsqu'un appareil rejoint le parc, il ne devrait pas recevoir immédiatement un accès complet sans vérification. Un processus d'enrôlement peut comprendre l'attribution d'un identifiant, l'installation du système depuis une source approuvée, l'application d'une configuration de référence, les mises à jour, l'activation du pare-feu et de la protection, le chiffrement nécessaire, l'inscription aux outils de gestion et la vérification des accès.
 
 Cette méthode améliore la cohérence et évite les différences difficiles à expliquer entre les appareils.
@@ -176,6 +204,23 @@ Le durcissement, ou hardening, consiste à configurer un appareil pour réduire 
 Le durcissement peut inclure la suppression des logiciels inutiles, la désactivation de services non nécessaires, la limitation des privilèges, l'activation du pare-feu, les mises à jour, la protection des comptes, le chiffrement, le contrôle de l'exécution des applications et la journalisation.
 
 ### 5.2. Configuration de référence
+
+**Schéma pédagogique — Une baseline permet de comparer l'état observé à l'état cible approuvé.**
+
+~~~text
+[Baseline approuvee]
+       |
+       v
+[Configuration attendue] <---- comparaison ---- [Etat observe]
+       |                                          |
+       v                                          v
+[Appliquer ecarts]                         [Rapport de deviation]
+       |                                          |
+       +---------------- verification -------------+
+
+Chaque exception a un proprietaire, un motif et une date de revue.
+~~~
+
 
 Une configuration de référence, ou baseline, décrit l'état attendu d'un appareil. Une baseline de poste de bureau peut préciser :
 - une version prise en charge du système ;
@@ -301,6 +346,29 @@ Il faut vérifier le statut réel plutôt que supposer qu'une protection est act
 
 ### 8.3. EDR
 
+**Schéma pédagogique — L'EDR rapproche les événements de processus, fichiers, identité et réseau pour une investigation contextualisée.**
+
+~~~text
+Processus / fichier / registre / reseau
+                 |
+                 v
+            [Capteur EDR]
+                 |
+                 v
+       [Evenements contextualises]
+                 |
+                 v
+        [Detection / alerte]
+                 |
+         +-------+-------+
+         |               |
+         v               v
+     Investigation   Containment
+
+Un score ou une alerte doit être évalué avec le contexte et les preuves.
+~~~
+
+
 EDR signifie Endpoint Detection and Response, soit détection et réponse sur les terminaux. Un EDR peut collecter des événements relatifs aux processus, fichiers, connexions, comptes et autres activités du terminal. Il aide à reconstituer des séquences et peut permettre certaines actions de réponse, comme isoler un appareil, selon le produit.
 
 L'équipe peut examiner un processus inhabituel, une modification suspecte, une tentative de désactivation des protections ou une connexion réseau inattendue. Un EDR ne dispense pas d'une analyse humaine, d'un réglage des alertes et d'une procédure d'incident ; il peut produire de faux positifs.
@@ -415,6 +483,23 @@ Un endpoint peut contenir des fichiers téléchargés, des caches, des pièces j
 Pour des données sensibles, un espace de stockage géré peut être préférable à une conservation dispersée sur les postes. Les utilisateurs doivent connaître le traitement attendu des fichiers temporaires et des exports.
 
 ### 11.4. Sauvegardes
+
+**Schéma pédagogique — Une sauvegarde doit rester récupérable même si le poste ou les identifiants de production sont compromis.**
+
+~~~text
+Endpoint --> donnees utiles --> [Sauvegarde geree]
+     |                                |
+     v                                v
+Chiffrement disque              acces separe / immuable si possible
+     |                                |
+     +--------------+-----------------+
+                    v
+            Test de restauration
+                    |
+                    v
+         RTO/RPO et integrite verifies
+~~~
+
 
 Les sauvegardes contribuent à la disponibilité et à la récupération. Mais une sauvegarde accessible en écriture depuis le poste compromis peut être chiffrée ou supprimée par un attaquant qui contrôle ce poste.
 

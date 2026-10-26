@@ -44,6 +44,21 @@ Cette logique ordonnée explique pourquoi la liste doit être lue de haut en bas
 
 ## 3. ACL standard et ACL étendue
 
+**Schéma pédagogique — Les ACL standard sont généralement centrées sur la source ; les ACL étendues peuvent matcher plus de champs.**
+
+~~~text
+Paquet = source + destination + protocole + ports
+                |
+       +--------+---------+
+       |                  |
+       v                  v
+[ACL standard]       [ACL etendue]
+Source principalement Source/destination/protocole/ports
+
+Les capacités et leur ordre d'évaluation varient selon la plateforme.
+~~~
+
+
 ### 3.1. ACL standard
 
 Une ACL IPv4 standard classique sélectionne principalement l'adresse IP source. Elle ne sélectionne pas directement un port de destination. Elle est adaptée à des cas où l'origine est le critère principal, par exemple limiter les sources autorisées à utiliser une fonction d'administration.
@@ -69,6 +84,27 @@ Les plages classiques d'ACL étendues numérotées Cisco IOS comprennent notamme
 Le mot « étendue » ne garantit pas une meilleure sécurité. Une ACL étendue avec un permit général prématuré est aussi problématique qu'une ACL standard mal placée. Le choix dépend du besoin réel.
 
 ## 4. Ordre d'évaluation et refus implicite
+
+**Schéma pédagogique — Avec une évaluation première correspondance, la règle atteinte en premier prend la décision.**
+
+~~~text
+Paquet
+  |
+  v
+[permit source admin vers SSH ?] -- oui --> PERMIT
+  | non
+  v
+[deny source X vers serveur ?] --- oui --> DENY
+  | non
+  v
+[permit HTTPS vers service ?] ---- oui --> PERMIT
+  | non
+  v
+[Refus implicite final]
+
+Une règle jamais atteinte ne produit aucun effet.
+~~~
+
 
 Les ACL classiques sont généralement évaluées dans l'ordre. Le dispositif examine une entrée, vérifie si le trafic correspond, puis applique l'action. Une correspondance décide du traitement du paquet ; les entrées suivantes ne viennent pas annuler cette décision.
 
@@ -109,6 +145,21 @@ La règle « permit ip any any » autorise un ensemble très large de communicat
 Pour une politique professionnelle restrictive, inventorie les flux requis, permets-les explicitement puis laisse le refus implicite traiter le reste. Pour une politique plus permissive, documente son objectif, son périmètre, son propriétaire et le risque. Il doit être possible d'expliquer pourquoi la règle existe et comment elle sera revue.
 
 ## 5. Adresses, host, any et wildcard
+
+**Schéma pédagogique — Le wildcard indique quels bits d'une adresse sont ignorés lors de la comparaison.**
+
+~~~text
+Masque reseau /24 : 255.255.255.0
+Wildcard             :   0.  0.  0.255
+
+Prefixe               : 192.0.2.0
+Plage visee           : 192.0.2.0/24
+
+host 192.0.2.10 = une seule adresse.
+any = toutes les adresses dans le champ concerne.
+Verifier toujours le sens du wildcard.
+~~~
+
 
 ### 5.1. Adresses exactes et toutes les sources
 
@@ -183,6 +234,19 @@ Le mot-clé IP dans une ACL étendue IPv4 classique couvre des paquets IP au-del
 Les ACL classiques sont en général sans état. L'option TCP established sur certaines plateformes teste des indicateurs comme ACK ou RST ; elle n'est pas l'équivalent universel d'un suivi de session complet. N'utilise pas cette option comme substitut systématique à un pare-feu stateful.
 
 ## 7. Choisir l'interface et la direction
+
+**Schéma pédagogique — La direction in/out se définit du point de vue de l'interface du routeur.**
+
+~~~text
+LAN A ---> [Interface routeur] ---> WAN
+             ^ in        out ^
+
+ACL in  : examine le paquet quand il entre par cette interface.
+ACL out : examine le paquet quand il en sort.
+
+Tracer le chemin du paquet avant de choisir le point d'attachement.
+~~~
+
 
 Sur un routeur, in et out sont définis du point de vue de l'interface où l'ACL est attachée :
 
@@ -298,6 +362,20 @@ Ne vide pas toute la configuration pour « repartir de zéro ». Un outil centra
 Ne diagnostique pas uniquement avec ping : ICMP et TCP sont différents. Un serveur peut répondre au ping et refuser SSH, ou ne pas répondre au ping alors que son service Web fonctionne. Utilise des tests correspondant au protocole applicatif, et combine-les avec les données des routeurs et de l'hôte.
 
 ## 16. TP guidé : bloquer l'attaquant vers le serveur
+
+**Schéma pédagogique — Les tests doivent prouver le refus ciblé et préserver les flux légitimes.**
+
+~~~text
+[Hote attaque 192.0.2.50] ---X---> [Serveur 198.51.100.20:443]
+[Poste admin 192.0.2.10] ---------> [Serveur 198.51.100.20:443]
+
+Tests attendus:
+1. source interdite + service cible : refus
+2. source admin + service cible : autorise
+3. autres services non demandes : conformes a la politique
+4. compteurs et journaux : coherents
+~~~
+
 
 Le laboratoire associé à Skill-Tree contient R1, un commutateur de niveau 2, un PC Attaquant et un serveur Protégé. Fa0/0 sur R1 utilise 192.168.1.1/24 ; le PC Attaquant utilise 192.168.1.10/24. Fa0/1 sur R1 utilise 10.0.0.1/24 et le serveur utilise 10.0.0.5/24.
 

@@ -26,6 +26,28 @@ Le rôle du professionnel de la cybersécurité consiste à comprendre les évé
 
 ### 1.2. Différence entre menace, vulnérabilité et risque
 
+**Schéma pédagogique — Le risque naît d'un scénario plausible qui relie une menace à une faiblesse et à un impact.**
+
+~~~text
+Actif a proteger
+      |
+      v
+[Vulnerabilite exploitable] <--- [Menace / acteur / evenement]
+      |
+      v
+[Scenario d'incident plausible]
+      |
+      +---- Probabilite estimee
+      +---- Impact estime
+      |
+      v
+[Risque a prioriser]
+      |
+      v
+[Mesure] -> [Test] -> [Risque residuel]
+~~~
+
+
 Ces trois notions sont liées, mais elles ne signifient pas la même chose.
 
 **La menace** est la cause potentielle d'un incident. Par exemple, une personne peut tenter de voler les identifiants d'un employé.
@@ -164,6 +186,29 @@ Une personne peut ainsi transmettre un mot de passe, ouvrir un document dangereu
 L'ingénierie sociale ne repose pas toujours sur des techniques informatiques complexes. Elle exploite surtout le contexte et le comportement humain.
 
 ### 4.2. L'hameçonnage
+
+**Schéma pédagogique — Le message trompeur cherche à déclencher une action qui compromet l'identité ou le poste.**
+
+~~~text
+[Courriel imite une source de confiance]
+                 |
+                 v
+       [Lien ou piece jointe]
+                 |
+       +---------+----------+
+       |                    |
+       v                    v
+[Verification externe]   [Saisie du secret]
+       |                    |
+       v                    v
+[Signalement]          [Compte expose]
+                            |
+                            v
+                  [Revoquer session / alerter]
+
+Le bon réflexe est de vérifier par un canal indépendant.
+~~~
+
 
 L'hameçonnage, aussi appelé *phishing*, consiste à tromper une personne pour l'amener à révéler des informations ou à effectuer une action dangereuse.
 
@@ -480,6 +525,23 @@ Dans une entreprise, le réseau destiné aux visiteurs ne devrait pas nécessair
 
 ### 8.7. La segmentation réseau
 
+**Schéma pédagogique — La segmentation réduit le déplacement latéral ; les flux entre zones doivent être filtrés explicitement.**
+
+~~~text
+              [Routeur / pare-feu L3]
+                 /       |       \
+                v        v        v
+        [Utilisateurs] [Serveurs] [Invites]
+          VLAN 10      VLAN 20    VLAN 40
+             |            |          |
+       droits limites  applis      Internet
+             \            |          /
+              +---- politiques inter-zones ----+
+
+Séparer les VLAN et filtrer les flux routés sont deux actions complémentaires.
+~~~
+
+
 La segmentation divise un réseau en zones dont les communications sont contrôlées.
 
 Par exemple, les postes des apprenants, les postes administratifs et les serveurs peuvent être placés dans des segments différents, avec des règles qui limitent les échanges aux besoins de l'activité.
@@ -695,6 +757,22 @@ Il faut également tenir compte de l'heure système. Si plusieurs composants uti
 
 ### 14.3. Le principe de corrélation
 
+**Schéma pédagogique — Plusieurs sources et une chronologie cohérente donnent plus de contexte qu'un signal isolé.**
+
+~~~text
+[Email / passerelle] ----\
+[Identite / MFA] ----------+--> [Collecte centralisee] --> [Correlation]
+[Endpoint / EDR] ----------+             |                     |
+[DNS / pare-feu] ----------/             v                     v
+                                      horodatage           alerte enrichie
+                                                            |
+                                                            v
+                                                    triage humain
+
+Corréler ne signifie pas que chaque signal est une preuve définitive.
+~~~
+
+
 Un événement isolé est souvent ambigu. Plusieurs événements liés peuvent révéler un scénario plus clair.
 
 Par exemple :
@@ -742,6 +820,27 @@ Il faut éviter de supprimer les fichiers ou les traces de manière impulsive. L
 Les preuves ne doivent pas être modifiées inutilement. Dans certains environnements, une procédure de collecte documentée est nécessaire.
 
 ### 15.3. Limiter la propagation
+
+**Schéma pédagogique — Conserver les preuves tout en réduisant le rayon d'impact.**
+
+~~~text
+[Detecter]
+    |
+    v
+[Confirmer les faits et conserver les journaux]
+    |
+    v
+[Isoler le compte / poste / segment concerne]
+    |
+    v
+[Revoquer acces et jetons si necessaire]
+    |
+    v
+[Eradiquer la cause] --> [Restaurer] --> [Surveiller]
+
+Choisir un confinement proportionne et coordonne.
+~~~
+
 
 Si un appareil semble compromis, il peut être nécessaire de le déconnecter du réseau selon la procédure d'incident. L'objectif est de réduire la possibilité que l'événement affecte d'autres systèmes.
 

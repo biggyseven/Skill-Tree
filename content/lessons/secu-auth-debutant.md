@@ -28,6 +28,19 @@ Toutes ces informations ne sont pas nécessairement des secrets. Un nom d'affich
 
 ### 2.2. Identification, authentification et autorisation
 
+**Schéma pédagogique — Ces trois étapes sont liées mais ne signifient pas la même chose.**
+
+~~~text
+[Identification] --> [Authentification] --> [Autorisation]
+ Qui es-tu ?        Prouve-le comment ?   Que peux-tu faire ?
+       |                    |                    |
+       v                    v                    v
+ nom / compte       mot de passe + MFA      role / politique
+
+Une authentification reussie ne confere pas tous les privileges.
+~~~
+
+
 L'identification consiste à indiquer quelle identité on souhaite utiliser. Par exemple, tu saisis le nom de compte technicien01 dans le formulaire de connexion.
 
 L'authentification consiste à vérifier que tu contrôles les moyens d'accès associés à cette identité. Tu peux fournir un mot de passe, puis confirmer la connexion avec un facteur supplémentaire.
@@ -92,6 +105,22 @@ C'est un objet ou dispositif contrôlé par l'utilisateur : clé de sécurité c
 C'est une caractéristique biométrique, par exemple une empreinte digitale ou une reconnaissance faciale. La biométrie n'est pas un secret ordinaire que l'on peut remplacer comme un mot de passe. Dans de nombreux systèmes, elle sert à déverrouiller localement un authentificateur ; le serveur ne reçoit pas nécessairement l'image biométrique.
 
 ### 4.4. Exemples d'authentification multifacteur
+
+**Schéma pédagogique — Deux facteurs de catégories différentes sont plus solides que deux secrets du même type.**
+
+~~~text
+Facteur connaissance: mot de passe ------\
+                                           +--> decision MFA
+Facteur possession: cle / application -----/
+
+Autres controles possibles:
+- biometrie locale d'un appareil
+- certificat d'appareil
+- contexte et etat de conformite
+
+Deux mots de passe restent deux elements de la meme categorie.
+~~~
+
 
 Cas A : le site demande deux mots de passe. Les deux sont des secrets connus ; ce n'est pas une MFA au sens des catégories de facteurs.
 
@@ -207,6 +236,26 @@ Les utilisateurs ne doivent jamais approuver une demande qu'ils n'ont pas eux-m�
 
 ### 8.3. Le contexte et la correspondance de nombres
 
+**Schéma pédagogique — La confirmation explicite réduit les approbations accidentelles liées aux notifications répétées.**
+
+~~~text
+Attaquant provoque demande MFA
+             |
+             v
+Utilisateur voit: demande / nombre / contexte
+             |
+       +-----+------+
+       |            |
+       v            v
+Demande attendue  Demande inattendue
+       |            |
+       v            v
+Verifier le code  Refuser + signaler
+
+Ne jamais approuver une notification que tu n'as pas initiee.
+~~~
+
+
 Une notification indiquant seulement « Autoriser la connexion ? » donne peu d'informations. Lorsqu'un système le permet, il peut afficher des détails complémentaires ou exiger une correspondance de nombres pour rendre les validations accidentelles plus difficiles.
 
 Cela n'est pas automatiquement une protection résistante au phishing : l'amélioration réduit certains risques sans remplacer un protocole cryptographique lié au site attendu.
@@ -226,6 +275,24 @@ Une clé de sécurité est un dispositif capable de réaliser des opérations cr
 La clé publique est enregistrée par le service ; le secret cryptographique correspondant reste protégé par l'authentificateur.
 
 ### 9.2. Principe de WebAuthn
+
+**Schéma pédagogique — Une passkey est liée à une origine et limite l'envoi d'un secret réutilisable à un faux domaine.**
+
+~~~text
+[Site legitime] --> challenge --> [Navigateur]
+                                  |
+                                  v
+                           [Authentificateur]
+                           cle privee locale
+                                  |
+                       signature du challenge
+                                  |
+                                  v
+[Serveur verifie la signature avec la cle publique enregistree]
+
+Le navigateur verifie aussi l'origine dans le mecanisme WebAuthn.
+~~~
+
 
 Lors de l'inscription, un authentificateur crée généralement une paire de clés associée au compte et au service. La clé publique est enregistrée par le service, tandis que le secret privé est conservé par l'authentificateur. Lors d'une connexion, le service présente un défi cryptographique ; l'authentificateur produit une réponse vérifiable avec la clé publique.
 
@@ -354,6 +421,26 @@ La réauthentification doit être proportionnée au risque et expliquée à l'ut
 Lorsqu'un utilisateur passe de l'état non authentifié à une session authentifiée, une application doit gérer correctement l'identifiant de session pour éviter certains scénarios de fixation de session. Les frameworks proposent généralement des mécanismes pour renouveler ou invalider les sessions ; il est préférable de les utiliser plutôt que de construire une solution artisanale.
 
 ### 13.4. Déconnexion et révocation
+
+**Schéma pédagogique — Une session active est distincte du mot de passe et peut nécessiter une révocation explicite.**
+
+~~~text
+Connexion + MFA
+      |
+      v
+[Session / cookie / jeton]
+      |
+      +--> requetes authentifiees
+      |
+      +--> expiration
+      |
+      +--> deconnexion / revocation cote serveur
+      |
+      +--> reauthentification si action sensible
+
+Changer le mot de passe ne garantit pas l'invalidation de toutes les sessions.
+~~~
+
 
 Se déconnecter dans un navigateur doit invalider la session selon le fonctionnement de l'application. Fermer un onglet n'a pas nécessairement le même effet. Les services sensibles doivent prévoir comment révoquer une session depuis le serveur, fermer les sessions d'un appareil perdu et traiter les jetons devenus invalides.
 

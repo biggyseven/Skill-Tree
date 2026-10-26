@@ -47,6 +47,21 @@ C'est pourquoi il faut contrôler l'accès au réseau et protéger les échanges
 
 ### 2.2. Les composants d'un réseau Wi-Fi
 
+**Schéma pédagogique — Le point d'accès relie le médium radio au réseau filaire ; les politiques L3 interviennent sur la suite du trajet.**
+
+~~~text
+[Laptop] ))) [Point d'acces] -- trunk/VLAN --> [Switch]
+                                                   |
+                                                   v
+                                           [Routeur / pare-feu]
+                                             /             \
+                                            v               v
+                                      [LAN interne]      [Internet]
+
+Un point d'accès n'est pas automatiquement la passerelle IP du client.
+~~~
+
+
 Les principaux composants sont :
 
 **Le client sans fil.** C'est l'appareil qui se connecte : ordinateur, téléphone, tablette ou équipement connecté.
@@ -181,6 +196,18 @@ Pour un réseau d'entreprise, WPA3-Enterprise s'intègre à un modèle d'authent
 
 ### 4.5. Quel mode faut-il préférer ?
 
+**Schéma pédagogique — Les mécanismes obsolètes ne doivent pas être conservés par défaut.**
+
+~~~text
+WEP  --> obsolete / ne pas choisir
+WPA  --> transition historique
+WPA2 --> mode fort et bien configure si necessaire
+WPA3 --> preferer lorsque clients et infrastructure le supportent
+
+Le choix Personal/Enterprise et les suites cryptographiques doit aussi être vérifié.
+~~~
+
+
 Dans une nouvelle installation, privilégie le mode le plus robuste pris en charge par les points d'accès et tous les clients nécessaires, généralement WPA3 dans les environnements compatibles.
 
 Si certains appareils ne prennent pas en charge WPA3, évalue les conséquences et les possibilités de remplacement. Un mode de transition peut aider à gérer la compatibilité, mais il maintient des comportements hérités et doit être considéré comme un choix temporaire ou justifié, plutôt que comme une option à activer sans analyse.
@@ -246,6 +273,22 @@ Schéma conceptuel :
 Les noms décrivent des rôles logiques. Selon le matériel et l'architecture, plusieurs fonctions peuvent être intégrées ou administrées par un service centralisé.
 
 ### 5.4. Le rôle de RADIUS
+
+**Schéma pédagogique — En mode entreprise, l'authentification individuelle peut être déléguée à RADIUS.**
+
+~~~text
+[Client Wi-Fi]
+     | EAP
+     v
+[Point d'acces / controleur] ---- RADIUS ----> [Serveur d'authentification]
+     |                                           |
+     |<------- resultat / politique --------------+
+     v
+[Acces autorise, VLAN ou role applique]
+
+Le client doit vérifier l'identité du serveur selon la méthode choisie.
+~~~
+
 
 RADIUS est un protocole couramment utilisé pour centraliser l'authentification, l'autorisation et, selon l'architecture, la comptabilisation des accès réseau.
 
@@ -338,6 +381,23 @@ Un réseau invité permet de séparer ces besoins. Un visiteur peut accéder à 
 La séparation doit être réelle : une différence de SSID n'est pas suffisante si les deux noms conduisent au même réseau sans filtrage.
 
 ### 7.2. Exemple d'architecture
+
+**Schéma pédagogique — Le réseau invité doit être isolé des ressources internes par VLAN, routage et filtrage.**
+
+~~~text
+                   [Point d'acces]
+                   /             \
+              SSID Employes     SSID Invites
+                  |                  |
+                VLAN 10            VLAN 40
+                  |                  |
+            [LAN interne]      [Pare-feu / Internet]
+                  ^                  X
+                  +--- acces invite refuse aux serveurs
+
+L'isolation des clients Wi-Fi s'ajoute au filtrage inter-VLAN.
+~~~
+
 
     Internet
        |
@@ -494,6 +554,23 @@ Une puissance trop faible peut créer des zones sans couverture. Une puissance e
 La couverture doit être adaptée aux locaux et aux besoins. Il est utile de mesurer les zones de connexion et d'identifier les endroits où les utilisateurs basculent entre plusieurs points d'accès.
 
 ### 11.4. Roaming
+
+**Schéma pédagogique — Le roaming permet au client de changer de point d'accès ; la politique de sécurité doit rester cohérente.**
+
+~~~text
+Client mobile
+    |
+    +--- radio ---> [AP-1 / cellule A]
+    |                    |
+    |               reseau d'acces
+    |
+    +--- roaming --> [AP-2 / cellule B]
+                         |
+                   meme politique reseau
+
+La couverture radio seule ne garantit ni sécurité ni disponibilité.
+~~~
+
 
 Dans une installation comportant plusieurs points d'accès, un client peut changer de point d'accès lorsque l'utilisateur se déplace. Le roaming doit être configuré pour offrir une transition fiable sans créer de zones de confiance incohérentes.
 

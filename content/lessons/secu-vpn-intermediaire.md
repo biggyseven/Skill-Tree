@@ -22,6 +22,19 @@ Le VPN ne rend pas automatiquement sûr le terminal de l'utilisateur, le serveur
 
 ## 3. VPN Site-to-Site et accès distant
 
+**Schéma pédagogique — Le Site-to-Site relie des réseaux par des passerelles ; l'accès distant relie un terminal individuel au service VPN.**
+
+~~~text
+SITE-TO-SITE:
+[LAN A]--[GW A] ===== tunnel protege ===== [GW B]--[LAN B]
+
+ACCES DISTANT:
+[Laptop] ==== tunnel individuel ==== [Concentrateur VPN] ---> [Ressources autorisees]
+
+Dans les deux cas, routes et règles de filtrage restent nécessaires.
+~~~
+
+
 ### VPN Site-to-Site
 
 Un VPN Site-to-Site relie généralement deux passerelles réseau, par exemple les routeurs ou pare-feu de deux bureaux. Les équipements établissent un tunnel ou une association de sécurité, puis protègent le trafic entre des réseaux définis. Les postes utilisateurs n'ont pas nécessairement besoin d'exécuter un client VPN individuel, car leurs paquets sont protégés par les passerelles.
@@ -57,6 +70,19 @@ Les VPN basés sur TLS ou des protocoles dérivés utilisent des mécanismes aut
 Le choix doit prendre en compte les équipements, les clients compatibles, les besoins d'accès, la gestion des identités, les performances, l'exploitation, la journalisation, les contraintes réseau et la possibilité de mettre à jour les composants. Le nom du protocole ne suffit pas à évaluer la sécurité : la version, les suites cryptographiques, l'authentification et la politique comptent.
 
 ## 5. Notions fondamentales d'IPsec
+
+**Schéma pédagogique — En mode tunnel, ESP protège le paquet interne et le transporte dans un paquet externe entre les pairs IPsec.**
+
+~~~text
+Paquet interne:
+[IP source LAN-A | IP destination LAN-B | donnees]
+                 |
+                 v encapsulation ESP
+[IP externe GW-A | ESP { paquet interne protege } | GW-B]
+
+Le chemin externe révèle encore certaines métadonnées ; la charge utile est protégée selon la suite configurée.
+~~~
+
 
 IPsec protège les paquets IP selon une politique. Les deux concepts souvent évoqués sont AH (*Authentication Header*) et ESP (*Encapsulating Security Payload*). ESP peut fournir confidentialité, intégrité et authentification selon la suite sélectionnée. AH ne chiffre pas le contenu et est moins courant dans les VPN modernes ; les interactions avec NAT peuvent également le rendre peu pratique.
 
@@ -108,6 +134,18 @@ Un tunnel peut être techniquement établi mais inutilisable si les routes sont 
 
 ## 10. Sélecteurs, politiques et routage
 
+**Schéma pédagogique — En policy-based, la politique sélectionne le trafic ; en route-based, le routage dirige le trafic vers une interface de tunnel.**
+
+~~~text
+POLICY-BASED: [Paquet] --> [Selecteurs local/distant] --> [IPsec]
+
+ROUTE-BASED:  [Paquet] --> [Table de routage] --> [Interface tunnel] --> [IPsec]
+
+Dans les deux modeles:
+[Routes retour] + [Pare-feu] + [NAT] doivent correspondre au besoin.
+~~~
+
+
 Dans un VPN IPsec policy-based, les sélecteurs ou ACL cryptographiques décrivent le trafic à protéger, comme le réseau local A vers le réseau distant B. Les politiques basées sur les routes utilisent une interface de tunnel logique sur laquelle le routage dirige les paquets. Les détails diffèrent selon le fournisseur. Il faut savoir quel modèle est utilisé et comment les paquets sont sélectionnés.
 
 Une ACL qui sélectionne le trafic à chiffrer n'est pas nécessairement une ACL de pare-feu. Les mêmes mots peuvent désigner différents rôles. Il faut documenter séparément les critères d'inclusion dans le tunnel, les autorisations de sécurité et les routes. Une configuration qui autorise un flux dans le pare-feu ne garantit pas qu'il est sélectionné pour le tunnel ; un sélecteur qui comprend le flux ne garantit pas que le pare-feu l'autorise.
@@ -134,6 +172,21 @@ LAN-A 192.168.10.0/24
 La politique doit décrire les destinations qui utilisent le VPN et celles qui utilisent la sortie Internet normale. Vérifie les adresses avant et après traduction dans la table NAT et les journaux. Ne crée pas un « no NAT » global sans regarder les autres réseaux de l'entreprise.
 
 ## 12. Full tunnel et split tunnel
+
+**Schéma pédagogique — Le tunnel détermine quelles destinations du client empruntent l'infrastructure de l'organisation.**
+
+~~~text
+FULL TUNNEL:
+[Client] --> [VPN] --> [Reseaux internes + sortie Internet d'entreprise]
+
+SPLIT TUNNEL:
+[Client] --> [VPN] --> [Prefixes internes selectionnes]
+   |
+   +--------> [Reseau local / Internet direct pour les autres destinations]
+
+Documenter les routes, le DNS et les conséquences de sécurité.
+~~~
+
 
 Avec le **full tunnel**, le trafic IP choisi de l'appareil distant passe par le VPN et est souvent acheminé vers l'infrastructure de l'entreprise, y compris l'accès Internet selon la politique. L'organisation peut ainsi appliquer les contrôles centraux, les filtres DNS ou Web et la journalisation attendue. La charge de bande passante, la latence et la capacité des concentrateurs doivent être dimensionnées.
 
@@ -213,6 +266,27 @@ Sur Linux, si strongSwan est utilisé, des commandes comme ipsec statusall ou la
 Sur un client Windows, examine l'état de l'adaptateur VPN, les adresses attribuées et les routes effectives. Les paramètres et commandes dépendent du type de client VPN et de la politique centralisée. Ne désactive pas le pare-feu de Windows ou l'antivirus pour diagnostiquer un tunnel ; commence par des mesures ciblées et les journaux.
 
 ## 20. Procédure de dépannage d'un tunnel inactif
+
+**Schéma pédagogique — Diagnostiquer par couches évite de modifier les algorithmes quand le défaut vient du routage ou du filtrage.**
+
+~~~text
+1. Connectivite entre pairs / transport
+          |
+          v
+2. IKE: proposition + identite + authentification
+          |
+          v
+3. Association IPsec / selecteurs
+          |
+          v
+4. Routes + NAT + ACL + chemin retour
+          |
+          v
+5. Application + DNS + MTU
+
+A chaque étape : mesurer, noter, changer un élément, retester.
+~~~
+
 
 1. Confirme l'état des interfaces, les adresses des pairs et la connectivité IP entre les passerelles.
 2. Vérifie les routes vers le pair, les ports ou protocoles nécessaires au modèle de VPN et les règles sur le chemin.

@@ -36,6 +36,19 @@ Le hachage fournit un moyen compact de représenter le contenu d'un fichier. On 
 
 ### 2.2. Qu'est-ce qu'une fonction de hachage ?
 
+**Schéma pédagogique — Une fonction calcule une empreinte de taille définie à partir d'un contenu de taille variable.**
+
+~~~text
+Fichier A (petit ou grand) ----\
+Texte --------------------------+--> [Fonction SHA-256] --> empreinte 256 bits
+Fichier B ----------------------/
+
+Meme contenu => meme empreinte.
+Modification du contenu => empreinte generalement tres differente.
+Le hachage n'est pas un chiffrement reversible.
+~~~
+
+
 Une fonction de hachage prend une donnée en entrée et calcule une valeur de longueur déterminée, appelée empreinte, digest ou résumé cryptographique. Une fonction telle que SHA-256 produit une empreinte de 256 bits, quelle que soit la taille ordinaire du message traité. Une empreinte SHA-256 affichée en hexadécimal comporte généralement 64 caractères, chaque caractère hexadécimal représentant quatre bits.
 
 L'empreinte n'est pas le fichier lui-même. Elle ne permet pas normalement de reconstruire le contenu original. Il s'agit d'une représentation calculée à partir du contenu, conçue notamment pour permettre des comparaisons fiables selon les propriétés de sécurité de l'algorithme.
@@ -130,6 +143,21 @@ Pour un exercice de vérification de fichier, SHA-256 est un exemple pédagogiqu
 ## 5. Vérifier un fichier avec une empreinte
 
 ### 5.1. Le principe
+
+**Schéma pédagogique — La comparaison n'est utile que si l'empreinte de référence provient d'une source fiable.**
+
+~~~text
+[Fichier telecharge] ---------> SHA-256 --------> H1
+                                                       |
+[Empreinte attendue fiable] --------------------------+--> comparaison
+                                                       |
+                                      +----------------+----------------+
+                                      v                                 v
+                                  Identiques                       Differentes
+                                  concordance                      verifier source,
+                                  technique                        transfert et fichier
+~~~
+
 
 La vérification se déroule généralement ainsi :
 1. obtenir le fichier à examiner ;
@@ -253,6 +281,26 @@ Le stockage des mots de passe utilise donc des fonctions dédiées, conçues pou
 
 ### 8.3. Le rôle du sel
 
+**Schéma pédagogique — Le sel est propre à chaque enregistrement et rend plus difficile la réutilisation de tables précalculées.**
+
+~~~text
+Mot de passe + sel aleatoire
+            |
+            v
+[Argon2id / scrypt / bcrypt selon politique]
+            |
+            v
+[Parametres + sel + hash stockes]
+            |
+Connexion: mot de passe fourni + meme sel
+            |
+            v
+        recalcul et comparaison
+
+Ne jamais stocker le mot de passe en clair ni utiliser SHA-256 seul pour le stockage.
+~~~
+
+
 Un sel est une valeur associée au mot de passe lors du calcul de son vérificateur. Il doit être unique pour chaque mot de passe stocké et généré de manière appropriée. Le sel empêche notamment que deux utilisateurs ayant choisi le même mot de passe aient automatiquement des vérificateurs identiques, et limite l'utilité de tables précalculées.
 
 Le sel n'a pas besoin d'être secret. Il est conservé avec les paramètres et le vérificateur. Il ne remplace ni un mot de passe robuste ni une fonction spécialisée.
@@ -282,6 +330,20 @@ Une fonction de hachage ordinaire ne nécessite pas de secret. Tout utilisateur 
 Pour authentifier un message entre des parties qui partagent un secret, on peut utiliser un HMAC, un code d'authentification de message construit à partir d'une fonction de hachage et d'une clé secrète.
 
 ### 9.2. Principe du HMAC
+
+**Schéma pédagogique — Un HMAC authentifie un message avec un secret partagé ; une empreinte simple ne prouve pas l'origine.**
+
+~~~text
+Emetteur: message + secret partage --> HMAC --> message || tag
+                                                |
+                                                v
+Destinataire: message recu + meme secret --> HMAC recalcule
+                                                |
+                                        comparer le tag
+
+HMAC n'est pas une signature a cle publique : les deux parties partagent le secret.
+~~~
+
 
     Message + clé secrète
             |
@@ -409,6 +471,24 @@ La validation doit considérer la chaîne de certification, les périodes de val
 Un certificat peut contenir la clé publique et des informations d'identité. Il ne doit pas être confondu avec la clé privée, qui reste secrète et permet d'effectuer les opérations de signature. Le certificat peut être distribué publiquement ; la clé privée associée doit rester protégée.
 
 ### 13.3. Chaîne de certification
+
+**Schéma pédagogique — Une signature de certificat relie une clé publique à une identité suivant une chaîne de confiance.**
+
+~~~text
+Racine de confiance locale
+          |
+          v
+Certificat CA intermediaire
+          |
+          v
+Certificat du service / identite
+          |
+          v
+Verification: chaine + dates + nom + usages + statut
+
+Une signature valide ne suffit pas si l'identité ou la politique est incorrecte.
+~~~
+
 
     Autorité racine approuvée
               |

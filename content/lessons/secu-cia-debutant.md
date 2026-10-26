@@ -53,6 +53,26 @@ Ces objectifs sont reconnus dans les références du National Institute of Stand
 
 ### 1.3. Que signifie CIA ?
 
+**Schéma pédagogique — Les trois objectifs de sécurité se complètent.**
+
+~~~text
+                 +----------------+
+                 |  CYBERSECURITE  |
+                 +----------------+
+                   /      |      \
+                  v       v       v
+        +-------------+ +--------+ +-------------+
+        | Confidential| |Integrite| |Disponibilite|
+        | Qui lit ?   | | Qui a  | | Le service  |
+        |             | | modifie?| | repond ?    |
+        +-------------+ +--------+ +-------------+
+                  \       |       /
+                   \      |      /
+                    v     v     v
+             Mesures combinees et testees
+~~~
+
+
 Dans le domaine de la cybersécurité, CIA est un acronyme anglais. Il ne désigne pas ici une agence de renseignement.
 
 | Lettre | Terme anglais | Terme français | Question centrale |
@@ -267,6 +287,21 @@ La sensibilisation ne remplace pas les mesures techniques. Elle réduit toutefoi
 
 ### 2.6. Confidentialité des données au repos et en transit
 
+**Schéma pédagogique — Les protections du transport et du stockage sont différentes.**
+
+~~~text
+[Client] -- HTTPS/TLS --> [Application] --> [Base de donnees]
+   |                           |                    |
+   |                           |                    +-- chiffrement au repos
+   |                           +-- controles d'acces
+   +-- appareil protege
+
+En transit : proteger le trajet.
+Au repos   : proteger le stockage.
+Cle privee : gestion separee des donnees.
+~~~
+
+
 Il est utile de distinguer deux situations.
 
 Les **données au repos** sont stockées sur un support : disque dur, SSD, serveur, sauvegarde ou base de données.
@@ -393,6 +428,23 @@ Une application qui ne vérifie pas les autorisations avant une modification peu
 La validation des entrées et le contrôle des permissions doivent être réalisés côté serveur, et pas uniquement dans l'interface affichée au navigateur.
 
 ### 3.6. Les mécanismes de protection de l'intégrité
+
+**Schéma pédagogique — Une empreinte détecte une différence ; sa référence doit être fiable.**
+
+~~~text
+Fichier original -----> SHA-256 -----> Empreinte attendue
+                                            |
+Fichier recu ----------> SHA-256 -----> Empreinte calculee
+                                            |
+                              +-------------+-------------+
+                              |                           |
+                          Identiques                  Different
+                              |                           |
+                    Concordance technique          Investiguer
+
+L'empreinte attendue doit provenir d'une source fiable.
+~~~
+
 
 #### Les permissions et la séparation des rôles
 
@@ -593,6 +645,26 @@ Un tel plan doit être testé. Un document qui n'a jamais été vérifié ne gar
 
 ### 4.5. Les notions de RTO et de RPO
 
+**Schéma pédagogique — RTO et RPO mesurent deux objectifs distincts de reprise.**
+
+~~~text
+Incident
+   |
+   v
+   X-------------------------------> Temps
+   |<------ RTO vise ------>| Service retabli
+
+Derniere sauvegarde valide       Incident
+          |                         |
+          v                         v
+          +-------------------------+
+          |<------ RPO ------>| Perte potentielle de donnees
+
+RTO = duree d'indisponibilite cible.
+RPO = intervalle de donnees potentiellement perdu.
+~~~
+
+
 Deux notions sont particulièrement utiles pour comprendre la disponibilité et la récupération après incident.
 
 **RTO — Recovery Time Objective**, ou objectif de durée de reprise : il s'agit du délai cible dans lequel un service doit être rétabli après une interruption.
@@ -761,6 +833,23 @@ Il faut raisonner à partir de la menace, de la vulnérabilité et de la conséq
 ## 7. Appliquer la triade CIA à un réseau informatique
 
 ### 7.1. Exemple d'architecture réseau
+
+**Schéma pédagogique — Les objectifs CIA s'appliquent sur toute la chaîne de traitement.**
+
+~~~text
+[Utilisateur]
+     |
+     v
+[Switch / VLAN] ---> [Pare-feu] ---> [Serveur applicatif] ---> [Base de donnees]
+     |                    |                    |                       |
+  segmentation        filtrage             journalisation          chiffrement
+     |                    |                    |                       |
+     +--------------------+--------------------+-----------------------+
+                 Controle, supervision et sauvegardes
+
+Une panne ou compromission d'un seul maillon peut affecter plusieurs objectifs.
+~~~
+
 
 Une entreprise possède un réseau local, des postes de travail, un serveur de fichiers et une application métier.
 

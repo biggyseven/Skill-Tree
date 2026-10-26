@@ -181,6 +181,28 @@ L'obfuscation peut compliquer une analyse superficielle, mais elle n'offre pas l
 
 ### 3.3. Le chiffrement
 
+**Schéma pédagogique — Le chiffrement protège le contenu avec une clé et un algorithme.**
+
+~~~text
+Texte en clair + cle
+         |
+         v
+   [Algorithme de chiffrement]
+         |
+         v
+   Texte chiffre
+         |
+         | cle et algorithme adaptes
+         v
+   [Dechiffrement autorise]
+         |
+         v
+   Texte en clair
+
+Le chiffrement n'empêche pas à lui seul la suppression ou le blocage d'un message.
+~~~
+
+
 Le chiffrement utilise un mécanisme cryptographique et une clé. Les personnes qui ne possèdent pas les éléments nécessaires ne devraient pas pouvoir retrouver efficacement le contenu, dans les conditions prévues par le système.
 
 La différence essentielle est donc la suivante :
@@ -204,6 +226,21 @@ Alice et Bob doivent tous deux disposer de la clé, ou du moyen cryptographique 
 Le chiffrement symétrique est généralement efficace pour traiter de grandes quantités de données. Il est couramment utilisé pour protéger les fichiers, les disques et les communications.
 
 ### 4.2. Exemple de fonctionnement
+
+**Schéma pédagogique — Le chiffrement symétrique utilise le même secret aux deux extrémités.**
+
+~~~text
+Emetteur                           Destinataire
+   |                                      ^
+   | texte + cle K                        | texte lisible
+   v                                      |
+[Chiffrement avec K]                [Dechiffrement avec K]
+   |                                      ^
+   +---------- texte chiffre -------------+
+
+Les deux côtés doivent obtenir la clé K de façon sûre.
+~~~
+
 
 ```text
              Alice
@@ -411,6 +448,23 @@ Les systèmes modernes combinent donc souvent plusieurs mécanismes.
 
 ### 7.2. Le chiffrement hybride
 
+**Schéma pédagogique — Les protocoles modernes combinent établissement de clés, authentification et chiffrement symétrique des données.**
+
+~~~text
+[Client] <---- certificat / echange de cles ----> [Serveur]
+    |                                                   |
+    +-------- authentification et secret partage -------+
+                            |
+                            v
+                 [Cle(s) de session]
+                            |
+                            v
+             Donnees protegees par chiffrement symetrique
+
+Les détails exacts dépendent du protocole et de sa suite cryptographique.
+~~~
+
+
 Dans une architecture hybride, un mécanisme à clé publique ou un mécanisme d'établissement de clés permet aux participants d'obtenir un secret partagé ou de protéger une clé de session. Le chiffrement symétrique utilise ensuite cette clé pour protéger les données.
 
 Un modèle conceptuel :
@@ -557,6 +611,24 @@ Le chiffrement seul ne répond pas automatiquement à ces deux questions.
 
 ### 10.2. Principe d'une signature numérique
 
+**Schéma pédagogique — Une signature vérifie l'intégrité et l'origine liée à une clé ; elle ne chiffre pas le document.**
+
+~~~text
+Emetteur:
+Document --> Hachage --> Empreinte --> Signature avec cle privee
+    |                                         |
+    +---------------- document + signature ---+
+                         |
+                         v
+Destinataire: document --> Hachage --> Empreinte recalculee
+                         signature --> Verification cle publique
+                                         |
+                         +---------------+---------------+
+                         v                               v
+                    Correspond                     Ne correspond pas
+~~~
+
+
 Une signature numérique utilise un mécanisme cryptographique à clé publique.
 
 Dans un scénario classique, le signataire utilise sa clé privée pour produire une signature associée aux données. Le destinataire vérifie cette signature à l'aide de la clé publique correspondante.
@@ -594,6 +666,26 @@ Dans le Web, un certificat TLS aide le navigateur à vérifier que la clé publi
 Un certificat ne remplace pas la clé privée. Il contient généralement des informations publiques et une signature d'autorité ou un mécanisme de validation prévu par l'infrastructure concernée.
 
 ### 11.2. Le rôle d'une autorité de certification
+
+**Schéma pédagogique — La confiance dépend de la chaîne de certificats et de l'identité vérifiée.**
+
+~~~text
+[Autorite racine approuvee]
+           |
+           v
+[Autorite intermediaire]
+           |
+           v
+[Certificat du serveur]
+   |       |        |
+   |       |        +-- nom / SAN attendu
+   |       +----------- dates de validite
+   +------------------- signature et usages
+           |
+           v
+[Client verifie la chaine et l'identite]
+~~~
+
 
 Une autorité de certification, ou CA (*Certificate Authority*), émet ou signe des certificats selon un processus défini.
 
@@ -640,6 +732,21 @@ Les générateurs aléatoires ordinaires destinés aux jeux, aux simulations ou 
 Il faut utiliser les mécanismes sécurisés fournis par le système, la bibliothèque ou l'infrastructure cryptographique appropriée.
 
 ### 12.3. Stocker les clés séparément des données
+
+**Schéma pédagogique — Séparer les clés des données limite l'impact d'un accès non autorisé à un seul composant.**
+
+~~~text
+[Application autorisee] ---- demande controlee ----> [Coffre de cles]
+          |                                           |
+          v                                           v
+    [Donnees chiffrees] <------ operation ------ [Cle protegee]
+          |
+          +---- sauvegarde de donnees
+          +---- journalisation sans secret
+
+Planifier rotation, révocation, sauvegarde sécurisée et récupération.
+~~~
+
 
 Lorsque c'est possible, les clés de chiffrement doivent être protégées séparément des données qu'elles protègent.
 

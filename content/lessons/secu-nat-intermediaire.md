@@ -46,6 +46,24 @@ Une adresse IPv4 privée rend généralement le service non directement routable
 
 ## 4. Terminologie du NAT traditionnel
 
+**Schéma pédagogique — Les termes inside local/global désignent l'adresse interne avant et après traduction.**
+
+~~~text
+Hote interne avant NAT: 192.168.10.25 (inside local)
+                       |
+                       v
+                 [NAT/PAT]
+                       |
+                       v
+Adresse traduite: 198.51.100.10 (inside global)
+                       |
+                       v
+                 [Internet]
+
+La terminologie outside local/global concerne l'adresse externe dans le contexte de traduction.
+~~~
+
+
 Le vocabulaire NAT décrit une adresse par rapport au réseau interne et au réseau externe. Les termes ci-dessous se rencontrent dans la documentation Cisco et dans les références historiques sur le NAT traditionnel.
 
 **Inside local** : adresse réelle d'un hôte interne telle qu'elle est utilisée dans le réseau local, avant sa traduction vers l'extérieur. Exemple : 192.168.10.11.
@@ -111,6 +129,19 @@ Cette solution permet d'utiliser plusieurs adresses publiques sans attribuer une
 La sélection des hôtes internes qui peuvent être traduits est souvent définie par une ACL. Dans le modèle Cisco classique, cette ACL sert à sélectionner le trafic concerné par la traduction. Une ligne permit dans cette ACL ne signifie pas nécessairement que le pare-feu autorise tout ce trafic à traverser l'équipement. C'est une distinction essentielle entre l'ACL de sélection NAT et la politique de filtrage.
 
 ## 7. PAT ou NAT overload
+
+**Schéma pédagogique — PAT permet à plusieurs connexions de partager une adresse traduite en distinguant les sessions.**
+
+~~~text
+192.168.10.10:51500 ---\
+192.168.10.11:51501 ----+--> [PAT 198.51.100.10]
+192.168.10.12:51502 ---/            |
+                                    +--> 198.51.100.10:40001 vers destination A
+                                    +--> 198.51.100.10:40002 vers destination B
+
+Les correspondances reelles incluent protocole et contexte de session.
+~~~
+
 
 PAT permet à plusieurs hôtes internes de partager une seule adresse de traduction, en différenciant les communications par des ports ou d'autres identifiants de transport pris en charge. On l'appelle souvent NAT overload dans la syntaxe Cisco IOS.
 
@@ -186,6 +217,23 @@ Pour un diagnostic, demande-toi où se produit le refus : l'ACL NAT peut ne pas 
 
 ## 10. Publication de service et redirection de port
 
+**Schéma pédagogique — La publication redirige un service entrant vers une cible ; elle ne doit pas ouvrir plus que nécessaire.**
+
+~~~text
+Internet client
+      |
+      v TCP/443 vers 198.51.100.20
+[NAT / pare-feu perimetrique]
+      |
+      v translation destination + politique HTTPS
+[DMZ: serveur Web 10.30.0.20:443]
+      |
+      X pas d'acces general au LAN interne
+
+La traduction et la décision de filtrage sont distinctes.
+~~~
+
+
 Une redirection de port traduit une combinaison d'adresse et de port externe vers une adresse et un port internes. Elle permet de rendre un service particulier atteignable depuis l'extérieur, sous réserve du routage et du filtrage.
 
 Exemple Cisco IOS statique PAT pour publier un serveur Web fictif :
@@ -219,6 +267,19 @@ Il faut également contrôler les flux sortants. Un poste compromis peut tenter 
 La configuration doit être pensée en termes de flux : source, destination avant et après traduction, protocole, port, direction, zone de sécurité et action. Cela permet de comprendre si le problème relève du NAT, du routage, d'une ACL ou d'un état de session.
 
 ## 13. VPN et exemptions de NAT
+
+**Schéma pédagogique — Le trafic destiné au réseau distant doit souvent préserver ses adresses internes pour correspondre aux politiques du tunnel.**
+
+~~~text
+LAN 192.168.10.0/24
+         |
+         +---- destination 10.20.0.0/16 ----> exemption NAT --> VPN
+         |
+         +---- destination Internet ---------> PAT ----------> WAN
+
+L'ordre des règles et les conditions d'exemption dépendent de la plateforme.
+~~~
+
 
 Un VPN site-à-site peut relier deux réseaux privés. Selon la configuration, le trafic entre les sous-réseaux distants ne doit pas être traduit, afin que les adresses attendues par les politiques IPsec, les routes ou les applications restent cohérentes. Certaines plateformes exigent une règle d'exemption ou une politique de NAT spéciale ; l'ordre exact dépend du produit.
 
@@ -267,6 +328,30 @@ Une table vide peut simplement indiquer qu'aucun flux correspondant n'a été te
 Évite d'effacer les traductions actives sur un routeur de production : la commande de suppression peut interrompre des sessions. Une commande comme clear ip nat translation *, lorsqu'elle existe et est appropriée, est destructive et doit être réservée à un laboratoire ou à une procédure approuvée avec un impact connu. La consultation de la table est une première étape plus sûre.
 
 ## 17. Méthode de dépannage : NAT ne fonctionne pas
+
+**Schéma pédagogique — Suivre le paquet de bout en bout permet de distinguer traduction, filtrage et routage.**
+
+~~~text
+[Paquet source/destination initial]
+           |
+           v
+     [Route entrante]
+           |
+           v
+     [Regle NAT ?] ---> [Table des translations]
+           |
+           v
+     [Politique pare-feu]
+           |
+           v
+     [Route de sortie] ---> [Serveur / Internet]
+                               |
+                               v
+                      [Route de retour ?]
+
+Relever les adresses avant/apres traduction et les compteurs.
+~~~
+
 
 Un diagnostic efficace suit une progression du client vers la sortie du réseau :
 1. Vérifie l'adresse interne, le masque, la passerelle et le DNS du client.
