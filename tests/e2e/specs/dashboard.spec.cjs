@@ -136,3 +136,89 @@ test('un cours peut être ouvert depuis la recherche puis fermé avec Échap', a
   await page.keyboard.press('Escape');
   await expect(reader).toBeHidden();
 });
+
+
+test('le menu contextuel démarre la lecture vocale depuis la section visée', async ({ page }) => {
+  await openDashboard(page);
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+  const lessonResult = results.locator('button').filter({
+    hasText: "Qu'est-ce qu'un réseau ? - Débutant",
+  }).first();
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
+
+  const article = page.locator('[x-ref="lessonArticle"]');
+  await expect(article).toBeVisible();
+  const heading = article.locator('h2[id], h3[id], h4[id]').first();
+  await expect(heading).toBeVisible();
+  const headingId = await heading.getAttribute('id');
+  const headingText = (await heading.innerText()).replace(/\s+/g, ' ').trim();
+
+  // Garde le test indépendant du fournisseur audio et ne lance aucun flux réseau TTS.
+  await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    state.playSpeechChunk = () => {};
+  });
+
+  await heading.click({ button: 'right' });
+  const menu = page.getByRole('menu', { name: 'Options de lecture' });
+  await expect(menu).toBeVisible();
+  await expect(menu.getByText(headingText, { exact: true })).toBeVisible();
+  await menu.getByRole('menuitem', { name: 'Lire à ce niveau' }).click();
+
+  await expect(menu).toBeHidden();
+  const speech = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return {
+      start: state.startSectionSelection,
+      kind: state.speechKind,
+      status: state.speechState,
+      text: state.speechQueue.join(' '),
+    };
+  });
+  expect(speech.start).toBe(headingId);
+  expect(speech.kind).toBe('lesson');
+  expect(speech.status).toBe('starting');
+  expect(speech.text).toContain(headingText);
+  await expect(page.getByRole('group', { name: 'Commandes flottantes de lecture vocale' })).toBeVisible();
+});
+
+test('les commandes vocales flottantes permettent pause, reprise et arrêt', async ({ page }) => {
+  await openDashboard(page);
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+  const lessonResult = results.locator('button').filter({
+    hasText: "Qu'est-ce qu'un réseau ? - Débutant",
+  }).first();
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
+  await expect(page.locator('[x-ref="lessonArticle"]')).toBeVisible();
+
+  await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    state.speechKind = 'lesson';
+    state.speechEngine = 'server';
+    state.speechQueue = ['texte de test'];
+    state.speechQueueIndex = 0;
+    state.speechState = 'speaking';
+    state.playSpeechChunk = function () { this.speechState = 'speaking'; };
+  });
+
+  const controls = page.getByRole('group', { name: 'Commandes flottantes de lecture vocale' });
+  await expect(controls).toBeVisible();
+  const pause = controls.getByRole('button', { name: 'Mettre en pause la lecture vocale' });
+  await pause.click();
+  await expect(controls.getByRole('button', { name: 'Reprendre la lecture vocale' })).toBeVisible();
+  await expect(controls.getByText('Lecture en pause')).toBeVisible();
+
+  await controls.getByRole('button', { name: 'Reprendre la lecture vocale' }).click();
+  await expect(controls.getByRole('button', { name: 'Mettre en pause la lecture vocale' })).toBeVisible();
+
+  await controls.getByRole('button', { name: 'Arrêter la lecture vocale' }).click();
+  await expect(controls).toBeHidden();
+});
