@@ -3,37 +3,244 @@
   "scope": "exam",
   "questions": [
     {
-      "prompt": "Quel type d'adresse remplace le broadcast IPv4 en IPv6 ?",
+      "type": "qcm",
+      "prompt": "Quelle affirmation est correcte à propos du broadcast en IPv6 ?",
       "choices": [
-        "Unicast global",
-        "Multicast",
-        "Anycast",
-        "Lien-local"
-      ],
-      "answer": 1,
-      "explanation": "IPv6 n'a pas de broadcast : le multicast ff02::1 joue ce rôle."
-    },
-    {
-      "prompt": "Que fait SLAAC ?",
-      "choices": [
-        "Il configure l'adresse à partir du préfixe annoncé par le routeur",
-        "Il attribue une IP depuis un serveur central",
-        "Il traduit les adresses",
-        "Il signe les Router Advertisements"
+        "IPv6 ne définit pas d’adresse broadcast ; les protocoles utilisent des groupes multicast adaptés à leur fonction.",
+        "L’adresse ff02::1 remplace exactement tous les usages broadcast d’IPv4.",
+        "Le broadcast existe uniquement sur les interfaces WAN.",
+        "Le broadcast est activé quand le routeur annonce un préfixe /64."
       ],
       "answer": 0,
-      "explanation": "SLAAC combine le préfixe des RA et un identifiant d'interface."
+      "explanation": "IPv6 ne possède pas d’adresse broadcast. Des groupes multicast, par exemple pour la découverte de voisins, remplissent des fonctions précises sans reproduire tous les usages du broadcast IPv4."
     },
     {
-      "prompt": "Quelle est la taille de l'en-tête IPv6 de base ?",
+      "type": "qcm",
+      "prompt": "Dans SLAAC, quelle information d’un Router Advertisement permet principalement à un hôte de construire une adresse ?",
       "choices": [
-        "20 octets",
-        "32 octets",
-        "40 octets",
-        "60 octets"
+        "Une adresse attribuée obligatoirement par un serveur DHCPv4.",
+        "Le préfixe annoncé avec les indicateurs d’autoconfiguration appropriés, combiné à un identifiant d’interface.",
+        "Le numéro d’AS du routeur annonceur.",
+        "Une entrée DNS PTR qui contient l’adresse complète de l’hôte."
+      ],
+      "answer": 1,
+      "explanation": "SLAAC s’appuie sur les préfixes annoncés dans les RA et les règles de génération d’adresse du système. Les paramètres exacts dépendent des indicateurs et du comportement de l’hôte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la taille de l’en-tête IPv6 de base, sans compter les en-têtes d’extension ?",
+      "choices": [
+        "20 octets.",
+        "32 octets.",
+        "40 octets.",
+        "60 octets dans tous les cas."
       ],
       "answer": 2,
-      "explanation": "L'en-tête IPv6 fixe fait 40 octets, extensible par en-têtes optionnels."
+      "explanation": "L’en-tête IPv6 de base a une taille fixe de 40 octets. Les en-têtes d’extension éventuels sont distincts et augmentent la taille totale d’en-tête."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel échange est utilisé pour la Duplicate Address Detection (DAD) avant l’utilisation normale d’une adresse IPv6 unicast ?",
+      "choices": [
+        "Une requête ARP pour demander une adresse MAC IPv4.",
+        "Un Router Advertisement émis par le serveur DNS.",
+        "Une session TCP vers le routeur par défaut.",
+        "Un Neighbor Solicitation envoyé pour l’adresse cible, sans supposer que l’adresse est déjà unique."
+      ],
+      "answer": 3,
+      "explanation": "DAD utilise Neighbor Solicitation pour détecter une adresse déjà utilisée sur le lien. Neighbor Discovery fait partie d’ICMPv6 ; ce n’est pas une opération ARP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un commutateur d’accès, quelle mesure aide le mieux à limiter les Router Advertisements malveillants envoyés par un poste ?",
+      "choices": [
+        "Activer une protection RA Guard adaptée et ne faire confiance qu’aux ports où des RA de routeur sont légitimes.",
+        "Bloquer tout ICMPv6 sur l’ensemble du VLAN.",
+        "Désactiver toutes les adresses IPv6 des postes.",
+        "Autoriser uniquement les trames IPv4 provenant des routeurs."
+      ],
+      "answer": 0,
+      "explanation": "RA Guard peut filtrer des RA non autorisés à la frontière d’accès. Il doit être correctement configuré et ne remplace pas les autres contrôles NDP, de couche 2 et de segmentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une application IPv6 fonctionne pour de petites réponses, mais bloque lors de transferts volumineux. Quel contrôle est particulièrement important ?",
+      "choices": [
+        "Désactiver la découverte de voisins sur le LAN.",
+        "Vérifier le chemin PMTUD et la livraison des messages ICMPv6 Packet Too Big.",
+        "Remplacer le préfixe global par un préfixe ULA sans analyse.",
+        "Augmenter uniquement le TTL IPv6 des paquets."
+      ],
+      "answer": 1,
+      "explanation": "IPv6 dépend de Path MTU Discovery et des messages ICMPv6 Packet Too Big pour que les sources adaptent la taille des paquets. Le blocage de ces messages peut créer des pannes sélectives sur les gros transferts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce que DHCPv6 Prefix Delegation fournit typiquement à un routeur client ?",
+      "choices": [
+        "Un nom de domaine public signé DNSSEC.",
+        "Une route BGP par défaut automatiquement acceptée par tous les opérateurs.",
+        "Un préfixe IPv6 que ce routeur peut subdiviser pour ses réseaux internes selon la politique prévue.",
+        "Une adresse MAC unique pour chaque interface du client."
+      ],
+      "answer": 2,
+      "explanation": "DHCPv6-PD délègue un bloc de préfixes au routeur client. Ce mécanisme se distingue de l’attribution d’une seule adresse à un hôte terminal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un accès IPv6-only vers un serveur IPv4-only par nom, quel couple de fonctions peut permettre la communication ?",
+      "choices": [
+        "SLAAC pour traduire les paquets IPv6 en paquets IPv4 et OSPFv3 pour modifier le DNS.",
+        "RA Guard pour créer des enregistrements A et DHCPv4 pour acheminer l’IPv6.",
+        "NDP pour convertir les ports TCP et BGP pour encoder les adresses DNS.",
+        "DNS64 pour synthétiser une réponse AAAA et NAT64 pour traduire le trafic vers IPv4."
+      ],
+      "answer": 3,
+      "explanation": "DNS64 peut synthétiser une réponse AAAA à partir d’un A ; un traducteur NAT64 permet ensuite le chemin vers le serveur IPv4. Les applications utilisant des adresses IPv4 littérales peuvent nécessiter des considérations supplémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route IPv6 est présente dans la table de routage, mais les paquets n’atteignent toujours pas l’application distante. Quelle démarche d’analyse est la plus rigoureuse ?",
+      "choices": [
+        "Vérifier le prochain saut, la résolution NDP, la FIB, les ACL, le chemin retour et le MTU avec des observations discriminantes.",
+        "Considérer la route RIB comme une preuve complète de connectivité et arrêter le diagnostic.",
+        "Supprimer les routes IPv6 sans capturer de traces.",
+        "Désactiver automatiquement ICMPv6 sur tous les équipements."
+      ],
+      "answer": 0,
+      "explanation": "La présence d’une route ne prouve ni la résolution du voisin ni le transfert effectif, le passage des filtres ou le chemin retour. Il faut suivre le paquet à travers RIB, FIB et réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment BGP transporte-t-il des routes IPv6 unicast ?",
+      "choices": [
+        "En encapsulant chaque route IPv6 dans une requête DHCPv6.",
+        "Avec MP-BGP et la famille d’adresses AFI/SAFI IPv6 unicast, sous réserve que cette famille soit activée entre les pairs.",
+        "Uniquement par une session OSPFv3, car BGP ne transporte pas IPv6.",
+        "En remplaçant l’attribut NEXT_HOP par un enregistrement DNS AAAA."
+      ],
+      "answer": 1,
+      "explanation": "MP-BGP étend BGP pour plusieurs familles d’adresses. L’échange de routes IPv6 nécessite que la famille IPv6 unicast soit activée et configurée sur les voisins concernés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement une adresse IPv6 link-local ?",
+      "choices": [
+        "Elle est toujours unique à l’échelle de l’Internet et publiquement joignable.",
+        "Elle remplace les préfixes globaux dans toutes les communications intersites.",
+        "Elle est limitée au lien local ; elle n’est pas routée comme destination globale au travers des routeurs.",
+        "Elle est obtenue obligatoirement via DNS64."
+      ],
+      "answer": 2,
+      "explanation": "Les adresses link-local servent notamment à Neighbor Discovery et aux prochaines étapes de routage. Elles nécessitent un contexte d’interface et ne sont pas des adresses routables globalement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une politique de pare-feu IPv6 ne doit-elle pas bloquer indistinctement tout ICMPv6 ?",
+      "choices": [
+        "Parce qu’ICMPv6 chiffre automatiquement tous les flux TCP.",
+        "Parce que le blocage d’ICMPv6 désactive uniquement DNS, sans autre conséquence.",
+        "Parce que toutes les formes d’ICMPv6 sont du trafic applicatif et ne peuvent jamais être filtrées.",
+        "Parce que des fonctions essentielles comme Neighbor Discovery et PMTUD dépendent de types ICMPv6 précis, qui doivent être contrôlés de façon ciblée."
+      ],
+      "answer": 3,
+      "explanation": "Il faut autoriser les messages ICMPv6 nécessaires au fonctionnement et appliquer des règles adaptées aux types, directions et frontières. Une interdiction globale peut casser NDP ou la découverte de MTU."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un hôte possède une ULA et une GUA, mais choisit une source inadaptée pour joindre un service Internet. Quelle investigation est la plus pertinente ?",
+      "choices": [
+        "Examiner la sélection d’adresse source, la politique de routage, les préfixes annoncés et la résolution DNS du service.",
+        "Convertir l’ULA en adresse broadcast.",
+        "Augmenter le nombre de voisins NDP sans examiner le chemin.",
+        "Supprimer le DNS AAAA même si le service est IPv6 opérationnel."
+      ],
+      "answer": 0,
+      "explanation": "La sélection d’adresse source s’effectue selon les règles de sélection IPv6 et le contexte de routage. Le diagnostic doit comparer source, destination, routes et enregistrements plutôt que supposer une cause unique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un service publie un enregistrement AAAA, mais une partie des clients à double pile subit des délais avant connexion. Quelle démarche est la plus appropriée ?",
+      "choices": [
+        "Supprimer systématiquement l’enregistrement AAAA sans mesurer le chemin IPv6.",
+        "Tester séparément la connectivité IPv6, le service et le DNS, puis vérifier le comportement de sélection/fallback des clients.",
+        "Désactiver SLAAC sur tous les réseaux.",
+        "Transformer le AAAA en enregistrement PTR pour accélérer le TCP."
+      ],
+      "answer": 1,
+      "explanation": "Un AAAA publié suppose que le chemin IPv6 est opérationnel mais ne le prouve pas. Il faut vérifier le service IPv6 et le comportement de sélection/fallback des clients avant de modifier le DNS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque principal présente un Router Advertisement non autorisé sur un VLAN utilisateur ?",
+      "choices": [
+        "Il modifie nécessairement les clés TLS des applications.",
+        "Il crée automatiquement une route BGP valide chez tous les fournisseurs.",
+        "Il peut faire choisir aux hôtes un routeur par défaut ou des paramètres de préfixe indésirables et détourner ou interrompre leur trafic.",
+        "Il désactive physiquement le lien Ethernet."
+      ],
+      "answer": 2,
+      "explanation": "Les RA influencent la découverte de routeurs et des paramètres de lien/préfixe. Des RA malveillants ou incorrects peuvent détourner du trafic ou perturber la configuration des hôtes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution est importante lors de la conception d’une route agrégée IPv6 ?",
+      "choices": [
+        "Annoncer un bloc plus large sans vérifier les préfixes qu’il couvre.",
+        "Remplacer toutes les routes spécifiques par une route par défaut côté hôtes.",
+        "Utiliser un préfixe de documentation comme route Internet en production.",
+        "S’assurer que l’agrégat représente les préfixes effectivement desservis et que le comportement des routes plus spécifiques et du trafic vers les trous est maîtrisé."
+      ],
+      "answer": 3,
+      "explanation": "Un agrégat réduit la taille des tables, mais peut attirer du trafic destiné à un sous-réseau absent. L’origine de l’agrégat, les routes spécifiques et les routes de rejet doivent correspondre au design réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une seule application échoue avec certains en-têtes d’extension IPv6 alors que le trafic simple passe. Quel examen est le plus utile ?",
+      "choices": [
+        "Capturer le trafic et comparer les paquets aux compteurs/politiques des pare-feu, ACL et équipements intermédiaires.",
+        "Désactiver immédiatement IPv6 sur tout le site.",
+        "Conclure que tous les en-têtes d’extension sont invalides par définition.",
+        "Modifier les préfixes de tous les VLAN avant de recueillir des preuves."
+      ],
+      "answer": 0,
+      "explanation": "Certains équipements appliquent des politiques ou ont des limites de traitement spécifiques aux en-têtes d’extension. Il faut observer le type d’en-tête et le point où le paquet est rejeté avant d’adapter la politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu’une règle de filtrage IPv6 bloque un service, quel ensemble de preuves permet le mieux de vérifier la correction ?",
+      "choices": [
+        "Le seul nom du VLAN, sans trafic ni logs.",
+        "Les adresses source/destination, les protocoles et types ICMPv6 concernés, les compteurs de règle et des tests dans les deux sens.",
+        "Le nom de l’utilisateur et la couleur du câble uniquement.",
+        "Une capture exclusivement IPv4 qui ne couvre pas le chemin concerné."
+      ],
+      "answer": 1,
+      "explanation": "Les règles IPv6 doivent être vérifiées avec les adresses et protocoles du trafic réel, les compteurs et les journaux. Le trafic retour et les messages ICMPv6 associés doivent aussi être considérés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle limite doit-on connaître quand DNS64/NAT64 est utilisé pour des clients IPv6-only ?",
+      "choices": [
+        "DNS64 chiffre automatiquement les applications et supprime tout filtrage.",
+        "NAT64 remplace tous les enregistrements DNS et transporte les routes BGP.",
+        "Les applications qui utilisent des adresses IPv4 littérales ou supposent des connexions IPv4 de bout en bout peuvent ne pas fonctionner sans adaptation.",
+        "NAT64 permet toujours à un serveur IPv4 d’initier librement une session vers n’importe quel client IPv6."
+      ],
+      "answer": 2,
+      "explanation": "DNS64/NAT64 convient notamment aux applications fondées sur les noms et sur les flux initiés depuis le côté IPv6. Les protocoles qui incorporent des adresses ou supposent une connectivité IPv4 de bout en bout peuvent nécessiter un traitement spécifique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère est le plus pertinent pour valider une migration IPv6-only sur un service critique ?",
+      "choices": [
+        "La simple présence d’une adresse IPv6 sur l’interface.",
+        "Le fait qu’un seul ping vers la passerelle réussisse.",
+        "La suppression de toutes les routes IPv4 avant l’inventaire des dépendances.",
+        "Un test applicatif mesurable avec DNS, connexion, dépendances, journaux et scénario de retour arrière validé."
+      ],
+      "answer": 3,
+      "explanation": "Une migration se valide de bout en bout. La présence d’une adresse ou un ping local ne prouve pas le fonctionnement DNS, TLS, des dépendances applicatives, du filtrage ou des chemins retour."
     }
   ]
 }
