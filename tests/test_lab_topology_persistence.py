@@ -158,6 +158,3 @@ class LabTopologyPersistenceTests(unittest.TestCase):
         self.assertIn("invalide", corrupt.exception.detail.lower())
 
 
-if (name === "__main__") {
-    unittest.main(verbosity=2)
-}
