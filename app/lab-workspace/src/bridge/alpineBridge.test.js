@@ -159,6 +159,49 @@ test('un bac à sable ne lance pas de vérification ou de soumission notée', as
   assert.equal(useLabStore.getState().loading, false);
 });
 
+test('un laboratoire verrouillé reste vérifiable en mode entraînement', async () => {
+  useLabStore.getState().loadLab('lab-locked', {
+    title: 'Lab verrouillé',
+    courseLocked: true,
+    courseLockMessage: 'Validez le prérequis prereq-1.',
+  }, {
+    schema_version: 2,
+    topology_id: 'topology-locked',
+    nodes: [{ id: 'R1', type: 'router', x: 10, y: 20, ports: [] }],
+    links: [],
+  });
+
+  let capturedRequest = null;
+  globalThis.fetch = async (url, options) => {
+    capturedRequest = { url, options };
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({
+        passed: true,
+        score: 1,
+        locked: true,
+        practice_only: true,
+        course_locked: true,
+        course_lock_message: 'Validez le prérequis prereq-1.',
+        results: [],
+      }),
+    };
+  };
+
+  fakeWindow.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
+  await waitFor(
+    () => capturedRequest !== null && useLabStore.getState().loading === false,
+    'Un laboratoire verrouillé devrait pouvoir être vérifié en mode entraînement.',
+  );
+
+  assert.equal(capturedRequest.url, '/api/lab/v2/lab-locked/check');
+  assert.equal(JSON.parse(capturedRequest.options.body).topology.nodes[0].id, 'R1');
+  assert.equal(useLabStore.getState().checkResult.passed, true);
+  assert.equal(useLabStore.getState().checkResult.practice_only, true);
+  assert.equal(useLabStore.getState().checkResult.ok, undefined);
+});
+
 test('la démonstration ne lance pas de requête de validation notée', async () => {
   useLabStore.getState().loadDemo();
   let fetchCalls = 0;
