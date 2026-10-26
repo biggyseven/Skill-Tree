@@ -1,0 +1,12 @@
+{
+  "name": "skilltree-diagnostic-browser-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Tests Playwright de régression navigateur du diagnostic adaptatif Skill-Tree",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}
