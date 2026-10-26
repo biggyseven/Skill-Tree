@@ -63,6 +63,11 @@ jobs:
             exit 0
           fi
           git commit -m "Build Lab Workspace static assets"
+          # npm ci modifie le node_modules suivi historiquement dans ce dépôt.
+          # Réinitialiser ce répertoire après le build pour que le rebase du bundle
+          # ne soit pas bloqué par des changements locaux sans rapport avec le code.
+          git restore --worktree -- node_modules
+          git clean -fdx -- node_modules
           # Un autre commit peut arriver pendant le build : rebase le bundle sur la tête distante
           # avant le push, plutôt que d'échouer sur un rejet non-fast-forward.
           git pull --rebase origin "${GITHUB_REF_NAME}"
