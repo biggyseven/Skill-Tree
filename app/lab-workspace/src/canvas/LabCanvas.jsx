@@ -31,7 +31,7 @@ export function LabCanvas() {
     if (!topology) return [];
     return topology.links.map(l => ({
       id: l.id, source: l.from.node, target: l.to.node, type: 'cable',
-      sourceHandle: l.from.port, targetHandle: l.to.port,
+      sourceHandle: `${l.from.port}::source`, targetHandle: `${l.to.port}::target`,
       data: { state: l.state, cable_type: l.cable_type, label: `${l.from.port} → ${l.to.port}` },
     }));
   }, [topology]);

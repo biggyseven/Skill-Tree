@@ -642,10 +642,10 @@
             <label class="mt-1 flex items-center gap-2 border-t border-white/5 px-3 py-2 text-[11px] text-zinc-400"><input type="checkbox" x-model="searchContent" @change="toggleContentSearch()" class="accent-emerald-500"> Chercher aussi dans le contenu des cours <span x-show="searchBusy" x-text="'(' + searchDone + '/' + nodes.length + ')'"></span></label>
           </div>
         </div>
-        <button type="button" @click="window.open('/lab.html', '_blank', 'noopener,noreferrer')" title="Ouvrir l’atelier libre, sans scénario de cours" aria-label="Ouvrir l’atelier libre sans scénario de cours dans un nouvel onglet" class="nav-action-btn inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-2.5 text-cyan-200 transition hover:border-cyan-300/50 hover:bg-cyan-400/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 sm:px-3">
+        <a href="/lab.html" target="_blank" rel="noopener noreferrer" title="Ouvrir l’atelier libre, sans scénario de cours" aria-label="Ouvrir l’atelier libre sans scénario de cours dans un nouvel onglet" class="nav-action-btn inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-2.5 text-cyan-200 transition hover:border-cyan-300/50 hover:bg-cyan-400/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 sm:px-3">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/></svg>
           <span class="hidden xl:inline text-xs font-semibold">Atelier libre</span>
-        </button>
+        </a>
         <div class="relative" data-theme-picker>
           <button type="button" @click.stop="themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Choisir un thème" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8Z"></path><circle cx="7.5" cy="11" r="1"></circle><circle cx="10.5" cy="7" r="1"></circle><circle cx="15.5" cy="7.5" r="1"></circle></svg>
@@ -904,11 +904,20 @@
           <div class="mt-5 grid flex-1 content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <template x-if="planActions.length > 0">
               <template x-for="(action, actionIndex) in planActions" :key="action.node_id">
-                <button type="button" @click="openPlanAction(action)" :aria-label="action.label + '. ' + (action.reason || 'Action du parcours') + '. Ouvrir cette activité.'" :class="actionIndex === 0 && dailyPlan.length > 0 ? '!border-emerald-400/35 shadow-lg' : ''" class="group flex h-full min-h-[164px] flex-col rounded-2xl border border-white/5 bg-[color:var(--s2)] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[color:var(--s3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+                <template x-if="action.action === 'lab'">
+                  <a data-lab-card="plan" :href="'/?openLab=' + encodeURIComponent(action.node_id)" target="_blank" rel="noopener noreferrer" :aria-label="action.label + '. ' + (action.reason || 'Action du parcours') + '. Ouvrir cette activité dans un nouvel onglet.'" :class="actionIndex === 0 && dailyPlan.length > 0 ? '!border-emerald-400/35 shadow-lg' : ''" class="group flex h-full min-h-[164px] flex-col rounded-2xl border border-white/5 bg-[color:var(--s2)] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[color:var(--s3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
                   <span class="flex items-center justify-between gap-2"><span class="rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]" :class="planMeta(action).classes" x-text="planMeta(action).label"></span><svg class="h-4 w-4 text-zinc-500 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
                   <span x-show="actionIndex === 0 && dailyPlan.length > 0" class="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>Priorité du jour</span><span class="mt-3 text-sm font-semibold leading-snug text-white" x-text="action.label"></span>
                   <span class="mt-1.5 text-[11px] leading-relaxed text-zinc-500" x-text="action.reason"></span><span class="mt-auto flex items-center gap-1.5 pt-4 text-[11px] font-semibold text-emerald-300 transition group-hover:text-emerald-200">Ouvrir l’activité<svg class="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
-                </button>
+                </a>
+                </template>
+                <template x-if="action.action !== 'lab'">
+                  <button type="button" @click="openPlanAction(action)" :aria-label="action.label + '. ' + (action.reason || 'Action du parcours') + '. Ouvrir cette activité.'" :class="actionIndex === 0 && dailyPlan.length > 0 ? '!border-emerald-400/35 shadow-lg' : ''" class="group flex h-full min-h-[164px] flex-col rounded-2xl border border-white/5 bg-[color:var(--s2)] p-5 text-left transition hover:border-emerald-500/30 hover:bg-[color:var(--s3)] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+                  <span class="flex items-center justify-between gap-2"><span class="rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]" :class="planMeta(action).classes" x-text="planMeta(action).label"></span><svg class="h-4 w-4 text-zinc-500 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+                  <span x-show="actionIndex === 0 && dailyPlan.length > 0" class="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>Priorité du jour</span><span class="mt-3 text-sm font-semibold leading-snug text-white" x-text="action.label"></span>
+                  <span class="mt-1.5 text-[11px] leading-relaxed text-zinc-500" x-text="action.reason"></span><span class="mt-auto flex items-center gap-1.5 pt-4 text-[11px] font-semibold text-emerald-300 transition group-hover:text-emerald-200">Ouvrir l’activité<svg class="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+                  </button>
+                </template>
               </template>
             </template>
             <template x-if="planActions.length === 0">
@@ -1231,11 +1240,13 @@
             <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-white" x-text="l.icon + ' ' + l.label"></h3>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <template x-for="n in labNodes.filter(x => levelOf(x) === l.id)" :key="n.id">
-                <button type="button" class="card-sm text-left transition hover:border-cyan-400/40" @click="openLab(n.id)">
+                <a data-lab-card="catalog" :href="'/?openLab=' + encodeURIComponent(n.id)" target="_blank" rel="noopener noreferrer"
+                   :aria-label="'Ouvrir le lab ' + n.title + ' dans un nouvel onglet'"
+                   class="card-sm block text-left transition hover:border-cyan-400/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70">
                   <div class="flex items-center justify-between gap-2"><span class="chip" x-text="moduleMeta(moduleOf(n)).short"></span><span class="text-xs" :class="isLabDone(n.id) ? 'text-emerald-400' : 'text-zinc-500'" x-text="isLabDone(n.id) ? '✅ Réussi' : 'À faire'"></span></div>
                   <p class="mt-2 text-sm font-bold text-white" x-text="n.title"></p>
                   <p class="mt-1 text-[11px] text-zinc-500" x-text="(labIndex[n.id].duration ? '⏱ ' + labIndex[n.id].duration + ' · ' : '') + (labIndex[n.id].difficulty || '')"></p>
-                </button>
+                </a>
               </template>
             </div>
           </div>
@@ -1897,9 +1908,11 @@
                 <div class="mt-3 flex flex-wrap gap-2"><span class="chip" x-show="detail.lab.duration" x-text="'⏱ ' + detail.lab.duration"></span><span class="chip" x-show="detail.lab.difficulty" x-text="detail.lab.difficulty"></span></div>
                 
                 <div class="mt-6">
-                  <button type="button" @click="openLab(detail.id, true)" class="rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                  <a :href="'/?openLab=' + encodeURIComponent(detail.id)" target="_blank" rel="noopener noreferrer"
+                     aria-label="Ouvrir le Lab Workspace dans un nouvel onglet"
+                     class="inline-flex rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">
                     🧪 Ouvrir le Lab Workspace
-                  </button>
+                  </a>
                 </div>
               </div>
             </template>
@@ -2137,6 +2150,13 @@
           await this.refreshAll();
           this.examCategory = this.examCategories[0]?.name || '';
           this.connectWebSocket();
+          const requestedLabId = new URLSearchParams(window.location.search).get('openLab');
+          if (requestedLabId) {
+            // La page racine sert de point d’entrée ouvrable avec clic droit/Ctrl+clic,
+            // puis redirige vers le workspace v2 ou ouvre le lab classique dans cette fenêtre.
+            try { window.history.replaceState(window.history.state, '', window.location.pathname); } catch (_) { }
+            await this.openLab(requestedLabId, false);
+          }
         },
 
         // --- Préférences d'affichage du lecteur (taille du texte, fenêtre agrandie) ---
@@ -3274,7 +3294,7 @@
             return;
           }
           if (action.action === 'lab') {
-            await this.openLab(nodeId);
+            await this.openLab(nodeId, true);
             return;
           }
           if (action.action === 'review') {
@@ -4259,9 +4279,11 @@
         labsDone: LS.get('labs-done', []), labSteps: LS.get('lab-steps', {}), labHints: {},
         get labNodes() { return this.nodes.filter(n => this.labIndex[n.id] && (this.labFilter.module === 'all' || this.moduleOf(n) === this.labFilter.module) && (this.labFilter.level === 'all' || this.levelOf(n) === this.labFilter.level)); },
         async loadLabIndex() {
+          // Les résultats déjà résolus restent en mémoire quand on quitte puis revient dans Labs.
+          // En revanche, une erreur réseau/HTTP ne doit pas être mise en cache comme « aucun lab ».
           if (this.labIndexBusy) return; const todo = this.nodes.filter(n => !(n.id in this.labIndex)); if (!todo.length) return;
           this.labIndexBusy = true; this.labIndexDone = 0; let i = 0;
-          const worker = async () => { while (i < todo.length) { const n = todo[i++]; try { const r = await fetch(`/api/node/${n.id}`); const d = await r.json(); this.labIndex[n.id] = d.lab || null; } catch (e) { this.labIndex[n.id] = null; } this.labIndexDone++; } };
+          const worker = async () => { while (i < todo.length) { const n = todo[i++]; try { const r = await fetch(`/api/node/${encodeURIComponent(n.id)}`); if (!r.ok) throw new Error(`HTTP ${r.status}`); const d = await r.json(); this.labIndex[n.id] = d.lab || null; } catch (e) { delete this.labIndex[n.id]; console.warn(`Impossible de charger l’index du lab ${n.id}; une nouvelle tentative sera faite au prochain accès.`, e); } this.labIndexDone++; } };
           await Promise.all([worker(), worker(), worker(), worker(), worker()]); this.labIndexBusy = false;
         },
         openVisualLab() {
@@ -4306,9 +4328,12 @@
             this.notify('Le Lab Workspace ne répond pas ; ouverture du laboratoire classique.');
           }
 
-          // Sans définition v2, conserver le lab classique dans la modale.
-          // Un nouvel onglet vide ne doit pas afficher une erreur de chargement V2.
-          if (openInNewTab && labWindow && !labWindow.closed) labWindow.close();
+          // Un lab historique reste ouvrable dans un nouvel onglet : la page racine
+          // réessaie avec openLabInTab=false puis affiche son onglet classique si besoin.
+          if (openInNewTab && labWindow && !labWindow.closed) {
+            labWindow.location.replace('/?openLab=' + encodeURIComponent(nodeId));
+            return;
+          }
           await this.show(nodeId);
           this.modalTab = 'lab';
         },
