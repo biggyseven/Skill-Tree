@@ -52,6 +52,8 @@ class Port(SchemaModel):
     mask: str | None = None
     vlan: int | None = None
     description: str = ""
+    access_group_in: int | None = None
+    access_group_out: int | None = None
 
 
 class OSPFConfig(SchemaModel):
