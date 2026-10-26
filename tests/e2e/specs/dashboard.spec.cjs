@@ -282,3 +282,33 @@ test('le lecteur reprend la dernière section après fermeture et respecte le d�
   await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBe(0);
   expect(targetText.length).toBeGreaterThan(0);
 });
+
+
+test('la fenêtre du cours confine le focus clavier et le restitue à la fermeture', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await openDashboard(page);
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+  const lessonResult = results.locator('button').filter({
+    hasText: "Qu'est-ce qu'un réseau ? - Débutant",
+  }).first();
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
+
+  const reader = page.locator('.modal-panel[role="dialog"]');
+  await expect(reader).toBeVisible();
+  await expect(reader).toBeFocused();
+
+  // Depuis le focus initial sur la boîte de dialogue, Shift+Tab puis Tab doivent
+  // rester dans la fenêtre au lieu de rendre le tableau de bord interactif derrière.
+  await page.keyboard.press('Shift+Tab');
+  await expect.poll(() => reader.evaluate(dialog => dialog.contains(document.activeElement))).toBe(true);
+  await page.keyboard.press('Tab');
+  await expect.poll(() => reader.evaluate(dialog => dialog.contains(document.activeElement))).toBe(true);
+
+  await page.keyboard.press('Escape');
+  await expect(reader).toBeHidden();
+  await expect(searchInput).toBeFocused();
+});
