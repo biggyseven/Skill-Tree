@@ -747,6 +747,14 @@ def read_profile(tree: SkillTree = Depends(get_tree)) -> dict:
     days = streak_days(tree.conn)
     labs = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='lab' AND passed=1").fetchone()[0]
     exams = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='exam' AND passed=1").fetchone()[0]
+    try:
+        stored_exam_passes = tree.conn.execute(
+            "SELECT COUNT(*) FROM exam_submissions WHERE passed = 1"
+        ).fetchone()[0]
+        exams += int(stored_exam_passes or 0)
+    except sqlite3.OperationalError:
+        # Compatibilité avec une base préparée avant la création de la table de soumissions.
+        pass
     return {
         "level": stats, "total_nodes": total_nodes, "validated_nodes": validated_nodes,
         "progress_percent": round((validated_nodes / total_nodes) * 100) if total_nodes else 0,
@@ -824,23 +832,167 @@ def validate_lab_route(payload: dict = Body(...), tree: SkillTree = Depends(get_
 # ---------------------------------------------------------
 
 @app.post("/api/exam/start")
-def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
+def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    """Crée une session d'examen de catégorie sans exposer les réponses attendues."""
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=422, detail="Un objet JSON est attendu.")
     category = payload.get("category")
+    if not isinstance(category, str) or not category.strip():
+        raise HTTPException(status_code=422, detail="category manquante ou invalide.")
+    category = category.strip()
     nodes = [node for node in tree.nodes() if node.category == category]
-    pool = [(node, q) for node in nodes for q in tree.questions(node.id, ProofKind.QUIZ)]
+    if not nodes:
+        raise HTTPException(status_code=404, detail="Catégorie d'examen introuvable.")
+
+    pool = [
+        (node, question)
+        for node in nodes
+        for question in tree.questions(node.id, ProofKind.QUIZ)
+        if question.question_type == "qcm"
+    ]
+    if not pool:
+        raise HTTPException(status_code=422, detail="Aucune question QCM disponible pour cette catégorie.")
+
     selected = random.sample(pool, min(EXAM_QUESTION_COUNT, len(pool)))
-    
     now = int(time.time())
     session_id = uuid.uuid4().hex
+    question_refs = [
+        {"node_id": node.id, "question_id": question.id}
+        for node, question in selected
+    ]
     tree.conn.execute(
-        "INSERT INTO exam_sessions (session_id, category, question_ids, started_at, expires_at) VALUES (?, ?, ?, ?, ?)",
-        (session_id, category, json.dumps([q.id for _, q in selected]), now, now + EXAM_DURATION_SECONDS)
+        "INSERT INTO exam_sessions (session_id, category, question_ids, started_at, expires_at) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (session_id, category, json.dumps(question_refs, ensure_ascii=False), now, now + EXAM_DURATION_SECONDS),
     )
     tree.conn.commit()
     return {
-        "id": session_id, "category": category, "duration_seconds": EXAM_DURATION_SECONDS,
-        "questions": [{"id": q.id, "type": q.question_type, "prompt": q.prompt, "choices": list(q.choices)} for _, q in selected]
+        "id": session_id,
+        "category": category,
+        "duration_seconds": EXAM_DURATION_SECONDS,
+        "questions": [
+            {"id": question.id, "type": question.question_type, "prompt": question.prompt, "choices": list(question.choices)}
+            for _, question in selected
+        ],
     }
+
+
+@app.post("/api/exam/submit")
+def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    """Corrige côté serveur une session d'examen et rend toute soumission idempotente."""
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=422, detail="Un objet JSON est attendu.")
+    session_id = payload.get("session_id")
+    answers = payload.get("answers")
+    if not isinstance(session_id, str) or not session_id.strip():
+        raise HTTPException(status_code=422, detail="session_id manquant ou invalide.")
+    if not isinstance(answers, list):
+        raise HTTPException(status_code=422, detail="answers doit être une liste.")
+    session_id = session_id.strip()
+
+    previous = tree.conn.execute(
+        "SELECT result_json FROM exam_submissions WHERE session_id = ?", (session_id,)
+    ).fetchone()
+    if previous:
+        try:
+            return json.loads(previous["result_json"])
+        except (TypeError, ValueError, KeyError):
+            raise HTTPException(status_code=500, detail="Résultat d'examen enregistré illisible.") from None
+
+    session = tree.conn.execute(
+        "SELECT session_id, category, question_ids, expires_at FROM exam_sessions WHERE session_id = ?",
+        (session_id,),
+    ).fetchone()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session d'examen introuvable. Relance l'examen.")
+    if int(time.time()) > int(session["expires_at"]) + EXAM_SUBMIT_GRACE_SECONDS:
+        raise HTTPException(status_code=409, detail="Session expirée. Relance l'examen.")
+
+    try:
+        stored_refs = json.loads(session["question_ids"] or "[]")
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=500, detail="La liste des questions de cette session est invalide.") from None
+    if not isinstance(stored_refs, list) or not stored_refs:
+        raise HTTPException(status_code=409, detail="La session ne contient aucune question exploitable.")
+
+    all_nodes = {node.id: node for node in tree.nodes()}
+    selected: list[tuple[Node, Question]] = []
+    if isinstance(stored_refs[0], dict):
+        cache: dict[str, dict[int, Question]] = {}
+        for ref in stored_refs:
+            if not isinstance(ref, dict):
+                raise HTTPException(status_code=409, detail="Les références de questions de cette session sont invalides.")
+            node_id = ref.get("node_id")
+            question_id = ref.get("question_id")
+            if not isinstance(node_id, str) or type(question_id) is not int or node_id not in all_nodes:
+                raise HTTPException(status_code=409, detail="Une question de la session n'existe plus.")
+            if node_id not in cache:
+                cache[node_id] = {question.id: question for question in tree.questions(node_id, ProofKind.QUIZ)}
+            question = cache[node_id].get(question_id)
+            if question is None:
+                raise HTTPException(status_code=409, detail="Une question de la session n'existe plus.")
+            selected.append((all_nodes[node_id], question))
+    else:
+        # Compatibilité avec les sessions antérieures qui stockaient uniquement les identifiants numériques.
+        legacy_nodes = [node for node in all_nodes.values() if node.category == session["category"]]
+        by_id: dict[int, list[tuple[Node, Question]]] = {}
+        for node in legacy_nodes:
+            for question in tree.questions(node.id, ProofKind.QUIZ):
+                by_id.setdefault(question.id, []).append((node, question))
+        for question_id in stored_refs:
+            candidates = by_id.get(question_id, []) if type(question_id) is int else []
+            if len(candidates) != 1:
+                raise HTTPException(status_code=409, detail="Ancienne session ambiguë ou invalide. Relance l'examen.")
+            selected.append(candidates[0])
+
+    if not selected:
+        raise HTTPException(status_code=409, detail="La session ne contient aucune question exploitable.")
+    if len(answers) != len(selected):
+        raise HTTPException(
+            status_code=422,
+            detail=f"Nombre de réponses incorrect : {len(answers)} reçues pour {len(selected)} questions.",
+        )
+
+    details = []
+    correct = 0
+    for (_, question), answer in zip(selected, answers):
+        if answer is None:
+            matches = False
+        elif question.question_type in {"input", "terminal"}:
+            matches = _answer_matches(
+                question.answer_regex or "", str(answer), terminal=question.question_type == "terminal"
+            )
+        else:
+            matches = type(answer) is int and answer == question.answer
+        correct += int(matches)
+        details.append({
+            "id": question.id,
+            "correct": matches,
+            "answer": question.answer,
+            "explanation": question.explanation,
+        })
+
+    total = len(selected)
+    score = round(100 * correct / total)
+    result = {
+        "success": True,
+        "score": score,
+        "passed": score >= EXAM_PASS_SCORE,
+        "correct": correct,
+        "total": total,
+        "details": details,
+        "submitted_at": int(time.time()),
+    }
+    tree.conn.execute(
+        "INSERT OR IGNORE INTO exam_submissions (session_id, submitted_at, result_json, passed) VALUES (?, ?, ?, ?)",
+        (session_id, result["submitted_at"], json.dumps(result, ensure_ascii=False), int(result["passed"])),
+    )
+    tree.conn.commit()
+    saved = tree.conn.execute(
+        "SELECT result_json FROM exam_submissions WHERE session_id = ?", (session_id,)
+    ).fetchone()
+    return json.loads(saved["result_json"]) if saved else result
+
 
 @app.post("/api/tutor")
 def tutor_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
