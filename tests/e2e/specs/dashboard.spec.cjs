@@ -140,3 +140,133 @@ test('un cours peut être ouvert depuis la recherche puis fermé avec Échap', a
   await page.keyboard.press('Escape');
   await expect(reader).toBeHidden();
 });
+
+
+test('les cartes du catalogue des labs ouvrent un nouvel onglet sans remplacer le tableau de bord', async ({ page }) => {
+  await openDashboard(page);
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  await nav.getByRole('button', { name: 'Labs' }).click();
+
+  const links = page.locator('a[data-lab-card="catalog"]');
+  await expect(links.first()).toBeVisible();
+  const labLink = links.first();
+  await expect(labLink).toHaveAttribute('target', '_blank');
+  await expect(labLink).toHaveAttribute('rel', /noopener/);
+  await expect(labLink).toHaveAttribute('href', /openLab=/);
+
+  const originalUrl = page.url();
+  const newPagePromise = page.context().waitForEvent('page');
+  await labLink.click();
+  const labPage = await newPagePromise;
+  await labPage.waitForLoadState('domcontentloaded').catch(() => {});
+
+  await expect.poll(async () => {
+    const pathname = new URL(labPage.url()).pathname;
+    if (pathname === '/lab.html') {
+      return await labPage.getByText('Lab actif', { exact: true }).isVisible().catch(() => false);
+    }
+    if (pathname === '/') {
+      return await labPage.locator('.modal-panel[role="dialog"]').isVisible().catch(() => false);
+    }
+    return false;
+  }, { timeout: 60_000 }).toBe(true);
+
+  expect(page.url()).toBe(originalUrl);
+  await expect(nav.getByRole('button', { name: 'Labs' })).toHaveAttribute('aria-current', 'page');
+  await labPage.close();
+});
+
+test('le catalogue des labs réutilise son cache après avoir quitté puis rouvert la section', async ({ page }) => {
+  let nodeDetailRequests = 0;
+  page.on('request', request => {
+    const pathname = new URL(request.url()).pathname;
+    if (/^\/api\/node\/[^/]+$/.test(pathname)) nodeDetailRequests += 1;
+  });
+
+  await openDashboard(page);
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  const labsButton = nav.getByRole('button', { name: 'Labs' });
+  await labsButton.click();
+
+  const links = page.locator('a[data-lab-card="catalog"]');
+  await expect(links.first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).labIndexBusy)).toBe(false);
+  const requestsAfterFirstLoad = nodeDetailRequests;
+  expect(requestsAfterFirstLoad).toBeGreaterThan(0);
+
+  await nav.getByRole('button', { name: 'Tableau de bord' }).click();
+  await labsButton.click();
+  await expect(links.first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).labIndexBusy)).toBe(false);
+  expect(nodeDetailRequests).toBe(requestsAfterFirstLoad);
+});
+
+test('les panneaux latéraux et la bibliothèque matérielle se redimensionnent et gardent leur taille', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByText('Démo', { exact: true })).toBeVisible();
+
+  const leftPanel = page.getByTestId('lab-left-panel');
+  const rightPanel = page.getByTestId('lab-right-panel');
+  const equipmentPanel = page.getByTestId('equipment-palette-panel');
+  const width = element => element.evaluate(el => Math.round(el.getBoundingClientRect().width));
+  const height = element => element.evaluate(el => Math.round(el.getBoundingClientRect().height));
+
+  const leftBefore = await width(leftPanel);
+  const leftSeparator = page.getByRole('separator', { name: 'Redimensionner la largeur du panneau Mission et équipements' });
+  await leftSeparator.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(() => width(leftPanel)).toBeGreaterThan(leftBefore);
+
+  const rightBefore = await width(rightPanel);
+  const rightSeparator = page.getByRole('separator', { name: 'Redimensionner la largeur du panneau Console' });
+  await rightSeparator.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect.poll(() => width(rightPanel)).toBeGreaterThan(rightBefore);
+
+  const equipmentBefore = await height(equipmentPanel);
+  const equipmentSeparator = page.getByRole('separator', { name: "Redimensionner la hauteur de la bibliothèque d'équipements" });
+  await equipmentSeparator.focus();
+  await page.keyboard.press('ArrowUp');
+  await expect.poll(() => height(equipmentPanel)).toBeGreaterThan(equipmentBefore);
+
+  const savedSizes = await page.evaluate(() => ({
+    left: Number(localStorage.getItem('skilltree-lab-left-width')),
+    right: Number(localStorage.getItem('skilltree-lab-right-width')),
+    equipment: Number(localStorage.getItem('skilltree-lab-equipment-height')),
+  }));
+  expect(savedSizes.left).toBeGreaterThan(leftBefore);
+  expect(savedSizes.right).toBeGreaterThan(rightBefore);
+  expect(savedSizes.equipment).toBeGreaterThan(equipmentBefore);
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.getByText('Démo', { exact: true })).toBeVisible();
+  await expect.poll(() => width(leftPanel)).toBe(savedSizes.left);
+  await expect.poll(() => width(rightPanel)).toBe(savedSizes.right);
+  await expect.poll(() => height(equipmentPanel)).toBe(savedSizes.equipment);
+});
+
+test('les ports peuvent être reliés même lorsque les deux handles sont du même côté', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByText('Démo', { exact: true })).toBeVisible();
+
+  const edges = page.locator('.react-flow__edge');
+  await expect(edges).toHaveCount(1);
+  const source = page.locator('.react-flow__node[data-id="R1"] .react-flow__handle[data-handleid="Fa0/1"]').first();
+  const target = page.locator('.react-flow__node[data-id="R2"] .react-flow__handle[data-handleid="Fa0/1"]').first();
+  await expect(source).toBeVisible();
+  await expect(target).toBeVisible();
+
+  const sourceBox = await source.boundingBox();
+  const targetBox = await target.boundingBox();
+  expect(sourceBox).not.toBeNull();
+  expect(targetBox).not.toBeNull();
+
+  await page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 18 });
+  await page.mouse.up();
+
+  await expect(edges).toHaveCount(2, { timeout: 10_000 });
+});
