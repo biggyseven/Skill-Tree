@@ -182,9 +182,11 @@ def _postgres_schema_sql(sql: str) -> str:
     sql = re.sub(r"\bINTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT\b", "BIGSERIAL PRIMARY KEY", sql, flags=re.IGNORECASE)
     # SQLite INTEGER PRIMARY KEY also generates an id when no value is supplied.
     sql = re.sub(r"\b(id)\s+INTEGER\s+PRIMARY\s+KEY(?=\s*[,)\n])", r"\1 BIGSERIAL PRIMARY KEY", sql, flags=re.IGNORECASE)
-    sql = re.sub(r"^\s*INSERT\s+OR\s+IGNORE\s+INTO\b", "INSERT INTO", sql, flags=re.IGNORECASE)
-    if re.match(r"\s*INSERT\s+INTO\b", sql, flags=re.IGNORECASE) and not re.search(r"\bON\s+CONFLICT\b", sql, flags=re.IGNORECASE):
-        sql = sql.rstrip().rstrip(";") + " ON CONFLICT DO NOTHING"
+    ignore_conflicts = bool(re.match(r"\s*INSERT\s+OR\s+IGNORE\s+INTO\b", sql, flags=re.IGNORECASE))
+    if ignore_conflicts:
+        sql = re.sub(r"^\s*INSERT\s+OR\s+IGNORE\s+INTO\b", "INSERT INTO", sql, flags=re.IGNORECASE)
+        if not re.search(r"\bON\s+CONFLICT\b", sql, flags=re.IGNORECASE):
+            sql = sql.rstrip().rstrip(";") + " ON CONFLICT DO NOTHING"
     return sql
 
 
