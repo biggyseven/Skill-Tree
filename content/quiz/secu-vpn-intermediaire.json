@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « VPN Site-to-Site et d'accès distant » : à rédiger après le cours complet.",
+      "prompt": "Quel est le rôle principal d'un VPN Site-to-Site ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Relier deux réseaux par leurs passerelles à travers un chemin de communication protégé",
+        "Remplacer automatiquement toutes les routes et règles de pare-feu",
+        "Donner à chaque utilisateur un compte administrateur",
+        "Traduire toutes les adresses privées en adresses publiques"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Un VPN Site-to-Site protège les flux entre des réseaux de deux sites, généralement au moyen de passerelles. Les routes et règles restent à configurer et à vérifier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un état IKE établi si les utilisateurs n'accèdent toujours pas aux applications ?",
+      "choices": [
+        "Toutes les routes et autorisations sont nécessairement correctes",
+        "Les sélecteurs, routes, règles de filtrage, NAT ou services doivent encore être vérifiés",
+        "Le serveur distant est obligatoirement arrêté",
+        "Les clés de chiffrement ne sont plus nécessaires"
+      ],
+      "answer": 1,
+      "explanation": "La négociation IKE ne prouve pas que les politiques de données, les routes et les services fonctionnent. Les compteurs IPsec et les journaux des deux extrémités aident à isoler la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert l'authentification d'un pair dans un VPN ?",
+      "choices": [
+        "À augmenter la bande passante du lien",
+        "À empêcher tout paquet de perdre des octets",
+        "À vérifier l'identité ou le secret attendu du pair avant de lui faire confiance",
+        "À remplacer les règles d'accès aux réseaux internes"
+      ],
+      "answer": 2,
+      "explanation": "L'authentification vérifie l'identité attendue du pair par un mécanisme comme une PSK ou un certificat. Elle ne remplace pas le filtrage des flux après établissement du tunnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une PSK doit-elle être unique, longue et stockée de façon protégée ?",
+      "choices": [
+        "Pour rendre les routes plus spécifiques",
+        "Pour éviter d'avoir besoin de certificats dans tous les systèmes",
+        "Pour que le tunnel fonctionne même si les paramètres sont incompatibles",
+        "Pour réduire le risque qu'une fuite compromette plusieurs relations et faciliter une révocation contrôlée"
+      ],
+      "answer": 3,
+      "explanation": "Un secret partagé faible ou réutilisé accroît l'impact d'une fuite. La gestion doit comprendre stockage, rotation, révocation et limitation des personnes qui y ont accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence essentielle entre full tunnel et split tunnel ?",
+      "choices": [
+        "Le full tunnel route le trafic défini, souvent tout le trafic IP du client, dans le VPN ; le split tunnel n'y envoie que certains réseaux ou destinations",
+        "Le split tunnel chiffre et le full tunnel ne chiffre pas",
+        "Le full tunnel fonctionne uniquement avec IPv6",
+        "Le split tunnel élimine automatiquement la nécessité d'une authentification"
+      ],
+      "answer": 0,
+      "explanation": "Le choix modifie la route empruntée par le trafic. Le full tunnel peut centraliser les contrôles mais consomme davantage de capacité ; le split tunnel améliore parfois les performances mais demande une évaluation de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier le DNS sur un client VPN dont le tunnel est actif ?",
+      "choices": [
+        "Parce que le DNS établit toujours le chiffrement IPsec",
+        "Parce que le client peut utiliser un résolveur ou une route inadaptés malgré le tunnel établi",
+        "Parce que le DNS remplace les routes VPN",
+        "Parce qu'un tunnel actif interdit les noms de domaine"
+      ],
+      "answer": 1,
+      "explanation": "Un tunnel actif n'assure pas que le bon résolveur, la route vers lui et les suffixes DNS ont été configurés. Il faut tester la résolution interne séparément de la connectivité IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert généralement une exemption NAT pour un VPN Site-to-Site ?",
+      "choices": [
+        "À autoriser toutes les connexions du site distant",
+        "À désactiver toutes les politiques de pare-feu",
+        "À préserver les adresses d'origine pour les flux du tunnel qui ne doivent pas subir le PAT Internet",
+        "À convertir systématiquement TCP en UDP"
+      ],
+      "answer": 2,
+      "explanation": "Selon l'architecture, les réseaux du VPN doivent conserver leurs adresses attendues par les routes ou sélecteurs IPsec. L'exemption NAT ne remplace pas les autorisations de filtrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les compteurs d'encapsulation augmentent, mais les compteurs de décapsulation restent à zéro. Quelle piste est pertinente ?",
+      "choices": [
+        "Le MFA est forcément mal configuré",
+        "L'application doit être désinstallée immédiatement",
+        "Le DNS public est nécessairement en panne",
+        "Le pair distant, le chemin de transport, le filtrage ou le retour du trafic peuvent empêcher la réception"
+      ],
+      "answer": 3,
+      "explanation": "Ce schéma suggère que le trafic part du côté local mais n'est pas observé comme reçu de l'autre côté. Il faut examiner les deux pairs, le transport et les journaux avant de conclure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un pool d'adresses de clients VPN ne doit-il pas chevaucher les réseaux locaux ?",
+      "choices": [
+        "Le chevauchement peut rendre les routes ambiguës ou faire considérer une destination distante comme locale",
+        "Le chevauchement chiffre trop fortement les paquets",
+        "Le pool détermine uniquement le nom du SSID",
+        "Les VPN ne peuvent jamais utiliser des adresses privées"
+      ],
+      "answer": 0,
+      "explanation": "Les conflits d'adressage peuvent empêcher le routage vers les ressources distantes. Un plan d'adressage documenté doit inclure les sites, les clients VPN et les réseaux locaux fréquents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est recommandée pour l'accès d'administration après connexion VPN ?",
+      "choices": [
+        "Autoriser chaque utilisateur à atteindre tous les réseaux",
+        "Séparer la zone d'administration, appliquer le moindre privilège, MFA et journalisation",
+        "Désactiver les mises à jour de la passerelle",
+        "Partager une seule clé privée avec tous les employés"
+      ],
+      "answer": 1,
+      "explanation": "Le VPN ne donne pas automatiquement droit à l'administration. Les accès privilégiés doivent être limités aux personnes, appareils, destinations et durées nécessaires et faire l'objet d'une surveillance."
     }
   ]
 }
