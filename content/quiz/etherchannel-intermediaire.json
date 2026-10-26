@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Agrégation de liens - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi l’algorithme de répartition par hachage peut-il créer un déséquilibre entre les membres d’un LAG ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Parce que LACP interdit toute répartition entre liens",
+        "Parce que les adresses MAC ne peuvent pas être apprises sur un agrégat",
+        "Parce qu’un agrégat ne transporte qu’un paquet par seconde",
+        "Les clés de hachage et le profil de trafic peuvent concentrer plusieurs flux sur certains membres même si tous sont actifs"
+      ],
+      "answer": 3,
+      "explanation": "Le hachage répartit des flux selon des champs choisis par la plateforme. Les distributions réelles peuvent être inégales, particulièrement si le nombre de flux est faible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel effet peut avoir le réglage d’un nombre minimal de liens actifs (`min-links`) ?",
+      "choices": [
+        "Il définit la clé de chiffrement LACP",
+        "Il peut déterminer si l’agrégat reste opérationnel lorsque trop de membres sont indisponibles",
+        "Il augmente automatiquement la vitesse physique de chaque port",
+        "Il remplace la configuration des deux partenaires"
+      ],
+      "answer": 1,
+      "explanation": "`min-links` sert à fixer une condition de fonctionnement de l’agrégat selon le nombre de membres. Le réglage doit correspondre à la capacité minimale acceptable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux ports sont configurés dans le même groupe, mais l’agrégat ne se forme pas. Quel diagnostic est prioritaire ?",
+      "choices": [
+        "Comparer configuration et capacités des membres aux deux extrémités, puis examiner l’état LACP et les incohérences signalées",
+        "Changer l’adresse IP des terminaux",
+        "Désactiver les journaux sur les deux switches",
+        "Réinitialiser tous les VLAN sans collecte"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les incompatibilités de mode, vitesse, VLAN, L2/L3 ou de protocole peuvent empêcher l’agrégat. Il faut consulter l’état local et partenaire avant une modification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il comprendre d’une agrégation configurée en L2 plutôt qu’en L3 ?",
+      "choices": [
+        "L’agrégation L2 n’utilise jamais Ethernet",
+        "Une agrégation L3 fournit toujours une extension VLAN transparente",
+        "Le mode L2 ou L3 détermine le contexte et la configuration des interfaces ; les deux extrémités doivent être conçues pour le même service attendu",
+        "LACP choisit automatiquement le protocole de routage"
+      ],
+      "answer": 2,
+      "explanation": "Le type d’interface agrégée définit les fonctions disponibles et le traitement du trafic. Le design doit préciser si l’agrégat transporte des VLAN ou sert de lien routé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas considérer la somme des vitesses de tous les membres comme la vitesse d’un seul flux ?",
+      "choices": [
+        "Parce que LACP désactive les ports à chaque paquet",
+        "Parce que le flux est généralement mappé sur un membre par hachage afin de préserver l’ordre ; la capacité agrégée profite surtout à plusieurs flux",
+        "Parce que les trames Ethernet n’ont pas de taille",
+        "Parce que la bande passante n’existe qu’au niveau IP"
+      ],
+      "answer": 1,
+      "explanation": "Un flux unique reste normalement associé à un membre. L’agrégat augmente surtout la capacité disponible pour des flux multiples et peut améliorer la résilience."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel point doit être validé pour une agrégation multiconstructeur ?",
+      "choices": [
+        "Le logo sur les interfaces",
+        "Le nom des switchs dans l’inventaire uniquement",
+        "La couleur des câbles",
+        "Le support des modes/protocoles et les contraintes de configuration sur chaque plateforme, puis le comportement mesuré en laboratoire"
+      ],
+      "answer": 3,
+      "explanation": "Les fonctions et commandes varient selon les versions et constructeurs. Il faut confirmer le support, la compatibilité et le comportement plutôt que transposer une configuration à l’identique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle situation peut entraîner une perte de capacité après une panne sans faire tomber totalement le service ?",
+      "choices": [
+        "Une adresse DNS expirée uniquement",
+        "Une route vers Internet inexistante dans tous les cas",
+        "La perte d’un ou plusieurs membres, si le nombre restant demeure au-dessus du seuil opérationnel",
+        "Une modification du nom de domaine utilisateur"
+      ],
+      "answer": 2,
+      "explanation": "L’agrégat peut rester actif avec moins de membres. La capacité et la distribution des flux se modifient et doivent être comparées aux exigences de service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une procédure de changement pour modifier un EtherChannel ?",
+      "choices": [
+        "Sauvegarder l’état initial, vérifier les deux côtés, changer de manière coordonnée puis confirmer l’état et la capacité avec un plan de retour",
+        "Retirer tous les liens physiques simultanément sans test",
+        "Désactiver définitivement LACP sans vérifier le design",
+        "Modifier les paramètres de vitesse uniquement sur un des partenaires"
+      ],
+      "answer": 0,
+      "explanation": "Un changement incohérent peut faire tomber l’agrégat ou créer une panne L2. Une procédure coordonnée avec test et retour limite le risque."
     }
   ]
 }

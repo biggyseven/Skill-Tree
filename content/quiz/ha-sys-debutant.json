@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Haute disponibilité (Keepalived, Pacemaker)",
+      "prompt": "Que représente une adresse IP virtuelle (VIP) dans une architecture de haute disponibilité ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Une adresse de service qui peut être portée par le nœud actif selon le mécanisme configuré",
+        "Une adresse de management qui appartient nécessairement à tous les serveurs simultanément",
+        "Un mécanisme de sauvegarde des disques",
+        "Une adresse MAC statique fournie par DNS"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La VIP fournit un point d’accès stable ; son propriétaire peut changer lors d’un basculement selon la configuration et le réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle général de Keepalived utilisant VRRP ?",
+      "choices": [
+        "Répliquer chaque écriture de la base de données",
+        "Remplacer toutes les routes IP",
+        "Distribuer obligatoirement chaque requête HTTP entre plusieurs serveurs",
+        "Gérer l’élection du routeur/nœud qui porte une adresse virtuelle, selon l’état et la priorité configurés"
+      ],
+      "answer": 3,
+      "explanation": "VRRP permet notamment de désigner un maître pour une adresse virtuelle. Il ne réplique pas les données de l’application et ne prouve pas que le service est sain."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le RTO dans un plan de haute disponibilité ?",
+      "choices": [
+        "Le volume maximal de données à perdre",
+        "La durée cible maximale pour rétablir le service après interruption",
+        "Le délai de renouvellement DNS",
+        "Le nombre de réplicas du cluster"
+      ],
+      "answer": 1,
+      "explanation": "Le RTO exprime le délai de rétablissement visé. Le RPO porte sur la perte de données admissible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi surveiller le service applicatif plutôt que le seul état de l’interface réseau ?",
+      "choices": [
+        "Une interface active garantit que la base de données répond",
+        "Le DNS peut toujours attribuer une adresse à un service défaillant",
+        "Un lien peut être actif alors que le processus ou sa dépendance est indisponible",
+        "Le service applicatif ne dépend jamais du réseau"
+      ],
+      "answer": 2,
+      "explanation": "Un contrôle de santé limité au lien ne détecte pas toutes les pannes applicatives. Les mécanismes de bascule doivent utiliser des contrôles en accord avec le service et ses dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif de Pacemaker dans un cluster Linux ?",
+      "choices": [
+        "Gérer les ressources et leur placement/basculement en coordination avec les composants de cluster",
+        "Fournir les adresses MAC à chaque poste",
+        "Remplacer le noyau Linux",
+        "Assurer automatiquement la sauvegarde hors site"
+      ],
+      "answer": 0,
+      "explanation": "Pacemaker orchestre les ressources du cluster selon leur état et les politiques. Sa sûreté dépend aussi de la coordination, du quorum et du fencing lorsqu’ils sont requis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un cluster peut-il avoir besoin d’un quorum ?",
+      "choices": [
+        "Pour augmenter le débit de la carte Ethernet",
+        "Pour rendre les journaux plus lisibles",
+        "Pour attribuer automatiquement les adresses DNS",
+        "Pour déterminer si les nœuds restants disposent d’une majorité suffisante pour prendre certaines décisions sans créer des autorités concurrentes"
+      ],
+      "answer": 3,
+      "explanation": "Le quorum participe à la prévention de décisions concurrentes lorsque la communication est partitionnée. Les règles et effets dépendent du gestionnaire et de la topologie du cluster."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le fencing dans un cluster ?",
+      "choices": [
+        "À limiter uniquement les requêtes HTTP",
+        "À isoler ou arrêter de manière fiable un nœud qui risque de continuer à accéder aux ressources après une perte de coordination",
+        "À compresser les sauvegardes",
+        "À créer un second enregistrement DNS"
+      ],
+      "answer": 1,
+      "explanation": "Le fencing évite qu’un nœud isolé continue à utiliser une ressource ou à se comporter comme actif lorsque le cluster ne peut plus lui faire confiance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un test de basculement doit-il être autorisé et mesuré ?",
+      "choices": [
+        "Parce que le basculement fonctionne toujours sans perte",
+        "Parce que deux serveurs suffisent à prouver toute la résilience",
+        "Pour mesurer interruption, pertes, comportement des clients et retour à l’état nominal sans provoquer une perturbation non maîtrisée",
+        "Pour remplacer la documentation du cluster"
+      ],
+      "answer": 2,
+      "explanation": "Un basculement réel peut interrompre le service et révéler des dépendances. Il doit être effectué dans une fenêtre et comparé à des critères de réussite définis."
     }
   ]
 }

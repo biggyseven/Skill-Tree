@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Stratégies de branching",
+      "prompt": "Quel contexte correspond le mieux à Trunk-Based Development ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Une branche longue par fonctionnalité qui n’est jamais intégrée",
+        "Une branche par version conservée plusieurs années pour tous les changements",
+        "Des intégrations fréquentes sur une branche principale, avec petits changements et contrôles automatisés solides",
+        "Une méthode qui dispense des tests et de la revue"
+      ],
+      "answer": 2,
+      "explanation": "Trunk-Based Development privilégie des branches courtes et des intégrations fréquentes. Il exige de bons tests et souvent des feature flags pour maîtriser les fonctionnalités incomplètes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un avantage habituel de GitHub Flow pour une équipe qui livre fréquemment ?",
+      "choices": [
+        "Un flux simple fondé sur des branches courtes, des pull requests, des contrôles et une intégration régulière",
+        "Un ensemble de branches permanentes obligatoires pour chaque phase",
+        "Il interdit la revue de code",
+        "Il force chaque développeur à réécrire la branche principale"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "GitHub Flow simplifie la collaboration autour de branches de courte durée et de pull requests. Le processus exact dépend toutefois de la gouvernance et du déploiement du dépôt."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi GitFlow peut-il être moins adapté à une équipe qui déploie de nombreuses fois par jour ?",
+      "choices": [
+        "Il interdit toute branche de correctif",
+        "Il ne permet jamais de gérer des versions",
+        "Il supprime la possibilité de fusionner des branches",
+        "La multiplication de branches longues et de phases de fusion peut ajouter de la coordination et retarder l’intégration continue"
+      ],
+      "answer": 3,
+      "explanation": "GitFlow garde des branches structurantes pour développement et versions. Selon le rythme de livraison, ce modèle peut augmenter le coût de synchronisation ; le choix dépend du produit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une politique de protection de la branche principale ?",
+      "choices": [
+        "Permettre à n’importe quel jeton de publier sans contrôle",
+        "Imposer des validations adaptées, par exemple revue, tests requis et permissions limitées avant fusion",
+        "Empêcher l’exécution des pipelines CI",
+        "Supprimer automatiquement les tickets liés"
+      ],
+      "answer": 1,
+      "explanation": "Les protections peuvent rendre les revues et tests obligatoires, limiter les poussées directes et encadrer les acteurs autorisés à intégrer des changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre backport et forward-port ?",
+      "choices": [
+        "Backport et forward-port désignent seulement deux noms pour une branche principale",
+        "Backport supprime un correctif de toutes les versions",
+        "Backport transporte un changement vers une branche plus ancienne maintenue ; forward-port le reporte vers une ligne plus récente",
+        "Forward-port est une méthode de compression Git"
+      ],
+      "answer": 2,
+      "explanation": "Ces opérations appliquent un changement sur différentes lignes de maintenance. Il faut vérifier les différences de code, de dépendances et de tests entre versions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment gérer un hotfix sur plusieurs versions maintenues ?",
+      "choices": [
+        "Identifier les branches réellement supportées, appliquer le correctif, exécuter les tests propres à chaque version et documenter les backports/forward-ports nécessaires",
+        "Corriger uniquement une branche et supposer les autres identiques",
+        "Désactiver la protection de toutes les branches",
+        "Supprimer les tags de version avant toute analyse"
+      ],
+      "answer": 0,
+      "explanation": "Les versions maintenues peuvent différer. La diffusion d’un hotfix doit être explicite, testée et tracée pour ne pas laisser une vulnérabilité ou une régression dans une ligne oubliée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère important doit guider la durée de vie des branches de fonctionnalité ?",
+      "choices": [
+        "Le nombre d’emojis dans le commit",
+        "Le nombre d’années du compte GitHub uniquement",
+        "Le nom de l’ordinateur du développeur",
+        "La taille du changement, le coût de synchronisation, le risque et la capacité à intégrer/tester fréquemment"
+      ],
+      "answer": 3,
+      "explanation": "Des branches longues dérivent davantage et rendent les conflits et validations plus coûteux. Une stratégie doit favoriser une intégration compatible avec la taille et le risque des changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les contrôles CI doivent-ils être cohérents avec la stratégie de branching ?",
+      "choices": [
+        "Pour faire passer tous les commits même si les tests échouent",
+        "Pour garantir que les règles de fusion correspondent aux exigences de test, de revue, de publication et de maintenance",
+        "Pour rendre inutiles les validations manuelles à haut risque",
+        "Pour permettre la publication de secrets dans les logs"
+      ],
+      "answer": 1,
+      "explanation": "Le modèle de branche ne suffit pas à garantir la qualité. Les contrôles doivent être obligatoires au bon moment et alignés sur le processus de livraison."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Kubernetes : les bases",
+      "prompt": "Quelle est la différence générale entre un Pod et un Deployment Kubernetes ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Un Pod est une unité d’exécution de conteneurs ; un Deployment gère la déclaration et les mises à jour d’un ensemble de Pods répliqués via des ReplicaSets",
+        "Un Pod est toujours le cluster entier",
+        "Un Deployment représente uniquement une adresse IP publique",
+        "Un Pod remplace nécessairement un nœud"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le Pod est l’unité exécutable de base. Un Deployment gère l’état désiré des réplicas et les mises à jour de l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet d’inspecter les Pods du namespace courant ?",
+      "choices": [
+        "kubectl get images",
+        "docker ps --namespace",
+        "terraform show pods",
+        "kubectl get pods"
+      ],
+      "answer": 3,
+      "explanation": "`kubectl get pods` liste les Pods du namespace courant ; `-n` permet de choisir un namespace et `-A` d’en lister plusieurs selon les droits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un Service Kubernetes de type ClusterIP ?",
+      "choices": [
+        "À créer une adresse MAC statique sur tous les nœuds",
+        "À fournir un point d’accès réseau stable à un ensemble de Pods au sein du cluster",
+        "À garantir que les images sont sans vulnérabilités",
+        "À sauvegarder les volumes"
+      ],
+      "answer": 1,
+      "explanation": "Un Service ClusterIP fournit une adresse logique stable dans le cluster et répartit le trafic vers les endpoints correspondant à son sélecteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre une readiness probe et une liveness probe ?",
+      "choices": [
+        "Readiness redémarre toujours le nœud et liveness met à jour les images",
+        "Les deux ne vérifient que le DNS public",
+        "Readiness indique si un Pod doit recevoir du trafic ; liveness aide à déterminer si le conteneur doit être redémarré",
+        "Readiness est une méthode de sauvegarde du volume"
+      ],
+      "answer": 2,
+      "explanation": "Une readiness probe contrôle si le Pod est prêt à recevoir du trafic ; la liveness probe détecte un état dans lequel le conteneur peut devoir être redémarré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un ConfigMap ?",
+      "choices": [
+        "À stocker de la configuration non sensible séparément de l’image du conteneur",
+        "À stocker obligatoirement tous les secrets chiffrés",
+        "À créer un cluster de base de données",
+        "À remplacer les règles RBAC"
+      ],
+      "answer": 0,
+      "explanation": "Un ConfigMap sépare certains paramètres de configuration de l’image. Les données sensibles doivent être traitées selon les mécanismes de secrets adaptés et les politiques d’accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir des requests CPU/mémoire pour un conteneur ?",
+      "choices": [
+        "Pour garantir qu’il utilisera toujours toutes les ressources du nœud",
+        "Pour désactiver le scheduler",
+        "Pour remplacer la readiness probe",
+        "Pour aider le scheduler à placer le Pod et fournir des repères de ressources, selon les politiques et limites définies"
+      ],
+      "answer": 3,
+      "explanation": "Les requests participent au placement par le scheduler. Les limits contrôlent certaines consommations, avec un comportement qui varie selon CPU, mémoire et la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est l’utilité d’un namespace Kubernetes ?",
+      "choices": [
+        "Il chiffre les paquets TCP automatiquement",
+        "Il organise et isole logiquement un ensemble de ressources pour l’administration et l’application de certaines politiques",
+        "Il donne obligatoirement accès administrateur à l’utilisateur",
+        "Il remplace les contextes kubeconfig"
+      ],
+      "answer": 1,
+      "explanation": "Les namespaces organisent des ressources et sont souvent utilisés avec quotas et politiques. Ils ne fournissent pas à eux seuls une frontière de sécurité absolue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un Deployment reste disponible mais son Service ne joint pas l’application. Que faut-il vérifier ?",
+      "choices": [
+        "La seule taille de l’image Docker",
+        "Le mot de passe du fournisseur cloud sans autre indice",
+        "Les labels/sélecteurs, endpoints, ports cibles, probes et événements du Pod",
+        "Le nombre de namespaces existants uniquement"
+      ],
+      "answer": 2,
+      "explanation": "Un Service doit sélectionner les bons Pods et viser les ports attendus. Les endpoints, readiness et événements aident à localiser un échec de découverte ou de disponibilité."
     }
   ]
 }

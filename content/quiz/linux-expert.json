@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Linux Expert (Performance et Kernel)",
+      "prompt": "Pourquoi mesurer avant d’optimiser un système Linux ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Pour établir une ligne de base et localiser le goulot d’étranglement avant de changer des paramètres",
+        "Parce que les outils de performance ne donnent jamais de données",
+        "Pour éviter d’avoir besoin d’un objectif de service",
+        "Parce que toute optimisation réduit forcément le débit"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La mesure et une hypothèse falsifiable évitent d’optimiser une ressource qui n’est pas limitante et de créer des effets secondaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert `strace` lors d’une investigation Linux ?",
+      "choices": [
+        "À modifier les routes BGP",
+        "À afficher uniquement les journaux DNS",
+        "À observer les appels système d’un processus et leurs résultats, par exemple pour diagnostiquer des fichiers absents ou des erreurs d’accès",
+        "À compiler le noyau sans configuration"
+      ],
+      "answer": 2,
+      "explanation": "`strace` permet d’observer les appels système et les erreurs. La capture peut ajouter du coût et peut contenir des données sensibles, donc il faut l’utiliser de façon ciblée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre une saturation CPU et une attente d’I/O ?",
+      "choices": [
+        "Les deux signifient nécessairement que le DNS est en panne",
+        "Une saturation CPU signifie que du temps de calcul est demandé ; une attente d’I/O peut bloquer des tâches sur le stockage ou le réseau",
+        "L’attente I/O se mesure uniquement avec `ip addr`",
+        "La saturation CPU disparaît toujours en augmentant le MTU"
+      ],
+      "answer": 1,
+      "explanation": "Les symptômes doivent être distingués avec les métriques CPU, charge, iowait, latence et les outils du sous-système concerné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les cgroups dans Linux ?",
+      "choices": [
+        "À attribuer des adresses IP publiques",
+        "À stocker les tables de routage persistantes",
+        "À remplacer les namespaces réseau",
+        "À organiser et contrôler l’usage de ressources de groupes de processus, notamment CPU, mémoire et I/O selon la configuration"
+      ],
+      "answer": 3,
+      "explanation": "Les cgroups permettent de suivre et limiter certaines ressources des groupes de processus. Ils sont notamment utilisés par systemd et les runtimes de conteneurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur aide à distinguer un manque de mémoire d’un problème de cache de fichiers ?",
+      "choices": [
+        "Observer `available`, la pression mémoire, les événements OOM et l’évolution temporelle, plutôt que regarder seulement la mémoire `used`",
+        "Effacer les caches à chaque alerte",
+        "Supposer que toute mémoire utilisée est perdue",
+        "Modifier la taille du disque pour résoudre la RAM"
+      ],
+      "answer": 0,
+      "explanation": "Linux utilise la mémoire disponible pour le cache. Il faut examiner la mémoire réellement disponible, la pression et les événements OOM avant de conclure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’affinité CPU peut-elle améliorer ou détériorer les performances ?",
+      "choices": [
+        "Elle change obligatoirement la fréquence du disque",
+        "Elle empêche tous les threads de s’exécuter",
+        "Elle contraint où des tâches peuvent s’exécuter, ce qui peut aider la localité mais aussi créer une contention ou un déséquilibre",
+        "Elle remplace la gestion de mémoire"
+      ],
+      "answer": 2,
+      "explanation": "L’affinité CPU influence le placement des tâches. Elle doit être évaluée avec des mesures de charge, de cache, de NUMA et de contention selon l’architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche suit le modèle USE pour diagnostiquer une ressource ?",
+      "choices": [
+        "Utilisateurs, services et événements",
+        "Utilisation, saturation et erreurs pour une ressource donnée",
+        "Une seule mesure de latence applicative",
+        "La mise à jour systématique des paquets"
+      ],
+      "answer": 1,
+      "explanation": "USE examine l’utilisation, la saturation et les erreurs d’une ressource pour aider à identifier un goulot d’étranglement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un risque d’augmenter arbitrairement une limite noyau ou une file réseau ?",
+      "choices": [
+        "Elle garantit que tout processus est plus rapide",
+        "Les réglages du noyau n’ont jamais d’effet sur le système",
+        "Elle remplace les tests de charge",
+        "La limite peut déplacer ou aggraver le goulot sans corriger la cause ; il faut mesurer avant/après et définir un retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "Un paramètre isolé ne résout pas nécessairement la cause. Le comportement doit être mesuré sous charge représentative et comparé à un objectif de service."
     }
   ]
 }

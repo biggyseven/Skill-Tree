@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour DevSecOps",
+      "prompt": "Quel est l’objectif central d’une modélisation de menace dans une chaîne de livraison logicielle ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Compter le nombre de dépôts Git",
+        "Décrire actifs, frontières de confiance, chemins d’attaque et mesures de réduction du risque afin de choisir les contrôles adaptés",
+        "Garantir qu’aucune vulnérabilité ne sera jamais découverte",
+        "Remplacer les tests d’intégration"
+      ],
+      "answer": 1,
+      "explanation": "La modélisation aide à relier les actifs et chemins d’attaque aux contrôles pertinents. Elle guide la priorité des mesures sans prétendre prouver l’absence de risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi associer une SBOM à l’artefact effectivement livré ?",
+      "choices": [
+        "Parce que cela supprime automatiquement les composants vulnérables",
+        "Parce qu’une SBOM est toujours confidentielle et ne peut pas être partagée",
+        "Pour relier les composants identifiés à une version précise de l’artefact, afin d’améliorer la traçabilité et l’analyse d’exposition",
+        "Pour remplacer les signatures d’artefacts"
+      ],
+      "answer": 2,
+      "explanation": "La SBOM doit correspondre à l’artefact exact. Associée à sa provenance, elle aide à suivre les composants et à déterminer si un avis de sécurité concerne la version déployée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie limite le risque lié aux identifiants d’un workflow CI/CD ?",
+      "choices": [
+        "Utiliser une identité dédiée, des permissions minimales et des jetons de courte durée ou une fédération d’identité quand la plateforme le permet",
+        "Partager un jeton administrateur à longue durée entre tous les dépôts",
+        "Écrire le jeton dans le dépôt pour simplifier les builds",
+        "Donner par défaut un accès de déploiement à toutes les branches"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les identités dédiées, les permissions minimales et les jetons courts réduisent la durée et la portée d’un éventuel vol d’identifiants. Le mécanisme précis dépend de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une alerte SAST/SCA jugée non applicable ?",
+      "choices": [
+        "La supprimer définitivement sans justification",
+        "Désactiver le scanner pour tout le dépôt",
+        "Déployer sans garder de trace",
+        "Documenter la preuve, le périmètre et la durée de l’exception, demander une approbation adaptée et réévaluer lorsque le contexte change"
+      ],
+      "answer": 3,
+      "explanation": "Les exceptions doivent être motivées, limitées, traçables et réexaminées. Une suppression silencieuse peut masquer un risque réel lors d’une évolution du code ou des dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle contribue à empêcher qu’un artefact non vérifié soit déployé en production ?",
+      "choices": [
+        "Un tag `latest` et aucune validation",
+        "Une signature ou attestation vérifiable reliée à la construction approuvée, associée à une politique de déploiement",
+        "Un nom de fichier contenant « secure »",
+        "Le fait que l’image se construise sans erreur"
+      ],
+      "answer": 1,
+      "explanation": "La vérification d’intégrité et de provenance peut être intégrée au déploiement. Une construction réussie seule ne prouve ni l’origine approuvée ni l’absence de vulnérabilités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on faire si un secret CI a été exposé dans des logs ou dans Git ?",
+      "choices": [
+        "Supprimer la ligne visible et considérer le problème réglé",
+        "Attendre le prochain renouvellement planifié sans action",
+        "Révoquer/faire tourner le secret, analyser son usage, limiter l’accès et traiter les copies/historique concernés selon la procédure",
+        "Désactiver l’authentification multifactorielle"
+      ],
+      "answer": 2,
+      "explanation": "Le secret doit être considéré compromis. Il faut le révoquer ou le renouveler, analyser les traces d’utilisation et traiter les endroits où il peut subsister, sans oublier les systèmes dépendants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue une politique de protection des branches dans DevSecOps ?",
+      "choices": [
+        "Elle encadre l’intégration par revue, tests obligatoires et règles d’approbation avant les changements sensibles",
+        "Elle remplace les sauvegardes du dépôt",
+        "Elle garantit l’absence de dépendance vulnérable",
+        "Elle rend inutile la séparation des permissions"
+      ],
+      "answer": 0,
+      "explanation": "Les protections de branches rendent certaines validations obligatoires et limitent les changements non contrôlés. Elles doivent être cohérentes avec les permissions et les chemins de déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les runners éphémères et les permissions limitées peuvent-ils améliorer la sécurité du pipeline ?",
+      "choices": [
+        "Ils rendent les scans SAST toujours exacts",
+        "Ils empêchent toute erreur de code",
+        "Ils remplacent la mise à jour des outils de construction",
+        "Ils réduisent la persistance d’un environnement compromis et limitent les privilèges disponibles pendant l’exécution"
+      ],
+      "answer": 3,
+      "explanation": "Des runners éphémères limitent la persistance après un job, tandis que des permissions minimales réduisent l’impact d’une compromission. Ils doivent être intégrés dans un modèle d’identité et d’isolation cohérent."
     }
   ]
 }

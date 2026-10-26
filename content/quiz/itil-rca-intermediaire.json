@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Gestion d'incident (ITIL et RCA) - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quelle est la distinction entre SLA et SLO ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Un SLA est un accord de service comportant des engagements ; un SLO est un objectif mesurable défini pour la qualité ou la fiabilité du service",
+        "Un SLA mesure uniquement les adresses MAC et un SLO les adresses IP",
+        "Un SLO est toujours une pénalité financière",
+        "Les deux sont uniquement des indicateurs de volume de tickets"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le SLA est un accord entre parties, alors qu’un SLO définit un objectif mesurable de service. Les modèles exacts dépendent de l’organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère aide à déclarer un incident majeur ?",
+      "choices": [
+        "Le nombre d’emojis dans la conversation",
+        "Le fait qu’un incident touche un poste uniquement quel que soit le contexte",
+        "Un seuil de priorité choisi au hasard",
+        "L’impact métier, l’étendue, les dépendances critiques et les règles d’escalade convenues"
+      ],
+      "answer": 3,
+      "explanation": "Un incident majeur est déterminé selon un modèle de sévérité documenté qui tient compte de l’impact, de l’étendue et des priorités de service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une RCA intermédiaire doit-elle s’appuyer sur des preuves et pas seulement sur la première hypothèse ?",
+      "choices": [
+        "Parce que les journaux ne sont jamais utiles",
+        "Pour distinguer la cause confirmée des corrélations, et réduire le risque de mettre en œuvre une action qui ne résout pas le mécanisme réel",
+        "Pour retarder toutes les mesures de rétablissement",
+        "Pour remplacer l’horodatage des événements"
+      ],
+      "answer": 1,
+      "explanation": "Une hypothèse doit être confrontée à la chronologie, aux changements et aux observations. Le premier symptôme n’est pas nécessairement la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un plan CAPA ?",
+      "choices": [
+        "Créer une liste de personnes à blâmer",
+        "Supprimer les tickets liés",
+        "Définir des actions correctives et préventives, leurs responsables, échéances et critères d’efficacité",
+        "Remplacer les exercices de reprise"
+      ],
+      "answer": 2,
+      "explanation": "CAPA structure les actions destinées à corriger le problème et à réduire sa réapparition. Les actions doivent être priorisées et suivies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment utiliser une culture « sans blâme » sans renoncer à la responsabilité ?",
+      "choices": [
+        "Analyser les conditions système, décisions et contrôles qui ont rendu l’incident possible, tout en assignant clairement les actions d’amélioration",
+        "Éviter toute discussion sur les décisions prises",
+        "Ignorer toute règle de sécurité enfreinte",
+        "Supprimer les responsabilités des propriétaires de service"
+      ],
+      "answer": 0,
+      "explanation": "L’approche sans blâme cherche à comprendre le système et les décisions dans leur contexte, tout en maintenant des responsabilités explicites pour l’amélioration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il conserver les horodatages et la source des éléments de preuve ?",
+      "choices": [
+        "Pour décorer le rapport post-incident",
+        "Pour éviter de consulter les équipes techniques",
+        "Pour garantir qu’une seule personne peut lire l’incident",
+        "Pour fiabiliser la chronologie, la corrélation et la traçabilité des conclusions"
+      ],
+      "answer": 3,
+      "explanation": "Une chronologie exacte aide à reconstruire la séquence des événements et à tester l’ordre des causes et des effets. Les sources doivent être explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’une action post-incident formulée comme « surveiller davantage » sans critère ?",
+      "choices": [
+        "Elle permet toujours de résoudre la cause",
+        "Elle est difficile à mesurer et à clôturer, car le résultat attendu et le seuil de réussite ne sont pas définis",
+        "Elle supprime automatiquement les faux positifs",
+        "Elle est forcément prioritaire sur toutes les autres actions"
+      ],
+      "answer": 1,
+      "explanation": "Une action doit être concrète et vérifiable. Définir une mesure, un seuil, un propriétaire et une échéance permet de juger son efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un incident d’application, quelle association de métriques donne une vue plus complète ?",
+      "choices": [
+        "Le nombre de pages du rapport uniquement",
+        "Le nombre de serveurs dans l’inventaire seul",
+        "Le temps de détection/rétablissement, l’impact client, la qualité des changements et l’efficacité des actions correctives",
+        "Le nombre de tickets fermés sans vérifier leur résolution"
+      ],
+      "answer": 2,
+      "explanation": "Les métriques doivent mesurer à la fois vitesse et qualité de réponse, impact métier, répétition et efficacité des améliorations. Une fermeture rapide ne prouve pas un bon rétablissement."
     }
   ]
 }

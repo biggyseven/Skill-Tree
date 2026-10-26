@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Supervision avec Prometheus et Grafana",
+      "prompt": "Quel est le rôle d’Alertmanager dans une architecture Prometheus ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il collecte lui-même tous les journaux applicatifs",
+        "Il construit les images Docker des exportateurs",
+        "Il regroupe, route, inhibe ou met en silence les alertes envoyées par Prometheus",
+        "Il remplace la base de séries temporelles de Prometheus"
+      ],
+      "answer": 2,
+      "explanation": "Prometheus évalue les règles d’alerte ; Alertmanager organise leur traitement et leurs notifications selon les routes et politiques configurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une forte cardinalité de labels peut-elle poser problème dans Prometheus ?",
+      "choices": [
+        "Chaque combinaison de labels crée une série temporelle distincte, ce qui accroît le volume de stockage et le coût de requête",
+        "Les labels empêchent toute requête PromQL",
+        "Les labels désactivent automatiquement les règles d’alerte",
+        "Une cardinalité élevée garantit une meilleure performance"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Une combinaison différente de labels correspond à une série temporelle distincte. Les identifiants non bornés, comme un ID utilisateur, peuvent provoquer une explosion du nombre de séries."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence utile entre `rate()` et `increase()` pour un compteur Prometheus ?",
+      "choices": [
+        "`rate()` supprime le compteur et `increase()` le remet à zéro",
+        "`increase()` fonctionne uniquement sur les gauges",
+        "Les deux calculent la moyenne de toutes les valeurs indépendamment de la durée",
+        "`rate()` estime le taux moyen par seconde sur une fenêtre ; `increase()` estime l’augmentation sur cette fenêtre"
+      ],
+      "answer": 3,
+      "explanation": "Ces fonctions traitent les compteurs et tiennent compte des resets détectés. `rate()` donne un taux par seconde, tandis que `increase()` exprime l’augmentation estimée sur la période."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un tableau Grafana, pourquoi utiliser une variable de dashboard pour sélectionner un environnement ?",
+      "choices": [
+        "Pour transformer un compteur en histogramme",
+        "Pour filtrer les panels par valeur choisie et réutiliser le même tableau de bord dans plusieurs environnements",
+        "Pour éviter de configurer toute source de données",
+        "Pour garantir que les métriques ne contiennent jamais de données sensibles"
+      ],
+      "answer": 1,
+      "explanation": "Les variables permettent de réutiliser le tableau de bord et de filtrer les requêtes selon des labels ou valeurs sélectionnés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un exportateur comme Node Exporter ?",
+      "choices": [
+        "Collecter des métriques système sur l’hôte et les exposer pour que Prometheus puisse les récupérer",
+        "Envoyer automatiquement tous les événements à Grafana sans collecte",
+        "Stocker les dashboards en base de données",
+        "Remplacer Alertmanager pour les notifications"
+      ],
+      "answer": 0,
+      "explanation": "Node Exporter expose des métriques de système. Prometheus les collecte selon les cibles définies dans sa configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution est importante lorsqu’on configure une cible Prometheus sur un serveur distant ?",
+      "choices": [
+        "Exposer l’endpoint de métriques sans restriction sur Internet",
+        "Désactiver TLS et tout contrôle réseau dans tous les cas",
+        "Limiter l’accès à l’endpoint aux collecteurs autorisés et vérifier la connectivité depuis Prometheus",
+        "Créer une règle d’alerte avant d’installer l’exportateur"
+      ],
+      "answer": 2,
+      "explanation": "Les endpoints de métriques peuvent révéler des informations opérationnelles. Il convient de limiter l’exposition et de vérifier la connectivité du point de collecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment doit-on traiter un histogramme de latence lorsqu’on souhaite examiner une distribution ou un percentile ?",
+      "choices": [
+        "Prendre la moyenne de tous les buckets, y compris le bucket infini, comme p95",
+        "Utiliser les buckets correctement et une requête adaptée, par exemple `histogram_quantile()` sur des taux de buckets compatibles",
+        "Lire seulement la dernière valeur d’un compteur total",
+        "Convertir les métriques en logs avant toute agrégation"
+      ],
+      "answer": 1,
+      "explanation": "Pour des histogrammes classiques, les buckets cumulés et le calcul du taux doivent être interprétés correctement. Les histogrammes natifs ont leurs propres usages selon la version et l’outil."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une alerte se déclenche trop souvent pendant de courts pics normaux. Quel ajustement est le plus prudent ?",
+      "choices": [
+        "Supprimer la collecte des métriques concernées",
+        "Désactiver toutes les alertes du service",
+        "Augmenter tous les seuils de façon arbitraire",
+        "Examiner la base de référence, la fenêtre d’évaluation, la durée `for`, les symptômes métier et les faux positifs avant d’ajuster la règle"
+      ],
+      "answer": 3,
+      "explanation": "Une alerte actionnable doit refléter un risque de service. Ajuster avec les données de référence et une validation réduit le bruit sans masquer une dégradation réelle."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IPv6 - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi un plan d’adressage IPv6 hiérarchique est-il important dans un réseau multi-site ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il facilite l’agrégation des préfixes, l’exploitation, les politiques de routage et les renumérotations contrôlées",
+        "Il évite d’avoir à utiliser des routes",
+        "Il rend les préfixes privés impossibles",
+        "Il garantit que chaque adresse est courte"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une allocation hiérarchique simplifie la délégation, les résumés de routes et l’exploitation. Les préfixes doivent être documentés et vérifiés sans chevauchement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque introduit un routeur qui diffuse des RA non autorisés sur un segment utilisateur ?",
+      "choices": [
+        "Il empêche les switches d’apprendre les adresses MAC dans tous les VLAN",
+        "Il peut annoncer une passerelle ou des préfixes indésirables, détournant ou perturbant la connectivité des hôtes",
+        "Il remplace les serveurs DNS autoritaires",
+        "Il fait toujours tomber tous les liens physiques"
+      ],
+      "answer": 1,
+      "explanation": "Des RA malveillants ou accidentels peuvent influencer la configuration des hôtes. Le réseau doit définir les points autorisés et surveiller les annonces."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le filtrage IPv6 ne doit-il pas simplement appliquer une copie aveugle des ACL IPv4 ?",
+      "choices": [
+        "Parce qu’IPv6 ne prend pas en charge les pare-feu",
+        "Parce que tous les services IPv6 sont déjà chiffrés",
+        "Parce que les fonctions et particularités IPv6, notamment NDP/ICMPv6 et les en-têtes d’extension, exigent une politique qui couvre les vrais chemins et protocoles",
+        "Parce qu’IPv6 ne possède pas de ports TCP"
+      ],
+      "answer": 2,
+      "explanation": "Le modèle de sécurité doit prendre en compte les mécanismes nécessaires à IPv6, les en-têtes et les flux réellement utilisés, sans supposer que la politique IPv4 couvre automatiquement le double stack."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’OSPFv3 dans un environnement IPv6 ?",
+      "choices": [
+        "Il attribue les adresses IPv6 automatiquement à toutes les interfaces",
+        "Il remplace le protocole NDP sur chaque hôte",
+        "Il sert uniquement à résoudre les noms DNS",
+        "Il permet de diffuser et calculer des routes IPv6 au sein d’un domaine de routage, selon la configuration"
+      ],
+      "answer": 3,
+      "explanation": "OSPFv3 peut transporter des informations de routage IPv6. Les adjacences et routes doivent être vérifiées séparément de l’adressage et du forwarding."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une stratégie IPv6-only avec traduction ou mécanismes de transition doit-elle être testée de bout en bout ?",
+      "choices": [
+        "Elle modifie potentiellement DNS, dépendances, protocoles, visibilité, accès partenaires et chemins de retour ; l’existence d’une adresse IPv6 ne prouve pas la compatibilité applicative",
+        "Parce que IPv6-only signifie que tous les serveurs doivent être hors réseau",
+        "Parce qu’IPv6 ne peut pas transporter TCP",
+        "Parce que la traduction supprime tous les risques de sécurité"
+      ],
+      "answer": 0,
+      "explanation": "La migration affecte les dépendances et les chemins de bout en bout. Il faut inventorier les clients, noms, services et partenaires puis tester le comportement réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit les en-têtes d’extension IPv6 ?",
+      "choices": [
+        "Ils sont toujours identiques aux options Ethernet",
+        "Ils sont des noms DNS attachés aux paquets",
+        "Ils remplacent systématiquement l’en-tête IPv6 de base",
+        "Ils peuvent apparaître dans la chaîne d’en-têtes IPv6 et certains équipements/politiques doivent être conçus pour les traiter de façon cohérente"
+      ],
+      "answer": 3,
+      "explanation": "Les en-têtes d’extension ajoutent des informations au paquet IPv6. La chaîne réelle et son traitement influencent la visibilité et certaines politiques de filtrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une organisation doit-elle tester la sécurité du NDP et les frontières L2 ?",
+      "choices": [
+        "Parce que NDP n’utilise jamais ICMPv6",
+        "Parce que la découverte de voisins et de routeurs est locale ; des RA ou messages de voisinage non autorisés peuvent influencer la connectivité du segment",
+        "Pour remplacer tous les contrôles de routage",
+        "Parce que les adresses link-local sont routées sur Internet"
+      ],
+      "answer": 1,
+      "explanation": "NDP est essentiel sur le lien local, mais son comportement peut être abusé si les frontières ne sont pas contrôlées. Les protections dépendent des équipements et de l’architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles preuves sont utiles pour un diagnostic expert d’un problème IPv6 intermittent ?",
+      "choices": [
+        "Le seul état du lien Ethernet",
+        "La version du navigateur uniquement",
+        "Une chronologie corrélant RA/NDP, routes, événements firewall, MTU, DNS et tests synthétiques du service",
+        "Le nombre total d’adresses dans le préfixe"
+      ],
+      "answer": 2,
+      "explanation": "Une panne intermittente peut impliquer plusieurs plans. La corrélation des observations avec l’heure et le flux précis permet de distinguer les hypothèses."
     }
   ]
 }

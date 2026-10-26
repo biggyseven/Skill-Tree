@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Git Avancé",
+      "prompt": "Quand `git reflog` est-il particulièrement utile ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Pour publier tous les fichiers non suivis",
+        "Pour créer une clé SSH",
+        "Pour retrouver des positions récentes de références locales après un reset, un rebase ou un déplacement de branche",
+        "Pour vérifier les enregistrements DNS du dépôt"
+      ],
+      "answer": 2,
+      "explanation": "Le reflog conserve des mouvements récents des références locales et peut aider à retrouver un commit qui ne paraît plus dans l’historique courant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une équipe choisit-elle parfois `git rebase` plutôt qu’une fusion ?",
+      "choices": [
+        "Pour réappliquer les commits d’une branche sur une autre base et obtenir un historique plus linéaire, en tenant compte de la réécriture des identifiants de commits",
+        "Pour changer le contenu du dépôt distant sans réseau",
+        "Pour rendre toutes les branches identiques sans conflit",
+        "Pour supprimer les tests du projet"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le rebase rejoue les commits sur une nouvelle base. Les commits recréés ont généralement des identifiants différents ; il faut éviter de réécrire sans coordination un historique déjà partagé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert `git cherry-pick` ?",
+      "choices": [
+        "À supprimer un tag distant",
+        "À renommer tous les fichiers d’un dépôt",
+        "À remplacer le système de branches",
+        "À appliquer le changement introduit par un commit sélectionné sur la branche courante, en créant un nouveau commit"
+      ],
+      "answer": 3,
+      "explanation": "Cherry-pick applique le changement d’un commit choisi à la branche courante. Le nouveau commit a en général un autre identifiant et peut nécessiter une résolution de conflit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment utiliser `git bisect` pour rechercher une régression ?",
+      "choices": [
+        "Réinitialiser tous les commits jusqu’à la branche principale",
+        "Identifier un état connu comme bon et un état connu comme mauvais, puis tester les commits intermédiaires selon le processus binaire",
+        "Supprimer les tests qui échouent",
+        "Publier chaque commit immédiatement en production"
+      ],
+      "answer": 1,
+      "explanation": "Bisect réduit l’intervalle de recherche entre une version bonne et une version mauvaise en demandant de classer des commits intermédiaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt de `git add -p` ?",
+      "choices": [
+        "Il annule automatiquement tous les fichiers",
+        "Il fusionne des branches sans conflit",
+        "Il permet de sélectionner interactivement des portions de changements pour préparer un commit ciblé",
+        "Il remplace le fichier `.gitignore`"
+      ],
+      "answer": 2,
+      "explanation": "La préparation par morceaux aide à séparer des changements indépendants dans des commits plus petits et plus faciles à relire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant d’utiliser un push forcé sur une branche partagée ?",
+      "choices": [
+        "L’état distant, la présence de commits de collègues, la procédure d’équipe et le risque de remplacer l’historique publié",
+        "Uniquement que l’ordinateur a assez de mémoire",
+        "Que tous les noms de branches sont courts",
+        "Que le dépôt ne contient aucun fichier Markdown"
+      ],
+      "answer": 0,
+      "explanation": "Un push forcé peut supprimer de la vue courante des commits publiés par d’autres. Quand il est autorisé, un contrôle de lease réduit le risque de remplacer un état distant qui a changé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un worktree Git ?",
+      "choices": [
+        "Il synchronise automatiquement tous les secrets dans un répertoire public",
+        "Il transforme le dépôt en base de données SQL",
+        "Il remplace les remotes",
+        "Il permet d’avoir plusieurs répertoires de travail liés au même dépôt, souvent sur des branches différentes"
+      ],
+      "answer": 3,
+      "explanation": "Les worktrees permettent de travailler simultanément sur plusieurs branches sans multiplier les clones complets du même dépôt."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi comparer deux séries de commits avec un outil tel que `git range-diff` ?",
+      "choices": [
+        "Pour afficher l’adresse IP du serveur Git",
+        "Pour comprendre comment une série de commits a changé après un rebase ou une révision",
+        "Pour supprimer les commits qui ne portent pas de ticket",
+        "Pour garantir que deux branches ont le même SHA"
+      ],
+      "answer": 1,
+      "explanation": "Range-diff compare des séries de commits pour aider à examiner les changements d’une version de patch à une autre."
     }
   ]
 }

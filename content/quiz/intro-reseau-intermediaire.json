@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Qu'est-ce qu'un réseau ? - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi l’encapsulation est-elle utile pour comprendre le modèle en couches ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Chaque couche ajoute ou interprète ses informations de contrôle, permettant aux protocoles de coopérer pour acheminer les données",
+        "Elle supprime les adresses de toutes les couches",
+        "Elle garantit que tous les paquets suivent le même chemin physique",
+        "Elle transforme chaque protocole en DNS"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "L’encapsulation ajoute des en-têtes ou informations adaptées à chaque couche. La réception effectue une décapsulation pour remettre les données au protocole supérieur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel masque correspond au préfixe IPv4 /26 ?",
+      "choices": [
+        "255.255.255.0",
+        "255.255.0.0",
+        "255.255.255.192",
+        "255.255.255.252"
+      ],
+      "answer": 2,
+      "explanation": "Un préfixe /26 contient 26 bits réseau : 24 bits dans les trois premiers octets, puis deux bits réseau dans le dernier, soit 192."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un trunk VLAN 802.1Q entre deux switches ?",
+      "choices": [
+        "À chiffrer les paquets IP",
+        "À transporter plusieurs VLAN sur une liaison en identifiant les trames selon le balisage prévu",
+        "À remplacer toutes les passerelles",
+        "À associer les noms DNS aux adresses MAC"
+      ],
+      "answer": 1,
+      "explanation": "Un trunk peut transporter plusieurs VLAN ; les deux extrémités doivent être cohérentes sur les VLAN autorisés et le traitement natif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence générale entre TCP et UDP ?",
+      "choices": [
+        "TCP est toujours plus rapide dans chaque application",
+        "UDP garantit livraison, ordre et retransmission",
+        "TCP fonctionne uniquement en IPv6",
+        "TCP fournit un transport orienté connexion avec mécanismes de fiabilité ; UDP est un transport sans connexion et plus minimal"
+      ],
+      "answer": 3,
+      "explanation": "TCP propose un flux fiable et ordonné. UDP n’apporte pas ces garanties au niveau transport, laissant l’application gérer certains besoins si nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une machine peut joindre sa passerelle mais pas un serveur situé dans un autre sous-réseau. Quel diagnostic est pertinent ?",
+      "choices": [
+        "Vérifier routes, ACL/pare-feu, chemin retour et résolution DNS selon que l’échec touche l’IP ou le nom",
+        "Changer la carte réseau sans vérifier les compteurs",
+        "Modifier le VLAN natif de tous les switches",
+        "Supposer que la passerelle est forcément la seule cause"
+      ],
+      "answer": 0,
+      "explanation": "La connectivité à la passerelle valide seulement une partie du chemin. Il faut suivre le routage vers la destination et distinguer un échec IP d’un problème de résolution DNS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il prévoir l’adressage et les préfixes avec soin ?",
+      "choices": [
+        "Les adresses IP ne sont jamais utilisées par le routage",
+        "Le CIDR ne permet pas de créer des sous-réseaux",
+        "Un mauvais plan peut créer des chevauchements, un gaspillage d’adresses ou des difficultés de résumé et de dépannage",
+        "Chaque VLAN doit obligatoirement utiliser le même préfixe"
+      ],
+      "answer": 2,
+      "explanation": "Un plan d’adressage hiérarchique et sans chevauchement facilite le routage, l’agrégation et l’exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit le rôle d’une table de routage ?",
+      "choices": [
+        "Elle enregistre tous les mots de passe des services",
+        "Elle associe une destination ou un préfixe à un prochain saut/interface ou à d’autres actions de routage",
+        "Elle remplace les adresses MAC sur le LAN",
+        "Elle indique uniquement le modèle de câble Ethernet"
+      ],
+      "answer": 1,
+      "explanation": "La table de routage indique les chemins connus vers les préfixes. L’équipement choisit la route applicable selon les règles de sélection, puis résout le prochain saut si nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il capturer et tester à plusieurs points lors d’un dépannage réseau ?",
+      "choices": [
+        "Un seul ping prouve toujours que tous les protocoles fonctionnent",
+        "Les captures ne montrent jamais les retransmissions TCP",
+        "Les compteurs d’interface ne sont jamais utiles",
+        "Comparer les observations permet de localiser où le paquet disparaît, est rejeté ou se transforme au cours du chemin"
+      ],
+      "answer": 3,
+      "explanation": "Des observations à plusieurs points permettent de différencier un problème à la source, sur le chemin ou à destination, à condition que les captures soient synchronisées et correctement placées."
     }
   ]
 }

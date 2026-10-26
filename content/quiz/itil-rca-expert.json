@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Gestion d'incident (ITIL et RCA) - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel rôle joue un Incident Commander lors d’un incident majeur ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il centralise la coordination, les décisions et la communication de réponse selon le modèle de l’organisation",
+        "Il écrit seul tous les correctifs sans consulter les experts",
+        "Il remplace toutes les équipes techniques",
+        "Il efface les journaux pour réduire le bruit"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le rôle de commandement aide à coordonner la réponse, les priorités et la communication. Les équipes techniques gardent leurs responsabilités d’investigation et de rétablissement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment distinguer une cause racine d’un facteur contributif dans une RCA complexe ?",
+      "choices": [
+        "La cause racine est toujours la première ligne de log",
+        "Un facteur contributif doit être ignoré s’il est humain",
+        "La cause racine est toujours une panne matérielle",
+        "La RCA décrit le mécanisme causal étayé et les conditions contributives qui ont permis ou amplifié l’impact, plutôt que forcer une cause unique"
+      ],
+      "answer": 3,
+      "explanation": "Les incidents complexes ont souvent plusieurs conditions contributives. Le rapport doit distinguer les preuves, les causes et les facteurs aggravants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’analyse d’un incident cyber doit-elle prendre en compte la préservation des preuves ?",
+      "choices": [
+        "Parce que la priorité est de publier les mots de passe compromis",
+        "Parce que certaines actions de rétablissement peuvent altérer des éléments nécessaires à l’investigation ; il faut coordonner le confinement et la collecte selon les procédures",
+        "Parce qu’un incident cyber n’affecte jamais le service",
+        "Parce qu’il faut attendre la fin de l’enquête avant toute mesure de confinement"
+      ],
+      "answer": 1,
+      "explanation": "Le confinement et le rétablissement doivent être coordonnés avec la conservation des éléments utiles à l’enquête, dans le respect de la politique et des contraintes légales."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur permet de repérer un problème de récurrence ?",
+      "choices": [
+        "Le nombre total de pages dans les tickets",
+        "Le nombre d’équipes dans le canal de discussion",
+        "La fréquence de réapparition de scénarios comparables et le taux d’actions correctives effectivement achevées/efficaces",
+        "La couleur du statut du service"
+      ],
+      "answer": 2,
+      "explanation": "La récurrence doit être mesurée par des catégories et scénarios cohérents. Il faut aussi vérifier si les actions correctives ont réduit le risque, pas seulement si elles ont été cochées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il définir des critères d’entrée et de sortie pour un incident majeur ?",
+      "choices": [
+        "Pour coordonner le déclenchement de l’organisation de crise et la stabilisation avant de reprendre le mode normal",
+        "Pour retarder toute escalade",
+        "Pour garantir que l’impact est nul après une minute",
+        "Pour éviter que l’état du service soit communiqué"
+      ],
+      "answer": 0,
+      "explanation": "Les critères permettent d’activer les responsabilités appropriées et de confirmer que le service est suffisamment stable avant la clôture opérationnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment évaluer une action préventive après un post-mortem ?",
+      "choices": [
+        "En vérifiant uniquement qu’une tâche apparaît dans l’outil",
+        "En considérant la date de clôture comme preuve d’efficacité",
+        "En supprimant les métriques d’avant incident",
+        "En vérifiant son implémentation et son effet à l’aide d’indicateurs, de tests ou d’exercices définis"
+      ],
+      "answer": 3,
+      "explanation": "L’action n’est pas complète uniquement parce qu’elle est marquée terminée. Il faut examiner si le risque ou le mécanisme identifié a réellement été réduit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque présente une RCA qui attribue tout l’incident à une erreur individuelle ?",
+      "choices": [
+        "Elle identifie systématiquement toutes les causes contributives",
+        "Elle peut masquer les conditions système, l’ergonomie, la supervision ou les contrôles qui ont rendu l’erreur possible",
+        "Elle garantit la prévention de la récidive",
+        "Elle élimine le besoin de journalisation"
+      ],
+      "answer": 1,
+      "explanation": "Une explication centrée uniquement sur la personne ne traite souvent pas les conditions qui ont permis l’événement. Une RCA robuste examine le système et les mécanismes de défense."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester les procédures de communication et de décision en exercice de crise ?",
+      "choices": [
+        "Pour limiter la documentation de la réponse",
+        "Pour prouver que tous les incidents sont prévisibles",
+        "Pour vérifier que les responsabilités, escalades, canaux, décisions et communications peuvent fonctionner sous pression",
+        "Pour remplacer les tests de restauration technique"
+      ],
+      "answer": 2,
+      "explanation": "Un exercice teste le fonctionnement organisationnel en plus des mécanismes techniques. Les écarts doivent être suivis comme des actions d’amélioration."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Agrégation de liens - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel est l’objectif principal d’un EtherChannel ou d’une agrégation LAG ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Transformer un switch L2 en serveur DHCP",
+        "Créer un lien logique regroupant plusieurs liens physiques compatibles pour capacité et résilience",
+        "Garantir que chaque flux individuel utilisera tous les liens en parallèle",
+        "Remplacer le routage entre tous les réseaux"
+      ],
+      "answer": 1,
+      "explanation": "L’agrégation présente plusieurs liens compatibles comme un lien logique. La capacité et la résilience réelles dépendent du hachage, du nombre de membres actifs et des domaines de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que se passe-t-il typiquement si les deux extrémités LACP sont configurées en mode passif ?",
+      "choices": [
+        "L’agrégat est toujours formé, quelle que soit la configuration",
+        "Le switch élit automatiquement un nouveau routeur",
+        "La configuration se convertit en agrégation statique",
+        "Aucune extrémité n’initie l’échange LACP ; l’agrégat ne se forme généralement pas"
+      ],
+      "answer": 3,
+      "explanation": "Au moins une extrémité doit initier LACP. Deux modes passifs n’envoient normalement pas les messages nécessaires pour démarrer la négociation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un agrégat ne garantit-il pas qu’un seul flux profitera du débit cumulé ?",
+      "choices": [
+        "Chaque flux est souvent affecté à un membre selon un algorithme de hachage ; un seul flux peut rester limité au débit d’un membre",
+        "LACP envoie nécessairement chaque paquet de chaque flux sur tous les membres",
+        "Le switch désactive le duplex dès qu’un agrégat existe",
+        "La bande passante totale est toujours égale à zéro"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La répartition par flux aide à conserver l’ordre des paquets. Plusieurs flux peuvent utiliser plusieurs membres, mais un seul flux n’atteint généralement pas automatiquement la somme des débits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle condition doit être vérifiée avant de former un agrégat ?",
+      "choices": [
+        "Les ports utilisent des adresses MAC identiques",
+        "Les deux ports sont dans des VLAN différents sans configuration cohérente",
+        "Les paramètres et caractéristiques des membres sont compatibles selon la plateforme, notamment vitesse, mode et configuration L2/L3",
+        "Le nom de domaine DNS est identique"
+      ],
+      "answer": 2,
+      "explanation": "Les membres d’un agrégat doivent présenter une configuration cohérente. Des différences de VLAN, de mode ou de paramètres physiques peuvent empêcher l’agrégat de se former."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une agrégation avec un membre physique en panne mais les autres membres opérationnels ?",
+      "choices": [
+        "La table DNS s’arrête nécessairement",
+        "Le protocole IP disparaît du réseau",
+        "Les membres restants sont toujours désactivés automatiquement",
+        "Le trafic peut continuer sur les membres actifs, avec une capacité réduite si la conception et l’état de l’agrégat le permettent"
+      ],
+      "answer": 3,
+      "explanation": "La tolérance à la panne d’un membre dépend de l’état des autres membres, des seuils de liens minimaux et de la configuration. Il faut vérifier la capacité restante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de LACP ?",
+      "choices": [
+        "Négocier et surveiller l’appartenance des liens à une agrégation selon les paramètres des deux partenaires",
+        "Éviter seul toutes les boucles de couche 2",
+        "Attribuer les VLAN aux postes",
+        "Remplacer STP sur tous les ports du réseau"
+      ],
+      "answer": 0,
+      "explanation": "LACP gère la négociation de l’agrégation. STP reste pertinent selon la topologie et le type d’interface ; les mécanismes ne sont pas interchangeables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande ou source d’information est utile après l’activation d’un EtherChannel ?",
+      "choices": [
+        "Une recherche DNS de l’adresse du câble",
+        "La vérification de l’état de l’agrégat et des membres via les commandes de la plateforme, par exemple `show etherchannel summary` sur Cisco IOS",
+        "Un export de la base de données des utilisateurs",
+        "La seule commande `show version`"
+      ],
+      "answer": 1,
+      "explanation": "Il faut vérifier l’agrégat, l’état des membres et les voisins LACP avec des commandes adaptées à la plateforme. Une configuration saisie ne prouve pas la formation effective."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester le comportement d’un agrégat lors de la perte d’un membre ?",
+      "choices": [
+        "Pour prouver que toutes les pannes sont impossibles",
+        "Pour forcer le réseau à utiliser un seul lien de façon permanente",
+        "Pour mesurer la capacité restante, les pertes, la convergence et le retour à l’état nominal",
+        "Pour modifier les adresses MAC des équipements"
+      ],
+      "answer": 2,
+      "explanation": "Un essai contrôlé vérifie le comportement réel lors d’une panne. Il doit être autorisé, mesuré et accompagné d’une procédure de retour."
     }
   ]
 }

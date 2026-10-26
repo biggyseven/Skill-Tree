@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Clusters Linux Avancés",
+      "prompt": "Quel rôle joue HAProxy lorsqu’il est placé devant plusieurs serveurs applicatifs ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il attribue des baux DHCP aux serveurs",
+        "Il remplace toute supervision des backends",
+        "Il peut répartir les connexions et utiliser des contrôles de santé pour éviter certains backends indisponibles",
+        "Il réplique automatiquement les fichiers de chacun des serveurs"
+      ],
+      "answer": 2,
+      "explanation": "HAProxy est un proxy/load balancer. Son comportement de health check dépend de la configuration ; il ne garantit pas la cohérence des données applicatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer une VIP, un load balancer et la réplication de stockage dans la conception ?",
+      "choices": [
+        "Ces mécanismes servent des objectifs différents : accès stable, distribution des requêtes et maintien/réplication des données",
+        "Ils sont trois noms pour le même service",
+        "Une VIP synchronise les disques et le load balancer les chiffre",
+        "La réplication stockage empêche automatiquement toute panne d’application"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La VIP, le load balancing et la réplication de stockage ne sont pas interchangeables. Chaque couche doit être conçue et testée en fonction de son rôle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le fencing devient-il important lorsqu’un cluster gère des ressources partagées ou répliquées ?",
+      "choices": [
+        "Pour que les serveurs partagent tous les mêmes mots de passe",
+        "Pour augmenter la taille des paquets Ethernet",
+        "Pour remplacer le vote de quorum dans toutes les configurations",
+        "Pour empêcher un nœud isolé de continuer à écrire ou à posséder une ressource en concurrence avec le nœud actif"
+      ],
+      "answer": 3,
+      "explanation": "Sans mécanisme d’isolation fiable, deux nœuds peuvent agir sur une ressource comme s’ils étaient tous deux actifs, avec risque de corruption ou de divergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre réplication DRBD et sauvegarde est correcte ?",
+      "choices": [
+        "DRBD conserve nécessairement chaque version historique supprimée",
+        "La réplication peut propager une corruption ou une suppression, alors qu’une sauvegarde fournit un point de récupération distinct si elle est exploitable",
+        "La réplication remplace tout test de restauration",
+        "Une sauvegarde ne contient jamais de données"
+      ],
+      "answer": 1,
+      "explanation": "La réplication améliore la continuité selon le modèle utilisé, mais ne protège pas à elle seule des erreurs logiques propagées. Des sauvegardes séparées et testées restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il examiner lorsqu’un cluster bascule trop fréquemment entre deux nœuds ?",
+      "choices": [
+        "Le nombre de noms DNS dans le domaine uniquement",
+        "La couleur des câbles dans l’inventaire",
+        "Les seuils et résultats des contrôles de santé, les pertes réseau, les temporisations, les ressources et les événements de fencing",
+        "Le nombre de comptes utilisateur Linux sans autre contexte"
+      ],
+      "answer": 2,
+      "explanation": "Des contrôles trop sensibles ou une instabilité de communication peuvent provoquer des basculements répétés. Les logs, métriques et paramètres doivent être corrélés avant modification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’une contrainte de colocation ou d’ordre dans Pacemaker ?",
+      "choices": [
+        "Exprimer quelles ressources doivent s’exécuter ensemble ou dans quel ordre selon la politique de cluster",
+        "Remplacer les sauvegardes des ressources",
+        "Distribuer le trafic HTTP par DNS",
+        "Fixer les adresses MAC des interfaces"
+      ],
+      "answer": 0,
+      "explanation": "Les contraintes décrivent le placement et l’ordre attendu des ressources. Elles doivent refléter les dépendances de l’application et être vérifiées lors des scénarios de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une mise à jour d’un nœud d’un cluster, quelle pratique est la plus sûre ?",
+      "choices": [
+        "Mettre à jour simultanément tous les nœuds sans vérifier le service",
+        "Désactiver la surveillance et la journalisation",
+        "Supposer que le basculement ne change pas le service",
+        "Vérifier l’état initial, la compatibilité et la procédure de maintenance, puis procéder progressivement avec critères et retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "Une maintenance doit suivre le modèle de redondance, respecter les prérequis du produit et vérifier la santé après chaque étape. La stratégie varie selon le cluster."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur est important pour un service répliqué avec tolérance à la perte de données définie ?",
+      "choices": [
+        "La couleur de l’indicateur de disponibilité",
+        "Le retard de réplication et son évolution par rapport au RPO et au scénario de panne",
+        "La seule capacité du disque du nœud actif",
+        "Le nombre de règles DNS dans le domaine"
+      ],
+      "answer": 1,
+      "explanation": "Le retard de réplication aide à estimer les données qui pourraient manquer après une panne, mais doit être interprété avec le mode de réplication et les exigences RPO."
     }
   ]
 }

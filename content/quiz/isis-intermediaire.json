@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IS-IS - Intermédiaire",
+      "prompt": "Quel est le rôle de CSNP et PSNP dans IS-IS ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Ils remplacent les messages IIH de découverte",
+        "Ils attribuent les adresses IPv6 aux interfaces",
+        "Ils chiffrent les LSP",
+        "Ils aident à résumer/synchroniser la base d’état de liens et à demander ou confirmer des LSP selon leur fonction"
+      ],
+      "answer": 3,
+      "explanation": "CSNP annonce un résumé de la base de données de l’état de liens ; PSNP peut demander des LSP manquants ou acquitter des LSP, selon le contexte de l’échange."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier la fraîcheur des LSP lorsqu’une route attendue manque ?",
+      "choices": [
+        "La base d’état de liens peut être incomplète ou contenir des informations obsolètes, ce qui affecte le calcul SPF et les routes résultantes",
+        "Parce que les LSP constituent le contenu des paquets HTTP",
+        "Parce que chaque route doit être statique",
+        "Parce que le DIS ne peut jamais annoncer de topologie"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les LSP doivent être synchronisés et valides. Une LSDB obsolète ou incomplète peut expliquer des calculs différents entre routeurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’apporte le rôle de DIS sur un réseau multi-accès ?",
+      "choices": [
+        "Il fait de tous les routeurs des passerelles Internet",
+        "Il remplace le protocole IP par un protocole Ethernet propriétaire",
+        "Il annonce les noms DNS des voisins",
+        "Il contribue à représenter le réseau multi-accès dans la topologie IS-IS via un pseudonœud et à coordonner certains échanges d’état de liens"
+      ],
+      "answer": 3,
+      "explanation": "Le DIS est élu selon les règles IS-IS et génère notamment des LSP pseudonœud. Sa fonction permet de représenter plus efficacement un segment multi-accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une interface peut-elle être passive dans une configuration de routage ?",
+      "choices": [
+        "Pour désactiver tout transfert de paquets dans tous les protocoles",
+        "Pour annoncer le préfixe local selon la configuration sans établir des adjacences avec des voisins sur cette interface",
+        "Pour configurer la résolution DNS",
+        "Pour activer automatiquement le niveau 2"
+      ],
+      "answer": 1,
+      "explanation": "Le comportement exact dépend de l’implémentation, mais une interface passive sert généralement à annoncer un réseau sans tenter d’établir des adjacences IS-IS sur ce lien."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque peut accompagner un route leaking L1/L2 mal conçu ?",
+      "choices": [
+        "Une boucle de routage, une portée non voulue des préfixes ou un chemin sous-optimal",
+        "La suppression des paquets Ethernet sur tous les VLAN",
+        "Le renouvellement automatique des certificats TLS",
+        "La désactivation de toutes les métriques"
+      ],
+      "answer": 0,
+      "explanation": "Le leaking entre niveaux doit définir quels préfixes passent d’un contexte à l’autre. Une politique imprécise peut créer des chemins non souhaités ou de la complexité de convergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi IS-IS IPv6 demande-t-il de vérifier les extensions appropriées ?",
+      "choices": [
+        "Parce que toutes les adresses IPv6 doivent être inscrites dans le NET",
+        "Parce que IS-IS ne peut jamais transporter des préfixes IPv6",
+        "Pour garantir que les informations IPv6 sont activées et annoncées selon la configuration, par exemple avec les extensions et TLV adaptés",
+        "Pour remplacer les annonces de routeur IPv6"
+      ],
+      "answer": 2,
+      "explanation": "Les capacités IPv6 dans IS-IS nécessitent les extensions et informations de reachability correspondantes. Il faut confirmer l’annonce réelle des préfixes et les routes calculées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche convient si deux chemins sont présents mais le routeur choisit un chemin inattendu ?",
+      "choices": [
+        "Changer le System ID aléatoirement",
+        "Comparer métriques, informations de reachability, niveau/aire, route leaking et résultat SPF avant de changer la configuration",
+        "Supprimer tous les LSP sans sauvegarde",
+        "Désactiver tous les voisins"
+      ],
+      "answer": 1,
+      "explanation": "Le choix dépend des métriques et du contexte de routage. Examiner la LSDB et les routes calculées permet de tester une hypothèse précise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur prouve mieux que l’IS-IS est opérationnel pour le service ?",
+      "choices": [
+        "Le fait que le processus figure dans la liste des processus uniquement",
+        "Le nom de l’interface de routage",
+        "La présence d’un NET valide dans un fichier",
+        "Des adjacences stables, des LSP synchronisés, des routes attendues dans la RIB/FIB et des tests de service représentatifs"
+      ],
+      "answer": 3,
+      "explanation": "Le processus actif n’est qu’un signal. La validité du routage nécessite des preuves de voisinage, de diffusion de topologie, de routes installées et de connectivité réelle."
     }
   ]
 }

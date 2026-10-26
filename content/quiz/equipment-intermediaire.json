@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Équipements L1/L2 - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quel est le comportement typique d’un port d’accès affecté à un seul VLAN ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il rattache les trames du terminal à ce VLAN, généralement sans tag 802.1Q côté terminal",
+        "Il transporte obligatoirement tous les VLAN avec leurs tags",
+        "Il agit comme routeur entre tous les sous-réseaux",
+        "Il chiffre automatiquement les trames"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un port d’accès est normalement associé à un VLAN pour le terminal connecté. Le traitement exact dépend de la plateforme, mais ce n’est pas un trunk multivlan par défaut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’un trunk Ethernet 802.1Q permet typiquement ?",
+      "choices": [
+        "De fournir une adresse IP à chaque port",
+        "De désactiver l’apprentissage MAC",
+        "De transporter uniquement des trames physiques sans aucune classification",
+        "De transporter plusieurs VLAN sur une liaison en utilisant le balisage prévu, avec un traitement cohérent du VLAN natif s’il existe"
+      ],
+      "answer": 3,
+      "explanation": "Un trunk transporte plusieurs VLAN en marquant les trames conformément à 802.1Q. La configuration des VLAN autorisés et du VLAN natif doit être cohérente aux extrémités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème STP/RSTP cherche-t-il à éviter dans un réseau commuté ?",
+      "choices": [
+        "La perte d’un enregistrement DNS",
+        "Les boucles de couche 2 qui peuvent provoquer des tempêtes de broadcast et de l’instabilité MAC",
+        "L’expiration des baux DHCP",
+        "Les collisions dans une liaison série WAN"
+      ],
+      "answer": 1,
+      "explanation": "STP/RSTP sélectionne une topologie logique sans boucle tout en pouvant conserver des chemins redondants en secours."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de LACP dans une agrégation de liens ?",
+      "choices": [
+        "Élire le root bridge STP",
+        "Distribuer les adresses IP des clients",
+        "Négocier et superviser l’appartenance de liens compatibles à un groupe d’agrégation",
+        "Remplacer les transceivers optiques"
+      ],
+      "answer": 2,
+      "explanation": "LACP coordonne l’agrégation de liens compatibles. Il ne remplace pas STP et ne garantit pas à lui seul la diversité des chemins physiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de raccorder plusieurs équipements à un switch PoE, que faut-il vérifier ?",
+      "choices": [
+        "Que tous les ports alimentent forcément n’importe quel appareil",
+        "La prise en charge PoE des ports et le budget de puissance total ainsi que les besoins des terminaux",
+        "Uniquement l’adresse MAC du serveur DNS",
+        "Que le VLAN natif utilise la valeur 1"
+      ],
+      "answer": 1,
+      "explanation": "Le PSE doit prendre en charge le mode attendu et disposer d’un budget suffisant pour la demande simultanée. Tous les ports ne sont pas nécessairement alimentants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert LLDP pendant un diagnostic réseau ?",
+      "choices": [
+        "À annoncer des informations de voisinage entre équipements compatibles",
+        "À négocier les enregistrements DNSSEC",
+        "À créer automatiquement des VLAN sécurisés",
+        "À remplacer la table de routage IP"
+      ],
+      "answer": 0,
+      "explanation": "LLDP diffuse des informations de voisinage utiles à l’inventaire et à la cartographie. Il ne prouve pas à lui seul que tout le chemin de bout en bout fonctionne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La même adresse MAC apparaît alternativement sur deux ports du même VLAN. Quelle réaction est la plus appropriée ?",
+      "choices": [
+        "Supposer que DNS est en panne",
+        "Augmenter le budget PoE avant toute vérification",
+        "Vérifier câblage, boucle L2, déplacement du terminal et agrégations avant de conclure",
+        "Supprimer toutes les entrées de routage"
+      ],
+      "answer": 2,
+      "explanation": "Les déplacements MAC peuvent être normaux ou signaler une boucle, un câblage inattendu ou une agrégation mal configurée. Il faut corréler les événements et la topologie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le port est physiquement `up`, mais le terminal n’accède pas aux ressources de son VLAN attendu. Quelle piste convient ?",
+      "choices": [
+        "Le câble est nécessairement coupé",
+        "Le DNS est l’unique cause possible",
+        "La puissance PoE est toujours insuffisante",
+        "Vérifier le VLAN d’accès, le trunk amont, la liste de VLAN autorisés et les états STP"
+      ],
+      "answer": 3,
+      "explanation": "Un état physique `up` ne garantit pas la bonne appartenance L2. Les frontières VLAN, le trunk et STP doivent être contrôlés indépendamment."
     }
   ]
 }

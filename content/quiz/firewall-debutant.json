@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Pare-feu & NGFW - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Que fait un pare-feu à états (*stateful*) pour un flux autorisé ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il chiffre automatiquement tout trafic sans configuration",
+        "Il remplace les routes de tous les équipements",
+        "Il attribue les adresses IP aux postes",
+        "Il suit l’état des connexions et peut autoriser le trafic de retour associé selon sa politique"
+      ],
+      "answer": 3,
+      "explanation": "Un pare-feu stateful maintient un état de session. Le trafic de retour d’une connexion établie peut être traité selon cet état et les règles configurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une politique de sécurité par défaut « deny » lorsqu’elle est correctement appliquée ?",
+      "choices": [
+        "Tout trafic est autorisé sauf celui qui arrive depuis Internet",
+        "Les flux sont refusés en l’absence d’une règle qui les autorise explicitement",
+        "Le pare-feu désactive nécessairement les logs",
+        "Les adresses IP sont attribuées par le pare-feu"
+      ],
+      "answer": 1,
+      "explanation": "Le principe du refus par défaut limite les communications à celles explicitement nécessaires. Il faut documenter les flux métiers et tester les règles autorisées comme refusées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels éléments sont utiles pour définir une règle de pare-feu exploitable ?",
+      "choices": [
+        "La couleur de l’interface",
+        "Le nom du fichier de configuration du client uniquement",
+        "Source, destination, protocole/port, direction ou zones, action et besoin métier associé",
+        "Le nombre de postes dans l’entreprise sans préciser les flux"
+      ],
+      "answer": 2,
+      "explanation": "Une règle doit exprimer le flux visé et sa justification. La portée des objets, l’ordre et l’état du pare-feu dépendent de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre NAT et filtrage est correcte ?",
+      "choices": [
+        "NAT traduit des adresses/ports ; la politique de filtrage décide quels flux sont permis selon la configuration",
+        "NAT remplace toujours toutes les règles de sécurité",
+        "NAT chiffre le trafic applicatif",
+        "Le filtrage ne peut concerner que DNS"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La traduction d’adresses et l’autorisation sont deux fonctions distinctes, même si certains équipements les combinent dans leur processus de traitement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il éviter une règle très large du type « any-any allow » pour corriger rapidement une panne ?",
+      "choices": [
+        "Elle accélère toujours le diagnostic sans effet sur la sécurité",
+        "Elle donne automatiquement un accès minimal",
+        "Elle ne s’applique qu’aux journaux",
+        "Elle autorise potentiellement beaucoup plus de flux que nécessaire et masque le besoin réel"
+      ],
+      "answer": 3,
+      "explanation": "Une règle large peut restaurer une connectivité à court terme au prix d’une exposition excessive. Il vaut mieux identifier source, destination, service et contexte nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur ne peut pas joindre un site. Quel diagnostic de base est le plus pertinent ?",
+      "choices": [
+        "Désactiver toutes les règles du pare-feu avant toute collecte",
+        "Collecter l’heure, la source/destination, le port, les logs et vérifier la règle, le routage et la résolution DNS selon le symptôme",
+        "Modifier tous les objets de sécurité simultanément",
+        "Supposer que toute panne vient d’un certificat TLS"
+      ],
+      "answer": 1,
+      "explanation": "Un refus peut provenir de la règle, du routage, du NAT, du DNS ou du service distant. Les journaux et les détails de flux permettent de localiser le blocage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les zones de sécurité sur un pare-feu ?",
+      "choices": [
+        "À segmenter les interfaces ou réseaux selon leur rôle et à appliquer des politiques entre ces zones",
+        "À augmenter automatiquement le débit du lien",
+        "À attribuer un nom DNS public à tous les terminaux",
+        "À remplacer les groupes d’adresses IP"
+      ],
+      "answer": 0,
+      "explanation": "Les zones représentent des périmètres de confiance ou des fonctions réseau. Les politiques inter-zones doivent refléter les flux réellement requis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les journaux de pare-feu sont-ils utiles lors d’un test de règle ?",
+      "choices": [
+        "Ils prouvent que le serveur applicatif est toujours sain",
+        "Ils remplacent les tests de trafic de bout en bout",
+        "Ils aident à vérifier si les flux correspondent à une règle et à expliquer certains refus ou autorisations",
+        "Ils permettent de désactiver la politique de sécurité"
+      ],
+      "answer": 2,
+      "explanation": "Les logs fournissent un indice sur le traitement du flux mais ne suffisent pas toujours à prouver le fonctionnement applicatif. Il faut les corréler avec des tests et d’autres métriques."
     }
   ]
 }

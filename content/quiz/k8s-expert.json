@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Kubernetes avancé et Sécurité",
+      "prompt": "Quel rôle joue RBAC dans Kubernetes ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il contrôle les actions d’une identité sur des ressources API au moyen de Roles/ClusterRoles et de leurs bindings",
+        "Il chiffre les paquets entre tous les Pods",
+        "Il remplace les politiques réseau",
+        "Il conserve les images sur les nœuds"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "RBAC limite les actions sur l’API Kubernetes. Les permissions doivent suivre le moindre privilège et être vérifiées par identité et portée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre readiness, liveness et startup probes ?",
+      "choices": [
+        "Liveness contrôle les sauvegardes et readiness met à jour les certificats",
+        "Startup ne sert qu’au routage externe",
+        "Readiness contrôle l’aptitude à recevoir du trafic ; liveness aide au redémarrage ; startup permet de laisser une application lente démarrer avant d’appliquer les autres sondes",
+        "Les trois sont interchangeables sans effet"
+      ],
+      "answer": 2,
+      "explanation": "Ces sondes visent des signaux différents. Un réglage mal conçu peut retirer trop tôt un Pod ou redémarrer en boucle une application qui démarre lentement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un PodDisruptionBudget (PDB) ne garantit-il pas toute la disponibilité applicative ?",
+      "choices": [
+        "Il impose le nombre de réplicas dans tous les Deployment",
+        "Il encadre certaines disruptions volontaires, mais ne remplace ni les réplicas suffisants, ni la répartition des pannes, ni les tests de dépendances",
+        "Il réplique les données entre régions",
+        "Il bloque toute suppression de Pod dans tous les scénarios"
+      ],
+      "answer": 1,
+      "explanation": "Un PDB limite certaines disruptions volontaires respectant l’API. Il ne prévient pas toutes les pannes et ne garantit pas la capacité ou la répartition géographique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble contribue à réduire les risques d’un workload Kubernetes privilégié ?",
+      "choices": [
+        "Un namespace au nom unique",
+        "Un tag d’image contenant « secure »",
+        "Le fait que le Pod utilise un Service ClusterIP",
+        "Un compte non-root si possible, des capabilities minimales, des Pod Security Standards, des profils de confinement et des permissions limitées"
+      ],
+      "answer": 3,
+      "explanation": "Le durcissement combine plusieurs contrôles. Aucun paramètre seul ne garantit l’isolation ou la sécurité d’un conteneur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il protéger le plan de contrôle et les identifiants d’administration du cluster ?",
+      "choices": [
+        "La compromission de l’API ou de credentials puissants peut permettre de modifier workloads, secrets, accès et politiques sur une grande partie du cluster",
+        "Parce que Kubernetes ne possède aucune API",
+        "Pour réduire la taille des images",
+        "Pour éviter d’utiliser des namespaces"
+      ],
+      "answer": 0,
+      "explanation": "L’API est un point de contrôle central. Les identités, permissions, journaux d’audit et chemins d’accès doivent être strictement gouvernés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit vérifier une politique de sécurité d’images en CI/CD ?",
+      "choices": [
+        "Uniquement que l’image existe dans le registre",
+        "Que le conteneur a démarré une fois en laboratoire",
+        "La provenance et l’identité de l’artefact, les vulnérabilités selon la politique, les droits de publication et l’image réellement déployée",
+        "Qu’aucun fichier de configuration ne soit versionné"
+      ],
+      "answer": 2,
+      "explanation": "Les contrôles doivent porter sur l’artefact exact déployé, sa provenance et le risque de ses composants. Les résultats nécessitent une politique de traitement des exceptions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la restauration Kubernetes après incident doit-elle inclure l’état de l’application et des données ?",
+      "choices": [
+        "Parce qu’un manifeste valide recrée toujours toutes les données utilisateurs",
+        "Parce que les objets Kubernetes ne contiennent pas nécessairement les données persistantes ; volumes, dépendances et cohérence doivent être restaurés et testés",
+        "Parce que les PVC sont toujours stockés dans Git",
+        "Parce que le plan de contrôle sauvegarde automatiquement les données applicatives hors site"
+      ],
+      "answer": 1,
+      "explanation": "Les manifestes recréent des objets, pas toutes les données des volumes ou des systèmes externes. Le PRA doit traiter état de cluster, volumes, secrets et dépendances selon la conception."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon critère pour valider une mise à niveau Kubernetes ?",
+      "choices": [
+        "Le seul message de réussite de la commande d’upgrade",
+        "Le nombre de nœuds dans l’inventaire",
+        "La version de l’interface de gestion uniquement",
+        "Des tests de compatibilité, état des workloads, disponibilité applicative, réseau/stockage, conformité sécurité et retour arrière selon les limites de la plateforme"
+      ],
+      "answer": 3,
+      "explanation": "Le succès de l’upgrade ne suffit pas à valider les applications. Les contrôles doivent couvrir API, workloads, dépendances, observabilité et mécanisme de récupération."
     }
   ]
 }

@@ -1,18 +1,102 @@
 {
   "node_id": "lab_troubleshoot_vlan",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Pourquoi le ping échoue-t-il alors que ns1 et ns2 ont des adresses dans `192.168.50.0/24` et leurs liens sont UP ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Les ports du bridge sont classés dans des VLAN différents : 50 et 60",
+        "Le routage OSPF n’est pas activé sur les hôtes",
+        "Le DNS n’a pas de zone reverse",
+        "Le préfixe IPv4 est invalide"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La consigne indique que le bridge utilise le filtrage VLAN et que veth2-b est dans le VLAN 60, tandis que veth1-b est dans le VLAN 50."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande affiche l’appartenance VLAN des ports d’un bridge Linux ?",
+      "choices": [
+        "`ip addr show` uniquement",
+        "`ip netns list`",
+        "`bridge vlan show`",
+        "`dig +trace intranet.lab`"
+      ],
+      "answer": 2,
+      "explanation": "`bridge vlan show` permet de contrôler les VLAN et PVID assignés aux interfaces du bridge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente le PVID pour un port d’accès du bridge ?",
+      "choices": [
+        "Le numéro de version du noyau Linux",
+        "Le VLAN auquel les trames non taguées reçues sur ce port sont affectées",
+        "La taille maximale d’un paquet IPv4",
+        "Le prochain saut utilisé par la table de routage"
+      ],
+      "answer": 1,
+      "explanation": "Le PVID détermine le VLAN utilisé pour classer les trames non taguées qui entrent par ce port."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle correction correspond à la consigne pour `veth2-b` ?",
+      "choices": [
+        "Changer l’adresse IP de ns2",
+        "Ajouter une route par défaut vers ns1",
+        "Désactiver le bridge et activer le routage IP",
+        "Ajouter le VLAN 50 comme PVID/untagged sur veth2-b, puis supprimer son ancien VLAN 60"
+      ],
+      "answer": 3,
+      "explanation": "La consigne recommande `bridge vlan add vid 50 dev veth2-b pvid untagged`, puis la suppression du VLAN 60. L’ordre évite de perdre le PVID voulu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas changer les adresses IP dans ce lab ?",
+      "choices": [
+        "Elles sont déjà correctes et le défaut est au niveau 2, dans le classement VLAN",
+        "Une adresse IP n’intervient jamais dans les pings",
+        "Le bridge Linux n’utilise pas les interfaces",
+        "Le test exige deux sous-réseaux différents"
+      ],
+      "answer": 0,
+      "explanation": "La consigne précise que les IP sont correctes et que le trafic doit être commuté en couche 2, sans routeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test doit être répété après correction du VLAN ?",
+      "choices": [
+        "Uniquement `ip route` sur l’hôte physique",
+        "Une requête DNS vers un nom public",
+        "Le ping ns1 vers ns2 et ns2 vers ns1",
+        "Un redémarrage du serveur DHCP"
+      ],
+      "answer": 2,
+      "explanation": "Le script de contrôle attend la connectivité dans les deux sens ; le test bidirectionnel valide que le domaine L2 fonctionne pour les deux extrémités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi retirer le VLAN 60 avant d’ajouter le VLAN 50 peut-il être risqué ?",
+      "choices": [
+        "Cela active automatiquement OSPFv3",
+        "Le port peut perdre son classement PVID voulu ou revenir à un comportement par défaut selon sa configuration",
+        "Cela chiffre les trames Ethernet",
+        "Cela change la route par défaut de R1"
+      ],
+      "answer": 1,
+      "explanation": "La consigne recommande d’ajouter d’abord le VLAN 50 avec `pvid untagged`, puis de retirer l’ancien VLAN afin de conserver une classification correcte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel raisonnement est correct lorsqu’une panne de ping concerne deux hôtes du même sous-réseau reliés par un bridge filtrant les VLAN ?",
+      "choices": [
+        "Commencer par ajouter des routes Internet",
+        "Désactiver toute vérification de sécurité",
+        "Remplacer le bridge par un serveur DNS",
+        "Examiner d’abord les ports, VLAN, PVID et l’apprentissage L2 avant d’accuser le routage de couche 3"
+      ],
+      "answer": 3,
+      "explanation": "Pour des hôtes dans le même sous-réseau sans routeur dans le chemin, les paramètres de couche 2 sont une piste prioritaire."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

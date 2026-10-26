@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Pare-feu & NGFW - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi un cluster de pare-feu HA nécessite-t-il des tests au-delà de la présence de deux appliances ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour vérifier la détection de panne, l’état des sessions, le routage, la synchronisation requise et le comportement applicatif lors de bascule",
+        "Parce que deux appliances éliminent par définition tous les points de panne",
+        "Pour éviter de configurer les règles sur les deux membres",
+        "Parce que la haute disponibilité ne dépend jamais du réseau"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La HA doit être évaluée dans les scénarios de panne visés. La synchronisation d’état, la convergence du réseau et les dépendances partagées peuvent modifier l’expérience utilisateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque peut provoquer une inspection TLS déployée sans gouvernance adéquate ?",
+      "choices": [
+        "Elle corrige automatiquement tous les certificats expirés",
+        "Elle peut affecter confidentialité, compatibilité des applications, confiance des certificats et obligations de conformité",
+        "Elle supprime la nécessité de journaux",
+        "Elle réduit toujours la latence"
+      ],
+      "answer": 1,
+      "explanation": "L’inspection TLS peut être utile, mais elle doit tenir compte des certificats, des applications incompatibles, des données sensibles et des règles de conformité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une règle de sécurité trop large découverte lors d’un audit ?",
+      "choices": [
+        "La laisser en place tant qu’elle ne crée pas d’alerte",
+        "Désactiver tous les contrôles IPS",
+        "Étudier les flux réels et les exigences métier, réduire la portée par étapes, tester et documenter le retour arrière",
+        "La remplacer immédiatement par un refus global sans analyser l’impact"
+      ],
+      "answer": 2,
+      "explanation": "Une réduction contrôlée limite l’exposition sans provoquer une coupure non maîtrisée. La politique doit être fondée sur les flux réellement nécessaires et un test observable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une politique firewall ne suffit-elle pas à prouver la sécurité réseau de bout en bout ?",
+      "choices": [
+        "Les pare-feu ne traitent jamais les paquets IP",
+        "La présence d’un logo fournisseur garantit toutes les règles",
+        "Un cluster HA neutralise toutes les erreurs humaines",
+        "Les contrôles dépendent aussi de la segmentation, des routes, des identités, des équipements adjacents, de la journalisation et des tests réels"
+      ],
+      "answer": 3,
+      "explanation": "La politique de pare-feu est un contrôle parmi d’autres. Les chemins alternatifs, l’identité, les erreurs de routage et les dépendances doivent aussi être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi analyser l’asymétrie de routage lors d’un incident avec inspection stateful ?",
+      "choices": [
+        "Le trafic retour peut emprunter un chemin qui contourne le point de suivi de session, causant des rejets ou des comportements inattendus",
+        "Une route asymétrique améliore toujours la sécurité et la disponibilité",
+        "L’asymétrie modifie le mot de passe DNS",
+        "Le pare-feu stateful ne tient compte d’aucune session"
+      ],
+      "answer": 0,
+      "explanation": "Une inspection à états dépend du contexte de session. Si l’aller et le retour ne passent pas par un chemin compatible avec l’architecture, la session peut échouer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon usage d’objets et groupes de règles dans une politique complexe ?",
+      "choices": [
+        "Créer une règle globale pour toutes les applications et tous les segments",
+        "Définir des objets nommés et documentés, limiter leur portée, gérer les dépendances et revoir régulièrement leur usage",
+        "Nommer chaque objet « test » pour simplifier l’inventaire",
+        "Réutiliser un groupe d’adresses sans vérifier son périmètre"
+      ],
+      "answer": 1,
+      "explanation": "Des objets documentés rendent la politique plus lisible, mais leur réutilisation peut élargir l’impact d’un changement. Il faut contrôler les dépendances et le périmètre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doivent mesurer les essais de performance après activation de fonctions NGFW/IPS/TLS ?",
+      "choices": [
+        "Le nombre de règles et rien d’autre",
+        "Le nombre d’adresses MAC apprises par le switch uniquement",
+        "Débit, latence, sessions simultanées, pertes et CPU/mémoire dans les scénarios représentatifs",
+        "Le nombre de lignes dans le manuel fournisseur"
+      ],
+      "answer": 2,
+      "explanation": "L’inspection peut modifier les ressources requises. Les essais doivent représenter les flux et charges utiles attendus, ainsi que les cas de panne et les effets de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu est indispensable à un changement firewall expert ?",
+      "choices": [
+        "Un simple message indiquant « règles modifiées »",
+        "Une capture d’écran sans heure ni critère",
+        "La suppression des journaux précédents",
+        "Une justification, le périmètre des flux, l’impact, les critères de validation, la supervision, les approbations et le retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "Le changement doit être traçable et réversible. La validation porte sur les flux autorisés comme refusés ainsi que sur les effets observables sur le service."
     }
   ]
 }
