@@ -1,18 +1,102 @@
 {
   "node_id": "telecom-5g-expert",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel rôle joue le Network Repository Function (NRF) dans l’architecture 5G basée sur les services ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Il répertorie les fonctions réseau enregistrées et aide les consommateurs à découvrir les services disponibles",
+        "Il transporte les paquets utilisateur de chaque session PDU",
+        "Il mesure le SINR de chaque terminal",
+        "Il remplace la base de données d’abonnement UDM"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Le NRF aide les fonctions réseau à publier et découvrir les services exposés par d’autres fonctions dans l’architecture basée sur les services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le partage des rôles du cœur 5G, quelle fonction transfère les paquets du plan utilisateur vers le réseau de données ?",
+      "choices": [
+        "AMF, exclusivement responsable du transfert IP",
+        "UPF, qui traite le plan utilisateur selon les règles installées",
+        "NRF, qui relaie toutes les sessions applicatives",
+        "AUSF, qui achemine les paquets de données après authentification"
+      ],
+      "answer": 1,
+      "explanation": "L’UPF est une fonction du plan utilisateur. L’AMF gère notamment l’accès et la mobilité, le SMF pilote les sessions et le NRF assure la découverte de fonctions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle le SEPP joue-t-il principalement aux frontières entre réseaux mobiles de PLMN différents ?",
+      "choices": [
+        "Il attribue systématiquement l’adresse IP à tous les terminaux",
+        "Il réalise la mesure radio entre gNodeB voisins",
+        "Il sécurise les échanges de signalisation du plan de contrôle entre PLMN, selon les procédures applicables",
+        "Il remplace le UPF pour acheminer tout trafic Internet"
+      ],
+      "answer": 2,
+      "explanation": "Le Security Edge Protection Proxy protège les échanges de signalisation inter-PLMN du cœur 5G. Il ne se substitue pas au plan utilisateur ni aux autres contrôles de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement l’ARP (Allocation and Retention Priority) dans la QoS 5G ?",
+      "choices": [
+        "À marquer directement chaque paquet avec une valeur DSCP universelle",
+        "À garantir une bande passante fixe de bout en bout sans admission",
+        "À choisir le SSID Wi-Fi du terminal",
+        "À aider aux décisions d’admission et de maintien de ressources en cas de concurrence, selon la politique"
+      ],
+      "answer": 3,
+      "explanation": "L’ARP est lié à la priorité d’allocation et de rétention des ressources et peut intervenir dans les décisions d’admission/préemption. Il ne remplace pas les caractéristiques QoS du flux ni le dimensionnement du réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation doit guider l’architecture de sécurité d’une tranche réseau ?",
+      "choices": [
+        "Un S-NSSAI ne garantit pas à lui seul une isolation physique ou une performance ; il faut aussi concevoir les contrôles, les ressources et la segmentation",
+        "Le nom de tranche chiffre automatiquement tout le trafic utilisateur",
+        "Une tranche ne peut jamais partager d’infrastructure avec une autre",
+        "Un identifiant de tranche garantit sans mesure toute exigence de latence"
+      ],
+      "answer": 0,
+      "explanation": "Le slicing peut partager une infrastructure sous-jacente. Le niveau d’isolation et les objectifs de performance résultent aussi des choix de ressources, de routage, de sécurité et d’exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un terminal demande une tranche, mais elle n’apparaît pas dans les tranches autorisées. Quelle piste de diagnostic est la plus adaptée ?",
+      "choices": [
+        "Forcer l’UE à utiliser tous les S-NSSAI sans contrôle",
+        "Vérifier l’abonnement, les S-NSSAI autorisés, les règles de sélection/mapping et les décisions de l’AMF/NSSF",
+        "Modifier le port RTP du téléphone",
+        "Réduire la puissance radio jusqu’à provoquer un nouvel enregistrement"
+      ],
+      "answer": 1,
+      "explanation": "La liste de tranches utilisables dépend notamment des droits d’abonnement, du PLMN et des politiques de sélection. L’AMF et la fonction de sélection de tranche fournissent des éléments de diagnostic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un UPF edge est installé, mais la latence reste élevée. Quelle conclusion est la plus rigoureuse ?",
+      "choices": [
+        "Le slicing est nécessairement désactivé",
+        "Le gNodeB est forcément défectueux",
+        "Vérifier le chemin transport, le routage, la congestion, la localisation de l’application et le traitement QoS avant d’attribuer la cause à l’UPF",
+        "Supprimer tous les contrôles de sécurité du cœur"
+      ],
+      "answer": 2,
+      "explanation": "La position de l’UPF n’est qu’un facteur. La latence de bout en bout dépend aussi du transport, du routage, de la charge, du service distant et de la QoS réellement appliquée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour diagnostiquer un service applicatif défaillant sur une seule tranche, quelle approche évite le mieux les conclusions hâtives ?",
+      "choices": [
+        "Modifier tous les paramètres radio en même temps",
+        "Considérer un enregistrement réussi comme preuve d’un réseau de données sain",
+        "Réinitialiser le cœur avant de collecter des preuves",
+        "Corréler l’état de la session PDU, les causes NAS, les règles QoS, les compteurs UPF, le routage et les mesures jusqu’à l’application"
+      ],
+      "answer": 3,
+      "explanation": "Une analyse de bout en bout corrèle les plans de contrôle et utilisateur, la politique appliquée et les observations applicatives. Les changements doivent rester ciblés et mesurables."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

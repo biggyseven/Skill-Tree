@@ -4,63 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel composant fournit l'accès radio en 5G ?",
+      "prompt": "Quel composant fournit l’accès radio en 5G NR ?",
       "choices": [
-        "gNodeB",
-        "CUCM",
-        "Historian",
-        "Routeur NAT"
+        "Le gNodeB, station de base 5G NR",
+        "Le contrôleur CUCM",
+        "Le serveur DNS du réseau d’entreprise",
+        "Le pare-feu qui termine les sessions IP"
       ],
       "answer": 0,
-      "explanation": "Le gNodeB est la station de base 5G NR."
+      "explanation": "Le gNodeB fournit l’accès radio 5G NR. Il relie le terminal au réseau d’accès radio et au cœur 5G."
     },
     {
       "type": "qcm",
       "prompt": "Que mesure principalement le SINR ?",
       "choices": [
-        "Qualité du signal face aux interférences et au bruit",
-        "Coût mensuel",
-        "Puissance CPU",
-        "Nombre de SIM"
+        "Le débit contractuel de l’abonnement",
+        "Le rapport entre le signal utile et les interférences plus le bruit",
+        "Le nombre de terminaux attachés à une cellule",
+        "La latence du serveur DNS uniquement"
       ],
-      "answer": 0,
-      "explanation": "Le SINR compare signal utile, interférences et bruit."
+      "answer": 1,
+      "explanation": "Le SINR caractérise la qualité du signal reçu en considérant le signal utile face aux interférences et au bruit. Une bonne puissance reçue seule ne suffit pas."
     },
     {
       "type": "qcm",
-      "prompt": "Terminal enregistré mais sans accès IP : vérifier...",
+      "prompt": "Un terminal est enregistré, mais n’accède à aucun service IP. Quel contrôle est le plus pertinent en premier ?",
       "choices": [
-        "Session de données, APN/DNN, IP et DNS",
-        "Uniquement le nom du téléphone",
-        "La couleur de l'antenne",
-        "Le Wi-Fi domestique"
+        "Changer immédiatement de carte SIM sans consulter les causes",
+        "Modifier la puissance d’émission du gNodeB sans mesure",
+        "Vérifier l’établissement de la session PDU, l’adresse attribuée et le chemin utilisateur vers le réseau de données",
+        "Remplacer le serveur CUCM"
       ],
-      "answer": 0,
-      "explanation": "L'enregistrement ne garantit pas qu'une session de données fonctionne."
+      "answer": 2,
+      "explanation": "L’enregistrement et la session de données sont des étapes distinctes. Il faut vérifier la session PDU, l’allocation IP et le chemin utilisateur ; DNS se vérifie ensuite si l’accès par nom échoue."
     },
     {
       "type": "qcm",
-      "prompt": "La 5G SA s'appuie sur...",
+      "prompt": "Quelle architecture caractérise principalement la 5G Standalone (SA) ?",
       "choices": [
-        "Un cœur 5G (5GC)",
-        "Uniquement EPC 4G",
-        "TFTP",
-        "Dial peer POTS"
+        "Un cœur EPC 4G obligatoire pour chaque session",
+        "Une connexion NR utilisée uniquement comme radio secondaire LTE",
+        "Un cœur limité aux services SMS, sans données IP",
+        "Un accès 5G NR avec un cœur 5G Core (5GC)"
       ],
-      "answer": 0,
-      "explanation": "Standalone utilise le cœur 5G."
+      "answer": 3,
+      "explanation": "En architecture SA, l’accès NR s’appuie sur le cœur 5G. L’architecture NSA peut au contraire utiliser une ancre LTE et l’EPC selon le déploiement."
     },
     {
       "type": "qcm",
-      "prompt": "RSRP bon et SINR faible peuvent indiquer...",
+      "prompt": "Le RSRP est bon, mais le SINR reste faible. Quelle hypothèse radio est plausible ?",
       "choices": [
-        "Interférences ou bruit",
-        "Batterie vide à coup sûr",
-        "DNS incorrect à coup sûr",
-        "SIM absente"
+        "Un niveau d’interférences ou de bruit élevé malgré une bonne puissance reçue",
+        "Une absence certaine de serveur DHCP dans le cœur",
+        "Une panne certaine de la carte SIM",
+        "Un défaut DNS qui dégrade directement le SINR radio"
       ],
       "answer": 0,
-      "explanation": "La puissance reçue ne décrit pas seule la qualité radio."
+      "explanation": "Le RSRP reflète la puissance reçue d’un signal de référence, tandis que le SINR tient compte des interférences et du bruit. Les deux mesures sont complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le DNN dans une session de données 5G ?",
+      "choices": [
+        "À identifier le modèle matériel du téléphone",
+        "À désigner le réseau de données que la session PDU doit rejoindre",
+        "À chiffrer à lui seul tous les paquets applicatifs",
+        "À sélectionner la fréquence radio de la cellule"
+      ],
+      "answer": 1,
+      "explanation": "Le DNN (Data Network Name) identifie le réseau de données demandé pour la session. L’établissement dépend également des abonnements, de la sélection de fonctions et de la politique du cœur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les mesures radio sont bonnes, mais la session de données est rejetée. Quelle piste faut-il privilégier ?",
+      "choices": [
+        "Modifier le nom Wi-Fi de l’utilisateur",
+        "Conclure que le gNodeB est forcément hors service",
+        "Examiner la cause de rejet de la session, le DNN et les droits d’abonnement applicables",
+        "Changer le type de câble Ethernet du poste"
+      ],
+      "answer": 2,
+      "explanation": "Une radio de bonne qualité ne garantit pas qu’une session PDU puisse être établie. La cause de rejet et les paramètres de service fournissent des indices plus directs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet principalement le network slicing en 5G ?",
+      "choices": [
+        "De garantir sans configuration une latence identique sur tout trajet",
+        "De créer automatiquement une fibre physique séparée par utilisateur",
+        "De supprimer la nécessité de gérer la capacité et la sécurité",
+        "D’adapter logiquement des services réseau à des besoins distincts, selon la politique et les ressources déployées"
+      ],
+      "answer": 3,
+      "explanation": "Le slicing permet d’adapter des services réseau à des besoins différents. Il ne garantit pas à lui seul l’isolation physique, la capacité ou la latence : la conception et l’exploitation comptent."
     }
   ]
 }
