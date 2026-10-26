@@ -274,6 +274,8 @@ test('le catalogue des labs réutilise son cache après avoir quitté puis rouve
   await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).labIndexTask === null), { timeout: 45_000 }).toBe(true);
   const requestsAfterFirstLoad = nodeDetailRequests;
   expect(requestsAfterFirstLoad).toBeGreaterThan(0);
+  const courseCount = await page.evaluate(() => window.Alpine.$data(document.body).nodes.length);
+  expect(requestsAfterFirstLoad).toBeLessThan(courseCount);
 
   await nav.getByRole('button', { name: 'Tableau de bord' }).click();
   await labsButton.click();
