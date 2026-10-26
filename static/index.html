@@ -4740,7 +4740,14 @@
           // Le catalogue v2 pilote l'affichage initial; l'index historique se remplit en parallèle.
           // Une tâche unique empêche de relancer des centaines de requêtes lors d'un aller-retour d'onglet.
           if (this.labIndexTask) return;
-          const todo = this.nodes.filter(n => !(n.id in this.labIndex));
+          // Les métadonnées de l'arbre donnent déjà les exigences de chaque cours.
+          // Ne demande le détail qu'aux cours qui ont réellement un lab historique.
+          // Le catalogue v2 séparé couvre les scénarios v2 optionnels et les cours absents de SQLite.
+          const todo = this.nodes.filter(n => {
+            if (n.id in this.labIndex) return false;
+            if (!Array.isArray(n.requirements_detail)) return true;
+            return n.requirements_detail.some(requirement => requirement?.kind === 'lab');
+          });
           const needsCatalog = !this.labCatalogLoaded;
           if (!todo.length && !needsCatalog) return;
 
