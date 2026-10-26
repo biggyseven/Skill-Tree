@@ -1771,7 +1771,7 @@
 
           <!-- BOUTONS DE FENÊTRE -->
           <div class="flex shrink-0 items-center gap-2">
-            <div class="hidden items-center overflow-hidden rounded-xl border border-white/10 sm:flex" x-show="modalTab === 'lesson'">
+            <div class="hidden items-center overflow-hidden rounded-xl border border-white/10 sm:flex" x-show="modalTab === 'lesson' && !!lessonHtml">
               <button type="button" @click="changeFontSize(-1)" title="Réduire le texte" class="px-3 py-2 text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white">A−</button>
               <span class="h-4 w-px bg-white/10"></span>
               <button type="button" @click="changeFontSize(1)" title="Agrandir le texte" class="px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white">A+</button>
@@ -1818,7 +1818,7 @@
           
           <!-- ONGLET 1 : COURS -->
           <div x-show="modalTab === 'lesson'" class="w-full">
-            <template x-if="lessonHtml">
+            <template x-if="lessonHtml && !lessonIsPlaceholder">
               <div class="lesson-reader-grid grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8 w-full">
                 <!-- Sommaire latéral -->
                 <aside x-show="lessonToc.length" class="lesson-toc-panel sticky top-2 hidden max-h-[calc(94vh-13rem)] w-full shrink-0 self-start overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s2)] p-4 lg:block">
@@ -1940,7 +1940,23 @@
                 </div>
               </div>
             </template>
-            <p x-show="lessonMissing" class="rounded-2xl border border-white/5 bg-[color:var(--s2)] p-6 text-sm text-zinc-400">Cours en cours de rédaction.</p>
+            <section x-show="lessonMissing || lessonIsPlaceholder" x-cloak aria-labelledby="lesson-preparation-title" aria-live="polite" class="mx-auto my-8 w-full max-w-3xl overflow-hidden rounded-3xl border border-amber-300/20 bg-gradient-to-br from-amber-400/[0.08] via-[color:var(--s2)] to-cyan-400/[0.04] p-6 shadow-2xl shadow-black/10 sm:p-9">
+              <div class="flex flex-col gap-5 sm:flex-row sm:items-start">
+                <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-amber-300/20 bg-amber-300/10 text-amber-200" aria-hidden="true">
+                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4m0 4h.01"></path><path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0Z"></path></svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-200">Contenu en préparation</p>
+                  <h2 id="lesson-preparation-title" class="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl" x-text="detail?.title || 'Cours en préparation'"></h2>
+                  <p class="mt-3 max-w-2xl text-sm leading-7 text-zinc-300" x-text="lessonIsPlaceholder ? 'Cette fiche existe, mais son contenu pédagogique complet n’a pas encore été publié.' : 'Le contenu pédagogique de ce cours n’est pas encore disponible.'"></p>
+                  <p class="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">Le sommaire, les exemples, les exercices et la lecture vocale apparaîtront ici dès que le cours complet sera disponible.</p>
+                </div>
+              </div>
+              <div class="mt-7 flex flex-col gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <span class="inline-flex items-center gap-2 text-xs font-medium text-zinc-400"><span class="h-2 w-2 rounded-full bg-amber-300"></span>Leçon enregistrée · rédaction à terminer</span>
+                <button type="button" @click="close()" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-zinc-100 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">Revenir au parcours</button>
+              </div>
+            </section>
           </div>
 
           <!-- ONGLET 2 : EXERCICE -->
@@ -2244,7 +2260,7 @@
         userStats: { total_xp: 0, current_level: 1, level_name: 'Débutant', progress_percent: 0, coins: 0 }, userStatsLoaded: false,
         shopOpen: false, shopItems: [], open: false,
         detail: null, detailLoading: false, detailLoadError: null, detailRequestedNodeId: null, _detailRequestId: 0, modalTab: 'lesson', isFullscreen: false,
-        lessonHtml: '', lessonMissing: false,
+        lessonHtml: '', lessonMissing: false, lessonIsPlaceholder: false,
 
         // --- Lecteur de cours ---
         fontSize: 17,
@@ -2711,6 +2727,17 @@
         },
 
         // Dé-indente les balises HTML (4 espaces ou plus) hors blocs de code : sinon Markdown les prend pour du code
+        isLessonPlaceholder(md) {
+          const lines = this.stripLessonHeader(String(md || ''))
+            .replace(/^\uFEFF/u, '')
+            .split(/\r?\n/u)
+            .map(line => line.trim())
+            .filter(Boolean);
+          return lines.length === 2
+            && /^#\s+\S/u.test(lines[0])
+            && /^\[Contenu de \d+\s+mots à rédiger\]$/iu.test(lines[1]);
+        },
+
         normalizeHtmlBlocks(md) {
           let inFence = false;
           return md.split('\n').map(line => {
@@ -3273,6 +3300,7 @@
           this.detail = null;
           this.lessonHtml = '';
           this.lessonMissing = false;
+          this.lessonIsPlaceholder = false;
           this.modalTab = 'lesson'; this.quiz = null; this.quizResult = null; this.exerciseMode = null; this.exercisePreferredKind = null;
           this.labRunning = false; this.labValidation = null; this.labOutput = []; this.labError = null;
           this.lessonProgress = 0; this.lessonToc = []; this.activeSection = '';
@@ -3290,9 +3318,17 @@
             if (l.ok) {
               const md = await l.text();
               if (requestId !== this._detailRequestId) return;
-              const rawHtml = this.formatMarkdown(md);
-              this.lessonHtml = DOMPurify.sanitize(rawHtml);
-              this.lessonMissing = false;
+              if (this.isLessonPlaceholder(md)) {
+                this.lessonHtml = '';
+                this.lessonIsPlaceholder = true;
+                this.lessonToc = [];
+                this.readingMinutes = 0;
+              } else {
+                this.lessonIsPlaceholder = false;
+                const rawHtml = this.formatMarkdown(md);
+                this.lessonHtml = DOMPurify.sanitize(rawHtml);
+                this.lessonMissing = false;
+              }
             }
             else { this.lessonHtml = ''; this.lessonMissing = true; }
           } catch (e) {
