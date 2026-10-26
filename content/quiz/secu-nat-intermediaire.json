@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « NAT et sécurité du périmètre » : à rédiger après le cours complet.",
+      "prompt": "Quel est l'objectif principal du PAT (NAT overload) ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Chiffrer le trafic sortant",
+        "Permettre à plusieurs hôtes internes de partager une adresse traduite en distinguant leurs sessions",
+        "Remplacer la route par défaut",
+        "Bloquer automatiquement toutes les connexions entrantes"
+      ],
+      "answer": 1,
+      "explanation": "PAT utilise les informations de transport, telles que les ports TCP/UDP, pour distinguer les sessions qui partagent une adresse. Il ne remplace ni le routage ni la politique de filtrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le vocabulaire du NAT traditionnel, que désigne l'adresse inside local ?",
+      "choices": [
+        "L'adresse de l'hôte interne telle qu'elle est utilisée à l'intérieur avant traduction vers l'extérieur",
+        "L'adresse publique du serveur distant",
+        "L'adresse du prochain routeur uniquement",
+        "L'adresse DNS configurée sur le poste"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Inside local décrit l'adresse de l'hôte interne dans l'espace local. Inside global est l'adresse par laquelle cet hôte est représenté sur le réseau externe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une configuration Cisco IOS classique, à quoi sert l'ACL associée à une règle de PAT sortant ?",
+      "choices": [
+        "À garantir que toute communication du LAN est autorisée par le pare-feu",
+        "À activer automatiquement le DNS",
+        "À sélectionner les adresses sources concernées par la traduction",
+        "À remplacer la route par défaut"
+      ],
+      "answer": 2,
+      "explanation": "L'ACL de sélection NAT indique quels paquets doivent être traduits. La décision de filtrage et l'autorisation des services doivent être analysées séparément selon la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur NAT et sécurité est correcte ?",
+      "choices": [
+        "NAT chiffre toutes les sessions",
+        "NAT garantit que les applications internes sont sans vulnérabilité",
+        "NAT est toujours un pare-feu stateful",
+        "La traduction d'adresse ne remplace pas une politique de filtrage et de contrôle d'accès"
+      ],
+      "answer": 3,
+      "explanation": "NAT modifie les adresses et parfois les ports. Il ne remplace ni l'authentification, ni le filtrage explicite, ni le durcissement des services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément faut-il vérifier en premier lorsqu'aucune traduction ne s'affiche après un test ?",
+      "choices": [
+        "Le logo du routeur",
+        "Que le flux traverse le routeur, que les interfaces inside/outside sont correctes et que l'ACL de sélection correspond à la source",
+        "Que le SSID est caché",
+        "Qu'il n'y a aucun journal sur le réseau"
+      ],
+      "answer": 1,
+      "explanation": "Une table vide peut provenir d'un test absent, d'un chemin différent, d'une mauvaise désignation inside/outside ou d'une ACL qui ne correspond pas. Il faut vérifier ces conditions avant de conclure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il généralement configurer pour qu'un service interne HTTPS soit publié à une adresse et un port externes précis ?",
+      "choices": [
+        "Uniquement une route par défaut",
+        "Uniquement une ACL NAT permissive",
+        "Une traduction/redirection adaptée, un routage valide, un service à l'écoute et la politique de filtrage correspondante",
+        "Un masquage du SSID"
+      ],
+      "answer": 2,
+      "explanation": "La publication exige que la traduction dirige le flux vers le bon hôte et port, que le chemin de retour fonctionne et que le filtrage autorise uniquement le service prévu. Il faut aussi durcir le serveur exposé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une redirection de port ne doit-elle pas publier automatiquement tous les services d'un serveur ?",
+      "choices": [
+        "Parce que chaque service ajouté augmente l'exposition ; seuls les ports nécessaires doivent être publiés et filtrés",
+        "Parce qu'un serveur ne peut jamais écouter sur plusieurs ports",
+        "Parce que NAT ne fonctionne qu'avec HTTP",
+        "Parce que les adresses privées sont toujours inaccessibles depuis le LAN"
+      ],
+      "answer": 0,
+      "explanation": "La publication doit être limitée à un besoin justifié. Les interfaces d'administration et les bases de données ne doivent pas être exposées par défaut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un routeur personnel possède une adresse WAN dans la plage partagée 100.64.0.0/10 et une redirection ne fonctionne pas depuis Internet. Quelle hypothèse faut-il vérifier ?",
+      "choices": [
+        "Le clavier de l'administrateur est mal configuré",
+        "Le NAT ne peut pas traduire les connexions TCP",
+        "Le DNS doit forcément être remplacé",
+        "Le routeur peut être derrière un CGNAT contrôlé par le fournisseur"
+      ],
+      "answer": 3,
+      "explanation": "La plage 100.64.0.0/10 est réservée à l'espace d'adresses partagées utilisé dans certains scénarios CGNAT. Une redirection locale ne contrôle pas la traduction amont du fournisseur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un trafic à destination d'un réseau VPN site-à-site peut-il nécessiter une exemption NAT ?",
+      "choices": [
+        "Pour autoriser automatiquement toutes les connexions du réseau distant",
+        "Pour préserver les adresses d'origine si les routes et sélecteurs du tunnel attendent les sous-réseaux non traduits",
+        "Pour désactiver toutes les règles de filtrage",
+        "Pour transformer TCP en UDP"
+      ],
+      "answer": 1,
+      "explanation": "Selon l'architecture, les flux du tunnel doivent conserver leurs adresses internes attendues. Une exemption NAT préserve les adresses pour ces flux, mais ne les autorise pas à elle seule."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque doit être vérifié lorsqu'on supprime toutes les traductions NAT actives sur un routeur de production ?",
+      "choices": [
+        "La suppression chiffre les paquets",
+        "Elle augmente toujours la capacité du routeur",
+        "Elle peut interrompre des sessions actives et causer une panne",
+        "Elle change automatiquement tous les mots de passe"
+      ],
+      "answer": 2,
+      "explanation": "Les entrées de traduction peuvent être nécessaires au suivi des sessions et au retour du trafic. Leur suppression doit être réservée à un laboratoire ou à une procédure approuvée avec impact connu."
     }
   ]
 }
