@@ -23,6 +23,63 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Diagnostic temporaire de l’API Lab Workspace déployée
+        if: github.event_name == 'pull_request' && github.head_ref == 'diag/verify-lab-workspace-deploy-2026-10-26'
+        run: |
+          set -euo pipefail
+          base_url="https://skill-tree-vjon.onrender.com"
+          for lab_id in acl-debutant ipv4-debutant vlan-debutant; do
+            response_file="$(mktemp)"
+            http_status="$(curl -sS -L --connect-timeout 10 --max-time 180 -o "$response_file" -w "%{http_code}" "$base_url/api/lab/v2/$lab_id")"
+            echo "ENDPOINT=/api/lab/v2/$lab_id HTTP_STATUS=$http_status"
+            python - "$response_file" <<'PY'
+          import json, sys
+          from pathlib import Path
+          raw = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
+          try:
+              data = json.loads(raw)
+          except Exception:
+              print("INVALID_JSON=" + raw[:1000])
+              raise
+          definition = data.get("definition") if isinstance(data.get("definition"), dict) else {}
+          topology = data.get("initial_topology") if isinstance(data.get("initial_topology"), dict) else {}
+          print(json.dumps({
+              "id": data.get("id"),
+              "schema_version": data.get("schema_version"),
+              "sandbox": data.get("sandbox"),
+              "course_locked": data.get("course_locked"),
+              "title": definition.get("title"),
+              "topology_nodes": len(topology.get("nodes") or []),
+              "topology_links": len(topology.get("links") or []),
+              "detail": data.get("detail"),
+          }, ensure_ascii=False))
+          PY
+            rm -f "$response_file"
+            test "$http_status" = "200"
+          done
+          response_file="$(mktemp)"
+          http_status="$(curl -sS -L --connect-timeout 10 --max-time 180 -o "$response_file" -w "%{http_code}" "$base_url/api/lab/v2")"
+          echo "ENDPOINT=/api/lab/v2 HTTP_STATUS=$http_status"
+          python - "$response_file" <<'PY'
+          import json, sys
+          from pathlib import Path
+          raw = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
+          data = json.loads(raw)
+          if not isinstance(data, list):
+              print("UNEXPECTED_CATALOG=" + raw[:1000])
+              raise SystemExit(1)
+          ids = [str(row.get("id", "")) for row in data]
+          print(json.dumps({
+              "count": len(data),
+              "acl_debutant_present": "acl-debutant" in ids,
+              "sample_ids": ids[:10],
+          }, ensure_ascii=False))
+          if "acl-debutant" not in ids or len(data) < 7:
+              raise SystemExit("Catalogue v2 incomplet après le bootstrap")
+          PY
+          rm -f "$response_file"
+          test "$http_status" = "200"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
