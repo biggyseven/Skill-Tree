@@ -195,9 +195,14 @@ test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans 
   expect(expectedFirstCourse).toBeTruthy();
   await expect.poll(() => modulePage.evaluate(() => {
     const state = window.Alpine && window.Alpine.$data(document.body);
-    return state?.open && state?.detail?.id ? state.detail.id : null;
+    return state?.moduleNextCourseId || null;
   }), { timeout: 30_000 }).toBe(expectedFirstCourse);
-  await expect(modulePage.locator('#course-reader-title')).toBeVisible();
+  await expect.poll(() => modulePage.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.resumeNode?.id || null;
+  }), { timeout: 30_000 }).toBe(expectedFirstCourse);
+  await expect.poll(() => modulePage.evaluate(() => !!window.Alpine.$data(document.body).open)).toBe(false);
+  await expect(modulePage.locator('.modal-panel[role="dialog"]')).toBeHidden();
   await modulePage.close();
 
   const courseLink = page.locator('a[aria-label^="Ouvrir le cours "][href*="openCourse="]').first();
@@ -215,7 +220,7 @@ test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans 
   await coursePage.close();
 });
 
-test('changer de module ouvre le premier cours du module sélectionné', async ({ page }) => {
+test('changer de module propose le premier cours sans l’ouvrir automatiquement', async ({ page }) => {
   await openDashboard(page);
 
   // Lier le bouton d’un module à son propre lien d’ouverture évite de dépendre
@@ -233,9 +238,15 @@ test('changer de module ouvre le premier cours du module sélectionné', async (
 
   await expect.poll(() => page.evaluate(() => {
     const state = window.Alpine && window.Alpine.$data(document.body);
-    return state?.open && state?.detail?.id ? state.detail.id : null;
+    return state?.moduleNextCourseId || null;
   }), { timeout: 30_000 }).toBe(firstCourse.id);
-  await expect(page.locator('#course-reader-title')).toHaveText(firstCourse.title);
+  await expect.poll(() => page.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.resumeNode?.id || null;
+  }), { timeout: 30_000 }).toBe(firstCourse.id);
+  await expect.poll(() => page.evaluate(() => !!window.Alpine.$data(document.body).open)).toBe(false);
+  await expect(page.locator('.modal-panel[role="dialog"]')).toBeHidden();
+  await expect(page.getByRole('heading', { name: firstCourse.title, exact: true }).first()).toBeVisible();
 });
 
 test('les cartes du catalogue des labs ouvrent un nouvel onglet sans remplacer le tableau de bord', async ({ page }) => {
