@@ -527,6 +527,51 @@ test('le sélecteur Démarrer à fait aussi commencer la lecture à la section c
   expect(speechText.startsWith('Section : ' + targetText + '.')).toBe(true);
 });
 
+
+test('le défilement reste léger même avec plusieurs centaines de sections', async ({ page }) => {
+  await openDashboard(page);
+  await page.evaluate(async () => {
+    const state = window.Alpine.$data(document.body);
+    await state.show('linux-expert');
+  });
+  const article = page.locator('[x-ref="lessonArticle"]');
+  await expect(article).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return state._lessonHeadingOffsets.length;
+  })).toBeGreaterThan(100);
+
+  const result = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    const container = state.$refs.modalScroll;
+    // Simule un cours long (300 sections) tout en gardant le cache de géométrie déjà construit.
+    state._lessonHeadingOffsets = Array.from({ length: 300 }, (_, index) => ({
+      id: 'synthetic-section-' + index,
+      top: index * 420,
+    }));
+    state._lessonHeadingCourseId = String(state.detail.id);
+
+    const original = Element.prototype.getBoundingClientRect;
+    let geometryReads = 0;
+    Element.prototype.getBoundingClientRect = function (...args) {
+      geometryReads += 1;
+      return original.apply(this, args);
+    };
+    try {
+      for (let index = 0; index < 40; index += 1) {
+        container.scrollTop = index * 170;
+        state.onLessonScroll({ target: container });
+      }
+    } finally {
+      Element.prototype.getBoundingClientRect = original;
+    }
+    return { geometryReads, cachedHeadingCount: state._lessonHeadingOffsets.length };
+  });
+
+  expect(result.cachedHeadingCount).toBe(300);
+  expect(result.geometryReads).toBe(0);
+});
+
 test('le lecteur reprend la dernière section après fermeture et respecte le départ demandé', async ({ page }) => {
   await openDashboard(page);
 

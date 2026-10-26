@@ -2250,7 +2250,7 @@
         fontSize: 17,
         readingWidth: 'comfortable',
         lessonToc: [], activeSection: '', lessonProgress: 0, readingMinutes: 1,
-        lessonPositions: {}, startSectionSelection: '__resume__', readingContextMenu: { open: false, x: 0, y: 0, targetId: '', sectionId: '__top__', targetLabel: 'Début du cours' }, readingStartCounter: 0, _mermaidInitialized: false,
+        lessonPositions: {}, startSectionSelection: '__resume__', readingContextMenu: { open: false, x: 0, y: 0, targetId: '', sectionId: '__top__', targetLabel: 'Début du cours' }, readingStartCounter: 0, _lessonHeadingOffsets: [], _lessonHeadingCourseId: '', _lessonHeadingObserver: null, _lessonHeadingRefreshFrame: 0, _mermaidInitialized: false,
 
         quiz: null, quizAnswers: [], quizResult: null, quizBusy: false,
         exerciseMode: null, exerciseQuestion: null, exerciseAnswer: '', exerciseResult: null, exerciseBusy: false, exerciseError: null, exercisePreferredKind: null,
@@ -3052,7 +3052,7 @@
         // texte pâle sur carte claire -> texte foncé ; texte foncé sur fond sombre -> texte clair.
         // Les couleurs voulues qui sont déjà lisibles (badges rouges, etc.) sont conservées.
         fixLessonContrast() {
-          const root = document.querySelector('.lesson-prose');
+          const root = this.$refs.lessonArticle || document.querySelector('.lesson-prose');
           if (!root) return;
           const parse = (str) => {
             const m = /rgba?\(([^)]+)\)/.exec(str || '');
@@ -3081,7 +3081,10 @@
             return bg;
           };
           const MIN = 4;
-          root.querySelectorAll('*').forEach(el => {
+          // Le CSS gère déjà le texte Markdown standard. Ne parcourir que les éléments dont
+          // la couleur est personnalisée et les libellés SVG ; les milliers de nœuds <pre>/<code>
+          // des cours longs ne doivent pas être examinés un par un.
+          root.querySelectorAll('svg text, svg tspan, [style*="color" i], [style*="fill" i]').forEach(el => {
             if (el.closest('pre, .code-container')) return;
             const tag = el.tagName.toLowerCase();
             const isSvgText = tag === 'text' || tag === 'tspan';
@@ -3117,28 +3120,94 @@
           }).catch(() => { });
         },
 
+        refreshLessonHeadingOffsets() {
+          const container = this.$refs.modalScroll;
+          const article = this.$refs.lessonArticle;
+          const courseId = String(this.detail?.id || '');
+          if (!container || !article || !courseId) {
+            this._lessonHeadingOffsets = [];
+            this._lessonHeadingCourseId = courseId;
+            return;
+          }
+
+          // Les nouveaux cours peuvent avoir plusieurs centaines de titres.
+          // Mesurer leur géométrie une seule fois, hors du gestionnaire de scroll.
+          const containerTop = container.getBoundingClientRect().top;
+          const scrollTop = container.scrollTop;
+          this._lessonHeadingOffsets = Array.from(article.querySelectorAll('h2[id]'))
+            .map(heading => ({
+              id: heading.id,
+              top: heading.getBoundingClientRect().top - containerTop + scrollTop,
+            }))
+            .sort((a, b) => a.top - b.top);
+          this._lessonHeadingCourseId = courseId;
+        },
+        observeLessonHeadingLayout() {
+          if (this._lessonHeadingObserver) {
+            this._lessonHeadingObserver.disconnect();
+            this._lessonHeadingObserver = null;
+          }
+          if (this._lessonHeadingRefreshFrame) {
+            cancelAnimationFrame(this._lessonHeadingRefreshFrame);
+            this._lessonHeadingRefreshFrame = 0;
+          }
+
+          const container = this.$refs.modalScroll;
+          const article = this.$refs.lessonArticle;
+          if (!container || !article || typeof ResizeObserver === 'undefined') return;
+
+          // Recalculer seulement quand le texte se recompose (fenêtre redimensionnée,
+          // police ou média qui change de taille), jamais à chaque pixel de défilement.
+          this._lessonHeadingObserver = new ResizeObserver(() => {
+            if (this._lessonHeadingRefreshFrame) cancelAnimationFrame(this._lessonHeadingRefreshFrame);
+            this._lessonHeadingRefreshFrame = requestAnimationFrame(() => {
+              this._lessonHeadingRefreshFrame = 0;
+              if (this.open && this.$refs.lessonArticle === article) this.refreshLessonHeadingOffsets();
+            });
+          });
+          this._lessonHeadingObserver.observe(container);
+          this._lessonHeadingObserver.observe(article);
+        },
+        resetLessonHeadingOffsets() {
+          if (this._lessonHeadingObserver) {
+            this._lessonHeadingObserver.disconnect();
+            this._lessonHeadingObserver = null;
+          }
+          if (this._lessonHeadingRefreshFrame) cancelAnimationFrame(this._lessonHeadingRefreshFrame);
+          this._lessonHeadingRefreshFrame = 0;
+          this._lessonHeadingOffsets = [];
+          this._lessonHeadingCourseId = '';
+        },
         onLessonScroll(e) {
           const el = e.target;
           const max = el.scrollHeight - el.clientHeight;
           this.lessonProgress = max > 0 ? Math.min(100, Math.round((el.scrollTop / max) * 100)) : 0;
           if (this.modalTab !== 'lesson' || !this.detail?.id) return;
 
-          const limit = el.getBoundingClientRect().top + 100;
-          let current = null;
-          el.querySelectorAll('.lesson-prose h2[id]').forEach(h => { if (h.getBoundingClientRect().top <= limit) current = h.id; });
-          this.activeSection = current || (this.lessonToc[0] ? this.lessonToc[0].id : '');
+          const courseId = String(this.detail.id);
+          if (this._lessonHeadingCourseId !== courseId) this.refreshLessonHeadingOffsets();
+          const headings = this._lessonHeadingOffsets || [];
+          const limit = el.scrollTop + 100;
 
-          const activeHeading = this.activeSection ? document.getElementById(this.activeSection) : null;
-          const headingTop = activeHeading && el.contains(activeHeading)
-            ? activeHeading.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop
-            : 0;
-          const currentPosition = this.lessonPositions[String(this.detail.id)] || null;
+          // Recherche binaire O(log n), sans getBoundingClientRect() par titre pendant le scroll.
+          let low = 0;
+          let high = headings.length;
+          while (low < high) {
+            const mid = (low + high) >> 1;
+            if (headings[mid].top <= limit) low = mid + 1;
+            else high = mid;
+          }
+          const activeHeading = headings.length ? headings[Math.max(0, low - 1)] : null;
+          this.activeSection = activeHeading?.id || (this.lessonToc[0] ? this.lessonToc[0].id : '');
+          const headingTop = activeHeading && activeHeading.id === this.activeSection ? activeHeading.top : 0;
+
+          const currentPosition = this.lessonPositions[courseId] || null;
           const positionChanged = !currentPosition
-            || Math.abs(Number(currentPosition.scrollTop || 0) - el.scrollTop) >= 120
-            || Math.abs(Number(currentPosition.progress || 0) - this.lessonProgress) >= 2
+            || Math.abs(Number(currentPosition.scrollTop || 0) - el.scrollTop) >= 180
+            || Math.abs(Number(currentPosition.progress || 0) - this.lessonProgress) >= 3
             || String(currentPosition.sectionId || '') !== String(this.activeSection || '');
           if (positionChanged || this.lessonProgress === 0 || this.lessonProgress === 100) {
-            this.saveLessonPosition(this.detail.id, {
+            this.saveLessonPosition(courseId, {
               scrollTop: Math.round(el.scrollTop),
               progress: this.lessonProgress,
               sectionId: this.activeSection || '',
@@ -3146,9 +3215,9 @@
             });
           }
 
-          if (String(this.detail.id) === String(this.lastOpenedNodeId)) {
+          if (courseId === String(this.lastOpenedNodeId)) {
             const progress = this.lessonProgress;
-            if (progress === 0 || progress === 100 || Math.abs(progress - this.lastLessonProgress) >= 2) {
+            if (progress === 0 || progress === 100 || Math.abs(progress - this.lastLessonProgress) >= 3) {
               this.lastLessonProgress = progress;
               try { localStorage.setItem('skilltree-last-progress', String(progress)); } catch (e) { }
             }
@@ -3179,6 +3248,7 @@
           const requestId = ++this._detailRequestId;
           const resumingSameLesson = nodeKey === String(this.lastOpenedNodeId || '');
           const savedPosition = this.lessonPositions[nodeKey] || null;
+          this.resetLessonHeadingOffsets();
           this.lastOpenedNodeId = nodeKey;
           this.lastOpenedNodeStatus = this.nodes.find(node => String(node.id) === nodeKey)?.status || '';
           this.detailRequestedNodeId = nodeKey;
@@ -3241,11 +3311,10 @@
                 await this.renderLessonDiagrams();
                 if (requestId !== this._detailRequestId || !this.open || this.detailLoadError) return;
                 const s = this.$refs.modalScroll;
+                this.refreshLessonHeadingOffsets();
+                this.observeLessonHeadingLayout();
                 if (s) this.restoreLessonPosition(s, this.lessonPositions[String(this.detail?.id || '')] || null);
                 this.fixLessonContrast();
-                setTimeout(() => {
-                  if (requestId === this._detailRequestId && this.open && !this.detailLoadError) this.fixLessonContrast();
-                }, 80);
               });
             }
           }
@@ -3255,6 +3324,7 @@
           if (this.open && this.modalTab === 'lesson' && this.$refs.modalScroll) {
             this.onLessonScroll({ target: this.$refs.modalScroll });
           }
+          this.resetLessonHeadingOffsets();
           this._detailRequestId += 1;
           this.stopSpeech();
           this.open = false;
