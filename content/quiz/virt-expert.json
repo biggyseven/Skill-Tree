@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Cloud Privé et Infogérance",
+      "prompt": "Quelle propriété distingue le mieux un cloud privé mature d’un simple cluster d’hyperviseurs ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il doit obligatoirement être hébergé chez un fournisseur public",
+        "Des services standardisés à la demande, une API/orchestration, des mécanismes d’isolation, de quotas et d’exploitation",
+        "Il ne doit contenir qu’une seule VM",
+        "Il n’a besoin ni de supervision ni de gestion des identités"
+      ],
+      "answer": 1,
+      "explanation": "Un cluster virtualise et regroupe des ressources. Un cloud privé ajoute notamment une expérience de service, l’orchestration, le libre-service contrôlé, l’isolation et une exploitation structurée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans OpenStack, quel service est principalement associé à la gestion des identités et des jetons d’accès ?",
+      "choices": [
+        "Keystone",
+        "Nova",
+        "Neutron",
+        "Cinder"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Keystone fournit les fonctions d’identité et de service de jetons. Nova gère le calcul, Neutron le réseau et Cinder le stockage bloc."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour limiter l’impact d’une panne de baie ou de commutateur dans un cloud privé, quel principe d’architecture est essentiel ?",
+      "choices": [
+        "Placer toutes les fonctions critiques sur le même équipement",
+        "Utiliser le même lien physique pour toutes les zones de panne",
+        "Supprimer les chemins de secours pour simplifier le diagnostic",
+        "Séparer les domaines de panne et éviter qu’une dépendance unique neutralise simultanément calcul, réseau, stockage et plan de contrôle"
+      ],
+      "answer": 3,
+      "explanation": "La haute disponibilité nécessite d’identifier les dépendances communes. La redondance doit éviter les points uniques de défaillance et être validée par des essais réalistes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment limiter le risque qu’un locataire d’un cloud privé consomme toutes les ressources communes ?",
+      "choices": [
+        "Donner le rôle administrateur global à tous les locataires",
+        "Masquer les mesures de capacité",
+        "Appliquer quotas et politiques de placement, isoler les réseaux et surveiller la consommation par tenant",
+        "Permettre le déploiement sans authentification"
+      ],
+      "answer": 2,
+      "explanation": "Le multi-tenant exige des frontières d’autorisation et d’isolation ainsi que des limites de consommation. La télémétrie doit permettre de détecter les dépassements et de planifier la capacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche renforce la disponibilité du plan de contrôle d’une plateforme privée ?",
+      "choices": [
+        "Se reposer sur une unique instance non sauvegardée",
+        "Rendre redondants les composants critiques et leurs dépendances, protéger les données d’état et tester les procédures de bascule/restauration",
+        "Désactiver les contrôles de santé pour éviter les alertes",
+        "Regrouper les identifiants d’administration dans un compte partagé"
+      ],
+      "answer": 1,
+      "explanation": "La redondance doit couvrir les composants et leurs dépendances, et les procédures doivent être testées. Une redondance théorique sans restauration ni contrôle ne prouve pas la résilience."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel modèle permet d’estimer ou de répartir de façon défendable le coût des ressources entre les équipes ?",
+      "choices": [
+        "Collecter des métriques d’usage attribuables, définir les règles de coûts et publier un mécanisme transparent de showback/chargeback",
+        "Facturer chaque VM au même prix sans tenir compte de l’usage ni de la capacité",
+        "Conserver les coûts uniquement dans la mémoire de l’administrateur",
+        "Supprimer les étiquettes de ressources pour simplifier les rapports"
+      ],
+      "answer": 0,
+      "explanation": "Le showback rend la consommation visible ; le chargeback peut l’allouer financièrement selon une règle définie. L’attribution nécessite des métriques et des conventions cohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan de reprise est le plus fiable pour un service hébergé dans le cloud privé ?",
+      "choices": [
+        "Une seule capture d’écran du tableau de bord",
+        "Un snapshot conservé uniquement sur le même datastore, sans test",
+        "Une sauvegarde d’état d’hyperviseur qui exclut les données applicatives sans l’indiquer",
+        "Des sauvegardes adaptées aux données et à l’application, copiées dans un domaine de panne distinct et restaurées périodiquement pour vérifier RPO/RTO"
+      ],
+      "answer": 3,
+      "explanation": "La reprise dépend des données applicatives, de leur cohérence, des dépendances et des délais cibles. Des tests de restauration permettent de vérifier le RPO/RTO réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un contrat d’infogérance, que doit préciser un SLA exploitable ?",
+      "choices": [
+        "Uniquement le nom commercial du prestataire",
+        "Les couleurs de l’interface de supervision",
+        "Les objectifs mesurables, périmètre, fenêtres de service, délais de réponse/rétablissement, exclusions et responsabilités",
+        "Le mot de passe de l’hyperviseur principal"
+      ],
+      "answer": 2,
+      "explanation": "Un SLA doit traduire un engagement mesurable, un périmètre et les responsabilités des parties. Les métriques, fenêtres de mesure, exclusions et procédures d’escalade doivent être définies."
     }
   ]
 }
