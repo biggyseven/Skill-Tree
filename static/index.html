@@ -547,12 +547,59 @@
     body.compact-ui .lesson-prose :where(p, li) { margin-bottom: .5em !important; }
     body.compact-ui .lesson-toc-panel nav a { padding-top: .35rem !important; padding-bottom: .35rem !important; }
 
-    /* Barre supérieure, navigation et conteneur principal. */
+    /* Barre supérieure compacte : grille explicite pour que titre et actions ne se chevauchent jamais. */
     body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header {
-      height: 4.25rem !important; padding-inline: 1rem !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: .5rem;
+      height: 4.25rem !important;
+      padding-inline: 1rem !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div:first-child {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute {
+      display: none !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.flex.min-w-0.flex-1.items-center.justify-end {
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+      width: max-content;
+      max-width: 100%;
+      flex: none !important;
+      gap: .35rem !important;
     }
     body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header .nav-action-btn {
-      height: 2.25rem !important; min-height: 2.25rem !important;
+      height: 2.25rem !important;
+      min-height: 2.25rem !important;
+    }
+    /* Sur grand écran, les indicateurs reçoivent leur propre colonne entre le titre et les actions. */
+    @media (min-width: 1280px) {
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute {
+        display: flex !important;
+        position: static !important;
+        inset: auto !important;
+        transform: none !important;
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        gap: .35rem !important;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.flex.min-w-0.flex-1.items-center.justify-end {
+        grid-column: 3;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute > :is(div, button) {
+        padding-inline: .6rem !important;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute > div:last-child {
+        gap: .5rem !important;
+      }
     }
     body.compact-ui .skill-sidebar > div:first-child {
       height: 3.25rem !important; margin-bottom: .75rem !important;
