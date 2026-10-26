@@ -530,7 +530,7 @@ test('le sélecteur Démarrer à fait aussi commencer la lecture à la section c
 
 test('le défilement reste léger même avec plusieurs centaines de sections', async ({ page }) => {
   await openDashboard(page);
-  const stateReady = await page.evaluate(async () => {
+  await page.evaluate(async () => {
     const state = window.Alpine.$data(document.body);
     await state.show('linux-expert');
   });
