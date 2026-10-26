@@ -1,18 +1,102 @@
 {
   "node_id": "telecom-5g-intermediaire",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quelle fonction du cœur 5G gère notamment l’enregistrement et la mobilité de l’UE ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "L’AMF, qui assure des fonctions de gestion d’accès et de mobilité",
+        "Le UPF, qui ne fait que transférer les paquets utilisateur",
+        "Le DNS public, qui authentifie les SIM",
+        "Le gNodeB, qui remplace toutes les fonctions du cœur"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "L’AMF gère notamment l’enregistrement, la mobilité et certains aspects du contexte d’accès. Le transfert des paquets utilisateur relève notamment de l’UPF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal du SMF pendant l’établissement d’une session PDU ?",
+      "choices": [
+        "Mesurer le SINR et ajuster directement les antennes",
+        "Gérer la session, sélectionner/configurer l’UPF et appliquer la politique de session",
+        "Remplacer l’UDM pour stocker toutes les données d’abonnement",
+        "Transporter directement tous les paquets applicatifs à la place de l’UPF"
+      ],
+      "answer": 1,
+      "explanation": "Le SMF assure la gestion des sessions PDU et pilote les fonctions du plan utilisateur concernées, notamment la sélection et la configuration de l’UPF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans l’architecture de référence 5G, que relie principalement l’interface N3 ?",
+      "choices": [
+        "L’AMF et le SMF pour les services de gestion",
+        "Le SMF et le UPF pour la gestion de session (interface N4)",
+        "Le réseau NG-RAN et l’UPF pour le transport du plan utilisateur",
+        "Le terminal et le serveur DNS au moyen de SIP"
+      ],
+      "answer": 2,
+      "explanation": "N3 transporte le trafic du plan utilisateur entre le réseau d’accès NG-RAN et l’UPF. N4 sert à la commande de l’UPF par le SMF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une tentative d’établissement de session PDU échoue alors que l’UE est enregistré. Quelle analyse est la plus utile ?",
+      "choices": [
+        "Réinitialiser toutes les cellules avant de lire les journaux",
+        "Considérer l’enregistrement comme preuve que le DNN est autorisé",
+        "Ne regarder que la puissance RSRP et ignorer les messages de session",
+        "Examiner la cause de rejet, le DNN, le S-NSSAI demandé/autorisé et les événements AMF/SMF"
+      ],
+      "answer": 3,
+      "explanation": "L’enregistrement ne prouve pas que les paramètres et droits nécessaires à une session donnée sont valides. Les causes NAS et les journaux du cœur aident à distinguer un problème d’abonnement, de sélection ou de session."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente un S-NSSAI dans la sélection d’une tranche réseau 5G ?",
+      "choices": [
+        "Un identifiant de tranche constitué du SST et, si présent, du SD",
+        "Le numéro de série physique du gNodeB uniquement",
+        "Un identifiant de codec audio RTP",
+        "Une adresse IP de l’UPF réservée au DNS"
+      ],
+      "answer": 0,
+      "explanation": "Le S-NSSAI identifie une tranche : le Slice/Service Type (SST) et éventuellement un Slice Differentiator (SD). Son acceptation dépend des règles et droits applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le 5QI dans le modèle QoS 5G ?",
+      "choices": [
+        "À choisir le fournisseur d’accès Internet sans politique",
+        "À référencer des caractéristiques QoS pour le traitement d’un flux, selon le profil défini",
+        "À identifier à lui seul le réseau de données DNN",
+        "À remplacer tous les contrôles de congestion du transport IP"
+      ],
+      "answer": 1,
+      "explanation": "Le 5QI sert à associer un flux QoS à des caractéristiques de traitement attendues. Il ne garantit pas seul la performance de bout en bout ni la capacité du transport."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi déployer un UPF au plus près d’une application dans un scénario edge peut-il aider ?",
+      "choices": [
+        "Cela transforme automatiquement la 5G SA en NSA",
+        "Cela évite toute configuration de routage du réseau de données",
+        "Cela peut raccourcir le chemin du plan utilisateur si le routage et les politiques dirigent effectivement le trafic par ce point",
+        "Cela garantit un temps de réponse fixe quelle que soit la congestion"
+      ],
+      "answer": 2,
+      "explanation": "Un UPF local peut réduire la distance de transport et faciliter le local breakout, à condition que la sélection UPF, le routage et l’emplacement de l’application soient cohérents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation est correcte concernant l’enregistrement de l’UE et l’accès aux données ?",
+      "choices": [
+        "L’enregistrement prouve que chaque application est joignable",
+        "Une adresse IP signifie que les règles de sécurité et de routage sont nécessairement correctes",
+        "Une session PDU suffit à prouver que le DNS et l’application répondent",
+        "L’enregistrement, la session PDU et la disponibilité applicative sont des étapes différentes à vérifier séparément"
+      ],
+      "answer": 3,
+      "explanation": "Il faut distinguer l’accès au réseau, l’établissement d’une session de données et la disponibilité d’un service applicatif. Chaque étape peut échouer pour des raisons différentes."
     }
-  ],
-  "scope": "quiz"
+  ]
 }
