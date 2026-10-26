@@ -206,9 +206,9 @@ test('les panneaux latéraux et la bibliothèque matérielle se redimensionnent 
   await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
 
-  const leftPanel = page.locator('aside').nth(0);
-  const rightPanel = page.locator('aside').nth(1);
-  const equipmentPanel = page.locator('aside').first().locator('section').last();
+  const leftPanel = page.getByTestId('lab-left-panel');
+  const rightPanel = page.getByTestId('lab-right-panel');
+  const equipmentPanel = page.getByTestId('equipment-palette-panel');
   const width = element => element.evaluate(el => Math.round(el.getBoundingClientRect().width));
   const height = element => element.evaluate(el => Math.round(el.getBoundingClientRect().height));
 
