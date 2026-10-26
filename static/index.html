@@ -538,12 +538,81 @@
       animation-iteration-count: 1 !important;
       transition-duration: .01ms !important;
     }
-    body.compact-ui .skill-sidebar { padding-top: .85rem !important; padding-bottom: .85rem !important; }
-    body.compact-ui main { padding-bottom: 1.5rem !important; }
-    body.compact-ui .nav-action-btn { width: 2.25rem !important; height: 2.25rem !important; }
+    /* Mode compact : réduire les espaces sans comprimer le texte ou les cibles tactiles. */
+    body.compact-ui .skill-sidebar { padding-top: .75rem !important; padding-bottom: .75rem !important; }
+    body.compact-ui main { padding-bottom: 1.25rem !important; }
+    /* Ne réduire en largeur que les boutons composés d'une icône : les actions avec libellé gardent leur place. */
+    body.compact-ui .nav-action-btn.w-10 { width: 2.25rem !important; height: 2.25rem !important; }
     body.compact-ui .lesson-content { padding: 1rem !important; }
-    body.compact-ui .lesson-prose :where(p, li) { margin-bottom: .55em !important; }
+    body.compact-ui .lesson-prose :where(p, li) { margin-bottom: .5em !important; }
     body.compact-ui .lesson-toc-panel nav a { padding-top: .35rem !important; padding-bottom: .35rem !important; }
+
+    /* Barre supérieure, navigation et conteneur principal. */
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header {
+      height: 4.25rem !important; padding-inline: 1rem !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header .nav-action-btn {
+      min-height: 2.25rem !important;
+    }
+    body.compact-ui .skill-sidebar > div:first-child {
+      height: 3.25rem !important; margin-bottom: .75rem !important;
+    }
+    body.compact-ui .skill-sidebar > div:nth-of-type(2) {
+      padding: .85rem !important; margin-bottom: .75rem !important; border-radius: 1.25rem !important;
+    }
+    body.compact-ui .skill-sidebar nav {
+      padding-block: .125rem !important;
+    }
+    body.compact-ui .skill-sidebar nav > :not([hidden]) ~ :not([hidden]) {
+      margin-top: .25rem !important;
+    }
+    body.compact-ui .skill-sidebar nav button { min-height: 40px !important; }
+    body.compact-ui .skill-sidebar nav button .nav-item-icon {
+      width: 2rem !important; height: 2rem !important;
+    }
+    body.compact-ui main {
+      padding-left: clamp(.75rem, 1.25vw, 1.25rem) !important;
+      padding-right: clamp(.75rem, 1.25vw, 1.25rem) !important;
+    }
+
+    /* Densité des cartes et des panneaux : les plus grands espacements restent un peu plus généreux. */
+    body.compact-ui main .card { padding: 1.1rem !important; border-radius: 1.15rem !important; }
+    body.compact-ui main .card-sm { padding: .75rem !important; border-radius: .8rem !important; }
+
+    body.compact-ui main [class~="p-1"], body.compact-ui main [class~="sm:p-1"] { padding: .3rem !important; }
+    body.compact-ui main [class~="p-2"], body.compact-ui main [class~="sm:p-2"] { padding: .45rem !important; }
+    body.compact-ui main [class~="p-3"], body.compact-ui main [class~="sm:p-3"] { padding: .6rem !important; }
+    body.compact-ui main [class~="p-4"], body.compact-ui main [class~="sm:p-4"] { padding: .75rem !important; }
+    body.compact-ui main [class~="p-5"], body.compact-ui main [class~="sm:p-5"] { padding: .9rem !important; }
+    body.compact-ui main [class~="p-6"], body.compact-ui main [class~="sm:p-6"] { padding: 1rem !important; }
+    body.compact-ui main [class~="p-8"], body.compact-ui main [class~="sm:p-8"] { padding: 1.15rem !important; }
+
+    body.compact-ui main [class~="px-2"], body.compact-ui main [class~="sm:px-2"] { padding-left: .45rem !important; padding-right: .45rem !important; }
+    body.compact-ui main [class~="px-3"], body.compact-ui main [class~="sm:px-3"] { padding-left: .6rem !important; padding-right: .6rem !important; }
+    body.compact-ui main [class~="px-4"], body.compact-ui main [class~="sm:px-4"] { padding-left: .75rem !important; padding-right: .75rem !important; }
+    body.compact-ui main [class~="px-5"], body.compact-ui main [class~="sm:px-5"] { padding-left: .85rem !important; padding-right: .85rem !important; }
+    body.compact-ui main [class~="px-6"], body.compact-ui main [class~="sm:px-6"] { padding-left: 1rem !important; padding-right: 1rem !important; }
+    body.compact-ui main [class~="px-8"], body.compact-ui main [class~="sm:px-8"] { padding-left: 1.15rem !important; padding-right: 1.15rem !important; }
+
+    body.compact-ui main [class~="py-2"], body.compact-ui main [class~="sm:py-2"] { padding-top: .4rem !important; padding-bottom: .4rem !important; }
+    body.compact-ui main [class~="py-3"], body.compact-ui main [class~="sm:py-3"] { padding-top: .55rem !important; padding-bottom: .55rem !important; }
+    body.compact-ui main [class~="py-4"], body.compact-ui main [class~="sm:py-4"] { padding-top: .7rem !important; padding-bottom: .7rem !important; }
+    body.compact-ui main [class~="py-5"], body.compact-ui main [class~="sm:py-5"] { padding-top: .85rem !important; padding-bottom: .85rem !important; }
+    body.compact-ui main [class~="py-6"], body.compact-ui main [class~="sm:py-6"] { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    body.compact-ui main [class~="py-8"], body.compact-ui main [class~="sm:py-8"] { padding-top: 1.15rem !important; padding-bottom: 1.15rem !important; }
+
+    /* Réduire le rythme vertical et les écarts entre blocs dans tous les onglets. */
+    body.compact-ui main [class~="gap-1"], body.compact-ui main [class~="sm:gap-1"] { gap: .25rem !important; }
+    body.compact-ui main [class~="gap-2"], body.compact-ui main [class~="sm:gap-2"] { gap: .4rem !important; }
+    body.compact-ui main [class~="gap-3"], body.compact-ui main [class~="sm:gap-3"] { gap: .55rem !important; }
+    body.compact-ui main [class~="gap-4"], body.compact-ui main [class~="sm:gap-4"] { gap: .75rem !important; }
+    body.compact-ui main [class~="gap-6"], body.compact-ui main [class~="sm:gap-6"] { gap: 1rem !important; }
+    body.compact-ui main [class~="mb-3"], body.compact-ui main [class~="sm:mb-3"] { margin-bottom: .5rem !important; }
+    body.compact-ui main [class~="mb-4"], body.compact-ui main [class~="sm:mb-4"] { margin-bottom: .65rem !important; }
+    body.compact-ui main [class~="mb-5"], body.compact-ui main [class~="sm:mb-5"] { margin-bottom: .8rem !important; }
+    body.compact-ui main [class~="mb-6"], body.compact-ui main [class~="sm:mb-6"] { margin-bottom: 1rem !important; }
+    body.compact-ui main [class~="mb-8"], body.compact-ui main [class~="sm:mb-8"] { margin-bottom: 1.25rem !important; }
+    body.compact-ui main table th, body.compact-ui main table td { padding: .5rem !important; }
 
   </style>
 </head>
