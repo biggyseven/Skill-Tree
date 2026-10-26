@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « IDS/IPS et détection d'intrusion » : à rédiger après le cours complet.",
+      "prompt": "Quelle distinction décrit le mieux un IDS passif par rapport à un IPS en ligne ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Un IDS passif surveille une copie ou des événements et alerte, tandis qu'un IPS inline peut agir sur le trafic du chemin",
+        "Un IDS chiffre les paquets et un IPS les déchiffre toujours",
+        "Un IDS protège uniquement les postes Windows",
+        "Un IPS génère obligatoirement des alertes sans pouvoir bloquer"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le mode IDS classique observe et alerte sans interrompre directement le paquet original. Un IPS en ligne peut transmettre ou bloquer selon la règle et la politique effectivement actives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un port miroir SPAN peut-il créer un angle mort ?",
+      "choices": [
+        "Il chiffre toutes les copies de paquets",
+        "Le débit agrégé des sources peut dépasser la capacité du port miroir ou du capteur, entraînant des pertes",
+        "Il copie uniquement les paquets UDP",
+        "Il garantit que les deux directions de tous les flux sont toujours visibles"
+      ],
+      "answer": 1,
+      "explanation": "Un SPAN peut perdre des paquets en cas de surcharge. Les pertes et les compteurs de capture doivent être surveillés et le placement vérifié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une alerte IDS indiquant une signature de gravité élevée ?",
+      "choices": [
+        "La compromission de l'hôte est nécessairement confirmée",
+        "Le trafic a forcément été bloqué",
+        "Un motif correspond à la règle ; il faut vérifier le contexte, l'action et les preuves pour déterminer l'impact",
+        "Le capteur a automatiquement corrigé la vulnérabilité"
+      ],
+      "answer": 2,
+      "explanation": "La gravité de la règle n'est pas une preuve de succès de l'attaque. Il faut distinguer tentative, trafic bloqué, faux positif et compromission confirmée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un comportement recommandé lorsqu'une signature IPS produit un faux positif confirmé ?",
+      "choices": [
+        "Désactiver toutes les signatures du capteur",
+        "Autoriser sans limite tout le trafic de la source",
+        "Supprimer les journaux de l'incident",
+        "Appliquer une exception minimale et documentée, puis tester que les autres détections restent effectives"
+      ],
+      "answer": 3,
+      "explanation": "Une exception précise et révisée réduit le bruit sans ouvrir une brèche générale. La correction doit être validée par des tests positifs et négatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un NIDS passif peut-il manquer le contenu d'une session HTTPS ?",
+      "choices": [
+        "La charge utile est chiffrée ; le capteur ne voit pas automatiquement le texte en clair",
+        "HTTPS ne traverse jamais un réseau Ethernet",
+        "Un NIDS ne voit jamais d'adresse IP",
+        "Tous les certificats empêchent la capture des paquets"
+      ],
+      "answer": 0,
+      "explanation": "Le capteur peut voir les adresses, ports, tailles et certaines métadonnées, mais l'inspection du contenu demande une visibilité adaptée. D'autres sources, comme endpoint et logs serveur, complètent la détection."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une baseline dans la détection comportementale ?",
+      "choices": [
+        "À désactiver les signatures inconnues",
+        "À décrire les comportements attendus pour identifier les écarts nécessitant une investigation",
+        "À prouver que le réseau ne contient aucun attaquant",
+        "À remplacer la synchronisation horaire"
+      ],
+      "answer": 1,
+      "explanation": "Une baseline donne une référence contextualisée. Un écart est un signal à vérifier, pas une preuve automatique d'attaque ; la baseline doit évoluer avec les changements légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel objectif a la corrélation IDS/EDR/DNS/SIEM ?",
+      "choices": [
+        "Remplacer tous les capteurs réseau",
+        "Augmenter la gravité de chaque événement",
+        "Rapprocher les signaux de plusieurs sources afin d'améliorer le contexte et l'investigation",
+        "Garantir qu'aucun faux négatif ne peut se produire"
+      ],
+      "answer": 2,
+      "explanation": "La corrélation associe par exemple l'alerte réseau aux processus, aux événements d'identité et aux requêtes DNS. Elle améliore le contexte sans garantir la détection de toutes les attaques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier en premier lorsqu'un capteur n'émet aucune alerte pour un test connu ?",
+      "choices": [
+        "Bloquer tous les ports réseau",
+        "Déclarer que le test est inoffensif et arrêter l'analyse",
+        "Mettre immédiatement le capteur inline",
+        "La visibilité du trafic, les pertes de capture, les règles chargées et la configuration de journalisation"
+      ],
+      "answer": 3,
+      "explanation": "L'absence d'alerte peut provenir d'un défaut de capture, d'une règle inactive, du chiffrement ou de la collecte. Il faut prouver que le capteur observe bien le flux attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester le mode fail-open ou fail-closed avant un déploiement IPS ?",
+      "choices": [
+        "Parce que le comportement en panne affecte le compromis entre continuité du trafic et maintien du contrôle de sécurité",
+        "Parce que les IPS n'ont pas besoin de règles quand ils sont en panne",
+        "Parce que cela supprime les besoins de redondance",
+        "Parce que fail-open et fail-closed sont toujours équivalents"
+      ],
+      "answer": 0,
+      "explanation": "Fail-open peut préserver la continuité mais laisser transiter du trafic sans inspection ; fail-closed privilégie le blocage mais peut interrompre le service. Le choix doit refléter le risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est la plus adaptée pour un réseau industriel critique ?",
+      "choices": [
+        "Activer immédiatement le blocage sur tous les protocoles",
+        "Commencer par une observation passive, construire une baseline et valider toute prévention avec les responsables OT",
+        "Tester des exploits sur les automates en production",
+        "Désactiver la collecte d'événements pour réduire la charge"
+      ],
+      "answer": 1,
+      "explanation": "Une observation passive aide à comprendre les communications attendues sans perturber la production. Une mise en inline ou un blocage exige des essais, une validation métier et un plan de reprise."
     }
   ]
 }
