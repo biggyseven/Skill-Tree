@@ -2268,7 +2268,7 @@
             : headings.filter(heading => (heading.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).pop();
           const targetId = precedingHeading && precedingHeading.id ? precedingHeading.id : '__top__';
           const targetLabel = precedingHeading
-            ? precedingHeading.textContent.replace(/\\s+/gu, ' ').trim().slice(0, 100)
+            ? precedingHeading.textContent.replace(/\s+/gu, ' ').trim().slice(0, 100)
             : 'Début du cours';
           const panel = article.closest('[role="dialog"]');
           const bounds = panel ? panel.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
