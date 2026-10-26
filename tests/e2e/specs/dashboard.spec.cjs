@@ -239,6 +239,48 @@ test('un cours peut être ouvert depuis la recherche puis fermé avec Échap', a
 });
 
 
+test('la navigation du lecteur respecte l’ordre pédagogique et contextualise la leçon suivante', async ({ page }) => {
+  await openDashboard(page);
+
+  const orderedIds = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    const originalNodes = state.nodes;
+    state.nodes = [...originalNodes].reverse();
+    const ordered = state.lessonSequence.slice(0, 3).map(node => node.id);
+    state.nodes = originalNodes;
+    return ordered;
+  });
+  expect(orderedIds).toEqual([
+    'intro-reseau-debutant',
+    'intro-reseau-intermediaire',
+    'intro-reseau-expert',
+  ]);
+
+  await page.evaluate(async () => {
+    const state = window.Alpine.$data(document.body);
+    await state.show('intro-reseau-debutant');
+  });
+
+  await expect(page.locator('#course-reader-title')).toHaveText("Qu'est-ce qu'un réseau ? - Débutant");
+  const navigation = page.getByRole('region', { name: 'Navigation entre les leçons' });
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByText('Début du parcours', { exact: true })).toBeVisible();
+  await expect(navigation.getByText('Étape 1 sur', { exact: false })).toBeVisible();
+
+  const nextLesson = navigation.getByRole('button', {
+    name: /Ouvrir la leçon suivante.*Qu'est-ce qu'un réseau.*Intermédiaire/,
+  });
+  await expect(nextLesson).toBeVisible();
+  await expect(nextLesson).toContainText('Intermédiaire');
+  await nextLesson.click();
+
+  await expect(page.locator('#course-reader-title')).toHaveText("Qu'est-ce qu'un réseau ? - Intermédiaire");
+  await expect(navigation.getByRole('button', {
+    name: /Ouvrir la leçon précédente.*Qu'est-ce qu'un réseau.*Débutant/,
+  })).toBeVisible();
+  await expect(navigation.getByText('Étape 2 sur', { exact: false })).toBeVisible();
+});
+
 test('un cours cybersécurité en attente affiche un état de préparation au lieu d’un lecteur vide', async ({ page }) => {
   await openDashboard(page);
 
