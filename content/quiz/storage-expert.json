@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Stockage Réseau (NAS/SAN)",
+      "prompt": "Lors d’un diagnostic de stockage, quelle distinction entre IOPS, débit et latence est correcte ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Ce sont trois noms différents pour la capacité totale du disque",
+        "Les IOPS mesurent seulement la température, le débit le nombre de fichiers et la latence la capacité",
+        "La latence indique uniquement la taille du volume",
+        "Les IOPS comptent les opérations par seconde, le débit mesure les données transférées par unité de temps et la latence mesure le délai d’une opération"
+      ],
+      "answer": 3,
+      "explanation": "Ces indicateurs décrivent des dimensions différentes ; il faut les interpréter avec la taille et le type d’E/S, la concurrence, la profondeur de file et les objectifs applicatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande est couramment utile pour observer les statistiques détaillées des périphériques bloc à intervalles réguliers ?",
+      "choices": [
+        "`iostat -xz 1`",
+        "`whoami --disk`",
+        "`chmod -R 640 /dev`",
+        "`ip neigh show`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "`iostat -x` affiche des indicateurs étendus de périphériques et `1` demande un nouvel échantillon chaque seconde ; les indicateurs doivent être interprétés dans le contexte de la charge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment utiliser `fio` avec le moins de risque pendant un test de performance ?",
+      "choices": [
+        "Lancer immédiatement un test destructif sur le périphérique de production actif",
+        "Définir un scénario et une durée maîtrisés sur un fichier de test ou un périphérique de laboratoire explicitement dédié, en vérifiant la cible avant d’écrire",
+        "Exécuter plusieurs tests concurrents sans limite de débit",
+        "Désactiver les sauvegardes et la supervision pendant le test"
+      ],
+      "answer": 1,
+      "explanation": "`fio` peut générer une charge intensive et certaines configurations écrivent directement sur la cible ; un test reproductible exige une cible dédiée, des paramètres bornés et une fenêtre autorisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi RAID ne remplace-t-il pas une stratégie de sauvegarde ?",
+      "choices": [
+        "RAID interdit toute lecture après la panne d’un disque",
+        "RAID conserve toujours plusieurs copies historiques hors ligne",
+        "RAID peut répliquer des suppressions, corruptions ou rançongiciels sans fournir un historique indépendant",
+        "RAID rend inutile le test de restauration"
+      ],
+      "answer": 2,
+      "explanation": "La redondance RAID cible certaines pannes matérielles ; elle ne garantit pas la récupération d’un état antérieur après une corruption, une suppression ou une compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle limite doit-on garder à l’esprit avec un snapshot de volume ?",
+      "choices": [
+        "Il peut partager le même domaine de panne ou dépendre du volume d’origine, et ne remplace pas à lui seul une sauvegarde indépendante",
+        "Il constitue toujours une copie hors site et immuable",
+        "Il garantit la cohérence transactionnelle de toute application",
+        "Il supprime le besoin de tester la restauration"
+      ],
+      "answer": 0,
+      "explanation": "Un snapshot peut être utile pour un retour rapide, mais il peut dépendre du même stockage et nécessiter des mécanismes de cohérence ; une sauvegarde séparée et testée reste nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est crucial pour une architecture chiffrée avec LUKS ?",
+      "choices": [
+        "Conserver toutes les clés uniquement dans un fichier texte sur le volume chiffré",
+        "Supprimer les procédures de récupération après le chiffrement",
+        "Vérifier seulement que le volume porte le bon nom",
+        "Protéger les clés et leurs sauvegardes, tester la procédure de récupération autorisée et documenter les responsabilités"
+      ],
+      "answer": 3,
+      "explanation": "Le chiffrement protège les données si les clés restent maîtrisées ; une perte des seules clés utilisables peut rendre les données irrécupérables, d’où l’importance de la récupération sécurisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt principal du multipathing dans un environnement de stockage pris en charge ?",
+      "choices": [
+        "Additionner automatiquement toutes les capacités en un seul système de fichiers",
+        "Maintenir des chemins d’accès redondants vers un stockage et, selon la configuration, basculer lorsqu’un chemin échoue",
+        "Remplacer la supervision du stockage par le seul nombre de chemins",
+        "Garantir qu’aucun contrôleur ne tombera jamais en panne"
+      ],
+      "answer": 1,
+      "explanation": "Le multipathing peut maintenir l’accès via des chemins alternatifs lorsqu’un chemin est défaillant ; le zoning, les pilotes, les politiques de chemins et les tests de basculement doivent être cohérents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de retirer un support de stockage contenant des données sensibles, quelle approche est la plus appropriée ?",
+      "choices": [
+        "Supprimer les raccourcis visibles dans le système de fichiers uniquement",
+        "Déplacer les fichiers dans la corbeille et déclarer le support effacé",
+        "Appliquer une procédure d’assainissement adaptée au support et à la politique, en vérifiant notamment les copies de clés si un effacement cryptographique est utilisé",
+        "Renommer le périphérique puis le débrancher"
+      ],
+      "answer": 2,
+      "explanation": "La suppression de fichiers ne garantit pas l’effacement des données. L’assainissement doit être adapté au type de support, aux exigences de conformité et à la gestion des clés éventuelles."
     }
   ]
 }
