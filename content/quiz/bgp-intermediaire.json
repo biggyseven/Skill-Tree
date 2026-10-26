@@ -1,1 +1,102 @@
-{"node_id":"bgp-intermediaire","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel port TCP est utilisé par BGP ?","choices":["179","89","110","443"],"answer":0,"explanation":"BGP utilise le port TCP 179 pour établir ses sessions."},{"type":"qcm","prompt":"Quel état BGP indique que la connexion TCP n'arrive pas à s'établir ?","choices":["Active","Established","OpenSent","Connect"],"answer":0,"explanation":"L'état 'Active' signifie que le routeur essaie de se connecter (ou d'accepter) en TCP mais n'y arrive pas."},{"type":"qcm","prompt":"Quelle règle empêche un routeur iBGP de transmettre une route apprise via iBGP à un autre voisin iBGP ?","choices":["La règle du Split Horizon (BGP)","La règle du Next-Hop","La règle de l'AS_PATH","La règle de l'Administrative Distance"],"answer":0,"explanation":"Pour éviter les boucles, un routeur iBGP ne transmet pas une route iBGP à un autre routeur iBGP."},{"type":"qcm","prompt":"À quoi sert la commande 'next-hop-self' ?","choices":["À modifier l'adresse Next-Hop annoncée à un voisin","À changer sa propre adresse IP","À ignorer le Next-Hop","À redémarrer la session BGP"],"answer":0,"explanation":"'next-hop-self' force le routeur à s'annoncer lui-même comme prochain saut pour les routes venant d'eBGP."}]}
+{
+  "node_id": "bgp-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel port TCP BGP utilise-t-il normalement ?",
+      "choices": [
+        "TCP 179",
+        "TCP 22",
+        "UDP 179",
+        "TCP 53"
+      ],
+      "answer": 0,
+      "explanation": "Les speakers BGP écoutent et tentent de se connecter au port TCP 179 pour leurs sessions avec les peers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie principalement l’état BGP Active ?",
+      "choices": [
+        "Le voisin échange déjà des routes dans une session établie",
+        "Le routeur a choisi la meilleure route et n’a plus besoin de TCP",
+        "BGP effectue ou retente l’établissement d’une connexion TCP ; l’état seul ne prouve pas la cause du problème",
+        "Le voisin est désactivé de façon permanente"
+      ],
+      "answer": 2,
+      "explanation": "Active fait partie de la machine à états BGP et indique généralement une tentative ou répétition de connexion. Il faut inspecter la reachabilité, TCP, l’AS distant, l’authentification éventuelle et les logs plutôt que déduire une seule cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle règle habituelle limite la propagation des routes à l’intérieur d’un AS ?",
+      "choices": [
+        "Une route iBGP apprise n’est normalement pas réannoncée à un autre voisin iBGP, sauf mécanismes comme route reflection ou confédération",
+        "Une route eBGP apprise ne peut jamais être annoncée à un autre voisin",
+        "Les routes BGP sont toujours bloquées après le premier routeur",
+        "BGP ne transporte aucune route entre voisins"
+      ],
+      "answer": 0,
+      "explanation": "La règle iBGP split horizon évite de réannoncer à un autre peer iBGP une route apprise via iBGP. Les route reflectors et confédérations sont des mécanismes d’architecture prévus pour réduire la nécessité d’une full mesh."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert `neighbor A.B.C.D next-hop-self` sur une configuration Cisco IOS/IOS XE compatible ?",
+      "choices": [
+        "À changer l’adresse source de la session TCP sans autre effet",
+        "À remplacer le numéro d’AS distant",
+        "À désactiver les routes BGP apprises par iBGP",
+        "À annoncer au voisin le routeur local comme next hop pour les routes concernées, selon les règles de la plateforme"
+      ],
+      "answer": 3,
+      "explanation": "Next-hop-self change le NEXT_HOP annoncé au voisin pour les routes auxquelles la commande s’applique. C’est utile, par exemple, lorsqu’un next hop eBGP n’est pas joignable depuis les routeurs iBGP internes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert généralement LOCAL_PREF à l’intérieur d’un AS BGP ?",
+      "choices": [
+        "À choisir une préférence de sortie : une valeur plus élevée est normalement préférée entre routes admissibles vers la même destination",
+        "À accélérer l’authentification TCP",
+        "À désigner le Root Bridge de VLAN 10",
+        "À mesurer le délai physique d’un câble"
+      ],
+      "answer": 0,
+      "explanation": "LOCAL_PREF exprime la préférence de sortie au sein de l’AS et est distribué aux peers internes. Une valeur plus élevée est préférée dans la phase de préférence BGP, sous réserve des politiques et conditions d’éligibilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi mettre en place un filtrage de préfixes et une politique d’import/export au lieu d’accepter toutes les annonces BGP ?",
+      "choices": [
+        "Pour garantir que toutes les routes Internet soient installées",
+        "Pour empêcher l’usage de TCP",
+        "Pour contrôler les routes recevables et annoncées, limiter les fuites de routes et faire respecter les politiques de l’AS",
+        "Pour remplacer toutes les sessions eBGP par iBGP"
+      ],
+      "answer": 2,
+      "explanation": "BGP transporte des routes selon les politiques configurées ; les filtres et politiques d’import/export limitent les annonces, réduisent le risque de fuite et contrôlent les destinations accessibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement est normal lorsqu’une session BGP est établie mais qu’aucun préfixe attendu n’apparaît ?",
+      "choices": [
+        "La session ne peut pas être Established si elle n’annonce aucune route",
+        "Il faut vérifier les politiques, les filtres, les préfixes présents dans la table locale et les routes acceptées/annoncées au voisin",
+        "Il faut changer tous les numéros de protocole IP",
+        "Il suffit de redémarrer STP"
+      ],
+      "answer": 1,
+      "explanation": "Une session TCP/BGP peut être établie sans routes attendues. Le diagnostic doit couvrir l’origine du préfixe, les règles network/redistribution, les route-maps, les prefix-lists et les politiques du peer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un Route Reflector dans un réseau iBGP ?",
+      "choices": [
+        "Il remplace OSPF pour l’ensemble du réseau local",
+        "Il ajoute un numéro d’AS à tous les paquets IP",
+        "Il interdit toute route iBGP",
+        "Il permet à des routes d’être réfléchies entre des clients iBGP désignés, réduisant le besoin d’une full mesh iBGP"
+      ],
+      "answer": 3,
+      "explanation": "Un Route Reflector permet de réduire la topologie full mesh iBGP en réfléchissant des routes conformément aux règles et attributs de route reflection."
+    }
+  ]
+}
