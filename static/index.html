@@ -1231,11 +1231,11 @@
             <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-white" x-text="l.icon + ' ' + l.label"></h3>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <template x-for="n in labNodes.filter(x => levelOf(x) === l.id)" :key="n.id">
-                <button type="button" class="card-sm text-left transition hover:border-cyan-400/40" @click="openLab(n.id)">
+                <a :href="'/?openLab=' + encodeURIComponent(n.id)" target="_blank" rel="noopener noreferrer" class="card-sm block text-left transition hover:border-cyan-400/40" @click.prevent="openLab(n.id, true)">
                   <div class="flex items-center justify-between gap-2"><span class="chip" x-text="moduleMeta(moduleOf(n)).short"></span><span class="text-xs" :class="isLabDone(n.id) ? 'text-emerald-400' : 'text-zinc-500'" x-text="isLabDone(n.id) ? '✅ Réussi' : 'À faire'"></span></div>
                   <p class="mt-2 text-sm font-bold text-white" x-text="n.title"></p>
                   <p class="mt-1 text-[11px] text-zinc-500" x-text="(labIndex[n.id].duration ? '⏱ ' + labIndex[n.id].duration + ' · ' : '') + (labIndex[n.id].difficulty || '')"></p>
-                </button>
+                </a>
               </template>
             </div>
           </div>
@@ -1897,9 +1897,9 @@
                 <div class="mt-3 flex flex-wrap gap-2"><span class="chip" x-show="detail.lab.duration" x-text="'⏱ ' + detail.lab.duration"></span><span class="chip" x-show="detail.lab.difficulty" x-text="detail.lab.difficulty"></span></div>
                 
                 <div class="mt-6">
-                  <button type="button" @click="openLab(detail.id, true)" class="rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                  <a :href="'/?openLab=' + encodeURIComponent(detail.id)" target="_blank" rel="noopener noreferrer" @click.prevent="openLab(detail.id, true)" class="rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg">
                     🧪 Ouvrir le Lab Workspace
-                  </button>
+                  </a>
                 </div>
               </div>
             </template>
@@ -2135,6 +2135,32 @@
             }
           });
           await this.refreshAll();
+
+          // Les liens de lab sont utilisables au clic comme depuis le menu contextuel natif.
+          // Le serveur v2 décide si le lab utilise le Workspace React ou le lecteur historique.
+          const launchParams = new URLSearchParams(window.location.search);
+          const workspaceLabId = launchParams.get('openLab');
+          const legacyLabId = launchParams.get('openLegacyLab');
+          const requestedLabId = String(workspaceLabId || legacyLabId || '');
+          if (requestedLabId) {
+            if (workspaceLabId) {
+              try {
+                const response = await fetch(`/api/lab/v2/${encodeURIComponent(requestedLabId)}`);
+                if (response.ok) {
+                  const payload = await response.json();
+                  if (!payload.sandbox) {
+                    window.location.replace(`/lab.html?id=${encodeURIComponent(requestedLabId)}`);
+                    return;
+                  }
+                }
+              } catch (error) {
+                console.warn('Le mode Workspace est indisponible ; ouverture du lecteur historique.', error);
+              }
+            }
+            await this.show(requestedLabId);
+            this.modalTab = 'lab';
+          }
+
           this.examCategory = this.examCategories[0]?.name || '';
           this.connectWebSocket();
         },
@@ -4268,7 +4294,7 @@
           if (!this.detail?.id) return;
           this.openLab(this.detail.id, true);
         },
-        async openLab(id, openInNewTab = false) {
+        async openLab(id, openInNewTab = true) {
           const nodeId = String(id || '');
           if (!nodeId) return;
 
@@ -4306,9 +4332,12 @@
             this.notify('Le Lab Workspace ne répond pas ; ouverture du laboratoire classique.');
           }
 
-          // Sans définition v2, conserver le lab classique dans la modale.
-          // Un nouvel onglet vide ne doit pas afficher une erreur de chargement V2.
-          if (openInNewTab && labWindow && !labWindow.closed) labWindow.close();
+          // Un lab historique garde son lecteur dans une page séparée.
+          // Le paramètre permet aussi au navigateur d'ouvrir ce lien nativement dans un nouvel onglet.
+          if (openInNewTab) {
+            navigate(`/?openLegacyLab=${encodeURIComponent(nodeId)}`);
+            return;
+          }
           await this.show(nodeId);
           this.modalTab = 'lab';
         },
