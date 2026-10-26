@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité des commutateurs (Couche 2) » : à rédiger après le cours complet.",
+      "prompt": "Quel est le rôle principal de DHCP Snooping sur un commutateur compatible ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Chiffrer toutes les trames du VLAN",
+        "Bloquer certaines réponses DHCP provenant de ports non fiables et construire une base de bindings",
+        "Remplacer la passerelle par défaut des clients",
+        "Empêcher toutes les communications entre VLAN"
+      ],
+      "answer": 1,
+      "explanation": "DHCP Snooping contrôle les messages DHCP selon le statut trusted/untrusted des interfaces et peut apprendre les liaisons IP-MAC-VLAN-port utilisées par d'autres mécanismes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un port terminal où aucun pont n'est attendu, à quoi sert généralement BPDU Guard ?",
+      "choices": [
+        "À chiffrer les annonces Spanning Tree",
+        "À attribuer dynamiquement une adresse IP",
+        "À réagir lorsqu'une BPDU inattendue arrive sur le port",
+        "À autoriser tous les VLAN sur le port"
+      ],
+      "answer": 2,
+      "explanation": "BPDU Guard protège les ports terminaux contre des BPDU inattendues. Selon la plateforme, l'interface peut passer dans un état de protection ou être désactivée ; il ne faut pas l'appliquer aveuglément sur des liens qui doivent recevoir des BPDU."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi DAI peut-il bloquer une imprimante configurée avec une adresse IP statique ?",
+      "choices": [
+        "Parce que toute adresse statique est interdite par Ethernet",
+        "Parce que DAI désactive les adresses MAC",
+        "Parce que l'imprimante doit obligatoirement devenir un trunk",
+        "Parce que la correspondance IP-MAC de l'imprimante peut manquer dans les bindings DHCP et nécessiter une exception statique prise en charge"
+      ],
+      "answer": 3,
+      "explanation": "DAI s'appuie souvent sur les bindings appris par DHCP Snooping. Les hôtes à IP statique doivent être inventoriés et traités explicitement par des bindings ou ACL ARP compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle configuration est la plus appropriée pour un port connecté directement à un PC ordinaire ?",
+      "choices": [
+        "Fixer le port en mode access sur le VLAN prévu et désactiver la négociation de trunk inutile",
+        "Autoriser tous les VLAN et laisser le PC négocier un trunk",
+        "Le configurer trusted pour toutes les protections sans analyse",
+        "Le placer dans le VLAN de gestion"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Un terminal ordinaire n'a généralement pas besoin d'un trunk. Le rôle access et le VLAN explicite réduisent le risque de trunk non autorisé ; les options exactes dépendent du constructeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que limite principalement port security lorsqu'il est correctement pris en charge et configuré ?",
+      "choices": [
+        "Les routes entre tous les VLAN",
+        "Le nombre ou les adresses MAC apprises et autorisées sur une interface",
+        "La validité cryptographique des certificats utilisateur",
+        "Les annonces de routeur IPv6 sur tout le réseau"
+      ],
+      "answer": 1,
+      "explanation": "Port security peut limiter ou surveiller les adresses MAC sur un port, avec différents modes de violation selon la plateforme. Ce contrôle n'est pas à lui seul une authentification forte de l'utilisateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un rôle approprié d'IP Source Guard ?",
+      "choices": [
+        "Remplacer DHCP par des adresses statiques",
+        "Permettre automatiquement tout le trafic provenant d'un trunk",
+        "Limiter les adresses IP source autorisées sur un port L2 selon des bindings connus ou statiques",
+        "Élire la racine STP"
+      ],
+      "answer": 2,
+      "explanation": "IP Source Guard utilise généralement des bindings appris par DHCP Snooping ou configurés statiquement pour limiter l'usurpation de source IP sur certains ports."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il restreindre les VLAN autorisés sur les trunks ?",
+      "choices": [
+        "Pour rendre chaque VLAN routable automatiquement",
+        "Pour imposer une adresse MAC unique à chaque serveur",
+        "Pour désactiver le protocole 802.1Q",
+        "Pour éviter de transporter des VLAN qui n'ont aucune raison d'emprunter ce lien et réduire la portée d'une erreur"
+      ],
+      "answer": 3,
+      "explanation": "Les trunks doivent transporter uniquement les VLAN nécessaires à la fonction du lien. Il faut aussi vérifier les deux extrémités et la cohérence du VLAN natif selon l'architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement 802.1X ?",
+      "choices": [
+        "C'est un cadre de contrôle d'accès au port fondé sur l'authentification, souvent intégré à un serveur RADIUS",
+        "C'est une méthode de chiffrement de tous les paquets IP",
+        "C'est un protocole de découverte d'adresses MAC uniquement",
+        "C'est un protocole qui remplace toujours le routage inter-VLAN"
+      ],
+      "answer": 0,
+      "explanation": "802.1X permet de contrôler l'accès au réseau selon l'authentification. Le supplicant, l'authenticator et le serveur d'authentification interviennent selon la méthode choisie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il considérer séparément les protections IPv6 ?",
+      "choices": [
+        "Parce que IPv6 utilise exactement ARP et les mêmes paquets DHCPv4",
+        "Parce que DHCP Snooping et DAI IPv4 ne couvrent pas automatiquement les mécanismes IPv6 tels que Router Advertisements et Neighbor Discovery",
+        "Parce que IPv6 ne fonctionne jamais dans un VLAN",
+        "Parce que IPv6 désactive automatiquement tous les commutateurs"
+      ],
+      "answer": 1,
+      "explanation": "IPv6 utilise notamment Neighbor Discovery et Router Advertisements. Les protections IPv4 ne suffisent pas à couvrir ces mécanismes ; il faut inventorier IPv6 et configurer des contrôles compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est la plus sûre pour l'administration d'un commutateur ?",
+      "choices": [
+        "Utiliser Telnet et un mot de passe partagé par tous",
+        "Exposer l'interface de gestion à chaque VLAN utilisateur",
+        "Isoler le plan de gestion, limiter les sources, utiliser SSH et une authentification contrôlée, et centraliser les journaux",
+        "Désactiver les sauvegardes pour éviter les fichiers de configuration"
+      ],
+      "answer": 2,
+      "explanation": "Le plan de gestion donne des privilèges élevés. Il doit être restreint aux sources autorisées, utiliser des protocoles sûrs, des comptes contrôlés, des sauvegardes protégées et une journalisation exploitable."
     }
   ]
 }

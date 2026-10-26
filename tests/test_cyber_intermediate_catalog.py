@@ -67,7 +67,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
             lesson = lesson_bytes.decode("utf-8")
             quiz = json.loads(quiz_bytes.decode("utf-8"))
             self.assertEqual(quiz["node_id"], node_id)
-            if node_id in {"secu-cia-debutant", "secu-menaces-debutant", "secu-crypto-debutant", "secu-hachage-debutant", "secu-auth-debutant", "secu-endpoint-debutant", "secu-wifi-debutant", "secu-firewall-debutant", "secu-acl-intermediaire", "secu-nat-intermediaire", "secu-vpn-intermediaire"}:
+            if node_id in {"secu-cia-debutant", "secu-menaces-debutant", "secu-crypto-debutant", "secu-hachage-debutant", "secu-auth-debutant", "secu-endpoint-debutant", "secu-wifi-debutant", "secu-firewall-debutant", "secu-acl-intermediaire", "secu-nat-intermediaire", "secu-vpn-intermediaire", "secu-switch-secu-intermediaire"}:
                 self.assertTrue(
                     lesson.startswith(f"# {title}\n\n> **Mise en contexte**")
                     or lesson.startswith(f"# {title}\n\n> **Encadré de mise en contexte**")
