@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Architecture Zero Trust - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi cartographier les ressources et les flux avant de mettre en application des règles Zero Trust restrictives ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour attribuer la même règle à tous les serveurs sans différenciation",
+        "Pour apprendre les noms de tous les routeurs par cœur",
+        "Pour supprimer les journaux avant d’activer les contrôles",
+        "Pour identifier les dépendances légitimes et tester les politiques sans couper involontairement des flux nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "La cartographie révèle les relations entre identités, applications, services et données. L’observation avant blocage et un déploiement progressif aident à limiter les interruptions et les exceptions improvisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le modèle de référence NIST, quelle description du Policy Decision Point (PDP) et du Policy Administrator (PA) est la plus juste ?",
+      "choices": [
+        "Le PDP évalue la politique et les informations de contexte ; le PA exécute la décision en pilotant notamment le PEP qui établit ou termine le chemin d’accès",
+        "Le PDP distribue les adresses IP, tandis que le PA chiffre les disques",
+        "Le PDP est toujours le navigateur de l’utilisateur et le PA est toujours le pare-feu d’accès Internet",
+        "Le PDP et le PA désignent exclusivement deux protocoles de routage"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le modèle NIST décompose logiquement la décision et son exécution : le Policy Engine/Decision Point évalue l’accès, et le Policy Administrator coordonne la mise en application par les PEP. Le déploiement peut regrouper ces fonctions dans un même service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un contrôle de posture d’appareil indique qu’un poste est chiffré et à jour. Quelle décision est la plus conforme à Zero Trust ?",
+      "choices": [
+        "Autoriser toutes les ressources de l’entreprise sans autre contrôle",
+        "Révoquer automatiquement tous les accès de tous les utilisateurs",
+        "Utiliser la posture comme un signal parmi d’autres, puis évaluer l’identité, la ressource, les droits et le contexte",
+        "Remplacer toutes les politiques d’autorisation par un contrôle antivirus"
+      ],
+      "answer": 2,
+      "explanation": "La posture de l’appareil fournit un signal utile, mais ne suffit pas à autoriser toutes les actions. L’évaluation combine identité, état de l’appareil, sensibilité de la ressource et autres règles de risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel exemple correspond à une authentification généralement considérée comme résistante au phishing ?",
+      "choices": [
+        "Un code SMS que l’utilisateur recopie après avoir reçu un lien inconnu",
+        "Une authentification cryptographique liée au site et au protocole, par exemple une clé de sécurité FIDO2/WebAuthn lorsque le déploiement le prend en charge",
+        "Un mot de passe partagé affiché dans un fichier réseau",
+        "Une adresse IP source connue sans authentification d’identité"
+      ],
+      "answer": 1,
+      "explanation": "Les mécanismes FIDO2/WebAuthn peuvent lier l’authentification au domaine et réduire le risque de phishing. Leur force réelle dépend du déploiement, de l’enrôlement et de la récupération des comptes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment une exception temporaire à une politique d’accès devrait-elle être gérée ?",
+      "choices": [
+        "Laisser l’exception permanente après la première approbation",
+        "Partager l’exception avec tous les groupes pour simplifier l’administration",
+        "Supprimer toute trace de son approbation pour réduire le bruit",
+        "La limiter à un besoin et un périmètre, définir un propriétaire et une expiration, puis la surveiller et la réexaminer"
+      ],
+      "answer": 3,
+      "explanation": "Les exceptions doivent avoir une justification, une portée minimale, un propriétaire, une date de fin et des contrôles compensatoires adaptés. Un examen périodique évite qu’elles deviennent une voie d’accès permanente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique réduit les risques associés aux identités de service et aux secrets d’application ?",
+      "choices": [
+        "Utiliser des identités distinctes à privilèges minimaux, protéger les secrets et préférer des justificatifs à durée limitée renouvelés de façon contrôlée quand la plateforme le permet",
+        "Réutiliser le compte administrateur d’un ingénieur dans toutes les applications",
+        "Inclure le secret permanent dans le dépôt de code pour faciliter les déploiements",
+        "Désactiver toute révocation afin de maintenir les sessions"
+      ],
+      "answer": 0,
+      "explanation": "Les comptes de service doivent être gérés comme des identités à part entière. Des justificatifs limités, rotatifs et révocables réduisent la portée d’une fuite et facilitent l’audit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d’appliquer une politique d’accès restrictive à toutes les applications, quel mode de déploiement est le plus prudent ?",
+      "choices": [
+        "Déployer immédiatement la même règle partout sans tests",
+        "Désactiver les contrôles si une demande d’accès échoue",
+        "Observer les décisions, comparer aux flux légitimes, tester les cas autorisés et refusés, puis appliquer progressivement avec un plan de retour arrière",
+        "Réduire la durée des journaux à zéro"
+      ],
+      "answer": 2,
+      "explanation": "Un mode d’observation ou un pilote permet de repérer les flux oubliés et d’affiner les règles. Une activation par étapes, avec tests négatifs et positifs et procédure de retour arrière, réduit le risque opérationnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu apporte le plus de valeur dans un journal de décision d’accès en exploitation ?",
+      "choices": [
+        "Le jeton complet d’authentification afin de rejouer la session",
+        "Un identifiant de corrélation, le sujet, la ressource, l’action, le résultat et les motifs/signaux pertinents avec une collecte proportionnée",
+        "Le mot de passe de l’utilisateur dans chaque événement",
+        "Uniquement un compteur quotidien global sans horodatage"
+      ],
+      "answer": 1,
+      "explanation": "Des événements contextualisés permettent l’investigation et la mesure de la politique. Évite de journaliser les secrets ou d’accumuler des données sensibles qui ne sont pas nécessaires à l’objectif."
     }
   ]
 }
