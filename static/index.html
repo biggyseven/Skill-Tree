@@ -4088,7 +4088,13 @@
           });
           const spoken = [];
           if (relationships.length) spoken.push('Le schéma présente les relations suivantes. ' + relationships.join(' '));
-          if (allLabels.length) spoken.push('Les éléments représentés sont : ' + allLabels.join(', ') + '.');
+          const otherLabels = allLabels.filter(label =>
+            !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR')))
+          );
+          if (otherLabels.length) spoken.push(
+            (relationships.length ? 'Autres libellés du schéma : ' : 'Les éléments représentés sont : ')
+              + otherLabels.join(', ') + '.'
+          );
           if (!spoken.length) {
             const guide = '';
             spoken.push(guide || 'Diagramme. Les éléments visuels ne possèdent pas tous un libellé lisible ; consulte aussi la description textuelle du cours.');
@@ -4098,7 +4104,15 @@
         speechTextFromDiagramRoot(root) {
           if (!root) return [];
           const table = root.querySelector('table') || (root.matches('table') ? root : null);
-          if (table) return this.speechTextFromTable(table);
+          if (table) {
+            const spokenTable = this.speechTextFromTable(table);
+            const figureCaption = this.cleanSpeechVisualText(root.querySelector('figcaption')?.textContent || '');
+            const tableCaption = this.cleanSpeechVisualText(table.querySelector('caption')?.textContent || '');
+            if (figureCaption && figureCaption.toLocaleLowerCase('fr-FR') !== tableCaption.toLocaleLowerCase('fr-FR')) {
+              spokenTable.unshift('Tableau : ' + figureCaption + '.');
+            }
+            return spokenTable;
+          }
           const captionNode = root.querySelector('figcaption');
           const titleNode = root.querySelector('svg title, svg desc, title, desc');
           const image = root.querySelector('img[alt], img[title]') || (root.matches('img') ? root : null);
@@ -4344,7 +4358,19 @@
               // Le fallback conserve les points, interrogations, exclamations, points-virgules et deux-points.
               sentences = paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
             }
-            sentences.forEach(appendSentence);
+            // Garder plusieurs phrases voisines dans un même segment audio pour une prosodie
+            // plus continue ; ne couper qu’aux limites de paragraphe ou lorsqu’un segment devient long.
+            let group = '';
+            sentences.forEach(sentence => {
+              const candidate = group ? group + ' ' + sentence : sentence;
+              if (group && candidate.length > maxLength) {
+                appendSentence(group);
+                group = sentence;
+              } else {
+                group = candidate;
+              }
+            });
+            if (group) appendSentence(group);
           }
           return chunks;
         },
