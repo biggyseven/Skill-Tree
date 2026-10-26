@@ -934,7 +934,3 @@ Le niveau intermédiaire apprend à structurer et tester une infrastructure rée
 - Tests Terraform : https://developer.hashicorp.com/terraform/language/tests
 - Contraintes de versions : https://developer.hashicorp.com/terraform/language/expressions/version-constraints
 - Meta-arguments : https://developer.hashicorp.com/terraform/language/meta-arguments
-
-**Fichier :** `terraform-intermediaire.md`  
-**Niveau :** Intermédiaire  
-**Fin du cours**
