@@ -1043,7 +1043,7 @@ def save_lab_topology_v2(lab_id: str, payload: dict[str, Any] = Body(...)) -> di
     except HTTPException:
         conn.rollback()
         raise
-    except sqlite3.Error as error:
+    except sqlite3.ERROR_CLASSES as error:
         conn.rollback()
         raise HTTPException(status_code=500, detail=f"Erreur SQLite pendant la sauvegarde : {error}")
     finally:
@@ -1091,7 +1091,7 @@ def load_lab_topology_v2(lab_id: str) -> dict[str, Any]:
         }
     except HTTPException:
         raise
-    except sqlite3.Error as error:
+    except sqlite3.ERROR_CLASSES as error:
         raise HTTPException(status_code=500, detail=f"Erreur SQLite pendant le chargement : {error}")
     finally:
         conn.close()
