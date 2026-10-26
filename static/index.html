@@ -4148,9 +4148,20 @@
           } else if (source && ascii) {
             spoken.push(...this.speechTextFromAsciiDiagram(source));
           } else if (svg) {
-            const labels = Array.from(svg.querySelectorAll('text')).map(node => this.cleanSpeechVisualText(node.textContent)).filter(Boolean);
+            const textNodes = Array.from(svg.querySelectorAll('text'));
+            const candidates = textNodes.length ? textNodes : Array.from(svg.querySelectorAll('foreignObject, title, desc, [aria-label]'));
+            const labels = candidates
+              .map(node => this.cleanSpeechVisualText(node.textContent || node.getAttribute('aria-label') || ''))
+              .filter(Boolean);
             const uniqueLabels = labels.filter((label, index) => labels.findIndex(other => other.toLocaleLowerCase('fr-FR') === label.toLocaleLowerCase('fr-FR')) === index);
             if (uniqueLabels.length) spoken.push('Les éléments visibles du schéma sont : ' + uniqueLabels.join(', ') + '.');
+          } else if (!source && !image) {
+            // Certains schémas sont de simples blocs HTML (boîtes, colonnes, flèches CSS),
+            // sans source ASCII ni SVG. Lire leurs libellés visibles au lieu du guide générique.
+            const visualCopy = root.cloneNode(true);
+            visualCopy.querySelectorAll('.lesson-diagram-toolbar, .lesson-diagram-guide, .code-header, .lesson-diagram-kind, figcaption, button, script, style, [aria-hidden="true"]').forEach(node => node.remove());
+            const visualText = this.cleanSpeechVisualText(visualCopy.innerText || visualCopy.textContent || '');
+            if (visualText) spoken.push('Le schéma se lit ainsi : ' + visualText + '.');
           }
           if (image) {
             const alt = this.cleanSpeechVisualText(image.getAttribute('alt') || image.getAttribute('title') || '');
@@ -4317,6 +4328,10 @@
 
           return (readable.innerText || readable.textContent || '')
             .replace(/\r\n?/g, '\n')
+            // Les flèches insérées dans les phrases ou schémas inline doivent être dites en langage naturel.
+            .replace(/\s*(?:<-->|<->|↔)\s*/gu, ' communique avec ')
+            .replace(/\s*(?:<--|<-)\s*/gu, ' vient de ')
+            .replace(/\s*(?:--+>|==>|=>|->|→|⇒)\s*/gu, ' mène vers ')
             .replace(/[ \t]+/g, ' ')
             .replace(/\n[ \t]+/g, '\n')
             .replace(/\n{3,}/g, '\n\n')
