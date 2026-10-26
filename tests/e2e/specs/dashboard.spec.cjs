@@ -1,0 +1,123 @@
+const { test, expect } = require('@playwright/test');
+
+async function openDashboard(page) {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('button', { name: 'Ouvrir les paramètres' })).toBeVisible();
+
+  await expect.poll(async () => page.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return Array.isArray(state?.nodes) ? state.nodes.length : 0;
+  }), { timeout: 30_000 }).toBeGreaterThan(0);
+}
+
+test('le tableau de bord charge le parcours et la navigation principale', async ({ page }) => {
+  await openDashboard(page);
+
+  await expect(page.getByRole('navigation', { name: 'Navigation principale' })).toBeVisible();
+  await expect(
+    page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('button', { name: 'Défis' })
+  ).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', /.+/);
+});
+
+test('un clic extérieur ferme le menu Paramètres sans bloquer la navigation', async ({ page }) => {
+  await openDashboard(page);
+
+  const settingsButton = page.getByRole('button', { name: 'Ouvrir les paramètres' });
+  const settingsMenu = page.locator('div[x-show="settingsMenuOpen"]');
+  await settingsButton.click();
+  await expect(settingsMenu).toBeVisible();
+
+  const challengesButton = page
+    .getByRole('navigation', { name: 'Navigation principale' })
+    .getByRole('button', { name: 'Défis' });
+  await challengesButton.click();
+
+  await expect(settingsMenu).toBeHidden();
+  await expect(challengesButton).toHaveAttribute('aria-current', 'page');
+});
+
+test('le thème choisi reste actif après rechargement', async ({ page }) => {
+  await openDashboard(page);
+
+  await page.getByRole('button', { name: 'Ouvrir les paramètres' }).click();
+  const settingsMenu = page.locator('div[x-show="settingsMenuOpen"]');
+  await settingsMenu.getByRole('button', { name: 'Changer de thème' }).click();
+
+  const themeMenu = page.locator('div[x-show="themeMenuOpen"]');
+  const oceanTheme = themeMenu.getByRole('button', { name: 'Océan' });
+  await expect(oceanTheme).toBeVisible();
+  await oceanTheme.click();
+
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'ocean');
+  await expect(themeMenu.getByRole('button', { name: 'Océan' })).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('skilltree-theme2'))).toBe('ocean');
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'ocean');
+});
+
+test('la recherche de bureau se ferme avec Échap', async ({ page }) => {
+  await openDashboard(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await expect(searchInput).toBeVisible();
+
+  await searchInput.fill('OSI');
+  await expect(results).toBeVisible();
+  await searchInput.press('Escape');
+
+  await expect(results).toBeHidden();
+  await expect(searchInput).not.toBeFocused();
+});
+
+test('la recherche mobile est utilisable et se ferme avec Échap', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDashboard(page);
+
+  await expect(page.getByRole('navigation', { name: 'Navigation mobile' })).toBeVisible();
+  await page.getByRole('button', { name: 'Rechercher un cours', exact: true }).click();
+
+  const mobileSearch = page.locator('div[x-show="mobileSearchOpen"]');
+  const input = page.locator('input[x-ref="mobileSearchBox"]');
+  await expect(mobileSearch).toBeVisible();
+  await expect(input).toBeFocused();
+  await input.press('Escape');
+  await expect(mobileSearch).toBeHidden();
+});
+
+test('le centre de notifications se ferme avec Échap', async ({ page }) => {
+  await openDashboard(page);
+
+  await page.locator('button[aria-label^="Ouvrir les notifications"]').click();
+  const notifications = page.locator('div[x-show="notificationsOpen"]');
+  await expect(notifications).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(notifications).toBeHidden();
+});
+
+test('un cours peut être ouvert depuis la recherche puis fermé avec Échap', async ({ page }) => {
+  await openDashboard(page);
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+
+  const lessonResult = results.locator('button').filter({
+    hasText: "Qu'est-ce qu'un réseau ? - Débutant",
+  }).first();
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
+
+  const reader = page.locator('div[x-show="open"].fixed.inset-0');
+  const title = page.locator('#course-reader-title');
+  await expect(title).toBeVisible();
+  await expect(title).toHaveText("Qu'est-ce qu'un réseau ? - Débutant");
+  await expect(page.locator('[x-ref="lessonArticle"]')).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(reader).toBeHidden();
+});
