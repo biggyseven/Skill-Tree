@@ -6,6 +6,8 @@
 > **Objectif :** construire une infrastructure réseau modulaire, maîtriser les dépendances, tester les configurations et intégrer Terraform dans une chaîne de validation.
 
 
+> **Lien avec le parcours DevOps IaC :** ce cours met en pratique Terraform sur des architectures réseau, des modules et des dépendances. Le niveau intermédiaire IaC se concentre sur l’organisation des équipes, les contrats de composants et les contrôles de livraison, indépendamment de la syntaxe d’un outil.
+
 ## Sommaire
 
 1. Contexte et objectifs
