@@ -22,6 +22,7 @@ PRIORITY_TRACKS = {
     "ids-ips": ("ids-ips-debutant", "ids-ips-intermediaire", "ids-ips-expert"),
     "intro-reseau": ("intro-reseau-debutant", "intro-reseau-intermediaire", "intro-reseau-expert"),
     "iac": ("iac-debutant", "iac-intermediaire", "iac-expert"),
+    "terraform": ("terraform-debutant", "terraform-intermediaire", "terraform-expert"),
     "ipsec": ("ipsec-debutant", "ipsec-intermediaire", "ipsec-expert"),
     "ipv6": ("ipv6-debutant", "ipv6-intermediaire", "ipv6-expert"),
     "isis": ("isis-debutant", "isis-intermediaire", "isis-expert"),
