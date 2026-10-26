@@ -101,7 +101,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
         cyber = html[html.index("{ id: 'cybersecurite'"):]
         for title in ("ACL Avancées", "NAT & Périmètre", "VPN & IPsec", "Sécurité Web"):
             self.assertIn(title, cyber)
-        for title in ("Architecture Zero Trust", "Sécurité du Cloud (AWS/Azure/GCP)", "Red Team vs Blue Team vs Purple Team"):
+        for title in ("Zero Trust", "Cloud Security", "K8s Security", "DevSecOps", "IAM Avancé", "Pentest", "Analyse Malwares", "Forensique", "DFIR", "Gouvernance", "Routing Secu", "Vulnérabilités", "Supply Chain", "OT/ICS", "Red Team"):
             self.assertIn(title, cyber)
 
 
