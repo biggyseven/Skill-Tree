@@ -4,99 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Pourquoi séparer les états Terraform à grande échelle ?",
+      "prompt": "Pourquoi faut-il exploiter une plateforme IaC comme un produit interne ?",
       "choices": [
-        "Pour définir des frontières d’équipe et de responsabilité, réduire le rayon d’impact et clarifier les dépendances d’infrastructure",
-        "Pour rendre chaque ressource invisible aux audits",
-        "Pour garantir qu’aucune dépendance n’existe entre systèmes",
-        "Pour empêcher tout changement de configuration"
-      ],
-      "answer": 0,
-      "explanation": "La séparation des états peut limiter les effets d’un changement ou d’un incident et permettre une gouvernance distincte. Elle ajoute aussi un coût de coordination des dépendances."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel est un risque d’un module partagé mis à jour sans politique de version ?",
-      "choices": [
-        "Il devient automatiquement immuable",
-        "Il empêche le plan Terraform d’utiliser des providers",
-        "De nombreuses configurations peuvent changer de comportement lorsque la version du module évolue, sans validation contrôlée de leurs consommateurs",
-        "Il ne peut être utilisé que dans une région cloud"
+        "Pour forcer toutes les équipes à demander manuellement chaque changement",
+        "Pour remplacer les responsables des équipes produit",
+        "Pour fournir un chemin recommandé, des composants maintenus, des garanties compréhensibles et un support mesurable",
+        "Pour autoriser des exceptions permanentes sans propriétaire"
       ],
       "answer": 2,
-      "explanation": "Un module partagé peut avoir un rayon d’impact important. Le versionnement et les tests de compatibilité permettent de maîtriser quand les consommateurs adoptent une évolution."
+      "explanation": "Une plateforme interne réduit la charge cognitive tout en fournissant des garde-fous. Elle doit équilibrer autonomie, sécurité, support et évolution."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi une identité de pipeline à durée de vie courte ou une fédération OIDC est-elle intéressante ?",
+      "prompt": "Comment définir une frontière de gestion qui limite le rayon d’impact ?",
       "choices": [
-        "Elle permet de partager un secret administrateur permanent à tous les runners",
-        "Elle réduit la dépendance à des secrets statiques de longue durée, avec une identité et des permissions limitées selon la plateforme",
-        "Elle rend les permissions inutiles",
-        "Elle garantit que le code du dépôt ne sera jamais compromis"
-      ],
-      "answer": 1,
-      "explanation": "Les identités temporaires peuvent limiter la durée d’exposition des identifiants. La confiance OIDC et les permissions doivent tout de même être strictement configurées."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel est le rôle d’une politique « as code » dans la gouvernance IaC ?",
-      "choices": [
-        "Remplacer toutes les sauvegardes de state",
-        "Garantir que les coûts cloud sont toujours nuls",
-        "Appliquer les changements sans afficher de plan",
-        "Évaluer des configurations ou plans contre des règles explicites avant déploiement, avec des exceptions gouvernées"
-      ],
-      "answer": 3,
-      "explanation": "La politique comme code peut contrôler des exigences telles que chiffrement, régions ou exposition publique. Elle doit disposer de tests, d’une gestion des exceptions et d’un processus d’évolution."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que doit-on faire après la détection d’une dérive entre l’état Terraform et l’infrastructure réelle ?",
-      "choices": [
-        "Comparer le changement à l’état attendu, déterminer son origine et décider de l’importer, le corriger ou le réconcilier de façon contrôlée",
-        "Appliquer immédiatement un plan destructif sans revue",
-        "Effacer l’état pour faire disparaître l’alerte",
-        "Ignorer la dérive si les ressources répondent"
+        "En tenant compte des propriétaires, de la criticité, des dépendances, du cycle de vie et des besoins de reprise",
+        "En mettant toutes les ressources dans une unique configuration globale",
+        "En séparant arbitrairement chaque ressource dans un dépôt distinct",
+        "En choisissant uniquement le nombre de lignes de configuration"
       ],
       "answer": 0,
-      "explanation": "La dérive peut provenir d’un changement manuel, d’un défaut d’automatisation ou d’un événement externe. Il faut établir la source et comprendre les conséquences avant de réconcilier."
+      "explanation": "Les frontières doivent suivre les responsabilités et le risque. Un découpage trop large accroît l’impact potentiel ; un découpage excessif augmente la complexité des dépendances."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi un plan Terraform doit-il être réévalué lorsqu’un délai significatif s’écoule avant l’application ?",
+      "prompt": "Que doit définir une organisation qui utilise plusieurs outils pour provisionner et configurer l’infrastructure ?",
       "choices": [
-        "Le plan n’a jamais de lien avec l’état distant",
-        "Les ressources et l’état peuvent avoir changé depuis la création du plan ; il faut s’assurer que le plan appliqué est encore valide pour le contexte approuvé",
-        "Il est possible d’appliquer le plan sans consulter l’état",
-        "Le cloud ne permet pas les modifications concurrentes"
-      ],
-      "answer": 1,
-      "explanation": "Des changements externes peuvent rendre un plan périmé. Le mécanisme exact de protection varie selon l’état et la plateforme ; il faut s’assurer d’appliquer un résultat toujours valide et revu."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle pratique permet de réduire le rayon d’impact d’un déploiement IaC ?",
-      "choices": [
-        "Regrouper toute l’infrastructure de l’entreprise dans un seul état sans limites",
-        "Autoriser une identité unique à modifier tous les environnements",
-        "Séparer et borner les périmètres, appliquer par étapes, observer les résultats et définir des procédures de reprise",
-        "Ignorer les dépendances entre ressources"
-      ],
-      "answer": 2,
-      "explanation": "Des frontières explicites, des déploiements progressifs et des vérifications peuvent réduire la portée d’un incident. La meilleure structure dépend des dépendances et de l’organisation."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel contrôle doit accompagner l’automatisation d’un nettoyage ou remplacement de ressources ?",
-      "choices": [
-        "Le nom du fichier HCL uniquement",
-        "Le fait que le pipeline ait terminé sans erreur de syntaxe",
-        "La présence d’une ressource dans le cloud sans vérifier son propriétaire",
-        "Une analyse des opérations destructives, des sauvegardes/dépendances, une approbation adaptée et une preuve du retour arrière possible"
+        "Une convention selon laquelle tous les outils peuvent gérer simultanément chaque objet",
+        "Un seul compte administrateur partagé par tous les outils",
+        "Une règle interdisant toute intégration entre les équipes",
+        "Une matrice des responsabilités indiquant l’outil maître, le propriétaire, les interfaces et la procédure de transfert"
       ],
       "answer": 3,
-      "explanation": "Les opérations destructives doivent être traitées comme des changements à haut risque. La validation inclut l’impact, la récupération et la preuve que le résultat est conforme."
+      "explanation": "Les responsabilités doivent être explicites pour éviter la double gestion. Un transfert de gestion nécessite un état vérifié, un accord et une preuve que l’ancien processus a cessé d’agir."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une exception à une politique de sécurité ?",
+      "choices": [
+        "Un nom de projet sans échéance ni propriétaire",
+        "Une justification, une portée limitée, des mesures compensatoires, un responsable et une date d’expiration",
+        "Une désactivation globale de la politique pour tous les environnements",
+        "Un accord oral sans trace"
+      ],
+      "answer": 1,
+      "explanation": "Une exception contrôlée rend le risque visible et temporaire. Elle doit être suivie, réévaluée et fermée lorsque sa raison disparaît."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage apporte une identité de pipeline temporaire ou fédérée correctement configurée ?",
+      "choices": [
+        "Elle dispense de limiter les permissions",
+        "Elle autorise les contributions externes à lire tous les secrets",
+        "Elle réduit la dépendance aux secrets statiques de longue durée, tout en permettant un périmètre et une durée de permission limités",
+        "Elle garantit que les dépendances téléchargées sont toutes sûres"
+      ],
+      "answer": 2,
+      "explanation": "Les identités temporaires réduisent certains risques liés aux secrets durables, mais la confiance, les déclencheurs et les permissions doivent être strictement contrôlés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle série d’éléments permet de démontrer qu’un changement sensible a été contrôlé ?",
+      "choices": [
+        "La demande, la version, les tests, l’aperçu des effets, les approbations, l’identité d’application et la vérification post-déploiement",
+        "Uniquement le message de commit",
+        "Une capture d’écran du pipeline sans référence à la version",
+        "Le fichier de configuration sans journal de livraison"
+      ],
+      "answer": 0,
+      "explanation": "La preuve doit relier l’intention, le code exact, les contrôles, les autorisations et le résultat réel. Des journaux non rattachés à une version ne suffisent pas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la reprise après incident doit-elle distinguer state, configuration et sauvegardes applicatives ?",
+      "choices": [
+        "Parce que la configuration contient toutes les données utilisateur",
+        "Parce que le state est une sauvegarde complète du service en fonctionnement",
+        "Parce que restaurer le dépôt suffit à rétablir tous les services cloud",
+        "Parce que ces éléments répondent à des besoins différents : reconstruire la configuration, suivre les ressources et restaurer les données et le service"
+      ],
+      "answer": 3,
+      "explanation": "Le state aide à gérer les objets mais ne restaure pas leur contenu métier. Les procédures de reprise doivent couvrir identités, dépendances, données et validation du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur aide le mieux à mesurer la qualité d’une plateforme IaC ?",
+      "choices": [
+        "Le nombre total de fichiers de configuration créés",
+        "Un ensemble équilibré de mesures comme les échecs de changement, le délai de correction des dérives, les exceptions expirées et la réussite des tests de reprise",
+        "Le nombre de modules publiés, sans tenir compte de leur usage",
+        "Le nombre d’approbations manuelles, sans mesurer leur effet"
+      ],
+      "answer": 1,
+      "explanation": "La maturité doit mesurer le risque, la qualité et l’efficacité. Un indicateur isolé peut donner une image trompeuse si les incidents ou les contournements augmentent."
     }
   ]
 }
