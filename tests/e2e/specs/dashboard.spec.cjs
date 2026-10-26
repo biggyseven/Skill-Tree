@@ -37,6 +37,61 @@ test('un clic extérieur ferme le menu Paramètres sans bloquer la navigation', 
   await expect(challengesButton).toHaveAttribute('aria-current', 'page');
 });
 
+test('les préférences du centre de paramètres s’appliquent et persistent après rechargement', async ({ page }) => {
+  await openDashboard(page);
+
+  const settingsButton = page.getByRole('button', { name: 'Ouvrir les paramètres' });
+  await settingsButton.click();
+  const settings = page.locator('div[x-show="settingsMenuOpen"]');
+  await expect(settings).toBeVisible();
+  await expect(settings.getByText('Centre de préférences')).toBeVisible();
+
+  await settings.getByRole('checkbox', { name: 'Interface compacte' }).check();
+  await expect(page.locator('body')).toHaveClass(/compact-ui/);
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}');
+    return saved.compactUi;
+  })).toBe(true);
+
+  await settings.getByRole('checkbox', { name: 'Réduire les animations' }).check();
+  await expect(page.locator('html')).toHaveClass(/reduce-motion/);
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}');
+    return saved.reduceMotion;
+  })).toBe(true);
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('button', { name: 'Ouvrir les paramètres' })).toBeVisible();
+  await expect(page.locator('body')).toHaveClass(/compact-ui/);
+  await expect(page.locator('html')).toHaveClass(/reduce-motion/);
+
+  await settingsButton.click();
+  const reopenedSettings = page.locator('div[x-show="settingsMenuOpen"]');
+  await expect(reopenedSettings).toBeVisible();
+  await reopenedSettings.getByRole('button', { name: 'Agrandir la taille du texte' }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('skilltree-ui') || '{}').fs)).toBe(18);
+
+  await reopenedSettings.getByRole('button', { name: 'Rétablir les préférences d’affichage' }).click();
+  await expect(reopenedSettings).toBeHidden();
+  await expect(page.locator('body')).not.toHaveClass(/compact-ui/);
+  await expect(page.locator('html')).not.toHaveClass(/reduce-motion/);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('skilltree-ui') || '{}').fs)).toBe(17);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('skilltree-theme2'))).toBe('graphite');
+});
+
+test('l’export des données depuis Paramètres déclenche le téléchargement JSON', async ({ page }) => {
+  await openDashboard(page);
+
+  await page.getByRole('button', { name: 'Ouvrir les paramètres' }).click();
+  const settings = page.locator('div[x-show="settingsMenuOpen"]');
+  const downloadPromise = page.waitForEvent('download');
+  await settings.getByRole('button', { name: /Exporter mes données/ }).click();
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-\\d{4}-\\d{2}-\\d{2}\\.json$/);
+  await expect(settings).toBeHidden();
+});
+
 test('le thème choisi est persisté après rechargement', async ({ page }) => {
   await openDashboard(page);
 
