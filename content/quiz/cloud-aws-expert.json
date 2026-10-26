@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour AWS - Expert",
+      "prompt": "Quel est le rôle des Service Control Policies (SCP) dans AWS Organizations ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Définir des garde-fous sur les permissions maximales disponibles dans les comptes membres, sans accorder elles-mêmes les permissions",
+        "Accorder automatiquement tous les droits à chaque utilisateur",
+        "Remplacer chaque politique IAM de rôle",
+        "Configurer la route entre VPC"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Une SCP borne les actions disponibles ; une permission IAM doit toujours être accordée ailleurs pour permettre une action."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle question est essentielle lorsqu’un compte est intégré à une organisation AWS ?",
+      "choices": [
+        "Le nom de la première instance",
+        "Quels comptes, OU, SCP, rôles et journaux sont dans le périmètre de gouvernance",
+        "La couleur des tags",
+        "Le nombre d’objets S3"
+      ],
+      "answer": 1,
+      "explanation": "La gouvernance multi-comptes dépend de la hiérarchie, des garde-fous et de l’accès inter-comptes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment réduire le rayon d’impact d’un incident dans une architecture multi-comptes ?",
+      "choices": [
+        "Partager les clés root entre équipes",
+        "Utiliser un compte administrateur commun partout",
+        "Séparer les responsabilités et les comptes, appliquer le moindre privilège et centraliser les contrôles appropriés",
+        "Désactiver CloudTrail"
+      ],
+      "answer": 2,
+      "explanation": "La séparation des comptes et des accès limite certaines dépendances et facilite l’audit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de valider un design Transit Gateway multi-comptes, que faut-il analyser ?",
+      "choices": [
+        "Uniquement les noms des attachments",
+        "Le nombre d’adresses IP publiques",
+        "Les licences de l’éditeur uniquement",
+        "Tables de routage, associations/propagations, préfixes, segmentation et chemins de retour"
+      ],
+      "answer": 3,
+      "explanation": "Une topologie en hub n’offre pas par défaut la segmentation ou la joignabilité attendues ; les tables sont déterminantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme est utile pour des workloads hybrides qui doivent rejoindre des services AWS sans transit public quand c’est possible ?",
+      "choices": [
+        "Endpoints privés compatibles, associés à un design DNS et à des politiques cohérents",
+        "Ouverture de tous les Security Groups",
+        "Adressage public de chaque instance",
+        "Une route par défaut vers Internet sans filtrage"
+      ],
+      "answer": 0,
+      "explanation": "Les endpoints privés peuvent réduire l’exposition de certains accès AWS, avec des exigences de DNS, routage et autorisations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque de préfixes CIDR qui se chevauchent entre VPC et réseaux on-premises ?",
+      "choices": [
+        "Le chiffrement TLS devient impossible",
+        "Routage ambigu ou impossible, nécessitant une remédiation d’adressage ou une stratégie adaptée",
+        "CloudTrail cesse de journaliser",
+        "Le rôle IAM perd ses permissions"
+      ],
+      "answer": 1,
+      "explanation": "Les préfixes qui se chevauchent compliquent les connexions hybrides et le choix des routes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un plan PRA doit-il évaluer le rétablissement au-delà de l’état des ressources ?",
+      "choices": [
+        "Un statut « available » garantit les applications",
+        "Les zones de disponibilité remplacent la sauvegarde",
+        "La restauration des données, dépendances, DNS, routes et objectifs métier doit être testée",
+        "Les coûts n’ont aucun lien avec la reprise"
+      ],
+      "answer": 2,
+      "explanation": "Le PRA vise un service utilisable, avec données et dépendances cohérentes, dans les objectifs RTO/RPO."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche convient au changement d’une politique de sécurité IAM à grande échelle ?",
+      "choices": [
+        "Écraser les politiques sans analyser les utilisateurs",
+        "Donner des droits administrateur temporaires à tous",
+        "Supprimer les journaux avant le test",
+        "Analyser les appels requis, tester la restriction sur un périmètre réduit, observer puis étendre selon les critères"
+      ],
+      "answer": 3,
+      "explanation": "Une modification de permissions peut casser des workloads ; le plan doit préserver la visibilité et prévoir une récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les journaux centralisés sont-ils utiles dans une organisation multi-comptes ?",
+      "choices": [
+        "Ils facilitent la corrélation des événements entre comptes et améliorent l’audit, selon le périmètre collecté",
+        "Ils remplacent les contrôles d’accès",
+        "Ils autorisent les actions refusées",
+        "Ils garantissent la détection de toutes les attaques"
+      ],
+      "answer": 0,
+      "explanation": "La journalisation centralisée améliore la visibilité mais dépend des sources activées et ne garantit pas la détection complète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel document est le plus utile pour prouver qu’une architecture réseau est résiliente ?",
+      "choices": [
+        "Un schéma décoratif sans préfixes",
+        "Un dossier avec dépendances, scénarios de panne, capacité après incident et résultats de tests",
+        "Une capture du tableau de bord sans date",
+        "Le nom d’un service managé"
+      ],
+      "answer": 1,
+      "explanation": "La résilience doit être évaluée sur les scénarios de panne et la capacité réellement disponible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester les flux refusés en plus des flux autorisés ?",
+      "choices": [
+        "Pour ouvrir les ports par défaut",
+        "Pour réduire le nombre de journaux",
+        "Pour confirmer que la segmentation et les frontières de confiance bloquent les communications non prévues",
+        "Pour remplacer l’IAM"
+      ],
+      "answer": 2,
+      "explanation": "Des tests négatifs vérifient la politique de sécurité aussi bien que les tests positifs vérifient la fonctionnalité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle dimension doit entrer dans l’optimisation des coûts d’une architecture experte ?",
+      "choices": [
+        "Uniquement le coût de calcul horaire",
+        "Uniquement le nombre d’utilisateurs",
+        "Aucun coût de transfert n’existe",
+        "Calcul, stockage, réseau/transfert, haute disponibilité, licences et besoins opérationnels"
+      ],
+      "answer": 3,
+      "explanation": "Le coût total dépend de l’ensemble du chemin et des exigences de disponibilité et d’exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet une stratégie de comptes dédiée à la sécurité ou aux journaux ?",
+      "choices": [
+        "D’isoler certains contrôles et données d’audit des workloads opérationnels",
+        "D’éliminer toutes les permissions IAM",
+        "De remplacer les sauvegardes",
+        "De rendre les comptes membres indépendants des politiques d’organisation"
+      ],
+      "answer": 0,
+      "explanation": "Un compte séparé peut renforcer l’isolation de la journalisation et des outils de sécurité, selon sa gouvernance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est utile lors de l’examen d’un changement de routage hybride ?",
+      "choices": [
+        "Vérifier le nom du VPN seulement",
+        "Comparer préfixes, annonces, routes effectives, état des tunnels et tests aller-retour",
+        "Supprimer toutes les routes statiques",
+        "Changer le CIDR sans plan"
+      ],
+      "answer": 1,
+      "explanation": "Les données de routage et l’état du tunnel doivent correspondre au design ; les tests confirment le comportement réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle condition devrait bloquer un Go/No-Go cloud ?",
+      "choices": [
+        "Le diagramme utilise plus de trois couleurs",
+        "Le service a un nom long",
+        "Les objectifs critiques de sécurité, résilience ou récupération ne sont pas démontrés par des preuves",
+        "Le rapport contient une table"
+      ],
+      "answer": 2,
+      "explanation": "Une exigence critique non démontrée est une inconnue à résoudre avant d’autoriser une mise en production."
     }
   ]
 }

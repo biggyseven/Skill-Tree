@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour AWS - Débutant",
+      "prompt": "Que fournit principalement Amazon Web Services ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Des ressources cloud comme calcul, stockage, réseau et services managés",
+        "Uniquement des adresses IP publiques",
+        "Des équipements physiques livrés à chaque développeur",
+        "Un remplacement complet des pratiques de sécurité"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "AWS fournit des ressources informatiques à la demande ; leur configuration et leur gouvernance restent à la charge du client selon le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence faut-il retenir entre région AWS et zone de disponibilité ?",
+      "choices": [
+        "Une région désigne un compte ; une zone désigne un utilisateur",
+        "Une région est une zone géographique et contient plusieurs zones de disponibilité distinctes",
+        "Une zone de disponibilité est toujours un autre continent",
+        "Région et zone de disponibilité sont des synonymes"
+      ],
+      "answer": 1,
+      "explanation": "Une région AWS contient plusieurs zones de disponibilité conçues pour fournir de l’isolation de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle a IAM dans un compte AWS ?",
+      "choices": [
+        "Attribuer les plages CIDR aux VPC",
+        "Créer automatiquement les copies de données",
+        "Gérer identités et permissions d’accès aux ressources AWS",
+        "Remplacer les Security Groups"
+      ],
+      "answer": 2,
+      "explanation": "IAM contrôle les identités et leurs actions autorisées ; il ne remplace pas le filtrage réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un compte AWS de laboratoire doit-il avoir des limites de coûts et un nettoyage ?",
+      "choices": [
+        "Les ressources de test sont toujours gratuites",
+        "La console supprime toutes les ressources automatiquement",
+        "Les frais ne peuvent jamais augmenter après le premier jour",
+        "Des ressources laissées actives ou des adresses publiques peuvent continuer à générer des frais"
+      ],
+      "answer": 3,
+      "explanation": "Il faut estimer les coûts, surveiller les ressources et vérifier le nettoyage ; la facturation dépend de l’usage et du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation correspond au modèle de responsabilité partagée ?",
+      "choices": [
+        "AWS sécurise une partie de l’infrastructure, tandis que le client reste responsable de configurations et données selon le service utilisé",
+        "AWS prend toujours en charge tous les accès IAM des clients",
+        "Le client ne doit jamais mettre à jour ses systèmes",
+        "Le modèle est identique pour tous les types de service"
+      ],
+      "answer": 0,
+      "explanation": "La frontière de responsabilité varie entre services IaaS, PaaS et managés, et doit être vérifiée pour le service concret."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert Amazon S3 principalement ?",
+      "choices": [
+        "À héberger un routeur de couche 3",
+        "À stocker des objets dans des buckets",
+        "À distribuer des paquets entre sous-réseaux",
+        "À créer des identités IAM"
+      ],
+      "answer": 1,
+      "explanation": "S3 est un service de stockage objet ; l’accès dépend des politiques et des paramètres de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service fournit des machines virtuelles dans AWS ?",
+      "choices": [
+        "Amazon Route 53",
+        "AWS Organizations",
+        "Amazon EC2",
+        "AWS CloudTrail"
+      ],
+      "answer": 2,
+      "explanation": "EC2 fournit des instances de calcul ; le réseau, les accès et les coûts doivent aussi être gérés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas utiliser le compte root AWS pour toutes les opérations quotidiennes ?",
+      "choices": [
+        "Il ne peut accéder à aucun service",
+        "Il ne permet pas de modifier la facturation",
+        "Il est réservé à un seul type de stockage",
+        "Un usage courant augmente l’impact potentiel d’une compromission ; utiliser des identités à privilèges minimaux est préférable"
+      ],
+      "answer": 3,
+      "explanation": "Le compte root a des capacités sensibles ; le protéger et limiter son utilisation réduit les risques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle remplit une AMI dans EC2 ?",
+      "choices": [
+        "Servir de modèle pour lancer des instances avec un système et des éléments préinstallés",
+        "Fournir une zone DNS publique",
+        "Remplacer les règles de firewall",
+        "Allouer automatiquement un CIDR à tout le VPC"
+      ],
+      "answer": 0,
+      "explanation": "Une AMI est une image utilisée pour lancer une instance ; les paramètres réseau et permissions sont configurés séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément limite directement les flux réseau autorisés vers une instance EC2 ?",
+      "choices": [
+        "Une politique de budget",
+        "Les règles des Security Groups et, selon le chemin, d’autres contrôles réseau",
+        "Le nom du bucket S3",
+        "La région du compte uniquement"
+      ],
+      "answer": 1,
+      "explanation": "Les Security Groups filtrent les flux associés à une ressource ; la route et le pare-feu de l’OS comptent également."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique convient pour les identifiants d’application exécutée sur EC2 ?",
+      "choices": [
+        "Coder un secret racine dans le dépôt",
+        "Réutiliser les identifiants personnels d’un administrateur",
+        "Utiliser un rôle d’instance avec permissions minimales plutôt que des clés statiques quand c’est adapté",
+        "Désactiver l’authentification"
+      ],
+      "answer": 2,
+      "explanation": "Les rôles d’instance fournissent des credentials temporaires ; les politiques doivent limiter les actions permises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on vérifier avant de lancer une instance dans un laboratoire ?",
+      "choices": [
+        "Que le nom de l’instance est unique dans le compte mondial",
+        "Que l’adresse IP publique soit obligatoire pour chaque instance",
+        "Que tous les ports soient ouverts",
+        "Le type, la région, le sous-réseau, les accès et l’estimation des coûts"
+      ],
+      "answer": 3,
+      "explanation": "Les paramètres de déploiement influencent la connectivité, la sécurité et le coût."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme permet de suivre des événements API pertinents dans un compte AWS ?",
+      "choices": [
+        "AWS CloudTrail",
+        "Amazon S3 Lifecycle uniquement",
+        "Une route VPC",
+        "Un Security Group"
+      ],
+      "answer": 0,
+      "explanation": "CloudTrail enregistre les événements d’activité de compte/API pris en charge ; il complète d’autres sources de supervision."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les permissions d’un rôle devraient-elles être limitées au besoin ?",
+      "choices": [
+        "Pour rendre les ressources invisibles à AWS",
+        "Pour réduire les actions possibles en cas d’erreur ou de compromission",
+        "Pour éviter la nécessité d’un compte",
+        "Pour attribuer une adresse IP privée"
+      ],
+      "answer": 1,
+      "explanation": "Le moindre privilège limite le rayon d’impact d’une identité compromise ou mal utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une alerte de budget AWS ?",
+      "choices": [
+        "À couper automatiquement tout service sans réglage",
+        "À remplacer l’analyse des factures",
+        "À signaler des dépenses ou projections lorsque les seuils configurés sont atteints",
+        "À garantir que le compte ne sera jamais facturé"
+      ],
+      "answer": 2,
+      "explanation": "Les budgets aident à surveiller les coûts mais ne garantissent pas à eux seuls un plafond strict de dépenses."
     }
   ]
 }

@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour GCP - Expert",
+      "prompt": "Pourquoi organiser les projets sous des folders et une organisation GCP ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Pour centraliser une gouvernance cohérente des accès, politiques et ressources à la bonne portée",
+        "Pour qu’un projet puisse accéder automatiquement à tous les autres",
+        "Pour remplacer toutes les permissions de service account",
+        "Pour rendre les ressources gratuites"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La hiérarchie permet d’appliquer des contrôles selon les niveaux, sans attribuer automatiquement tous les droits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un objectif d’Organization Policy ?",
+      "choices": [
+        "Créer les comptes de service utilisateur",
+        "Imposer des contraintes de configuration aux ressources dans une portée définie",
+        "Remplacer Cloud Logging",
+        "Configurer les routes de toutes les VPC"
+      ],
+      "answer": 1,
+      "explanation": "Organization Policy gouverne certaines propriétés de ressources, mais n’accorde pas à elle seule les permissions IAM."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un risque de clés de compte de service longues durées partagées entre équipes ?",
+      "choices": [
+        "Elles ne peuvent jamais être révoquées",
+        "Elles réduisent forcément les privilèges",
+        "Leur exposition élargit le rayon d’impact et rend attribution/rotation plus difficiles",
+        "Elles configurent les règles firewall automatiquement"
+      ],
+      "answer": 2,
+      "explanation": "Privilégier des identités et mécanismes d’authentification adaptés et éviter les clés durables partagées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un point critique pour une architecture hybride GCP ?",
+      "choices": [
+        "Le nom des dossiers uniquement",
+        "La couleur des diagrammes",
+        "Le nombre d’instances Compute Engine seulement",
+        "Routage des préfixes, VPN ou Interconnect, annonces BGP si utilisées, redondance et chemins de retour"
+      ],
+      "answer": 3,
+      "explanation": "La connectivité hybride dépend des routes et liens aux deux extrémités ainsi que des mécanismes de bascule."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier la séparation des responsabilités entre projet hôte et projets de service dans Shared VPC ?",
+      "choices": [
+        "Pour éviter qu’une équipe puisse modifier au-delà de son périmètre le réseau partagé",
+        "Pour désactiver la résolution DNS",
+        "Pour supprimer les règles de firewall",
+        "Pour rendre tous les services hôtes publics"
+      ],
+      "answer": 0,
+      "explanation": "Le projet hôte centralise des fonctions réseau ; les rôles doivent empêcher les modifications non autorisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble aide à démontrer la résilience d’un service distribué sur plusieurs régions ?",
+      "choices": [
+        "Le nombre de régions du compte",
+        "Tests contrôlés de perte de région, données répliquées, DNS/bascule, capacité et mesures RTO/RPO",
+        "Une capture de la console seulement",
+        "Un budget de facturation"
+      ],
+      "answer": 1,
+      "explanation": "La disponibilité multi-région doit être vérifiée par des essais et des preuves sur les données et dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi évaluer le coût de sortie de données et les services réseau partagés ?",
+      "choices": [
+        "Ces coûts sont toujours nuls",
+        "Ils ne dépendent jamais du trafic",
+        "La connectivité et le transfert de données peuvent représenter une partie importante du coût total",
+        "La haute disponibilité supprime tous les coûts"
+      ],
+      "answer": 2,
+      "explanation": "Le coût total dépend du trafic, des régions, du stockage et des services interconnectés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est recommandée pour changer des règles d’organisation à grande échelle ?",
+      "choices": [
+        "Modifier la politique globale sans inventaire",
+        "Désactiver la journalisation d’administration",
+        "Accorder des rôles Owner temporaires à tous",
+        "Tester l’impact sur un périmètre contrôlé, vérifier les ressources affectées et planifier l’exception/retour si nécessaire"
+      ],
+      "answer": 3,
+      "explanation": "Une politique d’organisation peut affecter de nombreux projets ; il faut comprendre sa portée avant application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence faut-il conserver entre authentification et autorisation ?",
+      "choices": [
+        "Authentifier l’identité ne lui accorde pas automatiquement toutes les actions sur chaque ressource",
+        "Un compte de service peut toujours agir sur tout projet",
+        "Les politiques d’organisation fournissent tous les rôles IAM",
+        "Les réseaux VPC accordent des permissions d’API"
+      ],
+      "answer": 0,
+      "explanation": "L’authentification établit l’identité ; IAM et les autres contrôles déterminent ensuite ce qu’elle peut faire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles preuves sont nécessaires pour clore un incident de routage ?",
+      "choices": [
+        "Le seul état d’une VM",
+        "Routes observées, annonces, état de liaison, tests aller-retour, journaux et impacts confirmés",
+        "Une modification non documentée",
+        "Le seul nombre de paquets envoyés"
+      ],
+      "answer": 1,
+      "explanation": "Il faut confirmer la cause et le retour du service grâce à des éléments corrélés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque est associé à des plages CIDR qui se chevauchent dans un ensemble de VPC connectés ?",
+      "choices": [
+        "Le chiffrement TLS est automatiquement désactivé",
+        "Le logging devient impossible",
+        "Routage ambigu et limitations d’interconnexion, parfois nécessitant un changement d’adressage",
+        "Le compte perd son budget"
+      ],
+      "answer": 2,
+      "explanation": "Un plan CIDR cohérent est une dépendance de base pour peering et connectivité hybride."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi surveiller les erreurs d’authentification et les changements IAM/Organization Policy ?",
+      "choices": [
+        "Ils ne sont jamais reliés à la sécurité",
+        "Ils peuvent tous être ignorés si le pipeline passe",
+        "Les permissions ne changent jamais après le déploiement",
+        "Ils peuvent signaler des dérives de gouvernance ou une activité anormale et doivent être corrélés"
+      ],
+      "answer": 3,
+      "explanation": "La surveillance des accès et changements complète les contrôles préventifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’une bonne validation Go/No-Go pour une plateforme GCP critique ?",
+      "choices": [
+        "Critères de sécurité, gouvernance, disponibilité, observabilité et reprise démontrés par les tests",
+        "Le service a été créé sans message d’erreur",
+        "Toutes les APIs sont activées",
+        "Le budget est supérieur à zéro"
+      ],
+      "answer": 0,
+      "explanation": "La décision doit s’appuyer sur des exigences et des résultats, pas sur le simple succès du déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage une stratégie de journaux centralisés peut-elle offrir ?",
+      "choices": [
+        "Elle détecte automatiquement toutes les attaques",
+        "Elle facilite la corrélation des événements entre projets avec des contrôles d’accès adaptés",
+        "Elle remplace les politiques IAM",
+        "Elle évite les coûts de stockage des logs"
+      ],
+      "answer": 1,
+      "explanation": "La centralisation améliore l’analyse transversale mais la portée, la rétention et les permissions restent à concevoir."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe gouverne un déploiement d’infrastructure expert ?",
+      "choices": [
+        "Appliquer toutes les modifications directement sans diff",
+        "Supprimer l’état IaC en cas d’échec",
+        "Rendre les changements traçables, les valider avant/après et prévoir des actions de reprise contrôlées",
+        "Considérer la compilation comme une preuve d’architecture"
+      ],
+      "answer": 2,
+      "explanation": "Un processus fiable conserve l’état, les modifications et les validations, et prévoit l’échec partiel."
     }
   ]
 }

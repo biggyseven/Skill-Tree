@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour GCP - Débutant",
+      "prompt": "Quelle hiérarchie organise les ressources Google Cloud ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Organisation, dossiers, projets et ressources, selon la configuration du compte",
+        "Sous-réseaux puis organisations",
+        "Buckets qui contiennent tous les projets",
+        "Zones de disponibilité qui contiennent les identités"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La hiérarchie de ressources aide à organiser accès, politiques et facturation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le projet GCP est-il une unité importante ?",
+      "choices": [
+        "Il remplace toute la hiérarchie organisationnelle",
+        "Il regroupe des ressources et sert de portée pour plusieurs réglages et la facturation selon la configuration",
+        "Il est un sous-réseau par défaut",
+        "Il rend les ressources gratuites"
+      ],
+      "answer": 1,
+      "explanation": "Le projet organise les ressources et les APIs et se rattache à une facturation activée selon le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande fait partie de l’outil de ligne de commande Google Cloud ?",
+      "choices": [
+        "`az group create`",
+        "`aws ec2 run-instances`",
+        "`gcloud`",
+        "`git push` seulement"
+      ],
+      "answer": 2,
+      "explanation": "`gcloud` permet de gérer de nombreux services GCP après installation et authentification adaptées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service fournit des machines virtuelles dans Google Cloud ?",
+      "choices": [
+        "Cloud Storage uniquement",
+        "Cloud DNS uniquement",
+        "Cloud Logging uniquement",
+        "Compute Engine"
+      ],
+      "answer": 3,
+      "explanation": "Compute Engine fournit des VM ; les réseaux, permissions, disques et coûts doivent être configurés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert Cloud Storage ?",
+      "choices": [
+        "Stocker des objets dans des buckets avec politiques et contrôles d’accès",
+        "Créer les routes VPC",
+        "Remplacer Cloud IAM",
+        "Exécuter tous les conteneurs"
+      ],
+      "answer": 0,
+      "explanation": "Cloud Storage est un stockage objet ; la sécurité dépend des permissions, de la configuration et de la gestion des données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue Cloud IAM ?",
+      "choices": [
+        "Distribuer les paquets aux sous-réseaux",
+        "Contrôler les permissions d’identités sur les ressources via rôles",
+        "Créer une zone DNS automatiquement",
+        "Remplacer les budgets"
+      ],
+      "answer": 1,
+      "explanation": "IAM gère les autorisations ; il faut attribuer les rôles aux identités avec le moindre privilège."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre région GCP et zone ?",
+      "choices": [
+        "Une zone contient toujours une organisation",
+        "Les deux termes sont identiques",
+        "Une région contient plusieurs zones et les ressources régionales ou zonales dépendent du service",
+        "Une zone est un dossier de ressources"
+      ],
+      "answer": 2,
+      "explanation": "Les notions régionale et zonale influencent l’emplacement et la stratégie de disponibilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un budget de facturation est-il utile ?",
+      "choices": [
+        "Il garantit que la facturation sera exactement nulle",
+        "Il remplace les permissions IAM",
+        "Il supprime toutes les ressources lors du dépassement",
+        "Il aide à surveiller les coûts et à recevoir des alertes selon les seuils configurés"
+      ],
+      "answer": 3,
+      "explanation": "Un budget notifie sur la consommation ou sa projection mais n’impose pas toujours un plafond de dépenses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service représente un réseau virtuel VPC dans Google Cloud ?",
+      "choices": [
+        "VPC network",
+        "Cloud Build",
+        "Cloud Functions uniquement",
+        "Cloud DNS seul"
+      ],
+      "answer": 0,
+      "explanation": "Le VPC network fournit une infrastructure réseau logique où les sous-réseaux, routes et règles sont configurés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les comptes de service sont-ils utilisés ?",
+      "choices": [
+        "Pour remplacer les projets GCP",
+        "Pour donner une identité aux applications ou workloads qui appellent des API",
+        "Pour attribuer des adresses IP à chaque VM",
+        "Pour remplacer les journaux"
+      ],
+      "answer": 1,
+      "explanation": "Un service account permet à un workload de s’authentifier ; ses rôles doivent être limités à ses besoins."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une bonne pratique avant d’utiliser une commande `gcloud` qui crée une ressource ?",
+      "choices": [
+        "Exécuter toutes les commandes en mode administrateur global",
+        "Ignorer le projet configuré",
+        "Vérifier le projet actif, la région/zone, les permissions et les coûts potentiels",
+        "Partager les clés de service account"
+      ],
+      "answer": 2,
+      "explanation": "Vérifier le contexte évite de créer des ressources dans le mauvais projet ou la mauvaise localisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’usage de Cloud Shell ?",
+      "choices": [
+        "Remplacer tous les services de calcul",
+        "Déplacer automatiquement les régions",
+        "Créer des comptes de facturation privés",
+        "Fournir un environnement en ligne de commande accessible depuis la console pour gérer les ressources"
+      ],
+      "answer": 3,
+      "explanation": "Cloud Shell offre un environnement d’administration, mais les actions restent soumises aux permissions du compte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi activer les APIs nécessaires dans un projet ?",
+      "choices": [
+        "Certaines opérations de service requièrent l’API correspondante activée pour le projet",
+        "Cela rend toutes les ressources publiques",
+        "Cela attribue Owner à tous les utilisateurs",
+        "Cela remplace le projet"
+      ],
+      "answer": 0,
+      "explanation": "L’activation des APIs est un prérequis pour de nombreux services et doit être contrôlée selon l’usage prévu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme aide à observer l’activité et l’état des ressources GCP ?",
+      "choices": [
+        "Un fichier local sans collecte",
+        "Cloud Logging et Cloud Monitoring selon les sources et règles configurées",
+        "Un Security Group AWS",
+        "Une route statique seulement"
+      ],
+      "answer": 1,
+      "explanation": "Les services d’observabilité collectent journaux et métriques lorsque la télémétrie est activée et adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon contrôle après création d’une VM de test ?",
+      "choices": [
+        "Considérer la création comme une preuve de connectivité",
+        "Ouvrir tous les ports pour être sûr",
+        "Vérifier réseau, pare-feu, identité, état du système et coût avant de conclure",
+        "Supprimer les logs pour simplifier"
+      ],
+      "answer": 2,
+      "explanation": "Le déploiement doit être suivi d’une vérification fonctionnelle et de sécurité."
     }
   ]
 }

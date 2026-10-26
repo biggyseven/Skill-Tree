@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour AWS - Intermédiaire",
+      "prompt": "Quel composant offre couramment une sortie IPv4 vers Internet à des instances en sous-réseaux privés ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Une NAT Gateway avec routes adaptées et placée dans une architecture appropriée",
+        "Une NACL qui remplace le routage",
+        "Un bucket S3",
+        "Une route locale seulement"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La NAT Gateway permet une sortie initiée depuis les sous-réseaux privés ; il faut encore vérifier les routes et règles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence décrit correctement Security Groups et Network ACL ?",
+      "choices": [
+        "Les deux sont stateful",
+        "Les Security Groups sont stateful au niveau des ressources ; les NACL sont stateless au niveau du sous-réseau",
+        "Les NACL attribuent les adresses IP",
+        "Les Security Groups font eux-mêmes du routage"
+      ],
+      "answer": 1,
+      "explanation": "Il faut prévoir les flux retour dans les NACL stateless, alors que les Security Groups suivent l’état des connexions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un VPC Endpoint ?",
+      "choices": [
+        "Il rend tous les services AWS publics",
+        "Il remplace IAM",
+        "Il permet d’atteindre certains services AWS via un chemin privé adapté au type d’endpoint",
+        "Il crée une nouvelle région"
+      ],
+      "answer": 2,
+      "explanation": "Les endpoints évitent certains chemins publics ou NAT pour les services compatibles, selon leur type et leur configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi deux VPC peering ne créent-ils pas automatiquement un réseau transitif complet ?",
+      "choices": [
+        "Les VPC ne peuvent jamais être reliés",
+        "Le peering exige toujours un VPN internet",
+        "Les routes sont toujours publiées à tous les comptes",
+        "Le VPC peering n’est pas transitif par défaut"
+      ],
+      "answer": 3,
+      "explanation": "La transitivité doit être conçue explicitement ; un peering entre A-B et B-C ne rend pas automatiquement A-C joignable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service peut centraliser la connectivité entre plusieurs VPC et réseaux attachés ?",
+      "choices": [
+        "AWS Transit Gateway",
+        "AWS CloudTrail",
+        "Amazon S3 Glacier uniquement",
+        "AWS Budgets"
+      ],
+      "answer": 0,
+      "explanation": "Transit Gateway joue le rôle de hub de routage, mais sa segmentation dépend des tables et associations configurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi activer des VPC Flow Logs pendant un dépannage ?",
+      "choices": [
+        "Ils capturent toujours le contenu applicatif complet",
+        "Ils fournissent des métadonnées de flux à corréler aux routes, règles et journaux",
+        "Ils ajoutent automatiquement les routes absentes",
+        "Ils autorisent les connexions refusées"
+      ],
+      "answer": 1,
+      "explanation": "Les Flow Logs sont une source de diagnostic utile mais ne montrent pas à eux seuls tout le contenu des communications."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les Application Load Balancers dans un cas courant ?",
+      "choices": [
+        "Attribuer une politique IAM aux humains",
+        "Remplacer les sous-réseaux VPC",
+        "Distribuer des requêtes applicatives vers des cibles selon les règles configurées",
+        "Fournir automatiquement une copie hors ligne des données"
+      ],
+      "answer": 2,
+      "explanation": "Un ALB distribue le trafic de couche applicative vers des groupes de cibles ; health checks et règles sont à configurer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une instance privée n’atteint pas S3 après le déploiement d’un endpoint. Quelle investigation convient ?",
+      "choices": [
+        "Désactiver les contrôles d’identité",
+        "Rendre toute la VPC publique",
+        "Reconstruire le compte AWS immédiatement",
+        "Vérifier type et association de l’endpoint, DNS si applicable, routes, politiques et permissions IAM"
+      ],
+      "answer": 3,
+      "explanation": "Endpoint réseau et autorisation de service sont distincts ; le chemin et les politiques doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi placer les instances d’un service dans plusieurs zones de disponibilité lorsque l’architecture le permet ?",
+      "choices": [
+        "Pour limiter l’impact de la perte d’une zone et permettre une conception multi-zone",
+        "Pour rendre toutes les adresses IP publiques",
+        "Pour supprimer tous les tests de panne",
+        "Pour que la facturation soit toujours nulle"
+      ],
+      "answer": 0,
+      "explanation": "La distribution entre zones améliore la tolérance à certaines pannes, mais exige une application et un routage conçus pour cela."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément devrait être vérifié dans la table de routage d’un sous-réseau public ?",
+      "choices": [
+        "La politique de rotation d’un mot de passe IAM",
+        "La route par défaut vers l’Internet Gateway si une sortie/entrée Internet est attendue",
+        "La liste des versions S3 uniquement",
+        "Le nombre de groupes IAM"
+      ],
+      "answer": 1,
+      "explanation": "La route vers l’IGW participe au chemin Internet ; adressage public et règles restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service permet de définir des règles DNS pour acheminer les noms de domaine ?",
+      "choices": [
+        "AWS Config",
+        "AWS KMS",
+        "Amazon Route 53",
+        "AWS Artifact"
+      ],
+      "answer": 2,
+      "explanation": "Route 53 fournit des fonctions DNS, dont zones et enregistrements, selon la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment appliquer de façon sûre une politique IAM complexe ?",
+      "choices": [
+        "Attacher AdministratorAccess à tous les rôles",
+        "Supprimer les journaux d’accès",
+        "Déduire les permissions depuis le seul nom du rôle",
+        "Tester les actions nécessaires, limiter la portée et vérifier explicitement permissions, ressources et conditions"
+      ],
+      "answer": 3,
+      "explanation": "Les politiques sont évaluées selon actions, ressources, conditions et éventuels refus explicites ; les tests réduisent les permissions excessives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service AWS aide à détecter des dérives par rapport à des règles de configuration enregistrées ?",
+      "choices": [
+        "AWS Config",
+        "Amazon CloudFront seul",
+        "Amazon EBS",
+        "AWS Snowball"
+      ],
+      "answer": 0,
+      "explanation": "AWS Config suit des configurations prises en charge et peut évaluer leur conformité selon des règles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester le retour arrière d’un déploiement cloud ?",
+      "choices": [
+        "Parce que les déploiements cloud ne peuvent jamais échouer",
+        "Parce que les dépendances et changements de données peuvent rendre le rollback complexe",
+        "Pour remplacer la supervision",
+        "Pour faire disparaître les coûts"
+      ],
+      "answer": 1,
+      "explanation": "Le retour arrière doit tenir compte des données et dépendances ; il doit être prévu et testé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble valide le mieux un déploiement intermédiaire ?",
+      "choices": [
+        "Le statut « created » d’une seule ressource",
+        "La seule absence d’erreur CLI",
+        "Tests de connectivité et d’application, supervision, permissions et vérification des coûts attendus",
+        "Le nombre de ressources créé"
+      ],
+      "answer": 2,
+      "explanation": "Le déploiement se valide par le comportement utile et la conformité, pas seulement par la création de ressources."
     }
   ]
 }

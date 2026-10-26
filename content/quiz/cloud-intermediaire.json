@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Cloud Networking - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quel est l’intérêt d’une architecture hub-and-spoke ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Mutualiser certains services réseau dans un hub tout en contrôlant les flux entre spokes",
+        "Connecter tous les spokes sans filtrage",
+        "Remplacer le plan IP",
+        "Rendre inutiles les routes de retour"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un hub facilite la connectivité partagée, mais les routes et politiques doivent maintenir la segmentation attendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un peering réseau n’implique-t-il pas automatiquement une connectivité transitive ?",
+      "choices": [
+        "Parce que le peering chiffre toujours tous les flux",
+        "Parce que les comportements de transit dépendent du fournisseur et souvent ne sont pas transitifs par défaut",
+        "Parce que le DNS est désactivé",
+        "Parce que les VPC ne peuvent jamais être appairés"
+      ],
+      "answer": 1,
+      "explanation": "Il faut vérifier les possibilités de transit et les mécanismes requis avant de compter sur un réseau tiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble est le plus utile pour diagnostiquer une VM cloud inaccessible ?",
+      "choices": [
+        "L’étiquette de coût uniquement",
+        "Le nombre de ressources du groupe",
+        "Routes, règles de sécurité, adresse et chemin de sortie/entrée, DNS et pare-feu local",
+        "L’icône du fournisseur"
+      ],
+      "answer": 2,
+      "explanation": "La connexion dépend de plusieurs couches ; le diagnostic doit commencer par les éléments de chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser une identité managée ou un compte de service dédié lorsqu’il est pris en charge ?",
+      "choices": [
+        "Pour supprimer les politiques d’autorisation",
+        "Pour rendre le workload public",
+        "Pour stocker les clés dans les logs",
+        "Pour fournir une identité au workload sans réutiliser les identifiants personnels et limiter les permissions"
+      ],
+      "answer": 3,
+      "explanation": "Des identités de workload dédiées améliorent la séparation et la gestion des accès, avec permissions minimales."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique facilite un déploiement reproductible de l’infrastructure ?",
+      "choices": [
+        "Infrastructure as Code avec revue des différences et contrôle d’état",
+        "Création manuelle sans inventaire",
+        "Partager une clé API à toute l’équipe",
+        "Supprimer le code après création"
+      ],
+      "answer": 0,
+      "explanation": "L’IaC rend les changements revus et répétables, mais exige la gestion des secrets et de l’état."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle jouent les logs de flux ou diagnostics réseau ?",
+      "choices": [
+        "Ils remplacent les tests fonctionnels",
+        "Ils donnent des éléments à corréler avec routes, règles, métriques et événements",
+        "Ils créent automatiquement les règles de firewall",
+        "Ils garantissent l’absence de panne"
+      ],
+      "answer": 1,
+      "explanation": "L’observabilité est une source de preuve parmi d’autres et doit être configurée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant d’utiliser un endpoint privé vers un service cloud ?",
+      "choices": [
+        "Uniquement le nom du service",
+        "Le nombre de zones du compte",
+        "Routage, résolution DNS, autorisations et type d’endpoint",
+        "Le thème de la console cloud"
+      ],
+      "answer": 2,
+      "explanation": "Un chemin privé nécessite une résolution correcte et une autorisation côté service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les tests négatifs sont-ils importants pour la segmentation ?",
+      "choices": [
+        "Pour activer tous les ports",
+        "Pour augmenter les budgets",
+        "Pour remplacer les tests positifs",
+        "Pour vérifier que les flux non autorisés sont effectivement bloqués"
+      ],
+      "answer": 3,
+      "explanation": "La segmentation s’évalue en testant les communications permises et celles qui doivent être refusées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil de répartition de charge faut-il choisir ?",
+      "choices": [
+        "Selon la couche du trafic, les fonctions requises et la nature des backends, pas selon le seul nom du produit",
+        "Le même outil dans toutes les architectures",
+        "Un DNS à la place de tous les load balancers",
+        "Un routeur sans test"
+      ],
+      "answer": 0,
+      "explanation": "Les différences de couche, de health checks et de règles conditionnent le bon choix du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi planifier les CIDR avant l’interconnexion hybride ?",
+      "choices": [
+        "Les réseaux privés ne peuvent jamais se connecter",
+        "Des préfixes chevauchants compliquent le routage ou l’empêchent",
+        "Le CIDR règle le chiffrement",
+        "Cela remplace la gestion de secrets"
+      ],
+      "answer": 1,
+      "explanation": "L’adressage doit être cohérent entre VPC/VNet et les réseaux distants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat donne la plus forte confiance après un déploiement ?",
+      "choices": [
+        "La seule absence de message d’erreur",
+        "Le nombre de ressources créées",
+        "Des tests de flux, routes effectives, logs, droits et tests d’application passés",
+        "Le succès du commit"
+      ],
+      "answer": 2,
+      "explanation": "La validation croise configuration et comportement observé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer production et non-production dans le cloud ?",
+      "choices": [
+        "Pour dupliquer tous les secrets",
+        "Pour éviter les étiquettes de coût",
+        "Pour rendre l’accès de production plus large",
+        "Pour limiter le rayon d’impact, contrôler les autorisations et séparer les cycles de changement"
+      ],
+      "answer": 3,
+      "explanation": "La séparation soutient gouvernance et sécurité, avec une architecture de comptes/projets adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un piège de l’utilisation d’une route par défaut vers une appliance réseau ?",
+      "choices": [
+        "Une route peut créer un chemin asymétrique ou une boucle si aller/retour et tables ne sont pas cohérents",
+        "Une route par défaut ne peut jamais être utilisée",
+        "La route remplace tous les tests",
+        "L’appliance rend le trafic automatiquement privé"
+      ],
+      "answer": 0,
+      "explanation": "Les UDR et routes par défaut doivent être testées dans les deux directions et avec les chemins réels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un budget cloud ne doit-il pas être considéré comme un plafond technique absolu ?",
+      "choices": [
+        "Parce qu’il s’applique uniquement aux noms",
+        "Parce qu’il est souvent une alerte de surveillance, pas un mécanisme qui bloque automatiquement chaque ressource",
+        "Parce que le coût cloud est fixe",
+        "Parce qu’il remplace les quotas techniques"
+      ],
+      "answer": 1,
+      "explanation": "Les mécanismes de budget surveillent des dépenses ; les quotas et politiques de création ont des fonctions différentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles informations faut-il conserver pour analyser un changement réseau cloud ?",
+      "choices": [
+        "Une capture d’écran sans date",
+        "Le nom de l’ingénieur seulement",
+        "État de référence, diff, paramètres non secrets, tests, logs horodatés et résultats",
+        "Une liste de tous les secrets"
+      ],
+      "answer": 2,
+      "explanation": "Ces éléments permettent de comprendre le changement, sa portée et les effets observés."
     }
   ]
 }

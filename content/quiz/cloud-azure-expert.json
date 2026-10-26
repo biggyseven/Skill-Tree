@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Azure - Expert",
+      "prompt": "Quel rôle jouent les landing zones dans une gouvernance Azure d’entreprise ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Fournir un socle d’organisation, identité, réseau, sécurité, journalisation et gouvernance pour les workloads",
+        "Remplacer tous les tests applicatifs",
+        "Attribuer automatiquement une licence à chaque VM",
+        "Rendre toutes les ressources publiques"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les landing zones établissent des fondations réutilisables et gouvernées ; chaque workload reste soumis à ses propres besoins."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les Management Groups peuvent-ils être utiles à grande échelle ?",
+      "choices": [
+        "Pour remplacer toutes les subscriptions",
+        "Pour organiser des subscriptions et appliquer des politiques ou assignations à une portée hiérarchique",
+        "Pour créer automatiquement des adresses IP",
+        "Pour stocker les disques des VM"
+      ],
+      "answer": 1,
+      "explanation": "Ils structurent la gouvernance au-dessus des subscriptions et simplifient des assignations cohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’une affectation trop large de rôle Owner ?",
+      "choices": [
+        "Elle empêche toute création de ressource",
+        "Elle limite automatiquement l’exposition",
+        "Elle donne une portée excessive qui augmente le risque d’erreur ou de compromission",
+        "Elle active les journaux de toutes les applications"
+      ],
+      "answer": 2,
+      "explanation": "Le moindre privilège réduit le rayon d’impact d’une identité et limite les changements possibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble doit être étudié pour une stratégie de reprise Azure inter-région ?",
+      "choices": [
+        "Uniquement le statut d’une VM",
+        "Le nombre de resource groups",
+        "La couleur des icônes dans le portail",
+        "Dépendances applicatives, réplication/sauvegarde, DNS, capacité, RTO/RPO et tests de bascule"
+      ],
+      "answer": 3,
+      "explanation": "La reprise doit rétablir un service cohérent dans les objectifs définis, pas seulement créer des ressources dans une autre région."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique gouverne le mieux les secrets d’une chaîne CI/CD Azure ?",
+      "choices": [
+        "Identité dédiée avec permissions minimales et stockage protégé des secrets/credentials nécessaires",
+        "Un service principal Owner à secret permanent dans le dépôt",
+        "Partager un mot de passe entre tous les pipelines",
+        "Inscrire les clés dans les journaux de build"
+      ],
+      "answer": 0,
+      "explanation": "Des identités dédiées et des secrets protégés réduisent l’exposition et facilitent la rotation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon usage d’Azure Policy dans une architecture d’entreprise ?",
+      "choices": [
+        "Créer des users pour les applications",
+        "Évaluer ou imposer des exigences de conformité sur les ressources à une portée donnée",
+        "Remplacer les rôles RBAC",
+        "Configurer à lui seul la disponibilité applicative"
+      ],
+      "answer": 1,
+      "explanation": "Policy aide à gouverner les configurations, mais les exemptions, effets et portées doivent être administrés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une architecture hub-spoke doit-elle contrôler la propagation des routes ?",
+      "choices": [
+        "Pour que toutes les applications puissent accéder à toutes les autres",
+        "Pour éviter de documenter le CIDR",
+        "Pour éviter les chemins inattendus et limiter les communications aux réseaux approuvés",
+        "Pour remplacer le filtrage NSG"
+      ],
+      "answer": 2,
+      "explanation": "Le transit centralisé peut créer une joignabilité plus large que souhaitée si routes et filtrage ne sont pas conçus ensemble."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test est essentiel après une modification centrale de réseau ?",
+      "choices": [
+        "Vérifier uniquement le statut de l’appliance",
+        "Confirmer la création des ressources via le pipeline",
+        "Supposer que les routes de retour sont symétriques",
+        "Tester les flux autorisés et refusés, routes aller/retour, résilience et impact sur les spokes"
+      ],
+      "answer": 3,
+      "explanation": "Une modification centrale peut impacter plusieurs workloads et doit être validée sur des flux réels représentatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il définir la portée des journaux et leur rétention ?",
+      "choices": [
+        "Pour assurer une investigation utile et respecter les objectifs de sécurité, d’exploitation et de coût",
+        "Pour supprimer la nécessité d’alertes",
+        "Pour garantir que chaque attaque sera détectée",
+        "Pour rendre les logs modifiables par tout le monde"
+      ],
+      "answer": 0,
+      "explanation": "La rétention et la portée doivent être adaptées aux obligations et à l’usage, en protégeant l’intégrité des journaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’une architecture multi-zone prouve à elle seule ?",
+      "choices": [
+        "Qu’aucun incident régional ne peut affecter le service",
+        "Une résilience à certains scénarios de panne de zone si l’application et les services sont conçus pour cela",
+        "Que les données sont sauvegardées hors région",
+        "Que le RTO est automatiquement nul"
+      ],
+      "answer": 1,
+      "explanation": "La distribution par zone contribue à la résilience mais ne remplace pas la reprise inter-région ou les tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi évaluer les coûts du trafic réseau et des services partagés ?",
+      "choices": [
+        "Ces coûts sont toujours inclus dans les machines virtuelles",
+        "Le coût cloud ne dépend jamais des flux",
+        "Le transfert, la passerelle, les appliances et la redondance peuvent contribuer au coût total",
+        "La gouvernance bloque toutes les factures"
+      ],
+      "answer": 2,
+      "explanation": "La conception doit évaluer calcul, stockage, transferts et services réseau selon l’usage et les régions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment limiter les conséquences d’une modification de politique globale ?",
+      "choices": [
+        "La déployer sans validation sur tout l’environnement",
+        "Désactiver les journaux",
+        "Donner aux équipes un accès Owner permanent",
+        "Valider sur un périmètre limité, observer la conformité et prévoir les exemptions/retours approuvés"
+      ],
+      "answer": 3,
+      "explanation": "Les politiques globales peuvent toucher plusieurs abonnements ; le changement doit être gouverné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle distingue l’authentification de l’autorisation ?",
+      "choices": [
+        "Confirmer l’identité puis vérifier ses permissions sur l’action et la ressource visées",
+        "Considérer qu’un token valide accorde tous les droits",
+        "Remplacer la gestion d’identité par un NSG",
+        "Désactiver l’audit"
+      ],
+      "answer": 0,
+      "explanation": "Une identité authentifiée doit encore être autorisée à effectuer l’action concernée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un design hybride, pourquoi vérifier les CIDR avant de connecter deux environnements ?",
+      "choices": [
+        "Les adresses privées sont toujours uniques entre toutes les entreprises",
+        "Les préfixes qui se chevauchent peuvent rendre le routage ambigu ou impossible",
+        "Le chevauchement améliore toujours la résilience",
+        "Les routes se corrigent automatiquement"
+      ],
+      "answer": 1,
+      "explanation": "Un plan d’adressage cohérent est nécessaire avant VPN, peering ou transit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon critère Go/No-Go pour un workload critique ?",
+      "choices": [
+        "Le déploiement des ressources a terminé",
+        "Le diagramme est à jour",
+        "Les exigences de sécurité, résilience, observabilité et récupération sont démontrées par des tests",
+        "La facture du mois dernier était faible"
+      ],
+      "answer": 2,
+      "explanation": "Les objectifs métier et opérationnels doivent être prouvés avant la mise en service."
     }
   ]
 }

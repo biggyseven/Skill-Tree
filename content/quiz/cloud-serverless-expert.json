@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Architectures Serverless",
+      "prompt": "Quel est un piège de conception dans une architecture serverless distribuée ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Supposer qu’une livraison d’événement garantit l’exécution exactement une fois et sans erreur",
+        "Prendre en compte l’idempotence",
+        "Mesurer les erreurs et latences",
+        "Séparer des permissions par composant"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les garanties de livraison dépendent des services ; l’application doit concevoir duplication, échec et reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel facteur est critique lorsqu’on choisit entre orchestration de workflow et fonctions chaînées directement ?",
+      "choices": [
+        "La longueur du nom des fonctions",
+        "La visibilité des états, reprises, erreurs, durées, compensation et observabilité du processus",
+        "Le nombre de commentaires dans le code",
+        "La couleur des diagrammes"
+      ],
+      "answer": 1,
+      "explanation": "L’orchestration formalise les états d’un flux long et permet d’en gérer les échecs plus clairement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une fonction peut-elle subir un « cold start » ?",
+      "choices": [
+        "Le DNS interdit les premières requêtes",
+        "La base de données est forcément arrêtée",
+        "Le fournisseur peut devoir initialiser ou préparer un environnement d’exécution avant de traiter l’appel",
+        "La fonction est toujours compilée au moment du retour"
+      ],
+      "answer": 2,
+      "explanation": "L’initialisation d’un environnement peut contribuer à la latence ; l’impact dépend du fournisseur, du runtime et de la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’une architecture événementielle sans limites de concurrence ni protection aval ?",
+      "choices": [
+        "Elle ne peut jamais traiter de messages",
+        "Elle supprime tous les coûts de réseau",
+        "Elle empêche les duplications",
+        "Un pic peut surcharger des bases ou API dépendantes et déclencher une cascade d’échecs"
+      ],
+      "answer": 3,
+      "explanation": "La capacité doit être bornée ou régulée pour protéger les dépendances et le budget."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel motif aide à rendre une opération non idempotente plus sûre face aux retries ?",
+      "choices": [
+        "Clé d’idempotence persistée et vérification atomique du résultat de l’opération",
+        "Réessayer immédiatement jusqu’au succès",
+        "Supprimer toutes les traces d’événement",
+        "Stocker l’état seulement en mémoire locale"
+      ],
+      "answer": 0,
+      "explanation": "Une clé ou un registre de déduplication peut garantir qu’une opération logique répétée ne se double pas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un mécanisme de replay de DLQ doit-il être gouverné ?",
+      "choices": [
+        "Les messages ne peuvent pas contenir de données anciennes",
+        "Un replay peut répéter des effets, relancer un bug ou remettre en charge une dépendance ; il doit être filtré et observé",
+        "Le replay ne change jamais l’état",
+        "Une DLQ est nécessairement vide"
+      ],
+      "answer": 1,
+      "explanation": "Le replay doit traiter compatibilité, idempotence, portée et capacité avant de renvoyer les messages."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe de sécurité s’applique aux fonctions exécutant du code déclenché par des événements externes ?",
+      "choices": [
+        "Utiliser un rôle administrateur unique",
+        "Autoriser toutes les origines",
+        "Valider l’événement, limiter les permissions, protéger les secrets et contrôler l’exposition",
+        "Désactiver l’audit"
+      ],
+      "answer": 2,
+      "explanation": "L’entrée événementielle peut être un vecteur d’attaque ; validation et moindre privilège réduisent l’impact."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit prouver une architecture serverless critique avant la production ?",
+      "choices": [
+        "Le nombre d’invocations a augmenté",
+        "Toutes les fonctions se sont compilées",
+        "Les erreurs ont été masquées dans les logs",
+        "Tests de charge/limites, reprise, idempotence, sécurité, observabilité, RTO et comportement des dépendances"
+      ],
+      "answer": 3,
+      "explanation": "Les exigences critiques doivent être validées par des tests représentatifs, pas uniquement par une compilation réussie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème le pattern Saga cherche-t-il à traiter dans certains workflows distribués ?",
+      "choices": [
+        "Coordonner une transaction métier longue via étapes et compensations lorsqu’une transaction atomique unique ne couvre pas tous les services",
+        "Garantir que toutes les fonctions partagent une mémoire",
+        "Remplacer les autorisations IAM",
+        "Rendre les messages exactement-once par défaut"
+      ],
+      "answer": 0,
+      "explanation": "Une Saga coordonne étapes et compensations, mais la logique de reprise doit être conçue soigneusement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il éviter de placer des informations sensibles dans les logs d’événement ?",
+      "choices": [
+        "Les logs ne peuvent jamais être consultés",
+        "Ils peuvent être répliqués ou consultés selon les permissions et conservés plus longtemps que prévu",
+        "Les logs sont toujours chiffrés de bout en bout par application",
+        "Cela améliore l’idempotence"
+      ],
+      "answer": 1,
+      "explanation": "Limiter les données sensibles dans les logs réduit l’exposition et simplifie la gestion de la rétention."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon principe pour gérer les schémas d’événements à grande échelle ?",
+      "choices": [
+        "Modifier les champs sans versionning",
+        "Forcer tous les consommateurs à redéployer en même temps",
+        "Contrats explicites, compatibilité, validation et versionnement des événements",
+        "Utiliser des événements sans identifiant"
+      ],
+      "answer": 2,
+      "explanation": "Un contrat versionné et testé aide à faire évoluer producteurs et consommateurs sans rupture imprévue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester une panne de dépendance externe ?",
+      "choices": [
+        "Pour garantir que la dépendance ne tombera plus jamais",
+        "Pour supprimer le besoin de circuit breaker",
+        "Pour augmenter les permissions",
+        "Pour vérifier timeouts, retries, backpressure, fallback ou DLQ et rétablissement"
+      ],
+      "answer": 3,
+      "explanation": "Le comportement en cas d’échec fait partie de la fiabilité ; il doit être éprouvé de manière contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel facteur peut réduire la portabilité d’une fonction serverless ?",
+      "choices": [
+        "Dépendance à des déclencheurs, services, formats, IAM et API propriétaires du fournisseur",
+        "La présence de tests unitaires",
+        "Un nom de fonction lisible",
+        "Une validation de schéma"
+      ],
+      "answer": 0,
+      "explanation": "La portabilité dépend des services et des contrats utilisés ; elle peut nécessiter des abstractions ou adaptations explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment contrôler l’impact d’une version nouvelle de fonction critique ?",
+      "choices": [
+        "La promouvoir immédiatement à 100 % sans métriques",
+        "Canary/traffic shifting si pris en charge, seuils d’erreur/latence, observation et stratégie de rollback",
+        "Supprimer les logs de la version précédente",
+        "Donner un accès administrateur à l’équipe entière"
+      ],
+      "answer": 1,
+      "explanation": "Une promotion progressive réduit le rayon d’impact et autorise l’arrêt si les métriques se dégradent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat démontre une préparation opérationnelle serverless ?",
+      "choices": [
+        "Un seul test de compilation réussi",
+        "L’API répond au ping uniquement",
+        "Des tests fonctionnels et de défaillance, alertes, traçabilité, sécurité et objectifs de reprise validés",
+        "Un diagramme complet sans déploiement"
+      ],
+      "answer": 2,
+      "explanation": "La préparation opérationnelle exige des preuves de comportement, sécurité, récupération et observabilité."
     }
   ]
 }

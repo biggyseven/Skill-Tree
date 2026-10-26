@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour GCP - Intermédiaire",
+      "prompt": "Quelle caractéristique décrit généralement le VPC network de Google Cloud ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Le réseau VPC est global tandis que les sous-réseaux sont régionaux",
+        "Le VPC est toujours zonal",
+        "Chaque zone requiert une organisation différente",
+        "Le VPC ne contient pas de routes"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le VPC network peut s’étendre entre régions ; les sous-réseaux sont associés à une région."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert Cloud NAT dans une architecture GCP courante ?",
+      "choices": [
+        "Autoriser toute connexion entrante vers les VM privées",
+        "Permettre une sortie Internet initiée par des ressources privées sans leur donner nécessairement une IP externe",
+        "Remplacer les règles de firewall",
+        "Créer des buckets"
+      ],
+      "answer": 1,
+      "explanation": "Cloud NAT est un mécanisme de traduction pour les connexions sortantes selon la configuration, pas une passerelle d’entrée générale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service aide à répartir des requêtes d’application sur plusieurs backends ?",
+      "choices": [
+        "Cloud Storage",
+        "Cloud IAM",
+        "Cloud Load Balancing",
+        "Cloud Billing"
+      ],
+      "answer": 2,
+      "explanation": "Cloud Load Balancing répartit le trafic selon le type de load balancer, les backends et les contrôles de santé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il concevoir les règles de firewall VPC avec le moindre privilège ?",
+      "choices": [
+        "Pour autoriser tout le trafic par défaut",
+        "Pour éliminer le routage",
+        "Pour remplacer IAM",
+        "Pour éviter d’exposer inutilement les workloads et permettre seulement les flux nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "Les règles firewall déterminent les flux autorisés ; leur portée et priorité doivent être cohérentes avec les besoins."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage une architecture Shared VPC peut-elle offrir ?",
+      "choices": [
+        "Centraliser certaines fonctions réseau dans un projet hôte et permettre à des projets de service d’utiliser des sous-réseaux partagés",
+        "Partager tous les mots de passe IAM",
+        "Rendre tous les projets administrateurs mutuels",
+        "Supprimer la nécessité de planifier les CIDR"
+      ],
+      "answer": 0,
+      "explanation": "Shared VPC permet une gouvernance réseau centralisée, avec des rôles et responsabilités à configurer soigneusement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément faut-il vérifier si une VM ne peut pas atteindre une adresse externe ?",
+      "choices": [
+        "Seulement son étiquette de facturation",
+        "Routes, règles firewall, IP externe ou Cloud NAT, et configuration système selon le chemin",
+        "Le nom de l’organisation",
+        "Le nombre de dossiers"
+      ],
+      "answer": 1,
+      "explanation": "La connectivité nécessite un chemin correct, des règles autorisant le trafic et un mécanisme d’accès adapté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser des comptes de service dédiés à chaque workload ?",
+      "choices": [
+        "Pour partager les mêmes clés sur toute l’organisation",
+        "Pour éviter de documenter les permissions",
+        "Pour limiter les permissions et isoler l’impact d’une compromission ou d’une erreur",
+        "Pour donner automatiquement Owner aux pipelines"
+      ],
+      "answer": 2,
+      "explanation": "Des identités distinctes et minimales facilitent la gouvernance et réduisent le rayon d’impact."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle des journaux de flux VPC lorsqu’ils sont activés ?",
+      "choices": [
+        "Capturer sans limite tout le contenu du trafic",
+        "Remplacer les règles firewall",
+        "Créer les routes manquantes",
+        "Fournir des métadonnées sur des flux pour aider le diagnostic et l’analyse"
+      ],
+      "answer": 3,
+      "explanation": "Les logs de flux sont utiles avec les routes, règles, métriques et journaux applicatifs, mais ne représentent pas toujours le contenu de chaque paquet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les quotas doivent-ils être vérifiés avant une mise à l’échelle ?",
+      "choices": [
+        "Une limite de quota peut empêcher la création de ressources même si le budget est suffisant",
+        "Le quota garantit un prix fixe",
+        "Les quotas ne s’appliquent jamais aux services cloud",
+        "Les quotas remplacent le dimensionnement"
+      ],
+      "answer": 0,
+      "explanation": "Les quotas techniques sont distincts de la facturation et peuvent bloquer une allocation si la limite est atteinte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet Cloud Run dans de nombreux scénarios applicatifs ?",
+      "choices": [
+        "Gérer un réseau physique de datacenter",
+        "Exécuter des conteneurs dans une plateforme managée selon les paramètres du service",
+        "Remplacer Cloud IAM",
+        "Créer des disques persistants directement dans toutes les zones"
+      ],
+      "answer": 1,
+      "explanation": "Cloud Run permet d’exécuter des conteneurs avec gestion de plateforme ; réseau, identité, scaling et coûts restent à comprendre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche est utile pour diagnostiquer une règle firewall GCP inattendue ?",
+      "choices": [
+        "Ajouter un allow-all avant de lire la règle",
+        "Désactiver la télémétrie",
+        "Examiner cible, priorité, direction, portée, source/destination, logs et routes",
+        "Changer le nom du projet"
+      ],
+      "answer": 2,
+      "explanation": "Les règles doivent être analysées dans leur portée et leur priorité, avec le chemin réseau effectif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer des environnements de développement et de production dans des projets différents lorsque c’est adapté ?",
+      "choices": [
+        "Pour empêcher toute facturation",
+        "Pour rendre l’accès de production public",
+        "Pour éviter les logs",
+        "Pour isoler les permissions, quotas, ressources et cycles de changement"
+      ],
+      "answer": 3,
+      "explanation": "La séparation limite certains risques et facilite la gouvernance et l’allocation des coûts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la principale valeur d’un déploiement déclaré en Infrastructure as Code ?",
+      "choices": [
+        "Reproductibilité, revue des différences et possibilité de gérer le cycle de vie des ressources",
+        "Suppression automatique de la revue",
+        "Garantie d’absence de dérive",
+        "Remplacement des contrôles d’identité"
+      ],
+      "answer": 0,
+      "explanation": "L’IaC aide à reproduire et auditer les changements, mais exige tests et gestion de l’état."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un pipeline doit-il éviter d’imprimer les credentials d’un compte de service ?",
+      "choices": [
+        "Les logs ne peuvent jamais être consultés",
+        "Les journaux peuvent exposer des secrets et des accès durables si les credentials y apparaissent",
+        "Les credentials ne sont jamais utilisables",
+        "Le pipeline devient plus rapide"
+      ],
+      "answer": 1,
+      "explanation": "Les credentials doivent être protégés et, si exposés, révoqués ou renouvelés conformément à la procédure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qui démontre qu’un service GCP est prêt après un déploiement intermédiaire ?",
+      "choices": [
+        "Le statut « created » uniquement",
+        "Un commit présent sur une branche",
+        "Tests fonctionnels, réseau, identité, supervision et critères de performance adaptés",
+        "Le nombre de ressources créées"
+      ],
+      "answer": 2,
+      "explanation": "La préparation se mesure par le comportement réel et l’observabilité, pas seulement le statut du déploiement."
     }
   ]
 }

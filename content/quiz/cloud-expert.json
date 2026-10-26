@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Cloud Networking - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel objectif central poursuit une architecture cloud experte bien gouvernée ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Aligner réseau, identité, sécurité, résilience, observabilité et coûts sur les exigences métier",
+        "Créer le maximum de ressources",
+        "Utiliser des privilèges administrateur partout",
+        "Éviter les tests de reprise"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une architecture mature répond à des objectifs explicites et vérifiables, pas à la quantité de services utilisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les organisations multi-comptes ou multi-projets sont-elles utiles ?",
+      "choices": [
+        "Elles remplacent toute supervision",
+        "Elles permettent une séparation de responsabilités, de permissions, d’environnements et de coûts",
+        "Elles garantissent l’absence de compromission",
+        "Elles rendent les routes privées inutiles"
+      ],
+      "answer": 1,
+      "explanation": "La séparation peut limiter le rayon d’impact et améliorer la gouvernance si les accès sont conçus correctement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’une politique d’organisation au-delà des permissions d’une identité ?",
+      "choices": [
+        "Elle garantit que l’application répond",
+        "Elle remplace les DNS privés",
+        "Elle peut imposer des contraintes ou garde-fous sur la configuration de ressources à une portée donnée",
+        "Elle chiffrera automatiquement toutes les communications"
+      ],
+      "answer": 2,
+      "explanation": "Les politiques organisationnelles contrôlent certaines configurations, distinctement des permissions d’identité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il analyser les dépendances avant de définir un plan de reprise cloud ?",
+      "choices": [
+        "Toutes les ressources se recréent sans données",
+        "Le statut d’une VM garantit le service",
+        "Les sauvegardes sont inutiles en multi-zone",
+        "L’application dépend de données, DNS, identités, routes et services managés qui doivent être récupérés ensemble"
+      ],
+      "answer": 3,
+      "explanation": "Le PRA vise le rétablissement du service complet, pas seulement le provisionnement de calcul."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment valider une architecture cloud hybride avant la production ?",
+      "choices": [
+        "Tests bidirectionnels, préfixes, état des liens/tunnels, règles de sécurité, capacité et scénario de bascule",
+        "Vérifier seulement le portail du fournisseur",
+        "Autoriser tout trafic entre sites",
+        "Ignorer la résolution DNS"
+      ],
+      "answer": 0,
+      "explanation": "Le test doit prouver les routes, contrôles et comportements des scénarios nominal et de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque apportent les permissions trop larges des pipelines d’infrastructure ?",
+      "choices": [
+        "Elles accélèrent les tests sans autre impact",
+        "Une compromission du pipeline peut modifier ou exposer de nombreuses ressources",
+        "Elles empêchent les dérives de configuration",
+        "Elles suppriment les coûts réseau"
+      ],
+      "answer": 1,
+      "explanation": "La chaîne automatisée est un chemin privilégié vers l’infrastructure et doit utiliser le moindre privilège."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester les scénarios de panne plutôt que s’appuyer sur la seule redondance déclarée ?",
+      "choices": [
+        "La redondance physique ne peut jamais fonctionner",
+        "Les composants redondants ne sont jamais utiles",
+        "Les routes, capacités, données et opérations de bascule doivent démontrer le comportement réel",
+        "Un test de panne supprime la réplication"
+      ],
+      "answer": 2,
+      "explanation": "La redondance de conception doit être validée dans le fonctionnement réel et avec les limites de panne pertinentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément est nécessaire dans une décision Go/No-Go d’architecture cloud ?",
+      "choices": [
+        "Le nombre de diagrammes",
+        "Le succès de la création des ressources uniquement",
+        "Le nom des régions",
+        "La preuve des critères de sécurité, disponibilité, observabilité, récupération et coût"
+      ],
+      "answer": 3,
+      "explanation": "La décision doit se fonder sur des exigences mesurables et des résultats de test."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle aide à prévenir les dérives de configuration ?",
+      "choices": [
+        "Détection périodique, politiques de conformité et comparaison entre état désiré et état observé",
+        "Supprimer les inventaires",
+        "Désactiver tous les journaux",
+        "Faire tous les changements manuellement sans historique"
+      ],
+      "answer": 0,
+      "explanation": "Les contrôles continus détectent certaines dérives ; les corrections doivent être gouvernées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il examiner les flux refusés pendant une recette de sécurité ?",
+      "choices": [
+        "Pour ouvrir les flux qui échouent",
+        "Pour confirmer que les frontières et politiques bloquent bien les communications non prévues",
+        "Pour supprimer les routes privées",
+        "Pour éviter l’audit"
+      ],
+      "answer": 1,
+      "explanation": "Les tests négatifs vérifient les propriétés de segmentation et de moindre privilège."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit considérer une analyse des coûts d’une architecture multi-région ?",
+      "choices": [
+        "Le nombre d’équipes seulement",
+        "La couleur du schéma",
+        "Calcul, stockage, réplication, transfert de données, services réseau et besoins de redondance",
+        "Le seul prix du stockage local"
+      ],
+      "answer": 2,
+      "explanation": "Une architecture résiliente peut engendrer des coûts liés au trafic, à la duplication et aux services partagés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est adaptée pour modifier une politique centrale qui affecte plusieurs projets ?",
+      "choices": [
+        "Tout déployer sans inventaire",
+        "Donner Owner à tous les opérateurs",
+        "Ne pas créer de logs",
+        "Analyser la portée, tester sur un périmètre contrôlé, définir critères d’arrêt et plan de retour"
+      ],
+      "answer": 3,
+      "explanation": "Une règle centrale peut affecter de nombreux workloads ; la portée doit être explicitement maîtrisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi centraliser certaines traces d’audit dans un périmètre distinct ?",
+      "choices": [
+        "Pour améliorer la corrélation et réduire les risques de suppression par une équipe de workload compromis",
+        "Pour remplacer les contrôles IAM",
+        "Pour garantir de détecter toutes les attaques",
+        "Pour supprimer l’obligation de rétention"
+      ],
+      "answer": 0,
+      "explanation": "La centralisation protège et consolide certaines preuves si les accès et la rétention sont eux-mêmes bien configurés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’un chevauchement CIDR entre réseaux connectés ?",
+      "choices": [
+        "Il accélère toujours le routage",
+        "Des préfixes ambigus peuvent rendre des destinations injoignables ou nécessiter une stratégie de remédiation",
+        "Il n’influence que le DNS",
+        "Il change automatiquement les identités"
+      ],
+      "answer": 1,
+      "explanation": "Les préfixes distincts sont essentiels pour des routes prévisibles entre environnements connectés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve peut clôturer un incident cloud complexe ?",
+      "choices": [
+        "Le seul statut vert d’un fournisseur",
+        "Une modification sans plan de test",
+        "Cause étayée, tests fonctionnels et de sécurité, état final, observabilité et retour arrière documentés",
+        "Le nombre de ressources récréées"
+      ],
+      "answer": 2,
+      "explanation": "La clôture doit lier les preuves au service rétabli et aux exigences initiales."
     }
   ]
 }

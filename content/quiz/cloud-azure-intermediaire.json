@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Azure - Intermédiaire",
+      "prompt": "Pourquoi utiliser une architecture hub-and-spoke Azure ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Centraliser des services partagés comme VPN, inspection ou DNS tout en segmentant les réseaux applicatifs",
+        "Fusionner automatiquement tous les CIDR",
+        "Donner toutes les autorisations à chaque spoke",
+        "Supprimer les routes définies par l’utilisateur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le hub mutualise la connectivité, mais les routes et contrôles doivent préciser les flux permis entre spokes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’une User Defined Route ?",
+      "choices": [
+        "Attribuer une identité à la VM",
+        "Diriger certains préfixes vers une cible définie, par exemple une NVA si l’architecture le prévoit",
+        "Créer une règle de facturation",
+        "Remplacer les NSG"
+      ],
+      "answer": 1,
+      "explanation": "Une UDR influence le chemin du paquet ; il faut vérifier la route effective et le retour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage convient à Azure Key Vault ?",
+      "choices": [
+        "Créer des réseaux virtuels",
+        "Distribuer les paquets L3",
+        "Protéger et contrôler l’accès aux secrets, clés et certificats pris en charge",
+        "Remplacer toutes les permissions RBAC"
+      ],
+      "answer": 2,
+      "explanation": "Key Vault protège des secrets et clés ; les identités, permissions et politiques d’accès restent à configurer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une identité managée doit-elle tout de même recevoir les autorisations requises ?",
+      "choices": [
+        "Elle est toujours administrateur global",
+        "Elle contourne tous les contrôles des ressources",
+        "Elle ne peut accéder qu’aux journaux",
+        "L’identité fournit une authentification, mais n’accorde pas automatiquement des droits sur chaque service"
+      ],
+      "answer": 3,
+      "explanation": "L’authentification et l’autorisation sont deux étapes distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un Private Endpoint ?",
+      "choices": [
+        "Exposer une interface privée d’accès à certains services Azure dans un réseau, avec DNS et permissions appropriés",
+        "Rendre toute ressource publique",
+        "Remplacer les routes de l’OS",
+        "Désactiver les journaux d’activité"
+      ],
+      "answer": 0,
+      "explanation": "Un endpoint privé donne un chemin réseau privé pour un service compatible ; DNS et autorisations doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique aide à déployer une infrastructure de façon répétable ?",
+      "choices": [
+        "Créer toutes les ressources manuellement et ne rien documenter",
+        "Décrire l’infrastructure en code et contrôler les changements via un workflow adapté",
+        "Partager des secrets dans un dépôt public",
+        "Ignorer les dépendances entre ressources"
+      ],
+      "answer": 1,
+      "explanation": "L’IaC améliore la répétabilité et la revue mais nécessite gestion des secrets, états et changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle source est pertinente pour diagnostiquer une connexion réseau Azure ?",
+      "choices": [
+        "Le seul nom du groupe de ressources",
+        "La liste de fichiers de l’application",
+        "Routes effectives, règles NSG, journaux/diagnostics réseau et résolution DNS",
+        "Le nombre d’abonnements"
+      ],
+      "answer": 2,
+      "explanation": "Le diagnostic doit séparer routage, filtrage, DNS et état des ressources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser des tags normalisés sur les ressources ?",
+      "choices": [
+        "Ils chiffrent automatiquement les ressources",
+        "Ils garantissent les droits minimaux",
+        "Ils remplacent les budgets",
+        "Ils facilitent l’inventaire, l’allocation des coûts et l’application de règles de gouvernance"
+      ],
+      "answer": 3,
+      "explanation": "Les tags sont des métadonnées utiles mais ne garantissent pas, seuls, la conformité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil aide à gérer des charges web derrière plusieurs instances Azure ?",
+      "choices": [
+        "Azure Load Balancer ou Application Gateway selon les besoins de couche et de fonctionnalités",
+        "Microsoft Entra ID uniquement",
+        "Azure Policy seul",
+        "Un resource group"
+      ],
+      "answer": 0,
+      "explanation": "Le choix dépend notamment de la couche du trafic et des fonctions requises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue Azure Monitor dans une exploitation intermédiaire ?",
+      "choices": [
+        "Créer des identités managées uniquement",
+        "Agréguer métriques, journaux et alertes pour vérifier l’état du service",
+        "Remplacer les sauvegardes de données",
+        "Allouer des CIDR"
+      ],
+      "answer": 1,
+      "explanation": "L’observabilité requiert des sources, requêtes et alertes adaptées aux critères du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester les déploiements IaC dans un environnement non production ?",
+      "choices": [
+        "Pour rendre les mêmes identifiants publics",
+        "Pour supprimer toutes les règles de sécurité",
+        "Pour identifier les erreurs, effets de dépendance et changements inattendus avant la production",
+        "Pour garantir qu’aucune erreur ne peut survenir ensuite"
+      ],
+      "answer": 2,
+      "explanation": "Le test ne supprime pas tout risque, mais réduit l’incertitude et permet de contrôler le périmètre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un risque si un plan de déploiement remplace une ressource critique ?",
+      "choices": [
+        "La facture ne change jamais",
+        "Les routes deviennent toujours plus rapides",
+        "La ressource sera toujours restaurée automatiquement",
+        "La perte de données ou une interruption si la stratégie de remplacement et de sauvegarde n’est pas prévue"
+      ],
+      "answer": 3,
+      "explanation": "Les opérations destructives doivent être détectées et accompagnées d’un plan de migration ou de restauration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence oppose un budget et un quota technique ?",
+      "choices": [
+        "Le budget suit les coûts ; un quota limite certaines consommations de ressources selon le service",
+        "Le budget configure le VNet",
+        "Le quota garantit l’absence de frais",
+        "Les deux ont toujours la même portée"
+      ],
+      "answer": 0,
+      "explanation": "Les budgets surveillent les dépenses, tandis que les quotas portent sur des limites d’usage du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment valider une permission Azure avant un déploiement automatisé ?",
+      "choices": [
+        "Accorder Owner à l’identité pour éviter tous les refus",
+        "Tester les actions requises avec la portée minimale et consulter les erreurs/contrôles d’accès",
+        "Désactiver l’audit RBAC",
+        "Utiliser une identité personnelle partagée"
+      ],
+      "answer": 1,
+      "explanation": "Une validation en moindre privilège évite de surdimensionner les permissions de la chaîne d’automatisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément devrait apparaître dans la recette d’une architecture Azure multi-services ?",
+      "choices": [
+        "La seule capture de la page resource group",
+        "L’existence d’une règle Policy sans vérification de ressource",
+        "Tests d’accès, réseau, supervision, résilience et coûts selon les exigences",
+        "Uniquement le nombre de ressources provisionnées"
+      ],
+      "answer": 2,
+      "explanation": "Une recette doit confirmer les comportements fonctionnels et opérationnels attendus."
     }
   ]
 }

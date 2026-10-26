@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Azure - Débutant",
+      "prompt": "Quelle structure décrit la hiérarchie de ressources Azure ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Management groups peuvent contenir des subscriptions, lesquelles contiennent des resource groups et des ressources",
+        "Les resource groups contiennent des tenants Azure entiers",
+        "Les subscriptions sont toujours des sous-réseaux",
+        "Les VNets contiennent les abonnements"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La hiérarchie sert à organiser les ressources et appliquer gouvernance et accès à différentes portées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un resource group ?",
+      "choices": [
+        "À remplacer une région Azure",
+        "À regrouper des ressources liées pour faciliter leur gestion commune",
+        "À fournir automatiquement une IP publique",
+        "À servir de pare-feu entre tous les abonnements"
+      ],
+      "answer": 1,
+      "explanation": "Un resource group est un conteneur de gestion ; son emplacement et les ressources qu’il regroupe ont leurs propres règles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’Azure RBAC ?",
+      "choices": [
+        "Définir des routes UDR",
+        "Chiffrer les disques sans configuration",
+        "Définir quelles identités peuvent effectuer quelles actions sur une portée",
+        "Remplacer Microsoft Entra ID"
+      ],
+      "answer": 2,
+      "explanation": "RBAC accorde des rôles sur des portées telles que abonnement, groupe de ressources ou ressource."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence faut-il faire entre Azure Policy et RBAC ?",
+      "choices": [
+        "Ils sont synonymes",
+        "Azure Policy attribue les rôles d’utilisateur",
+        "RBAC bloque les CIDR chevauchants et Policy gère uniquement les mots de passe",
+        "RBAC gère les autorisations des identités ; Policy évalue ou impose des règles de conformité de ressources"
+      ],
+      "answer": 3,
+      "explanation": "Les deux mécanismes répondent à des besoins différents et peuvent être utilisés ensemble."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi choisir soigneusement la région lors du déploiement d’une ressource Azure ?",
+      "choices": [
+        "Disponibilité des services, latence, localisation des données et coûts peuvent dépendre de la région",
+        "Toutes les régions ont toujours les mêmes services et prix",
+        "La région détermine seulement le nom DNS",
+        "Elle supprime les besoins de sauvegarde"
+      ],
+      "answer": 0,
+      "explanation": "La région influence disponibilité, latence, conformité et tarification selon le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel service constitue la couche d’identité de base dans de nombreuses architectures Azure ?",
+      "choices": [
+        "Azure Storage",
+        "Microsoft Entra ID",
+        "Azure NAT Gateway",
+        "Azure Load Balancer"
+      ],
+      "answer": 1,
+      "explanation": "Microsoft Entra ID fournit des fonctions d’identité et d’accès utilisées par les services Azure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une identité managée pour une ressource Azure lorsque le service la prend en charge ?",
+      "choices": [
+        "À stocker les mots de passe dans le dépôt",
+        "À rendre la ressource publique",
+        "À permettre à la ressource de s’authentifier à des services pris en charge sans gérer soi-même un secret statique",
+        "À remplacer les Network Security Groups"
+      ],
+      "answer": 2,
+      "explanation": "L’identité managée réduit la gestion de secrets mais les permissions sur la ressource cible restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi mettre en place une alerte ou un budget de coûts ?",
+      "choices": [
+        "Pour rendre toutes les ressources gratuites",
+        "Pour annuler automatiquement toutes les ressources déployées",
+        "Pour remplacer l’examen de la facturation",
+        "Pour détecter une consommation inhabituelle et réagir avant qu’elle ne devienne surprenante"
+      ],
+      "answer": 3,
+      "explanation": "Les outils de coûts aident à surveiller l’usage ; ils ne remplacent pas le nettoyage ni la compréhension de la tarification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue une zone de disponibilité Azure ?",
+      "choices": [
+        "Fournir une séparation physique logique/physique au sein d’une région, selon les services compatibles",
+        "Remplacer toutes les régions",
+        "Être toujours synonyme de groupe de ressources",
+        "Définir les identités des utilisateurs"
+      ],
+      "answer": 0,
+      "explanation": "Les zones de disponibilité visent la résilience intra-région pour les services qui les prennent en charge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique protège le compte ou l’abonnement Azure ?",
+      "choices": [
+        "Utiliser un compte administrateur partagé permanent",
+        "Appliquer MFA et accès privilégiés limités, en particulier pour les identités sensibles",
+        "Rendre tous les comptes propriétaires",
+        "Réutiliser le secret dans le code"
+      ],
+      "answer": 1,
+      "explanation": "Les accès privilégiés doivent être protégés, limités et audités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert Azure Monitor ?",
+      "choices": [
+        "Créer les VNet",
+        "Remplacer les sauvegardes",
+        "Collecter et analyser des métriques et journaux pour observer les ressources et applications",
+        "Distribuer des paquets réseau"
+      ],
+      "answer": 2,
+      "explanation": "Azure Monitor regroupe des capacités d’observabilité ; les sources et alertes doivent être configurées selon le besoin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un laboratoire Azure doit-il documenter les ressources à supprimer ?",
+      "choices": [
+        "Le portail supprime tout automatiquement",
+        "Une ressource dans un resource group ne peut jamais coûter",
+        "Seules les VM génèrent des frais",
+        "Des ressources persistantes comme réseau, stockage ou services managés peuvent rester facturables"
+      ],
+      "answer": 3,
+      "explanation": "Il faut vérifier les ressources créées et leurs dépendances avant le nettoyage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil en ligne de commande permet d’administrer des ressources Azure ?",
+      "choices": [
+        "Azure CLI (`az`)",
+        "`gcloud` uniquement",
+        "`aws` uniquement",
+        "`rsync`"
+      ],
+      "answer": 0,
+      "explanation": "Azure CLI est l’outil en ligne de commande pour gérer de nombreuses ressources Azure, selon les commandes et modules disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi attribuer des rôles à des groupes plutôt qu’à chaque utilisateur individuellement lorsque c’est approprié ?",
+      "choices": [
+        "Pour supprimer l’audit d’accès",
+        "Pour faciliter une gestion cohérente et maintenable des permissions",
+        "Pour donner le rôle Owner à tout le monde",
+        "Pour ignorer les changements de personnel"
+      ],
+      "answer": 1,
+      "explanation": "Les groupes simplifient la gestion, mais les rôles et la portée doivent rester fondés sur le moindre privilège."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle doit suivre la création d’une ressource cloud ?",
+      "choices": [
+        "Uniquement vérifier son nom dans le portail",
+        "Considérer le succès du déploiement comme preuve de disponibilité",
+        "Vérifier sa configuration, son accès, ses journaux et les critères fonctionnels pertinents",
+        "Supprimer les politiques de conformité"
+      ],
+      "answer": 2,
+      "explanation": "La création technique ne prouve pas que la ressource est sûre ou utile ; les critères doivent être testés."
     }
   ]
 }

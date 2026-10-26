@@ -1,18 +1,186 @@
 {
   "node_id": "cloud-serverless-intermediaire",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Pourquoi une fonction événementielle doit-elle prendre en compte les duplications ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "La plateforme peut effectuer des tentatives ou livrer plusieurs fois un événement selon ses garanties",
+        "Chaque événement est toujours livré exactement une fois",
+        "Les erreurs ne provoquent jamais de reprise",
+        "La file de messages supprime les doublons sans configuration"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Les garanties de livraison varient ; l’application doit gérer les duplications lorsque c’est nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle a une dead-letter queue (DLQ) ?",
+      "choices": [
+        "Augmenter la mémoire d’une fonction",
+        "Recevoir les messages qui n’ont pas pu être traités selon la politique de reprise",
+        "Remplacer la base de données de production",
+        "Garantir que les messages ne contiendront jamais d’erreur"
+      ],
+      "answer": 1,
+      "explanation": "La DLQ isole les messages persistamment en échec pour les examiner et décider d’une reprise contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir des timeouts et limites de concurrence ?",
+      "choices": [
+        "Pour éviter tout appel simultané",
+        "Pour désactiver l’autoscaling",
+        "Pour contrôler les ressources, la latence, la pression sur les dépendances et les coûts",
+        "Pour rendre la fonction toujours synchrone"
+      ],
+      "answer": 2,
+      "explanation": "La concurrence et le timeout influencent la capacité, les files, les dépendances aval et la facture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement est approprié lorsqu’un appel à une API externe échoue temporairement ?",
+      "choices": [
+        "Réessayer sans limite le plus rapidement possible",
+        "Ignorer chaque erreur et renvoyer un succès",
+        "Augmenter immédiatement les permissions",
+        "Utiliser des reprises bornées, un délai/backoff et une gestion explicite des erreurs permanentes"
+      ],
+      "answer": 3,
+      "explanation": "Les reprises bornées réduisent les boucles et les tempêtes de requêtes ; les échecs permanents doivent être isolés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une fonction asynchrone doit-elle gérer l’idempotence au niveau métier ?",
+      "choices": [
+        "Une même commande peut être répétée et ne doit pas créer deux paiements ou deux résultats si le traitement exige l’unicité",
+        "La base de données ignore toujours les doublons",
+        "Les appels asynchrones sont toujours ordonnés",
+        "Il n’y a jamais de tentative de reprise"
+      ],
+      "answer": 0,
+      "explanation": "L’idempotence et les clés de déduplication permettent de neutraliser les livraisons répétées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le versionnement d’une fonction ou d’une release serverless ?",
+      "choices": [
+        "À empêcher la révision du code",
+        "À identifier un artefact et permettre une promotion ou un retour à une version connue",
+        "À rendre toutes les exécutions stateless automatiquement",
+        "À remplacer les métriques"
+      ],
+      "answer": 1,
+      "explanation": "Une release identifiée aide à déployer graduellement et à revenir à une version connue selon les capacités du fournisseur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le schéma des événements doit-il être géré explicitement ?",
+      "choices": [
+        "Pour changer automatiquement les droits IAM",
+        "Pour que les consommateurs ignorent les champs",
+        "Pour éviter qu’une évolution producteur casse les consommateurs et pour valider le contrat de données",
+        "Pour supprimer le besoin de tests"
+      ],
+      "answer": 2,
+      "explanation": "La compatibilité des schémas et la validation limitent les ruptures lorsque les événements évoluent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire un pipeline de déploiement serverless après la publication d’une fonction ?",
+      "choices": [
+        "S’arrêter après la compilation seulement",
+        "Désactiver les alertes",
+        "Supprimer toutes les anciennes versions sans vérifier",
+        "Exécuter des tests d’intégration, vérifier les permissions et surveiller les erreurs/latences avant promotion complète"
+      ],
+      "answer": 3,
+      "explanation": "La recette doit vérifier le comportement réel dans l’environnement cible et conserver une option de récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque des reprises massives sur une dépendance déjà en panne ?",
+      "choices": [
+        "Amplifier la charge et créer une tempête de requêtes",
+        "Supprimer automatiquement les erreurs",
+        "Garantir un retour à la normale",
+        "Diminuer toujours les coûts"
+      ],
+      "answer": 0,
+      "explanation": "Backoff, plafonds et circuit breakers peuvent éviter d’aggraver une dégradation aval."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer le traitement asynchrone et la réponse API immédiate peut-il être utile ?",
+      "choices": [
+        "Pour supprimer la cohérence",
+        "Pour rendre l’API plus rapide à répondre lorsque le traitement long est accepté en arrière-plan",
+        "Pour éliminer le besoin d’idempotence",
+        "Pour garantir une livraison exactement une fois"
+      ],
+      "answer": 1,
+      "explanation": "La réponse d’acceptation n’équivaut pas à la fin du travail ; l’état du traitement doit être observable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment gérer des événements rejetés après plusieurs essais ?",
+      "choices": [
+        "Les relancer indéfiniment au même rythme",
+        "Effacer la queue sans rapport",
+        "Les isoler en DLQ ou mécanisme équivalent, alerter et définir une procédure de correction/replay",
+        "Les marquer traités sans analyse"
+      ],
+      "answer": 2,
+      "explanation": "L’isolation permet l’analyse sans bloquer ou répéter sans fin les messages en erreur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être pris en compte dans l’analyse des coûts serverless ?",
+      "choices": [
+        "Le seul nombre de fonctions",
+        "Le nombre de lignes de code uniquement",
+        "La facture est toujours nulle hors charge",
+        "Invocations, durée, mémoire/ressources, trafic, stockage, journaux et services aval"
+      ],
+      "answer": 3,
+      "explanation": "Les coûts se composent de plusieurs dimensions liées à l’exécution et aux dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un test d’intégration doit-il couvrir l’identité d’exécution ?",
+      "choices": [
+        "Une fonction peut réussir localement mais manquer de permissions dans son environnement cible",
+        "L’identité ne joue aucun rôle",
+        "Les rôles sont toujours identiques partout",
+        "Une fonction peut contourner toute autorisation"
+      ],
+      "answer": 0,
+      "explanation": "Les permissions d’exécution sont essentielles aux appels aux données et autres services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’avantage de la corrélation par identifiant de requête ou d’événement ?",
+      "choices": [
+        "Remplacer les contrôles de sécurité",
+        "Relier logs et traces entre les différentes fonctions et services impliqués dans le traitement",
+        "Garantir que chaque événement n’est traité qu’une fois",
+        "Supprimer les coûts de journalisation"
+      ],
+      "answer": 1,
+      "explanation": "La corrélation aide à reconstruire le parcours d’un événement à travers un système distribué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est particulièrement utile avant de migrer une fonction synchrone vers une architecture événementielle ?",
+      "choices": [
+        "Vérifier seulement son nom",
+        "Augmenter la mémoire sans mesure",
+        "Analyser latence, contrat de réponse, durabilité, retries, doublons et gestion des erreurs",
+        "Supprimer les tests de bout en bout"
+      ],
+      "answer": 2,
+      "explanation": "Le modèle asynchrone change les garanties de réponse et de livraison ; les cas d’échec doivent être redéfinis."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

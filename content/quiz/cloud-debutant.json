@@ -4,15 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Cloud Networking - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle est la fonction d’un réseau virtuel cloud (VPC/VNet) ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Fournir un espace réseau logique pour organiser adresses, sous-réseaux et connectivité",
+        "Remplacer les services DNS",
+        "Gérer les comptes utilisateurs",
+        "Remplacer les systèmes d’exploitation des VM"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les réseaux virtuels fournissent la base de la connectivité cloud, avec des comportements spécifiques selon le fournisseur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un sous-réseau ?",
+      "choices": [
+        "À stocker les clés de chiffrement",
+        "À découper un espace d’adressage en plages utilisées par des ressources ou services",
+        "À exécuter les conteneurs",
+        "À remplacer les tables de routage"
+      ],
+      "answer": 1,
+      "explanation": "Le découpage en sous-réseaux facilite l’adressage et l’organisation, avec règles propres au fournisseur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément détermine où un paquet est envoyé pour une destination donnée ?",
+      "choices": [
+        "La facture cloud",
+        "Le nom de la machine",
+        "Une table de routage et les règles de sélection applicables",
+        "Le groupe de ressources seul"
+      ],
+      "answer": 2,
+      "explanation": "Le routage sélectionne le prochain saut, tandis que le filtrage détermine si le flux est autorisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une adresse IP privée n’implique-t-elle pas un accès Internet direct ?",
+      "choices": [
+        "Toutes les IP privées sont publiques dans le cloud",
+        "Les pare-feu sont désactivés par défaut",
+        "Le DNS fournit toujours un chemin Internet",
+        "Il faut un chemin de sortie adapté (par exemple NAT), des routes et des règles compatibles"
+      ],
+      "answer": 3,
+      "explanation": "L’accès Internet dépend de la topologie, de la translation éventuelle et des contrôles réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence générale entre IaaS et PaaS ?",
+      "choices": [
+        "IaaS laisse davantage de gestion de l’OS/instance au client ; PaaS gère davantage la plateforme sous-jacente",
+        "IaaS est toujours gratuit",
+        "PaaS ne peut jamais utiliser un réseau",
+        "Les deux exigent toujours de gérer un serveur physique"
+      ],
+      "answer": 0,
+      "explanation": "Les modèles de service répartissent différemment les responsabilités entre fournisseur et client."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une table de routage peut-elle avoir une route par défaut ?",
+      "choices": [
+        "Pour autoriser chaque port entrant",
+        "Pour définir une cible pour les destinations qui ne correspondent pas à une route plus spécifique",
+        "Pour remplacer tous les pare-feu",
+        "Pour stocker des secrets d’accès"
+      ],
+      "answer": 1,
+      "explanation": "La route par défaut gère les destinations sans route plus spécifique ; sa cible doit être adaptée et sécurisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil réduit les risques d’accès réseau involontaire aux ressources ?",
+      "choices": [
+        "Le nombre de régions utilisées",
+        "La taille du disque VM",
+        "Des règles de filtrage réseau limitées aux flux nécessaires",
+        "Le nom du sous-réseau"
+      ],
+      "answer": 2,
+      "explanation": "Les groupes de sécurité et pare-feu contrôlent les flux, mais doivent être cohérents avec le routage et l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel réflexe est important avant de mettre en service une ressource cloud ?",
+      "choices": [
+        "Ouvrir tous les ports jusqu’à ce que l’application marche",
+        "Supposer que le déploiement a activé la sécurité",
+        "Ne pas vérifier les coûts tant que le test est terminé",
+        "Vérifier l’adressage, les routes, les accès, la supervision et les coûts"
+      ],
+      "answer": 3,
+      "explanation": "Le provisionnement doit être suivi de tests fonctionnels, de sécurité et d’exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le DNS dans une architecture cloud ?",
+      "choices": [
+        "Associer les noms aux adresses et permettre aux clients de trouver les services selon la résolution configurée",
+        "Remplacer la table de routage",
+        "Autoriser les flux filtrés",
+        "Créer les identités IAM"
+      ],
+      "answer": 0,
+      "explanation": "Le DNS aide à résoudre les noms, mais ne garantit pas à lui seul la joignabilité du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi documenter les plages CIDR avant de connecter deux environnements ?",
+      "choices": [
+        "Les CIDR ne sont utilisés que dans les VPC publics",
+        "Pour éviter les chevauchements qui compliquent ou bloquent le routage",
+        "Pour remplacer les noms DNS",
+        "Pour rendre les sous-réseaux plus rapides"
+      ],
+      "answer": 1,
+      "explanation": "Un plan cohérent est essentiel au peering et à la connectivité hybride."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne raison d’utiliser un NAT dans certains cas ?",
+      "choices": [
+        "Autoriser toute connexion entrante depuis Internet",
+        "Remplacer l’identité des workloads",
+        "Fournir une sortie réseau aux ressources privées sans leur attribuer nécessairement une adresse publique",
+        "Faire office de service DNS"
+      ],
+      "answer": 2,
+      "explanation": "NAT facilite des connexions sortantes ; il ne remplace pas les routes, les règles ou les tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’un réseau hybride ?",
+      "choices": [
+        "Un réseau avec seulement des machines virtuelles",
+        "Un réseau sans routage",
+        "Un réseau réservé au stockage objet",
+        "Une architecture qui relie un environnement cloud à des réseaux locaux ou à d’autres environnements"
+      ],
+      "answer": 3,
+      "explanation": "L’hybridation relie plusieurs environnements et demande une planification des routes, de l’adressage et de la sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester séparément les flux autorisés et interdits ?",
+      "choices": [
+        "Pour confirmer la connectivité requise et vérifier que la segmentation empêche les flux non prévus",
+        "Pour supprimer les règles firewall",
+        "Pour remplacer le monitoring",
+        "Pour éviter les tests d’application"
+      ],
+      "answer": 0,
+      "explanation": "La validation doit confirmer le fonctionnement attendu mais aussi les limites de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil peut aider à diagnostiquer un accès réseau qui échoue ?",
+      "choices": [
+        "Un rapport de coûts uniquement",
+        "Les routes effectives, les logs réseau et les tests adaptés du chemin",
+        "Le nom de l’icône",
+        "Un éditeur de texte sans mesures"
+      ],
+      "answer": 1,
+      "explanation": "Les preuves réseau doivent être corrélées au routage, au filtrage, au DNS et au comportement applicatif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il supprimer les ressources de laboratoire qui ne sont plus requises ?",
+      "choices": [
+        "Le cloud ne facture jamais les ressources inutilisées",
+        "Toutes les ressources s’effacent à la fermeture de la console",
+        "Pour éviter les ressources orphelines et les frais persistants",
+        "Pour que les CIDR changent automatiquement"
+      ],
+      "answer": 2,
+      "explanation": "Le nettoyage doit être vérifié explicitement car certaines ressources persistent et peuvent coûter."
     }
   ]
 }

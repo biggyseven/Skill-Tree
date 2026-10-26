@@ -1,18 +1,186 @@
 {
+  "node_id": "cloud-serverless-debutant",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour valider la synchronisation.",
+      "prompt": "Que signifie « serverless » ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Le fournisseur gère une grande partie de l’infrastructure de serveurs, sans que le service soit littéralement dépourvu de serveurs",
+        "Aucun serveur physique n’existe",
+        "L’application n’a pas besoin de réseau",
+        "Le code est stocké uniquement dans le navigateur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un placeholder."
+      "explanation": "Serverless décrit le modèle de gestion de l’infrastructure et de consommation, pas l’absence de serveurs réels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un déclencheur dans un service serverless ?",
+      "choices": [
+        "Attribuer un CIDR au réseau",
+        "Démarrer une fonction à la suite d’un événement ou d’un appel configuré",
+        "Remplacer la base de données",
+        "Gérer les comptes d’un fournisseur cloud"
+      ],
+      "answer": 1,
+      "explanation": "Le déclencheur relie un événement, une requête ou un horaire à l’exécution du code."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer une API, une fonction et un stockage dans un schéma serverless ?",
+      "choices": [
+        "Pour obliger chaque service à être public",
+        "Pour supprimer les tests unitaires",
+        "Pour comprendre la responsabilité de chaque composant et ses interactions",
+        "Pour éviter de traiter la sécurité"
+      ],
+      "answer": 2,
+      "explanation": "La séparation aide à raisonner sur le flux, les droits, la persistance et les défaillances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un traitement asynchrone dans une architecture événementielle ?",
+      "choices": [
+        "Le client doit rester connecté à la fonction jusqu’à la fin dans tous les cas",
+        "La fonction ne peut jamais échouer",
+        "Les messages sont toujours traités exactement une seule fois",
+        "L’émetteur peut recevoir une acceptation avant que le traitement final soit terminé"
+      ],
+      "answer": 3,
+      "explanation": "L’asynchrone dissocie l’émission de l’achèvement ; il faut surveiller les échecs et définir les reprises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle caractéristique doit avoir idéalement une fonction déclenchée plusieurs fois après des tentatives de reprise ?",
+      "choices": [
+        "Être idempotente ou gérer explicitement les duplications pour éviter les effets répétés indésirables",
+        "Créer une nouvelle charge facturable à chaque tentative sans limite",
+        "Désactiver la validation des entrées",
+        "Stocker les secrets dans le code"
+      ],
+      "answer": 0,
+      "explanation": "Les événements peuvent être répétés selon le service ; l’idempotence limite les effets doubles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une API Gateway dans une architecture adaptée ?",
+      "choices": [
+        "Remplacer toutes les fonctions",
+        "Exposer et contrôler des endpoints API avec des fonctions de gestion selon la plateforme",
+        "Créer le réseau physique du cloud",
+        "Remplacer tous les journaux"
+      ],
+      "answer": 1,
+      "explanation": "Une passerelle API peut gérer routage, auth, quotas et autres contrôles selon ses fonctionnalités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une fonction serverless doit-elle avoir des permissions minimales ?",
+      "choices": [
+        "Le fournisseur lui donne toujours toutes les permissions",
+        "Les permissions n’influencent pas une fonction",
+        "Une compromission ou une erreur de code ne devrait pas permettre des actions hors de son besoin",
+        "Pour empêcher tout accès aux données nécessaires"
+      ],
+      "answer": 2,
+      "explanation": "Une identité dédiée avec droits minimaux réduit le rayon d’impact d’une faille."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur aide à repérer les problèmes d’une fonction en production ?",
+      "choices": [
+        "La seule couleur du diagramme",
+        "Le nom du fichier source",
+        "Le nombre de commentaires du code",
+        "Erreurs, latence, durée, taux de reprise et consommation selon les métriques disponibles"
+      ],
+      "answer": 3,
+      "explanation": "L’observabilité doit couvrir les erreurs et performances, avec seuils et contexte d’exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque une fonction peut-elle présenter si elle est appelée fréquemment ou pendant longtemps ?",
+      "choices": [
+        "Coûts d’invocations/temps d’exécution et limites propres au service",
+        "La gratuité garantie",
+        "La suppression automatique des journaux",
+        "L’absence de dépendances applicatives"
+      ],
+      "answer": 0,
+      "explanation": "La facturation et les quotas dépendent du service et du modèle d’usage ; il faut les estimer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une file de messages est-elle utile entre producteurs et consommateurs ?",
+      "choices": [
+        "Pour remplacer tous les tests",
+        "Pour découpler les composants et absorber des pics ou des traitements différés",
+        "Pour rendre le stockage totalement cohérent sans choix d’architecture",
+        "Pour donner les permissions IAM"
+      ],
+      "answer": 1,
+      "explanation": "Une file permet de découpler le rythme producteur/consommateur, mais nécessite gestion des échecs et de la livraison."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être configuré lorsqu’une fonction traite des données privées ?",
+      "choices": [
+        "Un endpoint public sans contrôle",
+        "Un nom de fonction très long",
+        "Authentification, permissions, protection des secrets et validation des entrées",
+        "Une route par défaut sans firewall"
+      ],
+      "answer": 2,
+      "explanation": "La sécurité comprend identité, autorisation, secrets et validation, selon le contexte du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas garder un état métier uniquement dans la mémoire locale d’une fonction ?",
+      "choices": [
+        "La mémoire locale est toujours répliquée dans toutes les régions",
+        "Elle remplace une base relationnelle",
+        "Elle garantit les reprises",
+        "L’environnement peut être réutilisé, arrêté ou recréé ; la persistance doit utiliser un stockage adapté"
+      ],
+      "answer": 3,
+      "explanation": "La mémoire d’exécution n’est pas un stockage durable et partagé garanti."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire une fonction si elle reçoit un événement invalide ?",
+      "choices": [
+        "Valider l’entrée, produire un résultat observable et traiter l’échec selon la politique définie",
+        "Accepter toutes les données",
+        "Imprimer les secrets pour faciliter le débogage",
+        "Déclencher tous les traitements aval"
+      ],
+      "answer": 0,
+      "explanation": "Les entrées invalides doivent être rejetées ou mises en quarantaine selon le contrat, avec logs appropriés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester une fonction localement ne suffit-il pas toujours ?",
+      "choices": [
+        "Les fonctions serverless ne peuvent être testées",
+        "L’environnement réel comprend identité, déclencheurs, quotas, réseau et services intégrés qui doivent aussi être vérifiés",
+        "Les tests locaux remplacent la supervision",
+        "La logique métier ne peut pas être testée"
+      ],
+      "answer": 1,
+      "explanation": "Les tests locaux couvrent une partie de la logique ; l’intégration et les permissions réelles exigent d’autres tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique convient après un laboratoire serverless ?",
+      "choices": [
+        "Laisser chaque endpoint de test public",
+        "Supprimer les métriques",
+        "Retirer les ressources et permissions temporaires non nécessaires après vérification",
+        "Partage de la clé d’administration"
+      ],
+      "answer": 2,
+      "explanation": "Le nettoyage prévient les coûts persistants et retire les accès temporaires."
     }
-  ],
-  "node_id": "cloud-serverless-debutant",
-  "scope": "quiz"
+  ]
 }
