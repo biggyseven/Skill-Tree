@@ -397,14 +397,15 @@ def connect(
     if readonly and not uri:
         local_database = Path(local_database).expanduser().resolve().as_uri() + "?mode=ro"
         uri = True
-    return _sqlite3.connect(
-        local_database,
-        timeout=timeout,
-        detect_types=detect_types,
-        isolation_level=isolation_level,
-        check_same_thread=check_same_thread,
-        factory=factory,
-        cached_statements=cached_statements,
-        uri=uri,
+    sqlite_kwargs: dict[str, Any] = {
+        "timeout": timeout,
+        "detect_types": detect_types,
+        "isolation_level": isolation_level,
+        "check_same_thread": check_same_thread,
+        "cached_statements": cached_statements,
+        "uri": uri,
         **kwargs,
-    )
+    }
+    if factory is not None:
+        sqlite_kwargs["factory"] = factory
+    return _sqlite3.connect(local_database, **sqlite_kwargs)
