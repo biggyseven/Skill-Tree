@@ -175,7 +175,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("get nextLessonNode()", resume_methods)
         self.assertIn("if (!this.resumableLastNode) return null", resume_methods)
         self.assertIn("String(next.id) === String(this.resumableLastNode.id)", resume_methods)
-        self.assertIn('x-show="nextLessonNode"', DASHBOARD_HTML)
+        self.assertIn('x-show="nextLessonNode && !moduleNextCourse"', DASHBOARD_HTML)
         self.assertIn("nextLessonNode ? nextLessonNode.title : ''", DASHBOARD_HTML)
         self.assertIn("nextLessonNode && show(nextLessonNode.id)", DASHBOARD_HTML)
         self.assertIn("Prochaine leçon →", DASHBOARD_HTML)
@@ -540,7 +540,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         resumable_getter = DASHBOARD_HTML[start:end]
 
         self.assertIn("return node && node.status !== 'locked' ? node : null;", resumable_getter)
-        self.assertIn("return this.resumableLastNode\n            || this.parcours.cur", DASHBOARD_HTML)
+        self.assertIn("return this.moduleNextCourse\n            || this.resumableLastNode\n            || this.parcours.cur", DASHBOARD_HTML)
         self.assertIn('x-text="resumeBadge"', DASHBOARD_HTML)
         self.assertIn('x-show="resumableLastNode"', DASHBOARD_HTML)
         self.assertIn('x-text="resumeButtonLabel"', DASHBOARD_HTML)
