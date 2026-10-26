@@ -531,10 +531,24 @@
     [data-theme-picker] { position: relative; }
     [data-theme-picker] > div[x-show="themeMenuOpen"] { transform-origin: top right; }
 
+    /* Préférences utilisateur : impact réel sur la densité et les animations de l'interface. */
+    html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+      scroll-behavior: auto !important;
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+    body.compact-ui .skill-sidebar { padding-top: .85rem !important; padding-bottom: .85rem !important; }
+    body.compact-ui main { padding-bottom: 1.5rem !important; }
+    body.compact-ui .nav-action-btn { width: 2.25rem !important; height: 2.25rem !important; }
+    body.compact-ui .lesson-content { padding: 1rem !important; }
+    body.compact-ui .lesson-prose :where(p, li) { margin-bottom: .55em !important; }
+    body.compact-ui .lesson-toc-panel nav a { padding-top: .35rem !important; padding-bottom: .35rem !important; }
+
   </style>
 </head>
 
-<body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode }" @click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event)">
+<body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode, 'compact-ui': compactUi }" @click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event)">
 
   <!-- ================= SIDEBAR ================= -->
   <aside x-show="!focusMode" class="skill-sidebar hidden h-full flex-col bg-[color:var(--bg)] py-6 transition-all duration-300 md:flex" :class="sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'">
@@ -719,20 +733,76 @@
         <button type="button" @click.stop="settingsMenuOpen = !settingsMenuOpen; notificationsOpen = false; profileMenuOpen = false; themeMenuOpen = false" title="Paramètres" aria-label="Ouvrir les paramètres" aria-haspopup="true" :aria-expanded="settingsMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
         </button>
-        <div x-show="settingsMenuOpen" x-cloak @click.outside="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-64 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-2 shadow-2xl">
-          <button @click="themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
-            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> Changer de thème
-          </button>
-          <button @click="reloadContent(); settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
-            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Recharger les données
-          </button>
-          <button @click="modMgrOpen = true; settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
-            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"></path></svg> Gérer les modules et niveaux
-          </button>
-          <div class="h-px w-full bg-white/5 my-1"></div>
-          <button @click="exportData(); settingsMenuOpen = false" class="w-full flex items-center gap-3 text-left rounded-xl px-4 py-3 text-xs text-zinc-300 hover:text-white hover:bg-white/5 transition">
-            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg> Exporter mes données (JSON)
-          </button>
+        <div x-show="settingsMenuOpen" x-cloak @click.outside="settingsMenuOpen = false" @keydown.escape.window="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-[min(26rem,calc(100vw-2rem))] max-h-[min(82vh,44rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl">
+          <div class="flex items-start justify-between gap-3 border-b border-white/10 px-1 pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white">Centre de préférences</h3>
+              <p class="mt-1 text-[11px] leading-relaxed text-zinc-500">Personnalise l’interface et la lecture. Tes choix sont conservés sur cet appareil.</p>
+            </div>
+            <span class="shrink-0 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-[10px] font-semibold text-emerald-200" x-text="(nodes?.length || 0) + ' cours'"></span>
+          </div>
+
+          <section class="space-y-3 border-b border-white/10 py-4" aria-labelledby="settings-display-title">
+            <h4 id="settings-display-title" class="px-1 text-[10px] font-bold uppercase tracking-[0.17em] text-zinc-500">Apparence et accessibilité</h4>
+            <button type="button" @click="themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false" class="flex w-full items-center gap-3 rounded-xl border border-white/10 px-3 py-3 text-left transition hover:border-emerald-400/30 hover:bg-white/[0.04]">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-violet-200" aria-hidden="true">◐</span>
+              <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-white">Thème et couleurs</span><span class="mt-1 block text-[10px] text-zinc-500">Choisir parmi les palettes disponibles</span></span>
+              <span class="text-xs text-zinc-400">Modifier →</span>
+            </button>
+
+            <div class="rounded-xl border border-white/10 bg-white/[0.025] p-3">
+              <div class="mb-2 flex items-center justify-between gap-3">
+                <label class="text-xs font-semibold text-zinc-200" for="settings-reading-font-size">Taille du texte des cours</label>
+                <output class="rounded-lg bg-white/5 px-2 py-1 font-mono text-[11px] text-cyan-200" x-text="fontSize + ' px'"></output>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" @click="changeFontSize(-1)" :disabled="fontSize <= 14" aria-label="Réduire la taille du texte" class="flex h-9 w-10 items-center justify-center rounded-lg border border-white/10 text-sm font-bold text-zinc-200 transition hover:bg-white/5 disabled:opacity-35">A−</button>
+                <input id="settings-reading-font-size" type="range" min="14" max="22" step="1" :value="fontSize" @input="fontSize = Math.min(22, Math.max(14, Number($event.target.value) || 17)); saveUiPrefs()" aria-label="Taille du texte des cours" class="min-w-0 flex-1 accent-cyan-400">
+                <button type="button" @click="changeFontSize(1)" :disabled="fontSize >= 22" aria-label="Agrandir la taille du texte" class="flex h-9 w-10 items-center justify-center rounded-lg border border-white/10 text-sm font-bold text-zinc-200 transition hover:bg-white/5 disabled:opacity-35">A+</button>
+              </div>
+            </div>
+
+            <button type="button" @click="toggleReadingWidth()" :aria-pressed="readingWidth === 'wide'" class="flex w-full items-center gap-3 rounded-xl border border-white/10 px-3 py-3 text-left transition hover:bg-white/[0.04]">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-200" aria-hidden="true">↔</span>
+              <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-white">Largeur de lecture</span><span class="mt-1 block text-[10px] text-zinc-500" x-text="readingWidth === 'wide' ? 'Large · utilise toute la largeur' : 'Confortable · ligne plus courte'"></span></span>
+              <span class="rounded-lg border border-white/10 px-2 py-1 text-[10px] font-semibold text-zinc-300" x-text="readingWidth === 'wide' ? 'Large' : 'Confort'"></span>
+            </button>
+
+            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.04]">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-200" aria-hidden="true">▤</span>
+              <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-zinc-100">Interface compacte</span><span class="mt-1 block text-[10px] leading-relaxed text-zinc-500">Réduit les espaces et densifie les panneaux</span></span>
+              <input type="checkbox" x-model="compactUi" @change="saveSettingsPrefs()" aria-label="Interface compacte" class="h-4 w-4 shrink-0 accent-emerald-400">
+            </label>
+
+            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.04]">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-400/10 text-amber-200" aria-hidden="true">◌</span>
+              <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-zinc-100">Réduire les animations</span><span class="mt-1 block text-[10px] leading-relaxed text-zinc-500">Limite les mouvements, transitions et défilements animés</span></span>
+              <input type="checkbox" x-model="reduceMotion" @change="saveSettingsPrefs()" aria-label="Réduire les animations" class="h-4 w-4 shrink-0 accent-amber-300">
+            </label>
+          </section>
+
+          <section class="space-y-1 border-b border-white/10 py-4" aria-labelledby="settings-data-title">
+            <h4 id="settings-data-title" class="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.17em] text-zinc-500">Données et parcours</h4>
+            <button type="button" @click="reloadContent(); settingsMenuOpen = false" class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs text-zinc-300 transition hover:bg-white/5 hover:text-white">
+              <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              <span class="flex-1">Recharger les données</span><span class="text-[10px] text-zinc-600">Actualiser</span>
+            </button>
+            <button type="button" @click="modMgrOpen = true; settingsMenuOpen = false" class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs text-zinc-300 transition hover:bg-white/5 hover:text-white">
+              <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"></path></svg>
+              <span class="flex-1">Gérer les modules et niveaux</span><span class="text-[10px] text-zinc-600">Parcours</span>
+            </button>
+            <button type="button" @click="exportData(); settingsMenuOpen = false" class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs text-zinc-300 transition hover:bg-white/5 hover:text-white">
+              <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+              <span class="flex-1">Exporter mes données</span><span class="text-[10px] text-zinc-600">JSON ↓</span>
+            </button>
+          </section>
+
+          <div class="flex flex-col gap-2 pt-3">
+            <button type="button" @click="resetDisplayPreferences()" class="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-xs font-semibold text-zinc-300 transition hover:border-rose-400/25 hover:bg-rose-400/[0.06] hover:text-rose-200">
+              Rétablir les préférences d’affichage
+            </button>
+            <p class="px-1 text-[10px] leading-relaxed text-zinc-600">Les préférences sont locales à ce navigateur. L’export crée une sauvegarde JSON de tes données locales Skill-Tree.</p>
+          </div>
         </div>
       </div>
     </header>
@@ -2249,6 +2319,7 @@
         profileMenuOpen: false, profileDraft: '',
         theme: document.documentElement.classList.contains('light') ? 'light' : 'dark',
         focusMode: false, treeFilter: 'all', sidebarCollapsed: false,
+        compactUi: false, reduceMotion: false,
         notificationsOpen: false, settingsMenuOpen: false, tab: 'tree', tabHistory: [],
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
         lastOpenedNodeId: localStorage.getItem('skilltree-last-node') || '',
@@ -2337,17 +2408,50 @@
           }
         },
 
-        // --- Préférences d'affichage du lecteur (taille du texte, fenêtre agrandie) ---
+        // --- Préférences locales de l'interface et du lecteur ---
         loadUiPrefs() {
           try {
             const p = JSON.parse(localStorage.getItem('skilltree-ui') || '{}');
-            if (p.fs) this.fontSize = Math.min(22, Math.max(14, p.fs));
+            if (p.fs) this.fontSize = Math.min(22, Math.max(14, Number(p.fs) || 17));
             if (p.readingWidth === 'comfortable' || p.readingWidth === 'wide') this.readingWidth = p.readingWidth;
             this.isFullscreen = !!p.full;
-          } catch (e) { }
+          } catch (_) { }
+          try {
+            const p = JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}');
+            this.compactUi = p.compactUi === true;
+            this.reduceMotion = p.reduceMotion === true;
+          } catch (_) {
+            this.compactUi = false;
+            this.reduceMotion = false;
+          }
+          this.applySettingsPrefs();
         },
         saveUiPrefs() {
-          try { localStorage.setItem('skilltree-ui', JSON.stringify({ fs: this.fontSize, full: this.isFullscreen, readingWidth: this.readingWidth })); } catch (e) { }
+          try { localStorage.setItem('skilltree-ui', JSON.stringify({ fs: this.fontSize, full: this.isFullscreen, readingWidth: this.readingWidth })); } catch (_) { }
+        },
+        applySettingsPrefs() {
+          document.documentElement.classList.toggle('reduce-motion', !!this.reduceMotion);
+        },
+        saveSettingsPrefs() {
+          this.applySettingsPrefs();
+          try {
+            localStorage.setItem('skilltree-settings-v1', JSON.stringify({
+              compactUi: !!this.compactUi,
+              reduceMotion: !!this.reduceMotion,
+            }));
+          } catch (_) { }
+        },
+        resetDisplayPreferences() {
+          this.fontSize = 17;
+          this.readingWidth = 'comfortable';
+          this.isFullscreen = false;
+          this.compactUi = false;
+          this.reduceMotion = false;
+          this.saveUiPrefs();
+          this.saveSettingsPrefs();
+          if (typeof this.setTheme === 'function') this.setTheme('graphite');
+          this.settingsMenuOpen = false;
+          if (typeof this.notify === 'function') this.notify('Préférences d’affichage rétablies.');
         },
         loadLessonPositions() {
           try {
@@ -2572,7 +2676,48 @@
           this.profileMenuOpen = false;
         },
 
-        exportData() { alert("Profil sauvegardé !"); },
+        exportData() {
+          const localData = {};
+          const allowedPrefixes = ['skilltree-', 'st:'];
+          try {
+            for (let i = 0; i < localStorage.length; i += 1) {
+              const key = localStorage.key(i);
+              if (!key || !allowedPrefixes.some(prefix => key.startsWith(prefix))) continue;
+              const raw = localStorage.getItem(key);
+              try { localData[key] = JSON.parse(raw); } catch (_) { localData[key] = raw; }
+            }
+          } catch (_) { }
+          const snapshot = {
+            app: 'Skill-Tree',
+            schemaVersion: 1,
+            exportedAt: new Date().toISOString(),
+            preferences: {
+              theme: this.activeThemeId || document.documentElement.dataset.theme || 'graphite',
+              fontSize: this.fontSize,
+              readingWidth: this.readingWidth,
+              compactUi: !!this.compactUi,
+              reduceMotion: !!this.reduceMotion,
+            },
+            progress: {
+              lastOpenedNodeId: this.lastOpenedNodeId || '',
+              lastOpenedNodeStatus: this.lastOpenedNodeStatus || '',
+              lastLessonProgress: Number(this.lastLessonProgress) || 0,
+            },
+            localData,
+          };
+          const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = 'skilltree-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json';
+          anchor.style.display = 'none';
+          document.body.appendChild(anchor);
+          anchor.click();
+          anchor.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+          if (typeof this.notify === 'function') this.notify('Sauvegarde JSON téléchargée.');
+          return snapshot;
+        },
         reloadContent() { this.refreshAll(); },
         toggleTheme() { this.theme = this.theme === 'dark' ? 'light' : 'dark'; document.documentElement.classList.toggle('dark', this.theme === 'dark'); },
 
