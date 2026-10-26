@@ -4,15 +4,267 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité des conteneurs (Docker/K8s) » : à rédiger après le cours complet.",
+      "prompt": "Quelle caractéristique distingue généralement un conteneur Linux d’une machine virtuelle traditionnelle ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Chaque conteneur possède toujours un noyau indépendant",
+        "Le conteneur partage généralement le noyau de l’hôte et utilise des mécanismes d’isolation",
+        "Le conteneur ne peut pas accéder au réseau",
+        "Le conteneur est automatiquement invulnérable aux failles du noyau"
+      ],
+      "answer": 1,
+      "explanation": "Les conteneurs utilisent généralement le noyau partagé et s’appuient sur namespaces, cgroups et d’autres contrôles d’isolation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal risque associé au montage du socket Docker dans un conteneur applicatif ?",
+      "choices": [
+        "Il ralentit nécessairement le réseau",
+        "Il interdit le démarrage des processus non-root",
+        "Il peut permettre de contrôler le daemon et d’obtenir des pouvoirs élevés sur l’hôte",
+        "Il chiffre les fichiers du conteneur"
+      ],
+      "answer": 2,
+      "explanation": "Le socket donne une interface administrative puissante. Une application ordinaire ne doit pas en disposer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi supprimer un secret dans une instruction Dockerfile après l’avoir copié ne suffit-il pas ?",
+      "choices": [
+        "Le secret peut rester dans une couche antérieure de l’image",
+        "Docker supprime toujours tout l’historique",
+        "Le secret est converti en certificat",
+        "Le moteur interdit toute suppression de fichier"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Les couches d’image sont immuables et une couche antérieure peut conserver le secret. Il faut révoquer le secret exposé et reconstruire proprement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage principal apporte un utilisateur non-root dans un conteneur ?",
+      "choices": [
+        "Il remplace le scan d’image",
+        "Il garantit qu’aucune vulnérabilité noyau n’existe",
+        "Il permet d’éviter tout contrôle réseau",
+        "Il réduit les pouvoirs disponibles en cas de compromission du processus"
+      ],
+      "answer": 3,
+      "explanation": "Le non-root limite les privilèges du processus, sans remplacer les autres contrôles d’isolation et de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve principalement un digest d’image ?",
+      "choices": [
+        "Que l’image est totalement exempte de vulnérabilités",
+        "Il identifie un contenu précis et évite de dépendre uniquement d’un tag mutable",
+        "Que l’éditeur a été certifié par toutes les autorités",
+        "Que l’image ne contient aucun secret"
+      ],
+      "answer": 1,
+      "explanation": "Le digest permet de référencer un artefact précis. Sa confiance nécessite aussi provenance, source et contrôles de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une SBOM ?",
+      "choices": [
+        "À remplacer le noyau de l’hôte",
+        "À attribuer cluster-admin aux scanners",
+        "À inventorier les composants logiciels associés à un artefact",
+        "À ouvrir automatiquement les ports nécessaires"
+      ],
+      "answer": 2,
+      "explanation": "Une SBOM aide à identifier les composants et à rechercher les workloads concernés par une vulnérabilité donnée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les signatures d’images ne remplacent-elles pas l’analyse de vulnérabilités ?",
+      "choices": [
+        "Une signature peut prouver l’intégrité ou la provenance selon la politique, mais ne garantit pas l’absence de vulnérabilités",
+        "Une signature rend l’image modifiable sans trace",
+        "Les signatures ne fonctionnent que sur les fichiers texte",
+        "Une image signée ne peut pas être exécutée"
+      ],
+      "answer": 0,
+      "explanation": "L’intégrité et la provenance sont différentes de l’absence de vulnérabilités. Il faut combiner signature, scan et politique d’approbation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’un Pod Kubernetes en mode privileged ?",
+      "choices": [
+        "Il ne peut plus accéder à son réseau",
+        "Il supprime automatiquement les logs",
+        "Il empêche le scheduler de placer le Pod",
+        "Il élargit fortement les privilèges et peut augmenter le risque pour le nœud"
+      ],
+      "answer": 3,
+      "explanation": "Le mode privilégié est rarement nécessaire pour une application ordinaire et peut faciliter l’accès à des ressources sensibles de l’hôte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la fonction de Kubernetes RBAC ?",
+      "choices": [
+        "Analyser les CVE des images",
+        "Déterminer quels principaux peuvent effectuer quelles actions sur des ressources dans une portée donnée",
+        "Chiffrer automatiquement chaque volume",
+        "Appliquer les politiques réseau du CNI"
+      ],
+      "answer": 1,
+      "explanation": "RBAC contrôle les actions autorisées. Il doit être limité par principal, ressource, verbes et namespace."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le droit de créer des Pods peut-il être sensible ?",
+      "choices": [
+        "La création d’un Pod n’affecte jamais les permissions",
+        "Un Pod ne peut pas utiliser de volumes",
+        "Selon les autres contrôles, un Pod peut utiliser un ServiceAccount, monter des volumes ou adopter des paramètres dangereux",
+        "Créer un Pod désactive toujours le plan de contrôle"
+      ],
+      "answer": 2,
+      "explanation": "La spécification d’un Pod peut créer un chemin indirect vers des secrets ou ressources. RBAC doit être complété par des politiques d’admission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé à propos des namespaces Kubernetes est exact ?",
+      "choices": [
+        "Ils organisent les ressources mais ne forment pas à eux seuls une frontière complète d’isolation",
+        "Ils garantissent le blocage de tous les flux inter-namespace",
+        "Ils interdisent automatiquement les privilèges élevés",
+        "Ils remplacent RBAC"
+      ],
+      "answer": 0,
+      "explanation": "Les namespaces doivent être complétés par RBAC, Pod Security, NetworkPolicy et d’autres contrôles adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il désactiver le montage automatique du jeton d’un ServiceAccount ?",
+      "choices": [
+        "Pour tous les workloads même s’ils en ont besoin, sans vérifier",
+        "Uniquement pour les Pods qui n’ont jamais de processus",
+        "Seulement quand un Pod utilise un volume",
+        "Lorsque le workload n’a pas besoin de contacter l’API Kubernetes, après vérification de ses dépendances"
+      ],
+      "answer": 3,
+      "explanation": "Ne pas monter un jeton inutile réduit l’exposition. Si l’application utilise l’API, il faut une méthode explicite et des permissions minimales."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle des Pod Security Standards ?",
+      "choices": [
+        "Remplacer l’authentification au registre",
+        "Définir des niveaux de restrictions applicables à la configuration de sécurité des Pods",
+        "Garantir le chiffrement de tous les Secrets",
+        "Effectuer automatiquement un scan de dépendances"
+      ],
+      "answer": 1,
+      "explanation": "Les niveaux Privileged, Baseline et Restricted permettent d’encadrer les configurations de Pod et doivent être appliqués selon le risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant de compter sur une NetworkPolicy ?",
+      "choices": [
+        "Uniquement le nom du namespace",
+        "Qu’un tag latest soit présent",
+        "Que le plugin CNI utilisé prenne en charge et applique effectivement les politiques réseau",
+        "Que tous les Pods aient cluster-admin"
+      ],
+      "answer": 2,
+      "explanation": "Les objets NetworkPolicy ne garantissent pas l’isolation si la plateforme réseau ne les applique pas ou si les sélecteurs sont incorrects."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre ingress et egress dans les politiques réseau ?",
+      "choices": [
+        "Ingress contrôle les flux entrants ; egress contrôle les flux sortants",
+        "Ingress est une méthode d’authentification et egress un type de secret",
+        "Les deux sont toujours identiques",
+        "Egress ne concerne que les images Docker"
+      ],
+      "answer": 0,
+      "explanation": "Les flux entrants et sortants ont des politiques distinctes. Une stratégie complète doit traiter les deux selon les besoins."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est adaptée à un Secret Kubernetes ?",
+      "choices": [
+        "Le stocker dans un ConfigMap pour le rendre plus simple à partager",
+        "Le copier dans le Dockerfile",
+        "Le rendre lisible par tous les développeurs du cluster",
+        "Limiter son accès et vérifier le chiffrement au repos, la manière d’injection et la rotation"
+      ],
+      "answer": 3,
+      "explanation": "Un objet Secret exige toujours des permissions, une configuration de stockage et une injection de données appropriées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent requests et limits Kubernetes ?",
+      "choices": [
+        "À signer les images",
+        "À gérer la demande et la consommation des ressources pour aider au placement et limiter la surconsommation",
+        "À remplacer les règles d’autorisation",
+        "À chiffrer le réseau entre Pods"
+      ],
+      "answer": 1,
+      "explanation": "Les paramètres de ressources, quotas et limites aident à éviter qu’un workload épuise les ressources partagées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel traitement est préférable lorsqu’un webhook d’admission bloque un Pod non conforme ?",
+      "choices": [
+        "Désactiver globalement l’admission sans analyse",
+        "Donner cluster-admin au développeur",
+        "Corriger la spécification ou utiliser une exception temporaire approuvée et documentée",
+        "Ignorer le contrôle lors de chaque release"
+      ],
+      "answer": 2,
+      "explanation": "Une correction ciblée préserve la politique. Une désactivation globale augmente le risque sur tous les déploiements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action doit suivre une clé publiée dans une image déjà distribuée ?",
+      "choices": [
+        "La considérer comme exposée, la révoquer, examiner les usages et reconstruire une image propre",
+        "Supprimer uniquement le fichier du dépôt",
+        "Conserver la clé car l’image a été signée",
+        "Masquer le mot clé dans les logs mais garder l’identifiant actif"
+      ],
+      "answer": 0,
+      "explanation": "Un secret peut persister dans les couches et copies déjà publiées. La révocation et l’analyse de l’impact sont indispensables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles informations doivent guider un triage d’incident sur un conteneur compromis ?",
+      "choices": [
+        "Seulement le nom visible du Pod",
+        "Uniquement le tag d’image",
+        "Seulement le nombre de redémarrages",
+        "Le digest, l’identité, le nœud, les secrets accessibles, les flux et les événements corrélés"
+      ],
+      "answer": 3,
+      "explanation": "Ces éléments permettent de comprendre le périmètre, identifier les autres workloads concernés et préparer une réponse vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel bénéfice apporte un build multi-stage bien conçu ?",
+      "choices": [
+        "Il rend inutiles les mises à jour de sécurité",
+        "Il sépare les outils de compilation de l’image finale et peut réduire sa surface d’attaque",
+        "Il garantit que tous les paquets sont sûrs",
+        "Il permet d’intégrer les secrets à l’image sans risque"
+      ],
+      "answer": 1,
+      "explanation": "L’image finale peut contenir uniquement l’artefact et ses dépendances d’exécution. Les autres contrôles restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble décrit le mieux une chaîne d’images de production fiable ?",
+      "choices": [
+        "Tag latest et publication manuelle avec un compte partagé",
+        "Image minimale sans scan ni provenance",
+        "Source approuvée, build contrôlé, scan, SBOM/provenance, signature et admission vérifiée",
+        "Une image de développement copiée directement sans test"
+      ],
+      "answer": 2,
+      "explanation": "La confiance repose sur la provenance, l’analyse, l’identité du signataire, la vérification à l’admission et la traçabilité du digest."
     }
   ]
 }
