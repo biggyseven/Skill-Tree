@@ -6923,7 +6923,7 @@
     "title": "La Triade CIA",
     "category": "Cybersécurité",
     "order": 900,
-    "description": "Squelette du cours de cybersécurité : La Triade CIA.",
+    "description": "Confidentialité, intégrité et disponibilité : principes, exemples et exercices corrigés.",
     "prereqs": [],
     "requirements": [
       {
