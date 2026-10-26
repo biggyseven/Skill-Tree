@@ -793,7 +793,7 @@
             </button>
             <button type="button" @click="exportData(); settingsMenuOpen = false" class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs text-zinc-300 transition hover:bg-white/5 hover:text-white">
               <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-              <span class="flex-1">Exporter mes données</span><span class="text-[10px] text-zinc-600">JSON ↓</span>
+              <span class="flex-1">Exporter mes données (JSON)</span><span class="text-[10px] text-zinc-600">Télécharger ↓</span>
             </button>
           </section>
 
@@ -6827,22 +6827,43 @@
           return true;
         };
         app.exportData = function () {
+          const localData = {};
+          const allowedPrefixes = ['skilltree-', 'st:'];
+          try {
+            for (let i = 0; i < localStorage.length; i += 1) {
+              const key = localStorage.key(i);
+              if (!key || !allowedPrefixes.some(prefix => key.startsWith(prefix))) continue;
+              const raw = localStorage.getItem(key);
+              try { localData[key] = JSON.parse(raw); } catch (_) { localData[key] = raw; }
+            }
+          } catch (_) { }
           const snapshot = {
-            schema_version: 1,
+            app: 'Skill-Tree',
+            schema_version: 2,
             exported_at: new Date().toISOString(),
-            profile: { name: this.userName, theme: this.theme, current_level: this.userStats?.current_level ?? null },
+            profile: { name: this.userName, theme: this.activeThemeId || document.documentElement.dataset.theme || this.theme, current_level: this.userStats?.current_level ?? null },
             progress: { total: this.total, validated: this.validated, nodes: (this.nodes || []).map(n => ({ id: n.id, title: n.title, status: n.status, category: n.category, level: this.levelOf(n), module: this.moduleOf(n) })) },
             statistics: this.stats || null,
             exam_history: this.examHistory || LS.get('exam-history', []),
             completed_challenges: this.challengesDone || LS.get('challenges-done', []),
             completed_labs: this.labsDone || LS.get('labs-done', []),
             diagnostics: this.diagDoneMap || LS.get('diag-done', {}),
-            preferences: { theme: this.theme, sidebar_collapsed: !!this.sidebarCollapsed, focus_mode: !!this.focusMode },
+            preferences: {
+              theme: this.activeThemeId || document.documentElement.dataset.theme || this.theme,
+              sidebar_collapsed: !!this.sidebarCollapsed,
+              focus_mode: !!this.focusMode,
+              font_size: Number(this.fontSize) || 17,
+              reading_width: this.readingWidth === 'wide' ? 'wide' : 'comfortable',
+              compact_ui: !!this.compactUi,
+              reduce_motion: !!this.reduceMotion
+            },
+            local_data: localData,
             topology_draft: LS.get('topology-draft', null)
           };
-          const name = `skill-tree-export-${new Date().toISOString().slice(0,10)}.json`;
+          const name = `skilltree-sauvegarde-${new Date().toISOString().slice(0,10)}.json`;
           this.saveFile(name, new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' }));
-          this.notify('Export JSON créé. Conserve-le dans un emplacement sûr.');
+          this.notify('Sauvegarde JSON téléchargée. Conserve-la dans un emplacement sûr.');
+          return snapshot;
         };
         app._allowChallengeClear = false;
         app.startChallenge = async function (id) {
