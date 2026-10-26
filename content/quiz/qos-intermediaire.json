@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour QoS - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Où faut-il généralement commencer à chercher un problème de QoS lorsqu’une voix se dégrade pendant les sauvegardes sur un WAN ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Sur le port LAN le plus rapide, quel que soit le trajet",
+        "Au point de congestion et dans le sens où la file de sortie est disputée",
+        "Dans les enregistrements DNS uniquement",
+        "Dans la configuration d’adressage IPv6, même si elle n’est pas sur le chemin"
+      ],
+      "answer": 1,
+      "explanation": "La QoS agit au point où les ressources sont disputées. Il faut localiser le véritable goulot et mesurer le bon sens du trafic : une politique sur une autre interface n’ordonnance pas la sortie congestionnée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans la Modular QoS CLI Cisco (MQC), quelle description des éléments est correcte ?",
+      "choices": [
+        "`class-map` identifie le trafic, `policy-map` définit les actions, puis `service-policy` attache la politique à un point d’application",
+        "`class-map` chiffre le trafic, `policy-map` crée les adresses IP et `service-policy` démarre OSPF",
+        "`service-policy` déclare le VLAN et `class-map` remplace la table de routage",
+        "Les trois commandes sont synonymes et peuvent être utilisées indifféremment"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Dans MQC, class-map sert à classifier, policy-map associe des actions aux classes, et service-policy applique la policy sur une interface ou un autre point pris en charge, dans un sens précis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un paquet est marqué EF (DSCP 46) par le poste. Quelle affirmation décrit correctement le traitement obtenu à travers plusieurs domaines réseau ?",
+      "choices": [
+        "EF réserve automatiquement une largeur de bande sur tous les liens traversés",
+        "EF empêche toutes les pertes et garantit une latence constante de bout en bout",
+        "Le traitement dépend des mappings, files, politiques et éventuels re-marquages appliqués à chaque domaine",
+        "EF remplace la nécessité de mesurer la congestion"
+      ],
+      "answer": 2,
+      "explanation": "Le DSCP sélectionne un comportement dans un domaine qui a configuré le mapping correspondant. Un réseau intermédiaire peut re-marquer le champ ou appliquer une autre politique ; il faut documenter et tester chaque frontière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une file prioritaire à faible latence (LLQ) doit-elle être dimensionnée et protégée ?",
+      "choices": [
+        "Parce qu’elle ne peut transporter que des paquets TCP",
+        "Parce qu’elle supprime la congestion même si le trafic est illimité",
+        "Parce qu’elle garantit que le trafic de données est supprimé en permanence",
+        "Un trafic prioritaire trop abondant peut affamer les autres classes ; la classe doit être limitée, contrôlée et dimensionnée"
+      ],
+      "answer": 3,
+      "explanation": "Une LLQ peut réduire l’attente du trafic temps réel dans certaines implémentations, mais une classe prioritaire non contrôlée peut monopoliser la sortie. Utilise des règles d’admission, des limites et des mesures adaptées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le comportement généralement visé par CBWFQ lorsqu’une interface de sortie est congestionnée ?",
+      "choices": [
+        "Donner une bande passante maximale infinie à une seule classe",
+        "Partager les ressources entre classes selon des poids ou des allocations configurés",
+        "Supprimer le besoin de classification",
+        "Garantir que chaque classe dispose d’une file dédiée identique sur tous les matériels"
+      ],
+      "answer": 1,
+      "explanation": "Class-Based Weighted Fair Queuing permet de partager la bande passante de sortie entre classes selon des allocations ou des poids. Les détails d’implémentation et les garanties effectives dépendent de la plateforme et du profil de congestion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle habituel d’un shaping parent dans une politique QoS hiérarchique (HQoS) ?",
+      "choices": [
+        "Remplacer toutes les classifications par une seule règle DSCP",
+        "Donner la priorité stricte à toutes les classes enfant",
+        "Limiter ou lisser le débit agrégé à la sortie, pendant que la policy enfant arbitre entre les classes, selon le support de la plateforme",
+        "Modifier le MTU de tous les routeurs du chemin"
+      ],
+      "answer": 2,
+      "explanation": "Une policy parent peut façonner le trafic agrégé vers un débit de service. Une policy enfant contrôle ensuite le traitement des classes internes. La hiérarchie exacte dépend du système d’exploitation et du matériel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre WRED et ECN est la plus juste ?",
+      "choices": [
+        "WRED peut abandonner sélectivement des paquets avant qu’une file soit pleine ; ECN permet de signaler la congestion dans le paquet lorsque les endpoints et le chemin le prennent en charge",
+        "ECN ne fonctionne qu’avec Ethernet sans IP",
+        "WRED chiffre les paquets afin de réduire la gigue",
+        "Les deux mécanismes désactivent les files de sortie"
+      ],
+      "answer": 0,
+      "explanation": "WRED utilise des seuils et probabilités pour déclencher des abandons précoces selon la congestion et le traitement des classes. ECN peut marquer la congestion plutôt que supprimer le paquet, mais nécessite la compatibilité des endpoints et du chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une policy QoS est configurée mais ses compteurs de classe restent à zéro pendant un test connu. Quelle vérification est la plus pertinente en premier ?",
+      "choices": [
+        "Augmenter tout de suite la priorité LLQ",
+        "Réduire l’adresse IP du routeur",
+        "Désactiver toutes les politiques pour forcer les compteurs",
+        "Vérifier l’interface et le sens d’application, les critères de classification, le marquage réel et l’état de la policy programmée"
+      ],
+      "answer": 3,
+      "explanation": "Des compteurs nuls peuvent indiquer une policy appliquée au mauvais endroit ou dans le mauvais sens, un critère de classification non satisfait, un re-marquage amont ou une différence entre configuration et comportement matériel. Corrèle les commandes avec une capture et un flux contrôlé."
     }
   ]
 }
