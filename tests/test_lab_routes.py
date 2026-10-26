@@ -154,29 +154,17 @@ class LabValidationTests(unittest.TestCase):
             result = lab_routes.get_lab_v2("lab-1")
         self.assertEqual(result["definition"].title, "Lab BOM")
 
-    def test_missing_lab_definition_returns_sandbox_for_known_course(self) -> None:
+    def test_missing_lab_definition_for_known_course_returns_clear_404(self) -> None:
         labs_dir = Path(self.temp_dir.name) / "empty_labs_v2"
         labs_dir.mkdir()
         with patch.object(lab_routes, "LABS_V2_DIR", labs_dir), patch.object(
             lab_routes, "_database_connection", side_effect=self._connect
         ):
-            result = lab_routes.get_lab_v2("node-sandbox")
-            checked = lab_routes.check_lab_v2(
-                "node-sandbox",
-                CheckRequest(topology=self._topology("edge-1")),
-            )
+            with self.assertRaises(lab_routes.HTTPException) as raised:
+                lab_routes.get_lab_v2("node-sandbox")
 
-        definition = result["definition"]
-        self.assertTrue(result["sandbox"])
-        self.assertEqual(definition.title, "Cours de test sans laboratoire")
-        self.assertEqual(definition.level, "Sandbox")
-        self.assertEqual(definition.initial_topology.nodes, [])
-        self.assertEqual(definition.initial_topology.links, [])
-        self.assertFalse(checked["passed"])
-        self.assertEqual(checked["score"], 0.0)
-        self.assertTrue(checked["sandbox"])
-        self.assertTrue(checked["manual_review_required"])
-        self.assertEqual(checked["results"][0]["rule_id"], "sandbox")
+        self.assertEqual(raised.exception.status_code, 404)
+        self.assertIn("aucune définition exploitable", raised.exception.detail)
 
     def test_ipv4_beginner_course_loads_the_real_v2_scenario(self) -> None:
         with patch.object(lab_routes, "_database_connection", side_effect=self._connect):
