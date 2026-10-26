@@ -82,14 +82,47 @@ test('les préférences du centre de paramètres s’appliquent et persistent ap
 test('l’export des données depuis Paramètres déclenche le téléchargement JSON', async ({ page }) => {
   await openDashboard(page);
 
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
   await page.getByRole('button', { name: 'Ouvrir les paramètres' }).click();
   const settings = page.locator('div[x-show="settingsMenuOpen"]');
   await expect(settings).toBeVisible();
 
-  const downloadPromise = page.waitForEvent('download');
-  await settings.getByRole('button', { name: /Exporter mes données/ }).click();
-  const download = await downloadPromise;
+  await page.evaluate(() => {
+    const probe = window.__skilltreeDownloadProbe = { objectUrlCalls: 0, blobs: [], anchorClicks: [], errors: [] };
+    const nativeCreateObjectURL = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = function (blob) {
+      probe.objectUrlCalls += 1;
+      probe.blobs.push({ isBlob: blob instanceof Blob, size: Number(blob?.size) || 0, type: String(blob?.type || '') });
+      try { return nativeCreateObjectURL(blob); }
+      catch (error) { probe.errors.push('createObjectURL: ' + String(error?.message || error)); throw error; }
+    };
+    const nativeAnchorClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function () {
+      if (this.download) probe.anchorClicks.push({
+        download: this.download, href: this.href, connected: this.isConnected,
+        display: getComputedStyle(this).display, visibility: getComputedStyle(this).visibility,
+      });
+      try { return nativeAnchorClick.call(this); }
+      catch (error) { probe.errors.push('anchor.click: ' + String(error?.message || error)); throw error; }
+    };
+    window.addEventListener('error', event => probe.errors.push(String(event.message || 'window error')));
+  });
 
+  const downloads = [];
+  page.on('download', download => downloads.push(download));
+  await settings.getByRole('button', { name: /Exporter mes données/ }).click();
+  await page.waitForTimeout(1000);
+  const probe = await page.evaluate(() => window.__skilltreeDownloadProbe || null);
+  const debug = JSON.stringify({ probe, pageErrors }, null, 2);
+
+  expect(probe, debug).toBeTruthy();
+  expect(probe.objectUrlCalls, debug).toBe(1);
+  expect(probe.blobs[0]?.size || 0, debug).toBeGreaterThan(0);
+  expect(probe.anchorClicks.length, debug).toBe(1);
+  expect(downloads.length, debug).toBe(1);
+
+  const download = downloads[0];
   expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-[0-9]{4}-[0-9]{2}-[0-9]{2}[.]json$/);
   const filePath = await download.path();
   expect(filePath).toBeTruthy();
