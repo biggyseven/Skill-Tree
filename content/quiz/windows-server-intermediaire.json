@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour GPO et gestion de parc Windows",
+      "prompt": "Dans le traitement habituel des stratégies de groupe, quel ordre hiérarchique est résumé par LSDOU ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Domaine, local, OU, site",
+        "OU, site, domaine, local",
+        "Local, site, domaine, puis unités d’organisation de la plus haute à la plus basse",
+        "Site, OU, local, puis domaine"
+      ],
+      "answer": 2,
+      "explanation": "LSDOU signifie Local, Site, Domain, OU. Des options comme l’application forcée, le blocage de l’héritage et les filtres peuvent modifier le résultat final."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande génère un rapport HTML des stratégies de groupe appliquées à l’ordinateur et à l’utilisateur courant ?",
+      "choices": [
+        "`gpresult /h C:\\Temp\\gp.html`",
+        "`format-gpo /all`",
+        "`Get-NetFirewallRule -Report`",
+        "`dcdiag /html /force-gpo`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "`gpresult /h` produit un rapport HTML utile pour examiner les stratégies résultantes sur la machine concernée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un diagnostic GPO doit-il vérifier à la fois Active Directory et SYSVOL ?",
+      "choices": [
+        "Parce que SYSVOL contient toutes les bases utilisateurs et remplace AD DS",
+        "Parce que les deux ne sont jamais répliqués",
+        "Parce que seules les clés de registre locales sont stockées dans ces emplacements",
+        "Parce que les métadonnées d’une GPO résident dans AD et que ses fichiers de modèles/scripts associés sont dans SYSVOL"
+      ],
+      "answer": 3,
+      "explanation": "Une stratégie de groupe combine des métadonnées côté Active Directory et des fichiers associés dans SYSVOL ; des problèmes de réplication ou de version peuvent créer des résultats incohérents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après `gpupdate /force`, pourquoi une stratégie peut-elle ne pas produire immédiatement tous ses effets ?",
+      "choices": [
+        "La commande désactive les stratégies de groupe pendant une heure",
+        "Certaines extensions nécessitent une nouvelle ouverture de session ou un redémarrage, et la configuration peut aussi dépendre du contexte et du traitement en arrière-plan",
+        "`gpupdate` fonctionne uniquement sur des postes sans domaine",
+        "Une GPO ne peut modifier aucun paramètre système"
+      ],
+      "answer": 1,
+      "explanation": "`gpupdate /force` redemande le traitement des stratégies, mais certaines configurations sont appliquées au démarrage ou à l’ouverture de session."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement une unité d’organisation (OU) dans Active Directory ?",
+      "choices": [
+        "À remplacer le DNS du domaine",
+        "À héberger les fichiers du système d’exploitation",
+        "À organiser des objets pour déléguer des tâches d’administration et cibler des GPO",
+        "À chiffrer automatiquement toutes les données des utilisateurs"
+      ],
+      "answer": 2,
+      "explanation": "Les OU permettent notamment d’organiser les objets du domaine, de déléguer des responsabilités et de définir des cibles pour les GPO."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie réduit le risque d’une mise à jour Windows défectueuse sur tout le parc ?",
+      "choices": [
+        "Valider d’abord sur un lot pilote, surveiller puis élargir par anneaux si les critères sont satisfaits",
+        "Désactiver définitivement les mises à jour sur les contrôleurs de domaine",
+        "Déployer en même temps sur chaque système sans fenêtre de maintenance",
+        "Supprimer les journaux Windows Update avant chaque campagne"
+      ],
+      "answer": 0,
+      "explanation": "Des anneaux progressifs permettent de détecter les régressions sur un périmètre restreint avant de généraliser la mise à jour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution est importante pour l’administration distante via WinRM/PowerShell Remoting ?",
+      "choices": [
+        "Ouvrir le port à tous les hôtes sans authentification",
+        "Restreindre l’accès réseau, utiliser l’authentification et la configuration de confiance adaptées, et maintenir les correctifs",
+        "Désactiver les journaux de sécurité pour réduire la charge",
+        "Utiliser un compte administrateur partagé sans contrôle"
+      ],
+      "answer": 1,
+      "explanation": "WinRM doit être configuré avec des mécanismes d’authentification appropriés et une exposition réseau limitée ; les journaux et correctifs restent essentiels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel cas le mode loopback des stratégies de groupe peut-il être utile ?",
+      "choices": [
+        "Pour éviter le traitement de toutes les GPO sur un contrôleur de domaine",
+        "Pour transformer un poste en contrôleur DNS",
+        "Pour exécuter automatiquement toutes les GPO de l’utilisateur sur un serveur de fichiers",
+        "Pour appliquer la sélection de stratégies utilisateur selon l’ordinateur utilisé, par exemple sur un kiosque ou un poste partagé"
+      ],
+      "answer": 3,
+      "explanation": "Le loopback est utile pour des machines à usage spécifique, lorsque la configuration utilisateur dépend davantage de l’ordinateur connecté que de l’OU de l’utilisateur."
     }
   ]
 }
