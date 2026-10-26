@@ -22,7 +22,7 @@ from typing import Any, Iterator
 from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse, StreamingResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 try:
     from dotenv import load_dotenv
@@ -42,6 +42,7 @@ from .labs_runner import (
 )
 from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons
 from .lab_routes import router as lab_v2_router
+from .lab_schema_v2 import Topology
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if load_dotenv is not None:
@@ -952,12 +953,31 @@ def save_topology_alias(payload: dict = Body(...), tree: SkillTree = Depends(get
     tree.conn.commit()
     return {"success": True}
 
+
+def _validate_workspace_topology(value: Any) -> dict[str, Any]:
+    """Valide la structure v2 sans supprimer les champs d'extension du client."""
+    if not isinstance(value, dict):
+        raise HTTPException(status_code=422, detail="Le champ 'topology' doit être un objet JSON.")
+    if value.get("schema_version") != 2:
+        raise HTTPException(status_code=422, detail="La topologie doit utiliser schema_version=2.")
+    if not isinstance(value.get("nodes"), list) or not isinstance(value.get("links"), list):
+        raise HTTPException(
+            status_code=422,
+            detail="Une topologie v2 doit contenir des listes 'nodes' et 'links'.",
+        )
+    try:
+        # Pydantic vérifie les champs connus (types d'équipement, ports, liens, etc.).
+        # On renvoie toutefois l'objet d'origine afin de préserver les champs d'extension.
+        Topology(**value)
+    except (ValidationError, TypeError, ValueError) as error:
+        raise HTTPException(status_code=422, detail=f"Topologie v2 invalide : {error}")
+    return value
+
+
 @app.post("/api/lab/v2/{lab_id}/save")
 def save_lab_topology_v2(lab_id: str, payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
     """Enregistre la dernière topologie de travail associée à un lab v2."""
-    topology = payload.get("topology")
-    if not isinstance(topology, dict):
-        raise HTTPException(status_code=422, detail="Le champ 'topology' doit être un objet JSON.")
+    topology = _validate_workspace_topology(payload.get("topology"))
 
     try:
         serialized = json.dumps(topology, ensure_ascii=False, separators=(",", ":"))
@@ -1022,6 +1042,13 @@ def load_lab_topology_v2(lab_id: str) -> dict[str, Any]:
             raise HTTPException(status_code=500, detail=f"Topologie sauvegardée invalide : {error}")
         if not isinstance(topology_data, dict):
             raise HTTPException(status_code=500, detail="La topologie sauvegardée n'est pas un objet JSON.")
+        try:
+            topology_data = _validate_workspace_topology(topology_data)
+        except HTTPException as error:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Topologie sauvegardée invalide : {error.detail}",
+            )
 
         return {
             "success": True,
