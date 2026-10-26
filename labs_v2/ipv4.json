@@ -1,0 +1,223 @@
+{
+  "schema_version": 2,
+  "id": "ipv4",
+  "title": "Adressage IPv4 et sous-réseaux",
+  "level": "débutant",
+  "module": "Réseaux",
+  "duration_min": 20,
+  "difficulty": "débutant",
+  "prompt": "Une petite agence possède deux postes qui doivent communiquer sur le même réseau local. Construisez PC-A — SW1 — PC-B. Configurez PC-A en 192.168.10.10/24 et PC-B en 192.168.10.20/24, puis activez les interfaces utilisées. Les deux postes doivent appartenir au réseau 192.168.10.0/24.",
+  "objectives": [
+    "Créer deux PC et un switch reliés PC-A — SW1 — PC-B",
+    "Configurer PC-A : 192.168.10.10, masque 255.255.255.0",
+    "Configurer PC-B : 192.168.10.20, masque 255.255.255.0",
+    "Activer les interfaces utilisées",
+    "Identifier le réseau 192.168.10.0/24, son adresse réseau et son broadcast"
+  ],
+  "hints": [
+    "Le préfixe /24 correspond au masque 255.255.255.0.",
+    "Pour 192.168.10.0/24, l'adresse réseau est 192.168.10.0 et le broadcast est 192.168.10.255.",
+    "Les deux adresses hôtes doivent être différentes et appartenir au même préfixe."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-ipv4-subnets",
+    "metadata": {
+      "name": "Deux postes dans un même sous-réseau IPv4",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-26T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 150,
+        "y": 250,
+        "label": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "down",
+            "speed": 1000,
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Poste client A"
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "generic-switch",
+        "x": 500,
+        "y": 250,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "down",
+            "speed": 1000,
+            "mode": "access",
+            "vlan": 10,
+            "description": "Vers PC-A"
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "down",
+            "speed": 1000,
+            "mode": "access",
+            "vlan": 10,
+            "description": "Vers PC-B"
+          }
+        ],
+        "config": {
+          "hostname": "SW1"
+        }
+      },
+      {
+        "id": "PC-B",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 850,
+        "y": 250,
+        "label": "PC-B",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "down",
+            "speed": 1000,
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Poste client B"
+          }
+        ],
+        "config": {
+          "hostname": "PC-B"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC-B",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "pca_ip",
+        "description": "PC-A doit utiliser 192.168.10.10",
+        "device": "PC-A",
+        "path": "ports[0].ip",
+        "operator": "equals",
+        "expected": "192.168.10.10"
+      },
+      {
+        "id": "pca_mask",
+        "description": "PC-A doit utiliser le masque /24",
+        "device": "PC-A",
+        "path": "ports[0].mask",
+        "operator": "equals",
+        "expected": "255.255.255.0"
+      },
+      {
+        "id": "pcb_ip",
+        "description": "PC-B doit utiliser 192.168.10.20",
+        "device": "PC-B",
+        "path": "ports[0].ip",
+        "operator": "equals",
+        "expected": "192.168.10.20"
+      },
+      {
+        "id": "pcb_mask",
+        "description": "PC-B doit utiliser le masque /24",
+        "device": "PC-B",
+        "path": "ports[0].mask",
+        "operator": "equals",
+        "expected": "255.255.255.0"
+      },
+      {
+        "id": "pca_up",
+        "description": "Interface PC-A activée",
+        "device": "PC-A",
+        "path": "ports[0].state",
+        "operator": "equals",
+        "expected": "up"
+      },
+      {
+        "id": "pcb_up",
+        "description": "Interface PC-B activée",
+        "device": "PC-B",
+        "path": "ports[0].state",
+        "operator": "equals",
+        "expected": "up"
+      },
+      {
+        "id": "swa_up",
+        "description": "Port SW1 Fa0/1 activé",
+        "device": "SW1",
+        "path": "ports[0].state",
+        "operator": "equals",
+        "expected": "up"
+      },
+      {
+        "id": "swb_up",
+        "description": "Port SW1 Fa0/2 activé",
+        "device": "SW1",
+        "path": "ports[1].state",
+        "operator": "equals",
+        "expected": "up"
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 25,
+  "badges": []
+}
