@@ -2308,8 +2308,8 @@
             await this.setTab(requestedTabId);
           }
           if (requestedModuleId && (requestedModuleId === 'all' || this.modules.some(module => module.id === requestedModuleId))) {
-            this.moduleFilter = requestedModuleId;
             await this.setTab('tree');
+            await this.setModule(requestedModuleId);
           }
           if (requestedCourseId) {
             await this.setTab('tree');
@@ -4596,7 +4596,12 @@
           const mk = (id, label, icon) => { const l = this.nodesIn(id); const v = l.filter(n => n.status === 'validated').length; return { id, label, icon, total: l.length, validated: v, pct: l.length ? Math.round(100 * v / l.length) : 0 }; };
           return [mk('all', 'Tous les modules', '🧭'), ...this.modules.map(m => mk(m.id, m.label, m.icon))];
         },
-        setModule(id) { this.moduleFilter = id; },
+        async setModule(id) {
+          this.moduleFilter = id;
+          if (id === 'all') return;
+          const firstCourse = this.nodesIn(id)[0];
+          if (firstCourse && firstCourse.id) await this.show(firstCourse.id);
+        },
         get categories() {
           const map = { beginner: 'debutant', intermediaire: 'intermediaire', expert: 'expert' };
           const g = new Map();
