@@ -302,6 +302,8 @@ def touch_daily_streak(
     conn: sqlite3.Connection,
     day: str | None = None,
     minutes: int = STREAK_MINUTES_PER_VALIDATION,
+    *,
+    commit: bool = True,
 ) -> None:
     conn.execute(
         "CREATE TABLE IF NOT EXISTS daily_streak ("
@@ -334,7 +336,8 @@ def touch_daily_streak(
         " minutes_etudiees = daily_streak.minutes_etudiees + excluded.minutes_etudiees",
         (day, minutes),
     )
-    conn.commit()
+    if commit:
+        conn.commit()
 
 
 XP_LEVELS = (
