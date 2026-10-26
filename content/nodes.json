@@ -2189,6 +2189,46 @@
             "to": "pc"
           }
         ]
+      },
+      "brief": {
+        "context": "Une petite équipe de support doit raccorder un poste à un LAN et à sa passerelle. Avant de toucher à l’adressage IP, le technicien doit d’abord remettre en place une chaîne de liaisons lisible et cohérente.",
+        "objectives": [
+          "Distinguer le rôle d’un switch de celui d’un routeur.",
+          "Construire le chemin d’un poste vers la passerelle.",
+          "Repérer un équipement isolé."
+        ],
+        "concepts": [
+          {
+            "term": "Switch",
+            "explanation": "Relie les équipements d’un même LAN et commute les trames, généralement selon les adresses MAC."
+          },
+          {
+            "term": "Routeur",
+            "explanation": "Relie des réseaux IP différents et sert souvent de passerelle vers les réseaux distants."
+          },
+          {
+            "term": "Chemin de bout en bout",
+            "explanation": "Un hôte doit disposer d’une chaîne de liaisons réelle jusqu’à sa passerelle ; la simple proximité visuelle ne suffit pas."
+          }
+        ],
+        "mission_steps": [
+          "Identifie les rôles d’accès local, de commutation et de sortie réseau.",
+          "Ajoute les équipements requis dans le canevas.",
+          "Relie le poste au LAN et le LAN au routeur.",
+          "Lance le contrôle et corrige les liaisons signalées."
+        ],
+        "success_criteria": [
+          "Tous les équipements attendus sont présents.",
+          "Le poste et le routeur rejoignent le réseau local via le switch.",
+          "Le contrôle ne signale ni liaison manquante ni équipement superflu."
+        ],
+        "hints": [
+          "Commence par dessiner le chemin qu’un paquet suit pour sortir du LAN.",
+          "Le routeur n’a pas besoin d’être relié directement à chaque poste d’un même LAN.",
+          "Vérifie le segment poste–switch puis le segment switch–routeur."
+        ],
+        "evaluation_scope": "Le moteur contrôle les équipements et les liaisons dessinées. Il ne vérifie pas l’adresse IP, le masque, la passerelle configurée sur le PC ni la table de routage.",
+        "debrief": "Le switch assure la distribution locale ; le routeur fournit le passage vers les autres réseaux. En situation réelle, complète ensuite la topologie par un plan IP cohérent et un test de connectivité."
       }
     }
   },
@@ -2242,6 +2282,50 @@
             "to": "server"
           }
         ]
+      },
+      "brief": {
+        "context": "Une PME installe ses bureaux dans un nouveau local. Les employés doivent accéder à Internet et utiliser un serveur interne, sans que les postes soient exposés directement au réseau externe. Tu prépares la topologie de base avant la configuration.",
+        "objectives": [
+          "Identifier les fonctions de la périphérie réseau et du LAN.",
+          "Organiser le chemin entre l’extérieur et les équipements internes.",
+          "Raccorder un client et un serveur au réseau local."
+        ],
+        "concepts": [
+          {
+            "term": "Périmètre de sécurité",
+            "explanation": "Frontière entre réseaux de confiance différents, où l’on applique des contrôles d’accès."
+          },
+          {
+            "term": "Pare-feu",
+            "explanation": "Filtre les flux selon une politique ; sa présence dans le schéma ne prouve pas que ses règles sont correctes."
+          },
+          {
+            "term": "Client et serveur",
+            "explanation": "Le client consomme un service ; le serveur l’héberge et doit être joignable depuis les zones autorisées."
+          },
+          {
+            "term": "Distribution LAN",
+            "explanation": "Le switch réunit les équipements locaux, alors que le routeur assure l’acheminement IP entre réseaux."
+          }
+        ],
+        "mission_steps": [
+          "Pars de la connexion externe et avance vers le réseau de l’entreprise.",
+          "Place les équipements de sécurité et de routage avant la distribution locale.",
+          "Raccorde le poste et le serveur au LAN.",
+          "Vérifie le chemin, puis corrige les équipements ou liens manquants."
+        ],
+        "success_criteria": [
+          "Le réseau externe rejoint la périphérie de sécurité prévue.",
+          "Le routeur dessert le switch du LAN.",
+          "Le PC et le serveur sont raccordés au réseau local."
+        ],
+        "hints": [
+          "Dessine d’abord un chemin logique pour le trafic qui arrive depuis l’extérieur.",
+          "Pare-feu et routeur ont des rôles complémentaires, ils ne sont pas interchangeables.",
+          "Un serveur isolé dans le canevas ne peut rendre aucun service."
+        ],
+        "evaluation_scope": "La validation contrôle la structure et les liaisons. Elle ne valide pas les règles firewall, le NAT, les adresses IP, DNS ni les services applicatifs.",
+        "debrief": "Une PME doit séparer accès externe, filtrage, routage et distribution locale. En production, ajoute une politique restrictive, le NAT si nécessaire, puis teste les flux autorisés et interdits."
       }
     }
   },
@@ -2316,6 +2400,50 @@
             "to": "server"
           }
         ]
+      },
+      "brief": {
+        "context": "Un datacenter héberge des applications dont l’indisponibilité coûte cher. L’architecture actuelle dépend de trop peu de chemins ; tu dois vérifier les connexions entre deux routeurs, deux switches et deux serveurs en pensant aux défaillances.",
+        "objectives": [
+          "Distinguer un simple graphe connecté d’une architecture redondante.",
+          "Construire une matrice complète entre deux groupes d’équipements.",
+          "Comprendre pourquoi le nombre total de liens ne prouve pas la redondance."
+        ],
+        "concepts": [
+          {
+            "term": "Redondance",
+            "explanation": "Des chemins ou composants alternatifs peuvent réduire l’impact d’une panne, selon le scénario de défaillance envisagé."
+          },
+          {
+            "term": "Matrice complète",
+            "explanation": "Chaque équipement d’un groupe est relié à chaque équipement de l’autre groupe ; répéter un lien vers le même voisin ne suffit pas."
+          },
+          {
+            "term": "Point de défaillance unique",
+            "explanation": "Composant ou liaison dont la panne coupe le service visé."
+          },
+          {
+            "term": "Indépendance des chemins",
+            "explanation": "Des liens distincts peuvent partager une alimentation, un switch ou une infrastructure commune et donc échouer ensemble."
+          }
+        ],
+        "mission_steps": [
+          "Place deux routeurs, deux switches et deux serveurs.",
+          "Relie chaque routeur aux deux switches, en vérifiant chaque paire individuellement.",
+          "Relie chaque switch aux deux serveurs.",
+          "Soumets le schéma : les paires manquantes seront signalées même si le nombre total de liens semble correct."
+        ],
+        "success_criteria": [
+          "Chaque routeur atteint chacun des deux switches.",
+          "Chaque switch atteint chacun des deux serveurs.",
+          "Les paires complètes sont validées, et pas seulement le nombre total de connexions."
+        ],
+        "hints": [
+          "Avec deux routeurs et deux switches, énumère les quatre combinaisons possibles.",
+          "Trois liens vers le même voisin ne remplacent pas les connexions vers le second switch.",
+          "Applique la même méthode au groupe des switches et à celui des serveurs."
+        ],
+        "evaluation_scope": "Le moteur contrôle les paires d’équipements prévues. Il ne simule pas les pannes ni ne valide STP, LACP, le routage, les alimentations ou l’indépendance physique des chemins.",
+        "debrief": "La redondance se vérifie entre instances précises, pas seulement par le comptage des câbles. En production, complète cette conception par des scénarios de panne, des domaines de défaillance distincts et des tests de convergence."
       }
     }
   },
@@ -2386,6 +2514,50 @@
             "min_peers": 1
           }
         ]
+      },
+      "brief": {
+        "context": "Une entreprise conserve son LAN sur site tout en utilisant un environnement cloud. Tu prépares le schéma de cette architecture hybride : la frontière de sécurité, le routage et les segments locaux doivent être identifiables, y compris les équipements secondaires.",
+        "objectives": [
+          "Distinguer le réseau local, la périphérie de sécurité et le cloud.",
+          "Intégrer les deux switches et les deux serveurs à la topologie.",
+          "Comprendre qu’un lien dessiné ne prouve pas qu’une connexion cloud est configurée."
+        ],
+        "concepts": [
+          {
+            "term": "Architecture hybride",
+            "explanation": "Combine ressources sur site et ressources hébergées dans un environnement cloud."
+          },
+          {
+            "term": "Frontière de confiance",
+            "explanation": "Le trafic entre environnements différents doit être limité, contrôlé et journalisé."
+          },
+          {
+            "term": "Connectivité cloud",
+            "explanation": "Une liaison représentée peut correspondre à un VPN, une connexion privée ou une passerelle selon les exigences réelles."
+          },
+          {
+            "term": "Segmentation",
+            "explanation": "Sépare les rôles et réduit les communications au strict nécessaire."
+          }
+        ],
+        "mission_steps": [
+          "Identifie la zone cloud, la périphérie et la partie locale.",
+          "Construis un chemin compréhensible entre l’environnement externe et le LAN.",
+          "Intègre le routeur et les deux segments de commutation à la topologie.",
+          "Vérifie que les deux serveurs et les deux switches participent réellement au réseau."
+        ],
+        "success_criteria": [
+          "La partie cloud et le LAN appartiennent à une architecture cohérente.",
+          "Le pare-feu, le routeur et les switches possèdent des connexions utiles.",
+          "Les deux serveurs et les deux switches sont intégrés à la topologie."
+        ],
+        "hints": [
+          "Sépare visuellement la zone externe et la partie interne.",
+          "Un équipement posé près d’un autre n’est pas connecté tant qu’une liaison n’existe pas.",
+          "Le contrôle impose certaines relations minimales : vérifie aussi que le dessin raconte un chemin compréhensible."
+        ],
+        "evaluation_scope": "La vérification porte sur la structure hybride et la participation des équipements. Elle ne configure pas les VPN, les routes, les politiques cloud, les groupes de sécurité ni le DNS.",
+        "debrief": "Une architecture hybride doit expliciter les frontières et chemins de communication. Il faut ensuite configurer le tunnel ou la liaison privée, les routes retour, DNS et politiques réseau, puis tester les flux dans les deux sens."
       }
     }
   },
@@ -2467,6 +2639,50 @@
             "min_peers": 1
           }
         ]
+      },
+      "brief": {
+        "context": "Tu conçois la fabric d’un datacenter dont les serveurs sont répartis sur plusieurs racks. Les Leaf raccordent les serveurs et les Spine assurent le transit ; chaque Leaf doit avoir plusieurs chemins disponibles vers la fabric.",
+        "objectives": [
+          "Expliquer les rôles des Spine et des Leaf.",
+          "Construire une matrice complète entre deux Spine et deux Leaf.",
+          "Répartir les serveurs sans laisser une feuille inutilisée."
+        ],
+        "concepts": [
+          {
+            "term": "Leaf",
+            "explanation": "Couche d’accès à laquelle se raccordent les serveurs."
+          },
+          {
+            "term": "Spine",
+            "explanation": "Couche de transit qui relie les Leaf sans servir normalement de point d’accès direct aux serveurs."
+          },
+          {
+            "term": "Fabric bipartite",
+            "explanation": "Chaque Spine est lié à chaque Leaf dans la matrice complète."
+          },
+          {
+            "term": "ECMP",
+            "explanation": "Le routage à coûts égaux peut répartir le trafic sur plusieurs chemins si le routage et la topologie le permettent."
+          }
+        ],
+        "mission_steps": [
+          "Place les deux Spine et deux Leaf en rangées distinctes.",
+          "Crée les quatre combinaisons Spine–Leaf.",
+          "Répartis les quatre serveurs sur les Leaf, avec au moins deux serveurs par Leaf.",
+          "Contrôle la topologie et corrige les paires ou connexions d’hôtes manquantes."
+        ],
+        "success_criteria": [
+          "Les quatre paires Spine–Leaf sont présentes.",
+          "Chaque Leaf dessert au moins deux serveurs.",
+          "Aucun serveur n’est isolé."
+        ],
+        "hints": [
+          "Dessine la fabric comme deux rangées et vérifie chaque intersection.",
+          "Avec deux Spine et deux Leaf, toutes les combinaisons doivent exister.",
+          "Répartis les quatre serveurs entre les deux Leaf au lieu de tous les placer sur un seul."
+        ],
+        "evaluation_scope": "Le contrôle porte sur la structure et la répartition des serveurs. Il ne valide pas BGP/OSPF, ECMP, le câblage physique, MLAG ni le comportement en cas de panne.",
+        "debrief": "La fabric Spine/Leaf fournit une structure de chemins entre accès et transit. La redondance opérationnelle dépend aussi du routage, d’ECMP, de l’isolation des pannes et des tests de convergence."
       }
     }
   },
@@ -2552,6 +2768,50 @@
             "min_peers": 1
           }
         ]
+      },
+      "brief": {
+        "context": "Un opérateur prépare l’évolution de son backbone pour transporter plusieurs services. Avant d’étudier les politiques de Segment Routing, il faut s’assurer que le graphe des routeurs est connecté et que chaque serveur rejoint le backbone.",
+        "objectives": [
+          "Construire un backbone sans routeur isolé.",
+          "Raccorder les serveurs à des points d’attache du réseau de transit.",
+          "Distinguer la topologie du graphe de la configuration Segment Routing."
+        ],
+        "concepts": [
+          {
+            "term": "Backbone",
+            "explanation": "Réseau de transit qui transporte le trafic entre plusieurs zones ou points d’accès."
+          },
+          {
+            "term": "Graphe connecté",
+            "explanation": "Tous les routeurs du groupe doivent être atteignables depuis un autre routeur en suivant les liaisons du groupe."
+          },
+          {
+            "term": "Segment Routing",
+            "explanation": "Architecture de routage qui exprime les chemins à l’aide de segments ; une topologie ne configure pas les identifiants de segment."
+          },
+          {
+            "term": "Chemin alternatif",
+            "explanation": "Un cycle peut offrir une alternative, sans garantir à lui seul des chemins disjoints ou la survie à toute panne."
+          }
+        ],
+        "mission_steps": [
+          "Dispose sept routeurs comme réseau de transit et trois serveurs comme points d’accès.",
+          "Relie les routeurs afin qu’ils appartiennent tous à un seul composant connecté.",
+          "Raccorde chaque serveur à au moins un routeur.",
+          "Parcours le graphe mentalement pour repérer un éventuel groupe isolé."
+        ],
+        "success_criteria": [
+          "Les sept routeurs appartiennent au même composant connecté.",
+          "Chaque serveur possède une liaison vers un routeur.",
+          "Le nombre et les types de liens correspondent au scénario."
+        ],
+        "hints": [
+          "Une chaîne peut connecter le groupe, mais réfléchis aux liens supplémentaires utiles dans un backbone.",
+          "Pars d’un routeur et suis les voisins ; vérifie si tu peux atteindre les six autres.",
+          "La connectivité du backbone ne raccorde pas automatiquement les serveurs."
+        ],
+        "evaluation_scope": "Le moteur vérifie la connexité du groupe des routeurs et l’attachement des serveurs. Il ne configure pas les SID, SR-MPLS/SRv6, l’IGP, les politiques de chemin ni les chemins disjoints.",
+        "debrief": "Le graphe est la base d’un mécanisme de routage, pas le mécanisme complet. Segment Routing demande ensuite un plan de contrôle, des identifiants de segments et des politiques de chemin, ainsi que des tests de résilience."
       }
     }
   },
@@ -2693,6 +2953,50 @@
             "min_peers": 1
           }
         ]
+      },
+      "brief": {
+        "context": "Une équipe prépare une fabric Cisco ACI pour plusieurs applications. Le plan doit montrer la couche Spine/Leaf, les contrôleurs APIC, les serveurs et une sortie vers le réseau externe ; le plan de contrôle et le plan de données doivent être raccordés.",
+        "objectives": [
+          "Distinguer les rôles des Spine, Leaf et contrôleurs APIC.",
+          "Construire la matrice Spine–Leaf et raccorder les APIC à plusieurs Leaf.",
+          "Intégrer les serveurs et la sortie externe sans équipement isolé."
+        ],
+        "concepts": [
+          {
+            "term": "APIC",
+            "explanation": "Contrôleur qui orchestre la fabric et sa politique ; il ne remplace pas les Spine comme couche de transit."
+          },
+          {
+            "term": "Plan de contrôle et plan de données",
+            "explanation": "Le plan de contrôle pilote l’état et la politique ; le plan de données transporte les paquets."
+          },
+          {
+            "term": "Leaf comme accès",
+            "explanation": "Les serveurs et contrôleurs rejoignent généralement la fabric via les Leaf."
+          },
+          {
+            "term": "Tenant et politique",
+            "explanation": "La séparation logique s’appuie sur des objets et politiques ACI, pas seulement sur la disposition des équipements."
+          }
+        ],
+        "mission_steps": [
+          "Place les deux Spine et les trois Leaf en couches distinctes.",
+          "Relie chacun des Spine à chacun des Leaf et vérifie les six paires.",
+          "Connecte les APIC à plusieurs Leaf et répartis les cinq serveurs sur la fabric.",
+          "Relie le routeur WAN à un Leaf et contrôle les rôles un à un."
+        ],
+        "success_criteria": [
+          "Les six paires Spine–Leaf sont présentes.",
+          "Chaque APIC rejoint au moins deux Leaf et chaque Leaf au moins deux APIC.",
+          "Les cinq serveurs sont raccordés aux Leaf et la sortie WAN rejoint la fabric."
+        ],
+        "hints": [
+          "Traite les couches une par une avant de connecter les contrôleurs et serveurs.",
+          "Une seule liaison d’un APIC vers la fabric ne démontre pas la redondance visée.",
+          "Les serveurs rejoignent les Leaf ; les Spine relient les Leaf."
+        ],
+        "evaluation_scope": "Le schéma contrôle les quantités et relations structurelles. Il ne configure pas tenants, VRF, EPG, contrats, domaines VMM, enregistrement APIC ou politiques ACI réelles.",
+        "debrief": "ACI sépare l’infrastructure de fabric de la politique logique. Après le câblage, il faut vérifier l’état des contrôleurs, les domaines et objets de politique, puis tester les flux réellement autorisés entre applications."
       }
     }
   },
@@ -6133,6 +6437,50 @@
             "min_peers": 1
           }
         ]
+      },
+      "brief": {
+        "context": "Deux agences doivent partager des ressources internes au travers d’un réseau public non fiable. Tu prépares la topologie d’un VPN site à site : les passerelles doivent atteindre Internet et être reliées par le tunnel logique prévu.",
+        "objectives": [
+          "Distinguer le réseau de transport (underlay) du tunnel (overlay).",
+          "Identifier les passerelles et les LAN des deux sites.",
+          "Comprendre ce que le schéma ne prouve pas à propos du chiffrement."
+        ],
+        "concepts": [
+          {
+            "term": "VPN IPsec site à site",
+            "explanation": "Tunnel entre deux passerelles qui protège les flux sélectionnés à travers le réseau de transport."
+          },
+          {
+            "term": "Underlay et overlay",
+            "explanation": "L’underlay fournit la connectivité IP entre passerelles ; l’overlay représente le tunnel et les réseaux transportés."
+          },
+          {
+            "term": "Passerelle VPN",
+            "explanation": "Termine le tunnel, négocie ses paramètres et achemine le trafic vers le réseau distant."
+          },
+          {
+            "term": "Sélecteurs de trafic",
+            "explanation": "Définissent les réseaux ou flux protégés ; ils doivent correspondre aux deux côtés."
+          }
+        ],
+        "mission_steps": [
+          "Représente Internet comme réseau de transport et place une passerelle par site.",
+          "Place la protection périmétrique et le switch du LAN de chaque agence.",
+          "Relie chaque LAN à sa passerelle et représente le tunnel logique entre les routeurs.",
+          "Vérifie que chaque site dispose d’un chemin complet et qu’aucun équipement n’est isolé."
+        ],
+        "success_criteria": [
+          "Les deux passerelles rejoignent le réseau de transport.",
+          "Un lien logique unit les passerelles pour représenter le tunnel.",
+          "Chaque site possède un chemin entre sa passerelle, son pare-feu, son switch et son poste."
+        ],
+        "hints": [
+          "Ne confonds pas la liaison vers Internet et le tunnel qui unit logiquement les passerelles.",
+          "Chaque site a son propre LAN et sa propre passerelle.",
+          "Le lien de tunnel dessiné est une représentation : sa configuration sera un travail distinct."
+        ],
+        "evaluation_scope": "Le contrôle vérifie la topologie de démonstration. Il ne valide pas IKE, les clés, le chiffrement, les sélecteurs, les routes retour ni l’établissement réel du VPN.",
+        "debrief": "Un VPN opérationnel nécessite une connectivité underlay, des paramètres IPsec compatibles, une authentification solide, des sélecteurs cohérents et des routes de retour. Le schéma n’est qu’une représentation de son architecture."
       }
     }
   },
@@ -6249,6 +6597,50 @@
             "min_peers": 1
           }
         ]
+      },
+      "brief": {
+        "context": "Une entreprise ne peut plus accepter qu’une panne de fournisseur coupe tous ses services. Tu conçois une périphérie multi-opérateur avec deux routeurs, des accès redondants et une connexion maîtrisée vers les réseaux internes.",
+        "objectives": [
+          "Représenter deux fournisseurs et des chemins externes redondants.",
+          "Raccorder chaque routeur aux deux accès attendus.",
+          "Distinguer redondance dessinée et basculement réellement opérationnel."
+        ],
+        "concepts": [
+          {
+            "term": "Multi-homing",
+            "explanation": "Raccordement à plusieurs fournisseurs ou chemins externes pour améliorer disponibilité et contrôle du routage."
+          },
+          {
+            "term": "Failover",
+            "explanation": "Basculement vers un chemin survivant après détection d’une panne ; il dépend de mécanismes de détection et de convergence."
+          },
+          {
+            "term": "BGP",
+            "explanation": "Protocole souvent utilisé pour le routage inter-domaine, avec des politiques de préfixes convenues."
+          },
+          {
+            "term": "Haute disponibilité du pare-feu",
+            "explanation": "Nécessite un mécanisme dédié de redondance et souvent une synchronisation d’état ; dessiner deux équipements ne suffit pas."
+          }
+        ],
+        "mission_steps": [
+          "Place les deux fournisseurs, les deux routeurs et la périphérie de sécurité.",
+          "Crée les accès croisés entre routeurs et fournisseurs.",
+          "Relie les routeurs entre eux et raccorde le pare-feu aux deux segments internes.",
+          "Vérifie chaque paire fournisseur–routeur et les chemins vers les serveurs."
+        ],
+        "success_criteria": [
+          "Chaque routeur est relié aux deux fournisseurs.",
+          "Les deux routeurs sont interconnectés et rejoignent le pare-feu.",
+          "Le pare-feu dessert les deux switches, et chaque switch dessert au moins un serveur."
+        ],
+        "hints": [
+          "Énumère les quatre paires entre les deux routeurs et les deux fournisseurs.",
+          "Une liaison inter-routeurs ne remplace pas l’accès manquant à un fournisseur.",
+          "La redondance doit continuer au-delà du WAN, jusqu’à la zone de sécurité et aux segments internes."
+        ],
+        "evaluation_scope": "Le moteur vérifie les liaisons et la structure. Il ne valide pas BGP, les annonces de préfixes, la détection de panne, la convergence, le partage de charge ni la synchronisation HA.",
+        "debrief": "La multi-connectivité est un prérequis, pas une garantie de disponibilité. Il reste à définir les politiques BGP, la détection de panne, les routes de retour et les tests de basculement de bout en bout."
       }
     }
   },
@@ -6334,6 +6726,50 @@
             "via": "firewall"
           }
         ]
+      },
+      "brief": {
+        "context": "Une usine relie les postes bureautiques au réseau qui supervise les automates industriels. Une compromission d’un poste ne doit pas offrir un chemin direct vers la zone OT. Tu dois créer deux zones distinctes et forcer leurs communications à passer par le point de contrôle.",
+        "objectives": [
+          "Expliquer pourquoi IT et OT doivent être segmentés.",
+          "Créer une zone de commutation pour les postes et une autre pour les automates.",
+          "Éliminer tout chemin de contournement du pare-feu dans le graphe."
+        ],
+        "concepts": [
+          {
+            "term": "IT et OT",
+            "explanation": "L’IT traite les systèmes d’information ; l’OT supervise ou commande des procédés physiques et impose des exigences fortes de disponibilité et de sûreté."
+          },
+          {
+            "term": "Segmentation",
+            "explanation": "Sépare les chemins de communication possibles et limite les mouvements latéraux."
+          },
+          {
+            "term": "Point de contrôle",
+            "explanation": "Un pare-feu ou une passerelle industrielle applique la politique explicite entre les zones."
+          },
+          {
+            "term": "Chemin de contournement",
+            "explanation": "Un lien direct ou un switch partagé peut relier les zones sans traverser le contrôle de sécurité."
+          }
+        ],
+        "mission_steps": [
+          "Identifie les terminaux IT et les automates OT.",
+          "Construis un switch par zone et raccorde chaque équipement à sa zone.",
+          "Place le pare-feu comme point de passage entre les deux zones et vers le réseau amont.",
+          "Vérifie qu’un PC et un automate ne peuvent pas se rejoindre dans le graphe en évitant le pare-feu."
+        ],
+        "success_criteria": [
+          "Les PC et les PLC sont raccordés à des zones de commutation distinctes.",
+          "Les deux zones rejoignent le pare-feu sans lien direct entre elles.",
+          "Le contrôle refuse toute topologie où un PC atteint un PLC sans traverser le pare-feu."
+        ],
+        "hints": [
+          "Ne partage pas le même switch entre postes et automates si cela ouvre un chemin direct.",
+          "Imagine retirer le pare-feu du graphe : si un PC peut encore atteindre un PLC, la séparation n’est pas suffisante.",
+          "La disposition graphique ne compte pas ; ce sont les liens réellement créés qui déterminent les chemins."
+        ],
+        "evaluation_scope": "Le serveur détecte les chemins de contournement dans le schéma. Il ne valide pas les VLAN, ACL, règles firewall, protocoles industriels, zones/conduits ni exigences de sûreté OT.",
+        "debrief": "La segmentation IT/OT exige des zones explicites et des flux strictement nécessaires. Même avec un graphe sans contournement, il faut configurer VLAN, filtrage, accès d’administration et supervision puis tester les flux autorisés et interdits."
       }
     }
   }

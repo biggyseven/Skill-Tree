@@ -808,6 +808,19 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("{ type: 'plc', label: 'Automate industriel'", DASHBOARD_HTML)
         self.assertIn("plc: '<svg viewBox", DASHBOARD_HTML)
 
+    def test_challenge_details_include_professional_context_guidance_and_debrief(self):
+        self.assertIn('aria-labelledby="challenge-brief-title"', DASHBOARD_HTML)
+        self.assertIn("Brief de mission", DASHBOARD_HTML)
+        self.assertIn("Objectifs d’apprentissage", DASHBOARD_HTML)
+        self.assertIn("Notions à mobiliser", DASHBOARD_HTML)
+        self.assertIn("Mission, étape par étape", DASHBOARD_HTML)
+        self.assertIn("Critères de réussite", DASHBOARD_HTML)
+        self.assertIn("Ce que le vérificateur contrôle réellement", DASHBOARD_HTML)
+        self.assertIn("Besoin d’un indice ? Afficher les indices progressifs", DASHBOARD_HTML)
+        self.assertIn("À retenir après la tentative", DASHBOARD_HTML)
+        self.assertIn("brief: challenge.brief || {}", DASHBOARD_HTML)
+        self.assertIn("BUILTIN_CHALLENGE_BRIEFS[id] || {}", DASHBOARD_HTML)
+
     def test_course_reader_width_and_mobile_controls_are_persisted(self):
         self.assertIn('aria-labelledby="course-reader-title"', DASHBOARD_HTML)
         self.assertIn('aria-label="Commandes de lecture"', DASHBOARD_HTML)

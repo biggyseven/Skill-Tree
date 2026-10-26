@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from app.api import read_node, read_profile, read_tree, submit_challenge
 from app.db import connect, initialize
 from app.engine import SkillTree, get_daily_plan
-from app.loader import ContentError, _parse_expected_topology
+from app.loader import ContentError, _parse_challenge_brief, _parse_expected_topology
 
 
 class LearningProgressConsistencyTests(unittest.TestCase):
@@ -509,6 +509,55 @@ class LearningProgressConsistencyTests(unittest.TestCase):
         self.assertEqual(result["score"], 95)
         self.assertFalse(result["passed"])
         self.assertTrue(any("contourne" in message for message in result["missing_links"]))
+
+    def test_challenge_brief_is_exposed_without_revealing_the_exact_solution(self) -> None:
+        self.add_node("challenge-brief", "Défi avec brief", "Administration Réseaux", 1)
+        brief = {
+            "context": "Une entreprise doit raccorder un nouveau poste.",
+            "objectives": ["Distinguer routeur et switch", "Construire un chemin cohérent"],
+            "concepts": [
+                {"term": "Switch", "explanation": "Relie les hôtes d'un LAN."},
+                {"term": "Routeur", "explanation": "Relie des réseaux IP."},
+            ],
+            "mission_steps": ["Placer les équipements", "Relier le LAN", "Vérifier le chemin"],
+            "success_criteria": ["Aucun équipement isolé", "Les liaisons attendues sont présentes"],
+            "hints": ["Commencer par le LAN", "Vérifier ensuite la passerelle"],
+            "evaluation_scope": "Le moteur contrôle le schéma, pas l'adressage IP.",
+            "debrief": "Le switch assure le LAN et le routeur la sortie vers les autres réseaux.",
+        }
+        self.add_challenge("challenge-brief", expected={
+            "nodes": {"router": 1, "switch": 1},
+            "connections": [{"from": "router", "to": "switch"}],
+            "brief": brief,
+        })
+
+        detail = read_node("challenge-brief", self.tree)
+
+        self.assertEqual(detail["challenge"]["brief"], brief)
+        self.assertEqual(detail["challenge"]["expected_summary"]["connections"], 1)
+        self.assertNotIn("expected_topology", detail["challenge"])
+        self.assertNotIn("constraints", detail["challenge"])
+
+    def test_challenge_brief_parser_rejects_incomplete_learning_content(self) -> None:
+        good = {
+            "context": "Une situation concrète.",
+            "objectives": ["Objectif A", "Objectif B"],
+            "concepts": [
+                {"term": "Notion A", "explanation": "Explication A."},
+                {"term": "Notion B", "explanation": "Explication B."},
+            ],
+            "mission_steps": ["Étape A", "Étape B", "Étape C"],
+            "success_criteria": ["Critère A", "Critère B"],
+            "hints": ["Indice A", "Indice B"],
+            "evaluation_scope": "Portée du contrôle.",
+            "debrief": "Bilan pédagogique.",
+        }
+        parsed = _parse_challenge_brief(good, "fixture")
+        self.assertEqual(parsed["context"], good["context"])
+        self.assertEqual(len(parsed["concepts"]), 2)
+        self.assertEqual(len(parsed["mission_steps"]), 3)
+        with self.assertRaises(ContentError):
+            _parse_challenge_brief({**good, "mission_steps": ["Une seule étape"]}, "fixture")
 
     def test_expected_topology_parser_preserves_and_checks_constraints(self) -> None:
         parsed = _parse_expected_topology(

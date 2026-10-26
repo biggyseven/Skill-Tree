@@ -262,9 +262,13 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
         ):
             raise HTTPException(500, "La définition de la topologie attendue est invalide.")
         # Seul un résumé pédagogique est exposé au navigateur, jamais la correction complète.
+        brief = expected_topology.get("brief", {})
+        if not isinstance(brief, dict):
+            brief = {}
         challenge_payload = {
             "prompt": node.description,
             "time_limit": challenge["time_limit"],
+            "brief": brief,
             "expected_summary": {
                 "nodes": expected_topology["nodes"],
                 "connections": len(expected_topology["connections"]),

@@ -39,6 +39,7 @@ class ContentError(Exception):
 class ChallengeSpec:
     expected_topology: dict
     time_limit: int
+    brief: dict
 
 
 @dataclass(frozen=True)
@@ -227,6 +228,52 @@ def _parse_expected_topology(value, where: str) -> dict:
     return {"nodes": nodes, "connections": connections, "constraints": constraints}
 
 
+def _parse_challenge_brief(value, where: str) -> dict:
+    """Valide le mini-brief pédagogique optionnel d'un défi d'architecture."""
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ContentError(f"{where} : « challenge.brief » doit être un objet.")
+    context = _text(value.get("context"), "brief.context", where)
+    evaluation_scope = _text(value.get("evaluation_scope"), "brief.evaluation_scope", where)
+    debrief = _text(value.get("debrief"), "brief.debrief", where)
+
+    def text_items(field: str, minimum: int, maximum: int) -> list[str]:
+        items = _string_list(value.get(field), f"brief.{field}", where)
+        if not minimum <= len(items) <= maximum:
+            raise ContentError(
+                f"{where} : « brief.{field} » doit contenir entre {minimum} et {maximum} éléments."
+            )
+        return items
+
+    objectives = text_items("objectives", 2, 6)
+    mission_steps = text_items("mission_steps", 3, 6)
+    success_criteria = text_items("success_criteria", 2, 6)
+    hints = text_items("hints", 2, 4)
+    raw_concepts = value.get("concepts")
+    if not isinstance(raw_concepts, list) or not 2 <= len(raw_concepts) <= 6:
+        raise ContentError(f"{where} : « brief.concepts » doit contenir entre 2 et 6 notions.")
+    concepts: list[dict[str, str]] = []
+    for index, raw in enumerate(raw_concepts, 1):
+        concept_where = f"{where}.brief.concepts[{index}]"
+        if not isinstance(raw, dict):
+            raise ContentError(f"{concept_where} : un objet est attendu.")
+        concepts.append({
+            "term": _text(raw.get("term"), "term", concept_where),
+            "explanation": _text(raw.get("explanation"), "explanation", concept_where),
+        })
+    return {
+        "context": context,
+        "objectives": objectives,
+        "concepts": concepts,
+        "mission_steps": mission_steps,
+        "success_criteria": success_criteria,
+        "hints": hints,
+        "evaluation_scope": evaluation_scope,
+        "debrief": debrief,
+    }
+
+
 def _parse_nodes(path: Path) -> list[NodeSpec]:
     payload = _read_json(path)
     if not isinstance(payload, list):
@@ -293,6 +340,7 @@ def _parse_nodes(path: Path) -> list[NodeSpec]:
             challenge = ChallengeSpec(
                 expected_topology=_parse_expected_topology(expected_topology, where),
                 time_limit=time_limit,
+                brief=_parse_challenge_brief(raw_challenge.get("brief"), where),
             )
         elif raw_challenge is not None or challenge_file is not None:
             raise ContentError(
@@ -831,12 +879,17 @@ def _write(
 
         for node in nodes:
             if node.challenge is not None:
+                expected_topology = dict(node.challenge.expected_topology)
+                if node.challenge.brief:
+                    # Le brief partage le JSON existant : pas de migration SQL nécessaire.
+                    # Les validateurs n'utilisent que nodes, connections et constraints.
+                    expected_topology["brief"] = node.challenge.brief
                 conn.execute(
                     "INSERT INTO challenges (node_id, expected_topology, time_limit)"
                     " VALUES (?, ?, ?)",
                     (
                         node.id,
-                        json.dumps(node.challenge.expected_topology, ensure_ascii=False),
+                        json.dumps(expected_topology, ensure_ascii=False),
                         node.challenge.time_limit,
                     ),
                 )
