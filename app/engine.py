@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import re
-import sqlite3
+from . import db_compat as sqlite3
 from datetime import datetime
 
 from .db import award_attempt_xp, touch_daily_streak
