@@ -2761,6 +2761,11 @@
             .map(value => String(value || '').replace(/\s+/gu, ' ').trim())
             .filter(Boolean);
           const sourceText = String(visual.innerText || visual.textContent || '').replace(/\s+/gu, ' ').trim();
+          // Mermaid est converti en SVG pour l'affichage : conserver son DSL d'origine
+          // pour que le tuteur puisse expliquer les relations nommées, pas seulement les libellés rendus.
+          const sourceCode = visual.querySelector('.mermaid[data-original-source]')?.dataset.originalSource
+            || visual.querySelector('.lesson-mermaid-source')?.textContent
+            || '';
           const kind = String(root.dataset.diagramType || 'schéma');
           const nearbyText = sibling => {
             const values = [];
@@ -2778,6 +2783,7 @@
           this.tutorSelectedText = [
             'Type de représentation : ' + kind,
             'Contenu source ou visible : ' + (sourceText || '(aucun texte directement visible)'),
+            'Code source du diagramme : ' + (sourceCode || '(pas de code source textuel disponible)'),
             'Libellés relevés : ' + (visibleLabels.join(', ') || '(aucun libellé accessible détecté)'),
             'Explication voisine avant le schéma : ' + (previousContext || '(aucune)'),
             'Explication voisine après le schéma : ' + (nextContext || '(aucune)'),

@@ -82,6 +82,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("className = 'lesson-mermaid'", DASHBOARD_HTML)
         self.assertIn("async renderLessonDiagrams()", DASHBOARD_HTML)
         self.assertIn("explainDiagramFromButton(button)", DASHBOARD_HTML)
+        self.assertIn("const sourceCode = visual.querySelector('.mermaid[data-original-source]')", DASHBOARD_HTML)
+        self.assertIn("'Code source du diagramme : ' + (sourceCode", DASHBOARD_HTML)
         self.assertIn("btn-explain-diagram", DASHBOARD_HTML)
         self.assertIn("lesson-diagram-guide", DASHBOARD_HTML)
         self.assertIn("graphviz", DASHBOARD_HTML)
