@@ -784,6 +784,38 @@ class DashboardUiRegressionTests(unittest.TestCase):
         # tree was empty, which missed new courses added while the page was closed.
         self.assertNotIn("if (!prev.size) return; const ev = [];", DASHBOARD_HTML)
 
+    def test_settings_center_persists_applies_and_resets_display_preferences(self):
+        self.assertIn("Centre de préférences", DASHBOARD_HTML)
+        self.assertIn("Apparence et accessibilité", DASHBOARD_HTML)
+        self.assertIn("Données et parcours", DASHBOARD_HTML)
+        self.assertIn('x-model="compactUi" @change="saveSettingsPrefs()"', DASHBOARD_HTML)
+        self.assertIn('x-model="reduceMotion" @change="saveSettingsPrefs()"', DASHBOARD_HTML)
+        self.assertIn("Taille du texte des cours", DASHBOARD_HTML)
+        self.assertIn("Largeur de lecture", DASHBOARD_HTML)
+        self.assertIn("'compact-ui': compactUi", DASHBOARD_HTML)
+        self.assertIn("html.reduce-motion *::before", DASHBOARD_HTML)
+        self.assertIn("localStorage.getItem('skilltree-settings-v1')", DASHBOARD_HTML)
+        self.assertIn("localStorage.setItem('skilltree-settings-v1'", DASHBOARD_HTML)
+        self.assertIn("document.documentElement.classList.toggle('reduce-motion', !!this.reduceMotion)", DASHBOARD_HTML)
+        self.assertIn("resetDisplayPreferences()", DASHBOARD_HTML)
+        self.assertIn("this.fontSize = 17;", DASHBOARD_HTML)
+        self.assertIn("this.readingWidth = 'comfortable';", DASHBOARD_HTML)
+        self.assertIn("this.setTheme('graphite')", DASHBOARD_HTML)
+
+    def test_data_export_contains_local_preferences_and_downloads_a_json_backup(self):
+        export_start = DASHBOARD_HTML.index("        app.exportData = function () {")
+        export_end = DASHBOARD_HTML.index("        app._allowChallengeClear = false;", export_start)
+        export = DASHBOARD_HTML[export_start:export_end]
+
+        self.assertIn("local_data: localData", export)
+        self.assertIn("allowedPrefixes = ['skilltree-', 'st:']", export)
+        self.assertIn("font_size: Number(app.fontSize) || 17", export)
+        self.assertIn("reading_width:", export)
+        self.assertIn("compact_ui: !!app.compactUi", export)
+        self.assertIn("reduce_motion: !!app.reduceMotion", export)
+        self.assertIn("skilltree-sauvegarde-", export)
+        self.assertIn("app.saveFile(name, new Blob", export)
+
     def test_settings_menu_actions_match_their_names_and_close_the_menu(self):
         self.assertIn("Changer de thème", DASHBOARD_HTML)
         self.assertIn('@click="themeMenuOpen = true; settingsMenuOpen = false; notificationsOpen = false; profileMenuOpen = false"', DASHBOARD_HTML)

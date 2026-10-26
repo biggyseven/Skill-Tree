@@ -37,6 +37,107 @@ test('un clic extérieur ferme le menu Paramètres sans bloquer la navigation', 
   await expect(challengesButton).toHaveAttribute('aria-current', 'page');
 });
 
+test('les préférences du centre de paramètres s’appliquent et persistent après rechargement', async ({ page }) => {
+  await openDashboard(page);
+
+  const settingsButton = page.getByRole('button', { name: 'Ouvrir les paramètres' });
+  await settingsButton.click();
+  const settings = page.locator('div[x-show="settingsMenuOpen"]');
+  await expect(settings).toBeVisible();
+  await expect(settings.getByText('Centre de préférences')).toBeVisible();
+
+  await settings.getByRole('checkbox', { name: 'Interface compacte' }).check();
+  await expect(page.locator('body')).toHaveClass(/compact-ui/);
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}');
+    return saved.compactUi;
+  })).toBe(true);
+
+  await settings.getByRole('checkbox', { name: 'Réduire les animations' }).check();
+  await expect(page.locator('html')).toHaveClass(/reduce-motion/);
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}');
+    return saved.reduceMotion;
+  })).toBe(true);
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('button', { name: 'Ouvrir les paramètres' })).toBeVisible();
+  await expect(page.locator('body')).toHaveClass(/compact-ui/);
+  await expect(page.locator('html')).toHaveClass(/reduce-motion/);
+
+  await settingsButton.click();
+  const reopenedSettings = page.locator('div[x-show="settingsMenuOpen"]');
+  await expect(reopenedSettings).toBeVisible();
+  await reopenedSettings.getByRole('button', { name: 'Agrandir la taille du texte' }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('skilltree-ui') || '{}').fs)).toBe(18);
+
+  await reopenedSettings.getByRole('button', { name: 'Rétablir les préférences d’affichage' }).click();
+  await expect(reopenedSettings).toBeHidden();
+  await expect(page.locator('body')).not.toHaveClass(/compact-ui/);
+  await expect(page.locator('html')).not.toHaveClass(/reduce-motion/);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('skilltree-ui') || '{}').fs)).toBe(17);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('skilltree-theme2'))).toBe('graphite');
+});
+
+test('l’export des données depuis Paramètres déclenche le téléchargement JSON', async ({ page }) => {
+  await openDashboard(page);
+
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+  await page.getByRole('button', { name: 'Ouvrir les paramètres' }).click();
+  const settings = page.locator('div[x-show="settingsMenuOpen"]');
+  await expect(settings).toBeVisible();
+
+  await page.evaluate(() => {
+    const probe = window.__skilltreeDownloadProbe = { objectUrlCalls: 0, blobs: [], anchorClicks: [], errors: [] };
+    const nativeCreateObjectURL = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = function (blob) {
+      probe.objectUrlCalls += 1;
+      probe.blobs.push({ isBlob: blob instanceof Blob, size: Number(blob?.size) || 0, type: String(blob?.type || '') });
+      try { return nativeCreateObjectURL(blob); }
+      catch (error) { probe.errors.push('createObjectURL: ' + String(error?.message || error)); throw error; }
+    };
+    const nativeAnchorClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function () {
+      if (this.download) probe.anchorClicks.push({
+        download: this.download, href: this.href, connected: this.isConnected,
+        display: getComputedStyle(this).display, visibility: getComputedStyle(this).visibility,
+      });
+      try { return nativeAnchorClick.call(this); }
+      catch (error) { probe.errors.push('anchor.click: ' + String(error?.message || error)); throw error; }
+    };
+    window.addEventListener('error', event => probe.errors.push(String(event.message || 'window error')));
+  });
+
+  const downloads = [];
+  page.on('download', download => downloads.push(download));
+  await settings.getByRole('button', { name: /Exporter mes données/ }).click();
+  await page.waitForTimeout(1000);
+  const probe = await page.evaluate(() => window.__skilltreeDownloadProbe || null);
+  const debug = JSON.stringify({ probe, pageErrors }, null, 2);
+
+  expect(probe, debug).toBeTruthy();
+  expect(probe.objectUrlCalls, debug).toBe(1);
+  expect(probe.blobs[0]?.size || 0, debug).toBeGreaterThan(0);
+  expect(probe.anchorClicks.length, debug).toBe(1);
+  expect(downloads.length, debug).toBe(1);
+
+  const download = downloads[0];
+  expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-[0-9]{4}-[0-9]{2}-[0-9]{2}[.]json$/);
+  const filePath = await download.path();
+  expect(filePath).toBeTruthy();
+  const snapshot = JSON.parse(await require('node:fs/promises').readFile(filePath, 'utf8'));
+  expect(snapshot.app).toBe('Skill-Tree');
+  expect(snapshot.schema_version).toBe(2);
+  expect(snapshot.preferences).toMatchObject({
+    font_size: expect.any(Number),
+    reading_width: expect.stringMatching(/^(comfortable|wide)$/),
+    compact_ui: expect.any(Boolean),
+    reduce_motion: expect.any(Boolean),
+  });
+  expect(snapshot.local_data).toBeTruthy();
+  await expect(settings).toBeHidden();
+});
 test('le thème choisi est persisté après rechargement', async ({ page }) => {
   await openDashboard(page);
 
@@ -143,13 +244,13 @@ test('un cours cybersécurité en attente affiche un état de préparation au li
 
   const searchInput = page.locator('input[x-ref="searchBox"]');
   const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
-  await searchInput.fill('La Triade CIA');
+  await searchInput.fill('Analyse de malwares');
 
-  const lessonResult = results.locator('button').filter({ hasText: 'La Triade CIA' }).first();
+  const lessonResult = results.locator('button').filter({ hasText: 'Analyse de malwares' }).first();
   await expect(lessonResult).toBeVisible();
   await lessonResult.click();
 
-  await expect(page.locator('#course-reader-title')).toHaveText('La Triade CIA');
+  await expect(page.locator('#course-reader-title')).toHaveText('Analyse de malwares');
   await expect(page.getByText('Contenu en préparation', { exact: true })).toBeVisible();
   await expect(page.locator('[x-ref="lessonArticle"]')).toHaveCount(0);
   await expect(page.getByText(/Contenu de 5000 mots à rédiger/i)).toHaveCount(0);
