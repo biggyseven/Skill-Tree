@@ -809,7 +809,7 @@ def list_labs_v2() -> list[dict[str, Any]]:
     try:
         rows = conn.execute(
             """
-            SELECT id, title, level, module, schema_version
+            SELECT id, title, level, module, duration_min, difficulty, schema_version
             FROM labs
             ORDER BY module, title
             """
