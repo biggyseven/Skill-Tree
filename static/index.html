@@ -538,12 +538,128 @@
       animation-iteration-count: 1 !important;
       transition-duration: .01ms !important;
     }
-    body.compact-ui .skill-sidebar { padding-top: .85rem !important; padding-bottom: .85rem !important; }
-    body.compact-ui main { padding-bottom: 1.5rem !important; }
-    body.compact-ui .nav-action-btn { width: 2.25rem !important; height: 2.25rem !important; }
+    /* Mode compact : réduire les espaces sans comprimer le texte ou les cibles tactiles. */
+    body.compact-ui .skill-sidebar { padding-top: .75rem !important; padding-bottom: .75rem !important; }
+    body.compact-ui main { padding-bottom: 1.25rem !important; }
+    /* Ne réduire en largeur que les boutons composés d'une icône : les actions avec libellé gardent leur place. */
+    body.compact-ui .nav-action-btn.w-10 { width: 2.25rem !important; height: 2.25rem !important; }
     body.compact-ui .lesson-content { padding: 1rem !important; }
-    body.compact-ui .lesson-prose :where(p, li) { margin-bottom: .55em !important; }
+    body.compact-ui .lesson-prose :where(p, li) { margin-bottom: .5em !important; }
     body.compact-ui .lesson-toc-panel nav a { padding-top: .35rem !important; padding-bottom: .35rem !important; }
+
+    /* Barre supérieure compacte : grille explicite pour que titre et actions ne se chevauchent jamais. */
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: .5rem;
+      height: 4.25rem !important;
+      padding-inline: 1rem !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div:first-child {
+      grid-column: 1;
+      grid-row: 1;
+      min-width: 0;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute {
+      display: none !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.flex.min-w-0.flex-1.items-center.justify-end {
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+      width: max-content;
+      max-width: 100%;
+      flex: none !important;
+      gap: .35rem !important;
+    }
+    body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header .nav-action-btn {
+      height: 2.25rem !important;
+      min-height: 2.25rem !important;
+    }
+    /* Sur grand écran, les indicateurs reçoivent leur propre colonne entre le titre et les actions. */
+    @media (min-width: 1280px) {
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute {
+        display: flex !important;
+        position: static !important;
+        inset: auto !important;
+        transform: none !important;
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        gap: .35rem !important;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.flex.min-w-0.flex-1.items-center.justify-end {
+        grid-column: 3;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute > :is(div, button) {
+        padding-inline: .6rem !important;
+      }
+      body.compact-ui > div.flex.flex-1.flex-col.overflow-hidden > header > div.absolute > div:last-child {
+        gap: .5rem !important;
+      }
+    }
+    body.compact-ui .skill-sidebar > div:first-child {
+      height: 3.25rem !important; margin-bottom: .75rem !important;
+    }
+    body.compact-ui .skill-sidebar > div:nth-of-type(2) {
+      padding: .85rem !important; margin-bottom: .75rem !important; border-radius: 1.25rem !important;
+    }
+    body.compact-ui .skill-sidebar nav {
+      padding-block: .125rem !important;
+    }
+    body.compact-ui .skill-sidebar nav > :not([hidden]) ~ :not([hidden]) {
+      margin-top: .25rem !important;
+    }
+    body.compact-ui .skill-sidebar nav button { min-height: 40px !important; }
+    body.compact-ui .skill-sidebar nav button .nav-item-icon {
+      width: 2rem !important; height: 2rem !important;
+    }
+    body.compact-ui main {
+      padding-left: clamp(.75rem, 1.25vw, 1.25rem) !important;
+      padding-right: clamp(.75rem, 1.25vw, 1.25rem) !important;
+    }
+
+    /* Densité des cartes et des panneaux : les plus grands espacements restent un peu plus généreux. */
+    body.compact-ui main .card { padding: 1.1rem !important; border-radius: 1.15rem !important; }
+    body.compact-ui main .card-sm { padding: .75rem !important; border-radius: .8rem !important; }
+
+    body.compact-ui main [class~="p-1"], body.compact-ui main [class~="sm:p-1"] { padding: .3rem !important; }
+    body.compact-ui main [class~="p-2"], body.compact-ui main [class~="sm:p-2"] { padding: .45rem !important; }
+    body.compact-ui main [class~="p-3"], body.compact-ui main [class~="sm:p-3"] { padding: .6rem !important; }
+    body.compact-ui main [class~="p-4"], body.compact-ui main [class~="sm:p-4"] { padding: .75rem !important; }
+    body.compact-ui main [class~="p-5"], body.compact-ui main [class~="sm:p-5"] { padding: .9rem !important; }
+    body.compact-ui main [class~="p-6"], body.compact-ui main [class~="sm:p-6"] { padding: 1rem !important; }
+    body.compact-ui main [class~="p-8"], body.compact-ui main [class~="sm:p-8"] { padding: 1.15rem !important; }
+
+    body.compact-ui main [class~="px-2"], body.compact-ui main [class~="sm:px-2"] { padding-left: .45rem !important; padding-right: .45rem !important; }
+    body.compact-ui main [class~="px-3"], body.compact-ui main [class~="sm:px-3"] { padding-left: .6rem !important; padding-right: .6rem !important; }
+    body.compact-ui main [class~="px-4"], body.compact-ui main [class~="sm:px-4"] { padding-left: .75rem !important; padding-right: .75rem !important; }
+    body.compact-ui main [class~="px-5"], body.compact-ui main [class~="sm:px-5"] { padding-left: .85rem !important; padding-right: .85rem !important; }
+    body.compact-ui main [class~="px-6"], body.compact-ui main [class~="sm:px-6"] { padding-left: 1rem !important; padding-right: 1rem !important; }
+    body.compact-ui main [class~="px-8"], body.compact-ui main [class~="sm:px-8"] { padding-left: 1.15rem !important; padding-right: 1.15rem !important; }
+
+    body.compact-ui main [class~="py-2"], body.compact-ui main [class~="sm:py-2"] { padding-top: .4rem !important; padding-bottom: .4rem !important; }
+    body.compact-ui main [class~="py-3"], body.compact-ui main [class~="sm:py-3"] { padding-top: .55rem !important; padding-bottom: .55rem !important; }
+    body.compact-ui main [class~="py-4"], body.compact-ui main [class~="sm:py-4"] { padding-top: .7rem !important; padding-bottom: .7rem !important; }
+    body.compact-ui main [class~="py-5"], body.compact-ui main [class~="sm:py-5"] { padding-top: .85rem !important; padding-bottom: .85rem !important; }
+    body.compact-ui main [class~="py-6"], body.compact-ui main [class~="sm:py-6"] { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    body.compact-ui main [class~="py-8"], body.compact-ui main [class~="sm:py-8"] { padding-top: 1.15rem !important; padding-bottom: 1.15rem !important; }
+
+    /* Réduire le rythme vertical et les écarts entre blocs dans tous les onglets. */
+    body.compact-ui main [class~="gap-1"], body.compact-ui main [class~="sm:gap-1"] { gap: .25rem !important; }
+    body.compact-ui main [class~="gap-2"], body.compact-ui main [class~="sm:gap-2"] { gap: .4rem !important; }
+    body.compact-ui main [class~="gap-3"], body.compact-ui main [class~="sm:gap-3"] { gap: .55rem !important; }
+    body.compact-ui main [class~="gap-4"], body.compact-ui main [class~="sm:gap-4"] { gap: .75rem !important; }
+    body.compact-ui main [class~="gap-6"], body.compact-ui main [class~="sm:gap-6"] { gap: 1rem !important; }
+    body.compact-ui main [class~="mb-3"], body.compact-ui main [class~="sm:mb-3"] { margin-bottom: .5rem !important; }
+    body.compact-ui main [class~="mb-4"], body.compact-ui main [class~="sm:mb-4"] { margin-bottom: .65rem !important; }
+    body.compact-ui main [class~="mb-5"], body.compact-ui main [class~="sm:mb-5"] { margin-bottom: .8rem !important; }
+    body.compact-ui main [class~="mb-6"], body.compact-ui main [class~="sm:mb-6"] { margin-bottom: 1rem !important; }
+    body.compact-ui main [class~="mb-8"], body.compact-ui main [class~="sm:mb-8"] { margin-bottom: 1.25rem !important; }
+    body.compact-ui main table th, body.compact-ui main table td { padding: .5rem !important; }
 
   </style>
 </head>
@@ -733,13 +849,16 @@
         <button type="button" @click.stop="settingsMenuOpen = !settingsMenuOpen; notificationsOpen = false; profileMenuOpen = false; themeMenuOpen = false" title="Paramètres" aria-label="Ouvrir les paramètres" aria-haspopup="true" :aria-expanded="settingsMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
         </button>
-        <div x-show="settingsMenuOpen" x-cloak @click.outside="settingsMenuOpen = false" @keydown.escape.window="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-[min(26rem,calc(100vw-2rem))] max-h-[min(82vh,44rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl">
+        <div x-show="settingsMenuOpen" x-cloak role="dialog" aria-modal="false" aria-labelledby="settings-dialog-title" @click.outside="settingsMenuOpen = false" @keydown.escape.window="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-[min(34rem,calc(100vw-2rem))] max-h-[min(82vh,44rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl">
           <div class="flex items-start justify-between gap-3 border-b border-white/10 px-1 pb-3">
             <div>
-              <h3 class="text-sm font-bold text-white">Centre de préférences</h3>
+              <h3 id="settings-dialog-title" class="text-sm font-bold text-white">Centre de préférences</h3>
               <p class="mt-1 text-[11px] leading-relaxed text-zinc-500">Personnalise l’interface et la lecture. Tes choix sont conservés sur cet appareil.</p>
             </div>
-            <span class="shrink-0 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-[10px] font-semibold text-emerald-200" x-text="(nodes?.length || 0) + ' cours'"></span>
+            <div class="flex shrink-0 items-center gap-2">
+              <span class="rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-[10px] font-semibold text-emerald-200" x-text="(nodes?.length || 0) + ' cours'"></span>
+              <button type="button" @click="settingsMenuOpen = false" aria-label="Fermer les paramètres" title="Fermer" class="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-lg text-zinc-300 transition hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">×</button>
+            </div>
           </div>
 
           <section class="space-y-3 border-b border-white/10 py-4" aria-labelledby="settings-display-title">
@@ -768,6 +887,12 @@
               <span class="rounded-lg border border-white/10 px-2 py-1 text-[10px] font-semibold text-zinc-300" x-text="readingWidth === 'wide' ? 'Large' : 'Confort'"></span>
             </button>
 
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.025] px-3 py-3">
+              <span class="min-w-0 flex-1"><label for="settings-speech-rate" class="block text-xs font-semibold text-zinc-100">Vitesse de lecture vocale</label><span class="mt-1 block text-[10px] text-zinc-500">Valeur utilisée par le lecteur audio des cours</span></span>
+              <select id="settings-speech-rate" x-model.number="speechRate" @change="changeSpeechRate()" aria-label="Vitesse de lecture vocale par défaut" class="rounded-lg border border-white/10 bg-[color:var(--s2)] px-2.5 py-2 text-xs font-semibold text-white outline-none focus:border-cyan-400/50">
+                <option value="0.8">0,8×</option><option value="1">1×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option><option value="1.6">1,6×</option>
+              </select>
+            </div>
             <label class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.04]">
               <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-200" aria-hidden="true">▤</span>
               <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-zinc-100">Interface compacte</span><span class="mt-1 block text-[10px] leading-relaxed text-zinc-500">Réduit les espaces et densifie les panneaux</span></span>
@@ -781,7 +906,42 @@
             </label>
           </section>
 
-          <section class="space-y-1 border-b border-white/10 py-4" aria-labelledby="settings-data-title">
+          <section class="space-y-3 border-b border-white/10 py-4" aria-labelledby="settings-learning-title">
+            <h4 id="settings-learning-title" class="px-1 text-[10px] font-bold uppercase tracking-[0.17em] text-zinc-500">Apprentissage et navigation</h4>
+            <div class="rounded-xl border border-white/10 bg-white/[0.025] p-3">
+              <label for="settings-default-tab" class="mb-2 block text-xs font-semibold text-zinc-100">Section à ouvrir au démarrage</label>
+              <select id="settings-default-tab" x-model="defaultTab" @change="saveSettingsPrefs()" class="w-full rounded-xl border border-white/10 bg-[color:var(--s2)] px-3 py-2.5 text-xs text-white outline-none focus:border-emerald-400/50">
+                <option value="tree">Parcours d’apprentissage</option><option value="labs">Laboratoires</option><option value="stats">Statistiques</option><option value="diagnostic">Diagnostic</option><option value="memo">Cartes mémoire</option><option value="exam">Examens</option><option value="challenges">Défis</option><option value="rewards">Récompenses</option>
+              </select>
+              <p class="mt-2 text-[10px] leading-relaxed text-zinc-500">Le choix sera repris au prochain chargement. Tu peux aussi ouvrir cette section immédiatement.</p>
+              <button type="button" @click="applyDefaultTab()" class="mt-3 w-full rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2.5 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-400/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">Ouvrir cette section maintenant</button>
+            </div>
+            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.04]">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-400/10 text-sky-200" aria-hidden="true">↩</span>
+              <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-zinc-100">Mettre en avant la dernière leçon</span><span class="mt-1 block text-[10px] leading-relaxed text-zinc-500">La carte de reprise privilégie le cours commencé précédemment</span></span>
+              <input type="checkbox" x-model="resumeLastLesson" @change="saveSettingsPrefs()" aria-label="Mettre en avant la dernière leçon" class="h-4 w-4 shrink-0 accent-emerald-400">
+            </label>
+            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.04]">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-400/10 text-violet-200" aria-hidden="true">⌘</span>
+              <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-zinc-100">Raccourcis clavier</span><span class="mt-1 block text-[10px] leading-relaxed text-zinc-500">Recherche rapide et raccourcis des cartes mémoire</span></span>
+              <input type="checkbox" x-model="keyboardShortcutsEnabled" @change="saveSettingsPrefs()" aria-label="Activer les raccourcis clavier" class="h-4 w-4 shrink-0 accent-violet-400">
+            </label>
+          </section>
+
+          <section class="space-y-3 border-b border-white/10 py-4" aria-labelledby="settings-notifications-title">
+            <h4 id="settings-notifications-title" class="px-1 text-[10px] font-bold uppercase tracking-[0.17em] text-zinc-500">Notifications et confirmations</h4>
+            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 transition hover:bg-white/[0.04]">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-400/10 text-amber-200" aria-hidden="true">♢</span>
+              <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-zinc-100">Notifications dans l’application</span><span class="mt-1 block text-[10px] leading-relaxed text-zinc-500">Affiche les événements et conserve les notifications déjà reçues</span></span>
+              <input type="checkbox" x-model="notificationsEnabled" @change="saveSettingsPrefs()" aria-label="Activer les notifications dans l’application" class="h-4 w-4 shrink-0 accent-amber-300">
+            </label>
+            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 transition hover:bg-white/[0.04]">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-400/10 text-rose-200" aria-hidden="true">!</span>
+              <span class="min-w-0 flex-1"><span class="block text-xs font-semibold text-zinc-100">Confirmer avant d’effacer une topologie</span><span class="mt-1 block text-[10px] leading-relaxed text-zinc-500">Évite les suppressions accidentelles dans l’atelier</span></span>
+              <input type="checkbox" x-model="confirmDestructiveActions" @change="saveSettingsPrefs()" aria-label="Confirmer avant d’effacer une topologie" class="h-4 w-4 shrink-0 accent-rose-400">
+            </label>
+          </section>
+          <section class="space-y-1 border-b border-white/10 py-4" aria-labelledby="settings-data-title"
             <h4 id="settings-data-title" class="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.17em] text-zinc-500">Données et parcours</h4>
             <button type="button" @click="reloadContent(); settingsMenuOpen = false" class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-xs text-zinc-300 transition hover:bg-white/5 hover:text-white">
               <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
@@ -2320,6 +2480,8 @@
         theme: document.documentElement.classList.contains('light') ? 'light' : 'dark',
         focusMode: false, treeFilter: 'all', sidebarCollapsed: false,
         compactUi: false, reduceMotion: false,
+        resumeLastLesson: true, notificationsEnabled: true, keyboardShortcutsEnabled: true,
+        confirmDestructiveActions: true, defaultTab: 'tree',
         notificationsOpen: false, settingsMenuOpen: false, tab: 'tree', tabHistory: [],
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
         lastOpenedNodeId: localStorage.getItem('skilltree-last-node') || '',
@@ -2406,6 +2568,8 @@
             // Conserver l’ouverture directe des laboratoires dans le nouvel onglet.
             await this.openLab(requestedLabId, false);
           }
+          const deepLinkWasUsed = (requestedTabId && this.navItems.some(item => item.id === requestedTabId)) || requestedModuleId || requestedCourseId || requestedLabId;
+          if (!deepLinkWasUsed && this.defaultTab !== 'tree') await this.setTab(this.defaultTab);
         },
 
         // --- Préférences d'affichage du lecteur et préférences générales ---
@@ -2420,6 +2584,14 @@
             const p = JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}');
             this.compactUi = p.compactUi === true;
             this.reduceMotion = p.reduceMotion === true;
+            this.resumeLastLesson = p.resumeLastLesson !== false;
+            this.notificationsEnabled = p.notificationsEnabled !== false;
+            this.keyboardShortcutsEnabled = p.keyboardShortcutsEnabled !== false;
+            this.confirmDestructiveActions = p.confirmDestructiveActions !== false;
+            const validTabs = ['tree', 'labs', 'stats', 'diagnostic', 'memo', 'exam', 'challenges', 'rewards'];
+            this.defaultTab = validTabs.includes(p.defaultTab) ? p.defaultTab : 'tree';
+            const savedSpeechRate = Number(p.speechRate);
+            this.speechRate = [0.8, 1, 1.2, 1.4, 1.6].includes(savedSpeechRate) ? savedSpeechRate : 1;
           } catch (_) {
             this.compactUi = false;
             this.reduceMotion = false;
@@ -2434,12 +2606,27 @@
         },
         saveSettingsPrefs() {
           this.applySettingsPrefs();
+          if (!this.notificationsEnabled) this.notificationsOpen = false;
           try {
             localStorage.setItem('skilltree-settings-v1', JSON.stringify({
               compactUi: !!this.compactUi,
               reduceMotion: !!this.reduceMotion,
+              resumeLastLesson: this.resumeLastLesson !== false,
+              notificationsEnabled: this.notificationsEnabled !== false,
+              keyboardShortcutsEnabled: this.keyboardShortcutsEnabled !== false,
+              confirmDestructiveActions: this.confirmDestructiveActions !== false,
+              defaultTab: this.defaultTab || 'tree',
+              speechRate: [0.8, 1, 1.2, 1.4, 1.6].includes(Number(this.speechRate)) ? Number(this.speechRate) : 1,
             }));
           } catch (_) { }
+        },
+        async applyDefaultTab() {
+          const validTabs = ['tree', 'labs', 'stats', 'diagnostic', 'memo', 'exam', 'challenges', 'rewards'];
+          if (!validTabs.includes(this.defaultTab)) this.defaultTab = 'tree';
+          this.saveSettingsPrefs();
+          await this.setTab(this.defaultTab);
+          this.settingsMenuOpen = false;
+          if (typeof this.notify === 'function') this.notify('Section ouverte : ' + this.defaultTab + '.');
         },
         resetDisplayPreferences() {
           this.fontSize = 17;
@@ -2447,6 +2634,12 @@
           this.isFullscreen = false;
           this.compactUi = false;
           this.reduceMotion = false;
+          this.resumeLastLesson = true;
+          this.notificationsEnabled = true;
+          this.keyboardShortcutsEnabled = true;
+          this.confirmDestructiveActions = true;
+          this.defaultTab = 'tree';
+          this.speechRate = 1;
           this.saveUiPrefs();
           this.saveSettingsPrefs();
           if (typeof this.setTheme === 'function') this.setTheme('graphite');
@@ -4759,6 +4952,7 @@
           }
         },
         changeSpeechRate() {
+          this.saveSettingsPrefs();
           if (!this.speechKind || !['speaking', 'starting', 'paused'].includes(this.speechState)) return;
           const kind = this.speechKind;
           const remainingText = this.speechQueue.slice(this.speechQueueIndex).join(' ');
@@ -5307,6 +5501,7 @@
         },
         openSearchResult(r) { if (!r) return; this.searchOpen = false; this.mobileSearchOpen = false; this.searchQuery = ''; this.show(r.node.id); },
         onGlobalKey(e) {
+          if (!this.keyboardShortcutsEnabled) return;
           const t = e.target; const typing = t && (/^(input|textarea|select)$/i.test(t.tagName) || t.isContentEditable);
           if ((e.key === '/' && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
             e.preventDefault();
@@ -6391,6 +6586,7 @@
         },
         get resumableLastNode() {
           const node = this.lastOpenedNode;
+          if (!this.resumeLastLesson) return null;
           return node && node.status !== 'locked' ? node : null;
         },
         get moduleNextCourse() {
@@ -6543,7 +6739,7 @@
           try { localStorage.setItem('skilltree-notifications-v1', JSON.stringify(this.liveEvents)); } catch (_) { }
         },
         addNotification(event) {
-          if (!event || !event.title) return;
+          if (!this.notificationsEnabled || !event || !event.title) return;
           const id = String(event.id || (Date.now() + '-' + Math.random().toString(36).slice(2, 9)));
           if (this.liveEvents.some(n => String(n.id) === id)) return;
           const notification = {
@@ -7283,7 +7479,7 @@
         const originalClearTopology = app.clearTopology.bind(app);
         app.clearTopology = function (force = false) {
           const count = Object.keys(this.topoData()).length;
-          if (count && !force && !this._allowChallengeClear && !window.confirm(`Effacer cette topologie et ses ${count} équipement(s) ? Pense à sauvegarder avant de continuer.`)) return false;
+          if (count && !force && !this._allowChallengeClear && this.confirmDestructiveActions !== false && !window.confirm(`Effacer cette topologie et ses ${count} équipement(s) ? Pense à sauvegarder avant de continuer.`)) return false;
           originalClearTopology();
           this.challengeResult = null;
           return true;
