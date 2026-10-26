@@ -186,5 +186,38 @@ class PriorityQuizQualityTests(unittest.TestCase):
                 )
 
 
+    def test_reviewed_correct_answers_point_to_expected_options(self) -> None:
+        cases = (
+            (
+                "db-intermediaire",
+                6,
+                0,
+                "Une sauvegarde de base exploitable et l’archivage continu des WAL nécessaires",
+            ),
+            (
+                "db-intermediaire",
+                7,
+                3,
+                "Accorder uniquement les droits requis, avec un rôle et des secrets propres à l’application",
+            ),
+            (
+                "equipment-expert",
+                1,
+                1,
+                "Mesurer/estimer les pertes de la liaison et vérifier la puissance reçue par rapport aux limites du transceiver, avec marge",
+            ),
+        )
+        for quiz_id, question_index, expected_index, expected_choice in cases:
+            with self.subTest(quiz=quiz_id, question=question_index + 1):
+                data = json.loads(self.quiz_paths[quiz_id].read_text(encoding="utf-8"))
+                question = data["questions"][question_index]
+                self.assertEqual(question["answer"], expected_index)
+                self.assertEqual(
+                    question["choices"][question["answer"]],
+                    expected_choice,
+                    f"La correction désignée doit être l’option correcte : {quiz_id} #{question_index + 1}",
+                )
+
+
 if __name__ == "__main__":
     unittest.main()
