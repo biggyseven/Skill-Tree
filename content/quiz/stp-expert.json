@@ -1,1 +1,102 @@
-{"node_id":"stp-expert","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel protocole permet de regrouper plusieurs VLANs dans une seule instance STP ?","choices":["MSTP","PVST+","RSTP","VTP"],"answer":0,"explanation":"MSTP (Multiple Spanning Tree Protocol) regroupe les VLANs en instances pour économiser les ressources."},{"type":"qcm","prompt":"À quoi sert BPDU Guard ?","choices":["À bloquer un port d'accès si un BPDU est reçu","À accélérer la convergence","À chiffrer les BPDU","À créer des VLANs"],"answer":0,"explanation":"BPDU Guard désactive le port si un switch pirate tente d'envoyer des BPDU sur un port PC."},{"type":"qcm","prompt":"Quelle commande empêche un switch de devenir Root Bridge ?","choices":["spanning-tree guard root","spanning-tree bpduguard enable","spanning-tree portfast","spanning-tree mode mst"],"answer":0,"explanation":"La commande 'spanning-tree guard root' protège le port contre les BPDU supérieurs."},{"type":"qcm","prompt":"Quelle attaque consiste à se déclarer Root Bridge pour intercepter le trafic ?","choices":["Man-in-the-Middle via STP","Une attaque DDoS","Un ARP Spoofing","Un VLAN Hopping"],"answer":0,"explanation":"Devenir Root Bridge permet de forcer tout le trafic à passer par le switch du pirate."}]}
+{
+  "node_id": "stp-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel objectif caractérise MSTP dans un réseau commuté comportant de nombreux VLAN ?",
+      "choices": [
+        "Créer une seule table ARP pour toute l’entreprise",
+        "Remplacer 802.1Q par un protocole de routage",
+        "Associer plusieurs VLAN à des instances spanning-tree afin de limiter le nombre d’instances tout en permettant des chemins logiques distincts",
+        "Établir des sessions BGP entre les switches"
+      ],
+      "answer": 2,
+      "explanation": "MSTP mappe des VLAN à des instances spanning-tree. Il peut réduire la charge liée à une instance par VLAN et permettre une ingénierie des chemins selon les instances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un port edge avec BPDU Guard activé sur Cisco IOS, quel comportement est attendu lorsqu’une BPDU y est reçue ?",
+      "choices": [
+        "Le switch devient toujours le Root Bridge",
+        "Le switch supprime la configuration de tous les VLAN",
+        "Le port autorise les BPDUs mais coupe seulement le DNS",
+        "Le port est désactivé ou placé en état d’erreur selon la plateforme, afin d’empêcher un équipement inattendu d’influencer STP"
+      ],
+      "answer": 3,
+      "explanation": "BPDU Guard protège les ports censés être edge : la réception d’une BPDU peut placer le port en errdisable sur Cisco IOS. La récupération doit suivre la procédure opérationnelle prévue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert Root Guard sur une interface STP protégée ?",
+      "choices": [
+        "À empêcher qu’une BPDU supérieure reçue sur cette interface ne fasse élire un nouveau Root Bridge en passant le port dans un état root-inconsistent selon la plateforme",
+        "À interdire la réception de toute trame Ethernet",
+        "À accélérer DHCP sur un port access",
+        "À remplacer BPDU Guard sur tous les terminaux"
+      ],
+      "answer": 0,
+      "explanation": "Root Guard protège le rôle de racine attendu sur un segment. Si une BPDU supérieure arrive, le port concerné peut devenir root-inconsistent, plutôt que de laisser ce segment imposer un autre pont racine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle panne STP cherche notamment à prévenir Loop Guard sur un port non désigné qui devrait recevoir des BPDUs ?",
+      "choices": [
+        "La perte d’adresse IPv4 du serveur",
+        "La transition injustifiée du port vers Forwarding après disparition inattendue des BPDUs, susceptible de créer une boucle",
+        "La corruption de la base de paquets Linux",
+        "L’élection du DR OSPF"
+      ],
+      "answer": 1,
+      "explanation": "Loop Guard protège certains ports non désignés contre la perte unidirectionnelle ou la disparition inattendue des BPDUs. Il peut maintenir un état loop-inconsistent au lieu de permettre une transition dangereuse vers Forwarding."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux switches ont exactement la même priorité STP. Quel facteur de départage intervient classiquement dans la sélection du Root Bridge ?",
+      "choices": [
+        "La durée de fonctionnement du ventilateur",
+        "Le nombre d’entrées DNS",
+        "Le Bridge ID, qui inclut le MAC comme facteur de départage lorsque les priorités et extensions pertinentes sont égales",
+        "Le coût OSPF de l’interface"
+      ],
+      "answer": 2,
+      "explanation": "STP compare les Bridge IDs ; les priorités et le système ID étendu peuvent influencer leur valeur, puis les identifiants MAC départagent les switches dont les champs précédents sont égaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans MSTP, quels paramètres doivent correspondre pour que des switches appartiennent au même MST region ?",
+      "choices": [
+        "Uniquement l’adresse IP de gestion",
+        "Uniquement le nom de domaine DNS",
+        "Uniquement le Root Bridge de l’instance 0",
+        "Le nom de région, la révision et le mapping VLAN-vers-instance, dont le digest doit être cohérent"
+      ],
+      "answer": 3,
+      "explanation": "L’appartenance à une région MST dépend notamment du nom, de la révision et de la cartographie VLAN/instance. Une divergence crée une frontière de région et peut modifier les chemins et la convergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi choisir explicitement un Root Bridge principal et un secondaire dans un campus ?",
+      "choices": [
+        "Pour rendre les chemins STP prévisibles et contrôler où la topologie logique converge après une panne",
+        "Pour empêcher les switches d’apprendre les adresses MAC",
+        "Pour attribuer des adresses IP aux VLAN",
+        "Pour transformer chaque trunk en lien routé"
+      ],
+      "answer": 0,
+      "explanation": "Le choix de la racine influence les chemins actifs. Définir un root et un secondaire permet d’aligner les chemins avec la conception, la capacité et les objectifs de convergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi il est risqué de configurer BPDU Filter sans périmètre strict ni validation ?",
+      "choices": [
+        "Il augmente automatiquement la priorité du Root Bridge",
+        "Il peut supprimer les signaux de contrôle qui permettent à STP de détecter une topologie, augmentant le risque de boucle si des liens redondants existent",
+        "Il rend les BPDUs plus rapides",
+        "Il active l’authentification OSPF"
+      ],
+      "answer": 1,
+      "explanation": "La suppression des BPDUs peut empêcher la détection des boucles. BPDU Filter ne doit pas être utilisé comme substitut général à BPDU Guard ou à une conception STP sûre."
+    }
+  ]
+}
