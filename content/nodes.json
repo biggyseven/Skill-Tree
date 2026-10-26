@@ -5466,10 +5466,11 @@
     "module": "DevOps",
     "title": "Infrastructure as Code avec Terraform",
     "category": "DevOps",
-    "order": 3012,
+    "order": 3013,
     "description": "Providers, state, modules.",
     "prereqs": [
-      "cicd-debutant"
+      "cicd-debutant",
+      "iac-debutant"
     ],
     "requirements": [
       {
@@ -5487,7 +5488,7 @@
     "module": "DevOps",
     "title": "IaC à grande échelle",
     "category": "DevOps",
-    "order": 3013,
+    "order": 3014,
     "description": "Terraform Cloud, Atlantis, tests d'infra.",
     "prereqs": [
       "iac-intermediaire"
@@ -5504,10 +5505,11 @@
     "module": "DevOps",
     "title": "Configuration avec Ansible",
     "category": "DevOps",
-    "order": 3014,
+    "order": 3016,
     "description": "Playbooks de configuration pour le DevOps.",
     "prereqs": [
-      "linux-debutant"
+      "linux-debutant",
+      "ansible-devops-debutant"
     ],
     "requirements": [
       {
@@ -5521,10 +5523,11 @@
     "module": "DevOps",
     "title": "Observabilité : Prometheus et Grafana",
     "category": "DevOps",
-    "order": 3015,
+    "order": 3019,
     "description": "Monitoring d'infrastructure et d'application.",
     "prereqs": [
-      "docker-debutant"
+      "docker-debutant",
+      "observability-debutant"
     ],
     "requirements": [
       {
@@ -5542,7 +5545,7 @@
     "module": "DevOps",
     "title": "SRE : SLI, SLO et gestion des incidents",
     "category": "DevOps",
-    "order": 3016,
+    "order": 3020,
     "description": "Error budgets, post-mortems, chaos engineering.",
     "prereqs": [
       "observability-intermediaire"
@@ -5559,10 +5562,11 @@
     "module": "DevOps",
     "title": "DevSecOps",
     "category": "DevOps",
-    "order": 3017,
+    "order": 3023,
     "description": "Intégration de la sécurité dans le pipeline.",
     "prereqs": [
-      "cicd-intermediaire"
+      "cicd-intermediaire",
+      "devsecops-intermediaire"
     ],
     "requirements": [
       {
@@ -5576,10 +5580,11 @@
     "module": "DevOps",
     "title": "Service Mesh (Istio, Linkerd)",
     "category": "DevOps",
-    "order": 3018,
+    "order": 3026,
     "description": "Gestion du trafic interservices, mTLS.",
     "prereqs": [
-      "k8s-intermediaire"
+      "k8s-intermediaire",
+      "mesh-intermediaire"
     ],
     "requirements": [
       {
@@ -6773,5 +6778,143 @@
         "debrief": "La segmentation IT/OT exige des zones explicites et des flux strictement nécessaires. Même avec un graphe sans contournement, il faut configurer VLAN, filtrage, accès d’administration et supervision puis tester les flux autorisés et interdits."
       }
     }
+  },
+  {
+    "id": "iac-debutant",
+    "module": "DevOps",
+    "title": "Infrastructure as Code avec Terraform — Débutant",
+    "category": "DevOps",
+    "order": 3012,
+    "description": "Décrire une infrastructure simple, comprendre les providers, variables, plans et état Terraform.",
+    "prereqs": [
+      "cicd-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ansible-devops-debutant",
+    "module": "DevOps",
+    "title": "Ansible et automatisation de configuration — Débutant",
+    "category": "DevOps",
+    "order": 3015,
+    "description": "Préparer un inventaire, écrire un playbook idempotent et vérifier une configuration Linux.",
+    "prereqs": [
+      "linux-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "ansible-devops-expert",
+    "module": "DevOps",
+    "title": "Automatisation Ansible à grande échelle — Expert",
+    "category": "DevOps",
+    "order": 3017,
+    "description": "Gouverner rôles, inventaires, exécutions progressives, tests, secrets et retours arrière.",
+    "prereqs": [
+      "ansible-devops-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "devsecops-debutant",
+    "module": "DevOps",
+    "title": "DevSecOps — Débutant",
+    "category": "DevOps",
+    "order": 3021,
+    "description": "Comprendre SAST, SCA, DAST, secrets et premiers contrôles de sécurité en CI.",
+    "prereqs": [
+      "cicd-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "devsecops-intermediaire",
+    "module": "DevOps",
+    "title": "Pipelines DevSecOps et sécurité de la chaîne logicielle — Intermédiaire",
+    "category": "DevOps",
+    "order": 3022,
+    "description": "Sécuriser artefacts, identités de pipeline, SBOM, policies et tri d’alertes.",
+    "prereqs": [
+      "devsecops-debutant",
+      "cicd-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "mesh-debutant",
+    "module": "DevOps",
+    "title": "Service Mesh (Istio, Linkerd) — Débutant",
+    "category": "DevOps",
+    "order": 3024,
+    "description": "Comprendre plan de contrôle, proxys, mTLS et cas d’usage d’un maillage de services.",
+    "prereqs": [
+      "k8s-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "mesh-intermediaire",
+    "module": "DevOps",
+    "title": "Service Mesh (Istio, Linkerd) — Intermédiaire",
+    "category": "DevOps",
+    "order": 3025,
+    "description": "Appliquer routage canary, politiques d’autorisation, résilience et diagnostic progressifs.",
+    "prereqs": [
+      "mesh-debutant",
+      "k8s-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "observability-debutant",
+    "module": "DevOps",
+    "title": "Observabilité — Débutant : métriques, journaux et traces",
+    "category": "DevOps",
+    "order": 3018,
+    "description": "Distinguer métriques, logs et traces ; construire un premier diagnostic avec Prometheus et Grafana.",
+    "prereqs": [
+      "docker-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   }
 ]

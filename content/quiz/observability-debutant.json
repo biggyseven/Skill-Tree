@@ -1,0 +1,102 @@
+{
+  "node_id": "observability-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle question une métrique permet-elle de mieux répondre ?",
+      "choices": [
+        "Quel paragraphe exact a été écrit dans le code",
+        "Quel utilisateur a saisi une phrase précise",
+        "Quelle ligne de source a été modifiée dans Git",
+        "Combien, à quelle fréquence ou comment une valeur évolue dans le temps"
+      ],
+      "answer": 3,
+      "explanation": "Les métriques représentent des valeurs quantitatives dans le temps ; les logs donnent des détails événementiels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue Prometheus dans une architecture courante ?",
+      "choices": [
+        "Créer des microservices",
+        "Remplacer le reverse proxy",
+        "Collecter et interroger des séries temporelles",
+        "Compiler les applications"
+      ],
+      "answer": 2,
+      "explanation": "Prometheus récupère les métriques exposées et fournit un moteur de requête et d’alerte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue Grafana dans un parcours courant ?",
+      "choices": [
+        "Remplacer les exporters",
+        "Visualiser les données provenant de sources de métriques ou de logs",
+        "Remplacer le système d’authentification des services",
+        "Stocker les sources Git"
+      ],
+      "answer": 1,
+      "explanation": "Grafana aide à construire des tableaux de bord à partir de sources connectées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter un identifiant unique par utilisateur comme label Prometheus ?",
+      "choices": [
+        "Cela peut créer une cardinalité très élevée",
+        "Cela chiffre la série automatiquement",
+        "Cela réduit toujours le coût de stockage",
+        "Cela désactive les alertes"
+      ],
+      "answer": 0,
+      "explanation": "Chaque combinaison de labels peut créer une série ; les identifiants uniques augmentent fortement le nombre de séries."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information fournit principalement une trace distribuée ?",
+      "choices": [
+        "L’état complet de tous les fichiers système",
+        "Une liste de toutes les vulnérabilités du dépôt",
+        "La clé privée de TLS",
+        "Le chemin d’une requête à travers plusieurs services et la durée de chaque étape"
+      ],
+      "answer": 3,
+      "explanation": "Les traces aident à identifier les étapes lentes d’une requête multi-services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la latence p95 peut-elle être plus utile que la moyenne seule ?",
+      "choices": [
+        "Elle remplace toutes les métriques de saturation",
+        "Elle donne la moyenne exacte de toutes les requêtes",
+        "Elle révèle les temps de réponse élevés touchant la partie lente des requêtes",
+        "Elle garantit l’absence de panne"
+      ],
+      "answer": 2,
+      "explanation": "Un percentile expose une portion de la distribution que la moyenne peut masquer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une alerte exploitable ?",
+      "choices": [
+        "Un seuil sans unité et sans propriétaire",
+        "Impact, condition, service concerné, niveau et action attendue",
+        "Les secrets complets du service",
+        "Des logs sans horodatage"
+      ],
+      "answer": 1,
+      "explanation": "Une alerte doit aider à comprendre l’impact et à engager une action ou une investigation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche est appropriée quand une alerte de latence apparaît ?",
+      "choices": [
+        "Comparer erreurs, saturation, versions, logs et traces sur une fenêtre cohérente",
+        "Redémarrer tous les services sans mesure",
+        "Modifier les seuils pour masquer l’alerte",
+        "Conclure la cause après une seule métrique"
+      ],
+      "answer": 0,
+      "explanation": "Croiser les signaux aide à distinguer symptôme et cause sans modifier plusieurs éléments à l’aveugle."
+    }
+  ]
+}

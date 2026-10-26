@@ -1,0 +1,102 @@
+{
+  "node_id": "devsecops-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que cherche principalement un contrôle SAST ?",
+      "choices": [
+        "Des motifs de vulnérabilité dans le code source ou une représentation du code",
+        "Les routes réseau actives d’un cluster uniquement",
+        "Les performances d’une base de données",
+        "Les versions de noyau des hôtes distants"
+      ],
+      "answer": 0,
+      "explanation": "SAST examine le code, tandis que DAST observe le comportement d’une application en fonctionnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle compare les dépendances logicielles à des avis de vulnérabilité ?",
+      "choices": [
+        "DAST",
+        "Tests de charge",
+        "Contrôle de disponibilité",
+        "SCA"
+      ],
+      "answer": 3,
+      "explanation": "SCA inventorie et analyse les composants directs et transitifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une clé API est publiée dans Git. Quelle première mesure est prioritaire ?",
+      "choices": [
+        "Supprimer le dernier commit et continuer",
+        "Masquer le dépôt sans changer la clé",
+        "Révoquer ou faire tourner la clé puis examiner son utilisation",
+        "Attendre le prochain scan"
+      ],
+      "answer": 2,
+      "explanation": "Une clé publiée peut être copiée ; sa révocation ou rotation réduit le risque immédiat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que teste principalement DAST ?",
+      "choices": [
+        "Les dépendances jamais installées uniquement",
+        "Une application en fonctionnement via ses interfaces",
+        "L’indentation YAML seulement",
+        "Les journaux d’audit Git uniquement"
+      ],
+      "answer": 1,
+      "explanation": "DAST teste une cible en fonctionnement, souvent depuis ses interfaces réseau ou web."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi appliquer le moindre privilège aux jobs CI ?",
+      "choices": [
+        "Limiter l’impact d’un job compromis",
+        "Permettre à tout job de publier en production",
+        "Éviter l’usage d’identités distinctes",
+        "Remplacer les validations humaines"
+      ],
+      "answer": 0,
+      "explanation": "Le job ne doit avoir que les droits nécessaires ; les permissions de publication et de test doivent être séparées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une alerte SCA critique signifie-t-elle automatiquement que l’application est exploitable ?",
+      "choices": [
+        "Oui dans tous les cas",
+        "Non, toute alerte peut être ignorée",
+        "Oui seulement si le dépôt est public",
+        "Non, il faut vérifier version, usage et exposition sans ignorer l’alerte"
+      ],
+      "answer": 3,
+      "explanation": "Le contexte détermine l’exploitabilité, mais le résultat doit être trié, documenté et traité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la limite principale d’une SBOM ?",
+      "choices": [
+        "Elle chiffre tous les secrets",
+        "Elle remplace les tests fonctionnels",
+        "Elle inventorie des composants mais ne corrige ni ne certifie à elle seule le logiciel",
+        "Elle bloque automatiquement le déploiement"
+      ],
+      "answer": 2,
+      "explanation": "La SBOM aide à connaître les composants et à analyser l’impact d’une vulnérabilité, mais ce n’est pas une preuve globale de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit documenter une exception à une règle de sécurité ?",
+      "choices": [
+        "Un mot de passe en clair",
+        "La raison, le risque, le responsable, les mesures compensatoires et la date de révision",
+        "Une suppression définitive de tous les contrôles",
+        "Seulement le nom du scanner"
+      ],
+      "answer": 1,
+      "explanation": "Une dérogation doit être bornée dans le temps, justifiée et suivie."
+    }
+  ]
+}

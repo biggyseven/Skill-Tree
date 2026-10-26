@@ -18,36 +18,36 @@
       "type": "qcm",
       "prompt": "Pourquoi utiliser un digest d’image plutôt qu’un tag mutable pour une promotion critique ?",
       "choices": [
-        "Le digest identifie le contenu précis de l’image",
         "Le digest supprime le besoin de scanner l’image",
         "Le digest rend le code source privé",
-        "Le digest désactive la synchronisation"
+        "Le digest désactive la synchronisation",
+        "Le digest identifie le contenu précis de l’image"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "Un digest permet de relier la livraison à un contenu précis. Un tag mutable peut pointer vers une autre image au fil du temps."
     },
     {
       "type": "qcm",
       "prompt": "Que peut provoquer l’activation de prune dans une politique de synchronisation ?",
       "choices": [
-        "La suppression de ressources gérées qui ne sont plus déclarées dans la source",
         "La rotation automatique de tous les secrets",
         "La création de sauvegardes de bases de données",
+        "La suppression de ressources gérées qui ne sont plus déclarées dans la source",
         "La désactivation de la réconciliation"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "Prune autorise le nettoyage des ressources qui ont disparu de la configuration déclarative. Les conséquences sur les ressources persistantes doivent être étudiées."
     },
     {
       "type": "qcm",
       "prompt": "Une application affiche Sync=Synced et Health=Degraded. Quelle interprétation est la plus pertinente ?",
       "choices": [
-        "La configuration peut correspondre à la source alors qu’une ressource n’est pas saine",
         "La source Git est nécessairement introuvable",
+        "La configuration peut correspondre à la source alors qu’une ressource n’est pas saine",
         "Tous les tests fonctionnels ont réussi",
         "Le cluster ne contient aucune ressource"
       ],
-      "answer": 0,
+      "answer": 1,
       "explanation": "Sync mesure la concordance avec la source déclarée ; Health décrit l’état opérationnel des ressources. Les deux états répondent à des questions différentes."
     },
     {
@@ -66,36 +66,36 @@
       "type": "qcm",
       "prompt": "Quel garde-fou protège le mieux une Application Argo CD contre une portée de privilèges excessive ?",
       "choices": [
-        "Limiter dépôts, destinations, namespaces et ressources autorisées",
         "Utiliser le même compte administrateur pour toutes les équipes",
         "Suivre tous les dépôts publics",
-        "Activer prune sans exception"
+        "Activer prune sans exception",
+        "Limiter dépôts, destinations, namespaces et ressources autorisées"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "La portée doit être limitée par les projets, permissions et destinations. Une configuration trop large transforme le contrôleur en voie d’accès privilégiée."
     },
     {
       "type": "qcm",
       "prompt": "Pourquoi un retour à une ancienne image ne suffit-il pas toujours à restaurer le service ?",
       "choices": [
-        "Une migration de données peut être incompatible ou irréversible",
         "Argo CD ne peut lire aucun dépôt Git",
         "Les images conteneur n’ont pas de versions",
+        "Une migration de données peut être incompatible ou irréversible",
         "Git ne conserve jamais l’historique"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "Le rollback applicatif ne remet pas automatiquement les données dans leur ancien état. Les migrations et la compatibilité doivent être prévues séparément."
     },
     {
       "type": "qcm",
       "prompt": "Quelle est la première étape raisonnable lorsqu’une Application est OutOfSync ?",
       "choices": [
-        "Examiner la révision suivie et le diff avant toute action de synchronisation",
         "Lancer immédiatement sync en production",
+        "Examiner la révision suivie et le diff avant toute action de synchronisation",
         "Désactiver toutes les comparaisons",
         "Supprimer l’Application et la recréer"
       ],
-      "answer": 0,
+      "answer": 1,
       "explanation": "Il faut comprendre l’écart, la source et le contexte avant d’appliquer des changements. Une commande sync modifie l’état cible et doit être intentionnelle."
     }
   ]
