@@ -40,6 +40,10 @@ PRIORITY_TRACKS = {
     "netflow": ("netflow-debutant", "netflow-intermediaire", "netflow-expert"),
     "netmiko": ("netmiko-debutant", "netmiko-intermediaire", "netmiko-expert"),
     "ntp-syslog": ("ntp-syslog-debutant", "ntp-syslog-intermediaire", "ntp-syslog-expert"),
+    "scripting": ("scripting-debutant", "scripting-intermediaire", "scripting-expert"),
+    "users": ("users-debutant", "users-intermediaire", "users-expert"),
+    "virt": ("virt-debutant", "virt-intermediaire", "virt-expert"),
+    "web-server": ("web-server-debutant", "web-server-intermediaire", "web-server-expert"),
 }
 PRIORITY_STANDALONE_QUIZZES = (
     "incident-ospf",
@@ -227,6 +231,32 @@ class PriorityQuizQualityTests(unittest.TestCase):
                     f"La correction désignée doit être l’option correcte : {quiz_id} #{question_index + 1}",
                 )
 
+
+    def test_new_system_quiz_answer_keys_match_reviewed_options(self) -> None:
+        cases = (
+            ("users-debutant", 0, 1, "`/etc/passwd`"),
+            ("users-intermediaire", 1, 0, "Le DN qui identifie une entrée dans l’arborescence de l’annuaire"),
+            ("users-expert", 0, 2, "Des clés secrètes associées à un ou plusieurs principaux Kerberos du service"),
+            ("scripting-debutant", 0, 0, "`#!/usr/bin/env bash`"),
+            ("scripting-intermediaire", 5, 0, "Le relancer sans changement d’entrée ne provoque pas de modifications supplémentaires inutiles"),
+            ("scripting-expert", 0, 2, "Ansible Core fournit l’automatisation en ligne de commande ; AWX ajoute notamment une interface, une API, des inventaires, des identifiants et la planification des jobs"),
+            ("web-server-debutant", 1, 1, "`nginx -t`"),
+            ("web-server-intermediaire", 2, 3, "Lorsque l’en-tête est posé/normalisé par un proxy de confiance et que la chaîne de proxies est interprétée selon une politique définie"),
+            ("web-server-expert", 1, 1, "20 requêtes"),
+            ("virt-debutant", 0, 0, "Un hyperviseur de type 1 fonctionne sur la plateforme physique sans nécessiter un système d’exploitation généraliste hôte de type bureau comme dans le modèle 2."),
+            ("virt-intermediaire", 0, 1, "La compatibilité CPU/versions, la connectivité, l’accès aux disques ou leur migration et les contraintes de la plateforme"),
+            ("virt-expert", 1, 0, "Keystone"),
+        )
+        for quiz_id, question_index, expected_index, expected_choice in cases:
+            with self.subTest(quiz=quiz_id, question=question_index + 1):
+                data = json.loads(self.quiz_paths[quiz_id].read_text(encoding="utf-8"))
+                question = data["questions"][question_index]
+                self.assertEqual(question["answer"], expected_index)
+                self.assertEqual(
+                    question["choices"][question["answer"]],
+                    expected_choice,
+                    f"Clé de réponse incorrecte : {quiz_id} #{question_index + 1}",
+                )
 
 if __name__ == "__main__":
     unittest.main()
