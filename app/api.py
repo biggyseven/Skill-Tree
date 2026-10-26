@@ -702,7 +702,7 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
     return {
         "total": len(nodes), "validated": validated,
         "progress_percent": round((validated / len(nodes)) * 100) if nodes else 0,
-        "nodes": [{"id": n.id, "title": n.title, "category": n.category, "module": n.module, "status": statuses[n.id].value, "prereqs": list(n.prereqs), "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements]} for n in nodes]
+        "nodes": [{"id": n.id, "title": n.title, "category": n.category, "module": n.module, "sort_order": n.sort_order, "status": statuses[n.id].value, "prereqs": list(n.prereqs), "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements]} for n in nodes]
     }
 
 @app.get("/api/stats")
