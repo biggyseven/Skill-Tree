@@ -206,34 +206,34 @@ test('les panneaux latéraux et la bibliothèque matérielle se redimensionnent 
   await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
 
-  const leftPanel = page.getByTestId('lab-left-panel');
-  const rightPanel = page.getByTestId('lab-right-panel');
-  const equipmentPanel = page.getByTestId('equipment-palette-panel');
+  const leftPanel = page.locator('aside').nth(0);
+  const rightPanel = page.locator('aside').nth(1);
+  const equipmentPanel = page.locator('aside').first().locator('section').last();
   const width = element => element.evaluate(el => Math.round(el.getBoundingClientRect().width));
   const height = element => element.evaluate(el => Math.round(el.getBoundingClientRect().height));
 
   const leftBefore = await width(leftPanel);
-  const leftSeparator = page.getByRole('separator', { name: 'Redimensionner la largeur du panneau Mission et équipements' });
+  const leftSeparator = page.getByRole('separator', { name: 'Redimensionner le panneau gauche' });
   await leftSeparator.focus();
   await page.keyboard.press('ArrowRight');
   await expect.poll(() => width(leftPanel)).toBeGreaterThan(leftBefore);
 
   const rightBefore = await width(rightPanel);
-  const rightSeparator = page.getByRole('separator', { name: 'Redimensionner la largeur du panneau Console' });
+  const rightSeparator = page.getByRole('separator', { name: 'Redimensionner le panneau droit' });
   await rightSeparator.focus();
   await page.keyboard.press('ArrowLeft');
   await expect.poll(() => width(rightPanel)).toBeGreaterThan(rightBefore);
 
   const equipmentBefore = await height(equipmentPanel);
-  const equipmentSeparator = page.getByRole('separator', { name: "Redimensionner la hauteur de la bibliothèque d'équipements" });
+  const equipmentSeparator = page.getByRole('separator', { name: "Redimensionner la bibliothèque d’équipements" });
   await equipmentSeparator.focus();
   await page.keyboard.press('ArrowUp');
   await expect.poll(() => height(equipmentPanel)).toBeGreaterThan(equipmentBefore);
 
   const savedSizes = await page.evaluate(() => ({
-    left: Number(localStorage.getItem('skilltree-lab-left-width')),
-    right: Number(localStorage.getItem('skilltree-lab-right-width')),
-    equipment: Number(localStorage.getItem('skilltree-lab-equipment-height')),
+    left: Number(JSON.parse(localStorage.getItem('skilltree-lab-panel-sizes') || '{}').left),
+    right: Number(JSON.parse(localStorage.getItem('skilltree-lab-panel-sizes') || '{}').right),
+    equipment: Number(JSON.parse(localStorage.getItem('skilltree-lab-panel-sizes') || '{}').equipment),
   }));
   expect(savedSizes.left).toBeGreaterThan(leftBefore);
   expect(savedSizes.right).toBeGreaterThan(rightBefore);
@@ -253,8 +253,8 @@ test('les ports peuvent être reliés même lorsque les deux handles sont du mê
 
   const edges = page.locator('.react-flow__edge-path');
   await expect(edges).toHaveCount(1);
-  const source = page.locator('.react-flow__node[data-id="R1"] .react-flow__handle.source[data-handleid="Fa0/1"]').first();
-  const target = page.locator('.react-flow__node[data-id="R2"] .react-flow__handle.target[data-handleid="Fa0/1"]').first();
+  const source = page.locator('.react-flow__node[data-id="R1"] .react-flow__handle.source[data-handleid="Fa0/1::source"]').first();
+  const target = page.locator('.react-flow__node[data-id="R2"] .react-flow__handle.target[data-handleid="Fa0/1::target"]').first();
   await expect(source).toBeVisible();
   await expect(target).toBeVisible();
 
