@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Dans une ACL ordonnée, que se passe-t-il lorsqu’un paquet correspond à une règle ?",
+      "prompt": "Question placeholder pour « ACL et filtrage avancé » : à rédiger après le cours complet.",
       "choices": [
-        "Toutes les règles sont ensuite évaluées",
-        "La première règle correspondante décide de l’action",
-        "Le paquet est toujours autorisé",
-        "La règle la moins restrictive gagne"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
-      "answer": 1,
-      "explanation": "L’évaluation s’arrête à la première correspondance."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Où placer un refus précis si une autorisation plus générale suit ?",
-      "choices": [
-        "Après l’autorisation générale",
-        "À la fin, après toute règle permissive",
-        "Avant la règle permissive plus large",
-        "Dans un équipement sans rapport"
-      ],
-      "answer": 2,
-      "explanation": "Une règle large placée plus tôt peut masquer le refus spécifique."
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

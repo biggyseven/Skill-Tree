@@ -9,6 +9,14 @@ from app.api import _configured_node_labs
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT = ROOT / "content"
 TRACK = [
+    ("secu-cia-debutant", "La Triade CIA", None),
+    ("secu-menaces-debutant", "Panorama des menaces", "secu-cia-debutant"),
+    ("secu-crypto-debutant", "Cryptographie", "secu-menaces-debutant"),
+    ("secu-hachage-debutant", "Hachage et signatures", "secu-crypto-debutant"),
+    ("secu-auth-debutant", "Authentification et MFA", "secu-hachage-debutant"),
+    ("secu-endpoint-debutant", "Sécurité des Endpoints", "secu-auth-debutant"),
+    ("secu-wifi-debutant", "Sécurité Wi-Fi", "secu-endpoint-debutant"),
+    ("secu-firewall-debutant", "Introduction aux pare-feu", "secu-wifi-debutant"),
     ("secu-acl-intermediaire", "ACL et filtrage avancé", "secu-firewall-debutant"),
     ("secu-nat-intermediaire", "NAT et sécurité du périmètre", "secu-acl-intermediaire"),
     ("secu-vpn-intermediaire", "VPN Site-to-Site et d'accès distant", "secu-nat-intermediaire"),
@@ -21,55 +29,79 @@ TRACK = [
     ("secu-siem-intermediaire", "Introduction aux SIEM", "secu-ad-intermediaire"),
     ("secu-services-intermediaire", "Sécurité des services réseau", "secu-siem-intermediaire"),
     ("secu-web-intermediaire", "Sécurité Web de base", "secu-services-intermediaire"),
+    ("secu-zero-trust-expert", "Architecture Zero Trust", "secu-web-intermediaire"),
+    ("secu-cloud-expert", "Sécurité du Cloud (AWS/Azure/GCP)", "secu-zero-trust-expert"),
+    ("secu-k8s-expert", "Sécurité des conteneurs (Docker/K8s)", "secu-cloud-expert"),
+    ("secu-devsecops-expert", "DevSecOps", "secu-k8s-expert"),
+    ("secu-iam-expert", "Gestion des identités et des accès avancée", "secu-devsecops-expert"),
+    ("secu-pentest-expert", "Pentest et Hacking Éthique", "secu-iam-expert"),
+    ("secu-malware-expert", "Analyse de malwares", "secu-pentest-expert"),
+    ("secu-forensique-expert", "Forensique réseau et système", "secu-malware-expert"),
+    ("secu-dfir-expert", "Réponse à incident (DFIR)", "secu-forensique-expert"),
+    ("secu-gouvernance-expert", "Gouvernance et Conformité", "secu-dfir-expert"),
+    ("secu-routing-secu-expert", "Sécurité des protocoles de routage", "secu-gouvernance-expert"),
+    ("secu-vuln-expert", "Gestion des vulnérabilités", "secu-routing-secu-expert"),
+    ("secu-supply-chain-expert", "Sécurité de la supply chain", "secu-vuln-expert"),
+    ("secu-ot-ics-expert", "Architecture de sécurité sur les réseaux OT/ICS", "secu-supply-chain-expert"),
+    ("secu-redteam-expert", "Red Team vs Blue Team vs Purple Team", "secu-ot-ics-expert"),
 ]
 
 
-class CyberIntermediateCatalogTests(unittest.TestCase):
+class CyberCatalogScaffoldTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.nodes = json.loads((CONTENT / "nodes.json").read_text(encoding="utf-8"))
         cls.node_by_id = {node["id"]: node for node in cls.nodes}
 
-    def test_all_courses_have_three_intro_paragraphs_and_two_qcms(self) -> None:
-        for node_id, _title, _prereq in TRACK:
+    def test_35_lessons_and_quizzes_are_placeholders_without_bom(self) -> None:
+        for node_id, title, _prereq in TRACK:
             lesson_path = CONTENT / "lessons" / f"{node_id}.md"
             quiz_path = CONTENT / "quiz" / f"{node_id}.json"
-            self.assertTrue(lesson_path.is_file(), f"Cours manquant : {lesson_path.name}")
+            self.assertTrue(lesson_path.is_file(), f"Markdown manquant : {lesson_path.name}")
             self.assertTrue(quiz_path.is_file(), f"Quiz manquant : {quiz_path.name}")
-            self.assertFalse(lesson_path.read_bytes().startswith(bytes((239, 187, 191))))
-            raw_quiz = quiz_path.read_bytes()
-            self.assertFalse(raw_quiz.startswith(bytes((239, 187, 191))), f"BOM détecté : {quiz_path.name}")
-            quiz = json.loads(raw_quiz.decode("utf-8"))
-            self.assertEqual(quiz.get("node_id"), node_id)
-            self.assertEqual(len(quiz.get("questions", [])), 2)
-            for question in quiz["questions"]:
-                self.assertEqual(question.get("type"), "qcm")
-                self.assertEqual(len(question.get("choices", [])), 4)
-                self.assertIsInstance(question.get("answer"), int)
-                self.assertGreaterEqual(question["answer"], 0)
-                self.assertLess(question["answer"], 4)
-                self.assertTrue(question.get("explanation", "").strip())
-            lesson = lesson_path.read_text(encoding="utf-8")
-            self.assertTrue(lesson.startswith("# "))
-            introduction = lesson.split("## Introduction", 1)[1].split("## Concepts clés", 1)[0]
-            paragraphs = [part.strip() for part in introduction.strip().split("\n\n") if part.strip()]
-            self.assertEqual(len(paragraphs), 3, f"Introduction incorrecte : {lesson_path.name}")
+            lesson_bytes = lesson_path.read_bytes()
+            quiz_bytes = quiz_path.read_bytes()
+            bom = bytes((239, 187, 191))
+            self.assertFalse(lesson_bytes.startswith(bom), f"BOM du cours {node_id}")
+            self.assertFalse(quiz_bytes.startswith(bom), f"BOM du quiz {node_id}")
+            self.assertEqual(lesson_bytes.decode("utf-8"), f"# {title}\\n\\n[Contenu de 5000 mots à rédiger]\\n")
+            quiz = json.loads(quiz_bytes.decode("utf-8"))
+            self.assertEqual(quiz["node_id"], node_id)
+            self.assertEqual(len(quiz["questions"]), 1)
+            question = quiz["questions"][0]
+            self.assertEqual(question["type"], "qcm")
+            self.assertIn("placeholder", question["prompt"].lower())
+            self.assertEqual(len(question["choices"]), 4)
+            self.assertEqual(question["answer"], 0)
 
-    def test_exact_pre_requisite_chain_and_unique_ids(self) -> None:
-        self.assertEqual(len(self.node_by_id), len(self.nodes), "Identifiants de nœuds dupliqués.")
+    def test_node_titles_modules_and_exact_prerequisites(self) -> None:
+        self.assertEqual(len(self.node_by_id), len(self.nodes), "Des identifiants sont dupliqués.")
         for node_id, title, prereq in TRACK:
             node = self.node_by_id[node_id]
+            self.assertEqual(node["title"], title)
             self.assertEqual(node["module"], "Cybersécurité")
-            self.assertEqual(node["title"], f"{title} - Intermédiaire")
-            self.assertEqual(node["prereqs"], [prereq])
+            self.assertEqual(node["category"], "Cybersécurité")
+            self.assertEqual(node["prereqs"], [prereq] if prereq else [])
+        known = set(self.node_by_id)
+        missing = [(node["id"], prereq) for node in self.nodes for prereq in node.get("prereqs", []) if prereq not in known]
+        self.assertEqual(missing, [], f"Prérequis invalides : {missing}")
 
-    def test_acl_lab_metadata_is_visible_to_the_labs_catalog(self) -> None:
+    def test_acl_lab_link_is_kept_in_the_catalog(self) -> None:
         expected = {
             "kind": "security",
             "prompt": "Configurez une ACL étendue sur R1 pour bloquer le trafic du PC Attaquant vers le Serveur.",
         }
         self.assertEqual(self.node_by_id["secu-acl-intermediaire"]["lab"], expected)
         self.assertEqual(_configured_node_labs()["secu-acl-intermediaire"], expected)
+        self.assertTrue((ROOT / "labs_v2" / "secu-acl-intermediaire.json").is_file())
+
+    def test_roadmap_contains_both_completed_levels(self) -> None:
+        html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        cyber = html[html.index("{ id: 'cybersecurite'"):]
+        for title in ("ACL Avancées", "NAT & Périmètre", "VPN & IPsec", "Sécurité Web"):
+            self.assertIn(title, cyber)
+        for title in ("Architecture Zero Trust", "Sécurité du Cloud (AWS/Azure/GCP)", "Red Team vs Blue Team vs Purple Team"):
+            self.assertIn(title, cyber)
 
 
 if __name__ == "__main__":

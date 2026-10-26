@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quelle différence sépare surtout IDS et IPS ?",
+      "prompt": "Question placeholder pour « IDS/IPS et détection d'intrusion » : à rédiger après le cours complet.",
       "choices": [
-        "Un IDS chiffre tous les flux",
-        "Un IPS est toujours hors bande",
-        "Un IDS détecte et alerte ; un IPS peut bloquer le trafic",
-        "Un IDS ne peut utiliser aucune signature"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
-      "answer": 2,
-      "explanation": "Un IPS peut intervenir sur le trafic selon la détection."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que faire face à de nombreux faux positifs ?",
-      "choices": [
-        "Désactiver toutes les règles",
-        "Examiner le contexte puis ajuster précisément les détections",
-        "Supprimer les journaux",
-        "Bloquer tous les hôtes alertés"
-      ],
-      "answer": 1,
-      "explanation": "Le réglage doit s’appuyer sur l’investigation et un contexte fiable."
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

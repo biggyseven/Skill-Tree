@@ -6920,10 +6920,10 @@
   {
     "id": "secu-cia-debutant",
     "module": "Cybersécurité",
-    "title": "La Triade CIA - Débutant",
+    "title": "La Triade CIA",
     "category": "Cybersécurité",
     "order": 900,
-    "description": "Confidentialité, intégrité et disponibilité : les trois objectifs fondamentaux de la sécurité.",
+    "description": "Squelette du cours de cybersécurité : La Triade CIA.",
     "prereqs": [],
     "requirements": [
       {
@@ -6935,10 +6935,10 @@
   {
     "id": "secu-menaces-debutant",
     "module": "Cybersécurité",
-    "title": "Panorama des menaces - Débutant",
+    "title": "Panorama des menaces",
     "category": "Cybersécurité",
     "order": 901,
-    "description": "Identifier les menaces, les vulnérabilités et les risques courants.",
+    "description": "Squelette du cours de cybersécurité : Panorama des menaces.",
     "prereqs": [
       "secu-cia-debutant"
     ],
@@ -6952,10 +6952,10 @@
   {
     "id": "secu-crypto-debutant",
     "module": "Cybersécurité",
-    "title": "Cryptographie - Débutant",
+    "title": "Cryptographie",
     "category": "Cybersécurité",
     "order": 902,
-    "description": "Comprendre les bases du chiffrement symétrique et asymétrique.",
+    "description": "Squelette du cours de cybersécurité : Cryptographie.",
     "prereqs": [
       "secu-menaces-debutant"
     ],
@@ -6969,10 +6969,10 @@
   {
     "id": "secu-hachage-debutant",
     "module": "Cybersécurité",
-    "title": "Hachage et signatures - Débutant",
+    "title": "Hachage et signatures",
     "category": "Cybersécurité",
     "order": 903,
-    "description": "Comprendre les empreintes cryptographiques et les signatures numériques.",
+    "description": "Squelette du cours de cybersécurité : Hachage et signatures.",
     "prereqs": [
       "secu-crypto-debutant"
     ],
@@ -6986,10 +6986,10 @@
   {
     "id": "secu-auth-debutant",
     "module": "Cybersécurité",
-    "title": "Authentification et MFA - Débutant",
+    "title": "Authentification et MFA",
     "category": "Cybersécurité",
     "order": 904,
-    "description": "Différencier identification, authentification et autorisation.",
+    "description": "Squelette du cours de cybersécurité : Authentification et MFA.",
     "prereqs": [
       "secu-hachage-debutant"
     ],
@@ -7003,10 +7003,10 @@
   {
     "id": "secu-endpoint-debutant",
     "module": "Cybersécurité",
-    "title": "Sécurité des Endpoints - Débutant",
+    "title": "Sécurité des Endpoints",
     "category": "Cybersécurité",
     "order": 905,
-    "description": "Appliquer les contrôles essentiels de protection des appareils.",
+    "description": "Squelette du cours de cybersécurité : Sécurité des Endpoints.",
     "prereqs": [
       "secu-auth-debutant"
     ],
@@ -7020,10 +7020,10 @@
   {
     "id": "secu-wifi-debutant",
     "module": "Cybersécurité",
-    "title": "Sécurité Wi-Fi - Débutant",
+    "title": "Sécurité Wi-Fi",
     "category": "Cybersécurité",
     "order": 906,
-    "description": "Sécuriser un point d’accès et isoler les réseaux invités.",
+    "description": "Squelette du cours de cybersécurité : Sécurité Wi-Fi.",
     "prereqs": [
       "secu-endpoint-debutant"
     ],
@@ -7037,10 +7037,10 @@
   {
     "id": "secu-firewall-debutant",
     "module": "Cybersécurité",
-    "title": "Introduction aux pare-feu - Débutant",
+    "title": "Introduction aux pare-feu",
     "category": "Cybersécurité",
     "order": 907,
-    "description": "Lire une règle de filtrage et appliquer le moindre privilège réseau.",
+    "description": "Squelette du cours de cybersécurité : Introduction aux pare-feu.",
     "prereqs": [
       "secu-wifi-debutant"
     ],
@@ -7054,10 +7054,10 @@
   {
     "id": "secu-acl-intermediaire",
     "module": "Cybersécurité",
-    "title": "ACL et filtrage avancé - Intermédiaire",
+    "title": "ACL et filtrage avancé",
     "category": "Cybersécurité",
     "order": 908,
-    "description": "Concevoir des ACL standard et étendues, maîtriser leur ordre et vérifier leur application.",
+    "description": "Squelette du cours de cybersécurité : ACL et filtrage avancé.",
     "prereqs": [
       "secu-firewall-debutant"
     ],
@@ -7075,10 +7075,10 @@
   {
     "id": "secu-nat-intermediaire",
     "module": "Cybersécurité",
-    "title": "NAT et sécurité du périmètre - Intermédiaire",
+    "title": "NAT et sécurité du périmètre",
     "category": "Cybersécurité",
     "order": 909,
-    "description": "Comprendre les variantes de NAT et les contrôles protégeant les services exposés au périmètre.",
+    "description": "Squelette du cours de cybersécurité : NAT et sécurité du périmètre.",
     "prereqs": [
       "secu-acl-intermediaire"
     ],
@@ -7092,10 +7092,10 @@
   {
     "id": "secu-vpn-intermediaire",
     "module": "Cybersécurité",
-    "title": "VPN Site-to-Site et d'accès distant - Intermédiaire",
+    "title": "VPN Site-to-Site et d'accès distant",
     "category": "Cybersécurité",
     "order": 910,
-    "description": "Comparer VPN site-à-site et accès distant, puis sécuriser la négociation IPsec, les identités et les routes.",
+    "description": "Squelette du cours de cybersécurité : VPN Site-to-Site et d'accès distant.",
     "prereqs": [
       "secu-nat-intermediaire"
     ],
@@ -7109,10 +7109,10 @@
   {
     "id": "secu-switch-secu-intermediaire",
     "module": "Cybersécurité",
-    "title": "Sécurité des commutateurs (Couche 2) - Intermédiaire",
+    "title": "Sécurité des commutateurs (Couche 2)",
     "category": "Cybersécurité",
     "order": 911,
-    "description": "Durcir la couche 2 avec port security, DHCP Snooping, inspection ARP et protections STP.",
+    "description": "Squelette du cours de cybersécurité : Sécurité des commutateurs (Couche 2).",
     "prereqs": [
       "secu-vpn-intermediaire"
     ],
@@ -7126,10 +7126,10 @@
   {
     "id": "secu-ngfw-intermediaire",
     "module": "Cybersécurité",
-    "title": "Architecture de pare-feu (NGFW) - Intermédiaire",
+    "title": "Architecture de pare-feu (NGFW)",
     "category": "Cybersécurité",
     "order": 912,
-    "description": "Concevoir une politique NGFW avec inspection à états, contrôle applicatif, identité et prévention d’intrusion.",
+    "description": "Squelette du cours de cybersécurité : Architecture de pare-feu (NGFW).",
     "prereqs": [
       "secu-switch-secu-intermediaire"
     ],
@@ -7143,10 +7143,10 @@
   {
     "id": "secu-ids-intermediaire",
     "module": "Cybersécurité",
-    "title": "IDS/IPS et détection d'intrusion - Intermédiaire",
+    "title": "IDS/IPS et détection d'intrusion",
     "category": "Cybersécurité",
     "order": 913,
-    "description": "Comparer IDS/IPS, signatures et anomalies, puis améliorer la qualité des alertes.",
+    "description": "Squelette du cours de cybersécurité : IDS/IPS et détection d'intrusion.",
     "prereqs": [
       "secu-ngfw-intermediaire"
     ],
@@ -7160,10 +7160,10 @@
   {
     "id": "secu-segmentation-intermediaire",
     "module": "Cybersécurité",
-    "title": "Segmentation réseau - Intermédiaire",
+    "title": "Segmentation réseau",
     "category": "Cybersécurité",
     "order": 914,
-    "description": "Définir des zones réseau et des politiques de flux pour limiter les mouvements latéraux.",
+    "description": "Squelette du cours de cybersécurité : Segmentation réseau.",
     "prereqs": [
       "secu-ids-intermediaire"
     ],
@@ -7177,10 +7177,10 @@
   {
     "id": "secu-linux-intermediaire",
     "module": "Cybersécurité",
-    "title": "Sécurité des systèmes Linux - Intermédiaire",
+    "title": "Sécurité des systèmes Linux",
     "category": "Cybersécurité",
     "order": 915,
-    "description": "Renforcer comptes, permissions, services, mises à jour, pare-feu et journaux sous Linux.",
+    "description": "Squelette du cours de cybersécurité : Sécurité des systèmes Linux.",
     "prereqs": [
       "secu-segmentation-intermediaire"
     ],
@@ -7194,10 +7194,10 @@
   {
     "id": "secu-ad-intermediaire",
     "module": "Cybersécurité",
-    "title": "Sécurité Active Directory - Intermédiaire",
+    "title": "Sécurité Active Directory",
     "category": "Cybersécurité",
     "order": 916,
-    "description": "Protéger Active Directory par la séparation des privilèges, les GPO et la supervision des identités.",
+    "description": "Squelette du cours de cybersécurité : Sécurité Active Directory.",
     "prereqs": [
       "secu-linux-intermediaire"
     ],
@@ -7211,10 +7211,10 @@
   {
     "id": "secu-siem-intermediaire",
     "module": "Cybersécurité",
-    "title": "Introduction aux SIEM - Intermédiaire",
+    "title": "Introduction aux SIEM",
     "category": "Cybersécurité",
     "order": 917,
-    "description": "Collecter et normaliser les événements, corréler des signaux et construire des détections exploitables.",
+    "description": "Squelette du cours de cybersécurité : Introduction aux SIEM.",
     "prereqs": [
       "secu-ad-intermediaire"
     ],
@@ -7228,10 +7228,10 @@
   {
     "id": "secu-services-intermediaire",
     "module": "Cybersécurité",
-    "title": "Sécurité des services réseau - Intermédiaire",
+    "title": "Sécurité des services réseau",
     "category": "Cybersécurité",
     "order": 918,
-    "description": "Sécuriser DNS, DHCP, NTP, SNMP, SSH et syslog grâce au durcissement et à la supervision.",
+    "description": "Squelette du cours de cybersécurité : Sécurité des services réseau.",
     "prereqs": [
       "secu-siem-intermediaire"
     ],
@@ -7245,10 +7245,10 @@
   {
     "id": "secu-web-intermediaire",
     "module": "Cybersécurité",
-    "title": "Sécurité Web de base - Intermédiaire",
+    "title": "Sécurité Web de base",
     "category": "Cybersécurité",
     "order": 919,
-    "description": "Protéger les applications Web grâce à la validation des entrées, l’autorisation, les sessions et TLS.",
+    "description": "Squelette du cours de cybersécurité : Sécurité Web de base.",
     "prereqs": [
       "secu-services-intermediaire"
     ],
@@ -7256,6 +7256,261 @@
       {
         "kind": "quiz",
         "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "secu-zero-trust-expert",
+    "module": "Cybersécurité",
+    "title": "Architecture Zero Trust",
+    "category": "Cybersécurité",
+    "order": 920,
+    "description": "Squelette du cours de cybersécurité : Architecture Zero Trust.",
+    "prereqs": [
+      "secu-web-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-cloud-expert",
+    "module": "Cybersécurité",
+    "title": "Sécurité du Cloud (AWS/Azure/GCP)",
+    "category": "Cybersécurité",
+    "order": 921,
+    "description": "Squelette du cours de cybersécurité : Sécurité du Cloud (AWS/Azure/GCP).",
+    "prereqs": [
+      "secu-zero-trust-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-k8s-expert",
+    "module": "Cybersécurité",
+    "title": "Sécurité des conteneurs (Docker/K8s)",
+    "category": "Cybersécurité",
+    "order": 922,
+    "description": "Squelette du cours de cybersécurité : Sécurité des conteneurs (Docker/K8s).",
+    "prereqs": [
+      "secu-cloud-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-devsecops-expert",
+    "module": "Cybersécurité",
+    "title": "DevSecOps",
+    "category": "Cybersécurité",
+    "order": 923,
+    "description": "Squelette du cours de cybersécurité : DevSecOps.",
+    "prereqs": [
+      "secu-k8s-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-iam-expert",
+    "module": "Cybersécurité",
+    "title": "Gestion des identités et des accès avancée",
+    "category": "Cybersécurité",
+    "order": 924,
+    "description": "Squelette du cours de cybersécurité : Gestion des identités et des accès avancée.",
+    "prereqs": [
+      "secu-devsecops-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-pentest-expert",
+    "module": "Cybersécurité",
+    "title": "Pentest et Hacking Éthique",
+    "category": "Cybersécurité",
+    "order": 925,
+    "description": "Squelette du cours de cybersécurité : Pentest et Hacking Éthique.",
+    "prereqs": [
+      "secu-iam-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-malware-expert",
+    "module": "Cybersécurité",
+    "title": "Analyse de malwares",
+    "category": "Cybersécurité",
+    "order": 926,
+    "description": "Squelette du cours de cybersécurité : Analyse de malwares.",
+    "prereqs": [
+      "secu-pentest-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-forensique-expert",
+    "module": "Cybersécurité",
+    "title": "Forensique réseau et système",
+    "category": "Cybersécurité",
+    "order": 927,
+    "description": "Squelette du cours de cybersécurité : Forensique réseau et système.",
+    "prereqs": [
+      "secu-malware-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-dfir-expert",
+    "module": "Cybersécurité",
+    "title": "Réponse à incident (DFIR)",
+    "category": "Cybersécurité",
+    "order": 928,
+    "description": "Squelette du cours de cybersécurité : Réponse à incident (DFIR).",
+    "prereqs": [
+      "secu-forensique-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-gouvernance-expert",
+    "module": "Cybersécurité",
+    "title": "Gouvernance et Conformité",
+    "category": "Cybersécurité",
+    "order": 929,
+    "description": "Squelette du cours de cybersécurité : Gouvernance et Conformité.",
+    "prereqs": [
+      "secu-dfir-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-routing-secu-expert",
+    "module": "Cybersécurité",
+    "title": "Sécurité des protocoles de routage",
+    "category": "Cybersécurité",
+    "order": 930,
+    "description": "Squelette du cours de cybersécurité : Sécurité des protocoles de routage.",
+    "prereqs": [
+      "secu-gouvernance-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-vuln-expert",
+    "module": "Cybersécurité",
+    "title": "Gestion des vulnérabilités",
+    "category": "Cybersécurité",
+    "order": 931,
+    "description": "Squelette du cours de cybersécurité : Gestion des vulnérabilités.",
+    "prereqs": [
+      "secu-routing-secu-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-supply-chain-expert",
+    "module": "Cybersécurité",
+    "title": "Sécurité de la supply chain",
+    "category": "Cybersécurité",
+    "order": 932,
+    "description": "Squelette du cours de cybersécurité : Sécurité de la supply chain.",
+    "prereqs": [
+      "secu-vuln-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-ot-ics-expert",
+    "module": "Cybersécurité",
+    "title": "Architecture de sécurité sur les réseaux OT/ICS",
+    "category": "Cybersécurité",
+    "order": 933,
+    "description": "Squelette du cours de cybersécurité : Architecture de sécurité sur les réseaux OT/ICS.",
+    "prereqs": [
+      "secu-supply-chain-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-redteam-expert",
+    "module": "Cybersécurité",
+    "title": "Red Team vs Blue Team vs Purple Team",
+    "category": "Cybersécurité",
+    "order": 934,
+    "description": "Squelette du cours de cybersécurité : Red Team vs Blue Team vs Purple Team.",
+    "prereqs": [
+      "secu-ot-ics-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
       }
     ]
   }

@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Pourquoi séparer les comptes d’administration des comptes bureautiques ?",
+      "prompt": "Question placeholder pour « Sécurité Active Directory » : à rédiger après le cours complet.",
       "choices": [
-        "Réduire l’exposition des identifiants privilégiés",
-        "Partager les mots de passe",
-        "Désactiver Kerberos",
-        "Supprimer les journaux"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
       "answer": 0,
-      "explanation": "Les identifiants privilégiés ne doivent pas être exposés aux usages quotidiens."
-    },
-    {
-      "type": "qcm",
-      "prompt": "À quoi sert une GPO dans Active Directory ?",
-      "choices": [
-        "Remplacer les contrôleurs de domaine",
-        "Gérer centralement paramètres et restrictions",
-        "Chiffrer toutes les sauvegardes",
-        "Réserver les ports TCP"
-      ],
-      "answer": 1,
-      "explanation": "Les GPO déploient des paramètres centralisés sur utilisateurs et ordinateurs."
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

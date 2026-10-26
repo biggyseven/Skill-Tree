@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Que permet PAT (NAT overload) ?",
+      "prompt": "Question placeholder pour « NAT et sécurité du périmètre » : à rédiger après le cours complet.",
       "choices": [
-        "Chiffrer les paquets",
-        "Remplacer un pare-feu",
-        "Partager une adresse traduite et différencier les sessions par les ports",
-        "Bloquer automatiquement toutes les connexions entrantes"
-      ],
-      "answer": 2,
-      "explanation": "PAT utilise les ports pour distinguer les sessions partageant une adresse."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi associer une publication NAT à du filtrage ?",
-      "choices": [
-        "NAT ne remplace pas une politique d’autorisation",
-        "NAT désactive TLS",
-        "Les adresses privées deviennent publiques",
-        "Le filtrage empêche toute traduction"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
       "answer": 0,
-      "explanation": "La traduction d’adresse ne remplace pas les contrôles d’accès."
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

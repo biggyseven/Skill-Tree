@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel mécanisme réduit le risque d’injection SQL ?",
+      "prompt": "Question placeholder pour « Sécurité Web de base » : à rédiger après le cours complet.",
       "choices": [
-        "Concaténer directement les entrées dans la requête",
-        "Désactiver l’authentification",
-        "Afficher les erreurs SQL internes à tous",
-        "Utiliser des requêtes paramétrées"
-      ],
-      "answer": 3,
-      "explanation": "Les paramètres séparent les données de la structure de la requête."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi vérifier l’autorisation côté serveur pour chaque ressource ?",
-      "choices": [
-        "Un contrôle uniquement dans l’interface peut être contourné",
-        "TLS remplace les permissions",
-        "Cela rend toutes les sessions publiques",
-        "Cela élimine la validation d’entrée"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
       "answer": 0,
-      "explanation": "Les permissions doivent être vérifiées côté serveur pour chaque opération sensible."
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

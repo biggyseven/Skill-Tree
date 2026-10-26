@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle habituel d’IKEv2 dans IPsec ?",
+      "prompt": "Question placeholder pour « VPN Site-to-Site et d'accès distant » : à rédiger après le cours complet.",
       "choices": [
-        "Distribuer les baux DHCP",
-        "Négocier les paramètres et clés des associations de sécurité",
-        "Remplacer les routes",
-        "Compresser les journaux"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
-      "answer": 1,
-      "explanation": "IKEv2 authentifie les pairs et négocie paramètres et clés."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel contrôle est important pour l’accès VPN distant ?",
-      "choices": [
-        "Désactiver la MFA",
-        "Partager un compte",
-        "Autoriser tous les sous-réseaux par défaut",
-        "Exiger une MFA et limiter les droits"
-      ],
-      "answer": 3,
-      "explanation": "La MFA réduit le risque des identifiants compromis et les droits doivent rester limités."
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

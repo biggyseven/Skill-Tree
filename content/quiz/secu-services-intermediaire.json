@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel choix améliore la sécurité de la supervision SNMP ?",
+      "prompt": "Question placeholder pour « Sécurité des services réseau » : à rédiger après le cours complet.",
       "choices": [
-        "SNMPv1 avec communauté publique",
-        "Communauté partagée publiée",
-        "SNMPv3 avec authentification et confidentialité si disponible",
-        "Aucun contrôle d’accès"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
-      "answer": 2,
-      "explanation": "SNMPv3 peut fournir authentification et confidentialité."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel contrôle aide à bloquer des serveurs DHCP non autorisés ?",
-      "choices": [
-        "Autoriser toutes les réponses DHCP",
-        "Activer DHCP Snooping et définir les ports de confiance si disponible",
-        "Désactiver les VLAN",
-        "Supprimer la synchronisation horaire"
-      ],
-      "answer": 1,
-      "explanation": "DHCP Snooping restreint les réponses venant de ports non fiables."
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Une empreinte cryptographique est généralement…",
+      "prompt": "Question placeholder pour « Hachage et signatures » : à rédiger après le cours complet.",
       "choices": [
-        "Le texte original chiffré réversible",
-        "Une sortie de longueur fixe calculée depuis les données",
-        "Une clé publique",
-        "Un certificat réseau"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
-      "answer": 1,
-      "explanation": "Le hachage produit une empreinte et n’est pas conçu pour être réversible."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que permet une signature numérique vérifiée avec la clé publique correspondante ?",
-      "choices": [
-        "De cacher le contenu du message automatiquement",
-        "De vérifier l’intégrité et l’origine cryptographique",
-        "De remplacer toutes les sauvegardes",
-        "De garantir la disponibilité"
-      ],
-      "answer": 1,
-      "explanation": "La signature permet de vérifier l’intégrité et l’association à la clé privée signataire."
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Qu’est-ce qu’une vulnérabilité ?",
+      "prompt": "Question placeholder pour « Panorama des menaces » : à rédiger après le cours complet.",
       "choices": [
-        "Un acteur malveillant",
-        "Une faiblesse pouvant être exploitée",
-        "Une conséquence financière",
-        "Une sauvegarde"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
-      "answer": 1,
-      "explanation": "Une vulnérabilité est une faiblesse exploitable."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Un message qui pousse à saisir son mot de passe sur un faux site est…",
-      "choices": [
-        "Un hachage",
-        "Une segmentation",
-        "De l’hameçonnage",
-        "Un correctif"
-      ],
-      "answer": 2,
-      "explanation": "L’hameçonnage cherche à tromper la victime pour obtenir des informations ou provoquer une action."
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

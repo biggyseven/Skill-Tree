@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quelle capacité distingue souvent un NGFW du filtrage basé seulement sur les ports ?",
+      "prompt": "Question placeholder pour « Architecture de pare-feu (NGFW) » : à rédiger après le cours complet.",
       "choices": [
-        "Supprimer les journaux",
-        "Identifier les applications et inspecter le contexte",
-        "Attribuer toutes les adresses IP",
-        "Garantir l’absence de vulnérabilités"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
-      "answer": 1,
-      "explanation": "Un NGFW peut classifier les applications et appliquer des contrôles contextuels."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel point de vigilance concerne l’inspection TLS ?",
-      "choices": [
-        "Elle supprime la gestion des certificats",
-        "Elle doit être activée partout",
-        "Elle ne consomme aucune ressource",
-        "Elle implique performance, certificats et confidentialité"
-      ],
-      "answer": 3,
-      "explanation": "L’inspection TLS demande une conception prudente et des exclusions justifiées."
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

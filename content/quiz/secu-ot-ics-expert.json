@@ -1,0 +1,18 @@
+{
+  "node_id": "secu-ot-ics-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question placeholder pour « Architecture de sécurité sur les réseaux OT/ICS » : à rédiger après le cours complet.",
+      "choices": [
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
+      ],
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+    }
+  ]
+}

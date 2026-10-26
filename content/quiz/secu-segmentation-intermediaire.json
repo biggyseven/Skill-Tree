@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Pourquoi des VLAN seuls ne garantissent-ils pas une segmentation sûre ?",
+      "prompt": "Question placeholder pour « Segmentation réseau » : à rédiger après le cours complet.",
       "choices": [
-        "Ils ne séparent jamais les domaines de diffusion",
-        "Ils chiffrent tous les flux",
-        "Ils remplacent le routage",
-        "Les flux inter-VLAN peuvent rester ouverts sans contrôle"
-      ],
-      "answer": 3,
-      "explanation": "Il faut contrôler les communications qui traversent les frontières de segments."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel est l’objectif de la microsegmentation ?",
-      "choices": [
-        "Restreindre finement les échanges entre workloads, services ou identités",
-        "Effacer les logs",
-        "Donner des droits administrateur partout",
-        "Remplacer les correctifs"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
       "answer": 0,
-      "explanation": "La microsegmentation réduit les communications latérales par des règles plus granulaires."
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

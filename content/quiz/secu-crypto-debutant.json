@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "À quoi sert principalement le chiffrement ?",
+      "prompt": "Question placeholder pour « Cryptographie » : à rédiger après le cours complet.",
       "choices": [
-        "À rendre les données confidentielles sans la clé appropriée",
-        "À compresser les fichiers",
-        "À garantir que le service reste disponible",
-        "À supprimer les journaux"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
       "answer": 0,
-      "explanation": "Le chiffrement protège la confidentialité des données."
-    },
-    {
-      "type": "qcm",
-      "prompt": "En chiffrement symétrique, on utilise généralement…",
-      "choices": [
-        "Une paire de clés publique/privée seulement",
-        "La même clé secrète pour chiffrer et déchiffrer",
-        "Aucune clé",
-        "Un mot de passe visible dans le message"
-      ],
-      "answer": 1,
-      "explanation": "Le chiffrement symétrique repose sur une clé secrète partagée."
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

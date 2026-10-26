@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Laquelle est une authentification multifacteur ?",
+      "prompt": "Question placeholder pour « Authentification et MFA » : à rédiger après le cours complet.",
       "choices": [
-        "Mot de passe et code PIN mémorisé",
-        "Deux mots de passe différents",
-        "Mot de passe et clé de sécurité physique",
-        "Nom d’utilisateur et adresse e-mail"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
-      "answer": 2,
-      "explanation": "Le mot de passe et la clé physique relèvent de catégories distinctes."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle affirmation distingue authentification et autorisation ?",
-      "choices": [
-        "Elles sont identiques",
-        "L’authentification vérifie l’identité, l’autorisation détermine les actions permises",
-        "L’autorisation vérifie seulement le mot de passe",
-        "L’authentification attribue les rôles après chaque requête"
-      ],
-      "answer": 1,
-      "explanation": "L’authentification vérifie l’identité ; l’autorisation contrôle les permissions."
+      "answer": 0,
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }

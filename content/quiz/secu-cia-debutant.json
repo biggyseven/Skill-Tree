@@ -4,27 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel objectif de la triade CIA empêche la divulgation à des personnes non autorisées ?",
+      "prompt": "Question placeholder pour « La Triade CIA » : à rédiger après le cours complet.",
       "choices": [
-        "Disponibilité",
-        "Confidentialité",
-        "Intégrité",
-        "Traçabilité"
-      ],
-      "answer": 1,
-      "explanation": "La confidentialité limite l’accès aux personnes autorisées."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une modification non autorisée d’un fichier menace surtout…",
-      "choices": [
-        "L’intégrité",
-        "La disponibilité uniquement",
-        "La confidentialité uniquement",
-        "La latence"
+        "Option A (placeholder)",
+        "Option B (placeholder)",
+        "Option C (placeholder)",
+        "Option D (placeholder)"
       ],
       "answer": 0,
-      "explanation": "L’intégrité concerne l’exactitude et la non-altération des données."
+      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
     }
   ]
 }
