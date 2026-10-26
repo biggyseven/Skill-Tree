@@ -5429,7 +5429,8 @@
     "order": 3010,
     "description": "Création de pipelines, tests automatisés.",
     "prereqs": [
-      "git-debutant"
+      "git-debutant",
+      "cicd-debutant"
     ],
     "requirements": [
       {
