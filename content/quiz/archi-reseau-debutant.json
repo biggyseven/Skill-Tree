@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Architecture Réseau - Débutant",
+      "prompt": "Quelle est la fonction principale d’un commutateur Ethernet de couche 2 ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Choisir une route entre plusieurs réseaux IP",
+        "Transférer des trames selon les adresses MAC apprises",
+        "Attribuer des certificats TLS",
+        "Résoudre les noms DNS"
+      ],
+      "answer": 1,
+      "explanation": "Un commutateur L2 apprend les adresses MAC et transfère les trames dans un domaine de niveau 2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel équipement permet généralement d’acheminer le trafic entre des réseaux IP différents ?",
+      "choices": [
+        "Un routeur ou une fonction de routage de couche 3",
+        "Un panneau de brassage passif",
+        "Un répéteur sans fonction de routage",
+        "Un serveur NTP uniquement"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le routage de couche 3 relie des réseaux IP distincts selon une table de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer les postes utilisateurs, les serveurs et les invités ?",
+      "choices": [
+        "Éviter la nécessité d’adresses IP",
+        "Donner le même accès à chaque terminal",
+        "Remplacer les sauvegardes",
+        "Réduire les domaines de diffusion et mieux contrôler les communications"
+      ],
+      "answer": 3,
+      "explanation": "La segmentation limite les communications latérales et permet d’appliquer des politiques différentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel intérêt présente une architecture access/distribution/cœur ?",
+      "choices": [
+        "Rendre obligatoires les boucles L2",
+        "Supprimer le routage",
+        "Séparer les fonctions et faciliter l’évolutivité et la résilience",
+        "Empêcher toute redondance"
+      ],
+      "answer": 2,
+      "explanation": "Les couches organisent l’accès des terminaux, l’application de politiques et le transport à haut débit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi prévoir des chemins redondants ?",
+      "choices": [
+        "Garantir qu’aucune attaque n’est possible",
+        "Maintenir la connectivité lorsqu’un lien ou équipement tombe en panne",
+        "Supprimer le besoin de tests",
+        "Empêcher les switches d’apprendre les MAC"
+      ],
+      "answer": 1,
+      "explanation": "La redondance aide si les mécanismes de détection et de bascule sont correctement configurés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fournit une adresse IP à un hôte ?",
+      "choices": [
+        "Une identification logique pour communiquer au niveau IP",
+        "L’identité physique permanente du port Ethernet",
+        "Une règle TLS",
+        "Un identifiant de VLAN universel"
+      ],
+      "answer": 0,
+      "explanation": "L’adresse IP sert à l’adressage logique et se distingue de l’adresse MAC utilisée sur le lien local."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel document aide à comprendre les chemins et dépendances de l’architecture ?",
+      "choices": [
+        "Une liste de mots de passe partagés",
+        "Une capture sans légende",
+        "Un inventaire des thèmes graphiques",
+        "Un schéma à jour indiquant équipements, liens, sous-réseaux et frontières"
+      ],
+      "answer": 3,
+      "explanation": "Un schéma opérationnel décrit les liens et fonctions, et doit être maintenu après les changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester le réseau après une modification ?",
+      "choices": [
+        "Confirmer que tous les câbles ont la même couleur",
+        "Éviter de conserver la configuration précédente",
+        "Vérifier la connectivité attendue et les flux qui doivent rester bloqués",
+        "Remplacer les journaux"
+      ],
+      "answer": 2,
+      "explanation": "Les tests doivent couvrir les services attendus, les chemins et les restrictions ajoutées."
     }
   ]
 }

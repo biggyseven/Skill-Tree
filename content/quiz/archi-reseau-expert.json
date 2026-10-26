@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Architecture Réseau - Expert",
+      "prompt": "Que doit prioriser une revue d’architecture avant une refonte du cœur réseau ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Le nombre de couleurs du schéma",
+        "Le remplacement systématique de tous les protocoles",
+        "Domaines de panne, capacité, convergence, sécurité, dépendances et migration",
+        "La suppression des chemins redondants"
+      ],
+      "answer": 2,
+      "explanation": "Une revue experte examine la disponibilité, le dimensionnement, la sécurité, l’exploitation et la transition."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment mesurer la résilience d’une architecture redondante ?",
+      "choices": [
+        "Compter seulement les liens physiques",
+        "Tester des scénarios de panne et mesurer convergence et impact utilisateur",
+        "Vérifier que tous les équipements ont le même modèle",
+        "Désactiver les alertes"
+      ],
+      "answer": 1,
+      "explanation": "La présence de liens redondants ne prouve pas que la bascule fonctionne ni qu’elle est assez rapide."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel danger présente une grande étendue de couche 2 ?",
+      "choices": [
+        "Les broadcasts et incidents L2 peuvent affecter une large partie du réseau",
+        "Les paquets IP ne peuvent plus être routés",
+        "Les certificats deviennent invalides",
+        "AAA devient impossible"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Des domaines L2 étendus augmentent l’impact d’une boucle ou d’une tempête de diffusion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur aide à repérer une capacité insuffisante après la perte d’un lien ?",
+      "choices": [
+        "Longueur du nom d’hôte",
+        "Nombre de lignes de documentation",
+        "Nombre d’administrateurs connectés",
+        "Utilisation des chemins restants, pertes, latence et saturation"
+      ],
+      "answer": 3,
+      "explanation": "La capacité doit être évaluée en fonctionnement nominal et durant les défaillances prévues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir des critères de migration mesurables ?",
+      "choices": [
+        "Éviter les comparaisons avant/après",
+        "Autoriser automatiquement toute modification",
+        "Décider si une étape est sûre ou doit être interrompue",
+        "Se dispenser d’un rollback"
+      ],
+      "answer": 2,
+      "explanation": "Des seuils d’acceptation et de retour permettent une migration fondée sur des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un domaine de panne ?",
+      "choices": [
+        "Définir l’ordre des questions d’un quiz",
+        "Délimiter les composants pouvant être affectés par un même incident",
+        "Attribuer des noms DNS",
+        "Remplacer les contrôles d’accès"
+      ],
+      "answer": 1,
+      "explanation": "Les domaines de panne aident à isoler et mesurer l’étendue d’un défaut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi examiner les chemins asymétriques avec du filtrage stateful ?",
+      "choices": [
+        "Certains pare-feu peuvent rejeter des réponses suivant un autre chemin",
+        "Ils rendent toujours le routage plus rapide",
+        "Ils concernent uniquement le Wi-Fi",
+        "Ils empêchent IPv6 par définition"
+      ],
+      "answer": 0,
+      "explanation": "Un pare-feu stateful peut s’attendre à voir les deux sens d’une session ; le design doit être compatible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve devrait accompagner l’acceptation d’une architecture experte ?",
+      "choices": [
+        "Un schéma sans détails",
+        "Un seul ping",
+        "Une garantie commerciale",
+        "Plans de tests, mesures de bascule, résultats de charge et procédure de changement"
+      ],
+      "answer": 3,
+      "explanation": "L’architecture doit être validée par des scénarios représentatifs et des résultats observables."
     }
   ]
 }
