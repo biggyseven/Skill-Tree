@@ -1379,9 +1379,10 @@
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <template x-for="s in diagList" :key="s.id">
                 <button type="button" class="card-sm text-left transition hover:border-cyan-400/40" @click="openDiag(s.id)">
-                  <div class="flex items-center justify-between"><span class="chip" x-text="(levelMeta(s.level) || { icon: '', label: '' }).icon + ' ' + (levelMeta(s.level) || { label: 'Scénario' }).label"></span><span class="text-xs text-emerald-400" x-show="diagDoneMap[s.id] !== undefined" x-text="'Meilleur : ' + diagDoneMap[s.id] + ' %'"></span></div>
+                  <div class="flex items-center justify-between gap-2"><span class="chip" x-text="(levelMeta(s.level) || { icon: '', label: '' }).icon + ' ' + (levelMeta(s.level) || { label: 'Scénario' }).label"></span><span class="text-xs text-cyan-300" x-show="diagProgressMap[s.id]" x-text="'À reprendre · ' + (((diagProgressMap[s.id] || {}).trail || []).length) + ' décision(s)'"></span><span class="text-xs text-emerald-400" x-show="!diagProgressMap[s.id] && diagDoneMap[s.id] !== undefined" x-text="'Meilleur : ' + diagDoneMap[s.id] + ' %' + (diagResultsMap[s.id] && Number.isFinite(Number(diagResultsMap[s.id].score)) ? ' · dernier : ' + diagResultsMap[s.id].score + ' %' : '')"></span></div>
                   <p class="mt-2 text-sm font-bold text-white" x-text="s.title"></p>
                   <p class="mt-1 text-[12px] text-zinc-500" x-text="s.desc"></p>
+                  <div class="mt-3 flex items-center justify-between gap-2 text-[11px]"><span class="text-zinc-500" x-text="diagProgressMap[s.id] ? 'Session sauvegardée automatiquement' : 'Scénario à embranchements'"></span><span class="font-semibold text-cyan-300" x-text="diagProgressMap[s.id] ? 'Reprendre →' : 'Démarrer →'"></span></div>
                 </button>
               </template>
             </div>
@@ -1391,9 +1392,9 @@
           <div class="mx-auto max-w-4xl">
             <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
               <div><p class="eyebrow" x-text="'Étape ' + (diagTrail.length + 1)"></p><h3 class="text-xl font-bold text-white" x-text="diagData.title"></h3></div>
-              <div class="flex gap-2"><button type="button" class="btn" :disabled="!diagTrail.length" @click="diagBack()">↩ Retour</button><button type="button" class="btn" @click="diagReset()">Recommencer</button><button type="button" class="btn" @click="diagClose()">Scénarios</button></div>
+              <div class="flex gap-2"><button type="button" class="btn" :disabled="!diagTrail.length || diagFinished || diagAdaptiveQuestion" @click="diagBack()">↩ Retour</button><button type="button" class="btn" @click="diagReset()">Recommencer</button><button type="button" class="btn" @click="diagClose()">Scénarios</button></div>
             </div>
-            <div x-show="diagTrail.length" class="mb-4 space-y-2">
+            <div x-show="diagTrail.length" class="mb-4 space-y-2" aria-live="polite" aria-relevant="additions">
               <template x-for="(t, i) in diagTrail" :key="i">
                 <div class="rounded-xl border px-4 py-2 text-[12px]" :class="t.good === false ? 'border-rose-400/20 bg-rose-500/5 text-rose-200' : 'border-emerald-400/20 bg-emerald-500/5 text-emerald-200'">
                   <p class="font-semibold" x-text="(t.good === false ? '✗ ' : '✓ ') + t.label"></p><p class="mt-0.5 text-zinc-400" x-show="t.feedback" x-text="t.feedback"></p>
@@ -1403,20 +1404,108 @@
             <div class="card">
               <p class="eyebrow">Situation</p>
               <p class="mt-2 text-base leading-relaxed text-zinc-100" x-text="diagStep.situation"></p>
+              <div x-show="diagAdaptiveQuestion" x-cloak class="mt-5 rounded-2xl border border-cyan-400/25 bg-cyan-400/5 p-4">
+                <p class="eyebrow">Question de consolidation adaptée</p>
+                <p class="mt-2 text-sm font-semibold text-white" x-text="diagAdaptiveQuestion ? diagAdaptiveQuestion.prompt : ''"></p>
+                <p x-show="diagAdaptiveQuestion && diagAdaptiveQuestion.hint" class="mt-2 text-xs text-zinc-400" x-text="diagAdaptiveQuestion ? diagAdaptiveQuestion.hint : ''"></p>
+                <div class="mt-4 grid gap-2">
+                  <template x-for="(choice, index) in (diagAdaptiveQuestion ? diagAdaptiveQuestion.choices : [])" :key="index">
+                    <button type="button" @click="diagChooseAdaptive(choice)" class="card-sm flex items-center gap-3 text-left transition hover:border-cyan-400/40">
+                      <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-black/20 font-mono text-xs text-zinc-400" x-text="String.fromCharCode(65 + index)"></span>
+                      <span class="text-sm text-zinc-200" x-text="choice.label"></span>
+                    </button>
+                  </template>
+                </div>
+                <p x-show="diagAdaptiveFeedback" role="status" aria-live="polite" class="mt-3 rounded-xl border border-amber-400/20 bg-amber-400/5 p-3 text-sm text-amber-100" x-text="diagAdaptiveFeedback"></p>
+                <div x-show="diagAdaptiveAttempts > 0" class="mt-3 flex flex-wrap gap-2">
+                  <button type="button" class="btn" @click="diagRetryAdaptive()">Réessayer la question de consolidation</button>
+                  <button type="button" class="btn" @click="diagContinueAfterSupport()">Continuer le scénario</button>
+                </div>
+              </div>
               <template x-if="diagFinished">
-                <div class="mt-5 rounded-2xl border border-emerald-400/25 bg-emerald-500/10 p-4">
-                  <p class="text-lg font-bold text-white" x-text="diagStep.conclusion ? diagStep.conclusion.title : 'Fin du scénario'"></p>
-                  <p class="mt-1 text-sm text-zinc-300" x-show="diagStep.conclusion" x-text="diagStep.conclusion ? diagStep.conclusion.text : ''"></p>
-                  <p class="mt-3 text-sm text-zinc-200" x-show="diagEfficiency !== null" x-text="'Efficacité de tes décisions : ' + diagEfficiency + ' %'"></p>
+                <div class="mt-5 rounded-2xl border p-4" :class="diagFinalOutcome() === 'success' ? 'border-emerald-400/25 bg-emerald-500/10' : 'border-amber-400/25 bg-amber-500/10'">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p class="text-lg font-bold text-white" x-text="diagStep.conclusion ? diagStep.conclusion.title : (diagStep.outcome === 'success' ? 'Diagnostic résolu' : diagStep.outcome === 'failure' ? 'Diagnostic à revoir' : 'Fin du scénario')"></p>
+                      <p class="mt-1 text-sm text-zinc-300" x-show="diagStep.conclusion || diagStep.explanation" x-text="diagStep.conclusion ? diagStep.conclusion.text : (diagStep.explanation || '')"></p>
+                    </div>
+                    <span class="chip" x-text="diagFinalOutcome() === 'success' ? 'Objectif atteint' : diagFinalOutcome() === 'failure' ? 'À retravailler' : 'Terminé'"></span>
+                  </div>
+                  <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div class="rounded-xl border border-white/10 bg-black/10 p-3"><p class="text-[11px] uppercase tracking-wide text-zinc-500">Efficacité</p><p class="mt-1 text-lg font-bold text-white" x-text="diagEfficiency === null ? 'Non évaluée' : diagEfficiency + ' %'"></p></div>
+                    <div class="rounded-xl border border-white/10 bg-black/10 p-3"><p class="text-[11px] uppercase tracking-wide text-zinc-500">Décisions adaptées</p><p class="mt-1 text-lg font-bold text-white" x-text="diagCorrectCount() + ' / ' + diagScoredCount()"></p></div>
+                    <div class="rounded-xl border border-white/10 bg-black/10 p-3"><p class="text-[11px] uppercase tracking-wide text-zinc-500">Durée</p><p class="mt-1 text-lg font-bold text-white" x-text="diagElapsedLabel()"></p></div>
+                  </div>
+                  <div x-show="diagCompetencySummary().length" class="mt-4 border-t border-white/10 pt-4">
+                    <p class="mb-3 text-sm font-semibold text-white">Bilan par compétence</p>
+                    <div class="grid gap-2 sm:grid-cols-2">
+                      <template x-for="item in diagCompetencySummary()" :key="item.name">
+                        <div class="rounded-xl border border-white/10 bg-black/10 p-3">
+                          <div class="flex items-center justify-between gap-2 text-xs"><span class="font-semibold text-zinc-200" x-text="item.name"></span><span class="text-zinc-400" x-text="item.correct + '/' + item.total + ' · ' + item.rate + '%'"></span></div>
+                          <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" :aria-valuenow="item.rate" aria-valuemin="0" aria-valuemax="100" :aria-label="item.name"><div class="h-full rounded-full bg-cyan-400" :style="{ width: item.rate + '%' }"></div></div>
+                          <p class="mt-2 text-[11px] text-zinc-500" x-text="item.rate >= 80 ? 'Compétence bien mobilisée' : 'À renforcer avec un cours, une révision ou un lab ciblé'"></p>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                  <p x-show="diagCompetencyToReview().length" class="mt-3 text-sm text-amber-200" x-text="'À retravailler en priorité : ' + diagCompetencyToReview().join(', ')"></p>
+                  <div x-show="diagFinalOutcome() === 'success' && !diagCompetencyToReview().length" class="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-3 text-sm text-emerald-100">Aucune compétence évaluée n’est sous le seuil de 80 %. Le prochain scénario sera choisi selon ce résultat.</div>
+                  <div x-show="diagLearningRecommendations().courses.length || diagLearningRecommendations().labs.length" class="mt-4 border-t border-white/10 pt-4">
+                    <p class="text-sm font-semibold text-white">Ton plan d’action personnalisé</p>
+                    <p class="mt-1 text-xs text-zinc-500">Les recommandations proviennent des compétences à renforcer et du catalogue de Skill-Tree.</p>
+                    <div x-show="diagLearningRecommendations().courses.length" class="mt-3 space-y-2">
+                      <p class="text-xs font-semibold uppercase tracking-wide text-cyan-200">Cours et révisions</p>
+                      <template x-for="rec in diagLearningRecommendations().courses" :key="rec.node.id">
+                        <div class="rounded-xl border border-white/10 bg-black/10 p-3">
+                          <div class="flex flex-wrap items-center justify-between gap-2">
+                            <p class="text-sm font-semibold text-white" x-text="rec.node.title"></p>
+                            <span class="chip" x-text="statusMeta(rec.node.status).label"></span>
+                          </div>
+                          <p class="mt-1 text-xs text-zinc-400" x-text="'Compétence : ' + rec.competency + ' · résultat : ' + rec.rate + ' %'"></p>
+                          <p x-show="rec.reason" class="mt-1 text-xs text-cyan-200" x-text="rec.reason"></p>
+                          <div class="mt-3 flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-primary" @click="diagOpenCourse(rec.node.id)">Ouvrir le cours</button>
+                            <button type="button" class="btn" @click="diagStartGuidedReview(rec.node.id)">Réviser les cartes</button>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                    <div x-show="diagLearningRecommendations().labs.length" class="mt-4 space-y-2">
+                      <p class="text-xs font-semibold uppercase tracking-wide text-cyan-200">Mise en pratique</p>
+                      <template x-for="rec in diagLearningRecommendations().labs" :key="rec.node.id">
+                        <div class="rounded-xl border border-white/10 bg-black/10 p-3">
+                          <p class="text-sm font-semibold text-white" x-text="rec.node.title"></p>
+                          <p class="mt-1 text-xs text-zinc-400" x-text="rec.competency + ' · lab conseillé pour consolider cette compétence'"></p>
+                          <button type="button" class="btn btn-primary mt-3" @click="diagOpenLab(rec.node.id)">Ouvrir le lab</button>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                  <div x-show="diagNextScenarioRecommendation()" class="mt-4 rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-3">
+                    <p class="text-sm font-semibold text-white">Prochaine étape adaptée</p>
+                    <p class="mt-1 text-sm text-zinc-300" x-text="diagNextScenarioRecommendation() ? diagNextScenarioRecommendation().reason : ''"></p>
+                    <button type="button" class="btn btn-primary mt-3" @click="diagStartNextScenario()" x-text="diagNextScenarioRecommendation() && diagNextScenarioRecommendation().replay ? 'Rejouer pour consolider' : 'Démarrer le scénario conseillé'"></button>
+                  </div>
+                  <p x-show="diagFinalOutcome() === 'success' && !diagNextScenarioRecommendation()" class="mt-3 text-xs text-zinc-500" x-text="diagEfficiency < 80 ? 'Tu as terminé les scénarios inédits disponibles à ce niveau. Travaille les cours, révisions et labs recommandés, puis rejoue pour améliorer ton score.' : 'Tu as parcouru tous les scénarios disponibles sans répétition automatique. Poursuis avec les cours, révisions et labs recommandés pour approfondir le domaine.'"></p>
                   <div class="mt-4 flex gap-2"><button type="button" class="btn btn-primary" @click="diagReset()">Rejouer</button><button type="button" class="btn" @click="diagClose()">Autres scénarios</button></div>
                 </div>
               </template>
-              <div class="mt-5 grid gap-3" x-show="!diagFinished">
-                <template x-for="(c, i) in (diagStep.choices || [])" :key="c.id || i">
-                  <button type="button" @click="diagChoose(c)" class="card-sm flex items-center gap-4 text-left transition hover:border-cyan-400/40">
-                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black font-mono text-xs text-zinc-400" x-text="String.fromCharCode(65 + i)"></span><span class="text-sm text-zinc-200" x-text="c.label"></span>
-                  </button>
-                </template>
+              <div class="mt-5" x-show="!diagFinished">
+                <div class="grid gap-3" x-show="!diagAdaptiveQuestion && !(diagStep && diagStep.command)">
+                  <template x-for="(c, i) in (diagStep.choices || [])" :key="c.id || i">
+                    <button type="button" @click="diagChoose(c)" class="card-sm flex items-center gap-4 text-left transition hover:border-cyan-400/40">
+                      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black font-mono text-xs text-zinc-400" x-text="String.fromCharCode(65 + i)"></span><span class="text-sm text-zinc-200" x-text="c.label"></span>
+                    </button>
+                  </template>
+                </div>
+                <form x-show="!diagAdaptiveQuestion && diagStep && diagStep.command" @submit.prevent="diagSubmitCommand()" class="mt-3 rounded-xl border border-white/10 bg-black/10 p-4">
+                  <label class="mb-2 block text-sm font-semibold text-zinc-200" for="diag-command-input" x-text="diagStep.command.prompt || 'Saisis la commande adaptée.'"></label>
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <input id="diag-command-input" type="text" x-model="diagCommandInput" :placeholder="diagStep.command.placeholder || ''" autocomplete="off" autocapitalize="off" spellcheck="false" required class="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-3 text-sm text-white outline-none focus:border-cyan-400/60">
+                    <button type="submit" :disabled="!diagCommandInput.trim()" class="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50">Vérifier la commande</button>
+                  </div>
+                  <p x-show="diagCommandFeedback" role="status" aria-live="polite" class="mt-2 text-sm text-zinc-300" x-text="diagCommandFeedback"></p>
+                </form>
               </div>
             </div>
           </div>
@@ -4067,49 +4156,209 @@
 
     /* Scénarios de diagnostic intégrés (même format que ceux du serveur : steps + start). good = bonne décision. */
     const DIAG_BUILTIN = {
-      'wifi-lent': { title: 'Wi-Fi lent à l’étage', level: 'debutant', desc: 'Les utilisateurs d’un étage se plaignent d’un Wi-Fi lent depuis ce matin.', start: 'a',
+      'wifi-lent': { title: 'Wi-Fi lent à l’étage', level: 'debutant', domain: 'network', desc: 'Les utilisateurs d’un étage se plaignent d’un Wi-Fi lent depuis ce matin.', start: 'a',
         steps: {
-          a: { situation: 'Depuis ce matin, les utilisateurs du 2e étage trouvent le Wi-Fi très lent. Les autres étages vont bien. Que fais-tu en premier ?', choices: [
+          a: { competency: 'Mesure Wi-Fi', situation: 'Depuis ce matin, les utilisateurs du 2e étage trouvent le Wi-Fi très lent. Les autres étages vont bien. Que fais-tu en premier ?', choices: [
             { id: 'a1', label: 'Redémarrer tous les points d’accès de l’immeuble', next: 'bad1', good: false, feedback: 'Action lourde, non ciblée : tu coupes aussi les étages qui fonctionnent.' },
             { id: 'a2', label: 'Mesurer signal, canal et utilisation du canal sur les AP de l’étage', next: 'b', good: true, feedback: 'Bonne méthode : on mesure avant d’agir.' },
             { id: 'a3', label: 'Changer le mot de passe du Wi-Fi', next: 'bad1', good: false, feedback: 'Le mot de passe n’a aucun rapport avec la lenteur.' } ] },
-          b: { situation: 'Mesures : RSSI correct (-62 dBm), mais utilisation du canal à 85 %. 60 clients sont connectés en 2,4 GHz, canal 6, canaux de 40 MHz.', choices: [
+          b: { competency: 'Capacité radio', situation: 'Mesures : RSSI correct (-62 dBm), mais utilisation du canal à 85 %. 60 clients sont connectés en 2,4 GHz, canal 6, canaux de 40 MHz.', choices: [
             { id: 'b1', label: 'Pousser les clients en 5 GHz, canaux de 20 MHz bien répartis', next: 'ok', good: true, feedback: 'Le canal est saturé : il faut répartir la charge.' },
             { id: 'b2', label: 'Augmenter la puissance d’émission des AP', next: 'bad2', good: false, feedback: 'Plus de puissance n’augmente pas la capacité, et brouille les AP voisins.' },
             { id: 'b3', label: 'Désactiver le chiffrement pour alléger le trafic', next: 'bad2', good: false, feedback: 'Dangereux et sans effet notable sur la saturation.' } ] },
           ok: { situation: 'Après la répartition en 5 GHz, l’utilisation du canal tombe à 35 % et les plaintes cessent.', conclusion: { outcome: 'success', title: 'Problème résolu', text: 'Cause : saturation du canal 2,4 GHz. Leçon : mesurer d’abord (signal, canal, utilisation), puis répartir les clients.' } },
-          bad1: { situation: 'Rien ne change : le problème revient quelques minutes plus tard.', choices: [ { id: 'r1', label: 'Reprendre avec une mesure du canal', next: 'b', good: true, feedback: 'Bon réflexe : retour à la mesure.' } ] },
-          bad2: { situation: 'Le Wi-Fi est encore plus instable : les AP voisins se perturbent mutuellement.', choices: [ { id: 'r2', label: 'Revenir à la répartition 5 GHz et canaux de 20 MHz', next: 'ok', good: true, feedback: 'Bonne correction.' } ] },
+          bad1: { competency: 'Démarche de dépannage', situation: 'Rien ne change : le problème revient quelques minutes plus tard.', choices: [ { id: 'r1', label: 'Reprendre avec une mesure du canal', next: 'b', good: true, feedback: 'Bon réflexe : retour à la mesure.' } ] },
+          bad2: { competency: 'Conception radio', situation: 'Le Wi-Fi est encore plus instable : les AP voisins se perturbent mutuellement.', choices: [ { id: 'r2', label: 'Revenir à la répartition 5 GHz et canaux de 20 MHz', next: 'ok', good: true, feedback: 'Bonne correction.' } ] },
         } },
-      'vlan-hote': { title: 'Hôte injoignable dans un VLAN', level: 'intermediaire', desc: 'Un PC du VLAN 20 ne joint pas sa passerelle.', start: 'a',
+      'vlan-hote': { title: 'Hôte injoignable dans un VLAN', level: 'intermediaire', domain: 'network', desc: 'Un PC du VLAN 20 ne joint pas sa passerelle.', start: 'a',
         steps: {
-          a: { situation: 'Un PC du VLAN 20 (10.20.0.0/24) ne ping pas sa passerelle 10.20.0.1. Premier réflexe ?', choices: [
+          a: { competency: 'Configuration IP', situation: 'Un PC du VLAN 20 (10.20.0.0/24) ne ping pas sa passerelle 10.20.0.1. Premier réflexe ?', choices: [
             { id: 'a1', label: 'Vérifier l’adresse IP, le masque et la passerelle du PC', next: 'b', good: true, feedback: 'On commence toujours par la configuration locale.' },
             { id: 'a2', label: 'Redémarrer le switch', next: 'bad', good: false, feedback: 'Impact énorme sur tous les utilisateurs, sans diagnostic.' },
             { id: 'a3', label: 'Remplacer le câble sans rien vérifier', next: 'bad', good: false, feedback: 'Possible, mais ce n’est pas la première étape.' } ] },
-          b: { situation: 'Le PC a 10.20.0.50/24, passerelle 10.20.0.1 : correct. Le voyant du port est vert. Que vérifies-tu sur le switch ?', choices: [
+          b: { competency: 'Segmentation VLAN', situation: 'Le PC a 10.20.0.50/24, passerelle 10.20.0.1 : correct. Le voyant du port est vert. Que vérifies-tu sur le switch ?', choices: [
             { id: 'b1', label: 'show vlan brief : le port est-il dans le bon VLAN ?', next: 'c', good: true, feedback: 'Excellent : un port d’accès dans le mauvais VLAN est une cause classique.' },
             { id: 'b2', label: 'show ip route', next: 'bad', good: false, feedback: 'Le switch d’accès ne route pas ici : ce n’est pas utile pour ce symptôme.' } ] },
-          c: { situation: 'Le port Fa0/7 apparaît dans le VLAN 1 (par défaut). Le trunk vers le routeur transporte bien le VLAN 20.', choices: [
+          c: { competency: 'Segmentation VLAN', situation: 'Le port Fa0/7 apparaît dans le VLAN 1 (par défaut). Le trunk vers le routeur transporte bien le VLAN 20.', choices: [
             { id: 'c1', label: 'interface Fa0/7 : switchport mode access + switchport access vlan 20', next: 'ok', good: true, feedback: 'Correction ciblée.' },
             { id: 'c2', label: 'Ajouter le VLAN 1 au trunk', next: 'bad', good: false, feedback: 'Ça ne règle pas l’appartenance du port au bon VLAN.' } ] },
           ok: { situation: 'Le ping vers 10.20.0.1 répond.', conclusion: { outcome: 'success', title: 'Problème résolu', text: 'Cause : port d’accès resté dans le VLAN 1. Vérifie toujours le VLAN du port avec show vlan brief.' } },
-          bad: { situation: 'Aucune amélioration. Tu perds du temps.', choices: [ { id: 'r', label: 'Reprendre au diagnostic ciblé (IP puis VLAN du port)', next: 'a', good: true, feedback: 'Bon réflexe : on reprend la méthode.' } ] },
+          bad: { competency: 'Démarche de dépannage', situation: 'Aucune amélioration. Tu perds du temps.', choices: [ { id: 'r', label: 'Reprendre au diagnostic ciblé (IP puis VLAN du port)', next: 'a', good: true, feedback: 'Bon réflexe : on reprend la méthode.' } ] },
         } },
-      'etherchannel-suspendu': { title: 'EtherChannel suspendu (s)', level: 'intermediaire', desc: 'Un port est suspendu dans un Port-channel.', start: 'a',
+      'etherchannel-suspendu': { title: 'EtherChannel suspendu (s)', level: 'intermediaire', domain: 'network', desc: 'Un port est suspendu dans un Port-channel.', start: 'a',
         steps: {
-          a: { situation: 'show etherchannel summary affiche Po1(SU) avec Gi0/1(P) mais Gi0/2(s). Que signifie (s) ?', choices: [
+          a: { competency: 'Lecture EtherChannel', situation: 'show etherchannel summary affiche Po1(SU) avec Gi0/1(P) mais Gi0/2(s). Que signifie (s) ?', choices: [
             { id: 'a1', label: 'Le port est suspendu : sa configuration n’est pas compatible avec le groupe', next: 'b', good: true, feedback: 'Exact : (s) signale une incompatibilité.' },
             { id: 'a2', label: 'Le câble est coupé', next: 'bad', good: false, feedback: 'Un câble coupé donnerait (D) down.' } ] },
-          b: { situation: 'Que compares-tu entre Gi0/1 et Gi0/2 ?', choices: [
+          b: { competency: 'Cohérence de configuration', situation: 'Que compares-tu entre Gi0/1 et Gi0/2 ?', choices: [
             { id: 'b1', label: 'Vitesse, duplex, mode trunk/access, VLAN autorisés et natif', next: 'c', good: true, feedback: 'La liste correcte des paramètres à aligner.' },
             { id: 'b2', label: 'Seulement la description du port', next: 'bad', good: false, feedback: 'La description n’a aucune influence sur la formation du groupe.' } ] },
-          c: { situation: 'Gi0/2 autorise les VLAN 10,20,30 alors que Gi0/1 et Po1 autorisent 10,20. Que fais-tu ?', choices: [
+          c: { competency: 'Cohérence de configuration', situation: 'Gi0/2 autorise les VLAN 10,20,30 alors que Gi0/1 et Po1 autorisent 10,20. Que fais-tu ?', choices: [
             { id: 'c1', label: 'Aligner Gi0/2 sur le Port-channel : switchport trunk allowed vlan 10,20', next: 'ok', good: true, feedback: 'Bonne correction, faite sur l’interface membre.' },
             { id: 'c2', label: 'Supprimer le Port-channel et le recréer sans vérifier', next: 'bad', good: false, feedback: 'Inutile : l’incompatibilité resterait.' } ] },
           ok: { situation: 'Gi0/2 passe en (P) et le groupe affiche Po1(SU) avec deux ports regroupés.', conclusion: { outcome: 'success', title: 'Problème résolu', text: 'Cause : VLAN autorisés différents sur un port membre. Tous les ports membres doivent être identiques.' } },
-          bad: { situation: 'Le symptôme persiste.', choices: [ { id: 'r', label: 'Reprendre par la comparaison des paramètres des ports', next: 'b', good: true, feedback: 'Bon réflexe.' } ] },
+          bad: { competency: 'Démarche de dépannage', situation: 'Le symptôme persiste.', choices: [ { id: 'r', label: 'Reprendre par la comparaison des paramètres des ports', next: 'b', good: true, feedback: 'Bon réflexe.' } ] },
         } },
+      'linux-service-down': { title: 'Service web Linux indisponible', level: 'debutant', domain: 'linux', desc: 'Un service web retourne une erreur après une modification de configuration.', start: 'a',
+        steps: {
+          a: { competency: 'Services Linux', situation: 'Après un changement, le site interne renvoie une erreur 503. Quelle est la première vérification ?', choices: [
+            { id: 'a-status', label: 'Consulter systemctl status nginx --no-pager et vérifier le service', next: 'b', good: true, feedback: 'Oui : vérifie le service et son état avant de redémarrer ou modifier quoi que ce soit.' },
+            { id: 'a-reboot', label: 'Redémarrer immédiatement tout le serveur', next: 'bad', good: false, feedback: 'Un redémarrage peut interrompre d’autres services et effacer des indices utiles.' } ] },
+          b: { competency: 'Journaux Linux', situation: 'Le service est en échec et signale une erreur de configuration. Quelle vérification apporte la preuve la plus utile ?', choices: [
+            { id: 'b-journal', label: 'Lire journalctl -u nginx --since "10 minutes ago" et repérer l’erreur', next: 'c', good: true, feedback: 'Exact : les journaux du service donnent l’heure et le détail de l’échec.' },
+            { id: 'b-delete', label: 'Supprimer les journaux puis relancer le service', next: 'bad', good: false, feedback: 'Ne détruis pas les traces : elles permettent d’identifier la cause et de vérifier la correction.' } ] },
+          c: { competency: 'Configuration de service Linux', situation: 'Le journal indique une directive inconnue dans nginx.conf. Quelle action est la plus sûre ?', choices: [
+            { id: 'c-test', label: 'Exécuter nginx -t, corriger uniquement la directive fautive, puis recharger le service', next: 'ok', good: true, feedback: 'Bonne méthode : valide la syntaxe avant le rechargement et limite le changement à la cause identifiée.' },
+            { id: 'c-perms', label: 'Appliquer chmod -R 777 à /etc/nginx', next: 'bad', good: false, feedback: 'Cela élargit dangereusement les permissions et ne corrige pas une directive invalide.' } ] },
+          ok: { situation: 'Le test de configuration réussit, le service est rechargé et le site répond de nouveau.', conclusion: { outcome: 'success', title: 'Service rétabli', text: 'La cause était une directive de configuration invalide. Vérifie l’état, lis les journaux, teste la configuration, corrige le minimum nécessaire puis contrôle le service.' } },
+          bad: { competency: 'Démarche de dépannage', situation: 'Le problème persiste. Reprends une démarche progressive.', choices: [
+            { id: 'retry', label: 'Revenir au statut du service puis suivre les journaux', next: 'a', good: true, feedback: 'Bon réflexe : repars des observations plutôt que d’empiler des changements.' } ] }
+        } },
+      'security-suspicious-login': { title: 'Connexion suspecte sur un serveur', level: 'debutant', domain: 'security', desc: 'Des échecs SSH sont suivis d’une connexion réussie depuis une adresse inconnue.', start: 'a',
+        steps: {
+          a: { competency: 'Réponse à incident', situation: 'Les journaux montrent plusieurs échecs SSH, puis une connexion réussie depuis une adresse inhabituelle. Que fais-tu d’abord ?', choices: [
+            { id: 'a-preserve', label: 'Préserver les journaux, noter l’heure et l’adresse source, puis appliquer la procédure de signalement', next: 'b', good: true, feedback: 'Exact : préserve les preuves et traite l’événement avec une réponse proportionnée.' },
+            { id: 'a-delete', label: 'Effacer les journaux afin de supprimer les traces de l’activité suspecte', next: 'bad', good: false, feedback: 'Ne supprime pas les éléments de preuve : cela empêche de comprendre et d’investiguer l’incident.' } ] },
+          b: { competency: 'Analyse des journaux de sécurité', situation: 'La connexion inconnue a exécuté une commande avec sudo. Quelle vérification priorises-tu ?', choices: [
+            { id: 'b-correlate', label: 'Corréler l’utilisateur, l’adresse source, l’heure, les sessions et les commandes privilégiées', next: 'c', good: true, feedback: 'Oui : la chronologie aide à estimer le périmètre et les actions réellement exécutées.' },
+            { id: 'b-blind-block', label: 'Bloquer toutes les adresses IP externes sans examiner les éléments', next: 'bad', good: false, feedback: 'Une mesure trop large peut interrompre des services légitimes et ne clarifie pas le périmètre.' } ] },
+          c: { competency: 'Contrôle d’accès et identité', situation: 'L’équipe confirme que le compte a été compromis. Quelle remédiation est la plus adaptée ?', choices: [
+            { id: 'c-contain', label: 'Révoquer les sessions, réinitialiser le secret via la procédure approuvée, renforcer l’authentification et poursuivre la surveillance', next: 'ok', good: true, feedback: 'Correct : limite l’accès compromis, garde les traces et vérifie la persistance avant de clôturer l’incident.' },
+            { id: 'c-audit', label: 'Désactiver l’audit SSH pour éviter les alertes', next: 'bad', good: false, feedback: 'Désactiver l’audit masque les événements et rend les prochaines tentatives plus difficiles à détecter.' } ] },
+          ok: { situation: 'Les sessions suspectes sont révoquées, le compte est sécurisé et les journaux sont conservés pour l’investigation.', conclusion: { outcome: 'success', title: 'Incident contenu', text: 'La bonne réponse combine préservation des preuves, analyse de la chronologie, confinement du compte et surveillance. Une alerte doit être vérifiée sans effacer les traces ni désactiver les contrôles.' } },
+          bad: { competency: 'Démarche de dépannage', situation: 'La réponse choisie laisse le périmètre incertain. Reprends l’analyse à partir des preuves.', choices: [
+            { id: 'retry', label: 'Conserver les traces et vérifier la chronologie des connexions', next: 'a', good: true, feedback: 'Bon réflexe : établis les faits avant d’élargir les mesures de confinement.' } ] }
+        } },
+      'cloud-instance-unreachable': { title: 'Instance cloud inaccessible', level: 'intermediaire', domain: 'cloud', desc: 'Une instance fonctionne mais la connexion d’administration échoue après un changement réseau.', start: 'a',
+        steps: {
+          a: { competency: 'Diagnostic cloud réseau', situation: 'Une instance EC2 est en état running, mais SSH expire. Quelle vérification est la plus utile avant de modifier les règles ?', choices: [
+            { id: 'a-scope', label: 'Contrôler les vérifications d’état, le groupe de sécurité, les ACL réseau et la table de routage', next: 'b', good: true, feedback: 'Exact : vérifie chaque couche et le chemin de retour avant de modifier l’architecture.' },
+            { id: 'a-open', label: 'Autoriser immédiatement SSH depuis 0.0.0.0/0', next: 'bad', good: false, feedback: 'N’expose pas l’administration à toutes les adresses : identifie d’abord la source et le contrôle bloquant.' } ] },
+          b: { competency: 'Règles de sécurité cloud', situation: 'Le groupe de sécurité autorise SSH uniquement depuis l’ancienne adresse IP du poste d’administration. Que fais-tu ?', choices: [
+            { id: 'b-cidr', label: 'Mettre à jour la règle avec le CIDR d’administration approuvé et le port nécessaire uniquement', next: 'c', good: true, feedback: 'Bonne correction : conserve un accès source restreint et documenté.' },
+            { id: 'b-wide', label: 'Autoriser tous les ports depuis Internet pour dépanner plus vite', next: 'bad', good: false, feedback: 'Une ouverture globale augmente fortement l’exposition sans isoler les règles réellement nécessaires.' } ] },
+          c: { competency: 'Connectivité cloud privée', situation: 'La règle est correcte mais l’instance n’a pas d’adresse publique et se trouve dans un sous-réseau privé. Comment l’administrer ?', choices: [
+            { id: 'c-private', label: 'Utiliser le bastion, le VPN ou le service d’accès géré approuvé et vérifier les routes associées', next: 'ok', good: true, feedback: 'Exact : un sous-réseau privé s’administre par le chemin prévu, sans exposition improvisée.' },
+            { id: 'c-public', label: 'Attribuer une adresse publique sans vérifier la politique réseau', next: 'bad', good: false, feedback: 'N’ajoute pas d’exposition publique sans validation de l’architecture et de la politique de sécurité.' } ] },
+          ok: { situation: 'Le chemin d’administration autorisé est restauré, tout en gardant les sources d’accès restreintes.', conclusion: { outcome: 'success', title: 'Accès cloud rétabli', text: 'Une connexion distante dépend du routage, des contrôles réseau et du chemin d’administration choisi. Vérifie ces éléments par couche et garde les accès d’administration au périmètre minimal nécessaire.' } },
+          bad: { competency: 'Démarche de dépannage', situation: 'L’accès n’est pas encore rétabli. Reprends les vérifications par couche.', choices: [
+            { id: 'retry', label: 'Comparer l’état de l’instance, les règles d’accès et le chemin réseau', next: 'a', good: true, feedback: 'Bon réflexe : identifie la couche en cause avant d’appliquer une correction ciblée.' } ] }
+        } },
+    };
+
+    const DIAG_REMEDIATION = {
+      "Triage initial": { competency:"Triage initial", prompt:"Le problème touche un seul poste. Quelle vérification limite le risque avant de modifier le réseau ?", hint:"Compare avec un poste fonctionnel et vérifie la configuration locale.", choices:[
+        {label:"Comparer le lien, l'adresse IP, le masque et la passerelle",good:true,feedback:"Exact : délimite le problème et recueille des indices avant d'agir."},
+        {label:"Redémarrer immédiatement le commutateur principal",good:false,feedback:"Cela peut interrompre des utilisateurs sans isoler la cause."}
+      ]},
+      "Connectivité locale et ARP": { competency:"Connectivité locale et ARP", prompt:"Sur un LAN IPv4, que permet principalement ARP ?", hint:"ARP intervient entre l'adresse IP d'un voisin et son adresse de couche 2.", choices:[
+        {label:"Associer l'adresse IPv4 voisine à une adresse MAC",good:true,feedback:"Correct : cette association permet de construire la trame Ethernet."},
+        {label:"Traduire un nom de domaine en adresse IP",good:false,feedback:"C'est le rôle de la résolution DNS."}
+      ]},
+      "Lecture de la configuration IP": { competency:"Lecture de la configuration IP", prompt:"Quelle commande Linux affiche les adresses IP des interfaces ?", hint:"Utilise la commande ip avec le sous-commande addr.", choices:[
+        {label:"ip addr",good:true,feedback:"Correct : ip addr (ou ip a) affiche la configuration IP des interfaces."},
+        {label:"nslookup",good:false,feedback:"nslookup interroge le DNS, pas la configuration des interfaces."}
+      ]},
+      "Configuration IP": { competency:"Configuration IP", prompt:"Un poste ne joint pas sa passerelle. Que vérifies-tu d'abord localement ?", hint:"Le masque définit le sous-réseau auquel l'adresse appartient.", choices:[
+        {label:"Adresse IP, masque/préfixe et passerelle",good:true,feedback:"Exact : une erreur sur l'une de ces valeurs peut couper la connectivité."},
+        {label:"Le cache du navigateur uniquement",good:false,feedback:"Le navigateur n'explique pas l'échec vers une passerelle IP."}
+      ]},
+      "DHCP et adressage": { competency:"DHCP et adressage", prompt:"Que suggère généralement une adresse IPv4 169.254.x.x dans ce scénario ?", hint:"C'est une plage link-local que le système peut s'attribuer en l'absence de bail DHCP utilisable.", choices:[
+        {label:"Le poste n'a probablement pas obtenu de bail DHCP valide",good:true,feedback:"Oui : vérifie DHCP, le VLAN et le relais éventuel."},
+        {label:"Le serveur DNS est forcément en panne",good:false,feedback:"Une adresse link-local pointe d'abord vers un problème d'adressage."}
+      ]},
+      "Rétablissement contrôlé": { competency:"Rétablissement contrôlé", prompt:"Avant d'utiliser temporairement une IP statique, quelle précaution est indispensable ?", hint:"Il faut éviter tout conflit d'adresse et respecter les procédures du réseau.", choices:[
+        {label:"Vérifier l'autorisation, l'adresse libre, le masque et la passerelle",good:true,feedback:"Correct : évite les doublons et rétablis DHCP après la réparation."},
+        {label:"Choisir une adresse au hasard dans le sous-réseau",good:false,feedback:"Une adresse déjà utilisée peut aggraver l'incident."}
+      ]},
+      "Mesure Wi-Fi": { competency:"Mesure Wi-Fi", prompt:"Le Wi-Fi est lent sur un étage. Que mesures-tu d'abord ?", hint:"La qualité du signal et l'occupation du canal sont deux indicateurs différents.", choices:[
+        {label:"RSSI/SNR, occupation des canaux et répartition des clients",good:true,feedback:"Bonne démarche : distingue couverture faible et congestion radio."},
+        {label:"Redémarrer tous les points d'accès sans mesurer",good:false,feedback:"Tu interromps potentiellement les zones saines sans trouver la cause."}
+      ]},
+      "Capacité radio": { competency:"Capacité radio", prompt:"Le signal est bon, mais l'occupation du canal atteint 85 %. Quelle hypothèse est prioritaire ?", hint:"Un signal fort ne signifie pas que le temps d'antenne est libre.", choices:[
+        {label:"Congestion ou contention du canal",good:true,feedback:"Oui : examine la densité, les largeurs de canal et la répartition des fréquences."},
+        {label:"Désactiver le chiffrement",good:false,feedback:"Désactiver la sécurité ne corrige pas la contention radio."}
+      ]},
+      "Démarche de dépannage": { competency:"Démarche de dépannage", prompt:"Quelle séquence limite le mieux les interventions inutiles ?", hint:"Recueille des faits avant de changer la configuration.", choices:[
+        {label:"Définir le périmètre, mesurer, formuler une hypothèse, tester puis corriger",good:true,feedback:"Exact : la méthode est vérifiable et limite les effets de bord."},
+        {label:"Modifier plusieurs paramètres à la fois",good:false,feedback:"Tu ne sauras pas quelle modification a été utile et risques une autre panne."}
+      ]},
+      "Conception radio": { competency:"Conception radio", prompt:"Dans un Wi-Fi dense, quel réglage peut améliorer la réutilisation des canaux ?", hint:"Une largeur plus importante consomme davantage de spectre contigu.", choices:[
+        {label:"Planifier les canaux et choisir une largeur adaptée à la densité",good:true,feedback:"Oui : adapte canaux et largeurs aux mesures du site."},
+        {label:"Augmenter systématiquement la puissance",good:false,feedback:"Une puissance excessive peut accroître les interférences."}
+      ]},
+      "Segmentation VLAN": { competency:"Segmentation VLAN", prompt:"Le poste attend le VLAN 20, mais son port d'accès est dans le VLAN 1. Quelle correction cible la cause ?", hint:"Le VLAN du port d'accès doit correspondre au segment attendu.", choices:[
+        {label:"Affecter le port au VLAN 20 après vérification",good:true,feedback:"Exact : vérifie aussi l'existence du VLAN et les trunks nécessaires."},
+        {label:"Ajouter le VLAN 1 partout sans vérifier le port",good:false,feedback:"Cela ne corrige pas l'appartenance du port d'accès."}
+      ]},
+      "Lecture EtherChannel": { competency:"Lecture EtherChannel", prompt:"Un port EtherChannel est marqué « (s) ». Quelle est l'interprétation probable ?", hint:"Le « s » signale un port suspendu.", choices:[
+        {label:"Le port est suspendu, probablement pour incompatibilité de configuration",good:true,feedback:"Correct : compare paramètres du membre et du Port-channel."},
+        {label:"Le port est élu racine STP",good:false,feedback:"L'état « (s) » n'indique pas une élection STP."}
+      ]},
+      "Cohérence de configuration": { competency:"Cohérence de configuration", prompt:"Deux membres d'un EtherChannel autorisent des VLAN différents. Quelle démarche est la plus sûre ?", hint:"Compare les paramètres effectifs avant de modifier la configuration.", choices:[
+        {label:"Aligner la configuration divergente puis vérifier l'état du groupe",good:true,feedback:"Correct : corrige la différence ciblée puis vérifie que le port rejoint le groupe."},
+        {label:"Supprimer et recréer le groupe sans comparaison",good:false,feedback:"La cause peut persister et l'opération peut interrompre le trafic."}
+      ]},
+      "Services Linux": { competency:"Services Linux", prompt:"Un service Linux vient d’échouer. Quelle commande indique son état ?", hint:"Commence par l’unité systemd avant de redémarrer toute la machine.", choices:[
+        {label:"systemctl status nginx --no-pager",good:true,feedback:"Correct : vérifie l’état du service et le message de la dernière transition."},
+        {label:"chmod -R 777 /etc/nginx",good:false,feedback:"Élargir les permissions ne donne pas le statut du service et peut compromettre sa sécurité."}
+      ]},
+      "Journaux Linux": { competency:"Journaux Linux", prompt:"Où rechercher les messages récents d’un service systemd précis ?", hint:"Utilise le journal système et filtre par unité.", choices:[
+        {label:"journalctl -u nginx --since \"10 minutes ago\"",good:true,feedback:"Exact : le filtre par unité et par période aide à relier l’erreur au changement."},
+        {label:"Supprimer /var/log et redémarrer",good:false,feedback:"Cela détruit les indices au lieu de les analyser."}
+      ]},
+      "Configuration de service Linux": { competency:"Configuration de service Linux", prompt:"Avant de recharger Nginx après une correction, que faut-il faire ?", hint:"Nginx dispose d’un contrôle de syntaxe dédié.", choices:[
+        {label:"nginx -t, corriger l’erreur signalée, puis recharger le service",good:true,feedback:"Oui : valide d’abord la configuration puis applique une correction limitée."},
+        {label:"Appliquer des permissions 777 à tout /etc/nginx",good:false,feedback:"Cela ne corrige pas une directive invalide et ouvre inutilement les fichiers."}
+      ]},
+      "Réponse à incident": { competency:"Réponse à incident", prompt:"Une connexion suspecte est détectée. Quel premier geste protège l’investigation ?", hint:"Conserve les traces et établis une chronologie avant de modifier le système.", choices:[
+        {label:"Préserver les journaux, noter les indicateurs et suivre la procédure de signalement",good:true,feedback:"Exact : la conservation des preuves aide à qualifier et à traiter l’incident."},
+        {label:"Effacer les traces et désactiver l’audit",good:false,feedback:"Cela empêche d’investiguer l’incident et réduit la visibilité sur de nouvelles activités."}
+      ]},
+      "Analyse des journaux de sécurité": { competency:"Analyse des journaux de sécurité", prompt:"Quels éléments aident le plus à qualifier une connexion suspecte ?", hint:"Cherche une chronologie entre l’utilisateur, la source et les actions exécutées.", choices:[
+        {label:"Corréler utilisateur, adresse source, heure, sessions et actions privilégiées",good:true,feedback:"Exact : la corrélation aide à estimer le périmètre réel de l’activité."},
+        {label:"Se baser uniquement sur le nombre d’échecs sans examiner la connexion réussie",good:false,feedback:"La connexion réussie et les actions associées sont essentielles à l’évaluation."}
+      ]},
+      "Contrôle d’accès et identité": { competency:"Contrôle d’accès et identité", prompt:"Un compte est confirmé compromis. Quelle mesure est la plus adaptée ?", hint:"Révoque l’accès compromis, sécurise le compte et conserve les traces.", choices:[
+        {label:"Révoquer les sessions, changer les secrets via la procédure approuvée et renforcer l’authentification",good:true,feedback:"Correct : combine confinement du compte et protection durable sans supprimer les preuves."},
+        {label:"Désactiver les journaux d’authentification pour éviter les alertes",good:false,feedback:"Cela masque l’activité au lieu de sécuriser le compte."}
+      ]},
+      "Diagnostic cloud réseau": { competency:"Diagnostic cloud réseau", prompt:"Une instance cloud est en marche mais inaccessible. Que vérifies-tu avant de changer les règles ?", hint:"L’accès dépend des vérifications d’état, du filtrage et du chemin réseau.", choices:[
+        {label:"État de l’instance, groupes de sécurité, ACL réseau et tables de routage",good:true,feedback:"Exact : vérifie le chemin et les contrôles par couche."},
+        {label:"Autoriser tous les ports depuis toutes les adresses",good:false,feedback:"Une ouverture globale ne localise pas la cause et expose l’instance."}
+      ]},
+      "Règles de sécurité cloud": { competency:"Règles de sécurité cloud", prompt:"Un groupe de sécurité n’autorise plus l’adresse IP actuelle de l’administrateur. Quelle correction convient ?", hint:"Garde le port et les sources à la portée minimale nécessaire.", choices:[
+        {label:"Mettre à jour la source avec le CIDR d’administration approuvé",good:true,feedback:"Correct : rétablis le besoin d’accès sans exposer le service à Internet entier."},
+        {label:"Autoriser 0.0.0.0/0 sur tous les ports",good:false,feedback:"Cette règle est trop large et augmente fortement la surface d’exposition."}
+      ]},
+      "Connectivité cloud privée": { competency:"Connectivité cloud privée", prompt:"Une instance privée doit être administrée. Quel accès privilégier ?", hint:"Utilise le chemin d’administration défini par l’architecture et la politique cloud.", choices:[
+        {label:"VPN, bastion ou accès géré approuvé, avec routes vérifiées",good:true,feedback:"Oui : un chemin privé approuvé évite d’exposer directement l’instance."},
+        {label:"Ajouter une adresse publique sans vérification de politique",good:false,feedback:"L’exposition publique doit respecter l’architecture et la politique de sécurité."}
+      ]},
+    };
+    const DIAG_LEARNING_PATHS = {
+      "Triage initial": {courseIds:["intro-reseau-debutant","materiel-reseau-debutant"],labIds:[]},
+      "Connectivité locale et ARP": {courseIds:["arp-debutant","ethernet-debutant"],labIds:["lab_netns"]},
+      "Lecture de la configuration IP": {courseIds:["ipv4-debutant","adressage-debutant"],labIds:["lab_netns"]},
+      "Configuration IP": {courseIds:["ipv4-debutant","adressage-debutant"],labIds:["lab_netns"]},
+      "DHCP et adressage": {courseIds:["dhcp-dns-debutant","adressage-debutant"],labIds:[]},
+      "Rétablissement contrôlé": {courseIds:["adressage-intermediaire","ipv4-debutant"],labIds:["lab_netns"]},
+      "Mesure Wi-Fi": {courseIds:["wifi-debutant"],labIds:[]},
+      "Capacité radio": {courseIds:["wifi-intermediaire","wifi-debutant"],labIds:[]},
+      "Démarche de dépannage": {courseIds:["osi-debutant","osi-intermediaire"],labIds:["lab_tshoot_route"]},
+      "Conception radio": {courseIds:["wifi-intermediaire","wifi-expert"],labIds:[]},
+      "Segmentation VLAN": {courseIds:["vlan-debutant","vlan-intermediaire"],labIds:["lab_troubleshoot_vlan"]},
+      "Lecture EtherChannel": {courseIds:["etherchannel-debutant","etherchannel-intermediaire"],labIds:[]},
+      "Cohérence de configuration": {courseIds:["etherchannel-intermediaire","ethernet-intermediaire"],labIds:[]},
+      "Services Linux": {courseIds:["linux-debutant","process-debutant","linux-intermediaire"],labIds:[]},
+      "Journaux Linux": {courseIds:["monitoring-debutant","monitoring-intermediaire","linux-intermediaire","linux-debutant"],labIds:[]},
+      "Configuration de service Linux": {courseIds:["linux-debutant","process-debutant","linux-intermediaire"],labIds:[]},
+      "Réponse à incident": {courseIds:["firewall-debutant","acl-debutant","routing-debutant","ipv4-debutant"],labIds:[]},
+      "Analyse des journaux de sécurité": {courseIds:["firewall-debutant","acl-debutant","routing-debutant","ipv4-debutant","linux-debutant"],labIds:[]},
+      "Contrôle d’accès et identité": {courseIds:["aaa-debutant","acl-debutant","routing-debutant","ipv4-debutant"],labIds:[]},
+      "Diagnostic cloud réseau": {courseIds:["cloud-debutant","aws-vpc-debutant","aws-vpc-intermediaire"],labIds:[]},
+      "Règles de sécurité cloud": {courseIds:["cloud-debutant","aws-vpc-debutant","azure-vnet-debutant"],labIds:[]},
+      "Connectivité cloud privée": {courseIds:["cloud-debutant","aws-vpc-debutant","aws-vpc-intermediaire"],labIds:[]}
     };
 
     function skilltreeExt() {
@@ -4601,26 +4850,374 @@
 
         // ---------- diagnostic ----------
         diagList: [], diagId: null, diagData: null, diagKey: null, diagTrail: [],
+        diagRunStartedAt: 0, diagCommandInput: '', diagCommandFeedback: '',
+        diagAdaptiveQuestion: null, diagAdaptiveResumeKey: null, diagAdaptiveNextKey: null,
+        diagAdaptiveAttempts: 0, diagAdaptiveFeedback: '',
+        diagProgressMap: LS.get('diag-progress', {}) || {}, diagResultsMap: LS.get('diag-results', {}) || {},
         async loadDiagnostic() {
           if (this.diagList.length) return;
-          this.diagList = [{ id: 'network_down', title: 'Réseau indisponible', level: 'debutant', desc: 'Scénario du serveur : diagnostiquer une panne réseau générale.' },
-            ...Object.entries(DIAG_BUILTIN).map(([id, d]) => ({ id, title: d.title, level: d.level, desc: d.desc }))];
+          this.diagList = [{ id: 'network_down', title: 'Poste sans accès au réseau', level: 'debutant', domain: 'network', desc: 'Identifie une panne d’adressage et choisis un rétablissement sûr.' },
+            ...Object.entries(DIAG_BUILTIN).map(([id, d]) => ({ id, title: d.title, level: d.level, domain: d.domain || 'network', desc: d.desc }))];
         },
         async openDiag(id) {
           let data = DIAG_BUILTIN[id];
           if (!data) { try { const r = await fetch(`/api/diagnostics/${id}`); if (!r.ok) throw new Error(); data = await r.json(); } catch (e) { this.notify('Scénario indisponible'); return; } }
-          this.diagId = id; this.diagData = data; this.diagKey = data.start; this.diagTrail = [];
+          const progressMap = this.diagProgressMap && typeof this.diagProgressMap === 'object' && !Array.isArray(this.diagProgressMap)
+            ? this.diagProgressMap : {};
+          const saved = progressMap[id];
+          const steps = data.steps || {};
+          const validTrail = saved && Array.isArray(saved.trail) && saved.trail.every(item =>
+            item && typeof item === 'object' && typeof item.key === 'string' && !!steps[item.key] &&
+            (item.good === undefined || typeof item.good === 'boolean'));
+          const validAdaptiveQuestion = !saved || !saved.adaptiveQuestion || (
+            typeof saved.adaptiveQuestion.prompt === 'string' &&
+            Array.isArray(saved.adaptiveQuestion.choices) && saved.adaptiveQuestion.choices.length > 0 &&
+            saved.adaptiveQuestion.choices.every(choice => choice && typeof choice.label === 'string' && typeof choice.good === 'boolean'));
+          const validAdaptiveKeys = !saved || (
+            (!saved.adaptiveResumeKey || !!steps[saved.adaptiveResumeKey]) &&
+            (!saved.adaptiveNextKey || !!steps[saved.adaptiveNextKey]));
+          const canResume = !!(saved && steps[saved.stepKey] && validTrail && validAdaptiveQuestion && validAdaptiveKeys);
+          this.diagProgressMap = progressMap;
+          if (saved && !canResume) {
+            const cleanedProgress = { ...progressMap };
+            delete cleanedProgress[id];
+            this.diagProgressMap = cleanedProgress;
+            LS.set('diag-progress', cleanedProgress);
+          }
+          this.diagId = id;
+          this.diagData = data;
+          this.diagKey = canResume ? saved.stepKey : data.start;
+          this.diagTrail = canResume ? saved.trail : [];
+          this.diagRunStartedAt = canResume && Number.isFinite(Number(saved.startedAt)) ? Number(saved.startedAt) : Date.now();
+          this.diagAdaptiveQuestion = canResume ? (saved.adaptiveQuestion || null) : null;
+          this.diagAdaptiveResumeKey = canResume ? (saved.adaptiveResumeKey || null) : null;
+          this.diagAdaptiveNextKey = canResume ? (saved.adaptiveNextKey || null) : null;
+          this.diagAdaptiveAttempts = canResume ? (Number(saved.adaptiveAttempts) || 0) : 0;
+          this.diagAdaptiveFeedback = canResume ? (saved.adaptiveFeedback || '') : '';
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+          if (!canResume) this.diagSaveProgress();
         },
         get diagStep() { return this.diagData && this.diagData.steps ? this.diagData.steps[this.diagKey] || null : null; },
-        get diagFinished() { return !!this.diagStep && !(this.diagStep.choices && this.diagStep.choices.length); },
-        get diagEfficiency() { const r = this.diagTrail.filter(x => x.good !== undefined); return r.length ? Math.round(100 * r.filter(x => x.good).length / r.length) : null; },
-        diagChoose(c) {
-          this.diagTrail = [...this.diagTrail, { key: this.diagKey, situation: this.diagStep.situation, label: c.label, good: c.good, feedback: c.feedback }]; this.diagKey = c.next;
-          if (this.diagFinished) { const e = this.diagEfficiency; const m = { ...this.diagDoneMap }; m[this.diagId] = Math.max(m[this.diagId] || 0, e === null ? 100 : e); this.diagDoneMap = m; LS.set('diag-done', m); this.checkRewards(); }
+        get diagFinished() { return !!this.diagStep && !(this.diagStep.choices && this.diagStep.choices.length) && !this.diagStep.command; },
+        get diagEfficiency() { const r = this.diagTrail.filter(x => x.good === true || x.good === false); return r.length ? Math.round(100 * r.filter(x => x.good === true).length / r.length) : null; },
+        diagCorrectCount() { return this.diagTrail.filter(x => x.good === true).length; },
+        diagScoredCount() { return this.diagTrail.filter(x => x.good === true || x.good === false).length; },
+        diagElapsedSeconds() { return this.diagRunStartedAt ? Math.max(0, Math.floor((Date.now() - this.diagRunStartedAt) / 1000)) : 0; },
+        diagElapsedLabel() { const s = this.diagElapsedSeconds(); return s >= 60 ? `${Math.floor(s / 60)} min ${s % 60}s` : `${s}s`; },
+        diagFinalOutcome() { return (this.diagStep && this.diagStep.conclusion && this.diagStep.conclusion.outcome) || (this.diagStep && this.diagStep.outcome) || null; },
+        diagCompetencySummary() {
+          const groups = new Map();
+          this.diagTrail.forEach(item => {
+            if (item.good !== true && item.good !== false) return;
+            const name = item.competency || 'Méthode de dépannage';
+            const group = groups.get(name) || { name, total: 0, correct: 0 };
+            group.total += 1;
+            if (item.good === true) group.correct += 1;
+            groups.set(name, group);
+          });
+          return [...groups.values()].map(item => ({ ...item, rate: Math.round(100 * item.correct / item.total) }))
+            .sort((a, b) => a.rate - b.rate || a.name.localeCompare(b.name, 'fr'));
         },
-        diagBack() { if (!this.diagTrail.length) return; const t = this.diagTrail[this.diagTrail.length - 1]; this.diagTrail = this.diagTrail.slice(0, -1); this.diagKey = t.key; },
-        diagReset() { this.diagKey = this.diagData.start; this.diagTrail = []; },
-        diagClose() { this.diagId = null; this.diagData = null; this.diagTrail = []; },
+        diagCompetencyToReview() { return this.diagCompetencySummary().filter(item => item.rate < 80).map(item => item.name); },
+        diagLearningRecommendations() {
+          const courses = new Map();
+          const labs = new Map();
+          const weak = this.diagCompetencySummary().filter(item => item.rate < 80)
+            .sort((a, b) => a.rate - b.rate || a.name.localeCompare(b.name, 'fr'));
+          weak.forEach(item => {
+            const path = DIAG_LEARNING_PATHS[item.name];
+            if (!path) return;
+            const candidates = (path.courseIds || []).map(id => this.nodes.find(node => String(node.id) === id)).filter(Boolean);
+            const course = candidates.find(node => node.status !== 'validated' && node.status !== 'locked');
+            if (course && !courses.has(course.id)) {
+              const isPrimaryTarget = String(course.id) === String((path.courseIds || [])[0]);
+              courses.set(course.id, { node: course, competency: item.name, rate: item.rate,
+                reason: !isPrimaryTarget
+                  ? 'Prérequis à valider pour débloquer le parcours ciblé.'
+                  : (item.rate < 50 ? 'Reprendre les fondamentaux avant de progresser.' : 'Consolider cette notion avant de poursuivre.') });
+            }
+            (path.labIds || []).forEach(id => {
+              const node = this.nodes.find(candidate => String(candidate.id) === id);
+              if (!node || node.status === 'validated' || node.status === 'locked' || this.isLabDone(node.id) || labs.has(node.id)) return;
+              labs.set(node.id, { node, competency: item.name, rate: item.rate });
+            });
+          });
+          return { courses: [...courses.values()].slice(0, 3), labs: [...labs.values()].slice(0, 2) };
+        },
+        async diagOpenCourse(nodeId) {
+          if (!nodeId) return;
+          await this.setTab('tree');
+          await this.show(nodeId);
+        },
+        async diagStartGuidedReview(nodeId) {
+          if (!nodeId) return;
+          await this.loadFlashcards();
+          const hasCards = this.flashcards.some(card => String(card.node_id) === String(nodeId));
+          if (!hasCards) {
+            this.notify('Aucune carte de révision n’est disponible pour ce cours. Je l’ouvre pour que tu puisses le reprendre.');
+            await this.setTab('tree');
+            await this.show(nodeId);
+            return;
+          }
+          this.reviewNodeId = String(nodeId);
+          this.reviewDaysSince = null;
+          await this.setTab('memo');
+        },
+        async diagOpenLab(nodeId) {
+          if (!nodeId) return;
+          await this.openLab(nodeId);
+        },
+        diagLevelRank(level) {
+          const normalized = this.norm(level || '').replace(/\s+/g, '');
+          return ({ debutant: 0, intermediaire: 1, expert: 2 })[normalized] ?? -1;
+        },
+        diagLevelLabel(level) {
+          const normalized = this.norm(level || '').replace(/\s+/g, '');
+          return ({ debutant: 'Débutant', intermediaire: 'Intermédiaire', expert: 'Expert' })[normalized] || 'niveau inconnu';
+        },
+        diagDomainLabel(domain) {
+          return ({ network: 'réseaux', linux: 'systèmes Linux', security: 'cybersécurité', cloud: 'cloud' })[domain] || 'domaine général';
+        },
+        diagNextScenarioRecommendation() {
+          if (!this.diagFinished || this.diagFinalOutcome() !== 'success' || this.diagEfficiency === null) return null;
+          const score = this.diagEfficiency;
+          const currentId = this.diagId;
+          const current = this.diagList.find(item => item.id === currentId) || {
+            id: currentId,
+            title: this.diagData && this.diagData.title,
+            level: this.diagData && this.diagData.level,
+            domain: (this.diagData && this.diagData.domain) || 'network'
+          };
+          if (score < 60) {
+            return { id: currentId, title: this.diagData.title, replay: true, reason: 'Ton efficacité reste inférieure à 60 %. Rejoue ce scénario après avoir travaillé les compétences recommandées.' };
+          }
+
+          const currentRank = this.diagLevelRank(current.level || (this.diagData && this.diagData.level));
+          if (currentRank < 0) return null;
+          const currentDomain = current.domain || 'network';
+          const completed = this.diagDoneMap || {};
+          const isCompleted = item => Object.prototype.hasOwnProperty.call(completed, item.id);
+          const scenarios = this.diagList.filter(item => item.id !== currentId && this.diagLevelRank(item.level) >= 0);
+          const sameLevel = scenarios.filter(item => this.diagLevelRank(item.level) === currentRank);
+          const higherLevel = scenarios.filter(item => this.diagLevelRank(item.level) > currentRank);
+          const preferSameDomain = items => [...items].sort((a, b) => {
+            const sameDomainA = (a.domain || 'network') === currentDomain ? 1 : 0;
+            const sameDomainB = (b.domain || 'network') === currentDomain ? 1 : 0;
+            if (sameDomainA !== sameDomainB) return sameDomainB - sameDomainA;
+            return 0; // Preserve the curriculum's declared scenario order.
+          });
+
+          if (score < 80) {
+            // Pour une efficacité moyenne, ne pas revenir vers un scénario déjà terminé :
+            // on préfère un scénario inédit du même niveau, même s’il faut changer de domaine.
+            const unplayedPeers = preferSameDomain(sameLevel.filter(item => !isCompleted(item)));
+            const target = unplayedPeers[0];
+            if (!target) return null;
+            const targetDomain = target.domain || 'network';
+            const reason = targetDomain === currentDomain
+              ? `Ton efficacité est de ${score} %. Continue avec un scénario inédit de niveau ${this.diagLevelLabel(target.level)} dans le domaine ${this.diagDomainLabel(targetDomain)}.`
+              : `Ton efficacité est de ${score} %. Les scénarios inédits de niveau ${this.diagLevelLabel(current.level)} dans ${this.diagDomainLabel(currentDomain)} sont épuisés ; élargis le diagnostic au domaine ${this.diagDomainLabel(targetDomain)} au même niveau.`;
+            return { id: target.id, title: target.title, replay: false, reason };
+          }
+
+          // Au-dessus du seuil, chercher d’abord un scénario inédit au prochain niveau ;
+          // un scénario terminé ne doit jamais être repris automatiquement.
+          const unplayedHigher = higherLevel.filter(item => !isCompleted(item)).sort((a, b) => {
+            const rankA = this.diagLevelRank(a.level);
+            const rankB = this.diagLevelRank(b.level);
+            if (rankA !== rankB) return rankA - rankB;
+            const sameDomainA = (a.domain || 'network') === currentDomain ? 1 : 0;
+            const sameDomainB = (b.domain || 'network') === currentDomain ? 1 : 0;
+            if (sameDomainA !== sameDomainB) return sameDomainB - sameDomainA;
+            return 0; // Preserve the curriculum's declared scenario order.
+          });
+          const nextLevel = unplayedHigher[0];
+          if (nextLevel) {
+            const targetDomain = nextLevel.domain || 'network';
+            const reason = targetDomain === currentDomain
+              ? `Ton efficacité atteint au moins 80 %. Passe au niveau ${this.diagLevelLabel(nextLevel.level)} dans le domaine ${this.diagDomainLabel(targetDomain)}.`
+              : `Ton efficacité atteint au moins 80 %. Aucun scénario inédit de niveau supérieur n’est disponible dans ${this.diagDomainLabel(currentDomain)} ; poursuis au niveau ${this.diagLevelLabel(nextLevel.level)} dans le domaine ${this.diagDomainLabel(targetDomain)} pour élargir ton parcours.`;
+            return { id: nextLevel.id, title: nextLevel.title, replay: false, reason };
+          }
+
+          // Si le niveau supérieur a déjà été exploré, achever d’abord les scénarios inédits
+          // du niveau actuel. Si tout a été joué, ne pas tourner en boucle : afficher la fin du parcours.
+          const unplayedPeers = preferSameDomain(sameLevel.filter(item => !isCompleted(item)));
+          const unplayedPeer = unplayedPeers[0];
+          if (!unplayedPeer) return null;
+          const targetDomain = unplayedPeer.domain || 'network';
+          const reason = targetDomain === currentDomain
+            ? `Ton efficacité atteint au moins 80 %. Aucun scénario inédit de niveau supérieur n’est disponible ; explore un autre scénario de niveau ${this.diagLevelLabel(unplayedPeer.level)} dans ${this.diagDomainLabel(targetDomain)}.`
+            : `Ton efficacité atteint au moins 80 %. Aucun niveau supérieur inédit n’est disponible ; explore un scénario de niveau ${this.diagLevelLabel(unplayedPeer.level)} dans le domaine ${this.diagDomainLabel(targetDomain)}.`;
+          return { id: unplayedPeer.id, title: unplayedPeer.title, replay: false, reason };
+        },
+        async diagStartNextScenario() {
+          const next = this.diagNextScenarioRecommendation();
+          if (!next) return;
+          if (next.replay) this.diagReset();
+          else await this.openDiag(next.id);
+        },
+        diagSaveProgress() {
+          if (!this.diagId || !this.diagData || this.diagFinished) return;
+          const progress = {
+            stepKey: this.diagKey,
+            trail: this.diagTrail,
+            startedAt: this.diagRunStartedAt || Date.now(),
+            adaptiveQuestion: this.diagAdaptiveQuestion,
+            adaptiveResumeKey: this.diagAdaptiveResumeKey,
+            adaptiveNextKey: this.diagAdaptiveNextKey,
+            adaptiveAttempts: this.diagAdaptiveAttempts,
+            adaptiveFeedback: this.diagAdaptiveFeedback,
+            updatedAt: new Date().toISOString()
+          };
+          this.diagProgressMap = { ...this.diagProgressMap, [this.diagId]: progress };
+          LS.set('diag-progress', this.diagProgressMap);
+        },
+        diagCompleteRun() {
+          if (!this.diagId) return;
+          const id = this.diagId;
+          const score = this.diagEfficiency;
+          const elapsedSeconds = this.diagElapsedSeconds();
+          const result = {
+            score,
+            correctAnswers: this.diagCorrectCount(),
+            decisions: this.diagScoredCount(),
+            elapsedSeconds,
+            completedAt: new Date().toISOString(),
+            outcome: this.diagFinalOutcome(),
+            competencies: this.diagCompetencySummary()
+          };
+          if (score !== null) {
+            const best = { ...this.diagDoneMap };
+            best[id] = Math.max(Number(best[id]) || 0, score);
+            this.diagDoneMap = best;
+            LS.set('diag-done', best);
+          }
+          this.diagResultsMap = { ...this.diagResultsMap, [id]: result };
+          LS.set('diag-results', this.diagResultsMap);
+          const progress = { ...this.diagProgressMap };
+          delete progress[id];
+          this.diagProgressMap = progress;
+          LS.set('diag-progress', progress);
+          this.checkRewards();
+        },
+        diagChoose(c) {
+          const step = this.diagStep;
+          const stepKey = this.diagKey;
+          const competency = c.competency || (step && step.competency) || (this.diagData && this.diagData.competency) || 'Démarche de dépannage';
+          this.diagTrail = [...this.diagTrail, {
+            key: stepKey, situation: step ? step.situation : '',
+            label: c.label, good: c.good, feedback: c.feedback, competency, decisionType: 'scenario'
+          }];
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+          if (c.good === false && DIAG_REMEDIATION[competency]) {
+            this.diagAdaptiveQuestion = DIAG_REMEDIATION[competency];
+            this.diagAdaptiveResumeKey = stepKey;
+            this.diagAdaptiveNextKey = c.next;
+            this.diagAdaptiveAttempts = 0;
+            this.diagAdaptiveFeedback = c.feedback || 'Revois l’indice puis réponds à la question de consolidation.';
+            this.diagSaveProgress();
+            return;
+          }
+          this.diagKey = c.next;
+          if (this.diagFinished) this.diagCompleteRun();
+          else this.diagSaveProgress();
+        },
+        diagChooseAdaptive(choice) {
+          const question = this.diagAdaptiveQuestion;
+          if (!question || !choice) return;
+          this.diagAdaptiveAttempts += 1;
+          this.diagTrail = [...this.diagTrail, {
+            key: this.diagAdaptiveResumeKey || this.diagKey,
+            situation: question.prompt, label: choice.label, good: choice.good === true,
+            feedback: choice.feedback || '', competency: question.competency || 'Démarche de dépannage',
+            decisionType: 'consolidation'
+          }];
+          if (choice.good === true) {
+            this.diagKey = this.diagAdaptiveResumeKey || this.diagKey;
+            this.diagAdaptiveQuestion = null;
+            this.diagAdaptiveResumeKey = null;
+            this.diagAdaptiveNextKey = null;
+            this.diagAdaptiveAttempts = 0;
+            this.diagAdaptiveFeedback = '';
+            this.diagSaveProgress();
+            return;
+          }
+          this.diagAdaptiveFeedback = (choice.feedback || 'Pas encore. Essaie de nouveau.') + ' Indice : ' + (question.hint || 'Reprends les éléments essentiels de la situation.');
+          this.diagSaveProgress();
+        },
+        diagRetryAdaptive() {
+          if (!this.diagAdaptiveQuestion) return;
+          this.diagAdaptiveFeedback = this.diagAdaptiveQuestion.hint || 'Relis la situation puis essaie à nouveau.';
+        },
+        diagContinueAfterSupport() {
+          if (!this.diagAdaptiveQuestion) return;
+          this.diagKey = this.diagAdaptiveNextKey || this.diagAdaptiveResumeKey || this.diagKey;
+          this.diagAdaptiveQuestion = null;
+          this.diagAdaptiveResumeKey = null;
+          this.diagAdaptiveNextKey = null;
+          this.diagAdaptiveAttempts = 0;
+          this.diagAdaptiveFeedback = '';
+          if (this.diagFinished) this.diagCompleteRun();
+          else this.diagSaveProgress();
+        },
+        diagSubmitCommand() {
+          const step = this.diagStep;
+          const answer = String(this.diagCommandInput || '').trim();
+          if (!step || !step.command || !answer) return;
+          let correct = false;
+          try { correct = new RegExp(step.command.regex || '^(?!x)x$', 'i').test(answer); } catch (e) {
+            this.diagCommandFeedback = 'Le contrôle de cette commande est mal configuré. Reviens aux scénarios et réessaie plus tard.';
+            return;
+          }
+          this.diagChoose({
+            label: `Commande saisie : ${answer}`,
+            next: correct ? step.next : this.diagKey,
+            good: correct,
+            feedback: correct ? 'Bonne commande : la vérification peut continuer.' : 'La commande ne correspond pas à la consigne. Il faut afficher la configuration IP avant de poursuivre.',
+            commandFeedback: correct ? '' : 'Commande incorrecte. Relis la consigne puis réessaie ; cette tentative apparaîtra dans le bilan.'
+          });
+        },
+        diagBack() {
+          if (!this.diagTrail.length || this.diagFinished || this.diagAdaptiveQuestion) return;
+          const t = this.diagTrail[this.diagTrail.length - 1];
+          this.diagTrail = this.diagTrail.slice(0, -1);
+          this.diagKey = t.key;
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+          this.diagSaveProgress();
+        },
+        diagReset() {
+          if (!this.diagData || !this.diagId) return;
+          this.diagKey = this.diagData.start;
+          this.diagTrail = [];
+          this.diagRunStartedAt = Date.now();
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+          this.diagAdaptiveQuestion = null;
+          this.diagAdaptiveResumeKey = null;
+          this.diagAdaptiveNextKey = null;
+          this.diagAdaptiveAttempts = 0;
+          this.diagAdaptiveFeedback = '';
+          this.diagSaveProgress();
+        },
+        diagClose() {
+          if (this.diagData && !this.diagFinished) this.diagSaveProgress();
+          this.diagId = null;
+          this.diagData = null;
+          this.diagTrail = [];
+          this.diagKey = null;
+          this.diagRunStartedAt = 0;
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+          this.diagAdaptiveQuestion = null;
+          this.diagAdaptiveResumeKey = null;
+          this.diagAdaptiveNextKey = null;
+          this.diagAdaptiveAttempts = 0;
+          this.diagAdaptiveFeedback = '';
+        },
 
         // ---------- mémo (révision espacée de Leitner) ----------
         cardFilter: { module: 'all', level: 'all', mode: 'due' }, reviewNodeId: null, reviewDaysSince: null, cardLoadError: null, cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },
