@@ -6,6 +6,8 @@
 > **Objectif :** apprendre à décrire une infrastructure dans des fichiers, comprendre le fonctionnement de Terraform et effectuer ses premières opérations de manière contrôlée.
 
 
+> **Lien avec le parcours DevOps IaC :** ici, tu apprends les mécanismes concrets de Terraform et HCL. Le cours « Fondamentaux de l’IaC » présente les principes communs aux outils, la revue d’un changement et les responsabilités d’équipe, sans refaire ce tutoriel technique.
+
 ## Sommaire
 
 1. Contexte et objectifs
