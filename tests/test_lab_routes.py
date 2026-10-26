@@ -410,6 +410,7 @@ class LabValidationTests(unittest.TestCase):
         ), patch.object(lab_routes, "_database_connection", side_effect=self._connect):
             opened = lab_routes.get_lab_v2("lab-1")
             self.assertTrue(opened["course_locked"])
+            self.assertIn("Prérequis de test", opened["course_lock_message"])
             self.assertIn("prereq-1", opened["course_lock_message"])
 
             checked = lab_routes.check_lab_v2(
