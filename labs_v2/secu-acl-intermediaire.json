@@ -1,128 +1,209 @@
 {
+  "schema_version": 2,
   "id": "secu-acl-intermediaire",
   "title": "ACL étendue — Bloquer un attaquant",
   "level": "intermediaire",
   "module": "Cybersécurité",
+  "duration_min": 20,
+  "difficulty": "intermediaire",
   "prompt": "Configurez une ACL étendue sur R1 pour bloquer le trafic du PC Attaquant vers le Serveur, tout en autorisant le reste du trafic. L'ACL doit être numérotée 100 et appliquée sur l'interface Fa0/0 en entrée.",
   "objectives": [
     "Créer une ACL étendue numérotée 100 sur R1.",
-    "Refuser le trafic IP depuis 192.168.1.10 vers le serveur 10.0.0.5.",
+    "Refuser le trafic IP depuis 192.168.1.10 vers 10.0.0.5.",
     "Autoriser le reste du trafic avec permit ip any any.",
     "Appliquer l'ACL 100 sur Fa0/0 en entrée."
   ],
   "hints": [
-    "Les ACL Cisco sont évaluées de haut en bas ; la première règle correspondante s'applique.",
+    "Les ACL Cisco sont évaluées de haut en bas.",
     "Ajoutez le deny spécifique avant permit ip any any.",
-    "Sur IOS : access-list 100 deny ip host 192.168.1.10 host 10.0.0.5 puis access-list 100 permit ip any any.",
-    "Appliquez avec interface Fa0/0 puis ip access-group 100 in."
+    "Utilisez access-list 100 deny ip host 192.168.1.10 host 10.0.0.5 puis access-list 100 permit ip any any.",
+    "Appliquez l’ACL avec ip access-group 100 in sur Fa0/0."
   ],
-  "duration_min": 20,
-  "difficulty": "intermediaire",
-  "xp_reward": 100,
-  "badges": [
-    "first_blood"
-  ],
-  "schema_version": 2,
-  "definition_json": {
+  "initial_topology": {
     "schema_version": 2,
-    "initial_topology": {
-      "nodes": [
-        {
-          "id": "R1",
-          "type": "router",
-          "label": "R1",
-          "x": 360,
-          "y": 150,
-          "config": {}
-        },
-        {
-          "id": "SW1",
-          "type": "switch",
-          "label": "SW1",
-          "x": 360,
-          "y": 290,
-          "config": {}
-        },
-        {
-          "id": "attaquant",
-          "type": "pc",
-          "label": "Attaquant",
-          "x": 120,
-          "y": 420,
-          "config": {
+    "topology_id": "secu-acl-topology",
+    "metadata": {
+      "name": "ACL étendue — filtrage du trafic",
+      "author": "Skill-Tree",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 360,
+        "y": 140,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "mode": "routed",
+            "ip": "192.168.1.1",
+            "mask": "255.255.255.0"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "routed",
+            "ip": "10.0.0.1",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "acls": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "Layer 2",
+        "x": 360,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access"
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "mode": "access"
+          }
+        ],
+        "config": {
+          "hostname": "SW1"
+        }
+      },
+      {
+        "id": "attaquant",
+        "type": "pc",
+        "model": "PC",
+        "x": 120,
+        "y": 440,
+        "label": "Attaquant",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "mode": "down",
             "ip": "192.168.1.10",
             "mask": "255.255.255.0"
           }
-        },
-        {
-          "id": "protege",
-          "type": "server",
-          "label": "Protégé",
-          "x": 600,
-          "y": 420,
-          "config": {
+        ],
+        "config": {
+          "hostname": "Attaquant"
+        }
+      },
+      {
+        "id": "protege",
+        "type": "server",
+        "model": "Server",
+        "x": 600,
+        "y": 440,
+        "label": "Protégé",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "mode": "down",
             "ip": "10.0.0.5",
             "mask": "255.255.255.0"
           }
+        ],
+        "config": {
+          "hostname": "Protege"
         }
-      ],
-      "edges": [
-        {
-          "id": "e1",
-          "source": "R1",
-          "target": "SW1",
-          "source_port": "Fa0/0",
-          "target_port": "Fa0/1"
-        },
-        {
-          "id": "e2",
-          "source": "SW1",
-          "target": "attaquant",
-          "source_port": "Fa0/2",
-          "target_port": "eth0"
-        },
-        {
-          "id": "e3",
-          "source": "SW1",
-          "target": "protege",
-          "source_port": "Fa0/3",
-          "target_port": "eth0"
-        }
-      ]
-    },
-    "checks": [
+      }
+    ],
+    "links": [
       {
-        "id": "acl_100_exists",
-        "description": "R1 possède une ACL numérotée 100",
-        "target": "R1",
-        "field": "acls.100",
-        "operator": "exists",
-        "expected": true
+        "id": "link-r1-sw1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
       },
       {
-        "id": "deny_attacker",
-        "description": "L’ACL 100 bloque le trafic de l’attaquant",
-        "target": "R1",
-        "field": "acls.100",
+        "id": "link-sw1-attacker",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "attaquant",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "link-r1-server",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "protege",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "acl100-deny-attacker",
+        "description": "R1 contient une règle ACL 100 deny pour l’IP de l’attaquant vers le serveur",
+        "device": "R1",
+        "path": "config.acls",
         "operator": "contains",
         "expected": "deny ip host 192.168.1.10 host 10.0.0.5"
       },
       {
-        "id": "permit_rest",
-        "description": "L’ACL 100 autorise le reste du trafic",
-        "target": "R1",
-        "field": "acls.100",
+        "id": "acl100-permit-rest",
+        "description": "R1 contient permit ip any any dans l’ACL 100",
+        "device": "R1",
+        "path": "config.acls",
         "operator": "contains",
         "expected": "permit ip any any"
       },
       {
-        "id": "applied_inbound",
-        "description": "L’ACL 100 est appliquée en entrée sur Fa0/0",
-        "target": "R1",
-        "field": "interfaces.Fa0/0.access_group_in",
-        "operator": "equals",
+        "id": "acl100-number",
+        "description": "L’ACL est numérotée 100",
+        "device": "R1",
+        "path": "config.acls",
+        "operator": "contains",
         "expected": "100"
       }
     ]
-  }
+  },
+  "xp_reward": 100,
+  "badges": [
+    "first_blood"
+  ]
 }
