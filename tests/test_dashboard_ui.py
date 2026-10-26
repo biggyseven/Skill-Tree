@@ -74,7 +74,12 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('option value="__resume__">Reprendre où j’étais</option>', DASHBOARD_HTML)
         self.assertIn('option value="__top__">Début du cours</option>', DASHBOARD_HTML)
         self.assertIn("sectionOffset", DASHBOARD_HTML)
-        self.assertIn("const requestedStart = this.startSectionSelection === '__top__'", DASHBOARD_HTML)
+        self.assertIn("const selectedStart = explicitBlockStart ? String(startBlockId) : this.startSectionSelection;", DASHBOARD_HTML)
+        self.assertIn("const requestedStart = explicitBlockStart", DASHBOARD_HTML)
+        self.assertIn("if ((explicitBlockStart || requestedStart) && !target) return '';", DASHBOARD_HTML)
+        self.assertIn("this.startSpeech(this.speechTextFromArticle(targetId), 'lesson')", DASHBOARD_HTML)
+        self.assertIn("data-speech-start-id", DASHBOARD_HTML)
+        self.assertIn("La section choisie est introuvable", DASHBOARD_HTML)
         self.assertIn("this.restoreLessonPosition(s, this.lessonPositions[String(this.detail?.id || '')] || null)", DASHBOARD_HTML)
 
     def test_reader_guides_diagram_formats_and_requests_contextual_explanations(self):
