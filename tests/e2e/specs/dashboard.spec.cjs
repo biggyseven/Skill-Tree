@@ -84,46 +84,27 @@ test('l’export des données depuis Paramètres déclenche le téléchargement 
 
   await page.getByRole('button', { name: 'Ouvrir les paramètres' }).click();
   const settings = page.locator('div[x-show="settingsMenuOpen"]');
-  await page.evaluate(() => {
-    const state = window.Alpine && window.Alpine.$data(document.body);
-    window.__skilltreeExportProbe = { exportCalls: 0, saveFileCalls: 0, filename: '', blobSize: 0, error: '' };
-    if (!state) return;
-    const originalExport = state.exportData;
-    state.exportData = function (...args) {
-      window.__skilltreeExportProbe.exportCalls += 1;
-      try { return originalExport.apply(this, args); }
-      catch (error) {
-        window.__skilltreeExportProbe.error = String(error && (error.stack || error.message) || error);
-        throw error;
-      }
-    };
-    const originalSaveFile = state.saveFile;
-    state.saveFile = function (name, blob) {
-      window.__skilltreeExportProbe.saveFileCalls += 1;
-      window.__skilltreeExportProbe.filename = String(name || '');
-      window.__skilltreeExportProbe.blobSize = Number(blob && blob.size) || 0;
-      if (typeof originalSaveFile !== 'function') {
-        window.__skilltreeExportProbe.error = 'La fonction saveFile est indisponible.';
-        return;
-      }
-      return originalSaveFile.call(this, name, blob);
-    };
-  });
+  await expect(settings).toBeVisible();
 
   const downloadPromise = page.waitForEvent('download');
   await settings.getByRole('button', { name: /Exporter mes données/ }).click();
-  const probe = await page.evaluate(() => window.__skilltreeExportProbe || null);
-  expect(probe).toBeTruthy();
-  expect(probe.exportCalls).toBe(1);
-  expect(probe.saveFileCalls).toBe(1);
-  expect(probe.blobSize).toBeGreaterThan(0);
-  expect(probe.error).toBe('');
   const download = await downloadPromise;
 
-  expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-\d{4}-\d{2}-\d{2}\.json$/);
+  expect(download.suggestedFilename()).toMatch(/^skilltree-sauvegarde-\\d{4}-\\d{2}-\\d{2}\\.json$/);
+  const filePath = await download.path();
+  expect(filePath).toBeTruthy();
+  const snapshot = JSON.parse(await require('node:fs/promises').readFile(filePath, 'utf8'));
+  expect(snapshot.app).toBe('Skill-Tree');
+  expect(snapshot.schema_version).toBe(2);
+  expect(snapshot.preferences).toMatchObject({
+    font_size: expect.any(Number),
+    reading_width: expect.stringMatching(/^(comfortable|wide)$/),
+    compact_ui: expect.any(Boolean),
+    reduce_motion: expect.any(Boolean),
+  });
+  expect(snapshot.local_data).toBeTruthy();
   await expect(settings).toBeHidden();
 });
-
 test('le thème choisi est persisté après rechargement', async ({ page }) => {
   await openDashboard(page);
 
