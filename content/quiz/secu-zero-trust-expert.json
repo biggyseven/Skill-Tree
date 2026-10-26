@@ -4,15 +4,255 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Architecture Zero Trust » : à rédiger après le cours complet.",
+      "prompt": "Quel est le principe central d’une architecture Zero Trust ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Faire confiance à tous les appareils connectés au LAN",
+        "Supprimer la nécessité d’authentifier les services internes",
+        "Accorder une confiance implicite aux comptes de l’organisation",
+        "Ne pas accorder de confiance implicite selon la seule localisation réseau et prendre des décisions explicites adaptées aux ressources"
+      ],
+      "answer": 3,
+      "explanation": "Zero Trust protège les ressources en évaluant explicitement l’identité, le contexte et les permissions plutôt que de considérer la présence sur le réseau comme une preuve suffisante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le modèle logique NIST, quelle fonction évalue la demande et décide si l’accès est permis ?",
+      "choices": [
+        "Policy Engine (PE)",
+        "Policy Enforcement Point (PEP) uniquement",
+        "Serveur DNS",
+        "Collecteur de journaux seul"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le PE évalue la demande au regard de la politique et du contexte. Le PEP applique la décision sur le chemin d’accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle fondamental du Policy Enforcement Point (PEP) ?",
+      "choices": [
+        "Créer tous les comptes utilisateurs",
+        "Appliquer réellement la décision d’accès sur le chemin vers la ressource",
+        "Remplacer les contrôles métier dans la base",
+        "Classer toutes les données de l’organisation"
+      ],
+      "answer": 1,
+      "explanation": "Le PEP autorise ou bloque le chemin selon la décision et doit empêcher les contournements par des routes parallèles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’authentification seule ne suffit-elle pas ?",
+      "choices": [
+        "Elle rend toujours le réseau indisponible",
+        "Elle chiffre automatiquement tous les fichiers",
+        "Elle identifie le principal mais ne prouve pas qu’il peut exécuter chaque action sur chaque ressource",
+        "Elle supprime le besoin de journaliser"
+      ],
+      "answer": 2,
+      "explanation": "L’autorisation doit vérifier l’action, l’objet, la portée métier et le contexte après établissement de l’identité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels sont les cinq piliers du Zero Trust Maturity Model de la CISA ?",
+      "choices": [
+        "DNS, DHCP, NTP, SMTP et FTP",
+        "VPN, pare-feu, antivirus, proxy et SIEM",
+        "Postes, serveurs, câbles, routeurs et imprimantes",
+        "Identité, appareils, réseau/environnement, applications/charges de travail et données"
+      ],
+      "answer": 3,
+      "explanation": "La CISA organise le modèle autour de cinq piliers et de capacités transverses telles que visibilité, automatisation et gouvernance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles capacités la CISA identifie-t-elle comme transverses ?",
+      "choices": [
+        "Visibilité et analytique, automatisation et orchestration, gouvernance",
+        "Routage, NAT et DHCP",
+        "Chiffrement, compression et sauvegarde uniquement",
+        "DNS, proxy et équilibre de charge"
+      ],
+      "answer": 0,
+      "explanation": "Ces capacités transverses soutiennent plusieurs piliers de maturité et permettent d’intégrer les décisions, la surveillance et la gouvernance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement la relation entre VPN et Zero Trust ?",
+      "choices": [
+        "Tout VPN est automatiquement Zero Trust",
+        "Un VPN peut rester un moyen de transport, mais il ne doit pas donner à lui seul des droits généraux aux ressources",
+        "Zero Trust interdit tous les tunnels chiffrés",
+        "Un VPN remplace l’autorisation au niveau des objets"
+      ],
+      "answer": 1,
+      "explanation": "Le VPN peut être conservé, mais l’accès à chaque ressource et action exige encore des contrôles appropriés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal de la microsegmentation ?",
+      "choices": [
+        "Augmenter le nombre de VLAN sans définir de politique",
+        "Rendre les journaux inutiles",
+        "Limiter les communications aux flux nécessaires et réduire le mouvement latéral",
+        "Autoriser tous les flux internes par défaut"
+      ],
+      "answer": 2,
+      "explanation": "La microsegmentation applique des règles fines entre ressources ou charges de travail et réduit les chemins inutiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire si un signal essentiel de posture est indisponible ?",
+      "choices": [
+        "Le considérer automatiquement comme conforme",
+        "Donner un accès administrateur permanent",
+        "Désactiver tous les journaux",
+        "Appliquer une règle documentée selon le risque, par exemple limiter ou refuser l’accès critique"
+      ],
+      "answer": 3,
+      "explanation": "Un signal absent n’équivaut pas à une conformité parfaite. Les modes de panne doivent être définis selon le risque de la ressource."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est adapté pour réduire les privilèges permanents d’un administrateur ?",
+      "choices": [
+        "Accès JIT limité dans le temps et à la portée nécessaire, avec MFA et audit",
+        "Compte partagé utilisé par l’équipe entière",
+        "Rôle global permanent sans expiration",
+        "Suppression de tous les journaux administratifs"
+      ],
+      "answer": 0,
+      "explanation": "Le JIT réduit la durée pendant laquelle le privilège est disponible. Il doit rester limité, approuvé et audité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’apporte mTLS dans une architecture de services ?",
+      "choices": [
+        "Il autorise automatiquement chaque action métier entre services",
+        "Il peut authentifier les deux extrémités d’un canal TLS, mais ne remplace pas la politique d’autorisation métier",
+        "Il remplace la gestion des certificats",
+        "Il empêche toute mauvaise configuration d’API"
+      ],
+      "answer": 1,
+      "explanation": "mTLS permet une authentification réciproque au niveau du canal. Les droits, les audiences, les certificats et les permissions doivent toujours être gérés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une identité distincte par charge de travail est-elle préférable à un secret partagé permanent ?",
+      "choices": [
+        "Elle permet de supprimer la rotation",
+        "Elle donne à chaque service des droits administrateur",
+        "Elle limite la portée, facilite l’attribution et permet une révocation plus ciblée",
+        "Elle rend les identités machine anonymes"
+      ],
+      "answer": 2,
+      "explanation": "Des identités propres permettent d’appliquer le moindre privilège, d’attribuer les actions et de limiter l’impact de la compromission d’un service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’une règle de cache d’autorisation administrateur trop longue ?",
+      "choices": [
+        "Elle augmente la fraîcheur du contrôle",
+        "Elle interdit toute surveillance",
+        "Elle force le MFA à chaque requête",
+        "Une révocation peut ne pas prendre effet rapidement et un accès dépassé peut persister"
+      ],
+      "answer": 3,
+      "explanation": "La durée de cache influence la fenêtre de révocation. La politique doit mesurer et respecter un délai maximal adapté au risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur mesure mieux le résultat de sécurité que le nombre de licences achetées ?",
+      "choices": [
+        "Délai de révocation des accès, couverture des ressources critiques et exceptions arrivées à échéance",
+        "Nombre de logos du fournisseur affichés",
+        "Nombre de VLAN créés sans vérification des flux",
+        "Nombre total d’utilisateurs sans dénominateur défini"
+      ],
+      "answer": 0,
+      "explanation": "Les indicateurs doivent refléter la réduction du risque et être accompagnés de sources, dénominateurs et responsables clairement définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une exception d’accès temporaire accordée à un fournisseur ?",
+      "choices": [
+        "La laisser permanente pour éviter les tickets",
+        "Documenter propriétaire, motif, portée, protections compensatoires et échéance de revue",
+        "La dissimuler dans une règle générale",
+        "La rendre accessible à tous les sous-traitants"
+      ],
+      "answer": 1,
+      "explanation": "Une exception doit être justifiée, bornée, revue et retirée lorsqu’elle n’est plus nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il inventorier les chemins d’accès alternatifs pendant une migration Zero Trust ?",
+      "choices": [
+        "Pour remplacer chaque application par un seul produit",
+        "Pour augmenter les permissions réseau",
+        "Parce qu’un VPN ancien, une URL directe ou une interface oubliée peut contourner le point d’application principal",
+        "Parce que les routes alternatives ne présentent jamais de risque"
+      ],
+      "answer": 2,
+      "explanation": "La politique ne protège que les chemins qu’elle contrôle. Les routes parallèles doivent être identifiées, fermées ou soumises à des contrôles équivalents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche convient le mieux pour déployer une nouvelle microsegmentation ?",
+      "choices": [
+        "Bloquer tous les flux dès la première minute sans inventaire",
+        "Ignorer les propriétaires d’application",
+        "Supprimer tous les flux de sauvegarde",
+        "Observer les flux, valider les besoins, piloter, appliquer progressivement et prévoir un retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "L’observation et le pilote identifient les dépendances légitimes et limitent les interruptions, tout en préparant une application stricte vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé sur la classification des données est le plus juste ?",
+      "choices": [
+        "Elle doit influencer les droits, le partage, les exports et le cycle de vie selon la sensibilité",
+        "Elle sert uniquement à donner une couleur aux fichiers",
+        "Elle remplace les contrôles d’identité",
+        "Elle s’applique seulement à la base primaire, jamais aux sauvegardes"
+      ],
+      "answer": 0,
+      "explanation": "Les règles de données doivent suivre les copies, exports, sauvegardes et clés, pas seulement la base principale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être enregistré lors d’une décision d’accès pour faciliter l’audit sans exposer de secrets ?",
+      "choices": [
+        "Le mot de passe complet et le jeton entier",
+        "Le principal, la ressource, l’action, la décision, la règle et un identifiant de corrélation utile",
+        "La clé privée de la charge de travail",
+        "Le contenu complet des données confidentielles à chaque requête"
+      ],
+      "answer": 1,
+      "explanation": "Les journaux doivent permettre la corrélation et l’explication sans devenir une collection de secrets ou de données excessives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur traitement d’un système ancien incapable d’appliquer directement une identité moderne ?",
+      "choices": [
+        "Le laisser accessible depuis le LAN sans contrôle",
+        "Créer un compte partagé permanent à privilèges globaux",
+        "Utiliser temporairement un proxy ou bastion contrôlé, fermer les chemins directs et planifier la modernisation",
+        "Le classer comme système exempté sans date"
+      ],
+      "answer": 2,
+      "explanation": "Un contrôle intermédiaire peut réduire le risque, mais les routes directes doivent être fermées et la dette héritée doit avoir un propriétaire et un calendrier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle source officielle fournit les principes et composants logiques de référence d’une architecture Zero Trust ?",
+      "choices": [
+        "Le catalogue commercial d’un fournisseur sans documentation normative",
+        "Un article de blog non vérifié",
+        "Un outil de scan réseau sans modèle d’architecture",
+        "NIST SP 800-207, complété par des guides de mise en œuvre comme NIST SP 1800-35"
+      ],
+      "answer": 3,
+      "explanation": "SP 800-207 décrit les principes et composants de référence ; SP 1800-35 fournit des exemples pratiques de mise en œuvre."
     }
   ]
 }
