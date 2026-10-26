@@ -3021,6 +3021,26 @@
 
           // Préserver les signes de ponctuation du cours et ne jamais inventer de ponctuation à la fin d'un bloc.
           // Les titres ont une annonce dédiée ; le texte pédagogique garde ses signes d'origine.
+          // Une ligne Markdown terminée par un saut forcé (<br>) est une unité de lecture distincte.
+          // La séparer en paragraphes évite de lire plusieurs champs de contexte comme une seule phrase.
+          readable.querySelectorAll('p').forEach(paragraph => {
+            if (!paragraph.querySelector('br')) return;
+            const parts = [];
+            let part = paragraph.cloneNode(false);
+            Array.from(paragraph.childNodes).forEach(node => {
+              if (node.nodeType === 1 && node.tagName === 'BR') {
+                if (part.textContent.trim()) parts.push(part);
+                part = paragraph.cloneNode(false);
+              } else {
+                part.appendChild(node.cloneNode(true));
+              }
+            });
+            if (part.textContent.trim()) parts.push(part);
+            if (parts.length < 2) return;
+            parts.forEach(piece => paragraph.parentNode.insertBefore(piece, paragraph));
+            paragraph.remove();
+          });
+
           readable.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
             const depth = Number(heading.tagName.slice(1));
             const title = String(heading.innerText || heading.textContent || '')
@@ -3034,8 +3054,31 @@
             heading.replaceWith(spokenHeading);
           });
 
-          // Les paragraphes et éléments de liste restent séparés pour créer des pauses naturelles.
-          // Le texte de chaque bloc n'est pas réécrit : « : », « ; », parenthèses et ponctuation restent intacts.
+          // Les champs de contexte en gras sont lus comme un libellé puis une valeur,
+          // avec une pause entre les deux au lieu d'enchaîner « libellé, valeur, libellé, valeur ».
+          readable.querySelectorAll('p').forEach(paragraph => {
+            const labelElement = paragraph.firstElementChild;
+            if (!labelElement || paragraph.firstChild !== labelElement || !/^(STRONG|B)$/.test(labelElement.tagName)) return;
+            const rawLabel = String(labelElement.textContent || '').trim();
+            if (!/[:：]\s*$/u.test(rawLabel)) return;
+            const label = rawLabel.replace(/[:：]\s*$/u, '').trim();
+            let value = String(paragraph.textContent || '').slice(labelElement.textContent.length).trim();
+            if (!label || !value) return;
+
+            // À l'oral, les flèches d'un parcours expriment une progression, pas un symbole à lire.
+            value = value.replace(/\s*→\s*/gu, ', puis ').replace(/[ \t]+/gu, ' ').trim();
+            value = value.replace(/[,:;]+\s*$/u, '').trim();
+            value = value.replace(/^([a-zà-ÿ])/u, letter => letter.toLocaleUpperCase('fr-FR'));
+            if (!/[.!?…]$/u.test(value)) value += '.';
+
+            const spokenLabel = readable.ownerDocument.createElement('p');
+            spokenLabel.textContent = label + '.';
+            const spokenValue = readable.ownerDocument.createElement('p');
+            spokenValue.textContent = value;
+            paragraph.replaceWith(spokenLabel, spokenValue);
+          });
+
+          // Les blocs restent séparés : le lecteur vocal peut respecter les pauses entre eux.
           readable.querySelectorAll('p, li, blockquote, figcaption').forEach(block => {
             block.append(readable.ownerDocument.createTextNode('\n\n'));
           });
@@ -3062,11 +3105,10 @@
             const clean = String(sentence || '').replace(/\s+/g, ' ').trim();
             if (!clean) return;
 
-            // Une phrase est un segment vocal indépendant : sa ponctuation finale crée une pause,
-            // mais le point final n'est pas envoyé à la voix comme un mot à prononcer.
+            // Garder la ponctuation : elle indique à la voix où respirer et quelle intonation adopter.
+            // Le lecteur TTS n'a pas besoin qu'on supprime le point final pour éviter de le prononcer.
             if (clean.length <= maxLength) {
-              const spoken = clean.replace(/[.;:]+$/u, '').trim();
-              if (spoken) chunks.push(spoken);
+              chunks.push(clean);
               return;
             }
 
@@ -3080,10 +3122,7 @@
                 part = part ? part + ' ' + word : word;
               }
             }
-            if (part) {
-              const spoken = part.replace(/[.;:]+$/u, '').trim();
-              if (spoken) chunks.push(spoken);
-            }
+            if (part) chunks.push(part);
           };
 
           for (const paragraph of paragraphs) {
@@ -3092,7 +3131,7 @@
               const segmenter = new Intl.Segmenter('fr', { granularity: 'sentence' });
               sentences = Array.from(segmenter.segment(paragraph), item => item.segment.trim()).filter(Boolean);
             } else {
-              // Conserver le signe de ponctuation lors du découpage, puis le laisser guider la pause.
+              // Le fallback conserve les points, interrogations, exclamations, points-virgules et deux-points.
               sentences = paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
             }
             sentences.forEach(appendSentence);
