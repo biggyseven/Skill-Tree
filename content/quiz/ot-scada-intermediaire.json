@@ -1,18 +1,102 @@
 {
   "node_id": "ot-scada-intermediaire",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Dans une architecture OT, qu’apportent les concepts de zones et de conduits issus des approches de sécurité industrielle ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Ils forcent tous les automates à employer la même adresse IP",
+        "Ils signifient que le trafic entre VLAN est toujours fiable",
+        "Ils structurent les actifs selon leurs exigences et contrôlent les communications autorisées entre les zones",
+        "Ils remplacent les procédures d’exploitation"
+      ],
+      "answer": 2,
+      "explanation": "Les zones regroupent des actifs avec des besoins de sécurité comparables, tandis que les conduits définissent et protègent les échanges entre zones. Les flux doivent être justifiés et validés par les responsables du procédé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un VLAN seul ne suffit-il généralement pas à démontrer une segmentation OT sécurisée ?",
+      "choices": [
+        "Parce que les VLAN ne peuvent pas transporter de trafic Ethernet",
+        "Parce qu’il faut aussi vérifier les chemins de routage, les règles d’application, les points d’administration et l’accès physique ou distant",
+        "Parce qu’un VLAN chiffre nécessairement tout le trafic",
+        "Parce que la segmentation concerne uniquement le DNS"
+      ],
+      "answer": 1,
+      "explanation": "Un VLAN sépare principalement des domaines de couche 2. Le routage inter-VLAN, les équipements de gestion ou un accès distant peuvent contourner l’intention si les règles et les chemins ne sont pas documentés et vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une limite de sécurité importante de Modbus TCP traditionnel ?",
+      "choices": [
+        "Il utilise toujours TLS et des certificats client",
+        "Il chiffre automatiquement chaque registre",
+        "Il empêche toutes les écritures non autorisées sans configuration",
+        "Le protocole traditionnel ne fournit pas, à lui seul, une authentification forte et une protection cryptographique du canal"
+      ],
+      "answer": 3,
+      "explanation": "Modbus TCP traditionnel n’apporte pas à lui seul la sécurité cryptographique d’une session authentifiée. La protection dépend de l’architecture et de mesures complémentaires ; Modbus Security est une variante distincte utilisant TLS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel bénéfice apporte la surveillance passive du trafic OT ?",
+      "choices": [
+        "Observer les communications et établir une baseline sans envoyer de sondes à des équipements de production",
+        "Garantir que tous les actifs inconnus seront découverts immédiatement",
+        "Valider automatiquement la sûreté d’une logique PLC",
+        "Remplacer les journaux des contrôleurs et des serveurs"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La capture passive permet d’observer des flux réellement présents et d’en relever les caractéristiques avec moins de perturbation. Elle peut toutefois manquer des communications non observées au point de capture ou qui n’ont pas eu lieu durant la période."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment préparer une intervention de maintenance à distance d’un fournisseur ?",
+      "choices": [
+        "Partager un compte administrateur permanent entre tous les fournisseurs",
+        "Autoriser une connexion directe illimitée à tous les automates",
+        "Définir une approbation, une identité nominative, une portée limitée, une durée d’accès, un chemin contrôlé et des journaux",
+        "Désactiver les alarmes de procédé pendant la session"
+      ],
+      "answer": 2,
+      "explanation": "L’accès fournisseur doit être limité dans le temps et dans son périmètre, contrôlé par un point d’entrée approuvé et journalisé. Les opérations doivent être coordonnées avec les responsables du procédé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une vulnérabilité critique est découverte sur un équipement OT qui ne peut pas être mis à jour immédiatement. Quelle démarche est la plus adaptée ?",
+      "choices": [
+        "Débrancher arbitrairement l’équipement sans évaluer ses fonctions",
+        "Évaluer l’exposition et les conséquences, consulter les propriétaires OT, appliquer des mesures compensatoires validées et planifier le traitement",
+        "Ignorer la vulnérabilité parce que l’équipement est ancien",
+        "Effectuer un test d’exploitation en production sans autorisation"
+      ],
+      "answer": 1,
+      "explanation": "La priorité et le calendrier doivent tenir compte de l’exposition, des conséquences physiques et des contraintes de disponibilité. Les mesures compensatoires peuvent inclure segmentation, restrictions d’accès et surveillance selon le risque évalué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pendant un incident suspect sur un poste d’ingénierie, pourquoi un redémarrage immédiat peut-il être une mauvaise première action ?",
+      "choices": [
+        "Parce que les postes d’ingénierie ne peuvent pas redémarrer",
+        "Parce qu’un redémarrage supprime toujours les virus de façon permanente",
+        "Parce que la RAM ne conserve jamais de données utiles",
+        "Il peut détruire des éléments de preuve ou perturber le procédé ; l’isolement et la collecte doivent suivre un plan coordonné avec les responsables OT"
+      ],
+      "answer": 3,
+      "explanation": "La réponse à incident doit préserver les preuves et protéger le procédé. Une isolation ou un arrêt peut être nécessaire, mais sa forme et son moment doivent être décidés avec les équipes autorisées et en tenant compte des conséquences opérationnelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit figurer dans une baseline passive de réseau OT ?",
+      "choices": [
+        "Les actifs observés, les communications source/destination, les services et rythmes connus, les horaires et les limites de visibilité de la collecte",
+        "Uniquement la liste des adresses MAC sans date",
+        "Le mot de passe d’administration de chaque PLC",
+        "Une liste de ports théoriques sans vérification du trafic réel"
+      ],
+      "answer": 0,
+      "explanation": "La baseline décrit le fonctionnement normal observé : actifs, flux, fréquences, périodes et points de collecte. Il faut noter les limites de couverture et distinguer les faits observés des hypothèses."
     }
-  ],
-  "scope": "quiz"
+  ]
 }
