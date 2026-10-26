@@ -3933,7 +3933,7 @@
           const arrowLines = lines.filter(line => /(?:--+>|-{2,}|==>|->|<->|→|←|↔|⇒)/u.test(line));
           if (pipeRows.length >= 2 && arrowLines.length < 2) {
             const tabularRows = pipeRows
-              .map(line => line.split(/[|│]/u).map(value => this.cleanSpeechVisualText(value.replace(/^[\\s+\\-=:]+|[\\s+\\-=:]+$/gu, ''))).filter(Boolean))
+              .map(line => line.split(/[|│]/u).map(value => this.cleanSpeechVisualText(value.replace(/^[\s+\-=:]+|[\s+\-=:]+$/gu, ''))).filter(Boolean))
               .filter(cells => cells.length >= 2 && !cells.every(value => /^[-:=]+$/u.test(value)));
             if (tabularRows.length >= 2) {
               const headers = tabularRows[0];
