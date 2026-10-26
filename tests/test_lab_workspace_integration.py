@@ -72,7 +72,7 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("initial.lab.sandbox === true", bridge)
         self.assertIn("initial.lab.id === 'demo'", bridge)
 
-    def test_workspace_submission_result_refreshes_dashboard_progress(selfself):
+    def test_workspace_submission_result_refreshes_dashboard_progress(self):
         bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
 
