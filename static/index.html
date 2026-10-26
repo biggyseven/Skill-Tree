@@ -2999,7 +2999,9 @@
             const value = String(source || '');
             const lines = value.split(/\r?\n/u);
             if (lines.length < 2) return false;
+            const pipeRows = lines.filter(line => (line.match(/[|│]/gu) || []).length >= 2);
             return /[┌┐└┘├┤┬┴┼─│╭╮╰╯↔↕←→↑↓]/u.test(value)
+              || pipeRows.length >= 2
               || lines.some(line => /[A-Za-z0-9][\w.-]*(?:\s*(?:--+>|-{2,}|==>|->|<->|→|←|↔|—|–)\s*)[A-Za-z0-9]/u.test(line));
           };
 
@@ -3927,6 +3929,24 @@
           const raw = String(source || '').replace(/\r\n?/gu, '\n');
           const lines = raw.split('\n').map(line => line.trim()).filter(Boolean);
           if (!lines.length) return [];
+          const pipeRows = lines.filter(line => (line.match(/[|│]/gu) || []).length >= 2);
+          const arrowLines = lines.filter(line => /(?:--+>|-{2,}|==>|->|<->|→|←|↔|⇒)/u.test(line));
+          if (pipeRows.length >= 2 && arrowLines.length < 2) {
+            const tabularRows = pipeRows
+              .map(line => line.split(/[|│]/u).map(value => this.cleanSpeechVisualText(value.replace(/^[\\s+\\-=:]+|[\\s+\\-=:]+$/gu, ''))).filter(Boolean))
+              .filter(cells => cells.length >= 2 && !cells.every(value => /^[-:=]+$/u.test(value)));
+            if (tabularRows.length >= 2) {
+              const headers = tabularRows[0];
+              const spokenTable = [
+                'Tableau textuel.',
+                'Les colonnes sont : ' + headers.map((header, index) => header || ('colonne ' + (index + 1))).join(', ') + '.',
+              ];
+              tabularRows.slice(1).forEach((values, rowIndex) => {
+                spokenTable.push('Ligne ' + (rowIndex + 1) + '. ' + values.map((value, index) => (headers[index] || ('colonne ' + (index + 1))) + ' : ' + (value || 'valeur non renseignée')).join('. ') + '.');
+              });
+              return spokenTable;
+            }
+          }
           const normalizeSegment = value => this.cleanSpeechVisualText(String(value || '')
             .replace(/[┌┐└┘├┤┬┴┼─━│┃╭╮╰╯╔╗╚╝╠╣╦╩╬║]/gu, ' ')
             .replace(/^[\s|+<>\-=_~.]+|[\s|+<>\-=_~.]+$/gu, '')
@@ -4095,8 +4115,10 @@
           const svg = root.querySelector('svg') || (root.matches('svg') ? root : null);
           const lang = this.cleanSpeechVisualText(root.querySelector('.code-lang')?.textContent || '').toLocaleLowerCase('fr-FR');
           const ascii = /(?:ascii|diagram|flowchart|graphviz|dot|plantuml|puml|d2)/u.test(lang)
+            || root.dataset.diagramType === 'schéma textuel'
             || /[┌┐└┘├┤┬┴┼─│╭╮╰╯↔↕←→↑↓]/u.test(source)
-            || /(?:--+>|-{2,}|==>|->|<->|→|←|↔)/u.test(source);
+            || /(?:--+>|-{2,}|==>|->|<->|→|←|↔)/u.test(source)
+            || source.split(/\r?\n/u).filter(line => (line.match(/[|│]/gu) || []).length >= 2).length >= 2;
           const spoken = [];
           if (caption) spoken.push((root.dataset.diagramType || 'Schéma') + ' : ' + caption + '.');
           if (source && /(?:flowchart\b|graph\s+(?:TD|TB|BT|RL|LR)|sequenceDiagram\b|classDiagram\b|stateDiagram\b|erDiagram\b)/iu.test(source)) {
