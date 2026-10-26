@@ -138,6 +138,55 @@ test('un cours peut être ouvert depuis la recherche puis fermé avec Échap', a
 });
 
 
+test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans un nouvel onglet', async ({ page }) => {
+  await openDashboard(page);
+
+  const waitForReadyPage = async (otherPage) => {
+    await otherPage.waitForLoadState('domcontentloaded');
+    await expect(otherPage.getByRole('button', { name: 'Ouvrir les paramètres' })).toBeVisible();
+    await expect.poll(async () => otherPage.evaluate(() => {
+      const state = window.Alpine && window.Alpine.$data(document.body);
+      return Array.isArray(state?.nodes) ? state.nodes.length : 0;
+    }), { timeout: 30_000 }).toBeGreaterThan(0);
+  };
+
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  const sectionLink = nav.locator('a[href*="openTab=challenges"]');
+  await expect(sectionLink).toBeVisible();
+  await expect(sectionLink).toHaveAttribute('target', '_blank');
+  const sectionPagePromise = page.context().waitForEvent('page');
+  await sectionLink.click();
+  const sectionPage = await sectionPagePromise;
+  await waitForReadyPage(sectionPage);
+  await expect.poll(() => sectionPage.evaluate(() => window.Alpine.$data(document.body).tab)).toBe('challenges');
+  await sectionPage.close();
+
+  const moduleLink = page.locator('a[aria-label^="Ouvrir le module "][href*="openModule="]').first();
+  await expect(moduleLink).toBeVisible();
+  await expect(moduleLink).toHaveAttribute('target', '_blank');
+  const moduleId = new URL(await moduleLink.getAttribute('href'), 'http://localhost').searchParams.get('openModule');
+  const modulePagePromise = page.context().waitForEvent('page');
+  await moduleLink.click();
+  const modulePage = await modulePagePromise;
+  await waitForReadyPage(modulePage);
+  await expect.poll(() => modulePage.evaluate(() => window.Alpine.$data(document.body).moduleFilter)).toBe(moduleId);
+  await modulePage.close();
+
+  const courseLink = page.locator('a[aria-label^="Ouvrir le cours "][href*="openCourse="]').first();
+  await expect(courseLink).toBeVisible();
+  await expect(courseLink).toHaveAttribute('target', '_blank');
+  const courseId = new URL(await courseLink.getAttribute('href'), 'http://localhost').searchParams.get('openCourse');
+  const coursePagePromise = page.context().waitForEvent('page');
+  await courseLink.click();
+  const coursePage = await coursePagePromise;
+  await waitForReadyPage(coursePage);
+  await expect.poll(() => coursePage.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.open && state?.detail?.id ? state.detail.id : null;
+  }), { timeout: 30_000 }).toBe(courseId);
+  await coursePage.close();
+});
+
 test('les cartes du catalogue des labs ouvrent un nouvel onglet sans remplacer le tableau de bord', async ({ page }) => {
   await openDashboard(page);
   const nav = page.getByRole('navigation', { name: 'Navigation principale' });
