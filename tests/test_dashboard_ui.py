@@ -576,7 +576,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('aria-label="Ouvrir le Lab Workspace dans un nouvel onglet"', DASHBOARD_HTML)
         self.assertIn('target="_blank" rel="noopener noreferrer"', DASHBOARD_HTML)
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(n.id)\"", DASHBOARD_HTML)
-        self.assertIn(':href="\'/?openLab=\' + encodeURIComponent(action.node_id)"', DASHBOARD_HTML)
+        self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(action.node_id)\"", DASHBOARD_HTML)
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", DASHBOARD_HTML)
 
     def test_v2_lab_opens_react_flow_workspace_and_keeps_legacy_fallback(self):
