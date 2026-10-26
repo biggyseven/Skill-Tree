@@ -178,27 +178,19 @@
     "rules": [
       {
         "id": "acl100-deny-attacker",
-        "description": "R1 contient une règle ACL 100 deny pour l’IP de l’attaquant vers le serveur",
+        "description": "L’ACL 100 refuse le trafic de l’attaquant vers le serveur",
         "device": "R1",
         "path": "config.acls",
         "operator": "contains",
-        "expected": "deny ip host 192.168.1.10 host 10.0.0.5"
+        "expected": "100 deny ip host 192.168.1.10 host 10.0.0.5"
       },
       {
         "id": "acl100-permit-rest",
-        "description": "R1 contient permit ip any any dans l’ACL 100",
+        "description": "L’ACL 100 autorise le reste du trafic",
         "device": "R1",
         "path": "config.acls",
         "operator": "contains",
-        "expected": "permit ip any any"
-      },
-      {
-        "id": "acl100-number",
-        "description": "L’ACL est numérotée 100",
-        "device": "R1",
-        "path": "config.acls",
-        "operator": "contains",
-        "expected": "100"
+        "expected": "100 permit ip any any"
       }
     ]
   },
