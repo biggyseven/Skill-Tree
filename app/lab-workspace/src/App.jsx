@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLabStore } from './store/useLabStore.js';
 import { LabCanvas } from './canvas/LabCanvas.jsx';
 import { TopologyToolbar } from './canvas/TopologyToolbar.jsx';
@@ -14,6 +14,93 @@ function fetchLabFromUrl(labId) {
     }
     return payload;
   });
+}
+
+function clampDimension(value, min, max) {
+  return Math.min(max, Math.max(min, Math.round(Number(value) || min)));
+}
+
+function usePersistentDimension(storageKey, fallback, min, max) {
+  const [value, setValue] = useState(() => {
+    try {
+      const stored = Number(window.localStorage.getItem(storageKey));
+      return Number.isFinite(stored) && stored > 0
+        ? clampDimension(stored, min, max)
+        : fallback;
+    } catch {
+      return fallback;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey, String(value));
+    } catch {
+      // Le redimensionnement reste utilisable si le stockage du navigateur est indisponible.
+    }
+  }, [storageKey, value]);
+
+  return [value, setValue];
+}
+
+function ResizeHandle({ orientation, label, value, min, max, onResize }) {
+  const pointer = useRef(null);
+
+  function onPointerDown(event) {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    pointer.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function onPointerMove(event) {
+    const start = pointer.current;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const x = event.clientX;
+    const y = event.clientY;
+    const delta = orientation === 'vertical' ? x - start.x : y - start.y;
+    if (!delta) return;
+    pointer.current = { ...start, x, y };
+    onResize(delta);
+  }
+
+  function onPointerUp(event) {
+    pointer.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }
+
+  function onKeyDown(event) {
+    const negative = orientation === 'vertical' ? event.key === 'ArrowLeft' : event.key === 'ArrowUp';
+    const positive = orientation === 'vertical' ? event.key === 'ArrowRight' : event.key === 'ArrowDown';
+    if (!negative && !positive) return;
+    event.preventDefault();
+    onResize(negative ? -16 : 16);
+  }
+
+  const axisClasses = orientation === 'vertical'
+    ? 'h-full w-1.5 cursor-col-resize'
+    : 'h-1.5 w-full cursor-row-resize';
+
+  return (
+    <div
+      role="separator"
+      aria-orientation={orientation}
+      aria-label={label}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      aria-valuenow={value}
+      aria-valuetext={value + ' pixels'}
+      tabIndex={0}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onKeyDown={onKeyDown}
+      className={`hidden shrink-0 touch-none select-none rounded-full bg-[#30363d] transition-colors hover:bg-[#0ea5e9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0ea5e9] xl:flex ${axisClasses}`}
+    />
+  );
 }
 
 function WorkspaceHeader({ lab, topology }) {
@@ -123,6 +210,13 @@ export default function App() {
   const loading = useLabStore(s => s.loading);
   const error = useLabStore(s => s.error);
   const [mobilePane, setMobilePane] = useState('brief');
+  const [leftWidth, setLeftWidth] = usePersistentDimension('skilltree-lab-left-width', 320, 240, 520);
+  const [rightWidth, setRightWidth] = usePersistentDimension('skilltree-lab-right-width', 370, 280, 520);
+  const [paletteHeight, setPaletteHeight] = usePersistentDimension('skilltree-lab-equipment-height', 290, 180, 520);
+
+  const resizeLeft = delta => setLeftWidth(current => clampDimension(current + delta, 240, 520));
+  const resizeRight = delta => setRightWidth(current => clampDimension(current - delta, 280, 520));
+  const resizePalette = delta => setPaletteHeight(current => clampDimension(current - delta, 180, 520));
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -213,7 +307,7 @@ export default function App() {
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {/* Panneau gauche : mission pédagogique et bibliothèque matérielle */}
-        <aside className={`${mobilePane === 'brief' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-r border-[#30363d] bg-[#161b22] xl:w-[320px] xl:shrink-0`}>
+        <aside data-testid="lab-left-panel" style={{ '--lab-left-width': `${leftWidth}px` }} className={`${mobilePane === 'brief' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-r border-[#30363d] bg-[#161b22] xl:w-[var(--lab-left-width)] xl:shrink-0`}>
           <section className="flex min-h-0 flex-1 flex-col">
             <PanelHeader eyebrow="01 / Lab brief" title="Mission & objectifs" />
             <div className="lab-scrollbar min-h-0 flex-1 overflow-y-auto">
@@ -221,7 +315,15 @@ export default function App() {
             </div>
           </section>
 
-          <section className="flex h-[290px] shrink-0 flex-col border-t border-[#30363d] bg-[#0d1117]/50">
+          <ResizeHandle
+            orientation="horizontal"
+            label="Redimensionner la hauteur de la bibliothèque d'équipements"
+            value={paletteHeight}
+            min={180}
+            max={520}
+            onResize={resizePalette}
+          />
+          <section data-testid="equipment-palette-panel" style={{ height: `${paletteHeight}px` }} className="flex min-h-0 shrink-0 flex-col border-t border-[#30363d] bg-[#0d1117]/50">
             <PanelHeader eyebrow="02 / Device library" title="Bibliothèque d'équipements" />
             <div className="min-h-0 flex-1 overflow-hidden">
               <Palette />
@@ -229,14 +331,32 @@ export default function App() {
           </section>
         </aside>
 
+        <ResizeHandle
+          orientation="vertical"
+          label="Redimensionner la largeur du panneau Mission et équipements"
+          value={leftWidth}
+          min={240}
+          max={520}
+          onResize={resizeLeft}
+        />
+
         {/* Canvas central : la zone de travail principale */}
         <main className={`${mobilePane === 'canvas' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-1 flex-col overflow-hidden bg-[#0d1117] xl:w-auto`}>
           <TopologyToolbar />
           <LabCanvas />
         </main>
 
+        <ResizeHandle
+          orientation="vertical"
+          label="Redimensionner la largeur du panneau Console"
+          value={rightWidth}
+          min={280}
+          max={520}
+          onResize={resizeRight}
+        />
+
         {/* Panneau droit : console CLI et inspection matérielle */}
-        <aside className={`${mobilePane === 'inspector' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-l border-[#30363d] bg-[#161b22] xl:w-[370px] xl:shrink-0`}>
+        <aside data-testid="lab-right-panel" style={{ '--lab-right-width': `${rightWidth}px` }} className={`${mobilePane === 'inspector' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-l border-[#30363d] bg-[#161b22] xl:w-[var(--lab-right-width)] xl:shrink-0`}>
           <InspectorPanel />
         </aside>
       </div>
