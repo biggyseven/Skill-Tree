@@ -562,6 +562,13 @@ Serveur --> Base de données</code></pre>
       <div class="lesson-diagram-block" data-diagram-type="schéma textuel">
         <div class="code-container">
           <div class="code-header"><span class="code-lang">ASCII</span></div>
+          <pre><code>Client --requête HTTPS--> API
+API --requête SQL--> Base de données</code></pre>
+        </div>
+      </div>
+      <div class="lesson-diagram-block" data-diagram-type="schéma textuel">
+        <div class="code-container">
+          <div class="code-header"><span class="code-lang">ASCII</span></div>
           <pre><code>Poste de travail
   |
   v
@@ -590,8 +597,13 @@ Poste de secours</code></pre>
   expect(narration).toContain('l’usage indiqué est « Web chiffré »');
   expect(narration).toContain('Pour DNS, le port utilisé est 53');
   expect(narration).toContain('l’usage indiqué est « Résolution de noms »');
+  expect(narration).toContain('Ce tableau associe chaque protocole au port réseau qu’il utilise et à l’usage correspondant.');
+  expect(narration).toContain('À retenir : le tableau associe HTTP au port 80 et HTTPS au port 443.');
   expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « Serveur »');
   expect(narration).toContain('Une liaison va du bloc « Serveur » vers le bloc « Base de données »');
+  expect(narration).toContain('Le bloc « Client » envoie « requête HTTPS » au bloc « API ».');
+  expect(narration).toContain('Le bloc « API » envoie « requête SQL » au bloc « Base de données ».');
+  expect(narration).toContain('Le parcours principal commence au bloc « Client », passe ensuite par « API », puis arrive au bloc « Base de données ».');
   expect(narration).toContain('Tableau textuel.');
   expect(narration).toContain('Pour HTTP, le port utilisé est 80');
   expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
@@ -604,6 +616,18 @@ Poste de secours</code></pre>
   expect(narration).not.toContain('Copier');
   expect(narration).not.toContain('Texte guide qui ne doit pas remplacer les données.');
   expect(narration).not.toContain('Guide HTML générique à ne pas lire à la place des éléments.');
+
+  const processNarration = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return state.speechTextFromTabularRows(
+      ['Étape', 'Action', 'Résultat'],
+      [['1', 'Envoyer une requête HTTPS', 'Le serveur reçoit la demande'], ['2', 'Vérifier la session', 'La session est validée']],
+      'Tableau : Cycle de requête.'
+    ).join(' ');
+  });
+  expect(processNarration).toContain('Ce tableau décrit un déroulement en plusieurs étapes');
+  expect(processNarration).toContain('À l’étape 1, l’action consiste à « Envoyer une requête HTTPS ».');
+  expect(processNarration).toContain('Elle produit le résultat suivant : « Le serveur reçoit la demande ».');
 
   const audioSegments = await page.evaluate(() => {
     const state = window.Alpine.$data(document.body);
