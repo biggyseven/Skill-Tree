@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import re
-import sqlite3
+from . import db_compat as sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
