@@ -1368,9 +1368,10 @@
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <template x-for="s in diagList" :key="s.id">
                 <button type="button" class="card-sm text-left transition hover:border-cyan-400/40" @click="openDiag(s.id)">
-                  <div class="flex items-center justify-between"><span class="chip" x-text="(levelMeta(s.level) || { icon: '', label: '' }).icon + ' ' + (levelMeta(s.level) || { label: 'Scénario' }).label"></span><span class="text-xs text-emerald-400" x-show="diagDoneMap[s.id] !== undefined" x-text="'Meilleur : ' + diagDoneMap[s.id] + ' %'"></span></div>
+                  <div class="flex items-center justify-between gap-2"><span class="chip" x-text="(levelMeta(s.level) || { icon: '', label: '' }).icon + ' ' + (levelMeta(s.level) || { label: 'Scénario' }).label"></span><span class="text-xs text-cyan-300" x-show="diagProgressMap[s.id]" x-text="'À reprendre · ' + (((diagProgressMap[s.id] || {}).trail || []).length) + ' décision(s)'"></span><span class="text-xs text-emerald-400" x-show="!diagProgressMap[s.id] && diagDoneMap[s.id] !== undefined" x-text="'Meilleur : ' + diagDoneMap[s.id] + ' %'"></span></div>
                   <p class="mt-2 text-sm font-bold text-white" x-text="s.title"></p>
                   <p class="mt-1 text-[12px] text-zinc-500" x-text="s.desc"></p>
+                  <div class="mt-3 flex items-center justify-between gap-2 text-[11px]"><span class="text-zinc-500" x-text="diagProgressMap[s.id] ? 'Session sauvegardée automatiquement' : 'Scénario à embranchements'"></span><span class="font-semibold text-cyan-300" x-text="diagProgressMap[s.id] ? 'Reprendre →' : 'Démarrer →'"></span></div>
                 </button>
               </template>
             </div>
@@ -1380,9 +1381,9 @@
           <div class="mx-auto max-w-4xl">
             <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
               <div><p class="eyebrow" x-text="'Étape ' + (diagTrail.length + 1)"></p><h3 class="text-xl font-bold text-white" x-text="diagData.title"></h3></div>
-              <div class="flex gap-2"><button type="button" class="btn" :disabled="!diagTrail.length" @click="diagBack()">↩ Retour</button><button type="button" class="btn" @click="diagReset()">Recommencer</button><button type="button" class="btn" @click="diagClose()">Scénarios</button></div>
+              <div class="flex gap-2"><button type="button" class="btn" :disabled="!diagTrail.length || diagFinished" @click="diagBack()">↩ Retour</button><button type="button" class="btn" @click="diagReset()">Recommencer</button><button type="button" class="btn" @click="diagClose()">Scénarios</button></div>
             </div>
-            <div x-show="diagTrail.length" class="mb-4 space-y-2">
+            <div x-show="diagTrail.length" class="mb-4 space-y-2" aria-live="polite" aria-relevant="additions">
               <template x-for="(t, i) in diagTrail" :key="i">
                 <div class="rounded-xl border px-4 py-2 text-[12px]" :class="t.good === false ? 'border-rose-400/20 bg-rose-500/5 text-rose-200' : 'border-emerald-400/20 bg-emerald-500/5 text-emerald-200'">
                   <p class="font-semibold" x-text="(t.good === false ? '✗ ' : '✓ ') + t.label"></p><p class="mt-0.5 text-zinc-400" x-show="t.feedback" x-text="t.feedback"></p>
@@ -1393,19 +1394,51 @@
               <p class="eyebrow">Situation</p>
               <p class="mt-2 text-base leading-relaxed text-zinc-100" x-text="diagStep.situation"></p>
               <template x-if="diagFinished">
-                <div class="mt-5 rounded-2xl border border-emerald-400/25 bg-emerald-500/10 p-4">
-                  <p class="text-lg font-bold text-white" x-text="diagStep.conclusion ? diagStep.conclusion.title : 'Fin du scénario'"></p>
-                  <p class="mt-1 text-sm text-zinc-300" x-show="diagStep.conclusion" x-text="diagStep.conclusion ? diagStep.conclusion.text : ''"></p>
-                  <p class="mt-3 text-sm text-zinc-200" x-show="diagEfficiency !== null" x-text="'Efficacité de tes décisions : ' + diagEfficiency + ' %'"></p>
+                <div class="mt-5 rounded-2xl border p-4" :class="diagFinalOutcome() === 'success' ? 'border-emerald-400/25 bg-emerald-500/10' : 'border-amber-400/25 bg-amber-500/10'">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p class="text-lg font-bold text-white" x-text="diagStep.conclusion ? diagStep.conclusion.title : (diagStep.outcome === 'success' ? 'Diagnostic résolu' : diagStep.outcome === 'failure' ? 'Diagnostic à revoir' : 'Fin du scénario')"></p>
+                      <p class="mt-1 text-sm text-zinc-300" x-show="diagStep.conclusion || diagStep.explanation" x-text="diagStep.conclusion ? diagStep.conclusion.text : (diagStep.explanation || '')"></p>
+                    </div>
+                    <span class="chip" x-text="diagFinalOutcome() === 'success' ? 'Objectif atteint' : diagFinalOutcome() === 'failure' ? 'À retravailler' : 'Terminé'"></span>
+                  </div>
+                  <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div class="rounded-xl border border-white/10 bg-black/10 p-3"><p class="text-[11px] uppercase tracking-wide text-zinc-500">Efficacité</p><p class="mt-1 text-lg font-bold text-white" x-text="diagEfficiency === null ? 'Non évaluée' : diagEfficiency + ' %'"></p></div>
+                    <div class="rounded-xl border border-white/10 bg-black/10 p-3"><p class="text-[11px] uppercase tracking-wide text-zinc-500">Décisions adaptées</p><p class="mt-1 text-lg font-bold text-white" x-text="diagCorrectCount() + ' / ' + diagScoredCount()"></p></div>
+                    <div class="rounded-xl border border-white/10 bg-black/10 p-3"><p class="text-[11px] uppercase tracking-wide text-zinc-500">Durée</p><p class="mt-1 text-lg font-bold text-white" x-text="diagElapsedLabel()"></p></div>
+                  </div>
+                  <div x-show="diagCompetencySummary().length" class="mt-4 border-t border-white/10 pt-4">
+                    <p class="mb-3 text-sm font-semibold text-white">Bilan par compétence</p>
+                    <div class="grid gap-2 sm:grid-cols-2">
+                      <template x-for="item in diagCompetencySummary()" :key="item.name">
+                        <div class="rounded-xl border border-white/10 bg-black/10 p-3">
+                          <div class="flex items-center justify-between gap-2 text-xs"><span class="font-semibold text-zinc-200" x-text="item.name"></span><span class="text-zinc-400" x-text="item.correct + '/' + item.total + ' · ' + item.rate + '%'"></span></div>
+                          <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" :aria-valuenow="item.rate" aria-valuemin="0" aria-valuemax="100" :aria-label="item.name"><div class="h-full rounded-full bg-cyan-400" :style="{ width: item.rate + '%' }"></div></div>
+                          <p class="mt-2 text-[11px] text-zinc-500" x-text="item.rate >= 80 ? 'Compétence bien mobilisée' : 'À renforcer avec un cours, une révision ou un lab ciblé'"></p>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                  <p x-show="diagCompetencyToReview().length" class="mt-3 text-sm text-amber-200" x-text="'À retravailler en priorité : ' + diagCompetencyToReview().join(', ')"></p>
                   <div class="mt-4 flex gap-2"><button type="button" class="btn btn-primary" @click="diagReset()">Rejouer</button><button type="button" class="btn" @click="diagClose()">Autres scénarios</button></div>
                 </div>
               </template>
-              <div class="mt-5 grid gap-3" x-show="!diagFinished">
-                <template x-for="(c, i) in (diagStep.choices || [])" :key="c.id || i">
-                  <button type="button" @click="diagChoose(c)" class="card-sm flex items-center gap-4 text-left transition hover:border-cyan-400/40">
-                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black font-mono text-xs text-zinc-400" x-text="String.fromCharCode(65 + i)"></span><span class="text-sm text-zinc-200" x-text="c.label"></span>
-                  </button>
-                </template>
+              <div class="mt-5" x-show="!diagFinished">
+                <div class="grid gap-3" x-show="!(diagStep && diagStep.command)">
+                  <template x-for="(c, i) in (diagStep.choices || [])" :key="c.id || i">
+                    <button type="button" @click="diagChoose(c)" class="card-sm flex items-center gap-4 text-left transition hover:border-cyan-400/40">
+                      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black font-mono text-xs text-zinc-400" x-text="String.fromCharCode(65 + i)"></span><span class="text-sm text-zinc-200" x-text="c.label"></span>
+                    </button>
+                  </template>
+                </div>
+                <form x-show="diagStep && diagStep.command" @submit.prevent="diagSubmitCommand()" class="mt-3 rounded-xl border border-white/10 bg-black/10 p-4">
+                  <label class="mb-2 block text-sm font-semibold text-zinc-200" for="diag-command-input" x-text="diagStep.command.prompt || 'Saisis la commande adaptée.'"></label>
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <input id="diag-command-input" type="text" x-model="diagCommandInput" :placeholder="diagStep.command.placeholder || ''" autocomplete="off" autocapitalize="off" spellcheck="false" required class="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-3 text-sm text-white outline-none focus:border-cyan-400/60">
+                    <button type="submit" :disabled="!diagCommandInput.trim()" class="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50">Vérifier la commande</button>
+                  </div>
+                  <p x-show="diagCommandFeedback" role="status" aria-live="polite" class="mt-2 text-sm text-zinc-300" x-text="diagCommandFeedback"></p>
+                </form>
               </div>
             </div>
           </div>
@@ -3965,46 +3998,46 @@
     const DIAG_BUILTIN = {
       'wifi-lent': { title: 'Wi-Fi lent à l’étage', level: 'debutant', desc: 'Les utilisateurs d’un étage se plaignent d’un Wi-Fi lent depuis ce matin.', start: 'a',
         steps: {
-          a: { situation: 'Depuis ce matin, les utilisateurs du 2e étage trouvent le Wi-Fi très lent. Les autres étages vont bien. Que fais-tu en premier ?', choices: [
+          a: { competency: 'Mesure Wi-Fi', situation: 'Depuis ce matin, les utilisateurs du 2e étage trouvent le Wi-Fi très lent. Les autres étages vont bien. Que fais-tu en premier ?', choices: [
             { id: 'a1', label: 'Redémarrer tous les points d’accès de l’immeuble', next: 'bad1', good: false, feedback: 'Action lourde, non ciblée : tu coupes aussi les étages qui fonctionnent.' },
             { id: 'a2', label: 'Mesurer signal, canal et utilisation du canal sur les AP de l’étage', next: 'b', good: true, feedback: 'Bonne méthode : on mesure avant d’agir.' },
             { id: 'a3', label: 'Changer le mot de passe du Wi-Fi', next: 'bad1', good: false, feedback: 'Le mot de passe n’a aucun rapport avec la lenteur.' } ] },
-          b: { situation: 'Mesures : RSSI correct (-62 dBm), mais utilisation du canal à 85 %. 60 clients sont connectés en 2,4 GHz, canal 6, canaux de 40 MHz.', choices: [
+          b: { competency: 'Capacité radio', situation: 'Mesures : RSSI correct (-62 dBm), mais utilisation du canal à 85 %. 60 clients sont connectés en 2,4 GHz, canal 6, canaux de 40 MHz.', choices: [
             { id: 'b1', label: 'Pousser les clients en 5 GHz, canaux de 20 MHz bien répartis', next: 'ok', good: true, feedback: 'Le canal est saturé : il faut répartir la charge.' },
             { id: 'b2', label: 'Augmenter la puissance d’émission des AP', next: 'bad2', good: false, feedback: 'Plus de puissance n’augmente pas la capacité, et brouille les AP voisins.' },
             { id: 'b3', label: 'Désactiver le chiffrement pour alléger le trafic', next: 'bad2', good: false, feedback: 'Dangereux et sans effet notable sur la saturation.' } ] },
           ok: { situation: 'Après la répartition en 5 GHz, l’utilisation du canal tombe à 35 % et les plaintes cessent.', conclusion: { outcome: 'success', title: 'Problème résolu', text: 'Cause : saturation du canal 2,4 GHz. Leçon : mesurer d’abord (signal, canal, utilisation), puis répartir les clients.' } },
-          bad1: { situation: 'Rien ne change : le problème revient quelques minutes plus tard.', choices: [ { id: 'r1', label: 'Reprendre avec une mesure du canal', next: 'b', good: true, feedback: 'Bon réflexe : retour à la mesure.' } ] },
-          bad2: { situation: 'Le Wi-Fi est encore plus instable : les AP voisins se perturbent mutuellement.', choices: [ { id: 'r2', label: 'Revenir à la répartition 5 GHz et canaux de 20 MHz', next: 'ok', good: true, feedback: 'Bonne correction.' } ] },
+          bad1: { competency: 'Démarche de dépannage', situation: 'Rien ne change : le problème revient quelques minutes plus tard.', choices: [ { id: 'r1', label: 'Reprendre avec une mesure du canal', next: 'b', good: true, feedback: 'Bon réflexe : retour à la mesure.' } ] },
+          bad2: { competency: 'Conception radio', situation: 'Le Wi-Fi est encore plus instable : les AP voisins se perturbent mutuellement.', choices: [ { id: 'r2', label: 'Revenir à la répartition 5 GHz et canaux de 20 MHz', next: 'ok', good: true, feedback: 'Bonne correction.' } ] },
         } },
       'vlan-hote': { title: 'Hôte injoignable dans un VLAN', level: 'intermediaire', desc: 'Un PC du VLAN 20 ne joint pas sa passerelle.', start: 'a',
         steps: {
-          a: { situation: 'Un PC du VLAN 20 (10.20.0.0/24) ne ping pas sa passerelle 10.20.0.1. Premier réflexe ?', choices: [
+          a: { competency: 'Configuration IP', situation: 'Un PC du VLAN 20 (10.20.0.0/24) ne ping pas sa passerelle 10.20.0.1. Premier réflexe ?', choices: [
             { id: 'a1', label: 'Vérifier l’adresse IP, le masque et la passerelle du PC', next: 'b', good: true, feedback: 'On commence toujours par la configuration locale.' },
             { id: 'a2', label: 'Redémarrer le switch', next: 'bad', good: false, feedback: 'Impact énorme sur tous les utilisateurs, sans diagnostic.' },
             { id: 'a3', label: 'Remplacer le câble sans rien vérifier', next: 'bad', good: false, feedback: 'Possible, mais ce n’est pas la première étape.' } ] },
-          b: { situation: 'Le PC a 10.20.0.50/24, passerelle 10.20.0.1 : correct. Le voyant du port est vert. Que vérifies-tu sur le switch ?', choices: [
+          b: { competency: 'Segmentation VLAN', situation: 'Le PC a 10.20.0.50/24, passerelle 10.20.0.1 : correct. Le voyant du port est vert. Que vérifies-tu sur le switch ?', choices: [
             { id: 'b1', label: 'show vlan brief : le port est-il dans le bon VLAN ?', next: 'c', good: true, feedback: 'Excellent : un port d’accès dans le mauvais VLAN est une cause classique.' },
             { id: 'b2', label: 'show ip route', next: 'bad', good: false, feedback: 'Le switch d’accès ne route pas ici : ce n’est pas utile pour ce symptôme.' } ] },
-          c: { situation: 'Le port Fa0/7 apparaît dans le VLAN 1 (par défaut). Le trunk vers le routeur transporte bien le VLAN 20.', choices: [
+          c: { competency: 'Segmentation VLAN', situation: 'Le port Fa0/7 apparaît dans le VLAN 1 (par défaut). Le trunk vers le routeur transporte bien le VLAN 20.', choices: [
             { id: 'c1', label: 'interface Fa0/7 : switchport mode access + switchport access vlan 20', next: 'ok', good: true, feedback: 'Correction ciblée.' },
             { id: 'c2', label: 'Ajouter le VLAN 1 au trunk', next: 'bad', good: false, feedback: 'Ça ne règle pas l’appartenance du port au bon VLAN.' } ] },
           ok: { situation: 'Le ping vers 10.20.0.1 répond.', conclusion: { outcome: 'success', title: 'Problème résolu', text: 'Cause : port d’accès resté dans le VLAN 1. Vérifie toujours le VLAN du port avec show vlan brief.' } },
-          bad: { situation: 'Aucune amélioration. Tu perds du temps.', choices: [ { id: 'r', label: 'Reprendre au diagnostic ciblé (IP puis VLAN du port)', next: 'a', good: true, feedback: 'Bon réflexe : on reprend la méthode.' } ] },
+          bad: { competency: 'Démarche de dépannage', situation: 'Aucune amélioration. Tu perds du temps.', choices: [ { id: 'r', label: 'Reprendre au diagnostic ciblé (IP puis VLAN du port)', next: 'a', good: true, feedback: 'Bon réflexe : on reprend la méthode.' } ] },
         } },
       'etherchannel-suspendu': { title: 'EtherChannel suspendu (s)', level: 'intermediaire', desc: 'Un port est suspendu dans un Port-channel.', start: 'a',
         steps: {
-          a: { situation: 'show etherchannel summary affiche Po1(SU) avec Gi0/1(P) mais Gi0/2(s). Que signifie (s) ?', choices: [
+          a: { competency: 'Lecture EtherChannel', situation: 'show etherchannel summary affiche Po1(SU) avec Gi0/1(P) mais Gi0/2(s). Que signifie (s) ?', choices: [
             { id: 'a1', label: 'Le port est suspendu : sa configuration n’est pas compatible avec le groupe', next: 'b', good: true, feedback: 'Exact : (s) signale une incompatibilité.' },
             { id: 'a2', label: 'Le câble est coupé', next: 'bad', good: false, feedback: 'Un câble coupé donnerait (D) down.' } ] },
-          b: { situation: 'Que compares-tu entre Gi0/1 et Gi0/2 ?', choices: [
+          b: { competency: 'Cohérence de configuration', situation: 'Que compares-tu entre Gi0/1 et Gi0/2 ?', choices: [
             { id: 'b1', label: 'Vitesse, duplex, mode trunk/access, VLAN autorisés et natif', next: 'c', good: true, feedback: 'La liste correcte des paramètres à aligner.' },
             { id: 'b2', label: 'Seulement la description du port', next: 'bad', good: false, feedback: 'La description n’a aucune influence sur la formation du groupe.' } ] },
-          c: { situation: 'Gi0/2 autorise les VLAN 10,20,30 alors que Gi0/1 et Po1 autorisent 10,20. Que fais-tu ?', choices: [
+          c: { competency: 'Cohérence de configuration', situation: 'Gi0/2 autorise les VLAN 10,20,30 alors que Gi0/1 et Po1 autorisent 10,20. Que fais-tu ?', choices: [
             { id: 'c1', label: 'Aligner Gi0/2 sur le Port-channel : switchport trunk allowed vlan 10,20', next: 'ok', good: true, feedback: 'Bonne correction, faite sur l’interface membre.' },
             { id: 'c2', label: 'Supprimer le Port-channel et le recréer sans vérifier', next: 'bad', good: false, feedback: 'Inutile : l’incompatibilité resterait.' } ] },
           ok: { situation: 'Gi0/2 passe en (P) et le groupe affiche Po1(SU) avec deux ports regroupés.', conclusion: { outcome: 'success', title: 'Problème résolu', text: 'Cause : VLAN autorisés différents sur un port membre. Tous les ports membres doivent être identiques.' } },
-          bad: { situation: 'Le symptôme persiste.', choices: [ { id: 'r', label: 'Reprendre par la comparaison des paramètres des ports', next: 'b', good: true, feedback: 'Bon réflexe.' } ] },
+          bad: { competency: 'Démarche de dépannage', situation: 'Le symptôme persiste.', choices: [ { id: 'r', label: 'Reprendre par la comparaison des paramètres des ports', next: 'b', good: true, feedback: 'Bon réflexe.' } ] },
         } },
     };
 
@@ -4490,26 +4523,1604 @@
 
         // ---------- diagnostic ----------
         diagList: [], diagId: null, diagData: null, diagKey: null, diagTrail: [],
+        diagRunStartedAt: 0, diagCommandInput: '', diagCommandFeedback: '',
+        diagProgressMap: LS.get('diag-progress', {}) || {}, diagResultsMap: LS.get('diag-results', {}) || {},
         async loadDiagnostic() {
           if (this.diagList.length) return;
-          this.diagList = [{ id: 'network_down', title: 'Réseau indisponible', level: 'debutant', desc: 'Scénario du serveur : diagnostiquer une panne réseau générale.' },
+          this.diagList = [{ id: 'network_down', title: 'Poste sans accès au réseau', level: 'debutant', desc: 'Identifie une panne d’adressage et choisis un rétablissement sûr.' },
             ...Object.entries(DIAG_BUILTIN).map(([id, d]) => ({ id, title: d.title, level: d.level, desc: d.desc }))];
         },
         async openDiag(id) {
           let data = DIAG_BUILTIN[id];
           if (!data) { try { const r = await fetch(`/api/diagnostics/${id}`); if (!r.ok) throw new Error(); data = await r.json(); } catch (e) { this.notify('Scénario indisponible'); return; } }
-          this.diagId = id; this.diagData = data; this.diagKey = data.start; this.diagTrail = [];
+          const saved = this.diagProgressMap[id];
+          const canResume = !!(saved && data.steps && data.steps[saved.stepKey] && Array.isArray(saved.trail));
+          this.diagId = id;
+          this.diagData = data;
+          this.diagKey = canResume ? saved.stepKey : data.start;
+          this.diagTrail = canResume ? saved.trail : [];
+          this.diagRunStartedAt = canResume && Number.isFinite(Number(saved.startedAt)) ? Number(saved.startedAt) : Date.now();
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+          if (!canResume) this.diagSaveProgress();
         },
         get diagStep() { return this.diagData && this.diagData.steps ? this.diagData.steps[this.diagKey] || null : null; },
-        get diagFinished() { return !!this.diagStep && !(this.diagStep.choices && this.diagStep.choices.length); },
-        get diagEfficiency() { const r = this.diagTrail.filter(x => x.good !== undefined); return r.length ? Math.round(100 * r.filter(x => x.good).length / r.length) : null; },
-        diagChoose(c) {
-          this.diagTrail = [...this.diagTrail, { key: this.diagKey, situation: this.diagStep.situation, label: c.label, good: c.good, feedback: c.feedback }]; this.diagKey = c.next;
-          if (this.diagFinished) { const e = this.diagEfficiency; const m = { ...this.diagDoneMap }; m[this.diagId] = Math.max(m[this.diagId] || 0, e === null ? 100 : e); this.diagDoneMap = m; LS.set('diag-done', m); this.checkRewards(); }
+        get diagFinished() { return !!this.diagStep && !(this.diagStep.choices && this.diagStep.choices.length) && !this.diagStep.command; },
+        get diagEfficiency() { const r = this.diagTrail.filter(x => x.good === true || x.good === false); return r.length ? Math.round(100 * r.filter(x => x.good === true).length / r.length) : null; },
+        diagCorrectCount() { return this.diagTrail.filter(x => x.good === true).length; },
+        diagScoredCount() { return this.diagTrail.filter(x => x.good === true || x.good === false).length; },
+        diagElapsedSeconds() { return this.diagRunStartedAt ? Math.max(0, Math.floor((Date.now() - this.diagRunStartedAt) / 1000)) : 0; },
+        diagElapsedLabel() { const s = this.diagElapsedSeconds(); return s >= 60 ? `${Math.floor(s / 60)} min ${s % 60}s` : `${s}s`; },
+        diagFinalOutcome() { return (this.diagStep && this.diagStep.conclusion && this.diagStep.conclusion.outcome) || (this.diagStep && this.diagStep.outcome) || null; },
+        diagCompetencySummary() {
+          const groups = new Map();
+          this.diagTrail.forEach(item => {
+            if (item.good !== true && item.good !== false) return;
+            const name = item.competency || 'Méthode de dépannage';
+            const group = groups.get(name) || { name, total: 0, correct: 0 };
+            group.total += 1;
+            if (item.good === true) group.correct += 1;
+            groups.set(name, group);
+          });
+          return [...groups.values()].map(item => ({ ...item, rate: Math.round(100 * item.correct / item.total) }))
+            .sort((a, b) => a.rate - b.rate || a.name.localeCompare(b.name, 'fr'));
         },
-        diagBack() { if (!this.diagTrail.length) return; const t = this.diagTrail[this.diagTrail.length - 1]; this.diagTrail = this.diagTrail.slice(0, -1); this.diagKey = t.key; },
-        diagReset() { this.diagKey = this.diagData.start; this.diagTrail = []; },
-        diagClose() { this.diagId = null; this.diagData = null; this.diagTrail = []; },
+        diagCompetencyToReview() { return this.diagCompetencySummary().filter(item => item.rate < 80).map(item => item.name); },
+        diagSaveProgress() {
+          if (!this.diagId || !this.diagData || this.diagFinished) return;
+          const progress = {
+            stepKey: this.diagKey,
+            trail: this.diagTrail,
+            startedAt: this.diagRunStartedAt || Date.now(),
+            updatedAt: new Date().toISOString()
+          };
+          this.diagProgressMap = { ...this.diagProgressMap, [this.diagId]: progress };
+          LS.set('diag-progress', this.diagProgressMap);
+        },
+        diagCompleteRun() {
+          if (!this.diagId) return;
+          const id = this.diagId;
+          const score = this.diagEfficiency;
+          const elapsedSeconds = this.diagElapsedSeconds();
+          const result = {
+            score,
+            correctAnswers: this.diagCorrectCount(),
+            decisions: this.diagScoredCount(),
+            elapsedSeconds,
+            completedAt: new Date().toISOString(),
+            outcome: this.diagFinalOutcome(),
+            competencies: this.diagCompetencySummary()
+          };
+          if (score !== null) {
+            const best = { ...this.diagDoneMap };
+            best[id] = Math.max(Number(best[id]) || 0, score);
+            this.diagDoneMap = best;
+            LS.set('diag-done', best);
+          }
+          this.diagResultsMap = { ...this.diagResultsMap, [id]: result };
+          LS.set('diag-results', this.diagResultsMap);
+          const progress = { ...this.diagProgressMap };
+          delete progress[id];
+          this.diagProgressMap = progress;
+          LS.set('diag-progress', progress);
+          this.checkRewards();
+        },
+        diagChoose(c) {
+          const step = this.diagStep;
+          this.diagTrail = [...this.diagTrail, {
+            key: this.diagKey,
+            situation: step ? step.situation : '',
+            label: c.label,
+            good: c.good,
+            feedback: c.feedback,
+            competency: c.competency || (step && step.competency) || (this.diagData && this.diagData.competency) || 'Méthode de dépannage'
+          }];
+          this.diagKey = c.next;
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = step && step.command && c.good === false ? (c.commandFeedback || c.feedback || '') : '';
+          if (this.diagFinished) this.diagCompleteRun();
+          else this.diagSaveProgress();
+        },
+        diagSubmitCommand() {
+          const step = this.diagStep;
+          const answer = String(this.diagCommandInput || '').trim();
+          if (!step || !step.command || !answer) return;
+          let correct = false;
+          try { correct = new RegExp(step.command.regex || '^(?!x)x
+
+        // ---------- mémo (révision espacée de Leitner) ----------
+        cardFilter: { module: 'all', level: 'all', mode: 'due' }, reviewNodeId: null, reviewDaysSince: null, cardLoadError: null, cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },
+        cardKey(c) { return c.id || `${c.node_id || ''}|${c.front}`; },
+        async loadFlashcards() {
+          this.flashcardsLoading = true;
+          this.cardLoadError = null;
+          try {
+            const r = await fetch('/api/flashcards');
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            const d = await r.json();
+            if (!d || !Array.isArray(d.cards)) {
+              throw new Error('Réponse de cartes invalide.');
+            }
+            this.flashcards = d.cards;
+          } catch (e) {
+            this.cardLoadError = 'Les cartes de révision ne peuvent pas être chargées. Vérifie la connexion puis réessaie.';
+            console.error('loadFlashcards', e);
+          } finally {
+            this.flashcardsLoading = false;
+            this.buildDeck();
+          }
+        },
+        buildDeck() {
+          const now = Date.now(); const f = this.cardFilter;
+          let cards = this.flashcards.filter(c => {
+            if (this.reviewNodeId !== null && this.reviewNodeId !== undefined) {
+              return String(c.node_id) === String(this.reviewNodeId);
+            }
+            const n = this.nodes.find(x => String(x.id) === String(c.node_id));
+            if (!n) return f.module === 'all' && f.level === 'all';
+            return (f.module === 'all' || this.moduleOf(n) === f.module) && (f.level === 'all' || this.levelOf(n) === f.level);
+          });
+          // Une révision conseillée par le serveur doit pouvoir revoir toutes les cartes du cours,
+          // même si certaines cartes ne sont pas encore dues selon la boîte de Leitner.
+          if (!this.reviewNodeId && f.mode === 'due') cards = cards.filter(c => { const b = this.cardBoxes[this.cardKey(c)]; return !b || b.due <= now; });
+          for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
+          this.flashcardQueue = cards; this.flashcardFlipped = false; this.cardSession = { known: 0, unknown: 0, total: cards.length };
+        },
+        clearGuidedReview() {
+          this.reviewNodeId = null;
+          this.reviewDaysSince = null;
+          this.cardFilter = { ...this.cardFilter, module: 'all', level: 'all', mode: 'due' };
+          this.buildDeck();
+        },
+        async openGuidedReviewLesson() {
+          const nodeId = this.reviewNodeId;
+          if (!nodeId) return;
+          this.reviewNodeId = null;
+          this.reviewDaysSince = null;
+          await this.setTab('tree');
+          await this.show(nodeId);
+        },
+        markFlashcard(known) {
+          const c = this.flashcardQueue.shift(); if (!c) return; this.flashcardFlipped = false;
+          const k = this.cardKey(c); const b = { ...(this.cardBoxes[k] || { box: 0, due: 0 }) };
+          b.box = known ? Math.min(b.box + 1, 5) : 1; b.due = Date.now() + (known ? INTERVALS[b.box] : 0) * 86400000;
+          this.cardBoxes = { ...this.cardBoxes, [k]: b }; LS.set('card-boxes', this.cardBoxes);
+          if (known) this.cardSession.known++; else { this.cardSession.unknown++; this.flashcardQueue.splice(Math.min(4, this.flashcardQueue.length), 0, c); }
+        },
+        get cardStats() {
+          const now = Date.now(); let nw = 0, due = 0, mastered = 0;
+          this.flashcards.forEach(c => { const b = this.cardBoxes[this.cardKey(c)]; if (!b) { nw++; due++; } else { if (b.box >= 4) mastered++; if (b.due <= now) due++; } });
+          return { total: this.flashcards.length, nw, due, mastered };
+        },
+        cardNodeTitle(c) { const n = this.nodes.find(x => x.id === c.node_id); return n ? n.title : ''; },
+        resetBoxes() { this.cardBoxes = {}; LS.set('card-boxes', {}); this.buildDeck(); },
+      };
+    }
+  </script>
+
+  <script>
+    /* Fusionne le noyau (skilltreeBase) et l'extension v3 (skilltreeExt) : l'extension remplace les méthodes de même nom. */
+    function rgbOf(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim().split(/\s+/).join(','); }
+    function skilltreeStudySession() {
+      const storageKey = 'skilltree-study-session-v1';
+      const goals = [15, 25, 45, 60];
+      const todayKey = () => {
+        const now = new Date();
+        return String(now.getFullYear()) + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      };
+      return {
+        goals,
+        targetMinutes: 25,
+        elapsedSeconds: 0,
+        running: false,
+        _interval: null,
+        _onVisibilityChange: null,
+        _onPageHide: null,
+        init() {
+          let saved = null;
+          try { saved = JSON.parse(localStorage.getItem(storageKey) || 'null'); } catch (_) { }
+          const target = Number(saved && saved.targetMinutes);
+          if (goals.includes(target)) this.targetMinutes = target;
+          if (saved && saved.date === todayKey()) {
+            this.elapsedSeconds = Math.max(0, Math.floor(Number(saved.elapsedSeconds) || 0));
+          }
+          // Ne jamais compter le temps passé hors de l'application après un rechargement.
+          this.running = false;
+          this._onVisibilityChange = () => { if (document.hidden) this.pause(); };
+          this._onPageHide = () => this.pause();
+          document.addEventListener('visibilitychange', this._onVisibilityChange);
+          window.addEventListener('pagehide', this._onPageHide);
+          this._interval = window.setInterval(() => {
+            if (!this.running) return;
+            this.elapsedSeconds += 1;
+            if (this.goalReached) {
+              this.running = false;
+              this.persist();
+              return;
+            }
+            if (this.elapsedSeconds % 5 === 0) this.persist();
+          }, 1000);
+          this.persist();
+        },
+        destroy() {
+          if (this._interval !== null) window.clearInterval(this._interval);
+          if (this._onVisibilityChange) document.removeEventListener('visibilitychange', this._onVisibilityChange);
+          if (this._onPageHide) window.removeEventListener('pagehide', this._onPageHide);
+          this.running = false;
+          this.persist();
+        },
+        get goalReached() { return this.elapsedSeconds >= this.targetMinutes * 60; },
+        get progressPercent() {
+          return Math.min(100, Math.round((this.elapsedSeconds / (this.targetMinutes * 60)) * 100));
+        },
+        get statusLabel() {
+          if (this.goalReached) return 'Objectif atteint — bravo !';
+          if (this.running) return 'Session en cours';
+          return this.elapsedSeconds > 0 ? 'Session en pause · tu peux reprendre quand tu veux' : 'Choisis une durée et lance ta session';
+        },
+        elapsedLabel() {
+          const seconds = Math.max(0, Math.floor(this.elapsedSeconds));
+          const hours = Math.floor(seconds / 3600);
+          const minutes = Math.floor((seconds % 3600) / 60);
+          const rest = seconds % 60;
+          return hours
+            ? String(hours) + ' h ' + String(minutes).padStart(2, '0') + ' min'
+            : String(minutes).padStart(2, '0') + ':' + String(rest).padStart(2, '0');
+        },
+        setTarget(minutes) {
+          const value = Number(minutes);
+          if (!goals.includes(value)) return;
+          this.targetMinutes = value;
+          if (this.goalReached) this.running = false;
+          this.persist();
+        },
+        toggle() {
+          if (this.goalReached) return;
+          this.running = !this.running;
+          this.persist();
+        },
+        pause() {
+          if (!this.running) return;
+          this.running = false;
+          this.persist();
+        },
+        reset() {
+          this.running = false;
+          this.elapsedSeconds = 0;
+          this.persist();
+        },
+        persist() {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify({
+              date: todayKey(),
+              targetMinutes: this.targetMinutes,
+              elapsedSeconds: this.elapsedSeconds,
+              running: this.running,
+            }));
+          } catch (_) { }
+        },
+      };
+    }
+
+    function skilltreeTheme() {
+      const TONE = { cyan: 'bg-cyan-500/10 text-cyan-400', emerald: 'bg-emerald-500/10 text-emerald-400', fuchsia: 'bg-fuchsia-500/10 text-fuchsia-400', orange: 'bg-orange-500/10 text-orange-400' };
+      return {
+        themes: window.THEMES, themeMenuOpen: false, theme: document.documentElement.dataset.theme || 'graphite', activeThemeId: document.documentElement.dataset.theme || 'graphite',
+        liveEvents: (() => {
+          try {
+            const saved = JSON.parse(localStorage.getItem('skilltree-notifications-v1') || '[]');
+            return Array.isArray(saved) ? saved.filter(n => n && typeof n === 'object').slice(0, 30) : [];
+          } catch (_) { return []; }
+        })(),
+        radarSelectedDomain: null,
+        syncTheme() {
+          const root = document.documentElement;
+          const applied = root.dataset.theme;
+          const stored = (() => { try { return localStorage.getItem('skilltree-theme2'); } catch (_) { return null; } })();
+          // activeThemeId est la source réactive unique pendant la session ; stockage et DOM sont synchronisés avec elle.
+          const fallback = this.themes.some(x => x.id === applied) ? applied : 'graphite';
+          const id = this.themes.some(x => x.id === this.activeThemeId)
+            ? this.activeThemeId
+            : (this.themes.some(x => x.id === stored) ? stored : fallback);
+          const selected = this.themes.find(x => x.id === id);
+          if (!selected) return;
+          this.activeThemeId = id;
+          this.theme = id;
+          root.dataset.theme = id;
+          root.classList.toggle('dark', selected.kind === 'dark');
+          root.classList.toggle('light', selected.kind === 'light');
+          root.style.colorScheme = selected.kind;
+          try { if (stored !== id) localStorage.setItem('skilltree-theme2', id); } catch (_) { }
+        },
+        themeIsActive(id) { return this.activeThemeId === id; },
+        closeModalsOnOutside(event) {
+          const target = event && event.target;
+          if (!target || !target.closest) return;
+          // Un clic dans le contenu ne doit pas interrompre les actions du formulaire ou de la modale.
+          if (target.closest('[role="dialog"][aria-modal="true"], [data-modal-content]')) return;
+          if (this.open) this.close();
+          if (this.mobileSearchOpen) this.closeMobileSearch();
+          if (this.shopOpen) this.shopOpen = false;
+          if (this.diplomaView) this.diplomaView = null;
+          if (this.modMgrOpen) this.modMgrOpen = false;
+        },
+        closeThemeOnOutside(event) {
+          const target = event && event.target;
+          if (!target || !target.closest || !target.closest('[data-theme-picker]')) this.themeMenuOpen = false;
+        },
+        radarHasData() {
+          const categories = Array.isArray(this.stats?.categories) ? this.stats.categories : [];
+          if (!categories.length) return false;
+          const totalAttempts = Number(this.stats?.totals?.attempts);
+          if (Number.isFinite(totalAttempts) && totalAttempts > 0) return true;
+          return categories.some(c => Number(c?.attempts ?? c?.total_attempts ?? c?.questions_answered ?? 0) > 0 || Number(c?.success_rate) > 0);
+        },
+        radarHasPositiveRate() {
+          return Array.isArray(this.stats?.categories) && this.stats.categories.some(c => Number(c?.success_rate) > 0);
+        },
+        setTheme(id) {
+          const m = this.themes.find(x => x.id === id);
+          if (!m) return;
+          const r = document.documentElement;
+          // Mettre à jour l'état Alpine avant le DOM évite une coche qui reste sur l'ancien thème.
+          this.activeThemeId = id;
+          this.theme = id;
+          r.dataset.theme = id;
+          r.classList.toggle('dark', m.kind === 'dark');
+          r.classList.toggle('light', m.kind === 'light');
+          r.style.colorScheme = m.kind;
+          try { localStorage.setItem('skilltree-theme2', id); } catch (_) { }
+          // Le sélecteur reste ouvert pour que la coche confirme immédiatement le choix.
+          if (this.stats && this.tab === 'stats') this.$nextTick(() => this.renderSpiderChart());
+        },
+        toggleTheme() { const k = (this.themes.find(x => x.id === this.theme) || {}).kind; this.setTheme(k === 'dark' ? 'lumiere' : 'graphite'); },
+        /* Parcours : fenêtre de 5 cours autour de l'étape en cours, calculée depuis /api/tree */
+        get lastOpenedNode() {
+          return this.lastOpenedNodeId ? (this.nodes.find(n => String(n.id) === String(this.lastOpenedNodeId)) || null) : null;
+        },
+        get resumableLastNode() {
+          const node = this.lastOpenedNode;
+          return node && node.status !== 'locked' ? node : null;
+        },
+        get resumeNode() {
+          return this.resumableLastNode
+            || this.parcours.cur
+            || this.nodes.find(n => n.status === 'in_progress')
+            || this.nodes.find(n => n.status === 'available')
+            || this.nodes.find(n => n.status === 'validated')
+            || null;
+        },
+        get allNodesValidated() {
+          return this.nodes.length > 0 && this.nodes.every(node => node.status === 'validated');
+        },
+        get resumeBadge() {
+          if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
+          if (!this.nodes.length) return this.loading ? 'Chargement du parcours' : 'Aucun cours disponible';
+          if (this.resumableLastNode) return 'Reprise disponible';
+          if (this.resumeNode?.status === 'in_progress') return 'Activité à reprendre';
+          if (this.allNodesValidated) return 'Parcours terminé';
+          return this.resumeNode ? 'Prêt à continuer' : 'À explorer';
+        },
+        get resumeEyebrow() {
+          if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
+          if (!this.nodes.length) return this.loading ? 'Chargement en cours' : 'Aucun cours disponible';
+          if (this.resumableLastNode) return 'Reprendre ta dernière leçon';
+          if (this.resumeNode?.status === 'in_progress') return 'Reprendre une activité';
+          if (this.allNodesValidated) return 'Révision recommandée';
+          return 'Ta prochaine étape';
+        },
+        get resumeDescription() {
+          if (this.treeError && !this.nodes.length) return 'Le parcours n’a pas pu être chargé. Réessaie depuis le message affiché en haut du tableau de bord.';
+          if (!this.nodes.length) return this.loading ? 'Récupération des étapes du parcours…' : 'Le serveur ne fournit actuellement aucun cours dans le parcours.';
+          if (this.resumableLastNode) return 'Retrouve le cours où tu t’es arrêté et poursuis ta lecture sans devoir le rechercher.';
+          if (this.resumeNode?.status === 'in_progress') return 'Une activité est déjà commencée : reprends-la pour poursuivre ta progression.';
+          if (this.allNodesValidated) return 'Tu as validé tout le parcours disponible. Choisis une leçon pour réviser et consolider tes acquis.';
+          if (this.resumeNode) return 'Poursuis le parcours conseillé, étape après étape.';
+          if (this.nodes.length) return 'Aucune étape accessible pour le moment. Vérifie les prérequis des cours.';
+          return 'Choisis un cours pour commencer à construire tes compétences réseau.';
+        },
+        get resumeButtonLabel() {
+          if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
+          if (!this.nodes.length) return this.loading ? 'Chargement…' : 'Aucun cours disponible';
+          if (this.resumableLastNode) return this.lastLessonProgress >= 100 ? 'Revoir cette leçon' : 'Reprendre la lecture';
+          if (this.resumeNode?.status === 'in_progress') return 'Reprendre cette activité';
+          if (this.resumeNode?.status === 'validated') return 'Réviser cette leçon';
+          if (this.resumeNode) return 'Commencer la prochaine étape';
+          return 'Aucune étape accessible';
+        },
+        get nextLessonNode() {
+          // Distinguer la reprise de la dernière leçon de la prochaine étape conseillée.
+          // Ne rien afficher si la dernière leçon est elle-même l'étape courante.
+          if (!this.resumableLastNode) return null;
+          const next = this.parcours.cur;
+          if (!next || String(next.id) === String(this.resumableLastNode.id) || next.status === 'locked') return null;
+          return next;
+        },
+        get parcours() {
+          const pool = this.nodesIn(this.moduleFilter);
+          const total = pool.length;
+          const done = pool.filter(n => n.status === 'validated').length;
+          const finished = total > 0 && done === total;
+          // Une action "challenge" peut aussi être une nouveauté disponible :
+          // seule une tentative déjà en cours doit remplacer l'étape courante du parcours.
+          const activePlanAction = (this.dailyPlan || []).find(action =>
+            action.status === 'in_progress' &&
+            ['continue', 'lab', 'challenge'].includes(action.action) &&
+            pool.some(node => String(node.id) === String(action.node_id))
+          );
+          let ci = activePlanAction
+            ? pool.findIndex(node => String(node.id) === String(activePlanAction.node_id))
+            : -1;
+          if (ci < 0) ci = pool.findIndex(node => node.status === 'in_progress');
+          if (ci < 0) ci = pool.findIndex(node => node.status === 'available');
+          if (ci < 0 && finished) ci = total - 1;
+
+          const activeIndex = Math.max(0, ci);
+          const start = Math.max(0, Math.min(activeIndex - 2, total - 5));
+          const steps = pool.slice(start, start + 5).map((node, i) => ({
+            id: node.id,
+            title: node.title,
+            status: node.status,
+            cur: !finished && ci >= 0 && start + i === ci,
+          }));
+          const pos = steps.findIndex(step => step.cur);
+          return {
+            steps,
+            total,
+            done,
+            finished,
+            cur: ci >= 0 && !finished ? pool[ci] : null,
+            fill: finished ? 1 : (steps.length > 1 && pos >= 0 ? pos / (steps.length - 1) : 0),
+          };
+        },
+        get planActions() {
+          // Le résumé de reprise et le graphe montrent déjà leur activité cible.
+          // Le plan du jour propose des actions complémentaires plutôt que de dupliquer ces nœuds.
+          const visibleNodeIds = [
+            this.resumeNode?.id,
+            this.parcours.cur?.id,
+          ].filter(id => id !== null && id !== undefined).map(String);
+          if (this.dailyPlan.length) {
+            return this.dailyPlan.filter(action => !visibleNodeIds.includes(String(action.node_id)));
+          }
+          return this.nodes
+            .filter(n => n.status === 'available' && !visibleNodeIds.includes(String(n.id)))
+            .slice(0, 3)
+            .map(n => ({ node_id: n.id, label: n.title, reason: n.category || '', action: 'start' }));
+        },
+        get planEmptyMessage() {
+          if (this.dashboardDataErrors.dailyPlan && !this.dailyPlan.length) return 'Le plan du serveur est indisponible. Les suggestions locales éventuelles sont déduites du parcours chargé.';
+          if (this.treeError && !this.nodes.length) return 'Le parcours ne peut pas être affiché. Réessaie avec le bouton ci-dessus.';
+          if (!this.nodes.length) return this.loading ? 'Préparation de ta session…' : 'Aucun cours disponible pour le moment.';
+          if (this.nodes.every(n => n.status === 'validated')) return '🎉 Tu as validé tout le parcours actuellement disponible. Reprends une leçon pour réviser ou explore les modules pour approfondir.';
+          const visibleNodeIds = [this.resumeNode?.id, this.parcours.cur?.id]
+            .filter(id => id !== null && id !== undefined).map(String);
+          if (this.dailyPlan.length && this.dailyPlan.every(action => visibleNodeIds.includes(String(action.node_id)))) {
+            return 'Les priorités du jour sont déjà mises en évidence dans les cartes de reprise et du parcours. Explore un autre module pour varier ta session.';
+          }
+          if (!this.dailyPlan.length && this.nodes.some(n => n.status === 'available' && visibleNodeIds.includes(String(n.id)))) {
+            return 'La prochaine étape est déjà mise en évidence dans les cartes ci-dessus. Explore un autre module pour varier ta session.';
+          }
+          return 'Aucune action recommandée pour le moment. Consulte les prérequis des cours ou explore un module.';
+        },
+        get notifications() {
+          return this.liveEvents.slice(0, 30).map(n => ({
+            ...n,
+            read: n.read === true,
+            cls: TONE[n.tone] || TONE.cyan,
+          }));
+        },
+        get unreadNotificationCount() {
+          return this.liveEvents.filter(n => n.read !== true).length;
+        },
+        persistNotifications() {
+          this.liveEvents = this.liveEvents.slice(0, 30);
+          try { localStorage.setItem('skilltree-notifications-v1', JSON.stringify(this.liveEvents)); } catch (_) { }
+        },
+        addNotification(event) {
+          if (!event || !event.title) return;
+          const id = String(event.id || (Date.now() + '-' + Math.random().toString(36).slice(2, 9)));
+          if (this.liveEvents.some(n => String(n.id) === id)) return;
+          const notification = {
+            icon: '🔔', tone: 'cyan', sub: '', node: null,
+            ...event,
+            id,
+            createdAt: event.createdAt || new Date().toISOString(),
+            read: false,
+          };
+          this.liveEvents = [notification, ...this.liveEvents.filter(n => String(n.id) !== id)].slice(0, 30);
+          this.persistNotifications();
+        },
+        markNotificationRead(id) {
+          if (!this.liveEvents.some(n => String(n.id) === String(id) && n.read !== true)) return;
+          this.liveEvents = this.liveEvents.map(n => String(n.id) === String(id) ? { ...n, read: true } : n);
+          this.persistNotifications();
+        },
+        markAllNotificationsRead() {
+          if (!this.unreadNotificationCount) return;
+          this.liveEvents = this.liveEvents.map(n => ({ ...n, read: true }));
+          this.persistNotifications();
+        },
+        openNotification(notification) {
+          if (!notification) return;
+          this.markNotificationRead(notification.id);
+          this.notificationsOpen = false;
+          if (notification.node && this.nodes.some(n => String(n.id) === String(notification.node))) {
+            this.show(notification.node);
+          }
+        },
+        notificationTime(value) {
+          try {
+            const date = new Date(value);
+            if (!Number.isFinite(date.getTime())) return '';
+            return date.toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+          } catch (_) { return ''; }
+        },
+        startSync() {
+          if (this._sync) return; const go = () => { if (!document.hidden && !this.open) this.refreshAll(); };
+          this._sync = setInterval(go, 45000); document.addEventListener('visibilitychange', go);
+        },
+      };
+    }
+    function skilltree() {
+      const base = skilltreeBase();
+      Object.defineProperties(base, Object.getOwnPropertyDescriptors(skilltreeExt()));
+      Object.defineProperties(base, Object.getOwnPropertyDescriptors(skilltreeTheme()));
+      const origLoad = base.loadTree, origInit = base.init;
+      const origLoadStreak = base.loadStreak;
+      const origCheckRewards = base.checkRewards;
+      const nodeSnapshotKey = 'skilltree-node-snapshot-v1';
+      const streakSnapshotKey = 'skilltree-streak-snapshot-v1';
+      const readNodeSnapshot = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(nodeSnapshotKey) || 'null');
+          return saved && saved.nodes && typeof saved.nodes === 'object' ? saved.nodes : null;
+        } catch (_) { return null; }
+      };
+      const saveNodeSnapshot = (nodes) => {
+        const snapshot = {};
+        nodes.forEach(n => { snapshot[String(n.id)] = { title: n.title, status: n.status, module: n.module }; });
+        try { localStorage.setItem(nodeSnapshotKey, JSON.stringify({ nodes: snapshot })); } catch (_) { }
+      };
+      base.loadTree = async function () {
+        const savedBefore = readNodeSnapshot();
+        const previousInMemory = new Map((this.nodes || []).map(n => [String(n.id), { title: n.title, status: n.status, module: n.module }]));
+        await origLoad.call(this);
+        if (this.treeError || !Array.isArray(this.nodes)) return;
+
+        // Le snapshot local permet de détecter les ajouts/modifications même après fermeture ou rechargement de la page.
+        const previous = savedBefore || (previousInMemory.size ? Object.fromEntries(previousInMemory) : null);
+        if (previous) {
+          const added = this.nodes.filter(n => !Object.prototype.hasOwnProperty.call(previous, String(n.id)));
+          if (added.length) {
+            const titles = added.slice(0, 3).map(n => n.title).join(', ');
+            const extra = added.length > 3 ? ' et ' + (added.length - 3) + ' autre(s)' : '';
+            this.addNotification({
+              id: 'courses-added:' + added.map(n => String(n.id)).sort().join('|'),
+              icon: '🆕', tone: 'cyan',
+              title: added.length + ' nouveau' + (added.length > 1 ? 'x' : '') + ' cours disponible' + (added.length > 1 ? 's' : ''),
+              sub: titles + extra,
+              node: added[0].id,
+            });
+          }
+          this.nodes.forEach(n => {
+            const old = previous[String(n.id)];
+            if (!old) return;
+            if (old.status === 'locked' && n.status === 'available') {
+              this.addNotification({
+                id: 'course-unlocked:' + String(n.id),
+                icon: '🔓', tone: 'fuchsia', title: 'Cours débloqué', sub: n.title, node: n.id,
+              });
+            } else if (old.status !== 'validated' && n.status === 'validated') {
+              this.addNotification({
+                id: 'course-validated:' + String(n.id),
+                icon: '✅', tone: 'emerald', title: 'Cours validé', sub: n.title, node: n.id,
+              });
+            }
+          });
+        }
+        saveNodeSnapshot(this.nodes);
+      };
+
+      if (typeof origLoadStreak === 'function') {
+        base.loadStreak = async function () {
+          let previous = null;
+          try {
+            const stored = localStorage.getItem(streakSnapshotKey);
+            if (stored !== null && Number.isInteger(Number(stored)) && Number(stored) >= 0) previous = Number(stored);
+          } catch (_) { }
+          await origLoadStreak.call(this);
+          if (this.dashboardDataErrors?.streak || !Number.isInteger(this.streakDays) || this.streakDays < 0) return;
+          const current = this.streakDays;
+          if (previous !== null && current > previous) {
+            const milestones = [3, 7, 14, 30, 50, 100];
+            const milestone = milestones.filter(day => previous < day && current >= day).pop();
+            this.addNotification({
+              id: milestone ? 'streak-milestone:' + milestone : 'streak-days:' + current,
+              icon: '🔥', tone: 'orange',
+              title: milestone ? 'Série de ' + milestone + ' jours atteinte !' : 'Série quotidienne prolongée',
+              sub: 'Tu as étudié ' + current + ' jours consécutifs.',
+            });
+          }
+          try { localStorage.setItem(streakSnapshotKey, String(current)); } catch (_) { }
+        };
+      }
+
+      if (typeof origCheckRewards === 'function') {
+        base.checkRewards = function (...args) {
+          let previouslySeen = null;
+          try {
+            const raw = localStorage.getItem('st:badges-seen');
+            previouslySeen = raw ? JSON.parse(raw) : null;
+          } catch (_) { }
+          const newlyUnlocked = Array.isArray(previouslySeen) && this.nodes.length
+            ? this.badges.filter(b => b.ok && !previouslySeen.includes(b.id))
+            : [];
+          const result = origCheckRewards.apply(this, args);
+          newlyUnlocked.forEach(b => this.addNotification({
+            id: 'badge-unlocked:' + b.id,
+            icon: b.icon || '🏅', tone: 'orange',
+            title: 'Badge débloqué : ' + b.name, sub: b.desc,
+          }));
+          return result;
+        };
+      }
+      base.init = async function () { this.syncTheme?.(); await origInit.call(this); this.syncTheme?.(); this.startSync(); };
+      return base;
+    }
+  </script>
+
+  <script>
+    /* Skill Tree — fiabilisation et extensions UX, sans modifier les contrats API existants. */
+    (function () {
+      const baseFactory = window.skilltree;
+      if (typeof baseFactory !== 'function') return;
+
+      const BUILTIN_TOPO_CHALLENGES = [
+        { id: 'builtin-office-lan', title: 'Réseau de bureau', level: 'debutant', levelLabel: '🌱 Débutant', minutes: 5,
+          description: 'Construis un LAN simple : un routeur vers un switch, puis deux PC sur le switch. Objectif : comprendre le chemin d’accès et la topologie physique.',
+          timeLimit: 300, minScore: 100,
+          requireTypeCoverage: [{ type: 'router', peer: 'switch' }, { type: 'pc', peer: 'switch' }],
+          expected: { nodes: { router: 1, switch: 1, pc: 2 }, connections: [{ from: 'router', to: 'switch' }, { from: 'switch', to: 'pc' }, { from: 'switch', to: 'pc' }] } },
+        { id: 'builtin-service-lan', title: 'LAN avec serveur', level: 'debutant', levelLabel: '🌱 Débutant', minutes: 6,
+          description: 'Relie un poste et un serveur au même switch, puis relie le switch au routeur de sortie.',
+          timeLimit: 360, minScore: 100,
+          requireTypeCoverage: [{ type: 'router', peer: 'switch' }, { type: 'pc', peer: 'switch' }, { type: 'server', peer: 'switch' }],
+          expected: { nodes: { router: 1, switch: 1, pc: 1, server: 1 }, connections: [{ from: 'router', to: 'switch' }, { from: 'switch', to: 'pc' }, { from: 'switch', to: 'server' }] } },
+        { id: 'builtin-intervlan', title: 'Routage inter-VLAN', level: 'intermediaire', levelLabel: '🚀 Intermédiaire', minutes: 8,
+          description: 'Modélise un routeur-on-a-stick : un routeur rejoint un switch et deux postes représentent deux VLAN distincts. La validation contrôle la structure ; les VLAN et le trunk doivent être configurés dans le lab CLI.',
+          timeLimit: 480, minScore: 100,
+          requireTypeCoverage: [{ type: 'router', peer: 'switch' }, { type: 'pc', peer: 'switch' }, { type: 'server', peer: 'switch' }],
+          expected: { nodes: { router: 1, switch: 1, pc: 2, server: 1 }, connections: [{ from: 'router', to: 'switch' }, { from: 'switch', to: 'pc' }, { from: 'switch', to: 'pc' }, { from: 'switch', to: 'server' }] } },
+        { id: 'builtin-dmz', title: 'DMZ segmentée', level: 'intermediaire', levelLabel: '🚀 Intermédiaire', minutes: 10,
+          description: 'Place le pare-feu entre le routeur externe et le réseau interne ; le switch dessert un serveur et un poste interne.',
+          timeLimit: 600, minScore: 100,
+          requireTypeCoverage: [{ type: 'router', peer: 'firewall' }, { type: 'firewall', peer: 'switch' }, { type: 'server', peer: 'switch' }, { type: 'pc', peer: 'switch' }],
+          expected: { nodes: { router: 1, firewall: 1, switch: 1, server: 1, pc: 1 }, connections: [{ from: 'router', to: 'firewall' }, { from: 'firewall', to: 'switch' }, { from: 'switch', to: 'server' }, { from: 'switch', to: 'pc' }] } },
+        { id: 'builtin-wifi-access', title: 'Réseau Wi-Fi d’entreprise', level: 'intermediaire', levelLabel: '🚀 Intermédiaire', minutes: 8,
+          description: 'Relie le routeur au switch, le point d’accès au switch, le client Wi-Fi au point d’accès (liaison logique d’association) et le serveur au switch. Ce défi vérifie les connexions représentées, pas la configuration radio.',
+          timeLimit: 480, minScore: 100,
+          requireTypeCoverage: [{ type: 'router', peer: 'switch' }, { type: 'wifi', peer: 'switch' }, { type: 'laptop', peer: 'wifi' }, { type: 'server', peer: 'switch' }],
+          expected: { nodes: { router: 1, switch: 1, wifi: 1, laptop: 1, server: 1 }, connections: [{ from: 'router', to: 'switch' }, { from: 'switch', to: 'wifi' }, { from: 'wifi', to: 'laptop' }, { from: 'switch', to: 'server' }] } },
+        { id: 'builtin-spine-leaf', title: 'Fabric Spine/Leaf redondante', level: 'expert', levelLabel: '🔥 Expert', minutes: 12,
+          description: 'Construis une fabric à deux Spine et deux Leaf. Chaque Leaf doit être connecté aux deux Spine : quatre liaisons au total, sans liaison Leaf–Leaf ni Spine–Spine.',
+          timeLimit: 720, minScore: 100, requireCompleteBipartite: ['spine', 'leaf'],
+          expected: { nodes: { spine: 2, leaf: 2 }, connections: [{ from: 'spine', to: 'leaf' }, { from: 'spine', to: 'leaf' }, { from: 'spine', to: 'leaf' }, { from: 'spine', to: 'leaf' }] } },
+        { id: 'builtin-edge-ha', title: 'Périmètre haute disponibilité', level: 'expert', levelLabel: '🔥 Expert', minutes: 12,
+          description: 'Représente une sortie redondante : deux routeurs, deux pare-feu, un switch et un serveur. Chaque routeur rejoint un pare-feu, les deux pare-feu rejoignent le switch et le switch rejoint le serveur.',
+          timeLimit: 720, minScore: 100,
+          requireTypeCoverage: [{ type: 'router', peer: 'firewall' }, { type: 'firewall', peer: 'switch' }, { type: 'server', peer: 'switch' }],
+          expected: { nodes: { router: 2, firewall: 2, switch: 1, server: 1 }, connections: [{ from: 'router', to: 'firewall' }, { from: 'router', to: 'firewall' }, { from: 'firewall', to: 'switch' }, { from: 'firewall', to: 'switch' }, { from: 'switch', to: 'server' }] } }
+      ];
+
+      const BUILTIN_CHALLENGE_BRIEFS = {
+        "builtin-office-lan": {
+          "context": "Un nouveau poste doit rejoindre un bureau et communiquer avec les autres réseaux. Avant de configurer les adresses, vérifie que son chemin physique vers la passerelle est cohérent.",
+          "objectives": [
+            "Distinguer la distribution locale de la sortie réseau.",
+            "Construire un chemin simple vers la passerelle."
+          ],
+          "concepts": [
+            {
+              "term": "Switch",
+              "explanation": "Relie les hôtes d’un même LAN."
+            },
+            {
+              "term": "Routeur",
+              "explanation": "Permet de joindre d’autres réseaux IP."
+            },
+            {
+              "term": "Passerelle par défaut",
+              "explanation": "Point de sortie d’un hôte vers un réseau distant."
+            }
+          ],
+          "mission_steps": [
+            "Place un routeur, un switch et deux PC.",
+            "Relie la passerelle au switch.",
+            "Raccorde les deux PC au switch.",
+            "Vérifie les connexions."
+          ],
+          "success_criteria": [
+            "Les deux PC sont connectés au switch.",
+            "Le routeur est relié au switch.",
+            "Aucun équipement requis n’est isolé."
+          ],
+          "hints": [
+            "Le switch distribue la connectivité locale.",
+            "La passerelle se raccorde au LAN via le switch."
+          ],
+          "evaluation_scope": "Exercice local de topologie uniquement : pas de progression serveur ni de validation d’adressage IP.",
+          "debrief": "Une fois les liens corrects, configure le plan IP, la passerelle des PC et teste la connectivité."
+        },
+        "builtin-service-lan": {
+          "context": "Un bureau utilise un poste client et un serveur interne. Les deux appareils doivent rejoindre le même réseau local tout en conservant un chemin vers la sortie réseau.",
+          "objectives": [
+            "Distinguer le rôle client du rôle serveur.",
+            "Raccorder les hôtes et la passerelle à l’infrastructure locale."
+          ],
+          "concepts": [
+            {
+              "term": "Client",
+              "explanation": "Consomme un service réseau."
+            },
+            {
+              "term": "Serveur",
+              "explanation": "Héberge un service qui doit être joignable depuis les zones autorisées."
+            },
+            {
+              "term": "LAN",
+              "explanation": "Réseau local des terminaux et de leur distribution."
+            }
+          ],
+          "mission_steps": [
+            "Place routeur et switch.",
+            "Relie le switch au routeur.",
+            "Ajoute le client et le serveur au switch.",
+            "Vérifie les trois liaisons."
+          ],
+          "success_criteria": [
+            "Le routeur et le switch sont reliés.",
+            "Le client et le serveur sont chacun reliés au switch."
+          ],
+          "hints": [
+            "Le switch est le point de distribution du LAN.",
+            "Un serveur posé dans le canevas mais isolé ne rend aucun service."
+          ],
+          "evaluation_scope": "L’exercice vérifie les liaisons dessinées, pas DNS, HTTP, les adresses ni le filtrage.",
+          "debrief": "La topologie ne prouve pas qu’un service fonctionne. Vérifie ensuite l’adresse du serveur, le service actif et les règles d’accès."
+        },
+        "builtin-intervlan": {
+          "context": "Deux équipes doivent rester séparées logiquement tout en partageant l’infrastructure physique. Tu représentes la structure de routage inter-VLAN avant de configurer les VLAN et le trunk.",
+          "objectives": [
+            "Comprendre le rôle du routeur entre VLAN.",
+            "Préparer un schéma que tu configureras ensuite dans le lab CLI."
+          ],
+          "concepts": [
+            {
+              "term": "VLAN",
+              "explanation": "Sépare logiquement les domaines de broadcast."
+            },
+            {
+              "term": "Trunk 802.1Q",
+              "explanation": "Transporte plusieurs VLAN sur une liaison balisée."
+            },
+            {
+              "term": "Router-on-a-stick",
+              "explanation": "Utilise les sous-interfaces d’un routeur sur un trunk pour router entre VLAN."
+            }
+          ],
+          "mission_steps": [
+            "Place routeur, switch, deux PC et serveur.",
+            "Relie le routeur au switch.",
+            "Raccorde les terminaux au switch.",
+            "Dans le lab CLI, configure VLAN, trunk et sous-interfaces."
+          ],
+          "success_criteria": [
+            "Le routeur est relié au switch.",
+            "Les deux PC et le serveur sont raccordés au switch.",
+            "Tu sais quelles configurations restent à vérifier dans le lab."
+          ],
+          "hints": [
+            "Les deux PC représentent des zones logiques distinctes.",
+            "Le schéma n’affiche pas encore les identifiants VLAN."
+          ],
+          "evaluation_scope": "La vérification locale contrôle la structure, pas les VLAN, le trunk ou les sous-interfaces.",
+          "debrief": "Il faut vérifier l’appartenance aux VLAN, les modes d’accès/trunk, les sous-interfaces et les passerelles des hôtes."
+        },
+        "builtin-dmz": {
+          "context": "Un service doit être accessible depuis l’extérieur sans exposer directement le réseau des employés. La DMZ fournit une zone intermédiaire et des contrôles de flux propres.",
+          "objectives": [
+            "Expliquer le rôle d’une DMZ.",
+            "Placer le filtrage sur le chemin vers le réseau interne."
+          ],
+          "concepts": [
+            {
+              "term": "DMZ",
+              "explanation": "Zone intermédiaire pour les services publiés."
+            },
+            {
+              "term": "Moindre privilège",
+              "explanation": "N’autoriser que les communications nécessaires."
+            },
+            {
+              "term": "Filtrage par zone",
+              "explanation": "Les flux entre extérieur, DMZ et LAN doivent être contrôlés."
+            }
+          ],
+          "mission_steps": [
+            "Construis le chemin depuis le routeur externe vers le pare-feu.",
+            "Place le switch réseau local derrière la frontière de sécurité.",
+            "Raccorde le serveur et le poste au switch.",
+            "Identifie les flux à autoriser dans un vrai lab de sécurité."
+          ],
+          "success_criteria": [
+            "Le routeur rejoint le pare-feu avant le LAN.",
+            "Le switch est relié au pare-feu.",
+            "Le serveur et le PC sont connectés au switch."
+          ],
+          "hints": [
+            "Une DMZ n’est pas simplement un serveur près d’un pare-feu.",
+            "Réfléchis aux flux qui doivent être accessibles depuis Internet."
+          ],
+          "evaluation_scope": "La topologie locale ne valide pas les règles firewall ni l’isolation réelle de la DMZ.",
+          "debrief": "Traduis le schéma en interfaces, zones et règles restrictives, puis vérifie les flux autorisés et interdits."
+        },
+        "builtin-wifi-access": {
+          "context": "Une salle de réunion doit disposer du Wi-Fi sans raccorder les clients mobiles directement au réseau câblé. Tu représentes le point d’accès et le chemin vers l’infrastructure.",
+          "objectives": [
+            "Distinguer point d’accès et client Wi-Fi.",
+            "Comprendre les limites d’un schéma par rapport à une configuration radio réelle."
+          ],
+          "concepts": [
+            {
+              "term": "Point d’accès",
+              "explanation": "Fait le pont entre les clients sans fil et le réseau filaire."
+            },
+            {
+              "term": "SSID et sécurité radio",
+              "explanation": "Le SSID identifie le réseau ; WPA2/WPA3 protègent son accès."
+            },
+            {
+              "term": "VLAN du SSID",
+              "explanation": "Le VLAN associé au SSID détermine vers quelle zone réseau le trafic est envoyé."
+            }
+          ],
+          "mission_steps": [
+            "Place routeur, switch et point d’accès.",
+            "Raccorde l’AP au switch.",
+            "Représente l’association du portable à l’AP.",
+            "Ajoute le serveur et réfléchis au SSID et au VLAN à configurer ensuite."
+          ],
+          "success_criteria": [
+            "Le routeur et l’AP rejoignent le réseau de distribution.",
+            "Le portable est lié au point d’accès.",
+            "Le serveur est raccordé au LAN."
+          ],
+          "hints": [
+            "Le lien portable–AP est une association logique, pas un câble.",
+            "Le point d’accès doit lui-même rejoindre le réseau qui transporte les clients."
+          ],
+          "evaluation_scope": "La topologie ne simule pas les ondes, l’authentification, le chiffrement ni le roaming.",
+          "debrief": "Vérifie SSID, protection radio, plan RF, VLAN et configuration du port filaire de l’AP dans le lab réel."
+        },
+        "builtin-spine-leaf": {
+          "context": "Tu conçois une petite fabric de datacenter : les serveurs sont raccordés aux Leaf et les Spine assurent le transit. L’objectif est que chaque Leaf dispose de plusieurs chemins vers le cœur de la fabric.",
+          "objectives": [
+            "Distinguer les rôles Spine et Leaf.",
+            "Construire les quatre liaisons croisées."
+          ],
+          "concepts": [
+            {
+              "term": "Leaf",
+              "explanation": "Point de raccordement des serveurs."
+            },
+            {
+              "term": "Spine",
+              "explanation": "Couche de transit qui relie les Leaf."
+            },
+            {
+              "term": "ECMP",
+              "explanation": "Permet d’utiliser plusieurs chemins de coût égal si le routage est configuré ainsi."
+            }
+          ],
+          "mission_steps": [
+            "Place deux Spine et deux Leaf en deux rangées.",
+            "Relie chaque Spine à chaque Leaf.",
+            "Vérifie toutes les paires possibles.",
+            "Dans un vrai déploiement, teste le routage et les pannes."
+          ],
+          "success_criteria": [
+            "Toutes les paires Spine–Leaf sont connectées.",
+            "Aucun Spine ou Leaf n’est isolé.",
+            "Aucun lien non attendu ne remplace une paire requise."
+          ],
+          "hints": [
+            "Énumère les deux voisins Leaf de chaque Spine.",
+            "Il faut obtenir les quatre combinaisons possibles."
+          ],
+          "evaluation_scope": "Exercice local sans validation serveur ; il ne teste pas BGP/OSPF ou ECMP.",
+          "debrief": "La connectivité croisée fournit des chemins disponibles, mais la disponibilité réelle dépend du routage et du comportement à la panne."
+        },
+        "builtin-edge-ha": {
+          "context": "Une entreprise veut réduire l’impact d’une panne de la périphérie réseau. Tu représentes une sortie avec deux routeurs et deux pare-feu avant de travailler les mécanismes de haute disponibilité.",
+          "objectives": [
+            "Identifier les composants redondants de la périphérie.",
+            "Distinguer des équipements dupliqués d’une haute disponibilité configurée."
+          ],
+          "concepts": [
+            {
+              "term": "Redondance",
+              "explanation": "Fournit des alternatives quand un composant tombe en panne."
+            },
+            {
+              "term": "Paire HA de pare-feu",
+              "explanation": "Exige un mécanisme de basculement et souvent une synchronisation d’état."
+            },
+            {
+              "term": "Domaine de défaillance",
+              "explanation": "Des équipements distincts peuvent partager une même dépendance critique."
+            }
+          ],
+          "mission_steps": [
+            "Place les deux routeurs et les deux pare-feu.",
+            "Raccorde les routeurs à la périphérie de sécurité.",
+            "Relie les pare-feu au switch interne.",
+            "Connecte le serveur puis identifie les contrôles HA à réaliser ensuite."
+          ],
+          "success_criteria": [
+            "Les routeurs rejoignent la périphérie attendue.",
+            "Les deux pare-feu sont représentés et raccordés.",
+            "Le switch et le serveur sont connectés au LAN."
+          ],
+          "hints": [
+            "Vérifie chaque routeur et pare-feu individuellement.",
+            "Un doublon visuel n’active pas le mécanisme HA."
+          ],
+          "evaluation_scope": "Exercice local structurel ; aucune vérification serveur du parcours, ni test de heartbeat, de synchronisation ou de failover.",
+          "debrief": "Il faut ensuite configurer le mode HA, les liens de contrôle, les routes de retour et des scénarios de panne pour vérifier le comportement réel."
+        }
+      };
+
+      window.skilltree = function () {
+        const app = baseFactory();
+        app.topoPortCount = 8;
+        app.topoSelectionTick = 0;
+        app.examPaused = false;
+        app.examInitialTime = 0;
+        app._topologyEnhanceBound = false;
+
+        Object.defineProperty(app, 'selectedTopoNode', {
+          configurable: true, enumerable: true,
+          get() {
+            this.topoSelectionTick; // dépendance de réactivité Alpine
+            const ed = this.topologyEditor;
+            const rawId = ed && ed.node_selected && ed.node_selected.id ? String(ed.node_selected.id) : '';
+            const id = rawId.replace(/^node-/, '');
+            if (!id) return null;
+            const n = this.topoData()[id];
+            if (!n) return null;
+            return { id, label: (n.data && n.data.label) || n.name || ('Équipement ' + id), inputs: Object.keys(n.inputs || {}).length, outputs: Object.keys(n.outputs || {}).length };
+          }
+        });
+        app.challengeQuery = '';
+        app.challengeLevelFilter = 'all';
+        app.challengeStateFilter = 'all';
+        Object.defineProperty(app, 'challengeNodes', {
+          configurable: true, enumerable: true,
+          get() {
+            const fallbackLevels = {
+              'challenge-osi': 'debutant',
+              'challenge-small-business': 'debutant',
+              'challenge-datacenter': 'intermediaire',
+              'challenge-hybrid-cloud': 'intermediaire',
+              'challenge-spine-leaf': 'expert',
+              'challenge-backbone-segment-routing': 'expert',
+              'challenge-fabric-aci-multi-tenant': 'expert',
+              'challenge-vpn-inter-sites': 'intermediaire',
+              'challenge-dual-isp-ha': 'expert',
+              'challenge-it-ot-segmentation': 'expert'
+            };
+            const remote = (this.nodes || []).filter(n => n.type === 'architecture' || /^challenge-/.test(n.id))
+              .map(n => {
+                const lvl = this.levelOf(n) || fallbackLevels[n.id] || null;
+                const meta = this.levelMeta(lvl) || {};
+                return { ...n, builtin: false, level: lvl, levelLabel: (meta.icon || '📘') + ' ' + (meta.label || 'Défi guidé'), minutes: null };
+              });
+            return [...remote, ...BUILTIN_TOPO_CHALLENGES.map(c => ({ ...c, builtin: true }))];
+          }
+        });
+        app.challengeState = function (c) {
+          if (c.builtin) return (this.challengesDone || []).includes(c.id) ? 'validated' : 'available';
+          return c.status || 'available';
+        };
+        app.challengeStatusLabel = function (c) {
+          const state = this.challengeState(c);
+          if (c.builtin) return state === 'validated'
+            ? '✅ Réussi dans le navigateur · rejouable, sans validation du parcours'
+            : '🧩 Entraînement libre · ne valide pas le cours du parcours';
+          if (state === 'locked') return '🔒 Prérequis à valider avant de commencer';
+          if (state === 'validated') return '✅ Validé dans le parcours · rejouable';
+          if (state === 'in_progress') return '↻ Tentative enregistrée · à poursuivre';
+          return c.description || 'Défi prêt à relever';
+        };
+        Object.defineProperty(app, 'filteredChallengeNodes', {
+          configurable: true, enumerable: true,
+          get() {
+            const query = this.norm((this.challengeQuery || '').trim());
+            return this.challengeNodes.filter(c => {
+              const hay = this.norm([c.id, c.title, c.description, c.category, c.levelLabel].join(' '));
+              if (query && !hay.includes(query)) return false;
+              if (this.challengeLevelFilter !== 'all' && c.level !== this.challengeLevelFilter) return false;
+              if (this.challengeStateFilter !== 'all' && this.challengeState(c) !== this.challengeStateFilter) return false;
+              return true;
+            });
+          }
+        });
+        Object.defineProperty(app, 'challengeProgress', {
+          configurable: true, enumerable: true,
+          get() {
+            const list = this.challengeNodes;
+            return {
+              total: list.length,
+              completed: list.filter(c => this.challengeState(c) === 'validated').length,
+              inProgress: list.filter(c => this.challengeState(c) === 'in_progress').length,
+              locked: list.filter(c => this.challengeState(c) === 'locked').length
+            };
+          }
+        });
+
+        // Lecteur : les SVG conservent leurs couleurs sémantiques, tandis que les textes HTML suivent la palette.
+        app.fixLessonContrast = function () {
+          const root = document.querySelector('.lesson-prose');
+          if (!root) return;
+          // Les couleurs SVG ont été choisies pour les fonds internes de leurs boîtes : les recalculer en fonction
+          // du fond HTML parent provoquait du texte sombre sur des nœuds sombres (et inversement).
+          root.querySelectorAll('svg').forEach(svg => {
+            svg.style.maxWidth = '100%';
+            if (!svg.hasAttribute('preserveAspectRatio')) svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            if (!svg.hasAttribute('role')) svg.setAttribute('role', 'img');
+          });
+        };
+
+        // Thèmes : rafraîchir l’interface du cours et les graphiques Chart.js.
+        const originalSetTheme = app.setTheme.bind(app);
+        app.setTheme = function (id) {
+          originalSetTheme(id);
+          this.$nextTick(() => { this.fixLessonContrast(); if (this.tab === 'stats') this.renderSpiderChart(); });
+        };
+
+        // Radar : un seul graphique actif, axes lisibles et infobulle limitée au point survolé.
+        app.renderSpiderChart = function () {
+          const canvas = document.getElementById('spiderChart');
+          if (!canvas || !window.Chart) return;
+          const existing = window.Chart.getChart ? window.Chart.getChart(canvas) : window.spider;
+          if (existing) existing.destroy();
+          window.spider = null;
+          if (!this.stats || !Array.isArray(this.stats.categories) || !this.radarHasPositiveRate()) return;
+
+          const byName = new Map();
+          this.stats.categories.forEach(c => {
+            const name = String(c?.name || c?.category || '').trim();
+            if (name && !byName.has(name)) byName.set(name, { ...c, name });
+          });
+          const categories = [...byName.values()].slice(0, 18);
+          if (!categories.length) return;
+          const styles = getComputedStyle(document.documentElement);
+          const rgb = name => {
+            const parts = styles.getPropertyValue(name).trim().split(/\s+/).map(Number);
+            return parts.length === 3 && parts.every(Number.isFinite) ? parts.join(',') : '128,128,128';
+          };
+          const accent = `rgb(${rgb('--cyan-400')})`;
+          const accentFill = `rgba(${rgb('--cyan-400')}, .18)`;
+          const grid = `rgba(${rgb('--w')}, .13)`;
+          const labelColor = `rgb(${rgb('--z-200')})`;
+          const tickColor = `rgb(${rgb('--z-400')})`;
+          const labels = categories.map(c => c.name);
+          const values = categories.map(c => Math.max(0, Math.min(100, Number(c.success_rate) || 0)));
+          this.radarSelectedDomain = null;
+          window.spider = new Chart(canvas, {
+            type: 'radar',
+            data: { labels, datasets: [{
+              label: 'Taux de réussite', data: values, fill: true,
+              backgroundColor: accentFill, borderColor: accent,
+              pointBackgroundColor: `rgb(${rgb('--emerald-400')})`,
+              pointBorderColor: styles.getPropertyValue('--s1').trim() || '#ffffff',
+              pointHoverBackgroundColor: accent, pointHoverBorderColor: `rgb(${rgb('--z-50')})`,
+              borderWidth: 2.5,
+              pointRadius: ctx => (Number(ctx.raw) > 0 ? 3.5 : 0),
+              pointHitRadius: ctx => (Number(ctx.raw) > 0 ? 8 : 0),
+              pointHoverRadius: 6
+            }] },
+            options: {
+              responsive: true, maintainAspectRatio: false, animation: { duration: 350 },
+              interaction: { intersect: true, mode: 'nearest' },
+              layout: { padding: { top: 22, right: 28, bottom: 22, left: 28 } },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  enabled: true, intersect: true, mode: 'nearest',
+                  callbacks: {
+                    title: items => items.length ? labels[items[0].dataIndex] : '',
+                    label: ctx => `Réussite : ${Math.round(Number(ctx.parsed.r) || 0)}%`
+                  }
+                }
+              },
+              onClick: (event, elements) => {
+                if (!elements || !elements.length) return;
+                const index = elements[0].index;
+                this.radarSelectedDomain = { name: labels[index], rate: Math.round(values[index]), category: categories[index] };
+              },
+              scales: { r: {
+                min: 0, max: 100, beginAtZero: true,
+                angleLines: { color: grid, lineWidth: 1 }, grid: { color: grid, circular: true },
+                ticks: { display: true, stepSize: 20, color: tickColor, backdropColor: 'transparent', showLabelBackdrop: false, font: { size: 10 } },
+                pointLabels: {
+                  color: labelColor, padding: 11,
+                  font: { size: 10, weight: '600' },
+                  callback(label) {
+                    const words = String(label).split(/\s+/);
+                    const lines = []; let line = '';
+                    words.forEach(word => {
+                      const next = line ? `${line} ${word}` : word;
+                      if (next.length > 19 && line) { lines.push(line); line = word; }
+                      else line = next;
+                    });
+                    if (line) lines.push(line);
+                    return lines;
+                  }
+                }
+              } }
+            }
+          });
+        };
+
+        // Drawflow: dimensions d’icônes corrigées, ports réglables à l’ajout et sur un nœud existant.
+        const originalInitTopology = app.initTopology.bind(app);
+        app.initTopology = async function () {
+          await originalInitTopology();
+          const ed = this.topologyEditor;
+          if (!ed || this._topologyEnhanceBound) return;
+          this._topologyEnhanceBound = true;
+          // Les imports de topologies peuvent déjà contenir des équipements avec beaucoup de ports.
+          Object.entries(this.topoData()).forEach(([id, node]) => {
+            const portCount = Math.max(Object.keys(node.inputs || {}).length, Object.keys(node.outputs || {}).length, 1);
+            const element = document.getElementById(`node-${id}`);
+            if (element) element.style.minHeight = `${Math.max(76, portCount * 22)}px`;
+          });
+          const changed = () => { this.topoSelectionTick++; };
+          try { ed.on('nodeSelected', changed); ed.on('nodeUnselected', changed); } catch (_) { /* version Drawflow sans événement */ }
+        };
+
+        app.addDevice = function (type) {
+          const ed = this.topologyEditor;
+          if (!ed) { this.notify('Ouvre un défi pour initialiser le canevas.'); return; }
+          const d = this.devices.find(x => x.type === type);
+          if (!d) return;
+          const ports = Math.min(48, Math.max(1, Math.round(Number(this.topoPortCount) || 1)));
+          this.topoPortCount = ports;
+          this.topoTypeCounter[type] = (this.topoTypeCounter[type] || 0) + 1;
+          const label = `${d.label} ${this.topoTypeCounter[type]}`;
+          const n = Object.keys(this.topoData()).length;
+          const canvas = ed.precanvas;
+          const columns = Math.max(1, Math.floor((canvas.clientWidth - 100) / 230));
+          const x = 48 + (n % columns) * 225;
+          const y = 36 + Math.floor(n / columns) * Math.max(180, ports * 23);
+          const html = `<div class="topo-node"><span class="topo-icon">${d.icon}</span><span class="topo-copy"><span class="topo-label">${label}</span><span class="topo-sub">${d.hint} · ${ports} ports</span></span></div>`;
+          ed.addNode(type, ports, ports, x, y, type, { label, portCount: ports }, html, false);
+          const createdData = this.topoData();
+          const createdId = Object.keys(createdData).sort((a, b) => Number(a) - Number(b)).pop();
+          const createdElement = createdId ? document.getElementById(`node-${createdId}`) : null;
+          if (createdElement) createdElement.style.minHeight = `${Math.max(76, ports * 22)}px`;
+          this.refreshTopo();
+          this.topoSelectionTick++;
+        };
+
+        app.applySelectedPorts = function () {
+          const ed = this.topologyEditor;
+          const selected = this.selectedTopoNode;
+          if (!ed || !selected) { this.notify('Sélectionne d’abord un équipement sur le canevas.'); return; }
+          if (typeof ed.addNodeInput !== 'function' || typeof ed.addNodeOutput !== 'function' || typeof ed.removeNodeInput !== 'function' || typeof ed.removeNodeOutput !== 'function') {
+            this.notify('Cette version de Drawflow ne permet pas de modifier les ports existants. Recharge la bibliothèque Drawflow.'); return;
+          }
+          const count = Math.min(48, Math.max(1, Math.round(Number(this.topoPortCount) || 1)));
+          this.topoPortCount = count;
+          const data = this.topoData();
+          const node = data[selected.id];
+          if (!node) { this.notify('L’équipement sélectionné n’a pas été retrouvé.'); return; }
+          const oldIn = Object.keys(node.inputs || {}).length;
+          const oldOut = Object.keys(node.outputs || {}).length;
+          let connectedToRemove = 0;
+          for (let i = count + 1; i <= oldIn; i++) connectedToRemove += (node.inputs[`input_${i}`]?.connections || []).length;
+          for (let i = count + 1; i <= oldOut; i++) connectedToRemove += (node.outputs[`output_${i}`]?.connections || []).length;
+          if (connectedToRemove && !window.confirm(`Les ports supprimés portent ${connectedToRemove} connexion(s). Continuer et retirer ces ports ?`)) return;
+          try {
+            for (let i = oldIn; i > count; i--) ed.removeNodeInput(selected.id, `input_${i}`);
+            let currentIn = Object.keys(this.topoData()[selected.id]?.inputs || {}).length;
+            while (currentIn < count) { ed.addNodeInput(selected.id); currentIn = Object.keys(this.topoData()[selected.id]?.inputs || {}).length; }
+            for (let i = oldOut; i > count; i--) ed.removeNodeOutput(selected.id, `output_${i}`);
+            let currentOut = Object.keys(this.topoData()[selected.id]?.outputs || {}).length;
+            while (currentOut < count) { ed.addNodeOutput(selected.id); currentOut = Object.keys(this.topoData()[selected.id]?.outputs || {}).length; }
+            const refreshed = this.topoData()[selected.id];
+            if (refreshed && refreshed.data) refreshed.data.portCount = count;
+            const dom = document.getElementById(`node-${selected.id}`);
+            if (dom) dom.style.minHeight = `${Math.max(76, count * 22)}px`;
+            const sub = dom && dom.querySelector('.topo-sub');
+            if (sub) sub.textContent = `${(refreshed && refreshed.name || 'Équipement').toUpperCase()} · ${count} entrées/sorties`;
+            this.refreshTopo(); this.topoSelectionTick++;
+            this.notify(`Ports mis à jour : ${count} entrée(s) et ${count} sortie(s).`);
+          } catch (e) {
+            console.error('Mise à jour des ports', e);
+            this.notify('Impossible de modifier les ports : vérifie la version de Drawflow.');
+          }
+        };
+
+        const originalStartChallenge = app.startChallenge.bind(app);
+        const originalClearTopology = app.clearTopology.bind(app);
+        app.clearTopology = function (force = false) {
+          const count = Object.keys(this.topoData()).length;
+          if (count && !force && !this._allowChallengeClear && !window.confirm(`Effacer cette topologie et ses ${count} équipement(s) ? Pense à sauvegarder avant de continuer.`)) return false;
+          originalClearTopology();
+          this.challengeResult = null;
+          return true;
+        };
+        app.exportData = function () {
+          const snapshot = {
+            schema_version: 1,
+            exported_at: new Date().toISOString(),
+            profile: { name: this.userName, theme: this.theme, current_level: this.userStats?.current_level ?? null },
+            progress: { total: this.total, validated: this.validated, nodes: (this.nodes || []).map(n => ({ id: n.id, title: n.title, status: n.status, category: n.category, level: this.levelOf(n), module: this.moduleOf(n) })) },
+            statistics: this.stats || null,
+            exam_history: this.examHistory || LS.get('exam-history', []),
+            completed_challenges: this.challengesDone || LS.get('challenges-done', []),
+            completed_labs: this.labsDone || LS.get('labs-done', []),
+            diagnostics: this.diagDoneMap || LS.get('diag-done', {}),
+            preferences: { theme: this.theme, sidebar_collapsed: !!this.sidebarCollapsed, focus_mode: !!this.focusMode },
+            topology_draft: LS.get('topology-draft', null)
+          };
+          const name = `skill-tree-export-${new Date().toISOString().slice(0,10)}.json`;
+          this.saveFile(name, new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' }));
+          this.notify('Export JSON créé. Conserve-le dans un emplacement sûr.');
+        };
+        app._allowChallengeClear = false;
+        app.startChallenge = async function (id) {
+          const local = BUILTIN_TOPO_CHALLENGES.find(c => c.id === id);
+          const count = Object.keys(this.topoData()).length;
+          if (count && !window.confirm(`Démarrer ce défi effacera les ${count} équipement(s) du défi précédent. Continuer ?`)) return;
+          if (local) {
+            this._allowChallengeClear = true;
+            try { originalClearTopology(); }
+            finally { this._allowChallengeClear = false; }
+            this.challenge = { ...local, brief: BUILTIN_CHALLENGE_BRIEFS[id] || {}, expected: local.expected, minScore: local.minScore || 100, builtin: true };
+            this.challengeResult = null;
+            this.challengeLeft = local.timeLimit || 300;
+            clearInterval(this.challengeTimer);
+            this.challengeTimer = setInterval(() => {
+              if (!this.challenge || this.challengeResult) { clearInterval(this.challengeTimer); return; }
+              this.challengeLeft = Math.max(0, this.challengeLeft - 1);
+              if (this.challengeLeft <= 0) this.checkChallenge(true);
+            }, 1000);
+
+            // Le canevas doit être visible avant d'initialiser Drawflow : sinon ses dimensions sont nulles.
+            await this.$nextTick();
+            await this.initTopology();
+            this.notify(`Défi lancé : ${local.title}`);
+            return;
+          }
+          // Le défi distant consomme la même API qu'avant ; on évite un deuxième prompt lors de son effacement.
+          this._allowChallengeClear = true;
+          try { await originalStartChallenge(id); }
+          finally { this._allowChallengeClear = false; }
+          if (this.challenge) {
+            // Les défis serveur n'affichent le canevas qu'après le chargement de leur consigne.
+            await this.$nextTick();
+            await this.initTopology();
+          }
+        };
+
+        // Les défis vérifient les comptes, la couverture de chaque équipement et les fabrics full-mesh.
+        const originalCheckChallenge = app.checkChallenge.bind(app);
+        app.checkChallenge = async function (timeout) {
+          const ch = this.challenge;
+          if (!ch || this.challengeSubmissionBusy) return;
+          const graph = this.topoData();
+          const architectBadgeWasUnlocked = this.badges.some(badge => badge.id === 'topo' && badge.ok);
+          const seenBadgesBeforeRefresh = LS.get('badges-seen', null);
+
+          // Défis du catalogue : le serveur calcule score, réussite et progression.
+          // On n'envoie jamais le score annoncé par le navigateur.
+          if (!ch.builtin) {
+            clearInterval(this.challengeTimer);
+            this.challengeSubmissionBusy = true;
+            this.challengeResult = {
+              score: null, passed: false, timeout: !!timeout, pending: true, error: '',
+              missingNodes: [], extraNodes: [], missingLinks: [], extraLinks: [],
+            };
+            try {
+              const response = await fetch(`/api/node/${encodeURIComponent(ch.id)}/challenge`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topology: graph, timeout: !!timeout }),
+              });
+              const responseText = await response.text();
+              let result;
+              try { result = JSON.parse(responseText); }
+              catch (_) { throw new Error(responseText || `Erreur ${response.status}`); }
+              if (!response.ok) throw new Error(result.detail || responseText || `Erreur ${response.status}`);
+
+              this.challengeResult = {
+                score: Number(result.score) || 0,
+                passed: !!result.passed,
+                timeout: !!result.timeout,
+                missingNodes: result.missing_nodes || [],
+                extraNodes: result.extra_nodes || [],
+                missingLinks: result.missing_links || [],
+                extraLinks: result.extra_links || [],
+                pending: false,
+                error: '',
+                validated: !!result.validated,
+                attemptRecorded: !!result.attempt_recorded,
+                xpGained: Number(result.xp_gained) || 0,
+                coinsGained: Number(result.coins_gained) || 0,
+                badgesUnlocked: result.badges_unlocked || [],
+              };
+              // Un défi serveur réussi doit aussi alimenter le compteur de défis local,
+              // utilisé par le système de badges du dashboard.
+              if (result.passed && !this.challengesDone.includes(ch.id)) {
+                this.challengesDone = [...this.challengesDone, ch.id];
+                LS.set('challenges-done', this.challengesDone);
+              }
+              await this.refreshAll();
+              // refreshAll() peut déjà déclencher la célébration de badge via checkRewards().
+              // N'afficher qu'une seule salve de confettis pour ce résultat.
+              const refreshAlreadyCelebrated = Array.isArray(seenBadgesBeforeRefresh)
+                && this.badges.some(badge => badge.ok && !seenBadgesBeforeRefresh.includes(badge.id));
+              const architectBadgeSuffix = !architectBadgeWasUnlocked && result.passed
+                ? ' 🧩 Badge « Architecte » débloqué.'
+                : '';
+
+              const rewardParts = [];
+              if (Number(result.xp_gained) > 0) rewardParts.push(`+${Number(result.xp_gained)} XP`);
+              if (Number(result.coins_gained) > 0) rewardParts.push(`+${Number(result.coins_gained)} pièces`);
+              (Array.isArray(result.badges_unlocked) ? result.badges_unlocked : []).forEach(badge => {
+                const label = typeof badge === 'string' ? badge : (badge.nom || badge.id || badge.name || 'Badge');
+                rewardParts.push(`Badge : ${label}`);
+              });
+              const rewardSuffix = rewardParts.length ? ` Récompenses : ${rewardParts.join(' · ')}.` : '';
+
+              if (result.passed && result.validated && result.attempt_recorded) {
+                if (!refreshAlreadyCelebrated) this.celebrate();
+                this.notify(`Défi validé et progression enregistrée : ${result.score} %.${architectBadgeSuffix}${rewardSuffix}`);
+              } else if (result.passed && result.attempt_recorded) {
+                this.notify(`Défi réussi (${result.score} %) : les autres exigences restent à valider.${architectBadgeSuffix}${rewardSuffix}`);
+              } else if (!result.passed && result.attempt_recorded) {
+                this.notify(`Tentative enregistrée : ${result.score} %. Corrige la topologie puis réessaie.`);
+              } else if (result.passed && result.validated) {
+                this.notify(`Ce défi est déjà validé dans ton parcours.${architectBadgeSuffix}`);
+              }
+            } catch (error) {
+              this.challengeResult = {
+                score: null, passed: false, timeout: !!timeout, pending: false,
+                error: `La vérification serveur n'a pas pu être enregistrée : ${error.message}`,
+                missingNodes: [], extraNodes: [], missingLinks: [], extraLinks: [],
+              };
+              this.notify('Défi non enregistré : vérifie la connexion puis réessaie.');
+            } finally {
+              this.challengeSubmissionBusy = false;
+            }
+            return;
+          }
+
+          // Défis intégrés : exercice local sans effet sur la progression serveur.
+          const linked = (idA, nodeA, idB, nodeB) => {
+            const fromA = Object.values(nodeA.outputs || {}).some(o => (o.connections || []).some(c => String(c.node) === String(idB)));
+            const fromB = Object.values(nodeB.outputs || {}).some(o => (o.connections || []).some(c => String(c.node) === String(idA)));
+            return fromA || fromB;
+          };
+          const missing = [];
+          for (const rule of (ch.requireTypeCoverage || [])) {
+            const required = Object.entries(graph).filter(([, n]) => n.name === rule.type);
+            const peers = Object.entries(graph).filter(([, n]) => n.name === rule.peer);
+            for (const [id, node] of required) {
+              if (!peers.some(([peerId, peerNode]) => linked(id, node, peerId, peerNode))) {
+                missing.push(`${(node.data && node.data.label) || rule.type} doit être relié à ${(rule.peer || 'un équipement requis')}`);
+              }
+            }
+          }
+          const rule = ch.requireCompleteBipartite;
+          if (Array.isArray(rule) && rule.length === 2) {
+            const [typeA, typeB] = rule;
+            const aNodes = Object.entries(graph).filter(([, n]) => n.name === typeA);
+            const bNodes = Object.entries(graph).filter(([, n]) => n.name === typeB);
+            aNodes.forEach(([idA, nodeA]) => bNodes.forEach(([idB, nodeB]) => {
+              if (!linked(idA, nodeA, idB, nodeB)) missing.push(`Lien Spine/Leaf manquant : ${(nodeA.data && nodeA.data.label) || typeA} ↔ ${(nodeB.data && nodeB.data.label) || typeB}`);
+            }));
+          }
+          const priorMin = ch.minScore;
+          if (missing.length) ch.minScore = 101;
+          originalCheckChallenge(timeout);
+          ch.minScore = priorMin;
+          if (missing.length && this.challengeResult) {
+            this.challengeResult.score = Math.min(Number(this.challengeResult.score) || 0, 95);
+            this.challengeResult.passed = false;
+            this.challengeResult.missingLinks = [...(this.challengeResult.missingLinks || []), ...missing];
+          }
+        };
+
+        // Examen : pause explicite, minuteur figé, et durée mesurée hors périodes de pause.
+        const originalLaunchExam = app.launchExam.bind(app);
+        const originalResetExam = app.resetExam.bind(app);
+        app.launchExam = async function (cfg) {
+          this.examPaused = false;
+          this.examInitialTime = Number(cfg.minutes || 30) * 60;
+          await originalLaunchExam(cfg);
+          if (this.exam && !this.examResult) {
+            this.examInitialTime = this.examLeft || this.examInitialTime;
+            this.examPaused = false;
+          }
+        };
+        app.startExamTimer = function () {
+          this.stopExamTimer();
+          if (!this.exam || this.examPaused || this.examResult) return;
+          this.examTimerId = setInterval(() => {
+            if (this.examPaused || !this.exam || this.examResult) return;
+            this.examLeft = Math.max(0, this.examLeft - 1);
+            if (this.examLeft <= 0) this.submitExam(true);
+          }, 1000);
+        };
+        app.pauseExam = function () {
+          if (!this.exam || this.examResult || this.examPaused) return;
+          this.examPaused = true;
+          this.stopExamTimer();
+          this.notify('Examen mis en pause. Le temps restant est conservé.');
+        };
+        app.resumeExam = function () {
+          if (!this.exam || this.examResult || !this.examPaused) return;
+          this.examPaused = false;
+          this.startExamTimer();
+          this.notify('Examen repris.');
+        };
+        app.submitExam = async function (auto) {
+          if (!this.exam || this.examResult || this.examBusy) return;
+          this.examBusy = true; this.stopExamTimer(); this.examPaused = false; this.examConfirm = false;
+          const duration = Math.max(0, (Number(this.examInitialTime) || Number(this.examLeft) || 0) - Number(this.examLeft || 0));
+          let res = null;
+          try {
+            if (this.exam.id) {
+              const r = await fetch('/api/exam/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers }) });
+              if (r.ok) res = await r.json();
+            }
+          } catch (e) { console.warn('Soumission serveur indisponible', e); }
+          const local = this.gradeLocally();
+          if (!res || res.score === undefined) res = local || { score: 0, correct: 0, total: this.exam.questions.length, offline: true };
+          else if (local && !res.details) res.details = local.details;
+          const score = Math.round(Number(res.score) || 0);
+          const passed = res.passed !== undefined ? !!res.passed : score >= PASS_SCORE;
+          const correct = res.correct !== undefined ? res.correct : (local ? local.correct : 0);
+          const total = res.total !== undefined ? res.total : this.exam.questions.length;
+          this.examResult = { ...res, score, passed, auto: !!auto, duration, correct, total };
+          this.examHistory = [{ id: Date.now(), date: new Date().toISOString(), module: this.exam.cfg.module, levels: this.exam.cfg.levels, score, passed, correct, total, duration }, ...this.examHistory].slice(0, 50);
+          LS.set('exam-history', this.examHistory);
+          this.examBusy = false;
+          if (passed) this.celebrate();
+          await this.refreshAll();
+        };
+        app.resetExam = function () {
+          this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false;
+          this.examPaused = false; this.examInitialTime = 0; this.examAnswers = []; this.examFlags = {}; this.examLeft = 0;
+          originalResetExam();
+        };
+
+        // Labs : erreur réseau lisible au lieu d’une promesse rejetée silencieuse.
+        app.runLabCommand = async function () {
+          if (!this.labId || this.labBusy || !this.labCommand.trim()) return;
+          const cmd = this.labCommand.trim(); this.labCommand = '';
+          this.labOutput.push({ text: `$ ${cmd}` });
+          this.labBusy = true;
+          try {
+            const r = await fetch('/api/lab/exec', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lab_id: this.labId, command: cmd }) });
+            const text = await r.text();
+            let data; try { data = JSON.parse(text); } catch (_) { data = { stdout: text }; }
+            if (!r.ok) throw new Error(data.detail || data.stderr || text || `Erreur HTTP ${r.status}`);
+            const output = data.stdout || data.stderr || data.output || '(commande exécutée sans sortie)';
+            this.labOutput.push({ text: String(output) });
+          } catch (e) { this.labOutput.push({ text: `ERREUR : ${e.message}` }); }
+          finally { this.labBusy = false; this.$nextTick(() => { const el = this.$refs.labConsole; if (el) el.scrollTop = el.scrollHeight; }); }
+        };
+
+        // Sauvegarde locale d’abord, puis serveur ; un HTTP 500 ne sera plus présenté comme une réussite.
+        app.saveTopology = async function () {
+          if (!this.topologyEditor) { this.notify('Le canevas n’est pas initialisé.'); return; }
+          const data = this.topologyEditor.export();
+          try { localStorage.setItem('skilltree-topology-draft', JSON.stringify(data)); } catch (_) { }
+          try { LS.set('topology-draft', data); } catch (_) { }
+          try {
+            const r = await fetch('/api/topology', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            this.notify('Topologie sauvegardée localement et sur le serveur.');
+          } catch (e) { this.notify('Topologie gardée en local ; serveur indisponible ou refus de sauvegarde.'); }
+        };
+        app.loadTopology = async function () {
+          if (!this.topologyEditor) return;
+          try {
+            const r = await fetch('/api/topology');
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            const d = await r.json();
+            if (!d || !d.drawflow) throw new Error('format de topologie invalide');
+            this.topologyEditor.import(d); this.refreshTopo(); this.topoSelectionTick++;
+            this.notify('Topologie chargée depuis le serveur.');
+          } catch (e) {
+            const local = LS.get('topology-draft', null);
+            if (local && local.drawflow) { try { this.topologyEditor.import(local); this.refreshTopo(); this.notify('Topologie locale chargée (serveur indisponible).'); return; } catch (_) { } }
+            this.notify('Chargement impossible : ' + e.message);
+          }
+        };
+
+        return app;
+      };
+    })();
+  </script>
+  <!-- Barre de navigation mobile : accès aux actions essentielles sans la sidebar desktop -->
+  <nav class="mobile-bottom-nav md:hidden" aria-label="Navigation mobile">
+    <template x-for="item in navItems.filter(i => ['tree','labs','exam','challenges','memo','diagnostic','stats'].includes(i.id))" :key="item.id">
+      <button type="button" @click="setTab(item.id)" :aria-label="item.id === 'tree' ? 'Accueil' : item.label" :aria-current="tab === item.id ? 'page' : null" :class="tab === item.id ? 'is-active' : ''" :title="item.id === 'tree' ? 'Accueil' : item.label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" x-html="item.svg"></svg><span x-text="item.id === 'tree' ? 'Accueil' : (item.id === 'memo' ? 'Réviser' : item.label)"></span>
+      </button>
+    </template>
+  </nav>
+
+  <!-- Notification de mise à jour WebSocket -->
+  <div x-show="showUpdateToast" x-cloak x-transition.opacity style="z-index: 9999;"
+       class="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 rounded-full border border-emerald-500/30 bg-[color:var(--s1)] px-5 py-3 shadow-2xl">
+    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M20 6 9 17l-5-5"></path>
+      </svg>
+    </div>
+    <span class="text-sm font-semibold text-white">Nouveau contenu synchronisé !</span>
+  </div>
+
+<!-- Le bouton global ouvre le Lab Workspace autonome ; les cartes de labs peuvent ouvrir un scénario lié à un cours. -->
+</body>
+</html>, 'i').test(answer); } catch (e) {
+            this.diagCommandFeedback = 'Le contrôle de cette commande est mal configuré. Reviens aux scénarios et réessaie plus tard.';
+            return;
+          }
+          this.diagChoose({
+            label: `Commande saisie : ${answer}`,
+            next: correct ? step.next : this.diagKey,
+            good: correct,
+            feedback: correct ? 'Bonne commande : la vérification peut continuer.' : 'La commande ne correspond pas à la consigne. Il faut afficher la configuration IP avant de poursuivre.',
+            commandFeedback: correct ? '' : 'Commande incorrecte. Relis la consigne puis réessaie ; cette tentative apparaîtra dans le bilan.'
+          });
+        },
+        diagBack() {
+          if (!this.diagTrail.length || this.diagFinished) return;
+          const t = this.diagTrail[this.diagTrail.length - 1];
+          this.diagTrail = this.diagTrail.slice(0, -1);
+          this.diagKey = t.key;
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+          this.diagSaveProgress();
+        },
+        diagReset() {
+          if (!this.diagData || !this.diagId) return;
+          this.diagKey = this.diagData.start;
+          this.diagTrail = [];
+          this.diagRunStartedAt = Date.now();
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+          this.diagSaveProgress();
+        },
+        diagClose() {
+          if (this.diagData && !this.diagFinished) this.diagSaveProgress();
+          this.diagId = null;
+          this.diagData = null;
+          this.diagTrail = [];
+          this.diagKey = null;
+          this.diagRunStartedAt = 0;
+          this.diagCommandInput = '';
+          this.diagCommandFeedback = '';
+        },
 
         // ---------- mémo (révision espacée de Leitner) ----------
         cardFilter: { module: 'all', level: 'all', mode: 'due' }, reviewNodeId: null, reviewDaysSince: null, cardLoadError: null, cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },

@@ -1,47 +1,100 @@
 {
   "id": "network_down",
-  "title": "Le réseau est down",
-  "description": "Un incident critique paralyse l'entreprise. Le trafic ne passe plus. À toi de diagnostiquer et de résoudre le problème avant la fin du temps imparti.",
+  "title": "Poste sans accès au réseau",
+  "description": "Un poste ne rejoint plus le réseau. Identifie la cause de l'échec d'adressage et choisis un rétablissement temporaire sûr.",
   "start": "step-1",
   "steps": {
     "step-1": {
-      "situation": "Le réseau est totalement down. Les utilisateurs ne peuvent plus accéder à Internet ni aux serveurs internes. Que fais-tu en premier ?",
+      "situation": "Un poste ne joint ni la passerelle ni les serveurs internes. Les autres postes du même VLAN fonctionnent. Quelle vérification effectues-tu en premier ?",
       "choices": [
-        { "id": "step-1-ping-gateway", "label": "Je vérifie si je peux pinguer la passerelle par défaut.", "next": "step-2" },
-        { "id": "step-1-reboot-switch", "label": "Je redémarre le switch principal.", "next": "failure-reboot" }
-      ]
+        {
+          "id": "step-1-ping-gateway",
+          "label": "Je vérifie si je peux pinguer la passerelle par défaut.",
+          "next": "step-2",
+          "good": true,
+          "feedback": "Bonne première vérification : elle aide à distinguer un problème local d'une panne plus générale."
+        },
+        {
+          "id": "step-1-reboot-switch",
+          "label": "Je redémarre le switch principal.",
+          "next": "failure-reboot",
+          "good": false,
+          "feedback": "Un redémarrage perturbe les autres utilisateurs et ne permet pas d'identifier la cause."
+        }
+      ],
+      "competency": "Triage initial"
     },
     "step-2": {
       "situation": "Le ping vers la passerelle par défaut (192.168.1.1) échoue avec un message 'Destination Host Unreachable'. Que fais-tu ?",
       "choices": [
-        { "id": "step-2-check-arp", "label": "Je vérifie ma table ARP avec 'arp -a'.", "next": "step-3" },
-        { "id": "step-2-check-dns", "label": "Je vérifie si mon serveur DNS répond.", "next": "failure-dns" }
-      ]
+        {
+          "id": "step-2-check-arp",
+          "label": "Je vérifie ma table ARP avec 'arp -a'.",
+          "next": "step-3",
+          "good": true,
+          "feedback": "La table ARP aide à vérifier si le poste a résolu l'adresse MAC de ses voisins IPv4 sur le réseau local."
+        },
+        {
+          "id": "step-2-check-dns",
+          "label": "Je vérifie si mon serveur DNS répond.",
+          "next": "failure-dns",
+          "good": false,
+          "feedback": "Le DNS résout les noms. Ici, la passerelle n'est déjà pas joignable par son adresse IP."
+        }
+      ],
+      "competency": "Connectivité locale et ARP"
     },
     "step-3": {
       "situation": "Ta table ARP est vide. L'interface réseau est UP. Tu es sûr que le câble est bien branché. Quelle commande tapes-tu pour vérifier l'adresse IP ?",
       "type": "command",
       "command": {
         "prompt": "Tape la commande Linux qui affiche les adresses IP.",
-        "placeholder": "Ex: ip addr",
+        "placeholder": "Ex. : ip a",
         "answer": "ip a",
         "regex": "^(ip a|ip addr|ip address|ifconfig)$"
       },
-      "next": "step-4"
+      "next": "step-4",
+      "competency": "Lecture de la configuration IP"
     },
     "step-4": {
       "situation": "Tu t'aperçois que ton adresse IP est 169.254.10.5. C'est une adresse APIPA. Que s'est-il passé ?",
       "choices": [
-        { "id": "step-4-dhcp-issue", "label": "Le serveur DHCP n'a pas répondu, je n'ai pas eu de bail.", "next": "step-5" },
-        { "id": "step-4-static-ip", "label": "J'ai une adresse IP statique configurée manuellement.", "next": "failure-static" }
-      ]
+        {
+          "id": "step-4-dhcp-issue",
+          "label": "Le serveur DHCP n'a pas répondu, je n'ai pas eu de bail.",
+          "next": "step-5",
+          "good": true,
+          "feedback": "Une adresse IPv4 link-local indique ici qu'aucun bail DHCP utilisable n'a été obtenu."
+        },
+        {
+          "id": "step-4-static-ip",
+          "label": "J'ai une adresse IP statique configurée manuellement.",
+          "next": "failure-static",
+          "good": false,
+          "feedback": "169.254.0.0/16 est une plage link-local auto-attribuée dans ce scénario, pas une preuve d'adressage statique."
+        }
+      ],
+      "competency": "DHCP et adressage"
     },
     "step-5": {
       "situation": "Exact. Le serveur DHCP est injoignable. Quelle est l'action la plus logique pour rétablir ton accès en attendant la réparation du DHCP ?",
       "choices": [
-        { "id": "step-5-fix-ip", "label": "Je configure une IP statique valide dans le bon sous-réseau.", "next": "resolved" },
-        { "id": "step-5-wait", "label": "J'attends que le serveur DHCP revienne.", "next": "failure-wait" }
-      ]
+        {
+          "id": "step-5-fix-ip",
+          "label": "Utiliser temporairement une IP autorisée et libre du sous-réseau, avec la bonne passerelle.",
+          "next": "resolved",
+          "good": true,
+          "feedback": "Contournement acceptable uniquement après validation de l'adresse, de l'absence de conflit et des paramètres réseau."
+        },
+        {
+          "id": "step-5-wait",
+          "label": "J'attends que le serveur DHCP revienne.",
+          "next": "failure-wait",
+          "good": false,
+          "feedback": "Attendre ne restaure pas l'accès immédiat. Il faut poursuivre le diagnostic et coordonner un contournement sûr."
+        }
+      ],
+      "competency": "Rétablissement contrôlé"
     },
     "failure-reboot": {
       "situation": "Redémarrer le switch n'a rien changé et a coupé le réseau pour tous les autres services. Mauvaise décision.",
@@ -64,9 +117,9 @@
       "explanation": "Dans un contexte professionnel, on cherche un contournement (workaround) immédiat."
     },
     "resolved": {
-      "situation": "Félicitations ! En configurant une IP statique, tu as rétabli ta connexion. Tu as identifié que la panne vient du serveur DHCP.",
+      "situation": "L'accès revient avec une configuration temporaire validée, sans conflit d'adresse. La panne DHCP reste à réparer.",
       "outcome": "success",
-      "explanation": "Tu as fait preuve de méthode : vérification de la passerelle, de l'ARP, de l'IP, puis diagnostic du DHCP et application d'un contournement."
+      "explanation": "Cause probable : le poste n'a pas reçu de bail DHCP. Une adresse statique temporaire n'est acceptable qu'avec autorisation et vérification de l'absence de doublon. Dès que DHCP fonctionne, restaure l'obtention automatique de l'adresse et vérifie à nouveau la connectivité."
     }
   }
 }
