@@ -1128,7 +1128,3 @@ La maîtrise de Terraform ne consiste pas uniquement à créer rapidement des re
 - Meta-arguments : https://developer.hashicorp.com/terraform/language/meta-arguments
 - Tests : https://developer.hashicorp.com/terraform/language/tests
 - Tutoriels officiels : https://developer.hashicorp.com/terraform/tutorials
-
-**Fichier :** `terraform-expert.md`  
-**Niveau :** Expert  
-**Fin du cours**
