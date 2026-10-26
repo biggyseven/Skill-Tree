@@ -6867,7 +6867,9 @@
             topology_draft: LS.get('topology-draft', null)
           };
           const name = `skilltree-sauvegarde-${new Date().toISOString().slice(0,10)}.json`;
-          this.saveFile(name, new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' }));
+          // saveFile ne dépend pas de l'état réactif : l'appeler sur l'objet d'origine
+          // évite que le proxy Alpine masque la méthode et annule le téléchargement.
+          app.saveFile(name, new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' }));
           this.notify('Sauvegarde JSON téléchargée. Conserve-la dans un emplacement sûr.');
           return snapshot;
         };
