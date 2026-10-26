@@ -6,61 +6,97 @@
       "type": "qcm",
       "prompt": "Quel est le rôle principal de CUCM ?",
       "choices": [
-        "Contrôle d'appel et gestion des téléphones",
-        "Transporter toujours le RTP",
-        "Alimentation PoE",
-        "Remplacer le switch"
+        "Assurer le contrôle d’appel et la gestion des téléphones IP",
+        "Transporter systématiquement tout le flux RTP entre deux téléphones",
+        "Fournir l’alimentation PoE aux téléphones",
+        "Remplacer les commutateurs Ethernet"
       ],
       "answer": 0,
-      "explanation": "CUCM assure le contrôle d'appel ; le média peut circuler directement."
+      "explanation": "CUCM assure notamment le contrôle d’appel et la configuration des terminaux. Le média RTP peut circuler directement entre les terminaux ou via des ressources média selon le scénario."
     },
     {
       "type": "qcm",
-      "prompt": "Que représente un Directory Number (DN) ?",
+      "prompt": "Que représente un Directory Number (DN) dans CUCM ?",
       "choices": [
-        "Une ligne ou extension téléphonique",
-        "Un VLAN",
-        "Un codec",
-        "Un port RTP"
+        "Un VLAN affecté au téléphone",
+        "Une ligne ou extension téléphonique associée à un terminal ou à un profil",
+        "Un codec RTP",
+        "Un port UDP utilisé pour les appels"
       ],
-      "answer": 0,
-      "explanation": "Le DN est le numéro associé à une ligne."
+      "answer": 1,
+      "explanation": "Le DN représente une adresse téléphonique dans le plan de numérotation. Ses paramètres influencent notamment les appels associés à la ligne."
     },
     {
       "type": "qcm",
-      "prompt": "À quoi sert un CSS ?",
+      "prompt": "À quoi sert un Calling Search Space (CSS) ?",
       "choices": [
-        "Définir les partitions accessibles pour résoudre les destinations",
-        "Chiffrer RTP",
-        "Attribuer une IP",
-        "Distribuer le firmware du switch"
+        "À chiffrer le flux RTP",
+        "À attribuer une adresse IP au téléphone",
+        "À définir les partitions que l’appelant peut consulter pour résoudre une destination",
+        "À distribuer le firmware du commutateur"
       ],
-      "answer": 0,
-      "explanation": "Le CSS détermine les partitions consultables."
+      "answer": 2,
+      "explanation": "Le CSS est une liste ordonnée de partitions accessibles lors de l’analyse du numéro composé. Il contribue à déterminer les destinations qu’un appelant peut joindre."
     },
     {
       "type": "qcm",
-      "prompt": "Appel établi mais sans audio : que vérifier ?",
+      "prompt": "Un appel est établi mais aucun son n’est entendu. Quel contrôle est le plus pertinent ?",
       "choices": [
-        "RTP, ACL, NAT, SDP et codecs",
-        "Uniquement le DN",
-        "Wi-Fi uniquement",
-        "DNS public uniquement"
+        "Augmenter d’emblée les privilèges du CSS",
+        "Supprimer le DN et le recréer sans diagnostic",
+        "Redémarrer tous les serveurs avant de collecter des indices",
+        "Vérifier le chemin RTP, les adresses/ports SDP, les ACL/NAT et la compatibilité des codecs"
       ],
-      "answer": 0,
-      "explanation": "La signalisation peut réussir même si le média est bloqué."
+      "answer": 3,
+      "explanation": "La signalisation peut établir l’appel alors que les paquets RTP sont bloqués ou envoyés vers une mauvaise adresse. Le SDP, les chemins réseau, les ACL/NAT et les codecs sont des pistes essentielles."
     },
     {
       "type": "qcm",
-      "prompt": "Quel service distribue couramment les fichiers de configuration des téléphones ?",
+      "prompt": "Quel service distribue couramment les fichiers de configuration des téléphones Cisco ?",
       "choices": [
-        "TFTP",
-        "SNMP trap",
-        "BGP",
-        "Modbus"
+        "TFTP, utilisé notamment pour les fichiers de configuration et de firmware selon le déploiement",
+        "BGP, qui propage les préfixes IP",
+        "Modbus, qui pilote le plan de numérotation",
+        "SNMP trap, qui remplace le protocole d’amorçage"
       ],
       "answer": 0,
-      "explanation": "TFTP est couramment utilisé pour distribuer des fichiers de configuration."
+      "explanation": "TFTP est couramment utilisé par les téléphones CUCM pour récupérer certains fichiers de configuration. Les options d’amorçage et le déploiement déterminent le serveur à contacter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement un route pattern dans le plan de numérotation CUCM ?",
+      "choices": [
+        "À créer un flux RTP chiffré",
+        "À faire correspondre les numéros composés et diriger l’appel vers une route list/groupe ou une destination configurée",
+        "À configurer le VLAN voix sur tous les commutateurs",
+        "À authentifier la carte SIM du téléphone"
+      ],
+      "answer": 1,
+      "explanation": "Un route pattern correspond à un ensemble de numéros composés et oriente l’appel selon le plan de routage configuré. Les CSS et partitions déterminent si la règle est accessible à l’appelant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’une partition dans le plan de numérotation CUCM ?",
+      "choices": [
+        "Elle définit la fréquence d’émission du point d’accès Wi-Fi",
+        "Elle choisit le codec de chaque paquet RTP",
+        "Elle regroupe logiquement des éléments du plan de routage afin de contrôler leur accessibilité via les CSS",
+        "Elle attribue le numéro de série du téléphone"
+      ],
+      "answer": 2,
+      "explanation": "Les partitions regroupent notamment des DN et des patterns. Un CSS donne accès à une liste ordonnée de partitions, ce qui permet d’appliquer des règles de destination."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un téléphone IP ne s’enregistre pas auprès de CUCM. Quel premier contrôle de base est raisonnable ?",
+      "choices": [
+        "Modifier immédiatement tous les certificats du cluster",
+        "Conclure automatiquement à une panne du serveur CUCM",
+        "Changer le codec de chaque ligne",
+        "Vérifier l’alimentation et le VLAN, l’adressage IP, l’accès TFTP et les paramètres de répertoire/serveur de contrôle"
+      ],
+      "answer": 3,
+      "explanation": "Le diagnostic commence par la connectivité et le démarrage du poste, puis vérifie les informations de configuration et l’état d’enregistrement. Les journaux permettent ensuite de préciser la cause."
     }
   ]
 }

@@ -1,18 +1,102 @@
 {
   "node_id": "voice-cucm-intermediaire",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Dans CUCM, que détermine un CSS appliqué à l’appelant ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Les partitions consultables, dans leur ordre, lors de l’analyse des destinations",
+        "Le chiffrement systématique de tous les flux RTP",
+        "L’adresse MAC du téléphone appelé",
+        "La bande passante Internet de chaque site"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Un CSS est une liste ordonnée de partitions. Les ressources de routage accessibles dépendent de leur présence dans les partitions consultées par l’appelant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Si un CSS est configuré à la fois sur le terminal et sur le DN, quel comportement documenté faut-il prendre en compte ?",
+      "choices": [
+        "CUCM ignore toujours le CSS du terminal",
+        "Les CSS peuvent être concaténés pour constituer le contexte de recherche effectif",
+        "Le système remplace automatiquement les deux CSS par un CSS global sans ordre",
+        "Les CSS n’ont aucun effet sur la résolution des numéros"
+      ],
+      "answer": 1,
+      "explanation": "CUCM peut concaténer les CSS configurés sur le terminal et le DN ; l’ordre et la configuration effective doivent être vérifiés pendant le diagnostic du plan de numérotation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle relation entre route list et route group est correcte dans CUCM ?",
+      "choices": [
+        "Un route group stocke les mots de passe des téléphones tandis qu’une route list distribue le firmware",
+        "Une route list remplace les partitions et les CSS",
+        "Une route list organise une séquence de route groups, lesquels contiennent les passerelles ou trunks utilisables",
+        "Une route list ne peut être utilisée qu’avec des appels internes"
+      ],
+      "answer": 2,
+      "explanation": "Le route group regroupe les ressources de sortie, tandis que la route list organise un ou plusieurs route groups et leur ordre d’utilisation selon la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif courant d’une translation pattern ?",
+      "choices": [
+        "Déchiffrer un flux SRTP au niveau de chaque téléphone",
+        "Attribuer dynamiquement un S-NSSAI aux téléphones",
+        "Remplacer les contrôles d’accès des CSS",
+        "Transformer un numéro selon une règle puis poursuivre l’analyse/routage selon le plan configuré"
+      ],
+      "answer": 3,
+      "explanation": "Une translation pattern applique notamment des transformations de chiffres et relance l’analyse du numéro. Il faut contrôler son CSS, sa partition et ses transformations pour éviter des boucles ou des destinations inattendues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le réglage de la qualité voix CUCM, quelle distinction générale est utile entre Region et Location ?",
+      "choices": [
+        "Region détermine les paramètres de codec entre régions, tandis que Location participe au contrôle de bande passante et d’admission des appels",
+        "Region attribue les adresses IP alors que Location distribue les firmwares",
+        "Les deux servent exclusivement à configurer les partitions",
+        "Location choisit toujours le codec G.711 sans tenir compte des autres paramètres"
+      ],
+      "answer": 0,
+      "explanation": "Les régions servent notamment à définir les paramètres codec entre régions. Les locations participent au contrôle d’admission de la bande passante selon la topologie et la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un SIP trunk est déclaré actif, mais certains numéros échouent. Que faut-il conclure ?",
+      "choices": [
+        "L’état actif prouve que tous les numéros et chemins média fonctionnent",
+        "La disponibilité du trunk ne garantit pas la validité du plan de numérotation ni le succès de tous les appels ; vérifier patterns, CSS, réponses SIP et traces",
+        "Un trunk actif élimine les problèmes de codecs",
+        "Il faut nécessairement désactiver SIP OPTIONS sur tous les trunks"
+      ],
+      "answer": 1,
+      "explanation": "La surveillance de disponibilité d’un trunk indique une partie de son état, pas la validité de chaque route. Le plan de numérotation, les réponses SIP et les traces d’appel restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un appel SIP se connecte, mais l’audio ne passe que dans un sens. Quel ensemble de vérifications est le plus utile ?",
+      "choices": [
+        "Le DN seul, sans vérifier les adresses média",
+        "Le nom du cluster uniquement",
+        "Les adresses et ports négociés dans SDP, le routage dans les deux sens, les ACL/NAT et les ressources média éventuellement insérées",
+        "La couleur du câble du téléphone"
+      ],
+      "answer": 2,
+      "explanation": "Un problème de média à sens unique est souvent lié à un chemin RTP asymétrique, à des adresses/ports SDP injoignables ou à des règles réseau. Les ressources média peuvent aussi influencer le chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert généralement le mode SRST sur une passerelle de site distant ?",
+      "choices": [
+        "À répliquer toutes les bases de données CUCM sur chaque téléphone",
+        "À fournir un moteur RPKI pour les appels SIP",
+        "À garantir que le WAN ne tombera plus jamais en panne",
+        "À fournir une survivabilité téléphonique locale lorsque la connexion au traitement central CUCM est perdue, si elle est configurée"
+      ],
+      "answer": 3,
+      "explanation": "SRST permet à une passerelle prise en charge d’assurer certaines fonctions d’appel locales lorsque le site perd la connexion au traitement d’appel central. Le périmètre dépend du matériel et de la configuration."
     }
-  ],
-  "scope": "quiz"
+  ]
 }
