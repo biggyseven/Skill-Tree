@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Automatisation avec Ansible",
+      "prompt": "Que gagne-t-on avec `set -euo pipefail` dans un script Bash bien conçu ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Une gestion complète de toutes les erreurs sans aucun test",
+        "L’exécution automatique en root",
+        "Des garde-fous contre plusieurs échecs non gérés, variables non définies et pipelines dont un élément échoue",
+        "La conversion de Bash en langage compilé"
+      ],
+      "answer": 2,
+      "explanation": "Ces options rendent certains défauts plus visibles, mais ne remplacent pas la conception du flux d’erreur. `set -e` possède des exceptions liées au contexte ; les commandes critiques doivent rester contrôlées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour traiter des noms de fichiers avec espaces et caractères inhabituels, quelle approche est la plus robuste parmi celles-ci ?",
+      "choices": [
+        "Utiliser des délimiteurs NUL, par exemple `find ... -print0` et une lecture compatible `-d ''`",
+        "Découper la sortie de `ls` sur les espaces",
+        "Supprimer tous les espaces des noms de fichiers",
+        "Lire chaque chemin avec `for f in $(find ...)`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les noms de fichiers peuvent contenir des espaces et de nombreux caractères. Le délimiteur NUL est adapté car un nom de fichier ne peut pas contenir l’octet NUL."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert couramment `trap cleanup EXIT` dans un script ?",
+      "choices": [
+        "À exécuter le script toutes les minutes",
+        "À ignorer le code de retour de toutes les commandes",
+        "À supprimer automatiquement tous les fichiers du serveur",
+        "À lancer une fonction de nettoyage lorsque le shell quitte le script"
+      ],
+      "answer": 3,
+      "explanation": "`trap` permet d’associer une action à un événement du shell. Le nettoyage doit rester limité aux ressources créées par le script et être sûr même après un échec."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique rend un script destiné à une équipe plus facile à utiliser ?",
+      "choices": [
+        "Laisser l’utilisateur deviner l’ordre des arguments",
+        "Valider les arguments, afficher une aide claire en cas d’usage incorrect et renvoyer un code de sortie adapté",
+        "Afficher chaque secret dans les journaux pour faciliter le support",
+        "Masquer toutes les erreurs en redirigeant toute sortie vers `/dev/null`"
+      ],
+      "answer": 1,
+      "explanation": "Une interface prévisible réduit les erreurs d’exploitation : valider les entrées, indiquer l’usage et produire un code de retour exploitable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment passer tous les éléments d’un tableau Bash comme arguments séparés sans perdre les espaces internes ?",
+      "choices": [
+        "`$array` sans guillemets",
+        "`echo $array`",
+        "`\"${array[@]}\"`",
+        "`\"${array[*]}\"` dans tous les cas, quelle que soit l’option IFS"
+      ],
+      "answer": 2,
+      "explanation": "`\"${array[@]}\"` développe chaque élément en un argument distinct, tout en préservant les espaces à l’intérieur de chaque élément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle propriété décrit un script idempotent de gestion d’état ?",
+      "choices": [
+        "Le relancer sans changement d’entrée ne provoque pas de modifications supplémentaires inutiles",
+        "Il ne peut être lancé qu’une seule fois",
+        "Il ignore toutes les erreurs de commande",
+        "Il supprime puis recrée systématiquement toutes les ressources"
+      ],
+      "answer": 0,
+      "explanation": "L’idempotence est utile pour l’automatisation réexécutable : le script vérifie l’état courant et ne modifie que ce qui est nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi écrire la sortie dans un fichier temporaire puis renommer ce fichier après validation ?",
+      "choices": [
+        "Pour permettre à plusieurs processus d’écraser le résultat sans coordination",
+        "Pour rendre le résultat public par défaut",
+        "Pour contourner les permissions du répertoire cible",
+        "Pour éviter qu’un consommateur lise un fichier partiellement écrit, lorsque le renommage dans le même système de fichiers est atomique"
+      ],
+      "answer": 3,
+      "explanation": "Un fichier temporaire permet de construire et valider le résultat avant publication. Le renommage peut fournir une bascule atomique dans les conditions adaptées, notamment sur le même système de fichiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où est-il généralement préférable d’envoyer un diagnostic ou une erreur destinée à l’opérateur ?",
+      "choices": [
+        "Toujours sur l’entrée standard",
+        "Sur la sortie d’erreur standard (`stderr`), avec un code de sortie non nul quand le traitement échoue",
+        "Dans les arguments du processus sans message",
+        "Uniquement dans une variable non exportée"
+      ],
+      "answer": 1,
+      "explanation": "Séparer les sorties métier des diagnostics facilite les redirections, l’automatisation et la supervision."
     }
   ]
 }
