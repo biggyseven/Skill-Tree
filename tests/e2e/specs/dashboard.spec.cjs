@@ -204,7 +204,7 @@ test('le catalogue des labs réutilise son cache après avoir quitté puis rouve
 test('les panneaux latéraux et la bibliothèque matérielle se redimensionnent et gardent leur taille', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByText('Démo', { exact: true })).toBeVisible();
+  await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
 
   const leftPanel = page.getByTestId('lab-left-panel');
   const rightPanel = page.getByTestId('lab-right-panel');
@@ -240,7 +240,7 @@ test('les panneaux latéraux et la bibliothèque matérielle se redimensionnent 
   expect(savedSizes.equipment).toBeGreaterThan(equipmentBefore);
 
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.getByText('Démo', { exact: true })).toBeVisible();
+  await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
   await expect.poll(() => width(leftPanel)).toBe(savedSizes.left);
   await expect.poll(() => width(rightPanel)).toBe(savedSizes.right);
   await expect.poll(() => height(equipmentPanel)).toBe(savedSizes.equipment);
@@ -249,7 +249,7 @@ test('les panneaux latéraux et la bibliothèque matérielle se redimensionnent 
 test('les ports peuvent être reliés même lorsque les deux handles sont du même côté', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByText('Démo', { exact: true })).toBeVisible();
+  await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
 
   const edges = page.locator('.react-flow__edge');
   await expect(edges).toHaveCount(1);
