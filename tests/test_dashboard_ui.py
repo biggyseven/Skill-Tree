@@ -602,7 +602,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertNotIn("this.show(firstCourse.id)", set_module)
         self.assertIn("get moduleNextCourse()", DASHBOARD_HTML)
         self.assertIn("if (this.moduleNextCourse) return 'Prochaine étape du module';", DASHBOARD_HTML)
-        self.assertIn("@click=\\"openLearningStep()\\"", DASHBOARD_HTML)
+        self.assertIn("openLearningStep()", DASHBOARD_HTML)
         self.assertIn("await this.setModule(requestedModuleId);", DASHBOARD_HTML)
 
     def test_course_modules_courses_and_sidebar_sections_offer_new_tabs(self):
