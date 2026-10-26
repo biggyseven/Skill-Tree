@@ -1,3 +1,102 @@
-{"node_id":"eigrp-expert","scope":"quiz","questions":[
-  {"type":"qcm","prompt":"Quel est le principal avantage des Wide Metrics dans le Named Mode d'EIGRP ?","choices":["Ils supportent les liens à très haute vitesse (10 Gbps et plus)","Ils suppriment l'utilisation du DUAL","Ils permettent de configurer VTPv3","Ils remplacent l'authentification MD5"],"answer":0,"explanation":"Les Wide Metrics utilisent 64 bits, ce qui permet de calculer des métriques précises pour les liens très rapides sans saturation."}
-]}
+{
+  "node_id": "eigrp-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt des métriques EIGRP étendues (Wide Metrics) dans les versions qui les prennent en charge ?",
+      "choices": [
+        "Elles suppriment le calcul DUAL",
+        "Elles remplacent les adresses IPv4 par des adresses MAC",
+        "Elles permettent une représentation de métrique élargie et plus adaptée aux interfaces très haut débit que la métrique classique limitée",
+        "Elles ne servent qu’à activer VTPv3"
+      ],
+      "answer": 2,
+      "explanation": "Les Wide Metrics étendent la représentation et le calcul de la métrique composite afin de mieux gérer les liens à très haut débit. Leur prise en charge et leur comportement doivent être vérifiés sur la version utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une destination EIGRP passe à l’état ACTIVE. Quelle description est la plus juste ?",
+      "choices": [
+        "Le routeur a désactivé toutes les interfaces",
+        "Le routeur participe à une computation diffusante pour chercher un nouveau chemin sans boucle, généralement après la perte du Successor ou une information qui nécessite de recalculer",
+        "La session BGP est établie",
+        "La route est garantie d’être immédiatement utilisable"
+      ],
+      "answer": 1,
+      "explanation": "Dans DUAL, ACTIVE désigne une destination pour laquelle le routeur doit coordonner une computation avec ses voisins afin de trouver un chemin loop-free. Le chemin n’est pas considéré utilisable comme une route PASSIVE stable pendant cette recherche."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel symptôme correspond à Stuck-in-Active (SIA) ?",
+      "choices": [
+        "Le routeur a un grand nombre de serveurs DNS",
+        "Le numéro d’AS EIGRP est égal à zéro",
+        "Les voisins partagent exactement les mêmes métriques",
+        "Un routeur ne reçoit pas les réponses attendues à ses requêtes DUAL dans les délais prévus, ce qui peut conduire à réinitialiser des voisinages"
+      ],
+      "answer": 3,
+      "explanation": "SIA apparaît lorsque la résolution d’une requête DUAL prend trop longtemps et que des replies ne reviennent pas dans les délais attendus. Il faut examiner les chemins de requête, les voisins, la charge et les pertes plutôt que supprimer le symptôme aveuglément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les K-values doivent-elles être cohérentes entre voisins EIGRP ?",
+      "choices": [
+        "Parce que des valeurs incompatibles peuvent empêcher la formation du voisinage et rendre incohérente l’interprétation de la métrique composite",
+        "Parce que les K-values définissent les VLAN autorisés sur les trunks",
+        "Parce qu’elles attribuent des adresses IP via DHCP",
+        "Parce que toute différence de K-value augmente automatiquement la convergence"
+      ],
+      "answer": 0,
+      "explanation": "Les K-values déterminent les composantes de la métrique EIGRP. Les voisins échangent ces paramètres et doivent être compatibles pour établir leur adjacency."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lors d’une redistribution vers EIGRP, pourquoi faut-il vérifier les métriques d’origine et les politiques de redistribution ?",
+      "choices": [
+        "Parce que EIGRP accepte toujours tout route sans métrique",
+        "Parce que la redistribution n’a aucun effet sur les tables",
+        "Parce que les routes externes doivent être identifiées et filtrées pour limiter les réinjections et qu’une métrique valide doit être définie selon la configuration",
+        "Parce que la redistribution modifie le Root Bridge STP"
+      ],
+      "answer": 2,
+      "explanation": "La redistribution introduit dans EIGRP des routes venant d’autres sources. Les métriques externes, les tags et les filtres aident à contrôler leur sélection et à éviter que des routes soient réinjectées dans un cycle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas supposer que le mode nommé EIGRP ou les Wide Metrics sont disponibles sur toute version de tous les équipementiers ?",
+      "choices": [
+        "Parce qu’EIGRP ne supporte aucun sous-réseau",
+        "Parce que la disponibilité et la syntaxe dépendent de la plateforme, du système logiciel et des fonctions implémentées",
+        "Parce que le mode nommé nécessite une session BGP",
+        "Parce que les métriques ne peuvent pas changer"
+      ],
+      "answer": 1,
+      "explanation": "Les implémentations et versions ne supportent pas toutes les mêmes fonctionnalités EIGRP. Avant le déploiement, vérifier la documentation de la plateforme exacte et valider les commandes dans un laboratoire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan de diagnostic est le plus solide lors d’une perte intermittente de routes EIGRP ?",
+      "choices": [
+        "Modifier simultanément toutes les métriques et temporisations",
+        "Se contenter d’un ping vers l’adresse de gestion",
+        "Supprimer la table de topologie sans sauvegarder les états",
+        "Corréler les voisinages, la table de topologie, les états PASSIVE/ACTIVE, les métriques/FD-RD, les journaux et les événements de lien"
+      ],
+      "answer": 3,
+      "explanation": "Une perte intermittente peut venir d’une adjacency, d’une computation DUAL, d’un changement de métrique ou d’un lien instable. Il faut corréler les preuves et ne modifier qu’un paramètre à la fois."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage de `show ip eigrp topology` est le plus pertinent lors d’une investigation IPv4 sur Cisco IOS classique ?",
+      "choices": [
+        "Examiner les chemins connus dans la table de topologie EIGRP, y compris des informations utiles sur les métriques et les successeurs",
+        "Afficher les clés privées TLS de tous les routeurs",
+        "Créer automatiquement une adjacency avec tous les voisins",
+        "Remplacer la table de routage et le processus DUAL"
+      ],
+      "answer": 0,
+      "explanation": "La table de topologie EIGRP maintient des informations sur les destinations et les routes annoncées par les voisins. Elle complète la table de routage pour comprendre le choix du Successor et les alternatives."
+    }
+  ]
+}
