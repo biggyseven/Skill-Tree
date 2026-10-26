@@ -4285,9 +4285,11 @@
         labsDone: LS.get('labs-done', []), labSteps: LS.get('lab-steps', {}), labHints: {},
         get labNodes() { return this.nodes.filter(n => this.labIndex[n.id] && (this.labFilter.module === 'all' || this.moduleOf(n) === this.labFilter.module) && (this.labFilter.level === 'all' || this.levelOf(n) === this.labFilter.level)); },
         async loadLabIndex() {
+          // Les résultats déjà résolus restent en mémoire quand on quitte puis revient dans Labs.
+          // En revanche, une erreur réseau/HTTP ne doit pas être mise en cache comme « aucun lab ».
           if (this.labIndexBusy) return; const todo = this.nodes.filter(n => !(n.id in this.labIndex)); if (!todo.length) return;
           this.labIndexBusy = true; this.labIndexDone = 0; let i = 0;
-          const worker = async () => { while (i < todo.length) { const n = todo[i++]; try { const r = await fetch(`/api/node/${n.id}`); const d = await r.json(); this.labIndex[n.id] = d.lab || null; } catch (e) { this.labIndex[n.id] = null; } this.labIndexDone++; } };
+          const worker = async () => { while (i < todo.length) { const n = todo[i++]; try { const r = await fetch(`/api/node/${encodeURIComponent(n.id)}`); if (!r.ok) throw new Error(`HTTP ${r.status}`); const d = await r.json(); this.labIndex[n.id] = d.lab || null; } catch (e) { delete this.labIndex[n.id]; console.warn(`Impossible de charger l’index du lab ${n.id}; une nouvelle tentative sera faite au prochain accès.`, e); } this.labIndexDone++; } };
           await Promise.all([worker(), worker(), worker(), worker(), worker()]); this.labIndexBusy = false;
         },
         openVisualLab() {
