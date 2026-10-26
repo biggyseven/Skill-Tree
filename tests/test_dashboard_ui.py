@@ -71,7 +71,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("speechTextFromAsciiDiagram(source)", DASHBOARD_HTML)
         self.assertIn("speechTextFromMermaidDiagram(source, svg)", DASHBOARD_HTML)
         self.assertIn("readable.querySelectorAll('.lesson-diagram-block').forEach(root =>", DASHBOARD_HTML)
-        self.assertIn("Les colonnes sont :", DASHBOARD_HTML)
+        self.assertIn("Les colonnes présentent un élément de référence", DASHBOARD_HTML)
         self.assertIn("Une liaison va du bloc", DASHBOARD_HTML)
         self.assertIn("Le schéma se lit ainsi :", DASHBOARD_HTML)
         self.assertIn("Les flèches insérées dans les phrases ou schémas inline", DASHBOARD_HTML)
