@@ -546,12 +546,21 @@ Serveur --> Base de données</code></pre>
         </div>
         <div class="lesson-diagram-guide"><p>Guide générique du schéma.</p></div>
       </div>
+      <div class="lesson-diagram-block" data-diagram-type="schéma textuel">
+        <div class="code-container">
+          <div class="code-header"><span class="code-lang">ASCII</span></div>
+          <pre><code>| Protocol | Port |
+|----------|------|
+| HTTP     | 80   |
+| HTTPS    | 443  |</code></pre>
+        </div>
+      </div>
       <div class="lesson-diagram-block" data-diagram-type="diagramme Mermaid">
         <div class="mermaid"></div>
       </div>
     `;
     article.querySelector('.mermaid').dataset.originalSource =
-      'flowchart LR\\nA[Client] -->|HTTPS| B[API]\\nB --> C[Base de données]';
+      'flowchart LR\nA[Client] -->|HTTPS| B[API]\nB --> C[Base de données]';
   });
 
   const narration = await page.evaluate(() => {
@@ -567,6 +576,11 @@ Serveur --> Base de données</code></pre>
   expect(narration).toContain('Port : 53');
   expect(narration).toContain('Client mène vers Serveur.');
   expect(narration).toContain('Serveur mène vers Base de données.');
+  expect(narration).toContain('Tableau textuel.');
+  expect(narration).toContain('Protocol : HTTP');
+  expect(narration).toContain('Port : 80');
+  expect(narration).toContain('Protocol : HTTPS');
+  expect(narration).toContain('Port : 443');
   expect(narration).toContain('Client mène vers API par HTTPS.');
   expect(narration).toContain('API mène vers Base de données.');
   expect(narration).not.toContain('Copier');
