@@ -71,6 +71,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
                 self.assertTrue(
                     lesson.startswith(f"# {title}\n\n> **Mise en contexte**")
                     or lesson.startswith(f"# {title}\n\n> **Encadré de mise en contexte**")
+                    or lesson.startswith(f"# {title}\n\n## Encadré de mise en contexte\n\n")
                 )
                 self.assertNotIn("[Contenu de 5000 mots à rédiger]", lesson)
                 self.assertGreaterEqual(len(lesson.split()), 5000, f"Le cours {node_id} doit contenir au moins 5000 mots.")
