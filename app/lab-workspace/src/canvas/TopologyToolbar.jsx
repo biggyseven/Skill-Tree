@@ -50,7 +50,14 @@ export function TopologyToolbar() {
   }
 
   const handleCheck = () => {
-    if (useLabStore.getState().loading) return;
+    const state = useLabStore.getState();
+    if (
+      state.loading ||
+      state.lab?.id === 'demo' ||
+      state.lab?.sandbox === true ||
+      state.lab?.courseLocked === true ||
+      state.lab?.courseLocked === true
+    ) return;
     window.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
   };
   const handleSubmit = () => {
@@ -74,6 +81,7 @@ export function TopologyToolbar() {
     loading ||
     lab?.id === 'demo' ||
     lab?.sandbox === true ||
+    lab?.courseLocked === true ||
     !checkResult ||
     checkResult.stale ||
     checkResult.checkError ||
@@ -160,13 +168,23 @@ export function TopologyToolbar() {
           className="rounded-md border border-[#30363d] bg-[#161b22] px-3 py-1.5 text-xs font-semibold text-[#c9d1d9] hover:border-[#0ea5e9] hover:text-white disabled:cursor-not-allowed disabled:opacity-40">
           {persistenceAction === 'load' ? 'Chargement…' : 'Charger'}
         </button>
-        <button type="button" onClick={handleCheck} disabled={loading}
+        <button type="button" onClick={handleCheck}
+          disabled={loading || lab?.id === 'demo' || lab?.sandbox === true || lab?.courseLocked === true}
+          title={lab?.courseLocked === true
+            ? (lab.courseLockMessage || 'Ce laboratoire est verrouillé par les prérequis du parcours.')
+            : lab?.sandbox === true
+              ? 'Atelier libre : aucun scénario de validation n’est associé.'
+              : lab?.id === 'demo'
+                ? 'La démonstration ne peut pas être vérifiée.'
+                : 'Vérifier les règles du scénario'}
           className="rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
           {loading ? '…' : '✓ Vérifier'}
         </button>
         <button type="button" onClick={handleSubmit} disabled={submitDisabled}
-          title={lab?.id === 'demo'
-            ? 'La démo ne peut pas être soumise'
+          title={lab?.courseLocked === true
+            ? (lab.courseLockMessage || 'Ce laboratoire est verrouillé par les prérequis du parcours.')
+            : lab?.id === 'demo'
+              ? 'La démo ne peut pas être soumise'
             : checkResult?.ok === true
               ? 'Cette vérification a déjà été soumise. Modifiez la configuration puis revérifiez-la.'
               : submitDisabled

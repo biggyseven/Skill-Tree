@@ -14,6 +14,29 @@ export function BriefPanel() {
         <h1 className="mt-1 text-lg font-bold leading-tight text-white">{lab.title}</h1>
       </div>
 
+      {lab.id === 'demo' && (
+        <section role="status" aria-label="Mode démonstration" className="rounded-xl border border-[#0ea5e9]/25 bg-[#0ea5e9]/[0.06] p-4">
+          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#38bdf8]">Démonstration — non notée</div>
+          <p className="text-xs leading-relaxed text-[#cbd5e1]">Cette topologie d’exemple sert à explorer les équipements et la console. Elle ne correspond pas à un scénario de cours et ne peut pas être vérifiée ni soumise.</p>
+        </section>
+      )}
+
+      {lab.sandbox === true && (
+        <section role="status" aria-label="Atelier libre" className="rounded-xl border border-[#64748b]/35 bg-[#64748b]/[0.08] p-4">
+          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#cbd5e1]">Atelier libre — non noté</div>
+          <p className="text-xs leading-relaxed text-[#cbd5e1]">Construisez votre propre topologie et configurez les équipements. Aucun scénario pédagogique n’est associé : la vérification notée et la soumission sont désactivées.</p>
+        </section>
+      )}
+
+      {lab.courseLocked === true && (
+        <section role="alert" aria-label="Prérequis du parcours" className="rounded-xl border border-[#f85149]/35 bg-[#f85149]/[0.08] p-4">
+          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#ff7b72]">Laboratoire verrouillé</div>
+          <p className="text-xs leading-relaxed text-[#e6edf3]">
+            {lab.courseLockMessage || 'Validez les prérequis du parcours avant de vérifier ou soumettre ce laboratoire.'}
+          </p>
+        </section>
+      )}
+
       {lab.prompt && (
         <section className="rounded-xl border border-[#0ea5e9]/25 bg-[#0ea5e9]/[0.06] p-4" aria-label="Mise en contexte du laboratoire">
           <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#38bdf8]">Mise en contexte</div>

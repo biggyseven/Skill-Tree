@@ -1,6 +1,21 @@
 ﻿/**
  * Parser CLI Cisco-like.
  */
+function isIPv4Address(value) {
+  const octets = String(value || '').trim().split('.');
+  return octets.length === 4 && octets.every(octet =>
+    /^\d{1,3}$/.test(octet) && Number(octet) >= 0 && Number(octet) <= 255
+  );
+}
+
+function isIPv4Mask(value) {
+  if (!isIPv4Address(value)) return false;
+  const bits = String(value).trim().split('.')
+    .map(octet => Number(octet).toString(2).padStart(8, '0'))
+    .join('');
+  return /^1+0*$/.test(bits);
+}
+
 export class CLIParser {
   constructor(device, mode = 'user', context = {}) {
     this.device = device;
@@ -106,6 +121,12 @@ export class CLIParser {
       if (!port) { this.mode = 'config'; return { output: '% Interface not found.' }; }
       
       if (cmd === 'ip' && tokens[1] === 'address' && tokens[2] && tokens[3]) {
+        if (!isIPv4Address(tokens[2])) {
+          return { output: '% Invalid IPv4 address. Use four octets between 0 and 255.' };
+        }
+        if (!isIPv4Mask(tokens[3])) {
+          return { output: '% Invalid subnet mask. Use a contiguous IPv4 network mask.' };
+        }
         port.ip = tokens[2]; port.mask = tokens[3];
         return { output: '' };
       }
@@ -182,7 +203,7 @@ export class CLIParser {
   formatIpIntBrief() {
     let out = 'Interface              IP-Address      OK? Method Status                Protocol\n';
     (this.device.ports || []).forEach(p => {
-      out += `${(p.name || p.id).padEnd(22)} ${(p.ip || 'unassigned').padEnd(15)} YES manual ${(p.state === 'up' ? 'up' : 'administratively down').padEnd(21)} up\n`;
+      out += `${(p.name || p.id).padEnd(22)} ${(p.ip || 'unassigned').padEnd(15)} YES manual ${(p.state === 'up' ? 'up' : 'administratively down').padEnd(21)} ${p.state === 'up' ? 'up' : 'down'}\n`;
     });
     return out;
   }

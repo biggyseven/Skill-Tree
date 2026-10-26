@@ -40,7 +40,13 @@ export function initAlpineBridge() {
 
   window.addEventListener('lab:check', async () => {
     const initial = useLabStore.getState();
-    if (!initial.lab || !initial.topology || initial.loading) return;
+    if (
+      !initial.lab || !initial.topology || initial.loading ||
+      initial.lab.id === 'demo' ||
+      initial.lab.sandbox === true ||
+      initial.lab.courseLocked === true ||
+      initial.lab.courseLocked === true
+    ) return;
 
     const labId = initial.lab.id;
     const topologySnapshot = JSON.stringify(initial.topology);

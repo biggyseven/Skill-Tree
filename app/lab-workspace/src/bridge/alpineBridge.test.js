@@ -132,7 +132,7 @@ test('une soumission validée est transmise au dashboard à la même origine', a
   assert.equal(useLabStore.getState().loading, false);
 });
 
-test('un bac à sable ne peut pas soumettre une tentative notée', async () => {
+test('un bac à sable ne lance pas de vérification ou de soumission notée', async () => {
   useLabStore.getState().loadLab('node-sandbox', {
     title: 'Workspace libre',
     sandbox: true,
@@ -150,11 +150,28 @@ test('un bac à sable ne peut pas soumettre une tentative notée', async () => {
     return { ok: true, status: 200, json: async () => ({ passed: true }) };
   };
 
+  fakeWindow.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
   fakeWindow.dispatchEvent(new CustomEvent('lab:submit', { detail: {} }));
   await new Promise(resolve => setTimeout(resolve, 0));
 
   assert.equal(fetchCalls, 0);
   assert.equal(fakeWindow.messages.some(item => item.message?.type === 'lab:submit-result'), false);
+  assert.equal(useLabStore.getState().loading, false);
+});
+
+test('la démonstration ne lance pas de requête de validation notée', async () => {
+  useLabStore.getState().loadDemo();
+  let fetchCalls = 0;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    return { ok: true, status: 200, json: async () => ({ passed: true }) };
+  };
+
+  fakeWindow.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
+  fakeWindow.dispatchEvent(new CustomEvent('lab:submit', { detail: {} }));
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  assert.equal(fetchCalls, 0);
   assert.equal(useLabStore.getState().loading, false);
 });
 

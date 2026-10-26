@@ -139,7 +139,12 @@ export default function App() {
 
     useLabStore.getState().setLoading(true);
     fetchLabFromUrl(labId)
-      .then(data => useLabStore.getState().loadLab(labId, { ...(data.definition || {}), sandbox: data.sandbox === true }, data.initial_topology))
+      .then(data => useLabStore.getState().loadLab(labId, {
+        ...(data.definition || {}),
+        sandbox: data.sandbox === true,
+        courseLocked: data.course_locked === true,
+        courseLockMessage: data.course_lock_message || '',
+      }, data.initial_topology))
       .catch(err => {
         console.error('Lab Workspace could not load the requested lab:', err);
         useLabStore.getState().setError(

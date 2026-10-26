@@ -50,7 +50,29 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("previousCheck.stale", bridge)
         self.assertIn("topologySnapshot", bridge)
 
-    def test_workspace_submission_result_refreshes_dashboard_progress(self):
+    def test_locked_course_lab_is_explained_and_blocked_in_the_workspace(self):
+        app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
+        brief = (ROOT / "app" / "lab-workspace" / "src" / "brief" / "BriefPanel.jsx").read_text(encoding="utf-8-sig")
+        toolbar = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "TopologyToolbar.jsx").read_text(encoding="utf-8")
+        bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
+
+        self.assertIn("courseLocked: data.course_locked === true", app)
+        self.assertIn("Laboratoire verrouillé", brief)
+        self.assertIn("lab?.courseLocked === true", toolbar)
+        self.assertIn("initial.lab.courseLocked === true", bridge)
+
+    def test_free_workspace_and_demo_do_not_run_graded_checks(self):
+        brief = (ROOT / "app" / "lab-workspace" / "src" / "brief" / "BriefPanel.jsx").read_text(encoding="utf-8-sig")
+        toolbar = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "TopologyToolbar.jsx").read_text(encoding="utf-8")
+        bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
+
+        self.assertIn("Atelier libre — non noté", brief)
+        self.assertIn("Démonstration — non notée", brief)
+        self.assertIn("lab?.sandbox === true", toolbar)
+        self.assertIn("initial.lab.sandbox === true", bridge)
+        self.assertIn("initial.lab.id === 'demo'", bridge)
+
+    def test_workspace_submission_result_refreshes_dashboard_progress(selfself):
         bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
 
