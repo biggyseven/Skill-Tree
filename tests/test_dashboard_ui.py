@@ -591,14 +591,18 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(action.node_id)\"", DASHBOARD_HTML)
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", DASHBOARD_HTML)
 
-    def test_switching_modules_opens_first_course_in_learning_reader(self):
-        start = DASHBOARD_HTML.index("        async setModule(id) {")
+    def test_switching_modules_sets_first_course_as_next_step_without_opening_reader(self):
+        start = DASHBOARD_HTML.index("        setModule(id) {")
         end = DASHBOARD_HTML.index("        get categories()", start)
         set_module = DASHBOARD_HTML[start:end]
 
         self.assertIn("this.moduleFilter = id;", set_module)
-        self.assertIn("const firstCourse = this.nodesIn(id)[0];", set_module)
-        self.assertIn("await this.show(firstCourse.id);", set_module)
+        self.assertIn("const firstCourse = id === 'all' ? null : this.nodesIn(id)[0];", set_module)
+        self.assertIn("this.moduleNextCourseId = firstCourse && firstCourse.id ? firstCourse.id : null;", set_module)
+        self.assertNotIn("this.show(firstCourse.id)", set_module)
+        self.assertIn("get moduleNextCourse()", DASHBOARD_HTML)
+        self.assertIn("if (this.moduleNextCourse) return 'Prochaine étape du module';", DASHBOARD_HTML)
+        self.assertIn("@click=\\"openLearningStep()\\"", DASHBOARD_HTML)
         self.assertIn("await this.setModule(requestedModuleId);", DASHBOARD_HTML)
 
     def test_course_modules_courses_and_sidebar_sections_offer_new_tabs(self):
