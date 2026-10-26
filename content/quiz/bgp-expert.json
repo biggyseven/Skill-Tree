@@ -1,1 +1,102 @@
-{"node_id":"bgp-expert","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel attribut BGP est prioritaire sur tous les autres (et est local au routeur) ?","choices":["Weight","Local Preference","AS_PATH","MED"],"answer":0,"explanation":"Le Weight est le premier critère de sélection BGP et il est local au routeur (non transmis)."},{"type":"qcm","prompt":"Comment allonger l'AS_PATH pour rendre une route moins attractive ?","choices":["AS_PATH prepending","AS_PATH filtering","AS_PATH stripping","AS_PATH appending"],"answer":0,"explanation":"Le 'AS_PATH prepending' consiste à ajouter plusieurs fois son propre AS pour allonger le chemin."},{"type":"qcm","prompt":"Quel est le rôle d'un Route Reflector ?","choices":["Transmettre les routes iBGP à d'autres clients iBGP","Filtrer les routes eBGP","Traduire les adresses IP","Créer des routes par défaut"],"answer":0,"explanation":"Le Route Reflector contourne la règle du Split Horizon iBGP en réfléchissant les routes."},{"type":"qcm","prompt":"Quel est l'attribut BGP qui indique la provenance de la route (IGP, EGP, Incomplete) ?","choices":["Origin","MED","Next-Hop","Local Preference"],"answer":0,"explanation":"L'attribut Origin indique comment la route a été apprise (IGP, EGP ou Incomplete)."}]}
+{
+  "node_id": "bgp-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans la sélection de routes BGP Cisco IOS classique, quel attribut local au routeur est examiné en tête de la séquence de best-path de Cisco ?",
+      "choices": [
+        "MED",
+        "AS_PATH",
+        "Weight",
+        "ORIGIN"
+      ],
+      "answer": 2,
+      "explanation": "Cisco IOS utilise le Weight local au routeur avant plusieurs attributs BGP courants. Weight est spécifique à l’implémentation Cisco, pas un attribut standard transmis par BGP à tous les routeurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment le AS_PATH prepending influence-t-il communément l’attractivité d’une annonce auprès des AS distants ?",
+      "choices": [
+        "Il ajoute plusieurs occurrences du propre AS dans le chemin annoncé pour que certains peers le jugent moins préférable",
+        "Il masque le préfixe dans la RIB locale seulement",
+        "Il rend le next hop joignable par ARP",
+        "Il transforme une session iBGP en eBGP"
+      ],
+      "answer": 0,
+      "explanation": "Le prepending allonge le chemin AS annoncé et peut rendre une route moins attractive auprès de certains pairs, mais la décision reste dépendante des politiques locales des AS distants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la fonction principale d’un Route Reflector ?",
+      "choices": [
+        "Définir le masque de sous-réseau du voisin",
+        "Calculer la topologie STP",
+        "Traduire les adresses IPv4 en adresses IPv6",
+        "Réfléchir certaines routes iBGP selon les règles de route reflection et réduire le besoin d’une full mesh"
+      ],
+      "answer": 3,
+      "explanation": "Le route reflector diffuse certaines routes apprises de clients/non-clients à d’autres voisins, selon des règles spécifiques. Son placement et les politiques peuvent influencer le chemin sélectionné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente l’attribut ORIGIN dans BGP ?",
+      "choices": [
+        "Le nombre de VLAN traversés",
+        "L’origine historique de l’annonce BGP, codée notamment comme IGP, EGP ou Incomplete",
+        "Le numéro du port TCP",
+        "L’adresse IP du serveur DNS"
+      ],
+      "answer": 1,
+      "explanation": "ORIGIN distingue historiquement la façon dont un préfixe est entré dans BGP (IGP, EGP ou Incomplete). Ce n’est pas simplement une indication du dernier routeur traversé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel effet le LOCAL_PREF a-t-il généralement dans la sélection de route BGP à l’intérieur d’un AS ?",
+      "choices": [
+        "Une valeur plus faible est toujours préférée",
+        "Il sert uniquement aux peers eBGP et ne peut pas être propagé en iBGP",
+        "Une valeur plus élevée est préférée pour les routes admissibles, afin d’exprimer une politique de sortie",
+        "Il correspond à la métrique STP du port racine"
+      ],
+      "answer": 2,
+      "explanation": "LOCAL_PREF indique le degré de préférence d’une route au sein de l’AS ; la valeur plus élevée est préférée. Sa diffusion vers les peers internes et les règles applicables sont définies par la spécification et les politiques locales."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage correspond le mieux à MED ?",
+      "choices": [
+        "Annoncer à un AS voisin une préférence relative entre plusieurs points d’entrée possibles, avec des règles de comparaison qui dépendent du contexte",
+        "Empêcher les routeurs d’apprendre les préfixes directement connectés",
+        "Chiffrer les UPDATE BGP",
+        "Indiquer le Root ID STP"
+      ],
+      "answer": 0,
+      "explanation": "MED permet à un AS d’influencer l’entrée choisie par un AS voisin parmi plusieurs routes comparables. Sa portée et ses comparaisons dépendent des règles BGP et des politiques d’implémentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi appliquer des limites de nombre de préfixes (max-prefix) et surveiller les changements de volume de routes sur les sessions externes ?",
+      "choices": [
+        "Pour empêcher toute route de devenir best path",
+        "Pour remplacer les politiques d’importation",
+        "Pour forcer la session BGP en état Active",
+        "Pour détecter ou contenir certaines annonces anormales et réduire le risque d’une fuite ou d’un volume inattendu"
+      ],
+      "answer": 3,
+      "explanation": "Une limite max-prefix et des alertes peuvent aider à détecter une hausse inattendue des routes. Elles ne remplacent pas le filtrage précis ni la gestion de changement, mais constituent une protection additionnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu’un Route Reflector choisit ou annonce ses routes, pourquoi son placement dans la topologie doit-il être étudié ?",
+      "choices": [
+        "Parce que BGP utilise la puissance du ventilateur pour choisir les routes",
+        "Parce que le coût IGP vers le next hop, les politiques et le fait de n’annoncer que certains best paths peuvent influencer les chemins visibles des clients",
+        "Parce qu’un Route Reflector réécrit toujours tous les AS_PATH",
+        "Parce que l’emplacement ne peut jamais affecter le chemin sélectionné"
+      ],
+      "answer": 1,
+      "explanation": "La sélection BGP peut tenir compte du coût IGP jusqu’au next hop après les étapes de préférence antérieures. Un RR annonce généralement les chemins retenus par sa politique ; son placement peut donc affecter les routes visibles."
+    }
+  ]
+}
