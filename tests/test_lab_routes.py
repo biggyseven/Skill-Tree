@@ -141,9 +141,9 @@ class LabValidationTests(unittest.TestCase):
         catalog_db = Path(self.temp_dir.name) / "catalog.sqlite3"
         legacy_definition = {
             "schema_version": 2,
-            "id": "acl-debutant",
-            "title": "ACL & filtrage - Débutant",
-            "level": "débutant",
+            "id": "acl-expert",
+            "title": "ACL & filtrage - Expert",
+            "level": "expert",
             "module": "Administration Réseaux",
             "prompt": "Ancien exercice de compatibilité",
             "objectives": [],
@@ -181,9 +181,9 @@ class LabValidationTests(unittest.TestCase):
                 "INSERT INTO labs (id, title, level, module, duration_min, difficulty, schema_version, definition_json) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (
-                    "acl-debutant",
-                    "ACL & filtrage - Débutant",
-                    "débutant",
+                    "acl-expert",
+                    "ACL & filtrage - Expert",
+                    "expert",
                     "Administration Réseaux",
                     15,
                     "débutant",
@@ -202,7 +202,8 @@ class LabValidationTests(unittest.TestCase):
 
         lab_ids = {lab["id"] for lab in catalog}
         self.assertIn("secu-acl-intermediaire", lab_ids)
-        self.assertNotIn("acl-debutant", lab_ids)
+        self.assertIn("acl-debutant", lab_ids)
+        self.assertNotIn("acl-expert", lab_ids)
         acl_lab = next(lab for lab in catalog if lab["id"] == "secu-acl-intermediaire")
         self.assertEqual(acl_lab["title"], "ACL et filtrage avancé - Intermédiaire")
         self.assertEqual(acl_lab["duration_min"], 20)
