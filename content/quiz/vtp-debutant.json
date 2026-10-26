@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour VTP et gestion des VLANs - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel est le rôle historique de VTP dans un réseau de commutateurs Cisco qui le prend en charge ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Distribuer automatiquement les adresses IP des postes",
+        "Synchroniser les bases VLAN au sein d’un domaine VTP selon la version, le mode et la configuration",
+        "Chiffrer les trames Ethernet sur tous les trunks",
+        "Remplacer STP et empêcher toutes les boucles de couche 2"
+      ],
+      "answer": 1,
+      "explanation": "VTP est un protocole Cisco de gestion des VLAN qui peut diffuser des informations de base VLAN entre équipements compatibles dans un domaine configuré. Il ne remplace ni DHCP, ni le chiffrement, ni STP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel paramètre doit normalement correspondre pour que des commutateurs participent au même domaine VTP ?",
+      "choices": [
+        "Leur adresse IP de gestion doit être identique",
+        "Leur nom d’hôte doit être identique",
+        "Leur numéro de VLAN natif doit être égal au numéro de port",
+        "Le nom du domaine VTP doit correspondre, avec des versions, authentifications et trunks compatibles"
+      ],
+      "answer": 3,
+      "explanation": "Le domaine doit correspondre et le protocole doit pouvoir être transporté et validé. La version, les paramètres d’authentification et les conditions de trunk contribuent aussi au fonctionnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit le numéro de révision VTP dans les versions qui l’utilisent pour ordonner les annonces de base VLAN ?",
+      "choices": [
+        "Un numéro lié à la dernière modification de la base VLAN, qui peut avoir des conséquences lorsqu’un commutateur est introduit dans le domaine",
+        "Le nombre de ports physiques du commutateur",
+        "Le nombre de secondes avant la prochaine annonce DHCP",
+        "La version du système d’exploitation du poste administrateur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Dans les versions VTP concernées, le numéro de révision accompagne les annonces de base VLAN et aide à interpréter leur ordre. Un équipement préparé incorrectement peut diffuser une base inattendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mode VTP permet généralement de créer des VLAN localement sans distribuer les changements de base VLAN comme un serveur VTP ?",
+      "choices": [
+        "Client",
+        "Serveur primaire obligatoire sur chaque switch",
+        "Transparent",
+        "Routeur-on-a-stick"
+      ],
+      "answer": 2,
+      "explanation": "Le mode transparent permet une gestion locale de la base VLAN plutôt que de propager ses modifications comme un serveur. Le relais de certaines annonces VTP dépend toutefois de la version et de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il être prudent avant de raccorder un commutateur utilisé auparavant dans un autre réseau à un domaine VTP de production ?",
+      "choices": [
+        "Il désactive automatiquement tous les ports Ethernet",
+        "Sa base VLAN ou son numéro de révision peuvent influencer la base diffusée, selon le protocole et la configuration",
+        "Il transforme toutes les interfaces en ports routés",
+        "Il supprime obligatoirement tous les serveurs DHCP du réseau"
+      ],
+      "answer": 1,
+      "explanation": "Un commutateur introduit avec un état VTP inattendu peut entraîner des modifications de la base VLAN dans les versions/modes concernés. Il faut inventorier et préparer l’équipement selon une procédure propre à la plateforme avant raccordement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement le VTP pruning dans les environnements qui le prennent en charge ?",
+      "choices": [
+        "À authentifier les utilisateurs Wi-Fi",
+        "À chiffrer le trafic VLAN sur le réseau opérateur",
+        "À supprimer toute entrée inutilisée de la base de routage",
+        "À limiter la propagation de certains trafics de diffusion sur les trunks qui n’ont pas besoin de ces VLAN"
+      ],
+      "answer": 3,
+      "explanation": "Le pruning peut limiter le transport inutile de certains trafics de diffusion sur des trunks. Il ne constitue pas une frontière de sécurité et ne remplace pas les listes VLAN autorisées ou les politiques d’accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole est couramment utilisé pour transporter les informations d’identification de VLAN sur un trunk Ethernet ?",
+      "choices": [
+        "IEEE 802.1Q",
+        "DHCP",
+        "BGP",
+        "NTP"
+      ],
+      "answer": 0,
+      "explanation": "IEEE 802.1Q définit le marquage VLAN des trames Ethernet sur les trunks. VTP, lui, diffuse des informations de gestion de la base VLAN et ne remplace pas le marquage des trames de données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande est un bon point de départ pour examiner le mode, le domaine, la version et la révision VTP sur un équipement Cisco compatible ?",
+      "choices": [
+        "`show ip route summary`",
+        "`show spanning-tree root`",
+        "`show vtp status`",
+        "`show interfaces transceiver detail`"
+      ],
+      "answer": 2,
+      "explanation": "`show vtp status` affiche plusieurs paramètres opérationnels de VTP, utiles pour vérifier que l’équipement correspond au domaine prévu avant d’analyser la propagation."
     }
   ]
 }
