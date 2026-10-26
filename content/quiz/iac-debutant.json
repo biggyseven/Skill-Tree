@@ -4,99 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle de terraform init ?",
+      "prompt": "Que signifie décrire une infrastructure comme du code ?",
       "choices": [
-        "Appliquer automatiquement tous les changements en production",
-        "Préparer le répertoire et récupérer les providers ou modules nécessaires",
-        "Supprimer l’état",
-        "Formater les fichiers seulement"
-      ],
-      "answer": 1,
-      "explanation": "init prépare le répertoire de travail et les dépendances déclarées."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel est l’objectif principal de terraform plan ?",
-      "choices": [
-        "Examiner les changements proposés avant application",
-        "Supprimer toutes les ressources existantes",
-        "Générer un mot de passe pour chaque ressource",
-        "Remplacer le fichier de configuration"
-      ],
-      "answer": 0,
-      "explanation": "plan aide à identifier créations, modifications, remplacements et suppressions avant d’appliquer."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi faut-il protéger le fichier d’état Terraform ?",
-      "choices": [
-        "Il ne contient que des commentaires publics",
-        "Il remplace le code source",
-        "Il ne sert qu’à formater les fichiers",
-        "Il peut contenir des valeurs sensibles et relie le code aux ressources gérées"
-      ],
-      "answer": 3,
-      "explanation": "L’état peut inclure des attributs sensibles et nécessite un contrôle d’accès et des sauvegardes adaptés."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle commande vérifie le formatage des fichiers Terraform sans les modifier ?",
-      "choices": [
-        "terraform apply --check",
-        "terraform state destroy",
-        "terraform fmt -check",
-        "terraform provider ping"
+        "Remplacer chaque contrôle humain par un script obligatoire",
+        "Publier tous les paramètres des environnements dans un dépôt public",
+        "Décrire les ressources et paramètres dans des fichiers versionnés qui peuvent être relus et vérifiés",
+        "Garantir que le service ne tombera jamais en panne"
       ],
       "answer": 2,
-      "explanation": "fmt -check signale les fichiers qui ne respectent pas le format Terraform attendu."
+      "explanation": "L’IaC rend la configuration plus explicite, révisable et reproductible, mais elle ne remplace ni les tests, ni la supervision, ni la gestion des incidents."
     },
     {
       "type": "qcm",
-      "prompt": "À quoi sert une variable d’entrée ?",
+      "prompt": "Quelle distinction entre état souhaité et état réel est correcte ?",
       "choices": [
-        "Créer automatiquement un compte cloud",
-        "Paramétrer la configuration sans dupliquer les fichiers",
-        "Remplacer le fichier d’état",
-        "Ignorer les plans"
-      ],
-      "answer": 1,
-      "explanation": "Les variables rendent les configurations réutilisables et peuvent porter types, descriptions et validations."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi examiner les suppressions dans un plan ?",
-      "choices": [
-        "Elles peuvent entraîner une perte de ressource ou de données",
-        "Elles ne peuvent jamais affecter la production",
-        "Elles signifient que le code est mieux formaté",
-        "Elles indiquent toujours une absence de changements"
+        "L’état souhaité décrit le résultat visé ; l’état réel correspond aux ressources et paramètres effectivement présents",
+        "L’état souhaité est toujours plus récent que l’état réel",
+        "L’état réel ne change jamais après une livraison",
+        "Les deux notions signifient uniquement la version du dépôt Git"
       ],
       "answer": 0,
-      "explanation": "Les suppressions et remplacements sont potentiellement destructifs et doivent être compris avant l’application."
+      "explanation": "Comparer état souhaité et état réel aide à identifier une dérive. Il faut ensuite décider si l’infrastructure ou la référence versionnée doit être corrigée."
     },
     {
       "type": "qcm",
-      "prompt": "Un exemple utilise un provider inconnu. Que faut-il vérifier avant de le déployer ?",
+      "prompt": "Dans l’IaC, que signifie généralement le caractère déclaratif ?",
       "choices": [
-        "Seulement la couleur de l’éditeur",
-        "Que le fichier se termine par une ligne vide",
-        "Que terraform apply soit lancé deux fois",
-        "Le nom réel du provider, sa version, la ressource et sa documentation"
+        "Décrire chaque appel réseau dans l’ordre exact de son exécution",
+        "Interdire les variables et les paramètres",
+        "Exécuter les mêmes actions à chaque lancement sans examiner l’état",
+        "Exprimer le résultat attendu, en laissant l’outil déterminer les opérations nécessaires"
       ],
       "answer": 3,
-      "explanation": "Une syntaxe copiée ne prouve pas que le provider ou les attributs existent ou sont compatibles."
+      "explanation": "Une approche déclarative exprime l’état à obtenir. Le moteur calcule ou organise les opérations qui peuvent conduire à cet état."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi un workspace Terraform ne suffit-il pas toujours à isoler production ?",
+      "prompt": "Pourquoi l’idempotence est-elle utile dans une procédure d’infrastructure ?",
       "choices": [
-        "Il chiffre toujours le state",
-        "Il remplace les approbations",
-        "Il ne remplace pas des permissions, comptes et frontières d’environnement séparés",
-        "Il interdit les destructions"
+        "Elle garantit l’absence d’erreurs humaines dans tout le système",
+        "La répétition de l’opération ne produit pas de changements supplémentaires une fois le résultat attendu atteint",
+        "Elle désactive le contrôle de version",
+        "Elle permet d’ignorer les erreurs d’autorisation"
+      ],
+      "answer": 1,
+      "explanation": "L’idempotence aide à relancer un processus après une interruption sans créer systématiquement des doublons ou de nouvelles modifications."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage de Git améliore la gouvernance d’un changement d’infrastructure ?",
+      "choices": [
+        "Proposer une modification en revue, conserver son historique et relier les commentaires à une version précise",
+        "Stocker les secrets dans le dépôt pour qu’ils soient versionnés",
+        "Appliquer la configuration dès qu’un commit est créé",
+        "Éviter de documenter les raisons du changement"
+      ],
+      "answer": 0,
+      "explanation": "Git et les demandes de fusion rendent les changements traçables et révisables. Les permissions et les secrets doivent être gérés séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur les familles d’outils IaC est la plus juste ?",
+      "choices": [
+        "Un seul outil doit toujours provisionner, configurer et livrer toute application",
+        "Les outils de gestion de configuration ne peuvent jamais coexister avec le provisionnement",
+        "Des outils différents peuvent répondre à des besoins distincts, à condition que leurs responsabilités soient clairement délimitées",
+        "Tous les outils gèrent automatiquement les mêmes objets sans coordination"
       ],
       "answer": 2,
-      "explanation": "Les espaces de travail aident à distinguer des états mais n’offrent pas à eux seuls une frontière de sécurité complète."
+      "explanation": "Provisionnement, configuration système et livraison applicative sont des besoins différents. Les combiner est possible si chaque outil a un périmètre de responsabilité explicite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une validation automatique réussit, mais le plan montre la suppression d’une base de données utilisée. Que faut-il faire ?",
+      "choices": [
+        "Appliquer, puisque le contrôle automatique a réussi",
+        "Comprendre l’effet, vérifier les dépendances et les sauvegardes, puis suspendre l’application jusqu’à une décision autorisée",
+        "Supprimer les journaux de validation",
+        "Modifier le nom de la ressource pour contourner le plan"
+      ],
+      "answer": 1,
+      "explanation": "Une validation technique ne vaut pas approbation. Une opération destructive exige une analyse de son impact et des moyens de récupération adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il prévoir pour une infrastructure temporaire de laboratoire ?",
+      "choices": [
+        "Laisser toutes les ressources actives au cas où elles resserviraient",
+        "Utiliser les permissions de production pour gagner du temps",
+        "Omettre le nom du propriétaire afin de ne pas lier le coût à une personne",
+        "Un propriétaire, une durée de vie, un contrôle des coûts et une procédure de nettoyage qui protège les données à conserver"
+      ],
+      "answer": 3,
+      "explanation": "Les ressources temporaires peuvent continuer à coûter de l’argent ou rester exposées après le laboratoire. Le nettoyage doit être prévu avant la création."
     }
   ]
 }
