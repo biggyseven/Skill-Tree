@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Routage statique & tables - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Un routeur possède une route vers `10.20.0.0/16` et une route vers `10.20.30.0/24`. Pour un paquet destiné à `10.20.30.40`, quelle route est normalement sélectionnée ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La route `10.20.0.0/16`, car elle couvre davantage d’adresses",
+        "La route par défaut, toujours prioritaire",
+        "La route `10.20.30.0/24`, car elle correspond au préfixe le plus spécifique",
+        "La route avec le prochain saut numériquement le plus faible, quelle que soit la longueur de préfixe"
+      ],
+      "answer": 2,
+      "explanation": "Le routeur applique d’abord la correspondance au préfixe le plus long parmi les routes applicables. Le /24 est plus spécifique que le /16 et est donc choisi pour cette destination dans cet exemple."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’une route IPv4 par défaut `0.0.0.0/0` ?",
+      "choices": [
+        "Fournir un chemin de repli aux destinations qui ne correspondent à aucune route plus spécifique disponible",
+        "Forcer toutes les destinations à passer par le réseau local",
+        "Remplacer toutes les routes directement connectées",
+        "Attribuer une adresse IPv4 à chaque interface"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le préfixe /0 correspond à toute destination IPv4 mais reste moins spécifique que les routes plus longues. Il sert de chemin de repli lorsque le routeur n’a pas de route plus spécifique utilisable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une interface IP est opérationnelle et correctement configurée, quel type de route le routeur installe généralement pour son sous-réseau directement connecté ?",
+      "choices": [
+        "Une route apprise obligatoirement par BGP",
+        "Une route de dépôt DNS",
+        "Une route par défaut vers Internet",
+        "Une route connectée associée à l’interface"
+      ],
+      "answer": 3,
+      "explanation": "Une interface L3 opérationnelle avec une adresse et un préfixe permet généralement d’installer une route directement connectée dans la table de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un routeur Cisco, quelle commande ajoute une route IPv4 statique vers `192.168.20.0/24` via le prochain saut `10.0.0.2` ?",
+      "choices": [
+        "`ip default-gateway 192.168.20.0 10.0.0.2`",
+        "`ip route 192.168.20.0 255.255.255.0 10.0.0.2`",
+        "`router ospf 192.168.20.0/24 10.0.0.2`",
+        "`vlan 192.168.20.0/24 next-hop 10.0.0.2`"
+      ],
+      "answer": 1,
+      "explanation": "La syntaxe IOS classique est `ip route réseau masque prochain-saut`. Le prochain saut doit lui-même être résoluble et le choix exact dépend de la topologie et de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre RIB et FIB est la plus juste ?",
+      "choices": [
+        "La RIB stocke les mots de passe ; la FIB stocke les baux DHCP",
+        "La RIB et la FIB sont deux noms réservés aux journaux DNS",
+        "La RIB rassemble les routes connues et sélectionnées ; la FIB contient les informations utilisées pour transférer les paquets",
+        "La FIB sert uniquement à afficher le nom des interfaces"
+      ],
+      "answer": 2,
+      "explanation": "La Routing Information Base maintient les informations de routage du plan de contrôle ; la Forwarding Information Base représente l’information nécessaire au transfert effectif des paquets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un hôte veut communiquer avec une adresse qui n’appartient pas à son propre sous-réseau. Vers quel équipement envoie-t-il normalement le paquet IP ?",
+      "choices": [
+        "Vers sa passerelle par défaut, après résolution de son adresse de couche 2 sur le réseau local",
+        "Vers le serveur DNS, quelle que soit la destination",
+        "Vers l’adresse broadcast de chaque sous-réseau traversé",
+        "Vers le premier commutateur de couche 2, sans adresse MAC de destination"
+      ],
+      "answer": 0,
+      "explanation": "Pour une destination hors sous-réseau, l’hôte transmet normalement le paquet à sa passerelle. Sur Ethernet, il résout l’adresse de couche 2 de cette passerelle, tout en conservant l’adresse IP de destination finale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un poste peut joindre les appareils du même sous-réseau mais pas la passerelle. Quelle première vérification est utile ?",
+      "choices": [
+        "Changer le serveur NTP public",
+        "Réinstaller le navigateur Web",
+        "Activer BGP sur le poste",
+        "Vérifier son adresse IP, son masque, le VLAN/liaison locale et l’adresse de passerelle configurée"
+      ],
+      "answer": 3,
+      "explanation": "Une panne limitée à la passerelle peut être liée à l’adressage, au masque, au VLAN, à la résolution ARP ou à l’interface locale. Il faut vérifier ces éléments avant d’incriminer le routage distant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but principal d’une route statique ?",
+      "choices": [
+        "Apprendre automatiquement l’ensemble des routes du monde Internet",
+        "Configurer explicitement un chemin vers un préfixe ou une destination selon la conception du réseau",
+        "Chiffrer le contenu des paquets IP",
+        "Remplacer le protocole de résolution d’adresses MAC"
+      ],
+      "answer": 1,
+      "explanation": "Une route statique est définie par l’administrateur pour exprimer un chemin précis. Elle ne découvre pas automatiquement les changements de topologie, sauf mécanismes complémentaires de suivi ou de résolution."
     }
   ]
 }
