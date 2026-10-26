@@ -84,7 +84,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("const limit = el.scrollTop + 100", DASHBOARD_HTML)
         self.assertIn("Recherche binaire O(log n)", DASHBOARD_HTML)
         self.assertNotIn("el.querySelectorAll('.lesson-prose h2[id]').forEach(h => { if (h.getBoundingClientRect().top <= limit)", DASHBOARD_HTML)
-        self.assertIn("root.querySelectorAll('svg text, svg tspan, [style*=\\"color\\" i], [style*=\\"fill\\" i]')", DASHBOARD_HTML)
+        self.assertIn("root.querySelectorAll('svg text, svg tspan,", DASHBOARD_HTML)
+        self.assertIn('[style*="color" i], [style*="fill" i]', DASHBOARD_HTML)
         self.assertIn("La section choisie est introuvable", DASHBOARD_HTML)
         self.assertIn("this.restoreLessonPosition(s, this.lessonPositions[String(this.detail?.id || '')] || null)", DASHBOARD_HTML)
 
