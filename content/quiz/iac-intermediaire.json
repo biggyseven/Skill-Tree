@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Infrastructure as Code avec Terraform",
+      "prompt": "Quel facteur doit guider le choix entre monorepo et multirepo pour l’IaC ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Le fait qu’un modèle soit toujours plus moderne que l’autre",
+        "Les propriétaires, les frontières de responsabilité, les droits d’accès, les dépendances et le cycle de livraison",
+        "Le nombre maximal de fichiers Markdown autorisés",
+        "L’obligation de mettre tous les environnements dans le même périmètre de sécurité"
+      ],
+      "answer": 1,
+      "explanation": "Les deux modèles ont des avantages et des coûts. La structure doit suivre les équipes, les permissions, les dépendances et les besoins de livraison."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi chaque ressource devrait-elle avoir un propriétaire et un système de gestion de référence clairement identifiés ?",
+      "choices": [
+        "Pour permettre à plusieurs outils de modifier la ressource sans se coordonner",
+        "Pour qu’aucune équipe ne soit responsable des incidents",
+        "Pour éviter de conserver une trace des changements",
+        "Pour prévenir les modifications concurrentes contradictoires et clarifier qui décide et intervient"
+      ],
+      "answer": 3,
+      "explanation": "Une responsabilité explicite évite que deux processus se corrigent mutuellement et permet d’identifier qui doit approuver ou traiter un problème."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que devrait décrire le contrat d’un composant IaC réutilisable ?",
+      "choices": [
+        "Ses entrées, ses sorties, ses hypothèses, ses garanties, ses dépendances et ses responsabilités de sécurité",
+        "Uniquement le nom du fichier source",
+        "Seulement la personne qui a créé la première version",
+        "Tous les secrets nécessaires pour exécuter le pipeline"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Un contrat explicite permet aux consommateurs de connaître les attentes et les limites sans dépendre de détails internes non documentés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment gérer un changement incompatible dans un composant partagé ?",
+      "choices": [
+        "Modifier silencieusement son comportement sous la même version",
+        "Supprimer toutes les anciennes versions sans prévenir",
+        "Publier une nouvelle version, documenter la migration et accompagner les consommateurs concernés",
+        "Copier les fichiers dans chaque dépôt et laisser chaque équipe découvrir les différences"
+      ],
+      "answer": 2,
+      "explanation": "Le versionnement et une stratégie de migration rendent les changements incompatibles visibles et permettent de planifier leur adoption."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une stratégie de tests IaC devrait-elle combiner plusieurs types de vérification ?",
+      "choices": [
+        "Parce qu’un test unitaire garantit toujours l’état réel du cloud",
+        "Parce que les tests de contrat, tests de composants, contrôles de politique et vérifications post-déploiement détectent des classes de risques différentes",
+        "Pour remplacer les approbations sensibles par une seule commande",
+        "Pour exécuter tous les tests avec des permissions administrateur"
+      ],
+      "answer": 1,
+      "explanation": "Les différentes vérifications se complètent. Une configuration valide peut tout de même violer une règle métier ou échouer une fois déployée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’une promotion contrôlée entre test et production ?",
+      "choices": [
+        "Reconstruire un changement non identifié juste avant la mise en production",
+        "Copier les secrets de test dans tous les environnements",
+        "Appliquer chaque changement directement en production avant de le tester",
+        "Conserver l’identité de la version, ses résultats de contrôle et ses approbations, tout en documentant les paramètres spécifiques à chaque environnement"
+      ],
+      "answer": 3,
+      "explanation": "La promotion doit rendre traçable ce qui est livré. Les paramètres spécifiques peuvent différer mais doivent être explicitement définis, validés et audités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle séparation de permissions est recommandée dans une chaîne de livraison ?",
+      "choices": [
+        "Les validations de contributions non fiables n’obtiennent pas les secrets de production ; l’application utilise une identité dédiée et limitée",
+        "Tous les tests utilisent la même identité administrateur permanente",
+        "Un jeton de production est stocké dans le dépôt pour éviter les étapes de connexion",
+        "Les permissions ne sont nécessaires que si le pipeline échoue"
+      ],
+      "answer": 0,
+      "explanation": "La séparation des identités limite les conséquences d’une contribution compromise. Les exécuteurs, déclencheurs et permissions de chaque étape doivent être examinés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une remédiation automatique veut annuler une modification manuelle faite pendant un incident. Quelle réponse est la plus sûre ?",
+      "choices": [
+        "Laisser la remédiation s’exécuter, car toute dérive est forcément mauvaise",
+        "Désactiver définitivement tous les contrôles de dérive",
+        "Évaluer le contexte, l’impact et l’origine de l’écart, puis décider d’une correction contrôlée ou d’une exception temporaire",
+        "Effacer l’historique Git pour éliminer l’écart"
+      ],
+      "answer": 2,
+      "explanation": "Une modification d’urgence peut être nécessaire pour rétablir le service. La correction doit tenir compte du contexte et réconcilier ensuite la référence approuvée."
     }
   ]
 }

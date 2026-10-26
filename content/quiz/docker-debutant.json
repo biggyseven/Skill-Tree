@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Docker : images et conteneurs",
+      "prompt": "Quelle est la différence essentielle entre une image Docker et un conteneur ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Une image est une machine virtuelle complète en cours d’exécution",
+        "Une image est un modèle versionné ; un conteneur est une instance créée à partir de ce modèle",
+        "Un conteneur ne peut jamais être arrêté",
+        "Une image ne contient jamais de système de fichiers"
+      ],
+      "answer": 1,
+      "explanation": "L’image fournit les couches et la configuration de référence ; le conteneur est l’instance qui s’exécute avec son propre état d’exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert l’instruction `FROM` dans un Dockerfile ?",
+      "choices": [
+        "À publier automatiquement l’image dans un registre",
+        "À exposer un port du conteneur",
+        "À déclarer un volume persistant",
+        "À choisir l’image de base sur laquelle construire l’image"
+      ],
+      "answer": 3,
+      "explanation": "`FROM` définit l’image de base d’une étape de construction. Le choix de base influence la compatibilité, la taille et la surface d’attaque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait `docker ps -a` ?",
+      "choices": [
+        "Supprime tous les conteneurs arrêtés",
+        "Affiche uniquement les images téléchargées",
+        "Liste les conteneurs, y compris ceux qui sont arrêtés",
+        "Construit une nouvelle image à partir du Dockerfile"
+      ],
+      "answer": 2,
+      "explanation": "`docker ps` liste par défaut les conteneurs en cours ; l’option `-a` inclut également les conteneurs arrêtés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la fonction de `-p 8080:80` dans une commande `docker run` ?",
+      "choices": [
+        "Publier le port 80 du conteneur via le port 8080 de l’hôte",
+        "Créer un volume nommé `8080`",
+        "Limiter le conteneur à 80 processus",
+        "Forcer le conteneur à utiliser IPv6"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La syntaxe courante `hôte:conteneur` publie le port 80 du conteneur sur le port 8080 de l’hôte. L’accessibilité dépend aussi des interfaces et du pare-feu de l’hôte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser un volume nommé pour des données qui doivent survivre à la recréation du conteneur ?",
+      "choices": [
+        "Le volume rend automatiquement le conteneur invulnérable",
+        "Le volume remplace le réseau Docker",
+        "Les données du volume persistent indépendamment du cycle de vie du conteneur",
+        "Un volume rend inutile toute sauvegarde"
+      ],
+      "answer": 2,
+      "explanation": "La couche inscriptible du conteneur disparaît avec sa suppression. Un volume permet de conserver les données, mais il doit lui-même être sauvegardé et restauré selon le besoin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement `.dockerignore` ?",
+      "choices": [
+        "À empêcher toutes les connexions réseau au conteneur",
+        "À exclure du contexte de construction les fichiers non nécessaires ou sensibles",
+        "À supprimer les anciennes images du registre",
+        "À remplacer les règles du pare-feu"
+      ],
+      "answer": 1,
+      "explanation": "`.dockerignore` évite d’envoyer certains fichiers au contexte de construction. Il réduit le contexte et limite l’inclusion accidentelle de fichiers inutiles ou sensibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment distinguer les journaux d’un conteneur de son état détaillé ?",
+      "choices": [
+        "`docker build` affiche toujours les journaux du conteneur",
+        "`docker pull` inspecte les processus de l’application",
+        "`docker tag` révèle les variables d’environnement actives",
+        "`docker logs` affiche les journaux disponibles ; `docker inspect` expose des détails structurés de configuration et d’état"
+      ],
+      "answer": 3,
+      "explanation": "Les deux commandes sont complémentaires : `docker logs` aide à examiner la sortie du processus, tandis que `docker inspect` donne des métadonnées structurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique convient pour une première image applicative ?",
+      "choices": [
+        "Choisir une image de base maintenue, copier seulement les fichiers nécessaires et documenter la commande de démarrage",
+        "Inclure tous les répertoires personnels dans le contexte",
+        "Exécuter systématiquement le conteneur avec `--privileged`",
+        "Stocker les mots de passe directement dans le Dockerfile"
+      ],
+      "answer": 0,
+      "explanation": "Une image minimale et documentée réduit les erreurs et la surface d’attaque. Les secrets ne doivent pas être intégrés aux couches de l’image."
     }
   ]
 }

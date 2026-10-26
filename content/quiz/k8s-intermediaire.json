@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Kubernetes : réseau et stockage",
+      "prompt": "Quel est le rôle d’un EndpointSlice dans Kubernetes ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il stocke les secrets TLS du cluster",
+        "Il remplace le Service et le Deployment",
+        "Il est un type de volume persistant",
+        "Il fournit des informations sur les endpoints associés à un Service, permettant notamment d’examiner les adresses et ports ciblés"
+      ],
+      "answer": 3,
+      "explanation": "Les EndpointSlices représentent les endpoints d’un Service et aident à inspecter quelles adresses et quels ports sont proposés au trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage présente un PersistentVolumeClaim (PVC) ?",
+      "choices": [
+        "Il exprime la demande de stockage d’une charge de travail et peut être liée à un PersistentVolume selon la StorageClass et la politique de provisionnement",
+        "Il est un alias DNS pour un Pod",
+        "Il garantit que les données seront sauvegardées hors site",
+        "Il remplace la gestion des permissions de fichiers"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le PVC décrit la demande de stockage. La disponibilité, le provisionnement, le mode d’accès et le cycle de vie dépendent du stockage et de ses politiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un Service peut-il ne pas résoudre comme attendu dans Kubernetes ?",
+      "choices": [
+        "Parce que les Pods n’ont jamais d’adresses IP",
+        "Parce que les Services ne sont pas accessibles par nom",
+        "Parce que tous les namespaces partagent toujours les mêmes règles de résolution",
+        "Il faut vérifier le nom complet du Service/namespace, CoreDNS, les endpoints et le DNS du Pod"
+      ],
+      "answer": 3,
+      "explanation": "La découverte DNS dépend du namespace, de la configuration DNS du Pod et de la santé du service DNS. L’absence d’endpoint peut aussi provoquer un échec applicatif après résolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une NetworkPolicy Kubernetes ?",
+      "choices": [
+        "À mettre à jour automatiquement le noyau des nœuds",
+        "À définir des règles de trafic autorisé pour des Pods sélectionnés, à condition que le plugin réseau les applique",
+        "À remplacer les Services Kubernetes",
+        "À chiffrer tous les volumes"
+      ],
+      "answer": 1,
+      "explanation": "NetworkPolicy exprime des règles de flux entrant/sortant pour les Pods concernés. Son effet dépend du support du CNI et des sélecteurs ; une règle ne garantit pas à elle seule un chiffrement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre PersistentVolume et StorageClass ?",
+      "choices": [
+        "PersistentVolume décrit une ressource de stockage disponible ou provisionnée ; StorageClass décrit une classe de provisionnement et ses paramètres",
+        "PersistentVolume est toujours une base de données SQL",
+        "StorageClass est un compte utilisateur Kubernetes",
+        "Les deux objets désignent exclusivement un Pod"
+      ],
+      "answer": 0,
+      "explanation": "Le PV représente une ressource de stockage ; la StorageClass décrit comment des volumes peuvent être provisionnés dynamiquement selon le plugin utilisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque si un StatefulSet est déployé sans comprendre la politique de rétention et de récupération des volumes ?",
+      "choices": [
+        "Les Pods ne peuvent jamais être redémarrés",
+        "La politique de stockage s’applique uniquement aux images Docker",
+        "Les données peuvent être conservées ou supprimées selon les politiques de cycle de vie ; le déploiement ne remplace pas une stratégie de sauvegarde",
+        "Tous les volumes sont automatiquement répliqués sur plusieurs régions"
+      ],
+      "answer": 2,
+      "explanation": "Le cycle de vie des volumes dépend de leur type et de leurs politiques de rétention. Une application avec état doit aussi disposer d’une stratégie de sauvegarde/restauration testée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment diagnostiquer un Pod qui n’arrive pas à joindre un Service ?",
+      "choices": [
+        "Modifier d’abord toutes les routes du cluster",
+        "Vérifier DNS, Service et endpoints, politiques réseau, ports, événements du Pod et connectivité à chaque étape",
+        "Supprimer le PVC de l’application",
+        "Désactiver toutes les probes du cluster sans justification"
+      ],
+      "answer": 1,
+      "explanation": "La méthode suit les couches : résolution, endpoints, ports, règles de trafic et santé du backend. Elle évite des changements globaux sans preuve."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester une NetworkPolicy après sa création ?",
+      "choices": [
+        "Une fois écrite, elle s’applique identiquement à tous les plugins CNI",
+        "Elle rend toute communication possible par défaut",
+        "Elle remplace les politiques de sécurité cloud",
+        "Le comportement dépend du CNI, des selectors et des namespaces ; il faut tester les flux autorisés comme ceux qui doivent être refusés"
+      ],
+      "answer": 3,
+      "explanation": "Une configuration syntactiquement valide ne prouve pas l’effet réseau. Des essais positifs et négatifs confirment les flux attendus sur le CNI réellement utilisé."
     }
   ]
 }

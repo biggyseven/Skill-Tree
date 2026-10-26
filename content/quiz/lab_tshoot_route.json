@@ -1,18 +1,102 @@
 {
   "node_id": "lab_tshoot_route",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel est le défaut volontaire dans le scénario de routage ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Le routeur r2 n’a ni route vers le réseau de h1 ni route par défaut",
+        "L’adresse de h1 est dupliquée",
+        "Le DNS du serveur ne répond pas",
+        "Le MTU de toutes les interfaces est à zéro"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La consigne précise que r2 est le routeur sans route de retour vers 10.40.1.0/24 et sans route par défaut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le ping peut-il atteindre h2 mais échouer au retour ?",
+      "choices": [
+        "Les paquets ICMP sont toujours unidirectionnels",
+        "Le DNS ne sait pas résoudre les adresses privées",
+        "Le chemin aller est configuré, mais r2 ne sait pas comment acheminer la réponse vers le réseau de h1",
+        "Une interface UP bloque systématiquement le trafic retour"
+      ],
+      "answer": 2,
+      "explanation": "Le transfert aller peut fonctionner alors que la réponse exige une route différente. Le diagnostic doit examiner les deux sens."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande affiche la table de routage de r2 dans le lab ?",
+      "choices": [
+        "`ip netns exec h1 ip link`",
+        "`ip netns exec r2 ip route`",
+        "`ip netns exec h2 nslookup`",
+        "`systemctl status networking` sur l’hôte uniquement"
+      ],
+      "answer": 1,
+      "explanation": "La commande doit être exécutée dans le namespace r2 ; chaque namespace possède sa propre table de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle route par défaut est attendue sur r2 ?",
+      "choices": [
+        "`default via 10.40.3.10`",
+        "`default via 10.40.1.10`",
+        "`default via 10.40.2.2`",
+        "`default via 10.40.2.1`"
+      ],
+      "answer": 3,
+      "explanation": "Sur r2, le prochain saut vers r1 sur le réseau 10.40.2.0/24 est 10.40.2.1."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un prochain saut doit-il être joignable sur un réseau directement connecté ?",
+      "choices": [
+        "Le routeur doit pouvoir résoudre la couche de liaison et transmettre au voisin local indiqué",
+        "Un prochain saut peut être n’importe quelle adresse globale",
+        "Les tables de routage ignorent les interfaces",
+        "Le DNS convertit les routes en trames"
+      ],
+      "answer": 0,
+      "explanation": "Un prochain saut de route doit être atteignable dans le contexte approprié ; sinon l’équipement ne peut pas transmettre comme prévu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après ajout de la route sur r2, quels tests faut-il effectuer ?",
+      "choices": [
+        "Un seul ping vers la passerelle locale de h1",
+        "La résolution DNS de tous les noms Internet",
+        "Des pings h1 vers h2 et h2 vers h1 et une vérification de la route sur r2",
+        "Un reboot des quatre namespaces sans vérifier les tables"
+      ],
+      "answer": 2,
+      "explanation": "La consigne exige les tests dans les deux sens ainsi que la lecture de la table de routage mise à jour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande installe la route par défaut demandée dans ce lab ?",
+      "choices": [
+        "`ip route change dns default`",
+        "`ip netns exec r2 ip route add default via 10.40.2.1`",
+        "`ip netns exec h2 ip addr add default 10.40.2.1`",
+        "`bridge vlan add default dev r2`"
+      ],
+      "answer": 1,
+      "explanation": "Il faut exécuter `ip route add default via 10.40.2.1` dans le namespace r2, avec un prochain saut sur son réseau 10.40.2.0/24."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle observation indique que le diagnostic doit continuer malgré un ping aller réussi ?",
+      "choices": [
+        "L’interface de h1 a une adresse IP",
+        "Le fichier de lab comporte un objectif",
+        "Le routeur r1 est dans l’inventaire",
+        "Le ping retour échoue ou la table de r2 ne contient toujours pas la route de retour attendue"
+      ],
+      "answer": 3,
+      "explanation": "La réussite dans un sens n’établit pas un chemin bidirectionnel. Il faut confirmer la table de retour et réaliser les tests exigés."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

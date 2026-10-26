@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Service Mesh (Istio, Linkerd)",
+      "prompt": "Quelle séparation architecturale caractérise habituellement un service mesh ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Le plan de données transporte/intercepte le trafic des workloads ; le plan de contrôle distribue configuration et identité/politiques selon l’implémentation",
+        "Le plan de contrôle transporte toujours chaque paquet applicatif lui-même",
+        "Le plan de données remplace le noyau Kubernetes",
+        "Les deux plans désignent uniquement deux VLAN physiques"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Dans un mesh, le plan de contrôle pilote généralement la configuration et les identités, tandis que le plan de données prend part au traitement du trafic applicatif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fournit le mTLS entre workloads lorsque les identités sont correctement validées ?",
+      "choices": [
+        "Une sauvegarde automatique des PVC",
+        "Un remplacement des politiques d’autorisation",
+        "Un chiffrement de disque pour chaque nœud",
+        "Un canal chiffré et une authentification mutuelle entre les identités des workloads"
+      ],
+      "answer": 3,
+      "explanation": "Le mTLS protège le canal et authentifie les deux extrémités selon les identités/certificats. Il ne garantit pas à lui seul que chaque requête est autorisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre authentification et autorisation dans un service mesh ?",
+      "choices": [
+        "Elles désignent la même vérification de certificat",
+        "L’authentification établit l’identité du pair ; l’autorisation décide si cette identité peut réaliser l’action demandée",
+        "L’autorisation n’intervient qu’au niveau DNS",
+        "L’authentification chiffre nécessairement les données au repos"
+      ],
+      "answer": 1,
+      "explanation": "L’identité du pair et la politique d’accès répondent à deux questions distinctes. Il faut valider l’identité puis appliquer les règles d’accès pertinentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester des règles de retry, timeout et circuit breaker ensemble ?",
+      "choices": [
+        "Pour faire en sorte que toutes les requêtes soient répétées indéfiniment",
+        "Pour remplacer les budgets d’erreur SLO",
+        "Pour éviter d’amplifier une panne par des répétitions, des délais cumulés ou des surcharges en cascade",
+        "Pour rendre les logs inutiles"
+      ],
+      "answer": 2,
+      "explanation": "Des retries mal calibrés peuvent amplifier une panne. Les timeouts, limites de retry et mécanismes d’évitement doivent être cohérents avec le budget de latence et le comportement des services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle peut jouer une Gateway API ou une passerelle dans le mesh ?",
+      "choices": [
+        "Elle expose ou route des flux d’entrée/sortie selon les ressources, politiques et contrôleurs effectivement utilisés",
+        "Elle garantit automatiquement qu’aucune route ne fuit",
+        "Elle remplace le DNS de Kubernetes dans tous les cas",
+        "Elle transforme tout trafic sortant en trafic mTLS sans configuration"
+      ],
+      "answer": 0,
+      "explanation": "La fonction exacte dépend de l’implémentation et des ressources utilisées. Les règles de routage, l’exposition et les contrôles doivent être testés dans le cluster réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la visibilité et les SLI/SLO comptent-ils dans l’exploitation d’un service mesh ?",
+      "choices": [
+        "Pour éviter les mises à niveau du plan de contrôle",
+        "Pour remplacer les tests de bout en bout par un seul tableau de bord",
+        "Pour déclarer automatiquement chaque alerte comme un incident majeur",
+        "Pour mesurer la latence, les erreurs et la disponibilité réellement vécues par les services et guider les décisions de fiabilité"
+      ],
+      "answer": 3,
+      "explanation": "La télémétrie du mesh aide à mesurer les flux, mais doit être reliée aux objectifs de service et aux signaux applicatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque existe lors d’une mise à niveau du plan de contrôle d’un mesh en production ?",
+      "choices": [
+        "La version du service mesh ne peut jamais changer",
+        "Une incompatibilité de versions/configuration ou une propagation partielle peut affecter les proxies et les flux ; il faut vérifier compatibilité et stratégie de déploiement",
+        "Les Pods n’utilisent jamais de configuration distribuée",
+        "Toutes les règles d’autorisation sont automatiquement conservées dans leur sens d’origine"
+      ],
+      "answer": 1,
+      "explanation": "Les versions et les modes de déploiement peuvent influencer la configuration distribuée et le fonctionnement des proxies. Les prérequis et procédures de rollback doivent être suivis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel point doit être vérifié dans un scénario multi-cluster ?",
+      "choices": [
+        "Le simple fait d’avoir deux contextes kubeconfig",
+        "Le nombre de services dans le namespace default",
+        "Les identités, résolutions, routes réseau, politiques, chemins de trafic et comportement en cas de perte d’un cluster",
+        "Le nom du fichier YAML seulement"
+      ],
+      "answer": 2,
+      "explanation": "Un mesh multi-cluster dépend des chemins réseau et de confiance entre clusters, ainsi que de la découverte des services et des scénarios de panne."
     }
   ]
 }

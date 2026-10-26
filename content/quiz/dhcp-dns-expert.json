@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour DHCP & DNS - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi séparer les rôles de résolution récursive et d’autorité DNS dans une architecture sensible ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour empêcher les clients internes d’utiliser des noms DNS",
+        "Pour transformer les requêtes DNS en baux DHCP",
+        "Pour rendre toutes les zones accessibles sans contrôle",
+        "Pour réduire l’exposition et appliquer des politiques distinctes aux clients et aux zones hébergées"
+      ],
+      "answer": 3,
+      "explanation": "La séparation des rôles permet de limiter l’exposition de l’autorité, de gouverner la récursion et de contrôler différemment les clients internes et externes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque une politique de limitation de débit DNS doit-elle gérer ?",
+      "choices": [
+        "Elle doit bloquer indistinctement toute réponse DNS",
+        "Une limite trop stricte peut supprimer du trafic légitime lors d’un pic ; elle doit être calibrée et observée",
+        "Elle remplace les sauvegardes de zone",
+        "Elle valide automatiquement DNSSEC"
+      ],
+      "answer": 1,
+      "explanation": "Le rate limiting peut atténuer certains abus mais provoquer des faux positifs. Il faut suivre les métriques, ajuster la politique et tester le comportement des clients légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur quoi repose la validation DNSSEC côté résolveur ?",
+      "choices": [
+        "La vérification cryptographique des données et de la chaîne de confiance depuis un point d’ancrage valide",
+        "Le chiffrement de la zone avec la clé privée du client",
+        "La durée du bail DHCP",
+        "La présence d’un enregistrement MX"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le résolveur validant vérifie signatures et délégations jusqu’à une ancre de confiance. Une chaîne cassée ou des signatures expirées peuvent entraîner des réponses considérées invalides."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il retenir d’un déploiement DNS Anycast ?",
+      "choices": [
+        "Il synchronise automatiquement les fichiers de zone entre tous les points de présence",
+        "Il garantit que toutes les requêtes seront toujours servies sans perte",
+        "Il remplace la nécessité de surveiller les routes",
+        "Il distribue les requêtes vers des annonces/routages de proximité, mais ne garantit ni cohérence des zones ni capacité illimitée"
+      ],
+      "answer": 3,
+      "explanation": "Anycast aide à distribuer les requêtes vers plusieurs sites, mais les données DNS, le routage, la capacité et les domaines de panne doivent être exploités et surveillés séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle réduit le risque d’usurpation du contexte relayé par DHCP ?",
+      "choices": [
+        "Faire confiance à toute interface utilisateur qui envoie l’option 82",
+        "Laisser chaque client définir librement son identifiant de circuit",
+        "Définir les équipements/interfaces de relais fiables et valider la politique de traitement de l’option 82",
+        "Désactiver les journaux DHCP"
+      ],
+      "answer": 2,
+      "explanation": "L’option 82 n’est utile que si son origine et son traitement sont maîtrisés. La confiance doit être réservée aux relais autorisés et vérifiée en test."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment préparer un changement d’adresse IP derrière un nom DNS très utilisé ?",
+      "choices": [
+        "Changer le TTL après la bascule et considérer la propagation instantanée",
+        "Abaisser le TTL à l’avance, attendre l’expiration des anciennes valeurs selon le plan, puis basculer et vérifier les réponses",
+        "Supprimer tous les serveurs autoritaires",
+        "Modifier les baux DHCP sans examiner les clients concernés"
+      ],
+      "answer": 1,
+      "explanation": "La réduction préalable du TTL donne le temps aux caches d’expirer selon la valeur précédente. Le changement doit ensuite être vérifié depuis plusieurs résolveurs et réseaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il valider lors d’un test de bascule DHCP multi-sites ?",
+      "choices": [
+        "Que les deux serveurs répondent au ping uniquement",
+        "Que les baux restent identiques même si aucun mécanisme de synchronisation n’existe",
+        "Que le DNSSEC est activé sur chaque poste",
+        "Que les nouveaux baux, les renouvellements, les conflits possibles et le comportement pendant/après panne correspondent au modèle de failover documenté"
+      ],
+      "answer": 3,
+      "explanation": "Une bascule doit tester l’attribution et le renouvellement réels, la cohérence de l’état et le retour au service. Le résultat dépend du produit et de son mécanisme de haute disponibilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels indicateurs donnent une vision utile de la santé DHCP/DNS en exploitation ?",
+      "choices": [
+        "Taux d’utilisation des pools, échecs/conflits DHCP, latence DNS, SERVFAIL/NXDOMAIN, QPS et disponibilité depuis plusieurs points de mesure",
+        "Nombre de câbles dans la salle uniquement",
+        "Nombre de noms dans le fichier hosts d’un seul poste",
+        "La seule charge CPU de l’hyperviseur"
+      ],
+      "answer": 0,
+      "explanation": "Ces indicateurs couvrent capacité DHCP, erreurs d’attribution et qualité de résolution vue du client. Ils gagnent à être corrélés avec des sondes internes et externes."
     }
   ]
 }

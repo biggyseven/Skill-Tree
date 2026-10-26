@@ -1,18 +1,102 @@
 {
   "node_id": "incident-ospf",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel est le premier contrôle demandé dans ce scénario « routeur muet » ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Redémarrer R2 sans consulter les tables",
+        "Examiner la table de routage de R1 avec `ip netns exec r1 ip route`",
+        "Remplacer les adresses IP des interfaces UP",
+        "Désactiver le routage sur les deux routeurs"
+      ],
+      "answer": 1,
+      "explanation": "La consigne indique explicitement de consulter la table de R1. Cela permet de repérer la route incorrecte avant toute modification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi des interfaces UP ne suffisent-elles pas à prouver que deux réseaux communiquent ?",
+      "choices": [
+        "Une interface UP garantit la route de retour",
+        "Les interfaces UP désactivent toutes les routes statiques",
+        "Les interfaces UP ne prouvent ni l’existence d’une route correcte ni la validité du prochain saut",
+        "Le routage IP ne dépend jamais des interfaces"
+      ],
+      "answer": 2,
+      "explanation": "L’état physique/administratif d’une interface est distinct de la table de routage et de l’accessibilité du prochain saut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Si la route sur R1 pointe vers un prochain saut inexistant, quelle conséquence est plausible ?",
+      "choices": [
+        "Les paquets peuvent ne pas être acheminés vers le réseau cible, même si les interfaces sont actives",
+        "Le serveur DNS change automatiquement la route",
+        "R2 reçoit toujours les paquets car il connaît toutes les routes",
+        "La MTU augmente automatiquement"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Une route avec un prochain saut erroné n’achemine pas les paquets vers le bon voisin. Il faut vérifier les préfixes et l’adresse de prochain saut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence faut-il faire entre ce que prouve `ip route` et ce que prouve un ping réussi ?",
+      "choices": [
+        "`ip route` prouve l’application disponible de bout en bout",
+        "Un ping prouve toujours l’absence d’ACL",
+        "Les deux commandes montrent exactement le même état",
+        "La table montre les routes installées ; le ping vérifie une connectivité ICMP de bout en bout sur le chemin testé"
+      ],
+      "answer": 3,
+      "explanation": "La table de routage aide à comprendre la décision de transfert. Le ping teste un type de trafic et peut être affecté par des filtres ; les deux observations sont complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas supposer qu’un incident nommé `incident-ospf` est nécessairement une panne d’adjacence OSPF ?",
+      "choices": [
+        "Le routage n’utilise jamais OSPF",
+        "Le contenu de la consigne et du lab définit l’anomalie réelle ; ici l’indice porte sur une route mal configurée sur R1",
+        "Le nom du fichier remplace la lecture de la consigne",
+        "Une route statique et OSPF sont identiques"
+      ],
+      "answer": 1,
+      "explanation": "Le scénario fourni demande d’inspecter la table de routage de R1 et mentionne un prochain saut erroné. Le diagnostic doit suivre les preuves du lab, pas déduire le problème du seul nom."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon réflexe avant de modifier une route en environnement partagé ?",
+      "choices": [
+        "Relever l’état initial, confirmer le préfixe cible et le prochain saut attendu, puis appliquer le changement autorisé",
+        "Supprimer toutes les routes de R1 et R2",
+        "Changer les adresses de tous les hôtes",
+        "Désactiver les journaux pour éviter les alertes"
+      ],
+      "answer": 0,
+      "explanation": "Un changement de routage peut couper plusieurs réseaux. Il doit être ciblé, justifié, validé et réversible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après correction de la route sur R1, quelle validation est la plus solide ?",
+      "choices": [
+        "Vérifier uniquement que la commande a été acceptée",
+        "Vérifier le nom du processus SSH",
+        "Lire la table mise à jour, tester la connectivité vers 192.168.2.0/24 depuis la perspective attendue et examiner le retour",
+        "Redémarrer tous les routeurs"
+      ],
+      "answer": 2,
+      "explanation": "La validation doit relier la table corrigée au résultat réel. Les tests sont à réaliser depuis les points et vers les destinations qui correspondent au scénario."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information reste à confirmer avant de qualifier cet incident de panne OSPF ?",
+      "choices": [
+        "La couleur des câbles réseau",
+        "Le nom du dépôt Git",
+        "Le type de navigateur de l’administrateur",
+        "Les consignes et preuves montrant des voisins, routes apprises ou états OSPF ; l’artefact visible décrit plutôt un prochain saut erroné"
+      ],
+      "answer": 3,
+      "explanation": "Le nom incident-ospf est ambigu, mais le lab visible n’expose pas d’étapes sur adjacences ou LSA. Pour parler d’une panne OSPF, il faut des éléments OSPF observables."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

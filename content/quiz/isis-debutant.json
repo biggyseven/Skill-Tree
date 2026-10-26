@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IS-IS - Débutant",
+      "prompt": "Qu’est-ce qu’IS-IS dans un réseau IP ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Un protocole de routage à vecteur de distance réservé au DHCP",
+        "Un protocole de résolution DNS",
+        "Un mécanisme de chiffrement des liens",
+        "Un protocole de routage à état de liens qui diffuse des informations de topologie et calcule les meilleurs chemins"
+      ],
+      "answer": 3,
+      "explanation": "IS-IS est un protocole de routage à état de liens, utilisé notamment dans les réseaux de grande taille. Il construit une base d’état de liens et exécute SPF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le NET dans la configuration IS-IS ?",
+      "choices": [
+        "À identifier le système dans le domaine IS-IS et contenir notamment un System ID et une partie de sélection de zone",
+        "À annoncer une passerelle IPv4 aux clients",
+        "À chiffrer chaque LSP",
+        "À remplacer l’adresse IP de toutes les interfaces"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le NET est une adresse au format NSAP qui identifie le système IS-IS ; il contient un System ID et des champs de zone/selector selon le format."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence simple entre un domaine IS-IS de niveau 1 et de niveau 2 ?",
+      "choices": [
+        "Le niveau 1 ne peut jamais posséder d’adjacence",
+        "Le niveau 2 est toujours réservé au DNS",
+        "Le niveau 1 sert au routage intra-aire ; le niveau 2 relie les aires dans un domaine IS-IS",
+        "Le niveau 1 chiffre les paquets et le niveau 2 les déchiffre"
+      ],
+      "answer": 2,
+      "explanation": "Le niveau 1 route à l’intérieur d’une aire IS-IS, tandis que le niveau 2 permet l’interconnexion entre aires. Un routeur peut exécuter les deux niveaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les messages Hello/IIH dans IS-IS ?",
+      "choices": [
+        "À publier les fichiers de configuration",
+        "À découvrir et maintenir les adjacences entre systèmes IS-IS sur un lien",
+        "À attribuer les adresses IP aux utilisateurs",
+        "À remplacer les messages ICMPv6"
+      ],
+      "answer": 1,
+      "explanation": "Les IIH (IS-IS Hello) permettent aux voisins de découvrir et maintenir leur adjacence, avec des paramètres qui doivent être compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue un LSP dans IS-IS ?",
+      "choices": [
+        "Il décrit des informations d’état de liens/topologie et de reachability diffusées dans la base d’état de liens",
+        "Il chiffre le trafic applicatif entre deux hôtes",
+        "Il représente un bail DHCP",
+        "Il est une route statique configurée sur le client"
+      ],
+      "answer": 0,
+      "explanation": "Les Link-State PDUs diffusent notamment les informations de topologie et les préfixes selon la configuration. Les systèmes construisent à partir de ces annonces leur base d’état de liens."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la métrique IS-IS est-elle importante ?",
+      "choices": [
+        "Elle définit les mots de passe du routeur",
+        "Elle remplace le System ID",
+        "Elle sert uniquement à nommer les interfaces",
+        "Elle influence le coût des chemins calculés par le protocole, selon le mode de métrique et la configuration"
+      ],
+      "answer": 3,
+      "explanation": "La métrique participe au choix des chemins par SPF. Il faut vérifier quel modèle de métrique est utilisé et que les valeurs reflètent l’intention de conception."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un réseau Ethernet multi-accès IS-IS, quel rôle joue le DIS ?",
+      "choices": [
+        "Il attribue une adresse IP globale au domaine",
+        "Il est désigné pour certaines fonctions de diffusion d’état de liens sur le réseau multi-accès",
+        "Il remplace tous les routeurs de niveau 2",
+        "Il filtre automatiquement les routes BGP"
+      ],
+      "answer": 1,
+      "explanation": "Le Designated Intermediate System facilite les échanges d’état de liens sur un réseau multi-accès, notamment via un pseudonœud ; ce rôle est distinct du routage IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux routeurs ne forment pas d’adjacence IS-IS. Que faut-il vérifier en premier ?",
+      "choices": [
+        "Le cache DNS des postes clients uniquement",
+        "La licence de l’application Web",
+        "Les interfaces actives, le type de réseau, l’encapsulation, le niveau activé, les paramètres Hello et le NET/aire selon la plateforme",
+        "La table ARP sur un serveur hors segment"
+      ],
+      "answer": 2,
+      "explanation": "Une adjacence peut échouer pour des raisons de lien ou de configuration IS-IS incompatibles. Les commandes de voisinage et journaux aident à identifier le point de divergence."
     }
   ]
 }

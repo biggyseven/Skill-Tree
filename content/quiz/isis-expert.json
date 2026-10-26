@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IS-IS - Expert",
+      "prompt": "À quoi sert le bit Overload dans IS-IS lorsqu’il est utilisé pour une maintenance ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "À indiquer que le routeur ne doit généralement pas être utilisé comme transit selon les règles de calcul/implémentation, tout en pouvant annoncer certaines reachabilities",
+        "À supprimer toutes les adjacences du domaine",
+        "À chiffrer les LSP avec une clé unique",
+        "À forcer tous les voisins au niveau 1"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le bit Overload signale que le routeur ne doit pas être utilisé comme transit lorsque les voisins appliquent les règles correspondantes. Il doit être utilisé avec une procédure et des tests adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il analyser la convergence comme plusieurs étapes et pas seulement un temps unique ?",
+      "choices": [
+        "Parce que SPF s’exécute uniquement sur le serveur DNS",
+        "Parce que le plan de données n’utilise aucune route",
+        "Parce que tous les routeurs possèdent toujours une même LSDB instantanément",
+        "La détection, la propagation des LSP, le calcul SPF, la programmation du forwarding et la récupération applicative peuvent avoir des délais différents"
+      ],
+      "answer": 3,
+      "explanation": "La convergence ressentie par l’application dépend de plusieurs étapes et des timers/plateformes. Une seule mesure globale ne localise pas le retard."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque est associé à une politique de route leaking trop permissive ?",
+      "choices": [
+        "Elle rend les préfixes toujours plus spécifiques",
+        "Elle peut propager des routes au-delà du périmètre prévu et créer des chemins ou boucles difficiles à diagnostiquer",
+        "Elle empêche de former toute adjacency L1",
+        "Elle remplace les mécanismes d’authentification"
+      ],
+      "answer": 1,
+      "explanation": "Le leaking doit être explicitement limité et documenté. Les routes diffusées affectent la sélection de chemins et peuvent créer des conséquences à l’échelle du domaine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les TLV et extensions sont-ils importants dans une analyse IS-IS experte ?",
+      "choices": [
+        "Ils sont des clés privées de chiffrement",
+        "Ils remplacent toutes les interfaces réseau",
+        "Ils transportent des types d’informations structurées ; les extensions supportées et annoncées déterminent quelles capacités et reachabilities les voisins comprennent",
+        "Ils ne sont utilisés que pour nommer les routeurs dans l’inventaire"
+      ],
+      "answer": 2,
+      "explanation": "Les TLV transportent des informations structurées dans IS-IS. La compatibilité et les annonces doivent être vérifiées, surtout lors d’interopérabilité ou d’activation de nouvelles fonctions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment sécuriser le plan de contrôle IS-IS ?",
+      "choices": [
+        "Configurer l’authentification et les protections prises en charge, limiter les voisins et segments attendus, puis tester les effets sur adjacences et opérations",
+        "Autoriser tout voisin sans vérification",
+        "Bloquer toute trame Hello au niveau du switch",
+        "Supprimer les journaux d’adjacence"
+      ],
+      "answer": 0,
+      "explanation": "La sécurité du plan de contrôle dépend des mécanismes d’authentification supportés, des frontières de confiance et de la surveillance. Les réglages doivent être compatibles sur les équipements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être confirmé avant d’activer Segment Routing ou Flex-Algorithm dans un domaine IS-IS ?",
+      "choices": [
+        "Le nombre de noms DNS de l’entreprise",
+        "La couleur de la topologie dans l’outil de cartographie",
+        "Le fait que tous les routeurs ont une interface Ethernet",
+        "Le support des versions, TLV et capacités par les nœuds, l’objectif de politique, les chemins calculés et un plan de retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "Les fonctions avancées nécessitent une compatibilité vérifiée et une politique claire. Les annonces de capacités ne prouvent pas seules que le chemin et le service correspondent au but attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi annoncer le bit Overload ou effectuer une maintenance sans vérifier les routes résultantes est dangereux ?",
+      "choices": [
+        "Le bit Overload supprime automatiquement les logs du routeur",
+        "Le résultat dépend du comportement des voisins et peut déplacer le trafic vers des chemins inattendus ou saturés",
+        "Il empêche toute route d’être installée dans le domaine",
+        "La maintenance ne peut pas affecter le trafic utilisateur"
+      ],
+      "answer": 1,
+      "explanation": "Le déplacement du trafic peut créer une surcharge ou supprimer un chemin important. Il faut examiner les routes, la capacité restante et le comportement de l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles preuves sont utiles pour valider une modification IS-IS à grande échelle ?",
+      "choices": [
+        "Une seule adjacence active sur un routeur",
+        "Une sauvegarde de configuration sans comparaison",
+        "La cohérence des LSDB, routes annoncées/installées, métriques, convergence mesurée et tests de connectivité selon le scénario",
+        "La présence d’un protocole actif dans une commande de résumé uniquement"
+      ],
+      "answer": 2,
+      "explanation": "Une validation experte vérifie que l’information est diffusée, que les chemins correspondent à l’intention et que le service reste opérationnel lors des cas attendus."
     }
   ]
 }

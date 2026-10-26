@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Ethernet & couche 2 - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle information trouve-t-on typiquement dans une trame Ethernet ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Uniquement un nom DNS et un bail DHCP",
+        "Une adresse MAC source et une adresse MAC destination, ainsi qu’un champ indiquant le protocole ou le type de contenu",
+        "Une liste complète de routes Internet",
+        "Un identifiant de processus Linux"
+      ],
+      "answer": 1,
+      "explanation": "La trame Ethernet contient notamment des adresses MAC source et destination et un champ Type/Longueur. Elle est distincte du paquet IP encapsulé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment le switch transfère-t-il une trame unicast connue ?",
+      "choices": [
+        "Il consulte uniquement le serveur DNS",
+        "Il l’envoie toujours à tous les ports, même lorsque la destination est connue",
+        "Il utilise seulement le TTL de l’adresse IP",
+        "Il consulte sa table MAC dans le contexte du VLAN et transmet vers le port associé à la destination"
+      ],
+      "answer": 3,
+      "explanation": "Le switch apprend les MAC sources et consulte sa table de commutation pour diriger une trame connue. Le VLAN fait partie du contexte de transfert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’ARP dans un réseau IPv4 local ?",
+      "choices": [
+        "Associer une IPv4 à une adresse MAC sur le lien local",
+        "Attribuer automatiquement une adresse IPv4 à chaque nouveau client",
+        "Chiffrer les trames Ethernet",
+        "Élire le root bridge de STP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "ARP permet de découvrir l’adresse MAC correspondant à une adresse IPv4 sur le segment local. Il ne fournit pas le bail IP ; cela relève notamment de DHCP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que change un VLAN sur un switch ?",
+      "choices": [
+        "Il remplace l’adresse MAC par une adresse IP",
+        "Il rend tous les ports accessibles depuis tous les autres VLAN",
+        "Il sépare logiquement des domaines de couche 2 et limite la propagation des broadcasts entre VLAN",
+        "Il chiffre les paquets sans configuration"
+      ],
+      "answer": 2,
+      "explanation": "Les VLAN séparent des domaines de broadcast logiques. La communication entre VLAN nécessite une fonction de routage et des politiques adaptées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi Spanning Tree est-il important lorsqu’il existe des liens redondants entre switches ?",
+      "choices": [
+        "Il convertit chaque trame en paquet IP",
+        "Il supprime toute possibilité de panne physique",
+        "Il attribue les adresses MAC aux postes",
+        "Il évite les boucles de couche 2 en sélectionnant une topologie logique sans boucle tout en préservant certains chemins redondants"
+      ],
+      "answer": 3,
+      "explanation": "Une boucle L2 peut multiplier les broadcasts et rendre l’apprentissage MAC instable. STP/RSTP bloque certains chemins logiquement pour éviter la boucle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une interface Ethernet est `up`, mais des pertes persistent. Quelle méthode de débutant est la plus prudente ?",
+      "choices": [
+        "Vérifier les compteurs, vitesse/duplex et erreurs physiques avant de changer simultanément plusieurs paramètres",
+        "Réinitialiser immédiatement tous les switches",
+        "Supprimer tous les VLAN",
+        "Modifier le serveur DNS comme première action dans tous les cas"
+      ],
+      "answer": 0,
+      "explanation": "Un état `up` prouve seulement qu’un lien est établi. Les compteurs, négociation et contexte VLAN peuvent révéler des défauts supplémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une trame Ethernet ne franchit-elle pas automatiquement un routeur vers un autre sous-réseau ?",
+      "choices": [
+        "Parce qu’ARP utilise TCP",
+        "Parce qu’un routeur termine le transfert de couche 2 et achemine un paquet IP vers le prochain lien avec un nouvel en-tête L2",
+        "Parce que la table MAC est commune à Internet entier",
+        "Parce que les VLAN ne contiennent aucun paquet IP"
+      ],
+      "answer": 1,
+      "explanation": "Le routeur prend une décision de couche 3 puis encapsule le paquet dans une nouvelle trame adaptée au prochain lien. Les adresses MAC changent à chaque segment L2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une capture, deux postes du même VLAN communiquent et l’adresse MAC de destination est connue. Que devrait faire le switch ?",
+      "choices": [
+        "Envoyer la trame au serveur DHCP uniquement",
+        "Transmettre la trame vers tous les VLAN",
+        "Remplacer le contenu applicatif",
+        "Envoyer la trame vers le port associé à la MAC de destination, sauf conditions de sécurité ou d’état particulières"
+      ],
+      "answer": 3,
+      "explanation": "Une destination connue est généralement transmise vers le port appris dans le VLAN. Les politiques de sécurité ou un état anormal peuvent toutefois modifier le résultat."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Infrastructure as Code avec Terraform - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel problème l’Infrastructure as Code cherche-t-elle principalement à résoudre ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Rendre toute modification automatique, même sans validation",
+        "Décrire l’infrastructure dans des fichiers versionnés pour rendre les changements reproductibles et révisables",
+        "Remplacer la supervision des services par des fichiers HCL",
+        "Empêcher les équipes de séparer leurs environnements"
+      ],
+      "answer": 1,
+      "explanation": "L’IaC rend la configuration explicite, versionnable et révisable. Elle ne remplace ni la supervision, ni la validation, ni les décisions humaines."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence décrit le mieux une configuration déclarative et un script impératif ?",
+      "choices": [
+        "Une configuration déclarative décrit le résultat attendu ; un script impératif détaille les actions à exécuter",
+        "Une configuration déclarative ne peut pas contenir de paramètres",
+        "Un script impératif garantit toujours l’idempotence",
+        "Les deux approches appliquent obligatoirement les changements sans aperçu"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "L’approche déclarative exprime l’état souhaité. Une procédure impérative indique les actions à réaliser et doit traiter les relances et les erreurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prépare principalement `terraform init` dans un projet ?",
+      "choices": [
+        "Il supprime toutes les ressources non déclarées",
+        "Il applique le plan à l’environnement cible",
+        "Il initialise le répertoire de travail et récupère les dépendances nécessaires, notamment les providers",
+        "Il chiffre automatiquement tous les secrets du projet"
+      ],
+      "answer": 2,
+      "explanation": "`terraform init` prépare le répertoire de travail et installe les dépendances déclarées. Il n’applique pas l’infrastructure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une configuration Terraform, quel est le rôle d’un provider ?",
+      "choices": [
+        "Stocker l’historique des approbations Git",
+        "Définir uniquement la mise en forme des fichiers",
+        "Remplacer la déclaration de toutes les ressources",
+        "Permettre à Terraform d’interagir avec une plateforme ou une API donnée"
+      ],
+      "answer": 3,
+      "explanation": "Un provider expose les ressources et sources de données d’une plateforme. Il faut contrôler son nom, sa version et sa documentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser une variable d’entrée et une sortie dans une configuration ?",
+      "choices": [
+        "Pour rendre l’état public",
+        "Pour paramétrer la configuration et exposer de façon explicite certaines valeurs utiles",
+        "Pour éviter de définir les ressources",
+        "Pour appliquer les changements sans examiner de plan"
+      ],
+      "answer": 1,
+      "explanation": "Les variables paramètrent une configuration ; les sorties rendent certaines informations disponibles aux utilisateurs ou aux modules appelants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le fichier d’état Terraform doit-il être protégé ?",
+      "choices": [
+        "Il peut contenir des attributs sensibles et associe la configuration aux ressources gérées",
+        "Il est uniquement composé de commentaires publics",
+        "Il remplace le dépôt Git et n’a donc pas besoin de sauvegarde",
+        "Il ne sert qu’à formater les fichiers"
+      ],
+      "answer": 0,
+      "explanation": "Le state peut exposer des détails d’infrastructure et des valeurs sensibles. Son accès, son stockage et ses sauvegardes doivent être contrôlés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel enchaînement est le plus prudent pour une première modification Terraform ?",
+      "choices": [
+        "`apply`, puis écrire la configuration, puis `init`",
+        "`destroy`, puis `apply`, sans examiner de plan",
+        "Initialiser, formater et valider, examiner le plan, puis appliquer seulement si les effets sont compris et autorisés",
+        "Appliquer deux fois pour vérifier que la commande fonctionne"
+      ],
+      "answer": 2,
+      "explanation": "L’initialisation et les vérifications précèdent l’examen du plan. L’application ne doit avoir lieu qu’après compréhension et autorisation des changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un plan indique qu’une ressource de laboratoire va être remplacée. Quelle est la meilleure réaction ?",
+      "choices": [
+        "Appliquer immédiatement, car un remplacement est toujours sans risque",
+        "Supprimer le fichier d’état pour ignorer le remplacement",
+        "Publier le plan dans un dépôt public avant de l’exécuter",
+        "Identifier pourquoi le remplacement est proposé, vérifier les conséquences et ne continuer que si le changement est voulu"
+      ],
+      "answer": 3,
+      "explanation": "Un remplacement peut interrompre un service ou entraîner une perte de données. Il faut comprendre la cause et vérifier les effets avant d’agir."
     }
   ]
 }

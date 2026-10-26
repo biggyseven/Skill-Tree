@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour VPN IPsec - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi associer l’authentification IKEv2 à une identité de pair correctement vérifiée ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour empêcher l’usurpation d’identité d’un pair et établir que la connexion se termine bien sur l’équipement attendu",
+        "Pour permettre aux pairs de choisir des adresses MAC identiques",
+        "Pour remplacer toute politique de trafic",
+        "Pour rendre le tunnel transparent aux routes sans configuration"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "IKEv2 doit authentifier les identités attendues, par secrets ou certificats selon la conception. La validation des identités évite de faire confiance au seul fait qu’un tunnel soit établi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert la Perfect Forward Secrecy (PFS) dans le renouvellement de clés IPsec ?",
+      "choices": [
+        "Elle garantit que le VPN fonctionne sans routage",
+        "Elle convertit l’ESP en protocole de couche 2",
+        "Elle désactive les SA enfant",
+        "Elle peut apporter un nouvel échange de clés Diffie–Hellman pour dériver les clés d’une nouvelle Child SA indépendamment des clés de données antérieures, selon la configuration"
+      ],
+      "answer": 3,
+      "explanation": "PFS ajoute une propriété de séparation des clés lorsque le mécanisme est correctement négocié. Les paramètres doivent être compatibles entre les pairs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle considération est essentielle pour une identité IPsec fondée sur des certificats ?",
+      "choices": [
+        "Vérifier uniquement que le certificat existe sur disque",
+        "Contrôler la chaîne de confiance, la validité, l’identité attendue et le renouvellement des certificats",
+        "Utiliser le même certificat privé sur tous les équipements sans inventaire",
+        "Désactiver toute vérification de nom en production"
+      ],
+      "answer": 1,
+      "explanation": "La confiance dépend de l’autorité, de la période de validité, de l’identité et des contrôles de révocation/rotation disponibles dans l’architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le recouvrement d’adresses entre deux sites complique-t-il un VPN ?",
+      "choices": [
+        "Parce qu’IPsec ne supporte pas UDP",
+        "Parce que les clés de chiffrement ne peuvent pas être différentes",
+        "Parce que le routage et les sélecteurs ne distinguent pas naturellement des sous-réseaux identiques sans une stratégie de traduction ou de segmentation explicite",
+        "Parce qu’un tunnel ne peut transporter que des adresses publiques"
+      ],
+      "answer": 2,
+      "explanation": "Des plages identiques créent des ambiguïtés pour le routage et la sélection des flux. La résolution exige une conception explicite, par exemple renumérotation, NAT de chevauchement ou VRF selon les capacités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment évaluer correctement la résilience d’un VPN dans une architecture HA ?",
+      "choices": [
+        "Tester la perte d’un pair/chemin et le rekey, vérifier routage et retour, mesurer les interruptions et confirmer que les états de sécurité sont reconstruits comme prévu",
+        "Vérifier uniquement que l’interface tunnel existe",
+        "Désactiver la surveillance pour éviter les alarmes",
+        "Supposer que le tunnel remontera instantanément après toute panne"
+      ],
+      "answer": 0,
+      "explanation": "La résilience doit être mesurée avec des scénarios de panne représentatifs, y compris la convergence du routage et le comportement des SA."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un tunnel actif ne suffit-il pas à valider la politique de chiffrement d’un site ?",
+      "choices": [
+        "Parce qu’un tunnel ne transporte jamais de données",
+        "Parce qu’ESP ne dispose pas de compteur",
+        "Parce que l’état du tunnel prouve tous les flux autorisés",
+        "Il faut vérifier les sélecteurs, les routes, les réseaux attendus, les flux réellement protégés et les exceptions/NAT"
+      ],
+      "answer": 3,
+      "explanation": "Le tunnel peut être établi avec des sélecteurs ou des routes qui ne couvrent pas les flux métier. La validation doit comparer le périmètre configuré au périmètre attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque existe si les temporisations de rekey ou les propositions sont incohérentes entre équipements ?",
+      "choices": [
+        "Le VPN augmente automatiquement le débit",
+        "Des négociations répétées, l’échec du renouvellement ou des coupures périodiques peuvent survenir",
+        "Le système attribue de nouvelles adresses MAC",
+        "Le serveur DNS supprime le nom du pair"
+      ],
+      "answer": 1,
+      "explanation": "Les durées de vie et propositions doivent être compatibles. Les symptômes de renouvellement doivent être comparés aux journaux IKE et à l’état des SA."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est appropriée pendant une migration multi-constructeurs IPsec ?",
+      "choices": [
+        "Remplacer simultanément tous les paramètres sans plan",
+        "Autoriser une configuration obsolète en permanence pour éviter les tests",
+        "Définir un profil commun documenté, valider les algorithmes/identités/sélecteurs et MTU dans un laboratoire, puis migrer avec mesure et retour arrière",
+        "Supprimer les journaux avant la bascule"
+      ],
+      "answer": 2,
+      "explanation": "La compatibilité interconstructeurs doit être vérifiée avec les versions exactes et les paramètres réels. Une migration graduelle réduit le risque."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Administration de bases de données",
+      "prompt": "À quoi sert principalement le fichier `pg_hba.conf` dans PostgreSQL ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "À décrire les tables de toutes les bases",
+        "À définir les règles d’authentification et d’accès des clients selon le type de connexion",
+        "À contenir les sauvegardes SQL",
+        "À journaliser exclusivement les requêtes lentes"
+      ],
+      "answer": 1,
+      "explanation": "`pg_hba.conf` détermine quelles connexions sont acceptées et quelle méthode d’authentification s’applique selon l’utilisateur, la base, le type et l’origine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment éviter de modifier le mauvais fichier de configuration PostgreSQL ?",
+      "choices": [
+        "Supposer que chaque version utilise toujours le même répertoire",
+        "Chercher uniquement dans le répertoire personnel de l’administrateur",
+        "Éditer `postgresql.auto.conf` sans inspection",
+        "Interroger le serveur, par exemple avec `SHOW config_file;` et `SHOW hba_file;`"
+      ],
+      "answer": 3,
+      "explanation": "Les chemins peuvent varier selon la distribution, la version et l’installation. Demander au serveur les chemins actifs est plus fiable que deviner."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une transaction oubliée reste ouverte pendant des heures. Quel risque est plausible ?",
+      "choices": [
+        "Elle peut conserver des verrous et empêcher le nettoyage de certaines anciennes versions de lignes",
+        "Elle déclenche automatiquement un basculement HA",
+        "Elle augmente toujours les performances des index",
+        "Elle transforme les sauvegardes logiques en sauvegardes physiques"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les transactions longues peuvent maintenir des snapshots anciens, prolonger des verrous et retarder le nettoyage, ce qui augmente le risque de bloat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre `VACUUM` et `ANALYZE` est correcte ?",
+      "choices": [
+        "Les deux ne servent qu’à arrêter PostgreSQL",
+        "`ANALYZE` supprime les tables, alors que `VACUUM` accorde des privilèges",
+        "`VACUUM` aide à récupérer/réutiliser l’espace des tuples morts ; `ANALYZE` actualise les statistiques du planificateur",
+        "`VACUUM` remplace les sauvegardes et la restauration"
+      ],
+      "answer": 2,
+      "explanation": "VACUUM traite les versions de lignes devenues mortes selon les règles de visibilité ; ANALYZE collecte des statistiques utilisées pour choisir les plans d’exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il comprendre avant d’exécuter `EXPLAIN ANALYZE` sur une requête ?",
+      "choices": [
+        "La commande n’affiche jamais de mesure réelle",
+        "Elle ne fonctionne que sur des tables vides",
+        "Elle ignore totalement les index",
+        "Elle exécute la requête afin de mesurer le plan ; il faut donc tenir compte de ses effets, surtout pour une commande qui modifie des données"
+      ],
+      "answer": 3,
+      "explanation": "Contrairement à EXPLAIN seul, EXPLAIN ANALYZE exécute l’instruction. Il peut donc consommer des ressources ou déclencher des effets si la requête n’est pas purement consultative."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit une sauvegarde logique avec `pg_dump -Fc` ?",
+      "choices": [
+        "Elle sauvegarde automatiquement tous les fichiers du système d’exploitation",
+        "Elle produit une archive PostgreSQL dans un format personnalisé que `pg_restore` peut exploiter",
+        "Elle garantit seule une reprise à n’importe quelle seconde",
+        "Elle configure à elle seule un cluster Patroni"
+      ],
+      "answer": 1,
+      "explanation": "`pg_dump -Fc` produit une archive logique au format personnalisé. Elle doit être conservée et sa restauration doit être testée ; elle ne remplace pas automatiquement tous les besoins de PRA."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble est nécessaire pour viser une restauration à un instant précis (PITR) ?",
+      "choices": [
+        "Une sauvegarde de base exploitable et l’archivage continu des WAL nécessaires",
+        "Un seul fichier de journal applicatif",
+        "Un index sur chaque colonne",
+        "Une copie de `pg_hba.conf` uniquement"
+      ],
+      "answer": 0,
+      "explanation": "La récupération à un instant précis nécessite une sauvegarde de base et la chaîne des journaux WAL requis jusqu’au point cible, avec une procédure testée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est la plus sûre pour créer un compte applicatif ?",
+      "choices": [
+        "Le rendre superutilisateur pour éviter les erreurs de permission",
+        "Partager le compte personnel de l’administrateur",
+        "Autoriser toutes les bases et tous les schémas par défaut",
+        "Accorder uniquement les droits requis, avec un rôle et des secrets propres à l’application"
+      ],
+      "answer": 3,
+      "explanation": "Le principe du moindre privilège limite l’impact d’une fuite ou d’une erreur. Les droits doivent correspondre aux actions réellement nécessaires."
     }
   ]
 }

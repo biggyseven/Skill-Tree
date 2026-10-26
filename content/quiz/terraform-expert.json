@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Infrastructure as Code avec Terraform - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi un state Terraform partagé nécessite-t-il une stratégie de verrouillage ou de coordination ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour garantir que toutes les équipes utilisent la même région",
+        "Pour éviter que des opérations concurrentes écrivent ou modifient le même état sans coordination",
+        "Pour empêcher les plans de lire la configuration",
+        "Pour transformer chaque état en sauvegarde applicative"
+      ],
+      "answer": 1,
+      "explanation": "Le verrouillage ou une coordination équivalente réduit le risque d’opérations concurrentes incohérentes. Les capacités dépendent du backend et doivent être testées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un plan sauvegardé a été examiné puis l’infrastructure a changé avant son application. Quelle précaution est essentielle ?",
+      "choices": [
+        "Appliquer sans nouvelle vérification puisque le fichier est sauvegardé",
+        "Renommer le plan pour le rendre valide à nouveau",
+        "Vérifier que le plan reste valide dans le contexte actuel et qu’il correspond toujours au changement approuvé",
+        "Supprimer le state distant pour forcer l’application"
+      ],
+      "answer": 2,
+      "explanation": "Un plan peut devenir périmé lorsque l’état ou les ressources changent. Il faut respecter les contrôles de fraîcheur du système et refaire l’examen si nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne utilisation d’une politique « as code » dans une chaîne IaC ?",
+      "choices": [
+        "Contrôler des configurations ou plans par rapport à des règles explicites, avec des tests et un traitement gouverné des exceptions",
+        "Remplacer le système de sauvegarde de l’état",
+        "Appliquer automatiquement tous les changements qui passent la syntaxe",
+        "Garantir que la facture cloud ne dépassera jamais un montant précis"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les politiques automatisent certains contrôles de sécurité, de conformité ou de coût. Leur portée, leurs tests et les exceptions doivent rester maîtrisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence y a-t-il entre importer une ressource et utiliser un bloc `moved` ?",
+      "choices": [
+        "Les deux suppriment toujours la ressource distante",
+        "L’import associe une ressource existante à la gestion Terraform ; `moved` indique un changement d’adresse d’un objet déjà suivi",
+        "`moved` crée des identifiants de connexion cloud",
+        "L’import remplace les fichiers de configuration par le state"
+      ],
+      "answer": 1,
+      "explanation": "L’import rattache un objet existant au state, tandis que `moved` aide à préserver l’identité lors d’une refactorisation d’adresse. Dans les deux cas, le plan doit être vérifié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le marquage `sensitive` ne suffit-il pas à lui seul à protéger un secret Terraform ?",
+      "choices": [
+        "Il supprime automatiquement le secret du cloud",
+        "Il chiffre toujours le dépôt Git avec une clé de l’organisation",
+        "Il masque certaines valeurs dans l’affichage, mais ne garantit pas à lui seul leur absence du state ou des artefacts",
+        "Il transforme le secret en valeur publique non réutilisable"
+      ],
+      "answer": 2,
+      "explanation": "Le masquage de sortie n’est pas la même chose que l’absence de stockage. Il faut gérer le state, les plans, les identités et les mécanismes de secret adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il traiter une dérive détectée sur une infrastructure de production ?",
+      "choices": [
+        "Déterminer l’origine et l’impact, décider si la référence doit être corrigée ou réconciliée, puis appliquer une correction contrôlée",
+        "Effacer immédiatement l’état pour faire disparaître la différence",
+        "Appliquer tout plan généré sans vérifier les opérations",
+        "Ignorer l’écart dès que le service répond"
+      ],
+      "answer": 0,
+      "explanation": "Une dérive peut résulter d’un changement d’urgence ou d’une opération externe. Il faut établir la source et la conséquence avant de décider de la remédiation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche d’identité est préférable pour un pipeline de production lorsqu’elle est prise en charge par la plateforme ?",
+      "choices": [
+        "Une clé administrateur permanente partagée entre tous les exécuteurs",
+        "Un jeton publié dans le dépôt pour faciliter le dépannage",
+        "Une identité unique qui dispose de droits sur tous les environnements en permanence",
+        "Une identité dédiée à durée limitée ou fédérée, avec des permissions minimales et une confiance soigneusement configurée"
+      ],
+      "answer": 3,
+      "explanation": "Une identité temporaire peut réduire l’exposition des secrets de longue durée. La fédération et les permissions doivent elles-mêmes être limitées et auditées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un plan de reprise doit-il distinguer la sauvegarde du state et la sauvegarde des données applicatives ?",
+      "choices": [
+        "Parce que le state contient nécessairement toutes les données métier",
+        "Parce qu’un état de gestion décrit des ressources mais ne restaure pas à lui seul les données ni la disponibilité de l’infrastructure",
+        "Parce que les données applicatives ne peuvent jamais être sauvegardées",
+        "Parce que le state n’est utile qu’au formatage des fichiers"
+      ],
+      "answer": 1,
+      "explanation": "Le state aide à suivre les objets gérés. La restauration des données et le rétablissement du service exigent des sauvegardes et des procédures testées séparément."
     }
   ]
 }

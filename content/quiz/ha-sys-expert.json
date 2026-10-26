@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour DRP et PRA (Reprise d'activité)",
+      "prompt": "Pourquoi la haute disponibilité locale et un PRA ne sont-ils pas équivalents ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "La haute disponibilité traite surtout la continuité lors de certaines pannes ; le PRA couvre la reconstruction/reprise après un sinistre selon les objectifs et les dépendances métier",
+        "La HA est toujours plus lente qu’une restauration depuis sauvegarde",
+        "Un PRA ne traite que les adresses DNS",
+        "Les deux mots désignent une seule adresse IP virtuelle"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La HA peut traiter des défaillances de nœud ou de service. Un PRA organise la récupération après un incident plus large, potentiellement sur un autre site et à partir de sauvegardes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une analyse d’impact métier (BIA) lors de la conception d’un PRA ?",
+      "choices": [
+        "À identifier seulement les versions de noyau Linux",
+        "À désigner l’adresse MAC de la VIP",
+        "À déterminer l’impact des interruptions sur les activités et à prioriser services, dépendances et objectifs de reprise",
+        "À supprimer les sauvegardes redondantes"
+      ],
+      "answer": 2,
+      "explanation": "La BIA établit les conséquences d’une interruption, les priorités et les objectifs nécessaires à l’entreprise. Elle guide la stratégie technique de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une réplication synchrone ou asynchrone ne remplace-t-elle pas une stratégie de sauvegarde indépendante ?",
+      "choices": [
+        "Parce que les données ne peuvent jamais être répliquées",
+        "Parce qu’une suppression ou corruption peut se propager, et qu’une sauvegarde conservée à part peut offrir un point de récupération",
+        "Parce que la réplication garantit que le site secondaire n’aura jamais de panne",
+        "Parce qu’une sauvegarde ne peut pas être restaurée après un incident"
+      ],
+      "answer": 1,
+      "explanation": "La réplication vise une copie à jour selon son mécanisme. Une erreur logique peut atteindre les copies ; une sauvegarde distincte, protégée et testée apporte une autre capacité de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe est crucial dans le plan de restauration d’un système d’information complexe ?",
+      "choices": [
+        "Restaurer tous les services dans un ordre aléatoire",
+        "Restaurer seulement le portail utilisateur et ignorer les dépendances",
+        "Redémarrer le site principal avant de valider l’intégrité des données",
+        "Rétablir d’abord les dépendances et services de base nécessaires, puis les applications selon un ordre documenté et testé"
+      ],
+      "answer": 3,
+      "explanation": "L’ordre de restauration doit respecter les dépendances : réseau, identité, stockage, base de données et applications selon l’architecture réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un risque spécifique à un PRA après rançongiciel ?",
+      "choices": [
+        "Restaurer précipitamment des systèmes compromis ou des sauvegardes contaminées sans validation de l’intégrité",
+        "Utiliser des sauvegardes déconnectées et vérifiées",
+        "Conserver une preuve de l’incident",
+        "Isoler l’environnement de restauration"
+      ],
+      "answer": 0,
+      "explanation": "Après une attaque, il faut valider l’intégrité des sauvegardes et reconstruire dans un environnement maîtrisé. Réintroduire une machine ou une sauvegarde compromise peut recréer l’incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le failback vers le site principal nécessite-t-il une procédure distincte du failover ?",
+      "choices": [
+        "Parce que le site principal ne peut jamais revenir",
+        "Parce que le nom DNS principal doit toujours rester désactivé",
+        "Parce qu’il faut vérifier état des données, synchronisation, capacité, bascule contrôlée et risques avant de déplacer à nouveau le service",
+        "Parce que le failback est toujours un redémarrage sans impact"
+      ],
+      "answer": 2,
+      "explanation": "Le retour au site principal peut être une opération à risque. Il faut vérifier la synchronisation et décider d’un moment contrôlé, avec une procédure de retour alternative."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels éléments sont essentiels pour prouver qu’un PRA est réellement utilisable ?",
+      "choices": [
+        "Le seul document décrivant les serveurs",
+        "Des exercices exécutés, des résultats mesurés, une restauration vérifiée, des écarts suivis et les responsabilités identifiées",
+        "Le fait qu’une réplication soit configurée",
+        "La présence de deux baies de stockage dans un même local"
+      ],
+      "answer": 1,
+      "explanation": "Une procédure non testée ne prouve pas la capacité à reprendre. Les exercices doivent mesurer RTO/RPO réalisés, validité des données et dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir une autorité de décision et une chaîne de communication pendant une crise ?",
+      "choices": [
+        "Pour permettre à chaque équipe de couper des services sans coordination",
+        "Pour retarder l’intervention même si les objectifs sont atteints",
+        "Pour supprimer la nécessité de journaux",
+        "Pour décider du déclenchement, coordonner les priorités, limiter les actions contradictoires et garder une trace des décisions"
+      ],
+      "answer": 3,
+      "explanation": "La gouvernance de crise répartit les responsabilités et les décisions. Elle réduit les actions contradictoires et facilite la communication avec les équipes et les parties concernées."
     }
   ]
 }

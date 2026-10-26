@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Sécurité des conteneurs",
+      "prompt": "Pourquoi `--privileged` représente-t-il un risque important pour un conteneur ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il réduit automatiquement les capacités Linux à zéro",
+        "Il garantit que le conteneur ne peut pas accéder à l’hôte",
+        "Il élargit fortement les privilèges et l’accès aux ressources de l’hôte, au-delà de ce qu’exige souvent l’application",
+        "Il empêche tout accès au réseau"
+      ],
+      "answer": 2,
+      "explanation": "Le mode privilégié réduit certaines barrières d’isolation. Il doit être évité sauf besoin très spécifique, analysé et encadré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’exécuter un processus de conteneur avec un utilisateur non privilégié ?",
+      "choices": [
+        "Cela empêche la nécessité de mettre à jour l’image",
+        "Cela réduit l’impact potentiel d’une compromission par rapport à un processus exécuté comme root dans le conteneur",
+        "Cela rend les vulnérabilités de dépendances inoffensives",
+        "Cela garantit un accès rootless au daemon dans tous les environnements"
+      ],
+      "answer": 1,
+      "explanation": "Réduire les privilèges limite certaines conséquences d’une exploitation. Cela ne remplace pas l’isolation, le durcissement, les mises à jour ou le contrôle du daemon."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi monter le socket Docker de l’hôte dans un conteneur est-il dangereux ?",
+      "choices": [
+        "Parce que le socket ne permet jamais de communiquer avec le daemon",
+        "Parce que cela bloque les mises à jour des images",
+        "Parce qu’un volume ne peut pas être monté en lecture seule",
+        "Parce que le contrôle du daemon peut permettre d’exécuter des conteneurs très privilégiés et d’atteindre l’hôte"
+      ],
+      "answer": 3,
+      "explanation": "L’accès au socket du daemon accorde des capacités très puissantes. Le monter dans une application accroît fortement le risque de compromission de l’hôte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet une politique seccomp ou un profil AppArmor/SELinux correctement appliqué ?",
+      "choices": [
+        "De limiter certains appels système ou accès autorisés selon le profil de sécurité",
+        "De garantir que l’application n’a aucun bug",
+        "De remplacer les contrôles d’accès du registre",
+        "De chiffrer automatiquement les images publiées"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Seccomp peut restreindre les appels système ; AppArmor et SELinux appliquent d’autres contrôles de confinement. Ils doivent être adaptés et validés avec l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi intégrer SBOM, provenance et scan de vulnérabilités dans la chaîne d’images ?",
+      "choices": [
+        "Pour rendre les images impossibles à modifier par un administrateur",
+        "Pour remplacer tous les tests fonctionnels",
+        "Pour identifier les composants, documenter l’origine de la construction et repérer les risques connus selon les outils",
+        "Pour autoriser les secrets à être stockés dans l’image"
+      ],
+      "answer": 2,
+      "explanation": "La SBOM décrit les composants, la provenance apporte des informations sur la construction, et les scanners détectent certains risques connus. Aucun de ces éléments ne garantit à lui seul l’absence de vulnérabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme convient pour réduire l’exposition d’un conteneur qui n’a pas besoin de modifier son système de fichiers ?",
+      "choices": [
+        "Monter tout le système hôte en écriture",
+        "Activer `--privileged` et désactiver les profils de sécurité",
+        "Exécuter tous les services avec UID 0",
+        "Utiliser un système de fichiers en lecture seule lorsque compatible, et monter uniquement les chemins explicitement nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "Une racine en lecture seule et des montages limités réduisent les possibilités de modification. Les chemins temporaires requis doivent être identifiés puis testés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle politique est préférable pour des secrets nécessaires à une application conteneurisée ?",
+      "choices": [
+        "Les intégrer avec `ENV` dans le Dockerfile et publier l’image",
+        "Les fournir via un mécanisme de secrets adapté, limiter les permissions et prévoir rotation et révocation",
+        "Les écrire dans les labels de l’image",
+        "Les copier dans le dépôt avec le fichier Compose"
+      ],
+      "answer": 1,
+      "explanation": "Les secrets ne doivent pas être intégrés aux couches d’image ou au dépôt. Le mécanisme de fourniture doit correspondre à la plateforme et limiter les accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment réduire le risque lié à une image de base ou à une dépendance vulnérable ?",
+      "choices": [
+        "Établir une politique de versions, analyser les dépendances, vérifier les avis de sécurité et reconstruire/tester l’image mise à jour",
+        "Désactiver les alertes du scanner",
+        "Ignorer toute vulnérabilité si le conteneur démarre",
+        "Partager une image de base inconnue entre toutes les applications"
+      ],
+      "answer": 0,
+      "explanation": "Le traitement doit être basé sur l’exposition et la criticité, puis confirmé par des tests. Une image doit être reconstruite et redéployée après une mise à jour validée."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Équipements L1/L2 - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quelle affirmation distingue correctement STP/RSTP et LACP ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "STP distribue les adresses IP, LACP les enregistrements DNS",
+        "Ils sont deux noms pour le même protocole de chiffrement",
+        "STP gère la topologie active pour éviter les boucles L2 ; LACP négocie un groupe de liens compatibles",
+        "LACP garantit toujours un chemin physique indépendant"
+      ],
+      "answer": 2,
+      "explanation": "STP/RSTP évite les boucles dans la topologie de couche 2. LACP gère une agrégation logique de liens ; les deux mécanismes répondent à des objectifs différents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment évaluer le budget optique d’une liaison de fibre ?",
+      "choices": [
+        "Se baser uniquement sur la couleur du module",
+        "Mesurer/estimer les pertes de la liaison et vérifier la puissance reçue par rapport aux limites du transceiver, avec marge",
+        "Vérifier uniquement que les deux ports sont administrativement actifs",
+        "Remplacer toute fibre multimode par du cuivre"
+      ],
+      "answer": 1,
+      "explanation": "Le budget optique tient compte des pertes des fibres, connecteurs, épissures et équipements. La puissance reçue doit rester dans la plage spécifiée, avec une marge adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet de renforcer DHCP snooping, et quelle dépendance peut utiliser DAI ?",
+      "choices": [
+        "DHCP snooping distingue les ports de confiance pour certains messages DHCP ; DAI peut s’appuyer sur les bindings pour valider les messages ARP",
+        "DHCP snooping chiffre tous les paquets et DAI remplace le routage",
+        "DHCP snooping empêche les boucles STP et DAI gère LACP",
+        "Ces fonctions n’agissent que sur les serveurs DNS"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "DHCP snooping aide à contrôler les réponses DHCP selon la confiance des ports. Dynamic ARP Inspection peut utiliser les bindings connus pour vérifier les messages ARP ; les fonctions doivent être configurées et adaptées au contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il calibrer les seuils de storm control plutôt que bloquer agressivement tout broadcast ?",
+      "choices": [
+        "Les broadcasts sont toujours malveillants",
+        "Un seuil trop bas peut supprimer du trafic légitime ou perturber des protocoles nécessaires ; il faut mesurer, définir une marge et surveiller",
+        "STP/RSTP ne fonctionne que si tous les broadcasts sont bloqués",
+        "Le storm control garantit l’absence de congestion"
+      ],
+      "answer": 1,
+      "explanation": "Le storm control limite certaines classes de trafic. Des seuils inadaptés peuvent créer des pannes ; la politique doit s’appuyer sur une baseline et des tests en environnement contrôlé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une agrégation LACP possède deux liens physiques. Quelle vérification est nécessaire pour revendiquer une vraie résilience ?",
+      "choices": [
+        "Le nom du groupe d’agrégation seulement",
+        "Le nombre d’icônes visibles dans le schéma",
+        "La diversité des chemins et domaines de panne (câblage, carte, châssis, alimentation, conduit)",
+        "L’existence d’une entrée DNS pour le switch"
+      ],
+      "answer": 2,
+      "explanation": "Deux liens logiques ou physiques peuvent partager un même point de panne. La résilience dépend de la diversité réelle et du comportement testé en cas de défaillance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment dimensionner un budget PoE de châssis de manière prudente ?",
+      "choices": [
+        "Additionner uniquement la consommation moyenne d’un terminal",
+        "Supposer que chaque port consomme zéro lorsqu’il est en veille",
+        "Considérer uniquement le débit du switch",
+        "Prendre en compte les ports capables d’alimenter, la demande maximale simultanée, les classes/limites et la marge de conception"
+      ],
+      "answer": 3,
+      "explanation": "Le budget total peut être limitant même si chaque port pris isolément semble conforme. Le dimensionnement doit considérer les appareils simultanés et les limites spécifiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi IGMP snooping est-il utilisé sur un réseau de couche 2 qui transporte du multicast ?",
+      "choices": [
+        "Pour transformer le multicast en unicast chiffré",
+        "Pour limiter la diffusion de flux multicast aux ports ayant signalé leur intérêt, selon les informations IGMP observées",
+        "Pour remplacer toutes les routes PIM entre sous-réseaux",
+        "Pour empêcher une panne optique"
+      ],
+      "answer": 1,
+      "explanation": "IGMP snooping peut réduire l’inondation multicast en apprenant quels ports souhaitent recevoir des groupes. Il faut vérifier son comportement avec l’architecture multicast réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant un changement expert portant sur VLAN, STP, LACP, MTU ou storm control, que faut-il préparer ?",
+      "choices": [
+        "État initial, analyse d’impact, fenêtre autorisée, critères de réussite, supervision et procédure de retour arrière",
+        "Un redémarrage global sans collecte",
+        "La suppression des journaux afin d’éviter les alertes",
+        "La modification simultanée de tous les paramètres sans mesure"
+      ],
+      "answer": 0,
+      "explanation": "Les changements L2 peuvent affecter de nombreux terminaux. Une procédure contrôlée et des critères observables réduisent le risque et facilitent un retour rapide."
     }
   ]
 }
