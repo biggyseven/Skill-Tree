@@ -140,11 +140,11 @@ class LabTopologyPersistenceTests(unittest.TestCase):
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 "INSERT INTO topologies (name, data, updated_at) VALUES (?, ?, ?)",
-                ("lab-broken", valid_json_but_invalid_topology, "2026-01-01T00:00:00Z"),
+                ("lab_broken", valid_json_but_invalid_topology, "2026-01-01T00:00:00Z"),
             )
             conn.execute(
                 "INSERT INTO topologies (name, data, updated_at) VALUES (?, ?, ?)",
-                ("lab-json-broken", "{not-json", "2026-01-01T00:00:00Z"),
+                ("lab_json-broken", "{not-json", "2026-01-01T00:00:00Z"),
             )
 
         with self.assertRaises(HTTPException) as invalid:
