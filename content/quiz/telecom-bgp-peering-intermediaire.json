@@ -3,15 +3,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Dans la politique BGP usuelle d’un AS, à quoi sert l’attribut LOCAL_PREF ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "À exprimer une préférence interne entre routes, une valeur plus élevée étant généralement préférée",
+        "À définir le port TCP utilisé par la session",
+        "À prouver qu’un préfixe est autorisé par une ROA RPKI",
+        "À imposer directement le chemin de retour choisi par tous les autres AS"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "LOCAL_PREF permet de préférer une sortie ou une route dans l’AS. Sa portée est celle de la politique interne : il n’impose pas directement le choix des réseaux distants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un réseau iBGP, pourquoi configure-t-on parfois next-hop-self sur un routeur ?",
+      "choices": [
+        "Pour activer automatiquement la validation RPKI sur le pair",
+        "Pour annoncer le routeur local comme next-hop de routes réannoncées, afin que les pairs puissent atteindre ce prochain saut",
+        "Pour transformer la session iBGP en session eBGP sans changer l’ASN",
+        "Pour empêcher l’échange de toutes les routes IPv6"
+      ],
+      "answer": 1,
+      "explanation": "next-hop-self réécrit le prochain saut annoncé par le routeur vers sa propre adresse pertinente. Cela peut rendre la route utilisable par les pairs iBGP lorsque le next-hop d’origine n’est pas joignable dans leur réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme BGP aide normalement un routeur eBGP à détecter une route qui contient déjà son propre ASN dans AS_PATH ?",
+      "choices": [
+        "La valeur DSCP du paquet TCP",
+        "Le numéro de VLAN de l’interface de peering",
+        "Le contrôle du chemin AS_PATH, utilisé pour détecter les boucles inter-AS",
+        "Le minuteur DHCP du réseau de gestion"
+      ],
+      "answer": 2,
+      "explanation": "Le contrôle d’AS_PATH permet normalement au routeur eBGP de rejeter une annonce contenant déjà son propre ASN, ce qui évite certains bouclages inter-AS. Des mécanismes comme les confédérations ont des règles particulières."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème les route reflectors résolvent-ils principalement dans un grand domaine iBGP ?",
+      "choices": [
+        "Ils remplacent la nécessité de tout protocole de routage IP",
+        "Ils chiffrent les annonces BGP sans configuration supplémentaire",
+        "Ils suppriment la nécessité de définir des politiques d’import/export eBGP",
+        "Ils évitent d’exiger un maillage iBGP complet entre tous les routeurs grâce à la réflexion contrôlée des routes"
+      ],
+      "answer": 3,
+      "explanation": "Un route reflector permet de distribuer des routes iBGP sans configurer une session directe entre chaque paire de routeurs. Il demande une conception et une redondance adaptées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il comprendre une community BGP dans une politique d’opérateur ?",
+      "choices": [
+        "Comme une étiquette pouvant déclencher une politique si les routeurs sont configurés pour l’interpréter",
+        "Comme un chiffrement obligatoire de la session TCP",
+        "Comme une preuve que le préfixe est joignable de bout en bout",
+        "Comme une garantie universelle que tous les opérateurs appliquent la même action"
+      ],
+      "answer": 0,
+      "explanation": "Une community transporte une étiquette de politique. Son effet dépend des règles de l’opérateur et de l’accord entre réseaux ; elle ne déclenche aucune action universelle par elle-même."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une limite max-prefix appliquée à une session BGP ?",
+      "choices": [
+        "À garantir que chaque route reçue est légitime",
+        "À déclencher une alerte ou une action configurée si le nombre de préfixes dépasse une limite, sans remplacer les filtres",
+        "À ajuster automatiquement la bande passante physique du lien",
+        "À rendre inutile la surveillance des annonces et des journaux"
+      ],
+      "answer": 1,
+      "explanation": "max-prefix limite l’exposition à un volume inattendu d’annonces. Selon l’implémentation, le dépassement peut alerter ou interrompre la session ; ce contrôle ne remplace pas le filtrage précis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le cas usuel où les routes sont comparables selon la politique de l’équipement, comment le MED est-il normalement interprété ?",
+      "choices": [
+        "Une valeur plus élevée est toujours préférée sur l’ensemble de l’Internet, sans exception",
+        "Le MED indique le nombre de sauts IP restants",
+        "Une valeur plus faible est généralement préférée pour suggérer un point d’entrée vers l’AS, mais sa comparaison dépend de la politique et de l’implémentation",
+        "Le MED remplace le contrôle de l’AS_PATH pour détecter les boucles"
+      ],
+      "answer": 2,
+      "explanation": "Le MED permet notamment de suggérer à un AS voisin un point d’entrée préféré. Sa comparaison n’est pas universelle entre toutes les annonces : la politique et le comportement du constructeur comptent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux pairs eBGP sont configurés vers des adresses de loopback distantes plutôt que vers les adresses directement connectées. Quel point faut-il traiter ?",
+      "choices": [
+        "Désactiver l’IP sur les interfaces physiques",
+        "Forcer tous les préfixes à utiliser le même MED",
+        "Remplacer BGP par DHCP pour résoudre la loopback distante",
+        "Assurer d’abord la joignabilité IP des loopbacks et configurer un TTL/mode multi-hop adapté sur les pairs concernés"
+      ],
+      "answer": 3,
+      "explanation": "Une session vers une loopback distante a besoin d’un chemin IP vers cette adresse et, selon la plate-forme, d’une configuration eBGP multi-hop ou TTL adaptée. La session ne crée pas elle-même cette joignabilité."
     }
   ],
   "scope": "quiz"
