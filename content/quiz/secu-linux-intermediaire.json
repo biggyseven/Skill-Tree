@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité des systèmes Linux » : à rédiger après le cours complet.",
+      "prompt": "À quoi sert principalement le principe du moindre privilège sur un serveur Linux ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Donner root à tout service pour éviter les erreurs de permission",
+        "Limiter chaque compte et processus aux droits réellement nécessaires à sa fonction",
+        "Désactiver toutes les permissions Unix",
+        "Remplacer la journalisation par un pare-feu"
+      ],
+      "answer": 1,
+      "explanation": "Le moindre privilège limite les comptes, services et processus aux seuls droits nécessaires. Il réduit l'impact d'une erreur ou d'une compromission sans remplacer les autres contrôles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le mode de permission 640 sur un fichier ?",
+      "choices": [
+        "Le propriétaire peut lire et écrire, le groupe peut lire, les autres n'ont aucun droit",
+        "Tous les utilisateurs peuvent lire et écrire",
+        "Le propriétaire peut exécuter, le groupe peut écrire, les autres peuvent lire",
+        "Le fichier appartient obligatoirement à root"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le premier chiffre 6 correspond à lecture et écriture du propriétaire, 4 à lecture du groupe et 0 à aucun droit pour les autres. Le propriétaire réel se vérifie séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode est la plus sûre avant de modifier une règle sudo ?",
+      "choices": [
+        "Modifier directement le fichier sans validation",
+        "Mettre tous les comptes dans le groupe root",
+        "Utiliser visudo, limiter l'autorisation au besoin et tester la règle",
+        "Donner sudo sans mot de passe à tous les comptes de service"
+      ],
+      "answer": 2,
+      "explanation": "visudo vérifie la syntaxe de la politique sudo. Les droits doivent être limités, testés et révisés ; une commande autorisée peut parfois offrir un accès root indirect."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire si sshd -t signale une erreur après une modification ?",
+      "choices": [
+        "Fermer la session active puis redémarrer le serveur",
+        "Désactiver le pare-feu",
+        "Ignorer l'erreur et redémarrer SSH",
+        "Ne pas recharger le service, corriger ou restaurer la configuration, puis retester"
+      ],
+      "answer": 3,
+      "explanation": "Une configuration invalide peut empêcher SSH de redémarrer. Il faut conserver la session existante et un accès de secours, corriger l'erreur puis vérifier une seconde connexion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande aide à identifier les sockets réseau à l'écoute ?",
+      "choices": [
+        "ss -lntup",
+        "chmod -R 777 /etc",
+        "passwd -d root",
+        "umask -a"
+      ],
+      "answer": 0,
+      "explanation": "ss -lntup affiche les sockets d'écoute TCP/UDP et, avec les privilèges nécessaires, les processus associés. Les résultats doivent être reliés à un service et à un besoin métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il vérifier la provenance des paquets et des dépôts ?",
+      "choices": [
+        "Pour éviter d'avoir à appliquer les mises à jour",
+        "Parce qu'une installation réussie garantit l'authenticité",
+        "Pour réduire le risque d'installer du code ou des mises à jour issus d'une source compromise",
+        "Pour autoriser tous les dépôts à modifier le système"
+      ],
+      "answer": 2,
+      "explanation": "Des paquets provenant de sources fiables et vérifiées réduisent les risques liés à la chaîne logicielle. Il faut également suivre les avis de sécurité, les signatures et la procédure de changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure réaction si AppArmor ou SELinux bloque un accès d'application ?",
+      "choices": [
+        "Désactiver durablement le mécanisme sur tout le serveur",
+        "Examiner les journaux et le contexte, puis ajuster la règle ou le profil nécessaire de façon ciblée",
+        "Rendre tous les fichiers accessibles à tous",
+        "Ignorer les journaux de refus"
+      ],
+      "answer": 1,
+      "explanation": "Le refus peut indiquer un accès imprévu ou un contexte incorrect. Il faut diagnostiquer les permissions et la politique obligatoire puis corriger précisément, au lieu de retirer une couche de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet une option de confinement systemd correctement testée ?",
+      "choices": [
+        "Remplacer toutes les mises à jour du système",
+        "Garantir qu'une application ne contient aucune vulnérabilité",
+        "Supprimer la nécessité de logs",
+        "Limiter certains accès, capacités ou répertoires disponibles au processus du service"
+      ],
+      "answer": 3,
+      "explanation": "Des options systemd peuvent réduire les droits et l'environnement d'un service. Leur disponibilité et leur compatibilité dépendent de la version et du rôle ; elles doivent être testées pour éviter une panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il prouver avant de considérer une sauvegarde fiable ?",
+      "choices": [
+        "Qu'un fichier d'archive existe",
+        "Qu'une restauration représentative fonctionne, avec données, permissions et dépendances vérifiées",
+        "Que la sauvegarde est stockée uniquement sur le serveur source",
+        "Que le compte de sauvegarde possède un accès root partout"
+      ],
+      "answer": 1,
+      "explanation": "Une sauvegarde n'est réellement utile que si la restauration est possible. Le test doit inclure l'intégrité, les permissions, les clés, les dépendances applicatives et le temps de récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi transmettre les journaux de sécurité vers un collecteur distant protégé ?",
+      "choices": [
+        "Pour empêcher l'administrateur local d'effacer facilement toutes les traces sur le seul hôte surveillé",
+        "Pour pouvoir enregistrer les clés privées dans les logs",
+        "Pour ne plus avoir besoin de synchroniser l'heure",
+        "Pour supprimer les événements d'authentification réussis"
+      ],
+      "answer": 0,
+      "explanation": "La collecte distante augmente la résilience des preuves lorsque l'hôte est compromis. Elle doit être associée à l'horodatage, une rétention maîtrisée, des droits restreints et l'absence de secrets dans les logs."
     }
   ]
 }
