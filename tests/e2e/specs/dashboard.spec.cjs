@@ -555,6 +555,10 @@ Serveur --> Base de données</code></pre>
 | HTTPS    | 443  |</code></pre>
         </div>
       </div>
+      <div class="lesson-diagram-block" data-diagram-type="schéma HTML">
+        <div class="flow-node">Client</div><span>→</span><div class="flow-node">Passerelle</div>
+        <div class="lesson-diagram-guide"><p>Guide HTML générique à ne pas lire à la place des éléments.</p></div>
+      </div>
       <div class="lesson-diagram-block" data-diagram-type="diagramme Mermaid">
         <div class="mermaid"></div>
       </div>
@@ -583,8 +587,17 @@ Serveur --> Base de données</code></pre>
   expect(narration).toContain('Port : 443');
   expect(narration).toContain('Client mène vers API par HTTPS.');
   expect(narration).toContain('API mène vers Base de données.');
+  expect(narration).toContain('Le schéma se lit ainsi : Client mène vers Passerelle.');
+  expect(narration).not.toContain('→');
   expect(narration).not.toContain('Copier');
   expect(narration).not.toContain('Texte guide qui ne doit pas remplacer les données.');
+  expect(narration).not.toContain('Guide HTML générique à ne pas lire à la place des éléments.');
+
+  const audioSegments = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return state.splitSpeechText('Première phrase. Deuxième phrase.', 1800);
+  });
+  expect(audioSegments).toEqual(['Première phrase. Deuxième phrase.']);
 });
 
 test('le menu contextuel démarre la lecture vocale depuis la section visée', async ({ page }) => {
