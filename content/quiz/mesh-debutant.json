@@ -1,0 +1,102 @@
+{
+  "node_id": "mesh-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle général d’un Service Mesh ?",
+      "choices": [
+        "Gérer des fonctions transversales de communication entre services",
+        "Remplacer le code métier de toutes les applications",
+        "Créer les images de conteneur",
+        "Remplacer le système de fichiers Kubernetes"
+      ],
+      "answer": 0,
+      "explanation": "Un mesh peut centraliser routage, identité, sécurité du transport et télémétrie entre services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre plan de contrôle et plan de données ?",
+      "choices": [
+        "Le contrôle distribue la configuration ; le plan de données traite les flux",
+        "Le contrôle transporte toujours tous les paquets et le plan de données compile",
+        "Ils sont synonymes dans tous les produits",
+        "Le plan de données gère seulement Git"
+      ],
+      "answer": 0,
+      "explanation": "Le plan de contrôle gère notamment la configuration ; le plan de données traite les communications de service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie mTLS ?",
+      "choices": [
+        "Les deux extrémités authentifient leur identité par TLS mutuel",
+        "Le trafic est toujours autorisé sans identité",
+        "Le contenu est compressé sans chiffrement",
+        "Le service n’utilise plus de certificats"
+      ],
+      "answer": 0,
+      "explanation": "mTLS apporte authentification mutuelle et protection de transport selon les certificats et paramètres TLS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un mesh n’est-il pas toujours nécessaire ?",
+      "choices": [
+        "Il ajoute des composants et une complexité opérationnelle qui doivent être justifiés",
+        "Il ne peut jamais chiffrer le trafic",
+        "Il n’expose aucune métrique",
+        "Il ne fonctionne que sur des machines physiques"
+      ],
+      "answer": 0,
+      "explanation": "Le coût opérationnel peut dépasser la valeur pour une architecture simple ; compare le besoin aux mécanismes disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque de retries non bornés ?",
+      "choices": [
+        "Ils peuvent amplifier la charge pendant une panne",
+        "Ils garantissent une latence plus faible",
+        "Ils réduisent toujours les requêtes métier",
+        "Ils suppriment la nécessité d’un timeout"
+      ],
+      "answer": 0,
+      "explanation": "Les retries augmentent la charge et peuvent répéter une opération non idempotente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le chiffrement mTLS prouve-t-il qu’une opération métier est autorisée ?",
+      "choices": [
+        "Non, l’autorisation doit aussi contrôler les actions permises",
+        "Oui, toute identité authentifiée devient administrateur",
+        "Oui, le chiffrement remplace toutes les politiques",
+        "Non, mTLS ne protège jamais le transport"
+      ],
+      "answer": 0,
+      "explanation": "L’identité sécurise l’échange mais les politiques d’accès doivent limiter les actions légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il commencer par cartographier lors d’un diagnostic ?",
+      "choices": [
+        "Source, destination, protocole, port et résultat attendu",
+        "La couleur des pods",
+        "Uniquement le nombre de fichiers YAML",
+        "Le numéro de version du navigateur"
+      ],
+      "answer": 0,
+      "explanation": "La description du flux permet de tester la résolution, la connectivité, l’identité, la politique et l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi comparer Istio et Linkerd selon le contexte ?",
+      "choices": [
+        "Leurs fonctionnalités, architecture et coût d’exploitation diffèrent",
+        "Ils sont strictement identiques dans toutes les versions",
+        "L’un remplace Kubernetes et l’autre Git",
+        "Le choix ne dépend jamais de l’équipe"
+      ],
+      "answer": 0,
+      "explanation": "Le choix dépend des exigences, des compétences disponibles, de la topologie et du coût de maintenance."
+    }
+  ]
+}

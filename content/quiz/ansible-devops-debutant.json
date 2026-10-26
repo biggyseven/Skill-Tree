@@ -1,0 +1,102 @@
+{
+  "node_id": "ansible-devops-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d’un inventaire Ansible ?",
+      "choices": [
+        "Définir les hôtes et groupes cibles",
+        "Décrire les tâches à exécuter",
+        "Stocker le mot de passe de root",
+        "Compiler un playbook"
+      ],
+      "answer": 0,
+      "explanation": "L’inventaire déclare les hôtes ou groupes auxquels les plays peuvent s’appliquer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le module ansible.builtin.ping ?",
+      "choices": [
+        "À vérifier la connectivité Ansible et l’exécution de module",
+        "À mesurer la latence ICMP uniquement",
+        "À vérifier le contenu HTTP de Nginx",
+        "À redémarrer SSH"
+      ],
+      "answer": 0,
+      "explanation": "Le module ping vérifie que la connexion Ansible fonctionne ; il ne remplace pas un test applicatif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’idempotence d’une tâche de configuration ?",
+      "choices": [
+        "Répéter l’exécution conserve l’état attendu sans changement inutile",
+        "Chaque exécution doit redémarrer le serveur",
+        "La tâche ignore l’état réel",
+        "La tâche ne fonctionne que sur un hôte"
+      ],
+      "answer": 0,
+      "explanation": "Une tâche idempotente décrit un état, comme un paquet présent, au lieu d’exécuter aveuglément une action."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande valide la syntaxe d’un playbook avant exécution ?",
+      "choices": [
+        "ansible-playbook --syntax-check site.yml",
+        "ansible inventory.ini --ping",
+        "ansible-playbook --destroy site.yml",
+        "ansible --compile site.yml"
+      ],
+      "answer": 0,
+      "explanation": "--syntax-check détecte des erreurs de syntaxe et de structure, mais ne garantit pas le succès en production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi examiner --list-hosts avant un playbook à fort impact ?",
+      "choices": [
+        "Confirmer le périmètre exact des hôtes sélectionnés",
+        "Vérifier toutes les règles métier du service",
+        "Générer un inventaire dynamique",
+        "Chiffrer les variables"
+      ],
+      "answer": 0,
+      "explanation": "La revue des hôtes évite d’appliquer un changement à un groupe trop large ou incorrect."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel module convient généralement à l’installation d’un paquet de manière déclarative ?",
+      "choices": [
+        "ansible.builtin.package",
+        "ansible.builtin.debug",
+        "ansible.builtin.ping",
+        "ansible.builtin.gather_facts"
+      ],
+      "answer": 0,
+      "explanation": "Le module package exprime l’état souhaité du paquet sur les systèmes compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où faut-il éviter de stocker un secret en clair ?",
+      "choices": [
+        "Dans le playbook ou l’inventaire versionné",
+        "Dans un gestionnaire de secrets avec accès contrôlé",
+        "Dans un coffre chiffré dont les clés sont protégées",
+        "Dans une injection secrète limitée au job"
+      ],
+      "answer": 0,
+      "explanation": "Un secret en clair dans Git peut rester accessible dans l’historique et les copies ; le supprimer du dernier commit ne le révoque pas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le mode --check ne constitue-t-il pas une garantie absolue ?",
+      "choices": [
+        "Certains modules ne simulent pas tous les effets",
+        "Il applique toujours la configuration réelle",
+        "Il ignore tous les hôtes de l’inventaire",
+        "Il chiffre automatiquement les sorties"
+      ],
+      "answer": 0,
+      "explanation": "Le mode check aide à anticiper les changements, mais ses limites imposent tests et vérifications complémentaires."
+    }
+  ]
+}

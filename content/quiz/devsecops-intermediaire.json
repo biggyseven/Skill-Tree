@@ -1,0 +1,102 @@
+{
+  "node_id": "devsecops-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi associer une SBOM à l’artefact exact livré ?",
+      "choices": [
+        "Pour retrouver les composants réellement présents dans cette version",
+        "Pour éviter de scanner les images",
+        "Pour permettre la modification anonyme du registre",
+        "Pour faire disparaître les alertes"
+      ],
+      "answer": 0,
+      "explanation": "Une SBOM utile doit correspondre à l’artefact livré, pas seulement à une branche abstraite du code."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque réduit la séparation entre job de test et job de publication ?",
+      "choices": [
+        "Qu’un workflow de contribution non fiable publie un artefact ou accède à la production",
+        "La durée de tous les tests à zéro",
+        "La nécessité de versions immuables",
+        "Le besoin d’un inventaire de composants"
+      ],
+      "answer": 0,
+      "explanation": "Les jobs de test doivent rester à faible privilège ; la publication doit être protégée et contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit la provenance d’un artefact ?",
+      "choices": [
+        "Des informations sur sa source et sa construction",
+        "Toutes les vulnérabilités possibles de l’application",
+        "Le contenu des secrets de production",
+        "L’état de tous les serveurs cloud"
+      ],
+      "answer": 0,
+      "explanation": "La provenance permet de retracer le commit, l’identité et le processus de construction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une vulnérabilité élevée possiblement non applicable ?",
+      "choices": [
+        "Vérifier version, chemin de dépendance, présence et conditions d’exploitation, puis documenter la décision",
+        "Supprimer globalement la règle du scanner",
+        "Ignorer l’alerte sans justification",
+        "Réinstaller toutes les dépendances au hasard"
+      ],
+      "answer": 0,
+      "explanation": "Le tri doit être fondé sur des preuves et rester traçable ; une absence d’applicabilité peut nécessiter une exception datée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter d’exposer des secrets aux workflows qui exécutent des contributions non fiables ?",
+      "choices": [
+        "Le code modifié pourrait lire ou exfiltrer les identifiants accessibles",
+        "Les secrets ne servent qu’en production",
+        "Git masque toujours le contenu automatiquement",
+        "Les workflows non fiables ne peuvent jamais exécuter du code"
+      ],
+      "answer": 0,
+      "explanation": "Un workflow peut exécuter du code soumis dans une contribution. Les secrets doivent être séparés et les permissions limitées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue un scan IaC ?",
+      "choices": [
+        "Détecter des déclarations d’infrastructure potentiellement dangereuses",
+        "Prouver la disponibilité d’une application en production",
+        "Remplacer les revues de configuration",
+        "Garantir la compatibilité des migrations SQL"
+      ],
+      "answer": 0,
+      "explanation": "Un scanner IaC repère des motifs de configuration à risque, à compléter par l’analyse du contexte et des tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon comportement lors d’une fuite de secret ?",
+      "choices": [
+        "Révoquer ou tourner le secret, examiner les logs, limiter les permissions et documenter la cause",
+        "Retirer la valeur du dernier commit uniquement",
+        "Imprimer la valeur dans un rapport",
+        "Réutiliser le secret dans un autre environnement"
+      ],
+      "answer": 0,
+      "explanation": "La suppression du code ne supprime pas les copies déjà réalisées ; la rotation et l’investigation sont prioritaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand la validation DAST est-elle généralement réalisée ?",
+      "choices": [
+        "Sur une application démarrée dans un environnement de test adapté",
+        "Avant que le code existe",
+        "Uniquement sur le fichier README",
+        "À la place de tous les tests unitaires"
+      ],
+      "answer": 0,
+      "explanation": "DAST exige une application accessible et permet d’examiner ses comportements réels sur les surfaces testées."
+    }
+  ]
+}

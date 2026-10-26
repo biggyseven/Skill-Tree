@@ -1,0 +1,102 @@
+{
+  "node_id": "iac-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de terraform init ?",
+      "choices": [
+        "Préparer le répertoire et récupérer les providers ou modules nécessaires",
+        "Appliquer automatiquement tous les changements en production",
+        "Supprimer l’état",
+        "Formater les fichiers seulement"
+      ],
+      "answer": 0,
+      "explanation": "init prépare le répertoire de travail et les dépendances déclarées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal de terraform plan ?",
+      "choices": [
+        "Examiner les changements proposés avant application",
+        "Supprimer toutes les ressources existantes",
+        "Générer un mot de passe pour chaque ressource",
+        "Remplacer le fichier de configuration"
+      ],
+      "answer": 0,
+      "explanation": "plan aide à identifier créations, modifications, remplacements et suppressions avant d’appliquer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il protéger le fichier d’état Terraform ?",
+      "choices": [
+        "Il peut contenir des valeurs sensibles et relie le code aux ressources gérées",
+        "Il ne contient que des commentaires publics",
+        "Il remplace le code source",
+        "Il ne sert qu’à formater les fichiers"
+      ],
+      "answer": 0,
+      "explanation": "L’état peut inclure des attributs sensibles et nécessite un contrôle d’accès et des sauvegardes adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande vérifie le formatage des fichiers Terraform sans les modifier ?",
+      "choices": [
+        "terraform fmt -check",
+        "terraform apply --check",
+        "terraform state destroy",
+        "terraform provider ping"
+      ],
+      "answer": 0,
+      "explanation": "fmt -check signale les fichiers qui ne respectent pas le format Terraform attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une variable d’entrée ?",
+      "choices": [
+        "Paramétrer la configuration sans dupliquer les fichiers",
+        "Créer automatiquement un compte cloud",
+        "Remplacer le fichier d’état",
+        "Ignorer les plans"
+      ],
+      "answer": 0,
+      "explanation": "Les variables rendent les configurations réutilisables et peuvent porter types, descriptions et validations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi examiner les suppressions dans un plan ?",
+      "choices": [
+        "Elles peuvent entraîner une perte de ressource ou de données",
+        "Elles ne peuvent jamais affecter la production",
+        "Elles signifient que le code est mieux formaté",
+        "Elles indiquent toujours une absence de changements"
+      ],
+      "answer": 0,
+      "explanation": "Les suppressions et remplacements sont potentiellement destructifs et doivent être compris avant l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un exemple utilise un provider inconnu. Que faut-il vérifier avant de le déployer ?",
+      "choices": [
+        "Le nom réel du provider, sa version, la ressource et sa documentation",
+        "Seulement la couleur de l’éditeur",
+        "Que le fichier se termine par une ligne vide",
+        "Que terraform apply soit lancé deux fois"
+      ],
+      "answer": 0,
+      "explanation": "Une syntaxe copiée ne prouve pas que le provider ou les attributs existent ou sont compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un workspace Terraform ne suffit-il pas toujours à isoler production ?",
+      "choices": [
+        "Il ne remplace pas des permissions, comptes et frontières d’environnement séparés",
+        "Il chiffre toujours le state",
+        "Il remplace les approbations",
+        "Il interdit les destructions"
+      ],
+      "answer": 0,
+      "explanation": "Les espaces de travail aident à distinguer des états mais n’offrent pas à eux seuls une frontière de sécurité complète."
+    }
+  ]
+}

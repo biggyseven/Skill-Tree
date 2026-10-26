@@ -1,0 +1,102 @@
+{
+  "node_id": "ansible-devops-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif de l’option serial dans un play ?",
+      "choices": [
+        "Déployer sur des lots successifs d’hôtes",
+        "Exécuter toutes les tâches en parallèle sans limite",
+        "Chiffrer l’inventaire",
+        "Créer un rôle automatiquement"
+      ],
+      "answer": 0,
+      "explanation": "serial limite le nombre d’hôtes traités dans chaque lot et permet une vérification progressive."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi épingler les versions des collections Ansible ?",
+      "choices": [
+        "Rendre les dépendances plus reproductibles",
+        "Forcer chaque hôte à redémarrer",
+        "Éviter tous les tests",
+        "Masquer la provenance des modules"
+      ],
+      "answer": 0,
+      "explanation": "Des versions déclarées et testées réduisent les changements involontaires de comportement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure approche pour les secrets d’automatisation ?",
+      "choices": [
+        "Gestionnaire de secrets ou Ansible Vault avec accès et rotation contrôlés",
+        "Variables visibles dans les logs",
+        "Un compte administrateur partagé permanent",
+        "Dépôt Git privé sans autre protection"
+      ],
+      "answer": 0,
+      "explanation": "La confidentialité nécessite contrôle d’accès, réduction des privilèges, rotation et prévention des fuites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi --check ne remplace-t-il pas des tests de rôle ?",
+      "choices": [
+        "Il ne simule pas tous les effets et n’évalue pas toute la santé métier",
+        "Il ne peut jamais lire un inventaire",
+        "Il supprime l’état réel",
+        "Il exécute les tâches deux fois"
+      ],
+      "answer": 0,
+      "explanation": "Une simulation n’est pas une preuve d’intégration : certains modules et interactions demandent un environnement de test."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal doit généralement arrêter une vague de déploiement progressif ?",
+      "choices": [
+        "Un seuil d’échec ou de santé défini avant la livraison est dépassé",
+        "Le premier hôte est joignable en SSH",
+        "Le playbook affiche une ligne de log",
+        "La date change"
+      ],
+      "answer": 0,
+      "explanation": "Les critères d’arrêt doivent être explicites, liés à la santé et définis avant l’opération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’idempotence ne suffit-elle pas à rendre un playbook sûr ?",
+      "choices": [
+        "Un état cible incorrect ou un déploiement trop large peut toujours causer une panne",
+        "Elle interdit les modifications",
+        "Elle garantit la compatibilité métier",
+        "Elle chiffre les mots de passe"
+      ],
+      "answer": 0,
+      "explanation": "L’idempotence réduit les changements répétés, mais le périmètre, le contenu et l’ordre restent essentiels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une dérogation à une règle de sécurité ?",
+      "choices": [
+        "Justification, portée, propriétaire, mesure compensatoire et expiration",
+        "Un commentaire libre sans date",
+        "Le secret qui a déclenché l’alerte",
+        "Une désactivation globale de toutes les règles"
+      ],
+      "answer": 0,
+      "explanation": "Une exception doit être explicable et temporaire pour éviter de devenir une faille permanente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un retour arrière diffère-t-il d’une nouvelle exécution du playbook courant ?",
+      "choices": [
+        "Il doit rétablir une version connue comme bonne, pas réappliquer l’état potentiellement fautif",
+        "Il supprime toujours tous les serveurs",
+        "Il ne doit jamais être testé",
+        "Il est automatiquement effectué par --check"
+      ],
+      "answer": 0,
+      "explanation": "Relancer le même playbook réapplique son état cible ; le rollback exige une version de configuration ou un artefact validé."
+    }
+  ]
+}

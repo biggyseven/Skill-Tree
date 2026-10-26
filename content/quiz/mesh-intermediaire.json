@@ -1,0 +1,102 @@
+{
+  "node_id": "mesh-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode réduit le risque lors de l’introduction d’une politique stricte ?",
+      "choices": [
+        "Cartographier les flux puis déployer par périmètre en testant accès autorisés et interdits",
+        "Appliquer une règle globale sans observation",
+        "Désactiver les logs avant la bascule",
+        "Interdire tous les flux immédiatement en production"
+      ],
+      "answer": 0,
+      "explanation": "Une migration progressive révèle les dépendances avant de généraliser une politique restrictive."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est nécessaire avant d’augmenter le trafic canary ?",
+      "choices": [
+        "Des métriques représentatives et des critères de santé satisfaits",
+        "Le fait que le pod existe uniquement",
+        "Une absence d’erreur dans le fichier YAML seulement",
+        "Le succès d’un seul appel manuel"
+      ],
+      "answer": 0,
+      "explanation": "Le trafic doit augmenter uniquement si erreurs, latence, saturation et résultats métier restent acceptables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester les appels qui doivent être refusés ?",
+      "choices": [
+        "Pour prouver que la politique d’autorisation applique réellement le moindre privilège",
+        "Pour désactiver l’authentification",
+        "Pour augmenter la charge",
+        "Pour éviter de connaître les identités"
+      ],
+      "answer": 0,
+      "explanation": "Une politique n’est validée que si les flux légitimes fonctionnent et les flux interdits sont bloqués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment répartir correctement les timeouts entre plusieurs services ?",
+      "choices": [
+        "Respecter un budget global de latence de bout en bout",
+        "Donner à chaque service un délai infini",
+        "Ignorer les délais clients",
+        "Choisir des valeurs identiques sans mesurer"
+      ],
+      "answer": 0,
+      "explanation": "Les délais de chaque couche doivent respecter la limite client en laissant une marge de traitement et réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur aide à voir une partie des requêtes très lentes ?",
+      "choices": [
+        "Un percentile de latence comme p95 ou p99",
+        "Une moyenne uniquement",
+        "Le nombre de namespaces",
+        "Le nombre de fichiers de configuration"
+      ],
+      "answer": 0,
+      "explanation": "Les percentiles montrent la queue de distribution que la moyenne peut masquer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque de cardinalité élevée des labels de métriques ?",
+      "choices": [
+        "Une explosion du nombre de séries et du coût de stockage/requête",
+        "Un chiffrement plus fort",
+        "Une diminution automatique des logs",
+        "L’arrêt garanti des retries"
+      ],
+      "answer": 0,
+      "explanation": "Des identifiants uniques comme labels créent beaucoup de séries distinctes et compliquent la supervision."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que vérifier face à un refus d’appel inattendu ?",
+      "choices": [
+        "Identité source, politique d’autorisation, statut TLS et route",
+        "Uniquement le nombre total de pods",
+        "Supprimer toutes les politiques sans analyse",
+        "Forcer immédiatement le mode permissif global"
+      ],
+      "answer": 0,
+      "explanation": "Les erreurs TLS, l’identité et la politique doivent être examinées avant d’élargir les accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi borner les retries ?",
+      "choices": [
+        "Pour éviter d’amplifier la surcharge et de répéter des opérations non idempotentes",
+        "Pour garantir qu’aucune requête échoue",
+        "Pour remplacer le load balancing",
+        "Pour supprimer la latence"
+      ],
+      "answer": 0,
+      "explanation": "Les reprises doivent être bornées, utiliser un backoff et être adaptées à l’idempotence."
+    }
+  ]
+}

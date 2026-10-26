@@ -60,6 +60,14 @@ class PedagogicalCatalogIntegrityTests(unittest.TestCase):
                     problems.append((node_id, expected_id))
         self.assertEqual(problems, [], f"Chaînes de niveaux non cumulatives : {problems}")
 
+    def test_priority_devops_tracks_have_all_three_levels(self) -> None:
+        required_topics = ("ansible-devops", "devsecops", "iac", "mesh", "observability")
+        for topic in required_topics:
+            expected = {f"{topic}-{level}" for level in LEVELS}
+            self.assertTrue(expected <= set(self.lesson_paths), f"Parcours incomplet: {topic}")
+            self.assertTrue(expected <= set(self.quiz_paths), f"Quiz manquants: {topic}")
+            self.assertTrue(expected <= set(self.node_by_id), f"Nœuds manquants: {topic}")
+
     def test_cicd_expert_is_a_real_standalone_course(self) -> None:
         path = self.lesson_paths["cicd-expert"]
         content = path.read_text(encoding="utf-8").strip()
