@@ -83,7 +83,7 @@
         "Un index sur chaque colonne",
         "Une copie de `pg_hba.conf` uniquement"
       ],
-      "answer": 2,
+      "answer": 0,
       "explanation": "La récupération à un instant précis nécessite une sauvegarde de base et la chaîne des journaux WAL requis jusqu’au point cible, avec une procédure testée."
     },
     {
@@ -95,7 +95,7 @@
         "Autoriser toutes les bases et tous les schémas par défaut",
         "Accorder uniquement les droits requis, avec un rôle et des secrets propres à l’application"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "Le principe du moindre privilège limite l’impact d’une fuite ou d’une erreur. Les droits doivent correspondre aux actions réellement nécessaires."
     }
   ]
