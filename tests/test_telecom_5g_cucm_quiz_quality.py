@@ -13,10 +13,11 @@ QUIZ_IDS = (
     "voice-cucm-expert",
 )
 PLACEHOLDER_RE = re.compile(
-    r"avez-vous bien lu|question temporaire|placeholder|(?:^|\s)réponse\s+[a-d](?:\s|$)|"
+    r"avez-vous bien lu|question temporaire|placeholder|"
     r"question placeholder|généré automatiquement|quiz généré automatiquement",
     re.IGNORECASE,
 )
+GENERIC_CHOICE_RE = re.compile(r"^\s*réponse\s+[a-d]\s*[.!]?\s*$", re.IGNORECASE)
 EXPECTED_ANCHORS = {
     "telecom-5g-debutant": (
         "Quel composant fournit l’accès radio en 5G NR ?", 0, "gNodeB"
@@ -68,8 +69,14 @@ def test_all_six_quizzes_have_eight_valid_questions():
             assert len(set(question["choices"])) == 4
             assert type(question["answer"]) is int
             assert 0 <= question["answer"] <= 3
-            assert not PLACEHOLDER_RE.search(
+            question_text = (
                 question["prompt"] + " " + " ".join(question["choices"]) + " " + question["explanation"]
+            )
+            assert not PLACEHOLDER_RE.search(question_text), (
+                f"{quiz_id}: explicit placeholder in question {question['prompt']!r}"
+            )
+            assert not any(GENERIC_CHOICE_RE.fullmatch(choice) for choice in question["choices"]), (
+                f"{quiz_id}: generic answer label used as a complete choice"
             )
             assert question["prompt"] not in local_prompts, f"{quiz_id}: duplicated prompt"
             assert question["prompt"] not in all_prompts, "duplicate prompt across quiz levels"
@@ -80,6 +87,15 @@ def test_all_six_quizzes_have_eight_valid_questions():
         assert answer_positions == Counter({0: 2, 1: 2, 2: 2, 3: 2}), (
             f"{quiz_id}: answer key positions must be balanced, got {answer_positions}"
         )
+
+
+def test_generic_answer_label_detection_requires_a_complete_choice():
+    assert GENERIC_CHOICE_RE.fullmatch("Réponse D")
+    assert GENERIC_CHOICE_RE.fullmatch(" réponse d ")
+    assert GENERIC_CHOICE_RE.fullmatch("Réponse D.")
+    assert not GENERIC_CHOICE_RE.fullmatch("réponse du trunk")
+    assert not GENERIC_CHOICE_RE.fullmatch("La réponse du trunk reste à vérifier.")
+    assert not GENERIC_CHOICE_RE.fullmatch("Réponse D : contrôler le CSS et les partitions")
 
 
 def test_technical_answer_anchors():
