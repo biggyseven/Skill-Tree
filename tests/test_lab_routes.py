@@ -316,6 +316,13 @@ class LabValidationTests(unittest.TestCase):
             conn.close()
         self.assertEqual(tuple(catalog_row), ("file-lab", "Lab de test"))
         self.assertEqual(tuple(stored_attempt), ("file-lab", 1))
+        self.assertFalse(result["course_attempt_recorded"])
+        conn = self._connect()
+        try:
+            streak_days = conn.execute("SELECT COUNT(*) FROM daily_streak").fetchone()[0]
+        finally:
+            conn.close()
+        self.assertEqual(streak_days, 1, "Une tentative de lab autonome doit compter dans la série quotidienne.")
 
     def test_locked_course_lab_explains_missing_prerequisite_and_blocks_rewards(self) -> None:
         conn = self._connect()

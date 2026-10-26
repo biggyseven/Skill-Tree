@@ -767,11 +767,6 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
         # lab_attempts. Synchroniser les deux uniquement si le lab est bien lié à
         # une exigence LAB du même nœud et que les prérequis sont déjà déverrouillés.
         if course_context and course_context["unlocked"]:
-            tables = {
-                row["name"] for row in conn.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table'"
-                )
-            }
             canonical_created = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             conn.execute(
                 "INSERT INTO attempts "
@@ -787,10 +782,12 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
                 ),
             )
             course_attempt_recorded = True
-            if "daily_streak" in tables:
-                # Ne pas valider la transaction ici : tentative, série, XP et pièces
-                # doivent être enregistrés ensemble.
-                touch_daily_streak(conn, commit=False)
+
+        # Comme les autres validations du moteur Skill-Tree, une vraie tentative
+        # compte dans la série quotidienne, même pour un lab autonome hors parcours.
+        # Les sandboxes sortent plus haut et les cours verrouillés sont rejetés avant
+        # l'insertion : aucun de ces deux cas ne peut créditer une série.
+        touch_daily_streak(conn, commit=False)
 
         # Récompenses du Lab Workspace : une prime de pièces à la première réussite
         # uniquement, comme pour les labs du parcours classique.
