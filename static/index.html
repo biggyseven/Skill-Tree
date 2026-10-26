@@ -845,11 +845,11 @@
               <div x-show="resumeNode" class="mt-4 flex flex-wrap items-center gap-2"><span class="chip" x-text="resumeNode ? levelLabel(resumeNode) : ''"></span><span class="chip" x-show="resumeNode" x-text="resumeNode ? statusMeta(resumeNode.status).label : ''"></span></div>
             </div>
             <div class="relative mt-5 sm:mt-7">
-              <button type="button" :disabled="!resumeNode" @click="resumeNode && show(resumeNode.id)" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-3.5 text-sm font-bold text-slate-950 shadow-[0_8px_24px_-10px_rgba(52,211,153,0.65)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-40">
+              <button type="button" :disabled="!resumeNode" @click="openLearningStep()" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-3.5 text-sm font-bold text-slate-950 shadow-[0_8px_24px_-10px_rgba(52,211,153,0.65)] transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-40">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg><span x-text="resumeButtonLabel"></span>
               </button>
               <p class="mt-3 text-center text-[10px] text-zinc-500">Progression mémorisée sur cet appareil.</p>
-              <div x-show="nextLessonNode" x-cloak class="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.045] p-4">
+              <div x-show="nextLessonNode && !moduleNextCourse" x-cloak class="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-400/[0.045] p-4">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                   <div class="min-w-0 flex-1">
                     <p class="text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-300">Ensuite dans ton parcours</p>
@@ -3272,6 +3272,7 @@
 
         async show(nodeId) {
           const nodeKey = String(nodeId);
+          this.moduleNextCourseId = null;
           const requestId = ++this._detailRequestId;
           const resumingSameLesson = nodeKey === String(this.lastOpenedNodeId || '');
           const savedPosition = this.lessonPositions[nodeKey] || null;
@@ -4564,6 +4565,7 @@
         // ---------- état commun ----------
         navItems: NAV_ITEMS, modules: MODULES, levels: LEVELS,
         moduleFilter: 'all',
+        moduleNextCourseId: null,
         moduleOverrides: LS.get('module-overrides', {}), levelOverrides: LS.get('level-overrides', {}),
         toast: { show: false, text: '' },
 
@@ -4632,11 +4634,16 @@
           const mk = (id, label, icon) => { const l = this.nodesIn(id); const v = l.filter(n => n.status === 'validated').length; return { id, label, icon, total: l.length, validated: v, pct: l.length ? Math.round(100 * v / l.length) : 0 }; };
           return [mk('all', 'Tous les modules', '🧭'), ...this.modules.map(m => mk(m.id, m.label, m.icon))];
         },
-        async setModule(id) {
+        setModule(id) {
           this.moduleFilter = id;
-          if (id === 'all') return;
-          const firstCourse = this.nodesIn(id)[0];
-          if (firstCourse && firstCourse.id) await this.show(firstCourse.id);
+          const firstCourse = id === 'all' ? null : this.nodesIn(id)[0];
+          this.moduleNextCourseId = firstCourse && firstCourse.id ? firstCourse.id : null;
+        },
+        openLearningStep() {
+          const node = this.resumeNode;
+          if (!node) return;
+          this.moduleNextCourseId = null;
+          return this.show(node.id);
         },
         get categories() {
           const map = { beginner: 'debutant', intermediaire: 'intermediaire', expert: 'expert' };
@@ -5677,8 +5684,13 @@
           const node = this.lastOpenedNode;
           return node && node.status !== 'locked' ? node : null;
         },
+        get moduleNextCourse() {
+          if (this.moduleNextCourseId === null || this.moduleNextCourseId === undefined) return null;
+          return this.nodes.find(node => String(node.id) === String(this.moduleNextCourseId)) || null;
+        },
         get resumeNode() {
-          return this.resumableLastNode
+          return this.moduleNextCourse
+            || this.resumableLastNode
             || this.parcours.cur
             || this.nodes.find(n => n.status === 'in_progress')
             || this.nodes.find(n => n.status === 'available')
@@ -5691,6 +5703,7 @@
         get resumeBadge() {
           if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
           if (!this.nodes.length) return this.loading ? 'Chargement du parcours' : 'Aucun cours disponible';
+          if (this.moduleNextCourse) return 'Module sélectionné';
           if (this.resumableLastNode) return 'Reprise disponible';
           if (this.resumeNode?.status === 'in_progress') return 'Activité à reprendre';
           if (this.allNodesValidated) return 'Parcours terminé';
@@ -5699,6 +5712,7 @@
         get resumeEyebrow() {
           if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
           if (!this.nodes.length) return this.loading ? 'Chargement en cours' : 'Aucun cours disponible';
+          if (this.moduleNextCourse) return 'Prochaine étape du module';
           if (this.resumableLastNode) return 'Reprendre ta dernière leçon';
           if (this.resumeNode?.status === 'in_progress') return 'Reprendre une activité';
           if (this.allNodesValidated) return 'Révision recommandée';
@@ -5707,6 +5721,7 @@
         get resumeDescription() {
           if (this.treeError && !this.nodes.length) return 'Le parcours n’a pas pu être chargé. Réessaie depuis le message affiché en haut du tableau de bord.';
           if (!this.nodes.length) return this.loading ? 'Récupération des étapes du parcours…' : 'Le serveur ne fournit actuellement aucun cours dans le parcours.';
+          if (this.moduleNextCourse) return 'Tu as sélectionné le module ' + this.moduleMeta(this.moduleOf(this.moduleNextCourse)).label + '. Commence par ce premier cours quand tu es prêt.';
           if (this.resumableLastNode) return 'Retrouve le cours où tu t’es arrêté et poursuis ta lecture sans devoir le rechercher.';
           if (this.resumeNode?.status === 'in_progress') return 'Une activité est déjà commencée : reprends-la pour poursuivre ta progression.';
           if (this.allNodesValidated) return 'Tu as validé tout le parcours disponible. Choisis une leçon pour réviser et consolider tes acquis.';
@@ -5717,6 +5732,12 @@
         get resumeButtonLabel() {
           if (this.treeError && !this.nodes.length) return 'Parcours indisponible';
           if (!this.nodes.length) return this.loading ? 'Chargement…' : 'Aucun cours disponible';
+          if (this.moduleNextCourse) {
+            if (this.moduleNextCourse.status === 'locked') return 'Voir les prérequis';
+            if (this.moduleNextCourse.status === 'in_progress') return 'Reprendre cette leçon';
+            if (this.moduleNextCourse.status === 'validated') return 'Revoir ce cours';
+            return 'Commencer ce cours';
+          }
           if (this.resumableLastNode) return this.lastLessonProgress >= 100 ? 'Revoir cette leçon' : 'Reprendre la lecture';
           if (this.resumeNode?.status === 'in_progress') return 'Reprendre cette activité';
           if (this.resumeNode?.status === 'validated') return 'Réviser cette leçon';
