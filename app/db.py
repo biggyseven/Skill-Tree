@@ -142,7 +142,8 @@ CREATE TABLE IF NOT EXISTS exam_submissions (
     session_id   TEXT PRIMARY KEY,
     submitted_at INTEGER NOT NULL,
     result_json  TEXT NOT NULL,
-    passed       INTEGER NOT NULL DEFAULT 0 CHECK (passed IN (0, 1))
+    passed       INTEGER NOT NULL DEFAULT 0 CHECK (passed IN (0, 1)),
+    node_id      TEXT REFERENCES nodes(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS terminal_specs (
@@ -220,6 +221,10 @@ def initialize(conn: sqlite3.Connection) -> None:
 
 
 def _migrate(conn: sqlite3.Connection) -> None:
+    exam_submission_columns = {row["name"] for row in conn.execute("PRAGMA table_info(exam_submissions)")}
+    if "node_id" not in exam_submission_columns:
+        conn.execute("ALTER TABLE exam_submissions ADD COLUMN node_id TEXT")
+
     columns = [row["name"] for row in conn.execute("PRAGMA table_info(lab_specs)")]
     if "kind" not in columns:
         conn.execute(
