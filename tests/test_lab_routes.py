@@ -384,7 +384,7 @@ class LabValidationTests(unittest.TestCase):
             conn.close()
         self.assertEqual(streak_days, 1, "Une tentative de lab autonome doit compter dans la série quotidienne.")
 
-    def test_locked_course_lab_explains_missing_prerequisite_and_blocks_rewards(self) -> None:
+    def test_locked_course_lab_allows_practice_but_blocks_submission_rewards(self) -> None:
         conn = self._connect()
         try:
             conn.execute(
@@ -416,9 +416,13 @@ class LabValidationTests(unittest.TestCase):
             checked = lab_routes.check_lab_v2(
                 "lab-1", CheckRequest(topology=self._topology("edge-1"))
             )
-            self.assertFalse(checked["passed"])
+            self.assertTrue(checked["passed"])
+            self.assertEqual(checked["score"], 1.0)
             self.assertTrue(checked["locked"])
-            self.assertIn("prereq-1", checked["results"][0]["message"])
+            self.assertTrue(checked["practice_only"])
+            self.assertTrue(checked["course_locked"])
+            self.assertIn("prereq-1", checked["course_lock_message"])
+            self.assertIn("mode entraînement", checked["message"].lower())
 
             with self.assertRaises(lab_routes.HTTPException) as raised:
                 lab_routes.submit_lab_v2("lab-1", request)
