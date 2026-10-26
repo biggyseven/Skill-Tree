@@ -6,12 +6,12 @@
       "type": "qcm",
       "prompt": "Quel est le rôle général d’un Service Mesh ?",
       "choices": [
-        "Gérer des fonctions transversales de communication entre services",
         "Remplacer le code métier de toutes les applications",
+        "Gérer des fonctions transversales de communication entre services",
         "Créer les images de conteneur",
         "Remplacer le système de fichiers Kubernetes"
       ],
-      "answer": 0,
+      "answer": 1,
       "explanation": "Un mesh peut centraliser routage, identité, sécurité du transport et télémétrie entre services."
     },
     {
@@ -30,36 +30,36 @@
       "type": "qcm",
       "prompt": "Que signifie mTLS ?",
       "choices": [
-        "Les deux extrémités authentifient leur identité par TLS mutuel",
         "Le trafic est toujours autorisé sans identité",
         "Le contenu est compressé sans chiffrement",
-        "Le service n’utilise plus de certificats"
+        "Le service n’utilise plus de certificats",
+        "Les deux extrémités authentifient leur identité par TLS mutuel"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "mTLS apporte authentification mutuelle et protection de transport selon les certificats et paramètres TLS."
     },
     {
       "type": "qcm",
       "prompt": "Pourquoi un mesh n’est-il pas toujours nécessaire ?",
       "choices": [
-        "Il ajoute des composants et une complexité opérationnelle qui doivent être justifiés",
         "Il ne peut jamais chiffrer le trafic",
         "Il n’expose aucune métrique",
+        "Il ajoute des composants et une complexité opérationnelle qui doivent être justifiés",
         "Il ne fonctionne que sur des machines physiques"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "Le coût opérationnel peut dépasser la valeur pour une architecture simple ; compare le besoin aux mécanismes disponibles."
     },
     {
       "type": "qcm",
       "prompt": "Quel est le risque de retries non bornés ?",
       "choices": [
-        "Ils peuvent amplifier la charge pendant une panne",
         "Ils garantissent une latence plus faible",
+        "Ils peuvent amplifier la charge pendant une panne",
         "Ils réduisent toujours les requêtes métier",
         "Ils suppriment la nécessité d’un timeout"
       ],
-      "answer": 0,
+      "answer": 1,
       "explanation": "Les retries augmentent la charge et peuvent répéter une opération non idempotente."
     },
     {
@@ -78,24 +78,24 @@
       "type": "qcm",
       "prompt": "Que faut-il commencer par cartographier lors d’un diagnostic ?",
       "choices": [
-        "Source, destination, protocole, port et résultat attendu",
         "La couleur des pods",
         "Uniquement le nombre de fichiers YAML",
-        "Le numéro de version du navigateur"
+        "Le numéro de version du navigateur",
+        "Source, destination, protocole, port et résultat attendu"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "La description du flux permet de tester la résolution, la connectivité, l’identité, la politique et l’application."
     },
     {
       "type": "qcm",
       "prompt": "Pourquoi comparer Istio et Linkerd selon le contexte ?",
       "choices": [
-        "Leurs fonctionnalités, architecture et coût d’exploitation diffèrent",
         "Ils sont strictement identiques dans toutes les versions",
         "L’un remplace Kubernetes et l’autre Git",
+        "Leurs fonctionnalités, architecture et coût d’exploitation diffèrent",
         "Le choix ne dépend jamais de l’équipe"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "Le choix dépend des exigences, des compétences disponibles, de la topologie et du coût de maintenance."
     }
   ]
