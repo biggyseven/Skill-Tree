@@ -2368,6 +2368,15 @@
             backLink.className = 'lesson-section-back no-speech';
             backLink.setAttribute('aria-label', 'Retour au sommaire des sections');
             backLink.textContent = '↑ Retour aux sections';
+            backLink.addEventListener('click', event => {
+              event.preventDefault();
+              const article = this.$refs.lessonArticle;
+              const index = article && article.querySelector('#lesson-section-index');
+              if (index) {
+                index.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.replaceState(null, '', '#lesson-section-index');
+              }
+            });
             h.appendChild(backLink);
           });
           this.lessonToc = toc;
@@ -2996,7 +3005,8 @@
           const readable = article.cloneNode(true);
           readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, .no-speech').forEach(element => element.remove());
 
-          // Les titres annoncent explicitement la progression du cours.
+          // Préserver les signes de ponctuation du cours : ne jamais fabriquer un « point ».
+          // Remplacer les titres par des annonces séparées, puis conserver le texte et ses signes tels quels.
           readable.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
             const depth = Number(heading.tagName.slice(1));
             const title = String(heading.innerText || heading.textContent || '')
@@ -3006,14 +3016,14 @@
             if (!title) return;
             const label = depth === 1 ? 'Titre du cours' : (depth === 2 ? 'Section' : 'Sous-section');
             const spokenHeading = readable.ownerDocument.createElement('p');
-            spokenHeading.textContent = label + ' : ' + title.replace(/[.!?…:;]+$/u, '') + '\n';
+            spokenHeading.textContent = label + ' : ' + title.replace(/[.!?…:;]+$/u, '') + '.';
             heading.replaceWith(spokenHeading);
           });
 
-          // Chaque élément de liste devient une phrase pour éviter une lecture sans pauses.
-          readable.querySelectorAll('li, p, blockquote, figcaption').forEach(block => {
-            // Keep punctuation authored in the lesson. Add only a line boundary, never a synthetic full stop.
-            block.append(readable.ownerDocument.createTextNode('\n'));
+          // Les paragraphes et éléments de liste restent séparés pour créer des pauses naturelles.
+          // Le texte de chaque bloc n'est pas réécrit : « : », « ; », parenthèses et ponctuation restent intacts.
+          readable.querySelectorAll('p, li, blockquote, figcaption').forEach(block => {
+            block.append(readable.ownerDocument.createTextNode('\n\n'));
           });
 
           return (readable.innerText || readable.textContent || '')
@@ -3032,7 +3042,8 @@
             .trim();
           if (!normalized) return [];
 
-          const paragraphs = normalized.split(/\n+/).map(part => part.replace(/\n+/g, ' ').trim()).filter(Boolean);
+          // Les retours à la ligne séparent les blocs ; on ne colle pas deux phrases sans pause.
+          const paragraphs = normalized.split(/\n{2,}/).map(part => part.replace(/\n+/g, ' ').trim()).filter(Boolean);
           const chunks = [];
           let current = '';
           const appendSentence = sentence => {
@@ -3066,7 +3077,8 @@
               const segmenter = new Intl.Segmenter('fr', { granularity: 'sentence' });
               sentences = Array.from(segmenter.segment(paragraph), item => item.segment.trim()).filter(Boolean);
             } else {
-              sentences = paragraph.split(/(?<=[.!?…])\s+/u).map(item => item.trim()).filter(Boolean);
+              // Conserver le signe final dans chaque segment et découper aussi aux deux-points/points-virgules.
+              sentences = paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
             }
             sentences.forEach(appendSentence);
           }
