@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Segmentation réseau » : à rédiger après le cours complet.",
+      "prompt": "Quel est l'objectif principal de la segmentation réseau ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Remplacer tous les correctifs système",
+        "Réduire les chemins non nécessaires entre groupes d'actifs et limiter le rayon d'impact d'un incident",
+        "Garantir qu'aucun appareil ne puisse communiquer avec un autre",
+        "Rendre les journaux réseau inutiles"
+      ],
+      "answer": 1,
+      "explanation": "La segmentation sépare les groupes d'actifs et applique des contrôles aux flux entre eux. Elle complète les correctifs, l'identité, la supervision et la réponse à incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux appareils sont dans des VLAN différents. Peut-on conclure que toute communication entre eux sera bloquée ?",
+      "choices": [
+        "Oui, les VLAN interdisent par définition le routage",
+        "Oui, sauf si les appareils utilisent IPv6",
+        "Non, le routage inter-VLAN peut les relier si aucune politique ne bloque le flux",
+        "Non, les VLAN ne séparent jamais les domaines de diffusion"
+      ],
+      "answer": 2,
+      "explanation": "Les VLAN séparent les domaines de diffusion L2, mais un routeur ou commutateur L3 peut assurer la connectivité inter-VLAN. Une règle de contrôle est nécessaire pour appliquer le besoin de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel document aide le plus directement à définir les autorisations entre segments ?",
+      "choices": [
+        "Une matrice de flux avec sources, destinations, services, décisions et justifications",
+        "Une liste de noms de VLAN sans propriétaires",
+        "Un relevé de débit WAN uniquement",
+        "Une liste des adresses MAC sans rôle ni destination"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "La matrice de flux explicite les communications nécessaires et leurs propriétaires. Elle permet d'écrire des règles précises et de tester aussi les flux qui doivent être refusés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une DMZ ne doit-elle pas disposer d'un accès général au LAN interne ?",
+      "choices": [
+        "Parce qu'un serveur dans une DMZ ne peut jamais contacter un autre serveur",
+        "Parce que la DMZ doit utiliser exclusivement IPv6",
+        "Parce que la DMZ ne peut pas contenir de services Web",
+        "Parce qu'un service exposé compromis pourrait sinon atteindre inutilement des ressources internes"
+      ],
+      "answer": 3,
+      "explanation": "Les services de DMZ sont plus exposés. Limiter leurs sorties et les flux vers les systèmes internes réduit les possibilités de déplacement latéral après une compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est appropriée pour les règles inter-segments ?",
+      "choices": [
+        "Autoriser tous les ports dès qu'une application échoue",
+        "Autoriser uniquement les sources, destinations et services nécessaires, avec justification et tests",
+        "Supprimer les journaux pour accélérer les équipements",
+        "Donner aux invités le même accès que les employés"
+      ],
+      "answer": 1,
+      "explanation": "Le moindre privilège limite la règle au besoin documenté. Les tests doivent confirmer les flux nécessaires et ceux qui doivent rester bloqués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une politique de segmentation doit-elle tenir compte d'IPv6 ?",
+      "choices": [
+        "Parce que les ACL IPv4 s'appliquent toujours automatiquement à IPv6",
+        "Parce qu'IPv6 ne nécessite pas de routage",
+        "Parce qu'un chemin IPv6 permissif peut contourner une politique qui ne couvre que IPv4",
+        "Parce que les sous-réseaux IPv6 n'ont jamais de frontières"
+      ],
+      "answer": 2,
+      "explanation": "IPv4 et IPv6 utilisent des règles et routes distinctes dans de nombreux systèmes. Si IPv6 est actif, il faut inventer et tester une politique équivalente plutôt que supposer qu'IPv4 suffit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit le mieux la microsegmentation ?",
+      "choices": [
+        "Un contrôle plus granulaire entre hôtes, charges de travail ou services, qui exige inventaire et gouvernance",
+        "Le fait de renommer les VLAN avec des numéros plus grands",
+        "La suppression de toutes les règles de pare-feu",
+        "Une méthode qui ne convient qu'aux imprimantes"
+      ],
+      "answer": 0,
+      "explanation": "La microsegmentation peut limiter les communications entre workloads ou hôtes au-delà des grandes zones. Sa granularité exige une bonne connaissance des dépendances et des règles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être vérifié après un changement de politique ?",
+      "choices": [
+        "Uniquement le fait que la configuration ait été sauvegardée",
+        "Uniquement que la nouvelle règle apparaisse dans l'interface",
+        "Uniquement qu'un ping vers la passerelle fonctionne",
+        "Un flux autorisé, un flux interdit, la règle réellement appliquée et les journaux associés"
+      ],
+      "answer": 3,
+      "explanation": "La validation doit prouver le comportement réel sur le chemin observé. Les tests positifs et négatifs, compteurs et journaux aident à détecter des chemins alternatifs ou une règle mal attachée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie convient le mieux pour segmenter un réseau OT/ICS critique ?",
+      "choices": [
+        "Appliquer de nouvelles règles de blocage directement en production sans coordination",
+        "Cartographier et observer les flux, puis tester avec les responsables OT et prévoir un rollback avant toute prévention",
+        "Autoriser l'IT à joindre tous les automates",
+        "Désactiver la supervision pour éviter des faux positifs"
+      ],
+      "answer": 1,
+      "explanation": "Les environnements OT ont des exigences importantes de disponibilité et de sûreté. Le déploiement doit être coordonné, validé et accompagné d'un plan de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'une zone de quarantaine pour un appareil inconnu ?",
+      "choices": [
+        "Lui accorder temporairement tous les droits internes",
+        "L'utiliser comme zone principale de sauvegarde",
+        "Restreindre ses communications aux services nécessaires à l'identification ou à la remédiation",
+        "Supprimer automatiquement son adresse IP"
+      ],
+      "answer": 2,
+      "explanation": "La quarantaine évite qu'un appareil non identifié ou non conforme accède directement aux ressources sensibles. Ses droits doivent rester limités, et la sortie dépend de critères vérifiés."
     }
   ]
 }
