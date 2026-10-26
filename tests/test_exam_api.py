@@ -109,12 +109,14 @@ class ExamApiTests(unittest.TestCase):
         self.assertEqual(profile.json()["exams_passed"], 1)
 
     def _unlock_ipv6_exam_prerequisite(self) -> None:
+        # ipv6-intermediaire demande à la fois un quiz réussi et un lab noté 100.
         with sqlite3.connect(self.database_path) as connection:
-            connection.execute(
-                "INSERT INTO attempts (node_id, kind, score, passed, evidence, detail, created_at) "
-                "VALUES (?, 'quiz', 100, 1, '', 'test prerequisite', '2026-10-26 12:00:00')",
-                ("ipv6-intermediaire",),
-            )
+            for kind, score in (("quiz", 100), ("lab", 100)):
+                connection.execute(
+                    "INSERT INTO attempts (node_id, kind, score, passed, evidence, detail, created_at) "
+                    "VALUES (?, ?, ?, 1, '', 'test prerequisite', '2026-10-26 12:00:00')",
+                    ("ipv6-intermediaire", kind, score),
+                )
             connection.commit()
 
     def test_course_exam_uses_dedicated_bank_and_records_exam_requirement(self) -> None:
