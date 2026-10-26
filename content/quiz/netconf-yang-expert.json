@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NETCONF, YANG et RESTCONF - Expert. Avez-vous lu le cours ?",
+      "prompt": "Dans l’architecture NMDA, pourquoi faut-il distinguer `intended` et `operational` ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "`intended` décrit la configuration voulue, tandis que `operational` représente l’état réellement appliqué/exposé par le système",
+        "`intended` est toujours la table ARP et `operational` la table DNS",
+        "`intended` est le journal Syslog et `operational` le serveur NTP",
+        "Ces deux termes désignent nécessairement le même datastore"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La comparaison entre l’intention et l’état opérationnel aide à détecter une configuration non appliquée, une limitation de plateforme ou un écart opérationnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal de NETCONF `confirmed-commit` lorsque cette capacité est prise en charge ?",
+      "choices": [
+        "Sauvegarder automatiquement les journaux sur un serveur distant",
+        "Appliquer un changement temporairement avec une confirmation requise avant l’expiration, afin de revenir en arrière si elle n’arrive pas",
+        "Garantir que toute modification est compatible avec tous les modèles YANG",
+        "Remplacer l’authentification de la session"
+      ],
+      "answer": 1,
+      "explanation": "Le commit confirmé protège certains changements distants risqués : le client confirme dans le délai requis après avoir vérifié l’accès et le comportement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un workflow rencontre un verrou NETCONF détenu par une autre session. Quelle réaction convient ?",
+      "choices": [
+        "Envoyer systématiquement un unlock forcé",
+        "Supprimer le datastore running",
+        "Identifier la session propriétaire et suivre une procédure coordonnée avant toute tentative de déverrouillage",
+        "Désactiver le contrôle de concurrence"
+      ],
+      "answer": 2,
+      "explanation": "Un verrou peut protéger une transaction active. Le supprimer sans diagnostic peut permettre des modifications concurrentes et rendre l’état imprévisible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie de déploiement est adaptée à une nouvelle révision de modèle YANG ?",
+      "choices": [
+        "Remplacer immédiatement tous les modèles et les fichiers de configuration en production",
+        "Ignorer les écarts de schéma tant que la connexion SSH réussit",
+        "Désactiver les validateurs pour tous les clients",
+        "Comparer les modules et révisions pris en charge, tester la compatibilité sur les versions cibles et préparer une migration réversible"
+      ],
+      "answer": 3,
+      "explanation": "La compatibilité doit être vérifiée à la fois côté client et serveur. Un nouveau modèle peut changer les types, contraintes, chemins ou comportements autorisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert `rollback-on-error` dans une opération NETCONF lorsque la capacité est implémentée ?",
+      "choices": [
+        "Demander le retour arrière d’une édition de configuration en cas d’erreur, selon la sémantique du serveur",
+        "Restaurer systématiquement les données d’une base SQL",
+        "Augmenter le délai d’attente SSH sans limite",
+        "Supprimer les journaux des opérations précédentes"
+      ],
+      "answer": 0,
+      "explanation": "Cette capacité peut limiter les effets partiels d’une édition qui échoue, mais son existence et sa sémantique doivent être confirmées dans les capacités du serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un commit est accepté, mais un service réseau ne fonctionne toujours pas. Quelle preuve manque ?",
+      "choices": [
+        "Un message `hello` quelconque sur une autre session",
+        "Une validation après application de l’état opérationnel et des critères métier du service",
+        "Un nom de fichier YANG identique sur tous les appareils",
+        "Une réponse HTTP d’un site sans rapport avec le changement"
+      ],
+      "answer": 1,
+      "explanation": "Un succès de protocole montre que l’opération a été acceptée, pas que le service est correct. Vérifie les données opérationnelles, la connectivité et les tests métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il sérialiser ou coordonner les workflows qui modifient le même datastore ?",
+      "choices": [
+        "Parce que YANG exige qu’un seul équipement existe dans le réseau",
+        "Pour éviter que les messages XML soient compressés",
+        "Pour éviter les conflits d’écriture et que plusieurs changements s’écrasent ou s’appliquent sur une base devenue obsolète",
+        "Parce que toutes les requêtes NETCONF changent obligatoirement la configuration"
+      ],
+      "answer": 2,
+      "explanation": "Le verrouillage, la validation et la vérification de l’état de départ permettent de gérer la concurrence. Le workflow doit avoir une stratégie claire pour les délais et les sessions abandonnées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble d’éléments rend un changement NETCONF auditable ?",
+      "choices": [
+        "Uniquement la dernière ligne du terminal opérateur",
+        "Le mot de passe enregistré dans le journal d’exécution",
+        "Une capture d’écran non horodatée",
+        "L’identité, la cible, les capacités/modèles, le changement validé, l’approbation, les réponses, l’état post-déploiement et l’éventuel rollback"
+      ],
+      "answer": 3,
+      "explanation": "Une piste d’audit doit relier l’intention, les validations, l’autorisation, la réponse du protocole et le résultat observé, sans exposer les secrets."
     }
   ]
 }

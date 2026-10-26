@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IP SLA & NetFlow - Intermédiaire",
+      "prompt": "Dans un flow record, pourquoi faut-il choisir avec soin les champs `match` ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Ils définissent l’agrégation : trop de clés peuvent multiplier le nombre d’entrées et augmenter la cardinalité",
+        "Ils définissent toujours le protocole de transport Syslog",
+        "Ils changent les adresses de destination dans les paquets",
+        "Ils remplacent les compteurs d’octets par des mots de passe"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les clés déterminent quand deux paquets sont considérés comme appartenant au même flux. Des champs trop détaillés peuvent consommer le cache et rendre l’analyse difficile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence pratique existe entre un active timeout et un inactive timeout NetFlow ?",
+      "choices": [
+        "Active timeout concerne NTP et inactive timeout les journaux Syslog",
+        "L’inactive timeout exporte après une période sans activité ; l’active timeout exporte périodiquement les flux qui restent actifs",
+        "Active timeout supprime toutes les entrées à chaque paquet",
+        "Ils signifient tous deux la durée totale de vie maximale d’un routeur"
+      ],
+      "answer": 1,
+      "explanation": "Le délai inactif favorise un export après la fin apparente d’une conversation ; le délai actif permet d’obtenir des mises à jour pour les flux longs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les datagrammes IPFIX/NetFlow v9 atteignent le serveur mais les flux ne se décodent pas correctement. Quelle cause est plausible ?",
+      "choices": [
+        "L’adresse du routeur doit forcément être remplacée",
+        "Le serveur NTP est au stratum 2",
+        "Le collecteur n’a pas reçu ou ne possède pas le template nécessaire pour interpréter les champs exportés",
+        "L’interface observée est obligatoirement en mode half-duplex"
+      ],
+      "answer": 2,
+      "explanation": "NetFlow v9 et IPFIX reposent sur des templates. Une perte de template ou une incompatibilité de session peut empêcher le décodage correct de données arrivées pourtant au collecteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi exporter des données NetFlow en UDP exige-t-il de contrôler la perte sur le chemin ?",
+      "choices": [
+        "UDP chiffre automatiquement tout le contenu",
+        "UDP impose toujours un ordre strict de réception",
+        "UDP remplace le besoin de templates",
+        "UDP ne garantit ni livraison ni retransmission des datagrammes exportés"
+      ],
+      "answer": 3,
+      "explanation": "L’export UDP est courant, mais une congestion ou un filtrage peut perdre des datagrammes. Le collecteur et l’exportateur doivent être surveillés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les volumes NetFlow ne correspondent pas aux compteurs d’interface. Quelle première méthode d’analyse convient ?",
+      "choices": [
+        "Comparer les points d’observation, les directions, le sampling, les champs de compteur et la période de mesure",
+        "Conclure immédiatement à un bug et supprimer le cache",
+        "Activer toutes les interfaces dans toutes les directions sans documenter",
+        "Modifier la capacité physique du lien"
+      ],
+      "answer": 0,
+      "explanation": "Les observations peuvent différer par leur point, leur direction, leur granularité, le sampling et le moment de lecture. Ces différences doivent être normalisées avant comparaison."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi valider un monitor sur la bonne interface et la bonne direction avant le déploiement global ?",
+      "choices": [
+        "Pour que l’exporteur arrête d’envoyer les templates",
+        "Pour s’assurer que l’information collectée correspond à la question opérationnelle et qu’on ne compte pas inutilement deux fois le trafic",
+        "Pour rendre la mesure indépendante des routes",
+        "Pour supprimer tous les flux à faible volume"
+      ],
+      "answer": 1,
+      "explanation": "L’observation doit correspondre au périmètre attendu. Un placement incorrect peut donner une vue incomplète ou conduire à des doubles comptes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt de corréler IP SLA, NetFlow et les compteurs d’interface ?",
+      "choices": [
+        "Produire une preuve absolue qu’aucun paquet n’a été perdu",
+        "Remplacer les tests applicatifs et les captures dans tous les cas",
+        "Combiner une mesure active de qualité, la vue des conversations et les compteurs du chemin pour mieux isoler la cause",
+        "Garantir que tous les champs NetFlow sont exacts sur chaque constructeur"
+      ],
+      "answer": 2,
+      "explanation": "Les trois sources répondent à des questions différentes. Leur corrélation renforce l’analyse mais ne dispense pas d’étudier les limites de chaque mesure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un changement de record fait chuter le nombre de flux dans le collecteur. Que vérifier avant de conclure à une baisse réelle du trafic ?",
+      "choices": [
+        "Modifier le routage par défaut sans tests",
+        "Considérer que le volume de trafic est nécessairement nul",
+        "Désactiver les contrôles de collecte",
+        "Comparer les champs et la version du record, la capacité du cache, le sampling et le décodage côté collecteur"
+      ],
+      "answer": 3,
+      "explanation": "Une baisse d’entrées peut venir de l’agrégation, d’un échantillonnage modifié ou d’un problème d’export/décodage. Vérifie le contrat de données et les métriques de la chaîne."
     }
   ]
 }
