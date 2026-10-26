@@ -4717,7 +4717,20 @@
         norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); },
         notify(text) { this.toast = { show: true, text }; clearTimeout(this._toastT); this._toastT = setTimeout(() => { this.toast.show = false; }, 4200); },
         celebrate() { try { if (window.confetti) window.confetti({ particleCount: 140, spread: 75, origin: { y: 0.65 } }); } catch (e) { } },
-        saveFile(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); },
+        saveFile(name, blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = name;
+          a.hidden = true;
+          document.body.appendChild(a);
+          a.click();
+          // Laisser le navigateur amorcer le téléchargement avant de retirer le lien.
+          window.setTimeout(() => {
+            a.remove();
+            URL.revokeObjectURL(url);
+          }, 1200);
+        },
         fmtClock(sec) { const s = Math.max(0, sec | 0); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); },
 
         // ---------- modules et niveaux ----------
