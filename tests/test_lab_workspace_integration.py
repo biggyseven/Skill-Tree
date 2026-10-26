@@ -102,7 +102,7 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
     def test_workspace_uses_single_panel_navigation_below_desktop_breakpoint(self):
         app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
 
-        self.assertIn("const [mobilePane, setMobilePane] = useState('canvas')", app)
+        self.assertIn("const [mobilePane, setMobilePane] = useState('brief')", app)
         self.assertIn('aria-label="Panneaux du laboratoire"', app)
         self.assertIn("onClick={() => setMobilePane('brief')}", app)
         self.assertIn("onClick={() => setMobilePane('canvas')}", app)
