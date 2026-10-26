@@ -40,6 +40,13 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Titre du cours", DASHBOARD_HTML)
         self.assertIn("Sous-section", DASHBOARD_HTML)
         self.assertIn("readable.querySelectorAll('li, p, blockquote, figcaption')", DASHBOARD_HTML)
+        self.assertIn('id="lesson-section-index"', DASHBOARD_HTML)
+        self.assertIn("lesson-section-back", DASHBOARD_HTML)
+        self.assertIn("Retour au sommaire des sections", DASHBOARD_HTML)
+        self.assertIn("Sections du cours sur mobile", DASHBOARD_HTML)
+        self.assertIn("block.append(readable.ownerDocument.createTextNode('\\n'))", DASHBOARD_HTML)
+        self.assertNotIn("createTextNode('.\\n')", DASHBOARD_HTML)
+        self.assertNotIn("replace(/([^\\n.!?…:;])\\n(?=\\S)/gu, '$1.\\n')", DASHBOARD_HTML)
 
     def test_mobile_search_dialog_uses_shared_search_state(self):
         self.assertIn('role="dialog" aria-modal="true" aria-labelledby="mobile-search-title"', DASHBOARD_HTML)

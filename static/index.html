@@ -91,6 +91,18 @@
     .lesson-reader-grid { min-height: 100%; }
     .lesson-toc-panel { scrollbar-width: thin; scrollbar-color: rgb(var(--z-600)) transparent; }
     .lesson-toc-panel nav a { display: block; overflow-wrap: anywhere; border-radius: .65rem; margin: .12rem 0; padding: .55rem .7rem; }
+    .lesson-prose .lesson-section-back {
+      display: inline-flex; align-items: center; gap: .35rem; width: max-content;
+      max-width: 100%; margin-top: .7rem; padding: .38rem .65rem;
+      border: 1px solid rgb(var(--w) / .12); border-radius: .65rem;
+      color: rgb(var(--z-300)) !important; font-size: .72rem; font-weight: 600;
+      line-height: 1.35; letter-spacing: 0; text-decoration: none;
+      background: rgb(var(--w) / .035); vertical-align: middle;
+    }
+    .lesson-prose .lesson-section-back:hover {
+      border-color: rgb(var(--violet-300) / .4); background: rgb(var(--violet-300) / .08);
+      color: #ddd6fe !important;
+    }
     .lesson-content { padding: clamp(1rem, 2.1vw, 2rem); border: 1px solid rgb(var(--w) / .07); border-radius: 1.25rem; background: color-mix(in srgb, var(--s1) 78%, transparent); }
     .lesson-content .lesson-prose { max-width: 100%; }
     .lesson-content .lesson-prose.lesson-width-comfortable { max-width: min(100%, 82ch); margin-inline: auto; }
@@ -1664,7 +1676,23 @@
                   </nav>
                 </aside>
 
-                <div class="lesson-content min-w-0 w-full max-w-none">
+                <div id="lesson-section-index" class="lesson-content min-w-0 w-full max-w-none">
+                  <details x-show="lessonToc.length" class="mb-4 rounded-xl border border-white/10 bg-[color:var(--s2)] p-3 lg:hidden">
+                    <summary class="cursor-pointer select-none list-none text-sm font-semibold text-violet-200">
+                      <span aria-hidden="true">☷</span> Sections du cours
+                      <span class="ml-1 text-xs font-normal text-zinc-400" x-text="'(' + lessonToc.length + ')'"></span>
+                    </summary>
+                    <nav class="mt-3 grid gap-1 border-t border-white/10 pt-3" aria-label="Sections du cours sur mobile">
+                      <template x-for="item in lessonToc" :key="'mobile-' + item.id">
+                        <a :href="'#' + item.id"
+                           @click.prevent="goToSection(item.id); $el.closest('details').open = false"
+                           class="rounded-lg px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/5 hover:text-white"
+                           :class="activeSection === item.id ? 'bg-emerald-400/10 text-emerald-200' : ''"
+                           x-text="item.text"></a>
+                      </template>
+                    </nav>
+                  </details>
+
                   <!-- Lecteur vocal intégré au cours -->
                   <section class="mb-5 rounded-2xl border border-cyan-400/20 bg-cyan-500/[0.045] p-4 sm:p-5" aria-label="Lecture vocale du cours">
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -2334,6 +2362,13 @@
             const text = h.textContent.trim();
             h.id = `sec-${i}-${this.slugify(text)}`;
             toc.push({ id: h.id, text });
+
+            const backLink = document.createElement('a');
+            backLink.href = '#lesson-section-index';
+            backLink.className = 'lesson-section-back no-speech';
+            backLink.setAttribute('aria-label', 'Retour au sommaire des sections');
+            backLink.textContent = '↑ Retour aux sections';
+            h.appendChild(backLink);
           });
           this.lessonToc = toc;
 
@@ -2971,18 +3006,14 @@
             if (!title) return;
             const label = depth === 1 ? 'Titre du cours' : (depth === 2 ? 'Section' : 'Sous-section');
             const spokenHeading = readable.ownerDocument.createElement('p');
-            spokenHeading.textContent = label + ' : ' + title.replace(/[.!?…:;]+$/u, '') + '.\n';
+            spokenHeading.textContent = label + ' : ' + title.replace(/[.!?…:;]+$/u, '') + '\n';
             heading.replaceWith(spokenHeading);
           });
 
           // Chaque élément de liste devient une phrase pour éviter une lecture sans pauses.
           readable.querySelectorAll('li, p, blockquote, figcaption').forEach(block => {
-            const text = String(block.innerText || block.textContent || '').trim();
-            if (text && !/[.!?…:;]$/u.test(text)) {
-              block.append(readable.ownerDocument.createTextNode('.\n'));
-            } else {
-              block.append(readable.ownerDocument.createTextNode('\n'));
-            }
+            // Keep punctuation authored in the lesson. Add only a line boundary, never a synthetic full stop.
+            block.append(readable.ownerDocument.createTextNode('\n'));
           });
 
           return (readable.innerText || readable.textContent || '')
@@ -3340,7 +3371,6 @@
             .replace(/\x60([^\x60]+)\x60/gu, '$1')
             .replace(/\[([^\]]+)\]\([^)]+\)/gu, '$1')
             .replace(/^\s*>\s?/gmu, '')
-            .replace(/([^\n.!?…:;])\n(?=\S)/gu, '$1.\n')
             .replace(/\n{3,}/gu, '\n\n')
             .trim();
           this.startSpeech(spoken, 'tutor');
