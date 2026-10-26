@@ -57,6 +57,7 @@ def _read_nodes(nodes_path: Path) -> dict[str, dict[str, Any]]:
         nodes[node_id] = {
             "id": node_id,
             "title": str(item.get("title") or node_id),
+            "module": str(item.get("module") or item.get("category") or ""),
             "prereqs": [str(value) for value in prereqs if isinstance(value, str)],
             "requirements": normalized_requirements,
         }
@@ -219,7 +220,7 @@ def audit_database(db_path: Path, nodes_path: Path) -> dict[str, Any]:
             locked_labs.append({
                 "id": node_id,
                 "title": node["title"],
-                "module": "",
+                "module": node.get("module", ""),
                 "blockers": blockers,
             })
 
@@ -255,6 +256,7 @@ def audit_database(db_path: Path, nodes_path: Path) -> dict[str, Any]:
             "lab_catalog_count": lab_catalog_count,
             "validated_node_count": len(validated),
             "status_counts": dict(status_counts),
+            "node_statuses": statuses,
             "lab_required_node_count": len(lab_nodes),
             "accessible_lab_count": accessible_labs,
             "locked_lab_count": len(locked_labs),
@@ -298,6 +300,18 @@ def print_report(report: dict[str, Any], *, show_all: bool = False) -> None:
         f"Progression enregistrée : {report['attempt_count']} tentative(s) de cours ; "
         f"{report['lab_attempt_count'] if report['lab_attempt_count'] is not None else 'table absente'} "
         "tentative(s) Lab Workspace"
+    )
+    print(
+        "Entrées dans le catalogue Lab Workspace : "
+        f"{report['lab_catalog_count'] if report['lab_catalog_count'] is not None else 'table absente'}"
+    )
+    counts = report["status_counts"]
+    print(
+        "Statuts calculés depuis content/ et les tentatives : "
+        f"{counts.get('validé', 0)} validés ; "
+        f"{counts.get('disponible', 0)} disponibles ; "
+        f"{counts.get('en cours', 0)} en cours ; "
+        f"{counts.get('verrouillé', 0)} verrouillés"
     )
     print(
         "Nœuds validés selon les exigences actuelles : "
