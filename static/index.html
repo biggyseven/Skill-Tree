@@ -3949,6 +3949,70 @@
             .replace(/\s+([,.;:!?])/gu, '$1')
             .trim();
         },
+        speechInterpretEdge(from, to, label = '', bidirectional = false) {
+          const source = String(from || '').trim();
+          const destination = String(to || '').trim();
+          const meaning = String(label || '').trim();
+          const normalizedMeaning = meaning.normalize('NFD')
+            .replace(/\p{Diacritic}/gu, '')
+            .toLocaleLowerCase('fr-FR')
+            .replace(/[^a-z0-9+]+/gu, ' ')
+            .trim();
+          if (bidirectional) {
+            return 'Les blocs « ' + source + ' » et « ' + destination + ' » échangent des informations dans les deux sens.';
+          }
+          if (!meaning) {
+            return 'Le flux d’information va du bloc « ' + source + ' » au bloc « ' + destination + ' ».';
+          }
+          if (/^(?:https?|ssh|dns|dhcp|snmp|ntp|icmp|ipsec|wireguard|tls|tcp|udp|sftp|ftp|smtp|imap|pop3|radius|tacacs\+?)(?:\s|$)/u.test(normalizedMeaning)) {
+            return 'Le bloc « ' + source + ' » communique avec le bloc « ' + destination + ' » en utilisant ' + meaning + '.';
+          }
+          if (/^(?:requete|demande|commande|message|reponse|donnees|donnee|paquet|trame|fichier|jeton|token|evenement|alerte|signal|flux|transaction|configuration|resultat)(?:\s|$)/u.test(normalizedMeaning)) {
+            const verb = /^(?:requete|demande|commande)(?:\s|$)/u.test(normalizedMeaning) ? 'envoie' : 'transmet';
+            return 'Le bloc « ' + source + ' » ' + verb + ' « ' + meaning + ' » au bloc « ' + destination + ' ».';
+          }
+          return 'Le bloc « ' + source + ' » transmet l’information « ' + meaning + ' » au bloc « ' + destination + ' ».';
+        },
+        speechSummarizeFlowEdges(edges) {
+          const uniqueEdges = [];
+          (Array.isArray(edges) ? edges : []).forEach(edge => {
+            if (!edge || !edge.from || !edge.to || edge.bidirectional) return;
+            if (!uniqueEdges.some(item => item.from === edge.from && item.to === edge.to)) {
+              uniqueEdges.push({ from: edge.from, to: edge.to });
+            }
+          });
+          if (uniqueEdges.length < 2) return '';
+          const incoming = new Map();
+          const outgoing = new Map();
+          uniqueEdges.forEach(edge => {
+            if (!incoming.has(edge.to)) incoming.set(edge.to, []);
+            if (!incoming.get(edge.to).includes(edge.from)) incoming.get(edge.to).push(edge.from);
+            if (!outgoing.has(edge.from)) outgoing.set(edge.from, []);
+            if (!outgoing.get(edge.from).includes(edge.to)) outgoing.get(edge.from).push(edge.to);
+          });
+          const convergence = Array.from(incoming.entries()).find(([, sources]) => sources.length > 1);
+          if (convergence) {
+            return 'Les flux issus des blocs ' + convergence[1].map(value => '« ' + value + ' »').join(' et ')
+              + ' convergent vers le bloc « ' + convergence[0] + ' ».';
+          }
+          const roots = Array.from(outgoing.keys()).filter(node => !(incoming.get(node) || []).length);
+          if (roots.length !== 1) return '';
+          const path = [roots[0]];
+          const visited = new Set(path);
+          let current = roots[0];
+          while ((outgoing.get(current) || []).length === 1) {
+            const next = outgoing.get(current)[0];
+            if (visited.has(next)) break;
+            path.push(next);
+            visited.add(next);
+            current = next;
+            if (path.length > uniqueEdges.length + 1) break;
+          }
+          if (path.length < 3) return '';
+          return 'Le parcours principal commence au bloc « ' + path[0] + ' », passe ensuite par '
+            + path.slice(1, -1).map(value => '« ' + value + ' »').join(', puis ')
+            + ', puis arrive au bloc « ' + path[path.length - 1] + ' ».';
+        },
         speechTextFromTabularRows(headers, dataRows, title = 'Tableau de données.') {
           const spoken = [title];
           const headerKey = value => String(value || '')
@@ -3977,6 +4041,29 @@
             if (header) return 'la valeur pour ' + String(header).toLocaleLowerCase('fr-FR') + ' est ' + quoted(value);
             return 'la valeur est ' + quoted(value);
           };
+          const headerKeys = headers.map(headerKey);
+          const firstHeaderKey = headerKeys[0] || '';
+          const isStepColumn = /^(?:etape|phase|ordre|sequence|numero|rang|n)$/u.test(firstHeaderKey);
+          const actionIndex = headerKeys.findIndex(key => /^(?:action|operation|traitement|action realisee|operation realisee)$/u.test(key));
+          const resultIndex = headerKeys.findIndex(key => /^(?:resultat|sortie|effet|issue|consequence)$/u.test(key));
+          const causeIndex = headerKeys.findIndex(key => /^(?:cause|declencheur|evenement initial)$/u.test(key));
+          const protocolIndex = headerKeys.findIndex(key => /^(?:protocole|protocol)$/u.test(key));
+          const portIndex = headerKeys.findIndex(key => /^ports?$|^port reseau$/u.test(key));
+          const usageIndex = headerKeys.findIndex(key => /^(?:usage|utilite|service)$/u.test(key));
+          if (!dataRows.length) {
+            spoken.push('Le tableau ne contient aucune ligne de données.');
+            return spoken;
+          }
+
+          if (actionIndex >= 0 && resultIndex >= 0) {
+            spoken.push('Ce tableau décrit un déroulement en plusieurs étapes : chaque ligne indique une action et le résultat qu’elle produit.');
+          } else if (causeIndex >= 0 && resultIndex >= 0) {
+            spoken.push('Ce tableau explique des liens de cause à effet : chaque cause est associée à la conséquence indiquée sur la même ligne.');
+          } else if (protocolIndex >= 0 && portIndex >= 0 && usageIndex >= 0) {
+            spoken.push('Ce tableau associe chaque protocole au port réseau qu’il utilise et à l’usage correspondant.');
+          } else if (headers.length > 1) {
+            spoken.push('Chaque ligne décrit un élément et précise ses caractéristiques. Pour comprendre le sens du tableau, il faut lire ensemble les valeurs d’une même ligne.');
+          }
 
           if (headers.length > 1) {
             const details = headers.slice(1).map(value => String(value || '').trim()).filter(Boolean);
@@ -3987,18 +4074,35 @@
             spoken.push('La colonne porte sur ' + String(headers[0]).toLocaleLowerCase('fr-FR') + '.');
           }
 
-          const firstHeaderKey = headerKey(headers[0] || '');
-          const isStepColumn = /^(?:etape|phase|ordre|sequence|numero|rang|n)$/u.test(firstHeaderKey);
-          if (!dataRows.length) {
-            spoken.push('Le tableau ne contient aucune ligne de données.');
-            return spoken;
-          }
-
           dataRows.forEach((row, rowIndex) => {
             const values = Array.isArray(row) ? row : (row && Array.isArray(row.values) ? row.values : []);
             if (!values.length) return;
             const subject = String(values[0] || '').trim();
             const details = values.slice(1).map((value, index) => fieldPhrase(headers[index + 1] || '', value));
+
+            if (causeIndex >= 0 && resultIndex >= 0 && causeIndex !== resultIndex) {
+              const cause = String(values[causeIndex] || '').trim();
+              const effect = String(values[resultIndex] || '').trim();
+              if (cause && effect) {
+                spoken.push('Lorsque ' + quoted(cause) + ' se produit, cela entraîne ' + quoted(effect) + '.');
+                return;
+              }
+            }
+
+            if (actionIndex >= 0 && resultIndex >= 0) {
+              const action = String(values[actionIndex] || '').trim();
+              const result = String(values[resultIndex] || '').trim();
+              const step = isStepColumn ? subject : String(rowIndex + 1);
+              const prefix = isStepColumn ? 'À l’étape ' + step : 'Dans la ligne ' + (rowIndex + 1);
+              if (action && result) {
+                spoken.push(prefix + ', l’action consiste à ' + quoted(action) + '. Elle produit le résultat suivant : ' + quoted(result) + '.');
+                return;
+              }
+              if (action) {
+                spoken.push(prefix + ', l’action consiste à ' + quoted(action) + '.');
+                return;
+              }
+            }
 
             if (isStepColumn && subject) {
               spoken.push('Étape ' + subject + (details.length ? ' : ' + details.join('; ') : '') + '.');
@@ -4016,6 +4120,17 @@
             });
             spoken.push('Ligne ' + (rowIndex + 1) + ', ' + fields.join('; ') + '.');
           });
+
+          if (protocolIndex >= 0 && portIndex >= 0 && usageIndex >= 0) {
+            const valuesOf = row => Array.isArray(row) ? row : (row && Array.isArray(row.values) ? row.values : []);
+            const http = dataRows.map(valuesOf).find(values => headerKey(values[protocolIndex]) === 'http');
+            const https = dataRows.map(valuesOf).find(values => headerKey(values[protocolIndex]) === 'https');
+            if (http && https) {
+              spoken.push('À retenir : le tableau associe HTTP au port ' + String(http[portIndex] || 'non renseigné')
+                + ' et HTTPS au port ' + String(https[portIndex] || 'non renseigné')
+                + '. Il distingue ainsi les deux protocoles par le port utilisé et par l’usage indiqué pour chacun.');
+            }
+          }
           return spoken;
         },
         speechTextFromTable(table) {
@@ -4080,6 +4195,7 @@
             .replace(/^(?:client|serveur|routeur|switch|firewall|internet)\s*$/iu, match => match);
           const relationships = [];
           const labels = [];
+          const edges = [];
           const addLabel = value => {
             const label = labelFor(value);
             if (label && !/^[|+\-_=<>~.\s]+$/u.test(label) && !labels.some(item => item.toLocaleLowerCase('fr-FR') === label.toLocaleLowerCase('fr-FR'))) labels.push(label);
@@ -4118,6 +4234,11 @@
                 ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
                 : 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés verticalement';
             if (!relationships.includes(relation)) relationships.push(relation);
+            if (pointsUp !== pointsDown) {
+              edges.push({ from, to, label: '' });
+              const explanation = this.speechInterpretEdge(from, to, '');
+              if (!relationships.includes(explanation)) relationships.push(explanation);
+            }
           }
 
           const relationLine = line => {
@@ -4142,14 +4263,34 @@
               if (/^(?:<--|<-|←|↑|⇧)$/u.test(arrow)) [from, to] = [to, from];
               addLabel(from);
               addLabel(to);
-              const relation = /^(?:<-->|<->|↔)$/u.test(arrow)
+              const bidirectional = /^(?:<-->|<->|↔)$/u.test(arrow);
+              const relation = bidirectional
                 ? 'Les blocs « ' + from + ' » et « ' + to + ' » communiquent dans les deux sens'
                 : 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »';
               if (!relationships.includes(relation)) relationships.push(relation);
+              edges.push({ from, to, label: '', bidirectional });
+              const explanation = this.speechInterpretEdge(from, to, '', bidirectional);
+              if (!relationships.includes(explanation)) relationships.push(explanation);
             }
           };
           lines.forEach(line => {
             if (isConnectorOnlyLine(line)) return;
+            const labelledTextArrow = line.match(/^\s*(.+?)\s*(?:--|==)\s*([^<>|]+?)\s*(?:-->|==>|->|=>|→|⇒)\s*(.+?)\s*$/u);
+            if (labelledTextArrow) {
+              const from = normalizeSegment(labelledTextArrow[1]);
+              const label = normalizeSegment(labelledTextArrow[2]);
+              const to = normalizeSegment(labelledTextArrow[3]);
+              if (from && label && to) {
+                addLabel(from);
+                addLabel(to);
+                const relation = 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' » en précisant « ' + label + ' »';
+                if (!relationships.includes(relation)) relationships.push(relation);
+                const explanation = this.speechInterpretEdge(from, to, label);
+                if (!relationships.includes(explanation)) relationships.push(explanation);
+                edges.push({ from, to, label });
+                return;
+              }
+            }
             relationLine(line);
             const withoutBorders = line
               .replace(/[┌┐└┘├┤┬┴┼─━│┃╭╮╰╯╔╗╚╝╠╣╦╩╬║]/gu, ' ')
@@ -4161,7 +4302,9 @@
             }
           });
           const spoken = [];
-          if (relationships.length) spoken.push('Schéma textuel. ' + relationships.map(value => value + '.').join(' '));
+          if (relationships.length) spoken.push('Schéma textuel. ' + relationships.map(value => value.endsWith('.') ? value : value + '.').join(' '));
+          const flowSummary = this.speechSummarizeFlowEdges(edges);
+          if (flowSummary) spoken.push(flowSummary);
           const unmentioned = labels.filter(label => !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR'))));
           if (unmentioned.length) spoken.push('Autres éléments représentés : ' + unmentioned.join(', ') + '.');
           const connectorOnlyLines = lines.filter(isConnectorOnlyLine).length;
@@ -4199,6 +4342,7 @@
             return nodes.get(id) || id.replace(/[-_]+/gu, ' ');
           };
           const relationships = [];
+          const edges = [];
           const seen = new Set();
           const addRelation = value => {
             const clean = this.cleanSpeechVisualText(value);
@@ -4229,10 +4373,13 @@
             let from = resolveNode(edge.from);
             let to = resolveNode(edge.to);
             if (/^(?:<--|<-|←)$/u.test(edge.arrow)) [from, to] = [to, from];
-            const relation = /^(?:<-->|<->|↔)$/u.test(edge.arrow)
+            const bidirectional = /^(?:<-->|<->|↔)$/u.test(edge.arrow);
+            const relation = bidirectional
               ? 'Les blocs « ' + from + ' » et « ' + to + ' » communiquent dans les deux sens'
               : 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »';
             addRelation(relation + (edge.label ? ' en passant par ' + edge.label : '') + '.');
+            addRelation(this.speechInterpretEdge(from, to, edge.label, bidirectional));
+            edges.push({ from, to, label: edge.label, bidirectional });
           }
 
           const svgLabels = [];
@@ -4252,7 +4399,9 @@
             if (!allLabels.some(item => item.toLocaleLowerCase('fr-FR') === value.toLocaleLowerCase('fr-FR'))) allLabels.push(value);
           });
           const spoken = [];
-          if (relationships.length) spoken.push('Voici comment les blocs sont reliés. ' + relationships.join(' '));
+          if (relationships.length) spoken.push('Voici ce qui se passe dans le schéma. ' + relationships.join(' '));
+          const flowSummary = this.speechSummarizeFlowEdges(edges);
+          if (flowSummary) spoken.push(flowSummary);
           const otherLabels = allLabels.filter(label =>
             !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR')))
           );
@@ -4318,7 +4467,13 @@
             const visualCopy = root.cloneNode(true);
             visualCopy.querySelectorAll('.lesson-diagram-toolbar, .lesson-diagram-guide, .code-header, .lesson-diagram-kind, figcaption, button, script, style, [aria-hidden="true"]').forEach(node => node.remove());
             const visualText = this.cleanSpeechVisualText(visualCopy.innerText || visualCopy.textContent || '');
-            if (visualText) spoken.push('Le schéma se lit ainsi : ' + visualText + '.');
+            if (visualText) {
+              spoken.push('Le schéma se lit ainsi : ' + visualText + '.');
+              const route = visualText.split(/\s+va vers\s+/u).map(value => value.trim()).filter(Boolean);
+              if (route.length >= 2) {
+                spoken.push('Le parcours représenté part de « ' + route[0] + ' » et se poursuit vers « ' + route[route.length - 1] + ' ». Le premier élément transmet donc le flux au bloc suivant.');
+              }
+            }
           }
           if (image) {
             const alt = this.cleanSpeechVisualText(image.getAttribute('alt') || image.getAttribute('title') || '');
