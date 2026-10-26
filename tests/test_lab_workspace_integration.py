@@ -105,16 +105,26 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("previousCheck.stale", bridge)
         self.assertIn("topologySnapshot", bridge)
 
-    def test_locked_course_lab_is_explained_and_blocked_in_the_workspace(self):
+    def test_locked_course_lab_allows_practice_but_blocks_submission_in_workspace(self):
         app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
         brief = (ROOT / "app" / "lab-workspace" / "src" / "brief" / "BriefPanel.jsx").read_text(encoding="utf-8-sig")
         toolbar = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "TopologyToolbar.jsx").read_text(encoding="utf-8")
         bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
 
         self.assertIn("courseLocked: data.course_locked === true", app)
-        self.assertIn("Laboratoire verrouillé", brief)
-        self.assertIn("lab?.courseLocked === true", toolbar)
-        self.assertIn("initial.lab.courseLocked === true", bridge)
+        self.assertIn("Laboratoire verrouillé — mode entraînement", brief)
+        self.assertIn("practice_only", brief)
+        self.assertIn("practice_only", toolbar)
+        self.assertIn("const submitDisabled =", toolbar)
+        submit_guard = toolbar[toolbar.index("const submitDisabled ="):]
+        self.assertIn("lab?.courseLocked === true", submit_guard)
+
+        check_handler = bridge[
+            bridge.index("window.addEventListener('lab:check'"):
+            bridge.index("window.addEventListener('lab:submit'")
+        ]
+        self.assertNotIn("courseLocked === true", check_handler)
+        self.assertIn("window.addEventListener('lab:submit'", bridge)
 
     def test_free_workspace_and_demo_do_not_run_graded_checks(self):
         brief = (ROOT / "app" / "lab-workspace" / "src" / "brief" / "BriefPanel.jsx").read_text(encoding="utf-8-sig")
