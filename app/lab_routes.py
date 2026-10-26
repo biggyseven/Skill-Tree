@@ -89,7 +89,7 @@ def _database_connection() -> sqlite3.Connection:
     db_path = Path(os.environ.get("SKILLTREE_DB", str(DEFAULT_DB))).expanduser()
     try:
         return connect(db_path)
-    except sqlite3.Error as error:
+    except sqlite3.ERROR_CLASSES as error:
         raise HTTPException(status_code=503, detail=f"Base SQLite indisponible : {error}")
 
 
@@ -185,7 +185,7 @@ def _fetch_lab(lab_id: str) -> dict[str, Any]:
     except HTTPException as error:
         # Une DB absente/indisponible ne doit pas empêcher un lab fichier de s'ouvrir.
         db_issue = str(error.detail)
-    except sqlite3.Error as error:
+    except sqlite3.ERROR_CLASSES as error:
         db_issue = str(error)
 
     if conn is not None:
@@ -237,7 +237,7 @@ def _fetch_lab(lab_id: str) -> dict[str, Any]:
                         )
             else:
                 db_issue = "la table labs n'existe pas ou ne contient pas de colonne id"
-        except sqlite3.Error as error:
+        except sqlite3.ERROR_CLASSES as error:
             db_issue = str(error)
         finally:
             conn.close()
@@ -372,7 +372,7 @@ def _course_lab_context(conn: sqlite3.Connection, lab_id: str) -> dict[str, Any]
                 for prerequisite in missing_prerequisites
             ],
         }
-    except (sqlite3.Error, DomainError, KeyError, TypeError, ValueError):
+    except sqlite3.ERROR_CLASSES + (DomainError, KeyError, TypeError, ValueError):
         # Un lab autonome reste utilisable même si aucune correspondance de parcours
         # n'existe ou si la base ne possède pas le schéma complet du skill tree.
         return None
@@ -808,10 +808,10 @@ def submit_lab_v2(lab_id: str, body: SubmitRequest) -> dict[str, Any]:
     except HTTPException:
         conn.rollback()
         raise
-    except sqlite3.IntegrityError as error:
+    except sqlite3.INTEGRITY_ERROR_CLASSES as error:
         conn.rollback()
         raise HTTPException(status_code=409, detail=f"Impossible d'enregistrer la tentative : {error}")
-    except sqlite3.Error as error:
+    except sqlite3.ERROR_CLASSES as error:
         conn.rollback()
         raise HTTPException(status_code=500, detail=f"Erreur SQLite pendant la soumission : {error}")
     finally:
@@ -1218,7 +1218,7 @@ def get_lab_lock_diagnostic(
     ).expanduser()
     try:
         return _build_lab_lock_diagnostic(database_path, DIAGNOSTIC_NODES_PATH)
-    except (OSError, UnicodeError, ValueError, sqlite3.Error):
+    except (OSError, UnicodeError, ValueError) + sqlite3.ERROR_CLASSES:
         # Les détails internes (chemins, SQL et configuration) ne doivent pas être exposés.
         raise HTTPException(
             status_code=503,
