@@ -12,6 +12,11 @@ PRIORITY_TRACKS = {
     "dhcp-dns": ("dhcp-dns-debutant", "dhcp-dns-intermediaire", "dhcp-dns-expert"),
     "equipment": ("equipment-debutant", "equipment-intermediaire", "equipment-expert"),
     "ddos-mitigation": ("ddos-mitigation-debutant", "ddos-mitigation-intermediaire", "ddos-mitigation-expert"),
+    "docker": ("docker-debutant", "docker-intermediaire", "docker-expert"),
+    "ethernet": ("ethernet-debutant", "ethernet-intermediaire", "ethernet-expert"),
+    "etherchannel": ("etherchannel-debutant", "etherchannel-intermediaire", "etherchannel-expert"),
+    "firewall": ("firewall-debutant", "firewall-intermediaire", "firewall-expert"),
+    "devsecops": ("devsecops-debutant", "devsecops-intermediaire", "devsecops-expert"),
 }
 PLACEHOLDER_RE = re.compile(
     r"question temporaire|quiz généré automatiquement|question placeholder|"

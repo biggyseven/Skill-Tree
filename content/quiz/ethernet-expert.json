@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Ethernet & couche 2 - Expert. Avez-vous lu le cours ?",
+      "prompt": "Une équipe voit deux liens redondants et conclut qu’il n’existe aucun point de panne commun. Quelle vérification manque ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le nom de chaque VLAN uniquement",
+        "La couleur des câbles dans l’outil de dessin",
+        "La résolution DNS du poste de supervision",
+        "La diversité physique et des domaines de panne : conduits, alimentation, châssis, cartes et chemin opérateur"
+      ],
+      "answer": 3,
+      "explanation": "Une redondance logique ne garantit pas la diversité physique. Des liens séparés peuvent partager un conduit, un équipement ou une alimentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un trunk mal configuré peut-il constituer un risque de sécurité, au-delà d’une simple perte de service ?",
+      "choices": [
+        "Il rend automatiquement tous les paquets chiffrés",
+        "Il ne peut jamais transporter de données sensibles",
+        "Il peut étendre un VLAN au mauvais périmètre ou créer un chemin inattendu entre segments",
+        "Il désactive nécessairement le protocole IP"
+      ],
+      "answer": 2,
+      "explanation": "Les trunks définissent quels segments L2 peuvent traverser un lien. Une liste de VLAN trop large ou un traitement natif incohérent peut rompre les frontières attendues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent conjointement DHCP snooping et Dynamic ARP Inspection lorsqu’ils sont correctement configurés ?",
+      "choices": [
+        "À contrôler certains messages DHCP selon la confiance des ports et à valider des messages ARP à partir d’informations de binding ou d’une politique adaptée",
+        "À remplacer tous les pare-feu de couche 3",
+        "À garantir qu’un terminal compromis ne peut pas utiliser le réseau",
+        "À chiffrer les requêtes ARP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "DHCP snooping et DAI ajoutent des contrôles contre certains abus L2, mais leur efficacité dépend de la configuration, des bindings et des limites de plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une tempête de broadcast apparaît après activation d’une fonction L2. Quel diagnostic est le plus solide ?",
+      "choices": [
+        "Augmenter le seuil de storm control sans mesure",
+        "Corréler le début de l’incident avec les changements, examiner STP, les boucles, compteurs et MAC flapping, puis isoler la cause de façon contrôlée",
+        "Désactiver tous les journaux",
+        "Supposer immédiatement une attaque DDoS externe"
+      ],
+      "answer": 1,
+      "explanation": "Une tempête L2 peut provenir d’une boucle ou d’une mauvaise configuration. La chronologie des changements et les preuves des équipements permettent de cibler le diagnostic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les métriques d’interface doivent-elles être analysées dans leur contexte temporel et de service ?",
+      "choices": [
+        "Un compteur ne peut jamais augmenter sur un lien sain",
+        "Le débit moyen révèle forcément tous les microbursts",
+        "Les interfaces n’ont pas besoin de baseline",
+        "Une moyenne peut masquer des microbursts, erreurs intermittentes ou pertes qui affectent l’application ; il faut comparer tendances, seuils et symptômes"
+      ],
+      "answer": 3,
+      "explanation": "Les moyennes peuvent cacher des événements courts et répétés. Des mesures adaptées et une corrélation avec les symptômes applicatifs évitent des conclusions hâtives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon rôle d’un changement contrôlé pour modifier STP, MTU ou les politiques de port ?",
+      "choices": [
+        "Documenter l’état initial et l’impact, appliquer un changement circonscrit, vérifier des critères observables et prévoir le retour arrière",
+        "Modifier simultanément toutes les couches sans enregistrer les valeurs",
+        "Supprimer les alertes avant la fenêtre de changement",
+        "Confier la vérification uniquement au fournisseur du câble"
+      ],
+      "answer": 0,
+      "explanation": "Un changement L2 peut affecter de nombreux services. Un périmètre limité, des critères de test et une procédure de rollback rendent le résultat mesurable et réversible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu’un port est sécurisé par 802.1X, quel énoncé est correct ?",
+      "choices": [
+        "L’authentification 802.1X remplace nécessairement le pare-feu périmétrique",
+        "802.1X contrôle l’accès au réseau selon une méthode d’authentification et une politique ; il ne remplace pas les contrôles des autres couches",
+        "Le protocole empêche tous les défauts physiques",
+        "Il attribue toujours la même adresse IP à chaque appareil"
+      ],
+      "answer": 1,
+      "explanation": "802.1X participe au contrôle d’accès au port et peut être associé à RADIUS et à une politique de segmentation. Il ne remplace ni la sécurité applicative ni tous les contrôles de réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus utile pour confirmer qu’une correction L2 a réellement résolu un incident ?",
+      "choices": [
+        "Le fait que la configuration ait été sauvegardée",
+        "Le nombre de ports visibles sur l’écran",
+        "Une seule capture d’écran du schéma sans test",
+        "Des mesures avant/après : stabilité MAC/STP, compteurs, connectivité et tests applicatifs représentatifs"
+      ],
+      "answer": 3,
+      "explanation": "Un changement déclaré réussi doit être corroboré par des mesures du réseau et du service. Le simple fait que la commande soit acceptée ne prouve pas le rétablissement."
     }
   ]
 }
