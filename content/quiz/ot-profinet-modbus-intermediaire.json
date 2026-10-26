@@ -4,63 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel port est usuel pour Modbus TCP ?",
+      "prompt": "Quelle fonction Modbus TCP lit généralement un bloc de Holding Registers ?",
       "choices": [
-        "TCP/502",
-        "UDP/161",
-        "TCP/5060",
-        "UDP/514"
+        "Fonction 01",
+        "Fonction 04",
+        "Fonction 02",
+        "Fonction 03"
       ],
-      "answer": 0,
-      "explanation": "Modbus TCP utilise généralement TCP/502."
+      "answer": 3,
+      "explanation": "Le code de fonction 03 sert couramment à lire des Holding Registers. Fonction 04 lit les Input Registers, tandis que les autres fonctions ciblent des familles différentes ; la prise en charge doit être vérifiée sur l’appareil."
     },
     {
       "type": "qcm",
-      "prompt": "Dans PROFINET, quel composant pilote typiquement les échanges cycliques ?",
+      "prompt": "Un nombre 32 bits ou un flottant issu de deux registres Modbus paraît inversé. Que faut-il examiner ?",
       "choices": [
-        "IO-Controller",
-        "Historian",
-        "SBC",
-        "DNS public"
+        "Le port TCP de PROFINET uniquement",
+        "L’ordre des mots et des octets défini par le fabricant, l’échelle et l’offset appliqués côté client",
+        "La priorité STP du commutateur",
+        "Le TTL du DNS sans lien avec le flux"
       ],
-      "answer": 0,
-      "explanation": "Le contrôleur, souvent un PLC, pilote les IO-Devices."
+      "answer": 1,
+      "explanation": "Modbus transporte des registres de 16 bits, mais l’ordre des mots pour des valeurs plus larges dépend souvent de la convention de l’équipement ou du logiciel. Il faut vérifier le mapping documenté et la conversion plutôt que permuter arbitrairement."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi une valeur Modbus peut-elle être incorrecte ?",
+      "prompt": "À quoi sert principalement le Transaction Identifier dans l’en-tête MBAP de Modbus TCP ?",
       "choices": [
-        "Offset, format, ordre des mots ou échelle incorrects",
-        "Uniquement câble fibre",
-        "TCP/502 est toujours chiffré",
-        "DSCP EF absent"
+        "À sélectionner la vitesse du lien série",
+        "À définir l’adresse IP du serveur",
+        "À aider le client à associer une réponse à la transaction correspondante",
+        "À remplacer le code de fonction Modbus"
       ],
-      "answer": 0,
-      "explanation": "Les conventions d'adressage et de représentation varient."
+      "answer": 2,
+      "explanation": "Le Transaction Identifier fait partie de l’en-tête MBAP et permet de corréler requêtes et réponses dans la session. Il n’identifie pas l’équipement à la place de l’adresse réseau ou de l’identifiant d’unité."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle méthode est préférable pour observer un réseau OT en production ?",
+      "prompt": "Dans un projet PROFINET, à quoi sert DCP dans les opérations de découverte et de mise en service ?",
       "choices": [
-        "Capture passive autorisée",
-        "Écriture de registres aléatoires",
-        "Scan intensif non planifié",
-        "Redémarrage des PLC"
+        "À établir uniquement des sessions TCP/502",
+        "À calculer les routes BGP inter-sites",
+        "À déchiffrer le contenu de tous les paquets applicatifs",
+        "À découvrir/configurer certains paramètres de périphérique, notamment son nom de station et des informations réseau selon les fonctions prises en charge"
       ],
-      "answer": 0,
-      "explanation": "La capture passive limite les risques de perturbation."
+      "answer": 3,
+      "explanation": "DCP, Discovery and basic Configuration Protocol, est utilisé pour des fonctions de découverte et de configuration de base PROFINET. Il ne remplace pas les fonctions d’ingénierie, de diagnostic ou les paramètres IP appliqués dans le projet."
     },
     {
       "type": "qcm",
-      "prompt": "Modbus TCP traditionnel fournit-il seul une authentification forte ?",
+      "prompt": "Pourquoi faut-il distinguer les données cycliques, les alarmes, les paramètres acycliques et les diagnostics PROFINET ?",
       "choices": [
-        "Non",
-        "Oui toujours avec MFA",
-        "Oui TLS obligatoire par défaut",
-        "Seulement via DHCP"
+        "Ils ont des objectifs et des contraintes temporelles différents ; la validation doit examiner le type d’échange et son état plutôt que supposer que toute donnée utilise le même chemin",
+        "Toutes ces données doivent arriver dans un paquet identique au même instant",
+        "Les paramètres acycliques remplacent les E/S cycliques",
+        "Les alarmes PROFINET sont toujours des alertes de cybersécurité"
       ],
       "answer": 0,
-      "explanation": "La sécurité exige des contrôles complémentaires."
+      "explanation": "Les échanges cycliques portent les E/S régulières, tandis que les paramètres, alarmes et diagnostics ont d’autres usages et rythmes. Une communication IP visible ne prouve pas que l’échange cyclique attendu est sain."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement RT et IRT dans PROFINET ?",
+      "choices": [
+        "IRT signifie que toutes les applications de l’entreprise ont une latence garantie par défaut",
+        "RT et IRT sont deux protocoles TCP différents",
+        "IRT peut permettre un comportement temps réel plus déterministe avec des fonctions et une planification adaptées ; le résultat dépend du matériel et de la conception",
+        "RT supprime le besoin de vérifier la topologie Ethernet"
+      ],
+      "answer": 2,
+      "explanation": "Les modes temps réel PROFINET diffèrent en exigences, mécanismes et prérequis. IRT s’appuie sur une planification et des équipements compatibles ; il ne garantit pas n’importe quel délai sur toute architecture Ethernet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle vérification est prioritaire si une requête Modbus renvoie une exception applicative plutôt que de ne pas répondre ?",
+      "choices": [
+        "Changer immédiatement toutes les routes IP",
+        "Interpréter le code d’exception, la fonction, la famille d’objet, l’offset et la quantité demandée selon la documentation de l’équipement",
+        "Désactiver le VLAN OT",
+        "Augmenter le délai TCP sans lire la réponse"
+      ],
+      "answer": 1,
+      "explanation": "Une réponse d’exception montre qu’un échange applicatif a reçu une réponse, mais que l’opération a été rejetée ou n’a pas pu être exécutée comme demandé. Le code et le mapping doivent guider la suite de l’investigation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode est recommandée pour établir une baseline de communication PROFINET/Modbus dans une usine opérationnelle ?",
+      "choices": [
+        "Faire un balayage actif intense chaque minute sur tous les équipements",
+        "Écrire des valeurs aléatoires dans des registres pour apprendre les réponses",
+        "Redémarrer les contrôleurs pour voir quels équipements se reconnectent",
+        "Observer passivement les flux approuvés, recueillir les diagnostics disponibles et documenter la période et les limites de visibilité"
+      ],
+      "answer": 3,
+      "explanation": "L’observation passive réduit les risques de perturbation et révèle le comportement réellement présent. Toute campagne active doit être approuvée et conçue selon les contraintes du procédé et les capacités des équipements."
     }
   ]
 }
