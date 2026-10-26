@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité Wi-Fi » : à rédiger après le cours complet.",
+      "prompt": "Quel mécanisme ne doit plus être retenu comme protection Wi-Fi normale ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "WPA3-Personal",
+        "WPA2 avec AES",
+        "WEP",
+        "WPA-Enterprise"
+      ],
+      "answer": 2,
+      "explanation": "WEP est obsolète et présente des faiblesses cryptographiques connues. Il faut migrer vers un mode moderne et remplacer les appareils qui l'exigent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle amélioration caractérise WPA3-Personal par rapport au mode personnel traditionnel ?",
+      "choices": [
+        "Il supprime le besoin d'administrer le routeur",
+        "Il utilise SAE pour l'établissement de clé et renforce certaines protections contre les attaques hors ligne",
+        "Il isole automatiquement tous les VLAN",
+        "Il empêche toute attaque sur les terminaux"
+      ],
+      "answer": 1,
+      "explanation": "WPA3-Personal utilise SAE. Cela améliore certaines propriétés d'authentification par mot de passe, sans remplacer les mises à jour ni la segmentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme permet une authentification individuelle en entreprise ?",
+      "choices": [
+        "Masquer le SSID",
+        "Filtrage MAC seul",
+        "Un seul secret partagé avec tous",
+        "WPA-Enterprise avec 802.1X et serveur d'authentification"
+      ],
+      "answer": 3,
+      "explanation": "802.1X avec un serveur d'authentification facilite la gestion des identités et la révocation individuelle. La configuration du certificat du serveur reste importante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un client a une adresse IP valide, mais les noms de domaine ne se résolvent pas. Quelle piste est prioritaire ?",
+      "choices": [
+        "DNS",
+        "Puissance radio uniquement",
+        "Mot de passe d'administration du routeur",
+        "SSID masqué"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Un problème limité aux noms peut venir du résolveur DNS, de la route ou d'une règle qui empêche le client de le joindre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le filtrage par adresse MAC ne suffit-il pas comme authentification forte ?",
+      "choices": [
+        "Une adresse MAC n'existe jamais sur un réseau local",
+        "Une adresse MAC peut être observée puis usurpée",
+        "Le filtrage MAC chiffre trop fortement les données",
+        "Il désactive WPA3 automatiquement"
+      ],
+      "answer": 1,
+      "explanation": "Le filtrage MAC repose sur un identifiant qui peut être observé et usurpé ; il ne remplace pas une authentification cryptographique robuste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif principal d'un réseau invité ?",
+      "choices": [
+        "Augmenter la puissance radio",
+        "Donner aux visiteurs un accès adapté sans accès libre aux ressources internes",
+        "Remplacer toutes les règles de filtrage",
+        "Rendre le SSID invisible"
+      ],
+      "answer": 1,
+      "explanation": "Le réseau invité doit être séparé des ressources internes. La séparation doit être vérifiée au niveau des VLAN, routes et règles, pas seulement par le nom du SSID."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire face à une invite de certificat inattendue sur un Wi-Fi d'entreprise ?",
+      "choices": [
+        "L'accepter immédiatement",
+        "Désactiver la vérification du certificat",
+        "Vérifier par un canal fiable le certificat et la configuration attendus",
+        "Partager son secret avec un collègue"
+      ],
+      "answer": 2,
+      "explanation": "Une validation relâchée peut faciliter une attaque d'interposition. Le client doit vérifier le serveur prévu et sa chaîne de confiance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le client est authentifié au Wi-Fi, mais ne reçoit aucune adresse IP. Quelle piste est pertinente ?",
+      "choices": [
+        "Le logo du fabricant",
+        "Le mot de passe du navigateur",
+        "La visibilité du SSID uniquement",
+        "DHCP, la plage d'adresses et le VLAN"
+      ],
+      "answer": 3,
+      "explanation": "L'accès radio peut réussir alors que DHCP échoue. Vérifie la portée, les journaux, le relais et le VLAN du client."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un SSID public ressemble à celui de l'hôtel. Quel est le bon réflexe ?",
+      "choices": [
+        "Confirmer le nom officiel et éviter la connexion automatique à un réseau inconnu",
+        "Se connecter immédiatement car le nom est familier",
+        "Désactiver les mises à jour",
+        "Partager les fichiers avant d'ouvrir le navigateur"
+      ],
+      "answer": 0,
+      "explanation": "Un faux point d'accès peut imiter un réseau connu. La confirmation du réseau, les protections du terminal et la validation des certificats réduisent les risques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que protège un VPN lors d'une connexion Wi-Fi publique ?",
+      "choices": [
+        "Il prouve que tous les sites sont légitimes",
+        "Il remplace les mises à jour du terminal",
+        "Il protège le trajet jusqu'au point de terminaison du VPN selon sa configuration, mais n'élimine pas tous les risques",
+        "Il empêche un terminal compromis de voler des données"
+      ],
+      "answer": 2,
+      "explanation": "Un VPN ne supprime pas les risques liés au terminal, aux sites visités ou aux certificats. Il apporte une protection sur le trajet qu'il couvre."
     }
   ]
 }

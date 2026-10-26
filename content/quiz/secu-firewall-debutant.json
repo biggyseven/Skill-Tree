@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Introduction aux pare-feu » : à rédiger après le cours complet.",
+      "prompt": "Quels éléments décrivent typiquement une règle de pare-feu ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Le nom du Wi-Fi uniquement",
+        "Le modèle du routeur uniquement",
+        "Source, destination, protocole/port, direction et action selon la plateforme",
+        "Le mot de passe administrateur uniquement"
+      ],
+      "answer": 2,
+      "explanation": "Une règle précise le trafic concerné et l'action. Selon le produit, d'autres critères comme l'interface, l'état, l'utilisateur ou l'application peuvent s'ajouter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'un pare-feu à états ?",
+      "choices": [
+        "Un dispositif qui désactive toutes les connexions entrantes",
+        "Un pare-feu qui suit le contexte des sessions afin de reconnaître les paquets de retour attendus",
+        "Un serveur DNS",
+        "Un mécanisme NAT uniquement"
+      ],
+      "answer": 1,
+      "explanation": "Le suivi d'état aide à reconnaître les paquets d'une connexion autorisée. Il ne permet pas automatiquement toute nouvelle connexion dans le sens inverse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi NAT n'est-il pas une politique complète de sécurité ?",
+      "choices": [
+        "NAT ne peut jamais modifier de ports",
+        "NAT ne fonctionne que sur Wi-Fi",
+        "Toutes les règles NAT ouvrent forcément chaque service",
+        "La traduction d'adresses ne remplace pas le contrôle explicite des communications"
+      ],
+      "answer": 3,
+      "explanation": "NAT traduit l'adressage. Il faut vérifier séparément le filtrage, les redirections de ports et les règles qui autorisent les flux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'avantage d'un refus par défaut pour les connexions entrantes ?",
+      "choices": [
+        "Limiter les nouvelles connexions aux services explicitement autorisés",
+        "Autoriser automatiquement tous les ports sortants",
+        "Remplacer les correctifs logiciels",
+        "Rendre toutes les applications sûres"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le refus par défaut réduit l'exposition en n'acceptant que les flux nécessaires. Il faut néanmoins inventorier et tester les besoins légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un poste bloque les connexions entrantes non sollicitées mais initie des connexions sortantes. Que faut-il en conclure ?",
+      "choices": [
+        "Le pare-feu est forcément désactivé",
+        "Les politiques entrantes et sortantes sont distinctes ; le filtrage entrant ne garantit pas le filtrage sortant",
+        "Le poste ne peut plus être compromis",
+        "NAT est forcément mal configuré"
+      ],
+      "answer": 1,
+      "explanation": "Un logiciel compromis peut initier un flux sortant autorisé. Selon le risque, il peut être utile de restreindre aussi certaines destinations sortantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert Get-NetFirewallProfile ?",
+      "choices": [
+        "À supprimer toutes les règles",
+        "À créer une redirection NAT",
+        "À afficher l'état et les paramètres des profils Windows Firewall",
+        "À désinstaller le pare-feu"
+      ],
+      "answer": 2,
+      "explanation": "Get-NetFirewallProfile est une commande de lecture. Elle affiche les profils et des paramètres associés sans modifier la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait sudo nft list ruleset ?",
+      "choices": [
+        "Affiche les règles nftables en place",
+        "Efface toutes les règles",
+        "Active automatiquement UFW",
+        "Ouvre SSH à Internet"
+      ],
+      "answer": 0,
+      "explanation": "nft list ruleset affiche le jeu de règles. C'est une commande de lecture, à interpréter avec l'outil qui gère réellement le filtrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un VLAN suffit-il à garantir que les deux réseaux ne communiquent pas ?",
+      "choices": [
+        "Oui, tous les VLAN sont obligatoirement isolés à tous les niveaux",
+        "Oui, un VLAN chiffre toutes les données",
+        "Non, deux VLAN différents ne peuvent jamais communiquer",
+        "Non, le routage et les règles doivent encore contrôler les flux inter-zones"
+      ],
+      "answer": 3,
+      "explanation": "Les VLAN séparent logiquement des segments, mais un routeur peut transférer du trafic entre eux. Les règles inter-zones doivent être vérifiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un test TCP sur le port 443 échoue. Quelle conclusion est la plus rigoureuse ?",
+      "choices": [
+        "Le pare-feu est certainement l'unique cause",
+        "La connexion TCP n'a pas abouti pendant le test ; il faut vérifier le service, l'adresse, la route et le filtrage",
+        "Le serveur est nécessairement compromis",
+        "DNS est toujours la cause"
+      ],
+      "answer": 1,
+      "explanation": "Un résultat négatif ne prouve pas la cause. Le service peut être arrêté, mal lié à l'interface ou bloqué par un équipement du chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution est essentielle avant un changement sur un pare-feu distant ?",
+      "choices": [
+        "Supprimer toutes les règles",
+        "Partager le secret sur un canal public",
+        "Préparer un accès de secours, la sauvegarde pertinente et un retour arrière",
+        "Ignorer les journaux après le changement"
+      ],
+      "answer": 2,
+      "explanation": "Une règle incorrecte peut couper l'administration. Une procédure de secours, des tests et un plan de restauration réduisent le risque opérationnel."
     }
   ]
 }
