@@ -221,6 +221,44 @@ test('les cartes du catalogue des labs ouvrent un nouvel onglet sans remplacer l
   await labPage.close();
 });
 
+test('le catalogue v2 affiche un lab même si le nœud de cours ne déclare pas de lab legacy', async ({ page }) => {
+  await page.route('**/api/lab/v2', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify([{
+      id: 'acl-debutant',
+      title: 'ACL & filtrage - Débutant',
+      level: 'débutant',
+      module: 'Administration Réseaux',
+      duration_min: 20,
+      difficulty: 'débutant',
+      schema_version: 2,
+    }]),
+  }));
+
+  await page.route('**/api/node/acl-debutant', async route => {
+    const response = await route.fetch();
+    if (!response.ok()) {
+      await route.fulfill({ response });
+      return;
+    }
+    const payload = await response.json();
+    payload.lab = null;
+    await route.fulfill({ response, body: JSON.stringify(payload) });
+  });
+
+  await openDashboard(page);
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  await nav.getByRole('button', { name: 'Labs' }).click();
+
+  const aclLab = page.locator('a[data-lab-card="catalog"]').filter({
+    hasText: 'ACL & filtrage - Débutant',
+  }).first();
+  await expect(aclLab).toBeVisible();
+  await expect(aclLab).toHaveAttribute('href', '/?openLab=acl-debutant');
+  await expect(aclLab).toContainText('⏱ 20 · débutant');
+});
+
 test('le catalogue des labs réutilise son cache après avoir quitté puis rouvert la section', async ({ page }) => {
   let nodeDetailRequests = 0;
   page.on('request', request => {
