@@ -559,6 +559,18 @@ Serveur --> Base de données</code></pre>
         <div class="flow-node">Client</div><span>→</span><div class="flow-node">Passerelle</div>
         <div class="lesson-diagram-guide"><p>Guide HTML générique à ne pas lire à la place des éléments.</p></div>
       </div>
+      <div class="lesson-diagram-block" data-diagram-type="schéma textuel">
+        <div class="code-container">
+          <div class="code-header"><span class="code-lang">ASCII</span></div>
+          <pre><code>Poste de travail
+  |
+  v
+Routeur
+  |
+  ^
+Poste de secours</code></pre>
+        </div>
+      </div>
       <div class="lesson-diagram-block" data-diagram-type="diagramme Mermaid">
         <div class="mermaid"></div>
       </div>
@@ -573,21 +585,21 @@ Serveur --> Base de données</code></pre>
   });
 
   expect(narration).toContain('Tableau : Ports réseau.');
-  expect(narration).toContain('Protocole : HTTPS');
-  expect(narration).toContain('Port : 443');
-  expect(narration).toContain('Usage : Web chiffré');
-  expect(narration).toContain('Protocole : DNS');
-  expect(narration).toContain('Port : 53');
-  expect(narration).toContain('Client mène vers Serveur.');
-  expect(narration).toContain('Serveur mène vers Base de données.');
+  expect(narration).toContain('Les colonnes présentent un élément de référence');
+  expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
+  expect(narration).toContain('l’usage indiqué est « Web chiffré »');
+  expect(narration).toContain('Pour DNS, le port utilisé est 53');
+  expect(narration).toContain('l’usage indiqué est « Résolution de noms »');
+  expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « Serveur »');
+  expect(narration).toContain('Une liaison va du bloc « Serveur » vers le bloc « Base de données »');
   expect(narration).toContain('Tableau textuel.');
-  expect(narration).toContain('Protocol : HTTP');
-  expect(narration).toContain('Port : 80');
-  expect(narration).toContain('Protocol : HTTPS');
-  expect(narration).toContain('Port : 443');
-  expect(narration).toContain('Client mène vers API par HTTPS.');
-  expect(narration).toContain('API mène vers Base de données.');
-  expect(narration).toContain('Le schéma se lit ainsi : Client mène vers Passerelle.');
+  expect(narration).toContain('Pour HTTP, le port utilisé est 80');
+  expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
+  expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « API » en passant par HTTPS');
+  expect(narration).toContain('Une liaison va du bloc « API » vers le bloc « Base de données »');
+  expect(narration).toContain('Une liaison va du bloc « Poste de travail » vers le bloc « Routeur »');
+  expect(narration).toContain('Une liaison va du bloc « Poste de secours » vers le bloc « Routeur »');
+  expect(narration).toContain('Le schéma se lit ainsi : Client va vers Passerelle.');
   expect(narration).not.toContain('→');
   expect(narration).not.toContain('Copier');
   expect(narration).not.toContain('Texte guide qui ne doit pas remplacer les données.');

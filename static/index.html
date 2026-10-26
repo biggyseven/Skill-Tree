@@ -3882,18 +3882,94 @@
             .replace(/\u00a0/gu, ' ')
             .replace(/<br\s*\/?\s*>/giu, ', ')
             .replace(/&nbsp;/giu, ' ')
-            .replace(/\s*→\s*/gu, ' mène vers ')
-            .replace(/\s*↔\s*/gu, ' communique avec ')
-            .replace(/\s*←\s*/gu, ' reçoit depuis ')
+            .replace(/\s*→\s*/gu, ' va vers ')
+            .replace(/\s*↔\s*/gu, ' échange des données avec ')
+            .replace(/\s*←\s*/gu, ' reçoit des données de ')
             .replace(/\s+/gu, ' ')
             .replace(/\s+([,.;:!?])/gu, '$1')
             .trim();
+        },
+        speechTextFromTabularRows(headers, dataRows, title = 'Tableau de données.') {
+          const spoken = [title];
+          const headerKey = value => String(value || '')
+            .normalize('NFD')
+            .replace(/\p{Diacritic}/gu, '')
+            .toLocaleLowerCase('fr-FR')
+            .replace(/[^a-z0-9]+/gu, ' ')
+            .trim();
+          const quoted = value => '« ' + value + ' »';
+          const fieldPhrase = (header, rawValue) => {
+            const value = String(rawValue || '').trim() || 'valeur non renseignée';
+            const key = headerKey(header);
+            if (/^ports?$|^port reseau$/u.test(key)) return 'le port utilisé est ' + value;
+            if (/^(?:usage|utilite)$/u.test(key)) return 'l’usage indiqué est ' + quoted(value);
+            if (/^(?:role|fonction)$/u.test(key)) return 'le rôle indiqué est ' + quoted(value);
+            if (/^(?:description|definition)$/u.test(key)) return 'la description indique ' + quoted(value);
+            if (/^(?:protocole|protocol)$/u.test(key)) return 'le protocole utilisé est ' + quoted(value);
+            if (/^version$/u.test(key)) return 'la version est ' + quoted(value);
+            if (/^(?:couche|niveau)$/u.test(key)) return 'la couche concernée est ' + quoted(value);
+            if (/^(?:adresse|adresse ip|ip)$/u.test(key)) return 'l’adresse indiquée est ' + quoted(value);
+            if (/^(?:statut|etat|status)$/u.test(key)) return 'l’état indiqué est ' + quoted(value);
+            if (/^(?:avantage|point fort)$/u.test(key)) return 'un avantage est ' + quoted(value);
+            if (/^(?:inconvenient|limite|point faible)$/u.test(key)) return 'une limite est ' + quoted(value);
+            if (/^(?:commande|cmd)$/u.test(key)) return 'la commande à utiliser est ' + quoted(value);
+            if (/^(?:resultat|sortie)$/u.test(key)) return 'le résultat est ' + quoted(value);
+            if (header) return 'la valeur pour ' + String(header).toLocaleLowerCase('fr-FR') + ' est ' + quoted(value);
+            return 'la valeur est ' + quoted(value);
+          };
+
+          if (headers.length > 1) {
+            const details = headers.slice(1).map(value => String(value || '').trim()).filter(Boolean);
+            spoken.push(details.length
+              ? 'Les colonnes présentent un élément de référence, puis ses informations associées : ' + details.join(', ') + '.'
+              : 'Les colonnes décrivent un élément de référence et ses informations associées.');
+          } else if (headers.length === 1 && headers[0]) {
+            spoken.push('La colonne porte sur ' + String(headers[0]).toLocaleLowerCase('fr-FR') + '.');
+          }
+
+          const firstHeaderKey = headerKey(headers[0] || '');
+          const isStepColumn = /^(?:etape|phase|ordre|sequence|numero|rang|n)$/u.test(firstHeaderKey);
+          if (!dataRows.length) {
+            spoken.push('Le tableau ne contient aucune ligne de données.');
+            return spoken;
+          }
+
+          dataRows.forEach((row, rowIndex) => {
+            const values = Array.isArray(row) ? row : (row && Array.isArray(row.values) ? row.values : []);
+            if (!values.length) return;
+            const subject = String(values[0] || '').trim();
+            const details = values.slice(1).map((value, index) => fieldPhrase(headers[index + 1] || '', value));
+
+            if (isStepColumn && subject) {
+              spoken.push('Étape ' + subject + (details.length ? ' : ' + details.join('; ') : '') + '.');
+              return;
+            }
+
+            if (headers.length > 1 && subject && details.length) {
+              spoken.push('Pour ' + subject + ', ' + details.join('; ') + '.');
+              return;
+            }
+
+            const fields = values.map((value, columnIndex) => {
+              const label = headers[columnIndex] || ('colonne ' + (columnIndex + 1));
+              return String(label).toLocaleLowerCase('fr-FR') + ' : ' + (String(value || '').trim() || 'valeur non renseignée');
+            });
+            spoken.push('Ligne ' + (rowIndex + 1) + ', ' + fields.join('; ') + '.');
+          });
+          return spoken;
         },
         speechTextFromTable(table) {
           if (!table) return [];
           const cleanCell = cell => {
             const clone = cell.cloneNode(true);
-            clone.querySelectorAll('button, svg, script, style, .no-speech, [aria-hidden="true"]').forEach(node => node.remove());
+            clone.querySelectorAll('button, script, style, .no-speech, [aria-hidden="true"]').forEach(node => node.remove());
+            clone.querySelectorAll('svg').forEach(svg => {
+              const label = svg.getAttribute('aria-label')
+                || svg.querySelector('title, desc')?.textContent
+                || '';
+              if (label.trim()) svg.replaceWith(clone.ownerDocument.createTextNode(label.trim()));
+              else svg.remove();
+            });
             return this.cleanSpeechVisualText(clone.innerText || clone.textContent || '');
           };
           const rows = Array.from(table.querySelectorAll('tr'));
@@ -3909,24 +3985,12 @@
           const headers = headerRow
             ? Array.from(headerRow.children).map(cleanCell)
             : [];
-          const dataRows = rows.filter(row => row !== headerRow);
-          const spoken = [];
-          spoken.push(caption ? 'Tableau : ' + caption + '.' : 'Tableau de données.');
-          if (headers.length) spoken.push('Les colonnes sont : ' + headers.map((header, index) => header || ('colonne ' + (index + 1))).join(', ') + '.');
-          if (!dataRows.length) {
-            if (!headers.length) spoken.push('Le tableau ne contient aucune ligne de données.');
-            return spoken;
-          }
-          dataRows.forEach((row, rowIndex) => {
-            const values = Array.from(row.children).map(cleanCell);
-            const fields = values.map((value, columnIndex) => {
-              const label = headers[columnIndex] || ('colonne ' + (columnIndex + 1));
-              const readableValue = value || 'valeur non renseignée';
-              return label + ' : ' + readableValue;
-            });
-            spoken.push('Ligne ' + (rowIndex + 1) + '. ' + fields.join('. ') + '.');
-          });
-          return spoken;
+          const dataRows = rows.filter(row => row !== headerRow).map(row => ({
+            values: Array.from(row.children).map(cleanCell),
+            isRowHeader: row.querySelector('th[scope="row"]') !== null,
+          }));
+          const title = caption ? 'Tableau : ' + caption + '.' : 'Tableau de données.';
+          return this.speechTextFromTabularRows(headers, dataRows, title);
         },
         speechTextFromAsciiDiagram(source) {
           const raw = String(source || '').replace(/\r\n?/gu, '\n');
@@ -3936,18 +4000,15 @@
           const arrowLines = lines.filter(line => /(?:--+>|-{2,}|==>|->|<->|→|←|↔|⇒)/u.test(line));
           if (pipeRows.length >= 2 && arrowLines.length < 2) {
             const tabularRows = pipeRows
-              .map(line => line.split(/[|│]/u).map(value => this.cleanSpeechVisualText(value.replace(/^[\s+\-=:]+|[\s+\-=:]+$/gu, ''))).filter(Boolean))
-              .filter(cells => cells.length >= 2 && !cells.every(value => /^[-:=]+$/u.test(value)));
+              .map(line => {
+                const cells = line.split(/[|│]/u);
+                if (cells.length && !cells[0].trim()) cells.shift();
+                if (cells.length && !cells[cells.length - 1].trim()) cells.pop();
+                return cells.map(value => this.cleanSpeechVisualText(value.replace(/^[\s+\-=:]+|[\s+\-=:]+$/gu, '')));
+              })
+              .filter(cells => cells.length >= 2 && !cells.every(value => !value || /^[-:=]+$/u.test(value)));
             if (tabularRows.length >= 2) {
-              const headers = tabularRows[0];
-              const spokenTable = [
-                'Tableau textuel.',
-                'Les colonnes sont : ' + headers.map((header, index) => header || ('colonne ' + (index + 1))).join(', ') + '.',
-              ];
-              tabularRows.slice(1).forEach((values, rowIndex) => {
-                spokenTable.push('Ligne ' + (rowIndex + 1) + '. ' + values.map((value, index) => (headers[index] || ('colonne ' + (index + 1))) + ' : ' + (value || 'valeur non renseignée')).join('. ') + '.');
-              });
-              return spokenTable;
+              return this.speechTextFromTabularRows(tabularRows[0], tabularRows.slice(1), 'Tableau textuel.');
             }
           }
           const normalizeSegment = value => this.cleanSpeechVisualText(String(value || '')
@@ -3963,9 +4024,44 @@
             const label = labelFor(value);
             if (label && !/^[|+\-_=<>~.\s]+$/u.test(label) && !labels.some(item => item.toLocaleLowerCase('fr-FR') === label.toLocaleLowerCase('fr-FR'))) labels.push(label);
           };
-          const connectors = /(\s*(?:<-->|<->|<--|<-|-->>|->>|-->|-\.->|==>|---|--o|--x|->|=>|←|↔|→|⇒|⇢)\s*)/gu;
+          const connectors = /(\s*(?:<-->|<->|<--|<-|-->>|->>|-->|-\.->|==>|---|--o|--x|->|=>|←|↔|→|⇒|⇢|↑|↓|⇧|⇩)\s*)/gu;
+          const isConnectorOnlyLine = line => {
+            const value = String(line || '').trim();
+            return Boolean(value)
+              && /^[|│┃┌┐└┘├┤┬┴┼─━╭╮╰╯╔╗╚╝╠╣╦╩╬║+\-_=<>~.^v↑↓⇧⇩\s]+$/u.test(value)
+              && /[|│┃^v↑↓⇧⇩]/u.test(value);
+          };
+          const hasInlineConnector = line =>
+            /(?:<-->|<->|<--|<-|-->>|->>|-->|-\.->|==>|---|--o|--x|->|=>|←|↔|→|⇒|⇢|↑|↓|⇧|⇩)/u.test(line);
+          const labelledLines = lines
+            .map((line, index) => ({ index, label: normalizeSegment(line) }))
+            .filter(item => item.label && !isConnectorOnlyLine(lines[item.index]) && !hasInlineConnector(lines[item.index]));
+
+          // Les schémas ASCII verticaux placent souvent la flèche sur sa propre ligne.
+          // Relier les deux libellés voisins, sans transformer « v » ou « | » en éléments du schéma.
+          for (let index = 0; index < labelledLines.length - 1; index += 1) {
+            const upper = labelledLines[index];
+            const lower = labelledLines[index + 1];
+            const connectorLines = lines.slice(upper.index + 1, lower.index);
+            if (!connectorLines.length || !connectorLines.some(isConnectorOnlyLine)) continue;
+            const marks = connectorLines.join(' ');
+            const pointsUp = /[\^↑⇧]/u.test(marks);
+            const pointsDown = /(?:↓|⇩|(?:^|\s)v(?:\s|$))/u.test(marks);
+            let from = upper.label;
+            let to = lower.label;
+            if (pointsUp && !pointsDown) [from, to] = [lower.label, upper.label];
+            addLabel(from);
+            addLabel(to);
+            const relation = pointsUp && !pointsDown
+              ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
+              : pointsDown && !pointsUp
+                ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
+                : 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés verticalement';
+            if (!relationships.includes(relation)) relationships.push(relation);
+          }
+
           const relationLine = line => {
-            if (!/[<>→←↔⇒⇢]|--|==|->/u.test(line)) return;
+            if (!/[<>→←↔⇒⇢↑↓⇧⇩]|--|==|->/u.test(line)) return;
             const pieces = line.split(connectors).filter(Boolean);
             if (pieces.length < 3) return;
             const endpoints = [];
@@ -3983,16 +4079,17 @@
               let from = endpoints[index];
               let to = endpoints[index + 1];
               const arrow = arrows[index] || '->';
-              if (/^(?:<--|<-|←)$/u.test(arrow)) [from, to] = [to, from];
+              if (/^(?:<--|<-|←|↑|⇧)$/u.test(arrow)) [from, to] = [to, from];
               addLabel(from);
               addLabel(to);
               const relation = /^(?:<-->|<->|↔)$/u.test(arrow)
-                ? from + ' communique avec ' + to
-                : from + ' mène vers ' + to;
+                ? 'Les blocs « ' + from + ' » et « ' + to + ' » communiquent dans les deux sens'
+                : 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »';
               if (!relationships.includes(relation)) relationships.push(relation);
             }
           };
           lines.forEach(line => {
+            if (isConnectorOnlyLine(line)) return;
             relationLine(line);
             const withoutBorders = line
               .replace(/[┌┐└┘├┤┬┴┼─━│┃╭╮╰╯╔╗╚╝╠╣╦╩╬║]/gu, ' ')
@@ -4004,10 +4101,10 @@
             }
           });
           const spoken = [];
-          if (relationships.length) spoken.push('Schéma textuel. Le parcours se lit ainsi : ' + relationships.map(value => value + '.').join(' '));
+          if (relationships.length) spoken.push('Schéma textuel. ' + relationships.map(value => value + '.').join(' '));
           const unmentioned = labels.filter(label => !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR'))));
           if (unmentioned.length) spoken.push('Autres éléments représentés : ' + unmentioned.join(', ') + '.');
-          const connectorOnlyLines = lines.filter(line => !/[A-Za-z0-9]/u.test(line) && /[|+^v<>_\\/\\-]/u.test(line)).length;
+          const connectorOnlyLines = lines.filter(isConnectorOnlyLine).length;
           if (!spoken.length && labels.length && connectorOnlyLines > 0) {
             spoken.push('Schéma textuel. Les éléments sont reliés dans l’ordre suivant : ' + labels.join(', puis ') + '.');
           } else if (!spoken.length && labels.length) {
@@ -4073,9 +4170,9 @@
             let to = resolveNode(edge.to);
             if (/^(?:<--|<-|←)$/u.test(edge.arrow)) [from, to] = [to, from];
             const relation = /^(?:<-->|<->|↔)$/u.test(edge.arrow)
-              ? from + ' communique avec ' + to
-              : from + ' mène vers ' + to;
-            addRelation(relation + (edge.label ? ' par ' + edge.label : '') + '.');
+              ? 'Les blocs « ' + from + ' » et « ' + to + ' » communiquent dans les deux sens'
+              : 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »';
+            addRelation(relation + (edge.label ? ' en passant par ' + edge.label : '') + '.');
           }
 
           const svgLabels = [];
@@ -4095,7 +4192,7 @@
             if (!allLabels.some(item => item.toLocaleLowerCase('fr-FR') === value.toLocaleLowerCase('fr-FR'))) allLabels.push(value);
           });
           const spoken = [];
-          if (relationships.length) spoken.push('Le schéma présente les relations suivantes. ' + relationships.join(' '));
+          if (relationships.length) spoken.push('Voici comment les blocs sont reliés. ' + relationships.join(' '));
           const otherLabels = allLabels.filter(label =>
             !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR')))
           );
@@ -4329,9 +4426,9 @@
           return (readable.innerText || readable.textContent || '')
             .replace(/\r\n?/g, '\n')
             // Les flèches insérées dans les phrases ou schémas inline doivent être dites en langage naturel.
-            .replace(/\s*(?:<-->|<->|↔)\s*/gu, ' communique avec ')
-            .replace(/\s*(?:<--|<-)\s*/gu, ' vient de ')
-            .replace(/\s*(?:--+>|==>|=>|->|→|⇒)\s*/gu, ' mène vers ')
+            .replace(/\s*(?:<-->|<->|↔)\s*/gu, ' échange des données avec ')
+            .replace(/\s*(?:<--|<-)\s*/gu, ' reçoit des données de ')
+            .replace(/\s*(?:--+>|==>|=>|->|→|⇒)\s*/gu, ' va vers ')
             .replace(/[ \t]+/g, ' ')
             .replace(/\n[ \t]+/g, '\n')
             .replace(/\n{3,}/g, '\n\n')
