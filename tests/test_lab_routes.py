@@ -137,6 +137,42 @@ class LabValidationTests(unittest.TestCase):
     def _mock_lab(self, definition):
         return patch.object(lab_routes, "_fetch_lab", return_value={"id": "lab-1", "definition": definition})
 
+    def test_lab_v2_catalog_exposes_card_metadata(self) -> None:
+        catalog_db = Path(self.temp_dir.name) / "catalog.sqlite3"
+        with sqlite3.connect(str(catalog_db)) as conn:
+            conn.execute(
+                """
+                CREATE TABLE labs (
+                    id TEXT PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    level TEXT NOT NULL,
+                    module TEXT NOT NULL,
+                    duration_min INTEGER NOT NULL,
+                    difficulty TEXT NOT NULL,
+                    schema_version INTEGER NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                "INSERT INTO labs (id, title, level, module, duration_min, difficulty, schema_version) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                ("acl-debutant", "ACL & filtrage - Débutant", "débutant", "Administration Réseaux", 20, "débutant", 2),
+            )
+
+        def connect_catalog_db():
+            connection = sqlite3.connect(str(catalog_db))
+            connection.row_factory = sqlite3.Row
+            return connection
+
+        with patch.object(lab_routes, "_database_connection", side_effect=connect_catalog_db):
+            catalog = lab_routes.list_labs_v2()
+
+        self.assertEqual(len(catalog), 1)
+        self.assertEqual(catalog[0]["id"], "acl-debutant")
+        self.assertEqual(catalog[0]["duration_min"], 20)
+        self.assertEqual(catalog[0]["difficulty"], "débutant")
+        self.assertEqual(catalog[0]["schema_version"], 2)
+
     def test_bom_json_lab_definition_loads(self) -> None:
         labs_dir = Path(self.temp_dir.name) / "labs_v2"
         labs_dir.mkdir()
