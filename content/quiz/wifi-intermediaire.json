@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Wi-Fi 802.11 - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi le Wi-Fi utilise-t-il CSMA/CA plutôt que de s’appuyer sur la détection de collision comme Ethernet historique partagé ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Parce que les trames Wi-Fi ne contiennent pas d’adresse MAC",
+        "Parce qu’une radio qui émet ne peut pas se fier à une détection de collision en cours d’émission comme le faisait l’Ethernet partagé ; le médium utilise l’évitement et les acquittements",
+        "Parce que les points d’accès ne peuvent transporter que des trames broadcast",
+        "Parce que CSMA/CA réserve un canal distinct à chaque station en permanence"
+      ],
+      "answer": 1,
+      "explanation": "Le Wi-Fi utilise un médium radio partagé et s’appuie notamment sur l’écoute du canal, le backoff et les acquittements. Une station ne détecte pas simplement une collision pendant son émission comme dans le modèle Ethernet half-duplex historique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une cellule Wi-Fi chargée, pourquoi l’airtime est-il souvent plus utile que le seul débit PHY annoncé pour estimer l’expérience utilisateur ?",
+      "choices": [
+        "L’airtime mesure exclusivement la puissance électrique du point d’accès",
+        "Le débit PHY est toujours égal au débit applicatif obtenu par chaque client",
+        "L’airtime indique le nom du réseau présenté à l’écran",
+        "Les stations consomment du temps de transmission ; les débits PHY, les retransmissions et la contention influencent la part de temps disponible pour chaque flux"
+      ],
+      "answer": 3,
+      "explanation": "Les clients se partagent le temps d’occupation radio. Les débits PHY élevés ne donnent pas directement le débit applicatif, car la contention, les retransmissions, les en-têtes et les temps d’attente consomment aussi des ressources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux clients ne s’entendent pas mutuellement, mais tous deux peuvent communiquer avec le même point d’accès. Quel problème radio cela peut-il illustrer ?",
+      "choices": [
+        "Un nœud caché ; RTS/CTS peut aider dans certains scénarios, au prix d’une surcharge",
+        "Un défaut de réplication SYSVOL",
+        "Une incohérence du numéro de révision VTP",
+        "Une table ARP nécessairement corrompue"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le problème du nœud caché survient lorsque les stations ne détectent pas correctement l’activité l’une de l’autre mais se disputent le même récepteur. RTS/CTS peut réduire certaines collisions, sans être une solution universelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel compromis accompagne généralement l’usage de canaux Wi-Fi plus larges, par exemple 80 MHz au lieu de 20 MHz ?",
+      "choices": [
+        "Le canal large supprime les interférences et la contention",
+        "Le client obtient automatiquement une adresse IP plus courte",
+        "Un canal plus large peut offrir un débit PHY supérieur, mais utilise davantage de spectre et peut réduire les possibilités de réutilisation des canaux",
+        "Les canaux larges sont uniquement destinés aux trames de gestion"
+      ],
+      "answer": 2,
+      "explanation": "Une largeur supérieure peut accroître le débit PHY lorsque les conditions le permettent, mais occupe davantage de spectre et peut rendre la réutilisation dans les déploiements denses plus difficile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un client affiche un RSSI raisonnable, mais les performances restent mauvaises. Quel indicateur complémentaire peut aider à vérifier la qualité radio ?",
+      "choices": [
+        "Le nombre de règles dans la stratégie de groupe",
+        "Le SNR et les compteurs de retransmissions, complétés par la mesure de l’occupation du canal",
+        "La durée de conservation des sauvegardes",
+        "Le numéro de révision du domaine VTP"
+      ],
+      "answer": 1,
+      "explanation": "Le RSSI indique le niveau reçu, pas la qualité complète de la liaison. SNR, retransmissions, utilisation du canal et débit constaté aident à distinguer bruit, interférences et contention."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que peut provoquer la détection d’un radar sur un canal soumis aux mécanismes DFS ?",
+      "choices": [
+        "La conversion automatique du WLAN en réseau câblé",
+        "La suppression de tous les comptes du serveur RADIUS",
+        "La désactivation permanente de la sécurité du réseau",
+        "Un changement de canal imposé par la réglementation et l’équipement, avec une perturbation possible des clients"
+      ],
+      "answer": 3,
+      "explanation": "Sur les canaux soumis au DFS, un point d’accès peut devoir cesser d’utiliser le canal après une détection radar et sélectionner un autre canal selon les règles applicables. Les effets exacts dépendent de la plateforme et du contexte réglementaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un client s’associe à un SSID d’entreprise, mais ne reçoit pas d’adresse IP après un changement de configuration. Quelle vérification est pertinente en premier ?",
+      "choices": [
+        "Vérifier le VLAN associé au SSID, le relais ou serveur DHCP et les politiques réseau, après confirmation de l’association",
+        "Modifier l’algorithme de roaming sans examiner l’adressage",
+        "Remplacer les antennes sans vérifier les journaux",
+        "Augmenter la largeur du canal pour résoudre la distribution DHCP"
+      ],
+      "answer": 0,
+      "explanation": "Une association réussie ne garantit pas que le trafic atteigne le bon VLAN ni qu’un serveur DHCP soit joignable. Vérifier le mappage SSID/VLAN, le relais, la portée et les journaux cible le plan IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle association entre fonctionnalités Wi-Fi et objectif est correcte ?",
+      "choices": [
+        "802.11k chiffre les données applicatives ; 802.11r attribue les adresses IP",
+        "802.11v remplace DHCP ; 802.11k remplace DNS",
+        "802.11k peut fournir des rapports de voisinage, 802.11v peut aider à la gestion de transition BSS et 802.11r accélère certains échanges de transition sécurisée",
+        "802.11k, 802.11v et 802.11r garantissent que tout client choisira toujours le meilleur point d’accès"
+      ],
+      "answer": 2,
+      "explanation": "Ces amendements servent des fonctions différentes autour de l’assistance au roaming et de la transition sécurisée. Leur effet dépend du support et de la configuration des clients et de l’infrastructure."
     }
   ]
 }
