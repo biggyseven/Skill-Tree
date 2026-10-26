@@ -30,43 +30,6 @@ jobs:
           cache: "pip"
           cache-dependency-path: requirements.txt
 
-      - name: Diagnostic ponctuel de l’API Lab Workspace déployée
-        if: github.event_name == 'pull_request' && github.head_ref == 'feat/course-navigation-new-tabs-2026-10-26'
-        continue-on-error: true
-        run: |
-          set +e
-          for lab_id in acl-debutant; do
-            response_file="$(mktemp)"
-            http_status="$(curl -L -sS --connect-timeout 10 --max-time 180 -o "$response_file" -w "%{http_code}" "https://skill-tree-vjon.onrender.com/api/lab/v2/$lab_id")"
-            curl_exit=$?
-            echo "ENDPOINT=/api/lab/v2/$lab_id"
-            echo "CURL_EXIT=$curl_exit HTTP_STATUS=${http_status:-000}"
-            python - "$response_file" <<'PY'
-          import json, sys
-          from pathlib import Path
-          raw = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
-          try:
-              data = json.loads(raw)
-              definition = data.get("definition") if isinstance(data.get("definition"), dict) else {}
-              topology = data.get("initial_topology") if isinstance(data.get("initial_topology"), dict) else {}
-              summary = {
-                  "id": data.get("id"),
-                  "schema_version": data.get("schema_version"),
-                  "sandbox": data.get("sandbox"),
-                  "course_locked": data.get("course_locked"),
-                  "course_lock_message": data.get("course_lock_message"),
-                  "title": definition.get("title"),
-                  "topology_nodes": len(topology.get("nodes") or []),
-                  "topology_links": len(topology.get("links") or []),
-                  "detail": data.get("detail"),
-              }
-              print(json.dumps(summary, ensure_ascii=False))
-          except Exception:
-              print("RESPONSE_BODY=" + raw[:4000])
-          PY
-            rm -f "$response_file"
-          done
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
