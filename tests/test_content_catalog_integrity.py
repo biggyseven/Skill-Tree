@@ -81,6 +81,27 @@ class PedagogicalCatalogIntegrityTests(unittest.TestCase):
             positions = {question["answer"] for question in data["questions"]}
             self.assertGreaterEqual(len(positions), 3, f"Réponses trop prévisibles dans {quiz_id}")
 
+    def test_core_networking_quizzes_are_contextual_and_not_placeholders(self) -> None:
+        targeted = ["aaa-debutant","aaa-intermediaire","aaa-expert","acl-debutant","acl-intermediaire","acl-expert","archi-reseau-debutant","archi-reseau-intermediaire","archi-reseau-expert","arp-debutant","arp-intermediaire","arp-expert","vlan-debutant","vlan-intermediaire","vlan-expert","ipv4-debutant","ipv4-intermediaire","ipv4-expert","adressage-intermediaire","adressage-expert","ansible-devops-intermediaire"]
+        placeholder = re.compile(r"question temporaire|quiz généré automatiquement|question placeholder|avez-vous bien lu ce cours|avez-vous lu le cours", re.IGNORECASE)
+        for quiz_id in targeted:
+            data = json.loads(self.quiz_paths[quiz_id].read_text(encoding="utf-8"))
+            questions = data["questions"]
+            self.assertGreaterEqual(len(questions), 6, f"Quiz trop court: {quiz_id}")
+            prompts = [question.get("prompt", "").strip().lower() for question in questions]
+            self.assertEqual(len(prompts), len(set(prompts)), f"Questions dupliquées: {quiz_id}")
+            positions = set()
+            for index, question in enumerate(questions, 1):
+                self.assertFalse(placeholder.search(question.get("prompt", "")), f"Placeholder dans {quiz_id}, question {index}")
+                self.assertTrue(question.get("explanation", "").strip(), f"Explication manquante: {quiz_id}, question {index}")
+                self.assertEqual(len(question.get("choices", [])), 4, f"Quatre choix attendus: {quiz_id}, question {index}")
+                answer = question.get("answer")
+                self.assertIsInstance(answer, int, f"Réponse non entière: {quiz_id}, question {index}")
+                self.assertGreaterEqual(answer, 0)
+                self.assertLess(answer, len(question["choices"]))
+                positions.add(answer)
+            self.assertGreaterEqual(len(positions), 3, f"Réponses trop prévisibles: {quiz_id}")
+
     def test_cicd_expert_is_a_real_standalone_course(self) -> None:
         path = self.lesson_paths["cicd-expert"]
         content = path.read_text(encoding="utf-8").strip()
