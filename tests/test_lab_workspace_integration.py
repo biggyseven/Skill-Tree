@@ -137,5 +137,12 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn('return FileResponse(PROJECT_ROOT / "lab.html")', api_source)
 
 
+    def test_course_lab_button_uses_resolver_and_free_workspace_is_explicit(self):
+        dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        self.assertIn('@click="openLab(detail.id, true)"', dashboard)
+        self.assertNotIn("@click=\"window.open('/lab.html?id=' + (detail?.id || ''), '_blank')\"", dashboard)
+        self.assertIn("Ouvrir l’atelier libre, sans scénario de cours", dashboard)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
