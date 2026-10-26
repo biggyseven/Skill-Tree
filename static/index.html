@@ -3934,7 +3934,7 @@
         onLabValidated(data) {
           // Un bac à sable peut répondre à son contrôle technique, mais ne valide
           // ni le cours ni le compteur local de labs réussis.
-          if (!data || !data.passed || data.sandbox === true || data.attempt_recorded === false) return;
+          if (!data || !data.passed || data.sandbox === true || data.stale === true || data.attempt_recorded === false) return;
           // Le résultat d'un onglet séparé doit rester associé au lab lancé,
           // même si l'utilisateur ouvre ensuite un autre cours dans le dashboard.
           const nodeId = String(data.lab_id || (this.detail && this.detail.id) || '');
