@@ -1,7 +1,7 @@
 """Connexion SQLite, schéma et amorçage du contenu."""
 from __future__ import annotations
 
-import sqlite3
+from . import db_compat as sqlite3
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -207,7 +207,8 @@ def connect(path: str | Path = DEFAULT_DB, *, check_same_thread: bool = True) ->
 
 def initialize(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
-    _migrate(conn)
+    if not getattr(conn, "is_postgres", False):
+        _migrate(conn)
     _ensure_user_stats(conn)
     conn.commit()
 
@@ -444,7 +445,7 @@ def _consume_streak_freezes(conn: sqlite3.Connection, last_day: date, today: dat
             "SELECT quantity FROM shop_inventory WHERE item_id = ?",
             (STREAK_FREEZE_ITEM,),
         ).fetchone()
-    except sqlite3.OperationalError:
+    except sqlite3.OPERATIONAL_ERROR_CLASSES:
         return
     available = max(0, int(row["quantity"] or 0)) if row else 0
     used = min(missing, available)
