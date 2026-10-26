@@ -355,10 +355,21 @@ def _course_lab_context(conn: sqlite3.Connection, lab_id: str) -> dict[str, Any]
             prerequisite for prerequisite in node.prereqs
             if prerequisite not in validated_ids
         ]
+        prerequisite_titles = {
+            str(row["id"]): str(row["title"] or row["id"])
+            for row in conn.execute("SELECT id, title FROM nodes").fetchall()
+        }
         return {
             "min_score": int(requirement.min_score),
             "unlocked": status is not Status.LOCKED,
             "missing_prerequisites": missing_prerequisites,
+            "missing_prerequisite_details": [
+                {
+                    "id": prerequisite,
+                    "title": prerequisite_titles.get(prerequisite, prerequisite),
+                }
+                for prerequisite in missing_prerequisites
+            ],
         }
     except (sqlite3.Error, DomainError, KeyError, TypeError, ValueError):
         # Un lab autonome reste utilisable même si aucune correspondance de parcours
@@ -367,12 +378,28 @@ def _course_lab_context(conn: sqlite3.Connection, lab_id: str) -> dict[str, Any]
 
 
 def _course_lock_message(course_context: dict[str, Any]) -> str:
-    """Explique pourquoi un scénario du parcours n'est pas encore accessible."""
-    missing = [str(item) for item in course_context.get("missing_prerequisites", [])]
+    """Explique le verrou avec les titres des cours prérequis."""
+    details = course_context.get("missing_prerequisite_details", [])
+    missing: list[str] = []
+    for detail in details:
+        if not isinstance(detail, dict):
+            continue
+        prerequisite_id = str(detail.get("id") or "").strip()
+        title = str(detail.get("title") or prerequisite_id).strip()
+        if title:
+            missing.append(
+                f"{title} ({prerequisite_id})" if prerequisite_id and title != prerequisite_id
+                else title
+            )
+
+    # Compatibilité avec les contextes de verrouillage créés par les anciens appels/tests.
+    if not missing:
+        missing = [str(item) for item in course_context.get("missing_prerequisites", [])]
+
     if missing:
         return (
             "Ce laboratoire est verrouillé par le parcours. Validez d'abord les "
-            f"prérequis suivants : {', '.join(missing)}."
+            f"cours prérequis suivants : {', '.join(missing)}."
         )
     return (
         "Ce laboratoire est verrouillé par le parcours. Validez ses prérequis "
