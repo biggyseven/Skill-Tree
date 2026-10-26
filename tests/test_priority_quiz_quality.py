@@ -36,6 +36,10 @@ PRIORITY_TRACKS = {
     "mtu-pmtud": ("mtu-pmtud-debutant", "mtu-pmtud-intermediaire", "mtu-pmtud-expert"),
     "multicast": ("multicast-debutant", "multicast-intermediaire", "multicast-expert"),
     "napalm": ("napalm-debutant", "napalm-intermediaire", "napalm-expert"),
+    "netconf-yang": ("netconf-yang-debutant", "netconf-yang-intermediaire", "netconf-yang-expert"),
+    "netflow": ("netflow-debutant", "netflow-intermediaire", "netflow-expert"),
+    "netmiko": ("netmiko-debutant", "netmiko-intermediaire", "netmiko-expert"),
+    "ntp-syslog": ("ntp-syslog-debutant", "ntp-syslog-intermediaire", "ntp-syslog-expert"),
 }
 PRIORITY_STANDALONE_QUIZZES = (
     "incident-ospf",

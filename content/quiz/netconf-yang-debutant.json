@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NETCONF, YANG et RESTCONF - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel rôle YANG joue-t-il dans la gestion structurée d’un équipement réseau ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Décrire la structure, les types et les contraintes des données exposées",
+        "Transporter directement les paquets IP entre routeurs",
+        "Remplacer SSH pour toutes les connexions CLI",
+        "Fournir à lui seul le mécanisme de chiffrement des données"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "YANG décrit un modèle de données. Un protocole de gestion tel que NETCONF ou RESTCONF sert à accéder aux données selon les capacités du serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle association distingue correctement NETCONF et RESTCONF ?",
+      "choices": [
+        "NETCONF définit les modèles YANG et RESTCONF fournit le routage IP",
+        "NETCONF utilise des opérations RPC, généralement sur une session SSH, tandis que RESTCONF expose des ressources via HTTP",
+        "NETCONF est un protocole de collecte Syslog et RESTCONF synchronise l’heure",
+        "NETCONF ne permet que les lectures et RESTCONF que les écritures"
+      ],
+      "answer": 1,
+      "explanation": "NETCONF et RESTCONF sont des interfaces de gestion ; YANG décrit les données. Les opérations disponibles dépendent des modèles, des capacités et des permissions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet principalement une requête NETCONF `<get-config>` ?",
+      "choices": [
+        "Modifier le firmware sans autorisation",
+        "Récupérer automatiquement toutes les trames transitant sur les interfaces",
+        "Lire la configuration d’un datastore pris en charge",
+        "Remplacer le modèle YANG installé"
+      ],
+      "answer": 2,
+      "explanation": "`get-config` lit la configuration d’un datastore ciblé. `get` peut aussi exposer l’état opérationnel selon le serveur et les filtres utilisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le serveur NETCONF envoie-t-il un message `hello` à l’ouverture de la session ?",
+      "choices": [
+        "Pour fournir les mots de passe de tous les comptes",
+        "Pour annoncer une table ARP complète de tout le réseau",
+        "Pour exécuter automatiquement un commit confirmé",
+        "Pour annoncer les capacités et identifier les fonctionnalités/protocoles pris en charge"
+      ],
+      "answer": 3,
+      "explanation": "L’échange `hello` permet aux pairs d’annoncer leurs capacités. Un client doit vérifier ces capacités avant d’utiliser des opérations optionnelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel format est couramment utilisé pour les messages RPC NETCONF ?",
+      "choices": [
+        "XML",
+        "CSV",
+        "HTML uniquement",
+        "Un fichier binaire sans structure"
+      ],
+      "answer": 0,
+      "explanation": "Les messages NETCONF utilisent des enveloppes XML pour les opérations RPC et les réponses. Le modèle YANG décrit la structure attendue des données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une interface de gestion expose une donnée `admin-status` de type énuméré. Quel élément définit les valeurs légitimes de cette donnée ?",
+      "choices": [
+        "Le nom DNS du contrôleur",
+        "Le modèle YANG applicable",
+        "Le niveau de gravité Syslog",
+        "La MTU de l’interface Ethernet"
+      ],
+      "answer": 1,
+      "explanation": "YANG décrit les types et les contraintes des données, y compris les énumérations. Le serveur doit exposer le modèle qu’il prend réellement en charge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il vérifier les permissions avant un test NETCONF/RESTCONF ?",
+      "choices": [
+        "NETCONF ignore toujours les contrôles d’accès",
+        "Une session SSH permet automatiquement toutes les opérations",
+        "Un compte peut être autorisé à lire certaines données mais pas à modifier la configuration",
+        "Les permissions sont définies exclusivement par les Route Targets MPLS"
+      ],
+      "answer": 2,
+      "explanation": "L’authentification ne donne pas automatiquement les droits de lecture et d’écriture. Utilise un compte à privilèges minimaux et vérifie la politique de contrôle d’accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une lecture NETCONF échoue immédiatement après la connexion. Quel contrôle initial est pertinent ?",
+      "choices": [
+        "Redémarrer tous les routeurs du réseau",
+        "Modifier les modèles YANG sans lire l’erreur",
+        "Désactiver l’authentification du serveur",
+        "Vérifier les capacités du serveur, le datastore demandé, le filtre et les permissions"
+      ],
+      "answer": 3,
+      "explanation": "Une session ouverte ne garantit pas qu’une opération est prise en charge. Lis le `rpc-error`, puis vérifie les capacités, la cible et le compte utilisés."
     }
   ]
 }

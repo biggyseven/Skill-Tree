@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IP SLA & NetFlow - Expert",
+      "prompt": "Quelle différence essentielle existe entre NetFlow v9 et IPFIX ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "IPFIX est un standard d’export de l’information de flux, tandis que NetFlow v9 est un format défini par Cisco, avec des mécanismes de templates comparables",
+        "IPFIX est uniquement une capture PCAP et NetFlow v9 un protocole de routage",
+        "NetFlow v9 chiffre tous les paquets alors qu’IPFIX ne le peut jamais",
+        "IPFIX remplace le sampling et NetFlow v9 le rend obligatoire"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les deux formats structurent l’export par templates, mais IPFIX est standardisé par l’IETF et NetFlow v9 est associé à Cisco. Les capacités exactes dépendent des exportateurs et collecteurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le collecteur reçoit des datagrammes NetFlow v9, mais la plupart des champs ne sont pas décodés. Quel élément vérifier en priorité ?",
+      "choices": [
+        "La synchronisation NTP du poste opérateur uniquement",
+        "La réception et la validité du template associé à l’export et à la session",
+        "La longueur du nom d’hôte du routeur",
+        "Le nombre de VLAN sur le commutateur d’accès"
+      ],
+      "answer": 1,
+      "explanation": "Le template indique au collecteur comment interpréter les champs. Une perte, un changement de template ou une mauvaise association de session peut rendre les données inutilisables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une exportation NetFlow est placée après NAT sur un pare-feu. Pourquoi documenter ce point de mesure ?",
+      "choices": [
+        "Parce que le NAT désactive toujours les compteurs d’octets",
+        "Parce qu’un flux après NAT ne peut pas être représenté en IPFIX",
+        "Parce que les adresses et ports observés peuvent différer de ceux vus avant traduction, ce qui change la corrélation avec les journaux et les flux amont",
+        "Parce que le collecteur doit être placé sur le même VLAN que la source"
+      ],
+      "answer": 2,
+      "explanation": "Le point d’observation est déterminant pour interpréter les clés d’un flux. Les valeurs avant et après NAT ne sont pas directement équivalentes ; il faut les relier avec les journaux et métadonnées appropriés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque crée une cardinalité excessive des clés NetFlow sur un équipement chargé ?",
+      "choices": [
+        "Une synchronisation horaire plus précise",
+        "Une réduction automatique du nombre de flux sans perte d’information",
+        "Une garantie de livraison de tous les datagrammes UDP",
+        "Une hausse des entrées de cache, de la consommation mémoire et du coût d’export/collecte"
+      ],
+      "answer": 3,
+      "explanation": "Ajouter trop de clés peut fragmenter le trafic en nombreuses entrées. Il faut dimensionner le record selon la question d’analyse et les ressources disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les numéros de séquence exportés indiquent des ruptures répétées. Quelle démarche est la plus appropriée ?",
+      "choices": [
+        "Corréler les ruptures avec compteurs d’export, charge réseau, pertes de transport, cache et comportement du collecteur",
+        "Conclure que le trafic utilisateur a nécessairement chuté",
+        "Modifier les routes BGP avant d’examiner les données",
+        "Désactiver les templates pour simplifier l’export"
+      ],
+      "answer": 0,
+      "explanation": "Une rupture de séquence peut indiquer des pertes ou des conditions de transport/export. Il faut la corréler aux métriques et à la sémantique du format avant d’en déduire un impact utilisateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les estimations basées sur du sampling doivent-elles conserver la méthode d’échantillonnage et ses paramètres ?",
+      "choices": [
+        "Parce que le sampling transforme les données en captures complètes",
+        "Pour interpréter les volumes, l’incertitude et le biais potentiel, notamment pour les petits flux",
+        "Pour éviter d’avoir à documenter le point d’observation",
+        "Parce qu’un facteur de sampling garantit une exactitude parfaite"
+      ],
+      "answer": 1,
+      "explanation": "Le sampling diminue le coût de mesure, mais n’est pas équivalent à l’observation complète. La méthode et le taux doivent être connus pour interpréter les estimations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le débit NetFlow semble inférieur aux compteurs d’interface. Quel ensemble de contrôles est le plus pertinent ?",
+      "choices": [
+        "Remplacer obligatoirement UDP par TCP",
+        "Traiter la différence comme une preuve de panne de lien",
+        "Comparer le point et le sens d’observation, la période, l’échantillonnage, l’expiration du cache et les octets inclus dans chaque compteur",
+        "Désactiver les compteurs d’interface pour les aligner"
+      ],
+      "answer": 2,
+      "explanation": "Les métriques n’ont pas nécessairement le même périmètre ou la même fenêtre de temps. La comparaison doit être normalisée et tenir compte de la sémantique de chaque compteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur est utile pour juger la qualité globale d’une chaîne de télémétrie de flux ?",
+      "choices": [
+        "Le nombre de commandes CLI tapées par jour",
+        "Uniquement l’état up/down de l’interface de management",
+        "Le nombre de routes dans la table de routage globale",
+        "Des mesures combinées de volume exporté/reçu, de pertes, de fraîcheur, de décodage des templates et de conformité du schéma"
+      ],
+      "answer": 3,
+      "explanation": "Une chaîne de télémétrie doit être observée comme une série de maillons. Un exporteur actif ne prouve ni la réception, ni le décodage, ni la qualité et la fraîcheur des données."
     }
   ]
 }

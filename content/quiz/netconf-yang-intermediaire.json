@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NETCONF, YANG et RESTCONF - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Le serveur NETCONF ne propose pas la capacité `:candidate`. Quelle approche est la plus sûre avant de concevoir un workflow qui l’exige ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Détecter la capacité manquante et choisir une procédure compatible avec le serveur ou un autre équipement de test",
+        "Envoyer quand même une opération `commit` jusqu’à ce qu’elle réussisse",
+        "Déduire que le datastore running est un alias de candidate",
+        "Désactiver les validations côté client"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les capacités doivent guider le choix des opérations. Un client ne doit pas supposer que tous les serveurs implémentent candidate, validate ou les extensions de transaction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert la YANG Library dans un environnement multi-constructeurs ?",
+      "choices": [
+        "Transporter les messages Syslog sur TLS",
+        "Décrire les modules de données disponibles et leurs révisions ou ensembles de schémas, selon la version de bibliothèque",
+        "Remplacer l’inventaire IP des interfaces",
+        "Garantir que tous les équipements possèdent exactement les mêmes extensions"
+      ],
+      "answer": 1,
+      "explanation": "La découverte du modèle réellement installé évite de valider des données par rapport à un schéma différent de celui du serveur cible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un modèle YANG, quelle différence générale existe entre `leaf` et `leaf-list` ?",
+      "choices": [
+        "`leaf` est toujours un secret ; `leaf-list` toujours un compteur",
+        "`leaf` définit un transport et `leaf-list` un protocole",
+        "`leaf` représente une valeur unique ; `leaf-list` représente une liste de valeurs",
+        "Ils sont identiques et peuvent toujours être remplacés sans effet"
+      ],
+      "answer": 2,
+      "explanation": "Les deux décrivent des données mais n’ont pas la même cardinalité. Le type, les contraintes et la présence éventuelle doivent suivre le modèle du serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ajouter une contrainte de plage `range` ou une contrainte `must` à un modèle YANG ?",
+      "choices": [
+        "Pour accélérer automatiquement le plan de données IP",
+        "Pour attribuer des adresses DHCP à des clients",
+        "Pour désactiver la validation côté serveur",
+        "Pour déclarer des règles de validité sur les valeurs ou les relations entre données"
+      ],
+      "answer": 3,
+      "explanation": "Les contraintes permettent de rejeter des valeurs hors limites ou des configurations qui violent une relation exprimée dans le modèle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une opération `edit-config` renvoie un `rpc-error`. Quelle est la meilleure étape suivante ?",
+      "choices": [
+        "Lire le type, le message et les éléments d’erreur, puis vérifier le modèle, le datastore et les préconditions",
+        "Renvoyer la même opération en boucle sans examiner le retour",
+        "Considérer que le changement a été appliqué malgré l’erreur",
+        "Redémarrer le collecteur Syslog"
+      ],
+      "answer": 0,
+      "explanation": "Les détails de l’erreur peuvent révéler un nœud inconnu, une valeur invalide, un accès refusé ou une erreur de verrouillage. Il faut diagnostiquer avant de réessayer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’analyser la réponse NETCONF avec un parseur XML plutôt qu’avec de simples recherches de chaînes ?",
+      "choices": [
+        "Les réponses NETCONF ne contiennent jamais de balises",
+        "Préserver la structure et les espaces de noms XML, pour interpréter les champs de façon fiable",
+        "Une recherche de texte sait distinguer toutes les relations parent-enfant sans ambiguïté",
+        "Le parsing XML supprime automatiquement les erreurs métier"
+      ],
+      "answer": 1,
+      "explanation": "Un parseur XML traite la hiérarchie et les namespaces. Le code doit néanmoins vérifier les champs attendus, les résultats vides et les éléments d’erreur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de pousser une candidate sur plusieurs équipements, quel contrôle est utile ?",
+      "choices": [
+        "Comparer seulement la longueur des fichiers XML",
+        "Appliquer d’abord sur tous les équipements pour tester après coup",
+        "Valider la configuration contre le modèle réel et inspecter l’opération prévue, le datastore cible et les capacités",
+        "Remplacer toutes les révisions YANG par la même chaîne de version"
+      ],
+      "answer": 2,
+      "explanation": "Les modèles et capacités peuvent varier. La validation préalable et un test contrôlé limitent les changements incompatibles et les effets de bord."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les tests d’un client NETCONF doivent-ils inclure un serveur qui renvoie une erreur ou un délai dépassé ?",
+      "choices": [
+        "Pour éviter de tester les réponses correctes",
+        "Pour prouver que tous les équipements ont les mêmes délais",
+        "Pour contourner les permissions et les contrôles de schéma",
+        "Pour vérifier que le programme distingue refus, erreur de données, panne de transport et résultat incomplet"
+      ],
+      "answer": 3,
+      "explanation": "Les réponses d’échec font partie du contrat du client. Le code doit produire un état explicite, gérer les sessions proprement et ne pas annoncer à tort un changement réussi."
     }
   ]
 }

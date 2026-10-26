@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NTP & Syslog - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi configurer NTP sur les équipements réseau ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour maintenir une horloge cohérente avec une ou plusieurs sources de temps de référence",
+        "Pour remplacer la résolution DNS des équipements",
+        "Pour envoyer les événements au collecteur Syslog",
+        "Pour garantir que tous les paquets IP arrivent dans le même ordre"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "NTP ajuste la relation entre l’horloge locale et une source de temps. Cela facilite la corrélation des événements, mais ne transporte pas les journaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel port UDP est utilisé par NTP dans le fonctionnement réseau courant ?",
+      "choices": [
+        "514",
+        "123",
+        "6514",
+        "161"
+      ],
+      "answer": 1,
+      "explanation": "NTP utilise généralement UDP/123. Il faut distinguer ce port de ceux utilisés par Syslog ou SNMP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente généralement le stratum dans la hiérarchie NTP ?",
+      "choices": [
+        "Une note complète et absolue de précision",
+        "La latence maximale garantie du réseau",
+        "La distance logique de la source par rapport à une référence de temps",
+        "Le niveau de gravité Syslog de l’équipement"
+      ],
+      "answer": 2,
+      "explanation": "Le stratum décrit la distance hiérarchique à une référence, mais ne suffit pas à mesurer à lui seul la précision ou la fiabilité réelle de la source."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi correspond l’offset NTP ?",
+      "choices": [
+        "Au nombre de messages Syslog perdus",
+        "À la taille maximale des paquets IP",
+        "Au nombre de sauts entre le client et le serveur",
+        "À l’estimation de l’écart temporel entre l’horloge locale et la référence selon les mesures NTP"
+      ],
+      "answer": 3,
+      "explanation": "L’offset estime l’écart de temps et aide l’implémentation à discipliner l’horloge. Il ne doit pas être confondu avec le délai du réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans les niveaux de gravité Syslog standards, quel numéro correspond au niveau le plus sévère ?",
+      "choices": [
+        "0 — Emergency",
+        "7 — Debugging",
+        "4 — Warning",
+        "6 — Informational"
+      ],
+      "answer": 0,
+      "explanation": "Les niveaux vont généralement de 0 (Emergency, le plus sévère) à 7 (Debugging). Les équipements peuvent proposer des filtres dont le comportement doit être vérifié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert la facility dans un message Syslog ?",
+      "choices": [
+        "À annoncer la MTU de l’interface qui a émis le message",
+        "À catégoriser le type de service ou la source logique à l’origine du message",
+        "À définir le niveau de stratum NTP",
+        "À remplacer l’horodatage du message"
+      ],
+      "answer": 1,
+      "explanation": "La facility aide le collecteur à distinguer la catégorie d’origine du message. Elle est différente de la sévérité qui indique son importance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal risque d’un envoi Syslog uniquement via UDP ?",
+      "choices": [
+        "UDP garantit la livraison et l’ordre des messages",
+        "UDP synchronise les horloges avant chaque message",
+        "Des messages peuvent être perdus sans mécanisme de retransmission ni garantie de livraison",
+        "Le transport UDP chiffre toujours Syslog de bout en bout"
+      ],
+      "answer": 2,
+      "explanation": "Syslog sur UDP est simple, mais il ne fournit pas de garantie de livraison. Il faut considérer la charge, le réseau, les files et les besoins de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un incident semble avoir une chronologie incohérente entre deux équipements. Quelle première vérification est pertinente ?",
+      "choices": [
+        "Augmenter le niveau de débogage partout sans limite",
+        "Remplacer Syslog par une table ARP",
+        "Modifier toutes les adresses IP des équipements",
+        "Contrôler la synchronisation NTP, l’UTC/fuseau et les horodatages avant de corréler les messages"
+      ],
+      "answer": 3,
+      "explanation": "Une heure incorrecte ou un fuseau incohérent peut inverser l’ordre apparent d’événements. Vérifie l’état NTP et la façon dont les horodatages sont produits et interprétés."
     }
   ]
 }

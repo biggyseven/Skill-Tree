@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IP SLA & NetFlow - Débutant",
+      "prompt": "Quelle information décrit généralement un flux NetFlow ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Un ensemble de paquets regroupés selon des champs tels que les adresses, ports, protocole et interfaces",
+        "Le contenu complet de chaque paquet comme une capture PCAP",
+        "Uniquement les événements de configuration du routeur",
+        "La synchronisation horaire des équipements"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "NetFlow agrège des métadonnées de trafic selon un record. Il ne remplace pas une capture de paquets et ne fournit pas automatiquement le contenu applicatif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence distingue IP SLA et NetFlow ?",
+      "choices": [
+        "IP SLA collecte les logs et NetFlow synchronise l’heure",
+        "IP SLA mesure activement un chemin ou un service cible ; NetFlow décrit les conversations observées par un équipement",
+        "IP SLA remplace le routage et NetFlow chiffre les paquets",
+        "IP SLA observe toujours tous les flux et NetFlow n’utilise aucune interface"
+      ],
+      "answer": 1,
+      "explanation": "IP SLA est une mesure active définie par une sonde. NetFlow observe les flux présents au point de mesure. Les résultats sont complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans Flexible NetFlow, à quoi sert le flow record ?",
+      "choices": [
+        "Choisir uniquement le mot de passe du collecteur",
+        "Configurer le serveur DHCP de destination",
+        "Définir les champs utilisés comme clés d’identification et les informations collectées pour chaque flux",
+        "Remplacer le protocole d’export par une capture physique"
+      ],
+      "answer": 2,
+      "explanation": "Le record définit la structure logique du flux : les champs `match` distinguent les entrées, et les champs `collect` ajoutent les données souhaitées selon la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle général du flow exporter ?",
+      "choices": [
+        "Décider des droits SSH des administrateurs",
+        "Définir les routes BGP annoncées par l’équipement",
+        "Calculer l’heure UTC du serveur",
+        "Indiquer la destination et les paramètres d’export des données de flux"
+      ],
+      "answer": 3,
+      "explanation": "L’exporter configure typiquement l’adresse du collecteur, le transport et la version selon la plateforme. Le collecteur doit écouter et décoder le format utilisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il choisir entre observer une interface en entrée ou en sortie ?",
+      "choices": [
+        "Le point et le sens d’observation changent les paquets vus et peuvent influer sur l’interprétation des volumes",
+        "Parce qu’un monitor fonctionne toujours dans une seule direction sur toutes les plateformes",
+        "Pour que le routeur supprime les paquets du trafic observé",
+        "Parce que NetFlow désactive automatiquement les compteurs d’interface"
+      ],
+      "answer": 0,
+      "explanation": "Le placement du monitor détermine le point de mesure. Il faut documenter le sens et éviter de sommer des observations qui comptent deux fois le même trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’échantillonnage (sampling) dans la télémétrie de flux ?",
+      "choices": [
+        "Chiffrer les champs collectés",
+        "Ne mesurer qu’une partie du trafic selon une règle d’échantillonnage, puis interpréter les estimations en tenant compte de cette règle",
+        "Exporter uniquement les messages Syslog de niveau 0",
+        "Éliminer définitivement les flux de courte durée"
+      ],
+      "answer": 1,
+      "explanation": "Le sampling réduit le coût de mesure, mais les estimations de volume et la détection des petits flux peuvent être biaisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les enregistrements NetFlow restent-ils parfois dans un cache avant export ?",
+      "choices": [
+        "Pour remplacer toutes les tables de routage",
+        "Pour transformer automatiquement UDP en TCP",
+        "Pour agréger les paquets associés à une entrée de flux et exporter les compteurs lorsqu’un critère d’expiration est atteint",
+        "Pour conserver les mots de passe de chaque client"
+      ],
+      "answer": 2,
+      "explanation": "Les caches de flux accumulent compteurs et informations jusqu’à une expiration ou une condition d’export. Les temporisations influent sur la fraîcheur et le volume."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un collecteur ne reçoit aucun flux. Quel premier diagnostic est raisonnable ?",
+      "choices": [
+        "Modifier tous les préfixes IP du réseau",
+        "Désactiver l’IGP pour forcer l’export",
+        "Augmenter le stratum du serveur NTP",
+        "Vérifier que le monitor voit des paquets, que l’exporter est attaché au bon sens d’interface et que l’adresse/port/transport du collecteur sont corrects"
+      ],
+      "answer": 3,
+      "explanation": "Commence par le point d’observation et la configuration exporter/monitor, puis vérifie le chemin réseau, les filtres et l’écoute du collecteur."
     }
   ]
 }
