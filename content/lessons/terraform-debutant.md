@@ -8,6 +8,8 @@
 
 > **Lien avec le parcours DevOps IaC :** ici, tu apprends les mécanismes concrets de Terraform et HCL. Le cours « Fondamentaux de l’IaC » présente les principes communs aux outils, la revue d’un changement et les responsabilités d’équipe, sans refaire ce tutoriel technique.
 
+> **Mise en contexte.** Tu dois reproduire un petit environnement de test sans créer de ressources cloud facturables. Tu vas décrire une configuration, vérifier son plan avant de l’appliquer et protéger l’état qui relie Terraform aux ressources suivies. Les premières manipulations utilisent une ressource locale de type terraform_data afin d’apprendre le cycle de travail sans déployer de machine, de réseau ou de service cloud payant.
+
 ## Sommaire
 
 1. Contexte et objectifs
@@ -24,7 +26,8 @@
 12. Atelier pratique complet
 13. Dépannage
 14. Évaluation corrigée
-15. Préparation du niveau intermédiaire
+15. Défi final corrigé : créer et sécuriser un laboratoire Terraform
+16. Préparation du niveau intermédiaire
 
 
 # 1. Contexte et objectifs
@@ -741,7 +744,88 @@ Traitez le state comme une donnée sensible. Révoquez ou renouvelez les secrets
 10. Parce que Terraform applique une configuration qui peut être incorrecte ou inadaptée. Les validations et revues restent essentielles.
 
 
-# 15. Préparation du niveau intermédiaire
+# 15. Défi final corrigé : créer et sécuriser un laboratoire Terraform
+
+## Situation
+
+Tu dois livrer un mini-laboratoire local permettant de changer le nom d’un environnement sans réécrire la configuration. Tu dois prouver que tu sais valider les fichiers, examiner un plan avant application et éviter de publier l’état ou le plan dans Git. Ce défi ne doit créer aucune infrastructure cloud.
+
+## Travail demandé
+
+1. Crée un répertoire réservé au laboratoire.
+2. Déclare une variable environment, une ressource terraform_data qui reçoit cette variable et une sortie qui affiche la valeur appliquée.
+3. Prépare un fichier .gitignore qui exclut le répertoire local de travail, l’état, les sauvegardes d’état et les plans enregistrés. Conserve le fichier de verrouillage des providers s’il est créé.
+4. Lance les contrôles, génère un plan enregistré et affiche-le avant toute application.
+5. Change la variable de lab à test, puis compare les plans.
+6. Explique pourquoi une validation réussie n’autorise pas automatiquement une application.
+7. Vérifie que les fichiers sensibles ne sont pas suivis par Git et prévois un nettoyage limité au répertoire de laboratoire.
+
+## Correction attendue
+
+Un exemple minimal de configuration est :
+
+~~~hcl
+terraform {
+  required_version = ">= 1.4.0"
+}
+
+variable "environment" {
+  type        = string
+  description = "Nom de l'environnement de laboratoire"
+  default     = "lab"
+}
+
+resource "terraform_data" "lab" {
+  input = var.environment
+}
+
+output "environment_name" {
+  value = terraform_data.lab.output
+}
+~~~
+
+Le .gitignore peut contenir au minimum :
+
+~~~gitignore
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+*.tfplan
+crash.log
+~~~
+
+Le fichier .terraform.lock.hcl n’est pas à ignorer par défaut : il aide à conserver les sélections de versions des providers. Vérifie le contenu exact de .gitignore et le statut Git avant le commit.
+
+Séquence de contrôle :
+
+~~~bash
+terraform fmt
+terraform init
+terraform validate
+terraform plan -out=tfplan
+terraform show tfplan
+~~~
+
+Après avoir vérifié que le plan vise uniquement ce laboratoire, que les changements correspondent au besoin et que l’application est autorisée, tu peux exécuter :
+
+~~~bash
+terraform apply tfplan
+terraform output environment_name
+git status --short
+~~~
+
+Ne lance pas apply uniquement parce que validate réussit. Le plan enregistré et l’état peuvent contenir des informations sensibles : ne les publie pas. En fin d’exercice, confirme le répertoire et l’environnement ciblés avant toute destruction, puis ne supprime que les ressources de ce laboratoire.
+
+## Critères de réussite
+
+- La variable pilote la ressource de laboratoire.
+- Les commandes de contrôle sont exécutées dans l’ordre.
+- Le plan est lu avant l’application.
+- L’état, les sauvegardes d’état et le plan ne sont pas ajoutés au dépôt.
+- L’apprenant sait expliquer pourquoi un changement inattendu impose l’arrêt et l’analyse.
+
+# 16. Préparation du niveau intermédiaire
 
 Le niveau intermédiaire prolongera ce socle avec :
 
