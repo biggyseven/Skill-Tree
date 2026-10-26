@@ -1,0 +1,30 @@
+{
+  "node_id": "secu-auth-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Laquelle est une authentification multifacteur ?",
+      "choices": [
+        "Mot de passe et code PIN mémorisé",
+        "Deux mots de passe différents",
+        "Mot de passe et clé de sécurité physique",
+        "Nom d’utilisateur et adresse e-mail"
+      ],
+      "answer": 2,
+      "explanation": "Le mot de passe et la clé physique relèvent de catégories distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue authentification et autorisation ?",
+      "choices": [
+        "Elles sont identiques",
+        "L’authentification vérifie l’identité, l’autorisation détermine les actions permises",
+        "L’autorisation vérifie seulement le mot de passe",
+        "L’authentification attribue les rôles après chaque requête"
+      ],
+      "answer": 1,
+      "explanation": "L’authentification vérifie l’identité ; l’autorisation contrôle les permissions."
+    }
+  ]
+}
