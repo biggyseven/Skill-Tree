@@ -1,18 +1,102 @@
 {
   "node_id": "voice-sip-expert",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quelle distinction décrit le mieux un proxy SIP et un B2BUA/SBC dans une architecture voix ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Un proxy peut relayer les requêtes SIP selon la politique ; un B2BUA termine une jambe de dialogue et en établit une autre, et un SBC peut aussi appliquer des politiques de frontière et de média",
+        "Un proxy transporte toujours le RTP tandis qu’un SBC ne voit jamais les paquets SIP",
+        "Un B2BUA est uniquement un codec G.711",
+        "Ces rôles sont exclusivement des types de câble Ethernet"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Un proxy relaie les requêtes selon les règles SIP. Un B2BUA agit comme deux agents SIP sur des jambes distinctes ; un SBC peut combiner contrôle de signalisation, sécurité et fonctions d’ancrage/normalisation média."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans SIP, à quoi sert un re-INVITE à l’intérieur d’un dialogue établi ?",
+      "choices": [
+        "À remplacer automatiquement le numéro de téléphone par l’adresse IP",
+        "À supprimer tous les en-têtes SDP",
+        "À modifier les paramètres d’une session existante, par exemple le média, sans nécessairement créer un nouvel appel",
+        "À renouveler obligatoirement l’enregistrement REGISTER"
+      ],
+      "answer": 2,
+      "explanation": "Un re-INVITE peut modifier les paramètres de la session en cours, notamment les flux ou attributs SDP. Il peut être refusé ; un échec de modification ne signifie pas systématiquement que la session existante est terminée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un INVITE est forké vers plusieurs terminaux et plusieurs réponses 200 OK sont reçues. Quelle conséquence SIP est importante ?",
+      "choices": [
+        "Toutes les réponses 200 OK doivent obligatoirement être ignorées",
+        "Chaque réponse 2xx peut établir un dialogue distinct qui doit être traité, avec ACK et gestion du dialogue appropriés",
+        "Le premier 200 OK désactive automatiquement tous les autres dialogues sans action du client",
+        "Le serveur doit renvoyer une erreur DNS"
+      ],
+      "answer": 1,
+      "explanation": "Le fork d’un INVITE peut générer plusieurs réponses 2xx, chacune correspondant à un dialogue établi. Le client doit traiter les réponses et gérer les dialogues supplémentaires selon les règles SIP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un appel SIP est établi mais le son disparaît après un transfert ou une modification média. Quelle démarche experte est la plus utile ?",
+      "choices": [
+        "Changer immédiatement tous les codecs du système",
+        "Désactiver SRTP pour tous les appels sans diagnostic",
+        "Conclure que le serveur DNS est en cause puisque l’appel avait fonctionné",
+        "Comparer les SDP avant/après, les adresses et ports RTP, la direction des flux, les règles NAT et les compteurs sur les deux jambes de signalisation"
+      ],
+      "answer": 3,
+      "explanation": "Une modification de dialogue peut changer les adresses, ports et paramètres média. Il faut corréler la signalisation et le chemin RTP après la modification, notamment si un SBC ou un B2BUA termine plusieurs jambes d’appel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un plan de numérotation expert doit-il tester explicitement les boucles de routage et les transformations multiples ?",
+      "choices": [
+        "Une règle trop large ou une normalisation appliquée deux fois peut renvoyer un appel vers son origine ou modifier le numéro d’une manière inattendue",
+        "Parce qu’une boucle est impossible si SIP utilise UDP",
+        "Parce que les dial peers ne participent jamais au choix de route",
+        "Parce que la traduction E.164 remplace les règles d’autorisation"
+      ],
+      "answer": 0,
+      "explanation": "Les transformations de numéros et les routes alternatives doivent être testées ensemble. Des motifs trop larges et des traductions répétées peuvent créer des boucles d’appel ou un routage non autorisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat démontre le mieux qu’un mécanisme de secours SIP répond à l’objectif de disponibilité ?",
+      "choices": [
+        "Le dial peer de secours apparaît dans la configuration",
+        "Le serveur SIP de secours répond seulement au ping de gestion",
+        "Un appel de test autorisé, avec média bidirectionnel et fonctions requises, réussit après une panne contrôlée du chemin primaire",
+        "Le téléphone conserve la même adresse MAC"
+      ],
+      "answer": 2,
+      "explanation": "La disponibilité se vérifie avec un scénario d’appel représentatif, y compris signalisation, média et fonctionnalités requises. Une route ou un serveur qui répond au ping ne prouve pas à lui seul l’établissement ni la qualité d’un appel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour protéger une frontière de téléphonie SIP, quelle combinaison est la plus appropriée ?",
+      "choices": [
+        "Ouvrir tous les ports SIP et RTP depuis Internet sans journalisation",
+        "Limiter les destinations et les sources autorisées, appliquer l’authentification et le contrôle d’accès, protéger la signalisation et le média selon les capacités, et surveiller les anomalies",
+        "Faire confiance à tous les en-têtes d’identité fournis par n’importe quel pair",
+        "Désactiver toutes les limites de débit pour éviter les faux positifs"
+      ],
+      "answer": 1,
+      "explanation": "La défense en couches combine contrôle de source/destination, auth, politiques d’appel, TLS/SRTP si appropriés, protection contre l’abus et logs. Les mécanismes de confiance entre domaines doivent être explicitement définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une analyse de qualité indique un MOS faible, mais les taux de retransmission IP semblent normaux. Quelle enquête doit-on poursuivre ?",
+      "choices": [
+        "Changer le port d’écoute SIP seulement",
+        "Réduire au hasard le nombre de dial peers",
+        "Se limiter au ping du PBX",
+        "Corréler statistiques RTP/RTCP, perte, gigue, durée de paquetisation, codec, charge des endpoints et chemin média ; les retransmissions TCP ne résument pas la qualité RTP"
+      ],
+      "answer": 3,
+      "explanation": "La qualité de la voix dépend du média temps réel, de la gigue, de la perte, du codec et des endpoints. Les indicateurs de contrôle comme le ping ou les retransmissions TCP ne décrivent pas toute l’expérience audio."
     }
-  ],
-  "scope": "quiz"
+  ]
 }
