@@ -6,7 +6,7 @@ import json
 import os
 import re
 import secrets
-import sqlite3
+from . import db_compat as sqlite3
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -951,12 +951,7 @@ _DIAGNOSTIC_REQUIRED_TABLES = {"nodes", "edges", "requirements", "attempts"}
 
 def _readonly_diagnostic_connection(db_path: Path) -> sqlite3.Connection:
     """Ouvre la base de l'application en lecture seule, sans créer de fichier."""
-    resolved = db_path.expanduser().resolve()
-    connection = sqlite3.connect(
-        resolved.as_uri() + "?mode=ro",
-        uri=True,
-        timeout=5,
-    )
+    connection = sqlite3.connect(db_path, timeout=5, readonly=True)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA query_only = ON")
     return connection
