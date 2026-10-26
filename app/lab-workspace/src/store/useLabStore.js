@@ -1,5 +1,9 @@
 ﻿import { create } from 'zustand';
 
+function normalisePortHandleId(handleId) {
+  return String(handleId ?? '').replace(/::(?:source|target)$/, '');
+}
+
 const emptyTopology = () => ({
   schema_version: 2, topology_id: 'workspace-' + Date.now(),
   metadata: { name: 'Espace de travail libre', author: 'user', created_at: new Date().toISOString(), mode: 'lab' },
@@ -158,13 +162,15 @@ export const useLabStore = create((set, get) => ({
     if (!topo || !connection.source || !connection.target || connection.source === connection.target) return;
     const source = topo.nodes.find(n => n.id === connection.source);
     const target = topo.nodes.find(n => n.id === connection.target);
-    const sourcePort = (source?.ports || []).some(p => p.id === connection.sourceHandle);
-    const targetPort = (target?.ports || []).some(p => p.id === connection.targetHandle);
+    const sourcePortId = normalisePortHandleId(connection.sourceHandle);
+    const targetPortId = normalisePortHandleId(connection.targetHandle);
+    const sourcePort = (source?.ports || []).some(p => p.id === sourcePortId);
+    const targetPort = (target?.ports || []).some(p => p.id === targetPortId);
     if (!sourcePort || !targetPort) return;
     const newLink = {
       id: 'link-' + crypto.randomUUID(),
-      from: { node: connection.source, port: connection.sourceHandle },
-      to: { node: connection.target, port: connection.targetHandle },
+      from: { node: connection.source, port: sourcePortId },
+      to: { node: connection.target, port: targetPortId },
       cable_type: type === 'cable_cross' ? 'copper_crossover' : (type === 'fiber' ? 'fiber' : 'copper_straight'),
       state: 'up'
     };
