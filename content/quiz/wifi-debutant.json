@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Wi-Fi 802.11 - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Dans un réseau Wi-Fi, quelle distinction entre SSID et BSSID est correcte ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le SSID est le nom logique du réseau ; le BSSID identifie généralement une cellule radio d’un point d’accès",
+        "Le SSID est l’adresse IP du client ; le BSSID est son serveur DHCP",
+        "Le SSID désigne la bande de fréquence ; le BSSID est le mot de passe",
+        "Le SSID est le canal radio ; le BSSID indique le masque du sous-réseau"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le SSID sert à nommer le réseau sans fil présenté à l’utilisateur. Le BSSID identifie généralement une interface radio/cellule du point d’accès, souvent à partir d’une adresse MAC."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un poste capte correctement le Wi-Fi dans une maison mais perd le débit lorsque plusieurs personnes regardent des vidéos. Quelle explication est plausible ?",
+      "choices": [
+        "Le SSID se transforme automatiquement en adresse privée",
+        "Le point d’accès cesse nécessairement d’émettre les trames de gestion",
+        "Les stations partagent un médium radio dont la capacité disponible est consommée par le trafic concurrent",
+        "Le serveur DNS réserve une partie de la bande 2,4 GHz"
+      ],
+      "answer": 2,
+      "explanation": "Les clients d’une même cellule partagent les ressources radio. La contention et l’airtime consommé par les flux concurrents peuvent réduire le débit utile disponible pour chacun."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après l’association et l’authentification au réseau sans fil, quelle fonction fournit normalement au client ses paramètres IPv4 automatiquement ?",
+      "choices": [
+        "STP",
+        "DHCP",
+        "VTP",
+        "ARP inspection"
+      ],
+      "answer": 1,
+      "explanation": "DHCP peut attribuer une adresse IPv4, un masque, une passerelle et d’autres paramètres. L’association Wi-Fi seule ne garantit pas que le client obtienne une configuration IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le téléphone affiche une connexion Wi-Fi stable, mais ne peut ouvrir aucun site. Quelle démarche de diagnostic est la plus raisonnable ?",
+      "choices": [
+        "Changer immédiatement tous les canaux radio",
+        "Remplacer le point d’accès sans examiner les paramètres",
+        "Augmenter systématiquement la puissance d’émission au maximum",
+        "Vérifier l’adresse IP, la passerelle, le DNS et l’accès amont avant de conclure à une panne radio"
+      ],
+      "answer": 3,
+      "explanation": "Une liaison radio fonctionnelle ne garantit pas les services IP ou l’accès Internet. Vérifier la configuration client et tester progressivement la passerelle, la résolution DNS et la connectivité amont permet de localiser la panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel choix constitue une base de sécurité Wi-Fi nettement préférable à WEP ou à un réseau ouvert ?",
+      "choices": [
+        "WPA3-Personal ou WPA2 avec AES, selon les capacités et exigences de l’environnement",
+        "WEP avec une clé plus longue, quelle que soit la compatibilité",
+        "Un SSID caché sans authentification",
+        "Une adresse MAC de client considérée comme un secret"
+      ],
+      "answer": 0,
+      "explanation": "WPA3 ou WPA2 avec AES est préférable à WEP et à l’absence de chiffrement. Masquer le SSID ou filtrer des adresses MAC ne remplace pas une authentification et une protection cryptographique adaptées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un petit réseau 2,4 GHz utilisant des canaux de 20 MHz, pourquoi les canaux 1, 6 et 11 sont-ils souvent étudiés en premier dans un plan classique ?",
+      "choices": [
+        "Ils sont réservés aux clients qui utilisent WPA3",
+        "Ils correspondent obligatoirement aux trois canaux les plus puissants du pays",
+        "Ils sont espacés de façon à éviter le chevauchement entre ces canaux dans le plan de canaux classique, sous réserve de la réglementation locale",
+        "Ils garantissent un débit maximal indépendamment des réseaux voisins"
+      ],
+      "answer": 2,
+      "explanation": "Dans le plan de canaux 2,4 GHz le plus courant avec des canaux de 20 MHz, 1, 6 et 11 peuvent être utilisés sans chevauchement entre eux. Le domaine réglementaire et l’environnement radio restent à prendre en compte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu’un utilisateur se déplace entre deux points d’accès qui diffusent le même SSID, qui décide généralement du moment où le client quitte une cellule pour en rejoindre une autre ?",
+      "choices": [
+        "Le serveur DHCP choisit toujours le BSSID à chaque paquet",
+        "Le client participe généralement à la décision de roaming, en s’appuyant éventuellement sur les informations et aides du réseau",
+        "Le serveur DNS impose le point d’accès à chaque requête",
+        "Le commutateur Ethernet choisit directement le canal du téléphone"
+      ],
+      "answer": 1,
+      "explanation": "Dans les déploiements Wi-Fi courants, le client joue un rôle central dans la décision de roaming. Des fonctions réseau comme 802.11k/v peuvent fournir des informations ou influencer le processus sans garantir le choix d’un point d’accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit le rapport signal/bruit (SNR) ?",
+      "choices": [
+        "Le nombre de clients authentifiés sur le point d’accès",
+        "La quantité d’adresses IP encore libres dans le sous-réseau",
+        "Le nombre de VLAN autorisés sur le trunk",
+        "La différence ou le rapport entre le niveau du signal utile reçu et celui du bruit, généralement exprimé en dB"
+      ],
+      "answer": 3,
+      "explanation": "Le SNR compare le signal utile au bruit radio. Un signal reçu fort n’implique pas à lui seul un bon SNR si le bruit ou les interférences sont également élevés."
     }
   ]
 }
