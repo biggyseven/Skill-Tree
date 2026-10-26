@@ -738,7 +738,7 @@
           <div class="flex items-start justify-between gap-3 border-b border-white/10 px-1 pb-3">
             <div>
               <h2 id="settings-dialog-title" class="text-base font-bold text-white sm:text-lg">Paramètres de Skill-Tree</h2>
-              <p class="mt-1 text-[11px] leading-relaxed text-zinc-500">Personnalise l’interface et la lecture. Tes choix sont conservés sur cet appareil.</p>
+              <p class="mt-1 text-[11px] leading-relaxed text-zinc-500"><span class="font-semibold text-zinc-300">Centre de préférences.</span> Personnalise l’interface et la lecture. Tes choix sont conservés sur cet appareil.</p>
             </div>
             <div class="flex shrink-0 items-center gap-2">
               <span class="rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-[10px] font-semibold text-emerald-200" x-text="(nodes?.length || 0) + ' cours'"></span>
@@ -6035,7 +6035,8 @@
         },
         get resumableLastNode() {
           const node = this.lastOpenedNode;
-          return this.resumeLastLesson && node && node.status !== 'locked' ? node : null;
+          if (!this.resumeLastLesson) return null;
+          return node && node.status !== 'locked' ? node : null;
         },
         get moduleNextCourse() {
           if (this.moduleNextCourseId === null || this.moduleNextCourseId === undefined) return null;
