@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité Active Directory » : à rédiger après le cours complet.",
+      "prompt": "Pourquoi un poste utilisé pour lire les courriels ne doit-il pas servir à l'administration Tier 0 ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Parce que les DC ne fonctionnent qu'avec des postes Linux",
+        "Parce qu'un poste moins fiable peut exposer des identifiants très privilégiés et compromettre le plan d'identité",
+        "Parce que Kerberos ne fonctionne que depuis un serveur membre",
+        "Parce que l'administration Tier 0 doit toujours se faire depuis Internet"
+      ],
+      "answer": 1,
+      "explanation": "Le modèle par tiers exige que les identifiants privilégiés ne soient pas exposés sur les hôtes moins fiables. Les postes d'administration dédiés réduisent les chemins de compromission vers les contrôleurs de domaine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d'une GPO dans Active Directory ?",
+      "choices": [
+        "Stocker les mots de passe en clair",
+        "Remplacer la réplication AD",
+        "Appliquer des paramètres aux utilisateurs et ordinateurs ciblés selon les liens, filtrages et héritages",
+        "Supprimer la nécessité de contrôler les ACL"
+      ],
+      "answer": 2,
+      "explanation": "Une GPO applique des paramètres à sa portée effective, déterminée entre autres par les liens, l'héritage et les filtres. Il faut auditer qui peut modifier la GPO et vérifier son application réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif de Windows LAPS ?",
+      "choices": [
+        "Gérer et faire tourner les mots de passe de comptes administrateurs locaux compatibles",
+        "Remplacer Kerberos par NTLM",
+        "Accorder l'accès Domain Admin à l'équipe helpdesk",
+        "Sauvegarder toutes les données du serveur"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Windows LAPS automatise la gestion et le stockage des mots de passe de comptes locaux compatibles, réduisant le risque lié à la réutilisation d'un même mot de passe. L'accès aux secrets doit rester limité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement un SPN dans Kerberos ?",
+      "choices": [
+        "À attribuer une adresse IP à un contrôleur de domaine",
+        "À définir les paramètres de rétention des journaux",
+        "À remplacer les permissions de fichiers",
+        "À associer une identité de service à un nom utilisé lors de l'authentification Kerberos"
+      ],
+      "answer": 3,
+      "explanation": "Le SPN identifie un service pour Kerberos et doit correspondre au service et au compte appropriés. Les doublons ou erreurs peuvent provoquer des échecs d'authentification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on faire avant d'exiger LDAP signing ou channel binding dans un domaine ancien ?",
+      "choices": [
+        "Activer immédiatement la politique stricte sur tous les contrôleurs sans audit",
+        "Inventorier les clients, examiner les événements d'audit, tester la compatibilité et déployer progressivement",
+        "Désinstaller tous les clients LDAP",
+        "Désactiver les journaux Directory Service"
+      ],
+      "answer": 1,
+      "explanation": "Les versions et clients peuvent avoir des comportements différents. L'audit préalable, la mise à jour des clients et un déploiement pilote limitent les interruptions avant l'enforcement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement un compte de service ?",
+      "choices": [
+        "Il doit toujours être membre de Domain Admins",
+        "Il doit partager le même mot de passe sur tous les serveurs",
+        "Il doit avoir un propriétaire, une finalité et uniquement les droits nécessaires à l'application",
+        "Il ne doit jamais être journalisé"
+      ],
+      "answer": 2,
+      "explanation": "Les comptes de service doivent être attribués à un propriétaire, limités aux hôtes et opérations nécessaires, et surveillés. gMSA peut automatiser la gestion des secrets lorsque l'application le supporte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une ACL sur une OU mérite-t-elle une revue même si le compte concerné n'est pas Domain Admins ?",
+      "choices": [
+        "Parce que des droits délégués peuvent autoriser des modifications d'objets ou de groupes sensibles",
+        "Parce que les OU ne contiennent que des fichiers",
+        "Parce qu'une ACL est toujours ignorée par Active Directory",
+        "Parce que les groupes privilégiés ne peuvent pas être modifiés"
+      ],
+      "answer": 0,
+      "explanation": "Les privilèges effectifs peuvent venir de groupes imbriqués, d'ACL héritées ou d'une délégation. L'analyse ne doit pas se limiter à l'appartenance directe aux groupes privilégiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d'une délégation Kerberos non contrainte mal maîtrisée ?",
+      "choices": [
+        "Elle supprime la résolution DNS",
+        "Elle empêche la création de tout ticket de service",
+        "Elle désactive automatiquement la réplication",
+        "Elle peut élargir l'exposition des justificatifs et les possibilités d'accès au-delà du besoin"
+      ],
+      "answer": 3,
+      "explanation": "La délégation doit être limitée au besoin et analysée avec les propriétaires d'application. Il faut comprendre les dépendances et tester une configuration plus restrictive lorsque cela est supporté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le système de sauvegarde des contrôleurs de domaine doit-il être protégé comme un actif sensible ?",
+      "choices": [
+        "Parce qu'une sauvegarde ne contient jamais de données sensibles",
+        "Parce qu'un outil qui peut restaurer ou contrôler les DC peut influencer le plan d'identité",
+        "Parce que le serveur de sauvegarde n'utilise aucun compte",
+        "Parce qu'il rend inutiles les contrôleurs de domaine secondaires"
+      ],
+      "answer": 1,
+      "explanation": "Les comptes, hyperviseurs, stockage et outils de sauvegarde capables de contrôler les DC peuvent offrir des chemins d'administration très puissants. Ils doivent être segmentés, restreints et surveillés en conséquence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une absence d'événement d'audit après une opération sensible ?",
+      "choices": [
+        "Que l'opération n'a certainement pas eu lieu",
+        "Que l'acteur était forcément autorisé",
+        "Que la politique d'audit ou la collecte peut être incomplète et doit être vérifiée",
+        "Que la journalisation centrale est inutile"
+      ],
+      "answer": 2,
+      "explanation": "L'absence de trace peut venir d'une catégorie d'audit non activée, d'un filtrage, d'une panne de collecte ou d'une rétention insuffisante. Valide le pipeline en générant un événement de test contrôlé."
     }
   ]
 }
