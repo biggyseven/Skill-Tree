@@ -92,13 +92,12 @@ Exemple de déploiement progressif :
         owner: root
         group: root
         mode: "0644"
-      notify: Vérifier et recharger Nginx
-  handlers:
-    - name: Vérifier et recharger Nginx
-      ansible.builtin.command: nginx -t
-      changed_when: false
       notify: Recharger Nginx
 
+    - name: Vérifier la configuration Nginx
+      ansible.builtin.command: nginx -t
+      changed_when: false
+  handlers:
     - name: Recharger Nginx
       ansible.builtin.service:
         name: nginx

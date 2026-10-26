@@ -68,6 +68,19 @@ class PedagogicalCatalogIntegrityTests(unittest.TestCase):
             self.assertTrue(expected <= set(self.quiz_paths), f"Quiz manquants: {topic}")
             self.assertTrue(expected <= set(self.node_by_id), f"Nœuds manquants: {topic}")
 
+    def test_targeted_quizzes_distribute_correct_answer_positions(self) -> None:
+        targeted = (
+            "cicd-expert",
+            "ansible-devops-debutant", "ansible-devops-expert",
+            "devsecops-debutant", "devsecops-intermediaire",
+            "iac-debutant", "mesh-debutant", "mesh-intermediaire",
+            "observability-debutant",
+        )
+        for quiz_id in targeted:
+            data = json.loads(self.quiz_paths[quiz_id].read_text(encoding="utf-8"))
+            positions = {question["answer"] for question in data["questions"]}
+            self.assertGreaterEqual(len(positions), 3, f"Réponses trop prévisibles dans {quiz_id}")
+
     def test_cicd_expert_is_a_real_standalone_course(self) -> None:
         path = self.lesson_paths["cicd-expert"]
         content = path.read_text(encoding="utf-8").strip()
