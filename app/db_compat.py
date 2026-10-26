@@ -102,7 +102,7 @@ def _replace_qmarks(sql: str) -> str:
             i += 2
             block_comment = True
             continue
-        if char in ("'", '"', "\x60"):
+        if char in ("'", '"'):
             quote = "'" if char == "'" else '"'
             result.append(quote)
             i += 1
@@ -388,7 +388,7 @@ def connect(
     if target_url:
         if psycopg is None:
             raise RuntimeError("DATABASE_URL est défini mais psycopg n'est pas installé.")
-        connect_kwargs: dict[str, Any] = {"row_factory": dict_row, "connect_timeout": max(1, int(timeout))}
+        connect_kwargs: dict[str, Any] = {"row_factory": dict_row, "connect_timeout": max(1, int(timeout)), "prepare_threshold": None}
         if readonly:
             connect_kwargs["options"] = "-c default_transaction_read_only=on"
         return PostgresConnection(psycopg.connect(target_url, **connect_kwargs))
