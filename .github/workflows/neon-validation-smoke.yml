@@ -37,6 +37,47 @@ jobs:
               raise SystemExit(f"Validation service did not become ready: {last_error}")
           PY
 
+      - name: Inspect production progress read-only before any cutover
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          import urllib.request
+
+          base = "https://skill-tree-vjon.onrender.com"
+          def get_json(path):
+              with urllib.request.urlopen(base + path, timeout=30) as response:
+                  return json.loads(response.read().decode("utf-8"))
+
+          last_error = "production service did not become ready"
+          for attempt in range(36):
+              try:
+                  tree = get_json("/api/tree")
+                  stats = get_json("/api/stats")
+                  streak = get_json("/api/streak")
+                  break
+              except Exception as error:
+                  last_error = str(error)
+                  time.sleep(10)
+          else:
+              raise SystemExit(f"Cannot establish a read-only production baseline: {last_error}")
+
+          totals = stats.get("totals") or {}
+          has_activity = bool(
+              int(tree.get("validated") or 0) > 0
+              or int(totals.get("attempts") or 0) > 0
+              or int(streak.get("minutes_total") or 0) > 0
+              or int(streak.get("days") or 0) > 0
+          )
+          print(
+              "PRODUCTION_BASELINE=activity_detected"
+              if has_activity
+              else "PRODUCTION_BASELINE=no_activity_detected"
+          )
+          print("This check only called read-only GET endpoints; no production write was made.")
+          PY
+
       - name: Verify course and Lab Workspace reads plus a persisted failed submission
         shell: bash
         run: |
