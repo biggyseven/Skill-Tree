@@ -27,16 +27,15 @@ DataError = _sqlite3.DataError
 ProgrammingError = _sqlite3.ProgrammingError
 NotSupportedError = _sqlite3.NotSupportedError
 
-if psycopg is not None:
-    Error = (_sqlite3.Error, psycopg.Error)
-    DatabaseError = (_sqlite3.DatabaseError, psycopg.DatabaseError)
-    OperationalError = (_sqlite3.OperationalError, psycopg.OperationalError)
-    IntegrityError = (_sqlite3.IntegrityError, psycopg.IntegrityError)
-else:
-    Error = _sqlite3.Error
-    DatabaseError = _sqlite3.DatabaseError
-    OperationalError = _sqlite3.OperationalError
-    IntegrityError = _sqlite3.IntegrityError
+Error = _sqlite3.Error
+DatabaseError = _sqlite3.DatabaseError
+OperationalError = _sqlite3.OperationalError
+IntegrityError = _sqlite3.IntegrityError
+
+ERROR_CLASSES = (_sqlite3.Error, psycopg.Error) if psycopg is not None else (_sqlite3.Error,)
+DATABASE_ERROR_CLASSES = (_sqlite3.DatabaseError, psycopg.DatabaseError) if psycopg is not None else (_sqlite3.DatabaseError,)
+OPERATIONAL_ERROR_CLASSES = (_sqlite3.OperationalError, psycopg.OperationalError) if psycopg is not None else (_sqlite3.OperationalError,)
+INTEGRITY_ERROR_CLASSES = (_sqlite3.IntegrityError, psycopg.IntegrityError) if psycopg is not None else (_sqlite3.IntegrityError,)
 
 
 class HybridRow(Mapping[str, Any]):
