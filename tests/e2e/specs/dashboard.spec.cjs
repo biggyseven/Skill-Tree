@@ -336,3 +336,25 @@ test('la navigation mobile garde des cibles tactiles suffisantes et indique la s
   await expect(labs).toHaveAttribute('aria-current', 'page');
   await expect(home).not.toHaveAttribute('aria-current', 'page');
 });
+
+
+test('le tableau de bord mobile conserve la reprise, la prochaine leçon et le plan du jour sans débordement horizontal', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDashboard(page);
+
+  const main = page.locator('main[x-ref="mainScroll"]');
+  await expect(main.getByText('Ton espace d’apprentissage', { exact: true })).toBeVisible();
+  await expect(main.locator('#daily-plan-title')).toHaveText("Ta session d'aujourd'hui");
+  await expect(main.locator('.mobile-bottom-nav')).toHaveCount(0);
+
+  const dimensions = await main.evaluate(element => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+    viewportWidth: window.innerWidth,
+  }));
+  expect(dimensions.clientWidth).toBeGreaterThan(0);
+  expect(
+    dimensions.scrollWidth,
+    'Le contenu principal déborde horizontalement : ' + JSON.stringify(dimensions)
+  ).toBeLessThanOrEqual(dimensions.clientWidth + 2);
+});
