@@ -1666,7 +1666,7 @@
             <template x-if="lessonHtml">
               <div class="lesson-reader-grid grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8 w-full">
                 <!-- Sommaire latéral -->
-                <aside x-show="lessonToc.length" class="lesson-toc-panel sticky top-2 hidden max-h-[calc(94vh-13rem)] w-full shrink-0 self-start overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s2)] p-4 lg:block">
+                <aside id="lesson-sidebar-toc" x-show="lessonToc.length" class="lesson-toc-panel sticky top-2 hidden max-h-[calc(94vh-13rem)] w-full shrink-0 self-start overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s2)] p-4 lg:block">
                   <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Sommaire</p>
                   <nav class="border-l border-white/10" aria-label="Sommaire du cours">
                     <template x-for="item in lessonToc" :key="item.id">
@@ -1677,7 +1677,7 @@
                 </aside>
 
                 <div id="lesson-section-index" class="lesson-content min-w-0 w-full max-w-none">
-                  <details x-show="lessonToc.length" class="mb-4 rounded-xl border border-white/10 bg-[color:var(--s2)] p-3 lg:hidden">
+                  <details id="lesson-mobile-section-list" x-show="lessonToc.length" class="mb-4 rounded-xl border border-white/10 bg-[color:var(--s2)] p-3 lg:hidden">
                     <summary class="cursor-pointer select-none list-none text-sm font-semibold text-violet-200">
                       <span aria-hidden="true">☷</span> Sections du cours
                       <span class="ml-1 text-xs font-normal text-zinc-400" x-text="'(' + lessonToc.length + ')'"></span>
@@ -2364,17 +2364,22 @@
             toc.push({ id: h.id, text });
 
             const backLink = document.createElement('a');
-            backLink.href = '#lesson-section-index';
+            backLink.href = '#lesson-sidebar-toc';
             backLink.className = 'lesson-section-back no-speech';
             backLink.setAttribute('aria-label', 'Retour au sommaire des sections');
             backLink.textContent = '↑ Retour aux sections';
             backLink.addEventListener('click', event => {
               event.preventDefault();
               const article = this.$refs.lessonArticle;
-              const index = article && article.querySelector('#lesson-section-index');
-              if (index) {
-                index.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                history.replaceState(null, '', '#lesson-section-index');
+              const readerGrid = article && article.closest('.lesson-reader-grid');
+              const sidebar = readerGrid && readerGrid.querySelector('#lesson-sidebar-toc');
+              const mobileSectionList = readerGrid && readerGrid.querySelector('#lesson-mobile-section-list');
+              const sidebarVisible = !!(sidebar && sidebar.getClientRects().length);
+              const target = sidebarVisible ? sidebar : mobileSectionList;
+              if (target) {
+                if (!sidebarVisible && mobileSectionList) mobileSectionList.open = true;
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.replaceState(null, '', sidebarVisible ? '#lesson-sidebar-toc' : '#lesson-section-index');
               }
             });
             h.appendChild(backLink);
