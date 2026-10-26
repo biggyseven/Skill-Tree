@@ -161,7 +161,7 @@ test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans 
   await expect.poll(() => sectionPage.evaluate(() => window.Alpine.$data(document.body).tab)).toBe('challenges');
   await sectionPage.close();
 
-  const moduleLink = page.locator('a[aria-label^="Ouvrir le module "][href*="openModule="]').first();
+  const moduleLink = page.locator('a[aria-label^="Ouvrir le module "][href*="openModule="]').nth(1);
   await expect(moduleLink).toBeVisible();
   await expect(moduleLink).toHaveAttribute('target', '_blank');
   const moduleId = new URL(await moduleLink.getAttribute('href'), 'http://localhost').searchParams.get('openModule');
@@ -170,6 +170,16 @@ test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans 
   const modulePage = await modulePagePromise;
   await waitForReadyPage(modulePage);
   await expect.poll(() => modulePage.evaluate(() => window.Alpine.$data(document.body).moduleFilter)).toBe(moduleId);
+  const expectedFirstCourse = await modulePage.evaluate((id) => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.nodes?.find(node => state.moduleOf(node) === id)?.id || null;
+  }, moduleId);
+  expect(expectedFirstCourse).toBeTruthy();
+  await expect.poll(() => modulePage.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.open && state?.detail?.id ? state.detail.id : null;
+  }), { timeout: 30_000 }).toBe(expectedFirstCourse);
+  await expect(modulePage.locator('#course-reader-title')).toBeVisible();
   await modulePage.close();
 
   const courseLink = page.locator('a[aria-label^="Ouvrir le cours "][href*="openCourse="]').first();
@@ -185,6 +195,29 @@ test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans 
     return state?.open && state?.detail?.id ? state.detail.id : null;
   }), { timeout: 30_000 }).toBe(courseId);
   await coursePage.close();
+});
+
+test('changer de module ouvre le premier cours du module sélectionné', async ({ page }) => {
+  await openDashboard(page);
+
+  // Lier le bouton d’un module à son propre lien d’ouverture évite de dépendre
+  // d’autres boutons portant le même libellé accessible dans le tableau de bord.
+  const moduleLink = page.locator('a[aria-label^="Ouvrir le module "][href*="openModule="]').nth(1);
+  const moduleId = new URL(await moduleLink.getAttribute('href'), 'http://localhost').searchParams.get('openModule');
+  const firstCourse = await page.evaluate((id) => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    const node = state?.nodes?.find(item => state.moduleOf(item) === id);
+    return node ? { id: node.id, title: node.title } : null;
+  }, moduleId);
+  expect(firstCourse).toBeTruthy();
+
+  await moduleLink.locator('xpath=..').getByRole('button').click();
+
+  await expect.poll(() => page.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.open && state?.detail?.id ? state.detail.id : null;
+  }), { timeout: 30_000 }).toBe(firstCourse.id);
+  await expect(page.locator('#course-reader-title')).toHaveText(firstCourse.title);
 });
 
 test('les cartes du catalogue des labs ouvrent un nouvel onglet sans remplacer le tableau de bord', async ({ page }) => {
