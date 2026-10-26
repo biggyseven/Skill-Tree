@@ -360,8 +360,8 @@ class PostgresConnection:
         return self
 
     def __exit__(self, exc_type, exc, traceback) -> None:
+        # sqlite3.Connection's context manager commits or rolls back but does not close.
         self.commit() if exc_type is None else self.rollback()
-        self.close()
 
 
 def is_postgres_url(value: object) -> bool:
