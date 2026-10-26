@@ -23,7 +23,7 @@
         "Vérifier uniquement que les deux ports sont administrativement actifs",
         "Remplacer toute fibre multimode par du cuivre"
       ],
-      "answer": 2,
+      "answer": 1,
       "explanation": "Le budget optique tient compte des pertes des fibres, connecteurs, épissures et équipements. La puissance reçue doit rester dans la plage spécifiée, avec une marge adaptée."
     },
     {
