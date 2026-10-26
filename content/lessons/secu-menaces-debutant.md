@@ -1,1307 +1,1497 @@
-# Cryptographie
+# Panorama des menaces
 
 > **Encadré de mise en contexte**
 >
-> Tu es technicien informatique dans une entreprise qui utilise une plateforme de formation en ligne. Les apprenants possèdent des comptes personnels, les enseignants publient les cours et les administrateurs gèrent les données enregistrées dans une base de données.
+> Imagine que tu travailles comme technicien informatique dans une entreprise qui possède une plateforme de formation. Les apprenants se connectent avec un compte personnel, consultent leurs cours et passent des évaluations. Les enseignants disposent de comptes leur permettant de gérer les contenus, tandis que les administrateurs assurent la maintenance du système.
 >
-> Un jour, l'entreprise doit transmettre un fichier contenant des informations confidentielles à un partenaire. Elle doit également protéger les fichiers stockés sur ses ordinateurs portables, vérifier que les téléchargements n'ont pas été modifiés et empêcher qu'un attaquant puisse récupérer directement les mots de passe des utilisateurs après le vol d'une base de données.
+> Un matin, une employée reçoit un courriel indiquant que son compte sera désactivé si elle ne confirme pas immédiatement son mot de passe. Elle ouvre le lien et saisit ses identifiants sur une page qui ressemble à celle de l'entreprise. Quelques heures plus tard, des connexions inhabituelles apparaissent dans les journaux. Un compte est utilisé pour télécharger des documents, puis des fichiers deviennent inaccessibles.
 >
-> Ces problèmes sont différents. Le chiffrement permet de rendre des données illisibles sans la clé appropriée. Une fonction de hachage permet de calculer une empreinte. Une signature numérique peut contribuer à vérifier l'intégrité d'un document et son origine cryptographique. Le stockage sécurisé des mots de passe repose sur des mécanismes spécialisés.
+> Plusieurs événements peuvent être liés : une tentative de manipulation, le vol d'identifiants, un accès non autorisé et éventuellement une action destructive. Mais avant de conclure qu'une attaque précise a eu lieu, il faut examiner les faits.
 >
-> La cryptographie fournit les outils permettant de répondre à ces besoins. Mais elle n'est efficace que si elle est correctement choisie, configurée et utilisée. Un algorithme puissant ne protège pas un système si les clés sont divulguées, si les permissions sont incorrectes ou si l'application contourne les vérifications.
+> Ce cours t'apprend à reconnaître les principales menaces informatiques, à comprendre comment elles peuvent affecter un système et à choisir les premières protections adaptées. Tu apprendras surtout à raisonner comme un professionnel : observer, identifier les risques, réduire les possibilités d'attaque et signaler correctement les incidents.
 
-## 1. Comprendre la cryptographie
+## 1. Comprendre ce qu'est une menace informatique
 
-### 1.1. Définition
+### 1.1. Définition d'une menace
 
-La **cryptographie** est une discipline qui utilise des méthodes mathématiques et informatiques pour protéger des informations et fournir certains services de sécurité.
+Une **menace informatique** est une situation, une action ou un événement susceptible de compromettre la sécurité d'un système, de ses données ou de son fonctionnement.
 
-Elle intervient dans de nombreux usages quotidiens : connexion à un site Web, applications bancaires, messagerie sécurisée, réseaux privés virtuels, stockage chiffré, mises à jour logicielles et authentification.
+Une menace peut provenir d'une personne malveillante, d'un logiciel, d'une erreur humaine, d'une panne matérielle, d'une catastrophe naturelle ou d'une combinaison de plusieurs facteurs.
 
-Lorsque tu consultes un site Web utilisant HTTPS, des mécanismes cryptographiques contribuent à protéger les échanges entre ton navigateur et le serveur. Lorsque tu déverrouilles un ordinateur doté d'un disque chiffré, un mécanisme cryptographique contribue à protéger les fichiers contre un accès non autorisé au support de stockage.
+Une attaque par hameçonnage est une menace. Un employé qui supprime accidentellement un répertoire important peut également provoquer une situation menaçante. Une coupure électrique peut interrompre un serveur et rendre un service inaccessible sans qu'aucun pirate n'intervienne.
 
-La cryptographie ne sert pas uniquement à cacher des textes. Elle peut également contribuer à détecter les modifications d'une information, à vérifier une signature ou à établir un secret partagé entre deux systèmes.
+Il est donc incorrect de considérer que toute menace informatique provient nécessairement d'un pirate.
 
-### 1.2. Cryptographie et cybersécurité
+Le rôle du professionnel de la cybersécurité consiste à comprendre les événements possibles, à évaluer leurs conséquences et à mettre en place des mesures de réduction du risque.
 
-La cybersécurité vise à protéger les systèmes, les réseaux, les données et les services. La cryptographie représente l'un des moyens d'atteindre ces objectifs.
+### 1.2. Différence entre menace, vulnérabilité et risque
 
-Pour comprendre son rôle, reprenons les propriétés CIA étudiées dans le premier cours.
+Ces trois notions sont liées, mais elles ne signifient pas la même chose.
 
-**Confidentialité.** Le chiffrement peut rendre une information illisible pour une personne qui ne possède pas la clé nécessaire.
+**La menace** est la cause potentielle d'un incident. Par exemple, une personne peut tenter de voler les identifiants d'un employé.
 
-**Intégrité.** Des mécanismes cryptographiques tels que les codes d'authentification de message et les signatures numériques peuvent aider à détecter une modification non autorisée.
+**La vulnérabilité** est une faiblesse qui rend un incident plus facile à provoquer. Il peut s'agir d'un mot de passe réutilisé, d'une application non corrigée ou d'une permission trop large.
 
-**Disponibilité.** La cryptographie ne garantit pas directement qu'un service reste accessible. Une mauvaise gestion des clés peut même rendre des données irrécupérables. Les procédures de récupération et la gestion du cycle de vie des clés sont donc indispensables.
+**Le risque** représente la possibilité qu'un événement produise des conséquences négatives. Son évaluation tient généralement compte de la vraisemblance et de la gravité des conséquences.
 
-La cryptographie contribue ainsi à plusieurs objectifs, mais elle ne remplace pas le contrôle d'accès, les sauvegardes, la maintenance ni la supervision.
+Prenons une situation concrète :
 
-### 1.3. Un exemple simple
+- Menace : une personne cherche à accéder à la messagerie d'une entreprise.
+- Vulnérabilité : un compte ne possède pas de protection adaptée et son mot de passe a été divulgué.
+- Événement : la personne utilise les identifiants pour se connecter.
+- Conséquence : des documents confidentiels sont consultés ou des messages frauduleux sont envoyés.
+- Risque : l'entreprise peut subir une fuite de données, une fraude ou une perte de confiance.
 
-Imaginons qu'Alice souhaite envoyer un document confidentiel à Bob. Elle ne veut pas qu'un tiers puisse lire son contenu pendant le transfert.
+Cette distinction est fondamentale. Un outil de sécurité ne doit pas être choisi simplement parce qu'une menace existe. Il faut comprendre quelle faiblesse doit être réduite et quelles conséquences doivent être évitées.
 
-Sans chiffrement, le document peut être lisible si quelqu'un parvient à intercepter une copie exploitable. Avec un mécanisme de chiffrement correctement choisi, Alice transforme le document en une suite de données chiffrées. Bob peut ensuite retrouver le contenu grâce à la clé nécessaire.
+### 1.3. Une menace ne signifie pas qu'une attaque a réussi
+
+Il faut distinguer une possibilité, une tentative et un incident confirmé.
+
+Une entreprise peut recevoir un courriel malveillant sans qu'aucun utilisateur clique dessus. Un serveur peut recevoir des requêtes inhabituelles qui sont bloquées par le pare-feu. Une personne peut tenter d'utiliser un ancien mot de passe sans parvenir à se connecter.
+
+Dans ces situations, une menace ou une tentative existe, mais la compromission n'est pas nécessairement établie.
+
+À l'inverse, un événement apparemment banal peut révéler un incident important. Une connexion depuis un emplacement inhabituel peut être légitime, mais elle mérite parfois une vérification si elle est suivie d'un téléchargement massif de documents.
+
+Le professionnel doit donc distinguer les faits observés des hypothèses. Il ne doit ni ignorer les signaux inquiétants ni déclarer une attaque sans éléments suffisants.
+
+## 2. Relier les menaces à la Triade CIA
+
+Dans le cours précédent, tu as découvert les trois propriétés fondamentales de sécurité : confidentialité, intégrité et disponibilité. Elles permettent d'organiser les conséquences possibles d'une menace.
+
+### 2.1. Menaces contre la confidentialité
+
+La confidentialité est compromise lorsque des informations sont consultées ou divulguées à des personnes qui ne sont pas autorisées à les recevoir.
+
+Exemples :
+
+- un attaquant vole un compte de messagerie et lit des documents internes ;
+- un employé transmet une liste de clients au mauvais destinataire ;
+- une application permet à un utilisateur de consulter le dossier d'une autre personne ;
+- un ordinateur portable contenant des données sensibles est perdu sans protection adaptée.
+
+La prévention s'appuie notamment sur le contrôle d'accès, la protection des identités, le chiffrement et la limitation des informations accessibles.
+
+### 2.2. Menaces contre l'intégrité
+
+L'intégrité concerne l'exactitude et la protection des informations contre les modifications ou destructions non autorisées.
+
+Exemples :
+
+- un compte compromis modifie des factures ;
+- un programme altère des fichiers ;
+- une erreur de manipulation supprime des enregistrements ;
+- une configuration réseau est changée sans validation.
+
+Les contrôles d'accès, la validation des données, la journalisation, la gestion des changements et les sauvegardes contribuent à réduire ces risques.
+
+### 2.3. Menaces contre la disponibilité
+
+La disponibilité est compromise lorsque les utilisateurs autorisés ne peuvent plus accéder aux données ou aux services dont ils ont besoin.
+
+Exemples :
+
+- une panne de serveur arrête une application ;
+- une attaque par déni de service surcharge un site ;
+- un rançongiciel rend des fichiers inutilisables ;
+- une coupure réseau empêche les utilisateurs d'accéder à une base de données.
+
+La supervision, la redondance, la maintenance, les sauvegardes testées et la préparation à la reprise contribuent à protéger la disponibilité.
+
+### 2.4. Une même menace peut affecter plusieurs propriétés
+
+Imagine qu'un attaquant obtienne les droits d'administration d'un serveur.
+
+Il peut télécharger des fichiers confidentiels, modifier des données et supprimer des composants nécessaires au service. La confidentialité, l'intégrité et la disponibilité peuvent alors être compromises au cours du même incident.
+
+Il faut donc déterminer les propriétés touchées en fonction des effets observés, et non supposer qu'une menace correspond toujours à une seule propriété.
+
+## 3. Qui ou quoi peut être à l'origine d'une menace ?
+
+Il est utile de comprendre qu'une menace peut avoir des origines différentes. La prévention ne sera pas identique selon que l'incident provient d'une personne malveillante, d'une erreur ou d'un événement technique.
+
+### 3.1. Les cybercriminels
+
+Les cybercriminels cherchent généralement à obtenir un avantage financier ou matériel. Ils peuvent voler des identifiants, escroquer des victimes, dérober des informations, extorquer de l'argent ou utiliser les ressources d'un système compromis.
+
+Certains agissent seuls, tandis que d'autres utilisent des services criminels spécialisés. Une personne peut, par exemple, vendre des identifiants volés à une autre qui les utilisera pour pénétrer un environnement.
+
+L'objectif n'est pas toujours immédiatement visible. Une activité apparemment limitée peut servir à préparer une fraude ou une compromission plus importante.
+
+### 3.2. Les acteurs motivés par le renseignement
+
+Certaines opérations cherchent à obtenir des informations stratégiques, scientifiques, diplomatiques, militaires ou économiques. Elles peuvent viser des administrations, des entreprises, des infrastructures critiques ou des organisations détenant des informations sensibles.
+
+Ces opérations peuvent être longues et discrètes. L'attaquant peut chercher à rester présent dans un environnement plutôt qu'à perturber immédiatement son fonctionnement.
+
+Il serait toutefois imprudent d'attribuer automatiquement une intrusion à un gouvernement ou à une organisation précise. L'attribution d'une opération nécessite des éléments techniques et contextuels qui dépassent souvent les capacités d'un simple observateur.
+
+### 3.3. Les acteurs idéologiques
+
+Certains acteurs cherchent à défendre une cause politique, sociale ou idéologique. Ils peuvent tenter de publier des informations, de perturber un service ou de modifier l'apparence d'un site.
+
+Leur motivation peut influencer le choix de la cible et les conséquences recherchées. Cela ne signifie pas que toutes les personnes qui défendent une cause commettent des actes malveillants : il faut examiner les actions concrètes.
+
+### 3.4. Les personnes internes à l'organisation
+
+Un risque peut provenir d'un employé, d'un prestataire ou d'un ancien collaborateur disposant encore d'accès.
+
+La personne peut agir volontairement ou commettre une erreur. Un salarié mécontent pourrait supprimer des fichiers, mais un collègue peut également divulguer un document en se trompant de destinataire.
+
+La protection contre les risques internes repose notamment sur des droits adaptés, des comptes individuels, des journaux d'audit et des procédures claires lors des changements de fonction ou des départs.
+
+### 3.5. Les erreurs et les événements techniques
+
+Un incident peut survenir sans intention malveillante : panne électrique, défaut logiciel, matériel défaillant, erreur d'administration, incident environnemental ou mauvaise planification d'une maintenance.
+
+La cybersécurité doit également s'intéresser à ces scénarios, car leurs conséquences peuvent être aussi sérieuses que celles d'une attaque.
+
+Une base de données supprimée accidentellement peut être aussi indisponible qu'une base sabotée. Une configuration réseau incorrecte peut provoquer une interruption sans qu'un pirate soit intervenu.
+
+La distinction entre origine malveillante et origine accidentelle est importante pour comprendre l'événement et choisir les mesures correctives.
+
+## 4. L'ingénierie sociale et les manipulations humaines
+
+### 4.1. Qu'est-ce que l'ingénierie sociale ?
+
+L'**ingénierie sociale** désigne des techniques de manipulation qui cherchent à amener une personne à révéler une information, à effectuer une action ou à accorder un accès.
+
+Plutôt que de s'attaquer uniquement à un logiciel, l'attaquant exploite la confiance, l'urgence, la curiosité, la peur ou le désir d'aider.
+
+Une personne peut ainsi transmettre un mot de passe, ouvrir un document dangereux, envoyer un paiement ou approuver une connexion qui ne devrait pas être autorisée.
+
+L'ingénierie sociale ne repose pas toujours sur des techniques informatiques complexes. Elle exploite surtout le contexte et le comportement humain.
+
+### 4.2. L'hameçonnage
+
+L'hameçonnage, aussi appelé *phishing*, consiste à tromper une personne pour l'amener à révéler des informations ou à effectuer une action dangereuse.
+
+Un courriel frauduleux peut imiter un service de messagerie, une banque, un transporteur, une plateforme de formation ou un responsable hiérarchique.
+
+Le message peut prétendre qu'un compte sera bloqué, qu'une facture est en attente ou qu'une connexion inhabituelle doit être vérifiée immédiatement.
+
+Les signaux d'alerte possibles comprennent :
+
+- une demande inattendue de mot de passe ou de code de connexion ;
+- un sentiment d'urgence inhabituel ;
+- un lien qui mène vers un domaine différent de celui du service attendu ;
+- une pièce jointe inattendue ;
+- une demande de paiement ou de modification de coordonnées bancaires par un canal inhabituel ;
+- une demande qui contourne les procédures normales de l'organisation.
+
+Aucun signal n'est une preuve absolue. Un message légitime peut être maladroit et un message frauduleux peut sembler très professionnel. Il faut considérer l'ensemble du contexte.
+
+### 4.3. Hameçonnage ciblé
+
+Le hameçonnage ciblé, souvent appelé *spear phishing*, vise une personne ou un groupe précis.
+
+L'attaquant peut reprendre le nom d'un collègue, utiliser le vocabulaire de l'entreprise ou mentionner un projet réel. Le message paraît alors plus crédible qu'un envoi générique.
+
+Par exemple, une employée reçoit un message indiquant que le responsable du projet a partagé un nouveau document. Le message utilise le nom du projet et semble provenir d'un collègue.
+
+Le bon réflexe consiste à examiner la demande, vérifier l'expéditeur réel et confirmer les demandes sensibles par un canal distinct déjà connu. Pour un paiement ou un changement de coordonnées bancaires, il faut suivre une procédure de vérification définie à l'avance.
+
+### 4.4. Fraude au président et aux paiements
+
+Une personne malveillante peut se faire passer pour un dirigeant ou un fournisseur et demander un virement urgent.
+
+La demande peut invoquer une acquisition confidentielle, un problème de délai ou une facture à régler immédiatement. La victime peut se sentir obligée d'agir rapidement.
+
+Pour réduire le risque, les entreprises doivent définir des règles d'approbation des paiements et de vérification des changements bancaires. Une demande reçue par courriel ne doit pas permettre de contourner les contrôles.
+
+La sensibilisation individuelle est utile, mais les procédures organisationnelles sont indispensables. Une bonne procédure doit faciliter la vérification, même lorsque le demandeur semble important ou pressé.
+
+### 4.5. Faux support technique
+
+Un escroc peut prétendre représenter le support informatique et demander l'installation d'un outil, la communication d'un code ou la désactivation d'une protection.
+
+Il peut également afficher un faux avertissement qui demande d'appeler un numéro de téléphone.
+
+Un technicien doit vérifier l'identité du demandeur par les canaux officiels, suivre les procédures d'assistance et ne pas communiquer les secrets d'authentification.
+
+Un message qui prétend provenir du support n'est pas une preuve suffisante de légitimité.
+
+### 4.6. Prévenir les manipulations humaines
+
+La prévention ne consiste pas à demander aux utilisateurs de se méfier de tout. Elle doit leur fournir des réflexes simples et des moyens de vérifier les demandes inhabituelles.
+
+Une bonne pratique consiste à :
+
+1. ralentir lorsque le message impose une action urgente ;
+2. vérifier l'identité et le contexte de la demande ;
+3. ne pas ouvrir un lien ou une pièce jointe inattendue sans vérification ;
+4. ne jamais transmettre un mot de passe en réponse à un message ;
+5. confirmer les opérations sensibles par un canal distinct ;
+6. signaler les messages suspects au contact de sécurité prévu.
+
+Les organisations devraient aussi faciliter le signalement d'une erreur. Une personne qui pense avoir cliqué sur un lien suspect doit pouvoir prévenir rapidement le service concerné sans craindre d'être humiliée. Une réaction rapide peut limiter les dégâts.
+
+## 5. Les logiciels malveillants
+
+### 5.1. Définition
+
+Un logiciel malveillant, ou *malware*, est un programme conçu pour effectuer une action nuisible ou non autorisée sur un système.
+
+Les comportements possibles sont variés : voler des informations, espionner les utilisateurs, modifier des fichiers, perturber des services ou donner à un tiers un accès non autorisé.
+
+Il existe plusieurs catégories de logiciels malveillants. Elles se distinguent notamment par leurs modes de propagation et leurs objectifs.
+
+### 5.2. Le virus informatique
+
+Un virus est un programme qui peut se rattacher à un fichier ou à un autre élément exécutable et se propager lorsque cet élément est utilisé.
+
+Selon son fonctionnement, il peut modifier des fichiers, perturber un système ou déclencher d'autres actions nuisibles.
+
+Il ne faut pas utiliser le mot « virus » pour désigner automatiquement tous les logiciels malveillants. Le terme *malware* est plus général.
+
+### 5.3. Le ver informatique
+
+Un ver peut se propager entre des systèmes sans dépendre exactement du même mécanisme qu'un virus classique. Certains exploitent des failles ou des services accessibles sur un réseau pour atteindre d'autres machines.
+
+Une propagation rapide peut entraîner une saturation des ressources, des interruptions de service et des compromissions successives.
+
+La limitation des accès réseau, la correction des vulnérabilités et la segmentation contribuent à réduire les possibilités de propagation.
+
+### 5.4. Le cheval de Troie
+
+Un cheval de Troie est un programme qui semble légitime ou utile, mais qui dissimule une fonction malveillante.
+
+Il peut être présenté sous la forme d'un outil, d'un document, d'un installateur ou d'une application. L'utilisateur croit exécuter une fonction normale, alors que le programme effectue également des actions non autorisées.
+
+Télécharger un logiciel depuis une source officielle, vérifier son origine et limiter les privilèges d'exécution sont des mesures utiles.
+
+### 5.5. Le rançongiciel
+
+Un rançongiciel, ou *ransomware*, cherche à bloquer l'accès à un système ou à des données, souvent en chiffrant les fichiers, puis exige une rançon pour tenter de les rendre accessibles ou pour menacer de divulguer des informations volées.
+
+Certains incidents associent plusieurs opérations : compromission d'un compte, collecte de données, déplacement vers d'autres machines et action destructive.
+
+Payer une rançon ne garantit ni la récupération des données ni la suppression des copies détenues par l'attaquant. Une organisation doit préparer ses moyens de reprise et son processus de réponse aux incidents à l'avance.
+
+Les mesures de prévention comprennent notamment la gestion des correctifs, la protection des accès distants, les comptes à privilèges limités, la surveillance, la segmentation et les sauvegardes protégées et testées.
+
+### 5.6. Les logiciels espions
+
+Un logiciel espion cherche à recueillir des informations sur un utilisateur, un appareil ou une organisation sans autorisation appropriée.
+
+Selon ses capacités, il peut surveiller des activités, collecter des informations saisies ou transmettre des données vers un tiers.
+
+Une consommation inhabituelle de ressources ou un comportement étrange peut être un signal, mais ne suffit pas à confirmer une infection. Il faut utiliser des mécanismes de détection adaptés et procéder à une investigation.
+
+### 5.7. Les enregistreurs de frappe
+
+Un enregistreur de frappe, ou *keylogger*, est un mécanisme qui enregistre les frappes au clavier. Certains usages peuvent être légitimes et explicitement autorisés, mais les logiciels malveillants de cette catégorie servent notamment à collecter des mots de passe et d'autres informations.
+
+Si un terminal est compromis, changer le mot de passe depuis ce même terminal peut ne pas suffire. Il faut évaluer l'état de l'appareil et, si nécessaire, utiliser un appareil de confiance pour rétablir les accès.
+
+### 5.8. Les portes dérobées et l'accès distant malveillant
+
+Une porte dérobée est un moyen d'accès qui contourne les mécanismes normaux ou qui n'est pas autorisé par le responsable du système.
+
+Certains logiciels malveillants établissent un mécanisme permettant à un attaquant de communiquer à distance avec le système compromis.
+
+Il faut distinguer les outils d'administration à distance légitimes des usages malveillants. Un outil connu peut être utilisé à des fins légitimes ou détourné par un intrus. Le contexte, les permissions, l'origine de l'installation et les traces d'utilisation sont importants.
+
+### 5.9. Les signes possibles d'une infection
+
+Des signaux peuvent justifier une vérification :
+
+- apparitions répétées de fenêtres inhabituelles ;
+- applications inconnues qui s'exécutent ;
+- ralentissements inexpliqués et persistants ;
+- connexions ou échanges réseau inhabituels ;
+- désactivation inattendue de protections ;
+- fichiers renommés ou devenus inaccessibles ;
+- alertes de sécurité ;
+- tentatives de connexion suspectes liées à un appareil.
+
+Ces signes ne sont pas spécifiques à une infection. Une mise à jour, une panne matérielle ou une application légitime peut produire des symptômes similaires.
+
+Il faut éviter de supprimer des fichiers au hasard ou de réinstaller immédiatement un système sans réfléchir à la préservation des preuves et aux besoins de l'organisation. Dans un environnement professionnel, il est préférable de suivre la procédure d'incident et de solliciter les responsables compétents.
+
+## 6. Les menaces liées aux mots de passe et aux identités
+
+### 6.1. Le vol d'identifiants
+
+Les identifiants peuvent être volés à l'aide d'un faux formulaire, d'un logiciel malveillant, d'une fuite de données ou d'une manipulation directe.
+
+Un compte compromis peut permettre de lire des messages, de consulter des documents, de modifier des informations ou de réinitialiser d'autres comptes.
+
+Le risque dépend des privilèges associés au compte. Un compte ordinaire peut représenter un point d'entrée, tandis qu'un compte administrateur peut donner accès à des ressources beaucoup plus importantes.
+
+### 6.2. La réutilisation des mots de passe
+
+Lorsqu'une personne utilise le même mot de passe sur plusieurs services, la compromission d'un service peut faciliter l'accès aux autres.
+
+Des attaquants peuvent essayer des identifiants déjà divulgués sur d'autres plateformes. Ce mécanisme est souvent appelé *credential stuffing*.
+
+L'utilisation de mots de passe uniques et suffisamment robustes limite l'impact d'une fuite. Un gestionnaire de mots de passe peut faciliter la gestion de secrets différents pour chaque service.
+
+### 6.3. La force brute et les tentatives automatisées
+
+Une attaque par force brute consiste à essayer de nombreuses valeurs pour deviner un secret d'authentification. D'autres attaques utilisent des listes de mots de passe fréquents ou des identifiants déjà compromis.
+
+Les protections possibles comprennent la limitation des tentatives, la détection des comportements anormaux, la protection des comptes, l'utilisation de secrets robustes et l'authentification multifacteur.
+
+Les mécanismes de limitation doivent être conçus avec précaution afin d'éviter qu'un attaquant puisse bloquer facilement les comptes légitimes par des tentatives répétées.
+
+### 6.4. L'authentification multifacteur
+
+L'authentification multifacteur associe au moins deux facteurs distincts parmi les catégories suivantes :
+
+- quelque chose que l'utilisateur connaît, comme un mot de passe ;
+- quelque chose qu'il possède, comme un appareil ou une clé de sécurité ;
+- une caractéristique qui lui est propre, par exemple une donnée biométrique dans un système prévu à cet effet.
+
+La MFA réduit le risque que le seul vol d'un mot de passe suffise à accéder à un compte. Toutes les méthodes n'offrent toutefois pas le même niveau de résistance aux manipulations.
+
+Il reste important de sécuriser les mécanismes de récupération de compte et de protéger les appareils utilisés pour l'authentification.
+
+### 6.5. Les sessions et les jetons d'accès
+
+Après une connexion, une application peut utiliser un mécanisme de session ou un jeton pour éviter de demander les identifiants à chaque action.
+
+Ces éléments peuvent devenir sensibles : une personne qui obtient un jeton valide peut parfois agir comme l'utilisateur auquel il est associé.
+
+Il faut les protéger, limiter leur durée de validité lorsque cela est approprié, sécuriser leur stockage et prévoir les moyens de révoquer les sessions en cas de compromission.
+
+Un utilisateur ne doit pas publier des jetons d'accès dans un dépôt de code, un message public ou un fichier de diagnostic.
+
+## 7. Les vulnérabilités des logiciels et des systèmes
+
+### 7.1. Qu'est-ce qu'une vulnérabilité technique ?
+
+Une vulnérabilité est une faiblesse qui peut être exploitée ou déclencher un incident. Elle peut se trouver dans un logiciel, une configuration, une architecture, un processus ou un contrôle organisationnel.
+
+Une vulnérabilité n'est pas toujours une faille spectaculaire. Un service d'administration exposé inutilement, une permission excessive ou une procédure de récupération de compte trop faible peut également créer un risque.
+
+Les vulnérabilités doivent être considérées dans leur contexte : l'existence d'une faiblesse ne signifie pas qu'elle sera nécessairement exploitée, mais elle mérite une évaluation.
+
+### 7.2. Les logiciels non corrigés
+
+Un logiciel peut contenir une faiblesse connue pour laquelle une mise à jour de sécurité existe.
+
+Si le système n'est pas corrigé, l'organisation peut rester exposée à une vulnérabilité que des attaquants savent déjà exploiter.
+
+La gestion des correctifs doit comprendre l'inventaire des logiciels, l'identification des versions, l'évaluation de la gravité, les tests et la planification de l'installation.
+
+Il ne faut pas ignorer les mises à jour importantes, mais il convient de les préparer selon le contexte. Pour les systèmes critiques, il peut être nécessaire de prévoir un environnement de test ou une procédure de retour arrière.
+
+### 7.3. Les services inutilement exposés
+
+Un service qui accepte des connexions depuis un réseau ne devrait être accessible qu'aux personnes ou systèmes qui en ont besoin.
+
+Une interface d'administration exposée à Internet peut attirer des tentatives d'accès non autorisées. Un port laissé ouvert sans raison peut augmenter la surface d'attaque.
+
+Il faut donc inventorier les services, comprendre leur fonction, limiter les accès et supprimer les services inutiles lorsque cela peut être fait en sécurité.
+
+### 7.4. Les erreurs de configuration
+
+Une mauvaise configuration peut annuler une partie des protections prévues.
+
+Exemples :
+
+- un espace de stockage est rendu public par erreur ;
+- des comptes possèdent des droits trop élevés ;
+- une règle de pare-feu autorise davantage de trafic que nécessaire ;
+- un mécanisme de sauvegarde n'est pas protégé contre la suppression ;
+- une application conserve des secrets directement dans un fichier de configuration accessible.
+
+La gestion des configurations doit être documentée et vérifiée. Les paramètres importants doivent être contrôlés après chaque changement significatif.
+
+### 7.5. Les erreurs de programmation
+
+Une application peut contenir des faiblesses de contrôle d'accès, de validation des entrées ou de gestion des sessions.
+
+Une application Web doit par exemple vérifier côté serveur qu'un utilisateur est autorisé à effectuer l'action demandée. Masquer un bouton dans l'interface ne suffit pas, car un utilisateur peut parfois construire une requête différente.
+
+La sécurité applicative repose notamment sur la conception, la revue du code, les tests, les mises à jour des dépendances et la surveillance de l'application en exploitation.
+
+### 7.6. La gestion des vulnérabilités
+
+Un programme élémentaire de gestion des vulnérabilités suit généralement plusieurs étapes :
+
+1. inventorier les équipements et logiciels ;
+2. identifier les versions et les faiblesses connues ;
+3. évaluer la gravité et l'exposition ;
+4. décider du traitement prioritaire ;
+5. appliquer les corrections ou les mesures compensatoires ;
+6. vérifier que la correction fonctionne ;
+7. conserver une trace de la décision et du résultat.
+
+L'ordre de traitement ne doit pas dépendre uniquement d'un score technique. Il faut également tenir compte de l'exposition, de la facilité d'exploitation, de la criticité de l'actif et des conséquences possibles.
+
+## 8. Les attaques contre les réseaux
+
+### 8.1. Pourquoi les réseaux sont-ils ciblés ?
+
+Un réseau permet aux appareils de communiquer et aux services de s'échanger des données. Lorsqu'un service est accessible, il peut aussi devenir un point de tentative d'intrusion.
+
+La sécurité réseau cherche notamment à limiter les communications inutiles, à détecter les activités suspectes et à protéger les échanges.
+
+Un équipement réseau mal configuré peut exposer un service, permettre un accès inattendu ou interrompre la communication entre des composants légitimes.
+
+### 8.2. L'interception des communications
+
+L'interception consiste à recueillir des données qui circulent sur un réseau sans autorisation appropriée.
+
+Sur un réseau mal protégé, certaines informations peuvent être exposées aux appareils ou personnes capables d'observer le trafic. Le risque dépend des protocoles utilisés, de la configuration et de la position de l'observateur.
+
+Le chiffrement des communications, les réseaux correctement configurés et la gestion des accès limitent ce risque.
+
+Il est important de comprendre que le chiffrement ne masque pas nécessairement toutes les métadonnées. Selon le protocole, certaines informations comme les adresses de communication, les volumes ou les horaires peuvent encore être observables.
+
+### 8.3. Les attaques de l'intermédiaire
+
+Une attaque dite *man-in-the-middle* consiste à s'interposer dans une communication afin de l'observer ou éventuellement de la modifier.
+
+Une protection adaptée dépend du protocole et de la situation. La validation correcte des certificats, le chiffrement authentifié et l'absence de contournement des avertissements de sécurité sont importants dans les communications Web sécurisées.
+
+Un utilisateur ne devrait pas ignorer une alerte de certificat sans comprendre sa cause.
+
+### 8.4. L'usurpation d'identité réseau
+
+L'usurpation consiste à présenter une identité ou une information qui ne correspond pas à l'origine réelle.
+
+Elle peut porter sur une adresse, un nom, une identité d'expéditeur ou d'autres éléments d'un protocole.
+
+L'usurpation n'implique pas nécessairement que l'attaquant a pris le contrôle de la véritable identité. Elle peut cependant faciliter certaines manipulations ou rendre l'analyse plus difficile.
+
+Les mécanismes de vérification et la corrélation de plusieurs sources de journalisation contribuent à mieux comprendre l'origine des communications.
+
+### 8.5. Le déni de service
+
+Une attaque par déni de service cherche à empêcher un service de répondre correctement aux utilisateurs légitimes. Elle peut exploiter des ressources limitées ou envoyer un volume de demandes supérieur à ce que le système peut traiter.
+
+Une attaque distribuée utilise plusieurs sources pour produire ou amplifier la charge.
+
+Les protections possibles comprennent le filtrage, la limitation de débit, la répartition de charge et des services de protection spécialisés. Elles doivent être adaptées aux caractéristiques de l'application et du réseau.
+
+Il faut éviter de confondre une attaque avec une simple montée de trafic légitime. Une campagne commerciale peut également provoquer une forte charge. L'analyse doit se fonder sur les mesures, les journaux et le comportement observé.
+
+### 8.6. Le Wi-Fi mal sécurisé
+
+Un réseau Wi-Fi mal configuré peut faciliter l'accès d'une personne non autorisée ou exposer les communications des utilisateurs.
+
+Les bonnes pratiques comprennent l'utilisation de mécanismes de sécurité modernes, la désactivation des paramètres dangereux, la mise à jour des équipements, la séparation des réseaux selon les besoins et la protection des comptes d'administration.
+
+Dans une entreprise, le réseau destiné aux visiteurs ne devrait pas nécessairement accorder le même accès que celui utilisé pour les postes administratifs.
+
+### 8.7. La segmentation réseau
+
+La segmentation divise un réseau en zones dont les communications sont contrôlées.
+
+Par exemple, les postes des apprenants, les postes administratifs et les serveurs peuvent être placés dans des segments différents, avec des règles qui limitent les échanges aux besoins de l'activité.
+
+La segmentation peut réduire la possibilité de déplacement d'un attaquant d'un système compromis vers d'autres actifs. Elle ne remplace toutefois pas la sécurité de chaque système.
+
+## 9. Les menaces contre les sites Web et les applications
+
+### 9.1. Les formulaires et les entrées utilisateur
+
+Les applications Web reçoivent des données venant des utilisateurs : identifiants, recherches, formulaires, commentaires, commandes et fichiers.
+
+Si l'application traite ces entrées sans validation ni protections adaptées, une faille peut permettre de contourner des règles, d'accéder à des données ou de modifier le comportement attendu de l'application.
+
+Il faut valider les entrées, employer les mécanismes de requêtes sécurisés fournis par les frameworks et appliquer des contrôles d'autorisation côté serveur.
+
+### 9.2. Les contrôles d'accès défectueux
+
+Une application peut afficher des informations différentes selon le compte connecté. Si le serveur vérifie mal les droits, un utilisateur peut parfois accéder à une ressource qui appartient à quelqu'un d'autre.
+
+Un exemple classique est l'accès à un dossier en changeant un identifiant dans une URL sans que le serveur vérifie si le dossier appartient réellement à l'utilisateur.
+
+La correction doit se faire du côté serveur, en fonction de l'identité et des autorisations réelles. Il ne suffit pas de cacher les liens dans l'interface.
+
+### 9.3. Les attaques liées aux sessions
+
+Une mauvaise gestion des sessions peut exposer des comptes si les jetons sont accessibles, prévisibles, mal stockés ou conservés trop longtemps dans un contexte inadapté.
+
+Les applications doivent utiliser des mécanismes de session conçus pour la sécurité, protéger les cookies, appliquer des délais adaptés et offrir des moyens de révoquer les sessions.
+
+Après un incident d'authentification, il peut être nécessaire d'invalider les sessions existantes plutôt que de simplement changer un mot de passe.
+
+### 9.4. Les dépendances et bibliothèques
+
+Les applications modernes utilisent des bibliothèques externes. Celles-ci peuvent contenir des vulnérabilités ou devenir non maintenues.
+
+Il faut donc connaître les dépendances utilisées, suivre les avis de sécurité pertinents, corriger les versions vulnérables et limiter les composants inutiles.
+
+Un logiciel peut être vulnérable même si son propre code semble correct, simplement parce qu'il dépend d'une bibliothèque affectée.
+
+### 9.5. La protection des secrets applicatifs
+
+Les clés d'API, jetons, mots de passe de base de données et clés privées ne doivent pas être publiés dans un dépôt public ou transmis dans des messages non protégés.
+
+Un secret divulgué doit être considéré comme potentiellement compromis. Selon sa nature, il faudra le révoquer ou le remplacer, vérifier son utilisation et examiner les traces d'accès.
+
+Déplacer un secret dans un fichier séparé ne suffit pas s'il reste accessible aux personnes ou programmes qui n'en ont pas besoin. Il faut contrôler les permissions et le cycle de vie des secrets.
+
+## 10. Les menaces liées au Cloud et aux services en ligne
+
+### 10.1. Le Cloud ne supprime pas la responsabilité du client
+
+Un fournisseur Cloud assure certaines fonctions de l'infrastructure, mais le client reste généralement responsable de plusieurs aspects selon le service et le contrat.
+
+Cela peut inclure les comptes, les données, les permissions, les configurations, les secrets et la manière dont les ressources sont exposées.
+
+La répartition précise des responsabilités dépend du modèle de service et du fournisseur. Il faut lire la documentation et éviter de supposer que toute la sécurité est automatiquement prise en charge.
+
+### 10.2. Les erreurs de permissions
+
+Un espace de stockage ou une ressource Cloud peut être rendu accessible à un public trop large.
+
+Le problème ne vient pas nécessairement d'une faille spectaculaire du fournisseur : une configuration incorrecte peut suffire.
+
+Les organisations doivent examiner régulièrement les permissions, limiter les accès publics aux ressources qui doivent réellement l'être et conserver une trace des modifications importantes.
+
+### 10.3. Les comptes Cloud compromis
+
+Un attaquant qui obtient un compte disposant de droits importants peut créer de nouvelles ressources, consulter des données, modifier des configurations ou supprimer des éléments.
+
+La protection de ces comptes exige des identités individuelles, des rôles adaptés, une authentification renforcée et une surveillance des opérations sensibles.
+
+Les clés d'accès qui ne sont plus utilisées doivent être révoquées. Les comptes et autorisations doivent être réexaminés lors des changements de fonction et des départs.
+
+### 10.4. La disponibilité des services Cloud
+
+Un incident de configuration, une panne du fournisseur ou l'épuisement des ressources disponibles peut interrompre un service.
+
+La disponibilité dépend aussi de l'architecture choisie, des dépendances, de la planification des capacités et des procédures de récupération.
+
+Un système qui repose sur un seul composant ou une seule région peut présenter un point de défaillance important. Les mécanismes de redondance doivent cependant être définis selon les objectifs, les coûts et les contraintes.
+
+## 11. Les menaces liées aux prestataires et à la chaîne d'approvisionnement
+
+### 11.1. Pourquoi un prestataire peut-il représenter un risque ?
+
+Une organisation dépend souvent de logiciels, de fournisseurs, d'intégrateurs, d'hébergeurs et de services externes.
+
+Ces partenaires peuvent disposer d'accès techniques ou traiter des données pour son compte. Une compromission chez un prestataire peut donc avoir des conséquences pour ses clients.
+
+Le risque ne signifie pas qu'il faut éviter toute externalisation. Il faut comprendre les dépendances et définir des contrôles adaptés.
+
+### 11.2. Les logiciels provenant de sources non fiables
+
+Un installateur modifié ou un paquet logiciel obtenu depuis une source non vérifiée peut intégrer des composants malveillants.
+
+Pour réduire ce risque, il faut utiliser des sources de confiance, vérifier les signatures ou empreintes lorsqu'elles sont disponibles et limiter les droits des programmes exécutés.
+
+Les outils de développement doivent également protéger les dépendances, les secrets de déploiement et les environnements de construction.
+
+### 11.3. Les accès des prestataires
+
+Un fournisseur peut avoir besoin d'un accès distant pour réaliser une maintenance. Si cet accès n'est pas limité, protégé ou révoqué à la fin de la mission, il peut créer une exposition durable.
+
+Les bonnes pratiques incluent des comptes nominatifs lorsque cela est possible, des permissions limitées à la tâche, des accès temporaires, la journalisation et une procédure de révocation.
+
+### 11.4. Planifier la sécurité des dépendances
+
+Une organisation devrait connaître ses fournisseurs critiques, les composants logiciels importants et les accès externes nécessaires.
+
+Elle peut définir les exigences de sécurité, les règles de notification des incidents, les responsabilités et les modalités de récupération.
+
+La question à se poser n'est pas uniquement « Notre propre système est-il sécurisé ? », mais aussi « De quelles dépendances avons-nous besoin, et quelles conséquences subirions-nous si l'une d'elles était compromise ou indisponible ? »
+
+## 12. Les menaces physiques et environnementales
+
+### 12.1. La sécurité physique fait partie de la cybersécurité
+
+Un ordinateur, un serveur ou un équipement réseau peut être compromis si une personne obtient un accès physique non autorisé.
+
+Une personne qui vole un ordinateur peut chercher à accéder aux fichiers, aux comptes ou aux clés qui y sont stockés. Une personne qui débranche un câble ou coupe une alimentation peut perturber un service sans exploiter de logiciel.
+
+La protection physique doit donc être adaptée aux actifs et à leur criticité.
+
+### 12.2. Le vol et la perte d'équipements
+
+Les ordinateurs portables, smartphones, clés USB et équipements d'administration sont susceptibles d'être perdus ou volés.
+
+Le chiffrement des supports, le verrouillage des sessions, la gestion des appareils et la capacité de révoquer les accès réduisent certaines conséquences.
+
+Il est également préférable de limiter le stockage local de données sensibles lorsque ce stockage n'est pas nécessaire.
+
+### 12.3. Les risques environnementaux
+
+Les incendies, les inondations, la chaleur, l'humidité ou les coupures d'alimentation peuvent perturber les systèmes.
+
+La continuité de service peut nécessiter une alimentation secourue, un refroidissement adapté, une protection physique et des procédures de reprise.
+
+Les sauvegardes conservées dans le même lieu que les systèmes principaux peuvent être exposées au même événement. Leur emplacement et leur protection doivent tenir compte des scénarios envisagés.
+
+### 12.4. Le support amovible
+
+Une clé USB inconnue peut contenir des fichiers dangereux ou des données sensibles. Elle peut aussi être perdue et exposer les informations qu'elle contient.
+
+Il faut éviter de connecter des supports inconnus à un poste professionnel, respecter les procédures de sécurité et analyser les supports selon les moyens approuvés par l'organisation.
+
+Ne branche pas une clé trouvée dans un lieu public pour découvrir son contenu. Le risque ne vaut pas la curiosité.
+
+## 13. Les menaces internes et les erreurs humaines
+
+### 13.1. Les erreurs sont prévisibles
+
+Les utilisateurs peuvent se tromper de destinataire, supprimer un fichier, accorder une permission excessive ou oublier de verrouiller un poste.
+
+La sécurité ne doit pas dépendre de l'idée que personne ne fera jamais d'erreur. Elle doit prévoir des mécanismes qui réduisent la probabilité et les conséquences de ces erreurs.
+
+Des autorisations adaptées, des confirmations pour les actions destructrices, des sauvegardes et des procédures claires peuvent aider.
+
+### 13.2. Les privilèges excessifs
+
+Un utilisateur peut disposer de permissions supérieures à celles dont il a besoin.
+
+Plus les privilèges sont importants, plus une erreur ou une compromission peut avoir de conséquences.
+
+Le principe du moindre privilège recommande de limiter les droits à ce qui est nécessaire. Il est également utile de séparer les comptes quotidiens des comptes administratifs lorsque le contexte le justifie.
+
+### 13.3. Les comptes oubliés
+
+Un compte peut rester actif après le départ d'un employé ou après la fin d'un contrat avec un prestataire.
+
+Un ancien compte actif représente un risque si personne ne vérifie qui l'utilise ou s'il conserve des accès sensibles.
+
+Les organisations doivent suivre le cycle de vie des identités : création, modification, revue périodique, suspension et suppression lorsque cela est approprié.
+
+### 13.4. Une culture de signalement
+
+Un employé qui signale rapidement un clic accidentel, un document envoyé à la mauvaise personne ou une alerte inhabituelle permet parfois d'éviter un incident plus grave.
+
+Une politique de sécurité efficace encourage le signalement rapide et privilégie l'analyse des faits. La dissimulation d'une erreur par peur d'une sanction peut retarder les mesures correctives.
+
+La responsabilité individuelle reste importante, mais elle doit être associée à des procédures qui facilitent la prévention et la réaction.
+
+## 14. Reconnaître les signes d'un incident
+
+### 14.1. Les indicateurs ne sont pas toujours évidents
+
+Une attaque ne déclenche pas nécessairement une grande alerte. Certains incidents produisent des symptômes discrets, parfois similaires à ceux d'un problème technique ordinaire.
+
+Les signaux possibles comprennent :
+
+- connexions inhabituelles ou à des heures inattendues ;
+- échecs d'authentification répétés ;
+- création de comptes ou modification de permissions non prévues ;
+- téléchargements massifs de données ;
+- désactivation inattendue des protections ;
+- changements de fichiers inexpliqués ;
+- consommation inhabituelle de ressources ;
+- nouveaux services ou processus inconnus ;
+- alertes du système de sécurité ;
+- plaintes simultanées d'utilisateurs qui ne peuvent plus accéder à un service.
+
+Il faut examiner ces événements en tenant compte de l'activité légitime. Une hausse du trafic peut venir d'un événement commercial, et une connexion tardive peut être liée à une intervention autorisée.
+
+### 14.2. Les journaux
+
+Les journaux enregistrent les événements produits par les systèmes, les applications et les équipements.
+
+Ils peuvent aider à répondre à des questions telles que : quel compte s'est connecté, quand une action a été réalisée et quelle erreur a été signalée ?
+
+Pour être utiles, les journaux doivent être suffisamment détaillés, protégés contre les modifications et conservés pendant une durée adaptée aux objectifs de l'organisation.
+
+Il faut également tenir compte de l'heure système. Si plusieurs composants utilisent des heures différentes, reconstituer l'ordre des événements devient plus difficile.
+
+### 14.3. Le principe de corrélation
+
+Un événement isolé est souvent ambigu. Plusieurs événements liés peuvent révéler un scénario plus clair.
+
+Par exemple :
+
+1. plusieurs échecs de connexion apparaissent ;
+2. une connexion réussie se produit ensuite ;
+3. un nouveau facteur d'authentification ou une permission est modifié ;
+4. des documents sont téléchargés en volume ;
+5. le compte tente ensuite une action administrative inhabituelle.
+
+Cette succession mérite une vérification urgente, sans qu'il soit nécessaire de déclarer immédiatement toutes les hypothèses comme confirmées.
+
+La corrélation permet de mieux comprendre l'enchaînement, à condition que les journaux soient disponibles et suffisamment fiables.
+
+### 14.4. Quand faut-il signaler un événement ?
+
+Dans un environnement professionnel, il faut suivre la procédure prévue par l'organisation. Si un incident sérieux est suspecté, il vaut mieux signaler les faits rapidement plutôt que mener seul des expériences risquées.
+
+Il est utile de communiquer :
+
+- ce qui a été observé ;
+- l'heure approximative et le système concerné ;
+- les actions déjà réalisées ;
+- les messages ou erreurs visibles ;
+- les éléments qui restent incertains.
+
+Il ne faut pas envoyer de mots de passe, de jetons d'accès ou de données sensibles dans un message ordinaire pour « prouver » un incident.
+
+## 15. Que faire lorsqu'une menace devient un incident ?
+
+### 15.1. Garder son calme et éviter les manipulations inutiles
+
+Lorsqu'un incident est suspecté, les premières actions peuvent influencer la qualité de l'analyse et l'ampleur des conséquences.
+
+Il faut appliquer la procédure de l'organisation et contacter les personnes responsables. Un employé ne doit pas improviser une investigation intrusive ou tenter de réparer seul un système critique.
+
+Selon le contexte, il peut être nécessaire de limiter la connectivité d'un appareil, de révoquer certains accès ou de suspendre une opération. Ces actions doivent être coordonnées pour éviter d'aggraver la situation.
+
+### 15.2. Préserver les informations utiles
+
+Les journaux, messages suspects, heures d'apparition et observations des utilisateurs peuvent être utiles pour comprendre ce qui s'est passé.
+
+Il faut éviter de supprimer les fichiers ou les traces de manière impulsive. La priorité consiste à préserver les éléments nécessaires selon les consignes de l'équipe responsable.
+
+Les preuves ne doivent pas être modifiées inutilement. Dans certains environnements, une procédure de collecte documentée est nécessaire.
+
+### 15.3. Limiter la propagation
+
+Si un appareil semble compromis, il peut être nécessaire de le déconnecter du réseau selon la procédure d'incident. L'objectif est de réduire la possibilité que l'événement affecte d'autres systèmes.
+
+La déconnexion ne doit pas être présentée comme une solution universelle : selon le contexte, l'équipe d'investigation peut avoir des besoins particuliers de collecte. Il faut suivre les consignes du service responsable.
+
+Un employé ne doit pas brancher l'appareil suspect à d'autres équipements pour essayer de comparer le comportement.
+
+### 15.4. Protéger les comptes
+
+Si des identifiants ont été saisis sur une page frauduleuse, l'équipe peut devoir réinitialiser les secrets concernés, révoquer les sessions, examiner les connexions et vérifier les paramètres de récupération du compte.
+
+Ces opérations doivent être réalisées depuis un environnement de confiance, selon les règles applicables.
+
+Changer simplement le mot de passe sans examiner les sessions actives, les règles de transfert de messagerie ou les accès supplémentaires peut laisser persister certains risques.
+
+### 15.5. Restaurer et vérifier
+
+Après avoir traité la cause et limité l'incident, il peut être nécessaire de restaurer un service ou des données.
+
+Avant la remise en production, il faut vérifier que les éléments utilisés pour la restauration sont sains, corriger les faiblesses identifiées et confirmer le fonctionnement du service.
+
+Il faut également conserver une trace des décisions importantes, communiquer aux personnes responsables et planifier des actions pour éviter la répétition de l'incident.
+
+## 16. Une méthode simple pour prioriser les risques
+
+### 16.1. Pourquoi ne peut-on pas tout traiter en même temps ?
+
+Une organisation dispose d'un temps, d'un budget et de ressources limités. Elle doit donc choisir les actions qui réduisent les risques les plus importants.
+
+Le risque dépend notamment de la vraisemblance d'un événement et de l'ampleur de ses conséquences. Il faut également considérer l'exposition, les protections existantes et les contraintes métier.
+
+Une faiblesse très grave sur un système non exposé n'a pas nécessairement la même priorité qu'une faiblesse exploitable sur un service public critique. Le contexte est essentiel.
+
+### 16.2. Exemple de matrice élémentaire
+
+On peut utiliser une échelle simplifiée :
+
+- vraisemblance : faible, moyenne ou élevée ;
+- impact : faible, moyen ou élevé.
+
+Une situation vraisemblable avec des conséquences élevées mérite généralement une attention importante. Une situation peu vraisemblable mais aux conséquences catastrophiques peut elle aussi justifier des protections.
+
+Cette matrice est un outil d'aide à la décision. Elle ne remplace pas une analyse professionnelle ni les exigences spécifiques d'une organisation.
+
+### 16.3. Exemple : trois risques
+
+Une petite école examine les risques suivants.
+
+**Risque A : compte administratif partagé.** Plusieurs personnes peuvent modifier des données et l'organisation ne sait pas toujours qui a réalisé une action.
+
+**Risque B : ordinateur d'accueil parfois lent.** Le problème affecte la productivité, mais l'ordinateur ne semble pas traiter de données particulièrement sensibles.
+
+**Risque C : sauvegardes jamais restaurées en test.** L'école ne sait pas si elle pourra récupérer ses dossiers après un incident majeur.
+
+L'école pourrait donner une priorité élevée au compte partagé et à la vérification des sauvegardes, car les conséquences possibles sont importantes. Le problème de performance doit aussi être étudié, mais son ordre de priorité dépendra des conséquences sur l'activité.
+
+### 16.4. Les mesures préventives, détectives et correctives
+
+Les mesures de sécurité peuvent être regroupées selon leur rôle.
+
+**Préventives :** cherchent à empêcher un événement ou à réduire sa probabilité. Exemples : contrôle d'accès, mises à jour, segmentation et authentification renforcée.
+
+**Détectives :** aident à repérer un événement. Exemples : journaux, supervision, alertes et détection de comportements anormaux.
+
+**Correctives et de récupération :** limitent les conséquences ou permettent de rétablir le service. Exemples : restauration, révocation d'accès, correction d'une configuration et procédure de reprise.
+
+Une organisation doit combiner ces catégories. Empêcher chaque incident n'est pas toujours possible, mais la détection et une bonne récupération peuvent limiter ses conséquences.
+
+## 17. TP guidé : analyser un courriel suspect sans risque
+
+### 17.1. Objectif
+
+Tu vas apprendre à examiner un message suspect sans cliquer sur ses liens, télécharger de pièce jointe ni transmettre d'informations personnelles.
+
+Ce TP utilise un exemple fictif. Il ne demande pas de contacter un site réel ou de tester un service dont tu ne possèdes pas l'autorisation.
+
+### 17.2. Message de démonstration
+
+Considère le message suivant :
 
 ```text
-Document lisible
-       |
-       v
-Chiffrement + clé
-       |
-       v
-Données chiffrées
-       |
-       | Transmission
-       v
-Données chiffrées
-       |
-       v
-Déchiffrement + clé
-       |
-       v
-Document lisible
+Objet : URGENT — Votre compte sera supprimé aujourd'hui
+
+Bonjour,
+
+Notre système a détecté un problème sur votre compte.
+Vous devez confirmer vos identifiants dans les 15 minutes
+pour éviter la suspension définitive.
+
+Ouvrez le lien ci-dessous pour continuer :
+https://compte-verification.invalid/exemple
+
+Si vous ne répondez pas, votre accès sera supprimé.
+
+Service informatique
 ```
 
-Ce schéma montre le principe général. Dans les systèmes réels, d'autres éléments peuvent être nécessaires : paramètres de chiffrement, nonces, clés de session, mécanismes d'authentification ou certificats.
+Le domaine `.invalid` est utilisé ici à titre d'exemple fictif. Le message ne doit pas être envoyé à un vrai service.
 
-Il ne faut pas non plus oublier que le document peut rester accessible avant son chiffrement ou après son déchiffrement. La sécurité dépend donc de l'ensemble du système.
+### 17.3. Étape 1 — Repérer les signaux
 
-### 1.4. Les limites de la cryptographie
+Observe les caractéristiques du message :
 
-Un mécanisme cryptographique peut fonctionner correctement tout en étant mal intégré à une application.
+- urgence très forte ;
+- menace de suppression du compte ;
+- demande de confirmation des identifiants ;
+- lien dont le domaine ne correspond pas à un domaine officiel préalablement connu ;
+- formule générique ne précisant pas un contexte vérifiable.
 
-Par exemple, un fichier peut être chiffré, mais son mot de passe peut être écrit dans un document conservé au même endroit. Une application peut protéger les communications, mais laisser tous les utilisateurs consulter toutes les données. Un fichier peut être signé, mais l'utilisateur peut ne pas vérifier l'identité associée à la clé publique.
+Ces éléments sont suspects. Aucun élément isolé ne prouve à lui seul une fraude, mais leur combinaison justifie de ne pas utiliser le lien.
 
-Ces situations montrent que la cryptographie ne doit pas être considérée comme une protection magique.
+### 17.4. Étape 2 — Vérifier par un autre canal
 
-Il faut toujours se demander :
+Si un message prétend provenir du service informatique de ton établissement, utilise les coordonnées officielles déjà connues ou le portail interne habituel pour vérifier la demande.
 
-- quelle information doit être protégée ;
-- contre quel type de menace ;
-- quel mécanisme est adapté ;
-- comment les clés seront protégées ;
-- comment les identités seront vérifiées ;
-- comment le fonctionnement sera testé ;
-- comment récupérer les informations en cas de perte de clé.
+Ne réponds pas en envoyant ton mot de passe. Ne cherche pas à prouver la légitimité du message en cliquant sur le lien.
 
-Ce raisonnement permet de choisir une solution en fonction du besoin plutôt que de sélectionner un algorithme simplement parce que son nom est connu.
+Si le message est reçu sur un compte professionnel, suis la procédure de signalement de l'organisation.
 
-## 2. Le vocabulaire fondamental
+### 17.5. Étape 3 — Examiner l'expéditeur
 
-### 2.1. Texte en clair
+Le nom affiché dans un courriel peut être trompeur. Il faut, lorsque cela est possible et autorisé, examiner l'adresse réelle de l'expéditeur et le contexte de réception.
 
-Le **texte en clair**, ou *plaintext*, désigne les données dans leur forme lisible ou exploitable avant chiffrement.
+Même une adresse qui semble correcte ne constitue pas une preuve absolue : un compte légitime peut avoir été compromis, et certains mécanismes d'affichage peuvent induire en erreur.
 
-Il peut s'agir d'un texte, d'une image, d'un fichier PDF, d'un enregistrement audio, d'une base de données ou d'un autre type de contenu.
+Il est préférable de vérifier les demandes sensibles par un canal indépendant.
 
-Le terme « clair » ne signifie pas nécessairement que les données sont présentées comme une phrase. Un fichier binaire peut aussi être considéré comme des données en clair si son contenu est directement exploitable par le programme qui l'utilise.
+### 17.6. Étape 4 — Décider de l'action
 
-Exemple :
+Dans ce scénario, l'action prudente consiste à ne pas suivre le lien, à signaler le message et à vérifier la situation via le portail officiel.
 
-```text
-Montant : 250000 FCFA
-Destinataire : Entreprise B
-Référence : CMD-1048
-```
+Si un utilisateur a déjà saisi ses identifiants, il doit le signaler rapidement. L'équipe responsable pourra évaluer la nécessité de réinitialiser le secret, révoquer les sessions et examiner les événements de connexion.
 
-Si ces informations sont stockées dans un fichier lisible sans protection adaptée, une personne qui obtient accès au fichier peut être en mesure de les consulter.
+### 17.7. Ce que tu dois retenir
 
-### 2.2. Texte chiffré
+L'objectif n'est pas de reconnaître chaque courriel frauduleux uniquement à son apparence. Les messages malveillants peuvent imiter très correctement une organisation.
 
-Le **texte chiffré**, ou *ciphertext*, est le résultat produit par un mécanisme de chiffrement.
+La bonne méthode consiste à examiner le contexte, à éviter les actions sensibles sous pression, à vérifier l'identité par un canal indépendant et à signaler les éléments suspects.
 
-Il contient les données transformées à l'aide d'un algorithme et d'une clé. Le résultat peut sembler illisible pour une personne qui ne connaît pas le mécanisme et ne possède pas les éléments nécessaires au déchiffrement.
+## 18. TP guidé : inventorier les signaux simples sur son propre poste
 
-Le texte chiffré n'est pas nécessairement une suite de caractères étranges. Il peut s'agir d'un fichier binaire, d'une chaîne encodée ou d'un ensemble de données contenant plusieurs champs.
+### 18.1. Objectif
 
-Il ne faut pas non plus croire que l'absence de lisibilité suffit à prouver que les données sont protégées. Une suite apparemment incompréhensible peut être simplement encodée et donc facilement décodée.
+Tu vas réaliser une petite vérification non intrusive de ton propre ordinateur. Les commandes affichent des informations de base et ne nécessitent pas de scanner un réseau tiers.
 
-### 2.3. Algorithme cryptographique
+Ces vérifications ne constituent pas un audit de sécurité complet et ne prouvent pas l'absence de menace.
 
-Un algorithme cryptographique est une méthode définie permettant d'effectuer une opération de sécurité.
+### 18.2. Sous Windows PowerShell
 
-L'algorithme décrit les règles de transformation ou de calcul. Dans de nombreux systèmes, sa sécurité dépend de la qualité de la clé utilisée et des conditions d'application.
-
-Les algorithmes modernes sont conçus pour être analysés publiquement. La sécurité ne devrait pas reposer sur le secret de l'algorithme, mais sur les propriétés du mécanisme et la protection des clés.
-
-Cacher le nom d'un algorithme ou inventer une transformation personnelle ne constitue pas une méthode fiable de protection.
-
-### 2.4. Clé cryptographique
-
-Une **clé cryptographique** est une donnée utilisée par un algorithme pour effectuer une opération de chiffrement, de déchiffrement, de signature, de vérification ou une autre opération cryptographique.
-
-La forme et le rôle d'une clé dépendent du mécanisme. Une clé symétrique utilisée pour chiffrer un fichier est généralement secrète. Une clé publique utilisée pour vérifier une signature peut être diffusée, tandis que la clé privée correspondante doit être protégée.
-
-La sécurité dépend fortement de la génération, du stockage et de l'utilisation des clés.
-
-### 2.5. Chiffrement et déchiffrement
-
-Le **chiffrement** transforme les données en une forme protégée. Le **déchiffrement** retrouve les données d'origine grâce à la clé requise et aux paramètres appropriés.
-
-Ces opérations sont généralement réversibles pour un utilisateur autorisé disposant des bons éléments.
-
-Le chiffrement n'est donc pas un mécanisme destiné à supprimer définitivement le contenu. Son objectif est de contrôler l'accès à ce contenu.
-
-### 2.6. Décryptage
-
-Dans le langage courant, les termes « déchiffrement » et « décryptage » sont parfois employés de manière interchangeable. Dans le vocabulaire technique traditionnel, le décryptage désigne souvent la recherche du texte en clair sans disposer normalement de la clé nécessaire.
-
-Il peut s'agir de l'analyse d'un chiffrement faible, de l'exploitation d'une mauvaise implémentation ou de la recherche d'une clé à l'aide de méthodes d'analyse.
-
-Cette distinction est utile pour apprendre, même si les usages professionnels et les traductions ne sont pas toujours parfaitement uniformes.
-
-## 3. Chiffrement, encodage et obfuscation : trois notions différentes
-
-### 3.1. L'encodage
-
-L'encodage transforme des données pour les représenter selon un format donné. Il répond souvent à un besoin de compatibilité, de transport ou de stockage.
-
-Par exemple, Base64 permet de représenter certaines données binaires sous forme de caractères utilisables dans des environnements textuels.
-
-Cependant, Base64 ne chiffre pas les données et ne nécessite aucun secret pour décoder le résultat.
-
-Exemple conceptuel :
-
-```text
-Texte : BONJOUR
-Encodage Base64 : Qk9OSk9VUg==
-```
-
-La chaîne encodée est différente du texte initial, mais elle ne constitue pas une protection cryptographique. Une personne qui connaît Base64 peut retrouver le texte sans clé.
-
-Base64 est utile dans certains formats et protocoles, mais ne doit jamais être utilisé pour prétendre protéger un mot de passe ou un document confidentiel.
-
-### 3.2. L'obfuscation
-
-L'obfuscation consiste à rendre un contenu plus difficile à comprendre, notamment en modifiant sa présentation ou sa structure.
-
-Un programme peut être transformé afin de rendre son code moins lisible. Un nom de variable peut être remplacé par une séquence peu explicite ou une structure peut être compliquée.
-
-L'obfuscation peut compliquer une analyse superficielle, mais elle n'offre pas les garanties d'un mécanisme cryptographique éprouvé. Elle ne doit pas être considérée comme un moyen suffisant de protéger des secrets.
-
-### 3.3. Le chiffrement
-
-Le chiffrement utilise un mécanisme cryptographique et une clé. Les personnes qui ne possèdent pas les éléments nécessaires ne devraient pas pouvoir retrouver efficacement le contenu, dans les conditions prévues par le système.
-
-La différence essentielle est donc la suivante :
-
-| Méthode | Objectif principal | Nécessite-t-elle une clé secrète pour retrouver le contenu ? |
-|---|---|---|
-| Encodage | Représentation et compatibilité | Non |
-| Obfuscation | Rendre la compréhension moins immédiate | Pas nécessairement |
-| Chiffrement | Protéger l'accès au contenu | Oui, selon le mécanisme |
-
-Une entreprise ne doit pas stocker un secret simplement encodé ou obfusqué en croyant qu'il est chiffré.
-
-## 4. Le chiffrement symétrique
-
-### 4.1. Définition
-
-Le **chiffrement symétrique** utilise une clé secrète commune pour chiffrer et déchiffrer les données.
-
-Alice et Bob doivent tous deux disposer de la clé, ou du moyen cryptographique qui permet d'effectuer les opérations nécessaires. Ils doivent également empêcher les personnes non autorisées de récupérer cette clé.
-
-Le chiffrement symétrique est généralement efficace pour traiter de grandes quantités de données. Il est couramment utilisé pour protéger les fichiers, les disques et les communications.
-
-### 4.2. Exemple de fonctionnement
-
-```text
-             Alice
-        Document en clair
-                |
-                v
-        Chiffrement symétrique
-                |
-                | Clé secrète K
-                v
-          Texte chiffré
-                |
-                | Canal de communication
-                v
-          Texte chiffré
-                |
-                | Clé secrète K
-                v
-        Déchiffrement symétrique
-                |
-                v
-              Bob
-        Document en clair
-```
-
-Le schéma suppose qu'Alice et Bob possèdent déjà la bonne clé de manière sécurisée.
-
-C'est précisément l'une des difficultés du chiffrement symétrique : comment partager le secret au départ sans qu'un tiers puisse le récupérer ?
-
-Si Alice envoie la clé par le même canal non protégé que le document chiffré, l'attaquant peut récupérer les deux éléments. Le contenu peut alors être exposé.
-
-### 4.3. Avantages
-
-Le chiffrement symétrique présente plusieurs avantages :
-
-- il est efficace pour chiffrer des volumes importants ;
-- il peut être utilisé pour protéger des fichiers et des disques ;
-- il est adapté au chiffrement des données de session ;
-- il est largement pris en charge par les bibliothèques et les systèmes modernes.
-
-Sa principale difficulté opérationnelle réside dans la protection et la distribution des clés.
-
-### 4.4. L'algorithme AES
-
-AES signifie *Advanced Encryption Standard*. C'est un algorithme de chiffrement symétrique normalisé dans le standard FIPS 197 du NIST. La version mise à jour en 2023 a apporté des améliorations éditoriales sans modifier techniquement l'algorithme défini. [Référence officielle NIST sur AES](https://csrc.nist.gov/pubs/fips/197/final).
-
-AES utilise une taille de bloc de 128 bits et prend en charge les clés de 128, 192 ou 256 bits.
-
-Ces tailles ne signifient pas que le fichier doit mesurer exactement 128 bits. Les modes d'utilisation permettent de traiter des contenus de tailles variées.
-
-La sécurité dépend aussi du mode de chiffrement, des paramètres, de la génération des clés et de leur gestion. Choisir AES ne suffit donc pas à garantir une solution complète.
-
-### 4.5. AES-128 et AES-256
-
-Les appellations AES-128 et AES-256 correspondent à la taille de la clé.
-
-Une clé de 128 bits possède \(2^{128}\) valeurs possibles en théorie. Une clé de 256 bits possède \(2^{256}\) valeurs possibles.
-
-Ces nombres sont extrêmement grands. Mais il serait simpliste de déduire que chaque système utilisant AES-256 est automatiquement plus sûr qu'un système utilisant AES-128 : la mise en œuvre, les données de départ, les paramètres, les clés et les risques restent essentiels.
-
-Pour un système réel, le choix doit suivre des recommandations reconnues et les exigences de l'environnement.
-
-### 4.6. Pourquoi ne pas inventer son propre algorithme ?
-
-Imaginons un programme qui remplace chaque lettre par une autre, inverse l'ordre du texte puis ajoute un numéro au début.
-
-Cette transformation peut donner l'impression que le texte est protégé. Pourtant, elle peut être analysée, reproduite et parfois inversée sans grand effort.
-
-Les algorithmes cryptographiques modernes sont soumis à des analyses mathématiques approfondies et à de nombreuses années d'examen. Une méthode inventée rapidement ne bénéficie pas de ce niveau de confiance.
-
-En pratique, il faut utiliser des bibliothèques cryptographiques maintenues, des algorithmes reconnus et des configurations adaptées, plutôt que concevoir un chiffrement artisanal.
-
-## 5. Modes de chiffrement et protection de l'intégrité
-
-### 5.1. Pourquoi existe-t-il des modes ?
-
-AES est un chiffrement par blocs. Pour protéger des données plus longues qu'un bloc, il faut utiliser un mode de chiffrement approprié.
-
-Les modes ont des propriétés différentes. Certains ne protègent que la confidentialité et ne garantissent pas l'authenticité du contenu. D'autres associent la confidentialité à une protection permettant de détecter une altération.
-
-Le choix du mode est une partie importante de la conception cryptographique.
-
-### 5.2. Chiffrer ne garantit pas toujours que les données n'ont pas été modifiées
-
-Supposons qu'un document chiffré soit transmis à un destinataire. Celui-ci doit pouvoir vérifier non seulement que son contenu reste secret, mais également que les données reçues n'ont pas été modifiées de manière indétectable.
-
-Un mécanisme de chiffrement sans authentification ne fournit pas nécessairement cette garantie.
-
-C'est pourquoi les applications modernes devraient privilégier des mécanismes de chiffrement authentifié lorsqu'ils sont adaptés à leur besoin.
-
-### 5.3. AES-GCM
-
-AES-GCM est un mode qui permet d'obtenir le chiffrement et une vérification d'authenticité des données au moyen d'une étiquette d'authentification.
-
-Avec une configuration correcte, le destinataire peut détecter qu'un contenu chiffré ou certains paramètres associés ont été modifiés. Le déchiffrement doit échouer si la vérification d'authenticité ne passe pas.
-
-La sécurité d'AES-GCM dépend notamment de la bonne génération et de l'utilisation correcte du nonce. La réutilisation dangereuse d'un nonce avec la même clé peut gravement compromettre la sécurité.
-
-Un débutant ne devrait pas concevoir manuellement la gestion de ces paramètres. Il doit utiliser une bibliothèque réputée et suivre sa documentation.
-
-### 5.4. Le nonce
-
-Un nonce est une valeur utilisée une fois dans un contexte donné, selon les exigences du mécanisme cryptographique. Le terme provient de l'expression anglaise *number used once*.
-
-Un nonce n'est pas systématiquement une clé secrète. Son rôle et ses exigences dépendent de l'algorithme et de son mode.
-
-Pour certaines constructions, il est essentiel d'empêcher la réutilisation d'un nonce avec une même clé. Il ne faut pas supposer que changer le nom du fichier ou la date du système suffit à garantir cette propriété.
-
-Les bibliothèques cryptographiques fournissent généralement des moyens de générer et de gérer ces paramètres. Il faut respecter leurs instructions.
-
-### 5.5. Les modes anciens ou inadaptés
-
-Le choix d'un mode ancien, mal utilisé ou inadapté peut introduire des faiblesses même si l'algorithme sous-jacent est reconnu.
-
-Par exemple, le mode ECB ne doit pas être utilisé pour le chiffrement général de données sensibles, car il peut révéler des structures répétitives du contenu.
-
-Les modes qui ne fournissent pas l'authenticité doivent être complétés par un mécanisme adapté lorsque l'intégrité est nécessaire. Cette intégration est délicate et doit être confiée à des bibliothèques éprouvées.
-
-Pour les applications modernes, il est préférable de choisir une construction authentifiée recommandée par une documentation fiable plutôt que de combiner arbitrairement plusieurs primitives.
-
-## 6. Le chiffrement asymétrique
-
-### 6.1. Définition
-
-Le **chiffrement asymétrique**, aussi appelé cryptographie à clé publique, repose sur une paire de clés associées : une clé publique et une clé privée.
-
-La clé publique peut être communiquée à d'autres personnes. La clé privée doit rester sous le contrôle de son propriétaire ou du système autorisé à l'utiliser.
-
-Les mécanismes asymétriques servent à plusieurs usages, notamment le chiffrement, l'établissement de secrets partagés et les signatures numériques, selon l'algorithme utilisé.
-
-La cryptographie à clé publique est décrite dans le glossaire du NIST. [Définition officielle de la cryptographie à clé publique](https://csrc.nist.gov/glossary/term/public_key_cryptography).
-
-### 6.2. Exemple de chiffrement à clé publique
-
-Dans un scénario pédagogique simplifié, Bob possède une paire de clés. Il communique sa clé publique à Alice, tout en conservant sa clé privée.
-
-Alice utilise la clé publique de Bob dans le mécanisme prévu pour protéger le message à destination de Bob.
-
-Le contenu chiffré est transmis. Bob utilise ensuite sa clé privée pour retrouver le contenu, selon le mécanisme employé.
-
-```text
-Bob
-├── Clé publique : peut être communiquée
-└── Clé privée   : doit rester protégée
-
-Alice
-    |
-    | Utilise la clé publique de Bob
-    v
-Message protégé pour Bob
-    |
-    v
-Transmission
-    |
-    v
-Bob utilise sa clé privée
-    |
-    v
-Message récupéré
-```
-
-Le schéma est volontairement général. Les algorithmes à clé publique ne fonctionnent pas tous de la même manière.
-
-### 6.3. L'importance de l'authenticité de la clé publique
-
-Un problème apparaît si Alice reçoit une clé publique provenant d'un attaquant qui prétend être Bob.
-
-Alice peut chiffrer son message pour cette fausse clé. L'attaquant peut alors être capable de lire le contenu ou de le transmettre à Bob, selon le scénario.
-
-La cryptographie ne supprime donc pas le besoin de vérifier les identités. Il faut un moyen fiable de relier une clé publique à la personne, au service ou à l'organisation attendue.
-
-C'est l'un des rôles des certificats numériques et des mécanismes de confiance étudiés plus loin.
-
-### 6.4. La clé privée n'est pas le mot de passe du compte
-
-Une clé privée est un élément cryptographique. Un mot de passe est un secret mémorisé ou une valeur utilisée pour authentifier un utilisateur.
-
-Un mot de passe peut éventuellement protéger l'utilisation d'une clé privée, mais les deux concepts restent distincts.
-
-Une clé privée peut être stockée dans un fichier, un composant matériel ou un service spécialisé. Sa protection dépend de la méthode de stockage et des mécanismes d'accès.
-
-Si une clé privée est compromise, changer simplement le mot de passe d'un compte ne suffit pas toujours. Il faut déterminer quel rôle joue cette clé et comment révoquer ou remplacer la confiance qui lui est accordée.
-
-### 6.5. RSA et la cryptographie à courbes elliptiques
-
-RSA et différentes constructions fondées sur des courbes elliptiques sont des familles de mécanismes asymétriques.
-
-Leur utilisation dépend de l'objectif : chiffrement, signature, échange ou établissement de clés, et d'autres fonctions spécialisées.
-
-Leur sécurité repose sur des hypothèses mathématiques et des paramètres adaptés. Les algorithmes et tailles de clés doivent être choisis selon les recommandations actuelles, la bibliothèque et les contraintes du système.
-
-Un débutant ne doit pas retenir un nombre de bits isolé comme une garantie universelle. Les pratiques évoluent, et les exigences peuvent varier selon le protocole, l'algorithme et la durée pendant laquelle les informations doivent rester protégées.
-
-Il faut utiliser des bibliothèques maintenues et suivre des recommandations techniques actualisées.
-
-## 7. Pourquoi les systèmes combinent chiffrement symétrique et asymétrique
-
-### 7.1. Un problème de performance et de distribution
-
-Le chiffrement symétrique est efficace pour protéger de grands volumes de données, mais il faut gérer le secret partagé.
-
-La cryptographie asymétrique permet d'utiliser des paires de clés et facilite certains mécanismes d'établissement de secrets ou de protection des échanges. Toutefois, elle n'est pas systématiquement le meilleur moyen de chiffrer directement de très gros fichiers.
-
-Les systèmes modernes combinent donc souvent plusieurs mécanismes.
-
-### 7.2. Le chiffrement hybride
-
-Dans une architecture hybride, un mécanisme à clé publique ou un mécanisme d'établissement de clés permet aux participants d'obtenir un secret partagé ou de protéger une clé de session. Le chiffrement symétrique utilise ensuite cette clé pour protéger les données.
-
-Un modèle conceptuel :
-
-```text
-1. Établissement d'un secret de session
-                 |
-                 v
-2. Dérivation d'une clé symétrique
-                 |
-                 v
-3. Chiffrement authentifié des données
-                 |
-                 v
-4. Transmission des données protégées
-```
-
-Les protocoles réels comportent d'autres étapes, dont la vérification des identités, les paramètres de négociation et la protection contre certaines manipulations.
-
-Le chiffrement hybride ne signifie pas que toutes les méthodes sont automatiquement sécurisées dès qu'elles sont combinées. Il faut utiliser un protocole reconnu et éviter les constructions improvisées.
-
-### 7.3. Exemple : un service Web
-
-Lorsqu'un navigateur communique avec un serveur via HTTPS, les deux parties établissent des paramètres cryptographiques pour protéger leur session.
-
-La négociation inclut des mécanismes qui contribuent à établir les clés et à vérifier l'identité du serveur, selon le protocole et la configuration. Les données échangées sont ensuite protégées par des mécanismes adaptés à la session.
-
-Le navigateur n'a pas besoin de chiffrer chaque octet du contenu Web avec une clé publique de manière indépendante. Les mécanismes de session permettent d'utiliser efficacement le chiffrement symétrique.
-
-Cette architecture illustre l'intérêt de combiner différentes familles de cryptographie.
-
-## 8. Le hachage : une opération différente du chiffrement
-
-### 8.1. Définition
-
-Une fonction de hachage transforme des données de taille variable en une empreinte de taille déterminée.
-
-Par exemple, SHA-256 produit une empreinte de 256 bits. La fonction peut traiter un petit message ou un fichier beaucoup plus grand.
-
-Contrairement au chiffrement, le hachage cryptographique est conçu pour ne pas permettre de retrouver directement les données d'origine à partir de l'empreinte.
-
-Le hachage ne nécessite pas de clé secrète dans son usage de base, même s'il existe également des mécanismes cryptographiques apparentés qui utilisent une clé, tels que les codes d'authentification de message.
-
-### 8.2. Pourquoi le hachage ne remplace-t-il pas le chiffrement ?
-
-Supposons qu'une application doive enregistrer l'adresse d'un client pour pouvoir l'afficher lors d'une prochaine connexion.
-
-Le hachage de cette adresse ne permet pas de retrouver directement le texte original. Il ne répond donc pas au besoin d'affichage.
-
-Le chiffrement, lui, permet à l'application autorisée de déchiffrer la donnée lorsqu'elle doit l'utiliser.
-
-À l'inverse, un système de connexion ne devrait généralement pas conserver le mot de passe d'un utilisateur dans une forme directement récupérable. Il utilise plutôt une méthode de stockage de mots de passe fondée sur un hachage spécialisé.
-
-Le bon choix dépend de l'objectif : doit-on retrouver le contenu, vérifier une correspondance, ou vérifier l'intégrité d'un message ?
-
-### 8.3. Les propriétés attendues d'une fonction de hachage cryptographique
-
-Une fonction de hachage cryptographique doit notamment rendre difficile la recherche d'un contenu correspondant à une empreinte donnée et la recherche de deux contenus différents possédant la même empreinte, selon les propriétés formelles appropriées.
-
-Aucun hachage de longueur finie ne peut fournir une empreinte différente pour chaque contenu possible, car il existe une infinité de contenus de longueur variable et un nombre fini d'empreintes possibles. La sécurité repose plutôt sur l'impossibilité pratique de trouver certaines collisions ou préimages.
-
-Pour un débutant, il est surtout important de comprendre que la comparaison d'empreintes peut aider à détecter des changements, mais qu'elle n'offre pas automatiquement une authentification.
-
-### 8.4. Exemple : vérifier un fichier
-
-Sous Windows PowerShell :
+Pour afficher la version du système :
 
 ```powershell
-Get-FileHash .\document.txt -Algorithm SHA256
+Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsBuildNumber
 ```
 
-Sous Linux :
+Pour afficher les processus en cours :
+
+```powershell
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 ProcessName, Id, CPU
+```
+
+Pour afficher les connexions réseau associées aux processus, lorsque les permissions et la version du système le permettent :
+
+```powershell
+Get-NetTCPConnection -ErrorAction SilentlyContinue |
+    Select-Object -First 20 LocalAddress, LocalPort, RemoteAddress, RemotePort, State, OwningProcess
+```
+
+Pour consulter l'état du service Microsoft Defender lorsque ce service est présent et que les permissions le permettent :
+
+```powershell
+Get-Service -Name WinDefend -ErrorAction SilentlyContinue
+```
+
+L'affichage de ces informations ne permet pas, à lui seul, de déterminer si un ordinateur est compromis. Certains processus peuvent être inconnus d'un débutant tout en étant légitimes.
+
+### 18.3. Sous Linux
+
+Pour afficher les informations du système :
 
 ```bash
-sha256sum document.txt
+uname -a
 ```
 
-Ces commandes calculent l'empreinte du fichier.
-
-Si tu compares le résultat avec une empreinte de référence fiable, tu peux vérifier que le contenu correspond à ce qui était attendu.
-
-Si la référence vient d'un endroit lui-même compromis, un attaquant peut parfois la remplacer. Il faut donc obtenir la valeur de référence par un canal de confiance ou utiliser un mécanisme d'authentification adapté.
-
-Le cours suivant, consacré au hachage et aux signatures, approfondira les empreintes, les collisions et les signatures numériques.
-
-## 9. Pourquoi le hachage rapide ne convient-il pas au stockage des mots de passe ?
-
-### 9.1. Le problème
-
-Une application ne devrait généralement pas conserver les mots de passe des utilisateurs en clair. Si la base de données est volée, l'attaquant pourrait les utiliser directement, notamment sur d'autres services lorsque les utilisateurs réutilisent leurs mots de passe.
-
-Le stockage des mots de passe repose généralement sur des fonctions spécialisées conçues pour rendre les essais répétés plus coûteux.
-
-### 9.2. Les fonctions adaptées
-
-Des fonctions telles qu'Argon2id, scrypt, bcrypt ou PBKDF2 sont utilisées selon les bibliothèques, les exigences et les contextes.
-
-Ces méthodes prennent en compte des paramètres qui ralentissent ou rendent plus coûteuse la vérification d'un grand nombre de mots de passe candidats.
-
-Il faut utiliser le mécanisme prévu par le framework ou une bibliothèque reconnue, et respecter les recommandations actualisées relatives à sa configuration.
-
-L'OWASP recommande de ne pas stocker les mots de passe en clair et décrit les méthodes de stockage appropriées dans sa [Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
-
-### 9.3. Le sel
-
-Un *salt*, ou sel cryptographique, est une valeur associée au calcul de stockage d'un mot de passe selon la méthode utilisée.
-
-Un sel unique pour chaque mot de passe permet notamment d'empêcher que deux comptes ayant le même mot de passe produisent systématiquement la même valeur stockée selon un schéma déterminé.
-
-Le sel n'est pas nécessairement secret. Son rôle est différent de celui de la clé utilisée pour chiffrer des données.
-
-Avec les mécanismes modernes, la génération et le stockage du sel sont généralement gérés par la bibliothèque. Il vaut mieux s'appuyer sur ces fonctions plutôt que créer sa propre méthode.
-
-### 9.4. Pourquoi SHA-256 seul ne suffit-il pas pour les mots de passe ?
-
-SHA-256 est une fonction de hachage cryptographique utile pour de nombreuses tâches, mais elle est conçue pour être rapide.
-
-Cette rapidité peut faciliter les essais massifs lorsqu'un attaquant possède des empreintes de mots de passe et tente de retrouver les valeurs d'origine.
-
-Pour stocker les mots de passe, on préfère des fonctions spécialisées avec des paramètres adaptés, qui rendent les essais bien plus coûteux.
-
-Il ne faut pas confondre le fait qu'une fonction soit cryptographiquement utile avec son adéquation à chaque problème.
-
-### 9.5. Une application n'a-t-elle jamais besoin de retrouver le mot de passe ?
-
-Dans une conception habituelle, l'application vérifie si le mot de passe présenté correspond au mot de passe enregistré, sans avoir besoin de retrouver le mot de passe en clair à partir de la valeur stockée.
-
-Si un système doit transmettre le secret d'un utilisateur à un autre service, il faut réévaluer son architecture et privilégier si possible un mécanisme d'authentification déléguée ou des jetons plutôt que conserver les mots de passe en clair.
-
-La règle générale est de ne pas stocker un secret récupérable quand le besoin métier ne l'exige pas.
-
-## 10. Les signatures numériques
-
-### 10.1. Le problème d'un document transmis
-
-Alice reçoit un fichier qui semble provenir de son responsable. Le document contient une instruction qui lui demande de modifier une configuration importante.
-
-Deux questions se posent :
-
-- le fichier a-t-il été modifié depuis qu'il a été signé ?
-- la signature correspond-elle à une clé associée à la personne ou à l'organisation attendue ?
-
-Le chiffrement seul ne répond pas automatiquement à ces deux questions.
-
-### 10.2. Principe d'une signature numérique
-
-Une signature numérique utilise un mécanisme cryptographique à clé publique.
-
-Dans un scénario classique, le signataire utilise sa clé privée pour produire une signature associée aux données. Le destinataire vérifie cette signature à l'aide de la clé publique correspondante.
-
-La vérification peut contribuer à détecter une modification du contenu signé et à établir que la signature a été produite avec la clé privée associée.
-
-Le NIST décrit l'utilisation des signatures numériques pour détecter des modifications non autorisées et contribuer à authentifier le signataire. [Standard NIST FIPS 186-5 sur les signatures numériques](https://csrc.nist.gov/pubs/fips/186-5/final).
-
-### 10.3. Signature et chiffrement ne sont pas la même chose
-
-Un document signé n'est pas automatiquement confidentiel.
-
-Si Alice signe un fichier et le transmet sans chiffrement, les personnes capables de lire le fichier peuvent toujours consulter son contenu. La signature peut contribuer à vérifier son intégrité et son origine cryptographique, mais elle ne cache pas le document.
-
-Inversement, un fichier chiffré peut être confidentiel sans porter de signature permettant au destinataire d'identifier son origine.
-
-Une application peut donc avoir besoin de chiffrer un document et de vérifier une signature, selon les exigences. La solution doit être conçue selon un protocole reconnu.
-
-### 10.4. Pourquoi la clé publique doit-elle être vérifiée ?
-
-Supposons qu'Alice reçoive une signature et qu'elle utilise une clé publique fournie par un attaquant. La vérification peut démontrer que la signature correspond à la clé fournie, mais elle ne prouve pas à elle seule que cette clé appartient à la personne attendue.
-
-Il faut établir un lien de confiance entre la clé et l'identité : certificat vérifié, empreinte obtenue par un canal indépendant, infrastructure de confiance ou autre procédure adaptée.
-
-La cryptographie fournit des preuves mathématiques concernant les clés et les données. La confiance dans l'identité dépend également de la façon dont les clés sont distribuées et vérifiées.
-
-## 11. Les certificats numériques et les autorités de certification
-
-### 11.1. À quoi sert un certificat ?
-
-Un certificat numérique permet d'associer une clé publique à une identité ou à un nom selon un format et un processus de confiance.
-
-Dans le Web, un certificat TLS aide le navigateur à vérifier que la clé publique présentée est associée au nom du serveur visité, en s'appuyant sur les autorités de certification et les règles de validation du navigateur.
-
-Un certificat ne remplace pas la clé privée. Il contient généralement des informations publiques et une signature d'autorité ou un mécanisme de validation prévu par l'infrastructure concernée.
-
-### 11.2. Le rôle d'une autorité de certification
-
-Une autorité de certification, ou CA (*Certificate Authority*), émet ou signe des certificats selon un processus défini.
-
-Le navigateur ou le système client doit vérifier que la chaîne de certificats aboutit à une autorité de confiance, que le nom attendu correspond et que les autres règles de validation pertinentes sont respectées.
-
-Un certificat expiré, révoqué ou associé à un nom incorrect peut déclencher un avertissement. Il ne faut pas ignorer automatiquement ces avertissements.
-
-### 11.3. HTTPS et TLS
-
-HTTPS utilise TLS pour protéger les communications entre un client et un serveur. La négociation TLS permet d'établir des paramètres cryptographiques pour la session et de vérifier l'identité du serveur selon le certificat et la configuration.
-
-Une session TLS correctement configurée protège la confidentialité et l'intégrité des données en transit, selon les propriétés du protocole et de son utilisation.
-
-Cependant, HTTPS ne garantit pas que le site lui-même est honnête ou exempt de vulnérabilités. Un site frauduleux peut obtenir un certificat valide pour son propre domaine.
-
-Il faut donc vérifier le nom du domaine et la légitimité du service, et pas uniquement la présence du cadenas dans le navigateur.
-
-### 11.4. Erreurs fréquentes sur les certificats
-
-Un certificat valide n'indique pas automatiquement que l'organisation derrière le site est digne de confiance dans tous les sens du terme.
-
-De même, le certificat public peut être transmis librement, mais la clé privée associée doit rester protégée.
-
-Si une clé privée de serveur est compromise, il peut être nécessaire de révoquer ou remplacer le certificat et d'évaluer les connexions ou données concernées selon la situation.
-
-## 12. Gestion des clés : l'élément souvent oublié
-
-### 12.1. La sécurité dépend aussi des clés
-
-On peut choisir un algorithme robuste, mais affaiblir toute la solution en stockant la clé dans un fichier accessible à trop de personnes.
-
-Si un attaquant obtient simultanément le fichier chiffré et la clé nécessaire, le chiffrement ne protège plus le contenu contre cet attaquant.
-
-La gestion des clés inclut leur génération, leur stockage, leur distribution, leur utilisation, leur remplacement, leur sauvegarde éventuelle et leur destruction contrôlée.
-
-Le NIST fournit des recommandations de gestion des clés cryptographiques dans la série SP 800-57. [Références NIST sur la gestion des clés](https://csrc.nist.gov/Projects/Key-Management/Key-Management-Guidelines).
-
-### 12.2. Générer les clés
-
-Les clés doivent être générées avec des mécanismes cryptographiquement sûrs. Elles ne devraient pas être dérivées de phrases simples ou improvisées en mélangeant quelques caractères.
-
-Les générateurs aléatoires ordinaires destinés aux jeux, aux simulations ou aux tirages non sensibles ne conviennent pas nécessairement à la génération de clés.
-
-Il faut utiliser les mécanismes sécurisés fournis par le système, la bibliothèque ou l'infrastructure cryptographique appropriée.
-
-### 12.3. Stocker les clés séparément des données
-
-Lorsque c'est possible, les clés de chiffrement doivent être protégées séparément des données qu'elles protègent.
-
-Si la clé est conservée dans le même dossier que le fichier chiffré avec des permissions identiques, le vol du dossier peut fournir les deux éléments.
-
-Dans un environnement professionnel, des mécanismes de gestion des clés, des coffres à secrets ou des composants matériels dédiés peuvent aider à contrôler les accès et les opérations.
-
-La solution dépend du risque, du budget et des capacités de l'organisation.
-
-### 12.4. Ne jamais publier de clés privées dans un dépôt de code
-
-Un développeur peut être tenté d'inclure une clé directement dans son programme afin de simplifier les tests.
-
-Si le dépôt est partagé, sauvegardé dans un service tiers ou rendu public, la clé peut être exposée à des personnes qui n'en ont pas besoin.
-
-Les secrets ne doivent donc pas être intégrés au code source ou à l'historique des versions. Il faut utiliser une méthode de gestion adaptée à l'environnement et contrôler les permissions.
-
-Si une clé ou un jeton est publié accidentellement, il faut considérer qu'il peut être compromis, le révoquer ou le remplacer selon son rôle, puis vérifier les traces d'utilisation.
-
-### 12.5. Rotation des clés
-
-La rotation consiste à remplacer une clé selon une politique ou après un événement qui justifie son remplacement.
-
-Elle peut être requise en cas de compromission suspectée, de changement d'équipe ou selon le cycle de vie prévu par l'organisation.
-
-La rotation doit tenir compte des données déjà chiffrées. Remplacer simplement la clé sans prévoir la récupération des données peut empêcher leur déchiffrement.
-
-Il faut donc savoir quelles clés sont utilisées, quelles données en dépendent et comment procéder de manière sûre.
-
-### 12.6. Perte et récupération des clés
-
-La perte d'une clé peut rendre les données chiffrées irrécupérables. C'est pourquoi les organisations doivent définir leurs procédures de sauvegarde ou de récupération lorsqu'elles sont nécessaires et compatibles avec leur modèle de sécurité.
-
-Une procédure de récupération doit elle-même être protégée. Une personne non autorisée ne doit pas pouvoir récupérer facilement les clés uniquement parce qu'une procédure de secours existe.
-
-La sécurité résulte d'un équilibre entre protection contre les accès non autorisés et capacité de récupération légitime.
-
-## 13. L'aléatoire cryptographique
-
-### 13.1. Pourquoi l'aléatoire est-il important ?
-
-La cryptographie utilise des valeurs qui doivent parfois être imprévisibles : clés, nonces, jetons de session et autres paramètres.
-
-Si un attaquant peut prédire ces valeurs, il peut affaiblir le mécanisme qui les utilise.
-
-Les valeurs de sécurité ne doivent donc pas être générées à l'aide de mécanismes destinés uniquement à produire des séquences variées pour un usage non sensible.
-
-### 13.2. Générateur pseudo-aléatoire ordinaire et générateur cryptographique
-
-Un générateur pseudo-aléatoire produit des valeurs à partir d'un état interne ou d'une graine. Pour les usages ordinaires, il peut convenir à des simulations ou à des opérations sans exigence de secret.
-
-Un générateur cryptographiquement sûr est conçu pour rendre les sorties difficiles à prédire, même dans des conditions d'attaque définies.
-
-Il faut utiliser les fonctions cryptographiques sûres de la plateforme plutôt que de créer soi-même un générateur à partir de l'heure du système, d'un nom ou d'un nombre simple.
-
-### 13.3. Exemple de mauvaise pratique
-
-Un programme crée une clé en concaténant le nom d'une entreprise et l'année courante.
-
-Cette valeur est facile à deviner pour une personne qui connaît le contexte. Même si le programme la transforme ensuite, le manque d'imprévisibilité initiale peut compromettre la sécurité.
-
-La bonne pratique consiste à générer une clé à l'aide d'une bibliothèque cryptographique et à la conserver de manière appropriée.
-
-## 14. Choisir les bons outils cryptographiques
-
-### 14.1. Ne pas fabriquer sa propre cryptographie
-
-Il est tentant d'inventer un système simple lorsque l'on commence à étudier la sécurité. Pourtant, de nombreux détails peuvent rendre une construction vulnérable : paramètres mal choisis, mauvaise gestion des clés, erreurs d'authentification ou problèmes de génération aléatoire.
-
-Il faut préférer des bibliothèques reconnues, maintenues et documentées, avec les algorithmes et modes adaptés au besoin.
-
-La documentation de l'OWASP sur le stockage cryptographique recommande d'éviter les algorithmes personnalisés et de considérer le modèle de menace avant de choisir les protections. [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html).
-
-### 14.2. Vérifier la maintenance d'une bibliothèque
-
-Une bibliothèque doit être entretenue, recevoir des corrections et être compatible avec l'environnement utilisé.
-
-Il faut examiner sa provenance, sa documentation, son historique de maintenance et les recommandations de sécurité qui la concernent.
-
-Une bibliothèque très ancienne ou abandonnée peut présenter des risques, même si elle porte un nom connu.
-
-### 14.3. Ne pas choisir uniquement la taille de la clé
-
-La taille de clé est un élément important, mais pas le seul.
-
-Il faut aussi examiner l'algorithme, le mode, la qualité de l'aléatoire, le protocole, les règles de gestion de clés et le contexte d'utilisation.
-
-Un algorithme robuste mal configuré peut offrir une protection insuffisante. Inversement, une solution bien conçue utilise des mécanismes appropriés et limite les erreurs courantes.
-
-### 14.4. Attention aux algorithmes anciens
-
-Certains algorithmes historiques sont utiles pour comprendre l'évolution de la cryptographie, mais ne sont pas adaptés à de nouvelles applications de sécurité.
-
-Le chiffrement de César, par exemple, repose sur un décalage simple des lettres. Il peut être cassé facilement et ne doit pas être utilisé pour protéger des informations réelles.
-
-Les protocoles et algorithmes doivent être sélectionnés selon des recommandations actuelles, plutôt que sur la seule base de leur simplicité.
-
-## 15. Cryptographie et évolution des menaces
-
-### 15.1. Les capacités des attaquants évoluent
-
-Les ressources informatiques et les techniques d'analyse évoluent. Un mécanisme qui semblait acceptable dans un ancien contexte peut devenir insuffisant lorsque les capacités de calcul, les connaissances ou les techniques d'attaque changent.
-
-Il est donc important de suivre les recommandations des organismes spécialisés et de planifier le remplacement des mécanismes obsolètes.
-
-### 15.2. La cryptographie post-quantique
-
-La cryptographie post-quantique étudie des mécanismes conçus pour résister à certaines attaques rendues possibles par des ordinateurs quantiques suffisamment puissants.
-
-Certains mécanismes asymétriques classiques pourraient être vulnérables à de futurs ordinateurs quantiques cryptographiquement pertinents. Cela ne signifie pas que toutes les formes de cryptographie sont affectées de la même manière.
-
-Le NIST a publié le standard FIPS 203 pour ML-KEM, un mécanisme d'encapsulation de clé conçu pour établir un secret partagé. Ce mécanisme n'est pas un chiffrement de fichier remplaçant directement AES : il contribue à l'établissement d'un secret que des algorithmes symétriques peuvent ensuite utiliser. [NIST FIPS 203 — ML-KEM](https://csrc.nist.gov/pubs/fips/203/final).
-
-### 15.3. Pourquoi en parler à un niveau débutant ?
-
-Il est utile de savoir que la cryptographie évolue et que les systèmes doivent pouvoir être maintenus.
-
-Tu n'as pas besoin de maîtriser les mathématiques de ML-KEM pour ce cours. L'idée importante est qu'une solution cryptographique doit être conçue pour évoluer et suivre les recommandations techniques appropriées.
-
-Une organisation qui conserve des données confidentielles pendant de nombreuses années doit également prendre en compte la durée de protection nécessaire, les possibilités de migration et la manière de remplacer les mécanismes utilisés.
-
-## 16. TP guidé : comprendre le chiffrement avec une bibliothèque
-
-Cette activité utilise Python et la bibliothèque `cryptography`. Elle sert à comprendre le principe du chiffrement authentifié. Elle ne constitue pas un système complet de gestion documentaire.
-
-### 16.1. Préparer l'environnement
-
-Utilise un environnement Python local que tu contrôles. Installe la bibliothèque dans cet environnement :
+Pour afficher les processus en cours :
 
 ```bash
-python -m pip install cryptography
+ps aux --sort=-%cpu | head -n 11
 ```
 
-Dans un environnement de formation, il est préférable d'utiliser un environnement virtuel et de vérifier les dépendances installées. Ne lance pas de code issu d'une source inconnue sur un poste professionnel sans validation.
+Pour examiner les sockets réseau et les connexions visibles selon les outils installés :
 
-### 16.2. Exemple d'un chiffrement local
-
-Le programme suivant génère une clé en mémoire, chiffre un message et le déchiffre ensuite avec cette même clé.
-
-```python
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-import os
-
-# Génération d'une clé AES de 256 bits à l'aide de la bibliothèque.
-key = AESGCM.generate_key(bit_length=256)
-cipher = AESGCM(key)
-
-# Le nonce doit être unique avec cette clé.
-nonce = os.urandom(12)
-
-message = b"Document confidentiel de demonstration"
-associated_data = b"cours-cybersecurite-v1"
-
-# Chiffrement authentifié.
-ciphertext = cipher.encrypt(nonce, message, associated_data)
-
-print("Message original :", message)
-print("Donnees chiffrees :", ciphertext.hex())
-
-# Déchiffrement et vérification d'authenticité.
-recovered = cipher.decrypt(nonce, ciphertext, associated_data)
-
-print("Message retrouve :", recovered)
-assert recovered == message
-print("Verification : OK")
+```bash
+ss -tupn
 ```
 
-Dans cette démonstration, AES-GCM assure le chiffrement et une vérification d'authenticité des données. La clé est produite par une fonction de la bibliothèque, et le nonce est généré avec le module aléatoire du système.
+Certaines informations peuvent nécessiter des permissions supplémentaires. N'utilise pas une commande administrative sans comprendre son effet.
 
-La même clé et le nonce correspondant sont utilisés pour la démonstration de déchiffrement. Dans une application réelle, le format de stockage devrait conserver les paramètres nécessaires selon une conception rigoureuse.
+### 18.4. Méthode d'observation
 
-### 16.3. Comprendre les variables
+Pour chaque commande, note :
 
-`key` contient la clé cryptographique. Elle doit rester secrète pour protéger le message.
+- les informations qu'elle affiche ;
+- les éléments que tu reconnais ;
+- les éléments sur lesquels tu dois demander des explications ;
+- les changements éventuels par rapport à un état connu.
 
-`cipher` représente le mécanisme AES-GCM configuré avec cette clé.
+Ne conclus pas qu'un processus est malveillant uniquement parce que son nom ne t'est pas familier. En cas de doute, consulte la documentation du système ou le service technique compétent.
 
-`nonce` est une valeur de paramétrage requise par ce mode. Dans cet exemple, elle est générée aléatoirement. Il faut respecter les règles de non-réutilisation avec la même clé.
+Si tu soupçonnes un incident réel sur un ordinateur professionnel, ne tente pas de supprimer des processus ou de modifier les paramètres au hasard. Suis la procédure de sécurité de ton organisation.
 
-`message` contient le contenu original.
+## 19. Construire une défense de base contre les principales menaces
 
-`associated_data` représente des données supplémentaires associées à l'opération. Elles ne sont pas chiffrées par ce paramètre, mais elles sont liées à la vérification d'authenticité du résultat.
+La protection repose sur plusieurs couches. L'objectif est de réduire la probabilité d'un incident, de limiter ses conséquences et de faciliter sa détection.
 
-`ciphertext` contient les données chiffrées ainsi que les éléments d'authentification produits par la bibliothèque.
+### 19.1. Protéger les identités
 
-`recovered` contient le message retrouvé lorsque la vérification et le déchiffrement réussissent.
+Chaque utilisateur devrait disposer de droits adaptés à son rôle. Les comptes partagés doivent être évités lorsqu'ils empêchent d'identifier les actions individuelles ou qu'ils accordent des droits excessifs.
 
-### 16.4. Pourquoi ne pas réutiliser cette démonstration telle quelle pour des fichiers sensibles ?
+Les comptes à privilèges doivent bénéficier d'une protection renforcée. Les comptes inutilisés doivent être examinés et désactivés selon les procédures prévues.
 
-La clé est conservée uniquement dans la mémoire du programme. À la fin de l'exécution, elle n'est pas stockée pour une récupération ultérieure. Le message serait donc impossible à déchiffrer lors d'une nouvelle exécution sans disposer de la même clé.
+L'authentification multifacteur peut réduire le risque lié au vol d'un mot de passe, en particulier pour les accès sensibles.
 
-Ce comportement est volontaire dans la démonstration : il montre que la clé est indispensable.
+### 19.2. Maintenir les systèmes à jour
 
-Pour une véritable application, il faut concevoir le format de stockage, protéger la clé, gérer son cycle de vie et prévoir la récupération autorisée. Il faut aussi documenter comment la clé a été créée, où elle est stockée, qui peut l'utiliser et comment procéder à sa révocation ou à son remplacement.
+Les logiciels, systèmes d'exploitation, navigateurs, équipements réseau et applications doivent faire l'objet d'un suivi.
 
-N'enregistre jamais une clé de production directement dans le code source pour contourner cette difficulté.
+Il faut connaître les versions utilisées, évaluer les correctifs importants et prévoir leur installation. Un inventaire à jour permet également d'identifier les systèmes qui ne reçoivent plus de mises à jour de sécurité.
 
-### 16.5. Observer l'effet d'une modification
+### 19.3. Réduire la surface d'attaque
 
-La bibliothèque vérifie l'authenticité du contenu. Si tu modifies le texte chiffré ou fournis un paramètre incorrect, le déchiffrement doit échouer plutôt que retourner silencieusement un message accepté.
+La surface d'attaque correspond aux éléments par lesquels un système peut être atteint ou influencé.
 
-Tu peux effectuer une expérimentation contrôlée en modifiant un octet de `ciphertext` dans un nouveau bloc de test. Il faut s'attendre à une exception liée à l'échec de vérification. N'utilise pas un mécanisme qui ignore cette erreur ou accepte les données non vérifiées.
+Elle inclut notamment les services exposés, les comptes, les interfaces d'administration, les applications et les accès externes.
 
-Cette observation illustre une distinction importante : un chiffrement authentifié peut détecter certaines altérations, tandis qu'un mécanisme de chiffrement qui ne fournit que la confidentialité ne garantit pas à lui seul l'intégrité.
+Il est utile de désactiver les services inutiles, de limiter les connexions à ce qui est nécessaire et de séparer les environnements selon les besoins.
 
-### 16.6. Nettoyage
+La réduction de la surface d'attaque doit être réalisée avec prudence pour ne pas interrompre les fonctions légitimes.
 
-Le programme ne crée pas de fichier sur le disque. Il n'y a donc pas de fichier de test à supprimer.
+### 19.4. Protéger les données
 
-Ne copie pas la clé imprimée dans un message, dans un dépôt ou dans un espace partagé. Dans cet exemple, le programme ne l'affiche pas. Garde cette habitude dans les applications réelles.
+Les données sensibles doivent être identifiées, classées et accessibles uniquement aux personnes qui en ont besoin.
 
-## 17. TP guidé : observer la différence entre hachage et chiffrement
+Les protections peuvent inclure les permissions, le chiffrement, la limitation des copies locales et la surveillance des accès inhabituels.
 
-Cette activité utilise un message de test et ne nécessite aucun secret réel.
+Il faut également connaître les obligations applicables à la collecte, à la conservation, au partage et à la suppression des informations.
 
-### 17.1. Calculer une empreinte en Python
+### 19.5. Préparer les sauvegardes et la reprise
 
-```python
-import hashlib
+Les sauvegardes doivent être régulières selon les besoins, protégées contre la suppression non autorisée et testées.
 
-message = b"Premier message de test"
-empreinte = hashlib.sha256(message).hexdigest()
+Une organisation peut envisager plusieurs copies, des copies isolées ou des mécanismes d'immuabilité adaptés à son environnement. Les choix dépendent de la valeur des données, des objectifs de reprise et des moyens disponibles.
 
-print("Empreinte SHA-256 :", empreinte)
-```
+Il faut aussi documenter les étapes de restauration et vérifier que l'application peut réellement fonctionner après la récupération.
 
-Modifie ensuite le texte :
+### 19.6. Surveiller les événements importants
 
-```python
-import hashlib
+La journalisation et la supervision aident à repérer les connexions, modifications et comportements inhabituels.
 
-message = b"Message de test modifie"
-empreinte = hashlib.sha256(message).hexdigest()
+Il faut savoir quels événements sont importants, où les journaux sont stockés, qui peut les consulter et pendant combien de temps ils doivent être conservés.
 
-print("Nouvelle empreinte :", empreinte)
-```
+Les alertes doivent être utiles et exploitables. Un système qui produit trop d'alertes sans hiérarchie peut rendre les signaux importants plus difficiles à identifier.
 
-Les deux empreintes devraient être différentes.
+### 19.7. Sensibiliser et entraîner les équipes
 
-### 17.2. Interpréter le résultat
+Les utilisateurs doivent savoir reconnaître les demandes suspectes, protéger les informations et signaler un incident.
 
-Le hachage produit une empreinte associée au contenu. Il ne permet pas de retrouver le message en clair en effectuant simplement une opération inverse.
+Les consignes doivent être concrètes : ne pas transmettre un mot de passe par courriel, vérifier les demandes de paiement, signaler les liens suspects et contacter rapidement le support après une erreur.
 
-Le chiffrement, au contraire, permet à une personne disposant des éléments requis de déchiffrer les données.
+Des exercices encadrés peuvent aider les équipes à appliquer ces réflexes sans utiliser de véritables secrets ni exposer des données sensibles.
 
-Il faut donc choisir l'opération en fonction du besoin. Utiliser une empreinte pour stocker une adresse que l'application doit réafficher ne répond pas à ce besoin. Utiliser du chiffrement réversible pour enregistrer un mot de passe de connexion est généralement inadapté.
+### 19.8. Préparer une procédure d'incident
 
-### 17.3. Limites de l'expérience
+Avant qu'un incident survienne, l'organisation doit définir les personnes à contacter, les responsabilités et les premières mesures possibles.
 
-Le code montre comment une bibliothèque standard calcule une empreinte. Il ne met pas en place un stockage de mots de passe sécurisé et ne prouve pas que la référence d'une empreinte vient d'une source de confiance.
+La procédure peut prévoir la protection des comptes, l'isolement contrôlé d'un poste, la préservation des journaux, la communication avec les responsables et la restauration des services.
 
-Le hachage SHA-256 est utile dans de nombreux contextes, mais les mots de passe nécessitent des mécanismes spécialisés et des paramètres adaptés.
+Elle doit être adaptée au système réel et testée. En cas d'incident sérieux, les décisions doivent être prises avec les personnes compétentes et selon les obligations applicables.
 
-## 18. Étude de cas : protéger les données de NovaLearn
+## 20. Erreurs de raisonnement à éviter
 
-### 18.1. Situation
+### 20.1. « Nous sommes trop petits pour être ciblés »
 
-NovaLearn est une plateforme de formation qui conserve les informations de ses apprenants, leurs résultats et les documents de cours.
+Une organisation de petite taille peut être visée directement ou affectée indirectement par une campagne opportuniste. Les attaquants n'ont pas toujours besoin de connaître précisément leur cible avant d'envoyer des messages frauduleux ou de rechercher des services exposés.
 
-L'entreprise souhaite transmettre certains documents à un partenaire, protéger la base de données et garantir que les mises à jour du logiciel n'ont pas été modifiées.
+La taille de l'organisation ne remplace pas une analyse de risque.
 
-La direction te demande de proposer une stratégie de cryptographie adaptée à ces besoins.
+### 20.2. « Nous avons un antivirus, donc nous sommes protégés »
 
-### 18.2. Protéger les données en transit
+Un antivirus peut détecter ou bloquer certains logiciels malveillants, mais il ne protège pas contre toutes les menaces.
 
-Les communications entre les navigateurs et le site devraient utiliser HTTPS configuré selon des recommandations actuelles.
+Le contrôle d'accès, les mises à jour, les sauvegardes, les protections réseau, les procédures et la vigilance des utilisateurs restent nécessaires.
 
-Il faut utiliser un certificat valide pour le nom attendu, protéger la clé privée du serveur et corriger les avertissements de configuration.
+### 20.3. « Le courriel semble professionnel, donc il est légitime »
 
-HTTPS protège les échanges au niveau du transport selon TLS, mais ne garantit pas que l'application est exempte de vulnérabilités. Les contrôles d'accès et les tests applicatifs restent nécessaires.
+Un message peut être soigneusement rédigé et utiliser des informations exactes tout en étant malveillant.
 
-### 18.3. Protéger les données au repos
+La forme du message ne remplace pas la vérification de son origine et de sa demande.
 
-Les informations sensibles conservées sur les ordinateurs et les supports de stockage peuvent bénéficier d'un chiffrement adapté.
+### 20.4. « Une connexion inhabituelle prouve qu'un compte est piraté »
 
-L'entreprise doit déterminer quelles données sont sensibles, où elles sont stockées et qui doit y accéder.
+Une connexion inhabituelle constitue un signal à examiner, mais elle peut aussi correspondre à un déplacement, à une intervention ou à une utilisation légitime.
 
-Le chiffrement du disque peut contribuer à protéger les fichiers lorsque le matériel est perdu ou volé. Il ne remplace pas les permissions et ne protège pas nécessairement les données contre une personne qui utilise déjà une session autorisée sur un ordinateur déverrouillé.
+Il faut la corréler avec d'autres éléments et suivre le processus d'investigation.
 
-### 18.4. Stocker les mots de passe
+### 20.5. « La sauvegarde est terminée, donc nous pouvons tout récupérer »
 
-La plateforme ne devrait pas conserver les mots de passe des apprenants en clair.
+La réussite apparente d'une tâche de sauvegarde ne garantit pas que les données pourront être restaurées et utilisées.
 
-Elle doit employer les mécanismes de stockage de mots de passe appropriés fournis par une bibliothèque ou un framework reconnu.
+Une restauration testée permet de vérifier la qualité des copies et la faisabilité de la procédure.
 
-Le mécanisme doit être configuré selon les recommandations actuelles. Un simple hachage rapide ne suffit pas.
+### 20.6. « Tous les incidents sont causés par une vulnérabilité logicielle »
 
-### 18.5. Vérifier les fichiers du logiciel
+Des incidents peuvent provenir de manipulations, de comptes compromis, de mauvaises configurations, de pannes matérielles et d'événements environnementaux.
 
-Les fichiers de mise à jour peuvent être accompagnés de signatures ou d'empreintes de référence.
+Il faut chercher la cause dans le contexte réel, sans se limiter aux failles de code.
 
-Une vérification d'empreinte peut confirmer que le fichier correspond à une valeur de référence fiable. Une signature numérique peut contribuer à vérifier l'origine cryptographique du fichier et à détecter certaines modifications, sous réserve de la vérification correcte de la clé publique et de sa confiance.
+## 21. Étude de cas : l'incident de l'entreprise Horizon
 
-La vérification doit être intégrée à un processus de déploiement fiable. Un simple fichier d'empreinte téléchargé depuis la même source compromise que le binaire n'offre pas nécessairement une garantie suffisante.
+### 21.1. La situation
 
-### 18.6. Protéger les clés
+Horizon Services est une petite entreprise qui utilise un logiciel de gestion des commandes, une messagerie professionnelle et un serveur de fichiers.
 
-Les clés ne devraient pas être incluses dans le dépôt de code de l'application. Leur accès doit être limité et leur gestion documentée.
+Un employé reçoit un courriel qui prétend provenir du service informatique. Il est invité à confirmer son compte. Il saisit son mot de passe sur la page proposée.
 
-Si une clé est compromise, NovaLearn doit savoir comment la révoquer ou la remplacer, quelles données ou communications sont concernées et quelles procédures permettent de revenir à un état sûr.
+Le lendemain, un autre employé remarque que plusieurs messages ont été envoyés depuis le compte compromis. Une connexion inhabituelle figure dans les journaux. Quelques fichiers ont été téléchargés et un dossier partagé ne contient plus certains documents.
 
-### 18.7. Résultat attendu
+La direction souhaite comprendre la situation et empêcher qu'elle se reproduise.
 
-La stratégie de NovaLearn associe plusieurs contrôles :
+### 21.2. Étape 1 : séparer les faits des hypothèses
 
-- chiffrement adapté des communications et des données stockées ;
-- stockage sécurisé des mots de passe ;
-- gestion des certificats et des clés ;
-- vérification fiable des logiciels ;
-- contrôle d'accès et supervision ;
-- tests périodiques et procédures de récupération.
+Les faits connus sont les suivants :
 
-Cette approche évite de confier toute la sécurité à un seul algorithme.
+- un employé a saisi son mot de passe sur une page reçue par courriel ;
+- des messages inhabituels ont été envoyés depuis son compte ;
+- une connexion inhabituelle est visible ;
+- certains fichiers ne sont plus présents dans le dossier partagé.
 
-## 19. Les erreurs fréquentes à éviter
+Les hypothèses peuvent comprendre le vol du mot de passe, l'utilisation du compte par une personne non autorisée, le téléchargement de documents ou une suppression de fichiers.
 
-### Erreur 1 — Confondre encodage et chiffrement
+Ces hypothèses doivent être vérifiées. Les données disponibles ne suffisent pas encore à établir précisément toutes les actions réalisées.
 
-Base64 est un encodage, pas un algorithme de chiffrement. Si un secret est simplement encodé, une personne peut généralement le récupérer sans clé.
+### 21.3. Étape 2 : déterminer les propriétés concernées
 
-### Erreur 2 — Utiliser le même secret partout
+La confidentialité peut être compromise si les courriels ou les fichiers ont été consultés par une personne non autorisée.
 
-Réutiliser une clé ou un mot de passe dans plusieurs systèmes peut augmenter l'impact d'une compromission. Les clés doivent avoir un rôle clair et être gérées selon les besoins.
+L'intégrité peut être compromise si les fichiers ont été supprimés ou modifiés sans autorisation.
 
-### Erreur 3 — Inventer un algorithme personnel
+La disponibilité peut être affectée si les employés ne peuvent plus accéder aux documents nécessaires.
 
-Une transformation conçue rapidement n'a pas nécessairement les propriétés de sécurité attendues. Les mécanismes reconnus et les bibliothèques maintenues sont préférables.
+L'analyse doit déterminer quelles données ont été accessibles, quelles modifications ont eu lieu et quelles fonctions sont encore opérationnelles.
 
-### Erreur 4 — Croire que le chiffrement garantit toujours l'intégrité
+### 21.4. Étape 3 : prendre les premières mesures
 
-Le chiffrement seul ne garantit pas nécessairement l'authenticité des données. Il faut sélectionner un mécanisme adapté, par exemple un chiffrement authentifié lorsque cela convient.
+L'employé doit signaler immédiatement l'incident. L'équipe compétente examine les accès, révoque les sessions concernées si nécessaire et rétablit un moyen d'authentification fiable.
 
-### Erreur 5 — Croire que la clé publique doit rester secrète
+Elle vérifie également les règles de messagerie, les permissions et les journaux pour rechercher d'éventuelles actions persistantes.
 
-La clé publique est conçue pour pouvoir être communiquée. La clé privée correspondante doit rester protégée. En revanche, il faut vérifier que la clé publique appartient bien à l'entité attendue.
+Les fichiers supprimés doivent être récupérés à partir de copies fiables si cela est nécessaire, après avoir évalué l'état du système et conservé les éléments utiles à l'enquête.
 
-### Erreur 6 — Stocker les mots de passe avec SHA-256 seul
+### 21.5. Étape 4 : chercher les causes
 
-SHA-256 est rapide et ne constitue pas, à lui seul, le mécanisme recommandé pour stocker des mots de passe. Les applications doivent utiliser une fonction spécialisée et configurée correctement.
+L'enquête doit rechercher si le compte était protégé par une authentification multifacteur, si d'autres identifiants ont été utilisés, quelles ressources étaient accessibles et si des comptes supplémentaires ont été affectés.
 
-### Erreur 7 — Croire qu'un certificat valide prouve que le site est honnête
+Il faut aussi vérifier si les utilisateurs savent comment signaler un message suspect et si les procédures de révocation des accès sont suffisamment rapides.
 
-Un certificat TLS contribue à vérifier l'identité du domaine selon le mécanisme de confiance utilisé. Il ne garantit pas que tous les contenus du site sont fiables ou que l'organisation ne commettra aucune fraude.
+### 21.6. Étape 5 : prévenir la répétition
 
-### Erreur 8 — Oublier la récupération des clés
+Les actions correctives peuvent comprendre :
 
-Une clé perdue peut rendre des données irrécupérables. Une stratégie de chiffrement doit inclure les besoins de récupération, les permissions et les procédures de secours.
+- le renforcement de l'authentification ;
+- la révocation des sessions et secrets compromis ;
+- la vérification des règles de messagerie ;
+- la réduction des droits d'accès ;
+- l'amélioration de la journalisation ;
+- la sensibilisation des employés ;
+- des exercices de restauration des fichiers ;
+- un processus simple de signalement des courriels suspects.
 
-### Erreur 9 — Publier une clé dans le code source
+Chaque action doit être affectée à un responsable et accompagnée d'une vérification.
 
-Une clé intégrée au code peut être copiée, conservée dans l'historique ou exposée à des collaborateurs qui ne devraient pas y avoir accès. Il faut utiliser une gestion de secrets appropriée.
+### 21.7. Leçons de l'étude de cas
 
-### Erreur 10 — Confondre signature numérique et chiffrement
+L'incident n'a pas nécessairement commencé par une vulnérabilité logicielle. Une manipulation humaine peut créer une opportunité, puis le vol d'identifiants permet d'utiliser un service légitime.
 
-Une signature numérique n'a pas pour objectif principal de cacher le contenu du document. Elle sert notamment à vérifier la signature et à détecter des modifications. Si la confidentialité est également nécessaire, un mécanisme supplémentaire peut être requis.
+Une défense efficace doit donc combiner les mesures techniques, les procédures et les réflexes des utilisateurs. Elle doit également pouvoir détecter les comportements anormaux et limiter rapidement les conséquences.
 
-## 20. Exercices avec corrections
+## 22. Exercices avec corrections
 
-Essaie de répondre avant de consulter les corrections.
+Essaie de résoudre chaque exercice avant de lire la correction.
 
-### Exercice 1 — Reconnaître le bon mécanisme
+### Exercice 1 — Menace, vulnérabilité ou risque ?
 
-Une entreprise souhaite protéger le contenu d'un fichier afin que seuls les utilisateurs disposant de la clé appropriée puissent le lire. Quel mécanisme répond le plus directement à ce besoin ?
+Pour chaque élément, indique s'il s'agit principalement d'une menace, d'une vulnérabilité ou d'une conséquence.
 
-A. Encodage Base64.
+A. Une personne cherche à voler des identifiants.
 
-B. Chiffrement adapté avec une gestion sûre de la clé.
+B. Un compte possède des privilèges administratifs inutiles.
 
-C. Renommage du fichier.
+C. Des données clients sont divulguées à une personne non autorisée.
 
-D. Compression du fichier.
+D. Une panne électrique pourrait arrêter un serveur.
 
-**Correction : B.**
+**Correction**
 
-Le chiffrement permet de rendre le contenu illisible aux personnes qui ne possèdent pas les éléments nécessaires. La clé et sa gestion sont déterminantes. L'encodage, le renommage et la compression ne procurent pas, à eux seuls, la confidentialité cryptographique recherchée.
+A. Menace : une personne cherche à provoquer un incident.
 
-### Exercice 2 — Distinguer clé publique et clé privée
+B. Vulnérabilité ou faiblesse de configuration : les privilèges sont plus importants que nécessaire.
 
-Dans un système asymétrique, quelle clé doit généralement rester secrète ?
+C. Conséquence : la confidentialité a été compromise.
 
-A. La clé publique.
+D. Menace : l'événement pourrait provoquer une interruption.
 
-B. La clé privée.
+### Exercice 2 — Reconnaître l'hameçonnage
 
-C. Les deux clés doivent nécessairement être publiées.
+Un message reçu sur ton adresse professionnelle indique que ton compte sera supprimé dans dix minutes si tu ne transmets pas ton mot de passe.
 
-D. Aucune clé n'est nécessaire.
+Quelle est la meilleure première réaction ?
 
-**Correction : B.**
+A. Répondre immédiatement pour éviter le blocage.
 
-La clé privée doit être protégée. La clé publique peut être distribuée, mais le destinataire doit vérifier qu'elle est associée à l'identité attendue.
+B. Ouvrir le lien depuis un téléphone personnel.
 
-### Exercice 3 — Comprendre les mots de passe
+C. Vérifier la demande par un canal officiel et signaler le message selon la procédure.
 
-Une application enregistre tous les mots de passe dans un fichier en clair. Quel est le problème principal ?
+D. Transférer le courriel à tous les collègues en leur demandant de tester le lien.
 
-A. Les mots de passe sont trop faciles à afficher dans l'interface.
+**Correction : C.**
 
-B. Le vol du fichier pourrait fournir directement les mots de passe utilisables.
+Le sentiment d'urgence et la demande de mot de passe sont des signaux inquiétants. Il faut vérifier la demande indépendamment et éviter de propager le lien.
 
-C. Le fichier sera automatiquement chiffré par le système.
+### Exercice 3 — Identifier un rançongiciel
 
-D. Le stockage en clair augmente nécessairement la disponibilité.
+Une entreprise constate que des fichiers sont devenus inaccessibles et qu'un message exige un paiement pour les récupérer.
 
-**Correction : B.**
+Quelle propriété est certainement préoccupée par cette indisponibilité ?
 
-Le stockage en clair expose directement les mots de passe à toute personne capable de lire le fichier. Une application doit utiliser un mécanisme approprié de stockage des mots de passe.
+A. Disponibilité.
 
-### Exercice 4 — Hachage ou chiffrement ?
+B. Confidentialité uniquement.
 
-Une application doit vérifier qu'un fichier téléchargé correspond à une version de référence. Quelle méthode peut contribuer à vérifier le contenu ?
+C. Authentification uniquement.
 
-A. Comparer une empreinte cryptographique avec une empreinte de référence fiable.
-
-B. Transformer le nom du fichier en majuscules.
-
-C. Utiliser un mot de passe très court.
-
-D. Ajouter une extension `.secure`.
+D. Aucune propriété CIA.
 
 **Correction : A.**
 
-La comparaison des empreintes peut détecter une différence de contenu. Il faut toutefois disposer d'une référence fiable, et un hachage seul ne permet pas toujours de vérifier qui a produit le fichier.
+La disponibilité est directement affectée. L'intégrité et la confidentialité doivent aussi être étudiées selon les autres actions réalisées et les données éventuellement copiées.
 
-### Exercice 5 — Le site HTTPS
+### Exercice 4 — Gestion des vulnérabilités
 
-Tu visites un site possédant un certificat TLS valide. Peux-tu conclure que tous les contenus publiés par ce site sont honnêtes ?
+Un serveur public utilise une version obsolète d'un logiciel pour lequel un correctif de sécurité existe. Quelle démarche est la plus adaptée ?
 
-**Correction**
+A. Ignorer le problème si le serveur fonctionne.
 
-Non. Le certificat aide à vérifier l'identité du domaine selon les règles de validation et permet la mise en place d'une communication sécurisée. Il ne certifie pas que toutes les informations du site sont vraies, ni que l'organisation est digne de confiance dans tous les domaines.
+B. Évaluer la vulnérabilité, sa gravité et son exposition, planifier une correction et vérifier le résultat.
 
-### Exercice 6 — Réutilisation d'une clé
+C. Supprimer tous les journaux pour libérer de l'espace.
 
-Une entreprise utilise la même clé pour chiffrer toutes les données de tous ses systèmes, sans documentation ni procédure de rotation.
+D. Partager le compte administrateur avec toute l'équipe.
 
-Quel est le risque ?
+**Correction : B.**
 
-**Correction**
+La gestion des vulnérabilités exige une évaluation, une correction adaptée et une vérification. Le fait que le service fonctionne normalement ne garantit pas qu'il est sécurisé.
 
-Une compromission de cette clé peut affecter plusieurs systèmes. L'absence de documentation complique l'identification des données concernées et leur migration. Il faut définir des rôles de clés, limiter les accès et préparer leur remplacement selon une politique adaptée.
+### Exercice 5 — Erreur humaine
 
-### Exercice 7 — Le fichier est chiffré mais modifiable
+Un employé supprime un dossier de travail en pensant qu'il s'agissait d'une copie temporaire.
 
-Un développeur utilise un mécanisme qui chiffre les données sans leur fournir de protection d'authenticité. Un attaquant modifie certains bits du texte chiffré.
-
-Pourquoi cela peut-il poser problème ?
+S'agit-il nécessairement d'une attaque ?
 
 **Correction**
 
-Le mécanisme utilisé ne garantit pas nécessairement la détection d'une altération. Selon l'algorithme et le mode, le déchiffrement peut produire des données modifiées sans preuve suffisante que le contenu est authentique. Il faut privilégier un mécanisme adapté qui fournit une authentification du contenu lorsque cela est nécessaire.
+Non. Il peut s'agir d'une erreur accidentelle. La conséquence peut tout de même toucher l'intégrité et la disponibilité des données. Il faut comprendre la situation, vérifier les sauvegardes et chercher des moyens d'éviter la répétition de l'erreur.
 
-### Exercice 8 — Signature numérique
+### Exercice 6 — Réseau et disponibilité
 
-Un fichier possède une signature numérique valide avec une clé publique. Quelles vérifications restent importantes ?
+Une application ne répond plus. Le serveur est allumé, mais les utilisateurs ne peuvent pas l'atteindre.
 
-**Correction**
+Cite trois éléments à vérifier avant de conclure à une attaque.
 
-Il faut vérifier que la clé publique est bien associée à la personne ou à l'organisation attendue, que le contenu vérifié est celui qui sera utilisé et que le mécanisme de confiance est fiable. Une signature valide ne garantit pas que le document est forcément correct ou qu'il est confidentiel.
+**Correction possible**
 
-### Exercice 9 — Perte de clé
+Il faut examiner la connectivité réseau, l'état du service applicatif et les dépendances telles que le DNS ou la base de données. On peut également vérifier la charge, les journaux et les changements de configuration récents.
 
-Une entreprise chiffre ses archives avec une clé qui n'existe plus après le départ de l'administrateur.
+Ces vérifications aident à distinguer une panne technique d'un incident malveillant éventuel.
 
-Quelle leçon doit-elle retenir ?
+### Exercice 7 — Compte administrateur
 
-**Correction**
+Un technicien utilise quotidiennement le même compte administrateur pour consulter ses courriels, naviguer sur Internet et modifier les configurations du réseau.
 
-La gestion des clés doit inclure leur cycle de vie et les conditions de récupération nécessaires. La protection ne doit pas dépendre d'une seule personne ou d'un fichier non documenté. Les procédures de secours doivent être sécurisées et testées.
-
-### Exercice 10 — Choisir un stockage de mots de passe
-
-Un développeur affirme qu'il est suffisant de calculer SHA-256 une fois sur chaque mot de passe pour le protéger.
-
-Pourquoi cette affirmation est-elle incorrecte ?
+Quel est le problème principal et quelle mesure proposer ?
 
 **Correction**
 
-SHA-256 est une fonction conçue pour être rapide. Un attaquant qui obtient les empreintes peut essayer de nombreuses valeurs candidates. Le stockage de mots de passe doit utiliser un mécanisme spécialisé, tel qu'Argon2id ou une alternative adaptée au contexte, configuré selon les recommandations actuelles.
+L'utilisation permanente d'un compte privilégié augmente les conséquences possibles d'une erreur ou d'une compromission. Une mesure adaptée consiste à séparer les usages quotidiens des opérations d'administration, à limiter les privilèges et à protéger les comptes administratifs.
 
-## 21. Défi final — Concevoir une stratégie cryptographique
+### Exercice 8 — Prioriser les risques
 
-### 21.1. Situation
+Une organisation possède les faiblesses suivantes :
 
-Tu travailles pour une entreprise appelée **NovaLearn**. Elle gère une plateforme de formation, une base de données d'apprenants et un système qui permet aux enseignants de publier les résultats.
+- A : un poste d'accueil fonctionne lentement ;
+- B : un compte d'administration partagé permet de modifier les données de clients ;
+- C : les sauvegardes n'ont jamais été restaurées en test.
 
-Elle doit répondre aux besoins suivants :
+Quelle priorité initiale proposes-tu ?
 
-1. Les données personnelles doivent être protégées contre les accès non autorisés.
-2. Les communications entre les navigateurs et le serveur doivent être protégées.
-3. Les mots de passe doivent être stockés de manière adaptée.
-4. Les fichiers de mise à jour doivent pouvoir être vérifiés.
-5. Les clés doivent rester protégées et pouvoir être remplacées si nécessaire.
-6. Les données doivent rester récupérables en cas de panne ou d'erreur.
+**Correction indicative**
 
-La direction te demande de concevoir une première architecture de protection cryptographique.
+B et C méritent généralement une attention importante : le compte partagé affecte le contrôle des accès et la traçabilité, tandis que les sauvegardes non testées peuvent compromettre la récupération après incident.
 
-### 21.2. Travail demandé
+A doit également être examiné, mais sa priorité dépend de ses causes et de son impact réel. L'ordre final doit prendre en compte les conséquences métier et les informations disponibles.
 
-Décris une solution pour chacun des six besoins. Pour chaque choix, explique :
+### Exercice 9 — Un signal ou une preuve ?
 
-- l'objectif de sécurité ;
-- le mécanisme cryptographique envisagé ;
-- la manière de protéger les clés ou les références de confiance ;
-- les limites du mécanisme ;
-- le test permettant de vérifier le résultat.
+Un antivirus affiche une alerte sur un fichier téléchargé. L'utilisateur affirme qu'il n'a rien exécuté.
 
-Ne sélectionne pas des produits uniquement sur la base de leur nom. Explique d'abord le besoin.
+Que faut-il conclure ?
 
-### 21.3. Correction détaillée
+**Correction**
 
-**Besoin 1 : protéger les données personnelles.**
+L'alerte doit être prise au sérieux et examinée selon la procédure prévue, mais elle ne permet pas à elle seule d'affirmer que le système entier est compromis. Il faut déterminer la nature de l'alerte, l'état du fichier et les actions éventuellement réalisées.
 
-L'organisation doit identifier les données sensibles, contrôler leurs permissions et décider lesquelles doivent être chiffrées au repos.
+### Exercice 10 — Scénario combiné
 
-Le chiffrement doit utiliser un mécanisme reconnu et une gestion de clés adaptée. Il faut séparer autant que possible les clés des données et limiter les personnes capables de les utiliser.
+Une personne récupère les identifiants d'un employé, télécharge des documents internes et supprime quelques fichiers dans un répertoire partagé.
 
-Le chiffrement ne remplace pas le contrôle d'accès applicatif. Un utilisateur authentifié ne doit pas pouvoir consulter tous les dossiers uniquement parce que la base est chiffrée au repos.
+Quelles propriétés CIA peuvent être affectées ?
 
-Le contrôle peut être vérifié avec des tests de rôles et des procédures de récupération dans un environnement contrôlé.
+**Correction**
 
-**Besoin 2 : protéger les communications Web.**
+La confidentialité peut être touchée par le téléchargement non autorisé. L'intégrité peut être compromise par la suppression des fichiers. La disponibilité peut également être affectée si les fichiers supprimés sont nécessaires à l'activité.
 
-La plateforme doit utiliser HTTPS configuré correctement avec TLS. Le certificat doit être valide pour le domaine attendu, et la clé privée du serveur doit être protégée.
+Il faut enquêter pour confirmer l'étendue des actions et les systèmes concernés.
 
-Il faut vérifier la configuration et s'assurer que les utilisateurs n'ignorent pas les avertissements de sécurité.
+## 23. Défi final — Construire un plan de réduction des menaces
 
-La protection des communications ne rend pas automatiquement l'application sûre contre les contrôles d'accès insuffisants ou les failles de logique métier.
+### 23.1. Le scénario
 
-**Besoin 3 : protéger les mots de passe.**
+Tu viens d'être recruté comme technicien débutant chez **NovaLearn**, une entreprise qui propose des formations en ligne.
 
-Les mots de passe ne doivent pas être stockés en clair ou avec un simple encodage. La plateforme doit utiliser un mécanisme de stockage de mots de passe adapté, intégré à une bibliothèque ou à un framework reconnu.
+L'entreprise dispose d'une application Web, d'une base de données d'apprenants, d'une messagerie professionnelle et d'un serveur de fichiers. Les enseignants utilisent des comptes individuels, mais les comptes administratifs sont mal documentés.
 
-Il faut vérifier que les paramètres sont appropriés et que le système ne révèle pas les secrets dans les journaux ou les messages d'erreur.
+Le responsable t'explique les problèmes suivants :
 
-**Besoin 4 : vérifier les fichiers de mise à jour.**
+1. Plusieurs employés réutilisent le même mot de passe sur des services différents.
+2. Le site contient un logiciel qui n'a pas été mis à jour depuis longtemps.
+3. Certains documents sont partagés à l'aide de liens dont les permissions ne sont pas régulièrement revues.
+4. Une sauvegarde est effectuée, mais personne ne sait si la restauration fonctionne.
+5. Les courriels suspects sont souvent supprimés sans être signalés.
+6. L'entreprise ne possède pas de procédure claire pour réagir lorsqu'un compte est compromis.
 
-Une méthode peut reposer sur des signatures numériques : le logiciel de déploiement vérifie la signature des fichiers à l'aide d'une clé publique de confiance.
+Le responsable te demande de proposer un premier plan de réduction des risques.
 
-La clé publique ou le certificat utilisé doit être distribué et vérifié de manière sûre. Si l'organisation utilise des empreintes, la référence doit provenir d'un canal fiable et protégé.
+### 23.2. Travail demandé
 
-La vérification doit être réalisée automatiquement dans le processus de déploiement lorsque cela est possible, et le système doit refuser les fichiers qui ne satisfont pas les contrôles.
+Rédige une réponse contenant :
 
-**Besoin 5 : gérer les clés.**
+- les actifs essentiels à protéger ;
+- les menaces plausibles associées à chaque problème ;
+- les vulnérabilités ou faiblesses identifiées ;
+- les propriétés CIA potentiellement affectées ;
+- les mesures préventives prioritaires ;
+- les moyens de détecter un incident ;
+- les premières actions à prévoir lorsqu'un incident est signalé ;
+- les contrôles permettant de vérifier les résultats.
 
-L'organisation doit documenter quelles clés sont utilisées, par quels systèmes, à quelles fins et par quels comptes. Il faut limiter les accès, prévoir leur rotation et définir les actions à mener en cas de compromission.
+Ne choisis pas un produit commercial au hasard. Décris le contrôle attendu et explique pourquoi il est utile.
 
-Les clés ne doivent pas être intégrées au dépôt de code ou partagées par courriel sans protection adaptée.
+### 23.3. Correction détaillée
 
-Les procédures de rotation doivent être testées pour éviter de rendre les données existantes irrécupérables.
+**1. Les actifs essentiels**
 
-**Besoin 6 : maintenir la capacité de récupération.**
+Les principaux actifs sont les données personnelles des apprenants, les résultats, les comptes des utilisateurs, la plateforme de formation, la base de données, les documents internes, les comptes administratifs et les sauvegardes.
 
-Il faut combiner les sauvegardes et les procédures de récupération avec une gestion adéquate des clés. La sauvegarde d'un fichier chiffré ne suffit pas si la clé nécessaire au déchiffrement est perdue.
+La messagerie est aussi importante, car elle peut servir à réinitialiser des comptes ou à diffuser des messages frauduleux.
 
-L'organisation doit définir les conditions de récupération, protéger les copies de secours et tester la restauration des données comme celle des clés nécessaires, dans un cadre sûr.
+**2. Les menaces et faiblesses**
 
-### 21.4. Grille d'autoévaluation
+La réutilisation des mots de passe crée une faiblesse qui peut faciliter l'accès à plusieurs services si un identifiant est divulgué. Une menace peut tenter d'exploiter cette faiblesse.
+
+Le logiciel obsolète peut contenir des vulnérabilités connues. La menace est qu'une personne ou un programme tente de les exploiter.
+
+Les liens de partage mal contrôlés peuvent donner accès à des documents à des personnes qui n'en ont plus besoin ou qui ne devraient pas les consulter.
+
+Les sauvegardes non testées créent une incertitude concernant la reprise et la récupération des données.
+
+L'absence de signalement des courriels suspects réduit la capacité de l'organisation à détecter des campagnes ou des tentatives de manipulation.
+
+L'absence de procédure d'incident peut retarder la révocation des accès et aggraver les conséquences d'une compromission.
+
+**3. Les propriétés CIA concernées**
+
+La confidentialité est concernée par les permissions de partage trop larges, la compromission de comptes et la consultation non autorisée de données.
+
+L'intégrité peut être affectée si un compte compromis modifie les résultats, les documents ou la configuration de l'application.
+
+La disponibilité peut être affectée par une exploitation de vulnérabilité, un rançongiciel ou une interruption de service. L'absence de restauration testée augmente l'incertitude sur la capacité de reprise.
+
+**4. Les mesures préventives**
+
+L'entreprise devrait adopter des mots de passe uniques et une protection renforcée pour les comptes importants. Elle doit limiter les privilèges et réexaminer les comptes administratifs.
+
+Le logiciel obsolète doit être inventorié, évalué puis mis à jour selon une procédure adaptée, avec des tests et une vérification après correction.
+
+Les permissions des documents doivent être réexaminées et les liens publics supprimés lorsqu'ils ne sont pas nécessaires. Les utilisateurs doivent pouvoir partager des documents selon des règles simples et compréhensibles.
+
+Les sauvegardes doivent être protégées, vérifiées et restaurées régulièrement dans un environnement adapté.
+
+Un mécanisme de signalement simple doit être communiqué aux employés. Les messages suspects doivent être transmis à l'équipe responsable sans propager les liens dangereux.
+
+**5. Les mesures de détection**
+
+Les journaux d'authentification peuvent contribuer à repérer des connexions inhabituelles, des échecs répétés ou des changements de paramètres de compte.
+
+Les journaux applicatifs peuvent aider à identifier des accès anormaux ou des opérations administratives inattendues.
+
+La surveillance des ressources et des services permet de repérer des interruptions ou des comportements anormaux.
+
+Il faut vérifier que les alertes arrivent aux bonnes personnes et que les événements sont examinés dans des délais adaptés.
+
+**6. Les premières actions en cas d'incident**
+
+L'utilisateur signale rapidement les faits et évite les manipulations improvisées. L'équipe responsable évalue le compte ou l'appareil concerné, révoque les sessions et secrets compromis lorsque cela est nécessaire, préserve les journaux et limite la propagation selon la procédure.
+
+Elle détermine si des données ont été consultées, modifiées ou supprimées, puis restaure les services à partir de sources fiables si nécessaire.
+
+Après l'incident, elle documente les causes identifiées et met en œuvre des corrections.
+
+**7. Vérifier les résultats**
+
+Les contrôles d'accès doivent être testés avec des comptes de rôles différents.
+
+La gestion des mises à jour doit confirmer les versions installées et l'application des correctifs prévus.
+
+Les permissions de partage doivent être contrôlées à partir d'une liste de ressources identifiées.
+
+Les sauvegardes doivent faire l'objet d'une restauration testée, avec un résultat documenté.
+
+La procédure d'incident doit être testée au moyen d'un exercice encadré, sans compromettre de vraies données.
+
+### 23.4. Grille d'autoévaluation
+
+Tu peux te donner une note sur 20 :
 
 | Critère | Points |
 |---|---:|
-| Bonne distinction entre chiffrement, hachage et signature | 4 |
-| Choix approprié des mécanismes | 4 |
-| Gestion et protection des clés | 4 |
-| Prise en compte des limites et du contrôle d'accès | 3 |
-| Vérification et tests | 3 |
-| Récupération et documentation | 2 |
+| Identification correcte des actifs | 3 |
+| Distinction menace, vulnérabilité, risque et conséquence | 4 |
+| Analyse de la triade CIA | 4 |
+| Choix des mesures préventives et détectives | 4 |
+| Capacité de réaction et de reprise | 3 |
+| Vérification et justification des mesures | 2 |
 | **Total** | **20** |
 
-Une bonne réponse n'est pas une liste d'algorithmes. Elle montre que tu sais relier chaque mécanisme à son objectif, expliquer ses limites et prévoir comment vérifier son fonctionnement.
+Une bonne réponse doit expliquer le raisonnement et ne pas seulement accumuler des noms d'outils. Elle doit montrer comment les mesures proposées réduisent un risque précis.
 
-## 22. Synthèse du cours
+## 24. Synthèse du cours
 
-La cryptographie fournit des mécanismes importants pour protéger les systèmes et les informations.
+Le panorama des menaces permet de comprendre les principales façons dont un système informatique peut être compromis ou perturbé.
 
-Le chiffrement protège la confidentialité du contenu lorsqu'il est correctement utilisé et que les clés restent protégées.
+Les menaces peuvent provenir de cybercriminels, d'acteurs motivés par le renseignement, de manipulations humaines, de personnes internes, d'erreurs techniques ou d'événements environnementaux.
 
-Le chiffrement symétrique emploie une clé secrète commune. AES est un algorithme de référence pour de nombreux usages, mais son mode, ses paramètres et sa mise en œuvre sont essentiels.
+Les principales familles étudiées comprennent :
 
-La cryptographie asymétrique utilise des paires de clés associées. La clé publique peut être diffusée, mais il faut vérifier son association à l'identité attendue. La clé privée doit rester protégée.
+- l'ingénierie sociale et l'hameçonnage ;
+- les logiciels malveillants, dont les rançongiciels ;
+- le vol d'identifiants et la compromission de comptes ;
+- les vulnérabilités logicielles et les erreurs de configuration ;
+- les attaques réseau et les dénis de service ;
+- les faiblesses des applications Web et des services Cloud ;
+- les risques associés aux prestataires et aux dépendances ;
+- les menaces physiques et les erreurs humaines.
 
-Les systèmes modernes combinent souvent des mécanismes asymétriques ou d'établissement de clés avec du chiffrement symétrique, notamment pour protéger efficacement les sessions de communication.
+Pour analyser une situation, tu dois distinguer la menace, la vulnérabilité, l'événement et ses conséquences. Tu dois également déterminer quelles propriétés de la triade CIA sont concernées.
 
-Le hachage calcule une empreinte et ne remplace pas le chiffrement. Les mots de passe doivent être conservés à l'aide de méthodes spécialisées adaptées à leur stockage, et non en clair ni par un simple encodage.
+La protection repose sur plusieurs couches : contrôle d'accès, mises à jour, limitation des privilèges, protection des données, sauvegardes, supervision, journalisation, sensibilisation et procédures de réponse aux incidents.
 
-Les signatures numériques permettent de vérifier des propriétés d'intégrité et d'origine cryptographique. Elles ne rendent pas automatiquement un document confidentiel.
+Aucun outil ne peut empêcher tous les événements. Une démarche professionnelle cherche à réduire la probabilité d'un incident, à détecter les comportements suspects, à limiter la propagation et à récupérer les activités essentielles lorsque cela est nécessaire.
 
-Les certificats et les autorités de confiance permettent d'associer des clés publiques à des identités selon des règles de validation. HTTPS/TLS utilise ces mécanismes pour contribuer à protéger les communications Web.
+Le raisonnement à retenir est le suivant :
 
-Enfin, la sécurité dépend de la gestion des clés : génération, stockage, accès, rotation et récupération. Un algorithme puissant ne compense pas une clé perdue ou divulguée.
+1. Identifier l'actif qui doit être protégé.
+2. Décrire la menace plausible.
+3. Rechercher les vulnérabilités qui pourraient faciliter l'incident.
+4. Déterminer les conséquences et les propriétés CIA concernées.
+5. Choisir les mesures de prévention et de détection adaptées.
+6. Préparer les actions de réaction et de récupération.
+7. Vérifier l'efficacité des protections et réviser les mesures.
 
-Pour analyser un besoin cryptographique, pose-toi ces questions :
+La cybersécurité ne consiste pas à avoir peur de chaque événement. Elle consiste à observer les faits, comprendre les risques et prendre des décisions proportionnées.
 
-1. Dois-je cacher le contenu, vérifier un changement ou confirmer une signature ?
-2. Le contenu doit-il pouvoir être retrouvé par une application autorisée ?
-3. Quelle clé ou référence de confiance est nécessaire ?
-4. Comment cette clé sera-t-elle générée et protégée ?
-5. Comment pourra-t-on vérifier le résultat ?
-6. Comment procéder si une clé est compromise ou perdue ?
+## 25. Glossaire
 
-Ces questions permettent de sélectionner des mécanismes cohérents au lieu de multiplier les outils sans comprendre leur rôle.
+**Attaque :** action visant à compromettre un système, une donnée ou un service.
 
-## 23. Glossaire
+**Cheval de Troie :** programme qui paraît légitime ou utile tout en dissimulant une fonction malveillante.
 
-**Algorithme cryptographique :** méthode permettant de réaliser une opération cryptographique.
+**Cybercriminel :** acteur qui utilise des moyens numériques pour commettre des actes criminels, notamment à des fins financières.
 
-**AES :** algorithme de chiffrement symétrique normalisé pour protéger des données électroniques.
+**Déni de service :** perturbation qui empêche un service de répondre correctement aux demandes légitimes.
 
-**Autorité de certification :** entité qui émet ou signe des certificats selon une politique de confiance.
+**Hameçonnage :** manipulation visant à inciter une personne à révéler des informations ou à réaliser une action dangereuse.
 
-**Certificat numérique :** document numérique qui associe une clé publique à une identité ou à un nom selon un mécanisme de validation.
+**Ingénierie sociale :** techniques exploitant le comportement humain afin d'obtenir une information, un accès ou une action.
 
-**Chiffrement :** transformation cryptographique qui protège l'accès au contenu en le rendant illisible sans les éléments appropriés.
+**Intégrité :** propriété qui vise à préserver l'exactitude et l'état autorisé des données et des systèmes.
 
-**Chiffrement asymétrique :** mécanisme utilisant une paire de clés associées, publique et privée.
+**Journalisation :** enregistrement des événements utiles pour le suivi, la détection et l'analyse.
 
-**Chiffrement symétrique :** mécanisme utilisant une clé secrète commune pour chiffrer et déchiffrer selon l'algorithme.
+**Logiciel malveillant :** programme conçu pour effectuer des actions nuisibles ou non autorisées.
 
-**Clé cryptographique :** donnée utilisée par un mécanisme cryptographique.
+**Menace :** circonstance ou événement susceptible de produire des conséquences négatives sur un système ou une organisation.
 
-**Clé privée :** partie secrète d'une paire de clés asymétriques.
+**Pare-feu :** mécanisme de sécurité qui applique des règles de contrôle aux communications réseau.
 
-**Clé publique :** partie d'une paire de clés asymétriques qui peut être diffusée, sous réserve de vérifier son association à l'identité attendue.
+**Rançongiciel :** logiciel ou opération malveillante visant à bloquer l'accès à des systèmes ou à des données, souvent en échange d'une rançon.
 
-**Déchiffrement :** opération permettant de retrouver le contenu protégé avec la clé et les paramètres nécessaires.
+**Risque :** possibilité qu'un événement produise des conséquences négatives, généralement évaluée selon sa vraisemblance et son impact.
 
-**Encodage :** transformation de représentation qui ne fournit pas à elle seule de confidentialité cryptographique.
+**Surface d'attaque :** ensemble des points par lesquels un système peut être atteint ou influencé.
 
-**Fonction de hachage :** fonction qui calcule une empreinte de longueur déterminée à partir d'un contenu.
+**Vulnérabilité :** faiblesse d'un système, d'une configuration ou d'une procédure qui peut être exploitée ou provoquer un incident.
 
-**Hachage des mots de passe :** mécanisme de stockage fondé sur une fonction spécialisée pour rendre la recherche d'un mot de passe plus coûteuse.
+**Authentification multifacteur :** méthode de vérification qui combine plusieurs facteurs distincts.
 
-**HTTPS :** version de HTTP utilisant TLS pour protéger les communications entre un client et un serveur.
+**Compromission de compte :** situation dans laquelle un tiers non autorisé peut utiliser ou contrôler un compte.
 
-**Intégrité :** propriété qui vise à détecter ou empêcher les modifications non autorisées et à préserver l'exactitude des données.
+**Segmentation réseau :** séparation d'un réseau en zones dont les communications sont contrôlées.
 
-**Nonce :** valeur utilisée une fois dans un contexte cryptographique défini selon les exigences du mécanisme.
+**Correctif de sécurité :** mise à jour destinée notamment à corriger une faiblesse ou une vulnérabilité.
 
-**Signature numérique :** signature cryptographique vérifiable à l'aide d'une clé publique associée.
+**Incident de sécurité :** événement qui compromet ou menace les objectifs de sécurité et qui nécessite une évaluation et une réponse adaptées.
 
-**Texte chiffré :** résultat du chiffrement.
+## 26. Ressources pour approfondir
 
-**Texte en clair :** contenu avant chiffrement ou après déchiffrement.
+Les ressources suivantes proviennent d'organismes spécialisés et peuvent compléter le cours :
 
-**TLS :** protocole cryptographique permettant de protéger des communications.
+- **ANSSI / CERT-FR — Panorama de la cybermenace 2025 :** analyse des menaces et tendances observées, incluant la compromission des environnements Cloud, l'exploitation de vulnérabilités et les activités cybercriminelles.  
+  https://www.cert.ssi.gouv.fr/uploads/CERTFR-2026-CTI-002.pdf
 
-**Clé de session :** clé utilisée pour protéger les données d'une session de communication ou d'un échange donné.
+- **Cybermalveillance.gouv.fr — Rançongiciels : que faire si votre organisation est victime d'une attaque ?** Conseils de réaction et de protection après un incident.  
+  https://www.cybermalveillance.gouv.fr/tous-nos-contenus/fiches-reflexes/rancongiciels-ransomwares/27f97a8d-cf2a-4bbc-8824-c09a17c2b57b
 
-**Chiffrement authentifié :** construction qui combine le chiffrement et une vérification d'authenticité des données selon les propriétés du mécanisme choisi.
+- **NIST — Glossaire de cybersécurité, notion de menace :** définition et contexte de la notion de menace.  
+  https://csrc.nist.gov/glossary/term/threat
 
-**Sel cryptographique :** valeur associée au traitement d'un secret, notamment dans le stockage des mots de passe, pour limiter certains rapprochements et attaques précomputées.
+- **NIST — Glossaire de cybersécurité, notion de vulnérabilité :** définition et contexte de la notion de vulnérabilité.  
+  https://csrc.nist.gov/glossary/term/vulnerability
 
-## 24. Ressources pour approfondir
+Utilise ces ressources pour approfondir les concepts, comparer les recommandations et apprendre à identifier les mesures réellement adaptées à un environnement donné.
 
-Les ressources suivantes permettent d'approfondir le sujet avec des références institutionnelles et techniques.
-
-- [NIST — FIPS 197, Advanced Encryption Standard (AES)](https://csrc.nist.gov/pubs/fips/197/final) : description de l'algorithme AES et de ses tailles de clés.
-- [NIST — Cryptographie à clé publique](https://csrc.nist.gov/glossary/term/public_key_cryptography) : définition de la cryptographie asymétrique.
-- [NIST — FIPS 186-5, Digital Signature Standard](https://csrc.nist.gov/pubs/fips/186-5/final) : référence concernant les signatures numériques.
-- [NIST — Key Management Guidelines](https://csrc.nist.gov/Projects/Key-Management/Key-Management-Guidelines) : recommandations relatives au cycle de vie et à la protection des clés.
-- [OWASP — Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html) : conseils pratiques sur le choix des mécanismes, les modes de chiffrement et la gestion des clés.
-- [OWASP — Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) : recommandations spécifiques au stockage sécurisé des mots de passe.
-- [NIST — FIPS 203, ML-KEM](https://csrc.nist.gov/pubs/fips/203/final) : référence d'introduction à un mécanisme d'établissement de clés post-quantique.
-
-**Fin du cours : Cryptographie.**
+**Fin du cours : Panorama des menaces.**
