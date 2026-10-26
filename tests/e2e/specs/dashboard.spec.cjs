@@ -259,9 +259,7 @@ test('le lecteur reprend la dernière section après fermeture et respecte le d�
   const beforeClose = await scroll.evaluate(el => el.scrollTop);
   expect(beforeClose).toBeGreaterThan(0);
 
-  await page.getByRole('button', { name: 'Fermer le cours' }).click().catch(async () => {
-    await page.keyboard.press('Escape');
-  });
+  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await expect(page.locator('div[x-show="open"].fixed.inset-0')).toBeHidden();
 
   // Réouverture via la même recherche : le lecteur doit reprendre la position persistée.
