@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Attaques DDoS et mitigation - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle différence décrit le mieux DoS et DDoS ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "DoS signifie panne matérielle et DDoS signifie erreur DNS",
+        "DoS désigne un déni de service ; DDoS indique que les sources d’attaque sont distribuées",
+        "DDoS implique toujours que les données ont été exfiltrées",
+        "DoS ne peut concerner qu’un serveur physique"
+      ],
+      "answer": 1,
+      "explanation": "Un DoS cherche à dégrader la disponibilité. DDoS indique que plusieurs sources participent au trafic, souvent sans intrusion directe dans la cible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels indicateurs aident à distinguer les formes de saturation ?",
+      "choices": [
+        "Débit (bit/s), paquets par seconde, connexions, requêtes, latence et taux d’erreur, comparés à une ligne de base",
+        "Le nombre de fichiers du site uniquement",
+        "La couleur de l’interface de supervision",
+        "Le seul état `up` du port du serveur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les attaques peuvent saturer des ressources différentes. Il faut comparer plusieurs métriques au comportement normal et déterminer où se trouve le goulot d’étranglement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le débit d’entrée remplit la capacité du lien avant le pare-feu. Quelle action est généralement déterminante ?",
+      "choices": [
+        "Ajouter une règle locale en supposant que cela libérera la capacité déjà saturée",
+        "Désactiver la surveillance pour réduire sa charge",
+        "Réduire les journaux DNS sans autre analyse",
+        "Coordonner une mitigation en amont avec l’opérateur ou un service spécialisé, car le lien peut être saturé avant la protection locale"
+      ],
+      "answer": 3,
+      "explanation": "Si le lien est déjà saturé en amont du routeur ou du pare-feu, le filtrage local ne restitue pas la capacité de transport. Il faut impliquer le fournisseur ou une capacité de mitigation externe adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un CDN ou un service anti-DDoS ne suffit-il pas si l’origine reste directement accessible ?",
+      "choices": [
+        "Le CDN supprime automatiquement toutes les requêtes DNS",
+        "Le trafic doit obligatoirement traverser le switch d’accès",
+        "Un attaquant peut contourner la couche de bordure et viser directement l’adresse de l’origine si celle-ci reste exposée",
+        "Le CDN désactive le protocole TCP"
+      ],
+      "answer": 2,
+      "explanation": "La protection de bordure n’est efficace que si les chemins vers l’origine sont maîtrisés. Il faut restreindre l’accès direct selon l’architecture, sans bloquer les dépendances légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une hausse forte de trafic coïncide avec une campagne commerciale. Comment éviter de qualifier trop vite le phénomène d’attaque ?",
+      "choices": [
+        "Comparer la ligne de base, les sources, la distribution des requêtes, les taux d’erreur et les signaux indépendants avant d’appliquer une mesure bloquante",
+        "Bloquer immédiatement toutes les adresses nouvelles",
+        "Supposer que tout pic est légitime",
+        "Désactiver les sondes externes"
+      ],
+      "answer": 0,
+      "explanation": "Un pic peut être une attaque, un événement légitime ou une panne interne. Des sources de télémétrie multiples et une comparaison au comportement de référence réduisent les erreurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque accompagne une limitation de requêtes trop stricte sur une application ?",
+      "choices": [
+        "Elle augmente nécessairement la capacité du lien transit",
+        "Elle corrige tous les problèmes DNS",
+        "Elle peut bloquer des utilisateurs légitimes, notamment derrière une adresse NAT partagée ou pendant un pic normal",
+        "Elle supprime le besoin de surveiller le service"
+      ],
+      "answer": 2,
+      "explanation": "Une règle de rate limiting doit être calibrée et évaluée sur ses faux positifs. Une politique fondée seulement sur l’adresse IP peut pénaliser des utilisateurs légitimes partageant la même adresse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lors d’un incident suspect, quelle pratique de base est recommandée ?",
+      "choices": [
+        "Effacer les journaux pour libérer de l’espace avant l’analyse",
+        "Préserver les métriques et journaux utiles, suivre le processus d’incident et documenter chaque mesure de mitigation",
+        "Publier les données sensibles des clients pour obtenir de l’aide",
+        "Modifier simultanément toutes les règles sans enregistrer l’état initial"
+      ],
+      "answer": 1,
+      "explanation": "Des traces fiables aident à qualifier l’incident et à comprendre l’effet des mesures. Les modifications doivent être autorisées, documentées et réversibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment tester prudemment une procédure de réponse DDoS ?",
+      "choices": [
+        "Envoyer volontairement un grand volume de trafic depuis Internet sans autorisation",
+        "Lancer le test contre une cible réelle pendant les heures de pointe",
+        "Désactiver les contrôles de sécurité pour voir ce qui se passe",
+        "Utiliser un laboratoire ou un exercice de simulation autorisé avec des limites et un plan de retour"
+      ],
+      "answer": 3,
+      "explanation": "Les tests doivent être autorisés, limités et contrôlés. Il ne faut pas générer de trafic hostile vers des systèmes tiers ou des services de production sans encadrement explicite."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Attaques DDoS et mitigation - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quelle limite importante faut-il considérer dans une architecture Anycast de mitigation ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Elle garantit automatiquement une capacité infinie à chaque site",
+        "Elle supprime la nécessité d’un plan de routage",
+        "Elle synchronise à elle seule toutes les données applicatives",
+        "Elle distribue le routage vers plusieurs points de présence, mais la capacité, les annonces, la cohérence et les domaines de panne restent à concevoir"
+      ],
+      "answer": 3,
+      "explanation": "Anycast peut répartir les requêtes selon le routage, mais n’assure pas à lui seul la capacité, la cohérence applicative ou l’indépendance des points de présence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle conséquence faut-il explicitement accepter avant une mesure RTBH ?",
+      "choices": [
+        "Elle augmente systématiquement la disponibilité de la cible",
+        "Elle peut protéger le reste du réseau en supprimant le trafic vers la cible, donc en interrompant aussi son trafic légitime",
+        "Elle ne fonctionne que sur les requêtes DNS",
+        "Elle modifie automatiquement les données applicatives"
+      ],
+      "answer": 1,
+      "explanation": "RTBH est un arbitrage d’urgence : il peut limiter l’impact sur l’infrastructure, mais il rend normalement la destination blackholée inaccessible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels contrôles de gouvernance sont adaptés à l’automatisation FlowSpec ?",
+      "choices": [
+        "Autoriser toute source à annoncer des filtres sans journalisation",
+        "Utiliser uniquement le nom de la règle comme critère de sécurité",
+        "Ignorer les capacités matérielles des routeurs",
+        "Limiter les émetteurs autorisés, valider les règles, borner le périmètre, journaliser les déploiements et prévoir un retrait vérifiable"
+      ],
+      "answer": 3,
+      "explanation": "Des règles mal conçues ou mal autorisées peuvent couper des flux légitimes. Le système automatisé doit avoir des limites, des validations, une traçabilité et une procédure de retrait."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble mesure le mieux la réussite d’une mitigation de bout en bout ?",
+      "choices": [
+        "Uniquement le nombre de préfixes filtrés",
+        "Le nombre de règles installées sur le routeur",
+        "Disponibilité métier, latence, pertes, taux de succès applicatif, faux positifs et saturation résiduelle",
+        "La baisse du volume de logs seulement"
+      ],
+      "answer": 2,
+      "explanation": "La réduction du trafic malveillant n’est pas suffisante si les clients ne peuvent plus utiliser le service. Il faut mesurer l’expérience du service et les effets secondaires de la défense."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi réévaluer l’ensemble de la chaîne après avoir déchargé le lien ou l’équipement frontal ?",
+      "choices": [
+        "La mitigation ne peut jamais déplacer une panne",
+        "La base de données et le service d’identité deviennent toujours plus rapides",
+        "Le goulot d’étranglement peut se déplacer vers le proxy, le TLS, l’application, le DNS ou la base de données",
+        "Le trafic utilisateur n’atteindra plus les serveurs"
+      ],
+      "answer": 2,
+      "explanation": "Déplacer ou filtrer le trafic peut révéler une autre ressource limitante. Les métriques doivent couvrir les dépendances, pas seulement le point initialement saturé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment réduire le risque qu’un attaquant contourne le CDN pour viser l’origine ?",
+      "choices": [
+        "Restreindre les connexions vers l’origine aux sources et chemins explicitement prévus, tout en testant les accès opérationnels nécessaires",
+        "Publier l’adresse d’origine dans chaque page publique",
+        "Supprimer la supervision de l’origine",
+        "Ouvrir l’origine à toutes les sources pour éviter les faux positifs"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La protection doit contrôler les accès directs à l’origine. Le filtrage doit être validé pour ne pas bloquer les contrôles de santé ou les dépendances légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode permet de réduire le risque de faux positifs lors d’un nouveau filtrage automatisé ?",
+      "choices": [
+        "Activer toutes les règles simultanément sans mesure",
+        "Commencer dans un périmètre limité ou en mode observation, mesurer l’impact, puis élargir avec des seuils et un retour arrière",
+        "Supprimer les sondes métier pendant l’incident",
+        "Ne suivre que le débit brut"
+      ],
+      "answer": 1,
+      "explanation": "Le déploiement progressif et l’observation permettent de mesurer les effets sur le trafic légitime avant une application plus large. La procédure de retrait doit être testée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit inclure un processus expert d’incident et de changement d’urgence ?",
+      "choices": [
+        "Le seul nom du fournisseur de mitigation",
+        "La suppression automatique de tous les journaux après rétablissement",
+        "Une bascule irréversible sans approbation",
+        "Un responsable, un périmètre documenté, les critères de déclenchement et de succès, les impacts attendus, le retour arrière et le post-mortem"
+      ],
+      "answer": 3,
+      "explanation": "Une opération d’urgence doit rester gouvernée et traçable. La revue après incident permet d’améliorer les seuils, la capacité, les runbooks et les dépendances."
     }
   ]
 }

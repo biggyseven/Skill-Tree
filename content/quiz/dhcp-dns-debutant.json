@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour DHCP & DNS - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel ordre correspond au cycle DHCPv4 DORA ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Discover, Offer, Request, Acknowledgment",
+        "Discover, Request, Offer, Acknowledgment",
+        "Offer, Discover, Acknowledgment, Request",
+        "Request, Acknowledgment, Discover, Offer"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le client découvre un serveur, reçoit une offre, demande l’adresse retenue, puis reçoit un accusé d’attribution DHCPACK."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fournit généralement l’option DHCP 3 ?",
+      "choices": [
+        "L’adresse du serveur DNS uniquement",
+        "Le nom de domaine du poste",
+        "La passerelle par défaut",
+        "La durée de conservation du cache DNS"
+      ],
+      "answer": 2,
+      "explanation": "L’option 3 indique normalement la liste des routeurs/passerelles par défaut. Les serveurs DNS sont indiqués par l’option 6."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi configurer un relais DHCP entre un client et un serveur situé dans un autre sous-réseau ?",
+      "choices": [
+        "Pour chiffrer automatiquement les baux",
+        "Pour transmettre les demandes DHCP entre sous-réseaux, car les diffusions initiales ne traversent normalement pas les routeurs",
+        "Pour remplacer le serveur DHCP",
+        "Pour convertir les enregistrements A en AAAA"
+      ],
+      "answer": 1,
+      "explanation": "Un relais reçoit les demandes locales et les transmet au serveur approprié avec le contexte nécessaire à la sélection du scope."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence distingue un résolveur récursif d’un serveur DNS autoritaire ?",
+      "choices": [
+        "Le résolveur ne traite que les adresses MAC",
+        "Le serveur autoritaire attribue les adresses IP aux clients",
+        "Le résolveur héberge obligatoirement toutes les zones publiques",
+        "Le résolveur recherche une réponse pour le client ; l’autoritaire fournit les données dont il est responsable pour une zone"
+      ],
+      "answer": 3,
+      "explanation": "Un résolveur récursif obtient la réponse pour le client, notamment depuis le cache ou en interrogeant d’autres serveurs. Un serveur autoritaire répond pour les zones qu’il sert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel enregistrement DNS associe couramment un nom à une adresse IPv4, et lequel à IPv6 ?",
+      "choices": [
+        "PTR pour IPv4 et MX pour IPv6",
+        "CNAME pour IPv4 et NS pour IPv6",
+        "A pour IPv4 et AAAA pour IPv6",
+        "TXT pour IPv4 et SRV pour IPv6"
+      ],
+      "answer": 2,
+      "explanation": "Un enregistrement A contient une adresse IPv4 ; AAAA contient une adresse IPv6. Les autres types ont d’autres fonctions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un nouveau poste ne reçoit aucune adresse et le journal indique que le pool est presque plein. Quel contrôle est prioritaire ?",
+      "choices": [
+        "Examiner l’utilisation des baux, les exclusions, réservations et adresses disponibles avant d’étendre le pool",
+        "Modifier les enregistrements MX",
+        "Désactiver les contrôles d’accès du switch",
+        "Redémarrer tous les serveurs DNS"
+      ],
+      "answer": 0,
+      "explanation": "Un pool presque épuisé peut empêcher de nouveaux clients d’obtenir un bail. Il faut vérifier les adresses réellement utilisées, les baux, les exclusions et la capacité planifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel couple d’outils est adapté pour vérifier la configuration réseau d’un poste Windows puis tester la résolution DNS ?",
+      "choices": [
+        "`ping /renew` et `route print` seulement",
+        "`net user` et `tasklist`",
+        "`tracert` et `arp -a` sans requête DNS",
+        "`ipconfig /all` puis `nslookup` pour interroger la résolution"
+      ],
+      "answer": 3,
+      "explanation": "`ipconfig /all` affiche la configuration IP/DHCP/DNS du poste ; `nslookup` permet de vérifier une requête de résolution. `dig` est aussi fréquent sous Linux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une adresse IP est déjà utilisée statiquement dans le VLAN. Quelle mesure prévient le conflit DHCP ?",
+      "choices": [
+        "Réduire la TTL DNS",
+        "Exclure l’adresse du pool dynamique ou créer la réservation appropriée selon le besoin",
+        "Ajouter un enregistrement MX",
+        "Activer la récursion sur le serveur autoritaire"
+      ],
+      "answer": 1,
+      "explanation": "Les adresses utilisées statiquement doivent être exclues du pool dynamique ; une réservation lie une adresse à un client identifié selon la politique d’adressage."
     }
   ]
 }
