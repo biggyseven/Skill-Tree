@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Méthodologie de dépannage - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle formulation est la plus utile au début d’un incident réseau ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "« Le réseau est cassé »",
+        "« Le DNS est forcément en panne »",
+        "« Depuis 10 h 15, un seul poste atteint la passerelle en IP, mais la résolution du nom interne échoue »",
+        "« Il faut redémarrer tous les équipements »"
+      ],
+      "answer": 2,
+      "explanation": "Un bon signalement décrit les symptômes observables, l’heure, le périmètre et les tests déjà effectués. Le diagnostic vient ensuite : annoncer d’emblée une cause comme certaine peut biaiser l’investigation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ordre général est le plus utile lorsqu’un seul poste ne communique plus ?",
+      "choices": [
+        "Vérifier d’abord les éléments locaux (lien, adresse, masque, passerelle), puis avancer vers les services et réseaux distants",
+        "Remplacer tout de suite le routeur central",
+        "Changer simultanément DNS, MTU et VLAN",
+        "Commencer par scanner tous les réseaux de l’entreprise"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un diagnostic par étapes part des éléments proches et observables, puis suit le chemin vers la destination. Cela aide à isoler le domaine en panne et réduit les modifications inutiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur Windows, quelle commande montre notamment l’adresse IP, le masque, la passerelle et les paramètres DHCP du poste ?",
+      "choices": [
+        "`tracert`",
+        "`ipconfig /all`",
+        "`netstat -s`",
+        "`arp -d *`"
+      ],
+      "answer": 1,
+      "explanation": "`ipconfig /all` affiche les paramètres de l’interface, notamment l’adresse, le masque, la passerelle, les serveurs DNS et les informations DHCP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La connexion à un serveur par adresse IP fonctionne, mais le nom ne se résout pas. Quel test ciblé est un bon point de départ ?",
+      "choices": [
+        "Changer la vitesse du port Ethernet",
+        "Désactiver tout le pare-feu de l’entreprise",
+        "Redémarrer tous les serveurs",
+        "Interroger explicitement le résolveur avec `nslookup nom.exemple` ou `Resolve-DnsName nom.exemple`"
+      ],
+      "answer": 3,
+      "explanation": "Un test de résolution permet de distinguer une panne de nom d’une panne de connectivité, tout en gardant à l’esprit que l’application peut utiliser un autre résolveur ou dépendre du nom pour TLS et l’hébergement virtuel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ping réussi vers la passerelle prouve-t-il que l’application distante fonctionne ?",
+      "choices": [
+        "Non : il prouve seulement qu’un échange ICMP avec cette cible a réussi, pas que le DNS, le port TCP, le serveur ou l’application fonctionnent",
+        "Oui, il prouve que toutes les couches et toutes les applications fonctionnent",
+        "Oui, mais uniquement pour les sites HTTPS",
+        "Non : un ping réussi signifie toujours que le DNS est cassé"
+      ],
+      "answer": 0,
+      "explanation": "Le ping teste la réponse ICMP d’une cible donnée. Un service peut rester inaccessible en raison d’un problème de route distante, de filtrage, de TCP, de TLS ou de l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi comparer le problème avec celui d’un collègue ou d’un poste voisin est-il utile ?",
+      "choices": [
+        "Pour changer les deux postes vers la même adresse IP",
+        "Pour désactiver les politiques de sécurité qui diffèrent",
+        "Pour comparer le périmètre et repérer si la panne semble propre à un poste, un port, un VLAN ou une dépendance partagée",
+        "Pour démontrer que la panne est nécessairement provoquée par le fournisseur Internet"
+      ],
+      "answer": 2,
+      "explanation": "La comparaison aide à circonscrire le périmètre. Elle ne prouve pas la cause à elle seule, car les deux postes peuvent utiliser des chemins, DNS, profils ou autorisations différents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de modifier un VLAN ou de redémarrer un équipement, quelle bonne pratique faut-il suivre ?",
+      "choices": [
+        "Faire plusieurs changements en même temps pour gagner du temps",
+        "Noter l’état initial, évaluer l’impact, obtenir l’autorisation requise et préparer un retour arrière",
+        "Effacer les journaux pour repartir sur une base propre",
+        "Ne pas informer les personnes impactées"
+      ],
+      "answer": 1,
+      "explanation": "Un changement contrôlé conserve les éléments utiles au diagnostic, limite les effets secondaires et permet de revenir à l’état connu si le résultat n’est pas celui attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une baseline (mesure de référence) lorsque le réseau paraît lent ?",
+      "choices": [
+        "À remplacer les mesures de perte par une estimation",
+        "À prouver que toute dégradation vient de la bande passante",
+        "À modifier automatiquement le routage quand une valeur change",
+        "À comparer les observations actuelles à un fonctionnement normal mesuré à des conditions comparables"
+      ],
+      "answer": 3,
+      "explanation": "Une référence de latence, débit, pertes et compteurs permet de repérer les écarts. Les comparaisons doivent utiliser des destinations, protocoles et périodes suffisamment comparables."
     }
   ]
 }
