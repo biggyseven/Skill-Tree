@@ -54,9 +54,7 @@ export function TopologyToolbar() {
     if (
       state.loading ||
       state.lab?.id === 'demo' ||
-      state.lab?.sandbox === true ||
-      state.lab?.courseLocked === true ||
-      state.lab?.courseLocked === true
+      state.lab?.sandbox === true
     ) return;
     window.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
   };
@@ -103,9 +101,13 @@ export function TopologyToolbar() {
                     ? 'Bac à sable — non noté'
                     : checkResult.ok === true
                       ? (checkResult.passed ? '✓ Tentative enregistrée' : 'Tentative enregistrée — échec')
-                      : checkResult.passed
-                      ? '✓ Réussi'
-                      : 'Score ' + Math.round((checkResult.score || 0) * 100) + '%'}
+                      : checkResult.practice_only === true
+                        ? (checkResult.passed
+                          ? '✓ Réussi en entraînement'
+                          : 'Entraînement · Score ' + Math.round((checkResult.score || 0) * 100) + '%')
+                        : checkResult.passed
+                          ? '✓ Réussi'
+                          : 'Score ' + Math.round((checkResult.score || 0) * 100) + '%'}
             </span>
           )}
         </div>
@@ -169,16 +171,16 @@ export function TopologyToolbar() {
           {persistenceAction === 'load' ? 'Chargement…' : 'Charger'}
         </button>
         <button type="button" onClick={handleCheck}
-          disabled={loading || lab?.id === 'demo' || lab?.sandbox === true || lab?.courseLocked === true}
+          disabled={loading || lab?.id === 'demo' || lab?.sandbox === true}
           title={lab?.courseLocked === true
-            ? (lab.courseLockMessage || 'Ce laboratoire est verrouillé par les prérequis du parcours.')
+            ? 'Mode entraînement : le contrôle est disponible, mais la validation du parcours reste bloquée. ' + (lab.courseLockMessage || '')
             : lab?.sandbox === true
               ? 'Atelier libre : aucun scénario de validation n’est associé.'
               : lab?.id === 'demo'
                 ? 'La démonstration ne peut pas être vérifiée.'
                 : 'Vérifier les règles du scénario'}
           className="rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
-          {loading ? '…' : '✓ Vérifier'}
+          {loading ? '…' : lab?.courseLocked === true ? '✓ Vérifier en entraînement' : '✓ Vérifier'}
         </button>
         <button type="button" onClick={handleSubmit} disabled={submitDisabled}
           title={lab?.courseLocked === true
