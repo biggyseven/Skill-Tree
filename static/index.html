@@ -91,18 +91,6 @@
     .lesson-reader-grid { min-height: 100%; }
     .lesson-toc-panel { scrollbar-width: thin; scrollbar-color: rgb(var(--z-600)) transparent; }
     .lesson-toc-panel nav a { display: block; overflow-wrap: anywhere; border-radius: .65rem; margin: .12rem 0; padding: .55rem .7rem; }
-    .lesson-prose .lesson-section-back {
-      display: inline-flex; align-items: center; gap: .35rem; width: max-content;
-      max-width: 100%; margin-top: .7rem; padding: .38rem .65rem;
-      border: 1px solid rgb(var(--w) / .12); border-radius: .65rem;
-      color: rgb(var(--z-300)) !important; font-size: .72rem; font-weight: 600;
-      line-height: 1.35; letter-spacing: 0; text-decoration: none;
-      background: rgb(var(--w) / .035); vertical-align: middle;
-    }
-    .lesson-prose .lesson-section-back:hover {
-      border-color: rgb(var(--violet-300) / .4); background: rgb(var(--violet-300) / .08);
-      color: #ddd6fe !important;
-    }
     .lesson-content { padding: clamp(1rem, 2.1vw, 2rem); border: 1px solid rgb(var(--w) / .07); border-radius: 1.25rem; background: color-mix(in srgb, var(--s1) 78%, transparent); }
     .lesson-content .lesson-prose { max-width: 100%; }
     .lesson-content .lesson-prose.lesson-width-comfortable { max-width: min(100%, 82ch); margin-inline: auto; }
@@ -784,6 +772,14 @@
           </div>
           <button type="button" @click="retryDashboardData()" :disabled="loading || statsLoading" class="shrink-0 rounded-xl border border-amber-300/30 px-4 py-2 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/15 disabled:cursor-wait disabled:opacity-50">Réessayer</button>
         </div>
+      </div>
+
+      <div x-show="tab !== 'tree'" x-cloak class="mb-5 pt-1">
+        <button type="button" @click="goBackTab()" aria-label="Revenir à la section précédente"
+                class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[color:var(--s1)] px-4 py-2.5 text-sm font-semibold text-zinc-200 transition hover:border-emerald-400/30 hover:bg-emerald-400/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path><path d="M9 12h12"></path></svg>
+          Retour
+        </button>
       </div>
 
       <!-- ============ ONGLET SKILL TREE ============ -->
@@ -1666,7 +1662,7 @@
             <template x-if="lessonHtml">
               <div class="lesson-reader-grid grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-8 w-full">
                 <!-- Sommaire latéral -->
-                <aside id="lesson-sidebar-toc" x-show="lessonToc.length" class="lesson-toc-panel sticky top-2 hidden max-h-[calc(94vh-13rem)] w-full shrink-0 self-start overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s2)] p-4 lg:block">
+                <aside x-show="lessonToc.length" class="lesson-toc-panel sticky top-2 hidden max-h-[calc(94vh-13rem)] w-full shrink-0 self-start overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s2)] p-4 lg:block">
                   <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Sommaire</p>
                   <nav class="border-l border-white/10" aria-label="Sommaire du cours">
                     <template x-for="item in lessonToc" :key="item.id">
@@ -1676,8 +1672,8 @@
                   </nav>
                 </aside>
 
-                <div id="lesson-section-index" class="lesson-content min-w-0 w-full max-w-none">
-                  <details id="lesson-mobile-section-list" x-show="lessonToc.length" class="mb-4 rounded-xl border border-white/10 bg-[color:var(--s2)] p-3 lg:hidden">
+                <div class="lesson-content min-w-0 w-full max-w-none">
+                  <details x-show="lessonToc.length" class="mb-4 rounded-xl border border-white/10 bg-[color:var(--s2)] p-3 lg:hidden">
                     <summary class="cursor-pointer select-none list-none text-sm font-semibold text-violet-200">
                       <span aria-hidden="true">☷</span> Sections du cours
                       <span class="ml-1 text-xs font-normal text-zinc-400" x-text="'(' + lessonToc.length + ')'"></span>
@@ -2033,7 +2029,7 @@
         profileMenuOpen: false, profileDraft: '',
         theme: document.documentElement.classList.contains('light') ? 'light' : 'dark',
         focusMode: false, treeFilter: 'all', sidebarCollapsed: false,
-        notificationsOpen: false, settingsMenuOpen: false, tab: 'tree',
+        notificationsOpen: false, settingsMenuOpen: false, tab: 'tree', tabHistory: [],
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
         lastOpenedNodeId: localStorage.getItem('skilltree-last-node') || '',
         lastOpenedNodeStatus: localStorage.getItem('skilltree-last-status') || '',
@@ -2203,8 +2199,20 @@
         reloadContent() { this.refreshAll(); },
         toggleTheme() { this.theme = this.theme === 'dark' ? 'light' : 'dark'; document.documentElement.classList.toggle('dark', this.theme === 'dark'); },
 
-        async setTab(name) {
-          this.tab = name;
+        goBackTab() {
+          const previous = this.tabHistory.pop();
+          const target = previous && previous !== this.tab ? previous : 'tree';
+          return this.setTab(target, { skipHistory: true });
+        },
+
+        async setTab(name, options = {}) {
+          if (name !== this.tab) {
+            if (!options.skipHistory) {
+              this.tabHistory.push(this.tab);
+              if (this.tabHistory.length > 30) this.tabHistory.shift();
+            }
+            this.tab = name;
+          }
           this.notificationsOpen = false; this.settingsMenuOpen = false; this.profileMenuOpen = false;
           this.$nextTick(() => { const m = this.$refs.mainScroll; if (m) m.scrollTop = 0; });
           try {
@@ -2363,26 +2371,6 @@
             h.id = `sec-${i}-${this.slugify(text)}`;
             toc.push({ id: h.id, text });
 
-            const backLink = document.createElement('a');
-            backLink.href = '#lesson-sidebar-toc';
-            backLink.className = 'lesson-section-back no-speech';
-            backLink.setAttribute('aria-label', 'Retour au sommaire des sections');
-            backLink.textContent = '↑ Retour aux sections';
-            backLink.addEventListener('click', event => {
-              event.preventDefault();
-              const article = this.$refs.lessonArticle;
-              const readerGrid = article && article.closest('.lesson-reader-grid');
-              const sidebar = readerGrid && readerGrid.querySelector('#lesson-sidebar-toc');
-              const mobileSectionList = readerGrid && readerGrid.querySelector('#lesson-mobile-section-list');
-              const sidebarVisible = !!(sidebar && sidebar.getClientRects().length);
-              const target = sidebarVisible ? sidebar : mobileSectionList;
-              if (target) {
-                if (!sidebarVisible && mobileSectionList) mobileSectionList.open = true;
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                history.replaceState(null, '', sidebarVisible ? '#lesson-sidebar-toc' : '#lesson-section-index');
-              }
-            });
-            h.appendChild(backLink);
           });
           this.lessonToc = toc;
 
@@ -3008,10 +2996,30 @@
           const article = this.$refs.lessonArticle;
           if (!article) return '';
           const readable = article.cloneNode(true);
-          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, .no-speech').forEach(element => element.remove());
+          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .lesson-section-back, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
 
-          // Préserver les signes de ponctuation du cours : ne jamais fabriquer un « point ».
-          // Remplacer les titres par des annonces séparées, puis conserver le texte et ses signes tels quels.
+          // Certains cours contiennent leur propre sommaire Markdown. Ne pas le réciter comme un paragraphe :
+          // on retire uniquement les listes composées exclusivement de liens internes vers des titres.
+          const courseHeadingIds = new Set(Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(heading => heading.id).filter(Boolean));
+          readable.querySelectorAll('ul, ol').forEach(list => {
+            const items = Array.from(list.children).filter(item => item.tagName === 'LI');
+            if (!items.length) return;
+            const isContentsList = items.every(item => {
+              const links = Array.from(item.querySelectorAll('a'));
+              if (links.length !== 1) return false;
+              const href = links[0].getAttribute('href') || '';
+              if (!href.startsWith('#')) return false;
+              const label = links[0].textContent.trim();
+              return courseHeadingIds.has(href.slice(1)) || Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6')).some(heading => heading.textContent.trim() === label);
+            });
+            if (!isContentsList) return;
+            const heading = list.previousElementSibling;
+            list.remove();
+            if (heading && /^H[1-6]$/.test(heading.tagName) && /^(sommaire|table des matières|table des matieres|plan du cours)$/iu.test(heading.textContent.trim())) heading.remove();
+          });
+
+          // Préserver les signes de ponctuation du cours et ne jamais inventer de ponctuation à la fin d'un bloc.
+          // Les titres ont une annonce dédiée ; le texte pédagogique garde ses signes d'origine.
           readable.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
             const depth = Number(heading.tagName.slice(1));
             const title = String(heading.innerText || heading.textContent || '')
@@ -3086,6 +3094,13 @@
               sentences = paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
             }
             sentences.forEach(appendSentence);
+
+            // Chaque paragraphe (et donc chaque titre ou élément de liste) garde sa propre pause.
+            // Ne pas fusionner le sommaire, les titres et le texte en un seul segment vocal.
+            if (current) {
+              chunks.push(current);
+              current = '';
+            }
           }
           if (current) chunks.push(current);
           return chunks;
