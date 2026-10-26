@@ -1,0 +1,132 @@
+name: Neon validation smoke test
+
+on:
+  push:
+    branches:
+      - feat/neon-postgres-integration
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-neon-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wait for isolated Render validation service
+        shell: bash
+        run: |
+          python - <<'PY'
+          import time
+          import urllib.request
+
+          base = "https://skill-tree-neon-validation.onrender.com"
+          last_error = "service did not become ready"
+          for attempt in range(36):
+              try:
+                  with urllib.request.urlopen(base + "/openapi.json", timeout=15) as response:
+                      if response.status == 200:
+                          print("Render validation API is responding.")
+                          break
+                      last_error = f"HTTP {response.status}"
+              except Exception as error:
+                  last_error = str(error)
+              time.sleep(10)
+          else:
+              raise SystemExit(f"Validation service did not become ready: {last_error}")
+          PY
+
+      - name: Inspect production progress read-only before any cutover
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          import urllib.request
+
+          base = "https://skill-tree-vjon.onrender.com"
+          def get_json(path):
+              with urllib.request.urlopen(base + path, timeout=30) as response:
+                  return json.loads(response.read().decode("utf-8"))
+
+          last_error = "production service did not become ready"
+          for attempt in range(36):
+              try:
+                  tree = get_json("/api/tree")
+                  stats = get_json("/api/stats")
+                  streak = get_json("/api/streak")
+                  break
+              except Exception as error:
+                  last_error = str(error)
+                  time.sleep(10)
+          else:
+              raise SystemExit(f"Cannot establish a read-only production baseline: {last_error}")
+
+          totals = stats.get("totals") or {}
+          has_activity = bool(
+              int(tree.get("validated") or 0) > 0
+              or int(totals.get("attempts") or 0) > 0
+              or int(streak.get("minutes_total") or 0) > 0
+              or int(streak.get("days") or 0) > 0
+          )
+          print(
+              "PRODUCTION_BASELINE=activity_detected"
+              if has_activity
+              else "PRODUCTION_BASELINE=no_activity_detected"
+          )
+          print("This check only called read-only GET endpoints; no production write was made.")
+          PY
+
+      - name: Verify course and Lab Workspace reads plus a persisted failed submission
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import urllib.request
+
+          base = "https://skill-tree-neon-validation.onrender.com"
+
+          def request_json(path, method="GET", body=None):
+              data = None if body is None else json.dumps(body).encode("utf-8")
+              headers = {} if data is None else {"Content-Type": "application/json"}
+              request = urllib.request.Request(
+                  base + path, data=data, headers=headers, method=method
+              )
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return json.loads(response.read().decode("utf-8"))
+
+          course = request_json("/api/node/acl-debutant")
+          assert course.get("id") == "acl-debutant", course
+          print("Course read succeeded:", course.get("title"))
+
+          lab = request_json("/api/lab/v2/vlan-trunk")
+          assert lab.get("sandbox") is not True, "Expected a tracked, gradeable v2 lab."
+          topology = lab.get("initial_topology")
+          assert isinstance(topology, dict), "Lab response lacks initial_topology."
+
+          # A deliberately empty topology must fail grading. The marker makes this
+          # validation-only attempt identifiable in the isolated Neon database.
+          topology = dict(topology)
+          topology["topology_id"] = "neon-validation-smoke"
+          metadata = dict(topology.get("metadata") or {})
+          metadata["name"] = "neon-validation-smoke"
+          topology["metadata"] = metadata
+          topology["nodes"] = []
+          topology["links"] = []
+
+          submitted = request_json(
+              "/api/lab/v2/vlan-trunk/submit",
+              method="POST",
+              body={"topology": topology, "check_result": {"passed": True, "score": 1.0}},
+          )
+          assert submitted.get("attempt_recorded") is True, submitted
+          assert submitted.get("passed") is False, submitted
+          assert submitted.get("xp_gained", 0) == 0, submitted
+          print(
+              "Failed lab submission persisted without rewards:",
+              submitted.get("lab_id"),
+              "attempt_recorded=", submitted.get("attempt_recorded"),
+              "xp_gained=", submitted.get("xp_gained"),
+          )
+          PY
