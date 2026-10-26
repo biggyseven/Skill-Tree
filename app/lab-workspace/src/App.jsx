@@ -319,7 +319,7 @@ export default function App() {
         }}
       >
         {/* Panneau gauche : mission pédagogique et bibliothèque matérielle */}
-        <aside className={`${mobilePane === 'brief' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-r border-[#30363d] bg-[#161b22] xl:w-[var(--lab-left-width)] xl:shrink-0`}>
+        <aside data-testid="lab-left-panel" className={`${mobilePane === 'brief' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-r border-[#30363d] bg-[#161b22] xl:w-[var(--lab-left-width)] xl:shrink-0`}>
           <section className="flex min-h-0 flex-1 flex-col">
             <PanelHeader eyebrow="01 / Lab brief" title="Mission & objectifs" />
             <div className="lab-scrollbar min-h-0 flex-1 overflow-y-auto">
@@ -339,7 +339,7 @@ export default function App() {
           >
             <span className="h-0.5 w-10 rounded-full bg-[#8b949e]" />
           </div>
-          <section className="flex h-[var(--lab-equipment-height)] shrink-0 flex-col border-t border-[#30363d] bg-[#0d1117]/50">
+          <section data-testid="equipment-palette-panel" className="flex h-[var(--lab-equipment-height)] shrink-0 flex-col border-t border-[#30363d] bg-[#0d1117]/50">
             <PanelHeader eyebrow="02 / Device library" title="Bibliothèque d'équipements" />
             <div className="min-h-0 flex-1 overflow-hidden">
               <Palette />
@@ -380,7 +380,7 @@ export default function App() {
         </div>
 
         {/* Panneau droit : console CLI et inspection matérielle */}
-        <aside className={`${mobilePane === 'inspector' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-l border-[#30363d] bg-[#161b22] xl:w-[var(--lab-right-width)] xl:shrink-0`}>
+        <aside data-testid="lab-right-panel" className={`${mobilePane === 'inspector' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-l border-[#30363d] bg-[#161b22] xl:w-[var(--lab-right-width)] xl:shrink-0`}>
           <InspectorPanel />
         </aside>
       </div>
