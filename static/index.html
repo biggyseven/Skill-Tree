@@ -1240,7 +1240,7 @@
             <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-white" x-text="l.icon + ' ' + l.label"></h3>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <template x-for="n in labNodes.filter(x => levelOf(x) === l.id)" :key="n.id">
-                <a data-lab-card="true" :href="'/?openLab=' + encodeURIComponent(n.id)" target="_blank" rel="noopener noreferrer"
+                <a data-lab-card="catalog" :href="'/?openLab=' + encodeURIComponent(n.id)" target="_blank" rel="noopener noreferrer"
                    :aria-label="'Ouvrir le lab ' + n.title + ' dans un nouvel onglet'"
                    class="card-sm block text-left transition hover:border-cyan-400/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70">
                   <div class="flex items-center justify-between gap-2"><span class="chip" x-text="moduleMeta(moduleOf(n)).short"></span><span class="text-xs" :class="isLabDone(n.id) ? 'text-emerald-400' : 'text-zinc-500'" x-text="isLabDone(n.id) ? '✅ Réussi' : 'À faire'"></span></div>
