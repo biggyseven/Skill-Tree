@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour QoS - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel problème la QoS vise-t-elle surtout à maîtriser sur un lien congestionné ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Créer de la bande passante physique supplémentaire",
+        "Différencier le traitement du trafic selon les besoins afin de mieux gérer la congestion",
+        "Remplacer le routage IP par des VLAN",
+        "Garantir qu’aucun paquet ne sera jamais perdu"
+      ],
+      "answer": 1,
+      "explanation": "La QoS ne crée pas de capacité supplémentaire. Elle classe et traite les flux selon une politique afin de mieux répartir les ressources pendant la congestion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le champ DS d’un paquet IPv4 ou IPv6, quelle répartition est correcte ?",
+      "choices": [
+        "Huit bits DSCP et aucun bit ECN",
+        "Trois bits DSCP et cinq bits de priorité",
+        "Six bits ECN et deux bits d’adresse",
+        "Six bits DSCP et deux bits ECN"
+      ],
+      "answer": 3,
+      "explanation": "Le champ DS occupe huit bits : six bits forment le DSCP qui sélectionne un comportement de transfert, et les deux autres sont utilisés par ECN."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle valeur DSCP est communément associée au codepoint Expedited Forwarding (EF) ?",
+      "choices": [
+        "46",
+        "8",
+        "26",
+        "0"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le codepoint DSCP normalisé pour EF est 46. Le marquage ne garantit pas à lui seul un traitement prioritaire : le réseau doit le mapper vers le comportement prévu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre latence et gigue est correcte ?",
+      "choices": [
+        "La latence est la quantité de bande passante ; la gigue est le nombre de VLAN",
+        "La latence mesure les pertes ; la gigue mesure la vitesse du lien",
+        "La latence est le délai de transit ; la gigue décrit la variation du délai au fil des paquets",
+        "La latence et la gigue désignent exactement la même mesure"
+      ],
+      "answer": 2,
+      "explanation": "La latence exprime un délai de transit. La gigue décrit la variation des délais entre paquets et peut perturber les flux sensibles au temps, notamment la voix et la vidéo interactive."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle fonction QoS reconnaît les paquets qui appartiennent à une catégorie de trafic ?",
+      "choices": [
+        "Le shaping",
+        "La classification",
+        "Le chiffrement",
+        "Le routage par défaut"
+      ],
+      "answer": 1,
+      "explanation": "La classification reconnaît le trafic à partir de critères comme DSCP, ACL, interface ou protocole selon les capacités de la plateforme. Les actions de traitement se définissent ensuite dans la politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation différencie DSCP et PCP/CoS Ethernet ?",
+      "choices": [
+        "PCP dispose de six bits et est dans l’en-tête IP",
+        "DSCP s’applique uniquement à IPv6 et PCP uniquement à IPv4",
+        "PCP et DSCP sont le même champ écrit dans deux endroits",
+        "DSCP utilise six bits dans le champ DS IP ; PCP utilise trois bits dans l’étiquette VLAN 802.1Q"
+      ],
+      "answer": 3,
+      "explanation": "DSCP et PCP sont des champs différents. PCP/CoS utilise trois bits, soit des valeurs de 0 à 7, tandis que DSCP utilise six bits. Un équipement peut mapper ces espaces selon la politique locale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale oppose policing et shaping ?",
+      "choices": [
+        "Le policing mesure la conformité et peut supprimer ou re-marquer le trafic non conforme ; le shaping met en tampon les paquets pour lisser le débit",
+        "Le policing et le shaping suppriment toujours tous les paquets excédentaires",
+        "Le shaping sert uniquement à chiffrer les paquets",
+        "Le policing augmente automatiquement la capacité du lien"
+      ],
+      "answer": 0,
+      "explanation": "Le policing compare le trafic à un profil et traite les dépassements selon la politique. Le shaping retarde généralement les paquets dans une file pour lisser leur émission ; il nécessite une capacité de tampon et peut ajouter du délai."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas faire confiance automatiquement au DSCP défini par n’importe quel terminal utilisateur ?",
+      "choices": [
+        "Parce que les clients ne peuvent jamais marquer les paquets IP",
+        "Parce que DSCP ne peut pas être lu par un commutateur",
+        "Un terminal pourrait marquer un transfert massif comme trafic prioritaire et monopoliser une file ; la frontière de confiance doit être définie",
+        "Parce que DSCP change l’adresse source du paquet"
+      ],
+      "answer": 2,
+      "explanation": "Les terminaux peuvent parfois fixer un DSCP arbitraire. La politique d’accès devrait normaliser ou accepter les marques selon l’identité et le port, plutôt que d’accorder une priorité coûteuse sans contrôle."
     }
   ]
 }
