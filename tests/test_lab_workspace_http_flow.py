@@ -120,5 +120,74 @@ class LabWorkspaceHttpFlowTests(unittest.TestCase):
         self.assertFalse(__import__("json").loads(attempt[2])["passed"])
 
 
+    def test_valid_ipv4_configuration_passes_and_rewards_only_once_over_http(self) -> None:
+        with TestClient(api.app) as client:
+            opened = client.get("/api/lab/v2/ipv4-debutant")
+            self.assertEqual(opened.status_code, 200, opened.text)
+            payload = opened.json()
+            self.assertFalse(payload.get("sandbox", False))
+            topology = payload["initial_topology"]
+            nodes = {node["id"]: node for node in topology["nodes"]}
+
+            # Reproduire les modifications attendues de l'onglet Hardware :
+            # IP + masque sur les deux PC, puis activation des quatre interfaces.
+            for device_id, address in (
+                ("PC-A", "192.168.10.10"),
+                ("PC-B", "192.168.10.20"),
+            ):
+                port = nodes[device_id]["ports"][0]
+                port["ip"] = address
+                port["mask"] = "255.255.255.0"
+                port["state"] = "up"
+            for port in nodes["SW1"]["ports"]:
+                port["state"] = "up"
+
+            checked = client.post(
+                "/api/lab/v2/ipv4-debutant/check",
+                json={"topology": topology},
+            )
+            self.assertEqual(checked.status_code, 200, checked.text)
+            check_result = checked.json()
+            self.assertTrue(check_result["passed"], check_result)
+            self.assertEqual(check_result["score"], 1.0)
+            self.assertEqual(len(check_result["results"]), 8)
+            self.assertTrue(all(item["passed"] for item in check_result["results"]))
+
+            first_response = client.post(
+                "/api/lab/v2/ipv4-debutant/submit",
+                json={"topology": topology, "check_result": check_result},
+            )
+            self.assertEqual(first_response.status_code, 200, first_response.text)
+            first = first_response.json()
+            self.assertTrue(first["passed"], first)
+            self.assertTrue(first["attempt_recorded"])
+            self.assertTrue(first["first_success"])
+            self.assertEqual(first["xp_gained"], 25)
+            self.assertEqual(first["coins_gained"], 20)
+
+            # Une deuxième soumission doit être enregistrée, sans doubler les primes.
+            second_response = client.post(
+                "/api/lab/v2/ipv4-debutant/submit",
+                json={"topology": topology, "check_result": check_result},
+            )
+            self.assertEqual(second_response.status_code, 200, second_response.text)
+            second = second_response.json()
+            self.assertTrue(second["passed"], second)
+            self.assertTrue(second["attempt_recorded"])
+            self.assertFalse(second["first_success"])
+            self.assertEqual(second["xp_gained"], 0)
+            self.assertEqual(second["coins_gained"], 0)
+
+        with sqlite3.connect(self.db_path) as conn:
+            attempts = conn.execute(
+                "SELECT passed FROM lab_attempts WHERE lab_id = 'ipv4-debutant' ORDER BY started_at, id"
+            ).fetchall()
+            stats = conn.execute(
+                "SELECT total_xp, coins FROM user_stats WHERE id = 1"
+            ).fetchone()
+        self.assertEqual([row[0] for row in attempts], [1, 1])
+        self.assertEqual(tuple(stats), (25, 20))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
