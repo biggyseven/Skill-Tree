@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour TCP, UDP & ports - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle propriété distingue TCP d’UDP ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "UDP garantit la livraison et l’ordre",
+        "TCP fournit un transport orienté connexion avec séquencement et retransmissions ; UDP n’offre pas ces garanties intégrées",
+        "TCP n’utilise jamais de ports",
+        "UDP exige une poignée de main en trois temps"
+      ],
+      "answer": 1,
+      "explanation": "TCP gère livraison ordonnée et retransmission ; avec UDP, la fiabilité éventuelle relève de l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif de la poignée de main TCP en trois temps ?",
+      "choices": [
+        "Établir et synchroniser l’état initial de la connexion",
+        "Attribuer une adresse IP au client",
+        "Résoudre le nom DNS",
+        "Chiffrer automatiquement le trafic"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "SYN, SYN-ACK et ACK établissent l’état TCP ; le chiffrement dépend d’un protocole complémentaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les ports TCP et UDP ?",
+      "choices": [
+        "Identifier un câble physique",
+        "Remplacer l’adresse IP",
+        "Déterminer le VLAN natif",
+        "Identifier les processus ou services de transport sur un hôte"
+      ],
+      "answer": 3,
+      "explanation": "Les ports permettent de remettre les données au bon processus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une application peut-elle choisir UDP ?",
+      "choices": [
+        "Parce qu’UDP garantit toujours l’ordre",
+        "Parce qu’UDP chiffre automatiquement les paquets",
+        "Quand une faible latence ou un protocole applicatif personnalisé prime et que l’application gère ses besoins",
+        "Parce qu’UDP ne perd jamais de paquet"
+      ],
+      "answer": 2,
+      "explanation": "UDP fournit un transport minimal ; l’application gère les garanties complémentaires éventuellement nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie 127.0.0.1 dans les tests réseau IPv4 ?",
+      "choices": [
+        "L’adresse de broadcast du réseau",
+        "L’adresse loopback locale de l’hôte",
+        "La passerelle de tous les réseaux",
+        "Une adresse MAC"
+      ],
+      "answer": 1,
+      "explanation": "La loopback sert aux communications de la machine avec elle-même et ne teste pas l’accès au LAN."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande Linux aide à voir les sockets TCP en écoute ?",
+      "choices": [
+        "ss -lnt",
+        "ip neigh",
+        "dig example.com",
+        "ethtool"
+      ],
+      "answer": 0,
+      "explanation": "ss -lnt affiche les sockets TCP en écoute de façon numérique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un port TCP est en écoute. Cela prouve-t-il que les clients distants peuvent l’atteindre ?",
+      "choices": [
+        "Oui, toujours",
+        "Oui si le processus a un nom connu",
+        "Non, TCP ne traverse jamais les routeurs",
+        "Non, routage, pare-feu et adresse d’écoute peuvent encore bloquer l’accès"
+      ],
+      "answer": 3,
+      "explanation": "L’écoute locale ne démontre pas la connectivité de bout en bout."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente un datagramme UDP ?",
+      "choices": [
+        "Une connexion établie en trois temps",
+        "Une trame Ethernet sans IP",
+        "Une unité de données sans garantie intégrée de livraison ni d’ordre",
+        "Un certificat TLS"
+      ],
+      "answer": 2,
+      "explanation": "UDP transmet des datagrammes ; la fiabilité et l’ordre éventuels dépendent de l’application."
     }
   ]
 }

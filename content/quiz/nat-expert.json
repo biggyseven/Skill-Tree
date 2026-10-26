@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NAT & PAT - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel risque est associé à un chemin retour asymétrique avec NAT stateful ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le trafic retour peut manquer de l’état de translation nécessaire et être rejeté",
+        "La table ARP est chiffrée",
+        "Les DNS deviennent invalides",
+        "Les interfaces VLAN sont supprimées"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le chemin retour doit rester cohérent avec l’état NAT, sauf architecture explicitement prévue pour l’asymétrie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi conserver des journaux de translation exploitables ?",
+      "choices": [
+        "Remplacer les journaux applicatifs",
+        "Publier les secrets du serveur",
+        "Supprimer la synchronisation horaire",
+        "Relier l’adresse/port publics à l’hôte et à l’heure correspondants"
+      ],
+      "answer": 3,
+      "explanation": "PAT peut partager une IP publique ; les horodatages et ports sont essentiels à l’attribution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel enjeu présente NAT64 ?",
+      "choices": [
+        "Remplacer automatiquement tout DNS",
+        "Garantir l’absence de latence",
+        "Permettre certains échanges entre clients IPv6 et services IPv4 via un traducteur compatible",
+        "Traduire les MAC sur tous les switches"
+      ],
+      "answer": 2,
+      "explanation": "NAT64 relie certains espaces IPv6 et IPv4, avec des contraintes DNS et applicatives à valider."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le NAT ne doit-il pas être la seule frontière de sécurité ?",
+      "choices": [
+        "Le NAT chiffre toujours les données",
+        "Une traduction n’implique pas à elle seule une politique d’autorisation adaptée",
+        "Il interdit automatiquement tout trafic sortant",
+        "Les règles de pare-feu ne peuvent pas coexister"
+      ],
+      "answer": 1,
+      "explanation": "Il faut raisonner sur le filtrage, l’état, les chemins et les services exposés indépendamment de la réécriture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément compte pour dimensionner un concentrateur PAT ?",
+      "choices": [
+        "Sessions simultanées, ports disponibles, timeouts, débit et charge système",
+        "Nombre de zones DNS",
+        "Vitesse du navigateur",
+        "Couleur des VLAN"
+      ],
+      "answer": 0,
+      "explanation": "Le nombre et la durée des translations déterminent la pression sur les tables et l’espace de ports."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment réduire le risque pendant un changement global NAT ?",
+      "choices": [
+        "Effacer toutes les tables avant la revue",
+        "Modifier toutes les interfaces sans fenêtre",
+        "Autoriser tous les flux et ne rien journaliser",
+        "Inventorier les flux, revoir les règles, tester les cas permis/interdits et définir un rollback"
+      ],
+      "answer": 3,
+      "explanation": "Un changement NAT peut rendre un service injoignable ou l’exposer ; il doit être progressif et contrôlé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi des réseaux qui se chevauchent compliquent-ils une interconnexion NAT ?",
+      "choices": [
+        "Les paquets n’ont plus de ports TCP",
+        "DNS supprime les conflits automatiquement",
+        "Une stratégie explicite est nécessaire pour distinguer les mêmes espaces d’adresses et le retour",
+        "NAT ne peut jamais traduire des adresses privées"
+      ],
+      "answer": 2,
+      "explanation": "Les préfixes identiques nécessitent une translation spécialement conçue ou une renumérotation contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve valide le mieux une architecture NAT experte ?",
+      "choices": [
+        "Une capture d’écran des règles seule",
+        "Matrice des flux, règles, tables observées, journaux horodatés et tests de retour",
+        "Un ping vers la passerelle seulement",
+        "Le nombre de commandes CLI"
+      ],
+      "answer": 1,
+      "explanation": "La preuve doit couvrir intention, état de translation, chemins et sécurité."
     }
   ]
 }

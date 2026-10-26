@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour TCP, UDP & ports - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert le numéro de séquence TCP ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Ordonner les données et identifier celles qui doivent être acquittées ou retransmises",
+        "Choisir le VLAN",
+        "Attribuer l’IP source",
+        "Identifier le certificat TLS"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le séquencement permet la remise ordonnée des octets et le suivi des segments reçus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une fenêtre de réception TCP annoncée à zéro ?",
+      "choices": [
+        "La connexion est nécessairement chiffrée",
+        "Le DNS est inaccessible",
+        "La route par défaut a disparu",
+        "Le récepteur ne peut temporairement plus accepter de nouvelles données dans son tampon"
+      ],
+      "answer": 3,
+      "explanation": "Une fenêtre nulle signale une capacité de réception temporairement insuffisante ; l’émetteur doit respecter le contrôle de flux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue le contrôle de congestion TCP ?",
+      "choices": [
+        "Attribuer une MAC",
+        "Remplacer la fenêtre de réception",
+        "Adapter le débit d’émission à l’état du réseau pour limiter la congestion",
+        "Garantir un délai maximal fixe"
+      ],
+      "answer": 2,
+      "explanation": "TCP régule la quantité de données en transit en fonction des signaux de congestion et de l’algorithme utilisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les retransmissions TCP peuvent-elles augmenter ?",
+      "choices": [
+        "Le serveur possède trop de mémoire",
+        "Pertes, congestion ou acquittements absents peuvent faire croire qu’un segment doit être renvoyé",
+        "Le DNS a répondu A",
+        "Les VLAN sont numérotés en impair"
+      ],
+      "answer": 1,
+      "explanation": "Les retransmissions assurent la fiabilité mais leur hausse peut signaler pertes ou saturation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test aide à distinguer un problème DNS d’un service TCP inaccessible ?",
+      "choices": [
+        "Tester le port sur une IP connue puis comparer avec le nom",
+        "Changer le DNS sans diagnostic",
+        "Vérifier uniquement le Wi-Fi",
+        "Afficher la table ARP de tous les routeurs"
+      ],
+      "answer": 0,
+      "explanation": "Tester IP et nom sépare une partie des hypothèses de résolution et de connectivité du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi UDP est-il souvent utilisé pour les requêtes DNS classiques ?",
+      "choices": [
+        "UDP garantit que chaque réponse arrive dans l’ordre",
+        "DNS ne fonctionne jamais sur TCP",
+        "UDP authentifie automatiquement les serveurs",
+        "Le protocole de requête est léger et ne nécessite pas d’établir TCP pour chaque échange"
+      ],
+      "answer": 3,
+      "explanation": "DNS utilise souvent UDP et peut également utiliser TCP dans plusieurs situations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue un RST TCP ?",
+      "choices": [
+        "Confirmer la validité du certificat",
+        "Attribuer un masque",
+        "Signaler une réinitialisation ou un rejet abrupt de la connexion selon le contexte",
+        "Prouver un mauvais VLAN à coup sûr"
+      ],
+      "answer": 2,
+      "explanation": "RST réinitialise l’état de connexion ; la cause doit être déterminée en examinant le contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque introduit un timeout trop court ?",
+      "choices": [
+        "TLS devient plus fort",
+        "Des requêtes légitimes peuvent échouer sous une latence normale ou une charge élevée",
+        "Le MTU passe automatiquement à 1500",
+        "Le serveur devient toujours plus disponible"
+      ],
+      "answer": 1,
+      "explanation": "Les délais doivent respecter le budget global de latence et le comportement de charge attendu."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Modèle OSI & TCP/IP - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel principe améliore le diagnostic d’un incident multi-couche ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Formuler une hypothèse, collecter des preuves, tester progressivement et corréler avec l’application",
+        "Modifier simultanément VLAN, routes et ports",
+        "Considérer qu’un ping valide le service complet",
+        "Désactiver la télémétrie avant l’investigation"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un diagnostic rigoureux réduit les changements aveugles et vérifie les hypothèses avec des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un échec de PMTUD peut-il sembler intermittent ?",
+      "choices": [
+        "Il modifie toujours les enregistrements DNS",
+        "Il rend tous les ports UDP fermés",
+        "Il supprime les adresses MAC",
+        "Certains paquets volumineux sont bloqués alors que des échanges plus petits réussissent"
+      ],
+      "answer": 3,
+      "explanation": "Le blocage des messages nécessaires à la découverte du MTU peut créer des transferts partiels ou bloqués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel effet produit un goulot d’étranglement sur le plan de données ?",
+      "choices": [
+        "Une correction automatique des permissions",
+        "Une modification DNS uniquement",
+        "Pertes, files d’attente, latence et retransmissions qui affectent les applications",
+        "La suppression des routes spécifiques"
+      ],
+      "answer": 2,
+      "explanation": "Une saturation peut augmenter la latence applicative et provoquer des retransmissions au transport."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi conserver le contexte horaire et le point d’observation d’une capture ?",
+      "choices": [
+        "Pour remplacer le schéma réseau",
+        "Les paquets observés dépendent du chemin, du point de capture et de la chronologie",
+        "Pour rendre les IP permanentes",
+        "Pour éviter d’anonymiser les données"
+      ],
+      "answer": 1,
+      "explanation": "L’heure et l’emplacement permettent de corréler la capture aux journaux et événements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un service fonctionne localement mais échoue à travers un tunnel. Quelle piste est particulièrement pertinente ?",
+      "choices": [
+        "MTU, routage, filtrage et découverte du chemin dans le tunnel",
+        "Le nombre de couches OSI du câble",
+        "Le format de la documentation",
+        "La couleur du port"
+      ],
+      "answer": 0,
+      "explanation": "L’encapsulation peut réduire le MTU effectif tandis que les routes et politiques changent le chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que démontre réellement un ping réussi ?",
+      "choices": [
+        "Tous les ports TCP sont ouverts",
+        "L’application a passé ses tests métier",
+        "Les DNS et certificats sont corrects",
+        "Une réponse ICMP a été obtenue depuis la cible ou son chemin de réponse"
+      ],
+      "answer": 3,
+      "explanation": "ICMP valide un échange donné, pas l’ensemble des couches et services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi corréler métriques, journaux, traces et captures réseau ?",
+      "choices": [
+        "Une capture contient toujours les informations métier",
+        "Les logs remplacent les compteurs réseau",
+        "Chaque source révèle une partie du parcours et les horodatages relient les symptômes",
+        "Les traces donnent toutes les MAC"
+      ],
+      "answer": 2,
+      "explanation": "La corrélation évite de conclure à partir d’un signal isolé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel livrable est utile après un incident multi-couche ?",
+      "choices": [
+        "Une liste de commandes sans contexte",
+        "Chronologie, preuves, cause racine, actions et contrôles préventifs",
+        "Le seul nom de l’équipement redémarré",
+        "La suppression des métriques"
+      ],
+      "answer": 1,
+      "explanation": "Une chronologie documentée permet d’expliquer l’incident et d’améliorer les procédures."
     }
   ]
 }

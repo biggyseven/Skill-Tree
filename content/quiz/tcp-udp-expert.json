@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour TCP, UDP & ports - Expert. Avez-vous lu le cours ?",
+      "prompt": "Comment interpréter des retransmissions TCP élevées accompagnées d’une latence croissante ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Augmenter immédiatement tous les timeouts",
+        "Conclure automatiquement à une panne DNS",
+        "Examiner pertes, files d’attente, saturation et chemins avant de changer les paramètres",
+        "Désactiver les acquittements"
+      ],
+      "answer": 2,
+      "explanation": "Les retransmissions peuvent venir de pertes ou congestion ; les mesures et captures permettent d’isoler la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi PMTUD est-il important pour TCP dans un chemin avec tunnels ?",
+      "choices": [
+        "Il négocie les ports applicatifs",
+        "Il aide à découvrir la taille de paquet adaptée, et son échec peut bloquer les échanges volumineux",
+        "Il remplace la fenêtre de congestion",
+        "Il garantit un tunnel sans overhead"
+      ],
+      "answer": 1,
+      "explanation": "Les encapsulations réduisent le MTU disponible ; un message nécessaire à PMTUD bloqué peut créer des défaillances partielles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque apporte la répétition automatique d’une requête métier après timeout ?",
+      "choices": [
+        "L’opération peut avoir réussi mais la réponse être perdue, donc la répétition peut dupliquer l’effet",
+        "Le routeur change forcément le préfixe",
+        "UDP devient TCP",
+        "Les réponses ne peuvent plus être perdues"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les retries doivent tenir compte de l’idempotence et de mécanismes de déduplication quand nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre contrôle de flux et contrôle de congestion TCP ?",
+      "choices": [
+        "Ce sont deux formes de chiffrement",
+        "Le contrôle de flux choisit DNS et la congestion la MAC",
+        "Ils désactivent les retransmissions",
+        "Le contrôle de flux protège le récepteur ; le contrôle de congestion protège le réseau contre la surcharge"
+      ],
+      "answer": 3,
+      "explanation": "La fenêtre de réception reflète la capacité du destinataire ; la fenêtre de congestion régule l’injection de trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un load balancer doit-il gérer correctement l’état des connexions TCP ?",
+      "choices": [
+        "Pour transformer les segments en messages DNS",
+        "Pour supprimer les ports source",
+        "Il doit orienter les flux de façon cohérente avec les sessions et le chemin retour",
+        "Pour supprimer les certificats"
+      ],
+      "answer": 2,
+      "explanation": "Les connexions TCP possèdent un état ; le NAT, le routage et les changements d’endpoint doivent rester cohérents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel phénomène peut expliquer un transfert qui démarre puis reste bloqué sur de gros paquets ?",
+      "choices": [
+        "Un enregistrement MX manquant uniquement",
+        "Un problème de MTU/PMTUD ou un message ICMP nécessaire bloqué",
+        "L’absence de broadcast IPv6",
+        "Le fait que TCP n’utilise pas de séquence"
+      ],
+      "answer": 1,
+      "explanation": "Les petits paquets peuvent passer tandis que les plus gros sont bloqués par le MTU ou le filtrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il ajuster les paramètres TCP au niveau système ?",
+      "choices": [
+        "Après des mesures, une hypothèse de goulot et une validation en environnement représentatif",
+        "Comme première action à chaque incident",
+        "Dès qu’un ping dépasse 10 ms partout",
+        "Pour remplacer une capacité réseau insuffisante"
+      ],
+      "answer": 0,
+      "explanation": "Un réglage prématuré peut dégrader d’autres flux ; le problème doit être démontré avant le changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve différencie le mieux une limitation applicative d’une limitation réseau ?",
+      "choices": [
+        "Le nombre de fichiers de configuration",
+        "Le nom du fournisseur cloud uniquement",
+        "Une réponse DNS unique",
+        "Corréler métriques applicatives, traces, sockets, retransmissions et captures"
+      ],
+      "answer": 3,
+      "explanation": "Des preuves sur plusieurs couches aident à localiser où le temps ou les pertes apparaissent."
     }
   ]
 }

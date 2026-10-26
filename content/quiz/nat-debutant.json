@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NAT & PAT - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel est l’objectif courant du NAT IPv4 ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Résoudre les noms DNS",
+        "Chiffrer les paquets",
+        "Attribuer les MAC",
+        "Traduire des adresses IP entre espaces réseau selon une politique"
+      ],
+      "answer": 3,
+      "explanation": "NAT modifie certaines informations d’adressage ; PAT utilise aussi les ports pour partager une adresse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme permet à plusieurs postes privés de partager une IPv4 publique en utilisant des ports ?",
+      "choices": [
+        "ARP gratuit",
+        "STP",
+        "PAT/NAT overload",
+        "DNSSEC"
+      ],
+      "answer": 2,
+      "explanation": "PAT distingue des translations à l’aide des ports et de la table d’état."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit généralement le SNAT ?",
+      "choices": [
+        "La modification d’un nom DNS",
+        "La modification de l’adresse source d’un paquet",
+        "La création d’un VLAN",
+        "La traduction d’une MAC en certificat"
+      ],
+      "answer": 1,
+      "explanation": "Source NAT modifie l’adresse source, souvent pour permettre à des adresses privées de sortir."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit généralement le DNAT ?",
+      "choices": [
+        "La modification de l’adresse de destination d’un paquet",
+        "L’attribution d’une adresse DHCP",
+        "La résolution MX",
+        "Le chiffrement de la charge utile"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Destination NAT réécrit la destination, par exemple pour rediriger un port public vers un service interne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les adresses RFC 1918 sont-elles souvent associées au NAT vers Internet ?",
+      "choices": [
+        "Elles sont toujours chiffrées",
+        "Elles appartiennent à IPv6",
+        "Elles ne communiquent pas sur un LAN",
+        "Elles ne sont pas globalement routées sur Internet et nécessitent souvent une architecture de sortie adaptée"
+      ],
+      "answer": 3,
+      "explanation": "Les plages RFC 1918 sont privées et réutilisables en interne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le NAT est-il à lui seul un pare-feu complet ?",
+      "choices": [
+        "Oui, il interdit toujours tous les flux entrants",
+        "Oui, il chiffre tous les flux",
+        "Non, les règles d’autorisation et le suivi d’état doivent être considérés séparément",
+        "Non, il ne peut jamais modifier un paquet"
+      ],
+      "answer": 2,
+      "explanation": "NAT réalise une traduction ; le filtrage dépend de l’équipement et des règles configurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une table de translation est-elle utile au diagnostic ?",
+      "choices": [
+        "Elle contient toute la zone DNS",
+        "Elle relie les tuples avant/après traduction et explique le chemin du flux",
+        "Elle remplace les routes",
+        "Elle stocke les baux DHCP"
+      ],
+      "answer": 1,
+      "explanation": "La table NAT révèle les associations actives et aide à vérifier ports et adresses traduits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément faut-il vérifier si un poste privé ne sort pas vers Internet ?",
+      "choices": [
+        "Route, règle NAT, route retour et filtrage",
+        "Uniquement la couleur du port",
+        "Version du navigateur",
+        "Table des utilisateurs du serveur DNS"
+      ],
+      "answer": 0,
+      "explanation": "La sortie dépend de la route, de la translation, du filtrage et du chemin retour."
     }
   ]
 }

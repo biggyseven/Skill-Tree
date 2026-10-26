@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NAT & PAT - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi PAT nécessite-t-il un état de translation ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Apprendre les routes OSPF",
+        "Mettre en cache les MX",
+        "Associer les réponses entrantes au client interne et au port concernés",
+        "Configurer les VLAN"
+      ],
+      "answer": 2,
+      "explanation": "La table conserve les correspondances nécessaires au retour des paquets vers l’hôte interne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’un port forwarding basé sur DNAT ?",
+      "choices": [
+        "Distribuer les IP du LAN",
+        "Rendre un service interne joignable via une adresse et un port exposés",
+        "Empêcher tout trafic sortant",
+        "Remplacer DNS public"
+      ],
+      "answer": 1,
+      "explanation": "Le port forwarding traduit la destination vers un endpoint interne selon une règle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème peut résoudre le NAT hairpin ?",
+      "choices": [
+        "Permettre à un client interne d’atteindre un service interne via son adresse publique",
+        "Attribuer un masque au serveur",
+        "Empêcher les clients internes d’utiliser DNS",
+        "Garantir un chemin asymétrique"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le hairpin NAT permet à un flux interne vers l’adresse publique de revenir vers la destination interne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que peut provoquer l’épuisement des ports ou entrées NAT ?",
+      "choices": [
+        "Une augmentation des zones DNS",
+        "Une modification automatique des préfixes IPv6",
+        "La suppression des VLAN",
+        "L’échec de nouvelles connexions sous forte charge"
+      ],
+      "answer": 3,
+      "explanation": "Les tables ont des limites ; la capacité et les timeouts doivent être surveillés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier l’ordre des règles NAT et des routes ?",
+      "choices": [
+        "NAT est toujours évalué après chaque requête DNS",
+        "L’ordre ne peut jamais influencer les flux",
+        "La sélection de translation et le chemin de transfert doivent correspondre au design",
+        "Le routage n’interagit pas avec NAT"
+      ],
+      "answer": 2,
+      "explanation": "L’ordre et le point d’application de la translation dépendent de la plateforme et conditionnent le traitement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème peut survenir si le serveur interne répond via une autre passerelle que celle du DNAT ?",
+      "choices": [
+        "DNS convertit la réponse en MX",
+        "Le retour peut ne pas passer par l’état de translation requis et la session échoue",
+        "Le masque devient /32",
+        "Le serveur reçoit forcément deux copies"
+      ],
+      "answer": 1,
+      "explanation": "Les flux traduits doivent respecter un chemin retour compatible avec l’état NAT."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test valide un port forwarding ?",
+      "choices": [
+        "Tester depuis le réseau externe prévu puis vérifier translation et logs du service interne",
+        "Tester seulement localhost",
+        "Supprimer la route retour",
+        "Désactiver le pare-feu sans mesure"
+      ],
+      "answer": 0,
+      "explanation": "Le test doit valider le véritable chemin exposé et la destination interne atteinte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi documenter les règles NAT avec leur propriétaire et leur motif ?",
+      "choices": [
+        "Rendre chaque translation permanente",
+        "Augmenter la cardinalité DNS",
+        "Remplacer les sauvegardes",
+        "Retirer les expositions temporaires et limiter les ports inutiles"
+      ],
+      "answer": 3,
+      "explanation": "Les translations peuvent exposer des services ; elles doivent être justifiées et révisées."
     }
   ]
 }

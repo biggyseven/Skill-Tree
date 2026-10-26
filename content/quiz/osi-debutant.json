@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Modèle OSI & TCP/IP - Débutant. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert le modèle OSI ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "À attribuer des adresses IP automatiquement",
+        "À chiffrer obligatoirement chaque trame",
+        "À remplacer la suite TCP/IP",
+        "À décrire les fonctions réseau en sept couches"
+      ],
+      "answer": 3,
+      "explanation": "Le modèle OSI est un cadre de référence pour organiser et diagnostiquer les fonctions de communication."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle couche OSI est généralement associée au routage IP ?",
+      "choices": [
+        "Couche 2 — Liaison",
+        "Couche 4 — Transport",
+        "Couche 3 — Réseau",
+        "Couche 7 — Application"
+      ],
+      "answer": 2,
+      "explanation": "La couche réseau traite l’adressage logique et le transfert entre réseaux, notamment avec IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle unité de données est couramment associée à Ethernet en couche 2 ?",
+      "choices": [
+        "Le segment TCP",
+        "La trame",
+        "Le message DNS",
+        "Le fichier"
+      ],
+      "answer": 1,
+      "explanation": "Ethernet transporte des trames de couche 2 ; IP transporte des paquets et TCP des segments."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel équipement apprend des adresses MAC et commute des trames ?",
+      "choices": [
+        "Un commutateur de couche 2",
+        "Un routeur IP uniquement",
+        "Un résolveur DNS",
+        "Un serveur DHCP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un switch L2 construit une table MAC à partir des adresses source apprises sur les ports."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole s’exécute à la couche transport de la suite TCP/IP ?",
+      "choices": [
+        "ARP",
+        "Ethernet",
+        "IPv4",
+        "TCP"
+      ],
+      "answer": 3,
+      "explanation": "TCP et UDP fournissent des fonctions de transport au-dessus d’IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quelle couche se situe principalement HTTP ?",
+      "choices": [
+        "Réseau",
+        "Liaison",
+        "Application",
+        "Physique"
+      ],
+      "answer": 2,
+      "explanation": "HTTP est un protocole applicatif, même si son transport courant dépend de la version HTTP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le modèle en couches aide-t-il au diagnostic ?",
+      "choices": [
+        "Il garantit qu’un incident ne peut toucher qu’une seule couche",
+        "Il permet de tester chaque fonction avec des hypothèses ciblées",
+        "Il remplace les captures réseau",
+        "Il fixe le débit d’un lien"
+      ],
+      "answer": 1,
+      "explanation": "Une approche par couches ordonne les vérifications : lien, adressage, routage, transport et application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un exemple de fonction de couche physique ?",
+      "choices": [
+        "Transmettre des signaux sur un support",
+        "Choisir une route IP",
+        "Résoudre un nom DNS",
+        "Gérer une session HTTP"
+      ],
+      "answer": 0,
+      "explanation": "La couche physique concerne le support et la représentation des bits sous forme de signaux."
     }
   ]
 }

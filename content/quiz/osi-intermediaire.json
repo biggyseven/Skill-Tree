@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Modèle OSI & TCP/IP - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quelle couche traite les ports TCP ou UDP ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Réseau",
+        "Liaison",
+        "Transport",
+        "Physique"
+      ],
+      "answer": 2,
+      "explanation": "Les ports identifient les services ou processus de transport sur un hôte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une adresse IP répond au ping mais le site web ne s’ouvre pas. Quelle hypothèse faut-il vérifier ensuite ?",
+      "choices": [
+        "La couleur du câble uniquement",
+        "Le service TCP, le port et l’application HTTP",
+        "La table MAC d’un VLAN sans rapport avec le flux",
+        "L’adresse de broadcast du LAN"
+      ],
+      "answer": 1,
+      "explanation": "Une connectivité IP réussie ne garantit pas que le port applicatif écoute ni que HTTP fonctionne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel enchaînement décrit l’encapsulation de l’application vers le support ?",
+      "choices": [
+        "Données, segment/transport, paquet IP, trame, bits",
+        "Bits, trame, DNS, route puis données",
+        "Paquet IP, données, trame puis port TCP ajouté à Ethernet",
+        "Adresse MAC, certificat, VLAN puis requête HTTP uniquement"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Chaque couche ajoute les informations nécessaires à son traitement avant la transmission physique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le MTU d’une interface ?",
+      "choices": [
+        "Déterminer le nombre de VLAN",
+        "Définir la durée du bail DHCP",
+        "Choisir le port TCP",
+        "Indiquer la taille maximale du paquet réseau transportable sans fragmentation de ce paquet sur ce lien"
+      ],
+      "answer": 3,
+      "explanation": "Le MTU limite la taille du paquet réseau par lien ; des MTU incompatibles peuvent perturber les transferts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme fournit le voisinage IP-vers-MAC en IPv4 sur Ethernet ?",
+      "choices": [
+        "DNS",
+        "NTP",
+        "ARP",
+        "SMTP"
+      ],
+      "answer": 2,
+      "explanation": "ARP découvre la MAC du prochain saut IPv4 local."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément distingue mieux une panne de transport d’une panne d’application ?",
+      "choices": [
+        "Regarder seulement si l’adresse IP est configurée",
+        "Tester la connexion au port puis examiner la réponse applicative",
+        "Changer le masque sans collecte",
+        "Vérifier le thème graphique"
+      ],
+      "answer": 1,
+      "explanation": "Une démarche intermédiaire combine les preuves réseau, transport et application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles données identifient classiquement un flux TCP/UDP ?",
+      "choices": [
+        "IP source/destination, protocole et ports source/destination",
+        "Uniquement le nom d’utilisateur",
+        "Le modèle de clavier",
+        "Le nombre de fichiers YAML"
+      ],
+      "answer": 0,
+      "explanation": "Le tuple d’un flux contient les adresses IP, le protocole et, pour TCP/UDP, les ports."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les couches ne sont-elles pas absolument indépendantes dans un système réel ?",
+      "choices": [
+        "Elles n’interagissent jamais",
+        "Chaque couche possède une alimentation séparée",
+        "L’application ne dépend d’aucun réseau",
+        "Le comportement d’une couche peut affecter les performances ou le diagnostic d’une autre"
+      ],
+      "answer": 3,
+      "explanation": "Le modèle aide à raisonner, mais les systèmes réels interagissent, par exemple via MTU et retransmissions."
     }
   ]
 }
