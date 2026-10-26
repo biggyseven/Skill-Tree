@@ -688,7 +688,7 @@
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           <span x-show="unreadNotificationCount > 0" x-cloak x-text="unreadNotificationCount > 9 ? '9+' : unreadNotificationCount" class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full border border-[color:var(--s1)] bg-rose-500 px-1 text-[9px] font-bold leading-none text-white"></span>
         </button>
-        <div x-show="notificationsOpen && notificationsEnabled" x-cloak @click.outside="notificationsOpen = false" @keydown.escape.window="notificationsOpen = false" class="absolute top-14 right-20 z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-white/10 bg-[color:var(--s1)] shadow-2xl">
+        <div x-show="notificationsOpen" x-cloak @click.outside="notificationsOpen = false" @keydown.escape.window="notificationsOpen = false" class="absolute top-14 right-20 z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-white/10 bg-[color:var(--s1)] shadow-2xl">
           <div class="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3.5">
             <div class="min-w-0">
               <h3 class="text-sm font-bold text-white">Notifications</h3>
@@ -733,8 +733,8 @@
         <button type="button" @click.stop="settingsMenuOpen = !settingsMenuOpen; notificationsOpen = false; profileMenuOpen = false; themeMenuOpen = false" title="Paramètres" aria-label="Ouvrir les paramètres" aria-haspopup="true" :aria-expanded="settingsMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
         </button>
-        <div x-show="settingsMenuOpen" x-cloak x-transition.opacity @click.self="settingsMenuOpen = false" @keydown.escape.window="settingsMenuOpen = false" class="fixed inset-0 z-[110] flex items-start justify-center overflow-y-auto bg-black/75 p-3 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm sm:p-6 sm:pt-10">
-          <section role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title" data-modal-content class="w-full max-w-2xl max-h-[min(88vh,54rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl sm:p-6">
+        <div x-show="settingsMenuOpen" x-cloak x-transition.opacity @click.outside="settingsMenuOpen = false" @click.self="settingsMenuOpen = false" @keydown.escape.window="settingsMenuOpen = false" class="absolute top-14 right-0 z-50 w-[min(34rem,calc(100vw-2rem))]">
+          <section role="dialog" aria-modal="false" aria-labelledby="settings-dialog-title" data-modal-content class="max-h-[min(82vh,44rem)] overflow-y-auto rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 shadow-2xl sm:p-6">
           <div class="flex items-start justify-between gap-3 border-b border-white/10 px-1 pb-3">
             <div>
               <h2 id="settings-dialog-title" class="text-base font-bold text-white sm:text-lg">Paramètres de Skill-Tree</h2>
@@ -851,7 +851,7 @@
 
           <div class="flex flex-col gap-2 pt-3">
             <button type="button" @click="resetDisplayPreferences()" class="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-xs font-semibold text-zinc-300 transition hover:border-rose-400/25 hover:bg-rose-400/[0.06] hover:text-rose-200">
-              Rétablir tous les réglages par défaut
+              Rétablir les préférences d’affichage
             </button>
             <p class="px-1 text-[10px] leading-relaxed text-zinc-600">Les préférences sont locales à ce navigateur. L’export crée une sauvegarde JSON de tes données locales Skill-Tree.</p>
           </div>
@@ -2499,6 +2499,7 @@
         },
         saveSettingsPrefs() {
           this.applySettingsPrefs();
+          if (!this.notificationsEnabled) this.notificationsOpen = false;
           try {
             localStorage.setItem('skilltree-settings-v1', JSON.stringify({
               compactUi: !!this.compactUi,
