@@ -3949,6 +3949,10 @@
       { id: 'telecom', label: 'Opérateurs & Télécoms', short: 'Télécoms', icon: '📡', roadmap: {} },
       { id: 'voix', label: 'Voix & Collaboration', short: 'Voix', icon: '📞', roadmap: {} },
       { id: 'ot', label: 'Réseaux Industriels (OT)', short: 'OT', icon: '🏭', roadmap: {} },
+      { id: 'cybersecurite', label: 'Cybersécurité', short: 'Cybersécurité', icon: '🛡️', roadmap: {
+        debutant: ['Triade CIA', 'Panorama des menaces', 'Cryptographie', 'Hachage', 'Authentification', 'Endpoint Security', 'Wi-Fi', 'Introduction Pare-feu'],
+        intermediaire: [],
+        expert: [] } },
     ];
 
     /* Niveau par défaut des cours qui n'ont pas "level" ni de mot-clé dans leur titre. À ajuster librement. */
@@ -4057,6 +4061,7 @@
           
           // 1. D'abord, on vérifie le champ "module" exact.
           const raw = String(n.module || '').trim();
+          if (raw === 'Cybersécurité') return 'cybersecurite';
           
           if (raw === 'Réseaux Industriels (OT)') return 'ot';
           if (raw === 'Cloud Computing') return 'cloud';
@@ -4068,6 +4073,7 @@
 
           // 2. Ensuite, on vérifie l'ID du cours (au cas où le champ module serait absent).
           const id = String(n.id || '');
+          if (id.startsWith('secu-')) return 'cybersecurite';
           if (id.startsWith('ot-')) return 'ot';
           if (id.startsWith('cloud-aws') || id.startsWith('cloud-azure') || id.startsWith('cloud-gcp') || id.startsWith('cloud-serverless')) return 'cloud';
           if (id.startsWith('telecom-')) return 'telecom';
