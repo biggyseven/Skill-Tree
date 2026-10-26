@@ -4030,10 +4030,9 @@
               addRelation(from + ' envoie ' + (message ? 'le message « ' + message + ' »' : 'un message') + ' à ' + to + '.');
               continue;
             }
-            const nodeShape = '(?:\\s*(?:\\[[^\\]]*\\]|\\([^)]*\\)|\\{[^}]*\\}))?';
-            const labelledEdge = line.match(new RegExp('^\\\\s*([A-Za-z_][\\\\w.-]*)' + nodeShape + '\\\\s*(-->|-\\\\.->|==>|---|->|=>|→|⇒)\\\\s*\\\\|([^|]+)\\\\|\\\\s*([A-Za-z_][\\\\w.-]*)', 'u'));
-            const dashedLabelEdge = line.match(new RegExp('^\\\\s*([A-Za-z_][\\\\w.-]*)' + nodeShape + '\\\\s+--\\\\s+(.+?)\\\\s+-->\\\\s*([A-Za-z_][\\\\w.-]*)', 'u'));
-            const simpleEdge = line.match(new RegExp('^\\\\s*([A-Za-z_][\\\\w.-]*)' + nodeShape + '\\\\s*(<-->|<->|<--|<-|-->|-\\\\.->|==>|---|--o|--x|->|=>|→|←|↔|⇒|⇢)\\\\s*([A-Za-z_][\\\\w.-]*)' + nodeShape, 'u'));
+            const labelledEdge = line.match(/^\s*([A-Za-z_][\w.-]*)(?:\s*(?:\[[^\]]*\]|\([^)]*\)|\{[^}]*\}))?\s*(-->|-\.->|==>|---|->|=>|→|⇒)\s*\|([^|]+)\|\s*([A-Za-z_][\w.-]*)/u);
+            const dashedLabelEdge = line.match(/^\s*([A-Za-z_][\w.-]*)(?:\s*(?:\[[^\]]*\]|\([^)]*\)|\{[^}]*\}))?\s+--\s+(.+?)\s+-->\s*([A-Za-z_][\w.-]*)/u);
+            const simpleEdge = line.match(/^\s*([A-Za-z_][\w.-]*)(?:\s*(?:\[[^\]]*\]|\([^)]*\)|\{[^}]*\}))?\s*(<-->|<->|<--|<-|-->|-\.->|==>|---|--o|--x|->|=>|→|←|↔|⇒|⇢)\s*([A-Za-z_][\w.-]*)(?:\s*(?:\[[^\]]*\]|\([^)]*\)|\{[^}]*\}))?/u);
             const edge = labelledEdge
               ? { from: labelledEdge[1], to: labelledEdge[4], label: cleanLabel(labelledEdge[3]), arrow: labelledEdge[2] }
               : dashedLabelEdge
