@@ -814,7 +814,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("compact_ui: !!this.compactUi", export)
         self.assertIn("reduce_motion: !!this.reduceMotion", export)
         self.assertIn("skilltree-sauvegarde-", export)
-        self.assertIn("this.saveFile(name, new Blob", export)
+        self.assertIn("app.saveFile(name, new Blob", export)
 
     def test_settings_menu_actions_match_their_names_and_close_the_menu(self):
         self.assertIn("Changer de thème", DASHBOARD_HTML)
