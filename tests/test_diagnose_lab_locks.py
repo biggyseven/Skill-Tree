@@ -111,8 +111,9 @@ class LabLockDiagnosticTests(unittest.TestCase):
     def test_does_not_mark_a_node_validated_when_a_required_proof_is_missing(self) -> None:
         report = audit_database(self.db_path, self.nodes_path)
 
-        self.assertNotIn("routing-debutant", report["available_root_nodes"])
-        self.assertNotEqual(report["status_counts"].get("validé", 0), 3)
+        self.assertEqual(report["node_statuses"]["osi-debutant"], "validé")
+        self.assertEqual(report["node_statuses"]["routing-debutant"], "en cours")
+        self.assertEqual(report["node_statuses"]["acl-debutant"], "verrouillé")
 
 
 if __name__ == "__main__":
