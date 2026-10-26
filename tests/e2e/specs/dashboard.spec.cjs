@@ -138,6 +138,24 @@ test('un cours peut être ouvert depuis la recherche puis fermé avec Échap', a
 });
 
 
+test('un cours cybersécurité en attente affiche un état de préparation au lieu d’un lecteur vide', async ({ page }) => {
+  await openDashboard(page);
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill('La Triade CIA');
+
+  const lessonResult = results.locator('button').filter({ hasText: 'La Triade CIA' }).first();
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
+
+  await expect(page.locator('#course-reader-title')).toHaveText('La Triade CIA');
+  await expect(page.getByText('Contenu en préparation', { exact: true })).toBeVisible();
+  await expect(page.locator('[x-ref="lessonArticle"]')).toHaveCount(0);
+  await expect(page.getByText(/Contenu de 5000 mots à rédiger/i)).toHaveCount(0);
+  await expect(page.getByTitle('Réduire le texte')).toBeHidden();
+});
+
 test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans un nouvel onglet', async ({ page }) => {
   await openDashboard(page);
 
