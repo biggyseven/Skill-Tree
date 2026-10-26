@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour MPLS-TP et Métro Ethernet",
+      "prompt": "Pourquoi faut-il distinguer l’état du LSP de l’état du service Ethernet ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Les deux termes signifient toujours exactement la même chose",
+        "Le LSP représente le transport tandis que le service dépend aussi des paramètres et associations aux extrémités",
+        "Le service Ethernet ne traverse jamais MPLS",
+        "Le LSP indique toujours la performance applicative"
+      ],
+      "answer": 1,
+      "explanation": "Le transport peut être établi alors qu’une configuration VLAN, MTU ou service empêche le trafic de bout en bout."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un client utilise un VLAN 10 dans deux sites. Comment l’opérateur doit-il interpréter ce numéro ?",
+      "choices": [
+        "Il est nécessairement unique dans tout le réseau opérateur",
+        "Il impose un identifiant MPLS identique sur tous les nœuds",
+        "Il détermine seul le chemin de transport physique",
+        "Il s’agit d’un paramètre de classification client dont la portée dépend de la configuration du service"
+      ],
+      "answer": 3,
+      "explanation": "Un VLAN client n’est pas un identifiant universel de transport ; l’opérateur doit définir explicitement le traitement et l’isolation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les petites trames passent mais les grandes échouent sur un service transporté. Quelle hypothèse faut-il tester ?",
+      "choices": [
+        "Le MTU et la surcharge d’encapsulation sur l’ensemble du chemin",
+        "Le nombre de noms DNS publics",
+        "Le niveau de puissance d’un laser DWDM sans autre indice",
+        "La couleur du câble cuivre"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Une incohérence MTU ou une limite de taille sur un segment peut n’affecter que les trames les plus grandes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle fonction peut aider à détecter une rupture de continuité sur un niveau de transport ou de service ?",
+      "choices": [
+        "La résolution ARP uniquement",
+        "Le protocole DHCP seul",
+        "Un mécanisme OAM adapté au niveau surveillé",
+        "L’augmentation du débit commercial"
+      ],
+      "answer": 2,
+      "explanation": "OAM apporte des mécanismes de surveillance selon la technologie et le niveau effectivement configurés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une protection ne doit-elle pas être considérée comme prouvée avant un test contrôlé ?",
+      "choices": [
+        "Parce que les configurations sont toujours fausses",
+        "Parce qu’il faut vérifier détection, bascule, pertes, retour et impact sur les autres services",
+        "Parce qu’un test ne peut jamais être documenté",
+        "Parce qu’un LSP de protection ne peut transporter de trafic"
+      ],
+      "answer": 1,
+      "explanation": "La recette doit mesurer le comportement réel dans les conditions et selon les critères prévus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Plusieurs services deviennent indisponibles au même instant. Quelle démarche est souvent la plus pertinente ?",
+      "choices": [
+        "Modifier toutes les MTU immédiatement",
+        "Examiner chaque poste client au hasard",
+        "Supprimer les identifiants de service",
+        "Rechercher d’abord un élément commun : équipement, interface, chemin ou changement récent"
+      ],
+      "answer": 3,
+      "explanation": "Un impact commun oriente vers une dépendance partagée ; les alarmes et mesures doivent confirmer la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une recette de service opérateur ?",
+      "choices": [
+        "Des critères mesurables, des tests de connectivité, de performance et de supervision adaptés au contrat",
+        "Uniquement la confirmation que le port est administrativement actif",
+        "Le seul schéma logique",
+        "Un statut vert sans mesures"
+      ],
+      "answer": 0,
+      "explanation": "La recette doit prouver les exigences du service et les contrôles de surveillance convenus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve une séparation logique de deux LSP à propos de leur diversité physique ?",
+      "choices": [
+        "Qu’ils utilisent forcément des conduits séparés",
+        "Qu’ils ont des alimentations indépendantes",
+        "Rien à elle seule : la route physique et les dépendances communes doivent être vérifiées",
+        "Qu’ils ont une MTU identique"
+      ],
+      "answer": 2,
+      "explanation": "Une séparation logique ne prouve pas que les deux chemins évitent le même conduit, site ou équipement commun."
     }
   ]
 }

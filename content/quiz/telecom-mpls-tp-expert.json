@@ -1,18 +1,102 @@
 {
   "node_id": "telecom-mpls-tp-expert",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quelle preuve est la plus pertinente pour valider un objectif de restauration après bascule ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Le seul état up du chemin de secours",
+        "La présence de deux noms de chemins dans la configuration",
+        "Une estimation non mesurée du délai",
+        "Un essai autorisé avec chronologie, pertes, délai et comportement de retour mesurés"
+      ],
+      "answer": 3,
+      "explanation": "L’objectif se valide par des mesures effectuées dans des conditions définies et comparées aux seuils contractuels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale distingue une protection 1+1 d’un modèle 1:1 ?",
+      "choices": [
+        "En 1+1, le trafic peut être envoyé simultanément sur travail et protection puis sélectionné ; en 1:1, le secours prend le relais selon le mécanisme",
+        "Le modèle 1+1 supprime toujours l’OAM",
+        "Le modèle 1:1 interdit tout chemin de secours",
+        "Ils garantissent tous deux la même disponibilité sans test"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Cette distinction est générale ; le comportement précis doit être vérifié dans l’implémentation et le profil retenus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après bascule, les petites trames passent mais les grandes échouent. Quelle vérification arrive en tête ?",
+      "choices": [
+        "Changer le label sans autre mesure",
+        "Comparer MTU, encapsulations et limites des interfaces sur le chemin de secours",
+        "Désactiver la QoS sur tous les équipements",
+        "Conclure que l’OAM est inutile"
+      ],
+      "answer": 1,
+      "explanation": "Le chemin de secours peut avoir une capacité de taille de trame ou une surcharge d’encapsulation différente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les chemins de travail et de protection doivent-ils être vérifiés physiquement ?",
+      "choices": [
+        "Pour que leurs identifiants aient la même longueur",
+        "Pour garantir qu’ils partagent les mêmes ressources",
+        "Pour détecter les points de panne commune pouvant interrompre les deux chemins",
+        "Parce que l’OAM remplace la documentation physique"
+      ],
+      "answer": 2,
+      "explanation": "Des chemins logiques distincts peuvent partager une fibre, un conduit, un site ou une alimentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément faut-il examiner si plusieurs services chutent ensemble après un changement ?",
+      "choices": [
+        "Uniquement le poste du premier client ayant signalé le problème",
+        "Uniquement la résolution DNS publique",
+        "Le seul compteur du transpondeur optique le plus éloigné",
+        "Les dépendances communes et l’historique du changement, puis les alarmes et mesures corrélées"
+      ],
+      "answer": 3,
+      "explanation": "Des symptômes simultanés peuvent partager une cause commune ; il faut la localiser à partir des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le débit nominal du port ne garantit-il pas à chaque classe QoS un débit égal à ce nominal ?",
+      "choices": [
+        "Parce que les ressources sont partagées et que classification, files, limites et congestion influent sur le service",
+        "Parce que la QoS ne s’applique qu’aux câbles optiques",
+        "Parce que le débit contractuel est toujours nul",
+        "Parce que chaque classe utilise une interface physique différente"
+      ],
+      "answer": 0,
+      "explanation": "La capacité du port est partagée ; les politiques et les conditions de charge déterminent le débit effectivement disponible par classe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider une décision Go/No-Go pour une mise en service ?",
+      "choices": [
+        "L’apparence du schéma doit être correcte",
+        "Il suffit que le LSP de travail soit actif",
+        "Les exigences critiques doivent être démontrées par des résultats reproductibles et des marges définies",
+        "Les seuils peuvent être choisis après le test pour valider le résultat"
+      ],
+      "answer": 2,
+      "explanation": "Les critères doivent être fixés avant le test et prouvés par des mesures ; une inconnue critique impose de différer l’autorisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon critère pour tester une politique de réversion ?",
+      "choices": [
+        "Vérifier seulement l’état au retour de l’interface",
+        "Mesurer l’état de service, les pertes et le temps de transition au retour du chemin principal",
+        "Supprimer les journaux avant l’essai",
+        "Tester uniquement la direction aller"
+      ],
+      "answer": 1,
+      "explanation": "Il faut observer le comportement réel de la transition et confirmer les critères de service dans les directions pertinentes."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

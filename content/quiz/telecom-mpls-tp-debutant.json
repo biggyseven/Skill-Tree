@@ -1,18 +1,102 @@
 {
   "node_id": "telecom-mpls-tp-debutant",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Que représente principalement un LSP dans un réseau MPLS ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Une adresse MAC du client",
+        "Un VLAN qui existe sur Internet entier",
+        "Un chemin de transfert utilisant des labels",
+        "Un câble physique à fibre obligatoire"
+      ],
+      "answer": 2,
+      "explanation": "Un LSP est un chemin de transfert à labels dans le domaine MPLS ; il ne représente pas nécessairement un câble physique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle interface marque la démarcation entre le réseau du client et celui de l’opérateur ?",
+      "choices": [
+        "NNI",
+        "UNI",
+        "OSNR",
+        "EDFA"
+      ],
+      "answer": 1,
+      "explanation": "La UNI est la User-Network Interface entre client et opérateur. La NNI sert à l’interconnexion opérateur selon l’architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un LSP est actif mais le service Ethernet ne passe pas. Quelle vérification est pertinente ?",
+      "choices": [
+        "Changer immédiatement le nom du LSP",
+        "Augmenter le débit du port sans diagnostic",
+        "Remplacer MPLS-TP par DWDM",
+        "Vérifier VLAN, classification du service, MTU et associations aux extrémités"
+      ],
+      "answer": 3,
+      "explanation": "Le transport peut être actif alors qu’une erreur de service, d’encapsulation ou de MTU bloque les trames."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle général de l’OAM ?",
+      "choices": [
+        "Fournir des fonctions d’exploitation, de surveillance et de détection de défauts selon le mécanisme activé",
+        "Attribuer une adresse IP à chaque client",
+        "Remplacer les exigences du SLA",
+        "Garantir automatiquement une absence de panne"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Les fonctions OAM aident à détecter ou localiser certains défauts, mais leur portée dépend du niveau et du mécanisme utilisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant de tester un mécanisme de protection en production ?",
+      "choices": [
+        "Uniquement le voyant d’un port",
+        "Uniquement le nom du chemin de secours",
+        "Autorisation, fenêtre, analyse d’impact, critères de réussite et retour arrière",
+        "Que le service ne soit pas documenté"
+      ],
+      "answer": 2,
+      "explanation": "Un test de protection peut perturber plusieurs services ; il exige une fenêtre et une procédure approuvée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément décrit surtout ce que le client achète chez l’opérateur ?",
+      "choices": [
+        "L’étiquette MPLS interne uniquement",
+        "Le service Ethernet et ses caractéristiques contractuelles",
+        "Le nom de chaque équipement P",
+        "Le mode de mesure OAM seul"
+      ],
+      "answer": 1,
+      "explanation": "Le service décrit les performances et la connectivité fournies ; LSP et autres éléments constituent les moyens de transport."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un LSP actif ne prouve-t-il pas que le service de bout en bout fonctionne ?",
+      "choices": [
+        "Parce que MPLS ne transfère jamais de paquets",
+        "Parce qu’un LSP est toujours une fibre optique",
+        "Parce que toute panne vient nécessairement du DNS",
+        "Parce que des erreurs de VLAN, MTU ou d’association de service peuvent subsister"
+      ],
+      "answer": 3,
+      "explanation": "Le chemin de transport et la fonction de service sont distincts et doivent être vérifiés à leurs niveaux respectifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel dossier aide à exploiter un service Métro Ethernet de façon reproductible ?",
+      "choices": [
+        "Une fiche avec UNI, VLAN, MTU, débit, supervision et responsabilités",
+        "Une capture d’écran sans date ni unité",
+        "Un mot de passe partagé dans le rapport",
+        "Un dessin sans identifiants ni critères"
+      ],
+      "answer": 0,
+      "explanation": "Une fiche de service et des critères documentés réduisent l’ambiguïté lors de l’exploitation et du diagnostic."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

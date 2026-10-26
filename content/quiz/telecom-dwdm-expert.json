@@ -1,18 +1,102 @@
 {
   "node_id": "telecom-dwdm-expert",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Pourquoi ne doit-on pas dimensionner une liaison cohérente uniquement sur le débit maximal indiqué pour un transpondeur ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Parce que le débit n’a aucune relation avec l’optique",
+        "Parce que tous les transpondeurs utilisent une portée identique",
+        "Parce que portée, modulation, OSNR, marges et contraintes du chemin doivent être validées ensemble",
+        "Parce qu’une liaison cohérente ne peut transporter qu’un seul canal"
+      ],
+      "answer": 2,
+      "explanation": "Le profil de transmission doit être validé sur le chemin réel avec des marges adaptées et des caractéristiques documentées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que peut provoquer une cascade d’amplificateurs optiques ?",
+      "choices": [
+        "Une diminution garantie du bruit à chaque étage",
+        "Une accumulation de bruit pouvant réduire l’OSNR de la liaison",
+        "La suppression de toutes les pertes passives",
+        "La conversion automatique du DWDM en CWDM"
+      ],
+      "answer": 1,
+      "explanation": "Les amplificateurs compensent des pertes mais ajoutent du bruit ; la qualité dépend de toute la chaîne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après ajout de canaux, l’OSNR baisse même si la puissance Rx reste acceptable. Quelle décision est la plus adaptée ?",
+      "choices": [
+        "Déclarer la recette réussie sur la seule puissance Rx",
+        "Augmenter arbitrairement le gain de tous les étages",
+        "Ignorer les canaux existants et vérifier seulement les nouveaux",
+        "Examiner spectre, puissance par canal, amplification, OSNR et métriques numériques avant de décider"
+      ],
+      "answer": 3,
+      "explanation": "Le diagnostic doit croiser des mesures optiques et numériques et vérifier les limites de l’ensemble du système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon objectif du plan de canaux avant une extension DWDM ?",
+      "choices": [
+        "Vérifier fréquences, grille, largeur occupée, filtres, transpondeurs et marges",
+        "Maximiser le nombre de canaux sans vérifier la compatibilité",
+        "Choisir les canaux selon leur ordre alphabétique",
+        "Utiliser une fréquence identique pour tous les transpondeurs"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Le spectre est limité et les équipements doivent être compatibles avec le plan réel et la largeur des signaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’un réglage excessif de puissance par canal ?",
+      "choices": [
+        "Il rend le système toujours plus stable",
+        "Il supprime toutes les contraintes d’amplificateur",
+        "Il peut accroître certaines pénalités non linéaires et dégrader les performances",
+        "Il garantit une OSNR infinie"
+      ],
+      "answer": 2,
+      "explanation": "L’optimum de puissance est un compromis entre niveau signal/bruit et pénalités non linéaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux routes logiques de protection sont définies. Que reste-t-il à démontrer pour garantir une résilience physique ?",
+      "choices": [
+        "Que les noms de route sont différents",
+        "Que les chemins évitent les points de défaillance physique communs pertinents",
+        "Que tous les labels sont numériques",
+        "Que chaque chemin utilise la même fibre"
+      ],
+      "answer": 1,
+      "explanation": "Les routes peuvent partager conduit, site, alimentation ou équipement. La diversité doit être vérifiée sur l’infrastructure réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi re-tester les canaux déjà en service après une extension ?",
+      "choices": [
+        "Uniquement pour actualiser les noms des canaux",
+        "Parce qu’ils doivent tous utiliser un transpondeur neuf",
+        "Parce que le plan de fréquences devient inutile",
+        "Parce que l’ajout peut affecter puissance, équilibre spectral et marges des canaux existants"
+      ],
+      "answer": 3,
+      "explanation": "La recette doit vérifier tout le périmètre affecté, pas uniquement les nouveaux canaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une décision No-Go est-elle justifiée ?",
+      "choices": [
+        "Quand des mesures critiques ou la capacité après panne ne sont pas disponibles pour prouver les exigences",
+        "Quand un schéma contient plus de trois équipements",
+        "Quand le débit est exprimé en bit/s",
+        "Quand un rapport contient des tableaux"
+      ],
+      "answer": 0,
+      "explanation": "Une absence de preuve pour des contraintes critiques doit bloquer le changement jusqu’à ce que l’incertitude soit levée."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

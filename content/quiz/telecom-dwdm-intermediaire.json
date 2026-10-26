@@ -1,18 +1,102 @@
 {
   "node_id": "telecom-dwdm-intermediaire",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Une fibre de 60 km présente une atténuation estimée à 0,22 dB/km. Quelle perte de fibre obtient-on avant de compter connecteurs et épissures ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "13,2 dB",
+        "3,6 dB",
+        "60 dB",
+        "0,22 dB"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La perte estimée est 60 × 0,22 = 13,2 dB. Les éléments passifs supplémentaires doivent ensuite être ajoutés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la fonction essentielle d’un EDFA dans une liaison DWDM ?",
+      "choices": [
+        "Régénérer systématiquement le signal numérique et corriger toutes les erreurs",
+        "Attribuer une fréquence IP à chaque canal",
+        "Amplifier le signal optique dans sa bande de fonctionnement, avec ajout de bruit",
+        "Séparer physiquement chaque client dans un VLAN"
+      ],
+      "answer": 2,
+      "explanation": "Un EDFA amplifie optiquement les signaux dans sa bande utile, mais il ajoute du bruit et doit être exploité dans ses limites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une puissance Rx conforme suffit-elle à démontrer que le canal est de bonne qualité ?",
+      "choices": [
+        "Oui, la puissance mesure directement tous les types d’erreurs",
+        "Non, il faut notamment examiner l’OSNR et les indicateurs numériques",
+        "Oui, si la fibre est monomode",
+        "Non, car les puissances en dBm ne peuvent jamais être mesurées"
+      ],
+      "answer": 1,
+      "explanation": "Un niveau de puissance acceptable ne prouve pas que le rapport signal/bruit ou les performances numériques sont conformes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que compare l’OSNR ?",
+      "choices": [
+        "La longueur de fibre à la vitesse d’un port Ethernet",
+        "Le nombre d’adresses IP à la puissance Tx",
+        "La capacité des VLAN et la MTU",
+        "La puissance du signal optique à celle du bruit optique selon une bande de référence"
+      ],
+      "answer": 3,
+      "explanation": "L’OSNR est une mesure de qualité optique fondée sur le rapport entre signal et bruit dans une référence de mesure donnée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un raccordement, la puissance Rx baisse de 2,5 dB. Quelle démarche est la plus raisonnable ?",
+      "choices": [
+        "Contrôler le raccordement, les connecteurs et les mesures avant d’ajuster le gain",
+        "Augmenter immédiatement tous les EDFA",
+        "Supprimer des canaux sans collecter de mesures",
+        "Conclure que le transpondeur est défectueux"
+      ],
+      "answer": 0,
+      "explanation": "La baisse est un indice, pas une cause. Il faut localiser les pertes et comparer des mesures fiables avant tout changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la puissance totale d’un amplificateur devient-elle importante quand on ajoute des canaux ?",
+      "choices": [
+        "Parce que chaque canal cesse d’avoir une longueur d’onde",
+        "Parce que les canaux se convertissent automatiquement en lumière blanche",
+        "Parce que l’amplificateur et les étages suivants ont des limites de puissance totale et par canal",
+        "Parce que le bruit optique disparaît lorsque le nombre de canaux augmente"
+      ],
+      "answer": 2,
+      "explanation": "L’ajout de canaux peut modifier la puissance totale et l’équilibre du spectre ; les limites constructeur doivent être respectées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un seul canal est dégradé alors que ses voisins restent stables. Quelle première piste est pertinente ?",
+      "choices": [
+        "Remplacer tout le câble de fibre sans mesure",
+        "Vérifier transpondeur, fréquence et filtre associés à ce canal",
+        "Modifier toutes les fréquences du système",
+        "Désactiver la supervision sur toute la route"
+      ],
+      "answer": 1,
+      "explanation": "Une anomalie isolée oriente vers la chaîne du canal ou son filtrage, mais des mesures sont nécessaires pour confirmer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il utiliser la même méthode de mesure pour comparer l’OSNR avant et après un changement ?",
+      "choices": [
+        "Pour éliminer la nécessité d’un référentiel",
+        "Pour pouvoir ignorer les unités",
+        "Parce que l’OSNR ne dépend jamais de sa bande de référence",
+        "Parce que les méthodes et bandes de référence peuvent rendre les résultats non directement comparables"
+      ],
+      "answer": 3,
+      "explanation": "Les conditions de mesure doivent être cohérentes ; chaque valeur doit inclure méthode, point de mesure et horodatage."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

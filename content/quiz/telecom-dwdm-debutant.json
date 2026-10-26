@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Fibre Optique & DWDM",
+      "prompt": "Quel est le rôle principal d’une fibre optique dans une liaison télécom ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Stocker les paquets sans équipement actif",
+        "Guider un signal lumineux qui transporte l’information",
+        "Attribuer des adresses IP aux terminaux",
+        "Remplacer le transpondeur dans tous les cas"
+      ],
+      "answer": 1,
+      "explanation": "La fibre guide la lumière modulée entre les équipements. Elle ne réalise pas elle-même l’adressage IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence décrit correctement la fibre monomode par rapport à la multimode ?",
+      "choices": [
+        "Elle utilise toujours du cuivre au lieu du verre",
+        "Elle ne transporte qu’un bit à la fois",
+        "Elle est conçue pour guider le mode spatial fondamental dans les conditions normales",
+        "Elle est réservée aux liaisons de moins d’un mètre"
+      ],
+      "answer": 2,
+      "explanation": "La fibre monomode limite la dispersion modale et convient couramment au transport sur de longues distances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une perte de 3 dB, approximativement, sur une liaison passive ?",
+      "choices": [
+        "La puissance restante est doublée",
+        "La puissance est divisée par environ deux",
+        "La puissance optique devient négative",
+        "La fréquence du signal est divisée par trois"
+      ],
+      "answer": 1,
+      "explanation": "Une perte de 3 dB correspond approximativement à la moitié de la puissance d’entrée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle unité représente une puissance optique absolue référencée à 1 mW ?",
+      "choices": [
+        "dBm",
+        "dB/km",
+        "nm",
+        "GHz"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le dBm exprime une puissance absolue par rapport à 1 milliwatt ; le dB représente un rapport."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un multiplexeur DWDM ?",
+      "choices": [
+        "Convertir tous les paquets IP en adresses MAC",
+        "Séparer le trafic Ethernet en VLAN automatiquement",
+        "Nettoyer mécaniquement les connecteurs",
+        "Combiner plusieurs canaux optiques dans une même fibre"
+      ],
+      "answer": 3,
+      "explanation": "Le multiplexeur combine des canaux optiques de longueurs d’onde ou fréquences différentes pour qu’ils partagent la fibre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il vérifier la compatibilité du transceiver et de la fibre ?",
+      "choices": [
+        "Parce qu’un connecteur physiquement compatible garantit toujours le service",
+        "Parce que la fibre change automatiquement de longueur d’onde",
+        "Parce que type de fibre, longueur d’onde et budget optique influencent le fonctionnement",
+        "Parce que toutes les fibres ont la même atténuation"
+      ],
+      "answer": 2,
+      "explanation": "Une connexion mécanique n’assure ni compatibilité optique ni budget suffisant : les caractéristiques doivent correspondre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel instrument permet d’observer des événements et pertes le long d’un lien optique ?",
+      "choices": [
+        "Un OTDR adapté au type de fibre et à la longueur d’onde",
+        "Un serveur DHCP",
+        "Un analyseur de journaux DNS uniquement",
+        "Un commutateur PoE"
+      ],
+      "answer": 0,
+      "explanation": "Un OTDR localise et caractérise des événements sur la fibre selon ses limites ; il ne remplace pas toutes les mesures de puissance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de mesurer une connexion optique dégradée, quelle précaution est essentielle ?",
+      "choices": [
+        "Regarder directement dans la fibre pour repérer la lumière",
+        "Nettoyer le connecteur sans inspection",
+        "Augmenter immédiatement la puissance de l’émetteur",
+        "Respecter les règles de sécurité optique et inspecter/nettoyer selon la procédure"
+      ],
+      "answer": 3,
+      "explanation": "Il faut éviter toute exposition au faisceau et appliquer la procédure de sécurité et de manipulation des connecteurs."
     }
   ]
 }
