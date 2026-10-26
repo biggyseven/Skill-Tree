@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Stockage : LVM et RAID",
+      "prompt": "Quelle relation entre les couches LVM est correcte ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Un volume physique (PV) est intégré à un groupe de volumes (VG), qui fournit de l’espace aux volumes logiques (LV)",
+        "Un LV contient toujours plusieurs serveurs DNS",
+        "Un VG est un point de montage réservé aux utilisateurs",
+        "Un PV est créé par `chmod`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le modèle LVM classique associe des périphériques initialisés en PV à un VG qui agrège l’espace, puis à des LV utilisés par les systèmes de fichiers ou d’autres consommateurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe décrit RAID 1 dans une configuration miroir à deux disques ?",
+      "choices": [
+        "Les données sont uniquement écrites sur le premier disque",
+        "Les données sont réparties avec une parité distribuée sur trois disques minimum",
+        "Les données sont écrites en miroir sur les deux membres, ce qui peut tolérer la panne de l’un des deux selon l’état du miroir",
+        "Le niveau RAID remplace automatiquement les sauvegardes hors site"
+      ],
+      "answer": 2,
+      "explanation": "RAID 1 maintient une copie miroir sur les membres configurés ; il améliore la disponibilité en cas de certaines pannes, mais ne protège pas d’une suppression ou corruption propagée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour une entrée de `/etc/fstab` devant rester stable après redémarrage, quel identifiant est généralement préférable ?",
+      "choices": [
+        "Le nom du compte qui a créé le disque",
+        "L’UUID du système de fichiers vérifié avec `lsblk -f`",
+        "Le PID du processus qui a monté le volume",
+        "Le dernier octet de l’adresse IP du serveur"
+      ],
+      "answer": 1,
+      "explanation": "Un UUID évite de dépendre directement d’un nom de périphérique qui peut varier après une modification matérielle ou de l’ordre de détection."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour un système de fichiers ext4 standard, quelle précaution s’applique normalement à `fsck` ?",
+      "choices": [
+        "Le lancer en boucle sur toutes les partitions montées",
+        "L’exécuter pour modifier l’adresse IP du volume",
+        "Le lancer sans connaître la partition cible",
+        "Le vérifier/réparer hors montage, sauf procédure spécifique documentée pour l’outil et le système concernés"
+      ],
+      "answer": 3,
+      "explanation": "Un contrôle/réparation classique avec `fsck` doit s’effectuer sur un système de fichiers démonté pour éviter les incohérences dues à des écritures concurrentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après avoir agrandi un volume logique LVM, quelle étape peut encore être nécessaire pour utiliser tout l’espace ?",
+      "choices": [
+        "Redémarrer le DNS pour qu’il détecte le volume",
+        "Renommer tous les fichiers du répertoire",
+        "Agrandir aussi le système de fichiers avec l’outil adapté à son type",
+        "Réduire le groupe de volumes à zéro"
+      ],
+      "answer": 2,
+      "explanation": "L’agrandissement du LV n’étend pas automatiquement tous les systèmes de fichiers ; l’opération suivante dépend du type de système de fichiers et des outils disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels outils sont couramment associés à l’agrandissement d’un système de fichiers ext4 et XFS, respectivement ?",
+      "choices": [
+        "`resize2fs` pour ext4 et `xfs_growfs` pour XFS, en respectant leurs conditions d’usage",
+        "`chmod` pour ext4 et `chown` pour XFS",
+        "`apt purge` pour ext4 et `dpkg -L` pour XFS",
+        "`fsck -A` pour agrandir les deux systèmes de fichiers en ligne"
+      ],
+      "answer": 0,
+      "explanation": "`resize2fs` est utilisé pour ext2/3/4 ; `xfs_growfs` agrandit un système de fichiers XFS monté. Les préconditions et la capacité sous-jacente doivent être vérifiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il conclure si SMART ne signale pas de problème sur un disque ?",
+      "choices": [
+        "Que la panne est mathématiquement impossible",
+        "Que toutes les sauvegardes sont valides",
+        "Que la latence de stockage est forcément normale",
+        "Que les indicateurs consultés sont rassurants, sans garantir qu’aucune panne future ne surviendra"
+      ],
+      "answer": 3,
+      "explanation": "SMART aide à surveiller certains indicateurs de santé, mais ne prédit pas toutes les défaillances ; il faut le combiner à la surveillance, à la redondance et aux sauvegardes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une modification de `/etc/fstab`, quelle vérification aide à détecter une erreur de montage avant le prochain redémarrage ?",
+      "choices": [
+        "Supprimer les UUID enregistrés",
+        "Sauvegarder le fichier puis exécuter prudemment `mount -a` et vérifier les erreurs/points de montage",
+        "Formater les systèmes de fichiers qui ne montent pas",
+        "Désactiver tous les montages automatiques"
+      ],
+      "answer": 1,
+      "explanation": "`mount -a` tente de traiter les entrées concernées de `fstab` ; vérifiez soigneusement le résultat et utilisez une configuration sauvegardée pour limiter le risque de blocage au démarrage."
     }
   ]
 }
