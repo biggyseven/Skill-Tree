@@ -1,18 +1,102 @@
 {
   "node_id": "ot-profinet-modbus-expert",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Comment construire un budget de polling Modbus robuste sur un serveur qui interroge plusieurs équipements ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Choisir arbitrairement le timeout le plus court possible",
+        "Utiliser le même intervalle de 1 ms pour chaque appareil, quel que soit le réseau",
+        "Estimer temps de transaction, délais, charge, nombre de requêtes et criticité, puis valider la périodicité et les marges avec des mesures",
+        "Relancer chaque requête sans limite jusqu’à obtenir une réponse"
+      ],
+      "answer": 2,
+      "explanation": "Le budget doit tenir compte du nombre d’équipements, de la durée des transactions, des délais, des reprises et des capacités des serveurs et passerelles. Des timeouts trop agressifs ou des retries simultanés peuvent aggraver une panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une valeur de registre Modbus doit-elle être associée à un indicateur de qualité ou d’âge lorsque le procédé en dépend ?",
+      "choices": [
+        "Parce qu’un chiffre peut rester affiché après une perte de communication et ne plus représenter l’état actuel du procédé",
+        "Parce que Modbus ne permet jamais de lire des nombres",
+        "Parce que les registres expirent automatiquement au bout d’une seconde dans tous les appareils",
+        "Parce qu’un registre valide prouve que la commande a été exécutée"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La dernière valeur reçue peut rester dans une supervision même si la communication est coupée ou la donnée périmée. Une application robuste suit l’horodatage, l’état de communication et les règles de validité du signal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement Modbus Security par rapport au Modbus TCP traditionnel ?",
+      "choices": [
+        "C’est la même configuration TCP/502, avec TLS activé automatiquement sur tous les appareils",
+        "C’est une variante distincte intégrant TLS et des certificats X.509 pour la protection cryptographique, avec compatibilité à vérifier et port spécifié 802",
+        "Elle remplace les rôles client/serveur par des rôles PROFINET",
+        "Elle est activée dès qu’un PLC possède une adresse IPv4"
+      ],
+      "answer": 1,
+      "explanation": "Modbus Organization définit Modbus Security comme une variante utilisant TLS et des certificats X.509, avec le port 802. Il ne faut pas supposer qu’un équipement Modbus TCP traditionnel le prend en charge : vérifier la documentation du modèle et du firmware."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’une tempête de reconnexion de clients Modbus après une panne de passerelle ?",
+      "choices": [
+        "Elle augmente automatiquement la précision des capteurs",
+        "Elle élimine la nécessité de toute surveillance",
+        "Elle améliore toujours le cycle des E/S PROFINET",
+        "De nombreuses tentatives simultanées peuvent surcharger la passerelle et les serveurs, retardant la récupération ; des reprises contrôlées et des limites sont préférables"
+      ],
+      "answer": 3,
+      "explanation": "Une récupération mal synchronisée peut générer un grand volume de connexions et de retries. Un backoff, des limites et une stratégie de reprise sont à valider dans une maquette ou selon le plan opérationnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la version d’un fichier GSDML doit-elle être gérée avec le projet d’ingénierie PROFINET ?",
+      "choices": [
+        "Pour garantir que tous les switchs utilisent le même mot de passe",
+        "Parce qu’une version ou description incompatible peut ne pas correspondre aux modules et capacités du périphérique ciblé",
+        "Parce qu’un GSDML remplace l’adresse IP de toute la cellule",
+        "Pour faire fonctionner Modbus RTU sur UDP"
+      ],
+      "answer": 1,
+      "explanation": "Le GSDML décrit le modèle, les modules et les capacités du périphérique pour l’outil d’ingénierie. Une version compatible et traçable évite des écarts entre la configuration attendue et l’appareil réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une capture passive montre que des paquets PROFINET circulent, mais les E/S cycliques sont déclarées invalides. Que faut-il examiner ?",
+      "choices": [
+        "Uniquement si le serveur DNS répond",
+        "La priorité du routeur par défaut du PC de bureau seulement",
+        "L’identité et la configuration du périphérique, les relations IO, les états de cycle/watchdog, diagnostics et indicateurs de validité",
+        "Seulement la taille du journal du pare-feu Internet"
+      ],
+      "answer": 2,
+      "explanation": "La présence de trames ne prouve pas que la relation E/S prévue est correcte. Examine le projet d’ingénierie, l’identité du périphérique, les modules configurés, les diagnostics et le statut/temporisation cyclique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est la plus sûre pour vérifier la sécurité d’un équipement OT lors d’un audit en production ?",
+      "choices": [
+        "Planifier l’analyse avec l’exploitant, privilégier les sources approuvées et l’observation passive, et faire approuver les essais actifs avec une procédure de sûreté",
+        "Lancer un exploit public immédiatement, parce que l’actif est accessible",
+        "Écrire des valeurs de test sur les registres de commande pour confirmer la protection",
+        "Désactiver les contrôles réseau avant de commencer"
+      ],
+      "answer": 0,
+      "explanation": "Les contraintes d’OT exigent une évaluation de risque et une autorisation opérationnelle avant des sondes ou écritures actives. La méthode doit limiter l’impact physique et maintenir les capacités de réponse et de retour arrière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une passerelle Modbus TCP/RTU ne doit-elle pas être considérée comme preuve de bout en bout que la transaction a réussi ?",
+      "choices": [
+        "Parce qu’une passerelle ne possède jamais d’adresse réseau",
+        "Parce qu’une conversion de protocole supprime toutes les erreurs applicatives",
+        "Parce qu’un voyant vert garantit que chaque registre est correct",
+        "La passerelle peut accepter ou traduire une requête alors que le segment série, l’adresse d’unité, le registre ou le délai aval échoue ; il faut corréler les diagnostics des deux côtés"
+      ],
+      "answer": 3,
+      "explanation": "Une passerelle représente une frontière entre deux transports. Le succès de la partie TCP ne suffit pas à prouver que la transaction RTU a été exécutée et que la donnée renvoyée est correcte ; surveille les codes d’erreur et les états des deux segments."
     }
-  ],
-  "scope": "quiz"
+  ]
 }
