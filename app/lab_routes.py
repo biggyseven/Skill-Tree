@@ -408,19 +408,24 @@ def _course_lock_message(course_context: dict[str, Any]) -> str:
     )
 
 
-def _locked_course_check(course_context: dict[str, Any]) -> dict[str, Any]:
+def _locked_course_check(
+    result: dict[str, Any],
+    course_context: dict[str, Any],
+) -> dict[str, Any]:
+    """Retourne le résultat technique sans autoriser la validation du parcours."""
     message = _course_lock_message(course_context)
-    return {
-        "passed": False,
-        "score": 0.0,
+    practice_result = dict(result)
+    practice_result.update({
         "locked": True,
-        "results": [{
-            "rule_id": "course-locked",
-            "passed": False,
-            "message": message,
-        }],
-        "message": message,
-    }
+        "practice_only": True,
+        "course_locked": True,
+        "course_lock_message": message,
+        "message": (
+            "Contrôle en mode entraînement uniquement : ce résultat ne valide pas le parcours "
+            "et ne crée aucune tentative ni récompense. " + message
+        ),
+    })
+    return practice_result
 
 
 def _enforce_course_lab_score(
@@ -680,7 +685,7 @@ def check_lab_v2(lab_id: str, body: CheckRequest) -> dict[str, Any]:
             return result
         course_context = _course_lab_context(conn, lab_id)
         if course_context is not None and not course_context["unlocked"]:
-            return _locked_course_check(course_context)
+            return _locked_course_check(result, course_context)
         return _enforce_course_lab_score(result, course_context)
     finally:
         if conn is not None:
