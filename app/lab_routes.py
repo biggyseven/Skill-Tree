@@ -5,13 +5,14 @@ import ipaddress
 import json
 import os
 import re
+import secrets
 import sqlite3
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Response
 from fastapi.responses import JSONResponse
 
 from .db import DEFAULT_DB, add_xp, connect, touch_daily_streak
@@ -941,3 +942,290 @@ def list_labs_v2() -> list[dict[str, Any]]:
         return sorted(catalog, key=lambda item: (item["module"].casefold(), item["title"].casefold()))
     finally:
         conn.close()
+
+
+# Diagnostic de verrouillage à distance. Désactivé tant que le secret n'est pas défini.
+DIAGNOSTIC_NODES_PATH = PROJECT_ROOT / "content" / "nodes.json"
+_DIAGNOSTIC_REQUIRED_TABLES = {"nodes", "edges", "requirements", "attempts"}
+
+
+def _readonly_diagnostic_connection(db_path: Path) -> sqlite3.Connection:
+    """Ouvre la base de l'application en lecture seule, sans créer de fichier."""
+    resolved = db_path.expanduser().resolve()
+    connection = sqlite3.connect(
+        resolved.as_uri() + "?mode=ro",
+        uri=True,
+        timeout=5,
+    )
+    connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA query_only = ON")
+    return connection
+
+
+def _build_lab_lock_diagnostic(db_path: Path, nodes_path: Path) -> dict[str, Any]:
+    """Construit un rapport agrégé sans lire ni retourner les données sensibles des tentatives."""
+    try:
+        source_payload = json.loads(nodes_path.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise ValueError("Le catalogue de référence est indisponible ou invalide.") from error
+    if not isinstance(source_payload, list):
+        raise ValueError("Le catalogue de référence n'est pas une liste de cours.")
+
+    source_nodes: dict[str, dict[str, Any]] = {}
+    for item in source_payload:
+        if not isinstance(item, dict) or not isinstance(item.get("id"), str):
+            continue
+        node_id = item["id"].strip()
+        if not node_id:
+            continue
+        requirements = []
+        for requirement in item.get("requirements", []):
+            if not isinstance(requirement, dict):
+                continue
+            try:
+                requirements.append({
+                    "kind": str(requirement.get("kind", "")),
+                    "min_score": int(requirement.get("min_score", 80)),
+                })
+            except (TypeError, ValueError):
+                continue
+        source_nodes[node_id] = {
+            "title": str(item.get("title") or node_id),
+            "prereqs": [
+                str(prerequisite)
+                for prerequisite in item.get("prereqs", [])
+                if isinstance(prerequisite, str)
+            ],
+            "requirements": requirements,
+        }
+
+    connection = _readonly_diagnostic_connection(db_path)
+    try:
+        tables = {
+            str(row["name"])
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            )
+        }
+        missing_tables = sorted(_DIAGNOSTIC_REQUIRED_TABLES - tables)
+        if missing_tables:
+            raise ValueError("Le schéma de progression requis n'est pas complet.")
+
+        db_nodes = {
+            str(row["id"]): str(row["title"] or row["id"])
+            for row in connection.execute("SELECT id, title FROM nodes")
+        }
+        db_edges = {
+            (str(row["node_id"]), str(row["prereq_id"]))
+            for row in connection.execute("SELECT node_id, prereq_id FROM edges")
+        }
+        db_requirements: dict[str, list[dict[str, Any]]] = {}
+        db_requirement_edges: set[tuple[str, str, int]] = set()
+        for row in connection.execute(
+            "SELECT node_id, kind, min_score FROM requirements"
+        ):
+            node_id = str(row["node_id"])
+            kind = str(row["kind"])
+            min_score = int(row["min_score"])
+            db_requirements.setdefault(node_id, []).append(
+                {"kind": kind, "min_score": min_score}
+            )
+            db_requirement_edges.add((node_id, kind, min_score))
+
+        attempts: dict[str, list[dict[str, Any]]] = {}
+        attempt_count = 0
+        for row in connection.execute(
+            "SELECT node_id, kind, score, passed FROM attempts"
+        ):
+            attempts.setdefault(str(row["node_id"]), []).append({
+                "kind": str(row["kind"]),
+                "score": int(row["score"] or 0),
+                "passed": bool(row["passed"]),
+            })
+            attempt_count += 1
+
+        def requirement_met(requirement: dict[str, Any], node_id: str) -> bool:
+            return any(
+                attempt["kind"] == requirement["kind"]
+                and attempt["passed"]
+                and attempt["score"] >= requirement["min_score"]
+                for attempt in attempts.get(node_id, [])
+            )
+
+        validated = {
+            node_id
+            for node_id in db_nodes
+            if db_requirements.get(node_id)
+            and all(
+                requirement_met(requirement, node_id)
+                for requirement in db_requirements[node_id]
+            )
+        }
+        prerequisites: dict[str, list[str]] = {}
+        for node_id, prerequisite_id in db_edges:
+            prerequisites.setdefault(node_id, []).append(prerequisite_id)
+
+        statuses: dict[str, str] = {}
+        for node_id in db_nodes:
+            if node_id in validated:
+                statuses[node_id] = "VALIDÉ"
+            elif any(
+                prerequisite_id not in validated
+                for prerequisite_id in prerequisites.get(node_id, [])
+            ):
+                statuses[node_id] = "VERROUILLÉ"
+            elif attempts.get(node_id):
+                statuses[node_id] = "EN COURS"
+            else:
+                statuses[node_id] = "DISPONIBLE"
+
+        def unmet_requirements(node_id: str) -> list[str]:
+            return [
+                f"{requirement['kind']} ≥ {requirement['min_score']}/100"
+                for requirement in db_requirements.get(node_id, [])
+                if not requirement_met(requirement, node_id)
+            ]
+
+        lab_course_ids = sorted(
+            node_id
+            for node_id, requirements in db_requirements.items()
+            if any(requirement["kind"] == "lab" for requirement in requirements)
+        )
+        locked_labs = []
+        for lab_id in lab_course_ids:
+            if statuses.get(lab_id) != "VERROUILLÉ":
+                continue
+            blockers = []
+            for prerequisite_id in sorted(prerequisites.get(lab_id, [])):
+                if prerequisite_id in validated:
+                    continue
+                blockers.append({
+                    "id": prerequisite_id,
+                    "title": db_nodes.get(prerequisite_id, prerequisite_id),
+                    "status": statuses.get(prerequisite_id, "ABSENT DE SQLITE"),
+                    "unmet_requirements": unmet_requirements(prerequisite_id),
+                })
+            locked_labs.append({
+                "id": lab_id,
+                "title": db_nodes[lab_id],
+                "blocking_prerequisites": blockers,
+            })
+
+        source_ids = set(source_nodes)
+        db_ids = set(db_nodes)
+        source_edges = {
+            (node_id, prerequisite_id)
+            for node_id, item in source_nodes.items()
+            for prerequisite_id in item["prereqs"]
+            if prerequisite_id in source_ids
+        }
+        source_requirements = {
+            (node_id, req["kind"], req["min_score"])
+            for node_id, item in source_nodes.items()
+            for req in item["requirements"]
+        }
+        unknown_source_prerequisites = sorted({
+            f"{node_id} -> {prerequisite_id}"
+            for node_id, item in source_nodes.items()
+            for prerequisite_id in item["prereqs"]
+            if prerequisite_id not in source_ids
+        })
+
+        def diff_summary(values: set[Any]) -> dict[str, Any]:
+            ordered = sorted(values, key=lambda value: str(value))
+            return {"count": len(ordered), "examples": [list(value) if isinstance(value, tuple) else value for value in ordered[:25]]}
+
+        consistency = {
+            "nodes_missing_from_sqlite": diff_summary(source_ids - db_ids),
+            "nodes_only_in_sqlite": diff_summary(db_ids - source_ids),
+            "prerequisites_missing_from_sqlite": diff_summary(source_edges - db_edges),
+            "prerequisites_only_in_sqlite": diff_summary(db_edges - source_edges),
+            "requirements_missing_from_sqlite": diff_summary(source_requirements - db_requirement_edges),
+            "requirements_only_in_sqlite": diff_summary(db_requirement_edges - source_requirements),
+            "unknown_prerequisites_in_source": {
+                "count": len(unknown_source_prerequisites),
+                "examples": unknown_source_prerequisites[:25],
+            },
+        }
+        consistent = not any(
+            item["count"]
+            for item in consistency.values()
+        )
+        status_counts: dict[str, int] = {}
+        for status in statuses.values():
+            status_counts[status] = status_counts.get(status, 0) + 1
+
+        table_counts: dict[str, int] = {}
+        for table_name in ("labs", "lab_attempts"):
+            if table_name in tables:
+                # Noms pris dans une liste constante, jamais dans la requête utilisateur.
+                table_counts[table_name] = int(
+                    connection.execute(f'SELECT COUNT(*) FROM "{table_name}"').fetchone()[0]
+                )
+        integrity = str(connection.execute("PRAGMA quick_check").fetchone()[0])
+        return {
+            "status": "ok",
+            "mode": "lecture_seule",
+            "database": "application courante",
+            "integrity_check": integrity,
+            "catalogue": {
+                "source_nodes": len(source_nodes),
+                "sqlite_nodes": len(db_nodes),
+                "source_prerequisites": len(source_edges),
+                "sqlite_prerequisites": len(db_edges),
+                "source_requirements": len(source_requirements),
+                "sqlite_requirements": len(db_requirement_edges),
+                "consistent_with_deployed_source": consistent,
+                "differences": consistency,
+            },
+            "progression": {
+                "course_attempts_count": attempt_count,
+                "status_counts": status_counts,
+                "course_labs_total": len(lab_course_ids),
+                "course_labs_locked": len(locked_labs),
+                "course_labs_not_locked": len(lab_course_ids) - len(locked_labs),
+                "lab_catalog_count": table_counts.get("labs"),
+                "lab_workspace_attempts_count": table_counts.get("lab_attempts"),
+            },
+            "locked_labs": locked_labs[:100],
+            "notes": [
+                "Aucune donnée n'a été modifiée.",
+                "Aucune réponse, preuve, donnée utilisateur ni détail de tentative n'est renvoyé.",
+                "Les verrous sont calculés selon le graphe et les preuves enregistrés dans la base de l'application.",
+            ],
+        }
+    finally:
+        connection.close()
+
+
+@router.get("/diagnostics/lab-locks", include_in_schema=False)
+def get_lab_lock_diagnostic(
+    response: Response,
+    authorization: str | None = Header(default=None, alias="Authorization"),
+) -> dict[str, Any]:
+    """Rapport de diagnostic réservé à un secret d'administration temporaire."""
+    configured_token = os.environ.get("SKILLTREE_DIAGNOSTIC_TOKEN", "").strip()
+    # Un secret absent ou trop court laisse la route fermée et indétectable.
+    if (
+        len(configured_token) < 32
+        or not secrets.compare_digest(
+            authorization or "",
+            f"Bearer {configured_token}",
+        )
+    ):
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    response.headers["Cache-Control"] = "no-store, private, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    database_path = Path(
+        os.environ.get("SKILLTREE_DB", str(DEFAULT_DB))
+    ).expanduser()
+    try:
+        return _build_lab_lock_diagnostic(database_path, DIAGNOSTIC_NODES_PATH)
+    except (OSError, UnicodeError, ValueError, sqlite3.Error):
+        # Les détails internes (chemins, SQL et configuration) ne doivent pas être exposés.
+        raise HTTPException(
+            status_code=503,
+            detail="Diagnostic indisponible : vérifie le schéma SQLite et le catalogue déployé.",
+        )
