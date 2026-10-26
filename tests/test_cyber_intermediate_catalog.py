@@ -67,7 +67,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
             lesson = lesson_bytes.decode("utf-8")
             quiz = json.loads(quiz_bytes.decode("utf-8"))
             self.assertEqual(quiz["node_id"], node_id)
-            if node_id in {"secu-cia-debutant", "secu-menaces-debutant", "secu-crypto-debutant", "secu-hachage-debutant", "secu-auth-debutant", "secu-endpoint-debutant", "secu-wifi-debutant", "secu-firewall-debutant", "secu-acl-intermediaire", "secu-nat-intermediaire", "secu-vpn-intermediaire", "secu-switch-secu-intermediaire", "secu-ngfw-intermediaire", "secu-ids-intermediaire", "secu-segmentation-intermediaire", "secu-linux-intermediaire", "secu-ad-intermediaire", "secu-siem-intermediaire", "secu-services-intermediaire"}:
+            if node_id in {"secu-cia-debutant", "secu-menaces-debutant", "secu-crypto-debutant", "secu-hachage-debutant", "secu-auth-debutant", "secu-endpoint-debutant", "secu-wifi-debutant", "secu-firewall-debutant", "secu-acl-intermediaire", "secu-nat-intermediaire", "secu-vpn-intermediaire", "secu-switch-secu-intermediaire", "secu-ngfw-intermediaire", "secu-ids-intermediaire", "secu-segmentation-intermediaire", "secu-linux-intermediaire", "secu-ad-intermediaire", "secu-siem-intermediaire", "secu-services-intermediaire", "secu-web-intermediaire"}:
                 self.assertTrue(
                     lesson.startswith(f"# {title}\n\n> **Mise en contexte**")
                     or lesson.startswith(f"# {title}\n\n> **Encadré de mise en contexte**")
@@ -93,6 +93,12 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
                     self.assertNotIn("\n---\n", lesson)
                     self.assertGreaterEqual(lesson.count("~~~text"), 18)
                     self.assertGreaterEqual(len(quiz["questions"]), 12)
+                if node_id == "secu-web-intermediaire":
+                    self.assertTrue(lesson.rstrip().endswith("Fin du cours."))
+                    self.assertNotIn("\n---\n", lesson)
+                    self.assertGreaterEqual(lesson.count("~~~text"), 18)
+                    self.assertGreaterEqual(len(quiz["questions"]), 12)
+                    self.assertNotIn("[Contenu de 5000 mots à rédiger]", lesson)
             else:
                 self.assertEqual(lesson.splitlines(), [f"# {title}", "", "[Contenu de 5000 mots à rédiger]"])
                 self.assertEqual(len(quiz["questions"]), 1)
