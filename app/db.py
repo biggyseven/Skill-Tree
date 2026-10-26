@@ -445,7 +445,7 @@ def _consume_streak_freezes(conn: sqlite3.Connection, last_day: date, today: dat
             "SELECT quantity FROM shop_inventory WHERE item_id = ?",
             (STREAK_FREEZE_ITEM,),
         ).fetchone()
-    except sqlite3.OperationalError:
+    except sqlite3.OPERATIONAL_ERROR_CLASSES:
         return
     available = max(0, int(row["quantity"] or 0)) if row else 0
     used = min(missing, available)
