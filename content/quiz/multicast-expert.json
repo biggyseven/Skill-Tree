@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Multicast - Expert. Avez-vous lu le cours ?",
+      "prompt": "Une entrée multicast indique une IIF différente de l’interface où les paquets de source arrivent réellement. Quelle cause faut-il examiner en priorité ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le serveur DNS du récepteur",
+        "Le plan d’adressage DHCP du VLAN de gestion",
+        "La décision RPF et les informations de routage unicast vers la source, y compris l’éventuelle asymétrie",
+        "La configuration du RD d’une VRF"
+      ],
+      "answer": 2,
+      "explanation": "RPF dépend du chemin retenu vers la source, ou d’une politique RPF dédiée si elle existe. Si l’IIF attendue diffère de l’arrivée réelle, les paquets peuvent être rejetés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la présence d’une entrée multicast dans la table logicielle ne prouve-t-elle pas toujours que le flux est transmis ?",
+      "choices": [
+        "Le multicast ne peut jamais être commuté par le matériel",
+        "Le plan de contrôle et la programmation matérielle peuvent diverger ; il faut vérifier compteurs, interfaces de sortie et télémétrie",
+        "Une entrée multicast ne contient jamais d’interface entrante",
+        "Les tables multicast stockent uniquement des noms DNS"
+      ],
+      "answer": 1,
+      "explanation": "Selon la plateforme, une entrée logicielle ne garantit pas à elle seule que le matériel a installé le chemin souhaité. Compare les états du contrôle, compteurs et observations de données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction est correcte entre Anycast-RP et MSDP ?",
+      "choices": [
+        "Ce sont deux noms du même protocole, interchangeables sur toutes les plates-formes",
+        "Anycast-RP remplace obligatoirement tout routage unicast",
+        "MSDP est le mécanisme requis par toutes les configurations SSM",
+        "Anycast-RP utilise une adresse RP partagée annoncée en unicast avec une méthode de synchronisation entre RPs ; MSDP est une architecture distincte de découverte de sources"
+      ],
+      "answer": 3,
+      "explanation": "Anycast-RP et MSDP ne sont pas synonymes. Les mécanismes de synchronisation et de partage de sources dépendent de la solution retenue ; ils doivent être conçus et testés explicitement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand SSM constitue-t-il souvent un choix opérationnel intéressant ?",
+      "choices": [
+        "Quand les récepteurs connaissent la source souhaitée et qu’on veut éviter la dépendance à un RP ASM",
+        "Quand tous les récepteurs doivent recevoir tous les groupes du réseau",
+        "Quand on veut remplacer IGMP/MLD par DHCP",
+        "Quand le service exige obligatoirement que chaque routeur serve de RP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "SSM identifie explicitement la source et le groupe. Ce modèle est utile pour des services où la source est connue et peut réduire la complexité du contrôle par RP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble de contrôles convient pour sécuriser les frontières multicast dans un domaine étendu ?",
+      "choices": [
+        "Permettre tous les groupes sur toutes les interfaces sans journalisation",
+        "Documenter les plages de groupes et de sources, appliquer les filtres adaptés, vérifier les frontières PIM et tester les flux autorisés et interdits",
+        "Supprimer les contrôles RPF pour réduire la latence",
+        "Remplacer les adresses multicast par des adresses de bouclage"
+      ],
+      "answer": 1,
+      "explanation": "Des frontières et filtres explicites limitent la portée des groupes et des sources. La validation doit confirmer autant la réception permise que l’absence de propagation non autorisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une modification du routage, seuls certains récepteurs perdent le flux alors que d’autres continuent à recevoir. Quelle méthode d’analyse est la plus solide ?",
+      "choices": [
+        "Relancer le service applicatif sur tous les serveurs",
+        "Comparer l’IIF RPF, les OIF, les adhésions IGMP/MLD et les chemins unicast pour les récepteurs affectés et fonctionnels",
+        "Supprimer toutes les entrées multicast du domaine en production",
+        "Conclure que le problème vient forcément du codec vidéo"
+      ],
+      "answer": 1,
+      "explanation": "Une comparaison entre un chemin qui fonctionne et un chemin qui échoue permet d’isoler le point où l’état diverge, sans effacer des preuves ni perturber les groupes qui fonctionnent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan de validation permet de prouver la résilience du RP dans un domaine ASM ?",
+      "choices": [
+        "Tester uniquement la reachability de l’adresse de gestion du RP",
+        "Vérifier l’existence d’un second routeur sans provoquer de test contrôlé",
+        "Supprimer la route unicast du RP en pleine production sans fenêtre",
+        "Observer les mappings, simuler la perte selon une fenêtre approuvée, mesurer la reconstruction des états et vérifier la continuité des groupes"
+      ],
+      "answer": 3,
+      "explanation": "La redondance configurée n’est pas une preuve de continuité. Il faut observer la convergence, les pertes et la reconstruction des états dans un scénario maîtrisé et réversible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels éléments fournissent une preuve utile lors d’un incident multicast ?",
+      "choices": [
+        "Seulement le ping de la source vers son propre routeur",
+        "Uniquement la sortie `show version` du commutateur d’accès",
+        "Les états source-groupe, IIF/OIF, voisins PIM, adhésions IGMP/MLD, compteurs d’interface et captures aux points de rupture",
+        "Le nombre de baux DHCP du réseau entier"
+      ],
+      "answer": 2,
+      "explanation": "Il faut rapprocher l’état de contrôle et les observations du plan de données. Les captures et compteurs à des points bien choisis permettent de déterminer où le flux disparaît."
     }
   ]
 }

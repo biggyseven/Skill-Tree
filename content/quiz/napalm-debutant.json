@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Automatisation NAPALM - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel problème NAPALM cherche-t-il notamment à simplifier dans l’automatisation réseau ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Remplacer obligatoirement tous les protocoles de gestion propriétaires par HTTP",
+        "Fournir une API commune pour certaines opérations sur des systèmes réseau pris en charge, via des pilotes adaptés",
+        "Garantir qu’un script ne peut jamais modifier une configuration",
+        "Créer automatiquement un réseau MPLS sans inventaire"
+      ],
+      "answer": 1,
+      "explanation": "NAPALM fournit une abstraction commune pour des opérations telles que la collecte structurée et la gestion de configuration, tout en s’appuyant sur des pilotes spécifiques. Les capacités restent dépendantes des plateformes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le choix du pilote NAPALM dans un script Python ?",
+      "choices": [
+        "À définir la famille de système réseau et le mécanisme d’accès compatibles avec l’équipement cible",
+        "À sélectionner le VLAN natif du routeur",
+        "À augmenter automatiquement la vitesse des interfaces",
+        "À remplacer la validation des identifiants"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le pilote correspond au système réseau pris en charge. Les identifiants, l’adresse, la configuration du transport et les capacités doivent aussi être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fournit généralement `get_facts()` dans un équipement pris en charge ?",
+      "choices": [
+        "Une garantie que toutes les routes réseau sont correctes",
+        "Le mot de passe en clair de tous les utilisateurs",
+        "Des informations structurées comme le modèle, la version, le nom d’hôte et des informations d’environnement disponibles",
+        "Une configuration candidate déjà appliquée"
+      ],
+      "answer": 2,
+      "explanation": "Les getters comme `get_facts()` retournent des informations structurées selon le pilote. Ils ne prouvent pas à eux seuls la conformité ou le bon fonctionnement du réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il fermer proprement une session NAPALM après une collecte ?",
+      "choices": [
+        "Pour forcer le routeur à redémarrer",
+        "Pour supprimer les journaux du périphérique",
+        "Pour éviter d’avoir à gérer les erreurs de connexion",
+        "Pour libérer la session et les ressources même si une opération provoque une exception"
+      ],
+      "answer": 3,
+      "explanation": "Un bloc `try/finally` ou un gestionnaire de contexte adapté permet d’assurer la fermeture de la session même si un getter ou un traitement échoue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après `load_merge_candidate()` ou `load_replace_candidate()`, qu’est-ce qui est vrai avant le commit ?",
+      "choices": [
+        "La candidate est nécessairement déjà appliquée à la configuration active",
+        "Le chargement prépare une modification candidate ; il faut encore l’examiner et décider de l’appliquer ou de l’abandonner",
+        "Le routeur efface automatiquement la configuration courante",
+        "La session SSH est convertie en session BGP"
+      ],
+      "answer": 1,
+      "explanation": "Le chargement d’une candidate ne doit pas être confondu avec une modification déjà appliquée. Le comportement exact dépend du pilote, mais la préparation et l’application doivent rester des étapes distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode NAPALM est généralement utilisée pour examiner les différences entre la candidate chargée et la configuration actuelle ?",
+      "choices": [
+        "`get_facts()`",
+        "`get_interfaces_ip()`",
+        "`compare_config()`",
+        "`get_lldp_neighbors()`"
+      ],
+      "answer": 2,
+      "explanation": "`compare_config()` permet d’inspecter les différences avant une éventuelle application. Il faut lire le résultat, le confronter à l’intention et vérifier les capacités du pilote."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une candidate contient un changement inattendu. Quelle action est la plus sûre si la modification ne doit pas être appliquée ?",
+      "choices": [
+        "Lancer `commit_config()` pour voir si le changement est toléré",
+        "Fermer la session sans vérifier la candidate",
+        "Redémarrer l’équipement",
+        "Abandonner explicitement la candidate avec `discard_config()` lorsque le pilote le prend en charge"
+      ],
+      "answer": 3,
+      "explanation": "Il faut interrompre le changement et abandonner la candidate plutôt que de valider un diff inattendu. Vérifie ensuite l’état obtenu selon les capacités du pilote."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une opération NAPALM ne doit-elle pas être considérée comme prise en charge sur tous les constructeurs ?",
+      "choices": [
+        "Parce que les noms d’hôtes sont toujours identiques",
+        "Parce que NAPALM ne peut collecter aucune donnée structurée",
+        "Parce que les pilotes, systèmes et versions n’exposent pas tous les mêmes capacités ou comportements",
+        "Parce que tous les équipements refusent SSH"
+      ],
+      "answer": 2,
+      "explanation": "L’API commune ne garantit pas une uniformité complète. La capacité doit être vérifiée pour le pilote, la version et l’équipement réellement utilisés."
     }
   ]
 }

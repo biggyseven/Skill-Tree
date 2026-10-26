@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Automatisation NAPALM - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi valider le fichier d’inventaire avant de lancer un collecteur NAPALM sur plusieurs équipements ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour remplacer la vérification TLS par un fichier YAML",
+        "Pour forcer chaque équipement à utiliser le même nom d’hôte",
+        "Pour supprimer les erreurs de pilote sans intervention",
+        "Pour détecter les champs absents ou mal formés avant d’ouvrir des connexions réseau"
+      ],
+      "answer": 3,
+      "explanation": "Un schéma d’inventaire explicite évite des erreurs de données qui se manifesteraient tardivement pendant la collecte. Les secrets doivent être chargés depuis un mécanisme adapté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un des cinquante équipements ne répond pas. Quel modèle de traitement est préférable pour un outil d’inventaire robuste ?",
+      "choices": [
+        "Distinguer les résultats par appareil, enregistrer l’échec et permettre aux autres collectes indépendantes de se terminer",
+        "Arrêter systématiquement le parc après le premier délai dépassé",
+        "Marquer l’équipement injoignable comme conforme",
+        "Relancer les changements de configuration sur tous les autres appareils"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "L’isolation des erreurs par appareil produit un résultat partiel fiable sans masquer l’échec. Il faut distinguer injoignable, non conforme, incomplet et conforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter la concurrence lorsqu’on collecte en parallèle un parc réseau ?",
+      "choices": [
+        "Pour que les résultats soient volontairement désordonnés",
+        "Parce qu’un niveau de parallélisme borné évite de saturer les équipements, les serveurs d’accès ou les ressources locales",
+        "Pour garantir que toutes les collectes prennent exactement le même temps",
+        "Pour supprimer le besoin de délais d’attente"
+      ],
+      "answer": 1,
+      "explanation": "La concurrence augmente le débit mais peut provoquer une surcharge. Choisis une limite selon les capacités mesurées, les délais, les limites de session et le profil des appareils."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel jeu de métadonnées améliore la valeur opérationnelle d’un instantané JSON de collecte ?",
+      "choices": [
+        "Uniquement la couleur de l’interface du tableau de bord",
+        "Le mot de passe de l’équipement dans chaque objet",
+        "L’identité de l’équipement, l’horodatage, la version du schéma et le statut/les erreurs de collecte",
+        "Uniquement le nombre de lignes imprimées à l’écran"
+      ],
+      "answer": 2,
+      "explanation": "L’identité, la fraîcheur, la version du schéma et les statuts permettent de comparer des données dans le temps et de distinguer absence de données, échec et valeur réellement observée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi est-il préférable de comparer des objets normalisés plutôt que deux fichiers JSON bruts comme du texte ?",
+      "choices": [
+        "Parce que le JSON ne peut pas contenir des listes",
+        "Parce qu’une comparaison métier peut ignorer l’ordre non significatif et détecter précisément les champs qui changent",
+        "Parce que l’ordre des clés est toujours une propriété de routage",
+        "Parce que les objets normalisés suppriment automatiquement les erreurs de collecte"
+      ],
+      "answer": 1,
+      "explanation": "La normalisation rend les différences explicites et réutilisables. Elle doit toutefois préserver les champs qui ont une sémantique opérationnelle et signaler les données manquantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence importante existe entre `load_merge_candidate()` et `load_replace_candidate()` ?",
+      "choices": [
+        "Merge ne peut fonctionner qu’en lecture seule",
+        "Replace ne touche jamais à la configuration existante",
+        "Les deux fonctions ont exactement les mêmes effets sur toutes les plateformes",
+        "Merge prépare des éléments à fusionner avec la configuration, tandis que replace prépare une configuration de remplacement selon le comportement du pilote"
+      ],
+      "answer": 3,
+      "explanation": "Une candidate de remplacement peut avoir un rayon d’impact plus large qu’une fusion. Le choix doit correspondre à l’intention et au support du pilote, et être précédé d’une inspection du diff."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe veut appliquer une candidate après la validation de l’inventaire. Quel garde-fou manque encore avant l’application ?",
+      "choices": [
+        "Une preuve de connectivité Internet du poste de travail",
+        "La comparaison du diff, les contrôles attendus et une autorisation explicite de changement",
+        "Une exportation de tous les baux DHCP",
+        "La modification du nom de tous les routeurs"
+      ],
+      "answer": 1,
+      "explanation": "La validation de l’inventaire ne valide pas le contenu du changement. Il faut inspecter le diff, exécuter les tests/politiques nécessaires et obtenir l’autorisation prévue avant le commit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment tester sans équipement réel le code qui traite les résultats d’un getter NAPALM ?",
+      "choices": [
+        "En remplaçant les réponses manquantes par des valeurs qui semblent plausibles",
+        "En exécutant directement le code sur chaque appareil de production",
+        "En utilisant des fixtures et des mocks pour les réponses nominales, les données absentes et les exceptions du pilote",
+        "En désactivant les assertions dans la suite de tests"
+      ],
+      "answer": 2,
+      "explanation": "Les fixtures et mocks rendent les tests reproductibles et permettent de couvrir les erreurs sans solliciter un réseau réel. Ils ne remplacent pas les tests d’intégration contrôlés avec le pilote cible."
     }
   ]
 }

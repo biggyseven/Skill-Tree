@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour MPLS & VRF - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Une route VPNv4 est visible sur le PE distant mais n’apparaît pas dans sa VRF client. Quelle hypothèse faut-il vérifier en priorité ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le serveur DHCP a distribué un mauvais bail",
+        "La politique d’import RT de la VRF ne correspond pas au RT de la route",
+        "Le poste client a une MTU trop élevée dans tous les cas",
+        "Le routeur P a appris les voisins LLDP du site"
+      ],
+      "answer": 1,
+      "explanation": "Une route peut exister dans MP-BGP VPNv4 sans être importée dans la RIB VRF. Le RT d’import, l’admissibilité de la route et la résolution du next-hop doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur le RD est la plus juste dans une conception MPLS L3VPN ?",
+      "choices": [
+        "Il décide à lui seul quels clients peuvent communiquer",
+        "Il remplace l’IGP du cœur",
+        "Il est un mécanisme de chiffrement des préfixes",
+        "Il rend la NLRI VPN unique lorsque plusieurs routes utilisent le même préfixe IP"
+      ],
+      "answer": 3,
+      "explanation": "Le RD distingue les routes VPN dans le plan de contrôle. Le contrôle de distribution entre VRF repose plutôt sur les RT et les politiques associées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle séquence localise le plus proprement une panne où un préfixe distant manque dans une L3VPN ?",
+      "choices": [
+        "Vérifier l’apprentissage côté CE/VRF, l’export VPNv4, la réception distante, l’import VRF puis le transport",
+        "Redémarrer tous les PE puis vérifier uniquement le ping",
+        "Modifier d’abord les MTU de toutes les interfaces",
+        "Supprimer les politiques RT et observer si toutes les routes apparaissent"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le diagnostic doit suivre le chemin d’une route, du CE à la VRF locale, puis à MP-BGP, à la VRF distante et enfin au plan de données. Cette séquence réduit les changements spéculatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble d’informations est normalement attendu sur un routeur P du cœur MPLS classique ?",
+      "choices": [
+        "Toutes les routes IPv4 privées de toutes les VRF client",
+        "Les utilisateurs et rôles administratifs des sites clients",
+        "Les informations de transport nécessaires, comme l’IGP et les labels de cœur, sans toutes les routes client",
+        "Uniquement les enregistrements DNS des clients"
+      ],
+      "answer": 2,
+      "explanation": "Le cœur transporte les paquets vers le PE de sortie. Les routes client sont principalement conservées et traitées sur les PE, ce qui limite la taille du routage dans le cœur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle paire associe correctement les deux labels courants dans une MPLS L3VPN à deux labels ?",
+      "choices": [
+        "Label externe : identifie l’utilisateur ; label interne : chiffre le paquet",
+        "Label externe : indique le DNS ; label interne : indique le VLAN",
+        "Label externe : transport vers le PE de sortie ; label interne : contexte/service VPN à la sortie",
+        "Label externe et label interne sont toujours des adresses IP"
+      ],
+      "answer": 2,
+      "explanation": "Le label externe sert généralement au transport dans le cœur ; le label de service interne permet au PE de sortie d’identifier le traitement VPN attendu. Les détails peuvent varier selon le service et le comportement PHP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle aide à vérifier la distribution des labels lorsque les loopbacks des PE sont joignables mais que le transport MPLS ne fonctionne pas ?",
+      "choices": [
+        "Vérifier uniquement le bail DHCP d’un poste",
+        "Examiner les voisins et bindings du mécanisme de labels utilisé, par exemple LDP si le réseau l’emploie",
+        "Désactiver l’IGP de cœur",
+        "Changer le RD de toutes les VRF"
+      ],
+      "answer": 1,
+      "explanation": "La connectivité IGP ne prouve pas que le plan de labels fonctionne. Vérifie le mécanisme réellement déployé, par exemple les sessions LDP et les labels associés aux FEC, ou les informations SR-MPLS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il encadrer une opération de route leaking entre VRF ?",
+      "choices": [
+        "Parce qu’elle peut rendre visibles des préfixes hors du périmètre souhaité si la politique est trop large",
+        "Parce qu’elle désactive obligatoirement MPLS",
+        "Parce que tout route leaking supprime le routage IPv4",
+        "Parce que les VRF ne peuvent pas contenir de routes statiques"
+      ],
+      "answer": 0,
+      "explanation": "Le leaking partage intentionnellement certaines routes entre contextes. Il doit être limité à des préfixes et directions explicites, puis testé pour confirmer qu’aucune route inattendue n’est importée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les petits paquets passent entre deux sites, mais les transferts applicatifs se bloquent à travers le cœur MPLS. Quel axe de vérification est pertinent ?",
+      "choices": [
+        "La répartition des utilisateurs dans les groupes AAA uniquement",
+        "La présence d’un RP multicast pour chaque route IPv4",
+        "Le format du fichier d’inventaire NAPALM",
+        "La MTU du chemin, la surcharge des labels/encapsulations et les messages ICMP nécessaires à la découverte de PMTU"
+      ],
+      "answer": 3,
+      "explanation": "Un paquet peut échouer lorsqu’il dépasse la MTU effective du chemin, notamment si l’encapsulation consomme une partie du budget. Mesure les tailles et vérifie le traitement des messages de contrôle avant de modifier le réseau."
     }
   ]
 }

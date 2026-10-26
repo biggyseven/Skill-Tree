@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Dépannage MTU et PMTUD - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Avec IPv4 sans options et ICMP Echo standard, quelle charge utile ICMP correspond à un paquet IP total de 1500 octets ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "1500 octets",
+        "1460 octets",
+        "1480 octets",
+        "1472 octets"
+      ],
+      "answer": 3,
+      "explanation": "Le total vaut 20 octets d’en-tête IPv4 + 8 octets d’en-tête ICMP + 1472 octets de données, soit 1500 octets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour IPv6 sans en-têtes d’extension, quelle charge utile ICMPv6 Echo correspond à 1500 octets au niveau IP ?",
+      "choices": [
+        "1452 octets",
+        "1472 octets",
+        "1440 octets",
+        "1500 octets"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le calcul classique est 1500 − 40 octets d’en-tête IPv6 − 8 octets ICMPv6 = 1452 octets de données Echo."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un chemin comprend des liens de MTU 1500, 1500, 1400 et 9000. Quelle PMTU théorique correspond au chemin suivi ?",
+      "choices": [
+        "1500 octets",
+        "1400 octets",
+        "9000 octets",
+        "1260 octets"
+      ],
+      "answer": 1,
+      "explanation": "La PMTU est la plus petite MTU rencontrée sur le chemin : ici 1400 octets. La route, le tunnel et la famille IP doivent être considérés dans le diagnostic réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le lien extérieur accepte 1500 octets IP et l’encapsulation d’un tunnel ajoute 50 octets au paquet interne. Quelle taille maximale théorique reste-t-il au paquet IP intérieur ?",
+      "choices": [
+        "1500 octets",
+        "1550 octets",
+        "1450 octets",
+        "1400 octets dans tous les tunnels"
+      ],
+      "answer": 2,
+      "explanation": "Dans cet exemple où 50 octets représentent la totalité de la surcharge, 1500 − 50 = 1450 octets pour le paquet IP intérieur. La surcharge exacte dépend de l’encapsulation utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une capture montre des messages IPv4 « fragmentation nécessaire » sur le routeur intermédiaire, mais l’émetteur continue d’envoyer des paquets trop grands. Quelle hypothèse faut-il vérifier ?",
+      "choices": [
+        "Le protocole LLDP remplace ICMP sur le chemin",
+        "Le routage doit être remplacé par un VLAN",
+        "Les messages de contrôle ICMP sont bloqués ou ne sont pas remis correctement à l’émetteur",
+        "La MSS TCP augmente automatiquement quand les paquets sont perdus"
+      ],
+      "answer": 2,
+      "explanation": "Il faut vérifier le filtrage et le retour des messages ICMP, ainsi que l’adresse source, la route de retour et les captures côté émetteur et routeur. La présence dans une capture locale ne prouve pas la réception finale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert souvent le MSS clamping sur un équipement de bord ou un tunnel ?",
+      "choices": [
+        "À modifier la taille maximale des segments TCP annoncée pour éviter des segments trop grands sur un chemin contraint",
+        "À réparer tous les flux UDP et QUIC",
+        "À supprimer le besoin d’ICMP dans tous les cas",
+        "À augmenter la MTU physique du lien sous-jacent"
+      ],
+      "answer": 0,
+      "explanation": "Le MSS clamping ajuste l’annonce MSS TCP afin de limiter la taille des segments sur certains chemins contraints. Il ne modifie pas la MTU physique et ne traite pas directement tous les transports non TCP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un défaut de MTU apparaît uniquement après un basculement WAN. Quelle propriété rend l’hypothèse PMTU pertinente ?",
+      "choices": [
+        "La MTU ne dépend jamais du chemin",
+        "La PMTU peut différer entre les routes, les sens du trafic et les estimations conservées en cache",
+        "Une connexion TCP réinitialise obligatoirement tous les équipements",
+        "Un basculement WAN convertit IPv4 en IPv6"
+      ],
+      "answer": 1,
+      "explanation": "Le nouveau chemin peut traverser un lien ou une encapsulation plus restrictive. Les caches PMTU et les chemins asymétriques peuvent expliquer des différences de comportement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus solide pour valider un correctif de MTU ?",
+      "choices": [
+        "Un seul ping de petite taille qui répond",
+        "La suppression temporaire de tous les filtres",
+        "La lecture du seul paramètre MTU configuré sur le serveur",
+        "Des tests de tailles contrôlées et de flux réels, avec captures/compteurs aux points utiles et contrôle du sens retour"
+      ],
+      "answer": 3,
+      "explanation": "La validation doit tester le flux concerné et la taille réellement transportée, puis vérifier que les paquets de contrôle, les compteurs et le chemin retour correspondent au diagnostic."
     }
   ]
 }

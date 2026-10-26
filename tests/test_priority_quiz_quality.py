@@ -32,6 +32,10 @@ PRIORITY_TRACKS = {
     "materiel-reseau": ("materiel-reseau-debutant", "materiel-reseau-intermediaire", "materiel-reseau-expert"),
     "mesh": ("mesh-debutant", "mesh-intermediaire", "mesh-expert"),
     "monitoring": ("monitoring-debutant", "monitoring-intermediaire", "monitoring-expert"),
+    "mpls": ("mpls-debutant", "mpls-intermediaire", "mpls-expert"),
+    "mtu-pmtud": ("mtu-pmtud-debutant", "mtu-pmtud-intermediaire", "mtu-pmtud-expert"),
+    "multicast": ("multicast-debutant", "multicast-intermediaire", "multicast-expert"),
+    "napalm": ("napalm-debutant", "napalm-intermediaire", "napalm-expert"),
 }
 PRIORITY_STANDALONE_QUIZZES = (
     "incident-ospf",

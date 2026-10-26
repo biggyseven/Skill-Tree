@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Automatisation NAPALM - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi une plateforme NAPALM de production doit-elle tenir un registre des capacités par pilote et par version ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour appliquer toutes les méthodes sans vérifier le résultat",
+        "Parce que la présence d’une méthode dans l’API commune ne garantit pas son comportement ou sa prise en charge réelle sur chaque système",
+        "Pour remplacer les contrôles d’identité des équipements",
+        "Pour rendre tous les pilotes strictement identiques"
+      ],
+      "answer": 1,
+      "explanation": "Une API commune masque une partie des différences, mais pas toutes. Un registre de capacités permet de valider explicitement les opérations disponibles et leur niveau de confiance pour le profil cible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une connexion est perdue juste après l’envoi d’un commit, et le résultat de l’application est inconnu. Quelle réaction est la plus sûre ?",
+      "choices": [
+        "Relancer automatiquement le même commit sur tous les appareils",
+        "Marquer le changement comme réussi parce que la commande a été envoyée",
+        "Considérer le résultat comme incertain, collecter l’état actuel et les traces, puis décider après vérification avant toute nouvelle écriture",
+        "Supprimer les journaux afin d’éviter un faux positif"
+      ],
+      "answer": 2,
+      "explanation": "Une perte de session ne prouve ni que l’application a échoué ni qu’elle a réussi. Réessayer aveuglément une écriture peut répéter ou aggraver un changement ; il faut d’abord reconstruire l’état réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie de nouvelle tentative convient le mieux à une plateforme d’automatisation ?",
+      "choices": [
+        "Réessayer toutes les opérations immédiatement et sans limite",
+        "Traiter chaque erreur comme permanente",
+        "Réessayer uniquement parce que la bibliothèque a levé une exception, même si l’effet est incertain",
+        "Utiliser des délais et un backoff bornés pour les erreurs transitoires, avec une politique distincte pour les écritures dont le résultat peut être incertain"
+      ],
+      "answer": 3,
+      "explanation": "Les retries doivent être adaptés à la catégorie d’erreur. Les lectures et opérations idempotentes peuvent être retentées sous contrôle ; les écritures ambiguës exigent d’abord une vérification de l’état."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel intérêt a un verrou de changement par équipement dans une orchestration multi-utilisateur ?",
+      "choices": [
+        "Il garantit qu’aucune erreur de pilote ne peut arriver",
+        "Il évite que deux workflows modifient simultanément le même équipement sans coordination et produisent un état imprévisible",
+        "Il remplace les sauvegardes et le rollback",
+        "Il autorise l’élévation automatique des privilèges"
+      ],
+      "answer": 1,
+      "explanation": "Un verrou ou mécanisme de sérialisation limite les changements concurrents sur un même appareil. Il faut aussi définir l’expiration, la reprise après panne et la preuve d’un détenteur inactif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être obligatoire avant qu’un workflow applique une configuration en production ?",
+      "choices": [
+        "Une approbation explicite, les préconditions validées, un diff examiné et des critères d’arrêt définis",
+        "Un simple test de syntaxe Python",
+        "Une collecte de données réussie sur un seul équipement du parc",
+        "Une commande `commit_config()` présente dans le code"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un moteur de politique doit empêcher une écriture tant que les gates de contrôle ne sont pas passées. La présence d’un appel de commit dans le code n’est pas une preuve d’autorisation ni de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les résultats d’une plateforme doivent-ils être versionnés selon un schéma explicite ?",
+      "choices": [
+        "Pour rendre toutes les valeurs indépendantes du temps",
+        "Pour empêcher toute migration de format",
+        "Pour distinguer l’évolution du modèle de données et traiter la compatibilité entre producteurs, stockages et consommateurs",
+        "Pour conserver les secrets en clair entre deux versions"
+      ],
+      "answer": 2,
+      "explanation": "Un schéma versionné facilite les migrations et permet de détecter les lecteurs incompatibles. La normalisation doit aussi préciser la représentation des champs absents, inconnus et en erreur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan de déploiement réduit le risque lorsqu’un changement d’automatisation touche un parc important ?",
+      "choices": [
+        "Appliquer d’abord partout puis vérifier les logs",
+        "Déployer par vagues ou canari, vérifier la conformité et les indicateurs après chaque étape, avec des conditions d’arrêt et de retour arrière",
+        "Ignorer les différences entre modèles de routeurs",
+        "Exécuter les écritures en parallèle sans borne pour terminer plus vite"
+      ],
+      "answer": 1,
+      "explanation": "Un déploiement progressif limite le rayon d’impact. Les gates doivent mesurer l’état après changement et interrompre les vagues suivantes si les résultats sortent des seuils convenus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble d’artefacts permet d’auditer un changement NAPALM critique après son exécution ?",
+      "choices": [
+        "Le seul message « terminé » affiché au terminal",
+        "L’adresse IP de l’opérateur uniquement",
+        "La copie non horodatée de l’inventaire",
+        "La demande, l’identité, la cible, les versions/configurations de référence, le diff, l’approbation, le résultat, les validations et les éventuelles actions de reprise"
+      ],
+      "answer": 3,
+      "explanation": "L’audit doit relier l’intention, la personne ou identité automatisée, les données observées, le changement approuvé, le résultat final et la procédure de récupération, sans exposer de secrets."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour MPLS & VRF - Expert. Avez-vous lu le cours ?",
+      "prompt": "MP-BGP est établi, mais plusieurs routes d’un client n’apparaissent plus dans la VRF distante après un changement de politique. Quel plan d’analyse est le plus solide ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Redémarrer immédiatement tous les routeurs du cœur",
+        "Changer les RD jusqu’à ce que les routes reviennent",
+        "Vérifier la route source, les RT exportés, la réception VPNv4, les RT importés, la résolution du next-hop et la RIB VRF",
+        "Augmenter globalement la MTU de tous les routeurs"
+      ],
+      "answer": 2,
+      "explanation": "La chaîne de contrôle doit être suivie étape par étape. Une session BGP établie ne garantit ni l’export de la route, ni son import dans la VRF, ni sa capacité à transporter le trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle fonction est principalement apportée par Route Target Constraint dans un réseau VPNv4 de grande taille ?",
+      "choices": [
+        "Chiffrer les paquets client dans le cœur",
+        "Réduire la distribution inutile de routes VPN selon les RT intéressants pour les routeurs aval",
+        "Remplacer tous les route reflectors",
+        "Mesurer automatiquement la PMTU du chemin"
+      ],
+      "answer": 1,
+      "explanation": "RT-Constrain permet de communiquer des intérêts en Route Targets et de limiter la diffusion de routes VPN qui ne seront pas importées par les PE concernés, selon l’architecture prise en charge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une modification des RT, un client reçoit des préfixes appartenant à une autre VRF. Quelle réaction opérationnelle convient ?",
+      "choices": [
+        "Conserver le changement puisque MP-BGP est toujours établi",
+        "Ajouter les mêmes préfixes dans toutes les VRF pour uniformiser le réseau",
+        "Désactiver les contrôles de filtrage pour stabiliser la convergence",
+        "Suspendre le changement, limiter l’exposition, comparer la politique avant/après et appliquer une procédure de retour arrière vérifiée"
+      ],
+      "answer": 3,
+      "explanation": "Une fuite de routes peut être un incident d’isolation. La priorité est de contenir l’exposition, préserver les éléments de diagnostic et revenir à une politique connue après validation, sans improviser de modifications globales."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un PE distant est annoncé par MP-BGP mais son next-hop n’est pas résolu dans la table globale. Quelle conséquence est probable ?",
+      "choices": [
+        "La route VPN peut rester non installée ou inutilisable même si l’annonce est reçue",
+        "La VRF chiffre automatiquement le trafic vers ce PE",
+        "Le routeur P apprend immédiatement tous les préfixes client",
+        "Le RT d’import devient sans effet"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La résolution du next-hop est une dépendance de la route VPN. Il faut confirmer la reachability de l’adresse PE via l’underlay et le plan de transport avant de conclure que le service est correctement établi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel bénéfice les route reflectors apportent-ils à MP-BGP, et quelle précaution reste nécessaire ?",
+      "choices": [
+        "Ils convertissent les VRF en VLAN et rendent inutile le contrôle des RT",
+        "Ils assurent le chiffrement de la signalisation sans configuration",
+        "Ils réduisent le besoin de sessions BGP maillées, mais la politique d’annonce, le next-hop et la portée des routes restent à vérifier",
+        "Ils remplacent le mécanisme de transport des labels"
+      ],
+      "answer": 2,
+      "explanation": "Les route reflectors facilitent l’échelle du plan de contrôle, mais ne corrigent pas automatiquement un next-hop inaccessible, une politique de route incorrecte ou un transport MPLS défaillant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère distingue utilement LDP, RSVP-TE et SR-MPLS lors d’un choix d’architecture de transport ?",
+      "choices": [
+        "Leur capacité à garantir un chiffrement de bout en bout sans autre protocole",
+        "Leur intégration au routage multicast des postes",
+        "Leur rôle d’attribution DHCP au PE",
+        "Les besoins de convergence, d’ingénierie de trafic, d’exploitation et les capacités réellement prises en charge par l’infrastructure"
+      ],
+      "answer": 3,
+      "explanation": "Ces mécanismes ont des modèles opérationnels différents. Le choix dépend des exigences de chemin, de l’ingénierie de trafic, de la convergence, des capacités de la plateforme et de la maîtrise opérationnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est le plus pertinent si la route est correcte dans la VRF mais que le trafic ne passe pas dans une direction ?",
+      "choices": [
+        "Ne vérifier que le nombre de routes reçues par le route reflector",
+        "Confirmer la pile de labels/LFIB, le chemin de données, la route de retour, la MTU et les politiques sur les deux PE",
+        "Supprimer tous les RT d’import",
+        "Confondre l’état de la RIB avec une preuve de transfert réussi"
+      ],
+      "answer": 1,
+      "explanation": "La RIB prouve la présence d’une route de contrôle, pas la réussite du transfert. Il faut croiser LFIB, labels, interfaces, MTU, filtrage et chemin retour pour confirmer le plan de données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test doit faire partie de la validation d’une modification MPLS L3VPN qui touche les politiques de route ?",
+      "choices": [
+        "Tester uniquement le ping entre deux adresses appartenant au même site",
+        "Vérifier seulement la présence d’une session MP-BGP",
+        "Tester l’accès autorisé, l’absence de routes non prévues entre clients, le sens retour et la convergence après panne",
+        "Valider que les identifiants de VRF sont tous identiques"
+      ],
+      "answer": 2,
+      "explanation": "La validation doit prouver le service attendu et l’isolation : chemins permis, chemins interdits, bidirectionnalité et comportement lors d’une panne ou d’une convergence."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour MPLS & VRF - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel est l’intérêt principal de MPLS dans un réseau de fournisseur ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Chiffrer automatiquement chaque paquet entre les sites",
+        "Remplacer tous les protocoles de routage IP",
+        "Acheminer le trafic à l’aide de labels et permettre des services comme les VPN L3",
+        "Attribuer une adresse IP publique à chaque client"
+      ],
+      "answer": 2,
+      "explanation": "MPLS ajoute un mécanisme de commutation par labels. Le chiffrement n’est pas fourni automatiquement ; il faut un mécanisme dédié si la confidentialité cryptographique est requise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une architecture MPLS L3VPN, quel équipement est généralement installé côté client et relié au fournisseur ?",
+      "choices": [
+        "Le CE (Customer Edge)",
+        "Le routeur P du cœur fournisseur",
+        "Le route reflector VPNv4",
+        "Le routeur de rendezvous multicast"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le CE est l’équipement de bord du client. Il échange les routes avec le PE du fournisseur selon le protocole retenu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la responsabilité typique d’un routeur P au cœur d’un réseau MPLS ?",
+      "choices": [
+        "Héberger la VRF de chaque client et décider des routes à importer",
+        "Authentifier les utilisateurs finaux du client",
+        "Attribuer les adresses IP aux postes de chaque site",
+        "Commuter les labels de transport sans devoir connaître toutes les routes privées des clients"
+      ],
+      "answer": 3,
+      "explanation": "Le routeur P transporte le trafic dans le cœur, généralement à partir des labels et de la LFIB. Les décisions propres aux VRF client sont principalement portées par les PE."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une VRF sur un routeur PE ?",
+      "choices": [
+        "À augmenter la MTU de chaque lien",
+        "À maintenir une table de routage distincte pour un contexte donné",
+        "À chiffrer les paquets avec une clé commune",
+        "À remplacer la table de commutation MPLS"
+      ],
+      "answer": 1,
+      "explanation": "Une VRF isole les contextes de routage de couche 3. Deux clients peuvent ainsi utiliser des préfixes identiques sans que leurs routes soient automatiquement mélangées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une pile de labels MPLS, que signifie généralement l’opération « swap » ?",
+      "choices": [
+        "Supprimer la route de la VRF",
+        "Convertir le paquet IP en trame Wi-Fi",
+        "Remplacer le label au sommet de la pile par un autre label",
+        "Importer toutes les routes de tous les clients"
+      ],
+      "answer": 2,
+      "explanation": "Le swap remplace un label selon la table de commutation du routeur. Push ajoute un label et pop retire celui du sommet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement la différence entre un RD et un RT ?",
+      "choices": [
+        "Le RD rend une route VPN unique ; le RT guide les politiques d’import/export des routes",
+        "Le RD chiffre les routes ; le RT les compresse",
+        "Le RD sert uniquement au multicast ; le RT à l’adressage DHCP",
+        "RD et RT sont deux noms pour le même champ"
+      ],
+      "answer": 0,
+      "explanation": "Le Route Distinguisher aide à distinguer des routes VPN dont les préfixes peuvent se chevaucher. Le Route Target est utilisé pour décider quelles VRF exportent ou importent des routes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d’accuser MP-BGP lorsqu’un VPN ne transporte aucun trafic, quelle vérification de base est prioritaire ?",
+      "choices": [
+        "Désactiver les filtres de toutes les interfaces",
+        "Remplacer la VRF par un VLAN",
+        "Changer au hasard les Route Targets",
+        "Vérifier la connectivité IP de l’underlay, notamment vers les loopbacks des PE"
+      ],
+      "answer": 3,
+      "explanation": "Le transport vers le PE distant dépend d’un underlay fonctionnel et d’un chemin de labels utilisable. Une route VPN annoncée ne suffit pas si le next-hop ou le transport n’est pas joignable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux clients utilisent chacun le préfixe 10.10.0.0/16. Pourquoi des VRF distinctes sont-elles utiles ?",
+      "choices": [
+        "Elles garantissent que chaque client possède une clé de chiffrement",
+        "Elles permettent de conserver le même préfixe dans des tables de routage séparées",
+        "Elles transforment automatiquement IPv4 en IPv6",
+        "Elles suppriment le besoin de configurer les routes"
+      ],
+      "answer": 1,
+      "explanation": "Les VRF séparent les tables de routage. Cette isolation logique doit tout de même être accompagnée de politiques et de tests pour éviter un partage involontaire de routes."
     }
   ]
 }
