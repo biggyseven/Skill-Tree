@@ -6,6 +6,8 @@
 > **Objectif :** concevoir une plateforme Terraform sécurisée, reproductible, gouvernée et capable de maîtriser les changements d'infrastructure à l'échelle d'une organisation.
 
 
+> **Lien avec le parcours DevOps IaC :** ce cours approfondit les mécanismes Terraform de production, notamment le state, les plans, la dérive et les opérations contrôlées. Le cours expert IaC traite plutôt du modèle opérationnel d’entreprise, de la gouvernance multi-outils, du catalogue, des coûts et de la résilience de la plateforme.
+
 ## Sommaire
 
 1. Architecture d'entreprise
