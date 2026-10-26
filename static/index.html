@@ -2208,8 +2208,12 @@
         async setTab(name, options = {}) {
           if (name !== this.tab) {
             if (!options.skipHistory) {
-              this.tabHistory.push(this.tab);
-              if (this.tabHistory.length > 30) this.tabHistory.shift();
+              if (name === 'tree') {
+                this.tabHistory = [];
+              } else {
+                this.tabHistory.push(this.tab);
+                if (this.tabHistory.length > 30) this.tabHistory.shift();
+              }
             }
             this.tab = name;
           }
@@ -2996,7 +3000,7 @@
           const article = this.$refs.lessonArticle;
           if (!article) return '';
           const readable = article.cloneNode(true);
-          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .lesson-section-back, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
+          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
 
           // Certains cours contiennent leur propre sommaire Markdown. Ne pas le réciter comme un paragraphe :
           // on retire uniquement les listes composées exclusivement de liens internes vers des titres.
@@ -3055,32 +3059,33 @@
             .trim();
           if (!normalized) return [];
 
-          // Les retours à la ligne séparent les blocs ; on ne colle pas deux phrases sans pause.
           const paragraphs = normalized.split(/\n{2,}/).map(part => part.replace(/\n+/g, ' ').trim()).filter(Boolean);
           const chunks = [];
-          let current = '';
           const appendSentence = sentence => {
             const clean = String(sentence || '').replace(/\s+/g, ' ').trim();
             if (!clean) return;
-            if (clean.length > maxLength) {
-              if (current) { chunks.push(current); current = ''; }
-              let part = '';
-              for (const word of clean.split(/\s+/)) {
-                if (part && (part + ' ' + word).length > maxLength) {
-                  chunks.push(part);
-                  part = word;
-                } else {
-                  part = part ? part + ' ' + word : word;
-                }
-              }
-              if (part) chunks.push(part);
+
+            // Une phrase est un segment vocal indépendant : sa ponctuation finale crée une pause,
+            // mais le point final n'est pas envoyé à la voix comme un mot à prononcer.
+            if (clean.length <= maxLength) {
+              const spoken = clean.replace(/[.;:]+$/u, '').trim();
+              if (spoken) chunks.push(spoken);
               return;
             }
-            if (current && (current + ' ' + clean).length > maxLength) {
-              chunks.push(current);
-              current = clean;
-            } else {
-              current = current ? current + ' ' + clean : clean;
+
+            // Couper uniquement les phrases exceptionnellement longues, en respectant les mots.
+            let part = '';
+            for (const word of clean.split(/\s+/)) {
+              if (part && (part + ' ' + word).length > maxLength) {
+                chunks.push(part);
+                part = word;
+              } else {
+                part = part ? part + ' ' + word : word;
+              }
+            }
+            if (part) {
+              const spoken = part.replace(/[.;:]+$/u, '').trim();
+              if (spoken) chunks.push(spoken);
             }
           };
 
@@ -3090,19 +3095,11 @@
               const segmenter = new Intl.Segmenter('fr', { granularity: 'sentence' });
               sentences = Array.from(segmenter.segment(paragraph), item => item.segment.trim()).filter(Boolean);
             } else {
-              // Conserver le signe final dans chaque segment et découper aussi aux deux-points/points-virgules.
+              // Conserver le signe de ponctuation lors du découpage, puis le laisser guider la pause.
               sentences = paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
             }
             sentences.forEach(appendSentence);
-
-            // Chaque paragraphe (et donc chaque titre ou élément de liste) garde sa propre pause.
-            // Ne pas fusionner le sommaire, les titres et le texte en un seul segment vocal.
-            if (current) {
-              chunks.push(current);
-              current = '';
-            }
           }
-          if (current) chunks.push(current);
           return chunks;
         },
         async loadSpeechChunk(index, runId) {
