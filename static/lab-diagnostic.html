@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Diagnostic Lab Workspace — Skill-Tree</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+    body { max-width: 980px; margin: 0 auto; padding: 28px 18px 48px; background: #111827; color: #e5e7eb; line-height: 1.55; }
+    h1 { font-size: clamp(1.5rem, 4vw, 2.15rem); line-height: 1.2; }
+    h2 { margin-top: 1.8rem; font-size: 1.15rem; }
+    p, li { color: #cbd5e1; }
+    .panel { padding: 18px; border: 1px solid #374151; border-radius: 12px; background: #1f2937; margin: 18px 0; }
+    label { display: block; font-weight: 650; margin-bottom: 8px; }
+    input { box-sizing: border-box; width: 100%; padding: 12px; border: 1px solid #64748b; border-radius: 8px; background: #0f172a; color: #f8fafc; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; margin: 10px 8px 0 0; font-weight: 700; cursor: pointer; background: #dbeafe; color: #1e3a8a; }
+    button.secondary { background: #374151; color: #f9fafb; border: 1px solid #6b7280; }
+    button:disabled { opacity: .55; cursor: wait; }
+    #status { white-space: pre-wrap; color: #fef3c7; }
+    pre { overflow: auto; padding: 16px; border-radius: 8px; border: 1px solid #374151; background: #030712; color: #d1fae5; font-size: .88rem; }
+    .small { font-size: .9rem; }
+    a { color: #93c5fd; }
+    .warning { border-left: 4px solid #fbbf24; padding-left: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Diagnostic des verrous du Lab Workspace</h1>
+  <p>Ce contrôle interroge la base réellement utilisée par cette instance Skill-Tree, pas une copie SQLite locale.</p>
+
+  <section class="panel">
+    <h2>Accès sécurisé</h2>
+    <p>Colle le secret de diagnostic configuré pour l’application. Il est envoyé uniquement dans l’en-tête HTTPS, n’est pas enregistré dans le navigateur et le champ est vidé après l’envoi.</p>
+    <form id="diagnostic-form">
+      <label for="token">Secret de diagnostic</label>
+      <input id="token" name="token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+      <button id="run" type="submit">Lancer le diagnostic</button>
+      <button id="clear" class="secondary" type="button">Effacer le rapport</button>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="result-section" hidden>
+    <h2>Rapport agrégé</h2>
+    <p class="small">Le rapport inclut les écarts de schéma et les prérequis manquants. Il exclut les identifiants d’utilisateurs, les réponses, les preuves et le détail des tentatives.</p>
+    <button id="download" type="button">Télécharger le rapport JSON</button>
+    <pre id="report"></pre>
+  </section>
+
+  <section class="panel warning">
+    <strong>Confidentialité et sécurité</strong>
+    <ul>
+      <li>La route doit être activée par un secret fort de 32 caractères minimum dans la configuration serveur.</li>
+      <li>La base est ouverte en lecture seule ; ce diagnostic ne réinitialise ni ne synchronise rien.</li>
+      <li>Ne partage pas le secret. Partage uniquement le rapport JSON si un diagnostic complémentaire est nécessaire.</li>
+    </ul>
+  </section>
+
+  <script>
+    (() => {
+      const form = document.getElementById("diagnostic-form");
+      const tokenInput = document.getElementById("token");
+      const runButton = document.getElementById("run");
+      const clearButton = document.getElementById("clear");
+      const status = document.getElementById("status");
+      const reportElement = document.getElementById("report");
+      const resultSection = document.getElementById("result-section");
+      const downloadButton = document.getElementById("download");
+      let latestReport = null;
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const token = tokenInput.value.trim();
+        tokenInput.value = "";
+        if (!token) {
+          status.textContent = "Renseigne le secret de diagnostic.";
+          return;
+        }
+
+        runButton.disabled = true;
+        status.textContent = "Diagnostic en cours…";
+        resultSection.hidden = true;
+        latestReport = null;
+        try {
+          const response = await fetch("/api/diagnostics/lab-locks", {
+            method: "GET",
+            headers: { "Authorization": "Bearer " + token, "Accept": "application/json" },
+            cache: "no-store",
+            credentials: "same-origin",
+            redirect: "error"
+          });
+          if (response.status === 404) {
+            throw new Error("Accès refusé : secret incorrect ou diagnostic non activé côté serveur.");
+          }
+          if (response.status === 503) {
+            throw new Error("Le diagnostic est protégé mais n’a pas pu lire la base ou le catalogue déployé.");
+          }
+          if (!response.ok) throw new Error("Échec du diagnostic (HTTP " + response.status + ").");
+          latestReport = await response.json();
+          reportElement.textContent = JSON.stringify(latestReport, null, 2);
+          resultSection.hidden = false;
+          status.textContent = "Diagnostic terminé. Mode : lecture seule.";
+        } catch (error) {
+          status.textContent = error instanceof Error ? error.message : "Échec du diagnostic.";
+        } finally {
+          runButton.disabled = false;
+        }
+      });
+
+      clearButton.addEventListener("click", () => {
+        tokenInput.value = "";
+        reportElement.textContent = "";
+        status.textContent = "";
+        latestReport = null;
+        resultSection.hidden = true;
+      });
+
+      downloadButton.addEventListener("click", () => {
+        if (!latestReport) return;
+        const blob = new Blob([JSON.stringify(latestReport, null, 2)], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "diagnostic-labs-skilltree.json";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+      });
+    })();
+  </script>
+</body>
+</html>
