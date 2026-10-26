@@ -154,7 +154,8 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertGreater(sandbox_check, v2_check)
         self.assertGreater(workspace_route, sandbox_check)
         self.assertGreater(legacy_fallback, workspace_route)
-        self.assertIn("if (openInNewTab && labWindow && !labWindow.closed) labWindow.close();", open_lab_method)
+        self.assertIn("labWindow.location.replace('/?openLab=' + encodeURIComponent(nodeId));", open_lab_method)
+        self.assertIn("if (openInNewTab && labWindow && !labWindow.closed)", open_lab_method)
 
 
     def test_standalone_workspace_route_resolves_entrypoint_from_project_root(self):
@@ -168,7 +169,8 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
 
     def test_course_lab_button_uses_resolver_and_free_workspace_is_explicit(self):
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn('@click="openLab(detail.id, true)"', dashboard)
+        self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", dashboard)
+        self.assertIn('target="_blank" rel="noopener noreferrer"', dashboard)
         self.assertNotIn("@click=\"window.open('/lab.html?id=' + (detail?.id || ''), '_blank')\"", dashboard)
         self.assertIn("Ouvrir l’atelier libre, sans scénario de cours", dashboard)
 
