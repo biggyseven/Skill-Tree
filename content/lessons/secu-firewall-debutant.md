@@ -1,486 +1,1494 @@
 # Introduction aux pare-feu
 
-> **Mise en contexte**
->
-> Une entreprise possède des postes utilisateurs, des serveurs, un réseau Wi-Fi invité et des services accessibles depuis Internet. Tous ces systèmes communiquent, mais ils n'ont pas tous besoin de communiquer entre eux. Un poste utilisateur ne devrait pas administrer un routeur, un invité ne devrait pas lire une base de données interne et un serveur Web public ne devrait pas atteindre librement les ressources internes.
->
-> Le pare-feu applique une politique de filtrage qui autorise les communications nécessaires et bloque les autres. Son efficacité dépend de la précision des règles, de leur ordre, de leur validation et de leur maintenance. Ce cours présente les familles de pare-feu, la lecture de règles, le routage et le NAT, la segmentation, les commandes de diagnostic Windows et Linux et une méthode de dépannage.
->
-> Les manipulations doivent se faire sur un équipement autorisé. Ne modifie pas à l'aveugle un pare-feu de production ou un serveur administré à distance : une règle incorrecte peut couper l'accès nécessaire au dépannage.
+## Encadré de mise en contexte
 
-## 1. Objectifs et prérequis
+Imagine une entreprise avec plusieurs espaces : les postes des employés, les serveurs contenant les données, le réseau Wi-Fi des visiteurs et une zone qui héberge le site Internet public. Tous ces équipements communiquent grâce aux réseaux. Mais tous ne devraient pas pouvoir communiquer avec tous les autres.
 
-À la fin de ce cours, tu sauras expliquer le rôle du pare-feu, distinguer pare-feu hôte et réseau, comprendre le filtrage sans état et avec état, lire les critères d'une règle, interpréter les politiques par défaut, distinguer routage, NAT et filtrage, examiner Windows Defender Firewall et UFW/nftables, puis construire une méthode de dépannage fondée sur des preuves. Les notions utiles sont les adresses IP, les ports TCP/UDP, les routes, la passerelle et DNS.
+Un poste utilisateur n'a normalement aucune raison de se connecter directement à l'interface d'administration d'un routeur. Un visiteur connecté au Wi-Fi ne devrait pas pouvoir parcourir les dossiers partagés des employés. Un serveur Web public ne devrait pas pouvoir atteindre librement les bases de données internes.
 
-## 2. Définition et rôle
+Le pare-feu sert notamment à appliquer ces restrictions. Il examine les communications réseau et décide, selon des règles définies, lesquelles doivent être autorisées, bloquées ou parfois journalisées.
 
-Un pare-feu est un composant matériel, logiciel ou virtuel qui contrôle les communications entre une machine, une interface ou plusieurs réseaux selon une politique. Il peut autoriser, bloquer ou rejeter un flux, et enregistrer certains événements si la journalisation est configurée.
+Le pare-feu n'est toutefois pas une protection magique. Il peut autoriser par erreur une communication dangereuse, être mal configuré ou ne pas comprendre ce qui se passe à l'intérieur d'un échange chiffré. Il doit donc faire partie d'une stratégie plus large associant mises à jour, authentification robuste, segmentation, sauvegardes, supervision et bonnes pratiques d'administration.
 
-~~~text
-Internet
-   |
-   v
-[ Pare-feu réseau ]
-   |             |
-   v             v
-Serveur Web   Réseau interne
-TCP/443       flux limités
-~~~
+Dans ce cours, tu vas apprendre à comprendre les pare-feu, à lire leurs règles, à vérifier leur fonctionnement et à concevoir une politique simple et cohérente. Les manipulations de configuration seront réalisées uniquement sur un environnement autorisé et contrôlé.
 
-Un pare-feu réduit les possibilités d'accès à un service et peut séparer les zones. Il ne prouve pas qu'un service autorisé est sain, que l'utilisateur est légitime ou que l'application n'a pas de vulnérabilité. Il ne remplace ni les mises à jour, ni l'antivirus/EDR, ni les contrôles d'identité ni les sauvegardes.
+## 1. Objectifs pédagogiques
 
-Un pare-feu hôte protège la machine elle-même. Un pare-feu réseau filtre les communications entre interfaces ou zones. La combinaison des deux peut être utile : les échanges entre deux machines du même segment ne traversent pas nécessairement le pare-feu périmétrique.
+À la fin de ce cours, tu devras savoir :
 
-## 3. Comprendre un flux
+- Expliquer le rôle d'un pare-feu et ses limites.
+- Distinguer un pare-feu réseau d'un pare-feu installé sur un poste ou un serveur.
+- Comprendre le filtrage de paquets, l'inspection avec état et les fonctions de filtrage applicatif.
+- Lire une règle en identifiant sa source, sa destination, son protocole, son port, sa direction et son action.
+- Expliquer les politiques par défaut et le principe du moindre privilège.
+- Comprendre la différence entre filtrage, traduction d'adresses (NAT) et segmentation.
+- Concevoir des règles simples entre plusieurs zones réseau.
+- Examiner la configuration d'un pare-feu sous Windows et Linux.
+- Dépanner une communication bloquée sans ouvrir tous les ports.
+- Lire des journaux de pare-feu et documenter une modification.
+- Éviter les erreurs courantes qui réduisent fortement la sécurité.
 
-Pour décrire une communication, identifie l'adresse IP source, l'adresse IP destination, le protocole, les ports applicables, la direction, l'interface ou la zone et éventuellement l'état de connexion. Certains produits ajoutent l'application, l'utilisateur, la réputation de destination ou d'autres critères.
+## 2. Qu'est-ce qu'un pare-feu ?
 
-Exemple pédagogique :
+Un pare-feu, ou *firewall*, est un composant matériel, logiciel ou virtuel qui contrôle les communications entre des équipements ou des réseaux.
 
-~~~text
+Il se base sur une politique de sécurité. Cette politique exprime ce qui est autorisé et ce qui ne l'est pas.
+
+Par exemple, un serveur Web peut recevoir des connexions HTTPS sur TCP/443 depuis Internet. En revanche, l'accès SSH d'administration peut être réservé à un réseau d'administration déterminé.
+
+On peut représenter ce principe de la façon suivante :
+
+```text
+                  INTERNET
+                      |
+                      v
+              +----------------+
+              | Pare-feu réseau|
+              +----------------+
+                 |          |
+           Autorisé       Refusé
+                 |          |
+                 v          v
+          Serveur Web    Accès non prévu
+          TCP/443        Base interne,
+                         administration,
+                         autres services
+```
+
+Ce schéma représente une politique simplifiée. Un pare-feu réel ne décide pas uniquement en fonction du nom du service. Il peut prendre en compte les adresses IP, les ports, le protocole, la direction du trafic, l'interface, la zone de sécurité, l'état de la connexion et d'autres critères selon ses capacités.
+
+### 2.1. Pourquoi en a-t-on besoin ?
+
+Un système informatique expose potentiellement des services accessibles à distance. Parmi eux, on peut trouver :
+
+- Un serveur Web.
+- Un service de partage de fichiers.
+- Un serveur SSH.
+- Un service de bureau à distance.
+- Une base de données.
+- Une API.
+- Un service d'administration d'équipements réseau.
+
+Tous ces services n'ont pas à être accessibles à tout le monde.
+
+Le pare-feu permet de réduire les communications possibles. Ce principe réduit la surface d'attaque : moins un service est accessible, moins il peut être directement visé depuis des réseaux qui n'en ont pas besoin.
+
+Il permet également de séparer des environnements. Un poste compromis ne devrait pas pouvoir contacter librement tous les serveurs de l'entreprise.
+
+Un pare-feu contribue enfin au diagnostic et à la supervision. Ses journaux peuvent indiquer qu'une communication a été autorisée ou bloquée, à condition que la journalisation soit activée et configurée correctement.
+
+### 2.2. Le pare-feu n'est pas un antivirus
+
+Un antivirus ou un outil de détection et de réponse sur les terminaux examine notamment les fichiers, les comportements et les activités de la machine.
+
+Un pare-feu contrôle les communications selon les règles et les informations qu'il peut observer.
+
+Les deux outils remplissent des fonctions différentes.
+
+| Situation | Rôle principal du pare-feu | Autres protections utiles |
+|---|---|---|
+| Un port d'administration ne doit pas être accessible depuis Internet | Bloquer la communication non autorisée | Accès VPN ou bastion, MFA |
+| Un fichier malveillant est téléchargé par HTTPS | Le pare-feu peut autoriser la connexion Web | Antivirus/EDR, filtrage Web, sensibilisation |
+| Un serveur présente une vulnérabilité sur un service exposé | Réduire les sources pouvant accéder au service | Correctif logiciel, durcissement, supervision |
+| Un utilisateur possède un mot de passe compromis | Restreindre l'accès réseau ne suffit pas à lui seul | MFA, gestion des identités, détection |
+| Un poste compromis tente de joindre des serveurs internes | Limiter les flux entre zones | EDR, segmentation, contrôle des identités |
+
+Un pare-feu ne garantit donc pas qu'une communication autorisée est légitime ou sans danger. Il applique une politique. La pertinence de cette politique est déterminante.
+
+## 3. Comprendre les communications réseau
+
+Avant d'écrire une règle, il faut comprendre ce qu'elle autorise réellement.
+
+Une communication IP peut être décrite par plusieurs éléments :
+
+- **Adresse IP source :** l'adresse de l'émetteur.
+- **Adresse IP destination :** l'adresse du destinataire.
+- **Protocole :** par exemple TCP, UDP ou ICMP.
+- **Port source :** port utilisé par l'émetteur lorsqu'il s'applique.
+- **Port destination :** port du service auquel on souhaite accéder, lorsqu'il s'applique.
+- **Direction :** trafic entrant, sortant ou transféré à travers un équipement.
+- **Interface ou zone :** côté du réseau par lequel le trafic arrive ou sort.
+- **État de connexion :** information utile pour distinguer l'ouverture d'une session des paquets appartenant à un échange déjà suivi.
+
+Prenons un exemple :
+
+```text
 Source       : 192.0.2.50
 Destination  : 198.51.100.20
 Protocole    : TCP
 Port source  : 53124
 Port cible   : 443
-Objectif     : connexion HTTPS
-~~~
+Objectif     : ouvrir une connexion HTTPS
+```
 
-Les adresses sont réservées à la documentation. Le client emploie souvent un port source éphémère et se connecte au port de service du serveur. Il faut distinguer le port source du port de destination. Une règle qui vise TCP/443 vers le serveur n'ouvre pas automatiquement tous les ports du serveur.
+Les adresses utilisées ici appartiennent à des plages réservées à la documentation. Elles ne sont pas les adresses d'un serveur réel à joindre.
 
-TCP est orienté connexion. UDP ne dispose pas du même établissement de connexion, mais un pare-feu à états peut suivre temporairement ses échanges. ICMP porte des messages de contrôle IP et ne possède pas de ports TCP/UDP. Quelques conventions utiles : SSH utilise souvent TCP/22, HTTP TCP/80, HTTPS souvent TCP/443, SMB TCP/445, le bureau à distance Windows souvent TCP/3389 et NTP généralement UDP/123. DNS utilise généralement UDP/53 et peut employer TCP/53. Le port n'est pas une preuve absolue de la nature d'un service.
+Dans cet exemple, le client utilise un port source éphémère et se connecte au service HTTPS du serveur sur TCP/443.
 
-## 4. Principales familles
+Une règle qui autorise TCP/443 en destination ne signifie pas nécessairement que le pare-feu ouvre toutes les connexions du port 443 dans les deux sens. Il faut analyser la direction, le suivi d'état, la politique par défaut et les autres règles actives.
 
-Un filtre de paquets simple regarde des caractéristiques comme les adresses, le protocole et les ports. Il peut autoriser TCP/443 vers un serveur et refuser les communications qui ne correspondent pas. Un filtre sans état ne conserve pas nécessairement le contexte complet d'une session.
+### 3.1. Qu'est-ce qu'un port ?
 
-Un pare-feu à états suit les communications. Il peut reconnaître un paquet de retour comme appartenant à une connexion autorisée. Cela n'implique pas que toute nouvelle connexion dans le sens opposé sera permise.
+Un port TCP ou UDP identifie un point de communication utilisé par un service réseau.
 
-Un pare-feu hôte s'exécute sur un terminal ou serveur. Il peut appliquer des règles entrantes et sortantes et rester utile lorsqu'un trafic ne traverse pas le dispositif périmétrique. Windows Defender Firewall et le filtrage de Netfilter sous Linux sont des exemples.
+Exemples courants :
 
-Un pare-feu réseau contrôle les flux entre interfaces ou zones, par exemple entre Internet, les utilisateurs et les serveurs. Un proxy relaie des communications applicatives et peut imposer une authentification ou une politique sur ces requêtes. Un WAF se concentre sur certaines attaques visant des applications Web et complète, sans le remplacer, le filtrage réseau.
+| Port | Protocole habituel | Usage courant |
+|---|---|---|
+| TCP/22 | TCP | SSH |
+| TCP/25 | TCP | Relais SMTP entre serveurs, selon le contexte |
+| TCP/53, UDP/53 | TCP et UDP | DNS, selon le type de requête |
+| UDP/67 et UDP/68 | UDP | DHCPv4 |
+| TCP/80 | TCP | HTTP |
+| TCP/123 | TCP, UDP selon les implémentations | NTP utilise principalement UDP/123 |
+| TCP/443 | TCP | HTTPS sur HTTP/1.1 ou HTTP/2 |
+| TCP/445 | TCP | SMB |
+| TCP/3389 | TCP et parfois UDP selon la configuration | Bureau à distance Windows |
 
-Un NGFW associe des fonctions selon le produit : filtrage avec état, identification applicative, prévention d'intrusion ou renseignements sur les menaces. Le nom commercial n'est pas une preuve de sécurité. Vérifie les fonctions activées, les exceptions, les mises à jour et les limites d'inspection, notamment lorsque le trafic est chiffré.
+Attention : ces ports sont des conventions, pas des preuves de la nature réelle d'un service. Une application peut utiliser un port non standard. Inversement, une connexion sur TCP/443 n'est pas automatiquement sûre simplement parce qu'elle utilise le port habituellement associé à HTTPS.
 
-## 5. Lire une règle
+Un pare-feu qui autorise uniquement certains ports réduit les communications possibles, mais ne remplace pas l'analyse du service, de l'identité du client ou du contenu lorsque ces contrôles sont possibles.
 
-Une règle correcte décrit le besoin précis, l'origine, la destination, le protocole, le port ou service, la direction, la zone et l'action.
+### 3.2. TCP, UDP et état d'une connexion
 
-~~~text
-Nom         : Utilisateurs_vers_Web_HTTPS
+TCP établit généralement une connexion suivie par les équipements intermédiaires. Le pare-feu peut s'appuyer sur cet état pour déterminer si un paquet appartient à une connexion autorisée.
+
+UDP ne possède pas le même mécanisme d'établissement de connexion que TCP. Un pare-feu à états peut néanmoins suivre des échanges UDP de manière temporaire.
+
+C'est le principe de l'inspection avec état : le dispositif conserve une table des communications observées et applique des décisions selon le contexte de chaque session.
+
+La logique est différente d'un filtrage qui examinerait chaque paquet comme un événement entièrement indépendant.
+
+## 4. Les principales familles de pare-feu
+
+### 4.1. Le filtrage de paquets sans suivi d'état
+
+Un filtre de paquets simple examine des caractéristiques du trafic, telles que les adresses IP, le protocole et les ports lorsque ceux-ci existent.
+
+Exemple de règle conceptuelle :
+
+```text
+Si :
+  destination = serveur Web
+  protocole = TCP
+  port destination = 443
+
+Alors :
+  autoriser
+```
+
+Ce type de filtrage peut être efficace et peu coûteux en ressources. Cependant, un filtrage sans état ne comprend pas à lui seul l'ensemble du contexte d'une session. Il faut que sa politique prenne correctement en compte les paquets nécessaires dans les deux sens.
+
+Il ne faut pas confondre ce modèle simplifié avec tous les pare-feu modernes : beaucoup associent filtrage de paquets et suivi d'état.
+
+### 4.2. Le pare-feu à états (*stateful firewall*)
+
+Un pare-feu à états suit les connexions et peut tenir compte de leur progression.
+
+Lorsqu'un client interne ouvre une session Web sortante autorisée, le pare-feu mémorise des informations sur l'échange. Les paquets de réponse appartenant à cette session peuvent alors être reconnus comme du trafic de retour attendu.
+
+Cela ne veut pas dire que toutes les nouvelles connexions entrantes seront acceptées. Une réponse correspondant à une connexion autorisée est différente d'une nouvelle tentative de connexion initiée depuis Internet.
+
+```text
+Client interne          Pare-feu à états             Serveur Web
+      |                        |                          |
+      |--- demande autorisée ->|------------------------->|
+      |                        |                          |
+      |                        |<-------------------------|
+      |<-- réponse suivie -----|                          |
+      |                        |                          |
+```
+
+Le suivi d'état facilite l'application d'une politique cohérente. Il ne garantit toutefois pas que les applications sont exemptes de vulnérabilités ni que toutes les communications suivies sont légitimes.
+
+### 4.3. Le pare-feu hôte
+
+Un pare-feu hôte est installé sur l'équipement qu'il protège. Il peut s'agir d'un ordinateur Windows, d'un serveur Linux ou d'un autre terminal.
+
+Il permet notamment de limiter les connexions reçues par cette machine et, selon sa configuration, certaines connexions qu'elle initie.
+
+Avantages :
+
+- Protection même lorsque le poste se connecte à différents réseaux.
+- Règles spécifiques au système ou à certains programmes.
+- Possibilité de protéger des serveurs sans dépendre uniquement du périmètre réseau.
+- Réduction de certaines communications latérales entre machines.
+
+Limites :
+
+- Une mauvaise configuration locale peut exposer des services.
+- Les politiques peuvent être difficiles à administrer à grande échelle sans gestion centralisée.
+- La compromission de la machine peut affecter la confiance accordée à ses informations.
+- Les règles doivent rester compatibles avec les besoins légitimes du système.
+
+Windows Defender Firewall est un exemple de pare-feu hôte. Sur Ubuntu, UFW fournit une interface simple pour gérer des règles de filtrage hôte, tandis que Netfilter et nftables constituent une partie importante du mécanisme de filtrage Linux.
+
+### 4.4. Le pare-feu réseau
+
+Un pare-feu réseau contrôle des communications entre des réseaux, des zones ou des interfaces.
+
+Il peut se trouver entre Internet et le réseau d'une entreprise, entre un réseau utilisateur et un réseau de serveurs, ou entre des zones internes ayant des niveaux de confiance différents.
+
+Il centralise une partie de la politique de sécurité et peut protéger plusieurs équipements à la fois.
+
+Il ne remplace pas automatiquement le pare-feu hôte. Si le trafic circule entre deux machines du même segment sans traverser le pare-feu réseau, la politique du périmètre peut ne jamais le voir.
+
+### 4.5. Le proxy et le pare-feu applicatif
+
+Un proxy agit comme intermédiaire pour certains protocoles. Selon son rôle et sa configuration, il peut authentifier les utilisateurs, appliquer des règles d'accès ou journaliser les requêtes.
+
+Un pare-feu applicatif peut analyser des informations plus proches de la couche applicative. Par exemple, un pare-feu applicatif Web (WAF) se concentre sur certaines attaques et requêtes visant des applications Web HTTP.
+
+Un WAF ne remplace pas complètement un pare-feu réseau. Il vise une autre catégorie de risques.
+
+Un proxy Web, un pare-feu réseau et un WAF peuvent donc être complémentaires.
+
+### 4.6. Le NGFW
+
+Un NGFW (*Next-Generation Firewall*) combine généralement plusieurs fonctions, selon le constructeur et la licence : filtrage réseau, suivi d'état, inspection applicative, identification de certaines applications, intégration à des renseignements sur les menaces et fonctionnalités de prévention d'intrusion.
+
+Il faut étudier les capacités réellement activées. Le nom commercial « nouvelle génération » ne suffit pas à prouver qu'une configuration est bien sécurisée.
+
+Les fonctions d'inspection approfondie peuvent également avoir des limites : protocoles non reconnus, trafic chiffré, performances, faux positifs, certificats, exceptions et mises à jour des moteurs de détection.
+
+### 4.7. Résumé des types de pare-feu
+
+| Type | Ce qu'il contrôle principalement | Exemple d'usage |
+|---|---|---|
+| Filtrage de paquets | Caractéristiques réseau des paquets | Filtrage de base |
+| Pare-feu à états | Paquets et contexte des sessions suivies | Filtrage TCP/UDP avec retour de session |
+| Pare-feu hôte | Trafic entrant/sortant d'un système | Protection d'un PC ou serveur |
+| Pare-feu réseau | Trafic entre interfaces ou zones | Séparation Internet, utilisateurs et serveurs |
+| Proxy | Requêtes relayées par un intermédiaire | Contrôle d'accès à certains services |
+| WAF | Certaines requêtes et attaques visant des applications Web | Protection complémentaire d'un site Web |
+| NGFW | Plusieurs mécanismes réseau et applicatifs | Politique intégrée pour des réseaux d'entreprise |
+
+## 5. Les règles de pare-feu
+
+Une règle formalise une décision de sécurité.
+
+Elle doit répondre à des questions claires :
+
+1. Quel trafic est concerné ?
+2. D'où vient-il ?
+3. Où va-t-il ?
+4. Quel service ou protocole est utilisé ?
+5. Dans quel sens la communication se produit-elle ?
+6. Quelle action faut-il appliquer ?
+7. Dans quelles conditions la règle est-elle valable ?
+
+### 5.1. Les critères d'une règle
+
+Les critères fréquents sont les suivants :
+
+- **Source :** adresse IP, sous-réseau, groupe d'adresses ou zone.
+- **Destination :** adresse IP, sous-réseau, groupe d'adresses ou zone.
+- **Protocole :** TCP, UDP, ICMP ou autre protocole pris en charge.
+- **Port :** un port précis ou une plage de ports, lorsqu'il s'applique.
+- **Interface ou zone :** réseau d'où vient le trafic ou vers lequel il part.
+- **Direction :** entrant, sortant ou transféré.
+- **État de la connexion :** nouvelle connexion, connexion suivie ou autre état reconnu par le pare-feu.
+- **Action :** autoriser, bloquer ou rejeter, selon les possibilités du dispositif.
+- **Journalisation :** enregistrer les événements qui respectent certains critères.
+
+Tous les produits ne représentent pas les règles de la même manière. Certains proposent également des filtres liés à un programme, à un utilisateur ou à un type de service.
+
+### 5.2. Exemple : autoriser HTTPS vers un serveur Web
+
+Supposons que le serveur Web de documentation utilise l'adresse `192.168.20.10` et que les clients autorisés se trouvent dans `192.168.10.0/24`.
+
+Une règle conceptuelle pourrait être :
+
+```text
+Nom         : Clients_vers_Web_HTTPS
 Source      : 192.168.10.0/24
 Destination : 192.168.20.10
 Protocole   : TCP
 Port cible  : 443
 Action      : Autoriser
-Justification : accès à une application interne
-~~~
+Justification : Accès HTTPS à la documentation
+```
 
-Cette règle vise le flux décrit, sous réserve des autres paramètres et règles de la plateforme. Elle n'autorise pas automatiquement tous les ports du serveur. Toute exception doit avoir une justification et un propriétaire.
+Le fait d'autoriser cette communication n'implique pas qu'il faut autoriser les clients à accéder à tous les ports du serveur. Une règle ouverte à tous les protocoles et tous les ports accorderait une capacité très supérieure au besoin exprimé.
 
-**Autoriser** laisse passer le trafic correspondant. **Bloquer silencieusement** abandonne généralement le paquet. **Rejeter** peut envoyer une indication de refus. Le choix varie selon le produit et le contexte. Le rejet peut faciliter le diagnostic, tandis que le silence peut limiter certaines informations renvoyées à l'émetteur.
+### 5.3. Autoriser, bloquer ou rejeter
 
-### Ordre et priorités
+Les termes varient selon les outils, mais on rencontre généralement trois comportements.
 
-Certains moteurs appliquent la première règle correspondante ; d'autres utilisent des priorités, groupes ou objets. Une règle large placée avant un refus spécifique peut masquer ce refus si le moteur s'arrête à la première correspondance. Il faut consulter la documentation du produit et examiner la politique complète.
+**Autoriser (allow/accept)** : laisser passer la communication lorsqu'elle correspond à la règle et aux conditions d'évaluation.
+
+**Bloquer silencieusement (drop)** : abandonner le paquet sans répondre. Le client peut alors attendre une expiration de délai.
+
+**Rejeter (reject)** : refuser explicitement la communication, lorsque le dispositif prend en charge ce comportement. Le client reçoit une indication de refus adaptée au protocole et à la configuration.
+
+Le silence peut limiter certaines informations communiquées à l'émetteur, mais il peut aussi rendre le dépannage moins direct. Le rejet permet parfois de diagnostiquer plus facilement un refus. Le choix dépend de la politique, du protocole et du contexte.
+
+### 5.4. L'ordre des règles
+
+Certains pare-feu évaluent les règles dans un ordre déterminé. D'autres utilisent des mécanismes plus complexes avec objets, priorités, politiques et règles spécifiques.
+
+Considérons cette liste fictive :
+
+```text
+Règle 1 : Autoriser toutes les connexions de 192.168.10.0/24 vers 192.168.20.10
+Règle 2 : Bloquer TCP/22 de 192.168.10.0/24 vers 192.168.20.10
+```
+
+Si le moteur applique la première règle correspondante et s'arrête, la seconde règle peut ne jamais être appliquée à une connexion SSH. La règle large masque alors la règle spécifique.
+
+Ce phénomène est appelé règle masquée ou *shadowed rule* dans certains contextes.
+
+Sur d'autres plateformes, les priorités, les groupes et les types de règles modifient cette logique. Il faut donc consulter la documentation du produit au lieu de supposer que tous les pare-feu appliquent exactement le même ordre.
+
+Une bonne règle est non seulement correcte, mais aussi cohérente avec les autres règles présentes.
+
+### 5.5. Les politiques par défaut
+
+Une politique par défaut indique généralement quelle action appliquer lorsqu'aucune règle applicable ne décide du sort du trafic.
+
+Une stratégie courante consiste à :
+
+- Refuser par défaut les nouvelles connexions entrantes non autorisées.
+- N'autoriser que les services nécessaires.
+- Évaluer le trafic sortant en fonction des besoins et du niveau de risque.
+- Permettre le trafic de retour des connexions autorisées lorsque le fonctionnement à états le prévoit.
+
+Le refus entrant par défaut est particulièrement important pour les terminaux qui ne doivent pas exposer leurs services au réseau.
+
+Pour le trafic sortant, il n'existe pas une seule approche adaptée à toutes les organisations. Une petite structure peut autoriser la majorité des connexions sortantes tout en restreignant certains flux sensibles. Un environnement plus critique peut imposer des destinations et services autorisés plus stricts.
+
+Une politique très restrictive peut renforcer le contrôle, mais elle exige une bonne connaissance des dépendances applicatives, des besoins de mise à jour, du DNS, de l'heure, de l'authentification et des services externes.
+
+**Principe essentiel :** une politique de refus par défaut doit être accompagnée d'une méthode pour identifier, justifier et autoriser les besoins légitimes. Sinon, les utilisateurs peuvent être tentés de contourner les contrôles.
+
+## 6. Trafic entrant, sortant et transféré
+
+### 6.1. Trafic entrant (*inbound*)
+
+Le trafic entrant est évalué par rapport à un équipement ou à une zone protégée lorsque des paquets arrivent depuis un autre réseau.
+
+Exemple : un client Internet tente d'établir une connexion vers un serveur Web public.
+
+La politique doit déterminer si la nouvelle connexion est autorisée, en tenant compte de sa destination, du service publié et des autres contrôles.
+
+### 6.2. Trafic sortant (*outbound*)
+
+Le trafic sortant est initié par un poste ou un serveur vers une destination extérieure à ce système.
+
+Exemples :
+
+- Un poste ouvre un site Web.
+- Un serveur contacte un service de mises à jour.
+- Une application envoie des données vers une API.
+
+Un poste peut disposer d'un pare-feu très restrictif pour les connexions entrantes mais d'une politique sortante permissive. Cela ne signifie pas qu'il est entièrement protégé : un programme compromis pourrait encore initier des communications sortantes dans la limite des règles autorisées.
+
+### 6.3. Trafic transféré (*forwarded*)
+
+Un pare-feu ou un routeur peut faire transiter des paquets d'un réseau vers un autre.
 
 Exemple :
 
-~~~text
-Règle 1 : autoriser toutes les connexions vers le serveur
-Règle 2 : bloquer SSH vers ce serveur
-~~~
+```text
+Réseau utilisateurs
+192.168.10.0/24
+       |
+       v
++------------------+
+| Pare-feu / Routeur|
++------------------+
+       |
+       v
+Réseau serveurs
+192.168.20.0/24
+```
 
-Si la première règle l'emporte, la seconde peut ne pas avoir l'effet attendu. L'analyse doit aussi rechercher les règles redondantes, anciennes, temporaires et les exceptions dont le propriétaire n'est plus connu.
+La communication d'un utilisateur vers un serveur passe par le dispositif. La politique de transfert peut autoriser uniquement les services prévus entre les deux réseaux.
 
-## 6. Politique par défaut et moindre privilège
+Sur Linux, les règles destinées au trafic qui traverse la machine ne sont pas nécessairement les mêmes que celles qui protègent les processus hébergés localement. Il faut distinguer les flux vers la machine elle-même des flux routés à travers elle.
 
-La politique par défaut détermine l'action lorsque le trafic ne correspond à aucune règle qui décide autrement. Une approche courante consiste à refuser les nouvelles connexions entrantes non autorisées et à n'ouvrir que les services nécessaires. La politique sortante dépend du risque et de la capacité de maintenir les dépendances des applications.
+## 7. Pare-feu, NAT et routage : trois notions différentes
 
-Le moindre privilège signifie qu'une machine ou une zone ne reçoit que les capacités réseau nécessaires. Une règle autorisant toutes les sources, toutes les destinations et tous les ports peut annuler la segmentation et exposer des services inutiles. Préfère les sources et destinations précises, un protocole et des ports justifiés, ainsi qu'une date de revue pour les exceptions.
+Ces mécanismes sont parfois confondus, car ils se trouvent souvent sur le même routeur ou équipement de sécurité.
 
-Le refus par défaut doit être préparé. Il faut inventorier les dépendances, prévoir DNS, la synchronisation horaire, les mises à jour et les API nécessaires. Sans cette préparation, la politique peut provoquer une panne et inciter à contourner les contrôles.
+### 7.1. Le routage
 
-Le filtrage sortant mérite aussi une réflexion : un poste dont les connexions entrantes non sollicitées sont bloquées peut toujours initier des connexions vers Internet. Une politique sortante stricte peut limiter les communications d'un logiciel compromis, mais elle exige des tests et un inventaire des destinations nécessaires.
+Le routage détermine par quel chemin un paquet IP doit être transmis pour atteindre sa destination.
 
-## 7. Entrant, sortant et transféré
+Il s'agit d'une décision de cheminement réseau.
 
-Le trafic **entrant** arrive d'un autre réseau vers un hôte ou une zone. Le trafic **sortant** est initié par un hôte vers une destination. Le trafic **transféré** traverse un routeur ou pare-feu pour rejoindre un autre réseau.
+Un routeur peut disposer de routes vers plusieurs réseaux. Le fait qu'une route existe ne signifie pas automatiquement que toutes les communications sont autorisées par la politique de filtrage.
 
-Ces catégories ne sont pas interchangeables. Les règles qui protègent les connexions entrantes d'un serveur ne décrivent pas nécessairement les communications qu'il initie. Sous Linux, le trafic destiné à la machine elle-même peut passer par des chaînes différentes de celles du trafic routé.
+### 7.2. Le NAT
 
-Un test précis doit indiquer la source réelle, la destination, le protocole et le port, le sens et le chemin. Il ne suffit pas de dire « ouvrir HTTPS » sans savoir depuis quel réseau, vers quel service et pour quelle raison.
+La traduction d'adresses réseau, ou NAT, modifie certaines adresses IP et parfois des ports pendant le passage d'un paquet.
 
-## 8. Routage, NAT et filtrage
+Un usage courant est de permettre à plusieurs machines privées de partager une adresse IPv4 publique via une traduction de ports, souvent appelée PAT ou NAPT selon le contexte.
 
-Le routage choisit le prochain saut d'un paquet. Le NAT traduit des adresses IP, et certaines formes de NAT traduisent aussi les ports. Une traduction d'adresses n'est pas une politique complète de sécurité. Certains équipements combinent traduction et filtrage, d'où la nécessité de vérifier les deux fonctions séparément.
+Le NAT n'est pas, en lui-même, une politique complète de sécurité. Une traduction d'adresses ne remplace pas un filtrage explicite. Certains routeurs associent le NAT à des règles qui limitent les connexions entrantes, ce qui contribue à entretenir la confusion.
 
-Pour diagnostiquer un flux, examine l'adressage, la route, l'adresse finale après traduction, le protocole, le port et les règles. Une redirection de port peut exposer un service interne à un réseau externe ; elle doit être documentée et limitée.
+Exemple conceptuel :
 
-Ne considère pas qu'un équipement est sûr simplement parce qu'il utilise une adresse privée. Les services peuvent être accessibles depuis le réseau local ou à travers une traduction. La sécurité vient de la politique d'accès, pas du seul plan d'adressage.
+```text
+Poste privé                Routeur                  Serveur Internet
+192.168.10.25:53124  --->  traduction  --->  adresse publique:port
+```
 
-## 9. Segmentation, VLAN et DMZ
+La traduction modifie les informations d'adressage. La politique de sécurité détermine quelles communications peuvent traverser l'équipement.
 
-La segmentation sépare les équipements en zones : utilisateurs, serveurs, invités, administration et DMZ. Un VLAN crée un domaine logique de niveau 2, mais le routage entre VLAN peut permettre des communications ; il faut donc appliquer un filtrage approprié.
+### 7.3. Pourquoi faut-il les distinguer ?
 
-Les invités devraient pouvoir accéder à Internet tout en étant isolés des sous-réseaux internes. Les postes utilisateurs accèdent aux applications prévues, pas à toutes les interfaces de gestion. Les serveurs sensibles ne devraient être joignables que par les clients qui en ont besoin.
+Considérons un serveur avec une adresse IP privée dans un réseau d'entreprise. La présence d'une règle de NAT ne suffit pas pour déterminer quels clients peuvent accéder au serveur. Il faut examiner les règles de filtrage, les interfaces, les routes et la manière dont le produit traite les connexions.
 
-La DMZ héberge souvent les services accessibles depuis Internet. Si un serveur Web dépend d'une base de données interne, autorise le serveur applicatif vers la base sur le seul port requis et refuse le reste des communications de la DMZ vers le réseau interne. Teste les flux depuis un client dans chaque zone.
+Un diagnostic correct examine donc au moins :
 
-## 10. IPv4, IPv6 et ICMP
+1. L'adresse IP et le masque.
+2. La route vers la destination.
+3. Le port et le protocole réellement utilisés.
+4. Les règles de filtrage actives.
+5. Les traductions d'adresses éventuellement appliquées.
+6. Les journaux et la réponse du service.
 
-Une politique IPv4 correcte ne garantit pas que les communications IPv6 sont filtrées de façon équivalente. Vérifie si IPv6 est actif, les adresses, les routes, les services en écoute et les règles. Ne le désactive pas sans comprendre les dépendances du système.
+## 8. Segmentation réseau, VLAN et zones de sécurité
 
-ICMP sert aux messages de contrôle et de diagnostic. Bloquer absolument tous les messages ICMP peut gêner le diagnostic ou des mécanismes comme la découverte de la MTU. Il faut autoriser les messages nécessaires selon l'architecture et le risque, sans ouvrir toutes les communications.
+La segmentation consiste à séparer un environnement en sous-réseaux ou zones qui n'ont pas tous les mêmes besoins et niveaux de confiance.
 
-## 11. Journalisation
+Un VLAN peut permettre de séparer logiquement des équipements au niveau du réseau local. Cependant, le simple fait de placer des appareils dans des VLAN différents ne suffit pas à définir les communications autorisées entre ces zones. Il faut une politique de routage et de filtrage appropriée.
 
-Les journaux peuvent renseigner l'heure, la source, la destination, le protocole, les ports, la règle appliquée et l'action. Leur détail dépend du produit. Ils peuvent aider à déterminer où un flux est bloqué et à corréler une panne avec une modification.
+### 8.1. Exemple de segmentation d'entreprise
 
-Un refus isolé ne prouve pas une attaque. Il peut correspondre à un client mal configuré, un flux attendu mais non documenté ou une activité non autorisée. Regroupe les événements par source, destination, fréquence, horaire et service, puis compare avec les activités légitimes.
+Imaginons les réseaux suivants :
 
-La journalisation doit être équilibrée : collecter chaque paquet peut générer trop d'événements, alors que ne rien journaliser rend les diagnostics difficiles. Protège l'accès aux journaux, fixe la rétention et évite de collecter des données sensibles inutiles. Pour les flux critiques, vérifie que l'horloge est correcte et que les événements peuvent être corrélés.
+| Zone | Sous-réseau d'exemple | Fonction |
+|---|---|---|
+| Utilisateurs | `192.168.10.0/24` | Postes des employés |
+| Serveurs | `192.168.20.0/24` | Applications et données internes |
+| Invités | `192.168.30.0/24` | Visiteurs et appareils personnels |
+| Administration | `192.168.40.0/24` | Postes de gestion |
+| DMZ | `192.168.50.0/24` | Services publiés vers l'extérieur |
 
-## 12. Windows Defender Firewall : commandes de lecture
+Ces sous-réseaux sont des exemples documentaires.
 
-Les profils courants de Windows comprennent Domaine, Privé et Public. Un profil décrit une catégorie de réseau ; il ne garantit pas à lui seul qu'un réseau est digne de confiance.
+La politique de sécurité pourrait définir les principes suivants :
 
-Pour afficher l'état des profils :
+- Les utilisateurs accèdent aux applications métier nécessaires.
+- Les invités accèdent à Internet, mais pas aux réseaux internes.
+- Les administrateurs utilisent un poste ou un réseau d'administration distinct.
+- Les serveurs de la DMZ n'atteignent les réseaux internes que pour des besoins justifiés.
+- Les bases de données ne sont accessibles que par les applications autorisées.
+- Les ports d'administration ne sont pas ouverts largement aux postes utilisateurs.
 
-~~~powershell
+### 8.2. Représentation simplifiée
+
+```text
+                     Internet
+                        |
+                        v
+                  [ Pare-feu ]
+                    /   |   \
+                   /    |    \
+                DMZ   Invités  Utilisateurs
+                 |      |          |
+             Web public X Internet  |
+                 |                 |
+                 +------->---------+
+                      Flux précis
+                           |
+                        Serveurs
+                           |
+                    Données internes
+                           ^
+                           |
+                     Administration
+                     accès restreint
+```
+
+La représentation ne signifie pas que chaque réseau est relié directement aux autres. Elle montre les catégories de zones et la nécessité de contrôler les flux.
+
+Une segmentation efficace ne repose pas seulement sur les étiquettes des VLAN : elle exige des règles qui empêchent réellement les communications non prévues.
+
+### 8.3. La DMZ
+
+Une DMZ est une zone intermédiaire conçue pour héberger certains services accessibles depuis des réseaux moins fiables, par exemple Internet.
+
+Un serveur Web public peut être placé en DMZ. Si l'application utilise une base de données interne, le flux de la DMZ vers cette base de données doit être limité précisément.
+
+Par exemple, une politique pourrait autoriser le serveur applicatif identifié à joindre un serveur de base de données sur le seul port requis. Elle ne devrait pas lui donner automatiquement accès à tout le réseau interne.
+
+La DMZ ne garantit pas qu'un serveur qui s'y trouve est sûr. Elle limite plutôt les communications possibles lorsqu'un service exposé est compromis.
+
+### 8.4. IPv4 et IPv6
+
+Une erreur fréquente consiste à créer des règles IPv4 sans vérifier la politique IPv6.
+
+Un réseau peut utiliser IPv4 et IPv6 simultanément. Un service bloqué sur une adresse IPv4 peut rester joignable par IPv6 si la configuration et les règles le permettent.
+
+Lors d'un audit, il faut vérifier :
+
+- Si IPv6 est utilisé ou activé.
+- Les règles de filtrage IPv6.
+- Les adresses et routes IPv6.
+- Les services qui écoutent sur IPv6.
+- Les différences éventuelles entre les politiques IPv4 et IPv6.
+
+Désactiver IPv6 sans analyse n'est pas une solution universelle : certains environnements et applications en dépendent. La bonne démarche consiste à comprendre la configuration réellement utilisée et à appliquer une politique cohérente aux protocoles présents.
+
+## 9. Le principe du moindre privilège appliqué au réseau
+
+Le moindre privilège signifie qu'un utilisateur, un programme ou un service ne doit disposer que des autorisations nécessaires pour réaliser son travail.
+
+Appliqué aux réseaux, il consiste à limiter :
+
+- Les sources qui peuvent contacter un service.
+- Les destinations accessibles depuis un poste.
+- Les ports et protocoles autorisés.
+- Les communications entre les zones.
+- Les accès d'administration.
+- La durée d'existence d'une exception.
+- Les règles trop larges qui ne sont plus nécessaires.
+
+### 9.1. Exemple de mauvaise règle
+
+```text
+Source      : toutes les adresses
+Destination : tous les serveurs
+Port        : tous les ports
+Protocole   : tous
+Action      : autoriser
+```
+
+Cette règle donne une autorisation extrêmement large. Si elle est appliquée à une zone sensible, elle peut annuler l'effet recherché par de nombreuses règles plus précises.
+
+Elle peut parfois être requise dans un scénario très particulier et documenté, mais elle doit provoquer une revue de sécurité. Il faut pouvoir expliquer pourquoi elle existe, quelles sont ses limites et comment elle sera remplacée ou contrôlée.
+
+### 9.2. Exemple de règle plus précise
+
+```text
+Source      : serveur applicatif identifié
+Destination : serveur de base de données identifié
+Protocole   : TCP
+Port cible  : port de la base de données prévu
+Action      : autoriser
+Justification : accès de l'application à ses données
+Expiration  : date de revue définie
+```
+
+Le numéro de port dépend du moteur de base de données et de la configuration réelle. Il faut le confirmer plutôt que choisir un numéro au hasard.
+
+La règle précise la communication nécessaire au lieu d'ouvrir le réseau entier.
+
+### 9.3. Le filtrage sortant
+
+Le filtrage sortant mérite une attention particulière. Un système qui ne reçoit aucune connexion entrante non sollicitée peut malgré tout communiquer avec des destinations externes.
+
+Selon le risque, l'organisation peut décider de limiter les communications sortantes aux services nécessaires : DNS vers les résolveurs autorisés, mises à jour vers les destinations approuvées, accès Web par un proxy, communications applicatives vers les API prévues.
+
+Une politique sortante stricte demande une bonne préparation. Il faut inventorier les dépendances et surveiller les événements bloqués afin de détecter les communications indispensables oubliées. Elle ne doit pas être mise en place à l'aveugle sur un système de production.
+
+## 10. Services courants et précautions de filtrage
+
+Une règle correcte dépend du service réel. Il faut éviter de considérer un numéro de port comme une preuve suffisante.
+
+### 10.1. SSH et administration à distance
+
+SSH est souvent utilisé pour administrer des machines Linux ou d'autres équipements.
+
+Le limiter au réseau d'administration réduit le nombre de sources qui peuvent tenter de s'y connecter.
+
+Une politique de ce type ne remplace pas la sécurisation des comptes, les clés d'accès, la gestion des privilèges, la journalisation et les mises à jour.
+
+### 10.2. HTTP et HTTPS
+
+HTTP utilise traditionnellement TCP/80 et HTTPS utilise généralement TCP/443, notamment pour HTTP/1.1 et HTTP/2. HTTP/3 utilise QUIC, qui repose sur UDP, généralement UDP/443.
+
+Il faut vérifier les protocoles réellement employés par l'application. Une règle limitée à TCP/443 ne permet pas automatiquement de décrire tous les flux possibles d'un navigateur moderne.
+
+Autoriser un port Web ne garantit pas que la destination est digne de confiance. Des logiciels malveillants peuvent également utiliser des protocoles Web autorisés.
+
+### 10.3. DNS
+
+Les clients utilisent DNS pour résoudre des noms en adresses IP.
+
+DNS utilise souvent UDP/53, mais TCP/53 intervient aussi dans des circonstances légitimes. D'autres mécanismes chiffrés de résolution DNS peuvent être employés, avec d'autres ports ou transports.
+
+Une politique DNS cohérente doit tenir compte des résolveurs autorisés et du modèle de l'environnement. Bloquer au hasard une partie de DNS peut provoquer des pannes difficiles à comprendre.
+
+### 10.4. SMB et partage de fichiers
+
+SMB est fréquemment utilisé pour le partage de fichiers en environnement Windows. TCP/445 est couramment associé à SMB.
+
+L'accès à ce service doit être limité aux réseaux et systèmes qui en ont réellement besoin. Il est généralement risqué d'exposer largement les services de partage de fichiers à Internet.
+
+La limitation réseau doit être accompagnée d'autorisations de fichiers appropriées, de mises à jour et d'une authentification sécurisée.
+
+### 10.5. ICMP
+
+ICMP transporte notamment des messages de diagnostic et des informations d'erreur IP. Il ne faut pas assimiler ICMP à TCP ou UDP ni lui appliquer des ports qui n'ont pas de sens pour ce protocole.
+
+Bloquer absolument tous les messages ICMP sans analyse peut gêner le diagnostic ou certaines fonctions réseau, notamment celles liées à la découverte de la MTU. Les politiques doivent tenir compte des usages nécessaires et des risques concernés.
+
+## 11. Journaux et supervision
+
+Une politique réseau ne peut pas être administrée correctement si personne ne sait ce qui est autorisé, ce qui est refusé et ce qui se produit en cas de changement.
+
+Les journaux de pare-feu peuvent enregistrer :
+
+- Les paquets ou connexions bloqués.
+- Certains flux autorisés.
+- L'heure de l'événement.
+- Les adresses source et destination.
+- Le protocole et les ports associés.
+- L'interface ou la zone concernée, selon le produit.
+- Des informations sur la règle correspondante, si le dispositif les fournit.
+
+La quantité de détails dépend de l'équipement et de la configuration.
+
+### 11.1. Que signifie un événement de refus ?
+
+Un paquet bloqué peut avoir plusieurs causes :
+
+- Un client tente réellement une communication non autorisée.
+- Une application utilise un service non prévu.
+- Une règle a été oubliée.
+- Un service légitime utilise une destination ou un port inattendu.
+- Un programme est mal configuré.
+- Une activité malveillante explore des ports ou tente d'accéder à un service.
+
+Un seul événement ne prouve pas à lui seul une attaque. Il doit être interprété avec le contexte : fréquence, source, destination, heure, activité de l'application et autres alertes.
+
+### 11.2. La journalisation doit être utile
+
+Si tous les paquets de tous les réseaux sont enregistrés sans stratégie, les journaux peuvent devenir trop volumineux et rendre les événements importants difficiles à trouver.
+
+À l'inverse, ne journaliser aucun événement empêche certains diagnostics et réduit la visibilité.
+
+Une approche raisonnée consiste à journaliser les événements importants, à régler la taille et la rétention des journaux, à protéger leur accès et à vérifier qu'ils peuvent être consultés lorsque nécessaire.
+
+Il faut aussi éviter d'enregistrer inutilement des données sensibles. Les règles de conservation et d'accès doivent être définies selon les besoins et les obligations de l'organisation.
+
+### 11.3. Comment analyser un refus
+
+Exemple fictif :
+
+```text
+Heure       : 10:42:18
+Source      : 192.168.10.25
+Destination : 192.168.20.10
+Protocole   : TCP
+Port cible  : 445
+Action      : DROP
+```
+
+Avant de changer la politique, pose-toi ces questions :
+
+1. Quel appareil possède l'adresse source ?
+2. Quel service est hébergé à destination ?
+3. Ce service doit-il réellement être accessible depuis cette source ?
+4. La demande correspond-elle à une action attendue de l'utilisateur ?
+5. Existe-t-il une règle plus précise ou une règle masquée ?
+6. Le flux apparaît-il seulement après une modification récente ?
+7. Le refus est-il produit par le pare-feu hôte, le pare-feu réseau ou un autre équipement ?
+
+Si l'utilisateur essaie d'accéder à un partage de fichiers qui ne fait pas partie de ses autorisations, le refus peut être la bonne décision. Il ne faut pas automatiquement ouvrir TCP/445 pour faire disparaître l'erreur.
+
+## 12. Gérer proprement le cycle de vie des règles
+
+Une bonne politique de pare-feu n'est pas seulement une collection de règles. Elle exige une gestion des changements.
+
+Chaque règle importante devrait disposer d'une justification et d'un propriétaire.
+
+Selon le contexte, il peut être utile de documenter :
+
+- Le nom de la règle.
+- Sa source et sa destination.
+- Le protocole et les ports.
+- L'action.
+- Le motif métier ou technique.
+- Le service responsable.
+- La date de création.
+- La personne ou l'équipe qui l'a approuvée.
+- La date de revue ou d'expiration.
+- Les tests réalisés.
+- Les dépendances et risques connus.
+
+### 12.1. Avant une modification
+
+Avant de modifier une politique de production :
+
+1. Recueillir la configuration actuelle.
+2. Comprendre l'impact de la règle envisagée.
+3. Vérifier les services et dépendances.
+4. Préparer un plan de retour arrière.
+5. Disposer d'un moyen d'administration de secours.
+6. Définir des tests de validation.
+7. Appliquer le changement dans la fenêtre prévue.
+8. Confirmer le résultat à partir des journaux et des tests fonctionnels.
+
+Une sauvegarde de configuration est utile, mais il faut également savoir comment la restaurer.
+
+### 12.2. Les règles temporaires
+
+Les exceptions temporaires sont fréquemment créées pendant un dépannage ou une migration. Elles peuvent devenir permanentes si personne ne les réexamine.
+
+Une règle temporaire doit préciser le besoin, le périmètre, le responsable et une date de fin ou de revue.
+
+À échéance, il faut la supprimer, la renouveler après justification ou la transformer en règle permanente approuvée.
+
+### 12.3. La haute disponibilité
+
+Certains environnements utilisent deux pare-feu ou plusieurs dispositifs afin de limiter l'interruption du service en cas de panne.
+
+La haute disponibilité peut fonctionner en actif/passif ou avec d'autres architectures selon le produit.
+
+Elle exige une configuration cohérente, une synchronisation adaptée et des procédures de test. La présence de deux équipements ne garantit pas automatiquement la continuité : une panne commune, une erreur de configuration partagée ou un mauvais basculement peut toujours provoquer une interruption.
+
+## 13. Examiner le pare-feu de Windows
+
+Windows Defender Firewall protège l'ordinateur en contrôlant certaines communications entrantes et sortantes selon ses règles et ses profils.
+
+Les profils habituels sont :
+
+- **Domaine :** pour certains environnements gérés appartenant à un domaine d'entreprise.
+- **Privé :** pour les réseaux considérés comme privés et approuvés.
+- **Public :** pour les réseaux publics ou moins fiables.
+
+Le nom du profil n'est pas une garantie absolue. Il faut vérifier l'affectation réelle et la politique utilisée.
+
+### 13.1. Vérifier l'état des profils
+
+Dans PowerShell, ouvre une session disposant des droits nécessaires pour lire la configuration, puis exécute :
+
+```powershell
 Get-NetFirewallProfile |
     Select-Object Name, Enabled, DefaultInboundAction, DefaultOutboundAction
-~~~
+```
 
-Pour examiner les règles activées :
+Cette commande est une commande de lecture. Elle affiche l'état des profils et les actions par défaut visibles dans la configuration.
 
-~~~powershell
-Get-NetFirewallRule -Enabled True |
-    Select-Object DisplayName, Direction, Action, Profile
-~~~
+Pour examiner le profil Public :
 
-Pour examiner les règles entrantes :
+```powershell
+Get-NetFirewallProfile -Name Public
+```
 
-~~~powershell
+Pour afficher les règles :
+
+```powershell
+Get-NetFirewallRule |
+    Select-Object DisplayName, Enabled, Direction, Action, Profile
+```
+
+Ces commandes n'activent ni ne désactivent le pare-feu.
+
+### 13.2. Examiner une règle et ses filtres
+
+Les règles Windows peuvent être associées à des filtres qui définissent les adresses, les ports ou d'autres critères.
+
+Pour afficher les règles entrantes activées :
+
+```powershell
 Get-NetFirewallRule -Enabled True -Direction Inbound |
     Select-Object DisplayName, Action, Profile
-~~~
+```
 
-Pour afficher les filtres de ports :
+Pour examiner les filtres de ports associés aux règles :
 
-~~~powershell
-Get-NetFirewallRule -Enabled True | Get-NetFirewallPortFilter
-~~~
+```powershell
+Get-NetFirewallRule -Enabled True |
+    Get-NetFirewallPortFilter
+```
 
-Pour les filtres d'adresses :
+Pour examiner les filtres d'adresses :
 
-~~~powershell
-Get-NetFirewallRule -Enabled True | Get-NetFirewallAddressFilter
-~~~
+```powershell
+Get-NetFirewallRule -Enabled True |
+    Get-NetFirewallAddressFilter
+```
 
-Pour consulter les paramètres plus globaux des profils :
+Ces résultats doivent être interprétés en lien avec les règles associées. Il ne faut pas conclure qu'un port est ouvert ou fermé uniquement à partir d'un extrait de sortie : les profils, les filtres, les stratégies administrées et d'autres mécanismes peuvent entrer en jeu.
 
-~~~powershell
-netsh advfirewall show allprofiles
-~~~
+### 13.3. Tester un service
 
-Ces commandes sont destinées à la lecture. Les résultats doivent être interprétés ensemble : un filtre de port isolé ne prouve pas qu'un service est accessible. Le profil actif, les autres filtres, la politique centralisée et le chemin réseau comptent aussi.
+Supposons que tu veuilles vérifier l'accessibilité d'un service TCP sur un serveur que tu es autorisé à tester.
 
-## 13. Linux : UFW, nftables et ports à l'écoute
-
-Sur Ubuntu avec UFW, les commandes suivantes consultent l'état et les règles :
-
-~~~bash
-sudo ufw status verbose
-sudo ufw status numbered
-~~~
-
-Si le système utilise nftables, on peut afficher le jeu de règles :
-
-~~~bash
-sudo nft list ruleset
-~~~
-
-Pour examiner les sockets en écoute :
-
-~~~bash
-sudo ss -lntup
-~~~
-
-Ces commandes sont principalement des commandes de lecture. Si UFW est inactif, cela ne prouve pas que l'hôte est dépourvu d'autres règles. Identifie le mécanisme qui gère réellement les règles avant de modifier quoi que ce soit.
-
-Un service en écoute n'est pas nécessairement accessible depuis l'extérieur. Il faut examiner son adresse d'écoute, le pare-feu hôte, les routes et le filtrage réseau. De même, un service inaccessible peut être arrêté plutôt que bloqué par une règle.
-
-## 14. Modification prudente et retour arrière
-
-Avant un changement, clarifie le besoin, repère la règle et l'équipement concernés, vérifie les dépendances et sauvegarde la configuration pertinente. Prépare un accès de secours si tu administres la machine à distance. Définis une fenêtre de changement, les tests de validation et une procédure de retour arrière.
-
-Après la modification, confirme que le flux voulu fonctionne et que les flux interdits restent refusés. Consulte les journaux, documente le résultat et retire les règles temporaires lorsque leur besoin s'achève. Une règle doit avoir une justification, un responsable et une date de révision.
-
-Ne vide pas toutes les règles pour « repartir de zéro ». Une modification destructive peut couper une session ou supprimer une protection gérée par un autre outil. Les outils de configuration peuvent réécrire les règles automatiquement ; il faut identifier le propriétaire de la politique.
-
-## 15. Méthode de dépannage
-
-1. Précise le symptôme, la source, la destination, le port, le protocole et l'heure.
-2. Vérifie le nom DNS, l'adresse IP, le masque, la passerelle et la route.
-3. Confirme que le service fonctionne et écoute sur la bonne adresse.
-4. Examine le pare-feu hôte puis les équipements traversés.
-5. Recherche les événements correspondants dans les journaux.
-6. Vérifie la direction, la zone, la priorité et l'état de connexion des règles.
-7. Formule la correction minimale, puis reteste le flux attendu et les flux interdits.
-8. Documente la cause, le changement et le retour arrière éventuel.
-
-Sous Windows, un test TCP ciblé se fait avec :
-
-~~~powershell
+```powershell
 Test-NetConnection -ComputerName 192.0.2.20 -Port 443
-~~~
+```
 
-L'adresse est documentaire : remplace-la uniquement par le serveur de ton laboratoire autorisé. Un résultat négatif indique que le test TCP n'a pas abouti ; il ne prouve pas que le pare-feu est la cause. Le service peut être arrêté, la route manquante ou un autre équipement impliqué.
+L'adresse est un exemple documentaire : remplace-la par l'adresse de ton serveur autorisé.
 
-Ne désactive pas le pare-feu complet pour dépanner. Identifie la cause avec des commandes de lecture et les journaux, puis teste une modification précise dans un environnement autorisé.
+Le résultat peut indiquer si la tentative TCP a réussi. Si elle échoue, cela ne prouve pas automatiquement que le pare-feu est responsable. Le service peut être arrêté, l'adresse incorrecte, la route absente ou un autre équipement peut bloquer le flux.
 
-## 16. Laboratoire : politique de filtrage entre zones
+### 13.4. Activer un pare-feu Windows : attention au contexte
 
-Utilise les sous-réseaux fictifs suivants : utilisateurs 192.168.10.0/24, serveurs 192.168.20.0/24, invités 192.168.30.0/24, administration 192.168.40.0/24 et DMZ 192.168.50.0/24.
+La commande suivante peut activer la protection de tous les profils :
 
-Les postes utilisateurs doivent accéder aux applications nécessaires ; les invités peuvent accéder à Internet mais pas directement aux réseaux internes ; l'administration est réservée aux sources gérées ; un serveur Web public n'accepte que les services publiés. Si le serveur applicatif a besoin d'une base de données interne, autorise seulement sa source et le port réel requis.
+```powershell
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+```
 
-Pour chaque règle, écris source, destination, protocole, port, direction, action et justification. Les besoins inconnus doivent être confirmés par le propriétaire de l'application. Teste depuis un client de chaque zone et vérifie les refus attendus. Si IPv6 est utilisé, valide aussi sa politique.
+**C'est une commande de modification, pas de diagnostic.** Il faut vérifier que l'environnement est compatible avant de l'exécuter.
 
-## 17. Erreurs courantes
+Dans un environnement administré par une organisation, la politique de groupe ou une gestion centralisée peut contrôler la configuration. Sur un serveur distant, une mauvaise modification peut interrompre un accès d'administration ou un service métier.
 
-Une règle « tout autoriser » peut annuler la segmentation. Une priorité incorrecte peut masquer un refus spécifique. NAT ne remplace pas le filtrage. Une politique entrante stricte ne limite pas automatiquement les connexions sortantes. IPv6 peut avoir des règles différentes. Un port ouvert n'assure pas que l'application est saine. Un refus ne prouve pas une attaque. Un test négatif ne prouve pas que le pare-feu est seul en cause.
+Dans ce cours, commence par les commandes de lecture. Ne change pas les règles d'un poste de production uniquement pour reproduire un exemple pédagogique.
 
-Il faut aussi éviter d'ouvrir un service d'administration à tous les utilisateurs parce qu'un poste n'arrive pas à se connecter. Vérifie la source réellement nécessaire, le service, les règles locales et les journaux. Toute exception temporaire devrait avoir un propriétaire et une échéance.
+### 13.5. Consulter la configuration de journalisation
 
-## 18. Exercices corrigés
+La commande suivante permet d'afficher des informations sur la configuration du pare-feu via `netsh` :
 
-**1. Quel type de pare-feu protège un portable sur plusieurs réseaux ?** Le pare-feu hôte, complété par les politiques centrales si l'appareil est géré.
+```powershell
+netsh advfirewall show allprofiles
+```
 
-**2. Que signifie autoriser TCP/443 vers un serveur ?** Cela autorise le flux correspondant aux critères de la règle, pas tous les ports et pas nécessairement une application saine.
+Elle peut notamment aider à examiner l'état et les politiques de profils. Les options disponibles varient suivant la version de Windows.
 
-**3. NAT protège-t-il automatiquement un service ?** Non. Il faut vérifier séparément la traduction et les règles de filtrage.
+Pour consulter les paramètres liés aux journaux, on peut également utiliser les fonctions de la console du pare-feu Windows ou les commandes `netsh` documentées par Microsoft.
 
-**4. Le ping fonctionne mais SSH échoue.** Vérifie que SSH tourne, son port et son adresse d'écoute, puis le filtrage local et réseau.
+Ne modifie pas les chemins de journalisation ou les paramètres de sécurité d'un appareil géré sans vérifier les règles de l'organisation.
 
-**5. Pourquoi une règle tous ports est-elle risquée ?** Elle permet plus que le besoin et peut exposer des services inutiles.
+## 14. Examiner le pare-feu sous Linux
 
-**6. Un refus prouve-t-il une attaque ?** Non. Analyse source, destination, fréquence et contexte.
+Linux possède le système de filtrage Netfilter dans le noyau. Plusieurs outils permettent de configurer ou d'examiner les règles.
 
-**7. Un VLAN suffit-il ?** Non. Le routage peut permettre des flux ; vérifie les règles inter-zones.
+Deux outils fréquemment rencontrés sont :
 
-**8. Pourquoi vérifier IPv6 ?** Les règles IPv4 ne garantissent pas une politique identique pour IPv6.
+- **UFW :** interface simplifiée, courante notamment sur Ubuntu.
+- **nftables :** outil de gestion des règles du système de filtrage Netfilter.
 
-**9. Que fait nft list ruleset ?** Il affiche les règles nftables sans les modifier.
+Des environnements utilisent encore d'autres outils ou configurations. Il faut identifier le mécanisme actif avant d'y apporter une modification.
 
-**10. Quelles précautions avant une modification distante ?** Sauvegarde, accès de secours, fenêtre de changement, tests et retour arrière.
+### 14.1. Vérifier UFW
 
-## 19. Défi final
+Sur un système Ubuntu qui utilise UFW :
 
-Une petite entreprise possède un réseau utilisateurs 192.168.10.0/24, des serveurs internes 192.168.20.0/24, un réseau invité 192.168.30.0/24, l'administration 192.168.40.0/24 et une DMZ 192.168.50.0/24. Le serveur Web public dépend d'une base de données interne. Les utilisateurs doivent accéder aux applications métier ; les invités doivent accéder à Internet ; l'administration ne doit être ouverte qu'aux sources prévues.
+```bash
+sudo ufw status
+```
 
-**Correction :** définis l'objectif de chaque zone et vérifie le routage réel ; autorise les protocoles publiés vers le serveur Web ; limite les flux de la DMZ vers la base à la source applicative et au port exact ; restreins l'administration à un réseau ou bastion prévu ; bloque les accès directs des invités vers les zones internes ; journalise les refus importants et les flux sensibles ; prépare une sauvegarde, un accès de secours et un retour arrière ; teste les flux autorisés et les flux interdits depuis des clients réels ; vérifie IPv4 et IPv6 lorsque cela s'applique ; documente chaque règle avec un propriétaire et une date de revue.
+Pour davantage de détails :
 
-La politique est correcte si elle satisfait les besoins métiers sans autorisations générales non justifiées et si le comportement réel correspond aux règles documentées. Si une application échoue, corrige la cause identifiée au lieu d'ouvrir le réseau entier.
+```bash
+sudo ufw status verbose
+```
 
-## 20. Glossaire et références
+Pour afficher les règles numérotées :
 
-**Pare-feu :** dispositif qui contrôle les communications selon une politique. **Règle :** critères de trafic et action. **Stateful :** suivi de l'état d'une connexion. **Trafic transféré :** trafic qui traverse un équipement. **NAT :** traduction d'adresses et parfois de ports. **VLAN :** segment logique de niveau 2. **DMZ :** zone intermédiaire pour services exposés. **Proxy :** intermédiaire applicatif. **WAF :** pare-feu applicatif Web. **NGFW :** pare-feu disposant de fonctions réseau et applicatives avancées. **Moindre privilège :** autoriser uniquement le nécessaire. **Journalisation :** enregistrement d'événements. **Règle masquée :** règle qui ne prévaut pas à cause de l'ordre ou de la priorité. **Retour arrière :** restauration après un changement problématique.
+```bash
+sudo ufw status numbered
+```
 
-Références officielles :
-- Microsoft Learn, Get-NetFirewallProfile : https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallprofile
-- Microsoft Learn, configurer Windows Firewall par ligne de commande : https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line
-- Microsoft Learn, journalisation du pare-feu Windows : https://learn.microsoft.com/en-us/windows/security/threat-protection/windows-firewall/configure-the-windows-firewall-log
-- Ubuntu Server, pare-feu et UFW : https://documentation.ubuntu.com/server/how-to/security/firewalls/
-- NIST SP 800-41 Rev. 1, Guidelines on Firewalls and Firewall Policy : https://csrc.nist.gov/pubs/sp/800/41/r1/final
+Ces commandes permettent de lire l'état et les règles UFW. Si UFW indique qu'il est inactif, cela ne prouve pas nécessairement qu'aucun filtrage n'est en place : il faut aussi examiner la configuration réelle de Netfilter, les services de sécurité et les éventuelles règles gérées par un autre outil.
 
-Les options dépendent des versions et du gestionnaire de règles. Vérifie la documentation du système réel et teste les changements dans un environnement de laboratoire.
+### 14.2. Examiner nftables
 
-Fin du cours.
+Sur un système qui utilise nftables, la commande suivante affiche le jeu de règles :
 
-## 21. Études de cas d'application
+```bash
+sudo nft list ruleset
+```
 
-Les cas suivants servent à exercer un diagnostic méthodique sans transformer toute panne en autorisation générale.
+Il s'agit d'une commande de lecture. La sortie peut être longue et contenir plusieurs tables, chaînes et règles.
 
-### Cas de diagnostic 1 — HTTPS ne répond pas
+On peut y rechercher des chaînes qui traitent les paquets reçus par la machine, ceux qu'elle émet et les paquets qui la traversent. La terminologie exacte et l'organisation des règles dépendent de la configuration.
 
-**Situation et analyse.** Un test TCP négatif ne prouve pas que le pare-feu est la cause. Vérifie DNS, l'adresse, la route, l'état du service et son adresse d'écoute, puis examine le pare-feu hôte et les journaux du chemin réseau. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Ne vide pas le jeu de règles pour « repartir de zéro » sans avoir compris qui le gère et comment le restaurer.
 
-**Validation.** Après la correction, teste HTTPS depuis une source autorisée et vérifie que les ports non prévus restent bloqués. Ne désactive pas le pare-feu complet pour faire disparaître le symptôme. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+### 14.3. Vérifier les services en écoute
 
-### Cas de diagnostic 2 — SSH échoue mais ping réussit
+Pour examiner les ports TCP et UDP en écoute :
 
-**Situation et analyse.** ICMP et SSH n'utilisent pas le même protocole. Vérifie le service SSH, le port réel, l'adresse d'écoute, les règles locales et celles du réseau. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+```bash
+sudo ss -lntup
+```
 
-**Validation.** Valide l'accès depuis la source d'administration et reteste le refus depuis une source non autorisée. N'ouvre pas SSH à toutes les adresses pour restaurer un accès. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Cette commande affiche les sockets en écoute et, selon les privilèges et les systèmes, les programmes associés.
 
-### Cas de diagnostic 3 — Base de données accessible depuis la DMZ
+La présence d'un service en écoute n'implique pas automatiquement qu'il est accessible depuis l'extérieur. Le résultat doit être mis en relation avec les adresses d'écoute, les routes, le pare-feu hôte et le filtrage réseau.
 
-**Situation et analyse.** Le serveur exposé peut avoir des droits plus larges que nécessaire. Identifie la source applicative et le port réellement utilisé par la base. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Inversement, l'absence de connexion depuis un client n'indique pas automatiquement une règle de pare-feu incorrecte.
 
-**Validation.** Restreins le flux à l'application concernée et vérifie que les autres communications de la DMZ vers les serveurs échouent. Ne laisse pas toute la DMZ accéder à tout le réseau interne. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+### 14.4. Ajouter une règle UFW dans un laboratoire
 
-### Cas de diagnostic 4 — Règle de refus sans effet
+Dans un laboratoire Linux isolé, si un serveur de test doit accepter des connexions SSH seulement depuis une adresse d'administration précise, UFW peut exprimer une règle de ce type :
 
-**Situation et analyse.** Une règle générale antérieure ou une priorité peut masquer la règle spécifique. Consulte le modèle d'évaluation du produit et les journaux. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+```bash
+sudo ufw allow from 192.0.2.10 to any port 22 proto tcp
+```
 
-**Validation.** Teste un flux connu, identifie la règle appliquée et corrige l'ordre ou la portée suivant les conventions du produit. N'empile pas des règles semblables avant d'avoir compris la priorité. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+L'adresse `192.0.2.10` est utilisée comme exemple documentaire. Il faut la remplacer par l'adresse correcte du poste autorisé dans le réseau de laboratoire.
 
-### Cas de diagnostic 5 — Perte d'accès d'administration après changement
+Cette commande modifie la configuration. Ne l'exécute pas aveuglément sur un serveur accessible à distance.
 
-**Situation et analyse.** Une règle peut avoir bloqué la source ou le port de gestion. Utilise le canal de secours puis compare l'état actuel avec la sauvegarde. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Si le service SSH est actuellement utilisé pour administrer la machine, vérifie d'abord les règles en place, les sources autorisées, l'accès de secours et la procédure de restauration. Une règle trop restrictive ou une activation mal préparée peut bloquer l'administration.
 
-**Validation.** Applique le retour arrière si nécessaire et valide l'accès depuis la source prévue avant de refermer le changement. Ne poursuis pas des modifications à l'aveugle depuis une session distante incertaine. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+### 14.5. Pourquoi éviter les commandes destructrices
 
-### Cas de diagnostic 6 — NAT considéré comme une autorisation
+Des commandes qui effacent toutes les règles actives peuvent interrompre les connexions et supprimer des protections essentielles. Elles peuvent aussi entrer en conflit avec un gestionnaire de pare-feu qui régénère automatiquement la configuration.
 
-**Situation et analyse.** La traduction modifie l'adressage mais ne décrit pas toutes les décisions de filtrage. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Pour apprendre, privilégie cet ordre :
 
-**Validation.** Inspecte les redirections, les règles et la destination après traduction. Documente les flux entrants attendus et teste-les. Ne présume pas qu'une adresse privée est protégée dans tous les chemins. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+1. Lire la configuration.
+2. Comprendre l'architecture.
+3. Exporter ou sauvegarder ce qui doit l'être.
+4. Créer un environnement de laboratoire.
+5. Tester une modification précise.
+6. Vérifier la connectivité et les journaux.
+7. Restaurer la configuration de départ si nécessaire.
 
-### Cas de diagnostic 7 — Service accessible en IPv6 seulement
+## 15. Méthode de dépannage d'une communication bloquée
 
-**Situation et analyse.** La politique IPv4 peut ne pas couvrir la pile IPv6. Vérifie l'adresse, la route, les services en écoute et le filtrage IPv6. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Quand une application ne parvient pas à communiquer, il faut éviter d'ajouter immédiatement une règle générale.
 
-**Validation.** Teste l'accès autorisé et interdit avec une connectivité IPv6 réelle. Ne désactive pas IPv6 sans analyser les dépendances. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Une démarche méthodique permet d'isoler le problème.
 
-### Cas de diagnostic 8 — Les noms ne se résolvent plus
+### Étape 1 : préciser le symptôme
 
-**Situation et analyse.** Une panne DNS peut être confondue avec un problème de pare-feu Web. Vérifie le résolveur fourni, sa disponibilité, les routes et les règles vers lui. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Demande-toi :
 
-**Validation.** Compare une résolution depuis un client fonctionnel et consulte les journaux du serveur DNS si disponibles. N'ouvre pas tous les flux sortants pour rétablir DNS. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+- Quelle application est concernée ?
+- Quelle machine initie la connexion ?
+- Quelle est la destination ?
+- Quel port et quel protocole l'application utilise-t-elle ?
+- Depuis quand le problème apparaît-il ?
+- Le problème concerne-t-il tous les utilisateurs ou un seul ?
+- Une configuration a-t-elle récemment changé ?
 
-### Cas de diagnostic 9 — Application écoute seulement localement
+Une description comme « le réseau est bloqué » n'est pas suffisamment précise pour prendre une décision de sécurité.
 
-**Situation et analyse.** Un service lié à la boucle locale n'accepte pas les connexions distantes même si elles passent le filtrage. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Étape 2 : vérifier la résolution du nom
 
-**Validation.** Examine les sockets et la configuration d'écoute, puis expose seulement l'interface nécessaire et teste les accès. Ne suppose pas que tout service en écoute est joignable à travers le réseau. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Si l'utilisateur utilise un nom de domaine, il faut vérifier qu'il correspond à la bonne destination.
 
-### Cas de diagnostic 10 — Nombre élevé de refus
+Un problème DNS peut être confondu avec un blocage du pare-feu. Il faut distinguer une résolution de nom impossible d'une connexion réseau impossible.
 
-**Situation et analyse.** Le volume peut venir d'une application défectueuse, du trafic attendu ou d'une activité hostile. Regroupe par source, destination, fréquence et horaire. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Étape 3 : vérifier la route et l'adresse
 
-**Validation.** Corrèle avec les changements récents et les services attendus, puis ajuste la journalisation pour garder les événements importants. Ne déclare pas automatiquement une attaque à partir du volume. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Confirme l'adresse IP, le masque, la passerelle et les routes nécessaires. Vérifie que le client tente réellement de joindre le serveur attendu.
 
-### Cas de diagnostic 11 — Invités et utilisateurs sont dans des VLAN séparés mais communiquent
+Sur Windows, les commandes de diagnostic réseau comme `ipconfig` et `route print` peuvent aider.
 
-**Situation et analyse.** Le routage et les règles inter-zones peuvent autoriser des communications. Vérifie la passerelle, le chemin et le filtrage réellement appliqué. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Sur Linux, `ip address` et `ip route` permettent d'examiner les adresses et les routes.
 
-**Validation.** Après correction, teste depuis le réseau invité vers plusieurs ressources internes qui doivent rester inaccessibles. Ne confonds pas séparation VLAN et contrôle complet des flux routés. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Ces commandes sont principalement destinées à la lecture de configuration.
 
-### Cas de diagnostic 12 — Service sur un port non standard
+### Étape 4 : vérifier que le service est actif
 
-**Situation et analyse.** Il faut confirmer le port avec le propriétaire et la configuration du service plutôt que deviner. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Un pare-feu ne peut pas rendre fonctionnel un service arrêté.
 
-**Validation.** Vérifie les sockets, le protocole et le client requis, puis limite les règles aux destinations et sources nécessaires. N'ouvre pas toute la plage de ports parce que le service est atypique. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Sur le serveur, vérifie si l'application est démarrée, si elle écoute sur la bonne adresse et sur le bon port. Les commandes de lecture telles que `ss -lntup` sous Linux et les outils de diagnostic correspondants sous Windows peuvent être utiles.
 
-### Cas de diagnostic 13 — Serveur communique vers des destinations inconnues
+### Étape 5 : vérifier la règle locale
 
-**Situation et analyse.** Une politique sortante permissive peut laisser passer des dépendances mal documentées ou des communications indésirables. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Examine la politique du pare-feu hôte. Une application peut fonctionner en local mais être bloquée par une règle entrante.
 
-**Validation.** Identifie le processus, les destinations, les horaires et le besoin métier ; vérifie l'éditeur et les journaux avant de bloquer. Ne coupe pas toutes les connexions sortantes sans comprendre les dépendances critiques. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Vérifie aussi si la règle s'applique au profil actif, à la bonne interface et à l'adresse source attendue.
 
-### Cas de diagnostic 14 — Règle temporaire du prestataire encore active
+### Étape 6 : vérifier le chemin réseau
 
-**Situation et analyse.** Une exception ancienne peut exposer un service après la fin du besoin. Contacte le propriétaire et confirme si l'accès reste nécessaire. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Si le trafic traverse un pare-feu réseau, examine ses règles et ses journaux. Vérifie la zone d'entrée, la zone de sortie, la route et les éventuelles traductions d'adresses.
 
-**Validation.** Retire l'exception si elle est obsolète, vérifie les journaux d'utilisation et fixe une date de revue pour les exceptions futures. Ne garde pas une règle uniquement parce que son origine est oubliée. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Il faut déterminer à quel endroit le paquet est bloqué. Une règle créée sur le mauvais équipement ne résoudra pas le problème.
 
-### Cas de diagnostic 15 — Échec depuis un seul poste
+### Étape 7 : formuler une correction minimale
 
-**Situation et analyse.** Le problème peut être local au client, à son profil ou à son segment, pas au pare-feu central. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Si une règle manque et que la communication est autorisée par la politique, ajoute uniquement les sources, destinations, protocoles et ports nécessaires.
 
-**Validation.** Compare adresse, DNS, route et politique locale avec un poste autorisé qui fonctionne ; teste ensuite le chemin commun. Ne modifie pas le pare-feu central sans comparaison avec un client de référence. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Documente le changement et réalise un test fonctionnel ainsi qu'un test de non-régression.
 
-### Cas de diagnostic 16 — Refus ICMP empêche un diagnostic
+### Étape 8 : confirmer et documenter
 
-**Situation et analyse.** La politique peut bloquer des messages de contrôle nécessaires. Identifie le type et l'usage ICMP concernés avant de changer la règle. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Après la modification :
 
-**Validation.** Autorise uniquement les messages nécessaires, puis vérifie les diagnostics et les restrictions de sécurité. N'autorise pas tous les protocoles pour rétablir une commande. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+- Confirme que l'application fonctionne.
+- Vérifie qu'une communication non autorisée reste bloquée.
+- Examine les journaux.
+- Note les règles modifiées.
+- Prévois une date de revue pour les exceptions.
+- Restaure l'état précédent si les tests révèlent un effet inattendu.
 
-### Cas de diagnostic 17 — Pannes après une nouvelle politique
+## 16. Erreurs fréquentes à éviter
 
-**Situation et analyse.** Une dépendance partagée comme DNS, NTP ou une API peut avoir été bloquée. Corrèle l'heure des erreurs avec le changement. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Erreur 1 : autoriser tous les ports pour résoudre rapidement un problème
 
-**Validation.** Regroupe les flux affectés, identifie la dépendance commune et rétablis seulement le flux nécessaire ou le plan précédent. Ne crée pas immédiatement une règle générale d'autorisation. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Une règle trop large peut résoudre un symptôme tout en supprimant une protection importante.
 
-### Cas de diagnostic 18 — Haute disponibilité ne bascule pas
+Il faut identifier le flux exact qui manque et autoriser uniquement celui-ci.
 
-**Situation et analyse.** La configuration, l'état des sessions ou le suivi des interfaces peut ne pas être correctement synchronisé. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Erreur 2 : confondre NAT et pare-feu
 
-**Validation.** Vérifie les journaux, la synchronisation et les tests de basculement ; applique la procédure approuvée et contrôle les flux après bascule. Ne simule pas une panne en production sans plan autorisé. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Une traduction d'adresse ne constitue pas à elle seule une politique d'accès complète.
 
-### Cas de diagnostic 19 — Port d'administration accessible aux utilisateurs
+Il faut examiner les décisions de filtrage et les chemins réels du trafic.
 
-**Situation et analyse.** La règle accorde un droit trop large. L'administration devrait être limitée au réseau ou bastion prévu. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Erreur 3 : oublier le trafic sortant
 
-**Validation.** Réduis les sources, vérifie la procédure d'identification et teste un accès autorisé ainsi qu'un accès interdit. Le mot de passe seul ne compense pas l'exposition réseau. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Un poste peut être protégé contre certaines connexions entrantes tout en conservant une liberté très large pour initier des communications.
 
-### Cas de diagnostic 20 — Règle de labo ne fonctionne pas en production
+La politique sortante doit correspondre au niveau de risque et aux besoins du système.
 
-**Situation et analyse.** Les environnements peuvent différer par routes, interfaces, profils et politiques centrales. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Erreur 4 : oublier IPv6
 
-**Validation.** Compare les versions, les zones, les adresses, les règles héritées et le propriétaire de configuration, puis prépare une modification ciblée. Ne copie pas une configuration de laboratoire sans vérifier ses hypothèses. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Des règles IPv4 correctes ne prouvent pas que le système IPv6 est correctement contrôlé.
 
-### Cas de diagnostic 21 — HTTPS passe mais le navigateur affiche une erreur
+Il faut examiner les deux piles si elles sont présentes.
 
-**Situation et analyse.** Une connexion TCP réussie n'atteste pas que TLS, le certificat ou l'application sont corrects. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Erreur 5 : écrire une règle sans vérifier son ordre ou sa priorité
 
-**Validation.** Vérifie le nom d'hôte, l'expiration et la chaîne du certificat, les journaux du service et les versions TLS prises en charge. N'ouvre pas plus de ports lorsque le transport fonctionne déjà. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Une règle correcte sur le papier peut être masquée par une autre règle, se trouver dans le mauvais groupe ou ne pas s'appliquer au profil attendu.
 
-### Cas de diagnostic 22 — Port semble ouvert mais le service ne répond pas
+Il faut vérifier la façon dont le produit évalue réellement ses règles.
 
-**Situation et analyse.** Le service peut être arrêté, mal configuré ou ne pas parler le protocole attendu. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Erreur 6 : croire qu'un port indique le contenu exact
 
-**Validation.** Vérifie les journaux applicatifs, les sockets, l'adresse d'écoute et la requête envoyée par le client. Ne conclus pas uniquement à partir d'un scanner ou d'un port affiché. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Le port 443 est couramment utilisé pour HTTPS, mais une politique fondée seulement sur un numéro de port ne comprend pas automatiquement la légitimité du contenu échangé.
 
-### Cas de diagnostic 23 — Règle ne précise pas la justification
+### Erreur 7 : bloquer tous les messages ICMP sans réflexion
 
-**Situation et analyse.** Une règle sans objectif ni propriétaire ne peut pas être revue correctement. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Une politique ICMP inadaptée peut gêner le diagnostic et certaines fonctions réseau. Il faut autoriser ce qui est nécessaire selon l'environnement, sans rendre les règles excessivement permissives.
 
-**Validation.** Demande au propriétaire de confirmer le service, la source et la destination ; documente la date, le risque et l'échéance si temporaire. Ne traite pas une règle inconnue comme nécessaire par défaut. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+### Erreur 8 : oublier les règles temporaires
 
-### Cas de diagnostic 24 — Après changement, le service fonctionne mais la sécurité baisse
+Une exception créée pendant un incident peut rester active après la fin du dépannage. Les règles temporaires doivent avoir un responsable et une échéance.
 
-**Situation et analyse.** La correction peut avoir ouvert plus de flux que prévu. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Erreur 9 : modifier un pare-feu distant sans plan de secours
 
-**Validation.** Teste le flux légitime et les communications interdites ; compare la configuration et les journaux avant et après. Ne valide pas uniquement le succès de l'application. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Une mauvaise règle peut supprimer la seule voie d'administration de la machine. Avant d'intervenir, il faut connaître le chemin d'accès et le mécanisme de restauration.
 
-### Cas de diagnostic 25 — Ports SMB largement accessibles
+### Erreur 10 : considérer tous les refus comme des attaques
 
-**Situation et analyse.** TCP/445 peut exposer le partage de fichiers à des sources qui n'en ont pas besoin. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+Un refus peut être normal. Il faut étudier le contexte, l'heure, la fréquence et la destination avant de conclure.
 
-**Validation.** Limite SMB aux machines et segments autorisés, mets à jour les systèmes et vérifie aussi les permissions applicatives. Ne publie pas SMB largement vers Internet. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+### Erreur 11 : ne pas vérifier le service lui-même
 
-### Cas de diagnostic 26 — Serveur admin exposé après ajout d'une redirection
+Si le service est arrêté ou n'écoute que sur une interface locale, une règle réseau ne résoudra pas le problème.
 
-**Situation et analyse.** Une redirection NAT peut publier un service vers l'extérieur si le filtrage et la destination ne sont pas maîtrisés. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Erreur 12 : ne pas retester après la modification
 
-**Validation.** Désactive la redirection inutile, vérifie les règles et les journaux, puis teste l'exposition dans un environnement autorisé. Ne suppose pas que la présence d'un NAT suffit à bloquer l'accès. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Une modification peut rétablir un service tout en ouvrant un accès supplémentaire. Il faut vérifier les communications attendues et s'assurer que les autres restrictions restent actives.
 
-### Cas de diagnostic 27 — Le journal ne contient aucun refus
+## 17. TP 1 — Construire une politique de filtrage simple
 
-**Situation et analyse.** La journalisation peut être désactivée, filtrée, dirigée ailleurs ou l'événement n'arrive pas au pare-feu étudié. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Objectif
 
-**Validation.** Vérifie la configuration de journalisation, la bonne horloge, le chemin réseau et les logs de chaque équipement traversé. L'absence de journal ne prouve pas que le trafic n'a pas été bloqué. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Définir une politique cohérente entre un réseau utilisateurs, un serveur Web interne et un réseau invité.
 
-### Cas de diagnostic 28 — Dépendance de mise à jour échoue après filtrage sortant
+### Topologie
 
-**Situation et analyse.** Le serveur peut nécessiter un DNS, un proxy ou une destination de mise à jour non inventoriée. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+```text
+Réseau utilisateurs : 192.168.10.0/24
+             |
+             v
+        [ Pare-feu ]
+          /       \
+         v         v
+ Serveurs internes  Réseau invité
+ 192.168.20.0/24   192.168.30.0/24
+```
 
-**Validation.** Consulte la documentation du produit, identifie les destinations et ports requis, puis ajoute une exception documentée et limitée. Ne restaure pas une autorisation sortante globale sans analyser le besoin. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+Le réseau utilisateurs doit accéder à l'application Web interne. Les invités doivent disposer d'un accès Internet, mais ne doivent pas accéder aux serveurs internes.
 
-### Cas de diagnostic 29 — Appareil du même LAN contourne le pare-feu périmétrique
+### Besoins exprimés
 
-**Situation et analyse.** Deux machines dans le même segment peuvent communiquer sans traverser le périmètre. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+1. Les postes utilisateurs doivent accéder au serveur Web interne sur TCP/443.
+2. Les invités ne doivent pas accéder aux réseaux utilisateurs ou serveurs.
+3. Le serveur Web ne doit pas disposer d'un accès général aux postes utilisateurs.
+4. Les connexions entrantes non prévues doivent être bloquées.
+5. Les événements importants doivent pouvoir être examinés.
 
-**Validation.** Contrôle la segmentation locale, le pare-feu hôte et les points de routage ; teste le chemin réel de la communication. Ne suppose pas que le pare-feu périmétrique protège tous les échanges latéraux. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+### Travail demandé
 
-### Cas de diagnostic 30 — Serveur répond aux ports inattendus
+Rédige les règles nécessaires avant de configurer un appareil. Identifie les zones source et destination, les services, les actions et les justifications.
 
-**Situation et analyse.** Des services inutiles peuvent être en écoute ou des règles trop larges peuvent les exposer. Commence par consigner source, destination, protocole, port cible, heure, résultat attendu et changements récents. Examine le service sur l'hôte et les règles de chaque point de passage ; une seule capture de la politique ne décrit pas nécessairement le chemin réel.
+### Proposition de correction
 
-**Validation.** Inventorie les ports, confirme les besoins auprès du propriétaire et ferme les services inutiles selon procédure ; valide ensuite l'application. Ne ferme pas à l'aveugle un port métier sans vérifier ses dépendances. Après correction, reteste à la fois le flux autorisé et au moins un flux qui doit rester refusé. Documente la cause racine, le changement, le responsable et la date de révision.
+| Source | Destination | Service | Action | Justification |
+|---|---|---|---|---|
+| Utilisateurs | Serveur Web interne | TCP/443 | Autoriser | Application interne |
+| Invités | Réseaux internes | Tout trafic vers les sous-réseaux internes | Bloquer | Isolation des invités |
+| Serveurs internes | Utilisateurs | Nouveaux flux non autorisés | Bloquer par défaut | Limitation des mouvements latéraux |
+| Sources non prévues | Services d'administration | Ports d'administration | Bloquer | Accès réservé |
+| Connexions de retour attendues | Session autorisée | Selon l'état suivi | Autoriser selon la politique | Réponse aux communications permises |
+
+Cette correction décrit des principes. La réalisation exacte dépend de l'équipement, du routage, des règles déjà présentes et des besoins des applications.
+
+La politique doit également définir l'accès Internet des invités sans leur permettre d'atteindre les réseaux internes. Elle doit préciser les services nécessaires à leur fonctionnement et ne pas empêcher les communications légitimes de retour.
+
+### Vérifications à réaliser
+
+- Un poste utilisateur autorisé accède au serveur Web interne.
+- Un invité ne peut pas ouvrir une connexion directe vers les serveurs internes.
+- Les services d'administration ne sont pas accessibles depuis les réseaux non autorisés.
+- Les journaux permettent d'identifier les refus importants.
+- La configuration reste cohérente pour IPv4 et IPv6 lorsque les deux sont utilisés.
+
+## 18. TP 2 — Examiner une configuration sans la modifier
+
+### Objectif
+
+S'entraîner à diagnostiquer la politique active sur un ordinateur sans changer ses règles.
+
+### Partie A : Windows
+
+Dans PowerShell, exécute :
+
+```powershell
+Get-NetFirewallProfile |
+    Format-Table Name, Enabled, DefaultInboundAction, DefaultOutboundAction
+```
+
+Puis :
+
+```powershell
+Get-NetFirewallRule -Enabled True |
+    Select-Object -First 20 DisplayName, Direction, Action, Profile
+```
+
+Enfin, affiche les règles entrantes actives :
+
+```powershell
+Get-NetFirewallRule -Enabled True -Direction Inbound |
+    Select-Object DisplayName, Action, Profile
+```
+
+Travail demandé :
+
+1. Note si chaque profil est activé.
+2. Observe les actions par défaut.
+3. Identifie quelques règles entrantes autorisées.
+4. Relève les noms de règles qui mériteraient une explication.
+5. Ne désactive aucune règle pendant cet exercice.
+
+Il ne faut pas conclure qu'une règle est dangereuse simplement parce que son nom est inconnu. Il faut examiner ses filtres, son contexte et la fonction de l'application associée.
+
+### Partie B : Linux
+
+Sur un système de laboratoire Ubuntu avec UFW :
+
+```bash
+sudo ufw status verbose
+sudo ss -lntup
+```
+
+Sur un système géré avec nftables :
+
+```bash
+sudo nft list ruleset
+```
+
+Travail demandé :
+
+1. Vérifie si UFW est actif.
+2. Repère les services en écoute.
+3. Compare les ports en écoute avec la politique de filtrage.
+4. Note les informations encore manquantes pour savoir si un service est accessible depuis un réseau distant.
+5. Ne modifie pas le pare-feu pendant cet exercice.
+
+### Résultat attendu
+
+Tu dois comprendre qu'aucune commande isolée ne donne nécessairement une réponse complète. L'accessibilité d'un service dépend du service lui-même, de son adresse d'écoute, du filtrage hôte, du chemin réseau et des règles des équipements traversés.
+
+## 19. TP 3 — Dépanner un accès HTTPS refusé
+
+### Situation
+
+Une application interne est hébergée sur `192.168.20.10`. Le poste `192.168.10.25` ne parvient plus à y accéder par HTTPS.
+
+Une règle existante autorise certains postes du réseau utilisateurs à accéder au serveur sur TCP/443. L'utilisateur affirme que le pare-feu est responsable.
+
+### Démarche attendue
+
+**Étape 1 : confirmer la destination.** Vérifier que le nom de l'application se résout vers la bonne adresse IP.
+
+**Étape 2 : vérifier la route.** Confirmer que le client peut atteindre le réseau de destination par le chemin prévu.
+
+**Étape 3 : tester le port.** Depuis un poste Windows autorisé, un test TCP peut être réalisé avec :
+
+```powershell
+Test-NetConnection -ComputerName 192.168.20.10 -Port 443
+```
+
+**Étape 4 : vérifier le serveur.** Confirmer que le serveur Web fonctionne et écoute sur l'adresse et le port attendus.
+
+**Étape 5 : lire la règle.** Vérifier la source, la destination, le protocole, le port, le profil ou la zone concernée ainsi que la priorité de la règle.
+
+**Étape 6 : consulter les journaux.** Chercher les événements correspondants à la source et à la destination, à l'heure du test.
+
+**Étape 7 : corriger uniquement la cause identifiée.** Si la règle manque, en proposer une précise. Si le service est arrêté, résoudre le problème de service plutôt que d'ouvrir davantage le réseau.
+
+### Correction commentée
+
+Un échec de `Test-NetConnection` sur TCP/443 démontre que la connexion TCP n'a pas abouti pendant ce test. Il ne prouve pas à lui seul qu'une règle de pare-feu bloque le flux.
+
+Le blocage peut venir du pare-feu hôte, d'un pare-feu réseau, d'une route incorrecte, d'un service arrêté ou d'un autre problème.
+
+Le diagnostic est terminé seulement lorsque la cause a été identifiée et que les tests confirment le rétablissement du service sans ouvrir des accès inutiles.
+
+## 20. Exercices d'application avec correction
+
+### Exercice 1 — Choisir le bon type de pare-feu
+
+Une entreprise veut protéger chaque ordinateur portable, même lorsque celui-ci est connecté à un réseau externe.
+
+Quel type de pare-feu répond directement à ce besoin ?
+
+**Correction :** un pare-feu hôte. Il est installé sur le terminal et peut appliquer des règles locales lors des changements de réseau. Il doit être complété par une politique adaptée et, dans un environnement géré, par un contrôle centralisé.
+
+### Exercice 2 — Comprendre une règle
+
+Une règle autorise TCP depuis `192.168.10.0/24` vers `192.168.20.10`, sur le port destination 443.
+
+Que signifie-t-elle ?
+
+**Correction :** elle autorise, dans son périmètre d'application et sous réserve des autres règles et paramètres du produit, les communications TCP correspondant à cette source et à cette destination sur le port cible 443. Elle ne donne pas automatiquement accès à tous les ports de `192.168.20.10`.
+
+### Exercice 3 — NAT ou filtrage ?
+
+Un administrateur configure une traduction d'adresse pour un serveur. Peut-il en conclure que seuls les clients autorisés pourront accéder au service ?
+
+**Correction :** non. Le NAT traduit des adresses ou des ports. Le contrôle des communications exige l'examen de la politique de filtrage et de la configuration globale de l'équipement.
+
+### Exercice 4 — L'accès SSH ne fonctionne plus
+
+Un serveur Linux est accessible par ping, mais une connexion SSH échoue. Quelle est la prochaine action raisonnable ?
+
+**Correction :** vérifier le service SSH, son adresse d'écoute et son port, puis contrôler les règles du pare-feu local et du réseau ainsi que les journaux. Le ping ne prouve pas que TCP/22 est autorisé ni que SSH fonctionne.
+
+### Exercice 5 — Une règle trop large
+
+Une règle autorise tous les protocoles entre les utilisateurs et les serveurs. Pourquoi faut-il la revoir ?
+
+**Correction :** elle peut permettre des communications qui n'ont aucun lien avec les besoins des utilisateurs, notamment vers des services d'administration ou des données sensibles. Il faut documenter le besoin réel, identifier les flux nécessaires et réduire le périmètre des autorisations.
+
+### Exercice 6 — Un refus prouve-t-il une attaque ?
+
+Le pare-feu enregistre un paquet bloqué à destination de TCP/445. Peut-on conclure que l'organisation subit une attaque ?
+
+**Correction :** non. Le paquet peut correspondre à un client mal configuré, une tentative légitime non autorisée ou une activité malveillante. Il faut étudier sa source, sa fréquence, la destination, l'activité attendue et les événements associés.
+
+### Exercice 7 — Les invités et le réseau interne
+
+Pourquoi placer les invités dans un VLAN séparé ne suffit-il pas toujours ?
+
+**Correction :** les VLAN séparent logiquement les segments, mais des communications peuvent être autorisées ou routées entre eux. Il faut également appliquer et vérifier les règles empêchant l'accès non souhaité aux réseaux internes.
+
+### Exercice 8 — IPv4 et IPv6
+
+Les connexions vers un service sont bloquées en IPv4. Quelle vérification complémentaire est utile ?
+
+**Correction :** examiner si IPv6 est actif, si le service écoute sur une adresse IPv6 et si la politique de filtrage IPv6 est cohérente. Il ne faut pas supposer que les règles IPv4 couvrent nécessairement les communications IPv6.
+
+### Exercice 9 — Lire une commande
+
+Que fait la commande Linux suivante ?
+
+```bash
+sudo nft list ruleset
+```
+
+**Correction :** elle affiche le jeu de règles nftables actif. C'est une commande de lecture utile pour examiner la configuration. Elle ne crée ni ne supprime une règle.
+
+### Exercice 10 — Plan de changement
+
+Avant de modifier un pare-feu distant, cite quatre précautions importantes.
+
+**Correction possible :**
+
+1. Comprendre la configuration actuelle et le besoin.
+2. Sauvegarder ou exporter la configuration pertinente.
+3. Prévoir un accès de secours et un plan de retour arrière.
+4. Définir des tests précis et une fenêtre de changement.
+5. Documenter la modification et vérifier les journaux après le changement.
+
+Quatre éléments correctement expliqués suffisent.
+
+## 21. Défi final — Sécuriser le réseau d'une petite entreprise
+
+### Contexte
+
+Une petite entreprise possède :
+
+- Des postes utilisateurs dans `192.168.10.0/24`.
+- Des serveurs internes dans `192.168.20.0/24`.
+- Un réseau Wi-Fi invité dans `192.168.30.0/24`.
+- Un réseau d'administration dans `192.168.40.0/24`.
+- Un serveur Web public dans une DMZ, `192.168.50.0/24`.
+
+Ces réseaux sont fictifs et servent uniquement à l'exercice.
+
+Les exigences de sécurité sont les suivantes :
+
+1. Les utilisateurs doivent accéder aux applications internes prévues.
+2. Les invités doivent accéder à Internet sans accéder aux réseaux internes.
+3. Le serveur Web public doit accepter les connexions Web publiées.
+4. Le serveur Web public doit pouvoir joindre uniquement le service de base de données dont il a besoin, si cette dépendance est nécessaire à l'application.
+5. L'administration des serveurs est réservée au réseau d'administration.
+6. Les connexions non prévues doivent être refusées.
+7. Les refus importants doivent pouvoir être analysés.
+8. Toute exception doit être documentée et réexaminée.
+
+### Travail demandé
+
+Construis une politique comprenant :
+
+- Les zones et les objectifs de protection.
+- Les principaux flux autorisés.
+- Les flux qui doivent être refusés.
+- Les mesures de journalisation.
+- Les vérifications permettant de confirmer que la politique fonctionne.
+- Les précautions nécessaires avant un changement.
+
+### Correction complète
+
+#### A. Définir les zones
+
+| Zone | Fonction | Niveau de confiance attendu |
+|---|---|---|
+| Utilisateurs | Accès aux applications métier | Contrôlé |
+| Serveurs internes | Applications et données sensibles | Élevé, avec accès restreints |
+| Invités | Connexions de visiteurs | Faible |
+| Administration | Gestion des équipements et serveurs | Accès fortement restreint |
+| DMZ | Publication de services vers l'extérieur | Exposée, avec accès internes limités |
+
+Cette classification n'est pas une affirmation selon laquelle une zone est forcément saine. Elle définit les besoins de contrôle et les restrictions attendues.
+
+#### B. Décrire les autorisations
+
+**Utilisateurs vers applications internes :** n'autoriser que les protocoles et ports exigés par les applications prévues. Les destinations doivent être précisées autant que possible.
+
+**Invités vers Internet :** autoriser les communications nécessaires à l'accès Internet selon la politique de l'entreprise, tout en bloquant les accès directs non autorisés aux réseaux internes.
+
+**Internet vers serveur Web en DMZ :** autoriser uniquement les protocoles publiés et les ports nécessaires. Les services d'administration ne doivent pas devenir accessibles au public.
+
+**DMZ vers base de données :** autoriser le serveur applicatif concerné à joindre la base de données sur le port réel utilisé par l'application. Cette règle ne doit pas donner accès à toute la zone des serveurs internes.
+
+**Administration vers serveurs :** autoriser les connexions d'administration nécessaires depuis les postes ou bastions prévus. Les comptes doivent rester correctement protégés, avec MFA lorsqu'il est pris en charge.
+
+**Flux non prévus :** les refuser selon la politique par défaut, après avoir défini les exceptions indispensables.
+
+#### C. Vérifier la segmentation
+
+La politique doit garantir que les invités ne peuvent pas ouvrir de connexion directe vers les réseaux des utilisateurs, des serveurs ou de l'administration.
+
+Si les serveurs internes ne doivent pas initier de connexions vers les postes utilisateurs, cette restriction doit être définie et testée. Le simple fait d'interdire une connexion dans un sens n'empêche pas nécessairement tous les autres flux possibles : il faut vérifier les sessions nouvelles, les flux de retour et les règles de transfert.
+
+#### D. Protéger l'administration
+
+Le réseau d'administration ne doit pas être ouvert à tous les utilisateurs. Les accès doivent provenir de sources identifiées et respecter une procédure de gestion des privilèges.
+
+La protection réseau est une couche de défense, pas le seul moyen de protection. L'authentification, les droits locaux, le bastion éventuel, les mises à jour et les journaux d'administration demeurent indispensables.
+
+#### E. Mettre en place une journalisation utile
+
+Le pare-feu doit enregistrer les refus importants et, lorsque cela est nécessaire, les communications autorisées jugées sensibles.
+
+Les journaux doivent pouvoir être consultés lors d'un incident. Il faut contrôler leur taille, leur rétention et les droits d'accès. Les événements répétitifs attendus ne doivent pas empêcher l'identification des événements significatifs.
+
+#### F. Préparer les tests
+
+Les tests doivent vérifier au minimum :
+
+- Un utilisateur autorisé peut atteindre l'application métier prévue.
+- Un invité peut accéder à Internet si cela est requis.
+- Un invité ne peut pas ouvrir une connexion directe vers les serveurs internes.
+- Internet ne peut joindre que les services publiés dans la DMZ.
+- Le serveur Web ne peut atteindre que les services internes explicitement autorisés.
+- Les accès d'administration fonctionnent depuis les sources autorisées, mais sont refusés depuis les autres zones.
+- La politique IPv4 et IPv6 est cohérente avec l'environnement réel.
+- Les journaux permettent d'expliquer les autorisations et les refus observés.
+
+Les tests doivent être réalisés dans un laboratoire ou dans un environnement de production dont la modification a été approuvée. Les résultats doivent être conservés pour permettre la comparaison après un changement.
+
+#### G. Préparer un retour arrière
+
+Avant d'appliquer la politique, sauvegarder la configuration selon les possibilités du dispositif, noter les règles existantes, identifier la méthode de restauration et s'assurer qu'un accès de secours est disponible.
+
+Après le changement, effectuer les tests fonctionnels et de sécurité. Si un flux indispensable est interrompu, corriger la cause identifiée ou restaurer l'état précédent selon le plan préparé. Il ne faut pas désactiver l'ensemble du pare-feu comme solution de dépannage par défaut.
+
+#### H. Documenter les décisions
+
+Chaque règle importante doit avoir une justification. Une règle doit pouvoir être reliée à un service ou à un besoin métier identifiable.
+
+Les exceptions ont un propriétaire et une date de réexamen. Une revue périodique permet de supprimer les règles inutiles et de détecter les autorisations devenues trop larges.
+
+### Critères d'évaluation du défi
+
+Le défi est réussi si la politique proposée :
+
+- Distingue clairement les zones.
+- Identifie les flux nécessaires.
+- Limite les services exposés.
+- Empêche les invités d'accéder directement aux réseaux internes.
+- Réserve l'administration aux sources autorisées.
+- Considère le filtrage entrant, sortant et transféré selon le contexte.
+- Prévoit une journalisation exploitable.
+- Inclut des tests de validation et un retour arrière.
+- Tient compte d'IPv4 et d'IPv6 lorsque cela s'applique.
+- Évite les autorisations générales sans justification.
+
+Il ne s'agit pas de maximiser le nombre de règles. Il s'agit de définir une politique compréhensible, vérifiable et adaptée aux besoins.
+
+## 22. Glossaire essentiel
+
+**Pare-feu (firewall)** : dispositif matériel ou logiciel qui contrôle des communications selon une politique.
+
+**Règle** : instruction décrivant les caractéristiques d'un trafic et l'action à appliquer.
+
+**Politique par défaut** : décision appliquée lorsque les conditions prévues ne conduisent pas à une autre décision.
+
+**Trafic entrant** : trafic reçu par un système ou une zone depuis l'extérieur de ce périmètre.
+
+**Trafic sortant** : trafic initié ou émis par un système vers une destination extérieure à ce périmètre.
+
+**Trafic transféré** : trafic qui traverse un équipement pour aller d'un réseau à un autre.
+
+**Pare-feu à états** : pare-feu qui suit les connexions pour tenir compte de leur contexte.
+
+**NAT** : mécanisme de traduction d'adresses réseau et, selon les techniques employées, de ports.
+
+**VLAN** : réseau local virtuel qui permet de séparer logiquement des groupes d'équipements.
+
+**Segmentation** : séparation de réseaux ou de systèmes afin de contrôler les communications entre eux.
+
+**DMZ** : zone intermédiaire destinée notamment à héberger certains services accessibles depuis des réseaux moins fiables.
+
+**Proxy** : intermédiaire qui relaie des communications ou des requêtes selon son rôle.
+
+**WAF** : pare-feu applicatif Web destiné à analyser et à filtrer certaines requêtes visant des applications Web.
+
+**NGFW** : pare-feu combinant plusieurs capacités réseau et, selon le produit, applicatives ou de prévention.
+
+**Surface d'attaque** : ensemble des points et voies par lesquels un système peut être exposé à des attaques.
+
+**Moindre privilège** : principe consistant à accorder uniquement les autorisations nécessaires.
+
+**Journalisation** : enregistrement d'événements afin de permettre l'analyse, le diagnostic et la supervision.
+
+**Règle masquée** : règle qui ne produit pas l'effet attendu parce qu'une autre règle ou une autre priorité prévaut selon le moteur d'évaluation.
+
+**Retour arrière** : procédure permettant de revenir à un état connu après une modification problématique.
+
+## 23. Références officielles pour approfondir
+
+Les ressources suivantes permettent d'approfondir les concepts et de vérifier les commandes selon l'environnement utilisé.
+
+- Microsoft Learn, `Get-NetFirewallProfile` : https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallprofile
+- Microsoft Learn, gestion du pare-feu Windows en ligne de commande : https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line
+- Microsoft Learn, configuration de la journalisation du pare-feu Windows : https://learn.microsoft.com/en-us/windows/security/threat-protection/windows-firewall/configure-the-windows-firewall-log
+- Documentation Ubuntu Server, pare-feu et UFW : https://documentation.ubuntu.com/server/how-to/security/firewalls/
+- Documentation de sécurité Ubuntu, fonctions de filtrage et outils associés : https://documentation.ubuntu.com/security/security-features/network/firewall/
+- NIST SP 800-41 Rev. 1, *Guidelines on Firewalls and Firewall Policy* : https://csrc.nist.gov/pubs/sp/800/41/r1/final
+
+Les commandes doivent être vérifiées sur la version du système et du produit réellement administrée. Une instruction valable sur une machine de laboratoire n'est pas automatiquement appropriée pour une machine de production.
+
+## Conclusion
+
+Le pare-feu est l'un des outils fondamentaux de la sécurité réseau. Il permet de limiter les communications, de séparer des zones et de rendre certaines attaques plus difficiles. Mais sa valeur dépend de la qualité de sa politique, de la compréhension du réseau et de la rigueur avec laquelle ses règles sont administrées.
+
+La démarche à retenir est simple : **décrire le besoin, identifier le flux exact, limiter les autorisations, vérifier la règle réellement appliquée, tester le résultat et documenter le changement**.
+
+Quand une communication échoue, il faut rechercher la cause avant de modifier la politique. Quand une règle est créée, elle doit répondre à une justification précise et rester limitée au strict nécessaire.
+
+La maîtrise des pare-feu commence par la lecture et la compréhension des règles, puis se consolide par la pratique en laboratoire. C'est cette méthode qui permet de renforcer la sécurité sans bloquer inutilement les services légitimes.
 
 Fin du cours.
