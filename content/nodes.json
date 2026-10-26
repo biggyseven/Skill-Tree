@@ -4434,7 +4434,7 @@
     "title": "Infrastructure as Code avec Terraform - Débutant",
     "category": "Cloud & Automatisation",
     "order": 970,
-    "description": "Déployer l'infrastructure réseau via du code déclaratif.",
+    "description": "Maîtriser les bases de Terraform et HCL pour déclarer une première ressource, examiner un plan et gérer les changements avec prudence.",
     "prereqs": [
       "automation-intermediaire"
     ],
@@ -4451,7 +4451,7 @@
     "title": "Infrastructure as Code avec Terraform - Intermédiaire",
     "category": "Cloud & Automatisation",
     "order": 971,
-    "description": "Providers et variables.",
+    "description": "Construire une infrastructure réseau avec Terraform : VPC, CIDR, dépendances, modules, tests et environnements.",
     "prereqs": [
       "terraform-debutant"
     ],
@@ -4468,7 +4468,7 @@
     "title": "Infrastructure as Code avec Terraform - Expert",
     "category": "Cloud & Automatisation",
     "order": 972,
-    "description": "Modules, state et CI/CD.",
+    "description": "Exploiter Terraform en production : state distant, plans contrôlés, politiques, dérives, importation et reprise après incident.",
     "prereqs": [
       "terraform-intermediaire"
     ],
@@ -5464,10 +5464,10 @@
   {
     "id": "iac-intermediaire",
     "module": "DevOps",
-    "title": "Infrastructure as Code avec Terraform",
+    "title": "Ingénierie IaC et livraison contrôlée - Intermédiaire",
     "category": "DevOps",
     "order": 3013,
-    "description": "Providers, state, modules.",
+    "description": "Concevoir les dépôts, les contrats de composants, les tests, les chaînes de livraison, la promotion entre environnements et le traitement des dérives en équipe.",
     "prereqs": [
       "cicd-debutant",
       "iac-debutant"
@@ -5486,10 +5486,10 @@
   {
     "id": "iac-expert",
     "module": "DevOps",
-    "title": "IaC à grande échelle",
+    "title": "Gouvernance et plateforme IaC - Expert",
     "category": "DevOps",
     "order": 3014,
-    "description": "Terraform Cloud, Atlantis, tests d'infra.",
+    "description": "Gouverner une plateforme IaC multi-équipes et multi-outils : catalogue, politiques, identités, audit, résilience, coûts et indicateurs de maturité.",
     "prereqs": [
       "iac-intermediaire"
     ],
@@ -6782,10 +6782,10 @@
   {
     "id": "iac-debutant",
     "module": "DevOps",
-    "title": "Infrastructure as Code avec Terraform — Débutant",
+    "title": "Fondamentaux de l’IaC - Débutant",
     "category": "DevOps",
     "order": 3012,
-    "description": "Décrire une infrastructure simple, comprendre les providers, variables, plans et état Terraform.",
+    "description": "Comprendre les principes communs de l’Infrastructure as Code, le cycle de changement, Git, les familles d’outils et les risques fondamentaux.",
     "prereqs": [
       "cicd-debutant"
     ],
