@@ -140,3 +140,27 @@ test('un cours peut être ouvert depuis la recherche puis fermé avec Échap', a
   await page.keyboard.press('Escape');
   await expect(reader).toBeHidden();
 });
+
+
+test('la recherche mobile confine le focus et le restitue au bouton déclencheur', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openDashboard(page);
+
+  const trigger = page.getByRole('button', { name: 'Rechercher un cours', exact: true });
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+
+  const dialog = page.getByRole('dialog', { name: 'Rechercher un cours' });
+  const input = page.locator('input[x-ref="mobileSearchBox"]');
+  await expect(dialog).toBeVisible();
+  await expect(input).toBeFocused();
+
+  await page.keyboard.press('Shift+Tab');
+  await expect.poll(() => dialog.evaluate(element => element.contains(document.activeElement))).toBe(true);
+  await page.keyboard.press('Tab');
+  await expect(input).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
