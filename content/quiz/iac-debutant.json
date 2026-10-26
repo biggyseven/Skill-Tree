@@ -6,12 +6,12 @@
       "type": "qcm",
       "prompt": "Quel est le rôle de terraform init ?",
       "choices": [
-        "Préparer le répertoire et récupérer les providers ou modules nécessaires",
         "Appliquer automatiquement tous les changements en production",
+        "Préparer le répertoire et récupérer les providers ou modules nécessaires",
         "Supprimer l’état",
         "Formater les fichiers seulement"
       ],
-      "answer": 0,
+      "answer": 1,
       "explanation": "init prépare le répertoire de travail et les dépendances déclarées."
     },
     {
@@ -30,36 +30,36 @@
       "type": "qcm",
       "prompt": "Pourquoi faut-il protéger le fichier d’état Terraform ?",
       "choices": [
-        "Il peut contenir des valeurs sensibles et relie le code aux ressources gérées",
         "Il ne contient que des commentaires publics",
         "Il remplace le code source",
-        "Il ne sert qu’à formater les fichiers"
+        "Il ne sert qu’à formater les fichiers",
+        "Il peut contenir des valeurs sensibles et relie le code aux ressources gérées"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "L’état peut inclure des attributs sensibles et nécessite un contrôle d’accès et des sauvegardes adaptés."
     },
     {
       "type": "qcm",
       "prompt": "Quelle commande vérifie le formatage des fichiers Terraform sans les modifier ?",
       "choices": [
-        "terraform fmt -check",
         "terraform apply --check",
         "terraform state destroy",
+        "terraform fmt -check",
         "terraform provider ping"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "fmt -check signale les fichiers qui ne respectent pas le format Terraform attendu."
     },
     {
       "type": "qcm",
       "prompt": "À quoi sert une variable d’entrée ?",
       "choices": [
-        "Paramétrer la configuration sans dupliquer les fichiers",
         "Créer automatiquement un compte cloud",
+        "Paramétrer la configuration sans dupliquer les fichiers",
         "Remplacer le fichier d’état",
         "Ignorer les plans"
       ],
-      "answer": 0,
+      "answer": 1,
       "explanation": "Les variables rendent les configurations réutilisables et peuvent porter types, descriptions et validations."
     },
     {
@@ -78,24 +78,24 @@
       "type": "qcm",
       "prompt": "Un exemple utilise un provider inconnu. Que faut-il vérifier avant de le déployer ?",
       "choices": [
-        "Le nom réel du provider, sa version, la ressource et sa documentation",
         "Seulement la couleur de l’éditeur",
         "Que le fichier se termine par une ligne vide",
-        "Que terraform apply soit lancé deux fois"
+        "Que terraform apply soit lancé deux fois",
+        "Le nom réel du provider, sa version, la ressource et sa documentation"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "Une syntaxe copiée ne prouve pas que le provider ou les attributs existent ou sont compatibles."
     },
     {
       "type": "qcm",
       "prompt": "Pourquoi un workspace Terraform ne suffit-il pas toujours à isoler production ?",
       "choices": [
-        "Il ne remplace pas des permissions, comptes et frontières d’environnement séparés",
         "Il chiffre toujours le state",
         "Il remplace les approbations",
+        "Il ne remplace pas des permissions, comptes et frontières d’environnement séparés",
         "Il interdit les destructions"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "Les espaces de travail aident à distinguer des états mais n’offrent pas à eux seuls une frontière de sécurité complète."
     }
   ]

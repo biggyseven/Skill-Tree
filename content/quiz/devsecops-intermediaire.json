@@ -6,36 +6,36 @@
       "type": "qcm",
       "prompt": "Pourquoi associer une SBOM à l’artefact exact livré ?",
       "choices": [
-        "Pour retrouver les composants réellement présents dans cette version",
         "Pour éviter de scanner les images",
         "Pour permettre la modification anonyme du registre",
-        "Pour faire disparaître les alertes"
+        "Pour faire disparaître les alertes",
+        "Pour retrouver les composants réellement présents dans cette version"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "Une SBOM utile doit correspondre à l’artefact livré, pas seulement à une branche abstraite du code."
     },
     {
       "type": "qcm",
       "prompt": "Quel risque réduit la séparation entre job de test et job de publication ?",
       "choices": [
-        "Qu’un workflow de contribution non fiable publie un artefact ou accède à la production",
         "La durée de tous les tests à zéro",
         "La nécessité de versions immuables",
+        "Qu’un workflow de contribution non fiable publie un artefact ou accède à la production",
         "Le besoin d’un inventaire de composants"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "Les jobs de test doivent rester à faible privilège ; la publication doit être protégée et contrôlée."
     },
     {
       "type": "qcm",
       "prompt": "Que décrit la provenance d’un artefact ?",
       "choices": [
-        "Des informations sur sa source et sa construction",
         "Toutes les vulnérabilités possibles de l’application",
+        "Des informations sur sa source et sa construction",
         "Le contenu des secrets de production",
         "L’état de tous les serveurs cloud"
       ],
-      "answer": 0,
+      "answer": 1,
       "explanation": "La provenance permet de retracer le commit, l’identité et le processus de construction."
     },
     {
@@ -54,36 +54,36 @@
       "type": "qcm",
       "prompt": "Pourquoi éviter d’exposer des secrets aux workflows qui exécutent des contributions non fiables ?",
       "choices": [
-        "Le code modifié pourrait lire ou exfiltrer les identifiants accessibles",
         "Les secrets ne servent qu’en production",
         "Git masque toujours le contenu automatiquement",
-        "Les workflows non fiables ne peuvent jamais exécuter du code"
+        "Les workflows non fiables ne peuvent jamais exécuter du code",
+        "Le code modifié pourrait lire ou exfiltrer les identifiants accessibles"
       ],
-      "answer": 0,
+      "answer": 3,
       "explanation": "Un workflow peut exécuter du code soumis dans une contribution. Les secrets doivent être séparés et les permissions limitées."
     },
     {
       "type": "qcm",
       "prompt": "Quel rôle joue un scan IaC ?",
       "choices": [
-        "Détecter des déclarations d’infrastructure potentiellement dangereuses",
         "Prouver la disponibilité d’une application en production",
         "Remplacer les revues de configuration",
+        "Détecter des déclarations d’infrastructure potentiellement dangereuses",
         "Garantir la compatibilité des migrations SQL"
       ],
-      "answer": 0,
+      "answer": 2,
       "explanation": "Un scanner IaC repère des motifs de configuration à risque, à compléter par l’analyse du contexte et des tests."
     },
     {
       "type": "qcm",
       "prompt": "Quel est le bon comportement lors d’une fuite de secret ?",
       "choices": [
-        "Révoquer ou tourner le secret, examiner les logs, limiter les permissions et documenter la cause",
         "Retirer la valeur du dernier commit uniquement",
+        "Révoquer ou tourner le secret, examiner les logs, limiter les permissions et documenter la cause",
         "Imprimer la valeur dans un rapport",
         "Réutiliser le secret dans un autre environnement"
       ],
-      "answer": 0,
+      "answer": 1,
       "explanation": "La suppression du code ne supprime pas les copies déjà réalisées ; la rotation et l’investigation sont prioritaires."
     },
     {
