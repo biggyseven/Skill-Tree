@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Gestion avancée des services",
+      "prompt": "Quel signal ne peut pas être intercepté ni ignoré par un processus ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`SIGTERM`",
+        "`SIGINT`",
+        "`SIGHUP`",
+        "`SIGKILL`"
+      ],
+      "answer": 3,
+      "explanation": "`SIGKILL` est traité par le noyau et ne peut pas être capturé ni ignoré ; il ne laisse donc pas au processus la même occasion de nettoyer ses ressources que `SIGTERM`."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que vérifie `kill -0 PID` sans envoyer de signal de terminaison ?",
+      "choices": [
+        "Que le processus a fini avec le code zéro",
+        "Que le PID existe ou est visible et que l’appelant dispose des permissions nécessaires, au moment du contrôle",
+        "Que le processus utilise moins de 10 % du CPU",
+        "Que le service sera redémarré automatiquement"
+      ],
+      "answer": 1,
+      "explanation": "Le signal 0 sert à tester l’existence/visibilité et les permissions, mais le résultat est ponctuel et peut être affecté par une course avec la fin du processus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un processus reste longtemps dans l’état `D`. Quelle interprétation est la plus plausible ?",
+      "choices": [
+        "Il attend dans un sommeil non interruptible, souvent lié à une opération d’entrée/sortie",
+        "Il a terminé et attend d’être récolté par son parent",
+        "Il est forcément arrêté par `SIGSTOP`",
+        "Il est garanti d’être en train de saturer le CPU"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "L’état `D` correspond à un sommeil non interruptible, fréquemment lié à une attente d’E/S ; il faut examiner le stockage, le réseau ou le pilote concerné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande affiche PID, PPID, état et commande pour le PID 2468 ?",
+      "choices": [
+        "`free -m -p 2468`",
+        "`ls -l /proc/2468`",
+        "`ps -o pid,ppid,stat,cmd -p 2468`",
+        "`systemctl list-unit-files 2468`"
+      ],
+      "answer": 2,
+      "explanation": "L’option `-o` choisit les colonnes et `-p` limite la sortie au processus demandé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après l’échec d’un service `nginx` géré par systemd, quelle commande affiche ses journaux ?",
+      "choices": [
+        "`lsblk -f nginx`",
+        "`journalctl -u nginx`",
+        "`ip route show nginx`",
+        "`chmod nginx`"
+      ],
+      "answer": 1,
+      "explanation": "`journalctl -u nginx` filtre les journaux par unité systemd ; on peut ajouter une fenêtre temporelle pour isoler l’incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel paramètre d’une unité systemd définit une politique de redémarrage après échec ?",
+      "choices": [
+        "`WorkingDirectory=always`",
+        "`User=restart`",
+        "`ExecStart=on-failure`",
+        "`Restart=on-failure`"
+      ],
+      "answer": 3,
+      "explanation": "`Restart=on-failure` indique à systemd de relancer le service dans les cas d’échec couverts par cette politique ; les délais et limites de redémarrage comptent aussi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme Linux permet de limiter des ressources d’un groupe de processus, par exemple le CPU ou la mémoire ?",
+      "choices": [
+        "Le nom du processus dans `ps` uniquement",
+        "Le PID parent sans autre configuration",
+        "Les cgroups, avec des contrôleurs configurés selon la hiérarchie",
+        "Le bit d’exécution d’un fichier"
+      ],
+      "answer": 2,
+      "explanation": "Les cgroups organisent les processus en groupes auxquels des contrôleurs peuvent appliquer des limites ou comptabiliser les ressources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lors d’un pic CPU, quelle commande aide à mesurer la consommation d’un PID sur plusieurs intervalles ?",
+      "choices": [
+        "`pidstat -p PID 1`",
+        "`cat /etc/hostname`",
+        "`mount -a`",
+        "`ip neigh show`"
+      ],
+      "answer": 0,
+      "explanation": "`pidstat` collecte des statistiques par processus à intervalles réguliers, ce qui aide à distinguer une pointe ponctuelle d’une charge durable."
     }
   ]
 }
