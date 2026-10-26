@@ -3000,8 +3000,11 @@
             const lines = value.split(/\r?\n/u);
             if (lines.length < 2) return false;
             const pipeRows = lines.filter(line => (line.match(/[|│]/gu) || []).length >= 2);
+            const labelsOnLines = lines.filter(line => /[A-Za-z0-9]/u.test(line)).length;
+            const connectorOnlyLines = lines.filter(line => !/[A-Za-z0-9]/u.test(line) && /[|+^v<>_\\/\\-]/u.test(line)).length;
             return /[┌┐└┘├┤┬┴┼─│╭╮╰╯↔↕←→↑↓]/u.test(value)
               || pipeRows.length >= 2
+              || (labelsOnLines >= 2 && connectorOnlyLines >= 2)
               || lines.some(line => /[A-Za-z0-9][\w.-]*(?:\s*(?:--+>|-{2,}|==>|->|<->|→|←|↔|—|–)\s*)[A-Za-z0-9]/u.test(line));
           };
 
@@ -4004,7 +4007,12 @@
           if (relationships.length) spoken.push('Schéma textuel. Le parcours se lit ainsi : ' + relationships.map(value => value + '.').join(' '));
           const unmentioned = labels.filter(label => !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR'))));
           if (unmentioned.length) spoken.push('Autres éléments représentés : ' + unmentioned.join(', ') + '.');
-          if (!spoken.length && labels.length) spoken.push('Schéma textuel. Les éléments représentés, dans l’ordre visuel, sont : ' + labels.join(', ') + '.');
+          const connectorOnlyLines = lines.filter(line => !/[A-Za-z0-9]/u.test(line) && /[|+^v<>_\\/\\-]/u.test(line)).length;
+          if (!spoken.length && labels.length && connectorOnlyLines > 0) {
+            spoken.push('Schéma textuel. Les éléments sont reliés dans l’ordre suivant : ' + labels.join(', puis ') + '.');
+          } else if (!spoken.length && labels.length) {
+            spoken.push('Schéma textuel. Les éléments représentés, dans l’ordre visuel, sont : ' + labels.join(', ') + '.');
+          }
           if (!spoken.length) spoken.push('Schéma textuel. Le diagramme présente des éléments reliés visuellement ; le texte explicatif qui l’accompagne précise le sens des relations.');
           return spoken;
         },
