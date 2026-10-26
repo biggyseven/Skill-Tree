@@ -811,8 +811,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("allowedPrefixes = ['skilltree-', 'st:']", export)
         self.assertIn("font_size: Number(app.fontSize) || 17", export)
         self.assertIn("reading_width:", export)
-        self.assertIn("compact_ui: !!this.compactUi", export)
-        self.assertIn("reduce_motion: !!this.reduceMotion", export)
+        self.assertIn("compact_ui: !!app.compactUi", export)
+        self.assertIn("reduce_motion: !!app.reduceMotion", export)
         self.assertIn("skilltree-sauvegarde-", export)
         self.assertIn("app.saveFile(name, new Blob", export)
 
