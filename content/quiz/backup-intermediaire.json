@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Solutions de sauvegarde d'entreprise",
+      "prompt": "Avant une commande `rsync --delete`, quelle précaution est essentielle ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Vérifier source et destination et simuler les suppressions prévues",
+        "L’exécuter sur tout le système sans vérifier les chemins",
+        "Désactiver toutes les versions",
+        "Lancer la commande depuis `/` par défaut"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "`--delete` supprime les fichiers de destination absents de la source ; une simulation évite d’effacer le mauvais contenu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel intérêt apporte un outil comme Restic ?",
+      "choices": [
+        "Il remplace les droits d’accès au dépôt",
+        "Des sauvegardes versionnées et des opérations de restauration, selon la configuration",
+        "Il assure toujours la cohérence à chaud de chaque application",
+        "Il dispense de tester la restauration"
+      ],
+      "answer": 1,
+      "explanation": "Les snapshots et fonctions de restauration aident, mais l’intégrité applicative et les essais restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi comparer un SHA-256 de fichier restauré à une empreinte de référence fiable ?",
+      "choices": [
+        "Pour attribuer une IP au fichier",
+        "Pour le chiffrer automatiquement",
+        "Pour contrôler si le contenu correspond à la référence",
+        "Pour démontrer l’absence de malware"
+      ],
+      "answer": 2,
+      "explanation": "Une empreinte permet de détecter une différence de contenu, sans prouver à elle seule que les données sont saines."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire une tâche de sauvegarde planifiée en cas d’échec ?",
+      "choices": [
+        "Considérer le silence comme un succès",
+        "Désactiver les alertes",
+        "Relancer en boucle sans limite",
+        "Journaliser l’échec, alerter selon sa criticité et appliquer une reprise bornée"
+      ],
+      "answer": 3,
+      "explanation": "Les défaillances doivent être visibles et leur reprise contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi restaurer d’abord dans un répertoire isolé ?",
+      "choices": [
+        "Pour inspecter la structure, les permissions et l’intégrité sans écraser les données d’origine",
+        "Pour éviter la sauvegarde préalable",
+        "Pour démarrer automatiquement toutes les applications",
+        "Pour bloquer les propriétaires des fichiers"
+      ],
+      "answer": 0,
+      "explanation": "Une restauration isolée permet de valider les résultats avant une remise en production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque faut-il évaluer dans une politique de rétention automatisée ?",
+      "choices": [
+        "Les dates ne servent jamais",
+        "Une règle incorrecte peut supprimer la seule version qui répond encore aux besoins métier",
+        "Les archives ne peuvent pas être chiffrées",
+        "La rétention ne concerne que les VM"
+      ],
+      "answer": 1,
+      "explanation": "La rétention doit respecter les exigences de récupération et les obligations applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une base de données en fonctionnement peut-elle nécessiter une méthode de sauvegarde spécifique ?",
+      "choices": [
+        "Le nom du fichier doit être plus long",
+        "Les fichiers de base ne peuvent jamais être copiés",
+        "Une copie brute peut capturer des données et journaux à des instants incohérents",
+        "Il faut une route par défaut"
+      ],
+      "answer": 2,
+      "explanation": "Une méthode compatible avec la base permet d’obtenir un point de récupération cohérent selon ses garanties."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment vérifier qu’une sauvegarde distante couvre un scénario de sinistre ?",
+      "choices": [
+        "Vérifier seulement que le transfert a terminé",
+        "Comparer les noms des répertoires",
+        "Déduire la reprise du nombre de versions",
+        "Réaliser une restauration représentative et mesurer le résultat et le temps nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "Une récupération testée mesure les étapes et dépendances réellement nécessaires."
     }
   ]
 }

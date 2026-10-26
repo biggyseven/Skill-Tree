@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Automatisation Réseau - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quelle distinction décrit un modèle déclaratif d’état ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il décrit le résultat attendu plutôt que seulement une séquence d’actions impératives",
+        "Il fonctionne uniquement sur les routeurs physiques",
+        "Il garantit qu’un changement est toujours sans risque",
+        "Il empêche de contrôler la configuration"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "L’état attendu aide à mesurer la conformité indépendamment de la séquence de commandes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’idempotence d’une tâche de configuration ?",
+      "choices": [
+        "Elle ne lit jamais l’équipement",
+        "Une nouvelle exécution dans les mêmes conditions n’ajoute pas de changement une fois l’état désiré atteint",
+        "Elle ne peut être lancée qu’une fois",
+        "Elle supprime automatiquement toute configuration non reconnue"
+      ],
+      "answer": 1,
+      "explanation": "L’idempotence rend les reprises plus sûres, selon le comportement réel des tâches utilisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel garde-fou convient avant un déploiement réseau à grande échelle ?",
+      "choices": [
+        "Déployer simultanément partout sans observation",
+        "Ignorer les écarts si le script termine",
+        "Prévalidation, lot pilote, critères de santé, arrêt contrôlé et retour arrière",
+        "Conserver uniquement le dernier message de succès"
+      ],
+      "answer": 2,
+      "explanation": "La montée en charge progressive limite l’impact d’une erreur et facilite l’arrêt du déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les secrets doivent-ils être séparés du code CI/CD ?",
+      "choices": [
+        "Pour les imprimer dans les rapports",
+        "Pour permettre à tous de lire les clés",
+        "Pour empêcher toute rotation",
+        "Pour réduire l’exposition, contrôler les permissions et permettre leur révocation"
+      ],
+      "answer": 3,
+      "explanation": "Les identifiants doivent être fournis par une source protégée, sans apparaître dans le dépôt ou les logs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un contrôle révèle un écart de configuration. Quelle réponse est adaptée ?",
+      "choices": [
+        "Qualifier l’écart, recueillir le contexte et appliquer une correction approuvée",
+        "Corriger tous les équipements avec le même modèle",
+        "Ignorer l’écart si l’interface est active",
+        "Écraser l’état de production sans test"
+      ],
+      "answer": 0,
+      "explanation": "Certains écarts sont légitimes selon le rôle ; il faut analyser la preuve avant de corriger."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles preuves aident à auditer un déploiement ?",
+      "choices": [
+        "Un message « réussi » seulement",
+        "Version du code, paramètres non secrets, résultats, journaux et état final",
+        "Le mot de passe administrateur dans le rapport",
+        "Une capture non horodatée"
+      ],
+      "answer": 1,
+      "explanation": "Les preuves doivent relier le code déployé au test et à l’état réellement obtenu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un script sans erreur d’exécution ne prouve-t-il pas la conformité du service ?",
+      "choices": [
+        "Les scripts n’ont aucun code de retour",
+        "Les tests métier ne peuvent pas être automatisés",
+        "Une exécution réussie techniquement ne garantit pas le résultat fonctionnel attendu",
+        "Le retour arrière ne concerne que les systèmes Windows"
+      ],
+      "answer": 2,
+      "explanation": "Les validations doivent couvrir le réseau et le service, pas uniquement le processus d’automatisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels changements exigent des garde-fous renforcés ?",
+      "choices": [
+        "La mise en forme d’un rapport local",
+        "Le calcul d’un nom de fichier",
+        "La lecture d’une variable locale",
+        "Les opérations destructives ou à fort impact, avec portée, autorisation et retour arrière maîtrisés"
+      ],
+      "answer": 3,
+      "explanation": "Les actions sensibles exigent permission minimale, portée contrôlée, audit et procédure de récupération."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour AWS VPC - Débutant. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert un Amazon VPC ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Créer un réseau virtuel isolé logiquement pour les ressources AWS",
+        "Remplacer IAM dans le compte",
+        "Créer automatiquement des machines virtuelles",
+        "Chiffrer chaque paquet applicatif"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le VPC fournit un espace réseau logique avec adressage, sous-réseaux et routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qui caractérise principalement un sous-réseau public AWS ?",
+      "choices": [
+        "Son nom comprend « public »",
+        "Sa table de routage dispose d’une route vers une Internet Gateway ; la joignabilité dépend aussi de l’adresse et des règles",
+        "Il doit être dans plusieurs régions",
+        "Il accepte tous les ports par défaut"
+      ],
+      "answer": 1,
+      "explanation": "La route IGW est nécessaire au chemin Internet, mais l’accès effectif requiert un adressage et des règles compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une table de routage VPC ?",
+      "choices": [
+        "Stocker les comptes IAM",
+        "Chiffrer les volumes EC2",
+        "Déterminer la cible à utiliser pour les destinations selon les routes configurées",
+        "Créer les règles de Security Group"
+      ],
+      "answer": 2,
+      "explanation": "Le routage choisit le prochain saut selon la destination."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment planifier plusieurs sous-réseaux dans un VPC ?",
+      "choices": [
+        "Les laisser se chevaucher librement",
+        "Utiliser des plages à l’extérieur du CIDR du VPC",
+        "Donner la même plage à tous les sous-réseaux",
+        "Choisir des CIDR inclus dans l’espace du VPC et sans chevauchement"
+      ],
+      "answer": 3,
+      "explanation": "Des plages distinctes et comprises dans le VPC facilitent le routage et l’évolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel composant permet de créer une route vers Internet depuis un VPC ?",
+      "choices": [
+        "Internet Gateway associée au VPC avec routes compatibles",
+        "Une règle Security Group seule",
+        "Une zone DNS",
+        "Une interface réseau sans sous-réseau"
+      ],
+      "answer": 0,
+      "explanation": "L’IGW est la cible du chemin Internet mais ne remplace pas les règles de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un Security Group ?",
+      "choices": [
+        "Attribuer les CIDR des sous-réseaux",
+        "Filtrer les flux autorisés pour les ressources associées",
+        "Faire le NAT de tous les sous-réseaux",
+        "Remplacer la table de routage"
+      ],
+      "answer": 1,
+      "explanation": "Un Security Group autorise des flux pour les ressources associées ; il n’effectue pas le routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une instance est running mais inaccessible depuis Internet. Que faut-il vérifier ?",
+      "choices": [
+        "Seulement son nom DNS",
+        "Le nombre de VPC dans le compte",
+        "Adresse publique, routes, Security Groups, NACL et pare-feu local",
+        "La taille du volume racine seulement"
+      ],
+      "answer": 2,
+      "explanation": "Le statut de calcul ne prouve pas la connectivité réseau de bout en bout."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi nettoyer les ressources après un laboratoire AWS ?",
+      "choices": [
+        "Pour changer automatiquement le CIDR",
+        "Pour désactiver le chiffrement",
+        "Pour valider les permissions IAM",
+        "Pour éviter les ressources orphelines et les frais de services facturables"
+      ],
+      "answer": 3,
+      "explanation": "Certaines ressources, notamment NAT Gateways et adresses IPv4 publiques, peuvent engendrer des coûts."
     }
   ]
 }

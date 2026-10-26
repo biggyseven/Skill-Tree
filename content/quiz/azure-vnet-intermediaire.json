@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Azure VNet - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert une User Defined Route dans Azure ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Définir une route personnalisée vers une cible prévue par l’architecture",
+        "Remplacer les NSG",
+        "Créer une IP publique seule",
+        "Chiffrer automatiquement les flux"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une UDR peut envoyer certains préfixes vers une appliance ou une autre cible prévue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il retenir du VNet Peering ?",
+      "choices": [
+        "Il fusionne les VNets en un seul CIDR",
+        "Il connecte les VNets appairés mais la transitivité n’est pas automatique",
+        "Il expose toutes les VM sur Internet",
+        "Il supprime le besoin de planifier les routes"
+      ],
+      "answer": 1,
+      "explanation": "Le peering fournit une connectivité privée entre VNets appairés, pas une transitivité universelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle courant d’Azure NAT Gateway ?",
+      "choices": [
+        "Accepter toutes les connexions entrantes",
+        "Remplacer toutes les tables de routage",
+        "Fournir une sortie SNAT aux ressources du sous-réseau selon la configuration",
+        "Remplacer le DNS privé"
+      ],
+      "answer": 2,
+      "explanation": "NAT Gateway facilite la sortie, mais ne constitue pas une solution générale d’accès entrant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi regarder les routes effectives d’une NIC ?",
+      "choices": [
+        "Elles affichent tous les secrets d’une VM",
+        "Elles donnent le contenu de chaque paquet",
+        "Elles créent automatiquement les règles du pare-feu local",
+        "Elles montrent les routes réellement applicables et peuvent révéler une UDR inattendue"
+      ],
+      "answer": 3,
+      "explanation": "Les routes effectives aident à comprendre le chemin de trafic véritable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’usage principal d’Azure Bastion ?",
+      "choices": [
+        "Accéder aux VM en RDP/SSH par le service Bastion sans exposer nécessairement une IP publique sur chaque VM",
+        "Fournir un NAT sortant universel",
+        "Remplacer le VNet",
+        "Créer des sauvegardes versionnées"
+      ],
+      "answer": 0,
+      "explanation": "Bastion peut réduire l’exposition directe des VM tout en permettant un accès d’administration contrôlé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un Private Endpoint nécessite-t-il une configuration DNS cohérente ?",
+      "choices": [
+        "Le DNS ne change jamais le chemin",
+        "Une résolution incorrecte peut diriger le client vers une adresse publique ou un chemin inattendu",
+        "Le Private Endpoint supprime les permissions de service",
+        "Il change la région du VNet"
+      ],
+      "answer": 1,
+      "explanation": "Le point privé doit être associé à la résolution voulue et les autorisations de service restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un VNet appairé n’accède pas à un troisième réseau via le premier. Quelle explication est plausible ?",
+      "choices": [
+        "Le peering expire après 30 minutes",
+        "Azure ne prend pas en charge la connectivité privée",
+        "Le peering n’est pas transitif par défaut ; les routes et le mécanisme de transit doivent être conçus explicitement",
+        "Le CIDR doit être public"
+      ],
+      "answer": 2,
+      "explanation": "Une architecture de transit demande des routes et des composants adaptés ; elle ne découle pas automatiquement du peering."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble aide à diagnostiquer l’accès échoué à un service privé ?",
+      "choices": [
+        "Le nom visible dans le portail uniquement",
+        "La couleur du groupe de ressources",
+        "Une seule règle NSG prise isolément",
+        "Routes effectives, NSG, résolution DNS, état du Private Endpoint et autorisations du service"
+      ],
+      "answer": 3,
+      "explanation": "Le diagnostic doit couvrir le chemin IP, le nom résolu et les règles côté service."
     }
   ]
 }

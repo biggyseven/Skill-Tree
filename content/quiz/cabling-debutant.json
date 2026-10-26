@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Câblage et Normes - Débutant. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert le câblage structuré ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Organiser et maintenir les liaisons entre prises, panneaux de brassage et équipements",
+        "Remplacer les règles IP",
+        "Chiffrer les trames Ethernet",
+        "Attribuer un VLAN à chaque utilisateur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le câblage structuré organise les liens physiques et facilite leur identification et leur maintenance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles normes donnent deux schémas courants de terminaison RJ45 ?",
+      "choices": [
+        "802.1Q et 802.1X",
+        "T568A et T568B",
+        "IPv4 et IPv6",
+        "Cat 5e et Cat 6A"
+      ],
+      "answer": 1,
+      "explanation": "T568A et T568B décrivent des ordres de fils qui doivent être appliqués correctement aux terminaisons."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distance maximale est couramment associée à un canal Ethernet cuivre structuré classique ?",
+      "choices": [
+        "10 mètres pour toutes les catégories",
+        "1 000 mètres quelle que soit l’installation",
+        "100 mètres selon les exigences du canal et du standard",
+        "Aucune limite"
+      ],
+      "answer": 2,
+      "explanation": "La limite couramment retenue pour un canal cuivre Ethernet classique est 100 m, selon l’application et les éléments du lien."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un test de continuité ne certifie-t-il pas le lien ?",
+      "choices": [
+        "Il mesure toutes les performances applicatives",
+        "Il prouve automatiquement les performances haute fréquence",
+        "Il remplace les tests de NEXT",
+        "Il vérifie certains défauts de câblage mais pas tous les paramètres de transmission exigés"
+      ],
+      "answer": 3,
+      "explanation": "Une continuité correcte ne garantit pas pertes, diaphonie et autres paramètres de performance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle cause peut provoquer un défaut physique sur un lien cuivre ?",
+      "choices": [
+        "Paire mal terminée, câble écrasé ou connecteur mal raccordé",
+        "Nom d’hôte trop court",
+        "Plage CIDR privée",
+        "Archive ancienne"
+      ],
+      "answer": 0,
+      "explanation": "Une terminaison ou un dommage physique peut interrompre ou dégrader une liaison."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment choisir entre fibre monomode et multimode ?",
+      "choices": [
+        "Les deux sont interchangeables dès que le connecteur s’insère",
+        "Selon distance, application, longueur d’onde et compatibilité des transceivers",
+        "Toujours prendre multimode pour les longues distances",
+        "La monomode ne transporte pas de données numériques"
+      ],
+      "answer": 1,
+      "explanation": "Le support et les optiques doivent être adaptés au lien et à la portée visée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil peut repérer un fil inversé ou une paire ouverte ?",
+      "choices": [
+        "Un navigateur web",
+        "Un serveur DNS",
+        "Un testeur de câblage avec fonction wiremap",
+        "Un serveur DHCP"
+      ],
+      "answer": 2,
+      "explanation": "Un testeur wiremap détecte certaines erreurs de brochage et de continuité, mais pas toutes les performances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique améliore la maintenabilité d’une baie ?",
+      "choices": [
+        "Laisser les deux extrémités sans étiquette",
+        "Obstruer la ventilation avec les cordons",
+        "Mélanger tous les supports sans repérage",
+        "Étiqueter les deux extrémités et organiser les chemins sans traction ni courbure excessive"
+      ],
+      "answer": 3,
+      "explanation": "Une identification et une pose correctes facilitent le diagnostic et limitent les dommages."
     }
   ]
 }

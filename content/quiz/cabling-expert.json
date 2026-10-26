@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Câblage et Normes - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quels facteurs devraient guider la conception du câblage d’un site ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Applications, débits, distances, environnement, topologie, évolution et compatibilité des équipements",
+        "Couleur des cordons uniquement",
+        "Apparence de la baie uniquement",
+        "Nom des interfaces réseau"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La sélection du support et de l’architecture doit répondre aux besoins réels et à l’évolution du site."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel paramètre est crucial lors de la conception de liens fibre à connecteurs multifibres MPO/MTP ?",
+      "choices": [
+        "Le nombre de noms DNS",
+        "La polarité et la correspondance des fibres entre émission et réception",
+        "Le masque IPv4",
+        "Le port SSH"
+      ],
+      "answer": 1,
+      "explanation": "La polarité et le mapping doivent permettre de faire correspondre correctement les fibres Tx et Rx."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi calculer le budget de pertes optiques avant la recette ?",
+      "choices": [
+        "Pour attribuer les VLAN",
+        "Pour éviter le nettoyage des connecteurs",
+        "Pour confirmer que les pertes cumulées restent compatibles avec la marge de l’optique",
+        "Pour calculer directement le délai applicatif"
+      ],
+      "answer": 2,
+      "explanation": "Le budget compare pertes estimées et mesurées aux capacités et marges des transceivers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque peut concerner un faisceau dense de câbles PoE ?",
+      "choices": [
+        "Il devient automatiquement conforme",
+        "Il supprime le besoin d’identification",
+        "Il garantit une température plus basse",
+        "L’échauffement peut augmenter selon la puissance, le groupement et les conditions de pose"
+      ],
+      "answer": 3,
+      "explanation": "Le dimensionnement doit respecter les limites et recommandations applicables au câblage et à la charge PoE."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un plan d’acceptation sérieux ?",
+      "choices": [
+        "Référentiel, identifiants, résultats de mesures, limites et traitement des échecs",
+        "Plan de baie sans numérotation",
+        "Un seul voyant link",
+        "Liste d’adresses IP publiques"
+      ],
+      "answer": 0,
+      "explanation": "Une recette associe chaque lien à des résultats mesurés et à des critères prédéfinis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi distinguer cheminement, identification et continuité du blindage sur du cuivre blindé ?",
+      "choices": [
+        "Ce sont des paramètres DNS",
+        "Ils couvrent des aspects différents de pose, maintenabilité et conformité du système de blindage",
+        "La mise à la terre remplace toutes les terminaisons",
+        "Une étiquette prouve le blindage"
+      ],
+      "answer": 1,
+      "explanation": "L’efficacité d’un système blindé dépend de son architecture et de sa terminaison, au-delà de l’étiquetage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une fibre présente une continuité mais le lien échoue à longue distance. Quel point de départ est pertinent ?",
+      "choices": [
+        "Changer tous les connecteurs sans inspection",
+        "Activer DHCP sur le transceiver",
+        "Comparer budget de pertes, mesures, composants et compatibilité optique",
+        "Conclure que la continuité prouve la qualité"
+      ],
+      "answer": 2,
+      "explanation": "Une continuité ne prouve pas la marge optique ; les pertes et caractéristiques de l’optique doivent être mesurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qui améliore le dépannage des installations denses à long terme ?",
+      "choices": [
+        "Des câbles non étiquetés",
+        "Un inventaire fondé sur la couleur seule",
+        "Aucun plan pour éviter les divergences",
+        "Nomenclature cohérente, plans à jour, résultats de tests et gestion formalisée des changements"
+      ],
+      "answer": 3,
+      "explanation": "Documentation et contrôle des modifications permettent de garder la traçabilité d’une installation complexe."
     }
   ]
 }

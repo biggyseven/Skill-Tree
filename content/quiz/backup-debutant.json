@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Sauvegarde et restauration",
+      "prompt": "Que décrit la règle de sauvegarde 3-2-1 ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Trois copies, sur deux types de supports, dont une hors site",
+        "Trois comptes administrateurs et deux mots de passe",
+        "Une seule copie gardée trois jours",
+        "Trois synchronisations vers le même répertoire"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Cette règle multiplie les copies et supports et prévoit une copie séparée du site principal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi `rsync` seul n’est-il pas une stratégie complète de sauvegarde versionnée ?",
+      "choices": [
+        "Il ne copie jamais de fichiers",
+        "Une synchronisation peut répercuter suppressions ou corruptions si aucune version indépendante n’est conservée",
+        "Il n’existe pas sous Linux",
+        "Il chiffre systématiquement les données"
+      ],
+      "answer": 1,
+      "explanation": "Une copie miroir facilite le transfert mais peut propager une erreur ; conserver des versions séparées protège contre certains scénarios."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage correspond à `tar` ?",
+      "choices": [
+        "Tester la bande passante",
+        "Gérer un volume RAID",
+        "Regrouper fichiers et répertoires dans une archive que l’on peut ensuite vérifier et restaurer",
+        "Gérer les autorisations IAM"
+      ],
+      "answer": 2,
+      "explanation": "`tar` crée et extrait des archives ; il ne prouve pas seul la récupérabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit le RPO ?",
+      "choices": [
+        "Le débit maximum du serveur de secours",
+        "Le nombre de copies conservées",
+        "Le temps de redémarrage d’une VM",
+        "La perte de données maximale acceptable, exprimée par une fenêtre de temps"
+      ],
+      "answer": 3,
+      "explanation": "Le RPO porte sur l’ancienneté des données récupérables après incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit le RTO ?",
+      "choices": [
+        "Le délai cible de remise en service après interruption",
+        "Le nombre de versions dans un dépôt",
+        "La taille d’une archive",
+        "Le taux de compression"
+      ],
+      "answer": 0,
+      "explanation": "Le RTO définit le délai cible de reprise ; il faut vérifier qu’il est atteignable par des tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un snapshot ne remplace-t-il pas toujours une sauvegarde indépendante ?",
+      "choices": [
+        "Il ne peut jamais être restauré",
+        "Il peut partager le même domaine de panne que les données originales et ne couvre pas tous les scénarios",
+        "Il est toujours hors ligne",
+        "Il remplace automatiquement une copie hors site"
+      ],
+      "answer": 1,
+      "explanation": "Un snapshot est utile mais peut être supprimé ou compromis avec le système d’origine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve démontre le mieux qu’une sauvegarde est exploitable ?",
+      "choices": [
+        "Le fichier existe dans un répertoire",
+        "La tâche a été lancée hier",
+        "Une restauration d’essai suivie de contrôles d’intégrité et d’usage",
+        "Le nom contient « backup »"
+      ],
+      "answer": 2,
+      "explanation": "Une restauration testée vérifie la récupération réelle et pas uniquement la création du fichier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi garder une copie hors ligne ou immuable ?",
+      "choices": [
+        "Pour accélérer les sessions SSH",
+        "Pour partager tous les identifiants de production",
+        "Pour supprimer les tests de restauration",
+        "Pour réduire la possibilité qu’un attaquant efface ou chiffre toutes les copies"
+      ],
+      "answer": 3,
+      "explanation": "L’isolement ou l’immutabilité peut préserver une copie lorsqu’un environnement de production est compromis."
     }
   ]
 }

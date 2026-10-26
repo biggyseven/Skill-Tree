@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Tests de restauration et PRA",
+      "prompt": "Comment choisir une stratégie de sauvegarde pour un service critique ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "À partir des RPO/RTO, dépendances, cohérence des données, menaces et tests nécessaires",
+        "En gardant une seule copie locale",
+        "En utilisant uniquement la réplication synchrone",
+        "En choisissant un outil sans analyse du service"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La stratégie découle des besoins métier et des menaces, puis doit être validée par des exercices."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure limite le risque qu’un compte de production efface aussi toutes les sauvegardes ?",
+      "choices": [
+        "Conserver toutes les clés dans le compte de production",
+        "Copie isolée ou immuable avec identités, permissions et contrôles distincts",
+        "Utiliser un compte root partagé",
+        "Désactiver la MFA"
+      ],
+      "answer": 1,
+      "explanation": "Séparer les accès et protéger certaines copies peut contenir l’impact d’une compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il mesurer lors d’un exercice PRA ?",
+      "choices": [
+        "Uniquement le temps de connexion à la console de sauvegarde",
+        "Le nombre d’archives créées",
+        "Le délai et la qualité de restauration jusqu’à un service utilisable selon les objectifs",
+        "Le débit théorique du stockage seul"
+      ],
+      "answer": 2,
+      "explanation": "La reprise concerne le service restauré et non le seul transfert de fichiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une base de données a-t-elle besoin d’une sauvegarde cohérente ?",
+      "choices": [
+        "Parce que ses fichiers ne peuvent jamais être copiés",
+        "Parce que `tar` rend toujours les fichiers corrompus",
+        "Parce que RPO et RTO ne s’appliquent pas aux bases",
+        "Parce que les pages, journaux et transactions peuvent être copiés à des instants incompatibles"
+      ],
+      "answer": 3,
+      "explanation": "Un outil ou mécanisme adapté préserve un point cohérent selon les garanties de la base."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel essai contribue à démontrer la résilience face à un rançongiciel ?",
+      "choices": [
+        "Restaurer une copie propre en environnement isolé, puis vérifier intégrité et fonctionnement",
+        "Vérifier seulement le statut vert de la tâche",
+        "Donner au compte de production le droit de supprimer toutes les versions",
+        "Restaurer directement sur les données originales"
+      ],
+      "answer": 0,
+      "explanation": "Un environnement isolé permet de vérifier la récupération tout en réduisant le risque de réinfection ou d’écrasement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter les secrets requis dans un runbook PRA ?",
+      "choices": [
+        "Écrire tous les mots de passe dans le document",
+        "Documenter le moyen autorisé de les obtenir, mais conserver les secrets dans un mécanisme protégé",
+        "Partager un compte privilégié entre tous les opérateurs",
+        "Interdire la rotation des identifiants"
+      ],
+      "answer": 1,
+      "explanation": "Le runbook décrit la procédure d’accès sans exposer les secrets en clair."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un test de restauration dépasse le RTO prévu. Quelle est la bonne suite ?",
+      "choices": [
+        "Déclarer la conformité car les fichiers sont présents",
+        "Masquer la durée du test",
+        "Analyser les goulots, corriger la procédure ou les ressources, puis répéter le test",
+        "Augmenter le RPO sans accord métier"
+      ],
+      "answer": 2,
+      "explanation": "Le dépassement est un écart à analyser avec les parties prenantes avant de revalider la stratégie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un critère fort de réussite d’un PRA ?",
+      "choices": [
+        "Toutes les sauvegardes ont le même nom",
+        "La documentation est courte",
+        "La tâche se termine sans erreur seulement",
+        "Un test reproductible restaure des données cohérentes et valide les objectifs convenus avec preuves"
+      ],
+      "answer": 3,
+      "explanation": "La réussite se démontre par des données récupérées et un service conforme aux objectifs, pas seulement par une tâche réussie."
     }
   ]
 }

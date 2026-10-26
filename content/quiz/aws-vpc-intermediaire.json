@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour AWS VPC - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Comment une instance privée peut-elle accéder à Internet en sortie sans recevoir directement les connexions initiées depuis Internet ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Route via une NAT Gateway dans un sous-réseau public, avec routes et règles adaptées",
+        "Route directe depuis chaque instance vers l’IGW avec adresse publique obligatoire",
+        "Aucune route par défaut",
+        "Un Security Group qui effectue lui-même le NAT"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une NAT Gateway assure la sortie IPv4 initiée depuis les réseaux privés ; le chemin doit être configuré dans les tables de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’une table de routage associée à un sous-réseau ?",
+      "choices": [
+        "Chiffrer les données sur disque",
+        "Diriger le trafic vers une cible selon la destination",
+        "Attribuer des utilisateurs IAM",
+        "Créer des adresses IP publiques"
+      ],
+      "answer": 1,
+      "explanation": "La table de routage détermine la cible du paquet, sans remplacer filtrage ou adressage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence est correcte entre Security Group et Network ACL ?",
+      "choices": [
+        "Les deux sont stateful",
+        "La Network ACL s’applique uniquement aux applications",
+        "Security Groups sont stateful ; Network ACLs sont stateless et filtrent au niveau du sous-réseau",
+        "Les Security Groups remplacent le routage"
+      ],
+      "answer": 2,
+      "explanation": "Les SG suivent l’état de connexion, contrairement aux NACL qui traitent séparément entrée et sortie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle limite faut-il retenir du VPC Peering ?",
+      "choices": [
+        "Il interconnecte automatiquement tous les VPC du compte",
+        "Il fournit une transitivité globale par défaut",
+        "Il remplace les routes de tous les sous-réseaux",
+        "Le peering n’est pas transitif par défaut"
+      ],
+      "answer": 3,
+      "explanation": "Un peering ne rend pas automatiquement accessible un troisième réseau via le VPC pair."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les VPC Flow Logs ?",
+      "choices": [
+        "Fournir des métadonnées sur les flux IP pour aider le diagnostic en complément des autres preuves",
+        "Capturer toujours le contenu complet de chaque paquet",
+        "Autoriser les flux refusés",
+        "Créer les routes manquantes"
+      ],
+      "answer": 0,
+      "explanation": "Les Flow Logs décrivent des métadonnées de trafic et ne remplacent pas l’analyse des routes, règles et applications."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un VPC Endpoint pour un service compatible ?",
+      "choices": [
+        "Attribuer une IP publique à toutes les instances",
+        "Permettre un accès à certains services AWS par un chemin privé adapté et configuré",
+        "Supprimer tous les Security Groups",
+        "Transformer le VPC en sous-réseau public"
+      ],
+      "answer": 1,
+      "explanation": "Le type de endpoint et sa configuration déterminent la connectivité et le chemin utilisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une instance privée ne sort plus après l’ajout d’une NAT Gateway. Quelle liste vérifier ?",
+      "choices": [
+        "Recréer immédiatement le VPC",
+        "Désactiver toutes les règles entrantes",
+        "Routes du sous-réseau privé et public, état et routes de la NAT, règles réseau et pare-feu local",
+        "Renommer la table de routage"
+      ],
+      "answer": 2,
+      "explanation": "Le chemin NAT dépend des routes aller/retour et de règles compatibles à toutes les couches."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment limiter les coûts d’un environnement de test ?",
+      "choices": [
+        "Laisser toutes les ressources actives indéfiniment",
+        "Créer plusieurs NAT Gateways sans besoin",
+        "Ignorer les adresses IPv4 publiques",
+        "Estimer les coûts et supprimer les ressources facturables après vérification des dépendances"
+      ],
+      "answer": 3,
+      "explanation": "Le nettoyage doit être planifié après vérification de ce qui doit être conservé."
     }
   ]
 }

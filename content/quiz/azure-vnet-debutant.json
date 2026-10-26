@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Azure VNet - Débutant. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert un Azure Virtual Network ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Fournir un réseau privé virtuel où les ressources communiquent selon l’adressage, le routage et les règles configurés",
+        "Remplacer l’abonnement",
+        "Chiffrer automatiquement les disques",
+        "Créer un DNS public pour chaque VM"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le VNet fournit l’espace réseau, mais la connectivité dépend également des routes et des contrôles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle relation décrit le mieux VNet et sous-réseau ?",
+      "choices": [
+        "Chaque sous-réseau doit être dans une région différente",
+        "Un sous-réseau utilise une plage incluse dans l’espace d’adressage du VNet",
+        "Le sous-réseau est un groupe d’utilisateurs",
+        "Les plages peuvent toujours se chevaucher"
+      ],
+      "answer": 1,
+      "explanation": "Les sous-réseaux découpent l’espace du VNet et doivent être planifiés sans chevauchements problématiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un Network Security Group ?",
+      "choices": [
+        "Créer une UDR",
+        "Allouer le CIDR du VNet",
+        "Autoriser ou refuser des flux selon les règles appliquées à une NIC ou un sous-réseau",
+        "Créer à lui seul une passerelle VPN"
+      ],
+      "answer": 2,
+      "explanation": "Le NSG filtre le trafic ; il ne remplace ni l’adressage, ni le routage, ni les contrôles de l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une VM située dans un VNet n’est-elle pas automatiquement accessible depuis Internet ?",
+      "choices": [
+        "Azure ouvre toujours tous les ports",
+        "Toute IP privée est publiquement routable",
+        "Le VNet n’utilise jamais de routes",
+        "Le chemin, l’adressage et les règles de sécurité doivent être compatibles"
+      ],
+      "answer": 3,
+      "explanation": "La présence dans un VNet ne rend pas l’application publique sans une architecture d’accès et des règles adéquates."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment organiser plusieurs CIDR de sous-réseaux ?",
+      "choices": [
+        "Utiliser des plages non chevauchantes incluses dans l’espace du VNet en gardant une marge d’évolution",
+        "Réutiliser la même plage pour chaque sous-réseau",
+        "Choisir sans calcul préalable",
+        "Utiliser uniquement des IP publiques"
+      ],
+      "answer": 0,
+      "explanation": "Un plan d’adressage cohérent évite les conflits et facilite les extensions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qui détermine le prochain saut d’un paquet ?",
+      "choices": [
+        "Le groupe de ressources",
+        "Les routes applicables, dont les routes système et les routes définies par l’utilisateur",
+        "Le nom du compte d’abonnement",
+        "Le pare-feu local seulement"
+      ],
+      "answer": 1,
+      "explanation": "Le routage sélectionne le chemin ; NSG et pare-feu contrôlent séparément les flux autorisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux VM ne communiquent pas dans le même VNet. Que vérifier en premier ?",
+      "choices": [
+        "Recréer l’abonnement",
+        "Supprimer le sous-réseau destination",
+        "Adresses, routes effectives, NSG, pare-feu local et sens du flux attendu",
+        "Changer les noms de ressources"
+      ],
+      "answer": 2,
+      "explanation": "Une vérification par couche permet de localiser le problème sans modifier au hasard l’environnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi nettoyer les ressources d’un laboratoire Azure ?",
+      "choices": [
+        "Pour modifier le CIDR automatiquement",
+        "Pour forcer le VNet à changer de région",
+        "Pour rendre les NSG stateful",
+        "Pour limiter les ressources orphelines et les frais des services facturables"
+      ],
+      "answer": 3,
+      "explanation": "Des services de calcul, NAT ou Bastion peuvent générer des frais selon l’usage et la région."
     }
   ]
 }

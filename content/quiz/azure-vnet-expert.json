@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Azure VNet - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel est l’objectif d’une architecture hub-and-spoke bien segmentée ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Centraliser certains services partagés tout en contrôlant explicitement les flux entre spokes",
+        "Autoriser automatiquement tous les spokes entre eux",
+        "Supprimer les tables de routage",
+        "Partager un seul sous-réseau entre toutes les charges"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le hub mutualise certains services mais la connectivité doit rester contrôlée par les routes et les règles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi valider les routes effectives après déploiement de NVA et UDR ?",
+      "choices": [
+        "Les NSG ne sont plus nécessaires",
+        "Pour confirmer que les préfixes passent par la cible prévue et repérer des routes conflictuelles",
+        "Pour générer des certificats TLS",
+        "Pour modifier les CIDR système"
+      ],
+      "answer": 1,
+      "explanation": "La route choisie détermine le chemin réel et doit correspondre au dessin d’architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque introduit une route qui envoie tout le trafic vers une appliance sans vérifier le retour ?",
+      "choices": [
+        "Elle garantit une inspection symétrique",
+        "Elle ne modifie que le DNS",
+        "Elle peut créer un chemin asymétrique ou une boucle et interrompre des sessions",
+        "Elle transforme le NSG en routeur"
+      ],
+      "answer": 2,
+      "explanation": "Il faut vérifier aller et retour ; les chemins incohérents peuvent créer des pertes ou des sessions instables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un incident hybride, quelles informations faut-il vérifier au-delà des NSG ?",
+      "choices": [
+        "Le nom d’affichage de la VM",
+        "La version de la suite bureautique",
+        "La couleur du sous-réseau",
+        "Routes, préfixes annoncés, état de la connexion ou passerelle et absence de chevauchement CIDR"
+      ],
+      "answer": 3,
+      "explanation": "La connectivité hybride dépend des tunnels ou liaisons, de l’adressage et des routes aux deux extrémités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment valider un changement de routage dans un hub partagé ?",
+      "choices": [
+        "Prévalidation, déploiement limité, observation, seuils d’arrêt et plan de retour arrière",
+        "Propager immédiatement toutes les routes",
+        "Supprimer les diagnostics",
+        "Vérifier uniquement le statut de la passerelle"
+      ],
+      "answer": 0,
+      "explanation": "Les changements centraux peuvent affecter plusieurs services et nécessitent une progression contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle Network Watcher joue-t-il dans un dépannage ?",
+      "choices": [
+        "Il remplace la documentation d’architecture",
+        "Il propose des outils de diagnostic à corréler aux routes, NSG, journaux et événements",
+        "Il ouvre automatiquement les ports entrants",
+        "Il réalise les sauvegardes"
+      ],
+      "answer": 1,
+      "explanation": "Network Watcher fournit des données et outils complémentaires, non une garantie de santé de l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un Private Endpoint exige-t-il une validation DNS ?",
+      "choices": [
+        "La résolution n’influence jamais le réseau",
+        "Le point privé désactive toutes les résolutions publiques",
+        "Une mauvaise résolution peut conduire au mauvais endpoint malgré l’existence du chemin privé",
+        "Le DNS change le CIDR du VNet"
+      ],
+      "answer": 2,
+      "explanation": "Les enregistrements et liens des zones privées doivent donner l’adresse attendue pour le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit inclure la recette d’un hub-and-spoke ?",
+      "choices": [
+        "Une capture de la topologie seulement",
+        "Le nombre de VNets créés seulement",
+        "Le succès du déploiement sans test de trafic",
+        "Tests de flux autorisés et refusés, routes, segmentation, accès aux services et scénario de panne"
+      ],
+      "answer": 3,
+      "explanation": "La recette doit prouver les chemins attendus, les refus prévus et la résilience."
     }
   ]
 }

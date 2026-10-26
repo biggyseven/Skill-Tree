@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Automatisation Réseau - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel est l’objectif d’une automatisation réseau contrôlée ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Exécuter les tâches répétitives de façon reproductible et vérifiable",
+        "Supprimer tous les contrôles humains",
+        "Modifier tous les équipements à chaque lancement",
+        "Remplacer la documentation par du code"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La répétabilité, les contrôles et la validation des résultats distinguent un processus contrôlé d’un simple script."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser un inventaire JSON ?",
+      "choices": [
+        "Il chiffre la session SSH",
+        "Il structure les informations des équipements pour les lire et les valider",
+        "Il garantit l’accès réseau",
+        "Il configure seul les routeurs"
+      ],
+      "answer": 1,
+      "explanation": "JSON représente des données structurées ; le script doit vérifier les champs avant de les utiliser."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il valider avant d’ouvrir une session distante ?",
+      "choices": [
+        "La couleur de l’interface",
+        "Le nom du fichier de rapport seulement",
+        "La présence et le format de l’hôte, du type d’équipement et des paramètres requis",
+        "Le nombre de lignes de commentaires"
+      ],
+      "answer": 2,
+      "explanation": "La validation des entrées évite les connexions ambiguës ou lancées avec des données incomplètes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de SSH dans l’administration distante ?",
+      "choices": [
+        "Attribuer des IP",
+        "Mesurer les pertes optiques",
+        "Créer des sauvegardes sans connexion",
+        "Fournir une session distante chiffrée, selon les accès autorisés"
+      ],
+      "answer": 3,
+      "explanation": "SSH protège la session et permet l’administration authentifiée, mais ne remplace pas la gestion des permissions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel premier exercice limite les risques ?",
+      "choices": [
+        "Lire l’inventaire et réaliser des vérifications en lecture seule",
+        "Appliquer simultanément une configuration sur le parc",
+        "Inscrire les mots de passe en clair",
+        "Désactiver les journaux en cas d’erreur"
+      ],
+      "answer": 0,
+      "explanation": "Commencer en lecture seule permet d’évaluer le script avant d’autoriser des changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il traiter les erreurs explicitement ?",
+      "choices": [
+        "Pour éliminer le besoin de test",
+        "Pour distinguer succès, échec et résultat incomplet plutôt que masquer l’incident",
+        "Pour permettre des mots de passe partagés",
+        "Pour rendre les commandes toujours idempotentes"
+      ],
+      "answer": 1,
+      "explanation": "Les erreurs explicites facilitent le diagnostic et empêchent de présenter un résultat inconnu comme un succès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un champ `host` est vide dans l’inventaire. Quel comportement est sûr ?",
+      "choices": [
+        "Remplacer par une IP publique choisie au hasard",
+        "Essayer `localhost`",
+        "Signaler l’entrée invalide et ne pas ouvrir de session vers une cible implicite",
+        "Ignorer toute la validation"
+      ],
+      "answer": 2,
+      "explanation": "Une donnée manquante doit être signalée avant toute action distante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un rapport de fin d’exécution ?",
+      "choices": [
+        "Il garantit l’absence de panne future",
+        "Il remplace la validation sur l’équipement",
+        "Il donne automatiquement les privilèges nécessaires",
+        "Il permet de relire les contrôles effectués et de comparer les exécutions"
+      ],
+      "answer": 3,
+      "explanation": "La traçabilité documente ce qui a été tenté, le résultat et les éventuelles erreurs."
     }
   ]
 }

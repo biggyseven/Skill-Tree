@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour AWS VPC - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi faut-il distinguer routage, contrôles réseau et autorisations IAM ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Un chemin routé ne signifie pas que les flux sont autorisés ni que l’identité possède les permissions requises",
+        "La route remplace IAM",
+        "Tous les VPC partagent une table unique",
+        "Les Security Groups ne filtrent aucun flux"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le routage, les règles réseau et les permissions de service répondent à des questions différentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème Transit Gateway peut-il aider à résoudre par rapport à de nombreux peerings ?",
+      "choices": [
+        "Calculer les préfixes CIDR sans chevauchement à lui seul",
+        "Centraliser la connectivité entre de nombreux VPC et réseaux attachés à l’aide de tables de routage de transit",
+        "Remplacer les Security Groups",
+        "Créer les comptes AWS"
+      ],
+      "answer": 1,
+      "explanation": "Transit Gateway sert de hub de connectivité, mais la segmentation dépend de la configuration des attachements et routes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi segmenter les tables de routage d’un hub-and-spoke ?",
+      "choices": [
+        "Pour permettre tout trafic entre tous les spokes",
+        "Pour éviter la documentation des préfixes",
+        "Pour contrôler quels réseaux sont joignables et limiter les chemins non souhaités",
+        "Pour remplacer les contrôles d’identité"
+      ],
+      "answer": 2,
+      "explanation": "Une connectivité centralisée ne doit pas signifier une connectivité non restreinte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque apporte un chevauchement CIDR entre VPC et réseau distant VPN ?",
+      "choices": [
+        "IPsec devient impossible en toute circonstance",
+        "Le réseau choisit toujours le bon sous-réseau automatiquement",
+        "Les adresses changent de zone de disponibilité",
+        "Le routage devient ambigu ou limité, ce qui peut exiger de revoir l’adressage"
+      ],
+      "answer": 3,
+      "explanation": "Des préfixes qui se chevauchent compliquent les routes entre réseaux interconnectés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il examiner lors d’une panne hybride ?",
+      "choices": [
+        "Préfixes, tables, annonces BGP si utilisées, état des tunnels et tests de bascule",
+        "La page d’accueil du compte seulement",
+        "Les règles entrantes d’un seul Security Group",
+        "Les noms d’instances"
+      ],
+      "answer": 0,
+      "explanation": "La panne peut résulter d’un chemin, d’une annonce ou d’une absence de redondance, pas seulement du filtrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment sécuriser un changement de routage multi-VPC ?",
+      "choices": [
+        "Propager tous les préfixes sans filtre",
+        "Valider les préfixes attendus, tester sur une portée limitée et contrôler les chemins avant/après",
+        "Supprimer les Flow Logs",
+        "Attribuer le même CIDR à chaque spoke"
+      ],
+      "answer": 1,
+      "explanation": "Une modification centrale peut affecter de nombreux services et doit être progressivement validée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne manière d’utiliser Flow Logs dans une investigation ?",
+      "choices": [
+        "Les traiter comme preuve complète de santé applicative",
+        "Les utiliser pour créer des routes automatiquement",
+        "Les corréler aux routes, règles, métriques et changements pour étayer le diagnostic",
+        "Les considérer comme capture intégrale du contenu"
+      ],
+      "answer": 2,
+      "explanation": "Les logs de flux sont une source parmi d’autres et ne montrent pas nécessairement tout le contexte applicatif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve convient pour valider une architecture après modification ?",
+      "choices": [
+        "La présence d’une route sur un seul sous-réseau",
+        "Le statut d’une passerelle uniquement",
+        "L’absence d’erreur dans la console",
+        "Tests de flux représentatifs, routes et règles vérifiées, observabilité et scénario de panne contrôlé"
+      ],
+      "answer": 3,
+      "explanation": "La recette doit vérifier fonctionnement nominal, segmentation et exigences de résilience."
     }
   ]
 }

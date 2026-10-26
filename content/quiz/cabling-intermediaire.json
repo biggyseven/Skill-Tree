@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Câblage et Normes - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Que produit un certificateur de câblage cuivre ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Des mesures comparées à des limites d’un référentiel de test pertinent",
+        "Uniquement un voyant link",
+        "Le contenu applicatif des paquets",
+        "Une adresse IP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "La certification mesure des paramètres de transmission et les compare aux limites du type de lien visé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit la perte d’insertion ?",
+      "choices": [
+        "Le nombre de VLAN",
+        "L’atténuation du signal en traversant le lien sur les fréquences mesurées",
+        "Le temps de réponse d’un serveur",
+        "Le niveau du chiffrement SSH"
+      ],
+      "answer": 1,
+      "explanation": "La perte d’insertion mesure la diminution du signal traversant le canal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi mesure-t-on la diaphonie sur les paires cuivre ?",
+      "choices": [
+        "Elle attribue des adresses IP dupliquées",
+        "Elle change le schéma T568A en T568B",
+        "Le signal d’une paire peut perturber une autre et réduire la marge de transmission",
+        "Elle correspond exactement à l’atténuation en dB/km"
+      ],
+      "answer": 2,
+      "explanation": "La diaphonie décrit le couplage entre paires et peut affecter les performances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle procédure est adaptée pour inspecter un connecteur fibre ?",
+      "choices": [
+        "Regarder directement dans la fibre active",
+        "Souffler dessus avec la bouche",
+        "Toucher l’extrémité pour enlever la poussière",
+        "Respecter la sécurité, inspecter avec l’outil prévu, nettoyer puis recontrôler"
+      ],
+      "answer": 3,
+      "explanation": "Les contaminants augmentent les pertes et l’inspection doit respecter la sécurité optique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi conserver un rapport de certification ?",
+      "choices": [
+        "Pour relier l’identifiant du lien à ses résultats, limites et à la décision de conformité",
+        "Pour remplacer les étiquettes",
+        "Pour modifier la longueur du câble",
+        "Pour configurer les VLAN"
+      ],
+      "answer": 0,
+      "explanation": "Le rapport permet de tracer les mesures et les critères d’acceptation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre perte de retour et perte d’insertion ?",
+      "choices": [
+        "Ce sont toujours deux noms du même paramètre",
+        "La perte de retour caractérise l’énergie réfléchie ; la perte d’insertion l’atténuation traversante",
+        "La perte de retour mesure l’adressage IP",
+        "La perte d’insertion ne concerne que l’électricité"
+      ],
+      "answer": 1,
+      "explanation": "Les deux mesures caractérisent des phénomènes différents et doivent être interprétées dans leur contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement un OTDR sur une fibre ?",
+      "choices": [
+        "Lister les utilisateurs IP",
+        "Afficher les ACL réseau",
+        "Localiser et caractériser certains événements optiques le long du lien",
+        "Certifier les VLAN"
+      ],
+      "answer": 2,
+      "explanation": "Un OTDR aide à localiser les événements ; ses résultats doivent être interprétés selon les limites de l’instrument."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi respecter rayon de courbure et effort de traction ?",
+      "choices": [
+        "Pour raccourcir les adresses IP",
+        "Pour rendre inutile la catégorie du câble",
+        "Pour éviter l’identification",
+        "Pour prévenir dommages mécaniques et pertes liées à une mauvaise pose"
+      ],
+      "answer": 3,
+      "explanation": "Les contraintes physiques excessives peuvent dégrader le support et ses performances."
     }
   ]
 }

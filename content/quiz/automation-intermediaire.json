@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Automatisation Réseau - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "À quoi sert couramment Netmiko ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Ouvrir des sessions SSH sur des équipements réseau et récupérer les sorties de commandes",
+        "Créer des VLAN physiques sans équipement",
+        "Remplacer les adresses IP par des modèles",
+        "Certifier des liens cuivre"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Netmiko simplifie les sessions CLI SSH vers de nombreuses plateformes réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage correspond à Ansible ?",
+      "choices": [
+        "Calculer le budget optique",
+        "Orchestrer des tâches à partir d’inventaires et de playbooks",
+        "Remplacer le système de fichiers Linux",
+        "Garantir la syntaxe de tous les constructeurs sans adaptation"
+      ],
+      "answer": 1,
+      "explanation": "Ansible exécute des tâches décrites et utilise des modules et paramètres adaptés à la cible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi sauvegarder une configuration avant une modification ?",
+      "choices": [
+        "Pour garantir que tout changement réussira",
+        "Pour éviter les tests fonctionnels",
+        "Pour disposer d’un état de référence et faciliter comparaison ou retour arrière",
+        "Pour augmenter automatiquement les droits SSH"
+      ],
+      "answer": 2,
+      "explanation": "Une sauvegarde préalable fournit une référence, sans garantir à elle seule que la restauration sera correcte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux équipements échouent dans un playbook. Quelle réaction convient ?",
+      "choices": [
+        "Déclarer le lot conforme malgré les échecs",
+        "Supprimer les journaux",
+        "Relancer indéfiniment sans délai",
+        "Enregistrer les hôtes en échec et appliquer une politique de reprise bornée"
+      ],
+      "answer": 3,
+      "explanation": "Les échecs doivent être visibles et traités avec une reprise contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un modèle Jinja2 ?",
+      "choices": [
+        "Générer des configurations à partir d’un modèle et de variables adaptées à l’équipement",
+        "Remplacer tous les inventaires",
+        "Chiffrer les trames Ethernet",
+        "Rendre les syntaxes constructeurs universelles"
+      ],
+      "answer": 0,
+      "explanation": "Un modèle sépare la structure de configuration des valeurs propres à chaque équipement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi comparer l’état obtenu à l’état attendu ?",
+      "choices": [
+        "Pour éviter de tester la connectivité",
+        "Pour détecter les écarts et vérifier la conformité du résultat",
+        "Pour supprimer les sauvegardes",
+        "Pour appliquer la même configuration à tous les rôles"
+      ],
+      "answer": 1,
+      "explanation": "Le modèle attendu doit être adapté au rôle ; la comparaison identifie les différences pertinentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant un déploiement de modèle sur plusieurs équipements, quelle séquence est préférable ?",
+      "choices": [
+        "Envoyer directement le modèle à l’ensemble du parc",
+        "Désactiver les contrôles syntaxiques",
+        "Valider les données et le rendu, tester sur un petit périmètre puis élargir",
+        "Effacer les configurations existantes"
+      ],
+      "answer": 2,
+      "explanation": "Le rendu et un lot pilote détectent les erreurs avant qu’elles affectent de nombreux équipements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où les secrets d’automatisation doivent-ils être conservés ?",
+      "choices": [
+        "En clair dans le playbook",
+        "Dans les commentaires du modèle",
+        "Dans l’inventaire partagé sans restriction",
+        "Dans un mécanisme protégé, avec accès limité et rotation prévue"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets ne doivent pas être commités en clair ni exposés dans les journaux."
     }
   ]
 }
