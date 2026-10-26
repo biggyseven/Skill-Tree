@@ -808,7 +808,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("await this.initTopology();", DASHBOARD_HTML)
         self.assertIn("await this.setTab('challenges')", DASHBOARD_HTML)
 
-        self.assertIn("window.open('/lab.html?demo=1', '_blank', 'noopener,noreferrer')", DASHBOARD_HTML)
+        self.assertIn("window.open('/lab.html', '_blank', 'noopener,noreferrer')", DASHBOARD_HTML)
         self.assertIn("Ouvrir le Lab Workspace indépendant", DASHBOARD_HTML)
 
     def test_server_challenge_loading_handles_api_errors_and_bounds_the_timer(self):
