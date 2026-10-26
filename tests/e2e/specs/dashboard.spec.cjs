@@ -236,7 +236,7 @@ test('le catalogue v2 affiche le lab ACL même si le nœud manque dans le graphe
     contentType: 'application/json',
     body: JSON.stringify([{
       id: 'secu-acl-intermediaire',
-      title: 'ACL et filtrage avancé - Intermédiaire',
+      title: 'ACL et filtrage avancé',
       level: 'intermédiaire',
       module: 'Cybersécurité',
       duration_min: 20,
@@ -250,7 +250,7 @@ test('le catalogue v2 affiche le lab ACL même si le nœud manque dans le graphe
   await nav.getByRole('button', { name: 'Labs' }).click();
 
   const aclLab = page.locator('a[data-lab-card="catalog"]').filter({
-    hasText: 'ACL et filtrage avancé - Intermédiaire',
+    hasText: 'ACL et filtrage avancé',
   }).first();
   await expect(aclLab).toBeVisible();
   await expect(aclLab).toHaveAttribute('href', '/?openLab=secu-acl-intermediaire');
