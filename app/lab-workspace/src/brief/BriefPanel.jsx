@@ -14,7 +14,12 @@ export function BriefPanel() {
         <h1 className="mt-1 text-lg font-bold leading-tight text-white">{lab.title}</h1>
       </div>
 
-      {lab.prompt && <p className="text-[#94a3b8]">{lab.prompt}</p>}
+      {lab.prompt && (
+        <section className="rounded-xl border border-[#0ea5e9]/25 bg-[#0ea5e9]/[0.06] p-4" aria-label="Mise en contexte du laboratoire">
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#38bdf8]">Mise en contexte</div>
+          <p className="text-[12px] leading-relaxed text-[#cbd5e1]">{lab.prompt}</p>
+        </section>
+      )}
 
       {Array.isArray(lab.objectives) && lab.objectives.length > 0 && (
         <div>

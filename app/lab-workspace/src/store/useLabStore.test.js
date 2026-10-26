@@ -51,6 +51,17 @@ test('les changements de configuration invalident le contrôle précédent', () 
   assert.equal(useLabStore.getState().checkResult, null);
 });
 
+test('la configuration IPv4 d’un port est enregistrée et invalide le contrôle précédent', () => {
+  seedCheckedLab();
+  useLabStore.getState().updatePortAddress('R1', 'Fa0/0', '192.168.10.10', '255.255.255.0');
+
+  const state = useLabStore.getState();
+  const port = state.topology.nodes.find(node => node.id === 'R1').ports.find(item => item.id === 'Fa0/0');
+  assert.equal(port.ip, '192.168.10.10');
+  assert.equal(port.mask, '255.255.255.0');
+  assert.equal(state.checkResult, null);
+});
+
 test('déplacer un équipement conserve le résultat car la position n’est pas la configuration', () => {
   seedCheckedLab();
   useLabStore.getState().updateNodePosition('R1', 360, 220);

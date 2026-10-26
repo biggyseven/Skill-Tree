@@ -181,7 +181,11 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(definition.title, "Adressage IPv4 et sous-réseaux")
         self.assertIn("192.168.10.10", definition.prompt)
         self.assertGreaterEqual(len(definition.objectives), 4)
-        self.assertGreaterEqual(len(definition.hints), 2)
+        self.assertGreaterEqual(len(definition.hints), 3)
+        self.assertIn("onglet Hardware", definition.prompt)
+        self.assertIn("Soumettre", definition.prompt)
+        self.assertEqual(definition.check.type, "config_assertions")
+        self.assertEqual(len(definition.check.rules), 8)
         self.assertEqual([node.id for node in definition.initial_topology.nodes], ["PC-A", "SW1", "PC-B"])
         self.assertEqual(len(definition.initial_topology.links), 2)
 

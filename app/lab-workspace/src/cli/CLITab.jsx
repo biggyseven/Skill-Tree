@@ -8,6 +8,7 @@ import { useLabStore } from '../store/useLabStore.js';
 export function CLITab() {
   const selectedDeviceId = useLabStore(s => s.selectedDevice);
   const topology = useLabStore(s => s.topology);
+  const lab = useLabStore(s => s.lab);
   const termRef = useRef(null);
   const parserRef = useRef(null);
   const termInstanceRef = useRef(null);
@@ -29,7 +30,25 @@ export function CLITab() {
     termInstanceRef.current = term;
 
     parserRef.current = new CLIParser(device);
-    
+
+    const interfaceName = device.ports?.[0]?.name || device.ports?.[0]?.id || 'eth0';
+    term.write('Console pédagogique Skill-Tree\r\n');
+    if (lab?.id === 'ipv4-debutant' && device.type === 'pc') {
+      const address = device.id === 'PC-A' ? '192.168.10.10' : device.id === 'PC-B' ? '192.168.10.20' : '<adresse-ip>';
+      term.write(
+        `\r\nAide rapide — scénario IPv4 (${device.id})\r\n` +
+        `enable\r\nconfigure terminal\r\ninterface ${interfaceName}\r\n` +
+        `ip address ${address} 255.255.255.0\r\nno shutdown\r\nend\r\nshow ip interface brief\r\n` +
+        'Vous pouvez aussi renseigner adresse et masque dans l’onglet Hardware.\r\n'
+      );
+    } else {
+      term.write(
+        `\r\nCommandes utiles — une commande par ligne :\r\n` +
+        `enable\r\nconfigure terminal\r\ninterface ${interfaceName}\r\n` +
+        'ip address <adresse-ip> <masque>\r\nno shutdown\r\nend\r\nshow ip interface brief\r\n'
+      );
+    }
+
     let currentLine = '';
     const prompt = () => `\r\n\x1b[32m${parserRef.current.getPrompt()}\x1b[0m `;
     term.write(`Cisco IOS Software, SkillTree Edition\r\nPress RETURN to get started.\r\n`);
@@ -88,7 +107,7 @@ export function CLITab() {
       term.dispose(); 
       window.removeEventListener('cli:ping-result', handlePingResult);
     };
-  }, [device?.id]);
+  }, [device?.id, lab?.id]);
 
   if (!selectedDeviceId) {
     return <div className="flex h-full items-center justify-center p-6 text-center text-xs text-[var(--text-muted)]">Sélectionnez un équipement sur le canevas<br/>pour ouvrir sa console CLI.</div>;

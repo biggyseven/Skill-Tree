@@ -6,18 +6,19 @@
   "module": "Réseaux",
   "duration_min": 20,
   "difficulty": "débutant",
-  "prompt": "Une petite agence possède deux postes qui doivent communiquer sur le même réseau local. Construisez PC-A — SW1 — PC-B. Configurez PC-A en 192.168.10.10/24 et PC-B en 192.168.10.20/24, puis activez les interfaces utilisées. Les deux postes doivent appartenir au réseau 192.168.10.0/24.",
+  "prompt": "Une petite agence possède deux postes qui doivent communiquer sur le même réseau local. La topologie PC-A — SW1 — PC-B est déjà préparée. Sélectionnez PC-A puis PC-B : dans l’onglet Hardware, renseignez l’adresse IPv4 et le masque, puis cliquez « Appliquer l’adresse ». Activez leurs interfaces. Sélectionnez ensuite SW1, ouvrez Hardware et activez les ports Fa0/1 et Fa0/2. Les deux postes doivent utiliser le réseau 192.168.10.0/24. Vous pouvez aussi configurer les PC depuis la console CLI. Quand les huit contrôles passent, cliquez sur « Vérifier », puis sur « Soumettre » pour enregistrer la tentative.",
   "objectives": [
-    "Créer deux PC et un switch reliés PC-A — SW1 — PC-B",
-    "Configurer PC-A : 192.168.10.10, masque 255.255.255.0",
-    "Configurer PC-B : 192.168.10.20, masque 255.255.255.0",
-    "Activer les interfaces utilisées",
-    "Identifier le réseau 192.168.10.0/24, son adresse réseau et son broadcast"
+    "Vérifier la topologie préchargée PC-A — SW1 — PC-B",
+    "Configurer PC-A : 192.168.10.10 avec le masque 255.255.255.0 (/24)",
+    "Configurer PC-B : 192.168.10.20 avec le masque 255.255.255.0 (/24)",
+    "Activer les interfaces de PC-A, PC-B et les ports Fa0/1 et Fa0/2 de SW1",
+    "Identifier le réseau 192.168.10.0/24, son adresse réseau et son adresse de broadcast"
   ],
   "hints": [
-    "Le préfixe /24 correspond au masque 255.255.255.0.",
-    "Pour 192.168.10.0/24, l'adresse réseau est 192.168.10.0 et le broadcast est 192.168.10.255.",
-    "Les deux adresses hôtes doivent être différentes et appartenir au même préfixe."
+    "Le préfixe /24 correspond au masque 255.255.255.0. Utilisez le même masque sur les deux postes.",
+    "Dans Hardware, renseignez l’adresse et le masque puis cliquez « Appliquer l’adresse ». Sur chaque interface, utilisez le commutateur ON pour l’activer.",
+    "Pour PC-A en CLI : enable, configure terminal, interface eth0, ip address 192.168.10.10 255.255.255.0, no shutdown, end. Pour PC-B, utilisez 192.168.10.20.",
+    "Pour 192.168.10.0/24, l’adresse réseau est 192.168.10.0 et le broadcast est 192.168.10.255."
   ],
   "initial_topology": {
     "schema_version": 2,

@@ -133,6 +133,26 @@ export const useLabStore = create((set, get) => ({
     set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: n.ports.map(p => p.id === portId ? { ...p, state: p.state === 'up' ? 'down' : 'up' } : p) } : n) }, checkResult: null });
   },
 
+  updatePortAddress(nodeId, portId, ip, mask) {
+    const topo = get().topology;
+    if (!topo) return;
+    const node = topo.nodes.find(n => n.id === nodeId);
+    if (!node || !(node.ports || []).some(port => port.id === portId)) return;
+    const cleanIp = String(ip ?? '').trim();
+    const cleanMask = String(mask ?? '').trim();
+    set({
+      topology: {
+        ...topo,
+        nodes: topo.nodes.map(n => n.id === nodeId
+          ? { ...n, ports: n.ports.map(port => port.id === portId
+            ? { ...port, ip: cleanIp || null, mask: cleanMask || null }
+            : port) }
+          : n),
+      },
+      checkResult: null,
+    });
+  },
+
   addLink(connection, type) {
     const topo = get().topology;
     if (!topo || !connection.source || !connection.target || connection.source === connection.target) return;
