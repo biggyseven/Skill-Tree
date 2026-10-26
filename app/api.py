@@ -8,7 +8,7 @@ import os
 import random
 import re
 import secrets
-import sqlite3
+from . import db_compat as sqlite3
 import tempfile
 import time
 import uuid
