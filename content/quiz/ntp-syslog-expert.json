@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NTP & Syslog - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel rôle joue Network Time Security (NTS) dans une architecture NTP qui le prend en charge ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Ajouter des mécanismes cryptographiques d’authentification des échanges NTP, avec une phase d’établissement de clés utilisant TLS",
+        "Remplacer les timestamps NTP par des événements Syslog",
+        "Garantir automatiquement une précision temporelle absolue",
+        "Remplacer le routage IP entre le client et le serveur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "NTS améliore l’authentification cryptographique de NTP. Il ne supprime pas les contraintes de réseau et de qualité de source, ni le besoin de valider l’implémentation et la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un serveur NTP est annoncé au stratum 1 mais présente une forte instabilité de temps. Quelle conclusion est correcte ?",
+      "choices": [
+        "Le stratum 1 garantit toujours une meilleure précision que toute autre source",
+        "Le numéro de stratum ne suffit pas à prouver l’exactitude ; il faut examiner la source, la dispersion, le délai, la stabilité et les mesures",
+        "Il faut le choisir automatiquement sans comparaison",
+        "Le stratum indique uniquement la gravité des journaux"
+      ],
+      "answer": 1,
+      "explanation": "Le stratum indique une distance hiérarchique à la référence, pas une mesure complète de qualité. La sélection des sources doit considérer plusieurs indicateurs et la politique de confiance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un collecteur Syslog doit-il distinguer le timestamp de l’événement de son heure de réception ?",
+      "choices": [
+        "Parce que les deux heures sont toujours identiques dans tous les transports",
+        "Pour remplacer l’heure du message par le stratum NTP",
+        "Parce que le message peut être généré plus tôt, retardé sur le réseau ou traité plus tard par la chaîne de collecte",
+        "Parce que Syslog ne prend en charge aucun horodatage"
+      ],
+      "answer": 2,
+      "explanation": "La différence entre l’événement et sa réception aide à mesurer les délais et à reconstruire la chronologie. Il faut préserver les deux valeurs et documenter leur sémantique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une hausse rapide de la production Syslog provoque des trous dans les événements centralisés. Quel diagnostic convient ?",
+      "choices": [
+        "Augmenter le seuil de gravité sans mesurer la perte",
+        "Considérer les messages manquants comme non pertinents",
+        "Changer la source NTP sans vérifier le système de collecte",
+        "Mesurer les files, la capacité du collecteur, les pertes sur le transport, les quotas et les politiques de backpressure/rétention"
+      ],
+      "answer": 3,
+      "explanation": "Une chaîne de collecte peut perdre des événements si le débit dépasse ses capacités ou si des transports et buffers sont saturés. Mesure les pertes à chaque étape avant de dimensionner la solution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle vérification est essentielle lors du déploiement de Syslog sur TLS ?",
+      "choices": [
+        "Valider la chaîne de certificats, les noms/identités attendus, l’expiration et la configuration TLS compatible des deux côtés",
+        "Désactiver toute validation de certificat pour faciliter la connexion",
+        "Utiliser UDP/514 et supposer qu’il s’agit de TLS",
+        "Supposer que le chiffrement empêche automatiquement la falsification sur un hôte compromis"
+      ],
+      "answer": 0,
+      "explanation": "TLS protège la connexion si l’identité des pairs est effectivement vérifiée. Les certificats, leur rotation et les capacités de l’émetteur/collecteur doivent être testés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la réception de datagrammes UDP Syslog ne prouve-t-elle pas que tous les événements ont été conservés ?",
+      "choices": [
+        "Parce que chaque datagramme reçu est obligatoirement dupliqué",
+        "UDP ne garantit pas la livraison et la chaîne peut encore perdre des messages dans les files ou au stockage",
+        "Parce que les messages Syslog ne contiennent jamais de contenu d’événement",
+        "Parce que NTP supprime les logs après la synchronisation"
+      ],
+      "answer": 1,
+      "explanation": "La preuve de collecte exige des métriques de perte, de débit, de stockage et de traitement. La réception ponctuelle n’est pas une preuve de conservation complète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie réduit le risque qu’une source de temps malveillante ou erronée perturbe toute l’infrastructure ?",
+      "choices": [
+        "Utiliser uniquement la première source qui répond",
+        "Ignorer les alertes d’offset et de sélection de source",
+        "Choisir des sources de confiance indépendantes, vérifier les mesures/états, restreindre l’accès et surveiller les changements de source",
+        "Rendre chaque équipement serveur de temps public sans contrôle"
+      ],
+      "answer": 2,
+      "explanation": "La sécurité et la qualité du temps reposent sur la source, la diversité, le contrôle d’accès et la supervision des états. Une source qui répond n’est pas nécessairement fiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test fournit une preuve opérationnelle utile pour une architecture NTP/Syslog critique ?",
+      "choices": [
+        "Vérifier uniquement que les ports sont ouverts une fois",
+        "Désactiver toutes les sources et tous les collecteurs en production",
+        "Contrôler seulement le numéro de stratum initial",
+        "Simuler une perte de source et une hausse de charge Syslog dans une fenêtre contrôlée, puis vérifier la continuité, les horodatages, les pertes et la rétention"
+      ],
+      "answer": 3,
+      "explanation": "La validation doit tester le comportement en panne et sous charge, et mesurer les résultats attendus. Des ports ouverts ou un faible stratum ne prouvent pas la résilience de bout en bout."
     }
   ]
 }

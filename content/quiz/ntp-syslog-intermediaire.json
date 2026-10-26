@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour NTP & Syslog - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Dans l’échange NTP classique à quatre horodatages, comment estime-t-on l’offset client/serveur ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "En combinant les écarts entre les horodatages client-serveur et serveur-client selon la formule NTP",
+        "En divisant le numéro de stratum par le port UDP",
+        "En utilisant uniquement l’heure locale d’arrivée du dernier paquet",
+        "En comptant les messages Syslog de niveau Warning"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "L’offset classique s’estime à partir de T1 (envoi client), T2 (réception serveur), T3 (émission serveur) et T4 (réception client) : ((T2−T1)+(T3−T4))/2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi prévoir plusieurs sources NTP cohérentes plutôt qu’une unique source sans secours ?",
+      "choices": [
+        "Pour forcer tous les serveurs à avoir le même numéro de stratum",
+        "Pour comparer les sources, rejeter certaines mesures incohérentes et maintenir la synchronisation si une source devient indisponible",
+        "Pour éviter toute vérification de l’offset",
+        "Parce qu’un serveur NTP unique est toujours moins précis quelle que soit son installation"
+      ],
+      "answer": 1,
+      "explanation": "Des sources indépendantes et suivies améliorent la résilience et aident à détecter une source aberrante. Leur nombre et leur configuration doivent correspondre aux exigences de l’organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un avantage du transport Syslog sur TLS par rapport à Syslog sur UDP simple ?",
+      "choices": [
+        "Il garantit automatiquement la conservation à long terme dans le SIEM",
+        "Il élimine tous les messages en double",
+        "Il protège le canal de transport par TLS et permet de vérifier l’identité selon la configuration des certificats",
+        "Il garantit que l’équipement ne peut jamais envoyer un faux événement"
+      ],
+      "answer": 2,
+      "explanation": "TLS protège le canal et peut authentifier les pairs si les certificats et la confiance sont correctement configurés. Il ne garantit pas à lui seul la rétention ou la véracité du contenu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur une configuration de filtrage Syslog Cisco courante, que signifie généralement choisir `warnings` comme seuil ?",
+      "choices": [
+        "Recevoir uniquement la sévérité 7",
+        "Désactiver les messages Emergency",
+        "Recevoir uniquement les messages avec un timestamp NTP",
+        "Recevoir les messages de sévérité 0 à 4, c’est-à-dire warnings et niveaux plus sévères"
+      ],
+      "answer": 3,
+      "explanation": "Les nombres plus faibles correspondent aux événements plus sévères. Un seuil warnings inclut généralement warnings et niveaux plus critiques ; vérifie la syntaxe exacte sur la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir une interface source pour l’envoi Syslog lorsque la plateforme et la conception le permettent ?",
+      "choices": [
+        "Pour stabiliser l’adresse source vue par le collecteur et faciliter les règles de filtrage et l’identification de l’équipement",
+        "Pour chiffrer l’UDP sans autre mécanisme",
+        "Pour changer le niveau de gravité de tous les messages",
+        "Pour fixer automatiquement la dérive de l’horloge"
+      ],
+      "answer": 0,
+      "explanation": "Une interface source cohérente simplifie l’identification et les ACL. Elle doit être routée correctement jusqu’au collecteur et choisie selon le plan de gestion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il considérer lorsqu’on compare les logs locaux du routeur et ceux reçus par le collecteur distant ?",
+      "choices": [
+        "Les deux listes doivent toujours être exactement identiques",
+        "La mémoire tampon locale, les seuils de sévérité, les pertes de transport, les filtres et la rétention du collecteur",
+        "Le niveau de stratum peut remplacer les messages manquants",
+        "Le collecteur reçoit nécessairement les événements avant l’équipement qui les produit"
+      ],
+      "answer": 1,
+      "explanation": "La collecte distante peut être filtrée ou subir des pertes ; la mémoire locale peut aussi être limitée. Les deux vues ont des rôles complémentaires et nécessitent des politiques de conservation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle d’accès devrait encadrer un serveur NTP interne ?",
+      "choices": [
+        "Autoriser automatiquement tous les réseaux sans restrictions",
+        "Publier les secrets NTP dans les journaux",
+        "Limiter les clients et les opérations de contrôle aux réseaux et équipements autorisés",
+        "Désactiver le filtrage des requêtes pour augmenter la précision"
+      ],
+      "answer": 2,
+      "explanation": "Un service NTP doit être accessible aux clients prévus, tout en étant protégé contre l’abus et les modifications non autorisées de la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un SIEM classe les événements dans un ordre surprenant alors que le transport Syslog fonctionne. Quelle méthode est la plus utile ?",
+      "choices": [
+        "Changer le port de Syslog sans examiner les timestamps",
+        "Supprimer les logs d’origine pour créer un ordre unique",
+        "Déduire que tous les événements sont faux parce que les messages arrivent en retard",
+        "Comparer les heures de l’émetteur et de réception, les fuseaux, les offsets NTP et la sémantique du parseur"
+      ],
+      "answer": 3,
+      "explanation": "Le timestamp d’événement et l’heure de réception peuvent différer. L’analyse doit examiner la synchronisation, les fuseaux, le délai de transport et le traitement par le collecteur."
     }
   ]
 }
