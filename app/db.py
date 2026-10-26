@@ -138,6 +138,13 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
 
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_expires ON exam_sessions(expires_at);
 
+CREATE TABLE IF NOT EXISTS exam_submissions (
+    session_id   TEXT PRIMARY KEY,
+    submitted_at INTEGER NOT NULL,
+    result_json  TEXT NOT NULL,
+    passed       INTEGER NOT NULL DEFAULT 0 CHECK (passed IN (0, 1))
+);
+
 CREATE TABLE IF NOT EXISTS terminal_specs (
     node_id TEXT PRIMARY KEY REFERENCES nodes(id) ON DELETE CASCADE,
     prompt  TEXT NOT NULL,
