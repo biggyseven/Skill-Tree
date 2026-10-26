@@ -149,7 +149,7 @@ class LabValidationTests(unittest.TestCase):
             "objectives": [],
             "hints": [],
             "duration_min": 15,
-            "difficulty": "débutant",
+            "difficulty": "expert",
             "xp_reward": 0,
             "badges": [],
             "initial_topology": {
@@ -186,7 +186,7 @@ class LabValidationTests(unittest.TestCase):
                     "expert",
                     "Administration Réseaux",
                     15,
-                    "débutant",
+                    "expert",
                     2,
                     json.dumps(legacy_definition, ensure_ascii=False),
                 ),
@@ -205,7 +205,7 @@ class LabValidationTests(unittest.TestCase):
         self.assertIn("acl-debutant", lab_ids)
         self.assertNotIn("acl-expert", lab_ids)
         acl_lab = next(lab for lab in catalog if lab["id"] == "secu-acl-intermediaire")
-        self.assertEqual(acl_lab["title"], "ACL et filtrage avancé - Intermédiaire")
+        self.assertEqual(acl_lab["title"], "ACL et filtrage avancé")
         self.assertEqual(acl_lab["duration_min"], 20)
         self.assertEqual(acl_lab["schema_version"], 2)
 
