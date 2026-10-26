@@ -184,8 +184,10 @@ class DashboardUiRegressionTests(unittest.TestCase):
         show_method = DASHBOARD_HTML[show_start:show_end]
         self.assertIn("localStorage.setItem('skilltree-last-status', this.lastOpenedNodeStatus)", show_method)
         self.assertIn("localStorage.removeItem('skilltree-last-progress')", show_method)
-        self.assertIn("s.scrollTop = max > 0 ? Math.round(max * progress / 100) : 0", show_method)
-        self.assertIn("this.onLessonScroll({ target: s })", show_method)
+        self.assertIn("const savedPosition = this.lessonPositions[nodeKey] || null", show_method)
+        self.assertIn("this.startSectionSelection = '__resume__'", show_method)
+        self.assertIn("await this.renderLessonDiagrams()", show_method)
+        self.assertIn("this.restoreLessonPosition(s, this.lessonPositions[String(this.detail?.id || '')] || null)", show_method)
 
         init_start = DASHBOARD_HTML.index("        async init() {")
         init_end = DASHBOARD_HTML.index("        // --- Préférences d'affichage du lecteur", init_start)

@@ -2591,12 +2591,30 @@
             }
           });
 
-          wrap.querySelectorAll('figure, .diagram, .lesson-figure, .figure, .lesson-mermaid, .table-wrapper, img[alt], img[title], svg[role="img"], svg[aria-label], svg[aria-labelledby]').forEach(element => {
+          wrap.querySelectorAll('figure, .diagram, .lesson-figure, .figure, .lesson-mermaid, .table-wrapper, img, svg').forEach(element => {
             let root = element;
             if (element.matches('img, svg')) {
-              root = element.closest('figure, .diagram, .lesson-figure, .figure')
-                || (element.parentElement && element.parentElement.tagName === 'DIV' && element.parentElement.children.length === 1
-                  ? element.parentElement : element);
+              root = element.closest('figure, .diagram, .lesson-figure, .figure, .lesson-mermaid, .table-wrapper');
+              if (!root) {
+                // Ne jamais injecter de HTML à l’intérieur d’un SVG ou d’un paragraphe.
+                // Un conteneur sémantique permet aux contrôles de rester valides et accessibles.
+                const visualParent = element.parentElement;
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'lesson-visual-diagram';
+                if (visualParent && visualParent.tagName === 'P' && visualParent.parentNode) {
+                  visualParent.parentNode.insertBefore(wrapper, visualParent);
+                  wrapper.appendChild(element);
+                  if (!visualParent.textContent.trim() && !visualParent.querySelector('img, svg, video, audio')) {
+                    visualParent.remove();
+                  }
+                } else if (visualParent && visualParent.parentNode) {
+                  visualParent.insertBefore(wrapper, element);
+                  wrapper.appendChild(element);
+                } else {
+                  return;
+                }
+                root = wrapper;
+              }
             }
             roots.add(root);
           });
