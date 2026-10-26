@@ -1,18 +1,102 @@
 {
   "node_id": "voice-qos-intermediaire",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Dans une politique QoS voix, quel traitement est typiquement associé aux paquets audio RTP autorisés dans une convention DiffServ courante ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Les mettre tous en best effort sans marquage",
+        "Les marquer toujours CS7",
+        "Les classer en EF et leur appliquer une file faible latence dimensionnée et contrôlée, selon la conception",
+        "Les marquer AF11 puis bloquer le trafic RTP"
+      ],
+      "answer": 2,
+      "explanation": "EF (DSCP 46) est couramment utilisé pour l’audio interactif, avec une file à faible latence plafonnée. La convention exacte doit rester cohérente dans tout le domaine et être vérifiée sur la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre LLQ et CBWFQ est la plus juste dans une implémentation QoS Cisco courante ?",
+      "choices": [
+        "LLQ chiffre les paquets ; CBWFQ déchiffre le média",
+        "CBWFQ répartit des ressources entre classes pondérées ; LLQ ajoute généralement une file à priorité stricte pour certains flux temps réel",
+        "CBWFQ est un protocole de signalisation SIP",
+        "LLQ et CBWFQ désignent des valeurs DSCP"
+      ],
+      "answer": 1,
+      "explanation": "CBWFQ partage la capacité entre classes selon des allocations ou poids. LLQ ajoute une classe prioritaire, qui doit être contrôlée afin de ne pas affamer les autres classes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas classer automatiquement toute la signalisation SIP comme EF avec l’audio ?",
+      "choices": [
+        "Parce que SIP ne traverse jamais le réseau IP",
+        "Parce qu’un VLAN voix ne transporte pas de signalisation",
+        "Parce que le DSCP n’existe que dans IPv6",
+        "La signalisation et le média ont des besoins et des profils différents ; leur marquage, par exemple CS3 ou CS5 pour la signalisation selon la convention, doit être documenté et cohérent"
+      ],
+      "answer": 3,
+      "explanation": "Le média audio est souvent marqué EF, tandis que la signalisation peut utiliser CS3 ou CS5 selon les recommandations et la politique retenue. Il faut éviter d’accorder la même priorité ou la même file à tous les flux sans raison."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque crée une frontière de confiance QoS mal définie sur un port utilisateur ?",
+      "choices": [
+        "Un terminal pourrait marquer un trafic volumineux comme prioritaire et consommer des ressources disproportionnées",
+        "Elle garantit l’absence de congestion",
+        "Elle chiffre automatiquement les messages SIP",
+        "Elle empêche les téléphones de recevoir une adresse IP"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La confiance doit être accordée selon le type de terminal et la politique du réseau. Les marques entrantes peuvent être vérifiées ou normalisées afin qu’un utilisateur ne fasse pas passer arbitrairement un flux best effort en EF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est souvent appropriée pour façonner un service WAN quand le fournisseur applique un débit contractuel inférieur à la vitesse physique du port ?",
+      "choices": [
+        "Shaper réglé au débit maximum du port physique sans mesures",
+        "Policer tous les paquets audio sans distinction",
+        "Calibrer le shaping autour du débit contractuel et de son point de mesure, tenir compte des encapsulations puis valider sous charge",
+        "Désactiver les classes QoS tant que le lien est up"
+      ],
+      "answer": 2,
+      "explanation": "Un shaping local correctement calibré peut rendre la congestion visible et contrôlée avant le policer fournisseur. Il faut comprendre le CIR, le comptage des octets et la surcharge d’encapsulation, puis mesurer l’impact réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une capture voit des paquets marqués EF, mais les appels se dégradent pendant les sauvegardes. Que faut-il vérifier ?",
+      "choices": [
+        "Uniquement le nom du VLAN voix",
+        "Le mapping vers les classes et files de sortie, les compteurs de drops, la congestion du bon sens et le chemin retour",
+        "Que chaque paquet utilise TCP 502",
+        "Que le serveur DHCP possède deux adresses MAC"
+      ],
+      "answer": 1,
+      "explanation": "Une marque DSCP ne garantit pas un comportement de file. Il faut vérifier que l’interface et le sens corrects appliquent la policy, que la classe reconnaît le flux, et lire les compteurs pendant un test contrôlé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la QoS Wi-Fi (par exemple le mapping WMM/UP) n’élimine-t-elle pas tous les problèmes de qualité voix ?",
+      "choices": [
+        "Parce que la voix ne peut jamais circuler sur Wi-Fi",
+        "Parce qu’un point d’accès chiffre les appels mais ne transmet aucun média",
+        "Parce qu’EF est réservé à la fibre optique",
+        "La contention radio, les interférences, la couverture, les retransmissions et la charge restent des facteurs ; le marquage doit aussi être mappé et vérifié"
+      ],
+      "answer": 3,
+      "explanation": "WMM peut différencier les catégories de trafic radio, mais la contention, les interférences et la couverture restent importantes. La qualité doit être mesurée au niveau radio et IP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur est utile pour diagnostiquer une voix dégradée tout en restant un indicateur de résultat plutôt qu’une cause racine à lui seul ?",
+      "choices": [
+        "La variation d’un MOS estimé ou des statistiques RTP, corrélée à la perte, à la gigue, aux compteurs de files et au chemin",
+        "Le seul nom du dial peer",
+        "Le nombre de sous-réseaux VLAN définis dans le document",
+        "La valeur DSCP de l’unique paquet de signalisation"
+      ],
+      "answer": 0,
+      "explanation": "Le MOS ou les statistiques RTP décrivent l’expérience ou la qualité reçue. Il faut les corréler à la perte, à la gigue, aux drops, à la charge et au chemin pour identifier le mécanisme responsable."
     }
-  ],
-  "scope": "quiz"
+  ]
 }
