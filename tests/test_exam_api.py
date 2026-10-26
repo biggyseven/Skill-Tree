@@ -49,8 +49,8 @@ class ExamApiTests(unittest.TestCase):
             for ref in refs:
                 self.assertIsInstance(ref, dict)
                 row = connection.execute(
-                    "SELECT answer FROM questions WHERE id = ? AND node_id = ? AND scope = 'quiz'",
-                    (ref["question_id"], ref["node_id"]),
+                    "SELECT answer FROM questions WHERE id = ? AND node_id = ? AND scope = ?",
+                    (ref["question_id"], ref["node_id"], ref.get("scope", "quiz")),
                 ).fetchone()
                 self.assertIsNotNone(row, f"Question de session absente : {ref}")
                 answers.append(row[0])
@@ -107,6 +107,72 @@ class ExamApiTests(unittest.TestCase):
         profile = self.client.get("/api/profile")
         self.assertEqual(profile.status_code, 200, profile.text)
         self.assertEqual(profile.json()["exams_passed"], 1)
+
+    def _unlock_ipv6_exam_prerequisite(self) -> None:
+        with sqlite3.connect(self.database_path) as connection:
+            connection.execute(
+                "INSERT INTO attempts (node_id, kind, score, passed, evidence, detail, created_at) "
+                "VALUES (?, 'quiz', 100, 1, '', 'test prerequisite', '2026-10-26 12:00:00')",
+                ("ipv6-intermediaire",),
+            )
+            connection.commit()
+
+    def test_course_exam_uses_dedicated_bank_and_records_exam_requirement(self) -> None:
+        self._unlock_ipv6_exam_prerequisite()
+        response = self.client.post("/api/exam/start", json={"node_id": "ipv6-expert"})
+        self.assertEqual(response.status_code, 200, response.text)
+        exam = response.json()
+        self.assertEqual(exam["exam_type"], "course")
+        self.assertEqual(exam["node_id"], "ipv6-expert")
+        self.assertEqual(exam["passing_score"], 85)
+        self.assertEqual(exam["category"], "IPv6 - Expert")
+        self.assertGreater(len(exam["questions"]), 0)
+        self.assertTrue(all("answer" not in question for question in exam["questions"]))
+
+        with sqlite3.connect(self.database_path) as connection:
+            refs = json.loads(connection.execute(
+                "SELECT question_ids FROM exam_sessions WHERE session_id = ?", (exam["id"],)
+            ).fetchone()[0])
+        self.assertTrue(all(ref["scope"] == "exam" for ref in refs))
+        answers = self._answer_key(exam)
+        result_response = self.client.post(
+            "/api/exam/submit", json={"session_id": exam["id"], "answers": answers}
+        )
+        self.assertEqual(result_response.status_code, 200, result_response.text)
+        result = result_response.json()
+        self.assertEqual(result["score"], 100)
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["node_id"], "ipv6-expert")
+        # Le cours conserve aussi son exigence de quiz : réussir l'examen ne la contourne pas.
+        self.assertFalse(result["validated"])
+
+        replay = self.client.post(
+            "/api/exam/submit",
+            json={"session_id": exam["id"], "answers": [None] * len(answers)},
+        )
+        self.assertEqual(replay.status_code, 200, replay.text)
+        self.assertEqual(replay.json(), result)
+
+        with sqlite3.connect(self.database_path) as connection:
+            attempts = connection.execute(
+                "SELECT COUNT(*) FROM attempts WHERE node_id = 'ipv6-expert' AND kind = 'exam' AND passed = 1"
+            ).fetchone()[0]
+            saved_node_id = connection.execute(
+                "SELECT node_id FROM exam_submissions WHERE session_id = ?", (exam["id"],)
+            ).fetchone()[0]
+        self.assertEqual(attempts, 1)
+        self.assertEqual(saved_node_id, "ipv6-expert")
+
+        profile = self.client.get("/api/profile")
+        self.assertEqual(profile.status_code, 200, profile.text)
+        self.assertEqual(profile.json()["exams_passed"], 1)
+
+    def test_course_exam_requires_prerequisites_and_exam_requirement(self) -> None:
+        blocked = self.client.post("/api/exam/start", json={"node_id": "ipv6-expert"})
+        self.assertEqual(blocked.status_code, 409, blocked.text)
+
+        no_requirement = self.client.post("/api/exam/start", json={"node_id": "intro-reseau-debutant"})
+        self.assertEqual(no_requirement.status_code, 409, no_requirement.text)
 
     def test_submit_rejects_answer_count_mismatch(self) -> None:
         exam = self._start_exam()
