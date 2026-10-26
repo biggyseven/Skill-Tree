@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Méthodologie de dépannage - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Avant de lancer une capture ou plusieurs commandes, que faut-il définir pour diagnostiquer un flux applicatif ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Uniquement le nom de l’utilisateur concerné",
+        "Source, destination, protocole/port, sens, période et symptôme exact",
+        "Seulement le numéro de série du commutateur",
+        "L’ensemble des sous-réseaux de l’entreprise sans filtrage"
+      ],
+      "answer": 1,
+      "explanation": "La définition d’un flux précis réduit le bruit et permet de choisir les points de mesure pertinents. Elle doit tenir compte du chemin aller et du chemin retour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La résolution DNS est correcte et la connexion TCP vers le serveur ne s’établit pas. Quelle observation aide à distinguer un rejet d’un délai d’attente ?",
+      "choices": [
+        "Le nom du VLAN sur le poste",
+        "La couleur du voyant d’alimentation uniquement",
+        "Le comportement du SYN et la réponse observée (SYN-ACK, RST ou absence de réponse) dans une capture autorisée",
+        "Le nombre de fichiers dans le dossier des logs"
+      ],
+      "answer": 2,
+      "explanation": "Une capture peut montrer une réponse de refus TCP (RST), une ouverture qui progresse ou des retransmissions de SYN sans réponse. Aucun de ces indices n’identifie seul la cause complète ; il faut localiser où le paquet disparaît ou est rejeté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un transfert de gros fichiers se bloque alors que les petits échanges fonctionnent. Quelle hypothèse mérite un test ciblé ?",
+      "choices": [
+        "La MTU/PMTUD ou une incohérence de MSS, en comparant des tailles contrôlées et les messages ICMP pertinents",
+        "Le câble est forcément débranché",
+        "Les adresses MAC ont toutes changé",
+        "Le DNS inverse remplace le routage"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un problème de MTU peut affecter de gros paquets alors que le handshake TCP réussit. Compare des tailles, examine la route et les messages ICMP Packet Too Big, sans considérer un simple ping comme une reproduction parfaite du flux applicatif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un `traceroute` ou `tracert` ne suffit-il pas pour conclure exactement où se situe la panne ?",
+      "choices": [
+        "Parce que cet outil ne fonctionne que dans un VLAN",
+        "Parce qu’il affiche toujours toutes les routes retour",
+        "Parce qu’il mesure l’état complet de l’application distante",
+        "Parce que les routeurs peuvent filtrer ou limiter les réponses aux sondes et que le chemin de retour peut différer"
+      ],
+      "answer": 3,
+      "explanation": "Les résultats dépendent du type de sonde, des réponses ICMP, du filtrage et des chemins utilisés. Un saut qui ne répond pas peut quand même transférer le trafic ; il faut corroborer avec d’autres preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre un problème de plan de contrôle et un problème de plan de données ?",
+      "choices": [
+        "Le plan de contrôle ne concerne que les câbles cuivre",
+        "Le plan de contrôle calcule/maintient les états et routes, tandis que le plan de données transfère réellement les paquets selon les tables et politiques installées",
+        "Le plan de données est uniquement la page Web d’administration",
+        "Il n’existe aucune distinction opérationnelle"
+      ],
+      "answer": 1,
+      "explanation": "Un voisin de routage ou un état de gestion peut sembler sain alors que le forwarding échoue en raison d’une FIB, d’une ACL, d’une interface ou d’une ressource matérielle. Les deux plans doivent être vérifiés distinctement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indice est particulièrement utile pour investiguer une route retour incorrecte ?",
+      "choices": [
+        "Le fait que le serveur réponde au ping sur son adresse de loopback",
+        "La version du navigateur du client",
+        "Les routes et compteurs des deux côtés, et une capture permettant de voir si la requête arrive mais si la réponse part vers un autre chemin",
+        "Le nombre de VLAN configurés sur un commutateur sans lien avec le trajet"
+      ],
+      "answer": 2,
+      "explanation": "Une requête peut parvenir au serveur alors que la réponse emprunte un autre chemin ou est filtrée. L’analyse doit suivre les deux directions et tenir compte du NAT et des règles stateful."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment utiliser une capture Wireshark de façon la plus reproductible lors d’un incident ?",
+      "choices": [
+        "Filtrer le flux et la période visés, noter le point de capture, conserver les horodatages et documenter les limites de visibilité",
+        "Capturer tout le réseau de production indéfiniment sans autorisation",
+        "Ne conserver que des captures d’écran des paquets supposés fautifs",
+        "Changer les adresses IP pour rendre les traces plus simples"
+      ],
+      "answer": 0,
+      "explanation": "Une capture ciblée et horodatée facilite la corrélation. Il faut respecter les autorisations, limiter la collecte de données sensibles et noter que le point de capture peut masquer des paquets et ne révèle pas toujours les causes en amont."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il être prudent avec la commande `debug` sur un équipement réseau de production ?",
+      "choices": [
+        "Elle modifie toujours l’adresse MAC du routeur",
+        "Elle peut être utilisée sans limites dès lors que le CPU est faible",
+        "Elle remplace les compteurs et journaux historiques",
+        "Elle peut générer une forte charge ou beaucoup de messages ; vérifier les conditions, limiter la portée et prévoir l’arrêt du debug"
+      ],
+      "answer": 3,
+      "explanation": "Les traces très détaillées peuvent perturber certains équipements. Privilégie les compteurs et commandes ciblées, respecte les consignes du constructeur et assure-toi de pouvoir arrêter le debug rapidement."
     }
   ]
 }
