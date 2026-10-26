@@ -191,6 +191,14 @@
         "path": "config.acls",
         "operator": "contains",
         "expected": "100 permit ip any any"
+      },
+      {
+        "id": "acl100-applied-inbound",
+        "description": "L’ACL 100 est appliquée en entrée sur Fa0/0 de R1",
+        "device": "R1",
+        "path": "ports[0].access_group_in",
+        "operator": "equals",
+        "expected": 100
       }
     ]
   },
