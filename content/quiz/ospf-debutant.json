@@ -1,1 +1,102 @@
-{"node_id":"ospf-debutant","scope":"quiz","questions":[{"type":"qcm","prompt":"Que signifie OSPF ?","choices":["Open Shortest Path First","Open System Path First","Optimal Shortest Path Forwarding","Open Standard Protocol Format"],"answer":0,"explanation":"OSPF signifie Open Shortest Path First."},{"type":"qcm","prompt":"Quel est le numéro de l'Area principale (Backbone) dans OSPF ?","choices":["0","1","100","255"],"answer":0,"explanation":"L'Area 0 est toujours l'aire principale (Backbone) dans OSPF."},{"type":"qcm","prompt":"Quelle commande permet de vérifier si les voisins OSPF sont bien connectés ?","choices":["show ip ospf neighbor","show ip route ospf","show ip protocols","show running-config"],"answer":0,"explanation":"La commande 'show ip ospf neighbor' permet de voir l'état des voisins."},{"type":"qcm","prompt":"Quel type de métrique OSPF est utilisée pour choisir le meilleur chemin ?","choices":["Le coût (Cost)","La bande passante (Bandwidth)","Le nombre de sauts (Hop count)","Le délai (Delay)"],"answer":0,"explanation":"OSPF utilise le Coût (Cost), qui est inversement proportionnel à la bande passante."}]}
+{
+  "node_id": "ospf-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel numéro de protocole IP transporte directement les messages OSPFv2 ?",
+      "choices": [
+        "TCP 89",
+        "UDP 89",
+        "TCP 179",
+        "Le protocole IP 89, sans port TCP ou UDP"
+      ],
+      "answer": 3,
+      "explanation": "OSPFv2 est encapsulé directement dans IP avec le numéro de protocole 89. Il ne s’appuie pas sur un port TCP ou UDP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de l’Area 0 dans une architecture OSPF multi-aires classique ?",
+      "choices": [
+        "Fournir le backbone auquel les autres aires se rattachent selon les règles de conception OSPF",
+        "Servir de numéro de processus local obligatoire",
+        "Remplacer les Router ID",
+        "Empêcher toute route externe"
+      ],
+      "answer": 0,
+      "explanation": "L’Area 0 est l’aire backbone d’OSPF. Les architectures multi-aires doivent respecter les règles de rattachement au backbone et de propagation entre aires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle propriété du Router ID OSPF est importante dans une topologie ?",
+      "choices": [
+        "Il doit être le numéro du port TCP",
+        "Il change obligatoirement à chaque Hello",
+        "Il identifie le routeur dans OSPF et doit être unique dans le domaine pertinent",
+        "Il correspond toujours à l’adresse MAC de l’interface"
+      ],
+      "answer": 2,
+      "explanation": "Le Router ID est un identifiant de 32 bits utilisé dans les annonces et les voisinages OSPF. Une valeur stable et unique facilite l’exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal des paquets Hello OSPF ?",
+      "choices": [
+        "Distribuer seuls tous les fichiers de configuration",
+        "Découvrir et maintenir les voisins en vérifiant certains paramètres de compatibilité",
+        "Remplacer les calculs SPF",
+        "Transporter les données applicatives"
+      ],
+      "answer": 1,
+      "explanation": "Les Hello servent notamment à découvrir et maintenir les voisins. Les paramètres de l’aire, les timers, le type de réseau et d’autres éléments doivent être compatibles pour former une adjacence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un réseau Ethernet broadcast, pourquoi OSPF élit-il un DR et un BDR ?",
+      "choices": [
+        "Pour chiffrer les paquets OSPF",
+        "Pour devenir la passerelle IP de tous les postes",
+        "Pour attribuer les adresses IP aux routeurs",
+        "Pour limiter le nombre d’adjacences et organiser certains échanges de base de données sur le segment"
+      ],
+      "answer": 3,
+      "explanation": "Le DR et le BDR réduisent l’ampleur des adjacences sur les réseaux multi-accès broadcast. Ce mécanisme n’est pas appliqué de la même manière sur un lien point-à-point."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie généralement l’état voisinage `FULL` dans OSPF ?",
+      "choices": [
+        "La synchronisation des bases de données de topologie entre ces voisins est achevée",
+        "Toutes les applications du réseau fonctionnent",
+        "Tous les préfixes sont obligatoirement installés dans la RIB",
+        "Le routeur a été élu DR"
+      ],
+      "answer": 0,
+      "explanation": "FULL indique que les échanges de base de données nécessaires à l’adjacence sont terminés. Une route ou un service peut toutefois manquer pour d’autres raisons."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre le Process ID Cisco et l’Area ID OSPF ?",
+      "choices": [
+        "Ils doivent toujours avoir la même valeur",
+        "Le Process ID est envoyé à tous les voisins et doit être identique partout",
+        "Le Process ID est local au routeur Cisco, tandis que l’Area ID doit correspondre sur le lien OSPF concerné",
+        "L’Area ID correspond au numéro du port TCP"
+      ],
+      "answer": 2,
+      "explanation": "Le numéro du processus OSPF dans la configuration Cisco est local à l’équipement. Les interfaces qui doivent former une adjacence doivent partager l’aire appropriée et les autres paramètres compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment OSPF calcule-t-il normalement les meilleurs chemins ?",
+      "choices": [
+        "En choisissant toujours le Router ID le plus petit",
+        "À partir d’une base d’état de liens et d’un calcul SPF selon les coûts configurés",
+        "En choisissant le chemin dont le nombre d’AS est minimal",
+        "En utilisant uniquement la table ARP"
+      ],
+      "answer": 1,
+      "explanation": "OSPF est un protocole à état de liens. Les routeurs synchronisent une LSDB pour leur portée de topologie, puis calculent les chemins selon les coûts."
+    }
+  ]
+}

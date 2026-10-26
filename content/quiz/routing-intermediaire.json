@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Routage statique & tables - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Dans Cisco IOS, à quoi sert principalement la distance administrative ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "À mesurer le délai d’un lien Ethernet",
+        "À comparer la préférence de sources de routes concurrentes vers un même préfixe",
+        "À déterminer le nombre de sauts BGP dans AS_PATH",
+        "À remplacer la recherche par préfixe le plus long"
+      ],
+      "answer": 1,
+      "explanation": "La distance administrative compare la fiabilité relative de sources de routes, par exemple une route statique et une route OSPF. Elle ne remplace pas le longest-prefix match."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route OSPF vers un préfixe est installée et l’on veut une route statique de secours vers ce même préfixe. Quelle conception est typique sur Cisco IOS ?",
+      "choices": [
+        "Attribuer à la route statique une distance administrative plus faible que celle d’OSPF",
+        "Supprimer toutes les routes connectées",
+        "Attribuer à la route statique une distance administrative plus élevée que celle de la route principale",
+        "Configurer les deux routes avec des préfixes différents"
+      ],
+      "answer": 2,
+      "explanation": "Une route statique flottante reçoit une distance administrative moins favorable que la route principale. Elle peut alors être installée lorsque la route principale disparaît, sous réserve de la résolution du prochain saut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route indique un prochain saut `192.0.2.1` plutôt qu’une interface de sortie. Que doit faire le routeur pour transmettre le paquet ?",
+      "choices": [
+        "Résoudre récursivement une route permettant d’atteindre `192.0.2.1`",
+        "Remplacer l’adresse de destination par `192.0.2.1`",
+        "Envoyer systématiquement le paquet sur toutes les interfaces",
+        "Ignorer la table de routage et consulter la table ARP uniquement"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le prochain saut doit lui-même être résolu par une route connectée ou une autre route installée. C’est la résolution récursive du next-hop."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route statique est visible dans la configuration mais n’apparaît pas dans la table de routage. Quelle hypothèse faut-il vérifier en premier ?",
+      "choices": [
+        "Que le nom de l’interface est écrit en majuscules",
+        "Que le paquet a déjà traversé le routeur",
+        "Que le DNS de destination répond",
+        "Que le prochain saut est résolvable et que la route satisfait les conditions d’installation"
+      ],
+      "answer": 3,
+      "explanation": "Une ligne de configuration n’est pas une preuve d’installation dans la RIB. Il faut notamment vérifier la validité du préfixe, l’état de sortie et la résolution du prochain saut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel agrégat IPv4 couvre exactement les quatre réseaux contigus `10.1.0.0/24` à `10.1.3.0/24` ?",
+      "choices": [
+        "`10.1.0.0/24`",
+        "`10.1.0.0/22`",
+        "`10.1.0.0/23`",
+        "`10.1.0.0/16`"
+      ],
+      "answer": 1,
+      "explanation": "Les quatre réseaux partagent les 22 premiers bits. Le résumé `10.1.0.0/22` couvre `10.1.0.0` à `10.1.3.255`."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un chemin aller fonctionnel peut-il ne pas suffire à assurer une session avec un pare-feu à état ?",
+      "choices": [
+        "Parce que le routage IP ne permet jamais d’utiliser plusieurs routeurs",
+        "Parce que le TTL augmente à chaque saut",
+        "Parce que le chemin retour peut être absent ou emprunter un itinéraire incompatible avec l’état attendu",
+        "Parce que les routes connectées sont ignorées dès qu’il existe une route statique"
+      ],
+      "answer": 2,
+      "explanation": "Le routage asymétrique peut faire passer le retour par un autre équipement ou une autre politique. Les pare-feu à état et les chemins retour doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet le partage de charge ECMP lorsqu’il est pris en charge et configuré ?",
+      "choices": [
+        "D’utiliser plusieurs routes de coût égal vers une même destination, selon les règles de la plate-forme",
+        "D’ignorer la résolution des prochains sauts",
+        "De préférer toujours une route plus spécifique et plus longue",
+        "De convertir une route statique en route OSPF"
+      ],
+      "answer": 0,
+      "explanation": "ECMP permet d’installer plusieurs chemins de coût égal. La distribution effective dépend du matériel et de son mécanisme de répartition, souvent fondé sur un hachage des flux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode permet de vérifier qu’une route configurée est réellement utilisable ?",
+      "choices": [
+        "Se fier uniquement au texte de `running-config`",
+        "Redémarrer tous les routeurs",
+        "Augmenter immédiatement la distance administrative",
+        "Examiner la route installée puis tester le prochain saut, le chemin et la destination"
+      ],
+      "answer": 3,
+      "explanation": "Le diagnostic combine la configuration, la RIB, la résolution du prochain saut et des tests de connectivité. Une route présente ne garantit pas que le service distant fonctionne."
     }
   ]
 }

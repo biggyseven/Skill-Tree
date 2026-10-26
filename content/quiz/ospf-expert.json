@@ -1,1 +1,102 @@
-{"node_id":"ospf-expert","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel type de LSA est utilisé dans une zone NSSA pour les routes externes ?","choices":["Type 7","Type 5","Type 3","Type 1"],"answer":0,"explanation":"Les routes externes dans une NSSA sont injectées avec le LSA Type 7, puis converties en Type 5 par l'ABR."},{"type":"qcm","prompt":"Quelle est la caractéristique d'une Totally Stubby Area ?","choices":["Elle bloque les LSA Type 3, 4 et 5","Elle bloque uniquement les LSA Type 5","Elle autorise toutes les routes","Elle utilise le LSA Type 7"],"answer":0,"explanation":"La Totally Stubby Area bloque toutes les routes inter-aires et externes, ne laissant qu'une route par défaut."},{"type":"qcm","prompt":"Quelle commande permet de résumer les routes de l'Area 1 vers l'Area 0 ?","choices":["area 1 range X.X.X.X M.M.M.M","summary-address X.X.X.X M.M.M.M","ip summary-address ospf X.X.X.X","redistribute summary"],"answer":0,"explanation":"La commande 'area 1 range' s'utilise sur l'ABR pour résumer les routes d'une aire."},{"type":"qcm","prompt":"Quelle commande permet d'activer l'authentification MD5 sur une interface OSPF ?","choices":["ip ospf authentication message-digest","ip ospf auth md5","ospf authentication enable","md5 ospf enable"],"answer":0,"explanation":"La commande 'ip ospf authentication message-digest' active l'authentification MD5 sur l'interface."}]}
+{
+  "node_id": "ospf-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle information est normalement portée par une LSA de type 3 ?",
+      "choices": [
+        "Une annonce de résumé de réseau inter-aires produite par un ABR",
+        "Une annonce de route externe de type 5",
+        "Une élection de BDR",
+        "Un message de transport applicatif"
+      ],
+      "answer": 0,
+      "explanation": "Les LSA de type 3 décrivent des réseaux inter-aires. Leur portée et leur traitement doivent être interprétés avec les frontières d’aire et les règles OSPF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une LSA est visible dans la LSDB mais le préfixe est absent de la RIB. Quelle conclusion est correcte ?",
+      "choices": [
+        "Le paquet de données est nécessairement transféré correctement",
+        "Il faut redémarrer tout le domaine OSPF immédiatement",
+        "La présence dans la LSDB ne garantit pas l’installation ; vérifier le calcul, le type de route, les préférences et les politiques",
+        "La LSDB et la RIB sont deux noms pour la même table"
+      ],
+      "answer": 2,
+      "explanation": "La LSDB décrit la topologie annoncée ; la RIB contient les routes effectivement retenues par le système. Une route peut être absente de la RIB malgré la présence d’une LSA."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il dimensionner prudemment BFD et les temporisateurs Hello/Dead dans une architecture OSPF ?",
+      "choices": [
+        "Pour augmenter artificiellement le coût de tous les liens",
+        "Des seuils trop agressifs peuvent déclencher de fausses détections de panne et provoquer de l’instabilité",
+        "Parce que les Hello ne peuvent jamais détecter un voisin",
+        "Pour que l’Area 0 soit chiffrée"
+      ],
+      "answer": 1,
+      "explanation": "Une détection plus rapide peut accélérer la réaction, mais des seuils mal adaptés aux chemins, à la charge et au matériel peuvent produire des faux positifs et des oscillations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur graceful restart dans un réseau OSPF est la plus sûre ?",
+      "choices": [
+        "Il garantit toujours l’absence de perte de trafic, quelles que soient les versions et la panne",
+        "Il remplace la LSDB et l’algorithme SPF",
+        "Il désactive la vérification de la joignabilité",
+        "La continuité dépend du support, du rôle des voisins, de l’état du forwarding et des conditions du redémarrage"
+      ],
+      "answer": 3,
+      "explanation": "Graceful restart peut préserver le transfert pendant certaines reprises de plan de contrôle, mais seulement si les équipements et les conditions d’opération le permettent. Ce n’est pas une garantie universelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure réduit le risque de boucle lors d’une redistribution entre OSPF et un autre protocole ?",
+      "choices": [
+        "Définir des préfixes autorisés, des métriques explicites et des tags ou politiques anti-boucle",
+        "Redistribuer sans filtre dans les deux sens",
+        "Effacer les journaux avant le changement",
+        "Donner la même métrique à toutes les routes sans analyser leur origine"
+      ],
+      "answer": 0,
+      "explanation": "Une redistribution maîtrisée documente les préfixes permis, les métriques d’amorçage et les marqueurs de provenance. Les contrôles anti-boucle doivent être validés dans les deux sens."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre RIB et FIB aide à diagnostiquer une perte de trafic malgré une route présente ?",
+      "choices": [
+        "La FIB stocke les politiques de mot de passe",
+        "La RIB est la table ARP des commutateurs",
+        "La RIB montre les routes retenues ; la FIB et les adjacences reflètent la programmation et les informations utilisées pour transférer les paquets",
+        "La FIB sert uniquement à négocier les voisins OSPF"
+      ],
+      "answer": 2,
+      "explanation": "Une route peut être présente dans la RIB sans que le plan de données transfère correctement le trafic. Il faut vérifier FIB, résolution d’adjacence, ACL et chemin retour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une rotation d’authentification OSPF, que faut-il vérifier ?",
+      "choices": [
+        "Que les IDs d’aire soient secrets",
+        "La compatibilité des clés et de la méthode sur les voisins, l’ordre de transition et la preuve d’adjacence après changement",
+        "Que chaque routeur ait un Router ID identique",
+        "Que les coûts soient tous mis à zéro"
+      ],
+      "answer": 1,
+      "explanation": "Une rotation non coordonnée peut interrompre les adjacences. Il faut planifier la coexistence ou la bascule des clés selon les capacités de la plate-forme et contrôler l’état après changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route OSPF disparaît après une modification de coût et une application ne répond plus. Quelle procédure de diagnostic est la plus robuste ?",
+      "choices": [
+        "Changer tous les coûts jusqu’à ce que cela fonctionne",
+        "Vérifier uniquement le message de configuration",
+        "Augmenter les timers sans observer l’état du réseau",
+        "Comparer voisins, LSDB, route retenue dans la RIB, programmation FIB et chemin retour avec des mesures avant/après"
+      ],
+      "answer": 3,
+      "explanation": "Une méthode experte sépare la détection de panne, la convergence OSPF, l’installation de route, le transfert et le service applicatif. Des preuves avant/après permettent de localiser l’étape qui échoue."
+    }
+  ]
+}

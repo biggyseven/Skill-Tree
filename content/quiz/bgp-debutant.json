@@ -1,1 +1,102 @@
-{"node_id":"bgp-debutant","scope":"quiz","questions":[{"type":"qcm","prompt":"Que signifie BGP ?","choices":["Border Gateway Protocol","Broadband Global Protocol","Basic Gateway Path","Bridge Gateway Protocol"],"answer":0,"explanation":"BGP signifie Border Gateway Protocol."},{"type":"qcm","prompt":"Quel type de protocole est BGP ?","choices":["Path-Vector","Link-State","Distance-Vector","Hybride"],"answer":0,"explanation":"BGP est un protocole de type Path-Vector (vecteur de chemin)."},{"type":"qcm","prompt":"Quelle commande permet de vérifier l'état des voisins BGP ?","choices":["show ip bgp summary","show ip route bgp","show ip bgp neighbor","show ip protocols"],"answer":0,"explanation":"La commande 'show ip bgp summary' montre l'état des sessions BGP."},{"type":"qcm","prompt":"Quel est l'état normal d'une session BGP qui fonctionne ?","choices":["Established","Active","Idle","Connect"],"answer":0,"explanation":"L'état 'Established' indique que la session BGP est établie et fonctionnelle."}]}
+{
+  "node_id": "bgp-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que signifie BGP ?",
+      "choices": [
+        "Border Gateway Protocol",
+        "Broadband Global Protocol",
+        "Basic Gateway Path",
+        "Bridge Gateway Protocol"
+      ],
+      "answer": 0,
+      "explanation": "BGP signifie Border Gateway Protocol. Il échange des informations de joignabilité entre systèmes autonomes et permet d’appliquer des politiques de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand parle-t-on généralement d’eBGP ?",
+      "choices": [
+        "Quand deux routeurs d’un même sous-réseau utilisent OSPF",
+        "Quand un routeur redistribue une route connectée",
+        "Quand deux routeurs ont le même Router ID",
+        "Quand les pairs BGP appartiennent à des systèmes autonomes différents"
+      ],
+      "answer": 3,
+      "explanation": "L’eBGP est utilisé entre systèmes autonomes distincts. L’iBGP échange des routes BGP à l’intérieur d’un même AS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel port TCP standard BGP utilise-t-il pour ses sessions ?",
+      "choices": [
+        "TCP 22",
+        "TCP 179",
+        "UDP 179",
+        "TCP 443"
+      ],
+      "answer": 1,
+      "explanation": "BGP établit ses sessions sur TCP, avec le port 179 standard. Ce n’est ni un port UDP ni le port SSH."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel attribut BGP indique les systèmes autonomes traversés par une route ?",
+      "choices": [
+        "MED",
+        "NEXT_HOP",
+        "AS_PATH",
+        "ORIGINATOR_ID uniquement"
+      ],
+      "answer": 2,
+      "explanation": "AS_PATH décrit le chemin de systèmes autonomes annoncé avec la route. Il contribue notamment à détecter les boucles inter-AS et à appliquer des politiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un routeur reçoit une route dont AS_PATH contient son propre ASN. Quel comportement est généralement attendu ?",
+      "choices": [
+        "Préférer toujours cette route",
+        "La convertir automatiquement en route statique",
+        "L’écarter comme potentielle boucle BGP, sauf politique particulière volontairement configurée",
+        "Remplacer AS_PATH par le coût OSPF"
+      ],
+      "answer": 2,
+      "explanation": "La détection d’une boucle BGP vérifie si l’ASN local figure dans AS_PATH. Les exceptions configurées doivent être intentionnelles et sécurisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’état BGP `Established` ?",
+      "choices": [
+        "La session BGP est établie et les messages de routage peuvent être échangés",
+        "Le pair est toujours joignable au niveau applicatif",
+        "Toutes les routes annoncées sont nécessairement installées dans la RIB",
+        "Les deux routeurs appartiennent forcément à des AS différents"
+      ],
+      "answer": 0,
+      "explanation": "Established est l’état où la session BGP peut échanger des messages de routage. Il ne garantit pas que chaque préfixe sera accepté ou installé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un message BGP, que décrit principalement le NLRI ?",
+      "choices": [
+        "Le mot de passe du voisin",
+        "La charge CPU du routeur",
+        "Les statistiques de perte de paquets du lien",
+        "Les informations de préfixes réseau annoncés comme joignables"
+      ],
+      "answer": 3,
+      "explanation": "NLRI signifie Network Layer Reachability Information. Il décrit les destinations réseau annoncées, avec les attributs applicables à la route."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un réseau d’entreprise, pourquoi l’IGP reste-t-il souvent utile avec iBGP ?",
+      "choices": [
+        "Pour remplacer l’ASN dans toutes les annonces BGP",
+        "Pour fournir la joignabilité interne nécessaire, notamment vers des next-hops BGP, si la conception s’appuie sur l’IGP",
+        "Pour chiffrer automatiquement la session TCP/179",
+        "Pour supprimer la nécessité de filtrer les routes BGP"
+      ],
+      "answer": 1,
+      "explanation": "BGP et l’IGP répondent à des rôles différents. L’IGP fournit souvent la connectivité interne nécessaire pour résoudre les next-hops et atteindre les routeurs concernés."
+    }
+  ]
+}

@@ -1,9 +1,102 @@
-{"node_id":"eigrp-debutant","scope":"quiz","questions":[
-  {"type":"qcm","prompt":"Que signifie l'acronyme EIGRP ?","choices":["Enhanced Interior Gateway Routing Protocol","Exterior Interior Gateway Routing Protocol","Enhanced Interdomain Gateway Routing Protocol","Exterior Interdomain Gateway Protocol"],"answer":0,"explanation":"EIGRP signifie Enhanced Interior Gateway Routing Protocol."},
-  {"type":"qcm","prompt":"Quels composants de métrique sont utilisés par défaut dans EIGRP ?","choices":["Bandwidth and delay","Bandwidth, delay, reliability, load","Only bandwidth","Only delay"],"answer":0,"explanation":"Par défaut, EIGRP utilise la bande passante et le délai pour calculer la métrique."},
-  {"type":"qcm","prompt":"Quelle commande active EIGRP sur un routeur Cisco ?","choices":["router eigrp 100","router eigrp","router eigrp autonomous-system","router eigrp enable"],"answer":0,"explanation":"La syntaxe correcte est 'router eigrp <numéro_AS>', par exemple 'router eigrp 100'."},
-  {"type":"qcm","prompt":"Quel est le but de la commande 'variance' dans EIGRP ?","choices":["Allow load balancing over unequal-cost paths","Increase metric calculation speed","Disable route summarization","Enable stub routing"],"answer":0,"explanation":"'variance' permet le load balancing sur des chemins de coût inégal."},
-  {"type":"qcm","prompt":"Dans EIGRP, à quoi fait référence le terme 'DUAL' ?","choices":["Diffusing Update Algorithm","Dynamic Unicast Address List","Distributed User Access Layer","Dual Interface Access List"],"answer":0,"explanation":"DUAL signifie Diffusing Update Algorithm, utilisé pour le calcul du meilleur chemin."},
-  {"type":"qcm","prompt":"Quelle commande affiche les voisins EIGRP ?","choices":["show ip eigrp neighbors","show ip eigrp topology","show ip eigrp interfaces","show ip eigrp summary"],"answer":0,"explanation":"La commande 'show ip eigrp neighbors' liste les voisins EIGRP."},
-  {"type":"qcm","prompt":"Quel est l'effet de la commande 'eigrp stub' ?","choices":["Limits the routes advertised by the router","Enables EIGRP on a stub network","Disables EIGRP on the router","Increases the metric calculation speed"],"answer":0,"explanation":"'eigrp stub' restreint les routes annoncées par le routeur, utile pour les zones de bout."}
-]}
+{
+  "node_id": "eigrp-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel algorithme EIGRP utilise-t-il pour calculer et maintenir des chemins sans boucle ?",
+      "choices": [
+        "Dijkstra comme OSPF sans table topologique",
+        "Bellman-Ford uniquement, sans condition de faisabilité",
+        "DUAL (Diffusing Update Algorithm)",
+        "BGP best-path"
+      ],
+      "answer": 2,
+      "explanation": "EIGRP utilise DUAL pour raisonner sur les chemins et leur état, et pour éviter les boucles pendant la convergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle condition permet à un voisin d’être un feasible successor pour une destination EIGRP ?",
+      "choices": [
+        "Sa RD est inférieure à la FD locale pour cette destination",
+        "Sa distance annoncée est égale à l’infini",
+        "Son Router ID est plus petit que celui du successeur",
+        "Il doit obligatoirement être le chemin de plus faible métrique"
+      ],
+      "answer": 0,
+      "explanation": "La condition de faisabilité est satisfaite lorsque la RD annoncée par le voisin est strictement inférieure à la FD locale pour cette destination. Cette condition suffisante garantit un chemin sans boucle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que désigne le successeur (successor) dans EIGRP ?",
+      "choices": [
+        "Le routeur qui a le plus grand Router ID",
+        "Le premier voisin découvert",
+        "Une route statique de secours dans tous les cas",
+        "Le prochain saut retenu pour le chemin de moindre coût admissible vers une destination"
+      ],
+      "answer": 3,
+      "explanation": "Le successor est le prochain saut retenu pour une destination. DUAL examine la métrique et les conditions de faisabilité avant de choisir le chemin utilisable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement un feasible successor ?",
+      "choices": [
+        "Il s’agit toujours du chemin de plus faible métrique",
+        "Il répond à la condition de faisabilité et représente un chemin alternatif garanti sans boucle, même s’il peut être moins attractif",
+        "Il est nécessairement un routeur d’un autre AS",
+        "Il est l’équivalent d’un DR OSPF"
+      ],
+      "answer": 1,
+      "explanation": "Un feasible successor respecte la condition de faisabilité et constitue un chemin alternatif sans boucle. Il n’est pas obligatoirement le chemin de coût le plus faible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels paramètres influencent par défaut la métrique composite EIGRP classique ?",
+      "choices": [
+        "La bande passante minimale du chemin et le délai cumulé, avec les K-values par défaut",
+        "Le nombre de VLAN traversés et le TTL",
+        "La Local Preference et l’AS_PATH",
+        "Uniquement le débit instantané mesuré"
+      ],
+      "answer": 0,
+      "explanation": "Avec les K-values classiques par défaut, la métrique dépend principalement de la bande passante minimale et du délai cumulé. Les détails d’échelle dépendent de la formulation utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux routeurs EIGRP ne deviennent pas voisins après vérification de la connectivité. Quel paramètre faut-il notamment comparer ?",
+      "choices": [
+        "Le nom de domaine DNS public",
+        "La couleur des interfaces",
+        "Le numéro de VLAN du poste utilisateur uniquement",
+        "Le numéro d’AS EIGRP et la compatibilité des K-values, en plus de l’adressage et des paramètres du lien"
+      ],
+      "answer": 3,
+      "explanation": "Le voisinage EIGRP exige une connectivité et des paramètres compatibles, notamment l’AS et les K-values. Des filtres, l’authentification ou des différences de configuration peuvent aussi empêcher l’adjacence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’état PASSIVE d’une destination dans la terminologie EIGRP ?",
+      "choices": [
+        "Que le protocole EIGRP a été désactivé sur toutes les interfaces",
+        "Que la route est dans son état stable, sans computation diffusée active en cours pour cette destination",
+        "Que le routeur ne transmet plus les paquets",
+        "Que tous les voisins sont absents"
+      ],
+      "answer": 1,
+      "explanation": "PASSIVE signifie que la route est stable du point de vue de la machine d’états DUAL. Ce n’est pas un état d’interface désactivée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande Cisco IOS est utile pour vérifier les adjacences EIGRP ?",
+      "choices": [
+        "`show ip bgp summary`",
+        "`show spanning-tree`",
+        "`show ip eigrp neighbors`",
+        "`show ip nat translations`"
+      ],
+      "answer": 2,
+      "explanation": "`show ip eigrp neighbors` affiche la table des voisins EIGRP et constitue un premier contrôle du plan de contrôle."
+    }
+  ]
+}

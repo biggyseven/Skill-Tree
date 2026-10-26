@@ -1,1 +1,102 @@
-{"node_id":"bgp-expert","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel attribut BGP est prioritaire sur tous les autres (et est local au routeur) ?","choices":["Weight","Local Preference","AS_PATH","MED"],"answer":0,"explanation":"Le Weight est le premier critère de sélection BGP et il est local au routeur (non transmis)."},{"type":"qcm","prompt":"Comment allonger l'AS_PATH pour rendre une route moins attractive ?","choices":["AS_PATH prepending","AS_PATH filtering","AS_PATH stripping","AS_PATH appending"],"answer":0,"explanation":"Le 'AS_PATH prepending' consiste à ajouter plusieurs fois son propre AS pour allonger le chemin."},{"type":"qcm","prompt":"Quel est le rôle d'un Route Reflector ?","choices":["Transmettre les routes iBGP à d'autres clients iBGP","Filtrer les routes eBGP","Traduire les adresses IP","Créer des routes par défaut"],"answer":0,"explanation":"Le Route Reflector contourne la règle du Split Horizon iBGP en réfléchissant les routes."},{"type":"qcm","prompt":"Quel est l'attribut BGP qui indique la provenance de la route (IGP, EGP, Incomplete) ?","choices":["Origin","MED","Next-Hop","Local Preference"],"answer":0,"explanation":"L'attribut Origin indique comment la route a été apprise (IGP, EGP ou Incomplete)."}]}
+{
+  "node_id": "bgp-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que valide principalement la ROV (Route Origin Validation) basée sur RPKI ?",
+      "choices": [
+        "Tous les AS traversés par la route et l’absence de toute fuite",
+        "La latence du chemin annoncé",
+        "La disponibilité des route reflectors",
+        "La cohérence entre le préfixe annoncé, la longueur autorisée et l’ASN d’origine autorisé par un ROA"
+      ],
+      "answer": 3,
+      "explanation": "La ROV évalue l’origine annoncée d’un préfixe par rapport aux ROA. Elle ne valide pas l’intégralité d’AS_PATH ni la légitimité commerciale de toute la propagation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme est généralement sous le contrôle de son propre AS pour choisir sa sortie vers une destination BGP ?",
+      "choices": [
+        "La Local Preference appliquée à ses routes candidates",
+        "Le prepending exécuté par un opérateur distant",
+        "Le MED imposé par tous les autres AS",
+        "La table ARP du serveur final"
+      ],
+      "answer": 0,
+      "explanation": "La Local Preference permet d’exprimer une préférence de sortie au sein de son AS. Le choix d’entrée effectué par les réseaux distants est indirect et dépend de leurs politiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle défense est la plus solide contre une fuite de routes BGP ?",
+      "choices": [
+        "S’appuyer seulement sur l’intention déclarée du peer",
+        "Accepter toutes les routes puis supprimer les journaux",
+        "Définir des politiques d’import/export par rôle, des filtres de préfixes et des limites appropriées, puis en tester le comportement",
+        "Se fier uniquement à l’AS_PATH prepend"
+      ],
+      "answer": 2,
+      "explanation": "La prévention repose sur une politique explicite du routage annoncé et accepté, adaptée au rôle de chaque voisin. Des limites de préfixes, des filtres et une surveillance complètent les protections sans se substituer les uns aux autres."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent notamment ORIGINATOR_ID et CLUSTER_LIST dans la réflexion de routes iBGP ?",
+      "choices": [
+        "À chiffrer les UPDATE",
+        "À aider à détecter et éviter certaines boucles de réflexion",
+        "À annoncer les VLAN directement connectés",
+        "À remplacer la résolution du NEXT_HOP"
+      ],
+      "answer": 1,
+      "explanation": "Les attributs associés à la réflexion permettent d’identifier l’origine de la route réfléchie et les clusters traversés afin d’éviter des boucles de réflexion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une limite `maximum-prefix` correctement configurée sur un voisin BGP ?",
+      "choices": [
+        "À garantir que chaque route reçue est légitime",
+        "À remplacer la ROV et les filtres d’import",
+        "À garantir que le lien optique fonctionne",
+        "À détecter ou contenir une hausse inattendue du nombre de préfixes reçus, selon l’action configurée"
+      ],
+      "answer": 3,
+      "explanation": "Une limite de préfixes est une protection opérationnelle contre une annonce trop volumineuse ou accidentelle. Elle ne remplace pas la validation des annonces ni la politique de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle typique de BFD lorsqu’il est intégré au fonctionnement BGP ?",
+      "choices": [
+        "Détecter rapidement certaines défaillances de chemin entre pairs pour accélérer la réaction, si les deux côtés et la plate-forme le supportent",
+        "Valider l’origine RPKI de tous les préfixes",
+        "Choisir la meilleure route selon les communautés",
+        "Remplacer le filtrage d’import/export"
+      ],
+      "answer": 0,
+      "explanation": "BFD peut accélérer la détection de défaillances de connectivité et déclencher une réaction du protocole associé. Il ne valide ni les routes ni les politiques, et son paramétrage doit éviter les faux positifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route est jugée RPKI Invalid. Quelle approche est correcte ?",
+      "choices": [
+        "La considérer toujours comme sûre si la session est Established",
+        "La transformer automatiquement en route statique",
+        "Appliquer la politique ROV définie par l’organisation, souvent rejet ou mise en quarantaine, et surveiller les causes",
+        "Réécrire l’ASN d’origine sans consulter le propriétaire"
+      ],
+      "answer": 2,
+      "explanation": "Invalid signale une incohérence avec les autorisations d’origine connues. L’action doit être définie de façon cohérente et surveillée ; le statut NotFound est distinct et ne signifie pas automatiquement Invalid."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route BGP est reçue, mais son next-hop n’est pas joignable dans le routeur qui doit l’installer. Que vérifier en priorité ?",
+      "choices": [
+        "Le nom des VLAN de tous les commutateurs",
+        "La route IGP vers le next-hop ou une stratégie appropriée telle que next-hop-self, selon l’architecture",
+        "Le paramètre DNS du poste source",
+        "Le numéro de VLAN natif du pair BGP"
+      ],
+      "answer": 1,
+      "explanation": "La résolution du next-hop est une condition de sélection et d’installation. Il faut comprendre où l’adresse du prochain saut doit être joignable et, si prévu par la conception, utiliser une politique telle que next-hop-self."
+    }
+  ]
+}

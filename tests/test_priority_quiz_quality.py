@@ -40,6 +40,10 @@ PRIORITY_TRACKS = {
     "netflow": ("netflow-debutant", "netflow-intermediaire", "netflow-expert"),
     "netmiko": ("netmiko-debutant", "netmiko-intermediaire", "netmiko-expert"),
     "ntp-syslog": ("ntp-syslog-debutant", "ntp-syslog-intermediaire", "ntp-syslog-expert"),
+    "bgp": ("bgp-debutant", "bgp-intermediaire", "bgp-expert"),
+    "ospf": ("ospf-debutant", "ospf-intermediaire", "ospf-expert"),
+    "routing": ("routing-debutant", "routing-intermediaire", "routing-expert"),
+    "eigrp": ("eigrp-debutant", "eigrp-intermediaire", "eigrp-expert"),
 }
 PRIORITY_STANDALONE_QUIZZES = (
     "incident-ospf",
