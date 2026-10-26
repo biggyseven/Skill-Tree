@@ -2250,7 +2250,7 @@
         fontSize: 17,
         readingWidth: 'comfortable',
         lessonToc: [], activeSection: '', lessonProgress: 0, readingMinutes: 1,
-        lessonPositions: {}, startSectionSelection: '__resume__', readingContextMenu: { open: false, x: 0, y: 0, targetId: '__top__', targetLabel: 'Début du cours' }, _mermaidInitialized: false,
+        lessonPositions: {}, startSectionSelection: '__resume__', readingContextMenu: { open: false, x: 0, y: 0, targetId: '', sectionId: '__top__', targetLabel: 'Début du cours' }, readingStartCounter: 0, _mermaidInitialized: false,
 
         quiz: null, quizAnswers: [], quizResult: null, quizBusy: false,
         exerciseMode: null, exerciseQuestion: null, exerciseAnswer: '', exerciseResult: null, exerciseBusy: false, exerciseError: null, exercisePreferredKind: null,
@@ -2415,25 +2415,46 @@
           const precedingHeading = isHeading
             ? block
             : headings.filter(heading => (heading.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).pop();
-          const targetId = precedingHeading && precedingHeading.id ? precedingHeading.id : '__top__';
-          const targetLabel = precedingHeading
-            ? precedingHeading.textContent.replace(/\s+/gu, ' ').trim().slice(0, 100)
-            : 'Début du cours';
+          const sectionId = precedingHeading && precedingHeading.id ? precedingHeading.id : '__top__';
+
+          // Marquer le bloc exact cliqué. Le titre de section reste séparé : il sert à la progression,
+          // tandis que le marqueur du bloc détermine le premier texte effectivement prononcé.
+          this.readingStartCounter = (Number(this.readingStartCounter) || 0) + 1;
+          const targetId = 'reading-start-' + this.readingStartCounter;
+          block.setAttribute('data-speech-start-id', targetId);
+          const targetLabel = String(block.innerText || block.textContent || '')
+            .replace(/\s+/gu, ' ').trim().slice(0, 100) || 'Point sélectionné';
           const panel = article.closest('[role="dialog"]');
           const bounds = panel ? panel.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
           const menuWidth = 252;
           const menuHeight = 112;
           const x = Math.max(8, Math.min(event.clientX - bounds.left, bounds.width - menuWidth - 8));
           const y = Math.max(8, Math.min(event.clientY - bounds.top, bounds.height - menuHeight - 8));
-          this.readingContextMenu = { open: true, x, y, targetId, targetLabel };
+          this.readingContextMenu = { open: true, x, y, targetId, sectionId, targetLabel };
         },
         startReadingFromContextMenu() {
-          const targetId = this.readingContextMenu?.targetId || '__top__';
+          const targetId = this.readingContextMenu?.targetId || '';
+          const sectionId = this.readingContextMenu?.sectionId || '__top__';
           this.closeReadingContextMenu();
-          if (!this.open || !this.$refs.lessonArticle) return;
-          this.startSectionSelection = targetId;
-          this.startLessonAtSelection();
-          this.startSpeech(this.speechTextFromArticle(), 'lesson');
+          if (!this.open || !this.$refs.lessonArticle || !targetId) return;
+
+          const article = this.$refs.lessonArticle;
+          const target = Array.from(article.querySelectorAll('[data-speech-start-id]'))
+            .find(element => element.getAttribute('data-speech-start-id') === targetId);
+          if (!target) {
+            this.speechError = 'Le point choisi n’est plus disponible. Sélectionne une autre section.';
+            this.notify(this.speechError);
+            return;
+          }
+
+          this.startSectionSelection = sectionId;
+          const container = this.$refs.modalScroll;
+          if (container) {
+            const top = target.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+            container.scrollTop = Math.max(0, top - 20);
+            this.onLessonScroll({ target: container });
+          }
+          this.startSpeech(this.speechTextFromArticle(targetId), 'lesson');
         },
         changeFontSize(delta) {
           this.fontSize = Math.min(22, Math.max(14, this.fontSize + delta));
@@ -3596,28 +3617,42 @@
           if (this.speechKind === 'tutor') return 'Lecture de la réponse en cours';
           return '';
         },
-        speechTextFromArticle() {
+        speechTextFromArticle(startBlockId = undefined) {
           const article = this.$refs.lessonArticle;
           if (!article) return '';
           const readable = article.cloneNode(true);
-          const requestedStart = this.startSectionSelection === '__top__'
+          const explicitBlockStart = startBlockId !== undefined && startBlockId !== null;
+          const selectedStart = explicitBlockStart ? String(startBlockId) : this.startSectionSelection;
+          const requestedStart = explicitBlockStart
             ? ''
-            : (this.startSectionSelection && this.startSectionSelection !== '__resume__' ? this.startSectionSelection : this.activeSection);
-          if (requestedStart) {
-            const target = Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6')).find(heading => heading.id === requestedStart);
-            if (target) {
-              let current = target;
-              while (current && current.parentElement) {
-                const parent = current.parentElement;
-                let sibling = parent.firstChild;
-                while (sibling && sibling !== current) {
-                  const next = sibling.nextSibling;
-                  sibling.remove();
-                  sibling = next;
-                }
-                if (parent === readable) break;
-                current = parent;
+            : (selectedStart === '__top__'
+              ? ''
+              : (selectedStart && selectedStart !== '__resume__' ? selectedStart : this.activeSection));
+          let target = null;
+
+          if (explicitBlockStart) {
+            target = Array.from(readable.querySelectorAll('[data-speech-start-id]'))
+              .find(element => element.getAttribute('data-speech-start-id') === selectedStart) || null;
+          } else if (requestedStart) {
+            target = Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+              .find(heading => heading.id === requestedStart) || null;
+          }
+
+          // Une cible introuvable ne doit JAMAIS déclencher silencieusement une lecture depuis le début.
+          if ((explicitBlockStart || requestedStart) && !target) return '';
+
+          if (target) {
+            let current = target;
+            while (current && current.parentElement) {
+              const parent = current.parentElement;
+              let sibling = parent.firstChild;
+              while (sibling && sibling !== current) {
+                const next = sibling.nextSibling;
+                sibling.remove();
+                sibling = next;
               }
+              if (parent === readable) break;
+              current = parent;
             }
           }
           readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .lesson-diagram-toolbar, .code-header, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
@@ -3961,7 +3996,7 @@
           this.stopSpeech();
           this.speechQueue = this.splitSpeechText(text);
           if (!this.speechQueue.length) {
-            this.speechError = 'Aucun texte à lire dans ce contenu.';
+            this.speechError = 'Aucun texte disponible à partir de ce point. Choisis une autre section ou « Début du cours ».';
             this.notify(this.speechError);
             return;
           }
