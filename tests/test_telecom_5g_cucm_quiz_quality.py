@@ -13,7 +13,7 @@ QUIZ_IDS = (
     "voice-cucm-expert",
 )
 PLACEHOLDER_RE = re.compile(
-    r"avez-vous bien lu|question temporaire|placeholder|(?:^|\\s)réponse\\s+[a-d](?:\\s|$)|"
+    r"avez-vous bien lu|question temporaire|placeholder|(?:^|\s)réponse\s+[a-d](?:\s|$)|"
     r"question placeholder|généré automatiquement|quiz généré automatiquement",
     re.IGNORECASE,
 )
