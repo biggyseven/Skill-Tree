@@ -559,6 +559,18 @@ Serveur --> Base de données</code></pre>
         <div class="flow-node">Client</div><span>→</span><div class="flow-node">Passerelle</div>
         <div class="lesson-diagram-guide"><p>Guide HTML générique à ne pas lire à la place des éléments.</p></div>
       </div>
+      <div class="lesson-diagram-block" data-diagram-type="schéma textuel">
+        <div class="code-container">
+          <div class="code-header"><span class="code-lang">ASCII</span></div>
+          <pre><code>Poste de travail
+  |
+  v
+Routeur
+  |
+  ^
+Poste de secours</code></pre>
+        </div>
+      </div>
       <div class="lesson-diagram-block" data-diagram-type="diagramme Mermaid">
         <div class="mermaid"></div>
       </div>
@@ -585,6 +597,8 @@ Serveur --> Base de données</code></pre>
   expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
   expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « API » en passant par HTTPS');
   expect(narration).toContain('Une liaison va du bloc « API » vers le bloc « Base de données »');
+  expect(narration).toContain('Une liaison va du bloc « Poste de travail » vers le bloc « Routeur »');
+  expect(narration).toContain('Une liaison va du bloc « Poste de secours » vers le bloc « Routeur »');
   expect(narration).toContain('Le schéma se lit ainsi : Client va vers Passerelle.');
   expect(narration).not.toContain('→');
   expect(narration).not.toContain('Copier');
