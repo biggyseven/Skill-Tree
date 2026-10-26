@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IDS / IPS et DPI - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle différence distingue principalement un IDS d’un IPS ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Un IDS observe et alerte généralement ; un IPS peut être placé en ligne pour bloquer certains trafics selon sa politique",
+        "Un IDS distribue des adresses IP et un IPS les chiffre",
+        "Un IDS remplace les sauvegardes et un IPS les restaure",
+        "Les deux ne peuvent analyser que les journaux DNS"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un IDS est généralement utilisé pour détecter et signaler ; un IPS peut intervenir en ligne et bloquer selon les règles et le mode de déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que recherche typiquement une détection fondée sur une signature ?",
+      "choices": [
+        "Uniquement les pannes matérielles",
+        "Les noms de domaine qui expirent dans une zone",
+        "Des motifs ou séquences associés à des comportements connus",
+        "Le débit maximal d’une fibre optique uniquement"
+      ],
+      "answer": 2,
+      "explanation": "Les signatures repèrent des motifs connus. Elles peuvent manquer une variante inconnue et nécessitent des règles maintenues et adaptées au trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une alerte IDS ne prouve-t-elle pas automatiquement une compromission ?",
+      "choices": [
+        "Les alertes sont toujours fausses",
+        "Elle peut être un faux positif ou refléter un comportement détecté sans confirmer l’impact ; il faut corréler avec d’autres preuves",
+        "Le capteur ne peut jamais voir de paquets",
+        "Les outils IDS ne génèrent aucun événement"
+      ],
+      "answer": 1,
+      "explanation": "Une alerte est un signal à analyser. La confirmation dépend du contexte, du flux, des systèmes touchés et d’éléments complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’inspection approfondie des paquets (DPI) ?",
+      "choices": [
+        "La conversion automatique de tout trafic en HTTPS",
+        "Le contrôle uniquement de l’adresse MAC source",
+        "Un mécanisme qui attribue les baux DHCP",
+        "L’analyse de champs et de contenus de protocoles au-delà des seules métadonnées de base, selon la visibilité disponible"
+      ],
+      "answer": 3,
+      "explanation": "La DPI inspecte davantage de structure de protocole et parfois de contenu, mais la portée dépend du chiffrement, du point d’observation et du moteur utilisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle limite affecte un capteur qui observe uniquement le trafic chiffré TLS sans déchiffrement autorisé ?",
+      "choices": [
+        "Il peut manquer le contenu applicatif protégé et doit s’appuyer sur les métadonnées et signaux visibles",
+        "Il voit toujours toutes les données en clair",
+        "Il peut modifier les données sans se trouver en ligne",
+        "Le chiffrement empêche toute observation des adresses IP"
+      ],
+      "answer": 0,
+      "explanation": "Le chiffrement limite l’inspection du contenu sans déchiffrement. Certaines métadonnées et certains comportements restent observables, mais ne révèlent pas nécessairement la charge utile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi placer un IDS à un point d’observation pertinent ?",
+      "choices": [
+        "Pour que les alertes soient toujours exactes",
+        "Pour éviter tout besoin de mise à jour de signature",
+        "Pour observer les flux utiles, avec une couverture et des limites connues selon le sens et le point du réseau",
+        "Pour remplacer le routage entre VLAN"
+      ],
+      "answer": 2,
+      "explanation": "Le placement conditionne la visibilité : un capteur ne voit que les flux qui traversent ou lui sont répliqués. La couverture doit être documentée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une bonne première réaction à une alerte suspecte ?",
+      "choices": [
+        "Bloquer immédiatement toutes les adresses externes",
+        "Examiner la règle, le contexte, la source/destination, le flux et les éléments corrélés avant de choisir la réponse",
+        "Supprimer les journaux",
+        "Mettre à jour la topologie sans vérifier l’incident"
+      ],
+      "answer": 1,
+      "explanation": "L’analyse de contexte réduit les réponses inutiles. Une réponse bloquante doit tenir compte de l’impact métier et des preuves disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un IPS en ligne nécessite-t-il une attention particulière à la performance ?",
+      "choices": [
+        "Parce qu’il accélère obligatoirement chaque application",
+        "Parce qu’il ne peut jamais perdre de paquet",
+        "Parce qu’il n’analyse aucun flux réseau",
+        "Parce qu’il participe au chemin de transmission et peut ajouter latence, pertes ou indisponibilité si la capacité et le mode de panne sont mal conçus"
+      ],
+      "answer": 3,
+      "explanation": "L’inspection en ligne doit être dimensionnée et testée. Les politiques en surcharge ou les défauts de capteur peuvent affecter directement le trafic."
     }
   ]
 }

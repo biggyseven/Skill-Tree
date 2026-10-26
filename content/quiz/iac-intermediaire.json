@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Infrastructure as Code avec Terraform",
+      "prompt": "Pourquoi utiliser un module Terraform réutilisable ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Pour encapsuler une fonctionnalité d’infrastructure avec des entrées/sorties définies et réduire la duplication entre configurations",
+        "Pour remplacer le fichier d’état par un fichier texte public",
+        "Pour éviter tous les tests",
+        "Pour autoriser le module à créer n’importe quelle ressource sans contrôle"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Un module permet de réutiliser une configuration avec des interfaces explicites. Il faut le versionner, le documenter et tester ses comportements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un backend distant Terraform correctement configuré ?",
+      "choices": [
+        "Héberger seulement le code source en lecture seule",
+        "Remplacer les providers et les ressources",
+        "Stocker l’état dans un emplacement partagé et permettre, si la solution le prend en charge et est configurée, un verrouillage des opérations concurrentes",
+        "Appliquer automatiquement les changements sans plan"
+      ],
+      "answer": 2,
+      "explanation": "Un backend distant facilite la collaboration et peut fournir un verrouillage. Les capacités exactes dépendent du backend ; les droits d’accès et la reprise doivent être testés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il protéger le fichier d’état Terraform ?",
+      "choices": [
+        "Parce qu’il ne contient que des noms de ressources publics",
+        "Il peut contenir des données sensibles et des détails d’infrastructure ; l’accès, le chiffrement, la sauvegarde et les journaux doivent être maîtrisés",
+        "Parce que l’état doit être publié dans tous les dépôts",
+        "Parce qu’il remplace les identifiants du fournisseur"
+      ],
+      "answer": 1,
+      "explanation": "Le state peut inclure des attributs sensibles même si les sorties sont masquées. Son accès doit être limité et sa conservation sécurisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un bloc `moved` dans une refactorisation Terraform ?",
+      "choices": [
+        "Il supprime immédiatement l’infrastructure distante",
+        "Il force tous les objets à être recréés",
+        "Il remplace `terraform plan`",
+        "Il indique à Terraform qu’une adresse de ressource a changé dans la configuration, afin d’éviter une destruction/recréation non nécessaire lorsque le mouvement est valide"
+      ],
+      "answer": 3,
+      "explanation": "Les blocs moved permettent de faire évoluer les adresses d’état de manière déclarative. Le plan doit être inspecté pour confirmer le résultat attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un `terraform plan` est-il important avant un `apply` ?",
+      "choices": [
+        "Il présente les opérations prévues afin de repérer destructions, remplacements ou changements inattendus avant application",
+        "Il garantit l’absence de tout incident de cloud",
+        "Il sauvegarde à lui seul le state sur un site séparé",
+        "Il exécute toutes les opérations puis les annule"
+      ],
+      "answer": 0,
+      "explanation": "Le plan donne une prévisualisation des changements proposés. Il faut le lire dans le bon contexte et comprendre ses écarts avant d’appliquer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand un import Terraform est-il utile ?",
+      "choices": [
+        "Pour générer automatiquement les secrets du fournisseur",
+        "Pour remplacer la facturation de l’infrastructure",
+        "Pour faire entrer une ressource existante dans la gestion Terraform, après avoir préparé une configuration correspondant à cette ressource",
+        "Pour supprimer une ressource non connue du state"
+      ],
+      "answer": 2,
+      "explanation": "L’import rattache une ressource existante à l’état Terraform mais ne crée pas à lui seul la configuration cible. Il faut vérifier le plan avant toute modification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les environnements Terraform doivent-ils être séparés ou explicitement gouvernés ?",
+      "choices": [
+        "Pour permettre à chaque développeur d’appliquer n’importe quoi en production",
+        "Pour limiter les erreurs de ciblage, les collisions d’état et les changements accidentels entre environnements",
+        "Pour supprimer le besoin de revue",
+        "Pour éviter de versionner les fichiers HCL"
+      ],
+      "answer": 1,
+      "explanation": "Des états, accès et paramètres d’environnement bien séparés ou gouvernés limitent le risque d’appliquer un changement au mauvais périmètre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est approprié pour un pipeline Terraform ?",
+      "choices": [
+        "Exécuter `apply` en production pour tout pull request sans revue",
+        "Stocker une clé cloud à privilèges complets dans le dépôt",
+        "Ignorer la dérive dès qu’un plan a réussi une fois",
+        "Exécuter format, validation et tests, produire un plan revu puis appliquer avec une identité limitée et une approbation adaptée au risque"
+      ],
+      "answer": 3,
+      "explanation": "Une pipeline peut automatiser les contrôles mais doit protéger l’accès et les étapes d’application. Le plan appliqué doit correspondre au changement approuvé et aux pratiques de la plateforme."
     }
   ]
 }

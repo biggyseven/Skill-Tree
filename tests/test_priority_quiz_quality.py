@@ -17,6 +17,11 @@ PRIORITY_TRACKS = {
     "etherchannel": ("etherchannel-debutant", "etherchannel-intermediaire", "etherchannel-expert"),
     "firewall": ("firewall-debutant", "firewall-intermediaire", "firewall-expert"),
     "devsecops": ("devsecops-debutant", "devsecops-intermediaire", "devsecops-expert"),
+    "git": ("git-debutant", "git-intermediaire", "git-expert"),
+    "ha-sys": ("ha-sys-debutant", "ha-sys-intermediaire", "ha-sys-expert"),
+    "ids-ips": ("ids-ips-debutant", "ids-ips-intermediaire", "ids-ips-expert"),
+    "intro-reseau": ("intro-reseau-debutant", "intro-reseau-intermediaire", "intro-reseau-expert"),
+    "iac": ("iac-debutant", "iac-intermediaire", "iac-expert"),
 }
 PLACEHOLDER_RE = re.compile(
     r"question temporaire|quiz généré automatiquement|question placeholder|"

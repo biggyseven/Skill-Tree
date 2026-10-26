@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IDS / IPS et DPI - Expert. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi la couverture d’un déploiement IDS/IPS doit-elle être démontrée plutôt que déduite du nombre de capteurs ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Parce que chaque capteur voit nécessairement tous les VLAN et tous les sens de trafic",
+        "Parce que le nombre de capteurs ne prouve pas quels flux, directions, segments et protocoles sont réellement visibles sans perte",
+        "Parce que les capteurs ne peuvent jamais être placés en réseau",
+        "Parce qu’une politique de sécurité ne concerne que le DNS"
+      ],
+      "answer": 1,
+      "explanation": "La couverture dépend des points de capture, des directions, de l’encapsulation, des pertes de capture et du trafic chiffré. Elle doit être établie avec une carte de flux et des essais."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque le désaccord de normalisation entre capteur et destination peut-il introduire ?",
+      "choices": [
+        "Le capteur peut interpréter un flux différemment de l’hôte cible, créant des angles morts ou des détections erronées",
+        "Il améliore automatiquement toutes les signatures",
+        "Il transforme le trafic TCP en DNS",
+        "Il élimine le besoin de gérer les fragments"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Des divergences de réassemblage ou de normalisation peuvent faire voir au capteur et à la cible des interprétations différentes du même trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le chiffrement TLS limite-t-il la portée d’un DPI réseau passif ?",
+      "choices": [
+        "Parce que le capteur ne peut pas voir même les adresses IP de base",
+        "Parce que TLS désactive systématiquement toutes les signatures réseau",
+        "Parce que le contenu applicatif peut rester chiffré, obligeant à utiliser les métadonnées visibles, une inspection à un autre point ou une décryption autorisée et gouvernée",
+        "Parce que chaque certificat TLS contient la totalité des données applicatives"
+      ],
+      "answer": 2,
+      "explanation": "Sans accès autorisé au texte clair, le DPI ne peut pas lire la charge utile protégée. L’inspection TLS doit respecter les contraintes de sécurité, confidentialité et conformité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment dimensionner un dispositif d’inspection dans un réseau à fort trafic ?",
+      "choices": [
+        "Selon le débit nominal de l’interface uniquement, quel que soit le nombre de sessions",
+        "En supposant que chaque règle coûte exactement zéro ressource",
+        "À partir du nombre de licences sans test",
+        "En mesurant débit, paquets/s, sessions simultanées, profils de trafic, pertes, latence et marges pendant les scénarios représentatifs"
+      ],
+      "answer": 3,
+      "explanation": "La charge dépend non seulement du débit mais aussi du nombre de paquets, sessions, règles et protocoles. Les tests de charge doivent refléter le trafic attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle gouvernance est nécessaire pour une exception permanente à une règle IDS/IPS ?",
+      "choices": [
+        "Désactiver la collecte de télémétrie",
+        "Documenter la justification, le périmètre, le propriétaire, les risques compensatoires, l’approbation et une date de réévaluation",
+        "Retirer toute référence à la règle",
+        "Étendre l’exception à tous les réseaux pour simplifier l’exploitation"
+      ],
+      "answer": 1,
+      "explanation": "Une exception peut créer un angle mort ; sa portée et son échéance doivent être visibles, approuvées et revues lors de changements ou d’incidents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi corréler les alertes IDS/IPS avec le SIEM et la télémétrie hôte ?",
+      "choices": [
+        "Pour confirmer le contexte et relier les événements réseau aux processus, identités, changements et impacts sur les systèmes",
+        "Pour remplacer tous les capteurs réseau",
+        "Pour rendre toute alerte automatiquement vraie",
+        "Pour éliminer les événements des journaux"
+      ],
+      "answer": 0,
+      "explanation": "La corrélation apporte du contexte et facilite la qualification. Elle doit conserver la provenance et l’incertitude des signaux plutôt que traiter chaque alerte comme preuve définitive."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit vérifier un exercice de basculement d’un IPS en ligne ?",
+      "choices": [
+        "Uniquement le nom du logiciel installé",
+        "Que le tableau de bord conserve la même couleur",
+        "Le comportement prévu en cas de panne, le chemin de secours, la continuité de la politique, les pertes et les critères de sécurité",
+        "Le nombre de règles présentes sans tester le trafic"
+      ],
+      "answer": 2,
+      "explanation": "Le mode de panne peut être fail-open ou fail-closed selon le design. Il faut tester son effet sur disponibilité et sécurité avec un scénario contrôlé et autorisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur aide à repérer une perte de couverture dans la chaîne de capture ?",
+      "choices": [
+        "Le nombre d’utilisateurs de l’application uniquement",
+        "La longueur de la liste des règles",
+        "Le nom du capteur dans l’inventaire",
+        "Les compteurs de drops/pertes de capture, comparés au trafic source et aux séquences de test connues"
+      ],
+      "answer": 3,
+      "explanation": "Les compteurs de perte et des essais contrôlés aident à estimer si le capteur observe suffisamment le flux. Une absence d’alerte n’est interprétable que si la visibilité est établie."
     }
   ]
 }

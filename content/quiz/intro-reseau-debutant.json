@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Qu'est-ce qu'un réseau ? - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel rôle joue principalement un switch Ethernet dans un réseau local ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Il attribue toujours les adresses IP publiques",
+        "Il transfère les trames selon les adresses MAC dans un domaine de couche 2",
+        "Il remplace le fournisseur d’accès Internet",
+        "Il chiffre nécessairement tous les échanges applicatifs"
+      ],
+      "answer": 1,
+      "explanation": "Un switch de couche 2 utilise les adresses MAC et le contexte VLAN pour transférer des trames localement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel équipement fait généralement passer un paquet d’un sous-réseau IP à un autre ?",
+      "choices": [
+        "Un câble cuivre",
+        "Un hub Ethernet",
+        "Un panneau de brassage",
+        "Un routeur ou une fonction de routage de couche 3"
+      ],
+      "answer": 3,
+      "explanation": "Le routage relie des réseaux IP distincts en choisissant un prochain saut et en encapsulant le paquet sur le lien sortant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre adresse MAC et adresse IP est la plus utile au débutant ?",
+      "choices": [
+        "L’adresse MAC identifie le contexte de liaison local ; l’adresse IP sert à l’adressage logique et au routage entre réseaux",
+        "Les deux sont toujours identiques",
+        "L’adresse IP est uniquement utilisée par le Wi-Fi",
+        "L’adresse MAC est fournie par le serveur DNS"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "MAC et IP répondent à des besoins distincts. La trame locale utilise les MAC du lien courant tandis que l’adresse IP permet l’acheminement logique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert généralement DHCP pour un poste client ?",
+      "choices": [
+        "À convertir les noms en adresses MAC",
+        "À remplacer le switch par un routeur",
+        "À fournir automatiquement une configuration IP comme adresse, masque, passerelle et paramètres DNS",
+        "À empêcher toute communication entre VLAN"
+      ],
+      "answer": 2,
+      "explanation": "DHCP permet d’attribuer une configuration réseau aux clients, selon les options et le périmètre définis par l’administrateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle du DNS dans les usages courants ?",
+      "choices": [
+        "Il choisit l’itinéraire physique des fibres",
+        "Il permet d’obtenir des données associées à un nom, souvent une adresse IP, selon la zone et le type d’enregistrement",
+        "Il assure la synchronisation des bases de données",
+        "Il remplace la table de routage de chaque routeur"
+      ],
+      "answer": 1,
+      "explanation": "DNS associe des noms à des données. Les enregistrements A et AAAA fournissent notamment des adresses IPv4 et IPv6."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que désigne un LAN ?",
+      "choices": [
+        "Un réseau limité à un périmètre local tel qu’une maison, un bureau ou un site",
+        "Un protocole de chiffrement",
+        "Un service réservé aux satellites",
+        "Un mécanisme de sauvegarde"
+      ],
+      "answer": 0,
+      "explanation": "LAN signifie Local Area Network : réseau local qui interconnecte des équipements dans un périmètre limité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un PC peut-il joindre un autre poste du même réseau local sans passer par le routeur ?",
+      "choices": [
+        "Parce que chaque paquet IP contient le mot de passe du routeur",
+        "Parce que le DNS désactive le routage",
+        "Parce que tous les réseaux sont connectés en une seule couche 2 mondiale",
+        "Le trafic peut être échangé directement au niveau du lien si les équipements sont dans le même domaine L2 et que les informations MAC sont résolues"
+      ],
+      "answer": 3,
+      "explanation": "Dans un même segment L2, les terminaux peuvent échanger des trames directement via le switch après résolution de l’adresse MAC, sans routeur interposé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche convient quand un poste ne communique plus ?",
+      "choices": [
+        "Modifier les adresses de tous les équipements immédiatement",
+        "Vérifier l’alimentation/lien, l’adresse IP et la passerelle, puis tester la connectivité par étapes plutôt que changer plusieurs paramètres à la fois",
+        "Désactiver DHCP et DNS pour tous les clients",
+        "Remplacer le switch avant de collecter des informations"
+      ],
+      "answer": 1,
+      "explanation": "Un diagnostic progressif part des éléments proches du poste, puis vérifie l’adressage et les couches successives. Il limite les changements inutiles."
     }
   ]
 }

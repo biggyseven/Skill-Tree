@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IaC à grande échelle",
+      "prompt": "Pourquoi séparer les états Terraform à grande échelle ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Pour définir des frontières d’équipe et de responsabilité, réduire le rayon d’impact et clarifier les dépendances d’infrastructure",
+        "Pour rendre chaque ressource invisible aux audits",
+        "Pour garantir qu’aucune dépendance n’existe entre systèmes",
+        "Pour empêcher tout changement de configuration"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "La séparation des états peut limiter les effets d’un changement ou d’un incident et permettre une gouvernance distincte. Elle ajoute aussi un coût de coordination des dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un risque d’un module partagé mis à jour sans politique de version ?",
+      "choices": [
+        "Il devient automatiquement immuable",
+        "Il empêche le plan Terraform d’utiliser des providers",
+        "De nombreuses configurations peuvent changer de comportement lorsque la version du module évolue, sans validation contrôlée de leurs consommateurs",
+        "Il ne peut être utilisé que dans une région cloud"
+      ],
+      "answer": 2,
+      "explanation": "Un module partagé peut avoir un rayon d’impact important. Le versionnement et les tests de compatibilité permettent de maîtriser quand les consommateurs adoptent une évolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une identité de pipeline à durée de vie courte ou une fédération OIDC est-elle intéressante ?",
+      "choices": [
+        "Elle permet de partager un secret administrateur permanent à tous les runners",
+        "Elle réduit la dépendance à des secrets statiques de longue durée, avec une identité et des permissions limitées selon la plateforme",
+        "Elle rend les permissions inutiles",
+        "Elle garantit que le code du dépôt ne sera jamais compromis"
+      ],
+      "answer": 1,
+      "explanation": "Les identités temporaires peuvent limiter la durée d’exposition des identifiants. La confiance OIDC et les permissions doivent tout de même être strictement configurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’une politique « as code » dans la gouvernance IaC ?",
+      "choices": [
+        "Remplacer toutes les sauvegardes de state",
+        "Garantir que les coûts cloud sont toujours nuls",
+        "Appliquer les changements sans afficher de plan",
+        "Évaluer des configurations ou plans contre des règles explicites avant déploiement, avec des exceptions gouvernées"
+      ],
+      "answer": 3,
+      "explanation": "La politique comme code peut contrôler des exigences telles que chiffrement, régions ou exposition publique. Elle doit disposer de tests, d’une gestion des exceptions et d’un processus d’évolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on faire après la détection d’une dérive entre l’état Terraform et l’infrastructure réelle ?",
+      "choices": [
+        "Comparer le changement à l’état attendu, déterminer son origine et décider de l’importer, le corriger ou le réconcilier de façon contrôlée",
+        "Appliquer immédiatement un plan destructif sans revue",
+        "Effacer l’état pour faire disparaître l’alerte",
+        "Ignorer la dérive si les ressources répondent"
+      ],
+      "answer": 0,
+      "explanation": "La dérive peut provenir d’un changement manuel, d’un défaut d’automatisation ou d’un événement externe. Il faut établir la source et comprendre les conséquences avant de réconcilier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un plan Terraform doit-il être réévalué lorsqu’un délai significatif s’écoule avant l’application ?",
+      "choices": [
+        "Le plan n’a jamais de lien avec l’état distant",
+        "Les ressources et l’état peuvent avoir changé depuis la création du plan ; il faut s’assurer que le plan appliqué est encore valide pour le contexte approuvé",
+        "Il est possible d’appliquer le plan sans consulter l’état",
+        "Le cloud ne permet pas les modifications concurrentes"
+      ],
+      "answer": 1,
+      "explanation": "Des changements externes peuvent rendre un plan périmé. Le mécanisme exact de protection varie selon l’état et la plateforme ; il faut s’assurer d’appliquer un résultat toujours valide et revu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique permet de réduire le rayon d’impact d’un déploiement IaC ?",
+      "choices": [
+        "Regrouper toute l’infrastructure de l’entreprise dans un seul état sans limites",
+        "Autoriser une identité unique à modifier tous les environnements",
+        "Séparer et borner les périmètres, appliquer par étapes, observer les résultats et définir des procédures de reprise",
+        "Ignorer les dépendances entre ressources"
+      ],
+      "answer": 2,
+      "explanation": "Des frontières explicites, des déploiements progressifs et des vérifications peuvent réduire la portée d’un incident. La meilleure structure dépend des dépendances et de l’organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle doit accompagner l’automatisation d’un nettoyage ou remplacement de ressources ?",
+      "choices": [
+        "Le nom du fichier HCL uniquement",
+        "Le fait que le pipeline ait terminé sans erreur de syntaxe",
+        "La présence d’une ressource dans le cloud sans vérifier son propriétaire",
+        "Une analyse des opérations destructives, des sauvegardes/dépendances, une approbation adaptée et une preuve du retour arrière possible"
+      ],
+      "answer": 3,
+      "explanation": "Les opérations destructives doivent être traitées comme des changements à haut risque. La validation inclut l’impact, la récupération et la preuve que le résultat est conforme."
     }
   ]
 }
