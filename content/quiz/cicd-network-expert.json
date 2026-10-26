@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour CI/CD et Git - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel principe décrit le mieux une chaîne de changement réseau experte ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Relier intention, état initial, validation, approbation, exécution, post-contrôles et récupération",
+        "Exécuter un gros script sans point de contrôle",
+        "Considérer un code retour nul comme une preuve de service",
+        "Déployer systématiquement à tous les sites au même instant"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une chaîne gouvernée est observable et trace le cycle complet du changement jusqu’à la validation du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un modèle GitOps doit-il différencier état désiré et état observé ?",
+      "choices": [
+        "Pour supprimer la configuration réelle",
+        "Pour repérer les écarts et décider s’ils sont attendus, à corriger ou à faire approuver",
+        "Pour contourner l’approbation des changements",
+        "Pour éviter l’historique Git"
+      ],
+      "answer": 1,
+      "explanation": "L’écart entre l’état déclaré et observé est un signal ; sa correction doit suivre les règles de gouvernance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la raison de produire un manifeste de release avec empreintes ou versions ?",
+      "choices": [
+        "Pour remplacer les tests sur le réseau",
+        "Pour rendre les builds différents à chaque exécution",
+        "Pour identifier exactement l’artefact testé et déployé et préserver la traçabilité",
+        "Pour stocker les secrets de production"
+      ],
+      "answer": 2,
+      "explanation": "Un manifeste relie les versions et artefacts à un déploiement reproductible et auditable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une tâche de déploiement échoue après avoir modifié la moitié des équipements. Que faire ?",
+      "choices": [
+        "Relancer en boucle immédiatement",
+        "Déclarer l’opération atomique",
+        "Supprimer les sauvegardes préalables",
+        "Geler l’élargissement, inventorier les états atteints, appliquer le plan de récupération et vérifier le service"
+      ],
+      "answer": 3,
+      "explanation": "Un échec partiel ne revient pas automatiquement à l’état initial ; une reprise contrôlée s’appuie sur l’état réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle protection est adaptée à une chaîne CI/CD qui accède au réseau de production ?",
+      "choices": [
+        "Permissions minimales, approbation séparée, secrets protégés, portée limitée et journaux auditables",
+        "Un jeton administrateur global exposé à tous les jobs",
+        "Des clés privées en clair dans le dépôt",
+        "Un déploiement sans trace"
+      ],
+      "answer": 0,
+      "explanation": "Le contrôle d’accès et l’audit limitent les conséquences d’une compromission de la chaîne de déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que devrait vérifier un test négatif de politique ou de configuration ?",
+      "choices": [
+        "Uniquement que le trafic autorisé passe",
+        "Que les communications qui devraient être interdites restent effectivement bloquées dans l’environnement de test",
+        "Que tous les ports sont ouverts",
+        "Que le pipeline ne produit aucun rapport"
+      ],
+      "answer": 1,
+      "explanation": "Les tests négatifs vérifient les limites de sécurité, et pas uniquement le chemin nominal autorisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les critères d’arrêt doivent-ils être définis avant un changement ?",
+      "choices": [
+        "Pour pouvoir changer le seuil après avoir vu les résultats",
+        "Pour éviter de mesurer l’état initial",
+        "Pour reconnaître rapidement une régression et interrompre le déploiement de façon cohérente",
+        "Pour rendre le retour arrière optionnel"
+      ],
+      "answer": 2,
+      "explanation": "Des seuils préalables réduisent la tentation de rationaliser un résultat dégradé après coup."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus forte pour clôturer un changement réseau ?",
+      "choices": [
+        "Le pipeline affichait vert au début",
+        "Le commit est présent sur la branche",
+        "La configuration a été envoyée sans exception",
+        "Post-contrôles et tests de service conformes, état final capturé et résultats associés au changement"
+      ],
+      "answer": 3,
+      "explanation": "La clôture repose sur l’état obtenu et la validation fonctionnelle, avec traçabilité."
     }
   ]
 }

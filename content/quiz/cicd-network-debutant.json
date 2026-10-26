@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour CI/CD et Git - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Pourquoi versionner les configurations réseau dans Git ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Pour suivre les changements, comparer les différences et savoir qui a proposé une modification",
+        "Pour que Git applique lui-même les commandes au routeur",
+        "Pour remplacer les sauvegardes de configuration",
+        "Pour garantir la connectivité après chaque commit"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Git fournit l’historique et les diffs ; il ne déploie pas automatiquement les configurations sans outils et autorisations supplémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que montre la commande `git diff` avant un commit ?",
+      "choices": [
+        "La table de routage courante de l’équipement",
+        "Les changements textuels entre les états Git comparés",
+        "Les paquets perdus sur le réseau",
+        "Le mot de passe SSH de l’inventaire"
+      ],
+      "answer": 1,
+      "explanation": "Le diff aide à examiner les changements proposés avant de les enregistrer ou de les fusionner."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi travailler sur une branche avant de changer une configuration réseau ?",
+      "choices": [
+        "Pour éviter tous les tests",
+        "Pour rendre la modification invisible à l’équipe",
+        "Pour isoler le travail et permettre revue et validation avant fusion",
+        "Pour créer automatiquement un retour arrière sur les équipements"
+      ],
+      "answer": 2,
+      "explanation": "La branche sépare les changements proposés et soutient la revue ; elle ne modifie pas elle-même les routeurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type d’information ne faut-il pas mettre dans l’inventaire versionné en clair ?",
+      "choices": [
+        "Le nom logique non sensible d’un groupe",
+        "L’adresse IP de laboratoire prévue à cet effet",
+        "Le rôle technique documenté",
+        "Les mots de passe et clés privées d’accès aux équipements"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets doivent être injectés depuis un stockage protégé plutôt que commités dans Git."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un pipeline CI simple pour un dépôt de configurations ?",
+      "choices": [
+        "À lancer automatiquement des contrôles tels que validation de syntaxe, structure et fichiers requis",
+        "À garantir que la configuration est correcte sur le matériel sans connexion",
+        "À remplacer la revue de code",
+        "À donner des privilèges administrateur à chaque développeur"
+      ],
+      "answer": 0,
+      "explanation": "La CI détecte des erreurs vérifiables hors ligne ; les tests matériels ou de bout en bout demandent d’autres étapes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faire relire le diff avant une fusion ?",
+      "choices": [
+        "Pour s’assurer que le nombre de lignes a diminué",
+        "Pour repérer une modification imprévue, un secret ou un changement à risque",
+        "Pour empêcher les tests automatiques",
+        "Pour modifier l’historique des équipements"
+      ],
+      "answer": 1,
+      "explanation": "La revue vérifie l’intention, le périmètre et les risques de la modification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Si le pipeline indique que le YAML est valide, qu’est-ce que cela prouve ?",
+      "choices": [
+        "Que le routeur a effectivement appliqué la configuration",
+        "Que tous les flux applicatifs fonctionneront",
+        "Que le fichier respecte les contrôles de syntaxe exécutés, pas la santé réelle du réseau",
+        "Que le changement peut être déployé sans approbation"
+      ],
+      "answer": 2,
+      "explanation": "La validation statique a un périmètre limité et ne prouve pas un comportement de production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur réflexe après un échec de validation ?",
+      "choices": [
+        "Forcer la fusion pour continuer",
+        "Modifier directement l’équipement sans trace",
+        "Supprimer la branche de travail",
+        "Lire les détails, corriger le problème puis relancer les contrôles"
+      ],
+      "answer": 3,
+      "explanation": "Le journal permet d’identifier la cause ; le pipeline doit repasser les contrôles requis après correction."
     }
   ]
 }

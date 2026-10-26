@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour CI/CD avec GitHub Actions et GitLab CI",
+      "prompt": "Dans un pipeline multi-jobs, à quoi sert une dépendance telle que `needs` dans GitHub Actions ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "À exprimer qu’un job dépend du résultat d’un autre job",
+        "À chiffrer les artefacts",
+        "À définir une branche Git distante",
+        "À attribuer une adresse IP au runner"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les dépendances contrôlent l’ordre et les conditions d’exécution entre jobs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence utile existe entre cache et artefact ?",
+      "choices": [
+        "Le cache est toujours le livrable officiel",
+        "Le cache accélère des exécutions futures ; l’artefact conserve un résultat ou livrable du pipeline",
+        "L’artefact contient forcément des secrets",
+        "Les deux ne peuvent pas être téléchargés"
+      ],
+      "answer": 1,
+      "explanation": "Un cache est une optimisation qui peut être régénérée ; un artefact sert à conserver et transmettre une sortie identifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi configurer des règles de déclenchement de pipeline ?",
+      "choices": [
+        "Pour ignorer les modifications de sécurité",
+        "Pour exécuter tous les jobs à chaque événement sans exception",
+        "Pour choisir quels événements, branches ou tags déclenchent une validation ou un déploiement",
+        "Pour remplacer la revue de code"
+      ],
+      "answer": 2,
+      "explanation": "Des règles permettent d’éviter les exécutions inutiles ou en double et de protéger certains déploiements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est adaptée aux secrets de pipeline ?",
+      "choices": [
+        "Imprimer le secret pour diagnostiquer la valeur",
+        "Stocker les clés privées dans le dépôt",
+        "Donner toutes les permissions au jeton CI",
+        "Utiliser des secrets protégés, des permissions minimales et des environnements restreints"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets demandent une portée limitée, des permissions minimales et une prévention de fuite dans les logs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser une matrice de tests ?",
+      "choices": [
+        "Pour exécuter les mêmes vérifications sur plusieurs versions ou environnements déclarés",
+        "Pour éviter d’écrire des assertions",
+        "Pour publier la version avant les contrôles",
+        "Pour utiliser un seul runner sans variante"
+      ],
+      "answer": 0,
+      "explanation": "Une matrice vérifie systématiquement plusieurs combinaisons déclarées et aide à détecter les incompatibilités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt de conserver des rapports de tests en artefacts ?",
+      "choices": [
+        "Ils remplacent l’exécution des tests",
+        "Ils donnent aux équipes des preuves et détails exploitables après la fin du job",
+        "Ils garantissent automatiquement la conformité réglementaire",
+        "Ils suppriment le besoin de logs"
+      ],
+      "answer": 1,
+      "explanation": "Les rapports permettent de diagnostiquer un échec même quand le job est terminé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter de construire une image différente entre staging et production ?",
+      "choices": [
+        "Parce que les images ne peuvent pas être poussées vers un registre",
+        "Parce que les environnements doivent toujours utiliser des langages différents",
+        "Promouvoir le même artefact identifié réduit les différences entre ce qui a été testé et ce qui est déployé",
+        "Parce que staging ne doit jamais tester de code"
+      ],
+      "answer": 2,
+      "explanation": "La promotion du même artefact améliore la traçabilité et réduit le risque de divergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on faire si un job de déploiement échoue après une mise en service partielle ?",
+      "choices": [
+        "Ignorer les équipements déjà modifiés",
+        "Relancer toutes les étapes sans connaître l’état",
+        "Supprimer les logs et marquer le succès",
+        "Évaluer l’état réel, arrêter l’élargissement et appliquer une procédure de reprise ou de retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "Un déploiement partiel demande de connaître les états atteints avant d’agir et de restaurer de façon contrôlée."
     }
   ]
 }

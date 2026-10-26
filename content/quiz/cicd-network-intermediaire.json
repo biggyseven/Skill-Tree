@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour CI/CD et Git - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quel est l’objectif d’un validateur d’inventaire YAML dans une CI réseau ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Contrôler la structure, les champs obligatoires, les types et certaines règles métier avant la suite",
+        "Tester la puissance optique de la fibre",
+        "Remplacer les validations de connectivité réelles",
+        "Créer automatiquement toutes les interfaces de routeur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une validation d’inventaire détecte des erreurs de données avant les actions qui pourraient toucher les équipements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre test unitaire de validateur et test réseau de bout en bout ?",
+      "choices": [
+        "Ils sont toujours équivalents",
+        "Le test unitaire vérifie le code du validateur ; le test réseau vérifie le comportement de flux dans un environnement de test adapté",
+        "Le test réseau vérifie uniquement le format YAML",
+        "Le test unitaire nécessite toujours l’accès au matériel de production"
+      ],
+      "answer": 1,
+      "explanation": "Les tests unitaires peuvent s’exécuter hors ligne ; les tests de bout en bout ont des dépendances réseau propres."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la fusion devrait-elle être bloquée si un contrôle obligatoire échoue ?",
+      "choices": [
+        "Pour permettre aux secrets de rester dans Git",
+        "Pour rendre le pipeline plus long",
+        "Pour empêcher d’intégrer une modification qui ne satisfait pas les règles de qualité définies",
+        "Pour remplacer le plan de retour arrière"
+      ],
+      "answer": 2,
+      "explanation": "Les contrôles obligatoires constituent une barrière avant fusion ; les exceptions doivent être gouvernées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un test post-déploiement de configuration réseau ?",
+      "choices": [
+        "Uniquement la confirmation du commit",
+        "Seulement une sortie de CLI sans contexte",
+        "Le statut vert du pipeline pré-déploiement",
+        "Des critères mesurables sur l’état obtenu, les interfaces, routes ou flux nécessaires au service"
+      ],
+      "answer": 3,
+      "explanation": "Les tests post-déploiement doivent vérifier la réalité du réseau au-delà du dépôt et de la syntaxe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les artefacts d’une pipeline réseau ?",
+      "choices": [
+        "Conserver rapports, configuration rendue ou preuves non sensibles associées à un run",
+        "Stocker tous les mots de passe en clair",
+        "Remplacer les sources versionnées",
+        "Déployer automatiquement les fichiers sur tous les routeurs"
+      ],
+      "answer": 0,
+      "explanation": "Les artefacts sont des résultats traçables du pipeline et doivent être protégés s’ils contiennent des informations sensibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer validation et déploiement ?",
+      "choices": [
+        "Pour rendre le pipeline non reproductible",
+        "Pour faire passer les contrôles avant l’étape qui peut modifier les équipements et organiser les approbations",
+        "Pour supprimer la responsabilité de l’équipe réseau",
+        "Pour éviter les tests de retour arrière"
+      ],
+      "answer": 1,
+      "explanation": "Cette séparation réduit le risque de déclencher une action de production lors d’une simple vérification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant un déploiement sur un grand parc, quelle séquence réduit le risque ?",
+      "choices": [
+        "Pousser à tous les équipements en parallèle sans inventaire",
+        "Désactiver la collecte de résultat",
+        "Valider hors ligne, tester sur un lot pilote, contrôler l’état obtenu puis élargir selon des critères explicites",
+        "Fusionner sans inspecter le diff"
+      ],
+      "answer": 2,
+      "explanation": "Un lot pilote valide le processus sur un périmètre limité et permet d’arrêter en cas de régression."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il gérer les échecs partiels de manière explicite ?",
+      "choices": [
+        "Un job rouge prouve que tous les équipements sont inchangés",
+        "Les configurations sont toujours appliquées de façon atomique",
+        "Un retry non limité résout tous les problèmes",
+        "Certains équipements peuvent avoir été modifiés avant l’échec ; il faut comparer leur état et décider de poursuivre ou revenir en arrière"
+      ],
+      "answer": 3,
+      "explanation": "Les déploiements multi-équipements peuvent être partiels et exigent une stratégie de récupération adaptée."
     }
   ]
 }

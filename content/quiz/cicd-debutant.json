@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Principes DevOps et cycle CI/CD",
+      "prompt": "Quel objectif décrit le mieux DevOps ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Améliorer la collaboration et le flux entre développement et exploitation avec automatisation et retours rapides",
+        "Remplacer tous les tests par un déploiement automatique",
+        "Supprimer la responsabilité des équipes d’exploitation",
+        "Utiliser un outil unique pour toute la chaîne"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "DevOps est une approche culturelle et organisationnelle soutenue par des pratiques et des outils ; ce n’est pas un produit unique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’intégration continue (CI) ?",
+      "choices": [
+        "Déployer chaque modification directement en production sans contrôle",
+        "Intégrer fréquemment les changements et exécuter des validations automatisées",
+        "Sauvegarder seulement le dépôt une fois par mois",
+        "Exécuter les tests uniquement après un incident"
+      ],
+      "answer": 1,
+      "explanation": "La CI rend les erreurs visibles tôt grâce à des intégrations fréquentes et des vérifications répétables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence distingue livraison continue et déploiement continu ?",
+      "choices": [
+        "Livraison continue interdit les tests automatisés",
+        "Déploiement continu signifie seulement créer une archive",
+        "La livraison continue prépare un livrable déployable ; le déploiement continu automatise aussi sa mise en production selon des règles",
+        "Les deux termes désignent uniquement la compilation"
+      ],
+      "answer": 2,
+      "explanation": "La distinction concerne le dernier passage vers la production, qui peut rester soumis à une approbation en livraison continue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de Git dans un pipeline ?",
+      "choices": [
+        "Exécuter les applications en production",
+        "Remplacer les tests unitaires",
+        "Attribuer des droits IAM aux développeurs",
+        "Versionner les changements et permettre de retrouver leur historique"
+      ],
+      "answer": 3,
+      "explanation": "Git conserve les versions et l’historique ; il ne prouve pas à lui seul que le changement fonctionne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un pipeline doit-il exécuter des tests avant de publier un artefact ?",
+      "choices": [
+        "Pour détecter des erreurs avant qu’un livrable ne soit promu",
+        "Pour garantir qu’il n’y aura jamais d’incident",
+        "Pour supprimer les revues de code",
+        "Pour éviter de conserver les résultats"
+      ],
+      "answer": 0,
+      "explanation": "Les tests détectent certains défauts avant publication, sans pouvoir garantir l’absence absolue de bugs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’un artefact de build ?",
+      "choices": [
+        "Un commentaire de pull request seulement",
+        "Un livrable produit par le pipeline, comme un paquet ou une image",
+        "Un secret de déploiement",
+        "Une branche Git temporaire"
+      ],
+      "answer": 1,
+      "explanation": "Un artefact est une sortie du processus de build qui peut être testée, publiée puis promue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement convient lorsqu’une étape obligatoire échoue ?",
+      "choices": [
+        "Continuer à déployer comme si elle avait réussi",
+        "Effacer le journal d’erreur",
+        "Marquer le pipeline en échec et conserver les informations nécessaires à l’analyse",
+        "Changer automatiquement le code en production"
+      ],
+      "answer": 2,
+      "explanation": "Un échec de contrôle requis doit bloquer la suite selon la politique, et être observable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel secret ne devrait jamais être commité en clair ?",
+      "choices": [
+        "Un nom de job non sensible",
+        "Un commentaire décrivant un test",
+        "Un identifiant public de pipeline",
+        "Un jeton d’accès ou un mot de passe de déploiement"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets doivent être stockés dans des mécanismes protégés et limités aux workflows qui en ont besoin."
     }
   ]
 }

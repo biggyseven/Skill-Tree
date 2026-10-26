@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Cisco ACI - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quel principe aide à analyser une panne ACI complexe ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Séparer la vérité du modèle de politiques, l’état des équipements et les preuves du dataplane",
+        "Supposer que tout problème provient du contrat",
+        "Corriger tous les objets simultanément",
+        "Ignorer les routes externes si la fabric est verte"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Une investigation experte croise intention, programmation effective et comportement de trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il examiner les routes importées/exportées d’un L3Out ?",
+      "choices": [
+        "Parce qu’un EPG crée automatiquement toutes les routes externes",
+        "Pour confirmer que les préfixes attendus sont appris, annoncés et filtrés correctement",
+        "Pour remplacer les politiques des contrats",
+        "Pour attribuer des noms aux interfaces"
+      ],
+      "answer": 1,
+      "explanation": "La connectivité externe dépend des annonces, filtres et routes de retour autant que des politiques de trafic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’un problème de MTU peut provoquer dans un overlay VXLAN ?",
+      "choices": [
+        "Une modification de nom des endpoints seulement",
+        "Une attribution incorrecte de tenant à chaque redémarrage",
+        "Des pertes de grandes trames si l’encapsulation dépasse les capacités du chemin",
+        "Une suppression automatique de tous les contrats"
+      ],
+      "answer": 2,
+      "explanation": "L’encapsulation augmente la taille transportée ; le MTU du chemin doit en tenir compte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas confondre Multi-Pod et Multi-Site ?",
+      "choices": [
+        "Les deux imposent toujours les mêmes domaines de panne",
+        "Les deux garantissent automatiquement un DR conforme",
+        "Ils ne peuvent jamais partager d’outils de gestion",
+        "Ils représentent des architectures et des modèles d’interconnexion différents, à comparer selon leurs domaines et objectifs"
+      ],
+      "answer": 3,
+      "explanation": "Le choix dépend de la portée, de la gestion, des politiques et des exigences de résilience ; les notions ne sont pas interchangeables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un flux traverse bien les Leaf mais échoue uniquement vers un réseau externe. Quelle zone vérifier en premier ?",
+      "choices": [
+        "L3Out, routes et politiques externes, puis chemin de retour et filtrage associé",
+        "La couleur des liens internes",
+        "Le seul nom du tenant",
+        "Le nombre de serveurs par rack"
+      ],
+      "answer": 0,
+      "explanation": "Un défaut limité à l’extérieur oriente vers l’interconnexion, sans exclure la nécessité de confirmer les preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un cluster APIC sain ne garantit-il pas que le trafic applicatif fonctionne ?",
+      "choices": [
+        "L’APIC transporte tous les paquets en série",
+        "Le contrôleur et le dataplane ont des rôles différents ; les endpoints, politiques, routes et l’infrastructure peuvent encore être en défaut",
+        "Parce que le trafic applicatif ne passe jamais dans la fabric",
+        "Parce qu’ACI n’utilise pas de routes"
+      ],
+      "answer": 1,
+      "explanation": "La santé du contrôleur ne prouve pas à elle seule le forwarding ni la conformité des flux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle convient avant une modification d’une politique de production ?",
+      "choices": [
+        "Modifier les contrats pendant le pic sans mesure",
+        "Désactiver l’audit pour simplifier la procédure",
+        "Établir les flux concernés, l’état de référence, une portée contrôlée, des critères et un retour arrière",
+        "Supprimer les journaux après la fusion"
+      ],
+      "answer": 2,
+      "explanation": "Le risque doit être qualifié à partir de l’impact possible et d’un plan de validation et récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble de preuves clôture le mieux une correction experte ACI ?",
+      "choices": [
+        "La configuration a été envoyée au contrôleur",
+        "Le nombre d’objets a augmenté",
+        "Le tenant est visible dans l’interface",
+        "Routes/politiques et état des endpoints confirmés, tests positifs et négatifs, résultat et retour arrière documentés"
+      ],
+      "answer": 3,
+      "explanation": "La réussite se prouve sur le dataplane et les exigences de sécurité, avec des contrôles positifs comme négatifs."
     }
   ]
 }

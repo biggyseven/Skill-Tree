@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Cisco ACI - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel rôle remplissent les Leaf dans une fabric ACI ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Raccorder généralement les serveurs et fournir l’accès à la fabric",
+        "Remplacer tous les contrôleurs APIC",
+        "Servir uniquement de routeurs Internet",
+        "Héberger tous les services de gestion hors fabric"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Les Leaf sont la couche d’accès des endpoints dans une architecture leaf-spine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle général des APIC ?",
+      "choices": [
+        "Transporter chaque paquet utilisateur en série",
+        "Orchestrer et gérer la fabric ainsi que son modèle de politiques",
+        "Remplacer les adresses IP par des noms d’applications",
+        "Remplacer les Spine dans la topologie de transit"
+      ],
+      "answer": 1,
+      "explanation": "L’APIC fournit le contrôle et l’orchestration ; la fabric transporte le trafic sur les équipements Leaf/Spine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un EPG (Endpoint Group) ?",
+      "choices": [
+        "Définir un CIDR public pour tout le datacenter",
+        "Remplacer un lien physique entre deux Leaf",
+        "Regrouper des endpoints soumis à une politique de connectivité commune",
+        "Chiffrer à lui seul le trafic du tenant"
+      ],
+      "answer": 2,
+      "explanation": "L’EPG classe logiquement des endpoints pour leur appliquer une politique ; il ne remplace pas les liens ou le routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel objet ACI sert principalement à exprimer les communications permises entre EPG ?",
+      "choices": [
+        "Un câble de fibre",
+        "Une alimentation de rack",
+        "Une route par défaut uniquement",
+        "Un contrat avec ses sujets et filtres"
+      ],
+      "answer": 3,
+      "explanation": "Les contrats décrivent les flux permis entre consommateurs et fournisseurs selon la politique définie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle courant des Spine ?",
+      "choices": [
+        "Relier les Leaf entre eux et fournir le transit de la fabric",
+        "Raccorder directement tous les serveurs à la place des Leaf",
+        "Gérer seuls les identités des utilisateurs",
+        "Remplacer le cluster APIC"
+      ],
+      "answer": 0,
+      "explanation": "Les Spine sont la couche de transit entre Leaf dans la fabric."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le modèle ACI ne supprime-t-il pas les notions IP et VLAN ?",
+      "choices": [
+        "Parce que le système n’utilise aucun plan de politique",
+        "Les principes réseau restent nécessaires même si la configuration est modélisée et distribuée autrement",
+        "Parce que les EPG sont des adresses IP",
+        "Les VLAN configurent automatiquement l’ensemble des contrats"
+      ],
+      "answer": 1,
+      "explanation": "ACI modifie la façon de décrire et déployer les politiques, mais l’adressage et le transport restent importants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il contrôler après l’initialisation physique de la fabric ?",
+      "choices": [
+        "Seulement le nom du datacenter",
+        "Uniquement la couleur des câbles",
+        "Découverte des nœuds, état des liens et conformité de la topologie prévue",
+        "La connexion des serveurs à Internet public"
+      ],
+      "answer": 2,
+      "explanation": "L’état réel des nœuds et connexions doit correspondre à l’architecture planifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel constat est correct à propos d’un contrat ACI présent dans le modèle ?",
+      "choices": [
+        "Il garantit que toute application fonctionne sans test",
+        "Il remplace les contrôles de routage externes",
+        "Il rend inutile la vérification des endpoints",
+        "Sa présence ne prouve pas à elle seule que le flux réel est permis et fonctionnel de bout en bout"
+      ],
+      "answer": 3,
+      "explanation": "Il faut vérifier les relations d’objets, la politique résolue et le comportement réel du trafic."
     }
   ]
 }

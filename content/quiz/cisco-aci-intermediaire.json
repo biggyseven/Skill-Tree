@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Cisco ACI - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Quelle distinction décrit correctement VRF, Bridge Domain et EPG dans ACI ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "VRF fournit le contexte L3, BD le segment L2 et EPG la classification/politique des endpoints",
+        "Ils sont trois noms pour le même objet",
+        "EPG désigne toujours un routeur physique",
+        "BD est le contrôleur de la fabric"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Ces objets ont des rôles différents dans l’adressage, le segment et la classification/politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue une relation provider/consumer dans un contrat ACI ?",
+      "choices": [
+        "Elle définit la fibre utilisée par les Spine",
+        "Elle établit quel EPG fournit ou consomme la politique décrite par le contrat",
+        "Elle attribue des adresses MAC aux Leaf",
+        "Elle désactive toute segmentation"
+      ],
+      "answer": 1,
+      "explanation": "La relation entre provider et consumer, avec sujet et filtres, définit la direction de politique entre EPG."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il vérifier le chemin de retour lors d’un diagnostic de flux externe via L3Out ?",
+      "choices": [
+        "Le trafic retour est automatiquement généré par un contrat",
+        "Le routage n’a pas de direction",
+        "Un chemin retour absent ou asymétrique peut empêcher une session même si la route aller existe",
+        "L3Out ne prend pas en charge le routage"
+      ],
+      "answer": 2,
+      "explanation": "Un flux exige un chemin aller et retour cohérent et des règles adaptées sur les deux directions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé sur les zoning-rules et pcTag est le plus approprié ?",
+      "choices": [
+        "Ils sont des noms pour les interfaces physiques",
+        "Ils remplacent le plan de contrôle APIC",
+        "Leur présence signifie que chaque paquet applicatif passe nécessairement",
+        "Ils participent à la classification et à l’application de la politique au dataplane, qu’il faut valider en contexte"
+      ],
+      "answer": 3,
+      "explanation": "Les détails du dataplane aident au diagnostic, mais leur présence ne prouve pas la santé de l’application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un flux est bloqué entre deux EPG. Quelle démarche est la plus rigoureuse ?",
+      "choices": [
+        "Vérifier endpoints, appartenance EPG, contrat provider/consumer, filtres, routes et test réel",
+        "Ajouter un contrat any-any sans analyser le besoin",
+        "Changer au hasard l’adresse du serveur",
+        "Redémarrer tous les Spine"
+      ],
+      "answer": 0,
+      "explanation": "Le diagnostic doit identifier si le problème est lié à la classification, la politique ou la connectivité sous-jacente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un contrat large `any-any` est-il une mauvaise première réponse à un incident ?",
+      "choices": [
+        "Il ne peut jamais permettre un flux",
+        "Il élargit potentiellement l’accès sans identifier la cause et peut violer le principe du moindre privilège",
+        "Il corrige automatiquement toutes les routes",
+        "Il est requis pour tous les EPG"
+      ],
+      "answer": 1,
+      "explanation": "Une politique minimale et une analyse de cause évitent d’ouvrir plus de flux que nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel objet permet de fournir une connectivité L3 vers un réseau externe dans une conception ACI ?",
+      "choices": [
+        "Un EPG sans contrat",
+        "Un contrôleur APIC",
+        "Un L3Out, accompagné de routes et politiques externes adaptées",
+        "Un spine isolé"
+      ],
+      "answer": 2,
+      "explanation": "L3Out fournit le modèle de connectivité externe ; le routage et la politique doivent aussi être configurés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une validation structurelle du modèle ACI est-elle suffisante pour prouver le dataplane ?",
+      "choices": [
+        "Oui, une fois les objets créés",
+        "Oui, quand le portail affiche le contrat",
+        "Oui, sans connexion entre endpoints",
+        "Non ; vérifier routes, politique résolue, état des endpoints et flux de bout en bout"
+      ],
+      "answer": 3,
+      "explanation": "Le modèle et la configuration doivent être confrontés aux chemins et résultats réels."
     }
   ]
 }
