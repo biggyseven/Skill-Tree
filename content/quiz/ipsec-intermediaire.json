@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour VPN IPsec - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Que se passe-t-il typiquement pendant IKE_SA_INIT dans IKEv2 ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Les pairs négocient des paramètres cryptographiques initiaux et établissent les éléments nécessaires à l’échange sécurisé, notamment Diffie–Hellman et nonces",
+        "Les applications commencent immédiatement à transférer toutes les données utilisateur",
+        "Le routeur apprend les routes BGP de tous ses voisins",
+        "Le tunnel supprime la nécessité d’une authentification ultérieure"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "IKE_SA_INIT négocie les algorithmes initiaux et échange les données de mise en place de clés. L’authentification des identités intervient ensuite, notamment dans IKE_AUTH."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle fonction remplit une Child SA ?",
+      "choices": [
+        "Elle attribue la VIP à Keepalived",
+        "Elle fournit les adresses DNS au client",
+        "Elle remplace la table de routage IP",
+        "Elle définit le contexte de protection IPsec du trafic, par exemple les paramètres ESP et les sélecteurs associés"
+      ],
+      "answer": 3,
+      "explanation": "Les Child SA protègent le trafic IPsec et peuvent être établies ou renouvelées indépendamment dans le cadre de la SA IKE."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi NAT exemption peut-elle être nécessaire sur un VPN site-à-site ?",
+      "choices": [
+        "Pour empêcher toutes les connexions depuis le LAN",
+        "Pour éviter que les paquets destinés au réseau distant soient traduits par un NAT qui rendrait leur correspondance avec les sélecteurs IPsec incorrecte",
+        "Pour remplacer IKEv2",
+        "Pour créer automatiquement des routes BGP"
+      ],
+      "answer": 1,
+      "explanation": "Le NAT des paquets destinés au tunnel peut modifier les adresses et empêcher la correspondance avec les sélecteurs attendus. L’ordre des règles varie selon la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le tunnel transporte les petits paquets, mais les gros transferts se bloquent. Quel diagnostic est pertinent ?",
+      "choices": [
+        "Changer les certificats avant toute collecte",
+        "Augmenter le nombre de SA sans mesure",
+        "Examiner le MTU effectif, l’overhead IPsec, PMTUD, ICMP et le MSS TCP si approprié",
+        "Désactiver toute vérification d’intégrité"
+      ],
+      "answer": 2,
+      "explanation": "L’encapsulation augmente la taille des paquets. Un problème de MTU ou de PMTUD peut provoquer une connectivité partielle ; les vérifications doivent être faites sur le chemin réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique réduit le risque d’accepter des paquets ESP rejoués ?",
+      "choices": [
+        "S’appuyer sur les numéros de séquence et les mécanismes anti-rejeu de la SA, avec une configuration compatible et vérifiée",
+        "Désactiver tous les contrôles de séquence",
+        "Partager la même clé entre tous les sites sans rotation",
+        "Remplacer la table de routage par une ACL"
+      ],
+      "answer": 0,
+      "explanation": "ESP dispose de numéros de séquence et d’un mécanisme anti-rejeu lorsqu’il est activé/configuré. Les fenêtres et comportements doivent être compatibles avec la solution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé distingue route-based IPsec et policy-based IPsec ?",
+      "choices": [
+        "Le route-based ne peut pas utiliser des routes",
+        "Le policy-based est toujours chiffré avec TLS",
+        "Le route-based remplace tous les sélecteurs cryptographiques",
+        "Le route-based s’appuie sur une interface/tunnel logique routé ; le policy-based sélectionne le trafic à protéger par des politiques ou sélecteurs"
+      ],
+      "answer": 3,
+      "explanation": "Les deux modèles peuvent fournir un VPN IPsec, mais leur intégration au routage, aux sélecteurs et au dépannage diffère selon le constructeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un côté envoie des paquets chiffrés mais ne voit aucun compteur de retour. Quel ensemble de vérifications est le plus utile ?",
+      "choices": [
+        "Changer immédiatement tous les algorithmes cryptographiques",
+        "Vérifier le chemin retour, les politiques des deux pairs, le routage, les sélecteurs, NAT et les logs/captures compatibles",
+        "Supprimer les routes des deux LAN",
+        "Considérer le problème résolu si la SA est active"
+      ],
+      "answer": 1,
+      "explanation": "Une SA active est une information partielle. L’asymétrie, les sélecteurs, le NAT et les filtres peuvent empêcher le trafic retour d’être accepté ou d’atteindre sa destination."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une phase de rekey des SA ?",
+      "choices": [
+        "Remplacer automatiquement tous les routeurs physiques",
+        "Supprimer les règles de sécurité à la fin de chaque session",
+        "Renouveler les clés et associations selon la politique de durée de vie, sans interruption imprévue si le mécanisme fonctionne correctement",
+        "Réécrire les adresses des sous-réseaux distants"
+      ],
+      "answer": 2,
+      "explanation": "Le renouvellement limite la durée d’usage des clés et doit être surveillé. Des incompatibilités ou des temporisations mal choisies peuvent entraîner des coupures périodiques."
     }
   ]
 }

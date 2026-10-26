@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour IPv6 - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle écriture représente une adresse IPv6 valide correctement compressée ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "2001:db8::1",
+        "2001:::db8:1",
+        "2001:db8:1::2::3",
+        "2001:db8:zz::1"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "`::` représente une séquence contiguë d’un ou plusieurs groupes de zéros et ne peut apparaître qu’une seule fois dans une adresse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle plage est réservée aux adresses link-local IPv6 ?",
+      "choices": [
+        "2000::/3",
+        "ff00::/8",
+        "fc00::/7",
+        "fe80::/10"
+      ],
+      "answer": 3,
+      "explanation": "Les adresses link-local se trouvent dans fe80::/10 et servent notamment aux communications sur le lien local."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole remplace plusieurs fonctions d’ARP dans IPv6 ?",
+      "choices": [
+        "DHCPv4",
+        "Neighbor Discovery Protocol (NDP), basé sur ICMPv6",
+        "BGP",
+        "HTTP"
+      ],
+      "answer": 1,
+      "explanation": "NDP utilise ICMPv6 pour découvrir les voisins et résoudre les adresses de lien, et participe à d’autres fonctions telles que la découverte de routeurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait SLAAC ?",
+      "choices": [
+        "Il traduit automatiquement tous les noms DNS en IPv6",
+        "Il chiffre les annonces de routeur",
+        "Il permet à un hôte de construire son adresse à partir des informations de préfixe fournies par les Router Advertisements, selon la configuration",
+        "Il remplace tous les routeurs IPv6"
+      ],
+      "answer": 2,
+      "explanation": "SLAAC permet à l’hôte de former une adresse à partir des préfixes annoncés par le routeur. D’autres mécanismes peuvent fournir des paramètres complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel enregistrement DNS associe couramment un nom à une adresse IPv6 ?",
+      "choices": [
+        "AAAA",
+        "A",
+        "PTR seulement",
+        "MX"
+      ],
+      "answer": 0,
+      "explanation": "Un enregistrement AAAA publie une adresse IPv6. A est utilisé pour une adresse IPv4."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi IPv6 n’utilise-t-il pas de broadcast au niveau IP ?",
+      "choices": [
+        "Le broadcast est remplacé par TCP",
+        "Le broadcast est obligatoire sur tous les réseaux IPv6",
+        "Le broadcast est chiffré avec ESP",
+        "IPv6 utilise notamment le multicast et des mécanismes de découverte de voisins"
+      ],
+      "answer": 3,
+      "explanation": "IPv6 n’a pas de broadcast IP. Les usages correspondants s’appuient sur le multicast et NDP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente `::1/128` ?",
+      "choices": [
+        "L’adresse link-local d’un routeur",
+        "L’adresse de loopback IPv6",
+        "Le préfixe global unicast alloué à Internet",
+        "Une adresse multicast"
+      ],
+      "answer": 1,
+      "explanation": "`::1/128` est l’adresse de loopback IPv6, utilisée pour communiquer avec la pile réseau locale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un poste IPv6 peut-il communiquer localement mais pas joindre un réseau distant ?",
+      "choices": [
+        "IPv6 ne permet pas les routes par défaut",
+        "La MAC doit être identique à celle du routeur",
+        "Il faut vérifier adresse/préfixe, route par défaut, Router Advertisements, filtrage ICMPv6 et chemin retour",
+        "Il faut obligatoirement activer NAT66"
+      ],
+      "answer": 2,
+      "explanation": "La connectivité locale ne prouve pas le bon routage IPv6. La route par défaut, les RA et les politiques ICMPv6 peuvent influencer l’accès distant."
     }
   ]
 }

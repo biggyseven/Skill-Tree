@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Gestion d'incident (ITIL et RCA) - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quelle est la priorité immédiate pendant un incident qui rend un service critique indisponible ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Identifier immédiatement un coupable",
+        "Rétablir ou contourner le service selon une procédure sûre et réduire l’impact, tout en collectant les informations utiles",
+        "Attendre la RCA avant d’agir",
+        "Fermer le ticket pour respecter le SLA"
+      ],
+      "answer": 1,
+      "explanation": "La gestion d’incident vise d’abord à rétablir le service et à limiter l’impact. L’analyse de cause peut se poursuivre ensuite sans effacer les preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre incident et problème est la plus utile ?",
+      "choices": [
+        "Un incident est une interruption ou dégradation de service ; un problème concerne la cause ou les causes possibles d’un ou plusieurs incidents",
+        "Un problème est toujours une demande de nouveau matériel",
+        "Un incident est nécessairement un défaut de sécurité",
+        "Les deux termes désignent toute modification planifiée"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Un incident décrit l’effet subi sur le service. Le Problem Management cherche à comprendre et gérer les causes sous-jacentes et les erreurs connues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment la priorité d’un incident est-elle généralement déterminée ?",
+      "choices": [
+        "Par le nom de l’utilisateur uniquement",
+        "Par l’ordre alphabétique des services",
+        "Par le nombre de commentaires dans le ticket seulement",
+        "En combinant impact et urgence selon une matrice ou une politique d’équipe"
+      ],
+      "answer": 3,
+      "explanation": "L’impact et l’urgence aident à déterminer la priorité. Le modèle exact doit être défini et appliqué de façon cohérente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert la méthode des « 5 pourquoi » ?",
+      "choices": [
+        "À compter cinq incidents identiques",
+        "À remplacer la collecte de logs",
+        "À approfondir une chaîne d’explications en demandant pourquoi, sans considérer automatiquement la cinquième réponse comme une vérité",
+        "À prouver qu’une erreur humaine est toujours la cause"
+      ],
+      "answer": 2,
+      "explanation": "Les cinq pourquoi structurent une investigation causale mais ne remplacent pas les preuves. La chaîne doit être vérifiée et peut comporter plusieurs causes contributives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi construire une chronologie pendant une RCA ?",
+      "choices": [
+        "Pour lier événements, changements, symptômes et actions avec des horodatages et des sources, afin de tester des hypothèses causales",
+        "Pour prouver une seule cause à partir du premier log",
+        "Pour éviter de communiquer avec les équipes",
+        "Pour supprimer les événements jugés secondaires"
+      ],
+      "answer": 0,
+      "explanation": "Une chronologie sourcée aide à distinguer corrélation et causalité. Elle facilite aussi la compréhension des délais de détection, de réponse et de rétablissement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un contournement (*workaround*) lors d’un incident ?",
+      "choices": [
+        "Il remplace la correction définitive dans tous les cas",
+        "Il permet de restaurer ou préserver le service temporairement tout en documentant les limites et les risques",
+        "Il supprime le besoin de prévention",
+        "Il clôt automatiquement tous les tickets liés"
+      ],
+      "answer": 1,
+      "explanation": "Un contournement limite l’impact sans nécessairement supprimer la cause. Il doit être documenté et réévalué jusqu’à la correction durable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement est utile pour préserver les preuves lors d’un incident ?",
+      "choices": [
+        "Effacer les logs pour réduire l’espace occupé",
+        "Redémarrer tous les serveurs avant de recueillir des informations",
+        "Partager les identifiants administrateur dans le ticket",
+        "Enregistrer les observations et conserver les journaux utiles selon la politique de sécurité et de confidentialité"
+      ],
+      "answer": 3,
+      "explanation": "Les journaux et observations doivent être préservés et accessibles aux personnes autorisées. Les actions destructrices peuvent faire perdre des indices sur la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une action corrective issue d’une RCA ?",
+      "choices": [
+        "Uniquement « faire plus attention »",
+        "Une date sans responsable",
+        "Un responsable, une échéance, une preuve d’achèvement et une vérification de l’efficacité attendue",
+        "Une nouvelle priorité d’incident uniquement"
+      ],
+      "answer": 2,
+      "explanation": "Une action exploitable précise qui fait quoi, quand et comment on vérifiera son effet. Des actions générales sans preuve de résultat réduisent peu le risque."
     }
   ]
 }

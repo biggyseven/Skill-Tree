@@ -22,6 +22,11 @@ PRIORITY_TRACKS = {
     "ids-ips": ("ids-ips-debutant", "ids-ips-intermediaire", "ids-ips-expert"),
     "intro-reseau": ("intro-reseau-debutant", "intro-reseau-intermediaire", "intro-reseau-expert"),
     "iac": ("iac-debutant", "iac-intermediaire", "iac-expert"),
+    "ipsec": ("ipsec-debutant", "ipsec-intermediaire", "ipsec-expert"),
+    "ipv6": ("ipv6-debutant", "ipv6-intermediaire", "ipv6-expert"),
+    "isis": ("isis-debutant", "isis-intermediaire", "isis-expert"),
+    "itil-rca": ("itil-rca-debutant", "itil-rca-intermediaire", "itil-rca-expert"),
+    "k8s": ("k8s-debutant", "k8s-intermediaire", "k8s-expert"),
 }
 PLACEHOLDER_RE = re.compile(
     r"question temporaire|quiz généré automatiquement|question placeholder|"
