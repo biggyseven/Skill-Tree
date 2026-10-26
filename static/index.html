@@ -732,7 +732,7 @@
     <!-- Recherche mobile : même moteur de recherche que la barre desktop, dans un panneau adapté au tactile. -->
     <div x-show="mobileSearchOpen" x-cloak x-transition.opacity @click.self="closeMobileSearch()" @keydown.escape.window="closeMobileSearch()"
          class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/75 p-3 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm sm:p-6 sm:pt-12 lg:hidden">
-      <section role="dialog" aria-modal="true" aria-labelledby="mobile-search-title"
+      <section x-ref="mobileSearchDialog" @keydown.tab="trapMobileSearchTab($event)" role="dialog" aria-modal="true" aria-labelledby="mobile-search-title"
                class="w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[color:var(--s1)] shadow-2xl">
         <div class="flex items-center gap-3 border-b border-white/10 p-4 sm:p-5">
           <svg class="h-5 w-5 shrink-0 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
@@ -744,7 +744,7 @@
                  @keydown.down.prevent="searchActive = Math.min(searchActive + 1, Math.max(searchResults.length - 1, 0))"
                  @keydown.up.prevent="searchActive = Math.max(searchActive - 1, 0)"
                  @keydown.enter.prevent="openSearchResult(searchResults[searchActive])"
-                 @keydown.escape.prevent="closeMobileSearch()">
+                 @keydown.escape.prevent.stop="closeMobileSearch()">
           <button type="button" @click="closeMobileSearch()" aria-label="Fermer la recherche"
                   class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"></path></svg>
@@ -4101,7 +4101,7 @@
         },
 
         // ---------- recherche ----------
-        searchQuery: '', searchOpen: false, mobileSearchOpen: false, searchActive: 0, searchContent: false, searchIdx: null, searchBusy: false, searchDone: 0,
+        searchQuery: '', searchOpen: false, mobileSearchOpen: false, mobileSearchReturnFocus: null, searchActive: 0, searchContent: false, searchIdx: null, searchBusy: false, searchDone: 0,
         get searchResults() {
           const q = this.norm(this.searchQuery.trim()); if (q.length < 2) return [];
           const toks = q.split(/\s+/); const out = [];
@@ -4126,11 +4126,56 @@
           this.searchIdx = idx; this.searchBusy = false;
         },
         openMobileSearch() {
+          if (!this.mobileSearchOpen) {
+            const active = document.activeElement;
+            this.mobileSearchReturnFocus = active instanceof HTMLElement && active !== document.body && active !== document.documentElement ? active : null;
+          }
           this.mobileSearchOpen = true; this.searchOpen = true;
-          this.$nextTick(() => this.$refs.mobileSearchBox?.focus());
+          this.$nextTick(() => this.$refs.mobileSearchBox?.focus({ preventScroll: true }));
         },
         closeMobileSearch() {
+          if (!this.mobileSearchOpen) return;
+          const returnFocus = this.mobileSearchReturnFocus;
+          this.mobileSearchReturnFocus = null;
           this.mobileSearchOpen = false; this.searchOpen = false;
+          this.$nextTick(() => {
+            const visible = element => element instanceof HTMLElement
+              && element.isConnected
+              && element.getClientRects().length > 0
+              && getComputedStyle(element).visibility !== 'hidden';
+            let target = visible(returnFocus) ? returnFocus : null;
+            if (!target) {
+              target = Array.from(document.querySelectorAll('button[aria-label="Rechercher un cours"]')).find(visible) || null;
+            }
+            target?.focus({ preventScroll: true });
+          });
+        },
+        trapMobileSearchTab(event) {
+          if (!event || event.key !== 'Tab') return;
+          const dialog = this.$refs.mobileSearchDialog;
+          if (!dialog) return;
+          const selector = 'a[href], area[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [contenteditable="true"], [tabindex]:not([tabindex="-1"])';
+          const focusable = Array.from(dialog.querySelectorAll(selector)).filter(element =>
+            element instanceof HTMLElement
+            && element.getClientRects().length > 0
+            && getComputedStyle(element).visibility !== 'hidden'
+            && !element.closest('[aria-hidden="true"]')
+          );
+          if (!focusable.length) {
+            event.preventDefault();
+            this.$refs.mobileSearchBox?.focus({ preventScroll: true });
+            return;
+          }
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          const active = document.activeElement;
+          if (event.shiftKey && (active === first || !dialog.contains(active))) {
+            event.preventDefault();
+            last.focus({ preventScroll: true });
+          } else if (!event.shiftKey && (active === last || !dialog.contains(active))) {
+            event.preventDefault();
+            first.focus({ preventScroll: true });
+          }
         },
         openSearchResult(r) { if (!r) return; this.searchOpen = false; this.mobileSearchOpen = false; this.searchQuery = ''; this.show(r.node.id); },
         onGlobalKey(e) {
