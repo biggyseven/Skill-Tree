@@ -71,7 +71,12 @@ class LabWorkspaceHttpFlowTests(unittest.TestCase):
         self.assertIn("introuvable", response.json()["detail"].lower())
 
     def test_open_save_reload_check_and_submit_real_ipv4_scenario_over_http(self) -> None:
-        with TestClient(api.app) as client:
+        unlocked_course = {
+            "min_score": 100,
+            "unlocked": True,
+            "missing_prerequisites": [],
+        }
+        with patch("app.lab_routes._course_lab_context", return_value=unlocked_course), TestClient(api.app) as client:
             opened = client.get("/api/lab/v2/ipv4-debutant")
             self.assertEqual(opened.status_code, 200, opened.text)
             payload = opened.json()
@@ -128,7 +133,12 @@ class LabWorkspaceHttpFlowTests(unittest.TestCase):
 
 
     def test_valid_ipv4_configuration_passes_and_rewards_only_once_over_http(self) -> None:
-        with TestClient(api.app) as client:
+        unlocked_course = {
+            "min_score": 100,
+            "unlocked": True,
+            "missing_prerequisites": [],
+        }
+        with patch("app.lab_routes._course_lab_context", return_value=unlocked_course), TestClient(api.app) as client:
             opened = client.get("/api/lab/v2/ipv4-debutant")
             self.assertEqual(opened.status_code, 200, opened.text)
             payload = opened.json()
