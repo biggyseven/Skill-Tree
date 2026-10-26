@@ -58,6 +58,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -191,6 +192,35 @@
     .lesson-prose figure p, .lesson-prose figure span, .lesson-prose figure label, .lesson-prose figure em, .lesson-prose figure i, .lesson-prose figure small, .lesson-prose figure li, .lesson-prose figure figcaption { color: #334155 !important; }
     .lesson-prose figure h1, .lesson-prose figure h2, .lesson-prose figure h3, .lesson-prose figure h4, .lesson-prose figure h5, .lesson-prose figure h6, .lesson-prose figure strong, .lesson-prose figure b, .lesson-prose figure summary { color: #0f172a !important; border: 0; }
     .lesson-prose figure :not(pre) > code { background: #e2e8f0; color: #0b3b66 !important; }
+
+    /* --- Lecture guidée des schémas et diagrammes --- */
+    .lesson-prose .lesson-diagram-block { min-width: 0; max-width: 100%; }
+    .lesson-prose .lesson-diagram-toolbar {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .6rem;
+      margin: 0 0 .8rem; padding-bottom: .6rem; border-bottom: 1px solid rgb(var(--w) / .08);
+    }
+    .lesson-prose .lesson-diagram-kind {
+      color: rgb(var(--cyan-300)); font-size: .68rem; font-weight: 800;
+      letter-spacing: .12em; text-transform: uppercase;
+    }
+    .lesson-prose .btn-explain-diagram {
+      border: 1px solid rgb(var(--cyan-300) / .3); border-radius: .65rem;
+      background: rgb(var(--cyan-400) / .08); padding: .4rem .7rem;
+      color: rgb(var(--cyan-200)); font-size: .75rem; font-weight: 700; cursor: pointer;
+    }
+    .lesson-prose .btn-explain-diagram:hover { background: rgb(var(--cyan-400) / .15); }
+    .lesson-prose .btn-explain-diagram:focus-visible { outline: 2px solid rgb(var(--cyan-400)); outline-offset: 3px; }
+    .lesson-prose .lesson-diagram-guide {
+      margin-top: .8rem; border-left: 3px solid rgb(var(--cyan-400) / .75);
+      border-radius: .5rem; padding: .7rem .9rem; background: rgb(var(--cyan-400) / .055);
+    }
+    .lesson-prose .lesson-diagram-guide strong { color: rgb(var(--cyan-200)) !important; font-size: .82rem; }
+    .lesson-prose .lesson-diagram-guide p { margin: .25rem 0 0; font-size: .86rem; line-height: 1.65; color: rgb(var(--z-200)) !important; }
+    .lesson-prose .lesson-mermaid { min-width: 0; max-width: 100%; overflow-x: auto; }
+    .lesson-prose .lesson-mermaid-source { white-space: pre !important; overflow-x: auto; }
+    .lesson-prose .lesson-mermaid .mermaid { min-width: 0; max-width: 100%; overflow-x: auto; }
+    .lesson-prose .lesson-mermaid .mermaid svg { min-width: 0; max-height: none; }
+    .lesson-prose .lesson-mermaid .mermaid-error { white-space: pre-wrap; overflow-wrap: anywhere; }
 
     /* --- Composants UI (v3) --- */
     .card { background: var(--s1); border: 1px solid rgb(var(--w) / 0.06); border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 20px 40px -24px rgba(0,0,0,0.7); }
@@ -1745,6 +1775,16 @@
                       <button type="button" @click="changeFontSize(1)" :disabled="fontSize >= 22" aria-label="Agrandir la taille du texte" title="Agrandir le texte" class="rounded-lg border border-white/10 px-3 py-2 text-xs font-bold text-zinc-300 disabled:opacity-40">A+</button>
                     </div>
                     <span class="text-[11px] tabular-nums text-zinc-500" role="status" aria-live="off" x-text="Math.round(lessonProgress) + ' % lu'"></span>
+                    <label class="flex min-w-0 items-center gap-2 text-[11px] text-zinc-400">
+                      <span class="shrink-0">Démarrer à</span>
+                      <select x-model="startSectionSelection" @change="startLessonAtSelection()" aria-label="Choisir le point de départ de la lecture du cours" class="max-w-[min(58vw,20rem)] rounded-lg border border-white/10 bg-[color:var(--s1)] px-2 py-2 text-xs text-zinc-200 outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
+                        <option value="__resume__">Reprendre où j’étais</option>
+                        <option value="__top__">Début du cours</option>
+                        <template x-for="item in lessonToc" :key="'start-' + item.id">
+                          <option :value="item.id" x-text="item.text"></option>
+                        </template>
+                      </select>
+                    </label>
                     <button type="button" @click="toggleReadingWidth()" :aria-pressed="readingWidth === 'wide'" :title="readingWidth === 'wide' ? 'Revenir à une largeur de lecture confortable' : 'Utiliser toute la largeur disponible'" class="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-zinc-300 transition hover:border-cyan-300/30 hover:text-cyan-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400">
                       <span aria-hidden="true">↔</span>
                       <span x-text="readingWidth === 'wide' ? 'Largeur confortable' : 'Élargir la lecture'"></span>
@@ -2053,6 +2093,7 @@
         fontSize: 17,
         readingWidth: 'comfortable',
         lessonToc: [], activeSection: '', lessonProgress: 0, readingMinutes: 1,
+        lessonPositions: {}, startSectionSelection: '__resume__', _mermaidInitialized: false,
 
         quiz: null, quizAnswers: [], quizResult: null, quizBusy: false,
         exerciseMode: null, exerciseQuestion: null, exerciseAnswer: '', exerciseResult: null, exerciseBusy: false, exerciseError: null, exercisePreferredKind: null,
@@ -2080,6 +2121,7 @@
         topologyEditor: null, topologyReady: false,
 
         async init() {
+          this.loadLessonPositions();
           this.loadUiPrefs();
           this.loadFavorites();
           window.addEventListener('message', (event) => {
@@ -2108,6 +2150,62 @@
         },
         saveUiPrefs() {
           try { localStorage.setItem('skilltree-ui', JSON.stringify({ fs: this.fontSize, full: this.isFullscreen, readingWidth: this.readingWidth })); } catch (e) { }
+        },
+        loadLessonPositions() {
+          try {
+            const stored = JSON.parse(localStorage.getItem('skilltree-lesson-positions') || '{}');
+            this.lessonPositions = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+          } catch (_) {
+            this.lessonPositions = {};
+          }
+        },
+        saveLessonPosition(nodeId, position) {
+          const key = String(nodeId || '');
+          if (!key || !position || typeof position !== 'object') return;
+          const previous = this.lessonPositions[key] && typeof this.lessonPositions[key] === 'object'
+            ? this.lessonPositions[key]
+            : {};
+          this.lessonPositions = { ...(this.lessonPositions || {}), [key]: { ...previous, ...position } };
+          try {
+            localStorage.setItem('skilltree-lesson-positions', JSON.stringify(this.lessonPositions));
+          } catch (_) { /* La reprise reste une amélioration facultative du navigateur. */ }
+        },
+        restoreLessonPosition(container, savedPosition = null) {
+          if (!container) return;
+          const nodeId = String(this.detail?.id || '');
+          const saved = savedPosition || this.lessonPositions[nodeId] || null;
+          const goToHeading = (headingId, extraOffset = 0) => {
+            if (!headingId) return false;
+            const heading = document.getElementById(String(headingId));
+            if (!heading || !container.contains(heading)) return false;
+            const top = heading.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+            container.scrollTop = Math.max(0, top + Math.max(0, Number(extraOffset) || 0));
+            return true;
+          };
+
+          if (this.startSectionSelection === '__top__') {
+            container.scrollTop = 0;
+          } else if (this.startSectionSelection && this.startSectionSelection !== '__resume__') {
+            if (!goToHeading(this.startSectionSelection)) container.scrollTop = 0;
+          } else if (saved && saved.sectionId && goToHeading(saved.sectionId, saved.sectionOffset)) {
+            // La section mémorisée reste prioritaire quand la longueur du cours a changé.
+          } else if (saved && Number.isFinite(Number(saved.scrollTop))) {
+            container.scrollTop = Math.max(0, Number(saved.scrollTop));
+          } else {
+            const legacyProgress = nodeId === String(this.lastOpenedNodeId || '') ? this.lastLessonProgress : 0;
+            const progress = saved && Number.isFinite(Number(saved.progress))
+              ? Math.max(0, Math.min(100, Number(saved.progress)))
+              : legacyProgress;
+            const max = Math.max(0, container.scrollHeight - container.clientHeight);
+            container.scrollTop = Math.round(max * progress / 100);
+          }
+          this.onLessonScroll({ target: container });
+        },
+        startLessonAtSelection() {
+          const container = this.$refs.modalScroll;
+          if (!container) return;
+          const position = this.lessonPositions[String(this.detail?.id || '')] || null;
+          this.restoreLessonPosition(container, position);
         },
         changeFontSize(delta) {
           this.fontSize = Math.min(22, Math.max(14, this.fontSize + delta));
@@ -2419,7 +2517,17 @@
           wrap.querySelectorAll('pre').forEach(pre => {
             const code = pre.querySelector('code');
             const m = code && code.className.match(/language-(\S+)/);
-            const lang = m ? m[1] : 'text';
+            const lang = m ? m[1].toLowerCase() : 'text';
+            if (lang === 'mermaid') {
+              const diagram = document.createElement('div');
+              diagram.className = 'lesson-mermaid';
+              const source = document.createElement('pre');
+              source.className = 'lesson-mermaid-source';
+              source.textContent = code ? code.textContent : pre.textContent;
+              diagram.appendChild(source);
+              pre.replaceWith(diagram);
+              return;
+            }
             const box = document.createElement('div');
             box.className = 'code-container';
             const head = document.createElement('div');
@@ -2453,11 +2561,211 @@
             }
           }
 
-          // 5. Temps de lecture (sur le texte, pas sur le HTML)
+          // 5. Figures, SVG, images, Mermaid, schémas ASCII et tableaux reçoivent
+          // une légende de lecture et une action d’explication contextualisée.
+          this.prepareLessonDiagrams(wrap);
+
+          // 6. Temps de lecture (sur le texte, pas sur le HTML)
           const words = (wrap.textContent || '').split(/\s+/).filter(Boolean).length;
           this.readingMinutes = Math.max(1, Math.ceil(words / 200));
 
           return wrap.innerHTML;
+        },
+
+        prepareLessonDiagrams(wrap) {
+          const roots = new Set();
+          const isAsciiDiagram = source => {
+            const value = String(source || '');
+            const lines = value.split(/\r?\n/u);
+            if (lines.length < 2) return false;
+            return /[┌┐└┘├┤┬┴┼─│╭╮╰╯↔↕←→↑↓]/u.test(value)
+              || lines.some(line => /[A-Za-z0-9][\w.-]*(?:\s*(?:--+>|-{2,}|==>|->|<->|→|←|↔|—|–)\s*)[A-Za-z0-9]/u.test(line));
+          };
+
+          wrap.querySelectorAll('.code-container').forEach(container => {
+            const lang = String(container.querySelector('.code-lang')?.textContent || '').toLowerCase();
+            const sourceNode = container.querySelector('pre code, pre');
+            const source = sourceNode ? sourceNode.textContent : '';
+            if (['graphviz', 'dot', 'plantuml', 'puml', 'd2', 'ascii', 'diagram', 'flowchart'].includes(lang) || isAsciiDiagram(source)) {
+              roots.add(container);
+            }
+          });
+
+          wrap.querySelectorAll('figure, .diagram, .lesson-figure, .figure, .lesson-mermaid, .table-wrapper, img[alt], img[title], svg[role="img"], svg[aria-label], svg[aria-labelledby]').forEach(element => {
+            let root = element;
+            if (element.matches('img, svg')) {
+              root = element.closest('figure, .diagram, .lesson-figure, .figure')
+                || (element.parentElement && element.parentElement.tagName === 'DIV' && element.parentElement.children.length === 1
+                  ? element.parentElement : element);
+            }
+            roots.add(root);
+          });
+
+          let candidates = Array.from(roots).filter(root => root && root.nodeType === 1 && wrap.contains(root));
+          candidates = candidates.filter(root => !candidates.some(other => other !== root && other.contains(root)));
+
+          candidates.forEach(root => {
+            if (root.classList.contains('lesson-diagram-block')) return;
+            root.classList.add('lesson-diagram-block');
+            root.setAttribute('data-diagram-root', 'true');
+
+            const sourceNode = root.querySelector('.lesson-mermaid-source, pre code, pre');
+            const source = sourceNode ? sourceNode.textContent : '';
+            const table = root.querySelector('table');
+            const svg = root.querySelector('svg') || (root.matches('svg') ? root : null);
+            const image = root.querySelector('img[alt], img[title]') || (root.matches('img') ? root : null);
+            const mermaid = root.classList.contains('lesson-mermaid');
+            const kind = table ? 'tableau' : (mermaid ? 'diagramme Mermaid' : (svg ? 'schéma SVG' : (image ? 'illustration' : 'schéma textuel')));
+            root.dataset.diagramType = kind;
+
+            let explicit = '';
+            const caption = root.querySelector('figcaption');
+            const svgTitle = root.querySelector('svg title, svg desc') || (root.matches('svg') ? root.querySelector('title, desc') : null);
+            const titleNode = root.querySelector('title');
+            if (caption) explicit = caption.textContent.trim();
+            else if (svgTitle) explicit = svgTitle.textContent.trim();
+            else if (image) explicit = String(image.getAttribute('alt') || image.getAttribute('title') || '').trim();
+            else explicit = String(root.getAttribute('aria-label') || (titleNode && titleNode.textContent) || '').trim();
+
+            const labels = [];
+            const addLabel = value => {
+              const clean = String(value || '').replace(/\s+/gu, ' ').trim();
+              if (clean && !labels.includes(clean) && labels.length < 10) labels.push(clean);
+            };
+            root.querySelectorAll('svg text, svg tspan').forEach(node => addLabel(node.textContent));
+            if (root.matches('svg')) root.querySelectorAll('text, tspan').forEach(node => addLabel(node.textContent));
+
+            if (source) {
+              const mermaidNodes = source.matchAll(/[\w.-]+\s*[\[({]([^\])}]+)[\])}]/gu);
+              for (const match of mermaidNodes) addLabel(match[1]);
+              if (!labels.length && isAsciiDiagram(source)) {
+                source.split(/\r?\n/u).forEach(line => {
+                  const cleaned = line.replace(/[┌┐└┘├┤┬┴┼─│╭╮╰╯]/gu, ' ');
+                  cleaned.split(/(?:--+>|-{2,}|==>|->|<->|→|←|↔|—|–|[|]+|\s{2,})/u)
+                    .forEach(part => addLabel(part.replace(/^[\s\[\](){}]+|[\s\[\](){}]+$/gu, '')));
+                });
+              }
+            }
+
+            const content = root.querySelector('table') ? ''
+              : String((root.matches('img') ? (root.getAttribute('alt') || root.getAttribute('title') || '') : '') || '');
+            let explanation;
+            if (explicit) {
+              explanation = 'Description associée : ' + explicit + '. Repère ensuite la légende, les flèches, les connecteurs et les regroupements pour relier cette description aux éléments représentés.';
+            } else if (labels.length) {
+              explanation = 'Éléments ou libellés visibles : ' + labels.slice(0, 8).join(', ') + '. Commence par repérer ces éléments, puis suis les connecteurs et le sens éventuel des flèches. Le texte autour du dessin précise la signification des relations ; une liaison graphique ne prouve pas, à elle seule, qu’un trafic circule en temps réel.';
+            } else if (table) {
+              const headers = Array.from(table.querySelectorAll('thead th, tr:first-child th, tr:first-child td')).map(cell => cell.textContent.trim()).filter(Boolean);
+              explanation = headers.length
+                ? 'Lis les intitulés de colonnes, puis compare les valeurs sur une même ligne. Les colonnes donnent le contexte de chaque valeur : ' + headers.join(', ') + '.'
+                : 'Lis le tableau ligne par ligne et compare les valeurs dans une même colonne. Les intitulés et le texte autour du tableau donnent le contexte des données.';
+            } else {
+              explanation = 'Pour lire cette représentation, identifie d’abord les éléments nommés, la légende et les symboles. Suis les connecteurs et les flèches lorsqu’ils existent, puis vérifie le sens de la relation dans le paragraphe voisin. Les traits, couleurs ou flèches ne suffisent pas, à eux seuls, à prouver un échange réel de données.';
+            }
+            if (content && !explicit) explanation = explanation + ' Texte alternatif : ' + content + '.';
+
+            const toolbar = document.createElement('div');
+            toolbar.className = 'lesson-diagram-toolbar';
+            const kindLabel = document.createElement('span');
+            kindLabel.className = 'lesson-diagram-kind';
+            kindLabel.textContent = 'Lecture guidée · ' + kind;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn-explain-diagram';
+            button.textContent = table ? 'Expliquer ce tableau' : 'Expliquer ce schéma';
+            button.setAttribute('aria-label', 'Demander une explication contextualisée pour ce ' + kind);
+            toolbar.appendChild(kindLabel);
+            toolbar.appendChild(button);
+            root.insertBefore(toolbar, root.firstChild);
+
+            const guide = document.createElement('div');
+            guide.className = 'lesson-diagram-guide';
+            guide.setAttribute('role', 'note');
+            const guideTitle = document.createElement('strong');
+            guideTitle.textContent = table ? 'Comment lire ce tableau' : 'Comment lire ce schéma';
+            const guideText = document.createElement('p');
+            guideText.textContent = explanation;
+            guide.appendChild(guideTitle);
+            guide.appendChild(guideText);
+            root.appendChild(guide);
+          });
+        },
+
+        async renderLessonDiagrams() {
+          const root = this.$refs.lessonArticle;
+          if (!root) return;
+          const mermaidBlocks = Array.from(root.querySelectorAll('.lesson-mermaid'));
+          if (!mermaidBlocks.length || !window.mermaid) return;
+
+          const nodes = [];
+          mermaidBlocks.forEach(block => {
+            const source = block.querySelector('.lesson-mermaid-source');
+            if (!source) return;
+            const visual = document.createElement('div');
+            visual.className = 'mermaid';
+            visual.dataset.originalSource = source.textContent || '';
+            visual.textContent = source.textContent || '';
+            source.replaceWith(visual);
+            nodes.push(visual);
+          });
+          if (!nodes.length) return;
+
+          try {
+            if (!this._mermaidInitialized) {
+              window.mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'strict',
+                theme: document.documentElement.classList.contains('light') ? 'default' : 'dark',
+              });
+              this._mermaidInitialized = true;
+            }
+            await window.mermaid.run({ nodes });
+          } catch (error) {
+            nodes.forEach(node => {
+              if (node.querySelector('svg')) return;
+              const fallback = document.createElement('pre');
+              fallback.className = 'lesson-mermaid-source';
+              fallback.textContent = node.dataset.originalSource || node.textContent || '';
+              node.replaceWith(fallback);
+            });
+          }
+        },
+
+        explainDiagramFromButton(button) {
+          const root = button.closest('[data-diagram-root="true"]');
+          if (!root || !this.detail?.id) return;
+          const visual = root.cloneNode(true);
+          visual.querySelectorAll('.lesson-diagram-toolbar, .lesson-diagram-guide, button, .code-header').forEach(element => element.remove());
+          const visibleLabels = Array.from(visual.querySelectorAll('svg text, svg tspan, figcaption, img[alt], img[title]'))
+            .map(element => element.tagName === 'IMG'
+              ? (element.getAttribute('alt') || element.getAttribute('title') || '')
+              : element.textContent)
+            .map(value => String(value || '').replace(/\s+/gu, ' ').trim())
+            .filter(Boolean);
+          const sourceText = String(visual.innerText || visual.textContent || '').replace(/\s+/gu, ' ').trim();
+          const kind = String(root.dataset.diagramType || 'schéma');
+          const nearbyText = sibling => {
+            const values = [];
+            let current = sibling;
+            while (current && values.length < 2) {
+              const textValue = String(current.innerText || current.textContent || '').replace(/\s+/gu, ' ').trim();
+              if (textValue && !current.classList?.contains('lesson-diagram-block')) values.push(textValue.slice(0, 500));
+              current = sibling === root.previousElementSibling ? current.previousElementSibling : current.nextElementSibling;
+            }
+            return values.join(' | ');
+          };
+          const previousContext = nearbyText(root.previousElementSibling);
+          const nextContext = nearbyText(root.nextElementSibling);
+          this.tutorMessages = [];
+          this.tutorSelectedText = [
+            'Type de représentation : ' + kind,
+            'Contenu source ou visible : ' + (sourceText || '(aucun texte directement visible)'),
+            'Libellés relevés : ' + (visibleLabels.join(', ') || '(aucun libellé accessible détecté)'),
+            'Explication voisine avant le schéma : ' + (previousContext || '(aucune)'),
+            'Explication voisine après le schéma : ' + (nextContext || '(aucune)'),
+          ].join('\n').slice(0, 3000);
+          const question = 'Explique précisément ce ' + kind + ' sélectionné, en français clair et par étapes. Commence par son objectif, nomme les éléments réellement présents, puis explique les relations et les flèches en t’appuyant sur le contexte fourni. Distingue ce que le dessin montre de ce qu’il ne permet pas de conclure. Donne un exemple concret de lecture et termine par une synthèse. N’invente aucune étiquette, connexion, donnée, direction de trafic ou fonction absente du schéma et du cours.';
+          return this.askTutorPreset(question);
         },
 
         // Corrige automatiquement le contraste du texte (HTML et SVG) selon le fond RÉEL de chaque élément :
@@ -2514,6 +2822,11 @@
         },
 
         onLessonClick(e) {
+          const diagramButton = e.target.closest('.btn-explain-diagram');
+          if (diagramButton) {
+            this.explainDiagramFromButton(diagramButton);
+            return;
+          }
           const btn = e.target.closest('.btn-copy');
           if (!btn) return;
           const pre = btn.closest('.code-container')?.querySelector('pre');
@@ -2528,21 +2841,42 @@
           const el = e.target;
           const max = el.scrollHeight - el.clientHeight;
           this.lessonProgress = max > 0 ? Math.min(100, Math.round((el.scrollTop / max) * 100)) : 0;
-          if (this.modalTab === 'lesson' && this.detail?.id && String(this.detail.id) === String(this.lastOpenedNodeId)) {
+          if (this.modalTab !== 'lesson' || !this.detail?.id) return;
+
+          const limit = el.getBoundingClientRect().top + 100;
+          let current = null;
+          el.querySelectorAll('.lesson-prose h2[id]').forEach(h => { if (h.getBoundingClientRect().top <= limit) current = h.id; });
+          this.activeSection = current || (this.lessonToc[0] ? this.lessonToc[0].id : '');
+
+          const activeHeading = this.activeSection ? document.getElementById(this.activeSection) : null;
+          const headingTop = activeHeading && el.contains(activeHeading)
+            ? activeHeading.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop
+            : 0;
+          const currentPosition = this.lessonPositions[String(this.detail.id)] || null;
+          const positionChanged = !currentPosition
+            || Math.abs(Number(currentPosition.scrollTop || 0) - el.scrollTop) >= 120
+            || Math.abs(Number(currentPosition.progress || 0) - this.lessonProgress) >= 2
+            || String(currentPosition.sectionId || '') !== String(this.activeSection || '');
+          if (positionChanged || this.lessonProgress === 0 || this.lessonProgress === 100) {
+            this.saveLessonPosition(this.detail.id, {
+              scrollTop: Math.round(el.scrollTop),
+              progress: this.lessonProgress,
+              sectionId: this.activeSection || '',
+              sectionOffset: Math.max(0, Math.round(el.scrollTop - headingTop)),
+            });
+          }
+
+          if (String(this.detail.id) === String(this.lastOpenedNodeId)) {
             const progress = this.lessonProgress;
             if (progress === 0 || progress === 100 || Math.abs(progress - this.lastLessonProgress) >= 2) {
               this.lastLessonProgress = progress;
               try { localStorage.setItem('skilltree-last-progress', String(progress)); } catch (e) { }
             }
           }
-          if (this.modalTab !== 'lesson') return;
-          const limit = el.getBoundingClientRect().top + 100;
-          let current = null;
-          el.querySelectorAll('.lesson-prose h2[id]').forEach(h => { if (h.getBoundingClientRect().top <= limit) current = h.id; });
-          this.activeSection = current || (this.lessonToc[0] ? this.lessonToc[0].id : '');
         },
 
         goToSection(id) {
+          this.startSectionSelection = String(id || '__resume__');
           const el = document.getElementById(id);
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
@@ -2560,10 +2894,16 @@
           const nodeKey = String(nodeId);
           const requestId = ++this._detailRequestId;
           const resumingSameLesson = nodeKey === String(this.lastOpenedNodeId || '');
+          const savedPosition = this.lessonPositions[nodeKey] || null;
           this.lastOpenedNodeId = nodeKey;
           this.lastOpenedNodeStatus = this.nodes.find(node => String(node.id) === nodeKey)?.status || '';
           this.detailRequestedNodeId = nodeKey;
-          if (!resumingSameLesson) this.lastLessonProgress = 0;
+          this.startSectionSelection = '__resume__';
+          if (savedPosition && Number.isFinite(Number(savedPosition.progress))) {
+            this.lastLessonProgress = Math.max(0, Math.min(100, Number(savedPosition.progress)));
+          } else if (!resumingSameLesson) {
+            this.lastLessonProgress = 0;
+          }
           try {
             localStorage.setItem('skilltree-last-node', nodeKey);
             if (this.lastOpenedNodeStatus) localStorage.setItem('skilltree-last-status', this.lastOpenedNodeStatus);
@@ -2612,15 +2952,12 @@
           } finally {
             if (requestId === this._detailRequestId) {
               this.detailLoading = false;
-              this.$nextTick(() => {
+              this.$nextTick(async () => {
+                if (requestId !== this._detailRequestId || !this.open || this.detailLoadError) return;
+                await this.renderLessonDiagrams();
                 if (requestId !== this._detailRequestId || !this.open || this.detailLoadError) return;
                 const s = this.$refs.modalScroll;
-                if (s) {
-                  const max = Math.max(0, s.scrollHeight - s.clientHeight);
-                  const progress = String(this.detail?.id || '') === String(this.lastOpenedNodeId || '') ? this.lastLessonProgress : 0;
-                  s.scrollTop = max > 0 ? Math.round(max * progress / 100) : 0;
-                  this.onLessonScroll({ target: s });
-                }
+                if (s) this.restoreLessonPosition(s, this.lessonPositions[String(this.detail?.id || '')] || null);
                 this.fixLessonContrast();
                 setTimeout(() => {
                   if (requestId === this._detailRequestId && this.open && !this.detailLoadError) this.fixLessonContrast();
@@ -2631,6 +2968,9 @@
         },
 
         close() {
+          if (this.open && this.modalTab === 'lesson' && this.$refs.modalScroll) {
+            this.onLessonScroll({ target: this.$refs.modalScroll });
+          }
           this._detailRequestId += 1;
           this.stopSpeech();
           this.open = false;
@@ -3007,7 +3347,27 @@
           const article = this.$refs.lessonArticle;
           if (!article) return '';
           const readable = article.cloneNode(true);
-          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
+          const requestedStart = this.startSectionSelection === '__top__'
+            ? ''
+            : (this.startSectionSelection && this.startSectionSelection !== '__resume__' ? this.startSectionSelection : this.activeSection);
+          if (requestedStart) {
+            const target = Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6')).find(heading => heading.id === requestedStart);
+            if (target) {
+              let current = target;
+              while (current && current.parentElement) {
+                const parent = current.parentElement;
+                let sibling = parent.firstChild;
+                while (sibling && sibling !== current) {
+                  const next = sibling.nextSibling;
+                  sibling.remove();
+                  sibling = next;
+                }
+                if (parent === readable) break;
+                current = parent;
+              }
+            }
+          }
+          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .lesson-diagram-toolbar, .code-header, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
 
           // Certains cours contiennent leur propre sommaire Markdown. Ne pas le réciter comme un paragraphe :
           // on retire uniquement les listes composées exclusivement de liens internes vers des titres.

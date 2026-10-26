@@ -65,6 +65,30 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.setTab(target, { skipHistory: true })", DASHBOARD_HTML)
         self.assertNotIn("createTextNode('.\\n')", DASHBOARD_HTML)
 
+    def test_course_reader_restores_position_per_course_and_allows_start_selection(self):
+        self.assertIn("skilltree-lesson-positions", DASHBOARD_HTML)
+        self.assertIn("loadLessonPositions()", DASHBOARD_HTML)
+        self.assertIn("saveLessonPosition(nodeId, position)", DASHBOARD_HTML)
+        self.assertIn("restoreLessonPosition(container, savedPosition = null)", DASHBOARD_HTML)
+        self.assertIn("startLessonAtSelection()", DASHBOARD_HTML)
+        self.assertIn('option value="__resume__">Reprendre où j’étais</option>', DASHBOARD_HTML)
+        self.assertIn('option value="__top__">Début du cours</option>', DASHBOARD_HTML)
+        self.assertIn("sectionOffset", DASHBOARD_HTML)
+        self.assertIn("const requestedStart = this.startSectionSelection === '__top__'", DASHBOARD_HTML)
+        self.assertIn("this.restoreLessonPosition(s, this.lessonPositions[String(this.detail?.id || '')] || null)", DASHBOARD_HTML)
+
+    def test_reader_guides_diagram_formats_and_requests_contextual_explanations(self):
+        self.assertIn("prepareLessonDiagrams(wrap)", DASHBOARD_HTML)
+        self.assertIn("className = 'lesson-mermaid'", DASHBOARD_HTML)
+        self.assertIn("async renderLessonDiagrams()", DASHBOARD_HTML)
+        self.assertIn("explainDiagramFromButton(button)", DASHBOARD_HTML)
+        self.assertIn("btn-explain-diagram", DASHBOARD_HTML)
+        self.assertIn("lesson-diagram-guide", DASHBOARD_HTML)
+        self.assertIn("graphviz", DASHBOARD_HTML)
+        self.assertIn("img[alt]", DASHBOARD_HTML)
+        self.assertIn("N’invente aucune étiquette, connexion, donnée, direction de trafic", DASHBOARD_HTML)
+        self.assertIn("await this.renderLessonDiagrams()", DASHBOARD_HTML)
+
     def test_mobile_search_dialog_uses_shared_search_state(self):
         self.assertIn('role="dialog" aria-modal="true" aria-labelledby="mobile-search-title"', DASHBOARD_HTML)
         self.assertIn('x-ref="mobileSearchBox"', DASHBOARD_HTML)
