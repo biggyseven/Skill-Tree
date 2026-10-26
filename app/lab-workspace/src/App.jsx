@@ -122,7 +122,7 @@ export default function App() {
   const topology = useLabStore(s => s.topology);
   const loading = useLabStore(s => s.loading);
   const error = useLabStore(s => s.error);
-  const [mobilePane, setMobilePane] = useState('canvas');
+  const [mobilePane, setMobilePane] = useState('brief');
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
