@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « ACL et filtrage avancé » : à rédiger après le cours complet.",
+      "prompt": "Quelle différence caractérise une ACL standard IPv4 classique par rapport à une ACL étendue ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Elle sélectionne toujours les ports TCP et UDP",
+        "Elle sélectionne principalement l'adresse source, alors que l'ACL étendue peut aussi filtrer destination, protocole et ports",
+        "Elle chiffre automatiquement les paquets",
+        "Elle est toujours évaluée après les ACL étendues"
+      ],
+      "answer": 1,
+      "explanation": "Une ACL standard classique est principalement fondée sur la source. Pour distinguer destination, protocole ou port, on utilise généralement une ACL étendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel wildcard correspond au masque de sous-réseau 255.255.255.0 dans la syntaxe Cisco IOS classique ?",
+      "choices": [
+        "255.255.255.0",
+        "0.0.0.0",
+        "0.0.0.255",
+        "255.255.255.255"
+      ],
+      "answer": 2,
+      "explanation": "Le wildcard est l'inverse du masque réseau : 255 devient 0 et 0 devient 255. Le wildcard 0.0.0.255 correspond à un bloc /24 aligné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il placer une règle de refus spécifique avant un permit ip any any ?",
+      "choices": [
+        "Parce qu'une ACL ne comporte jamais de refus implicite",
+        "Parce que permit ip any any correspond à presque tout le trafic IP et peut décider avant la règle située plus bas",
+        "Parce que any ne peut désigner aucune adresse",
+        "Parce que les ACL évaluent toujours les règles du bas vers le haut"
+      ],
+      "answer": 1,
+      "explanation": "Les ACL classiques sont évaluées de haut en bas et une correspondance prend la décision. Une autorisation générale avant le refus spécifique peut rendre ce refus inopérant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie ip access-group 100 in sur une interface de routeur Cisco IOS classique ?",
+      "choices": [
+        "Appliquer l'ACL 100 aux paquets qui entrent dans le routeur par cette interface",
+        "Autoriser tous les paquets sortants du routeur",
+        "Créer une ACL sans l'appliquer",
+        "Appliquer l'ACL uniquement au serveur Web"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le sens in est défini par rapport à l'interface : le paquet entre dans le routeur par cette interface. Il faut vérifier quelle zone est reliée à cette interface."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une ACL contient un seul permit tcp vers TCP/443. Que devient un paquet ne correspondant pas à cette entrée, dans une ACL IPv4 classique ?",
+      "choices": [
+        "Il est autorisé automatiquement",
+        "Il est chiffré",
+        "Il est redirigé vers DNS",
+        "Il est refusé par le refus implicite final"
+      ],
+      "answer": 3,
+      "explanation": "Une ACL IPv4 classique Cisco IOS comporte normalement un refus implicite final. Les autres flux nécessitent donc des entrées autorisantes s'ils doivent passer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type d'ACL convient pour refuser uniquement TCP/22 d'un sous-réseau vers un serveur précis ?",
+      "choices": [
+        "ACL standard classique seulement",
+        "ACL étendue, car elle peut sélectionner source, destination, protocole et port",
+        "Une ACL qui filtre uniquement les adresses MAC",
+        "Aucune ACL ne peut filtrer les ports"
+      ],
+      "answer": 1,
+      "explanation": "Une ACL étendue peut sélectionner l'adresse source, l'adresse destination, TCP et le port de destination 22, ce qui permet de viser SSH sans bloquer automatiquement tous les autres ports."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une ACL a été créée mais le trafic continue de passer. Quelle vérification est prioritaire ?",
+      "choices": [
+        "Masquer le SSID",
+        "Changer le DNS de tous les clients",
+        "Vérifier que l'ACL est attachée à la bonne interface et dans la bonne direction, et que le trafic passe par ce point",
+        "Supprimer la route par défaut immédiatement"
+      ],
+      "answer": 2,
+      "explanation": "La liste doit être appliquée à l'interface et dans le sens qui voient le trafic. Le chemin réel, les adresses et l'ordre des entrées doivent aussi être confirmés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve un compteur de correspondance nul pour une entrée ACL ?",
+      "choices": [
+        "Pas nécessairement que le trafic n'existe pas : le paquet peut ne pas arriver à cette ACL ou ne pas correspondre aux critères",
+        "Que l'ACL est parfaitement sécurisée",
+        "Que l'entrée autorise tout le trafic",
+        "Que le serveur est arrêté avec certitude"
+      ],
+      "answer": 0,
+      "explanation": "Un compteur nul peut refléter l'absence de test, un autre chemin, des critères erronés ou une remise à zéro du compteur. Il faut examiner la topologie et reproduire un test contrôlé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur IPv4 et IPv6 est correcte ?",
+      "choices": [
+        "Une ACL IPv4 protège automatiquement tous les flux IPv6",
+        "IPv6 ne nécessite jamais de filtrage",
+        "Les ACL IPv4 bloquent tous les tunnels par défaut",
+        "La politique IPv4 ne contrôle pas automatiquement IPv6 ; les deux piles doivent être vérifiées si elles sont utilisées"
+      ],
+      "answer": 3,
+      "explanation": "Les règles et commandes IPv4 ne s'appliquent pas automatiquement à IPv6. Il faut inventorier les adresses et routes IPv6 puis vérifier la politique correspondante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d'attacher une ACL restrictive sur un routeur administré à distance, que faut-il faire ?",
+      "choices": [
+        "Effacer la configuration actuelle",
+        "Préparer une sauvegarde, un accès de secours et un retour arrière, puis tester la règle",
+        "Ajouter permit ip any any avant toutes les règles",
+        "Ignorer les flux de gestion"
+      ],
+      "answer": 1,
+      "explanation": "Une ACL incorrecte peut couper la session d'administration. Sauvegarde, accès de secours, tests de validation et retour arrière réduisent le risque opérationnel."
     }
   ]
 }
