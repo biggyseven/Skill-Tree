@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Reverse Proxy et Load Balancing",
+      "prompt": "Que fait un reverse proxy dans une architecture Web ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il se place côté client pour contrôler les connexions sortantes uniquement",
+        "Il remplace la base de données par un cache DNS",
+        "Il reçoit les requêtes des clients puis les transmet à l’application ou au serveur amont approprié",
+        "Il distribue les adresses IP par DHCP"
+      ],
+      "answer": 2,
+      "explanation": "Le reverse proxy se place devant un ou plusieurs serveurs applicatifs et peut gérer le routage HTTP, la terminaison TLS et la répartition de charge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel exemple décrit un proxy direct (forward proxy) ?",
+      "choices": [
+        "Un proxy utilisé par les clients pour accéder à des services externes selon une politique de sortie",
+        "Un serveur placé devant les applications pour répartir les requêtes entrantes",
+        "Un démon qui distribue les certificats aux serveurs",
+        "Un service qui traduit les noms DNS en adresses IP"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le proxy direct agit généralement au nom des clients pour leurs connexions sortantes. Le reverse proxy représente plutôt le côté serveur auprès des clients entrants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quelle condition est-il raisonnable de faire confiance à l’en-tête `X-Forwarded-For` pour déterminer l’adresse d’origine ?",
+      "choices": [
+        "Toujours, quel que soit l’expéditeur",
+        "Uniquement si le client utilise HTTPS",
+        "Seulement si la valeur est la première adresse après la virgule",
+        "Lorsque l’en-tête est posé/normalisé par un proxy de confiance et que la chaîne de proxies est interprétée selon une politique définie"
+      ],
+      "answer": 3,
+      "explanation": "Un client peut envoyer lui-même cet en-tête. Le proxy doit le reconstruire ou le traiter selon une chaîne de confiance, sinon les journaux et règles basées sur l’adresse peuvent être trompés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but d’un groupe `upstream` ou d’un pool de serveurs amont dans Nginx ?",
+      "choices": [
+        "Déclarer les comptes Linux autorisés à se connecter",
+        "Définir les serveurs applicatifs entre lesquels le proxy peut distribuer des requêtes",
+        "Décrire les serveurs DNS autoritaires du domaine",
+        "Générer les certificats TLS automatiquement dans tous les cas"
+      ],
+      "answer": 1,
+      "explanation": "Un groupe amont rassemble les endpoints des applications. Nginx peut ensuite acheminer les requêtes vers ceux-ci selon sa configuration de répartition."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Nginx renvoie 502 alors que le nom du site résout correctement. Quel diagnostic prioritaire convient ?",
+      "choices": [
+        "Supprimer toutes les règles de pare-feu sans analyse",
+        "Réinstaller le navigateur client",
+        "Vérifier que le service amont écoute au bon endpoint, sa disponibilité, les journaux du proxy et les délais de connexion",
+        "Changer le nom de domaine public immédiatement"
+      ],
+      "answer": 2,
+      "explanation": "La résolution DNS du site ne prouve pas que le proxy peut joindre l’application. Vérifie l’adresse et le port amont, le socket éventuel, le filtrage et les journaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier lorsqu’on termine TLS au reverse proxy et que l’application continue en HTTP vers l’amont ?",
+      "choices": [
+        "Le niveau de protection du réseau proxy-amont et la sensibilité des données, car le segment interne n’est pas chiffré par ce seul dispositif",
+        "Le fait que tous les clients utilisent le même navigateur",
+        "Que le serveur amont n’a aucune journalisation",
+        "Que DNS désactive les certificats du proxy"
+      ],
+      "answer": 0,
+      "explanation": "La terminaison TLS protège le trajet client-proxy. Le trajet proxy-amont doit être évalué séparément et peut nécessiter TLS, segmentation ou d’autres mesures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avec Nginx Open Source, quelle approche peut retirer temporairement de la rotation un serveur amont qui échoue de façon répétée ?",
+      "choices": [
+        "Le rendre le serveur DNS primaire",
+        "Désactiver tous les timeouts",
+        "Activer un module commercial sans vérifier la version installée",
+        "Configurer les mécanismes de contrôle passif disponibles, comme `max_fails` et `fail_timeout`, puis valider le comportement observé"
+      ],
+      "answer": 3,
+      "explanation": "Nginx Open Source prend en charge certains mécanismes de détection passive d’échecs. Les contrôles actifs intégrés ont des exigences de version/édition différentes ; il faut vérifier la plateforme réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les réponses générées par l’application contiennent des redirections vers un nom interne inaccessible au client. Que faut-il examiner en premier ?",
+      "choices": [
+        "Le nombre de groupes Unix du navigateur",
+        "Les en-têtes `Host` et de transfert de protocole envoyés à l’amont, ainsi que la configuration des URLs publiques de l’application",
+        "Les serveurs NTP du poste uniquement",
+        "La taille des fichiers de sauvegarde du proxy"
+      ],
+      "answer": 1,
+      "explanation": "Les applications peuvent générer des URLs à partir des en-têtes reçus. Le proxy et l’application doivent gérer correctement le nom d’hôte et le protocole d’origine, sans faire confiance à des en-têtes arbitraires."
     }
   ]
 }
