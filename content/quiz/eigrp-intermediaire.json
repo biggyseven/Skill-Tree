@@ -1,4 +1,102 @@
-{"node_id":"eigrp-intermediaire","scope":"quiz","questions":[
-  {"type":"qcm","prompt":"Que signifie la Condition de Faisabilité (Feasibility Condition) dans EIGRP ?","choices":["La RD du voisin est strictement inférieure à la FD locale","La FD du voisin est strictement inférieure à la RD locale","La métrique est égale à zéro","Le voisin est en état actif"],"answer":0,"explanation":"La FC stipule que pour être Feasible Successor, la Reported Distance (RD) du voisin doit être inférieure à la Feasible Distance (FD) locale. Cela garantit l'absence de boucle."},
-  {"type":"qcm","prompt":"Quel mode de configuration EIGRP permet de gérer IPv4 et IPv6 dans le même processus ?","choices":["Classic Mode","Named Mode","Stub Mode","Passive Mode"],"answer":1,"explanation":"Le Named Mode (ex: router eigrp PROD) permet de configurer plusieurs address-family (IPv4, IPv6) au sein d'un même processus EIGRP."}
-]}
+{
+  "node_id": "eigrp-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle condition de faisabilité EIGRP permet de qualifier une route annoncée par un voisin de Feasible Successor ?",
+      "choices": [
+        "La FD locale doit être égale à zéro",
+        "La distance annoncée par le voisin doit être supérieure à la FD locale",
+        "La Reported Distance (RD) du voisin doit être strictement inférieure à la Feasible Distance (FD) locale",
+        "Le voisin doit obligatoirement être dans le même VLAN de gestion"
+      ],
+      "answer": 2,
+      "explanation": "La condition de faisabilité est satisfaite si la RD annoncée par le voisin est inférieure à la FD locale mémorisée pour cette destination. C’est une condition suffisante de chemin sans boucle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage offre le mode nommé EIGRP sur les versions compatibles ?",
+      "choices": [
+        "Il élimine le besoin de toute adresse IP",
+        "Il permet d’organiser la configuration dans une hiérarchie et de configurer différentes address-family, par exemple IPv4 et IPv6, selon le support logiciel",
+        "Il transforme EIGRP en protocole à état de liens",
+        "Il rend tous les préfixes automatiquement résumés"
+      ],
+      "answer": 1,
+      "explanation": "Le mode nommé regroupe la configuration dans un processus hiérarchique et permet plusieurs address-family dans les versions qui le prennent en charge. Les commandes disponibles dépendent de la plateforme et de la version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un Successor EIGRP pour une destination ?",
+      "choices": [
+        "Le voisin DNS qui résout le nom de destination",
+        "Le routeur qui possède le numéro d’AS le plus élevé",
+        "Le voisin qui n’a jamais annoncé de route",
+        "Le prochain saut retenu pour le meilleur chemin admissible vers cette destination"
+      ],
+      "answer": 3,
+      "explanation": "Le Successor est le prochain saut utilisé pour transférer le trafic vers la destination. Un Feasible Successor est un voisin alternatif qui satisfait la condition de faisabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la commande `variance` ne suffit-elle pas, à elle seule, à garantir que toute route alternative sera utilisée ?",
+      "choices": [
+        "Parce que les chemins doivent aussi répondre aux critères d’éligibilité et de faisabilité EIGRP et au seuil de métrique configuré",
+        "Parce que `variance` désactive la table de topologie",
+        "Parce qu’elle ne fonctionne que pour STP",
+        "Parce qu’elle force les voisins à avoir des adresses IP identiques"
+      ],
+      "answer": 0,
+      "explanation": "Variance permet d’envisager le partage inégal, mais le chemin doit rester admissible selon les règles EIGRP, notamment la condition de faisabilité dans les scénarios concernés, et respecter le multiplicateur de métrique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un résumé de routes EIGRP est-il souvent associé à une route de rejet ou à un traitement équivalent sur l’équipement qui résume ?",
+      "choices": [
+        "Pour augmenter la priorité DR",
+        "Pour réduire le nombre de voisins DNS",
+        "Pour éviter que du trafic vers des sous-réseaux absents inclus dans le résumé ne boucle ou ne parte vers un chemin inapproprié",
+        "Pour remplacer les BPDUs"
+      ],
+      "answer": 2,
+      "explanation": "Un résumé peut annoncer un agrégat qui couvre aussi des sous-réseaux absents. Une route de rejet, souvent vers Null0 selon la plateforme, évite que ce trafic ne soit renvoyé vers une route par défaut ou un autre chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle conséquence peut avoir une configuration passive d’interface EIGRP ?",
+      "choices": [
+        "Elle convertit automatiquement toutes les routes en routes statiques",
+        "Elle empêche la formation d’adjacences EIGRP sur l’interface tout en permettant, selon la configuration, l’annonce du réseau par d’autres interfaces",
+        "Elle force l’interface à devenir un Successor",
+        "Elle change les K-values de tous les voisins"
+      ],
+      "answer": 1,
+      "explanation": "Une interface passive ne forme pas de voisinage EIGRP sur ce lien. Le préfixe peut toutefois rester annoncé selon la configuration globale et les autres interfaces actives du processus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle vérification est particulièrement utile si deux routeurs EIGRP ont une connectivité IP mais ne deviennent pas voisins ?",
+      "choices": [
+        "Comparer uniquement leurs noms d’hôtes DNS",
+        "Vérifier seulement la taille de la table ARP",
+        "Changer directement le numéro de VLAN",
+        "Comparer l’AS/processus, les K-values, l’activation EIGRP sur l’interface et les paramètres d’authentification éventuels"
+      ],
+      "answer": 3,
+      "explanation": "Un ping réussi ne garantit pas le voisinage de routage. L’AS, les K-values, les paramètres de l’interface, les filtres et l’authentification doivent être compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal objectif de la fonction de synthèse de routes dans un domaine de routage ?",
+      "choices": [
+        "Réduire le nombre de préfixes annoncés et structurer les frontières de routage, au prix d’un examen des trous noirs potentiels",
+        "Garantir que les routes ne pourront jamais tomber en panne",
+        "Remplacer l’adressage CIDR",
+        "Supprimer toute route de secours"
+      ],
+      "answer": 0,
+      "explanation": "Le résumé réduit le nombre de préfixes et peut structurer le domaine de routage. Il faut vérifier l’agrégat, les préfixes réels et les routes de rejet afin d’éviter d’attirer le trafic vers des destinations inexistantes."
+    }
+  ]
+}
