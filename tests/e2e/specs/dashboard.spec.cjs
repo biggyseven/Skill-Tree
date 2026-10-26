@@ -251,10 +251,10 @@ test('les ports peuvent être reliés même lorsque les deux handles sont du mê
   await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
 
-  const edges = page.locator('.react-flow__edge');
+  const edges = page.locator('.react-flow__edge-path');
   await expect(edges).toHaveCount(1);
-  const source = page.locator('.react-flow__node[data-id="R1"] .react-flow__handle[data-handleid="Fa0/1"]').first();
-  const target = page.locator('.react-flow__node[data-id="R2"] .react-flow__handle[data-handleid="Fa0/1"]').first();
+  const source = page.locator('.react-flow__node[data-id="R1"] .react-flow__handle.source[data-handleid="Fa0/1"]').first();
+  const target = page.locator('.react-flow__node[data-id="R2"] .react-flow__handle.target[data-handleid="Fa0/1"]').first();
   await expect(source).toBeVisible();
   await expect(target).toBeVisible();
 
