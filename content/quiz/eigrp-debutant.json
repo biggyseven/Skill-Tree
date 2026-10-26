@@ -1,9 +1,102 @@
-{"node_id":"eigrp-debutant","scope":"quiz","questions":[
-  {"type":"qcm","prompt":"Que signifie l'acronyme EIGRP ?","choices":["Enhanced Interior Gateway Routing Protocol","Exterior Interior Gateway Routing Protocol","Enhanced Interdomain Gateway Routing Protocol","Exterior Interdomain Gateway Protocol"],"answer":0,"explanation":"EIGRP signifie Enhanced Interior Gateway Routing Protocol."},
-  {"type":"qcm","prompt":"Quels composants de métrique sont utilisés par défaut dans EIGRP ?","choices":["Bandwidth and delay","Bandwidth, delay, reliability, load","Only bandwidth","Only delay"],"answer":0,"explanation":"Par défaut, EIGRP utilise la bande passante et le délai pour calculer la métrique."},
-  {"type":"qcm","prompt":"Quelle commande active EIGRP sur un routeur Cisco ?","choices":["router eigrp 100","router eigrp","router eigrp autonomous-system","router eigrp enable"],"answer":0,"explanation":"La syntaxe correcte est 'router eigrp <numéro_AS>', par exemple 'router eigrp 100'."},
-  {"type":"qcm","prompt":"Quel est le but de la commande 'variance' dans EIGRP ?","choices":["Allow load balancing over unequal-cost paths","Increase metric calculation speed","Disable route summarization","Enable stub routing"],"answer":0,"explanation":"'variance' permet le load balancing sur des chemins de coût inégal."},
-  {"type":"qcm","prompt":"Dans EIGRP, à quoi fait référence le terme 'DUAL' ?","choices":["Diffusing Update Algorithm","Dynamic Unicast Address List","Distributed User Access Layer","Dual Interface Access List"],"answer":0,"explanation":"DUAL signifie Diffusing Update Algorithm, utilisé pour le calcul du meilleur chemin."},
-  {"type":"qcm","prompt":"Quelle commande affiche les voisins EIGRP ?","choices":["show ip eigrp neighbors","show ip eigrp topology","show ip eigrp interfaces","show ip eigrp summary"],"answer":0,"explanation":"La commande 'show ip eigrp neighbors' liste les voisins EIGRP."},
-  {"type":"qcm","prompt":"Quel est l'effet de la commande 'eigrp stub' ?","choices":["Limits the routes advertised by the router","Enables EIGRP on a stub network","Disables EIGRP on the router","Increases the metric calculation speed"],"answer":0,"explanation":"'eigrp stub' restreint les routes annoncées par le routeur, utile pour les zones de bout."}
-]}
+{
+  "node_id": "eigrp-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’acronyme EIGRP ?",
+      "choices": [
+        "Exterior Interior Gateway Protocol",
+        "Enhanced Interdomain Gateway Protocol",
+        "Exterior Interdomain Gateway Protocol",
+        "Enhanced Interior Gateway Routing Protocol"
+      ],
+      "answer": 3,
+      "explanation": "EIGRP signifie Enhanced Interior Gateway Routing Protocol. Il est principalement utilisé comme protocole de routage interne et est documenté notamment dans la RFC 7868."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels composants déterminent normalement la métrique composite EIGRP par défaut avec les K-values par défaut ?",
+      "choices": [
+        "La bande passante et le délai",
+        "La charge et la fiabilité uniquement",
+        "Le nombre de sauts uniquement",
+        "Le coût STP et le Router ID OSPF"
+      ],
+      "answer": 0,
+      "explanation": "Avec les K-values par défaut courantes, la métrique EIGRP utilise la bande passante minimale du chemin et le délai cumulé. Les K-values doivent être compatibles entre voisins."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande de base configure un processus EIGRP classique avec l’AS 100 sous Cisco IOS traditionnel ?",
+      "choices": [
+        "`router ospf 100`",
+        "`router eigrp 100`",
+        "`eigrp start 100`",
+        "`ip route eigrp 100`"
+      ],
+      "answer": 1,
+      "explanation": "Dans le mode classique Cisco IOS, `router eigrp 100` démarre le processus avec le numéro d’AS 100. La syntaxe du mode nommé et les commandes disponibles varient selon la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement `variance` en EIGRP lorsque la plateforme et la configuration le permettent ?",
+      "choices": [
+        "À désactiver DUAL",
+        "À augmenter la valeur du Root Bridge",
+        "À autoriser l’utilisation de certains chemins admissibles à coût inégal, dans le seuil de métrique configuré",
+        "À transformer EIGRP en protocole BGP"
+      ],
+      "answer": 2,
+      "explanation": "Variance permet le partage de charge à coût inégal lorsque les chemins respectent les conditions d’éligibilité et les limites du multiplicateur configuré. Elle ne rend pas automatiquement utilisable toute route de la topologie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie DUAL dans EIGRP ?",
+      "choices": [
+        "Dynamic Unicast Address List",
+        "Distributed User Access Layer",
+        "Dual Interface Access List",
+        "Diffusing Update Algorithm"
+      ],
+      "answer": 3,
+      "explanation": "DUAL signifie Diffusing Update Algorithm. Il assure la sélection des chemins et la convergence en appliquant des mécanismes conçus pour éviter les boucles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur Cisco IOS classique pour IPv4, quelle commande montre les voisins EIGRP ?",
+      "choices": [
+        "`show ip eigrp neighbors`",
+        "`show ip bgp summary`",
+        "`show spanning-tree`",
+        "`show ip dhcp binding`"
+      ],
+      "answer": 0,
+      "explanation": "`show ip eigrp neighbors` affiche les voisins EIGRP connus. Une table vide invite à vérifier la configuration, les interfaces, l’AS et les paramètres de voisinage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi configure-t-on souvent EIGRP stub sur un routeur de branche ?",
+      "choices": [
+        "Pour transformer le routeur en serveur DHCP",
+        "Pour désactiver tous les préfixes connectés",
+        "Pour empêcher l’établissement d’une adjacency avec son voisin",
+        "Pour limiter la portée des requêtes de routes et indiquer qu’un routeur de périphérie n’est pas censé fournir des chemins de transit"
+      ],
+      "answer": 3,
+      "explanation": "EIGRP stub aide à limiter la propagation des requêtes vers des routeurs de branche qui ne servent pas de transit. Les catégories de routes annoncées dépendent des options stub configurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel numéro de protocole IP est utilisé par EIGRP, qui ne s’appuie pas sur TCP 179 pour ses paquets de routage ?",
+      "choices": [
+        "TCP 179",
+        "Le numéro de protocole IP 88",
+        "UDP 67",
+        "TCP 443"
+      ],
+      "answer": 1,
+      "explanation": "EIGRP utilise le numéro de protocole IP 88 et n’est pas transporté sur TCP 179, qui est le port BGP."
+    }
+  ]
+}
