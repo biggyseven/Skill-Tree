@@ -125,7 +125,7 @@ function ruleSatisfied(topology, rule) {
 test('les séquences CLI de chacun des 17 labs satisfont leurs assertions serveur après exécution réelle', () => {
   for (const scenarioId of SCENARIO_IDS) {
     const scenario = JSON.parse(readFileSync(new URL(`../../../../labs_v2/${scenarioId}.json`, import.meta.url), 'utf8'));
-    const targetMatch = scenario.hints.find(item => /^Cible CLI\\s*:/i.test(item))?.match(/^Cible CLI\\s*:\\s*([^.]+)\\./i);
+    const targetMatch = scenario.hints.find(item => /^Cible CLI\s*:/i.test(item))?.match(/^Cible CLI\s*:\s*([^.]+)\./i);
     assert.ok(targetMatch, `${scenarioId}: cible CLI absente ou invalide`);
     const defaultTarget = targetMatch[1].trim();
     const commandsHints = scenario.hints.filter(item =>
@@ -137,11 +137,11 @@ test('les séquences CLI de chacun des 17 labs satisfont leurs assertions serveu
 
     for (const commandsHint of commandsHints) {
       const body = commandsHint
-        .replace(/^(?:Séquence|Solution) de référence(?: \\(à consulter en dernier\\))?\\s*:\\s*/, '')
-        .replace(/\\.$/, '');
+        .replace(/^(?:Séquence|Solution) de référence(?: \(à consulter en dernier\))?\s*:\s*/, '')
+        .replace(/\.$/, '');
       const sections = body.includes(' || ')
         ? body.split(' || ').map(section => {
-            const match = section.match(/^([A-Za-z0-9_-]+)\\s*=>\\s*(.*)$/);
+            const match = section.match(/^([A-Za-z0-9_-]+)\s*=>\s*(.*)$/);
             assert.ok(match, `${scenarioId}: section multi-équipement invalide : ${section}`);
             return { target: match[1], commands: match[2] };
           })
@@ -153,7 +153,7 @@ test('les séquences CLI de chacun des 17 labs satisfont leurs assertions serveu
         );
         assert.ok(device, `${scenarioId}: équipement cible ${section.target} absent`);
         const parser = new CLIParser(device);
-        const commands = section.commands.split(/\\s;\\s/);
+        const commands = section.commands.split(/\s;\s/);
         for (const command of commands) {
           const result = parser.execute(command);
           assert.doesNotMatch(result.output || '', /^% (?:Invalid|Interface not found|Class not found)/,
