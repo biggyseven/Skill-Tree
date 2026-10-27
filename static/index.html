@@ -4764,23 +4764,45 @@
             table.replaceWith(fragment);
           });
 
-          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .lesson-diagram-toolbar, .lesson-diagram-guide, .code-header, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
+          // Préserver le code en ligne (commandes, options et protocoles), mais retirer les blocs de code.
+          readable.querySelectorAll('code').forEach(code => {
+            if (code.closest('pre')) return;
+            code.replaceWith(readable.ownerDocument.createTextNode(code.textContent || ''));
+          });
+          readable.querySelectorAll('pre, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .lesson-diagram-toolbar, .lesson-diagram-guide, .code-header, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
 
           // Certains cours contiennent leur propre sommaire Markdown. Ne pas le réciter comme un paragraphe :
           // on retire uniquement les listes composées exclusivement de liens internes vers des titres.
-          const courseHeadingIds = new Set(Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(heading => heading.id).filter(Boolean));
-          readable.querySelectorAll('ul, ol').forEach(list => {
-            const items = Array.from(list.children).filter(item => item.tagName === 'LI');
-            if (!items.length) return;
-            const isContentsList = items.every(item => {
-              const links = Array.from(item.querySelectorAll('a'));
+          const courseHeadings = Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+          const courseHeadingIds = new Set(courseHeadings.map(heading => heading.id).filter(Boolean));
+          // Reconnaître aussi les sommaires imbriqués : les liens d'une sous-liste
+          // ne doivent pas faire passer le sommaire complet pour une liste pédagogique.
+          const isContentsList = list => {
+            const items = Array.from(list.children);
+            if (!items.length || items.some(item => item.tagName !== 'LI')) return false;
+            return items.every(item => {
+              const children = Array.from(item.children);
+              const nestedLists = children.filter(child => child.tagName === 'UL' || child.tagName === 'OL');
+              const directLinks = children.filter(child => child.tagName === 'A');
+              const wrappedLinks = children
+                .filter(child => child.tagName === 'P')
+                .flatMap(paragraph => Array.from(paragraph.children).filter(child => child.tagName === 'A'));
+              const links = directLinks.length ? directLinks : wrappedLinks;
               if (links.length !== 1) return false;
-              const href = links[0].getAttribute('href') || '';
+              const link = links[0];
+              const href = link.getAttribute('href') || '';
               if (!href.startsWith('#')) return false;
-              const label = links[0].textContent.trim();
-              return courseHeadingIds.has(href.slice(1)) || Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6')).some(heading => heading.textContent.trim() === label);
+              const label = link.textContent.trim();
+              const pointsToHeading = courseHeadingIds.has(href.slice(1))
+                || courseHeadings.some(heading => heading.textContent.trim() === label);
+              if (!pointsToHeading || !nestedLists.every(isContentsList)) return false;
+              const remainder = item.cloneNode(true);
+              remainder.querySelectorAll('a, ul, ol').forEach(node => node.remove());
+              return !remainder.textContent.trim();
             });
-            if (!isContentsList) return;
+          };
+          readable.querySelectorAll('ul, ol').forEach(list => {
+            if (!isContentsList(list)) return;
             const heading = list.previousElementSibling;
             list.remove();
             if (heading && /^H[1-6]$/.test(heading.tagName) && /^(sommaire|table des matières|table des matieres|plan du cours)$/iu.test(heading.textContent.trim())) heading.remove();
@@ -4817,7 +4839,8 @@
             if (!title) return;
             const label = depth === 1 ? 'Titre du cours' : (depth === 2 ? 'Section' : 'Sous-section');
             const spokenHeading = readable.ownerDocument.createElement('p');
-            spokenHeading.textContent = label + ' : ' + title.replace(/[.!?…:;]+$/u, '') + '.';
+            const spokenTitle = /[.!?…;:]$/u.test(title) ? title : title + '.';
+            spokenHeading.textContent = label + ' : ' + spokenTitle;
             heading.replaceWith(spokenHeading);
           });
 
@@ -4834,9 +4857,8 @@
 
             // À l'oral, les flèches d'un parcours expriment une progression, pas un symbole à lire.
             value = value.replace(/\s*→\s*/gu, ', puis ').replace(/[ \t]+/gu, ' ').trim();
-            value = value.replace(/[,:;]+\s*$/u, '').trim();
             value = value.replace(/^([a-zà-ÿ])/u, letter => letter.toLocaleUpperCase('fr-FR'));
-            if (!/[.!?…]$/u.test(value)) value += '.';
+            if (!/[.!?…,:;]$/u.test(value)) value += '.';
 
             const spokenLabel = readable.ownerDocument.createElement('p');
             spokenLabel.textContent = label + '.';
