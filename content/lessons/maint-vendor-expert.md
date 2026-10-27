@@ -314,6 +314,50 @@ Les achats commencent la consultation deux semaines avant l'échéance. La dépe
 
 **Correction attendue.** Une solution experte ne se contente pas de choisir une option ; elle compare les scénarios, fixe les critères avant le résultat, documente les responsabilités et signale les informations manquantes. Elle prévoit les conditions d'arrêt, les mesures temporaires, la communication, les dépendances et la vérification de fin. Le plan d'action est réaliste, ses résultats sont mesurables et le risque résiduel est soumis à une personne habilitée.
 
+
+## Scorecard fournisseur, registre de risques et revue trimestrielle
+
+Le pilotage fournisseur nécessite un jeu cohérent de données et une méthode de revue. La scorecard doit associer engagements contractuels et indicateurs de pilotage, sans attribuer automatiquement une pénalité à une mesure non contractualisée. Les chiffres sont préparés avant la réunion, rapprochés avec les sources et présentés avec les exceptions ; la réunion est consacrée aux causes, arbitrages, risques et actions plutôt qu'à la lecture des tableaux.
+
+### Modèle de scorecard
+
+| Domaine | Mesure possible | Source de vérification | Décision associée |
+|---|---|---|---|
+| Service | Disponibilité définie par le contrat | Supervision et méthode de calcul validée | Plan de remédiation, crédit ou revue selon le contrat |
+| Résolution | Temps par classe de criticité et percentiles | Tickets et chronologie rapprochés | Analyse des goulots et ressources |
+| Qualité | Taux de réouverture et incidents récurrents | Tickets et échantillon de clôtures | Revoir la validation et les actions |
+| Changements | Changements réussis, incidents post-déploiement, preuves de test | Registre de changement et systèmes | Renforcer la recette ou le contrôle |
+| Sécurité | Actions en retard, accès revus, incidents notifiés selon les obligations applicables | Registre sécurité et preuves autorisées | Escalade, mitigation et revue de risque |
+| Continuité | Tests, dépendances, capacité et résultats de reprise | Exercices et comptes rendus | Exiger une preuve ou corriger le PRA |
+| Commercial | TCO, consommation, écarts de facturation, indexation | Contrat, factures et volumes | Corriger la facture ou arbitrer un changement |
+| Collaboration | Délais de réponse, qualité des livrables et stabilité des interlocuteurs | Registre de demandes et retours validés | Plan de service et transfert de connaissances |
+
+La scorecard doit éviter un score unique qui cache un risque critique. Un résultat global vert ne compense pas automatiquement une notification de sécurité manquante ou un test de continuité jamais réalisé. Afficher les seuils contractuels, les objectifs internes et les limites de couverture dans des colonnes distinctes. Les exceptions et les données non disponibles sont visibles au même titre que les résultats.
+
+### Registre de risques fournisseur
+
+Pour chaque risque, consigner le scénario, le service et les données concernés, les causes possibles, la probabilité, l'impact, les contrôles existants, les preuves, le risque résiduel, les mesures, le propriétaire et la prochaine revue. Évaluer les risques directs et les dépendances communes : fournisseurs cloud, opérateurs télécoms, fabricants, sous-traitants et services d'identité. La défaillance d'un fournisseur primaire peut être aggravée par un sous-traitant utilisé par plusieurs partenaires.
+
+Ne pas traiter une attestation ou certification comme une preuve universelle. Vérifier la portée, la période, les services, les sites, les exceptions, les sous-traitants et les changements depuis la date de la preuve. Si un fournisseur ne donne pas accès à certaines informations sensibles, convenir de modalités de contrôle raisonnables ou documenter la limitation ; l'absence de visibilité doit entrer dans le risque résiduel.
+
+### Agenda d'une revue trimestrielle
+
+1. Confirmer le périmètre et les modifications depuis la revue précédente.
+2. Examiner les SLA/KPI, leur qualité de données, les exceptions et les écarts.
+3. Revoir les incidents majeurs, les récidives et les changements ayant eu un effet sur le service.
+4. Vérifier les actions, les échéances, les preuves d'implémentation et les tests d'efficacité.
+5. Examiner les risques de sous-traitance, de continuité, de sécurité, de concentration et de coût.
+6. Décider des actions, de l'escalade, des mesures temporaires et des responsabilités.
+7. Revoir les évolutions de contrat, les capacités futures, les coûts et la date de renouvellement.
+8. Confirmer le compte rendu, le propriétaire de chaque action et le prochain point de contrôle.
+
+### Exemple de décision en cas de performance dégradée
+
+Un fournisseur respecte 98 % des délais d'accusé de réception, mais le temps de rétablissement des services critiques augmente depuis deux trimestres. Une conclusion « fournisseur performant » tirée du seul accusé de réception serait incomplète. Il faut segmenter le parcours entre détection, prise en charge, diagnostic, attente de pièce, action et validation. Si le fournisseur attend l'accès ou une approbation interne, une action conjointe est nécessaire ; si les délais de pièce sont sous sa responsabilité, le plan devra contenir des mesures de stock, de logistique ou de substitution.
+
+Le plan d'amélioration doit fixer une période de mesure, une population comparable, les sources, les actions de chaque partie et le critère d'efficacité. Les engagements de résultat qui ne figurent pas au contrat peuvent servir d'objectif de travail, mais les conséquences contractuelles s'appliquent uniquement selon les clauses et règles valides. Le but est d'améliorer le service et d'établir une décision défendable avant le renouvellement.
+
+
 ## Ressources techniques et références
 
 - [UK Government — The Sourcing Playbook](https://www.gov.uk/government/publications/the-sourcing-and-consultancy-playbooks)
