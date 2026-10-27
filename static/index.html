@@ -4173,6 +4173,38 @@
           const title = caption ? 'Tableau : ' + caption + '.' : 'Tableau de données.';
           return this.speechTextFromTabularRows(headers, dataRows, title);
         },
+        isSpeechNetworkEquipment(value) {
+          const label = this.cleanSpeechVisualText(String(value || ''));
+          if (!label) return false;
+          const equipmentWords = /\b(?:routeur|router|switch|commutateur|pare[\s-]?feu|firewall|serveur|server|client|ordinateur|computer|poste(?: de travail)?|point d['’ ]?acc[eè]s|access point|borne wi[\s-]?fi|modem|passerelle|gateway|spine|leaf|hub|bridge|nas|imprimante|printer|proxy|load balancer|équilibreur)\b/iu;
+          const equipmentId = /^(?:pc|sw|s|r|rt|rtr|fw|ap|srv|gw|h|nas|esx|esxi|spine|leaf)[\s_-]*\d+[a-z]?$/iu;
+          return equipmentWords.test(label) || equipmentId.test(label);
+        },
+        speechNetworkInventory(equipmentLabels, connectionCount) {
+          const counts = new Map();
+          (Array.isArray(equipmentLabels) ? equipmentLabels : []).forEach(value => {
+            const label = this.cleanSpeechVisualText(String(value || ''));
+            if (!label) return;
+            const key = label.toLocaleLowerCase('fr-FR');
+            const current = counts.get(key) || { label, count: 0 };
+            current.count += 1;
+            counts.set(key, current);
+          });
+          const equipmentCount = Array.from(counts.values()).reduce((sum, item) => sum + item.count, 0);
+          const equipmentList = Array.from(counts.values())
+            .map(item => item.count > 1 ? item.label + ' (' + item.count + ')' : item.label)
+            .join(', ');
+          const linkCount = Math.max(0, Number(connectionCount) || 0);
+          const equipmentText = equipmentCount === 1 ? '1 équipement identifiable' : equipmentCount + ' équipements identifiables';
+          const linkText = linkCount === 1
+            ? '1 liaison directe identifiable entre équipements'
+            : linkCount + ' liaisons directes identifiables entre équipements';
+          const cableText = linkCount === 1 ? '1 câble physique' : linkCount + ' câbles physiques';
+          return 'Inventaire du schéma : ' + equipmentText
+            + (equipmentList ? ' (' + equipmentList + ')' : '')
+            + ' et ' + linkText + '. Cela représente ' + cableText
+            + ' uniquement si chaque liaison est physique ; les liens Wi-Fi et les flux logiques ne sont pas des câbles.';
+        },
         speechTextFromAsciiDiagram(source) {
           const raw = String(source || '').replace(/\r\n?/gu, '\n');
           const lines = raw.split('\n').map(line => line.trim()).filter(Boolean);
@@ -4200,6 +4232,14 @@
           const labelFor = value => normalizeSegment(value)
             .replace(/^(?:client|serveur|routeur|switch|firewall|internet)\s*$/iu, match => match);
           const relationships = [];
+          const connectionPairs = [];
+          const addConnection = (from, to) => {
+            const left = labelFor(from);
+            const right = labelFor(to);
+            if (!left || !right || left.toLocaleLowerCase('fr-FR') === right.toLocaleLowerCase('fr-FR')) return;
+            const key = [left.toLocaleLowerCase('fr-FR'), right.toLocaleLowerCase('fr-FR')].sort().join('::');
+            if (!connectionPairs.some(item => item.key === key)) connectionPairs.push({ key, from: left, to: right });
+          };
           const labels = [];
           const addLabel = value => {
             const label = labelFor(value);
@@ -4231,6 +4271,7 @@
             let from = upper.label;
             let to = lower.label;
             if (pointsUp && !pointsDown) [from, to] = [lower.label, upper.label];
+            addConnection(from, to);
             addLabel(from);
             addLabel(to);
             const relation = pointsUp && !pointsDown
@@ -4261,6 +4302,7 @@
               let to = endpoints[index + 1];
               const arrow = arrows[index] || '->';
               if (/^(?:<--|<-|←|↑|⇧)$/u.test(arrow)) [from, to] = [to, from];
+              addConnection(from, to);
               addLabel(from);
               addLabel(to);
               const relation = /^(?:<-->|<->|↔)$/u.test(arrow)
@@ -4282,6 +4324,13 @@
             }
           });
           const spoken = [];
+          const equipment = labels.filter(label => this.isSpeechNetworkEquipment(label));
+          const equipmentConnectionPairs = connectionPairs.filter(pair =>
+            this.isSpeechNetworkEquipment(pair.from) && this.isSpeechNetworkEquipment(pair.to)
+          );
+          if (equipment.length && connectionPairs.length) {
+            spoken.push(this.speechNetworkInventory(equipment, equipmentConnectionPairs.length));
+          }
           if (relationships.length) spoken.push(relationships.map(value => value + '.').join(' '));
           const unmentioned = labels.filter(label => !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR'))));
           if (unmentioned.length) spoken.push('Autres éléments représentés : ' + unmentioned.join(', ') + '.');
@@ -4320,6 +4369,7 @@
             return nodes.get(id) || id.replace(/[-_]+/gu, ' ');
           };
           const relationships = [];
+          const connections = [];
           const seen = new Set();
           const addRelation = value => {
             const clean = this.cleanSpeechVisualText(value);
@@ -4350,6 +4400,7 @@
             let from = resolveNode(edge.from);
             let to = resolveNode(edge.to);
             if (/^(?:<--|<-|←)$/u.test(edge.arrow)) [from, to] = [to, from];
+            connections.push({ fromId: edge.from, toId: edge.to, from, to });
             const relation = /^(?:<-->|<->|↔)$/u.test(edge.arrow)
               ? 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés dans les deux sens'
               : 'Le schéma relie le bloc « ' + from + ' » au bloc « ' + to + ' »';
@@ -4373,6 +4424,16 @@
             if (!allLabels.some(item => item.toLocaleLowerCase('fr-FR') === value.toLocaleLowerCase('fr-FR'))) allLabels.push(value);
           });
           const spoken = [];
+          const equipment = Array.from(nodes.entries())
+            .filter(([id, label]) => this.isSpeechNetworkEquipment(label) || this.isSpeechNetworkEquipment(id))
+            .map(([, label]) => label);
+          const equipmentConnections = connections.filter(connection =>
+            (this.isSpeechNetworkEquipment(connection.from) || this.isSpeechNetworkEquipment(connection.fromId))
+            && (this.isSpeechNetworkEquipment(connection.to) || this.isSpeechNetworkEquipment(connection.toId))
+          );
+          if (equipment.length && connections.length) {
+            spoken.push(this.speechNetworkInventory(equipment, equipmentConnections.length));
+          }
           if (relationships.length) spoken.push(relationships.join(' '));
           const otherLabels = allLabels.filter(label =>
             !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR')))
