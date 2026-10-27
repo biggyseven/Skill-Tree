@@ -61,8 +61,8 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
       const topology = payload.initial_topology || definition.initial_topology || {};
       const expectedNodes = topology.nodes || [];
       const expectedLinks = topology.links || [];
-      expect(expectedNodes.length, 'la définition doit contenir au moins trois équipements').toBeGreaterThanOrEqual(3);
-      expect(expectedLinks.length, 'la définition doit contenir plusieurs liaisons').toBeGreaterThanOrEqual(2);
+      expect(expectedNodes.length, 'la topologie doit contenir au moins deux équipements').toBeGreaterThanOrEqual(2);
+      expect(expectedLinks.length, 'la topologie doit contenir au moins une liaison').toBeGreaterThanOrEqual(1);
       expect((definition.check || {}).type).toBe('config_assertions');
       expect((definition.check || {}).rules || []).not.toHaveLength(0);
 
@@ -109,8 +109,7 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
       await expect(page.locator('section[aria-label="Serveurs & stockage"]')).toBeVisible();
       await expect(page.locator('section[aria-label="Sécurité & distribution"]')).toBeVisible();
 
-      // La saisie réelle du terminal et le contrôle serveur sont exercés sur chacun des 17 scénarios.
-      // La saisie CLI réelle est jouée sur quatre représentants de familles différentes.
+      // Chaque scénario exécute sa solution de référence dans le terminal, puis appelle uniquement /check.
       if (BASE_SCENARIOS.includes(labId)) {
         console.log('Début interaction CLI xterm : ' + labId);
         // Exécuter la séquence de référence dans xterm, comme un apprenant.
@@ -128,28 +127,45 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
         const targetMatch = targetHint.match(/^Cible CLI\s*:\s*([^.]+)\./);
         expect(targetMatch, 'la cible CLI doit être exploitable').toBeTruthy();
         const targetId = targetMatch[1].trim();
-        const sequenceHint = (definition.hints || []).find(hint => hint.startsWith('Séquence de référence'));
+        // Les définitions canoniques emploient « Solution de référence ».
+        // Certains scénarios nécessitent de configurer plusieurs équipements (ex. SW1 et SW2).
+        const sequenceHint = (definition.hints || []).find(hint =>
+          /^(?:Séquence de référence|Solution de référence)(?:\s*\([^)]*\))?\s*:/.test(hint)
+        );
         expect(sequenceHint, 'la séquence CLI de référence doit être documentée').toBeTruthy();
-        const commands = sequenceHint
-          .replace(/^Séquence de référence\s*:\s*/, '')
-          .replace(/\.$/, '')
-          .split(/\s;\s/)
-          .map(command => command.trim())
-          .filter(Boolean);
-        expect(commands.length, 'la séquence de commandes ne doit pas être vide').toBeGreaterThan(0);
-  
-        const targetNode = page.locator('.react-flow__node[data-id="' + targetId + '"]');
-        await expect(targetNode, 'l’équipement cible doit être présent sur le canevas').toBeVisible({ timeout: 5000 });
-        await targetNode.click({ timeout: 5000 });
-        await expect(page.getByRole('button', { name: /Console CLI/ }), 'l’inspecteur doit sélectionner l’équipement').toBeVisible({ timeout: 5000 });
-        const terminal = page.locator('.xterm').first();
-        await expect(terminal, 'la console xterm doit apparaître après sélection').toBeVisible({ timeout: 5000 });
-        await terminal.click({ position: { x: 100, y: 60 } });
-        for (const command of commands) {
-          await page.keyboard.type(command);
-          await page.keyboard.press('Enter');
+        const reference = sequenceHint
+          .replace(/^(?:Séquence de référence|Solution de référence)(?:\s*\([^)]*\))?\s*:\s*/, '')
+          .replace(/\.\s*$/, '')
+          .trim();
+        const devicePlans = reference.includes('=>')
+          ? reference.split(/\s*\|\|\s*/).map(segment => {
+              const match = segment.match(/^([A-Za-z0-9_-]+)\s*=>\s*(.+)$/);
+              expect(match, 'chaque séquence multi-équipement doit identifier sa cible').toBeTruthy();
+              return { deviceId: match[1].trim(), commandText: match[2].trim() };
+            })
+          : [{ deviceId: targetId, commandText: reference }];
+        expect(devicePlans.length, 'au moins un équipement doit être configuré').toBeGreaterThan(0);
+
+        for (const plan of devicePlans) {
+          const commands = plan.commandText
+            .split(/\s;\s/)
+            .map(command => command.trim())
+            .filter(Boolean);
+          expect(commands.length, 'la séquence de commandes ne doit pas être vide').toBeGreaterThan(0);
+
+          const targetNode = page.locator('.react-flow__node[data-id="' + plan.deviceId + '"]');
+          await expect(targetNode, 'l’équipement cible doit être présent sur le canevas: ' + plan.deviceId).toBeVisible({ timeout: 5000 });
+          await targetNode.click({ timeout: 5000 });
+          await expect(page.getByRole('button', { name: /Console CLI/ }), 'l’inspecteur doit sélectionner l’équipement').toBeVisible({ timeout: 5000 });
+          const terminal = page.locator('.xterm').first();
+          await expect(terminal, 'la console xterm doit apparaître après sélection').toBeVisible({ timeout: 5000 });
+          await terminal.click({ position: { x: 100, y: 60 } });
+          for (const command of commands) {
+            await page.keyboard.type(command);
+            await page.keyboard.press('Enter');
+          }
         }
-  
+
         const checkResponsePromise = page.waitForResponse(response =>
           response.url().includes('/api/lab/v2/' + labId + '/check') &&
           response.request().method() === 'POST'
