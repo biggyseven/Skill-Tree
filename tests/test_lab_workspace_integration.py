@@ -215,11 +215,14 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         legacy_fallback = open_lab_method.find("await this.show(nodeId);")
         self.assertGreaterEqual(v2_check, 0)
         self.assertIn("const labPayload = await response.json();", open_lab_method)
-        sandbox_check = open_lab_method.find("if (!labPayload.sandbox)")
-        self.assertGreater(sandbox_check, v2_check)
-        self.assertGreater(workspace_route, sandbox_check)
+        topology_check = open_lab_method.find("const topologyNodes = labPayload.definition?.initial_topology?.nodes;")
+        self.assertGreaterEqual(topology_check, v2_check)
+        self.assertIn("Array.isArray(topologyNodes)", open_lab_method)
+        self.assertIn("topologyNodes.length > 0", open_lab_method)
+        self.assertGreater(workspace_route, topology_check)
         self.assertGreater(legacy_fallback, workspace_route)
         self.assertIn("labWindow.location.replace('/?openLab=' + encodeURIComponent(nodeId));", open_lab_method)
+        self.assertIn("this.labWorkspaceFallbackId = nodeId;", open_lab_method)
         self.assertIn("if (openInNewTab && labWindow && !labWindow.closed)", open_lab_method)
 
 
@@ -232,10 +235,17 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn('return FileResponse(PROJECT_ROOT / "lab.html")', api_source)
 
 
-    def test_course_lab_button_uses_resolver_and_free_workspace_is_explicit(self):
+    def test_course_lab_button_checks_v2_before_opening_and_prevents_legacy_redirect_loops(self):
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", dashboard)
-        self.assertIn('target="_blank" rel="noopener noreferrer"', dashboard)
+        self.assertIn(":href=\"labIndex[n.id]?.kind === 'workspace-v2' ? '/lab.html?id=' + encodeURIComponent(n.id)", dashboard)
+        self.assertIn(":data-lab-kind=\"labIndex[n.id]?.kind === 'workspace-v2' ? 'workspace-v2' : 'legacy'\"", dashboard)
+        self.assertIn("@click=\"openVisualLab() \"", dashboard.replace("@click=\"openVisualLab()\"", "@click=\"openVisualLab() \""))
+        self.assertIn("async openVisualLab()", dashboard)
+        self.assertIn("payload.sandbox === true", dashboard)
+        self.assertIn("!Array.isArray(topologyNodes)", dashboard)
+        self.assertIn("labWorkspaceFallbackId === detail.id", dashboard)
+        self.assertIn("redirection en boucle", dashboard)
+        self.assertNotIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", dashboard)
         self.assertNotIn("@click=\"window.open('/lab.html?id=' + (detail?.id || ''), '_blank')\"", dashboard)
         self.assertIn("Ouvrir l’atelier libre, sans scénario de cours", dashboard)
 
