@@ -851,8 +851,6 @@ def _evaluate_lab_check(
     return {"passed": score >= check.pass_threshold, "score": round(score, 4), "results": results}
 
 
-@router.get("/lab/v2/{lab_id}", response_class=UTF8JSONResponse)
-
 def _merge_saved_topology_extensions(
     saved_topology: dict[str, Any],
     current_topology: Topology | dict[str, Any] | None,
@@ -960,6 +958,8 @@ def _merge_saved_topology_extensions(
     return result
 
 
+
+@router.get("/lab/v2/{lab_id}", response_class=UTF8JSONResponse)
 def get_lab_v2(lab_id: str) -> dict[str, Any]:
     payload = _fetch_lab(lab_id)
     if payload.get("sandbox"):
