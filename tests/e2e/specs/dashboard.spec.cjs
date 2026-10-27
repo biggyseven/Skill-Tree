@@ -190,8 +190,8 @@ test('la recherche de bureau se ferme avec Échap', async ({ page }) => {
 });
 
 test('la recherche mobile depuis le menu Actions est utilisable et se ferme avec Échap', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
   await openDashboard(page);
+  await page.setViewportSize({ width: 390, height: 844 });
 
   await expect(page.getByRole('navigation', { name: 'Navigation mobile' })).toBeVisible();
   const actionsTrigger = page.locator('.mobile-header-menu-trigger');
