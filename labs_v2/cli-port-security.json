@@ -6,7 +6,7 @@
   "module": "Sécurité réseau",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Placez Fa0/1 dans le VLAN 20, activez port-security, limitez à deux adresses MAC et activez l’apprentissage sticky.",
+  "prompt": "Contexte : Fa0/1 de SW1 dessert un poste utilisateur dans le VLAN 20. Pour réduire les branchements non autorisés, configurez le port en access dans ce VLAN, activez Port Security, limitez le nombre d’adresses MAC à deux et activez leur apprentissage sticky. Appliquez ces protections uniquement au port d’accès, pas au lien montant vers le routeur.",
   "objectives": [
     "Exécuter puis vérifier : interface Fa0/1",
     "Exécuter puis vérifier : switchport mode access",
@@ -17,8 +17,10 @@
   ],
   "hints": [
     "Cible CLI : SW1.",
-    "Séquence de référence : enable ; configure terminal ; interface Fa0/1 ; switchport mode access ; switchport access vlan 20 ; switchport port-security ; switchport port-security maximum 2 ; switchport port-security mac-address sticky ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : sélectionnez Fa0/1 avant de définir le mode access et le VLAN 20.",
+    "Indice 2 : activez Port Security avant de régler le maximum et le mode d’apprentissage sticky ; le maximum est ici de deux adresses MAC.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; interface Fa0/1 ; switchport mode access ; switchport access vlan 20 ; switchport port-security ; switchport port-security maximum 2 ; switchport port-security mac-address sticky ; end.",
+    "La validation vérifie le VLAN du port, Port Security actif, la limite à deux MAC et l’apprentissage sticky."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -41,7 +43,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -60,7 +62,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -111,7 +113,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -130,7 +132,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -181,7 +183,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -286,7 +288,7 @@
     "rules": [
       {
         "id": "access_vlan20",
-        "description": "Contrôle serveur : access vlan20 doit être conforme.",
+        "description": "Fa0/1 appartient au VLAN 20.",
         "device": "SW1",
         "path": "ports[0].vlan",
         "operator": "equals",
@@ -294,7 +296,7 @@
       },
       {
         "id": "port_security_enabled",
-        "description": "Contrôle serveur : port security enabled doit être conforme.",
+        "description": "Port Security est activé sur Fa0/1.",
         "device": "SW1",
         "path": "ports[0].port_security.enabled",
         "operator": "equals",
@@ -302,7 +304,7 @@
       },
       {
         "id": "port_security_limit",
-        "description": "Contrôle serveur : port security limit doit être conforme.",
+        "description": "Fa0/1 accepte au maximum deux adresses MAC sécurisées.",
         "device": "SW1",
         "path": "ports[0].port_security.maximum",
         "operator": "equals",
@@ -310,7 +312,7 @@
       },
       {
         "id": "port_security_sticky",
-        "description": "Contrôle serveur : port security sticky doit être conforme.",
+        "description": "L’apprentissage sticky est activé sur Fa0/1.",
         "device": "SW1",
         "path": "ports[0].port_security.sticky",
         "operator": "equals",
