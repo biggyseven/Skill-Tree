@@ -44,6 +44,7 @@ TRACK = [
     ("secu-supply-chain-expert", "Sécurité de la supply chain", "secu-vuln-expert"),
     ("secu-ot-ics-expert", "Architecture de sécurité sur les réseaux OT/ICS", "secu-supply-chain-expert"),
     ("secu-redteam-expert", "Red Team vs Blue Team vs Purple Team", "secu-ot-ics-expert"),
+    ("secu-threat-hunting-expert", "Threat Hunting avancé", "secu-redteam-expert"),
 ]
 
 
@@ -53,7 +54,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
         cls.nodes = json.loads((CONTENT / "nodes.json").read_text(encoding="utf-8"))
         cls.node_by_id = {node["id"]: node for node in cls.nodes}
 
-    def test_35_lessons_and_quizzes_are_present_without_bom(self) -> None:
+    def test_36_lessons_and_quizzes_are_present_without_bom(self) -> None:
         for node_id, title, _prereq in TRACK:
             lesson_path = CONTENT / "lessons" / f"{node_id}.md"
             quiz_path = CONTENT / "quiz" / f"{node_id}.json"
@@ -67,7 +68,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
             lesson = lesson_bytes.decode("utf-8")
             quiz = json.loads(quiz_bytes.decode("utf-8"))
             self.assertEqual(quiz["node_id"], node_id)
-            if node_id in {"secu-cia-debutant", "secu-menaces-debutant", "secu-crypto-debutant", "secu-hachage-debutant", "secu-auth-debutant", "secu-endpoint-debutant", "secu-wifi-debutant", "secu-firewall-debutant", "secu-acl-intermediaire", "secu-nat-intermediaire", "secu-vpn-intermediaire", "secu-switch-secu-intermediaire", "secu-ngfw-intermediaire", "secu-ids-intermediaire", "secu-segmentation-intermediaire", "secu-linux-intermediaire", "secu-ad-intermediaire", "secu-siem-intermediaire", "secu-services-intermediaire", "secu-web-intermediaire", "secu-zero-trust-expert", "secu-cloud-expert", "secu-k8s-expert", "secu-devsecops-expert", "secu-iam-expert", "secu-pentest-expert", "secu-malware-expert", "secu-forensique-expert", "secu-dfir-expert", "secu-gouvernance-expert", "secu-routing-secu-expert", "secu-vuln-expert", "secu-supply-chain-expert", "secu-ot-ics-expert", "secu-redteam-expert"}:
+            if node_id in {"secu-cia-debutant", "secu-menaces-debutant", "secu-crypto-debutant", "secu-hachage-debutant", "secu-auth-debutant", "secu-endpoint-debutant", "secu-wifi-debutant", "secu-firewall-debutant", "secu-acl-intermediaire", "secu-nat-intermediaire", "secu-vpn-intermediaire", "secu-switch-secu-intermediaire", "secu-ngfw-intermediaire", "secu-ids-intermediaire", "secu-segmentation-intermediaire", "secu-linux-intermediaire", "secu-ad-intermediaire", "secu-siem-intermediaire", "secu-services-intermediaire", "secu-web-intermediaire", "secu-zero-trust-expert", "secu-cloud-expert", "secu-k8s-expert", "secu-devsecops-expert", "secu-iam-expert", "secu-pentest-expert", "secu-malware-expert", "secu-forensique-expert", "secu-dfir-expert", "secu-gouvernance-expert", "secu-routing-secu-expert", "secu-vuln-expert", "secu-supply-chain-expert", "secu-ot-ics-expert", "secu-redteam-expert", "secu-threat-hunting-expert"}:
                 self.assertTrue(
                     lesson.startswith(f"# {title}\n\n> **Mise en contexte**")
                     or lesson.startswith(f"# {title}\n\n> **Encadré de mise en contexte**")
@@ -236,6 +237,17 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
                     self.assertIn("MITRE ATT&CK", lesson)
                     self.assertIn("règles d’engagement", lesson.lower())
                     self.assertIn("Purple Team", lesson)
+                if node_id == "secu-threat-hunting-expert":
+                    self.assertTrue(lesson.rstrip().endswith("Fin du cours."))
+                    self.assertNotIn("\\n---\\n", lesson)
+                    self.assertGreaterEqual(lesson.count("~~~text"), 18)
+                    self.assertGreaterEqual(len(quiz["questions"]), 20)
+                    self.assertNotIn("[Contenu de 5000 mots à rédiger]", lesson)
+                    self.assertNotIn("placeholder", lesson.lower())
+                    self.assertIn("Travaux pratiques guidés", lesson)
+                    self.assertIn("Défi final", lesson)
+                    self.assertIn("hypothèse de chasse", lesson.lower())
+                    self.assertIn("MITRE ATT&CK v18", lesson)
             else:
                 self.assertEqual(lesson.splitlines(), [f"# {title}", "", "[Contenu de 5000 mots à rédiger]"])
                 self.assertEqual(len(quiz["questions"]), 1)
@@ -271,7 +283,7 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
         cyber = html[html.index("{ id: 'cybersecurite'"):]
         for title in ("ACL Avancées", "NAT & Périmètre", "VPN & IPsec", "Sécurité Web"):
             self.assertIn(title, cyber)
-        for title in ("Zero Trust", "Cloud Security", "K8s Security", "DevSecOps", "IAM Avancé", "Pentest", "Analyse Malwares", "Forensique", "DFIR", "Gouvernance", "Routing Secu", "Vulnérabilités", "Supply Chain", "OT/ICS", "Red Team"):
+        for title in ("Zero Trust", "Cloud Security", "K8s Security", "DevSecOps", "IAM Avancé", "Pentest", "Analyse Malwares", "Forensique", "DFIR", "Gouvernance", "Routing Secu", "Vulnérabilités", "Supply Chain", "OT/ICS", "Red Team", "Threat Hunting"):
             self.assertIn(title, cyber)
 
 

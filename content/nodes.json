@@ -7513,5 +7513,22 @@
         "min_score": 85
       }
     ]
+  },
+  {
+    "id": "secu-threat-hunting-expert",
+    "module": "Cybersécurité",
+    "title": "Threat Hunting avancé",
+    "category": "Cybersécurité",
+    "order": 935,
+    "description": "Chasse proactive aux menaces : hypothèses, qualité des journaux, corrélation, analyse comportementale, ATT&CK et retests.",
+    "prereqs": [
+      "secu-redteam-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   }
 ]

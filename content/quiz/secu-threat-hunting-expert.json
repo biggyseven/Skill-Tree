@@ -1,0 +1,378 @@
+{
+  "node_id": "secu-threat-hunting-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le point de départ d’un Threat Hunt ?",
+      "choices": [
+        "Une liste d’outils à exécuter",
+        "Une hypothèse falsifiable liée à un risque",
+        "Une conclusion écrite à l’avance",
+        "Une recherche sans limite de temps"
+      ],
+      "answer": 1,
+      "explanation": "La chasse part d’une question qui annonce une observation attendue et des conditions de test."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence principale entre une alerte et un hunt ?",
+      "choices": [
+        "Une alerte est toujours manuelle",
+        "Un hunt cherche proactivement des preuves à partir d’une hypothèse",
+        "Un hunt remplace le SOC",
+        "Une alerte n’a jamais de contexte"
+      ],
+      "answer": 1,
+      "explanation": "Une alerte est un signal de détection, tandis qu’un hunt organise une recherche proactive."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l’absence de résultats dans une source incomplète ?",
+      "choices": [
+        "La sécurité est prouvée",
+        "L’attaque est confirmée",
+        "Le résultat est non concluant tant que la couverture n’est pas établie",
+        "La requête doit être effacée"
+      ],
+      "answer": 2,
+      "explanation": "Une source lacunaire ne permet pas de conclure à l’absence d’activité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une hypothèse doit-elle être falsifiable ?",
+      "choices": [
+        "Pour garantir un résultat positif",
+        "Pour savoir quelles observations la soutiendraient ou la contrediraient",
+        "Pour réduire la documentation",
+        "Pour imposer un outil particulier"
+      ],
+      "answer": 1,
+      "explanation": "La falsifiabilité limite les interprétations vagues et favorise l’analyse rigoureuse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue la ligne de base ?",
+      "choices": [
+        "Elle déclare toute rareté malveillante",
+        "Elle contextualise les écarts par rapport à l’activité attendue",
+        "Elle remplace les logs",
+        "Elle n’a pas besoin d’être mise à jour"
+      ],
+      "answer": 1,
+      "explanation": "Une ligne de base aide à interpréter les anomalies avec le contexte réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un exemple de source de contexte métier ?",
+      "choices": [
+        "Un ticket de changement approuvé",
+        "Une hypothèse non testée",
+        "Une capture sans date",
+        "Un score sans définition"
+      ],
+      "answer": 0,
+      "explanation": "Le registre des changements aide à identifier les opérations planifiées et les exceptions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier la synchronisation temporelle ?",
+      "choices": [
+        "Pour éviter d’enrichir les événements",
+        "Des écarts d’horloge peuvent inverser la chronologie apparente",
+        "Tous les journaux utilisent la même horloge",
+        "Pour diminuer la rétention"
+      ],
+      "answer": 1,
+      "explanation": "La corrélation temporelle exige de comprendre les références et écarts d’horloge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne approche face à un compte de service utilisé à une heure inhabituelle ?",
+      "choices": [
+        "Le déclarer automatiquement malveillant",
+        "Vérifier les tâches, changements, propriétaire et preuves corroborantes",
+        "Désactiver tous les comptes",
+        "Ignorer toute activité nocturne"
+      ],
+      "answer": 1,
+      "explanation": "L’anomalie demande une vérification contextuelle et des explications alternatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi versionner les requêtes de chasse ?",
+      "choices": [
+        "Pour empêcher leur reproduction",
+        "Pour comparer et reproduire les résultats",
+        "Pour cacher les filtres",
+        "Pour éviter la revue"
+      ],
+      "answer": 1,
+      "explanation": "Le versionnement relie les résultats aux critères et paramètres de recherche utilisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la fonction des hypothèses alternatives ?",
+      "choices": [
+        "Elles ralentissent toute analyse sans valeur",
+        "Elles aident à tester les explications bénignes ou concurrentes",
+        "Elles remplacent les journaux",
+        "Elles imposent une conclusion rassurante"
+      ],
+      "answer": 1,
+      "explanation": "Les explications alternatives limitent les biais de confirmation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant une recherche à large volume ?",
+      "choices": [
+        "Les autorisations, les coûts, la fenêtre et les effets sur la plateforme",
+        "Seulement la couleur du tableau de bord",
+        "Qu’on peut supprimer les logs ensuite",
+        "Rien si l’analyste a accès"
+      ],
+      "answer": 0,
+      "explanation": "Une requête coûteuse peut affecter la plateforme ; son périmètre et son coût doivent être évalués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’ATT&CK dans le Threat Hunting ?",
+      "choices": [
+        "Certifier l’absence d’intrusion",
+        "Fournir un vocabulaire de comportements et des pistes de détection",
+        "Remplacer la qualité des données",
+        "Déterminer seul la gravité d’un incident"
+      ],
+      "answer": 1,
+      "explanation": "ATT&CK aide à organiser et communiquer les hypothèses, mais ne prouve pas la détection."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle évolution défensive a accompagné ATT&CK v18 en 2025 ?",
+      "choices": [
+        "La disparition de toutes les techniques",
+        "La dépréciation des anciennes Data Sources et l’importance accrue des Detection Strategies, Analytics et Data Components",
+        "L’obligation d’utiliser une seule source",
+        "Le remplacement du SIEM"
+      ],
+      "answer": 1,
+      "explanation": "La structure défensive d’ATT&CK v18 met davantage l’accent sur les stratégies, analyses et composants de données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un mapping ATT&CK prouve-t-il que la technique est détectée ?",
+      "choices": [
+        "Oui, toujours",
+        "Uniquement si le score est élevé",
+        "Non, il faut une preuve et un test de la capacité réelle",
+        "Oui, si la matrice contient l’actif"
+      ],
+      "answer": 2,
+      "explanation": "Le mapping est descriptif ; la détection doit être testée avec les données disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi examiner la provenance des données ?",
+      "choices": [
+        "Pour comprendre la source et les transformations qui peuvent influencer la preuve",
+        "Pour utiliser des données non autorisées",
+        "Pour supprimer l’étape d’ingestion",
+        "Parce que le schéma ne compte pas"
+      ],
+      "answer": 0,
+      "explanation": "La provenance permet d’évaluer la fiabilité et les limites des événements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon statut pour une hypothèse impossible à tester faute de journaux ?",
+      "choices": [
+        "Confirmée",
+        "Réfutée",
+        "Non concluante, avec une action de collecte",
+        "Réussie"
+      ],
+      "answer": 2,
+      "explanation": "Le rapport doit indiquer que la visibilité est insuffisante et préciser l’action nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider l’export de preuves ?",
+      "choices": [
+        "Collecter tout le contenu par défaut",
+        "Minimiser les données et restreindre les accès",
+        "Partager l’export à l’organisation entière",
+        "Conserver les données sans échéance"
+      ],
+      "answer": 1,
+      "explanation": "La minimisation protège la confidentialité et réduit le risque secondaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une activité rare est-elle automatiquement suspecte ?",
+      "choices": [
+        "Oui",
+        "Non, elle doit être interprétée selon le rôle, le contexte et les changements",
+        "Oui si elle a lieu la nuit",
+        "Seulement dans le cloud"
+      ],
+      "answer": 1,
+      "explanation": "La rareté est un signal statistique, pas une conclusion de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire lorsqu’une chasse révèle un incident potentiel ?",
+      "choices": [
+        "Lancer des mesures de confinement sans autorisation",
+        "Transmettre selon le processus d’incident et conserver les références utiles",
+        "Continuer la chasse sans informer personne",
+        "Modifier les logs"
+      ],
+      "answer": 1,
+      "explanation": "La réponse opérationnelle doit être pilotée par les rôles définis dans le processus d’incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’un test négatif pour une détection dérivée d’un hunt ?",
+      "choices": [
+        "Un événement qui doit toujours alerter",
+        "Une activité similaire mais légitime qui ne doit pas déclencher la même alerte",
+        "Un test qui n’est pas documenté",
+        "Une source sans horodatage"
+      ],
+      "answer": 1,
+      "explanation": "Les cas négatifs aident à réduire les faux positifs et les régressions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la rétention importe-t-elle ?",
+      "choices": [
+        "Elle ne change rien à la chasse",
+        "Une durée insuffisante peut empêcher d’observer la période nécessaire",
+        "Elle remplace les champs",
+        "Elle garantit la vérité d’un événement"
+      ],
+      "answer": 1,
+      "explanation": "Les données doivent couvrir la fenêtre de recherche prévue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qu’un signal LOTL ?",
+      "choices": [
+        "L’usage abusif de fonctions ou outils légitimes dans un contexte anormal",
+        "Une panne de stockage uniquement",
+        "Un type de compte cloud",
+        "Une preuve automatique de compromission"
+      ],
+      "answer": 0,
+      "explanation": "Les comportements LOTL s’appuient sur des outils légitimes et nécessitent du contexte pour être interprétés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne pas considérer l’absence de ticket comme une preuve suffisante de malveillance ?",
+      "choices": [
+        "Le processus de changement peut être incomplet et d’autres explications existent",
+        "Tous les tickets sont toujours exacts",
+        "Les journaux sont inutiles",
+        "Les activités approuvées ne génèrent aucun log"
+      ],
+      "answer": 0,
+      "explanation": "L’absence de ticket est un indice contextuel, mais il faut corroborer l’attribution et les faits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel champ peut aider à relier des événements dans une séquence ?",
+      "choices": [
+        "Un identifiant de session ou de corrélation",
+        "Un titre de rapport arbitraire",
+        "Un score non documenté",
+        "Un commentaire sans heure"
+      ],
+      "answer": 0,
+      "explanation": "Une relation vérifiable comme un identifiant de session soutient la corrélation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment mesurer le succès d’un programme de chasse ?",
+      "choices": [
+        "Par le nombre brut de requêtes",
+        "Par la valeur des hypothèses testées, la reproductibilité et les améliorations vérifiées",
+        "Par le volume de données exportées",
+        "Par la quantité de soupçons publiés"
+      ],
+      "answer": 1,
+      "explanation": "Les mesures doivent refléter la qualité de la recherche et la valeur opérationnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un registre des hunts ?",
+      "choices": [
+        "À empêcher tout changement",
+        "À conserver hypothèses, requêtes, sources, résultats, actions et dates",
+        "À conserver uniquement les résultats positifs",
+        "À remplacer les propriétaires"
+      ],
+      "answer": 1,
+      "explanation": "Le registre soutient la reproductibilité, la gouvernance et le suivi des actions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les modèles d’anomalie exigent-ils une gouvernance ?",
+      "choices": [
+        "Ils sont toujours erronés",
+        "Ils peuvent intégrer des comportements indésirables à la norme ou générer trop de bruit",
+        "Ils n’utilisent jamais de données",
+        "Ils ne nécessitent aucun test"
+      ],
+      "answer": 1,
+      "explanation": "Le modèle dépend des données, paramètres et changements de contexte et doit être suivi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but de l’enrichissement ?",
+      "choices": [
+        "Augmenter le volume pour le volume",
+        "Ajouter un contexte vérifiable utile à l’interprétation",
+        "Remplacer la preuve",
+        "Cacher la source"
+      ],
+      "answer": 1,
+      "explanation": "Le contexte métier et technique aide à différencier une anomalie légitime d’un signal préoccupant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand un hunt est-il clos de manière responsable ?",
+      "choices": [
+        "Quand la première requête est exécutée",
+        "Quand résultats, limites, passation éventuelle et actions sont documentés",
+        "Dès qu’aucun événement n’apparaît",
+        "Quand le chasseur est à court de temps"
+      ],
+      "answer": 1,
+      "explanation": "La clôture exige une conclusion proportionnée aux preuves et le suivi des suites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle référence actuelle de NIST traite l’intégration de la réponse à incident dans le risque cyber ?",
+      "choices": [
+        "NIST SP 800-61 Rev. 3",
+        "ATT&CK Data Sources uniquement",
+        "Une matrice de rôles interne sans version",
+        "Un guide produit"
+      ],
+      "answer": 0,
+      "explanation": "NIST SP 800-61 Rev. 3 relie les pratiques de réponse à incident au Cybersecurity Framework 2.0."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle amélioration est la plus adaptée à une source qui ne couvre que trois jours d’une fenêtre de sept jours ?",
+      "choices": [
+        "Conclure qu’il n’y a eu aucune activité",
+        "Corriger ou documenter la collecte puis refaire la chasse sur une période suffisamment couverte",
+        "Augmenter le score de confiance",
+        "Ajouter une alerte sans vérifier les logs"
+      ],
+      "answer": 1,
+      "explanation": "La couverture temporelle doit être suffisante avant toute conclusion négative."
+    }
+  ]
+}
