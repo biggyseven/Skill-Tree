@@ -1497,7 +1497,7 @@
 
       <!-- ============ ONGLET RADAR ============ -->
       <section x-show="tab === 'stats'" x-cloak x-transition.opacity.duration.150ms>
-        <div class="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p class="eyebrow">Analyse personnelle</p><h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Radar de compétences</h2><p class="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">Repère les thèmes solides et ceux à retravailler. Les indicateurs proviennent de tes statistiques enregistrées, pas d’une estimation.</p></div><button type="button" @click="loadStats()" :disabled="statsLoading" class="btn"><span x-text="statsLoading ? 'Actualisation…' : '↻ Actualiser'">Actualiser</span></button></div>
+        <div class="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p class="eyebrow">Analyse personnelle</p><h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Radar de compétences</h2><p class="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">Repère les thèmes solides et ceux à retravailler. Les indicateurs proviennent de tes statistiques enregistrées, pas d’une estimation.</p></div><button type="button" @click="loadStats(true)" :disabled="statsLoading" class="btn"><span x-text="statsLoading ? 'Actualisation…' : '↻ Actualiser'">Actualiser</span></button></div>
         <div class="mb-6 grid gap-3 sm:grid-cols-3">
           <div class="card-sm"><p class="eyebrow">Tentatives</p><p class="mt-2 font-mono text-2xl font-semibold text-white" x-text="stats?.totals?.attempts ?? '—'"></p><p class="mt-1 text-xs text-zinc-500">Évaluations enregistrées</p></div>
           <div class="card-sm"><p class="eyebrow">Taux de réussite</p><p class="mt-2 font-mono text-2xl font-semibold text-emerald-400" x-text="stats?.totals?.success_rate != null ? stats.totals.success_rate + '%' : '—'"></p><p class="mt-1 text-xs text-zinc-500">Sur les tentatives prises en compte</p></div>
@@ -1505,7 +1505,7 @@
         </div>
         <div x-show="dashboardDataErrors.stats" x-cloak role="alert" aria-live="polite" class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-400/25 bg-rose-400/5 p-4">
           <p class="min-w-0 flex-1 text-sm text-rose-100">Impossible de charger les statistiques enregistrées. Cela ne signifie pas que ta progression est vide.</p>
-          <button type="button" @click="loadStats()" :disabled="statsLoading" class="rounded-xl border border-rose-300/30 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-400/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70 disabled:cursor-wait disabled:opacity-50" x-text="statsLoading ? 'Actualisation…' : 'Réessayer'">Réessayer</button>
+          <button type="button" @click="loadStats(true)" :disabled="statsLoading" class="rounded-xl border border-rose-300/30 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-400/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70 disabled:cursor-wait disabled:opacity-50" x-text="statsLoading ? 'Actualisation…' : 'Réessayer'">Réessayer</button>
         </div>
         <div class="radar-panel card">
           <div class="mb-3 flex flex-wrap items-center justify-between gap-2"><div><h3 class="text-base font-bold text-white">Maîtrise par domaine</h3><p class="mt-1 text-xs text-zinc-500">Échelle 0–100 · utilise « Actualiser » après une évaluation</p></div><span class="chip" x-text="stats?.categories?.length ? stats.categories.length + ' domaines' : 'En attente de données'"></span></div>
@@ -1560,7 +1560,7 @@
         </div>
         <div x-show="cardLoadError" x-cloak role="alert" aria-live="polite" class="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-rose-400/25 bg-rose-400/5 p-4">
           <p class="min-w-0 flex-1 text-sm text-rose-100" x-text="cardLoadError"></p>
-          <button type="button" @click="loadFlashcards()" :disabled="flashcardsLoading" class="rounded-xl border border-rose-300/30 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-400/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70 disabled:cursor-wait disabled:opacity-50">Réessayer</button>
+          <button type="button" @click="loadFlashcards(true)" :disabled="flashcardsLoading" class="rounded-xl border border-rose-300/30 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-400/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70 disabled:cursor-wait disabled:opacity-50">Réessayer</button>
         </div>
         <div x-show="reviewNodeId" x-cloak class="mb-5 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4 sm:p-5">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -2552,7 +2552,7 @@
         tutorSize: (['compact', 'normal', 'large'].includes(localStorage.getItem('skilltree-tutor-size')) ? localStorage.getItem('skilltree-tutor-size') : 'normal'),
         speechState: 'idle', speechKind: null, speechEngine: null, speechRate: 1, speechQueue: [], speechQueueIndex: 0,
         speechError: null, _speechRunId: 0, _speechAudioUrls: {}, _speechAudioRequests: {}, _speechLoadedIndex: -1, _browserSpeechUtterance: null,
-        dailyPlan: [], stats: null, statsLoading: false, flashcards: [], flashcardQueue: [], flashcardsLoading: false, flashcardFlipped: false,
+        dailyPlan: [], stats: null, statsLoading: false, statsLoaded: false, flashcards: [], flashcardQueue: [], flashcardsLoading: false, flashcardFlipped: false,
 
         diagnostic: null, diagnosticStep: null,
         exam: null, examAnswers: [], examResult: null, examBusy: false, examCategory: '',
@@ -2863,7 +2863,7 @@
           };
         },
         async retryDashboardData() {
-          await Promise.all([this.refreshAll(), this.loadStats()]);
+          await Promise.all([this.refreshAll(), this.loadStats(true)]);
         },
 
         editProfile() {
@@ -3044,7 +3044,11 @@
             console.error('loadDailyPlan', e);
           }
         },
-        async loadStats() {
+        async loadStats(force = false) {
+          if (this.statsLoaded && !force && !this.dashboardDataErrors.stats) {
+            this.$nextTick(() => this.renderSpiderChart());
+            return;
+          }
           this.statsLoading = true;
           try {
             const r = await fetch('/api/stats');
@@ -3052,6 +3056,7 @@
             const data = await r.json();
             if (!data || !data.totals || !Array.isArray(data.categories)) throw new Error('Réponse de statistiques de progression invalide.');
             this.stats = data;
+            this.statsLoaded = true;
             this.dashboardDataErrors.stats = null;
           } catch (e) {
             this.dashboardDataErrors.stats = 'Statistiques de progression : données indisponibles.';
@@ -6757,9 +6762,13 @@
         },
 
         // ---------- mémo (révision espacée de Leitner) ----------
-        cardFilter: { module: 'all', level: 'all', mode: 'due' }, reviewNodeId: null, reviewDaysSince: null, cardLoadError: null, cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },
+        cardFilter: { module: 'all', level: 'all', mode: 'due' }, reviewNodeId: null, reviewDaysSince: null, cardLoadError: null, flashcardsLoaded: false, cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },
         cardKey(c) { return c.id || `${c.node_id || ''}|${c.front}`; },
-        async loadFlashcards() {
+        async loadFlashcards(force = false) {
+          if (this.flashcardsLoaded && !force && !this.cardLoadError) {
+            this.buildDeck();
+            return;
+          }
           this.flashcardsLoading = true;
           this.cardLoadError = null;
           try {
@@ -6770,6 +6779,7 @@
               throw new Error('Réponse de cartes invalide.');
             }
             this.flashcards = d.cards;
+            this.flashcardsLoaded = true;
           } catch (e) {
             this.cardLoadError = 'Les cartes de révision ne peuvent pas être chargées. Vérifie la connexion puis réessaie.';
             console.error('loadFlashcards', e);
