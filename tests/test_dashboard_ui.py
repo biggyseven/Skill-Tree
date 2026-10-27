@@ -606,14 +606,16 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("delete this.labIndex[n.id];", load_index)
         self.assertIn("une nouvelle tentative sera faite au prochain accès", load_index)
 
-    def test_lab_entry_points_remain_native_links_openable_in_new_tabs(self):
+    def test_lab_entry_points_choose_the_correct_workspace_or_legacy_route(self):
         self.assertIn('data-lab-card="catalog"', DASHBOARD_HTML)
         self.assertIn('data-lab-card="plan"', DASHBOARD_HTML)
-        self.assertIn('aria-label="Ouvrir le Lab Workspace dans un nouvel onglet"', DASHBOARD_HTML)
+        self.assertIn(':data-lab-kind="labIndex[n.id]?.kind === \'workspace-v2\' ? \'workspace-v2\' : \'legacy\'"', DASHBOARD_HTML)
+        self.assertIn(":href=\"labIndex[n.id]?.kind === 'workspace-v2' ? '/lab.html?id=' + encodeURIComponent(n.id) : '/?openLab=' + encodeURIComponent(n.id)\"", DASHBOARD_HTML)
         self.assertIn('target="_blank" rel="noopener noreferrer"', DASHBOARD_HTML)
-        self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(n.id)\"", DASHBOARD_HTML)
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(action.node_id)\"", DASHBOARD_HTML)
-        self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", DASHBOARD_HTML)
+        self.assertIn('@click="openVisualLab()"', DASHBOARD_HTML)
+        self.assertIn("Workspace visuel indisponible pour ce lab", DASHBOARD_HTML)
+        self.assertNotIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", DASHBOARD_HTML)
 
     def test_switching_modules_sets_first_course_as_next_step_without_opening_reader(self):
         start = DASHBOARD_HTML.index("        setModule(id) {")
@@ -647,12 +649,23 @@ class DashboardUiRegressionTests(unittest.TestCase):
         open_lab_method = DASHBOARD_HTML[start:end]
 
         self.assertIn("fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`)", open_lab_method)
+        self.assertIn("const topologyNodes = labPayload.definition?.initial_topology?.nodes;", open_lab_method)
+        self.assertIn("Array.isArray(topologyNodes)", open_lab_method)
+        self.assertIn("topologyNodes.length > 0", open_lab_method)
         self.assertIn("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
         self.assertIn("if (response.status !== 404)", open_lab_method)
-        self.assertIn("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
         self.assertIn("await this.show(nodeId);", open_lab_method)
         self.assertIn("this.modalTab = 'lab';", open_lab_method)
-        self.assertIn("this.openLab(this.detail.id, true);", DASHBOARD_HTML)
+        self.assertIn("this.labWorkspaceFallbackId = nodeId;", open_lab_method)
+
+        visual_start = DASHBOARD_HTML.index("async openVisualLab() {")
+        visual_end = DASHBOARD_HTML.index("async openLab(id, openInNewTab = false) {", visual_start)
+        visual_method = DASHBOARD_HTML[visual_start:visual_end]
+        self.assertIn("window.open('about:blank', '_blank')", visual_method)
+        self.assertIn("payload.sandbox === true", visual_method)
+        self.assertIn("!Array.isArray(topologyNodes)", visual_method)
+        self.assertIn("labWindow.close()", visual_method)
+        self.assertIn("labWindow.location.replace(`/lab.html?id=${encodeURIComponent(nodeId)}`)", visual_method)
 
     def test_dashboard_api_loaders_surface_errors_without_replacing_data_with_defaults(self):
         self.assertIn("dashboardDataErrors: { userStats: null, streak: null, dailyPlan: null, stats: null }", DASHBOARD_HTML)

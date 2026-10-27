@@ -396,38 +396,49 @@ test('changer de module propose le premier cours sans l’ouvrir automatiquement
   await expect(page.getByRole('heading', { name: firstCourse.title, exact: true }).first()).toBeVisible();
 });
 
-test('les cartes du catalogue des labs ouvrent un nouvel onglet sans remplacer le tableau de bord', async ({ page }) => {
+test('les cartes ouvrent directement le workspace v2 et identifient les labs historiques', async ({ page }) => {
   await openDashboard(page);
   const nav = page.getByRole('navigation', { name: 'Navigation principale' });
   await nav.getByRole('button', { name: 'Labs' }).click();
 
   const links = page.locator('a[data-lab-card="catalog"]');
   await expect(links.first()).toBeVisible();
-  const labLink = links.first();
-  await expect(labLink).toHaveAttribute('target', '_blank');
-  await expect(labLink).toHaveAttribute('rel', /noopener/);
-  await expect(labLink).toHaveAttribute('href', /openLab=/);
+  await expect.poll(
+    () => page.evaluate(() => window.Alpine.$data(document.body).labIndexTask === null),
+    { timeout: 45_000 },
+  ).toBe(true);
 
   const originalUrl = page.url();
-  const newPagePromise = page.context().waitForEvent('page');
-  await labLink.click();
-  const labPage = await newPagePromise;
-  await labPage.waitForLoadState('domcontentloaded').catch(() => {});
+  const workspaceLinks = page.locator('a[data-lab-card="catalog"][data-lab-kind="workspace-v2"]');
+  await expect(workspaceLinks.first()).toBeVisible();
+  const workspaceLink = workspaceLinks.first();
+  await expect(workspaceLink).toHaveAttribute('target', '_blank');
+  await expect(workspaceLink).toHaveAttribute('rel', /noopener/);
+  await expect(workspaceLink).toHaveAttribute('href', /\/lab\.html\?id=/);
 
-  await expect.poll(async () => {
-    const pathname = new URL(labPage.url()).pathname;
-    if (pathname === '/lab.html') {
-      return await labPage.getByText('Lab actif', { exact: true }).isVisible().catch(() => false);
-    }
-    if (pathname === '/') {
-      return await labPage.locator('.modal-panel[role="dialog"]').isVisible().catch(() => false);
-    }
-    return false;
-  }, { timeout: 60_000 }).toBe(true);
-
+  const workspacePagePromise = page.context().waitForEvent('page');
+  await workspaceLink.click();
+  const workspacePage = await workspacePagePromise;
+  await workspacePage.waitForLoadState('domcontentloaded').catch(() => {});
+  await expect(workspacePage).toHaveURL(/\/lab\.html\?id=/);
+  await expect(workspacePage.getByText('Lab actif', { exact: true })).toBeVisible({ timeout: 60_000 });
   expect(page.url()).toBe(originalUrl);
   await expect(nav.getByRole('button', { name: 'Labs' })).toHaveAttribute('aria-current', 'page');
-  await labPage.close();
+  await workspacePage.close();
+
+  const legacyLinks = page.locator('a[data-lab-card="catalog"][data-lab-kind="legacy"]');
+  if (await legacyLinks.count()) {
+    const legacyLink = legacyLinks.first();
+    await expect(legacyLink).toHaveAttribute('href', /\/\?openLab=/);
+    const legacyPagePromise = page.context().waitForEvent('page');
+    await legacyLink.click();
+    const legacyPage = await legacyPagePromise;
+    await legacyPage.waitForLoadState('domcontentloaded').catch(() => {});
+    await expect(legacyPage.locator('.modal-panel[role="dialog"]')).toBeVisible({ timeout: 60_000 });
+    await expect(legacyPage.getByRole('button', { name: 'Workspace visuel indisponible pour ce lab' })).toBeDisabled();
+    await expect(legacyPage.getByRole('status').filter({ hasText: 'redirection en boucle' })).toBeVisible();
+    await legacyPage.close();
+  }
 });
 
 test('le catalogue v2 affiche le lab ACL même si le nœud manque dans le graphe SQLite', async ({ page }) => {
@@ -462,7 +473,8 @@ test('le catalogue v2 affiche le lab ACL même si le nœud manque dans le graphe
     hasText: 'ACL et filtrage avancé',
   }).first();
   await expect(aclLab).toBeVisible();
-  await expect(aclLab).toHaveAttribute('href', '/?openLab=secu-acl-intermediaire');
+  await expect(aclLab).toHaveAttribute('data-lab-kind', 'workspace-v2');
+  await expect(aclLab).toHaveAttribute('href', '/lab.html?id=secu-acl-intermediaire');
   await expect(aclLab).toContainText('⏱ 20 · intermédiaire');
 });
 

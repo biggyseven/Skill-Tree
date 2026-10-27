@@ -4,6 +4,7 @@ import os
 import sqlite3
 import tempfile
 import unittest
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -79,6 +80,49 @@ class LabWorkspaceHttpFlowTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 404, response.text)
         self.assertIn("introuvable", response.json()["detail"].lower())
+
+    def test_node_detail_exposes_v2_lab_when_legacy_metadata_is_missing(self) -> None:
+        node_id = "test-v2-course-without-legacy-lab"
+        definition = SimpleNamespace(
+            prompt="Configurez le trunk entre les deux commutateurs.",
+            hints=["Créez le VLAN 10.", "Vérifiez le mode trunk."],
+            duration_min=20,
+            difficulty="intermédiaire",
+            level="intermédiaire",
+            initial_topology=SimpleNamespace(nodes=[SimpleNamespace(id="SW1")]),
+        )
+
+        with TestClient(api.app) as client:
+            conn = api.connect(self.db_path)
+            try:
+                conn.execute(
+                    "INSERT INTO nodes (id, title, description, category, module, sort_order) "
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                    (node_id, "Lab V2 sans métadonnées historiques", "Description de test", "Réseaux", "Test", 9999),
+                )
+                conn.execute(
+                    "INSERT INTO requirements (node_id, kind, min_score) VALUES (?, ?, ?)",
+                    (node_id, "lab", 100),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+
+            with patch(
+                "app.api._fetch_lab",
+                return_value={"id": node_id, "definition": definition},
+            ):
+                response = client.get(f"/api/node/{node_id}")
+
+        self.assertEqual(response.status_code, 200, response.text)
+        lab = response.json()["lab"]
+        self.assertIsNotNone(lab)
+        self.assertEqual(lab["kind"], "workspace-v2")
+        self.assertEqual(lab["prompt"], definition.prompt)
+        self.assertEqual(lab["hint"], "\n".join(definition.hints))
+        self.assertEqual(lab["duration"], "20 min")
+        self.assertEqual(lab["difficulty"], "intermédiaire")
+        self.assertTrue(lab["workspace_v2"])
 
     def test_open_save_reload_check_and_submit_real_ipv4_scenario_over_http(self) -> None:
         unlocked_course = {

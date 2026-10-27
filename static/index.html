@@ -1392,12 +1392,16 @@
             <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-white" x-text="l.icon + ' ' + l.label"></h3>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <template x-for="n in labNodes.filter(x => levelOf(x) === l.id)" :key="n.id">
-                <a data-lab-card="catalog" :href="'/?openLab=' + encodeURIComponent(n.id)" target="_blank" rel="noopener noreferrer"
-                   :aria-label="'Ouvrir le lab ' + n.title + ' dans un nouvel onglet'"
+                <a data-lab-card="catalog"
+                   :data-lab-kind="labIndex[n.id]?.kind === 'workspace-v2' ? 'workspace-v2' : 'legacy'"
+                   :href="labIndex[n.id]?.kind === 'workspace-v2' ? '/lab.html?id=' + encodeURIComponent(n.id) : '/?openLab=' + encodeURIComponent(n.id)"
+                   target="_blank" rel="noopener noreferrer"
+                   :aria-label="(labIndex[n.id]?.kind === 'workspace-v2' ? 'Ouvrir le Lab Workspace' : 'Ouvrir le lab classique') + ' ' + n.title + ' dans un nouvel onglet'"
                    class="card-sm block text-left transition hover:border-cyan-400/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70">
                   <div class="flex items-center justify-between gap-2"><span class="chip" x-text="moduleMeta(moduleOf(n)).short"></span><span class="text-xs" :class="isLabDone(n.id) ? 'text-emerald-400' : 'text-zinc-500'" x-text="isLabDone(n.id) ? '✅ Réussi' : 'À faire'"></span></div>
                   <p class="mt-2 text-sm font-bold text-white" x-text="n.title"></p>
                   <p class="mt-1 text-[11px] text-zinc-500" x-text="(labIndex[n.id].duration ? '⏱ ' + labIndex[n.id].duration + ' · ' : '') + (labIndex[n.id].difficulty || '')"></p>
+                  <p class="mt-1 text-[10px] text-zinc-500" x-text="labIndex[n.id]?.kind === 'workspace-v2' ? 'Workspace visuel · ouverture directe' : 'Lab classique · scénario visuel non migré'"></p>
                 </a>
               </template>
             </div>
@@ -2212,11 +2216,14 @@
                 <div class="mt-3 flex flex-wrap gap-2"><span class="chip" x-show="detail.lab.duration" x-text="'⏱ ' + detail.lab.duration"></span><span class="chip" x-show="detail.lab.difficulty" x-text="detail.lab.difficulty"></span></div>
                 
                 <div class="mt-6">
-                  <a :href="'/?openLab=' + encodeURIComponent(detail.id)" target="_blank" rel="noopener noreferrer"
-                     aria-label="Ouvrir le Lab Workspace dans un nouvel onglet"
-                     class="inline-flex rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">
-                    🧪 Ouvrir le Lab Workspace
-                  </a>
+                  <button type="button" @click="openVisualLab()"
+                     :disabled="labWorkspaceFallbackId === detail.id"
+                     class="inline-flex rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+                     x-text="labWorkspaceFallbackId === detail.id ? 'Workspace visuel indisponible pour ce lab' : '🧪 Ouvrir le Lab Workspace'">
+                  </button>
+                  <p x-show="labWorkspaceFallbackId === detail.id" role="status" class="mt-3 rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-100">
+                    Ce laboratoire n’a pas de scénario visuel v2 disponible (ou l’API ne l’a pas fourni). Il reste dans le mode classique ; le bouton est désactivé pour éviter une redirection en boucle.
+                  </p>
                 </div>
               </div>
             </template>
@@ -3544,6 +3551,7 @@
         },
 
         async show(nodeId) {
+          this.labWorkspaceFallbackId = null;
           const nodeKey = String(nodeId);
           this.moduleNextCourseId = null;
           const requestId = ++this._detailRequestId;
@@ -5559,6 +5567,7 @@
 
         // ---------- labs ----------
         labIndex: {}, labIndexBusy: false, labIndexDone: 0, labCatalogLoaded: false, labCatalog: [], labIndexTask: null, labFilter: { module: 'all', level: 'all' },
+        labWorkspaceFallbackId: null,
         labsDone: LS.get('labs-done', []), labSteps: LS.get('lab-steps', {}), labHints: {},
         get labNodes() {
           const catalogById = new Map((this.labCatalog || []).map(lab => [String(lab.id), lab]));
@@ -5671,9 +5680,43 @@
           // Ne bloque pas l'ouverture de Labs sur toutes les requêtes de détail historiques.
           await catalogTask;
         },
-        openVisualLab() {
-          if (!this.detail?.id) return;
-          this.openLab(this.detail.id, true);
+        async openVisualLab() {
+          const nodeId = String(this.detail?.id || '');
+          if (!nodeId) return;
+
+          // Ouvrir la fenêtre de façon synchrone dans le clic utilisateur, puis vérifier le scénario.
+          const labWindow = window.open('about:blank', '_blank');
+          if (!labWindow) {
+            this.notify("Autorise les fenêtres contextuelles pour ouvrir le laboratoire dans un nouvel onglet.");
+            return;
+          }
+
+          this.labWorkspaceFallbackId = null;
+          try {
+            const response = await fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`);
+            const payload = await response.json().catch(() => ({}));
+            const topologyNodes = payload?.definition?.initial_topology?.nodes;
+            if (
+              !response.ok ||
+              payload.sandbox === true ||
+              !Array.isArray(topologyNodes) ||
+              topologyNodes.length === 0
+            ) {
+              labWindow.close();
+              this.labWorkspaceFallbackId = nodeId;
+              this.notify(
+                response.ok
+                  ? "Ce laboratoire ne possède pas encore de scénario visuel v2. Il reste disponible dans le mode classique."
+                  : "Le scénario Lab Workspace n’est pas disponible pour le moment. Le mode classique reste accessible."
+              );
+              return;
+            }
+            labWindow.location.replace(`/lab.html?id=${encodeURIComponent(nodeId)}`);
+          } catch (error) {
+            if (!labWindow.closed) labWindow.close();
+            this.labWorkspaceFallbackId = nodeId;
+            this.notify("Impossible de joindre le Lab Workspace. Le laboratoire reste dans le mode classique.");
+          }
         },
         async openLab(id, openInNewTab = false) {
           const nodeId = String(id || '');
@@ -5702,7 +5745,13 @@
               const labPayload = await response.json();
               // Un bac à sable générique ne remplace pas une consigne legacy déjà disponible.
               // Le workspace v2 n'est prioritaire que lorsqu'une vraie définition de lab existe.
-              if (!labPayload.sandbox) {
+              const topologyNodes = labPayload.definition?.initial_topology?.nodes;
+              if (
+                !labPayload.sandbox &&
+                Array.isArray(topologyNodes) &&
+                topologyNodes.length > 0
+              ) {
+                this.labWorkspaceFallbackId = null;
                 navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`);
                 return;
               }
@@ -5721,6 +5770,7 @@
           }
           await this.show(nodeId);
           this.modalTab = 'lab';
+          this.labWorkspaceFallbackId = nodeId;
         },
         isLabDone(id) { return this.labsDone.includes(id); },
         stepDone(i) { return !!(this.detail && this.labSteps[this.detail.id + ':' + i]); },
