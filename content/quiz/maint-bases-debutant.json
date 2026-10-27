@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Les fondamentaux de la maintenance » ?",
+      "prompt": "Quel est l'objectif principal de la maintenance informatique ?",
       "choices": [
-        "Le sujet principal du cours : Les fondamentaux de la maintenance",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Remplacer régulièrement tous les équipements",
+        "Maintenir ou rétablir un fonctionnement attendu tout en maîtrisant les risques",
+        "Éviter toute documentation",
+        "Redémarrer les systèmes dès qu'un utilisateur se plaint"
+      ],
+      "answer": 1,
+      "explanation": "La maintenance vise à préserver ou rétablir le service attendu, avec des actions adaptées, sûres et vérifiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ordinateur ne démarre plus à cause d'un composant défaillant. Quel type de maintenance répond d'abord à la panne constatée ?",
+      "choices": [
+        "Maintenance évolutive",
+        "Maintenance prédictive",
+        "Maintenance corrective",
+        "Maintenance préventive uniquement"
+      ],
+      "answer": 2,
+      "explanation": "La maintenance corrective intervient après la constatation d'une défaillance pour rétablir le fonctionnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel exemple correspond le mieux à la maintenance préventive ?",
+      "choices": [
+        "Contrôler régulièrement l'état des ventilateurs et nettoyer selon une procédure planifiée",
+        "Attendre que le serveur tombe en panne",
+        "Modifier une application pour une nouvelle fonctionnalité",
+        "Clôturer un ticket sans test"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La maintenance préventive est planifiée pour réduire la probabilité de panne ou la dégradation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre un symptôme et une cause ?",
+      "choices": [
+        "Un symptôme est toujours la cause réelle",
+        "La cause est une supposition qu'on ne doit jamais tester",
+        "Les deux termes sont synonymes",
+        "Le symptôme est observable ; la cause explique le mécanisme qui l'a produit"
+      ],
+      "answer": 3,
+      "explanation": "Il faut recueillir des observations puis tester les hypothèses avant d'annoncer une cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une action qui risque d'interrompre un service partagé, que faut-il faire ?",
+      "choices": [
+        "Agir vite sans prévenir",
+        "Vérifier l'autorisation, l'impact, les prérequis et le moyen de retour arrière",
+        "Modifier plusieurs paramètres à la fois",
+        "Supprimer les journaux pour libérer de l'espace"
+      ],
+      "answer": 1,
+      "explanation": "La préparation vérifie la sécurité, les dépendances, la fenêtre et les conditions de restauration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il noter les résultats des tests pendant le diagnostic ?",
+      "choices": [
+        "Pour remplacer la validation finale",
+        "Pour donner l'impression que le ticket est plus long",
+        "Pour garder des preuves, comparer les hypothèses et éviter de répéter inutilement les mêmes contrôles",
+        "Pour éviter de parler à l'utilisateur"
+      ],
+      "answer": 2,
+      "explanation": "Les preuves datées permettent de suivre le raisonnement et de transmettre un dossier fiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ping échoue depuis le poste de supervision. Que peut-on conclure avec certitude ?",
+      "choices": [
+        "La cible ne répond pas à ce test ICMP depuis ce point de collecte",
+        "L'application métier est définitivement arrêtée",
+        "Le disque du serveur est plein",
+        "Le câble est nécessairement cassé"
+      ],
+      "answer": 0,
+      "explanation": "Un ping qui échoue ne permet pas seul de distinguer routage, filtrage ICMP, cible indisponible ou autre problème de chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il escalader un incident ?",
+      "choices": [
+        "Uniquement après avoir tenté toutes les modifications possibles",
+        "Quand on veut éviter de documenter",
+        "Jamais si l'utilisateur est pressé",
+        "Lorsque le risque, l'impact ou les compétences requises dépassent son autorisation ou son niveau"
+      ],
+      "answer": 3,
+      "explanation": "L'escalade protège le service et assure une prise en charge adaptée ; elle doit inclure les faits, tests et actions déjà réalisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui permet le mieux de clôturer une intervention ?",
+      "choices": [
+        "Le fait d'avoir exécuté une commande",
+        "Une vérification montrant que le besoin initial est satisfait, accompagnée d'une trace claire",
+        "L'absence de réponse de l'utilisateur",
+        "Le fait d'avoir changé le statut du ticket"
+      ],
+      "answer": 1,
+      "explanation": "La clôture doit se baser sur des critères de réussite vérifiés et documentés, pas uniquement sur l'action réalisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester une restauration de sauvegarde ?",
+      "choices": [
+        "Pour rendre les sauvegardes modifiables par tous",
+        "Pour éviter de conserver une procédure",
+        "Pour vérifier que les données et la méthode permettent réellement de retrouver un état utilisable",
+        "Pour remplacer la prévention des incidents"
+      ],
+      "answer": 2,
+      "explanation": "Une sauvegarde réussie ne garantit pas que la restauration est exploitable. Le test doit vérifier les données et le fonctionnement attendu."
     }
   ]
 }
