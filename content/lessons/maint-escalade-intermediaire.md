@@ -40,61 +40,79 @@ Les principes directeurs sont les suivants : intervention autorisée, moindre pr
 | Retour arrière | Séquence permettant de retrouver un état stable si les critères de réussite ne sont pas satisfaits. |
 | Récurrence | Réapparition d'un problème similaire après un traitement précédent. |
 
-## Cartographie des processus
+## Schémas adaptés au sujet
 
-### Schéma 1 — chaîne opérationnelle
-
-```mermaid
-flowchart LR
-  A[Signal] --> B[Collecte] --> C[Seuil] --> D[Décision] --> E[Action]
-```
-
-Ce schéma résume la chaîne à observer pour gestion de l'escalade (n1/n2/n3). Chaque étape possède une entrée, une sortie et une responsabilité. Si une transition n'est pas visible, la procédure doit prévoir une vérification plutôt que supposer que l'étape précédente a réussi.
-
-### Schéma 2 — cycle de traitement
+### Schéma 1 — Parcours N1 N2 N3
 
 ```mermaid
 flowchart LR
-  A[Préparer] --> B[Exécuter] --> C[Contrôler] --> D[Valider] --> E[Tracer]
+  A[Signal utilisateur] --> B[N1 qualification]
+  B --> C[N2 diagnostic]
+  C --> D[N3 expertise]
+  D --> E[Validation et retour]
 ```
 
-Le cycle doit être parcouru du début à la fin, sans supprimer la validation ni la trace. Une intervention peut être techniquement terminée alors que son résultat n'est pas encore accepté par le service concerné.
+Le parcours dépend des critères de compétence, d'impact et de risque ; l'incident conserve un propriétaire pendant les transferts.
 
-### Schéma 3 — maîtrise du risque
+### Schéma 2 — Décision d'escalade
+
+```mermaid
+flowchart TD
+  A[Qualifier impact] --> B{Dans le mandat N1 ?}
+  B -->|Oui| C[Procédure connue]
+  B -->|Non| D[Escalade technique]
+  D --> E[Acceptation explicite]
+```
+
+L'escalade doit reposer sur un seuil défini et être prise en charge par un destinataire identifié.
+
+### Schéma 3 — Transfert de contexte
 
 ```mermaid
 flowchart LR
-  A[Actif] --> B[Risque] --> C[Contrôle] --> D[Preuve] --> E[Revue]
+  A[Symptôme] --> B[Tests réalisés]
+  B --> C[Preuves et hypothèses]
+  C --> D[Action proposée]
+  D --> E[Prise en charge]
 ```
 
-La décision finale doit tenir compte du risque et des preuves. Une alerte, une action ou un changement de statut n'est utile que si l'information est assez fiable pour permettre la suite du travail.
+Le résumé, les tests et la prochaine action évitent de recommencer l'enquête et de perdre les informations du niveau précédent.
 
-### Schéma 4 — parcours d'une demande
+### Schéma 4 — Escalade hiérarchique
+
+```mermaid
+flowchart TD
+  A[Risque ou priorité] --> B[Décision requise]
+  B --> C[Responsable de service]
+  C --> D[Ressource ou arbitrage]
+  D --> E[Décision tracée]
+```
+
+L'escalade hiérarchique vise les ressources et décisions au-delà du mandat technique, pas le remplacement de toute qualification.
+
+### Schéma 5 — Communication incident
 
 ```mermaid
 flowchart LR
-  A[Demande] --> B[Qualification] --> C[Traitement] --> D[Validation] --> E[Clôture]
+  A[État vérifié] --> B[Résumé impact]
+  B --> C[Prochaine étape]
+  C --> D[Heure du prochain point]
+  D --> E[Mise à jour]
 ```
 
-Le parcours doit laisser au technicien un état explicite à chaque étape : en attente, en cours, bloqué, validé ou escaladé. Des états ambigus rendent les indicateurs de délai et le pilotage peu fiables.
+Une cadence de communication précise maintient la confiance même si l'heure exacte de résolution demeure inconnue.
 
-### Schéma 5 — démarche d'analyse
+### Schéma 6 — Disponibilité astreinte
 
 ```mermaid
-flowchart LR
-  A[Mesure] --> B[Analyse] --> C[Hypothèse] --> D[Test] --> E[Conclusion]
+flowchart TD
+  A[N3 non joignable] --> B[Chaîne de remplacement]
+  B --> C[Mesure conservatoire]
+  C --> D[Décision autorisée]
+  D --> E[Journal d'appel]
 ```
 
-L'analyse gagne à séparer constat, hypothèse et conclusion. Les preuves qui ne soutiennent pas l'hypothèse doivent rester disponibles afin d'expliquer pourquoi une piste a été écartée.
-
-### Schéma 6 — boucle d'amélioration
-
-```mermaid
-flowchart LR
-  A[Détection] --> B[Escalade] --> C[Diagnostic] --> D[Rétablissement] --> E[Retour]
-```
-
-La boucle se ferme lorsque les retours et incidents servent à changer le dispositif, puis qu'un contrôle démontre l'effet de cette amélioration. Une action documentaire sans vérification de terrain reste incomplète.
+L'absence d'un expert doit déclencher une chaîne de remplacement prévue, sans partage improvisé de comptes privilégiés.
 
 ## Fondements techniques du domaine
 
