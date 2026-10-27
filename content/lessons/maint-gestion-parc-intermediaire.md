@@ -40,61 +40,79 @@ Les principes directeurs sont les suivants : intervention autorisée, moindre pr
 | Retour arrière | Séquence permettant de retrouver un état stable si les critères de réussite ne sont pas satisfaits. |
 | Récurrence | Réapparition d'un problème similaire après un traitement précédent. |
 
-## Cartographie des processus
+## Schémas adaptés au sujet
 
-### Schéma 1 — chaîne opérationnelle
-
-```mermaid
-flowchart LR
-  A[Signal] --> B[Collecte] --> C[Seuil] --> D[Décision] --> E[Action]
-```
-
-Ce schéma résume la chaîne à observer pour gestion de parc (glpi, ocs). Chaque étape possède une entrée, une sortie et une responsabilité. Si une transition n'est pas visible, la procédure doit prévoir une vérification plutôt que supposer que l'étape précédente a réussi.
-
-### Schéma 2 — cycle de traitement
+### Schéma 1 — Collecte vers CMDB
 
 ```mermaid
 flowchart LR
-  A[Préparer] --> B[Exécuter] --> C[Contrôler] --> D[Valider] --> E[Tracer]
+  A[Poste ou serveur] --> B[Agent OCS]
+  B --> C[Serveur inventaire]
+  C --> D[Règles de rapprochement]
+  D --> E[Actif GLPI]
 ```
 
-Le cycle doit être parcouru du début à la fin, sans supprimer la validation ni la trace. Une intervention peut être techniquement terminée alors que son résultat n'est pas encore accepté par le service concerné.
+La collecte technique et le référentiel de parc sont complémentaires ; le rapprochement doit détecter les doublons et conserver l'historique.
 
-### Schéma 3 — maîtrise du risque
+### Schéma 2 — Cycle de vie d'un actif
 
 ```mermaid
 flowchart LR
-  A[Actif] --> B[Risque] --> C[Contrôle] --> D[Preuve] --> E[Revue]
+  A[Réception] --> B[Inventaire]
+  B --> C[Affectation]
+  C --> D[Maintenance]
+  D --> E[Retrait sécurisé]
 ```
 
-La décision finale doit tenir compte du risque et des preuves. Une alerte, une action ou un changement de statut n'est utile que si l'information est assez fiable pour permettre la suite du travail.
+Chaque étape doit laisser une preuve adaptée : réception, propriétaire, réparation, effacement et retrait des accès.
 
-### Schéma 4 — parcours d'une demande
+### Schéma 3 — Rapprochement des identités
+
+```mermaid
+flowchart TD
+  A[Nouvel inventaire] --> B{Série concordante ?}
+  B -->|Oui| C[Comparer historique]
+  B -->|Non| D[Revue manuelle]
+  C --> E[Mettre à jour actif]
+```
+
+Le nom d'hôte seul ne suffit pas : les identifiants de matériel, d'agent et l'historique doivent être croisés.
+
+### Schéma 4 — Qualité de données
 
 ```mermaid
 flowchart LR
-  A[Demande] --> B[Qualification] --> C[Traitement] --> D[Validation] --> E[Clôture]
+  A[Champs manquants] --> B[Contrôles automatiques]
+  B --> C[Liste d'écarts]
+  C --> D[Responsable assigné]
+  D --> E[Correction vérifiée]
 ```
 
-Le parcours doit laisser au technicien un état explicite à chaque étape : en attente, en cours, bloqué, validé ou escaladé. Des états ambigus rendent les indicateurs de délai et le pilotage peu fiables.
+Un écart devient une tâche assignée et traçable plutôt qu'un champ vide ignoré dans le référentiel.
 
-### Schéma 5 — démarche d'analyse
+### Schéma 5 — Conformité logicielle
+
+```mermaid
+flowchart TD
+  A[Logiciel détecté] --> B[Édition et version]
+  B --> C[Contrat et droits]
+  C --> D[Comparer les droits]
+  D --> E[Écart documenté]
+```
+
+La présence d'un logiciel dans l'inventaire ne prouve pas la conformité de licence ; il faut rapprocher le contrat et l'usage.
+
+### Schéma 6 — Sortie de parc
 
 ```mermaid
 flowchart LR
-  A[Mesure] --> B[Analyse] --> C[Hypothèse] --> D[Test] --> E[Conclusion]
+  A[Restitution] --> B[Contrôle matériel]
+  B --> C[Effacement autorisé]
+  C --> D[Retrait des accès]
+  D --> E[Archivage et clôture]
 ```
 
-L'analyse gagne à séparer constat, hypothèse et conclusion. Les preuves qui ne soutiennent pas l'hypothèse doivent rester disponibles afin d'expliquer pourquoi une piste a été écartée.
-
-### Schéma 6 — boucle d'amélioration
-
-```mermaid
-flowchart LR
-  A[Détection] --> B[Escalade] --> C[Diagnostic] --> D[Rétablissement] --> E[Retour]
-```
-
-La boucle se ferme lorsque les retours et incidents servent à changer le dispositif, puis qu'un contrôle démontre l'effet de cette amélioration. Une action documentaire sans vérification de terrain reste incomplète.
+Le retrait doit fermer les dépendances techniques et de sécurité, pas uniquement changer le statut dans l'outil.
 
 ## Fondements techniques du domaine
 
