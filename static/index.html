@@ -4246,7 +4246,7 @@
             const label = labelFor(value);
             if (label && !/^[|+\-_=<>~.\s]+$/u.test(label) && !labels.some(item => item.toLocaleLowerCase('fr-FR') === label.toLocaleLowerCase('fr-FR'))) labels.push(label);
           };
-          const connectors = /(\s*(?:<-->|<->|<--|<-|-->>|->>|-->|-\.->|==>|---|--o|--x|->|=>|←|↔|→|⇒|⇢|↑|↓|⇧|⇩)\s*)/gu;
+          const connectors = /(\s*(?:<-->|<->|<--|<-|-->>|->>|-->|-\.->|==>|--o|--x|-{2,}|->|=>|←|↔|→|⇒|⇢|↑|↓|⇧|⇩)\s*)/gu;
           const isConnectorOnlyLine = line => {
             const value = String(line || '').trim();
             return Boolean(value)
