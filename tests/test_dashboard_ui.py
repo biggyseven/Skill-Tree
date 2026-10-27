@@ -66,6 +66,15 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.setTab(target, { skipHistory: true })", DASHBOARD_HTML)
         self.assertNotIn("createTextNode('.\\n')", DASHBOARD_HTML)
 
+    def test_voice_reader_preserves_punctuation_nested_toc_and_inline_code(self):
+        self.assertIn("const spokenTitle = /[.!?…;:]$/u.test(title) ? title : title + '.';", DASHBOARD_HTML)
+        self.assertIn("if (!/[.!?…,:;]$/u.test(value)) value += '.';", DASHBOARD_HTML)
+        self.assertIn("readable.querySelectorAll('code').forEach(code =>", DASHBOARD_HTML)
+        self.assertIn("const isContentsList = list =>", DASHBOARD_HTML)
+        self.assertIn("nestedLists.every(isContentsList)", DASHBOARD_HTML)
+        self.assertNotIn("title.replace(/[.!?…:;]+$/u, '')", DASHBOARD_HTML)
+        self.assertNotIn("value.replace(/[,:;]+", DASHBOARD_HTML)
+
     def test_voice_reader_describes_tables_and_visual_schematics(self):
         self.assertIn("speechTextFromTable(table)", DASHBOARD_HTML)
         self.assertIn("Ligne ' + (rowIndex + 1)", DASHBOARD_HTML)
