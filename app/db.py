@@ -135,7 +135,9 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
     submitted_at INTEGER,
     time_expired INTEGER NOT NULL DEFAULT 0,
     answers_json TEXT NOT NULL DEFAULT '[]',
-    details_json TEXT NOT NULL DEFAULT '[]'
+    details_json TEXT NOT NULL DEFAULT '[]',
+    paused_at    INTEGER,
+    paused_seconds INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_expires ON exam_sessions(expires_at);
@@ -215,6 +217,8 @@ def initialize(conn: sqlite3.Connection) -> None:
         # CREATE TABLE IF NOT EXISTS ne modifie pas une table PostgreSQL existante.
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS answers_json TEXT NOT NULL DEFAULT '[]'")
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS details_json TEXT NOT NULL DEFAULT '[]'")
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS paused_at INTEGER")
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS paused_seconds INTEGER NOT NULL DEFAULT 0")
     _ensure_user_stats(conn)
     conn.commit()
 
@@ -285,6 +289,10 @@ def _migrate(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN answers_json TEXT NOT NULL DEFAULT '[]'")
     if "details_json" not in exam_columns:
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN details_json TEXT NOT NULL DEFAULT '[]'")
+    if "paused_at" not in exam_columns:
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN paused_at INTEGER")
+    if "paused_seconds" not in exam_columns:
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN paused_seconds INTEGER NOT NULL DEFAULT 0")
 
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_attempts_node ON attempts(node_id, created_at)"
