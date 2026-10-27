@@ -170,7 +170,7 @@ async def lifespan(_app: FastAPI):
         conn.close()
     yield
 
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -280,7 +280,15 @@ async def enforce_site_authentication(request: Request, call_next):
         or (path.lower().endswith(".html") and path != "/login.html")
     )
     if is_gated_page and not authenticated:
-        return RedirectResponse(url="/login.html", status_code=303)
+        destination = request.url.path
+        if request.url.query:
+            destination += "?" + request.url.query
+        login_url = "/login.html?" + urlencode({"next": destination})
+        return RedirectResponse(
+            url=login_url,
+            status_code=303,
+            headers={"Cache-Control": "no-store"},
+        )
 
     if path.startswith("/api/"):
         if not configured:
