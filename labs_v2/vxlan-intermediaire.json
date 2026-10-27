@@ -1,0 +1,388 @@
+{
+  "schema_version": 2,
+  "id": "vxlan-intermediaire",
+  "title": "VXLAN — VNI, VTEP et underlay",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Reliez les deux LAN de VLAN 10 par un overlay VXLAN. Activez le VNI 10010, configurez les VTEP locaux/distants, conservez UDP/4789 et vérifiez que l’underlay IP permet de joindre le VTEP distant.",
+  "objectives": [
+    "Associer VLAN 10 au VNI 10010.",
+    "Configurer une adresse VTEP stable sur chaque leaf.",
+    "Déclarer le VTEP distant.",
+    "Utiliser UDP/4789 et vérifier la connectivité underlay."
+  ],
+  "hints": [
+    "VXLAN encapsule les trames Ethernet dans UDP/IP.",
+    "Les deux extrémités doivent associer le même VLAN au même VNI.",
+    "Une overlay bien configurée ne fonctionne pas sans reachability IP entre VTEP."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-vxlan-intermediaire",
+    "metadata": {
+      "name": "VXLAN — VNI et reachability VTEP",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "LEAF1",
+        "type": "switch",
+        "x": 250,
+        "y": 220,
+        "label": "LEAF1",
+        "model": "LEAF1",
+        "ports": [
+          {
+            "id": "Eth1/1",
+            "name": "Eth1/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Eth1/2",
+            "name": "Eth1/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "LEAF1",
+          "routes": [
+            {
+              "protocol": "vxlan",
+              "enabled": false,
+              "vni": 10010,
+              "local_vtep": "0.0.0.0",
+              "remote_vteps": [
+                "0.0.0.0"
+              ],
+              "udp_port": 0,
+              "vlan_to_vni": [
+                {
+                  "vlan": 10,
+                  "vni": 10010
+                }
+              ],
+              "underlay_reachable": false,
+              "evpn_enabled": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "SPINE",
+        "type": "router",
+        "x": 560,
+        "y": 220,
+        "label": "SPINE",
+        "model": "SPINE",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SPINE",
+          "routes": [
+            {
+              "protocol": "underlay",
+              "ospf_enabled": true,
+              "loopback": "10.255.0.254"
+            }
+          ]
+        }
+      },
+      {
+        "id": "LEAF2",
+        "type": "switch",
+        "x": 870,
+        "y": 220,
+        "label": "LEAF2",
+        "model": "LEAF2",
+        "ports": [
+          {
+            "id": "Eth1/1",
+            "name": "Eth1/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Eth1/2",
+            "name": "Eth1/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "LEAF2",
+          "routes": [
+            {
+              "protocol": "vxlan",
+              "enabled": false,
+              "vni": 10010,
+              "local_vtep": "10.255.0.2",
+              "remote_vteps": [
+                "10.255.0.1"
+              ],
+              "udp_port": 4789,
+              "vlan_to_vni": [
+                {
+                  "vlan": 10,
+                  "vni": 10010
+                }
+              ],
+              "underlay_reachable": false,
+              "evpn_enabled": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 80,
+        "y": 420,
+        "label": "PC-A",
+        "model": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      },
+      {
+        "id": "PC-B",
+        "type": "pc",
+        "x": 1040,
+        "y": 420,
+        "label": "PC-B",
+        "model": "PC-B",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-B"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1-SPINE",
+        "from": {
+          "node": "LEAF1",
+          "port": "Eth1/1"
+        },
+        "to": {
+          "node": "SPINE",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "SPINE-L2",
+        "from": {
+          "node": "SPINE",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "LEAF2",
+          "port": "Eth1/1"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "PC-A",
+        "from": {
+          "node": "LEAF1",
+          "port": "Eth1/2"
+        },
+        "to": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "PC-B",
+        "from": {
+          "node": "LEAF2",
+          "port": "Eth1/2"
+        },
+        "to": {
+          "node": "PC-B",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "vxlan-enabled",
+        "description": "VXLAN is enabled on LEAF1.",
+        "device": "LEAF1",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "vni",
+        "description": "The VNI matches VLAN 10.",
+        "device": "LEAF1",
+        "path": "config.routes[0].vni",
+        "operator": "equals",
+        "expected": 10010
+      },
+      {
+        "id": "local-vtep",
+        "description": "LEAF1 uses its stable VTEP address.",
+        "device": "LEAF1",
+        "path": "config.routes[0].local_vtep",
+        "operator": "equals",
+        "expected": "10.255.0.1"
+      },
+      {
+        "id": "remote-vtep",
+        "description": "LEAF1 knows the remote VTEP.",
+        "device": "LEAF1",
+        "path": "config.routes[0].remote_vteps",
+        "operator": "contains",
+        "expected": "10.255.0.2"
+      },
+      {
+        "id": "udp-port",
+        "description": "VXLAN uses UDP/4789.",
+        "device": "LEAF1",
+        "path": "config.routes[0].udp_port",
+        "operator": "equals",
+        "expected": 4789
+      },
+      {
+        "id": "mapping",
+        "description": "VLAN 10 maps to VNI 10010.",
+        "device": "LEAF1",
+        "path": "config.routes[0].vlan_to_vni",
+        "operator": "contains",
+        "expected": "{vlan:10,vni:10010}"
+      },
+      {
+        "id": "underlay",
+        "description": "The underlay route to the remote VTEP is reachable.",
+        "device": "LEAF1",
+        "path": "config.routes[0].underlay_reachable",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
