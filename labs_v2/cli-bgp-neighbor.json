@@ -6,7 +6,7 @@
   "module": "Routage avancé",
   "duration_min": 25,
   "difficulty": "expert",
-  "prompt": "Contexte : R1 appartient à l’AS 65001 et doit établir une relation eBGP avec le voisin 192.0.2.2, rattaché à l’AS 65002. Il doit également annoncer le préfixe d’entreprise 10.10.0.0/16. Configurez l’AS local, le voisin et le réseau annoncé. Le contrôle vérifie les paramètres BGP locaux ; l’établissement d’une session exige aussi que le routeur distant et la connectivité IP soient configurés.",
+  "prompt": "Contexte : R1 appartient à l’AS 65001 et doit établir une relation eBGP avec R2, voisin 192.0.2.2 rattaché à l’AS 65002. Le réseau d’entreprise 10.10.0.0/16 est déjà présent derrière R1 ; configurez le voisin et annoncez exactement ce préfixe. Le laboratoire vérifie les paramètres BGP locaux. Il ne simule pas l’état réel de la session ni l’échange de routes avec le routeur distant.",
   "objectives": [
     "Exécuter puis vérifier : router bgp 65001",
     "Exécuter puis vérifier : neighbor 192.0.2.2 remote-as 65002",
@@ -23,7 +23,7 @@
     "schema_version": 2,
     "topology_id": "topo-cli-bgp-neighbor",
     "metadata": {
-      "name": "BGP eBGP",
+      "name": "eBGP : voisin externe et LAN annoncé",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -60,14 +60,14 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
+            "ip": "10.10.0.1",
+            "mask": "255.255.0.0",
             "vlan": null,
-            "description": "Interface disponible",
+            "description": "LAN annoncé par BGP",
             "access_group_in": null,
             "access_group_out": null,
             "ipv6": null,
@@ -185,6 +185,132 @@
           "mac_table": [],
           "routing_table": []
         }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "generic-2960",
+        "x": 490,
+        "y": 360,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Vers le réseau d’entreprise",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Vers R1",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP1",
+        "type": "server",
+        "model": "generic-server",
+        "x": 800,
+        "y": 360,
+        "label": "Serveur LAN",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": "10.10.0.10",
+            "mask": "255.255.0.0",
+            "vlan": null,
+            "description": "Hôte du préfixe annoncé",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
       }
     ],
     "links": [
@@ -199,6 +325,36 @@
           "port": "Gi0/0"
         },
         "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-R1-SW1",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-SW1-APP1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "APP1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
         "state": "up",
         "bandwidth": 1000,
         "latency_ms": 1
