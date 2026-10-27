@@ -1,0 +1,102 @@
+{
+  "node_id": "data-dba-role-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur premier réflexe lorsque la latence augmente alors que le CPU du SGBD reste modéré ?",
+      "choices": [
+        "Augmenter immédiatement le nombre maximal de connexions",
+        "Examiner les attentes, transactions longues, pool et verrous avant de choisir une correction",
+        "Redémarrer le serveur sans collecter d’indices",
+        "Désactiver les contrôles d’intégrité pour accélérer les écritures"
+      ],
+      "answer": 1,
+      "explanation": "Une latence élevée avec CPU modéré peut provenir de verrous, d’attentes réseau ou du pool. Une mesure discriminante évite de déplacer le problème ou de perdre les indices."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une session inactive peut-elle tout de même présenter un risque opérationnel ?",
+      "choices": [
+        "Toute session inactive consomme nécessairement 100 % du CPU",
+        "Une session inactive est toujours une fuite mémoire",
+        "Elle peut garder une transaction ouverte et retenir des verrous ou empêcher certaines opérations de maintenance",
+        "Elle implique automatiquement une corruption de la base"
+      ],
+      "answer": 2,
+      "explanation": "L’état de la dernière requête ne suffit pas ; la durée et l’état de transaction doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve un taux de cache élevé ?",
+      "choices": [
+        "Qu’aucune requête ne peut être lente",
+        "Que toutes les transactions respectent les règles métier",
+        "Que la réplication est à jour",
+        "Qu’une grande partie des lectures observées a été satisfaite par le cache, sans exclure CPU, verrous ou transfert excessif"
+      ],
+      "answer": 3,
+      "explanation": "Le cache ne supprime pas les coûts logiques, la contention ni le traitement côté client. Il faut corréler plusieurs signaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe limite le mieux l’impact d’un secret applicatif compromis ?",
+      "choices": [
+        "Utiliser un rôle applicatif limité et séparer ce rôle des comptes de migration et d’administration",
+        "Partager le compte superutilisateur entre tous les composants",
+        "Inscrire les identifiants dans le dépôt pour éviter les erreurs de configuration",
+        "Donner tous les privilèges afin de réduire les demandes d’accès"
+      ],
+      "answer": 0,
+      "explanation": "Le moindre privilège réduit le périmètre d’action d’un secret compromis. Les identités et leurs responsabilités doivent être distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence est correcte entre réplication et sauvegarde ?",
+      "choices": [
+        "La réplication remplace toujours la sauvegarde",
+        "Une sauvegarde ne peut jamais être restaurée après une panne",
+        "La réplication propage les changements, alors qu’une sauvegarde fournit une base de restauration qui doit être testée",
+        "Les deux mécanismes garantissent automatiquement un RPO nul"
+      ],
+      "answer": 2,
+      "explanation": "Une réplication peut propager une erreur ou une suppression. Une sauvegarde permet un retour à un état antérieur si elle est intègre et restaurable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit obligatoirement figurer dans un plan de changement risqué ?",
+      "choices": [
+        "Une liste des paramètres à augmenter, sans critère d’arrêt",
+        "Des préconditions, critères de poursuite ou d’arrêt, vérifications et procédure de retour arrière",
+        "La seule commande de production",
+        "Une estimation optimiste non mesurée"
+      ],
+      "answer": 1,
+      "explanation": "Un plan sûr définit quand continuer, quand s’arrêter et comment revenir à un état stable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal de l’analyse d’un deadlock récurrent ?",
+      "choices": [
+        "Rendre les transactions plus longues afin qu’elles finissent par se débloquer",
+        "Désactiver tous les verrous",
+        "Répéter indéfiniment toute transaction annulée",
+        "Reconstituer l’ordre d’accès concurrent et corriger la cause, avec une reprise bornée si elle est sûre"
+      ],
+      "answer": 3,
+      "explanation": "Le deadlock signale un cycle d’attente. L’analyse des transactions et l’ordre d’accès permettent de corriger la cause plutôt que de masquer le symptôme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment confirmer qu’un dispositif de reprise respecte son RTO ?",
+      "choices": [
+        "Mesurer un exercice complet, de la préparation à la validation applicative et des données restaurées",
+        "Vérifier uniquement qu’un fichier de sauvegarde existe",
+        "Se fier à l’état « connecté » du réplica",
+        "Mesurer seulement la durée de copie sans tester l’application"
+      ],
+      "answer": 0,
+      "explanation": "Le RTO couvre le rétablissement utile du service, pas seulement une étape technique. Il faut vérifier les données et le parcours applicatif."
+    }
+  ]
+}
