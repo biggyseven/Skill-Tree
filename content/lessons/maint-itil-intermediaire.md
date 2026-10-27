@@ -219,3 +219,25 @@ Un changement est techniquement déployé, mais les utilisateurs signalent toujo
 À partir de dix tickets récurrents, propose une façon d'identifier un problème commun, d'évaluer une solution, de créer un changement et d'en vérifier le résultat.
 
 **Correction détaillée :** regrouper les incidents par symptômes et période, établir les preuves, ouvrir ou compléter un problème, définir le risque et les options, obtenir une autorisation adaptée, planifier les tests et le retour, communiquer, exécuter, vérifier et mettre à jour la base de connaissances. Le tableau de bord doit suivre les incidents associés et les retours arrière. Une baisse d'incidents n'est attribuée au changement que si les observations la soutiennent.
+
+
+## 14. Revue de pratique et amélioration continue
+
+Un processus doit être adapté au volume, au risque et à l'organisation. Une petite équipe peut utiliser quelques catégories et un contrôle de changement simplifié ; une entreprise avec plusieurs sites, des services critiques et des contraintes réglementaires peut avoir besoin de rôles formels, de fenêtres coordonnées, d'un registre des risques et de rapports de qualité. L'important est que les décisions soient adaptées, compréhensibles et traçables.
+
+Lors d'une revue périodique, examine les incidents récurrents, les délais de prise en charge, les changements d'urgence, les retours arrière, les incidents associés à un changement, les problèmes sans propriétaire, les procédures obsolètes et les actions qui restent en retard. Ne traite pas une hausse du nombre de changements d'urgence comme un défaut sans examiner les causes : une vulnérabilité critique peut justifier un chemin d'urgence, mais une mauvaise préparation répétée appelle une amélioration.
+
+~~~mermaid
+flowchart TD
+    A[Mesures et retours] --> B[Identifier motif récurrent]
+    B --> C[Analyser processus et risques]
+    C --> D[Décider une amélioration]
+    D --> E[Test et approbation]
+    E --> F[Mise en œuvre]
+    F --> G[Mesurer l'effet]
+    G --> H[Revue et ajustement]
+~~~
+
+Les pratiques ITIL doivent être utilisées comme un langage commun, non comme une obligation d'adopter un formulaire identique pour toutes les situations. Le service doit choisir les contrôles requis et définir qui prend les décisions. Pour un changement simple et répétitif, un modèle préautorisé peut suffire ; pour une modification risquée du réseau central, il faut un examen plus approfondi et une validation de fin.
+
+La connaissance opérationnelle doit se mettre à jour à partir de l'expérience. Une erreur connue, un article d'aide ou une procédure doit être révisé si le contournement cesse de fonctionner, si les versions changent ou si un test révèle une limite. Un processus mature relie les incidents aux problèmes, aux changements et aux connaissances, puis vérifie si les actions ont réduit la récurrence.
