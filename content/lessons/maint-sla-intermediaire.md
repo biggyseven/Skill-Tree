@@ -40,61 +40,79 @@ Les principes directeurs sont les suivants : intervention autorisée, moindre pr
 | Retour arrière | Séquence permettant de retrouver un état stable si les critères de réussite ne sont pas satisfaits. |
 | Récurrence | Réapparition d'un problème similaire après un traitement précédent. |
 
-## Cartographie des processus
+## Schémas adaptés au sujet
 
-### Schéma 1 — chaîne opérationnelle
-
-```mermaid
-flowchart LR
-  A[Signal] --> B[Collecte] --> C[Seuil] --> D[Décision] --> E[Action]
-```
-
-Ce schéma résume la chaîne à observer pour sla, ola et satisfaction utilisateur. Chaque étape possède une entrée, une sortie et une responsabilité. Si une transition n'est pas visible, la procédure doit prévoir une vérification plutôt que supposer que l'étape précédente a réussi.
-
-### Schéma 2 — cycle de traitement
+### Schéma 1 — Mesurer un SLA
 
 ```mermaid
 flowchart LR
-  A[Préparer] --> B[Exécuter] --> C[Contrôler] --> D[Valider] --> E[Tracer]
+  A[Périmètre service] --> B[Source fiable]
+  B --> C[Formule documentée]
+  C --> D[Cible SLA]
+  D --> E[Revue de service]
 ```
 
-Le cycle doit être parcouru du début à la fin, sans supprimer la validation ni la trace. Une intervention peut être techniquement terminée alors que son résultat n'est pas encore accepté par le service concerné.
+Le périmètre et la formule doivent représenter ce qui a été promis aux utilisateurs.
 
-### Schéma 3 — maîtrise du risque
+### Schéma 2 — SLA et OLA
 
 ```mermaid
 flowchart LR
-  A[Actif] --> B[Risque] --> C[Contrôle] --> D[Preuve] --> E[Revue]
+  A[Demande client] --> B[Équipe support]
+  B --> C[Équipe spécialisée]
+  C --> D[Service rétabli]
+  D --> E[Mesure SLA]
 ```
 
-La décision finale doit tenir compte du risque et des preuves. Une alerte, une action ou un changement de statut n'est utile que si l'information est assez fiable pour permettre la suite du travail.
+Les OLA internes doivent conserver assez de marge pour respecter l'engagement global de service.
 
-### Schéma 4 — parcours d'une demande
+### Schéma 3 — Calcul disponibilité
+
+```mermaid
+flowchart TD
+  A[Temps observé] --> B[Définition interruption]
+  B --> C[Exclusions convenues]
+  C --> D[Calcul reproductible]
+  D --> E[Résultat et limites]
+```
+
+Le chiffre de disponibilité est interprétable uniquement si son périmètre, ses périodes et ses exclusions sont explicites.
+
+### Schéma 4 — Délais de ticket
 
 ```mermaid
 flowchart LR
-  A[Demande] --> B[Qualification] --> C[Traitement] --> D[Validation] --> E[Clôture]
+  A[Création] --> B[Première réponse]
+  B --> C[Prise en charge]
+  C --> D[Rétablissement]
+  D --> E[Validation métier]
 ```
 
-Le parcours doit laisser au technicien un état explicite à chaque étape : en attente, en cours, bloqué, validé ou escaladé. Des états ambigus rendent les indicateurs de délai et le pilotage peu fiables.
+Le temps de réponse n'est pas le temps de rétablissement ; les transitions doivent être définies pour comparer les équipes.
 
-### Schéma 5 — démarche d'analyse
+### Schéma 5 — Satisfaction utilisateur
 
 ```mermaid
 flowchart LR
-  A[Mesure] --> B[Analyse] --> C[Hypothèse] --> D[Test] --> E[Conclusion]
+  A[Service utilisé] --> B[Retour utilisateur]
+  B --> C[Qualité échantillon]
+  C --> D[Analyse tendances]
+  D --> E[Plan amélioration]
 ```
 
-L'analyse gagne à séparer constat, hypothèse et conclusion. Les preuves qui ne soutiennent pas l'hypothèse doivent rester disponibles afin d'expliquer pourquoi une piste a été écartée.
+La satisfaction complète les métriques techniques et doit être interprétée avec le taux de réponse et le contexte.
 
-### Schéma 6 — boucle d'amélioration
+### Schéma 6 — Revue d'engagement
 
 ```mermaid
-flowchart LR
-  A[Détection] --> B[Escalade] --> C[Diagnostic] --> D[Rétablissement] --> E[Retour]
+flowchart TD
+  A[Écarts SLA] --> B[Analyse cause]
+  B --> C[Action et responsable]
+  C --> D[Échéance]
+  D --> E[Mesure prochaine période]
 ```
 
-La boucle se ferme lorsque les retours et incidents servent à changer le dispositif, puis qu'un contrôle démontre l'effet de cette amélioration. Une action documentaire sans vérification de terrain reste incomplète.
+Les revues doivent aboutir à des décisions et au suivi de leur effet, pas seulement à une présentation de chiffres.
 
 ## Fondements techniques du domaine
 
