@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Frameworks ITIL (incidents, changements) » ?",
+      "prompt": "Quelle est la différence essentielle entre incident et problème ?",
       "choices": [
-        "Le sujet principal du cours : Frameworks ITIL (incidents, changements)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "L'incident vise le rétablissement ; le problème vise la cause d'un ou plusieurs incidents",
+        "Le problème est toujours moins important",
+        "Un incident n'a pas de service touché",
+        "Ce sont deux mots parfaitement interchangeables"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Les deux processus sont liés mais poursuivent des objectifs différents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un changement standard est généralement :",
+      "choices": [
+        "Toute modification qualifiée d'urgente par l'auteur",
+        "Une modification sans risque ni documentation",
+        "Un changement répétable, borné et préautorisé selon des critères définis",
+        "Une modification qui ne nécessite jamais de test"
+      ],
+      "answer": 2,
+      "explanation": "Le caractère standard exige une définition préalable et des contrôles éprouvés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l'urgence ne doit-elle pas devenir une voie normale ?",
+      "choices": [
+        "Pour augmenter le nombre de formulaires",
+        "Pour éviter toute correction rapide",
+        "Pour empêcher la communication",
+        "Elle contourne les contrôles et peut masquer un défaut de planification si elle est utilisée systématiquement"
+      ],
+      "answer": 3,
+      "explanation": "Une voie accélérée doit rester rare, justifiée et revue après action."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une demande de changement ?",
+      "choices": [
+        "Un périmètre, un impact, une approbation, des tests et un retour arrière adapté",
+        "Un titre uniquement",
+        "Un résultat supposé avant exécution",
+        "Une date sans propriétaire"
+      ],
+      "answer": 0,
+      "explanation": "La maîtrise du changement consiste à encadrer la modification et sa validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand ouvrir un dossier de problème ?",
+      "choices": [
+        "Chaque fois qu'un utilisateur demande un clavier",
+        "Lorsqu'un incident significatif ou récurrent nécessite l'analyse de sa cause",
+        "Uniquement après un an",
+        "Jamais après rétablissement"
+      ],
+      "answer": 1,
+      "explanation": "Le problème peut rester ouvert après le rétablissement de l'incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une base de connaissances ?",
+      "choices": [
+        "À stocker uniquement les mots de passe",
+        "À remplacer les contrôles techniques",
+        "À rendre les procédures utiles, réutilisables et versionnées pour accélérer le support",
+        "À effacer les historiques"
+      ],
+      "answer": 2,
+      "explanation": "Les articles doivent être vérifiés et posséder un propriétaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif d'une revue après incident ?",
+      "choices": [
+        "Chercher systématiquement un coupable",
+        "Supprimer les preuves anciennes",
+        "Fermer les actions sans responsables",
+        "Comprendre ce qui s'est passé et assigner des améliorations vérifiables"
+      ],
+      "answer": 3,
+      "explanation": "La revue doit mener à des actions et à un apprentissage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir une matrice de priorité ?",
+      "choices": [
+        "Pour appliquer des règles cohérentes basées sur impact et urgence",
+        "Pour traiter toujours les tickets plus récents en premier",
+        "Pour ignorer les engagements de service",
+        "Pour laisser chaque équipe inventer sa formule"
+      ],
+      "answer": 0,
+      "explanation": "Une matrice commune améliore l'équité et la prévisibilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'une erreur connue ?",
+      "choices": [
+        "Un ticket sans texte",
+        "Une demande de matériel",
+        "Un problème analysé dont la cause ou le contournement est documenté",
+        "Une modification non approuvée"
+      ],
+      "answer": 2,
+      "explanation": "La base de connaissances peut utiliser une erreur connue pour réduire le temps de diagnostic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment mesurer l'effet d'un processus ITSM ?",
+      "choices": [
+        "Au nombre de cases dans un formulaire",
+        "Avec des indicateurs définis, des échantillons qualité, des tendances et des retours utilisateurs",
+        "À la longueur des intitulés de ticket",
+        "En comptant uniquement les tickets fermés"
+      ],
+      "answer": 1,
+      "explanation": "Un KPI doit être interprété avec sa qualité et son effet sur le service."
     }
   ]
 }
