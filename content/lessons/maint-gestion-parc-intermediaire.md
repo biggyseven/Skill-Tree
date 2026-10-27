@@ -120,81 +120,191 @@ Le retrait doit fermer les dépendances techniques et de sécurité, pas uniquem
 
 Un actif doit posséder une identité stable et des champs utiles à la maintenance : type, numéro de série, hôte, adresse, localisation, propriétaire et statut. Séparer l'identité matérielle, le nom réseau et l'affectation utilisateur évite qu'un changement de nom efface l'historique.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de parc (glpi, ocs), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — établir une identité stable.** Sépare l'identité physique de l'appareil, son nom réseau, l'identifiant de son agent et son affectation à un utilisateur. Définis la priorité des identifiants : numéro de série ou UUID matériel lorsqu'ils sont disponibles et fiables, identifiant d'inventaire interne, puis attributs complémentaires comme fabricant, modèle et adresse MAC. Le nom d'hôte ou l'utilisateur seul ne doit pas servir de clé unique : ils peuvent changer. Précise les champs obligatoires, la source de chaque champ, le propriétaire et les règles applicables aux actifs virtuels ou réinstallés.
 
-**Preuves et interprétation.** Les règles de nommage, l'origine de chaque champ et la date de dernière découverte doivent être documentées. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Conserve le résultat de collecte, l'horodatage, la source, l'historique des affectations et l'identifiant stable retenu. Les valeurs uniques peuvent être absentes ou mal renseignées ; note les exceptions et demande un contrôle physique plutôt que de fabriquer un identifiant. Évite de faire disparaître l'historique lorsque le nom d'hôte ou le propriétaire change.
 
-**Pièges et décision.** Un numéro de série absent ou dupliqué fragilise les garanties, les réparations et les audits. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — séparer les identifiants d'un actif
+
+```mermaid
+flowchart TD
+    A["Équipement physique ou virtuel"] --> B["Identité stable : série ou UUID fiable"]
+    A --> C["Identifiant interne de parc"]
+    A --> D["Identité technique : hôte et agent"]
+    A --> E["Affectation : utilisateur, lieu et service"]
+    B --> F["Rapprochement avec règles documentées"]
+    C --> F
+    D --> F
+    E --> G["Historique conservé séparément"]
+    F --> H{"Correspondance suffisamment fiable ?"}
+    H -- "Oui" --> I["Mettre à jour l'actif existant"]
+    H -- "Non" --> J["Mettre en attente pour revue manuelle"]
+    G --> I
+```
 
 ### 2. Collecte OCS
 
 La collecte automatisée remonte des caractéristiques matérielles et logicielles à partir d'agents et de sources autorisées. Déployer les agents selon un lot pilote, contrôler leurs versions, leur fréquence de remontée, leurs droits et leur connectivité vers le serveur.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de parc (glpi, ocs), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — piloter la collecte OCS.** Vérifie la version et la configuration de l'agent, la fréquence prévue, la dernière remontée, les files d'attente éventuelles, la résolution du serveur, les certificats ou mécanismes d'authentification et les journaux utiles. Commence par un lot pilote représentatif des systèmes d'exploitation et des réseaux différents. Compare les champs remontés à un poste contrôlé physiquement avant d'étendre la couverture. Évite une collecte plus fréquente que nécessaire si elle augmente inutilement la charge ou le volume de données.
 
-**Preuves et interprétation.** Suivre la date du dernier inventaire, la version d'agent et les erreurs de collecte distingue un actif disparu d'un agent en panne. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Suis la couverture des actifs attendus, la fraîcheur des remontées, le taux d'erreur et la version des agents. Une absence de remontée peut provenir d'un poste éteint, d'un réseau indisponible, d'un agent cassé, d'une migration ou d'un mauvais rattachement ; elle ne démontre ni le vol ni la disparition de l'actif. Enregistre les hypothèses et la prochaine vérification.
 
-**Pièges et décision.** Une collecte trop intrusive ou mal cadrée peut saturer le réseau ou collecter des informations non nécessaires. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — déployer et surveiller une collecte d'inventaire
+
+```mermaid
+flowchart TD
+    A["Définir le parc cible et les champs attendus"] --> B["Tester la collecte sur un lot pilote"]
+    B --> C["Vérifier agent, connectivité et données remontées"]
+    C --> D{"Qualité et charge acceptables ?"}
+    D -- "Non" --> E["Corriger la configuration et retester"]
+    E --> B
+    D -- "Oui" --> F["Déployer par groupes"]
+    F --> G["Surveiller fraîcheur, erreurs et couverture"]
+    G --> H{"Actifs sans remontée dans le délai attendu ?"}
+    H -- "Oui" --> I["Trier par cause possible et ouvrir une action"]
+    H -- "Non" --> J["Conserver les mesures et revoir périodiquement"]
+```
 
 ### 3. Référentiel GLPI
 
 GLPI permet de relier actifs, tickets, entités, contrats et historiques lorsqu'il est paramétré selon le modèle de l'organisation. Définir les catégories, lieux, entités, utilisateurs, règles d'affectation et champs obligatoires avant d'importer toute la base.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de parc (glpi, ocs), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — configurer GLPI avant l'import massif.** Définis les types d'actifs, entités, lieux, groupes, utilisateurs, statuts, contrats, garanties, catégories et champs obligatoires utilisés par ton organisation. Vérifie les règles d'import, le mapping des champs et les droits d'écriture ; exécute d'abord une importation limitée dans un environnement ou un périmètre pilote. Décide quel système fait autorité pour chaque donnée : la collecte automatisée peut faire autorité pour certaines caractéristiques techniques, tandis que le propriétaire, le statut financier ou le contrat peuvent provenir d'autres sources.
 
-**Preuves et interprétation.** Documenter les règles d'import, les droits et les correspondances de champs rend les imports reproductibles. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Versionne les mappings et règles, conserve un rapport des créations, mises à jour, rejets et rapprochements, et vérifie les liens entre actifs, tickets, contrats et utilisateurs après chaque import. Une importation techniquement réussie peut quand même produire des valeurs erronées si les champs sont mal mappés ou si les entités sont incorrectes. Vérifie les échantillons et les exceptions avant l'extension.
 
-**Pièges et décision.** Modifier la taxonomie en production sans plan de migration crée des catégories incohérentes et des rapports trompeurs. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — synchroniser l'inventaire avec le référentiel GLPI
+
+```mermaid
+flowchart LR
+    A["OCS ou autres sources autorisées"] --> B["Valider et normaliser les champs"]
+    B --> C["Appliquer les règles de rapprochement"]
+    C --> D{"Import pilote contrôlé ?"}
+    D -- "Non" --> E["Corriger le mapping ou les règles"]
+    E --> B
+    D -- "Oui" --> F["Créer ou mettre à jour les actifs GLPI"]
+    F --> G["Vérifier liens, entités, contrats et affectations"]
+    G --> H["Journaliser import et exceptions"]
+```
 
 ### 4. Qualité et rapprochement
 
 Les sources multiples ne sont utiles que si les doublons et les différences sont identifiés. Choisir une clé de rapprochement prioritaire, définir les règles de conflit et conserver les valeurs sources lorsqu'une fusion est discutée.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de parc (glpi, ocs), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — traiter les doublons et conflits sans perte d'historique.** Définis plusieurs niveaux de confiance. Une série ou un UUID matériel vérifié, combiné au fabricant et au modèle, peut soutenir une correspondance forte ; une adresse MAC ou un nom d'hôte seuls restent des indices secondaires qui peuvent changer ou être réutilisés. Place les correspondances ambiguës en revue manuelle. Avant de fusionner deux fiches, vérifie les relations avec tickets, contrats, licences, utilisateurs et historiques, puis préserve l'identifiant qui doit rester la référence.
 
-**Preuves et interprétation.** Le journal de fusion et le taux de doublons permettent de détecter une dégradation de qualité. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Conserve les enregistrements sources, la règle de rapprochement déclenchée, l'auteur de la décision et les relations transférées. Mesure le volume des doublons, les fusions annulées et les conflits non résolus. Ne supprime pas automatiquement une fiche parce qu'elle est ancienne ou parce que le nom correspond : elle peut contenir l'historique de garantie ou d'incidents.
 
-**Pièges et décision.** Un rapprochement basé uniquement sur le nom d'hôte peut fusionner deux machines différentes réutilisant le même nom. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — décider si deux fiches représentent le même actif
+
+```mermaid
+flowchart TD
+    A["Deux enregistrements candidats"] --> B["Comparer série, UUID, fabricant et modèle"]
+    B --> C["Comparer agent, hôte, MAC et dates de collecte"]
+    C --> D{"Identifiants forts concordants ?"}
+    D -- "Oui" --> E["Contrôler historique et relations liées"]
+    D -- "Non" --> F{"Plusieurs indices secondaires cohérents ?"}
+    F -- "Non" --> G["Conserver séparément et enquêter"]
+    F -- "Oui" --> H["Revue manuelle avant décision"]
+    E --> I{"Fusion sans perte d'historique approuvée ?"}
+    H --> I
+    I -- "Oui" --> J["Fusion contrôlée et journalisée"]
+    I -- "Non" --> G
+```
 
 ### 5. Cycle de vie
 
 Un actif passe par acquisition, réception, mise en service, affectation, maintenance, retrait et effacement ou réemploi. À chaque transition, exiger une preuve adaptée : réception, propriétaire, contrôle de sécurité, garantie, réparation, effacement et sortie d'inventaire.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de parc (glpi, ocs), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — modéliser les transitions d'un actif.** Définis les états autorisés, par exemple commandé, reçu, en stock, affecté, en réparation, prêté, retiré et effacé ou réemployé. Pour chaque transition, indique qui l'approuve, les champs à mettre à jour, le justificatif attendu et les effets sur l'accès, le support ou la facturation. Lors d'un prêt, d'une réparation ou d'un changement d'utilisateur, conserve l'historique au lieu d'écraser l'affectation précédente.
 
-**Preuves et interprétation.** La date d'entrée, la date de retrait et le motif de fin de vie alimentent les prévisions de remplacement. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Chaque changement d'état doit être relié à un ticket, un bon de réception, une confirmation de restitution, une opération de réparation ou une preuve d'effacement selon le cas. Une valeur « retiré » dans GLPI ne garantit pas que les accès distants ont été révoqués ou que les données ont été effacées. Vérifie séparément ces obligations et laisse visibles les étapes encore en attente.
 
-**Pièges et décision.** Un actif retiré mais encore présent dans les droits, le DNS ou la supervision crée un risque opérationnel et de sécurité. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — gérer le cycle de vie d'un actif avec des preuves
+
+```mermaid
+stateDiagram-v2
+    [*] --> Recu
+    Recu --> EnStock: réception et contrôle
+    EnStock --> Affecte: approbation et remise
+    Affecte --> EnMaintenance: ticket et diagnostic
+    EnMaintenance --> Affecte: contrôle et restitution
+    Affecte --> Retire: décision de sortie
+    Retire --> Efface: preuve de traitement des données
+    Efface --> Reemploi: validation autorisée
+    Efface --> Cloture: élimination ou fournisseur agréé
+```
 
 ### 6. Licences et conformité
 
 L'inventaire logiciel ne démontre pas à lui seul qu'une installation est autorisée ou que la licence est conforme. Croiser édition, version, nombre d'utilisateurs, contrat et droits d'usage ; clarifier les limites techniques et juridiques auprès du fournisseur.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de parc (glpi, ocs), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — rapprocher logiciels détectés et droits d'usage.** Commence par normaliser éditeur, produit, édition, version, mode d'installation et appareil ou utilisateur concerné. Compare les détections avec les contrats, clés ou preuves d'achat appropriées, les abonnements, les droits de mise à niveau et les règles de comptage prévues par le contrat. Distingue logiciels installés, produits réellement utilisés et installations autorisées. En cas d'ambiguïté juridique, adresse la question au responsable licences ou au fournisseur.
 
-**Preuves et interprétation.** Conserver la version de la règle de rapprochement et le contrat de référence évite des conclusions non reproductibles. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Conserve la date d'extraction, la version de la règle de rapprochement, les contrats ou références utilisés et la liste des exceptions à examiner. La découverte d'un logiciel n'établit pas en soi une non-conformité, et l'absence de détection ne prouve pas qu'aucune licence ou installation n'existe. Documente les limites de couverture avant de présenter une conclusion.
 
-**Pièges et décision.** Ne pas assimiler un logiciel détecté à une licence valide, ni un logiciel absent de l'inventaire à une absence certaine. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — traiter un écart de conformité logicielle
+
+```mermaid
+flowchart TD
+    A["Logiciel détecté dans l'inventaire"] --> B["Normaliser éditeur, édition et version"]
+    B --> C["Identifier contrat et règle de comptage"]
+    C --> D["Comparer installations, droits et affectations"]
+    D --> E{"Écart confirmé par les preuves ?"}
+    E -- "Non ou incertain" --> F["Demander les pièces manquantes au responsable licences"]
+    E -- "Oui" --> G["Évaluer portée, période et option de régularisation"]
+    F --> H["Consigner limites et responsable"]
+    G --> H
+```
 
 ### 7. Accès et sécurité
 
 La base de parc peut révéler les versions, noms, adresses, logiciels et faiblesses de l'infrastructure. Limiter l'accès selon le rôle, protéger les agents, mettre à jour les serveurs GLPI/OCS et tracer les exports massifs.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de parc (glpi, ocs), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — protéger les outils d'inventaire.** Sépare les droits de lecture, de modification, d'administration et d'export. Utilise des comptes de service dédiés avec les droits minimums nécessaires, protège les secrets des agents, limite les accès aux consoles et aux API, et applique les mises à jour de sécurité selon un processus contrôlé. Les exports complets doivent avoir un motif, un destinataire et une durée de conservation. Examine les journaux d'accès et les intégrations entre OCS et GLPI.
 
-**Preuves et interprétation.** Les contrôles de permissions, journaux de connexion et dates de mises à jour forment les preuves de maîtrise. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Vérifie périodiquement les membres des rôles privilégiés, les comptes inactifs, les versions, les journaux et les intégrations autorisées. Une mise à jour affichée comme disponible n'indique pas qu'elle est déployée ; un compte de service actif ne démontre pas qu'il possède uniquement les droits nécessaires. Trace les exceptions et les dates de réévaluation.
 
-**Pièges et décision.** Un compte d'inventaire privilégié réutilisé sur de nombreux endpoints accroît l'impact d'une compromission. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — sécuriser les composants d'inventaire
+
+```mermaid
+flowchart TD
+    A["Serveur, agents et API d'inventaire"] --> B["Comptes de service dédiés"]
+    B --> C["Droits minimums et secrets protégés"]
+    A --> D["Accès console répartis par rôle"]
+    A --> E["Mises à jour et configuration durcie"]
+    D --> F["Journaliser les connexions et exports"]
+    E --> F
+    C --> G["Revue périodique des accès"]
+    F --> G
+    G --> H{"Écart ou accès excessif ?"}
+    H -- "Oui" --> I["Corriger, révoquer et documenter"]
+    H -- "Non" --> J["Conserver la preuve de contrôle"]
+```
 
 ### 8. Réconciliation physique
 
 Les données automatisées doivent être complétées par des vérifications physiques sur les actifs critiques ou mobiles. Planifier des campagnes par zone, appliquer une étiquette lisible, comparer série/localisation/propriétaire puis tracer chaque écart.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de parc (glpi, ocs), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — organiser une campagne de rapprochement sur le terrain.** Définis la zone, la population, les actifs prioritaires, le responsable et la période de référence. Prépare une liste d'actifs attendus et une méthode d'identification sûre. Sur place, compare série ou UUID disponible, étiquette, localisation, propriétaire, état et fiche GLPI. Pour les actifs absents, commence par les prêts, réparations, déménagements et changements de réseau avant de les déclarer perdus.
 
-**Preuves et interprétation.** Un taux de concordance et une liste d'écarts assignés permettent de suivre la qualité réelle de l'inventaire. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Enregistre les actifs vus, ceux non localisés, les actifs non inventoriés et les divergences d'affectation. Pour chaque écart, attribue un responsable, une action, une échéance et une méthode de clôture. Le taux de concordance doit préciser la population effectivement contrôlée ; une campagne limitée à un seul bâtiment ne permet pas de conclure sur tout le parc.
 
-**Pièges et décision.** Confondre l'absence de remontée agent et la disparition physique d'un actif peut déclencher un remplacement inutile. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — réconcilier inventaire numérique et présence physique
+
+```mermaid
+flowchart TD
+    A["Préparer la liste d'actifs par zone"] --> B["Relever les identifiants sur place"]
+    B --> C["Comparer aux fiches GLPI et aux remontées OCS"]
+    C --> D{"Concordance des identifiants, lieu et propriétaire ?"}
+    D -- "Oui" --> E["Confirmer l'actif et la date du contrôle"]
+    D -- "Non" --> F["Classer l'écart : absent, inconnu, déplacé ou doublon"]
+    F --> G["Vérifier prêt, réparation, transfert et dernière activité"]
+    G --> H["Attribuer une action corrective et une échéance"]
+    E --> I["Calculer la couverture sur le périmètre audité"]
+    H --> I
+```
 
 ## Méthode transversale pour une opération maîtrisée
 
@@ -254,6 +364,23 @@ Une tâche doit pouvoir être reprise par une autre personne sans dépendre des 
 
 Le résultat technique doit être confirmé du point de vue du service. Un équipement joignable ou un script qui termine sans erreur ne suffit pas si l'utilisateur ne peut pas accomplir son opération. Pour gestion de parc (glpi, ocs), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux d'actifs avec propriétaire, fraîcheur de l'inventaire, doublons, couverture des agents, actifs sans localisation, écarts audit/inventaire, délai d'affectation, conformité des licences. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
 
+### Schéma — transformer les indicateurs de parc en actions
+
+```mermaid
+flowchart TD
+    A["Couverture, fraîcheur, doublons et écarts d'audit"] --> B["Vérifier définition, source, date et périmètre"]
+    B --> C["Segmenter par type, site et criticité"]
+    C --> D["Identifier tendance et exceptions"]
+    D --> E{"Seuil ou tendance anormale ?"}
+    E -- "Oui" --> F["Ouvrir une action avec responsable et échéance"]
+    E -- "Non" --> G["Poursuivre la surveillance prévue"]
+    F --> H["Mesurer la correction et conserver la preuve"]
+    G --> I["Revoir les seuils périodiquement"]
+    H --> I
+```
+
+Un indicateur n'est pas une conclusion autonome. Par exemple, une faible couverture OCS peut signifier des agents absents ou simplement un périmètre d'équipement non couvert ; sépare les causes avant de lancer une correction générale.
+
 ## Indicateurs : définition, lecture et limites
 
 Les indicateurs les plus utiles pour ce domaine sont : **taux d'actifs avec propriétaire, fraîcheur de l'inventaire, doublons, couverture des agents, actifs sans localisation, écarts audit/inventaire, délai d'affectation, conformité des licences**. Chaque indicateur doit avoir une définition écrite. Il faut préciser l'unité, la source, le périmètre, la fréquence, la période et les exclusions. Lorsque les données ne couvrent qu'une partie de l'environnement, le rapport doit le signaler au lieu d'extrapoler silencieusement. Un indicateur doit permettre une décision : prioriser, déclencher une vérification, ajuster une capacité, revoir une procédure ou accepter explicitement un risque.
@@ -261,6 +388,24 @@ Les indicateurs les plus utiles pour ce domaine sont : **taux d'actifs avec prop
 Un bon tableau de bord met en évidence la tendance et les écarts significatifs, sans supprimer la donnée de départ. Il distingue les valeurs brutes, les seuils, les anomalies confirmées et les périodes sans mesure. Une moyenne peut cacher des situations extrêmes ; il est donc souvent nécessaire d'observer la distribution, les percentiles, les valeurs maximales et la répartition par service ou par criticité. Les changements de définition doivent être versionnés pour éviter de comparer des séries qui ne signifient plus la même chose.
 
 Les indicateurs ne doivent pas devenir des objectifs isolés. Par exemple, réduire le délai moyen n'est pas une amélioration si les tickets sont fermés avant validation et immédiatement rouverts. De même, atteindre un taux de conformité en excluant les actifs inconnus peut donner une image artificiellement favorable. Associer un KPI à un contrôle de qualité et à un résultat métier permet de repérer ces effets indésirables.
+
+### Schéma — flux de gestion d'un actif de la réception au retrait
+
+```mermaid
+flowchart TD
+    A["Réception et vérification de l'actif"] --> B["Créer ou rapprocher l'identité"]
+    B --> C["Enregistrer lieu, propriétaire, garantie et statut"]
+    C --> D["Collecter et contrôler les données techniques"]
+    D --> E["Lier tickets, interventions et logiciels pertinents"]
+    E --> F["Actualiser lors des transferts et changements"]
+    F --> G["Auditer périodiquement les actifs à risque"]
+    G --> H{"Actif à retirer ?"}
+    H -- "Non" --> F
+    H -- "Oui" --> I["Révoquer accès, traiter les données et clôturer le cycle"]
+    I --> J["Conserver la preuve de sortie et l'historique"]
+```
+
+Le référentiel doit suivre le cycle de vie réel. Une fiche d'actif n'est pas un simple catalogue matériel : elle relie identité, affectation, contrats, incidents, changements, sécurité et décisions de fin de vie.
 
 ## Procédure opérationnelle recommandée
 
@@ -320,6 +465,54 @@ printf '%s\n' 'Valider le filtre, les champs exportés et la destination avant e
 ```
 
 Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+
+## Parcours pratique intermédiaire — fiabiliser un parc avec GLPI et OCS
+
+Prévois 60 à 90 minutes sur des données de formation ou un environnement de test autorisé. Les noms de menus, règles d'import et capacités disponibles dépendent de la version et de la configuration déployées : vérifie la documentation de ton instance avant de modifier des paramètres. N'applique pas de fusion ou de suppression massive directement sur le parc de production.
+
+### Scénario
+
+L'organisation possède 420 postes, 35 serveurs et 18 équipements réseau. GLPI contient 473 fiches d'actifs, mais le tableau de bord OCS montre seulement 390 remontées récentes. Une partie des fiches a été créée lors d'une réinstallation et certains ordinateurs ont changé de nom ou d'utilisateur. Il faut améliorer la qualité de l'inventaire sans perdre les liens vers les tickets et les contrats.
+
+### Étape 1 — Définir le périmètre et les sources
+
+Sépare postes, serveurs et équipements réseau. Détermine quelles sources font autorité pour le numéro de série, les affectations, les lieux, les logiciels, les contrats et les statuts. Note la date de dernière collecte et les limites de couverture. Ne suppose pas que chaque différence représente une panne ou un actif manquant.
+
+### Étape 2 — Construire des règles de rapprochement
+
+Propose une hiérarchie d'identifiants : série ou UUID matériel fiable, identifiant d'agent, fabricant et modèle, puis hôte, adresse MAC et autres indices. Définis les cas à fusion automatique et les cas à examiner manuellement. Les seules correspondances de nom d'hôte ou d'utilisateur ne doivent pas suffire pour supprimer une fiche.
+
+### Étape 3 — Diagnostiquer les 83 remontées manquantes
+
+Crée des groupes d'investigation : actifs éteints ou hors réseau, agents non fonctionnels, appareils transférés, actifs retirés, problèmes de connectivité et divergences de périmètre. Pour chaque groupe, précise le signal disponible, le test non intrusif, la preuve attendue et l'action responsable. Les conclusions doivent rester conditionnelles jusqu'à l'obtention de données complémentaires.
+
+### Étape 4 — Tester le mapping et l'import
+
+Dans un lot pilote, compare des actifs connus physiquement avec les fiches GLPI et les données collectées. Vérifie les champs obligatoires, les entités, les lieux, les relations aux contrats et tickets et les règles de fusion. Prévois un rapport d'import et une manière d'annuler ou corriger les changements. Étends le traitement seulement lorsque l'échantillon pilote est validé.
+
+### Étape 5 — Réconcilier le cycle de vie
+
+Choisis quelques actifs et simule les états réception, stock, affectation, réparation et retrait. Pour chaque transition, indique la preuve attendue, les droits requis et les autres systèmes à actualiser. Pour un actif retiré, distingue le statut administratif, la révocation des accès, le traitement des données et l'effacement ou la remise au fournisseur.
+
+### Étape 6 — Contrôler les accès et la conformité logicielle
+
+Établis les rôles requis pour l'agent, l'administrateur GLPI, l'équipe support, les responsables de licences et les auditeurs. Vérifie la nécessité des exports, les droits d'API, les comptes de service et la traçabilité. Pour les logiciels, rapproche les détections des contrats et règles de licence disponibles, et place les cas ambigus dans une liste d'exception plutôt que d'affirmer automatiquement une non-conformité.
+
+### Étape 7 — Mesurer l'amélioration
+
+Définis pour chaque indicateur son numérateur, son dénominateur, sa source, sa fréquence et son périmètre : fraîcheur des remontées, couverture de collecte, doublons confirmés, actifs sans propriétaire, écarts physiques et corrections arrivées à échéance. Compare les résultats avant/après, mais signale tout changement de périmètre ou de définition.
+
+### Livrables attendus
+
+- matrice des sources et champs faisant autorité ;
+- règles de rapprochement et liste des cas à revue manuelle ;
+- plan d'investigation des actifs sans remontée récente ;
+- preuve de test sur lot pilote et contrôles d'import ;
+- matrice des rôles et accès ;
+- registre des écarts avec responsables et échéances ;
+- tableau de bord d'indicateurs documentés.
+
+**Critère de réussite :** le parc devient plus fiable sans fusion hasardeuse, la traçabilité des actifs est préservée, les exceptions sont attribuées et les chiffres de couverture s'appuient sur un périmètre explicite.
 
 ## Atelier pratique guidé
 
