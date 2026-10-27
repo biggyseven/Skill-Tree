@@ -150,6 +150,27 @@ Les coûts directs sont directement attribuables à la solution ; les coûts ind
 
 Les coûts internes sont souvent oubliés parce qu'ils ne créent pas de nouvelle facture. Le temps d'un ingénieur mobilisé sur une migration a un coût d'opportunité : il ne peut pas simultanément traiter le backlog, maintenir la documentation ou réaliser un projet différent. Toutefois, ne pas facturer ce temps additionnel ne signifie pas qu'il doit être valorisé deux fois. Le modèle doit définir s'il utilise des coûts de trésorerie, un coût économique complet ou une approche mixte, et éviter les doubles comptes.
 
+### Schéma — Cartographier les coûts sur tout le cycle de vie
+
+~~~mermaid
+flowchart TD
+  A[Décision d'acquisition] --> B[Coût initial]
+  B --> C[Déploiement et migration]
+  C --> D[Exploitation récurrente]
+  D --> E[Maintenance, support et sécurité]
+  E --> F[Évolution et renouvellement]
+  F --> G[Sortie, transfert et suppression]
+  B --> H[Coûts internes et risques]
+  C --> H
+  D --> H
+  E --> H
+  F --> H
+  G --> H
+  H --> I[TCO sur horizon et hypothèses définis]
+~~~
+
+Le total doit inclure les postes pertinents sans compter deux fois un même effort. Les incertitudes matérielles restent visibles dans une plage ou un scénario au lieu d'être remplacées par un coût nul.
+
 ### 2.3 Exemple de registre TCO
 
 | Poste | Type | Pilote | Source de l'estimation | Période | Risque / hypothèse |
@@ -258,6 +279,23 @@ La prévision peut s'appuyer sur :
 - hypothèses de change, d'inflation et de prix lorsque pertinentes.
 
 Pour chaque mise à jour, expliquer les écarts : changement de volume, de prix, de périmètre, de calendrier, d'hypothèse ou de risque. Le rapport doit montrer ce qui est déjà engagé, ce qui est estimé et ce qui reste optionnel.
+
+### Schéma — Comprendre un écart avant de choisir une action
+
+~~~mermaid
+flowchart TD
+  A[Budget, engagements et réalisé] --> B[Calculer l'écart selon une convention définie]
+  B --> C[Décomposer prix, volume, périmètre et calendrier]
+  C --> D[Identifier causes et preuves]
+  D --> E[Mettre à jour le coût à terminaison]
+  E --> F{Dépassement ou risque hors tolérance ?}
+  F -->|Non| G[Documenter et suivre]
+  F -->|Oui| H[Préparer options et impacts]
+  H --> I[Obtenir arbitrage et approbation]
+  I --> J[Actualiser forecast sans effacer la base]
+~~~
+
+Une mesure de contrôle utile explique l'origine et les conséquences de l'écart ; elle ne se contente pas de colorer une cellule en rouge. Le budget initial, les changements autorisés et les prévisions successives restent identifiables.
 
 ### 3.4 Analyse des écarts
 
@@ -385,6 +423,24 @@ Le modèle doit préciser :
 
 Une erreur fréquente consiste à utiliser un flux nominal intégrant l'inflation avec un taux réel, ou un flux en devise locale avec un taux qui correspond à une autre devise. Les conventions doivent être cohérentes. Éviter aussi de compter deux fois le risque en diminuant les bénéfices et en ajoutant une prime de risque sans justification.
 
+### Schéma — Choisir l'indicateur financier selon la question
+
+~~~mermaid
+flowchart TD
+  A[Question de décision] --> B{Quel aspect doit être compris ?}
+  B -->|Rendement simple sur période définie| C[ROI avec périmètre et horizon]
+  B -->|Valeur des flux à une date commune| D[VAN avec taux cohérent]
+  B -->|Temps pour récupérer l'investissement| E[Délai de récupération]
+  B -->|Taux implicite des flux| F[TRI, avec vérification des limites]
+  C --> G[Comparer risques, capacité et contraintes]
+  D --> G
+  E --> G
+  F --> G
+  G --> H[Décision combinée et documentée]
+~~~
+
+Les indicateurs répondent à des questions différentes. Leur calcul doit être cohérent, et aucun résultat isolé ne remplace l'analyse de faisabilité, du risque, de l'abordabilité et de la valeur métier.
+
 ### 5.4 Délai de récupération simple
 
 Le délai de récupération mesure le temps nécessaire pour que les flux cumulés compensent l'investissement initial. Avec des flux uniformes, il peut être estimé par investissement initial / flux net périodique. Avec des flux variables, additionner les flux par période et déterminer quand le cumul devient positif.
@@ -454,6 +510,23 @@ Une estimation de risque peut utiliser une approximation « probabilité × impa
 
 Si la distribution, les dépendances ou les scénarios sont complexes, éviter de résumer le risque à un produit unique. Présenter des scénarios, des intervalles, des mesures de prévention, les conséquences extrêmes et l'autorité qui accepte le risque résiduel. Ne pas compter un coût de risque dans la contingence et une seconde fois dans les flux sans expliquer la relation.
 
+### Schéma — Du business case à une recommandation finançable
+
+~~~mermaid
+flowchart TD
+  A[Objectif métier] --> B[Options réalistes]
+  B --> C[TCO, flux et bénéfices]
+  C --> D[ROI, VAN et scénarios]
+  D --> E[Risques et obligations]
+  E --> F[Capacité de réalisation]
+  F --> G[Besoin de financement par période]
+  G --> H{Valeur, faisabilité et financement compatibles ?}
+  H -->|Non| I[Phaser, réduire, revoir ou différer]
+  H -->|Oui| J[Soumettre à l'autorité d'approbation]
+~~~
+
+Le dossier doit montrer à la fois la valeur, la faisabilité et le financement. Une option rentable mais non réalisable avec les compétences ou les fonds disponibles n'est pas immédiatement exécutable.
+
 ### 6.5 Affordabilité et valeur ne sont pas la même question
 
 Un projet peut créer de la valeur mais ne pas être finançable dans l'année. Inversement, un projet dans le budget peut avoir une valeur faible. Le dossier doit montrer séparément :
@@ -501,6 +574,23 @@ Pour transformer une capacité en bénéfice, préciser son affectation : rédui
 Pour mesurer un bénéfice, il faut comparer ce qui est observé à ce qui se serait probablement produit sans l'intervention. Ce contrefactuel peut utiliser une période historique, un service similaire, une tendance, un groupe de comparaison ou une modélisation explicite. La méthode dépend du contexte.
 
 Contrôler les changements concomitants : volume, saisonnalité, équipe, contrat, périmètre et environnement. Si les incidents diminuent après une nouvelle supervision mais qu'un changement de service a aussi réduit le trafic, il est prématuré d'attribuer tout le gain à l'outil. Noter l'incertitude et utiliser une plage lorsque la causalité n'est pas établie.
+
+### Schéma — Prouver qu'un bénéfice est réellement obtenu
+
+~~~mermaid
+flowchart LR
+  A[Intervention livrée] --> B[Pratique ou processus change]
+  B --> C[Indicateur opérationnel évolue]
+  C --> D[Effet métier observé]
+  D --> E[Propriétaire vérifie contre référence]
+  E --> F{Bénéfice attribuable et confirmé ?}
+  F -->|Oui| G[Enregistrer valeur réalisée]
+  F -->|Partiel ou non| H[Analyser adoption et facteurs]
+  H --> I[Action, responsable et date]
+  I --> C
+~~~
+
+Le bénéfice dépend généralement d'actions au-delà de la livraison technique. Le propriétaire doit pouvoir expliquer la référence, les changements concomitants et les limites d'attribution.
 
 ### 7.4 Propriété du bénéfice
 
@@ -567,6 +657,23 @@ La valeur de bascule est la valeur à partir de laquelle la recommandation ou la
 - combien d'incidents doivent être évités pour couvrir l'investissement ?
 
 Cette analyse produit une limite opérationnelle claire. Si le coût dépasse le seuil, l'équipe doit redéfinir le périmètre, renégocier ou revenir à l'autorité de décision au lieu de poursuivre automatiquement.
+
+### Schéma — Réduire l'incertitude au meilleur coût
+
+~~~mermaid
+flowchart TD
+  A[Hypothèse incertaine] --> B[Mesurer son influence sur la décision]
+  B --> C{Peut-elle changer l'option retenue ?}
+  C -->|Non| D[Documenter et surveiller]
+  C -->|Oui| E[Choisir une preuve de réduction d'incertitude]
+  E --> F[Devis, pilote, test, benchmark ou revue indépendante]
+  F --> G[Actualiser la plage et les scénarios]
+  G --> H{Décision désormais robuste ?}
+  H -->|Non| E
+  H -->|Oui| I[Soumettre les conditions d'approbation]
+~~~
+
+Il ne faut pas chercher à réduire chaque incertitude avec le même effort. Prioriser les hypothèses qui peuvent changer la décision et choisir une vérification proportionnée au coût, au risque et au calendrier.
 
 ### 8.5 Incertitude et qualité de l'estimation
 
