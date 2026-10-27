@@ -647,7 +647,7 @@
 </style>
 </head>
 
-<body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode, 'compact-ui': compactUi }" @click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event)">
+<body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode, 'compact-ui': compactUi }" @click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event); closeSidebarContextMenuOnOutside($event)" @keydown.escape.window="closeSidebarContextMenu()">
 
   <!-- ================= SIDEBAR ================= -->
   <aside x-show="!focusMode" class="skill-sidebar hidden h-full flex-col bg-[color:var(--bg)] py-6 transition-all duration-300 md:flex" :class="sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'">
@@ -680,13 +680,13 @@
     <nav class="flex-1 space-y-2 overflow-y-auto" aria-label="Navigation principale">
       <template x-for="item in navItems" :key="item.id">
         <div class="flex min-w-0 items-center gap-1">
-        <button type="button" @click="setTab(item.id)" :title="sidebarCollapsed ? item.label : null" :aria-label="item.label" :aria-current="tab === item.id ? 'page' : null" class="group flex min-w-0 flex-1 items-center gap-3 rounded-2xl py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)] active:scale-[0.99]" :class="[tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_22px_-18px_rgba(52,211,153,0.9)]' : 'border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/[0.045] hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-3']">
+        <button type="button" @click="setTab(item.id)" @contextmenu.prevent="openSidebarContextMenu($event, item.id, item.label)" :title="sidebarCollapsed ? item.label : null" :aria-label="item.label" :aria-current="tab === item.id ? 'page' : null" class="group flex min-w-0 flex-1 items-center gap-3 rounded-2xl py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)] active:scale-[0.99]" :class="[tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_22px_-18px_rgba(52,211,153,0.9)]' : 'border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/[0.045] hover:text-white', sidebarCollapsed ? 'justify-center px-0' : 'px-3']">
           <span class="nav-item-icon flex shrink-0 items-center justify-center rounded-xl border border-transparent transition" :class="tab === item.id ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200' : 'text-zinc-500 group-hover:bg-white/5 group-hover:text-zinc-200'">
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" x-html="item.svg"></svg>
           </span>
           <span x-show="!sidebarCollapsed" class="min-w-0 truncate whitespace-nowrap" x-text="item.label"></span>
         </button>
-        <a :href="newTabUrl('tab', item.id)" target="_blank" rel="noopener noreferrer"
+        <a x-show="!sidebarCollapsed" :href="newTabUrl('tab', item.id)" target="_blank" rel="noopener noreferrer"
            :title="`Ouvrir ${item.label} dans un nouvel onglet`"
            :aria-label="`Ouvrir ${item.label} dans un nouvel onglet`"
            class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-zinc-500 opacity-70 transition hover:bg-white/10 hover:text-emerald-300 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
@@ -713,6 +713,30 @@
     <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"></path></svg>
     Sortir du focus
   </button>
+
+  <!-- ================= MENU CONTEXTUEL SIDEBAR ================= -->
+  <div
+    x-show="sidebarContextMenu.open"
+    x-cloak
+    data-sidebar-context-menu
+    role="menu"
+    :style="`left: ${sidebarContextMenu.x}px; top: ${sidebarContextMenu.y}px`"
+    class="fixed z-[120] min-w-[230px] rounded-xl border border-white/10 bg-[color:var(--s1)] p-1.5 shadow-2xl shadow-black/50"
+    @click.stop
+  >
+    <a
+      :href="newTabUrl('tab', sidebarContextMenu.id)"
+      target="_blank"
+      rel="noopener noreferrer"
+      role="menuitem"
+      :aria-label="`Ouvrir ${sidebarContextMenu.label} dans un nouvel onglet`"
+      @click="closeSidebarContextMenu()"
+      class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-100 transition hover:bg-emerald-400/10 hover:text-emerald-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+    >
+      <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"></path></svg>
+      <span>Ouvrir <span x-text="sidebarContextMenu.label"></span> dans un nouvel onglet</span>
+    </a>
+  </div>
 
   <!-- ================= MAIN CONTENU ================= -->
   <div class="flex flex-1 flex-col overflow-hidden">
@@ -5550,6 +5574,7 @@
       return {
         // ---------- état commun ----------
         navItems: NAV_ITEMS, modules: MODULES, levels: LEVELS,
+        sidebarContextMenu: { open: false, x: 8, y: 8, id: '', label: '' },
         moduleFilter: 'all',
         moduleNextCourseId: null,
         moduleOverrides: LS.get('module-overrides', {}), levelOverrides: LS.get('level-overrides', {}),
@@ -5595,6 +5620,31 @@
           const params = new URLSearchParams();
           params.set(param, String(id));
           return '/?' + params.toString();
+        },
+        openSidebarContextMenu(event, id, label) {
+          const menuWidth = 250;
+          const menuHeight = 52;
+          const maxX = Math.max(8, window.innerWidth - menuWidth - 8);
+          const maxY = Math.max(8, window.innerHeight - menuHeight - 8);
+          const clientX = Number(event?.clientX) || 8;
+          const clientY = Number(event?.clientY) || 8;
+          this.sidebarContextMenu = {
+            open: true,
+            x: Math.max(8, Math.min(clientX, maxX)),
+            y: Math.max(8, Math.min(clientY, maxY)),
+            id: String(id || ''),
+            label: String(label || 'Navigation')
+          };
+        },
+        closeSidebarContextMenu() {
+          if (this.sidebarContextMenu?.open) {
+            this.sidebarContextMenu = { ...this.sidebarContextMenu, open: false };
+          }
+        },
+        closeSidebarContextMenuOnOutside(event) {
+          if (!this.sidebarContextMenu?.open) return;
+          if (event?.target?.closest?.('[data-sidebar-context-menu]')) return;
+          this.closeSidebarContextMenu();
         },
         moduleMeta(id) { return this.modules.find(m => m.id === id) || { id: 'all', label: 'Tous les modules', short: 'Tous', icon: '🧭', roadmap: {} }; },
         levelMeta(id) { return this.levels.find(l => l.id === id) || null; },
