@@ -906,7 +906,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("if (!r.ok) throw new Error", method)
         self.assertIn("Array.isArray(d.cards)", method)
         self.assertIn("this.flashcardsLoaded = true;", method)
-        self.assertIn("this.cardDeckSignature() ", method)
+        self.assertIn("this.flashcardDeckSignature !== this.cardDeckSignature()", method)
         self.assertIn("this.cardLoadError =", method)
         self.assertIn("finally", method)
 
