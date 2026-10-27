@@ -311,6 +311,47 @@ Concevoir une stratégie de maintenance sur cinq ans pour une flotte comprenant 
 
 **Correction attendue.** Une solution experte est cohérente, mesurable et gouvernée. Elle ne confond pas une estimation et un résultat confirmé, ne masque pas les coûts ou risques, compare les options dans un cadre commun et prévoit le contrôle de fin. Elle identifie les décisions qui nécessitent une validation spécialisée et laisse une piste compréhensible pour une revue ultérieure.
 
+
+## Modèles de décision — criticité, politique de maintenance et renouvellement
+
+La stratégie devient exploitable lorsqu'elle relie les classifications à des choix concrets. Une matrice de criticité ne constitue pas une mesure universelle ; elle doit adopter les échelles, facteurs et validations propres à l'organisation. Son objectif est de rendre les décisions cohérentes et explicables, surtout lorsqu'un budget ne permet pas de traiter toutes les demandes simultanément.
+
+### Exemple de matrice de criticité
+
+| Niveau | Exemple de conséquence | Contrôles attendus à définir |
+|---|---|---|
+| Critique | Risque pour la sécurité, arrêt d'une fonction essentielle ou violation majeure d'une obligation | Analyse détaillée des modes de panne, contrôles renforcés, plan de reprise et surveillance adaptée |
+| Élevé | Interruption majeure ou service fortement dégradé avec récupération coûteuse | Préventif justifié, pièces ou stratégie de secours, revue des récurrences |
+| Modéré | Dégradation limitée, solution de remplacement disponible et perte maîtrisable | Maintenance planifiée et contrôle proportionné, surveillance des tendances |
+| Faible | Conséquence faible et actif facilement remplaçable | Corrective contrôlée possible si le risque est accepté et si les exigences sont satisfaites |
+
+Avant d'attribuer un niveau, définir l'impact, la probabilité ou l'exposition, la détectabilité, la réversibilité et les obligations applicables. Le score n'est pas automatiquement la décision. Une exception réglementaire ou un risque de sécurité peut exiger une réponse spécifique, même si le score agrégé est faible. Les désaccords doivent être résolus par les propriétaires métier et techniques qui assument les conséquences.
+
+### Choisir une politique selon le mode de défaillance
+
+| Situation | Politique possible | Questions à traiter |
+|---|---|---|
+| Défaillance peu coûteuse, détection facile, remplacement immédiat | Corrective contrôlée | L'arrêt est-il acceptable ? Les pièces sont-elles disponibles ? |
+| Usure prévisible et tâche dont l'efficacité est démontrée | Préventif périodique | L'intervalle est-il fondé sur l'expérience ou la recommandation applicable ? |
+| Dégradation observable par mesure pertinente | Maintenance conditionnelle | Le signal est-il fiable, le seuil justifié et le délai d'action suffisant ? |
+| Signaux multidimensionnels et mécanisme prédictible | Maintenance prédictive potentielle | Les données, validations, faux positifs, coûts et actions sont-ils maîtrisés ? |
+| Risque qui ne peut être réduit par la tâche d'entretien seule | Modification de conception ou mitigation | Une architecture différente ou une redondance réduirait-elle mieux le risque ? |
+
+Cette matrice fournit une démarche de choix, pas un verdict automatique. Un actif peut combiner plusieurs politiques selon ses modes de défaillance. La stratégie doit vérifier si une tâche a réellement l'effet souhaité, mais aussi si elle introduit des risques, par exemple une erreur de remontage après un démontage inutile.
+
+### Exemple de priorisation d'un portefeuille
+
+Supposons trois actifs fictifs : un serveur de gestion indispensable, un routeur redondant avec une voie de secours testée et une imprimante d'étiquettes facilement remplaçable. La politique du serveur peut inclure contrôle de sauvegarde, tests de restauration, correctifs rigoureux, capacité et pièces de rechange ; le routeur demande une validation de la redondance et un plan de remplacement, sans oublier de tester le basculement ; l'imprimante peut être maintenue de manière plus corrective si la solution de remplacement et le stock sont suffisants. Une fréquence unique de préventif serait plus simple administrativement mais pas nécessairement la plus sûre ou rentable.
+
+La sélection des projets de renouvellement doit également tenir compte des dépendances. Un serveur peut dépendre d'une version de base de données, d'un réseau et d'une licence qui expirent à des dates différentes. Remplacer seulement le serveur peut rendre l'application incompatible ou déplacer le risque vers un autre composant. Cartographier les actifs, applications, contrats, interfaces, pièces et équipes avant de figer le calendrier.
+
+### Contrôles de gouvernance de la stratégie
+
+Chaque politique approuvée doit avoir un propriétaire, une justification, une date de revue, les hypothèses et la preuve attendue. Les exceptions doivent préciser la raison, la durée, le risque résiduel, la mitigation, l'autorité d'acceptation et le déclencheur de réexamen. Une exception sans date de fin devient souvent une nouvelle règle informelle. Les rapports stratégiques montrent le nombre et la criticité des exceptions ainsi que les actifs sans politique validée.
+
+Les revues s'appuient sur l'historique des défaillances, le MTBF/MTTR définis, l'efficacité du préventif, les coûts, les ruptures de stock, les résultats de prédiction et les incidents post-maintenance. Une variation d'indicateur peut provenir d'une évolution des règles ou de la population : vérifier la comparabilité avant d'en tirer une conclusion. Si une politique est modifiée, définir une référence et une période d'observation pour vérifier qu'elle produit la valeur attendue.
+
+
 ## Ressources techniques et références
 
 - [ISO 55000:2024 — gestion d'actifs, principes et cycle de vie](https://www.iso.org/standard/83053.html)
