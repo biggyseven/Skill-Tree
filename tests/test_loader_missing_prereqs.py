@@ -84,7 +84,7 @@ class MissingPrerequisiteLoaderTests(unittest.TestCase):
             )
             (lessons_dir / "course-a.md").write_text("# Cours A", encoding="utf-8")
             stub = lessons_dir / "draft-course.md"
-            stub.write_text("\\n", encoding="utf-8")
+            stub.write_text("", encoding="utf-8")
 
             self.assertEqual(load_lessons(content_dir), {"course-a": "# Cours A"})
 
