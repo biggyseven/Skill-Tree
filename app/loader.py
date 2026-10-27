@@ -770,6 +770,210 @@ def _write(
     return removed
 
 
+
+def sync_content_additions(
+    conn: sqlite3.Connection,
+    directory: str | Path = CONTENT_DIR,
+) -> dict[str, int]:
+    """Ajoute les nœuds et ressources manquants sans purger la progression existante.
+
+    Une base SQLite persistante n'est pas rechargée par ensure_ready() lorsqu'elle
+    contient déjà des données. Cette synchronisation additive rend donc visibles les
+    nouveaux cours sans supprimer de nœud, tentative, session ou question existante.
+    """
+    directory = Path(directory)
+    if not directory.is_dir():
+        raise ContentError(f"Dossier de contenu introuvable : {directory}")
+
+    nodes = _parse_nodes(directory / "nodes.json")
+    node_ids = {node.id for node in nodes}
+    existing_ids = {
+        row["id"] for row in conn.execute("SELECT id FROM nodes").fetchall()
+    }
+    new_nodes = [node for node in nodes if node.id not in existing_ids]
+    if not new_nodes:
+        return {
+            "nodes_added": 0,
+            "nodes_deferred": 0,
+            "quiz_banks_added": 0,
+            "exam_banks_added": 0,
+            "lab_specs_added": 0,
+            "terminal_specs_added": 0,
+            "challenges_added": 0,
+        }
+
+    quizzes = _parse_bank(directory / "quiz", "quiz", node_ids)
+    exams = _parse_bank(directory / "exam", "exam", node_ids)
+    labs = _parse_labs(directory / "labs", node_ids)
+    terminals = _parse_terminals(directory / "terminal", node_ids)
+    banks_by_kind = {
+        "quiz": quizzes,
+        "exam": exams,
+        "lab": labs,
+        "terminal": terminals,
+    }
+
+    eligible: list[NodeSpec] = []
+    deferred: dict[str, list[str]] = {}
+    lessons_dir = directory / "lessons"
+    for node in new_nodes:
+        missing: list[str] = []
+        try:
+            lesson_text = (lessons_dir / f"{node.id}.md").read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeError):
+            lesson_text = ""
+        if not lesson_text:
+            missing.append("leçon Markdown absente ou vide")
+        for kind, _min_score in node.requirements:
+            bank = banks_by_kind.get(kind)
+            if bank is not None and node.id not in bank:
+                missing.append(f"ressource « {kind} » absente")
+        if missing:
+            deferred[node.id] = missing
+        else:
+            eligible.append(node)
+
+    available_ids = set(existing_ids)
+    ready_nodes: list[NodeSpec] = []
+    pending = list(eligible)
+    while pending:
+        progressed = False
+        for node in list(pending):
+            if all(prereq in available_ids for prereq in node.prereqs):
+                ready_nodes.append(node)
+                available_ids.add(node.id)
+                pending.remove(node)
+                progressed = True
+        if not progressed:
+            break
+
+    for node in pending:
+        missing_prereqs = [prereq for prereq in node.prereqs if prereq not in available_ids]
+        deferred[node.id] = [
+            f"prérequis « {prereq} » absent de la base ou du lot complet"
+            for prereq in missing_prereqs
+        ] or ["dépendance circulaire détectée"]
+
+    report = {
+        "nodes_added": 0,
+        "nodes_deferred": len(deferred),
+        "quiz_banks_added": 0,
+        "exam_banks_added": 0,
+        "lab_specs_added": 0,
+        "terminal_specs_added": 0,
+        "challenges_added": 0,
+    }
+
+    def insert_questions(scope: str, node_id: str, questions: list[QuestionSpec]) -> None:
+        for position, question in enumerate(questions):
+            conn.execute(
+                "INSERT INTO questions"
+                " (node_id, scope, prompt, choices, answer, question_type, answer_text,"
+                " answer_regex, explanation, position)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    node_id,
+                    scope,
+                    question.prompt,
+                    json.dumps(question.choices, ensure_ascii=False),
+                    question.answer if question.question_type == "qcm" else 0,
+                    question.question_type,
+                    question.answer if question.question_type in {"input", "terminal"} else None,
+                    question.answer_regex,
+                    question.explanation,
+                    position,
+                ),
+            )
+
+    with conn:
+        # Insérer les nœuds avant les arêtes afin de respecter les clés étrangères.
+        for node in ready_nodes:
+            cursor = conn.execute(
+                "INSERT OR IGNORE INTO nodes (id, title, description, category, sort_order)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (node.id, node.title, node.description, node.category, node.order),
+            )
+            report["nodes_added"] += max(cursor.rowcount, 0)
+
+        known_ids = {
+            row["id"] for row in conn.execute("SELECT id FROM nodes").fetchall()
+        }
+        # Ajouter les prérequis et exigences manquants sans écraser l'existant.
+        for node in nodes:
+            if node.id not in known_ids:
+                continue
+            for prereq in node.prereqs:
+                if prereq in known_ids:
+                    conn.execute(
+                        "INSERT OR IGNORE INTO edges (node_id, prereq_id) VALUES (?, ?)",
+                        (node.id, prereq),
+                    )
+            for kind, min_score in node.requirements:
+                conn.execute(
+                    "INSERT OR IGNORE INTO requirements (node_id, kind, min_score)"
+                    " VALUES (?, ?, ?)",
+                    (node.id, kind, min_score),
+                )
+
+        # Les banques présentes sont laissées intactes pour préserver les validations.
+        for node in ready_nodes:
+            for scope, bank, counter in (
+                ("quiz", quizzes, "quiz_banks_added"),
+                ("exam", exams, "exam_banks_added"),
+            ):
+                questions = bank.get(node.id, [])
+                stored = conn.execute(
+                    "SELECT 1 FROM questions WHERE node_id = ? AND scope = ? LIMIT 1",
+                    (node.id, scope),
+                ).fetchone()
+                if questions and not stored:
+                    insert_questions(scope, node.id, questions)
+                    report[counter] += 1
+
+            lab = labs.get(node.id)
+            if lab is not None:
+                cursor = conn.execute(
+                    "INSERT OR IGNORE INTO lab_specs (node_id, kind, mode, pattern, prompt, hint)"
+                    " VALUES (?, ?, ?, ?, ?, ?)",
+                    (lab.node_id, lab.kind, lab.mode, lab.pattern, lab.prompt, lab.hint),
+                )
+                report["lab_specs_added"] += max(cursor.rowcount, 0)
+
+            terminal = terminals.get(node.id)
+            if terminal is not None:
+                cursor = conn.execute(
+                    "INSERT OR IGNORE INTO terminal_specs"
+                    " (node_id, prompt, answer, pattern, explanation) VALUES (?, ?, ?, ?, ?)",
+                    (
+                        terminal.node_id,
+                        terminal.prompt,
+                        terminal.answer,
+                        terminal.pattern,
+                        terminal.explanation,
+                    ),
+                )
+                report["terminal_specs_added"] += max(cursor.rowcount, 0)
+
+            if node.challenge is not None:
+                cursor = conn.execute(
+                    "INSERT OR IGNORE INTO challenges (node_id, expected_topology, time_limit)"
+                    " VALUES (?, ?, ?)",
+                    (
+                        node.id,
+                        json.dumps(node.challenge.expected_topology, ensure_ascii=False),
+                        node.challenge.time_limit,
+                    ),
+                )
+                report["challenges_added"] += max(cursor.rowcount, 0)
+
+    if deferred:
+        print(
+            "Synchronisation additive du catalogue : "
+            f"{len(deferred)} nœud(s) différé(s), ressources ou prérequis incomplets."
+        )
+    return report
+
+
 def load_content(conn: sqlite3.Connection, directory: str | Path = CONTENT_DIR) -> LoadReport:
     """Charge tout content/ dans la base. Les tentatives existantes sont conservées."""
     directory = Path(directory)
