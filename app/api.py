@@ -278,7 +278,6 @@ def _configured_node_orders() -> dict[str, int]:
 
 
 @lru_cache(maxsize=1)
-@lru_cache(maxsize=1)
 def _configured_node_positions() -> dict[str, int]:
     """Retourne la position exacte des cours dans le catalogue JSON.
 
@@ -299,6 +298,7 @@ def _configured_node_positions() -> dict[str, int]:
     }
 
 
+@lru_cache(maxsize=1)
 def _configured_node_labs() -> dict[str, dict[str, Any]]:
     """Lit les métadonnées de lab attachées aux nœuds du catalogue JSON."""
     path = CONTENT_DIR / "nodes.json"
