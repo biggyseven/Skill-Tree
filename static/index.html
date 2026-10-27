@@ -1483,6 +1483,38 @@
           await this.refreshAll();
           this.examCategory = this.examCategories[0]?.name || '';
           this.connectWebSocket();
+          await this.openRequestedLabFromUrl();
+        },
+
+        // Traite les liens profonds du type /?openLab=<id> au lieu de laisser
+        // l'application afficher uniquement le tableau de bord.
+        async openRequestedLabFromUrl() {
+          const requestedUrl = new URL(window.location.href);
+          const requestedLabId = (requestedUrl.searchParams.get('openLab') || '').trim();
+          if (!requestedLabId) return;
+
+          // Retirer l'intention de navigation après l'avoir lue, sans effacer
+          // les autres paramètres ni l'ancre de la page.
+          requestedUrl.searchParams.delete('openLab');
+          try {
+            window.history.replaceState(
+              window.history.state,
+              '',
+              requestedUrl.pathname + requestedUrl.search + requestedUrl.hash
+            );
+          } catch (_) { /* L'ouverture du lab ne dépend pas du nettoyage de l'URL. */ }
+
+          // Activer l'onglet Labs avant l'ouverture : même si l'identifiant est
+          // devenu invalide, l'utilisateur arrive au catalogue et non au dashboard.
+          await this.setTab('labs');
+          const availableLab = this.labNodes.some(node => String(node.id) === requestedLabId);
+          if (!availableLab) return;
+
+          await this.openLab(requestedLabId);
+          if (!this.detail || String(this.detail.id) !== requestedLabId || !this.detail.lab) {
+            this.close();
+            await this.setTab('labs');
+          }
         },
 
         // --- Préférences d'affichage du lecteur (taille du texte, fenêtre agrandie) ---
