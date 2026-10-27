@@ -876,6 +876,16 @@ Après l'intervention autorisée, vérifier l'état du stockage, les alertes, le
 | Vérification et documentation | 4 |
 | **Total** | **20** |
 
+## Références et approfondissement
+
+Ces ressources complètent les conseils du cours. Elles ne remplacent pas les consignes de l'employeur, l'habilitation requise, les instructions du fabricant ni les règles locales de sécurité. Un technicien débutant doit interrompre et escalader une tâche lorsqu'elle dépasse son rôle, ses compétences ou ses autorisations.
+
+- [INRS — Prévention du risque électrique](https://www.inrs.fr/risques/electriques/prevention-risque-electrique) : principes de prévention, préparation des opérations et maîtrise des risques électriques.
+- [INRS — Organisation de la maintenance : prévention](https://www.inrs.fr/risques/maintenance/prevention.html) : préparation, coordination, réévaluation du risque, vérification de remise en service et retour d'expérience.
+- [NIST Cybersecurity Framework 2.0](https://csrc.nist.gov/pubs/cswp/29/the-nist-cybersecurity-framework-csf-20/final) : cadre de gestion des risques de cybersécurité et fonctions de gouvernance, protection, détection, réponse et rétablissement.
+- [CISA — Secure Our World](https://www.cisa.gov/secure-our-world) : bonnes pratiques de base pour sécuriser les comptes, appliquer les mises à jour, utiliser l'authentification multifacteur et reconnaître l'hameçonnage.
+- [OSHA — Control of Hazardous Energy, 29 CFR 1910.147](https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.147) : exemple américain de contrôle des énergies dangereuses pendant certaines interventions. Ce texte illustre une méthode et ne remplace pas la législation applicable dans une autre juridiction.
+
 ## 20. Synthèse du cours
 
 La sécurité de base doit accompagner chaque intervention : observation, diagnostic, modification, remplacement matériel, récupération et clôture.
