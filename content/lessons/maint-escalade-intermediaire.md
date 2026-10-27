@@ -140,3 +140,88 @@ Correction : suivre le circuit d'astreinte ou d'escalade hiérarchique, document
 Un service de paie est indisponible pour plusieurs agences. Le N1 a confirmé le problème applicatif, le réseau répond et les contrôles standard n'apportent pas de solution. Le délai de prise en charge approche de sa limite.
 
 **Correction attendue :** classer l'incident selon la matrice d'impact et d'urgence ; transmettre immédiatement au niveau technique adapté avec les faits, les tests et l'heure de début ; alerter le responsable si l'impact ou l'engagement l'exige ; demander un accusé de réception ; fournir aux utilisateurs une information factuelle et l'heure de prochaine mise à jour ; préserver les preuves et suivre l'incident jusqu'au test de rétablissement. Le ticket ne peut être clôturé sur la seule base d'une correction supposée.
+
+
+## 9. Construire un paquet d'escalade complet
+
+Un transfert efficace évite au niveau suivant de recommencer les tests déjà réalisés. Il doit inclure l'identifiant du ticket, le service affecté, le périmètre, l'impact, l'heure de début, les symptômes, la priorité et la raison précise du transfert. Ajoute les tests réalisés, les résultats exacts, les hypothèses examinées, les actions appliquées, les effets observés, les éléments encore inconnus et l'action attendue du destinataire.
+
+Évite les formulations « ça ne marche toujours pas », « vérifier le réseau » ou « urgent ». Elles ne disent ni ce qui a été observé ni ce qui est attendu. Préfère « Depuis 10 h 18, trois postes du VLAN utilisateurs ne résolvent plus le nom de l'application ; la passerelle répond, le DNS configuré ne renvoie aucune réponse au test autorisé. Aucune modification n'a été faite. Demande : vérifier le service DNS ou la connectivité vers le résolveur. » Cette forme relie le fait, la preuve et la demande.
+
+~~~mermaid
+flowchart TD
+    A[Ticket qualifié] --> B[Symptôme et impact]
+    B --> C[Contrôles et résultats]
+    C --> D[Actions et limites]
+    D --> E[Question précise pour le niveau suivant]
+    E --> F[Accusé de réception]
+    F --> G[Diagnostic et retour au demandeur]
+~~~
+
+Un transfert doit nommer un interlocuteur ou une file qui a effectivement la responsabilité du sujet. Le simple changement d'affectation dans l'outil ne garantit pas que la nouvelle équipe a vu le ticket. Selon les règles du service, le niveau d'origine reste responsable jusqu'à l'accusé de réception ou jusqu'à ce qu'un rôle de coordination assume clairement le suivi.
+
+## 10. Escalade fonctionnelle, hiérarchique et incident majeur
+
+L'escalade **fonctionnelle** transfère la résolution à une équipe possédant les compétences ou accès nécessaires : réseau, système, base de données, sécurité, fournisseur. L'escalade **hiérarchique** sollicite un responsable pour arbitrer les priorités, les ressources, les risques ou la communication. Une escalade fonctionnelle peut être nécessaire même lorsqu'aucune hiérarchie n'est impliquée ; une escalade hiérarchique peut être nécessaire lorsque plusieurs services se disputent une ressource rare.
+
+Pour un incident majeur, il est utile de distinguer plusieurs rôles : responsable de l'incident, pilote technique, personne chargée de la communication, équipes de résolution et représentant métier. Dans une petite équipe, une personne peut assumer plusieurs rôles, mais cette répartition doit être explicite. Le pilote de l'incident maintient la chronologie et les décisions ; les spécialistes mènent les investigations ; la communication fournit des mises à jour cohérentes ; le propriétaire métier valide les conséquences et le retour.
+
+~~~mermaid
+flowchart LR
+    A[Coordinateur d'incident] --> B[Pilote technique]
+    A --> C[Communication utilisateurs]
+    B --> D[Équipe réseau]
+    B --> E[Équipe systèmes]
+    B --> F[Fournisseur ou expert]
+    C --> G[Propriétaire métier]
+    D --> H[Validation du service]
+    E --> H
+    F --> H
+    G --> A
+~~~
+
+Ne confonds pas les niveaux N1/N2/N3 avec une gravité automatique. Un incident très grave peut être détecté au N1 puis immédiatement coordonné par un responsable ; un défaut technique complexe mais sans impact important peut rester un dossier expert planifié. L'escalade doit suivre l'impact, l'urgence, le risque, les compétences nécessaires et la politique de service.
+
+## 11. Définir une matrice d'escalade exploitable
+
+Une matrice doit préciser les critères d'entrée, le destinataire, le délai d'accusé de réception, le contenu requis, la personne qui conserve le suivi et le mécanisme de secours si l'équipe ne répond pas. Les délais exacts viennent des engagements de l'organisation. Évite de fixer des minutes génériques qui ne correspondent pas aux SLA/OLA ou à l'organisation de l'astreinte.
+
+| Situation observée | Orientation indicative | Information requise |
+|---|---|---|
+| Demande standard bien définie | File de service | Droit, périmètre, utilisateur, échéance |
+| Incident local documenté | N1 puis groupe technique adapté | Symptômes, équipement, tests et résultat |
+| Dégradation sur plusieurs sites | Coordination d'incident et équipes concernées | Chronologie, périmètre, services et changements |
+| Suspicion de compromission | Processus de sécurité dédié | Indicateurs observés, heure, éléments préservés |
+| Blocage par autorisation ou ressource | Responsable hiérarchique ou propriétaire | Décision attendue, conséquences du retard |
+
+Une matrice ne doit pas permettre au technicien de retarder l'escalade parce que tous les champs ne sont pas remplis. Si un incident se propage, transfère rapidement les faits déjà connus et complètes ensuite les éléments manquants. En revanche, ne communique pas de secrets, de données personnelles excessives ou des hypothèses non signalées comme telles.
+
+## 12. Suivi après transfert et clôture
+
+Une fois le transfert accepté, le ticket conserve la chronologie et les responsabilités. Le demandeur doit savoir que le dossier évolue, ce qui est confirmé et quand la prochaine mise à jour est prévue. Une estimation doit être présentée comme une estimation, et non une promesse, tant que la cause, la portée et les dépendances ne sont pas confirmées.
+
+Quand la solution est appliquée, demande une vérification du service en regard du symptôme initial. Si la résolution est temporaire, explique la limite, le risque restant et l'action prévue. Lorsque le N1 reprend le suivi, celui-ci doit connaître la solution, les éléments à vérifier, la date et le propriétaire de l'action suivante. Les tickets réouverts doivent être analysés pour déterminer si la résolution était incomplète, si un symptôme est réapparu ou si un critère de clôture était mal défini.
+
+### TP 6 — Escalader sans perdre le contexte
+
+Un service est lent sur deux sites. Tu as vérifié la connectivité locale, comparé les heures de début et trouvé une alerte de saturation sur un lien partagé. Rédige un transfert vers l'équipe réseau, sans affirmer que la saturation est la cause unique.
+
+**Correction :** inclure les sites, les services, le périmètre, les heures, le débit mesuré et la source de la mesure, les contrôles locaux et les résultats. Formuler la saturation comme une hypothèse à vérifier, relier la demande à la capacité et aux événements récents, et indiquer l'action attendue. Informer le coordinateur si plusieurs services sont affectés.
+
+### TP 7 — N2 ne répond pas
+
+Le ticket critique est affecté au N2 mais n'est pas pris en charge pendant la période prévue.
+
+**Correction :** appliquer la matrice de relance ou la relève, conserver la trace des tentatives, notifier le responsable indiqué et continuer les actions sûres déjà autorisées. Ne pas attendre passivement si l'impact augmente. Les délais applicables sont ceux de l'OLA/SLA et de la procédure locale.
+
+### TP 8 — Désaccord sur la priorité
+
+L'utilisateur réclame une priorité maximale, mais les faits indiquent un seul poste affecté et une solution de contournement disponible.
+
+**Correction :** évaluer l'impact et l'urgence avec les critères partagés. L'insistance ne détermine pas la priorité ; un changement de périmètre ou la disparition du contournement justifieraient une réévaluation. Expliquer la décision sans minimiser le problème.
+
+## 13. Défi final — Incident multiservice
+
+Une modification réseau a interrompu l'accès à trois applications dans deux sites. Propose une organisation avec responsable d'incident, experts, communication, critères de changement de priorité, transfert et validation finale.
+
+**Correction :** désigner un coordinateur, créer une chronologie commune, lier les symptômes à un incident principal, assigner des tâches techniques parallèles, communiquer des faits confirmés à intervalle prévu et réserver une seule personne pour les messages externes. La priorité dépend du périmètre, des opérations bloquées et des alternatives. Un changement correctif est autorisé selon la procédure, puis les applications sont testées depuis les deux sites. Le ticket est clôturé uniquement lorsque les critères fonctionnels sont satisfaits et les actions restantes affectées.
