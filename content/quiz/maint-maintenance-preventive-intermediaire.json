@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Planifier la maintenance préventive » ?",
+      "prompt": "Quel est l'objectif principal de la maintenance préventive ?",
       "choices": [
-        "Le sujet principal du cours : Planifier la maintenance préventive",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Supprimer les alertes répétées",
+        "Réduire un risque de panne par des tâches planifiées et vérifiables",
+        "Redémarrer tous les appareils à heure fixe",
+        "Remplacer toute maintenance corrective"
+      ],
+      "answer": 1,
+      "explanation": "La prévention vise à réduire les risques identifiés, en tenant compte des actifs, de leurs dépendances et des instructions applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi classer les actifs par criticité ?",
+      "choices": [
+        "Pour appliquer une fréquence identique à tous",
+        "Pour éviter de conserver des preuves",
+        "Pour prioriser les tâches selon l'impact, le risque et la reprise",
+        "Pour supprimer l'approbation des changements"
+      ],
+      "answer": 2,
+      "explanation": "L'effort et la fréquence doivent être justifiés par le risque et le rôle de l'actif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si une sauvegarde requise n'est pas vérifiée avant une tâche risquée ?",
+      "choices": [
+        "Continuer pour respecter le calendrier",
+        "Marquer la tâche terminée",
+        "Suspendre ou reporter selon la procédure et escalader",
+        "Masquer l'écart dans la checklist"
+      ],
+      "answer": 2,
+      "explanation": "Une précondition non satisfaite doit être traitée explicitement avant une action qui peut affecter le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet de simuler une mise à niveau sur Debian/Ubuntu sans installer les mises à jour ?",
+      "choices": [
+        "sudo apt-get -s upgrade",
+        "sudo apt-get upgrade -y",
+        "sudo reboot",
+        "sudo rm -rf /tmp/*"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "L'option -s simule les opérations. Le résultat doit être relu et ne remplace pas la validation d'un changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément rend une checklist exploitable ?",
+      "choices": [
+        "Toutes les cases précochées",
+        "Une action vérifiable avec preuve attendue et conduite en cas d'échec",
+        "Le mot « OK » sans mesure",
+        "L'absence de responsable"
+      ],
+      "answer": 1,
+      "explanation": "La checklist doit préciser le contrôle, la preuve et la suite à donner si le résultat n'est pas conforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une intervention est faite, mais le test fonctionnel échoue. Peut-on clôturer ?",
+      "choices": [
+        "Oui si la commande s'est terminée",
+        "Oui si la fenêtre de maintenance est terminée",
+        "Non, il faut appliquer les critères d'arrêt, le retour arrière ou l'escalade et documenter le résultat",
+        "Oui en supprimant le ticket"
+      ],
+      "answer": 2,
+      "explanation": "La clôture dépend de la validation du service, et pas seulement de l'exécution de la tâche."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un taux de réalisation des tâches de 100 % prouve-t-il que le plan est efficace ?",
+      "choices": [
+        "Oui, systématiquement",
+        "Oui, si les tâches sont anciennes",
+        "Oui, si aucun rapport n'est demandé",
+        "Non : il faut aussi mesurer les incidents, les risques réduits et les résultats"
+      ],
+      "answer": 3,
+      "explanation": "L'exécution est un indicateur de processus ; l'efficacité doit être mesurée par des résultats et une analyse de risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi conserver un statut de tâche reportée ?",
+      "choices": [
+        "Pour tracer la raison, le responsable et la prochaine décision",
+        "Pour pouvoir oublier l'actif",
+        "Pour réduire automatiquement le RTO",
+        "Pour supprimer l'approbation"
+      ],
+      "answer": 0,
+      "explanation": "La traçabilité permet de suivre le risque restant et d'éviter qu'une tâche bloquée soit oubliée."
     }
   ]
 }

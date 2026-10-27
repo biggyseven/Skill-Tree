@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger des procédures et checklists » ?",
+      "prompt": "Quel élément devrait apparaître dans une procédure de maintenance exploitable ?",
       "choices": [
-        "Le sujet principal du cours : Rédiger des procédures et checklists",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Une étape sans résultat attendu",
+        "Le but, le périmètre, les préconditions, les étapes, les validations et le retour arrière",
+        "Un mot de passe partagé en clair",
+        "La mention « faire comme d'habitude »"
+      ],
+      "answer": 1,
+      "explanation": "Une procédure décrit ce qui doit être fait, sous quelles conditions et comment vérifier ou annuler l'action."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d'une checklist ?",
+      "choices": [
+        "Remplacer toutes les approbations",
+        "Garantir le succès sans contrôle",
+        "Rendre visibles les vérifications à ne pas oublier",
+        "Supprimer le compte rendu"
+      ],
+      "answer": 2,
+      "explanation": "La checklist rend les points de contrôle répétables et observables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand le retour arrière doit-il être défini ?",
+      "choices": [
+        "Avant l'action risquée, avec ses conditions et ses étapes",
+        "Après la panne uniquement",
+        "Jamais pour les changements mineurs",
+        "Après avoir clôturé le ticket"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le retour arrière doit être préparé avant le changement pour être réalisable lorsque les critères d'arrêt sont atteints."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faire relire et tester une procédure ?",
+      "choices": [
+        "Pour augmenter le nombre de pages",
+        "Pour cacher les risques",
+        "Pour éviter de documenter les écarts",
+        "Pour détecter l'ambiguïté et vérifier les étapes avant l'usage réel"
+      ],
+      "answer": 3,
+      "explanation": "Une revue par un pair et un test sûr identifient les dépendances ou instructions défaillantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La procédure dit « vérifier que tout fonctionne ». Comment l'améliorer ?",
+      "choices": [
+        "Supprimer cette étape",
+        "Définir les tests fonctionnels précis et leurs résultats attendus",
+        "Remplacer par « OK »",
+        "Préciser uniquement la couleur du tableau de bord"
+      ],
+      "answer": 1,
+      "explanation": "Un critère de réussite doit être vérifiable, mesurable et associé au service concerné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal devrait déclencher une revue d'une procédure ?",
+      "choices": [
+        "Une nouvelle couleur dans un document sans effet",
+        "Le passage d'une semaine dans tous les cas",
+        "Un incident important, un changement d'architecture ou des écarts répétés",
+        "La fermeture du navigateur"
+      ],
+      "answer": 2,
+      "explanation": "La documentation doit évoluer après les changements et les retours terrain significatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une fiche de collecte diagnostic ne trouve pas la cause racine. Que doit-elle prévoir ?",
+      "choices": [
+        "Le chemin d'escalade ou la procédure de diagnostic suivante",
+        "Un redémarrage automatique dans tous les cas",
+        "La clôture sans preuve",
+        "La suppression des journaux"
+      ],
+      "answer": 0,
+      "explanation": "Une procédure de collecte décrit ses limites et l'étape suivante ; elle ne doit pas improviser une réparation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information améliore la traçabilité d'une intervention ?",
+      "choices": [
+        "Une capture sans date ni cible",
+        "Un commentaire « terminé » uniquement",
+        "Le mot de passe du technicien",
+        "L'identifiant de ticket, l'hôte, l'heure, les résultats et la version de procédure"
+      ],
+      "answer": 3,
+      "explanation": "Les références, les horodatages et les résultats permettent de reconstituer l'opération."
     }
   ]
 }
