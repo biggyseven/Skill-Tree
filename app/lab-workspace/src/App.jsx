@@ -6,6 +6,8 @@ import { BriefPanel } from './brief/BriefPanel.jsx';
 import { Palette } from './canvas/Palette.jsx';
 import { CablePalette } from './canvas/CablePalette.jsx';
 import { InspectorPanel } from './inspector/InspectorPanel.jsx';
+import { EQUIPMENT_MODEL_COUNT } from './canvas/deviceCatalog.js';
+import { CABLES } from './canvas/cableCatalog.js';
 
 function fetchLabFromUrl(labId) {
   return fetch('/api/lab/v2/' + encodeURIComponent(labId)).then(async response => {
@@ -357,7 +359,7 @@ export default function App() {
               >
                 <span aria-hidden="true">▦</span>
                 Équipements
-                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">23 modèles</span>
+                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">{EQUIPMENT_MODEL_COUNT} modèles</span>
               </button>
               <button
                 id="lab-cables-tab"
@@ -373,7 +375,7 @@ export default function App() {
               >
                 <span aria-hidden="true">⟷</span>
                 Câbles
-                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">10 câbles</span>
+                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">{CABLES.length} câbles</span>
               </button>
             </div>
             <div id="lab-library-panel" role="tabpanel" aria-labelledby={libraryTab === 'equipment' ? 'lab-equipment-tab' : 'lab-cables-tab'} className="min-h-0 flex-1 overflow-hidden">
