@@ -17,6 +17,7 @@ from .domain import (
     Status,
 )
 from .labs_runner import LabResult
+from .exam_rules import effective_requirement_score
 
 MAX_DETAIL = 4000
 
@@ -86,10 +87,11 @@ def check_lab(spec: LabSpec, answer: str) -> tuple[bool, str]:
 
 
 def requirement_met(requirement: Requirement, node: Node) -> bool:
+    required_score = effective_requirement_score(requirement.kind, requirement.min_score)
     return any(
         attempt.kind == requirement.kind
         and attempt.passed
-        and attempt.score >= requirement.min_score
+        and attempt.score >= required_score
         for attempt in node.attempts
     )
 
