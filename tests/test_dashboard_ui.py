@@ -808,7 +808,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertNotIn("this.themeMenuOpen = false;", set_method)
 
     def test_active_modals_close_on_outside_click_without_interrupting_inside_actions(self):
-        self.assertIn('@click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event)"', DASHBOARD_HTML)
+        self.assertIn('@click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event); closeSidebarContextMenuOnOutside($event)"', DASHBOARD_HTML)
         start = DASHBOARD_HTML.index("closeModalsOnOutside(event) {")
         end = DASHBOARD_HTML.index("closeThemeOnOutside(event)", start)
         close_method = DASHBOARD_HTML[start:end]
