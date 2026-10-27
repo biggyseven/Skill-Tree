@@ -369,6 +369,26 @@ Une rétrospective d'équipe pose trois questions : qu'est-ce qui a aidé la ré
 Le manager vérifie que les contributions sont réellement entendues, notamment lorsque le désaccord vient d'une personne moins expérimentée ou d'une équipe dépendante. Faire remonter un risque ne doit pas produire automatiquement une sanction informelle ou une surcharge. En parallèle, la qualité et la responsabilité restent explicites : une personne qui applique volontairement une action non autorisée doit être traitée selon le processus approprié, sans confondre cette situation avec une erreur honnête liée à une procédure confuse.
 
 
+
+## Outil complémentaire — matrice de compétences et couverture de relève
+
+Une matrice de compétences doit être fondée sur des tâches et niveaux d'autonomie observables. Une échelle possible est : 0 = non formé, 1 = connaissance théorique, 2 = réalise avec accompagnement, 3 = réalise en autonomie dans les limites prévues, 4 = peut diagnostiquer les exceptions et accompagner un collègue. Les catégories doivent être définies par métier et validées par les responsables techniques. Le niveau 4 ne donne pas automatiquement une autorité d'approbation ou un droit d'accès privilégié.
+
+| Capacité critique | Titulaire autonome | Relève en formation | Preuve à vérifier |
+|---|---|---|---|
+| Restauration applicative | Deux rôles habilités | Un binôme nommé | Exercice dans un environnement autorisé |
+| Changement réseau critique | Équipe réseau | Second opérateur | Revue du plan et simulation de retour |
+| Réponse aux incidents majeurs | Responsable de garde | Suppléant | Simulation d'activation et passation |
+| Gestion des accès fournisseurs | Propriétaire d'accès | Relève sécurité | Revue d'accès et révocation de test |
+| Analyse de récurrence | Analyste maintenance | Binôme métier | Diagnostic d'un cas et preuve de conclusion |
+
+Le manager examine les compétences non couvertes en fonction de l'impact, de la probabilité d'absence, du temps de transfert et du délai nécessaire pour obtenir une aide externe. Un plan de relève peut combiner formation, binômage, documentation, standardisation, contrat d'assistance ou réduction de complexité. La personne qui suit le plan doit vérifier l'autonomie et actualiser la matrice après une période d'exercice ; une simple déclaration de compétence n'est pas suffisante pour les opérations à risque élevé.
+
+Le plan de progression est utile lorsqu'il contient peu d'objectifs précis. Par exemple : « Le technicien prendra en charge deux cas de diagnostic DNS en environnement de formation, expliquera pourquoi les hypothèses concurrentes sont acceptées ou rejetées, conservera la trace et appliquera les points d'arrêt. Un expert évaluera le résultat au plus tard à la date prévue. » Ce critère est plus utile que « progresser en réseau » car il définit ce qui sera réellement observé.
+
+La matrice ne doit pas être un classement public de personnes ni un outil de sanction automatique. Elle sert à réduire le risque de dépendance, soutenir la formation, organiser les rotations et aligner la capacité sur les tâches. Les informations individuelles sont partagées selon les règles de l'organisation, avec des objectifs et des critères connus des personnes concernées.
+
+
 ## Ressources techniques et références
 
 - [ISO 30414:2025 — reporting et indicateurs du capital humain](https://www.iso.org/standard/30414)
