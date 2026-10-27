@@ -75,7 +75,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("prepareSpeechText(text, kind = 'lesson')", DASHBOARD_HTML)
         self.assertIn("const pronunciationRules = [", DASHBOARD_HTML)
         self.assertIn("this.splitSpeechText(this.prepareSpeechText(text, kind))", DASHBOARD_HTML)
-        self.assertIn("192 point ", DASHBOARD_HTML)
+        self.assertIn("address.split('.').join(' point ')", DASHBOARD_HTML)
         self.assertNotIn("title.replace(/[.!?…:;]+$/u, '')", DASHBOARD_HTML)
         self.assertNotIn("value.replace(/[,:;]+", DASHBOARD_HTML)
 
