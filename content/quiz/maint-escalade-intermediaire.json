@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Gestion de l'escalade (N1/N2/N3) » ?",
+      "prompt": "Le rôle principal du N1 est généralement de :",
       "choices": [
-        "Le sujet principal du cours : Gestion de l'escalade (N1/N2/N3)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Modifier l'architecture sans validation",
+        "Qualifier, traiter les cas connus et collecter les informations utiles",
+        "Résoudre tous les incidents quel que soit le risque",
+        "Fermer les tickets sans test"
+      ],
+      "answer": 1,
+      "explanation": "Le N1 applique les procédures autorisées et fournit un dossier exploitable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand escalader immédiatement ?",
+      "choices": [
+        "Quand un ticket est difficile à nommer",
+        "Uniquement après trois jours",
+        "Quand l'impact ou le risque dépasse les critères de prise en charge du niveau ou de l'astreinte",
+        "Jamais si le N1 a commencé le diagnostic"
+      ],
+      "answer": 2,
+      "explanation": "Les critères d'escalade doivent tenir compte de l'impact, du risque et de l'autorité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui rend un transfert exploitable ?",
+      "choices": [
+        "Résumé, impact, chronologie, preuves, tests déjà faits et prochaine action",
+        "Un simple message 'voir ticket'",
+        "Le transfert sans propriétaire",
+        "Une capture sans date"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le contexte évite de répéter des tests et maintient la continuité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "L'escalade hiérarchique sert surtout à :",
+      "choices": [
+        "Remplacer tout diagnostic technique",
+        "Contourner le système de ticketing",
+        "Attribuer des fautes",
+        "Obtenir une décision ou des ressources au-delà de l'autorité opérationnelle locale"
+      ],
+      "answer": 3,
+      "explanation": "Elle vise les décisions de priorité, de risque ou de ressource."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le N2 ne devrait-il pas recevoir un ticket 'réseau en panne' sans détail ?",
+      "choices": [
+        "Parce qu'il doit toujours refuser tout ticket",
+        "Parce que le périmètre, la gravité et les tests sont insuffisants pour démarrer efficacement",
+        "Parce que tout incident doit aller au N3",
+        "Parce que les utilisateurs ne peuvent pas signaler un problème"
+      ],
+      "answer": 1,
+      "explanation": "La qualification doit donner les faits nécessaires à l'investigation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque présente un transfert sans acceptation explicite ?",
+      "choices": [
+        "Le ticket est forcément résolu",
+        "Aucun risque en équipe",
+        "Le dossier peut rester sans responsable effectif",
+        "Le SLA devient automatiquement respecté"
+      ],
+      "answer": 2,
+      "explanation": "Une réaffectation sans prise en charge crée une zone de responsabilité floue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment prioriser un incident ?",
+      "choices": [
+        "Selon impact et urgence à partir d'une matrice définie",
+        "Selon le nombre de majuscules dans le courriel",
+        "Selon la personne la plus insistante uniquement",
+        "Par ordre alphabétique"
+      ],
+      "answer": 0,
+      "explanation": "La priorité doit être fondée sur des critères partagés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire lorsqu'une astreinte N3 est indisponible ?",
+      "choices": [
+        "Partager un compte administrateur commun",
+        "Attendre sans prévenir personne",
+        "Contourner la politique d'accès",
+        "Appliquer la chaîne de remplacement et les mesures conservatoires prévues"
+      ],
+      "answer": 3,
+      "explanation": "La continuité de prise en charge doit être préparée et documentée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur aide à améliorer l'escalade ?",
+      "choices": [
+        "La taille du logo du portail",
+        "Le taux de tickets retournés faute d'informations et les transferts successifs",
+        "Le nombre de pages du manuel",
+        "Le nombre de raccourcis clavier"
+      ],
+      "answer": 1,
+      "explanation": "Ces mesures révèlent des besoins de qualification, de documentation ou de compétences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qui reste responsable du suivi lors d'un incident majeur ?",
+      "choices": [
+        "Personne jusqu'à la fin",
+        "Uniquement le dernier intervenant qui a répondu",
+        "Un propriétaire d'incident désigné selon la procédure, même si plusieurs équipes interviennent",
+        "Tous les utilisateurs à parts égales"
+      ],
+      "answer": 2,
+      "explanation": "Le propriétaire garantit le suivi et la communication de bout en bout."
     }
   ]
 }
