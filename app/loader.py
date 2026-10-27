@@ -925,3 +925,219 @@ def load_content(conn: sqlite3.Connection, directory: str | Path = CONTENT_DIR) 
         lessons=len(lessons),
         removed_nodes=tuple(sorted(removed)),
     )
+
+def sync_content_additions(
+    conn: sqlite3.Connection,
+    directory: str | Path = CONTENT_DIR,
+) -> dict[str, int]:
+    """Réconcilie le catalogue sans réinitialiser les données de progression.
+
+    Contrairement à load_content(), cette fonction ne supprime ni nœud, ni tentative,
+    ni session. Elle ajoute les nouveaux nœuds, leurs prérequis et leurs banques absentes.
+    Elle remplace également un quiz de cours uniquement lorsque ses questions stockées
+    sont manifestement temporaires, afin de ne pas écraser un quiz déjà renseigné.
+    """
+    directory = Path(directory)
+    if not directory.is_dir():
+        raise ContentError(f"Dossier de contenu introuvable : {directory}")
+
+    nodes = _parse_nodes(directory / "nodes.json")
+    node_ids = {node.id for node in nodes}
+    existing_ids = {
+        row["id"] for row in conn.execute("SELECT id FROM nodes").fetchall()
+    }
+    new_nodes = [node for node in nodes if node.id not in existing_ids]
+
+    quizzes = _parse_bank(directory / "quiz", "quiz", node_ids)
+    exams = _parse_bank(directory / "exam", "exam", node_ids)
+    labs = _parse_labs(directory / "labs", node_ids)
+    terminals = _parse_terminals(directory / "terminal", node_ids)
+
+    banks_by_kind = {
+        "quiz": quizzes,
+        "exam": exams,
+        "lab": labs,
+        "terminal": terminals,
+    }
+    for node in new_nodes:
+        for kind, _min_score in node.requirements:
+            if kind in banks_by_kind and node.id not in banks_by_kind[kind]:
+                raise ContentError(
+                    f"Le nouveau nœud « {node.id} » exige « {kind} », "
+                    "mais sa ressource de contenu est absente."
+                )
+
+    report = {
+        "nodes_added": len(new_nodes),
+        "quiz_banks_added": 0,
+        "quiz_banks_refreshed": 0,
+        "exam_banks_added": 0,
+        "lab_specs_added": 0,
+        "terminal_specs_added": 0,
+        "challenges_added": 0,
+    }
+
+    temporary_question_markers = (
+        "question placeholder",
+        "option a (placeholder)",
+        "option b (placeholder)",
+        "option c (placeholder)",
+        "option d (placeholder)",
+        "question temporaire",
+        "à rédiger après le cours",
+        "[contenu de 5000 mots à rédiger]",
+        "quiz généré automatiquement",
+    )
+
+    def insert_questions(scope: str, node_id: str, questions: list[QuestionSpec]) -> None:
+        for position, question in enumerate(questions):
+            conn.execute(
+                "INSERT INTO questions"
+                " (node_id, scope, prompt, choices, answer, question_type, answer_text,"
+                " answer_regex, explanation, position)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    node_id,
+                    scope,
+                    question.prompt,
+                    json.dumps(question.choices, ensure_ascii=False),
+                    question.answer if question.question_type == "qcm" else 0,
+                    question.question_type,
+                    question.answer if question.question_type in {"input", "terminal"} else None,
+                    question.answer_regex,
+                    question.explanation,
+                    position,
+                ),
+            )
+
+    with conn:
+        # Le JSON reste la source de vérité des métadonnées visibles du parcours.
+        # Ces UPSERT ne touchent ni aux tentatives, ni aux statistiques, ni aux sessions.
+        for node in nodes:
+            conn.execute(
+                "INSERT INTO nodes (id, title, description, category, module, sort_order)"
+                " VALUES (?, ?, ?, ?, ?, ?)"
+                " ON CONFLICT(id) DO UPDATE SET"
+                " title = excluded.title,"
+                " description = excluded.description,"
+                " category = excluded.category,"
+                " module = excluded.module,"
+                " sort_order = excluded.sort_order",
+                (
+                    node.id,
+                    node.title,
+                    node.description,
+                    node.category,
+                    node.module,
+                    node.order,
+                ),
+            )
+            for kind, min_score in node.requirements:
+                conn.execute(
+                    "INSERT INTO requirements (node_id, kind, min_score) VALUES (?, ?, ?)"
+                    " ON CONFLICT(node_id, kind) DO NOTHING",
+                    (node.id, kind, min_score),
+                )
+
+        # Ajoute les relations manquantes sans effacer des relations ou progrès existants.
+        for node in nodes:
+            for prereq in node.prereqs:
+                if prereq not in node_ids:
+                    continue
+                conn.execute(
+                    "INSERT INTO edges (node_id, prereq_id) VALUES (?, ?)"
+                    " ON CONFLICT(node_id, prereq_id) DO NOTHING",
+                    (node.id, prereq),
+                )
+
+        for scope, bank in (("quiz", quizzes), ("exam", exams)):
+            for node_id, questions in bank.items():
+                if not questions:
+                    continue
+                stored = conn.execute(
+                    "SELECT prompt, choices, explanation FROM questions"
+                    " WHERE node_id = ? AND scope = ? ORDER BY position",
+                    (node_id, scope),
+                ).fetchall()
+                if not stored:
+                    insert_questions(scope, node_id, questions)
+                    if scope == "quiz":
+                        report["quiz_banks_added"] += 1
+                    else:
+                        report["exam_banks_added"] += 1
+                    continue
+
+                # Ne remplace que les quiz de cours clairement restés à l'état de squelette.
+                # Les réponses déjà enregistrées restent dans attempts, indépendante de questions.
+                stored_text = " ".join(
+                    " ".join(
+                        str(row[field] or "")
+                        for field in ("prompt", "choices", "explanation")
+                    ).lower()
+                    for row in stored
+                )
+                if scope == "quiz" and any(
+                    marker in stored_text for marker in temporary_question_markers
+                ):
+                    conn.execute(
+                        "DELETE FROM questions WHERE node_id = ? AND scope = ?",
+                        (node_id, scope),
+                    )
+                    insert_questions(scope, node_id, questions)
+                    report["quiz_banks_refreshed"] += 1
+
+        for lab in labs.values():
+            found = conn.execute(
+                "SELECT 1 FROM lab_specs WHERE node_id = ?", (lab.node_id,)
+            ).fetchone()
+            if found is None:
+                conn.execute(
+                    "INSERT INTO lab_specs (node_id, kind, mode, pattern, prompt, hint)"
+                    " VALUES (?, ?, ?, ?, ?, ?)"
+                    " ON CONFLICT(node_id) DO NOTHING",
+                    (lab.node_id, lab.kind, lab.mode, lab.pattern, lab.prompt, lab.hint),
+                )
+                report["lab_specs_added"] += 1
+
+        for terminal in terminals.values():
+            found = conn.execute(
+                "SELECT 1 FROM terminal_specs WHERE node_id = ?", (terminal.node_id,)
+            ).fetchone()
+            if found is None:
+                conn.execute(
+                    "INSERT INTO terminal_specs (node_id, prompt, answer, pattern, explanation)"
+                    " VALUES (?, ?, ?, ?, ?)"
+                    " ON CONFLICT(node_id) DO NOTHING",
+                    (
+                        terminal.node_id,
+                        terminal.prompt,
+                        terminal.answer,
+                        terminal.pattern,
+                        terminal.explanation,
+                    ),
+                )
+                report["terminal_specs_added"] += 1
+
+        for node in nodes:
+            if node.challenge is None:
+                continue
+            found = conn.execute(
+                "SELECT 1 FROM challenges WHERE node_id = ?", (node.id,)
+            ).fetchone()
+            if found is not None:
+                continue
+            expected_topology = dict(node.challenge.expected_topology)
+            if node.challenge.brief:
+                expected_topology["brief"] = node.challenge.brief
+            conn.execute(
+                "INSERT INTO challenges (node_id, expected_topology, time_limit)"
+                " VALUES (?, ?, ?) ON CONFLICT(node_id) DO NOTHING",
+                (
+                    node.id,
+                    json.dumps(expected_topology, ensure_ascii=False),
+                    node.challenge.time_limit,
+                ),
+            )
+            report["challenges_added"] += 1
+
+    return report
