@@ -1,0 +1,18 @@
+{
+  "node_id": "maint-escalade-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire : quel point central devra être couvert dans le cours « Gestion des escalades du support — Intermédiaire » ?",
+      "choices": [
+        "Le sujet principal du cours, à préciser lors de la rédaction",
+        "Un sujet sans rapport avec la maintenance",
+        "Une réponse non vérifiée",
+        "Aucune vérification n’est nécessaire"
+      ],
+      "answer": 0,
+      "explanation": "Question provisoire : à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+    }
+  ]
+}

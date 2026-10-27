@@ -5145,6 +5145,11 @@
         debutant: ['Triade CIA', 'Panorama des menaces', 'Cryptographie', 'Hachage', 'Authentification', 'Endpoint Security', 'Wi-Fi', 'Introduction Pare-feu'],
         intermediaire: ['ACL Avancées', 'NAT & Périmètre', 'VPN & IPsec', 'Sécurité L2', 'Pare-feu NGFW', 'IDS/IPS', 'Segmentation', 'Sécurité Linux', 'Active Directory', 'SIEM', 'Services Réseau', 'Sécurité Web'],
         expert: ['Zero Trust', 'Cloud Security', 'K8s Security', 'DevSecOps', 'IAM Avancé', 'Pentest', 'Analyse Malwares', 'Forensique', 'DFIR', 'Gouvernance', 'Routing Secu', 'Vulnérabilités', 'Supply Chain', 'OT/ICS', 'Red Team', 'Threat Hunting'] } },
+      { id: 'maintenance', label: 'Maintenance & Reporting', short: 'Maintenance', icon: '🔧', roadmap: {
+        debutant: ['Fondamentaux', 'Outils diagnostic', 'Hardware', 'OS', 'Helpdesk', 'Communication', 'Documentation', 'Sécurité base'],
+        intermediaire: ['Monitoring', 'Sauvegarde', 'Préventive', 'Gestion parc', 'Procédures', 'Escalade', 'ITIL', 'RCA', 'SLA', 'Reporting incident', 'Reporting mensuel', 'Automatisation'],
+        expert: ['Prédictive', 'Audits', 'KPI', 'Capitalisation', 'Gestion crise', "Appels d'offres", 'Fournisseurs', 'Management', 'Budget', 'Transformation', 'Stratégie', 'RETEX']
+      } },
     ];
 
     /* Niveau par défaut des cours qui n'ont pas "level" ni de mot-clé dans leur titre. À ajuster librement. */
@@ -5444,6 +5449,8 @@
         moduleMeta(id) { return this.modules.find(m => m.id === id) || { id: 'all', label: 'Tous les modules', short: 'Tous', icon: '🧭', roadmap: {} }; },
         levelMeta(id) { return this.levels.find(l => l.id === id) || null; },
                 moduleOf(n) {
+          const id = String(n.id || '');
+          if (id.startsWith('maint-')) return 'maintenance';
           const o = this.moduleOverrides[n.id]; if (o) return o;
           
           // 1. D'abord, on vérifie le champ "module" exact.
@@ -5459,7 +5466,6 @@
           if (raw === 'Administration Réseaux') return 'admin-reseaux';
 
           // 2. Ensuite, on vérifie l'ID du cours (au cas où le champ module serait absent).
-          const id = String(n.id || '');
           if (id.startsWith('secu-')) return 'cybersecurite';
           if (id.startsWith('ot-')) return 'ot';
           if (id.startsWith('cloud-aws') || id.startsWith('cloud-azure') || id.startsWith('cloud-gcp') || id.startsWith('cloud-serverless')) return 'cloud';
