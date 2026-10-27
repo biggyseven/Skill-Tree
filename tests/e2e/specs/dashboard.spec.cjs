@@ -1331,3 +1331,40 @@ test('recliquer sur l’onglet actif conserve la position de défilement', async
   expect(after).toBe(before);
 });
 
+test('le retour au Radar et aux Révisions réutilise les données déjà chargées', async ({ page }) => {
+  await openDashboard(page);
+
+  const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
+  let statsRequests = 0;
+  let flashcardRequests = 0;
+  page.on('request', request => {
+    const pathname = new URL(request.url()).pathname;
+    if (pathname === '/api/stats') statsRequests += 1;
+    if (pathname === '/api/flashcards') flashcardRequests += 1;
+  });
+
+  const radar = navigation.getByRole('button', { name: 'Radar' });
+  const statsResponse = page.waitForResponse(response => new URL(response.url()).pathname === '/api/stats');
+  await radar.click();
+  await statsResponse;
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).statsLoading)).toBe(false);
+  expect(statsRequests).toBe(1);
+
+  await navigation.getByRole('button', { name: 'Défis' }).click();
+  await radar.click();
+  await page.waitForTimeout(150);
+  expect(statsRequests).toBe(1);
+
+  const revisions = navigation.getByRole('button', { name: 'Révisions' });
+  const cardsResponse = page.waitForResponse(response => new URL(response.url()).pathname === '/api/flashcards');
+  await revisions.click();
+  await cardsResponse;
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).flashcardsLoading)).toBe(false);
+  expect(flashcardRequests).toBe(1);
+
+  await navigation.getByRole('button', { name: 'Défis' }).click();
+  await revisions.click();
+  await page.waitForTimeout(150);
+  expect(flashcardRequests).toBe(1);
+});
+
