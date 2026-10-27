@@ -17,10 +17,10 @@ class ExamSessionApiTests(unittest.TestCase):
         database_path = Path(directory) / "skilltree.db"
         patcher = patch.object(api, "DB_PATH", database_path)
         patcher.start()
+        self.addCleanup(patcher.stop)
         client = TestClient(api.app)
         client.__enter__()
         self.addCleanup(client.__exit__, None, None, None)
-        self.addCleanup(patcher.stop)
         return client, database_path
 
     def _correct_answers(self, database_path: Path, question_ids: list[int]) -> list[int | str]:
