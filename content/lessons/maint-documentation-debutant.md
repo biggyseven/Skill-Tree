@@ -178,14 +178,14 @@ Rédige un résumé clair, renseigne le statut et prépare les suites nécessair
 
 ### Schéma 1 — Cycle de rédaction d'une fiche
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     A[Signalement] --> B[Faits et impact]
     B --> C[Contrôles et résultats]
     C --> D[Action réalisée]
     D --> E[Vérification finale]
     E --> F[Conclusion et suivi]
-\`\`\`
+```
 
 Le document est construit au fil de l'intervention. Il ne faut pas attendre la fin pour noter les résultats critiques, notamment lors d'une intervention complexe ou d'un incident majeur.
 
@@ -472,7 +472,7 @@ Avant de terminer une fiche, vérifie les points suivants :
 
 ### Schéma 2 — Contrôle avant clôture
 
-\`\`\`mermaid
+```mermaid
 flowchart TD
     A[Fiche renseignée] --> B[Relire faits, actions et résultats]
     B --> C[Contrôler la confidentialité]
@@ -480,7 +480,7 @@ flowchart TD
     D --> E{Critères atteints ?}
     E -->|Oui| F[Documenter et clôturer selon la règle]
     E -->|Non| G[Continuer le traitement ou escalader]
-\`\`\`
+```
 
 Ce contrôle prévient la clôture prématurée et les comptes rendus qui ne permettent pas de comprendre le résultat.
 
@@ -509,13 +509,13 @@ La fiche doit indiquer les actions infructueuses qui sont importantes et pourquo
 
 ### Schéma 3 — Fiche et reprise de dossier
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     A[Technicien initial] --> B[Fiche avec faits et tests]
     B --> C[Transmission du ticket]
     C --> D[Technicien suivant]
     D --> E[Reprise à partir des résultats documentés]
-\`\`\`
+```
 
 Le schéma montre l'objectif principal de la traçabilité : conserver une continuité entre les personnes, pas multiplier les documents pour eux-mêmes.
 
