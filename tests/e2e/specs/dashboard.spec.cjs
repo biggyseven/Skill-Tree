@@ -189,12 +189,16 @@ test('la recherche de bureau se ferme avec Échap', async ({ page }) => {
   await expect(searchInput).not.toBeFocused();
 });
 
-test('la recherche mobile est utilisable et se ferme avec Échap', async ({ page }) => {
+test('la recherche mobile depuis le menu Actions est utilisable et se ferme avec Échap', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openDashboard(page);
 
   await expect(page.getByRole('navigation', { name: 'Navigation mobile' })).toBeVisible();
-  await page.getByRole('button', { name: 'Rechercher un cours', exact: true }).click();
+  const actionsTrigger = page.locator('.mobile-header-menu-trigger');
+  const actionsMenu = page.locator('#mobile-header-action-items');
+  await actionsTrigger.click();
+  await expect(actionsMenu).toBeVisible();
+  await actionsMenu.getByRole('button', { name: 'Rechercher un cours', exact: true }).click();
 
   const mobileSearch = page.locator('div[x-show="mobileSearchOpen"]');
   const input = page.locator('input[x-ref="mobileSearchBox"]');
@@ -202,6 +206,7 @@ test('la recherche mobile est utilisable et se ferme avec Échap', async ({ page
   await expect(input).toBeFocused();
   await input.press('Escape');
   await expect(mobileSearch).toBeHidden();
+  await expect(actionsMenu).toBeHidden();
 });
 
 test('le centre de notifications se ferme avec Échap', async ({ page }) => {
