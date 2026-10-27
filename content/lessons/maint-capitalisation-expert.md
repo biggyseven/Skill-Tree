@@ -393,6 +393,127 @@ Les résultats doivent être interprétés avec prudence. Une baisse de récidiv
 
 Le tableau de bord doit conduire à des priorités : quels contenus exigent une mise à jour, quelles connaissances restent concentrées, quelles recherches échouent, quelles actions de REX restent sans effet et quels processus utilisent réellement les ressources. La revue périodique devrait associer responsables techniques et utilisateurs afin que la valeur soit évaluée à travers le travail réel.
 
+
+### Exemple pratique — contrôler le registre de la base de connaissances
+
+Un contrôle automatisé peut signaler des métadonnées incomplètes avant qu'un article soit présenté comme publiable. L'exemple suivant vérifie un fichier CSV fictif contenant les colonnes article_id, title, domain, owner, status, review_date et classification. Il contrôle les identifiants en double, les champs obligatoires, les états permis et le format de date. Il ne juge pas la qualité du contenu ni la validité technique de la procédure : une revue humaine reste nécessaire.
+
+~~~python
+import csv
+import sys
+from datetime import date
+from pathlib import Path
+
+REQUIRED = {
+    "article_id",
+    "title",
+    "domain",
+    "owner",
+    "status",
+    "review_date",
+    "classification",
+}
+ALLOWED_STATUS = {"draft", "in_review", "published", "review_due", "retired"}
+
+
+def validate_catalog(path: Path) -> list[str]:
+    issues: list[str] = []
+    seen: set[str] = set()
+
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None:
+            return ["Fichier vide ou en-tête absent."]
+
+        missing_columns = REQUIRED - set(reader.fieldnames)
+        if missing_columns:
+            return [
+                "Colonnes manquantes : " + ", ".join(sorted(missing_columns))
+            ]
+
+        row_count = 0
+        for line_number, row in enumerate(reader, start=2):
+            row_count += 1
+            article_id = (row.get("article_id") or "").strip()
+
+            if not article_id:
+                issues.append(f"Ligne {line_number} : article_id manquant.")
+            elif article_id in seen:
+                issues.append(
+                    f"Ligne {line_number} : identifiant dupliqué {article_id!r}."
+                )
+            else:
+                seen.add(article_id)
+
+            for field in REQUIRED - {"article_id", "review_date"}:
+                if not (row.get(field) or "").strip():
+                    issues.append(
+                        f"Ligne {line_number} : champ {field!r} vide."
+                    )
+
+            status = (row.get("status") or "").strip()
+            if status and status not in ALLOWED_STATUS:
+                issues.append(
+                    f"Ligne {line_number} : statut inconnu {status!r}."
+                )
+
+            review_date = (row.get("review_date") or "").strip()
+            if review_date:
+                try:
+                    date.fromisoformat(review_date)
+                except ValueError:
+                    issues.append(
+                        f"Ligne {line_number} : review_date doit utiliser AAAA-MM-JJ."
+                    )
+            else:
+                issues.append(f"Ligne {line_number} : date de revue absente.")
+
+        if row_count == 0:
+            issues.append("Le registre ne contient aucun article.")
+
+    return issues
+
+
+def main() -> int:
+    if len(sys.argv) != 2:
+        print("Usage : python validate_kb_catalog.py knowledge_catalog.csv")
+        return 2
+
+    source = Path(sys.argv[1])
+    if not source.is_file():
+        print("Erreur : fichier introuvable.")
+        return 2
+
+    try:
+        issues = validate_catalog(source)
+    except OSError as exc:
+        print(f"Lecture impossible : {exc}")
+        return 2
+
+    if issues:
+        print(f"Registre à revoir : {len(issues)} problème(s)")
+        for issue in issues:
+            print(f"- {issue}")
+        return 1
+
+    print("Métadonnées structurellement valides ; la qualité du contenu reste à vérifier.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+~~~
+
+Exécution sur une copie de test :
+
+~~~bash
+python validate_kb_catalog.py knowledge_catalog.csv
+~~~
+
+Tester au minimum les cas suivants : registre valide, identifiant dupliqué, champ obligatoire vide, statut inconnu, date invalide, fichier vide et colonne manquante. Un code de sortie non nul permet à une pipeline de contrôle de signaler le problème. Les erreurs ne doivent pas être ignorées pour publier automatiquement le contenu.
+
+Dans un référentiel réel, le manifeste peut être alimenté par l'API de l'outil de connaissance plutôt que par un CSV. Avant tout branchement, limiter les permissions, éviter de consigner des extraits confidentiels dans les journaux et conserver la version du script. La validation structurelle est un contrôle de premier niveau : l'expert doit encore vérifier l'applicabilité, la clarté, le risque, les résultats attendus et l'exactitude technique de l'article.
+
 ## 10. Capitalisation, auditabilité et sécurité
 
 Une ressource de connaissance peut devenir une preuve de contrôle, mais ce n'est pas toujours une preuve d'exécution. Une procédure approuvée démontre l'existence d'une règle ; elle ne prouve pas qu'une intervention a été réalisée conformément à cette règle. Pour démontrer l'application, relier la ressource à des tickets, mesures, journaux ou validations pertinents. Les contenus et les preuves opérationnelles ne doivent pas être confondus.
