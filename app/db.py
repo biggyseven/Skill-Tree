@@ -133,7 +133,9 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
     correct      INTEGER,
     total        INTEGER,
     submitted_at INTEGER,
-    time_expired INTEGER NOT NULL DEFAULT 0
+    time_expired INTEGER NOT NULL DEFAULT 0,
+    answers_json TEXT NOT NULL DEFAULT '[]',
+    details_json TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_expires ON exam_sessions(expires_at);
@@ -209,6 +211,10 @@ def initialize(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
     if not getattr(conn, "is_postgres", False):
         _migrate(conn)
+    else:
+        # CREATE TABLE IF NOT EXISTS ne modifie pas une table PostgreSQL existante.
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS answers_json TEXT NOT NULL DEFAULT '[]'")
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS details_json TEXT NOT NULL DEFAULT '[]'")
     _ensure_user_stats(conn)
     conn.commit()
 
@@ -271,6 +277,14 @@ def _migrate(conn: sqlite3.Connection) -> None:
         conn.execute(
             "ALTER TABLE terminal_specs ADD COLUMN explanation TEXT NOT NULL DEFAULT ''"
         )
+
+    # La session garde les réponses et le corrigé après envoi afin qu'une seconde
+    # soumission ne puisse pas modifier le résultat et que la correction reste stable.
+    exam_columns = {row["name"] for row in conn.execute("PRAGMA table_info(exam_sessions)")}
+    if "answers_json" not in exam_columns:
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN answers_json TEXT NOT NULL DEFAULT '[]'")
+    if "details_json" not in exam_columns:
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN details_json TEXT NOT NULL DEFAULT '[]'")
 
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_attempts_node ON attempts(node_id, created_at)"
