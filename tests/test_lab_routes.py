@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import tempfile
 import unittest
@@ -286,23 +287,44 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(len(required), 78, "Le périmètre de l'audit a changé ; actualiser le contrôle explicitement.")
 
         new_scenario_ids = ["automation-intermediaire","ddos-mitigation-intermediaire","ddos-mitigation-expert","incident-ospf","lab_bridge","lab_netns","lab_tshoot_dns","lab_tshoot_mtu","lab_tshoot_route","lab_troubleshoot_vlan","linux-intermediaire","db-intermediaire","users-intermediaire","scripting-intermediaire","ha-sys-intermediaire","windows-server-intermediaire","virt-intermediaire","web-server-intermediaire","scripting-debutant","storage-intermediaire","monitoring-intermediaire","cicd-intermediaire","docker-debutant","docker-intermediaire","git-debutant","iac-intermediaire","k8s-intermediaire","observability-intermediaire","voice-sip-intermediaire"]
+        auto_injected_id = re.compile(r"^EXT-(?:SW1|FW1|R1|CLOUD1|PC\d{2}|SRV\d{2})$")
         for course in required:
             with self.subTest(course=course["id"]):
                 payload = lab_routes._load_lab_file(course["id"])
                 self.assertIsNotNone(payload, f"Aucun scénario v2 ne résout {course['id']}")
                 definition = payload["definition"]
                 self.assertEqual(definition.id, course["id"])
-                # Les anciens scénarios ont 3 équipements de base + les 16 équipements EXT-*.
-                self.assertGreaterEqual(len(definition.initial_topology.nodes), 19)
-                self.assertGreaterEqual(len(definition.initial_topology.links), 19)
+                topology = definition.initial_topology
+                self.assertGreaterEqual(len(topology.nodes), 2)
+                self.assertGreaterEqual(len(topology.links), 1)
+                node_ids = {node.id for node in topology.nodes}
+                self.assertFalse(
+                    any(auto_injected_id.fullmatch(node.id) for node in topology.nodes),
+                    "Le catalogue de matériel ne doit pas être injecté dans le scénario au chargement.",
+                )
+                self.assertFalse(
+                    any(link.id.startswith("EXT-LINK-") for link in topology.links),
+                    "Les liaisons de l'ancienne branche automatique ne doivent pas être ajoutées.",
+                )
+                for link in topology.links:
+                    self.assertIn(link.from_endpoint.node, node_ids)
+                    self.assertIn(link.to_endpoint.node, node_ids)
 
         for lab_id in new_scenario_ids:
             with self.subTest(new_lab=lab_id):
                 definition = lab_routes._load_lab_file(lab_id)["definition"]
                 self.assertEqual(definition.check.type, "config_assertions")
                 self.assertGreaterEqual(len(definition.check.rules), 4)
-                self.assertGreaterEqual(len(definition.initial_topology.nodes), 25)
-                self.assertGreaterEqual(len(definition.initial_topology.links), 24)
+                # Les 29 scénarios ajoutés définissent leur topologie dans leur JSON ;
+                # aucune extension globale ne doit être nécessaire pour atteindre ce seuil.
+                self.assertGreaterEqual(len(definition.initial_topology.nodes), 9)
+                self.assertGreaterEqual(len(definition.initial_topology.links), 8)
+                self.assertFalse(
+                    any(auto_injected_id.fullmatch(node.id) for node in definition.initial_topology.nodes)
+                )
+                self.assertFalse(
+                    any(link.id.startswith("EXT-LINK-") for link in definition.initial_topology.links)
+                )
                 result = lab_routes._evaluate_lab_check(definition, definition.initial_topology)
                 self.assertFalse(result["passed"], "Un scénario neuf ne doit pas réussir avant la configuration.")
                 malformed_paths = [
@@ -320,14 +342,11 @@ class LabValidationTests(unittest.TestCase):
         nodes = {node["id"]: node for node in topology["nodes"]}
 
         self.assertEqual(definition.title, "Filtrage et NAT sous Linux — nftables / iptables")
-        self.assertGreaterEqual(len(topology["nodes"]), 21)
-        self.assertGreaterEqual(len(topology["links"]), 20)
-        self.assertEqual(
-            sum(node["id"].startswith("EXT-") for node in topology["nodes"]), 16
-        )
-        self.assertEqual(
-            sum(link["id"].startswith("EXT-LINK-") for link in topology["links"]), 16
-        )
+        self.assertGreaterEqual(len(topology["nodes"]), 5)
+        self.assertGreaterEqual(len(topology["links"]), 4)
+        auto_injected_id = re.compile(r"^EXT-(?:SW1|FW1|R1|CLOUD1|PC\d{2}|SRV\d{2})$")
+        self.assertFalse(any(auto_injected_id.fullmatch(node_id) for node_id in nodes))
+        self.assertFalse(any(link["id"].startswith("EXT-LINK-") for link in topology["links"]))
         self.assertEqual(nodes["FW1"]["type"], "firewall")
         self.assertEqual(len(definition.check.rules), 9)
         self.assertFalse(definition.initial_topology.nodes == [])
@@ -341,29 +360,32 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(nat["port_forward"][0]["destination_port"], 8080)
 
 
-    def test_every_course_lab_has_a_large_connected_practice_branch(self) -> None:
+    def test_lab_files_do_not_inject_the_legacy_practice_branch(self) -> None:
         scenario_paths = sorted(lab_routes.LABS_V2_DIR.glob("*.json"))
         self.assertGreaterEqual(len(scenario_paths), 30)
+        auto_injected_id = re.compile(r"^EXT-(?:SW1|FW1|R1|CLOUD1|PC\d{2}|SRV\d{2})$")
         for path in scenario_paths:
             with self.subTest(lab=path.stem):
                 payload = lab_routes._load_lab_file(path.stem)
                 self.assertIsNotNone(payload)
                 topology = payload["definition"].initial_topology
-                extension_nodes = {
-                    node.id for node in topology.nodes if node.id.startswith("EXT-")
-                }
-                extension_links = [
-                    link for link in topology.links if link.id.startswith("EXT-LINK-")
-                ]
-                self.assertEqual(len(extension_nodes), 16)
-                self.assertEqual(len(extension_links), 16)
-                all_node_ids = {node.id for node in topology.nodes}
-                for link in extension_links:
-                    self.assertIn(link.from_endpoint.node, all_node_ids)
-                    self.assertIn(link.to_endpoint.node, all_node_ids)
+                node_ids = {node.id for node in topology.nodes}
+                self.assertGreaterEqual(len(node_ids), 2)
+                self.assertGreaterEqual(len(topology.links), 1)
+                self.assertFalse(
+                    any(auto_injected_id.fullmatch(node_id) for node_id in node_ids),
+                    "Les équipements doivent venir du scénario ou de la bibliothèque, pas d'une injection globale.",
+                )
+                self.assertFalse(
+                    any(link.id.startswith("EXT-LINK-") for link in topology.links),
+                    "Les câbles de l'ancienne branche automatique ne doivent pas être injectés.",
+                )
+                for link in topology.links:
+                    self.assertIn(link.from_endpoint.node, node_ids)
+                    self.assertIn(link.to_endpoint.node, node_ids)
 
 
-    def test_opening_old_saved_topology_merges_new_equipment_without_overwriting_work(self) -> None:
+    def test_opening_old_saved_topology_removes_legacy_branch_and_preserves_user_work(self) -> None:
         definition = self._definition()
         definition.initial_topology.nodes = [
             Device(
@@ -388,12 +410,54 @@ class LabValidationTests(unittest.TestCase):
                 cable_type="copper_straight",
             )
         ]
-        # Simule une sauvegarde de l'ancienne topologie, avant les nouveaux équipements.
-        saved_topology = lab_routes.model_to_dict(
-            definition.initial_topology, by_alias=True
-        )
-        # Un réglage utilisateur doit survivre à la fusion.
+        saved_topology = lab_routes.model_to_dict(definition.initial_topology, by_alias=True)
         saved_topology["nodes"][0]["config"]["hostname"] = "SW1-PERSONNALISE"
+        saved_topology["nodes"][0]["ports"].append({
+            "id": "Fa0/99",
+            "name": "Fa0/99",
+            "state": "up",
+            "speed": 1000,
+            "mode": "trunk",
+            "description": "Liaison vers la branche réseau complémentaire",
+        })
+        saved_topology["nodes"].append(lab_routes.model_to_dict(Device(
+            id="EXT-SW1", type="switch", label="EXT-SW1",
+            ports=[
+                Port(id="Fa0/1", name="Fa0/1", state="up"),
+                Port(id="Fa0/2", name="Fa0/2", state="up"),
+            ],
+            config=DeviceConfig(hostname="EXT-SW1"),
+        ), by_alias=True))
+        saved_topology["nodes"].append(lab_routes.model_to_dict(Device(
+            id="EXT-PC01", type="pc", label="EXT-PC01",
+            ports=[Port(id="eth0", name="eth0", state="up")],
+            config=DeviceConfig(hostname="EXT-PC01"),
+        ), by_alias=True))
+        saved_topology["nodes"].append(lab_routes.model_to_dict(Device(
+            id="CUSTOM-SRV1", type="server", label="CUSTOM-SRV1",
+            ports=[Port(id="eth0", name="eth0", state="up")],
+            config=DeviceConfig(hostname="CUSTOM-SRV1"),
+        ), by_alias=True))
+        saved_topology["links"].extend([
+            lab_routes.model_to_dict(Link(
+                id="EXT-LINK-CORE-SW",
+                from_endpoint={"node": "SW1", "port": "Fa0/99"},
+                to_endpoint={"node": "EXT-SW1", "port": "Fa0/1"},
+                cable_type="copper_straight",
+            ), by_alias=True),
+            lab_routes.model_to_dict(Link(
+                id="EXT-LINK-PC01",
+                from_endpoint={"node": "EXT-SW1", "port": "Fa0/2"},
+                to_endpoint={"node": "EXT-PC01", "port": "eth0"},
+                cable_type="copper_straight",
+            ), by_alias=True),
+            lab_routes.model_to_dict(Link(
+                id="USER-CUSTOM-LINK",
+                from_endpoint={"node": "SW1", "port": "Fa0/2"},
+                to_endpoint={"node": "CUSTOM-SRV1", "port": "eth0"},
+                cable_type="copper_straight",
+            ), by_alias=True),
+        ])
         current_payload = lab_routes._lab_payload_from_definition("lab-1", definition)
 
         conn = self._connect()
@@ -418,43 +482,44 @@ class LabValidationTests(unittest.TestCase):
         node_ids = {node["id"] for node in topology["nodes"]}
         link_ids = {link["id"] for link in topology["links"]}
         nodes_by_id = {node["id"]: node for node in topology["nodes"]}
-
-        self.assertTrue({"SW1", "PC1", "EXT-SW1", "EXT-PC01", "EXT-SRV01", "EXT-FW1", "EXT-R1", "EXT-CLOUD1"}.issubset(node_ids))
-        self.assertEqual(len([node_id for node_id in node_ids if node_id.startswith("EXT-")]), 16)
-        self.assertEqual(len([link_id for link_id in link_ids if link_id.startswith("EXT-LINK-")]), 16)
+        self.assertIn("SW1", node_ids)
+        self.assertIn("PC1", node_ids)
+        self.assertIn("CUSTOM-SRV1", node_ids)
+        self.assertNotIn("EXT-SW1", node_ids)
+        self.assertNotIn("EXT-PC01", node_ids)
+        self.assertNotIn("EXT-LINK-CORE-SW", link_ids)
+        self.assertNotIn("EXT-LINK-PC01", link_ids)
+        self.assertIn("USER-CUSTOM-LINK", link_ids)
         self.assertEqual(nodes_by_id["SW1"]["config"]["hostname"], "SW1-PERSONNALISE")
-        self.assertIn("Fa0/3", {port["id"] for port in nodes_by_id["SW1"]["ports"]})
-        self.assertTrue(opened["has_saved_topology"])
+        self.assertNotIn("Fa0/99", {port["id"] for port in nodes_by_id["SW1"]["ports"]})
 
-        # La réponse est enrichie sans réécrire la sauvegarde existante en base.
-        conn = self._connect()
-        try:
-            stored = json.loads(conn.execute(
-                "SELECT data FROM topologies WHERE name = ?", ("lab_lab-1",)
-            ).fetchone()["data"])
-        finally:
-            conn.close()
-        self.assertEqual(len(stored["nodes"]), 2)
-        self.assertEqual(len(stored["links"]), 1)
+    def test_legacy_practice_branch_cleanup_is_idempotent_and_non_mutating(self) -> None:
+        raw = {
+            "schema_version": 2,
+            "topology_id": "legacy-cleanup-test",
+            "metadata": {},
+            "nodes": [
+                {"id": "SW1", "ports": [
+                    {"id": "Fa0/1", "name": "Fa0/1"},
+                    {"id": "Fa0/99", "name": "Fa0/99", "description": "Liaison vers la branche réseau complémentaire"},
+                ]},
+                {"id": "EXT-SW1"},
+                {"id": "EXT-PC02"},
+                {"id": "CUSTOM-PC"},
+            ],
+            "links": [
+                {"id": "USER-LINK", "from": {"node": "SW1", "port": "Fa0/1"}, "to": {"node": "CUSTOM-PC", "port": "eth0"}},
+                {"id": "EXT-LINK-PC02", "from": {"node": "EXT-SW1", "port": "Fa0/2"}, "to": {"node": "EXT-PC02", "port": "eth0"}},
+            ],
+        }
+        once = lab_routes._strip_legacy_auto_practice_branch(raw)
+        twice = lab_routes._strip_legacy_auto_practice_branch(once)
+        self.assertEqual([node["id"] for node in once["nodes"]], ["SW1", "CUSTOM-PC"])
+        self.assertEqual([link["id"] for link in once["links"]], ["USER-LINK"])
+        self.assertEqual([port["id"] for port in once["nodes"][0]["ports"]], ["Fa0/1"])
+        self.assertEqual(once, twice)
+        self.assertEqual(raw["nodes"][1]["id"], "EXT-SW1", "Le nettoyage ne doit pas muter la sauvegarde d'origine.")
 
-    def test_merging_the_same_saved_topology_twice_does_not_duplicate_extensions(self) -> None:
-        definition = self._definition()
-        definition.initial_topology.nodes = [
-            Device(id="SW1", type="switch", label="SW1", ports=[Port(id="Fa0/1", name="Fa0/1")])
-        ]
-        current_payload = lab_routes._lab_payload_from_definition("lab-1", definition)
-        baseline = lab_routes.model_to_dict(definition.initial_topology, by_alias=True)
-        first = lab_routes._merge_saved_topology_extensions(
-            {"schema_version": 2, "nodes": [{"id": "SW1", "type": "switch", "ports": [{"id": "Fa0/1", "name": "Fa0/1"}]}], "links": []},
-            baseline,
-        )
-        second = lab_routes._merge_saved_topology_extensions(first, baseline)
-        self.assertEqual(
-            sum(node["id"].startswith("EXT-") for node in second["nodes"]), 16
-        )
-        self.assertEqual(
-            sum(link["id"].startswith("EXT-LINK-") for link in second["links"]), 16
-        )
 
     def test_bom_json_lab_definition_loads(self) -> None:
         labs_dir = Path(self.temp_dir.name) / "labs_v2"
