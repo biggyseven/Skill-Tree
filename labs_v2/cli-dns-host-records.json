@@ -1,0 +1,314 @@
+{
+  "schema_version": 2,
+  "id": "cli-dns-host-records",
+  "title": "CLI — Enregistrements DNS statiques",
+  "level": "débutant",
+  "module": "Services réseau",
+  "duration_min": 25,
+  "difficulty": "débutant",
+  "prompt": "Créez deux associations DNS statiques pour intranet.example.test et mail.example.test. La validation inspecte les enregistrements structurés côté serveur.",
+  "objectives": [
+    "Exécuter puis vérifier : ip host intranet.example.test 10.10.30.10",
+    "Exécuter puis vérifier : ip host mail.example.test 10.10.30.20"
+  ],
+  "hints": [
+    "Cible CLI : R1.",
+    "Séquence de référence : enable ; configure terminal ; ip host intranet.example.test 10.10.30.10 ; ip host mail.example.test 10.10.30.20 ; end.",
+    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-cli-dns-host-records",
+    "metadata": {
+      "name": "CLI — Enregistrements DNS statiques",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "generic-router",
+        "x": 180,
+        "y": 300,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "down",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "down",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "generic-2960",
+        "x": 520,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "down",
+            "speed": 1000,
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "down",
+            "speed": 1000,
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 850,
+        "y": 90,
+        "label": "PC1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "down",
+            "speed": 1000,
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L-R1-SW1",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-SW1-PC1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {
+    "R1": {
+      "interfaces": [
+        "Gi0/0",
+        "Gi0/1"
+      ],
+      "ports_fixed": true
+    },
+    "SW1": {
+      "interfaces": [
+        "Fa0/1",
+        "Fa0/24"
+      ],
+      "ports_fixed": true
+    },
+    "PC1": {
+      "interfaces": [
+        "eth0"
+      ],
+      "ports_fixed": true
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "dns_intranet",
+        "description": "Contrôle serveur : dns intranet doit être conforme.",
+        "device": "R1",
+        "path": "config.protocols.dns.hosts",
+        "operator": "contains",
+        "expected": {
+          "hostname": "intranet.example.test",
+          "address": "10.10.30.10"
+        }
+      },
+      {
+        "id": "dns_mail",
+        "description": "Contrôle serveur : dns mail doit être conforme.",
+        "device": "R1",
+        "path": "config.protocols.dns.hosts",
+        "operator": "contains",
+        "expected": {
+          "hostname": "mail.example.test",
+          "address": "10.10.30.20"
+        }
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {
+      "under_15min": 10,
+      "under_30min": 5
+    }
+  },
+  "xp_reward": 35,
+  "badges": []
+}
