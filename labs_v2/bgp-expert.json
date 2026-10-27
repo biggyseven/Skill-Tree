@@ -1,0 +1,324 @@
+{
+  "schema_version": 2,
+  "id": "bgp-expert",
+  "title": "BGP expert — Route reflector et reprise",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Durcissez l’AS 65002. Configurez R2 comme route reflector pour R3, stabilisez la source de session avec Loopback0, activez l’authentification et graceful restart, puis vérifiez les voisins de bordure.",
+  "objectives": [
+    "Configurer le client route reflector iBGP.",
+    "Utiliser une source de session stable.",
+    "Activer l’authentification des voisins.",
+    "Activer la reprise gracieuse."
+  ],
+  "hints": [
+    "Le route reflector et son client sont dans le même AS iBGP.",
+    "Loopback0 évite de dépendre uniquement d’une interface physique.",
+    "Ne placez jamais le secret de session dans un fichier de scénario."
+  ],
+  "duration_min": 35,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-bgp-expert",
+    "metadata": {
+      "name": "BGP expert — Route reflector et résilience",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 100,
+        "y": 250,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "bgp",
+              "enabled": true,
+              "local_as": 65001,
+              "neighbor": "10.0.12.2",
+              "remote_as": 65002,
+              "networks": [
+                "192.168.10.0/24"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 350,
+        "y": 250,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "bgp",
+              "enabled": true,
+              "local_as": 65002,
+              "neighbor": "10.0.23.3",
+              "remote_as": 65002,
+              "route_reflector_client": false,
+              "update_source": "GigabitEthernet0/1",
+              "next_hop_self": false,
+              "password_configured": false,
+              "graceful_restart": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 620,
+        "y": 250,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.3",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.34.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "bgp",
+              "enabled": true,
+              "local_as": 65002,
+              "neighbor": "10.0.23.2",
+              "remote_as": 65002
+            }
+          ]
+        }
+      },
+      {
+        "id": "R4",
+        "type": "router",
+        "x": 900,
+        "y": 250,
+        "label": "R4",
+        "model": "R4",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.34.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R4",
+          "routes": [
+            {
+              "protocol": "bgp",
+              "enabled": true,
+              "local_as": 65003,
+              "neighbor": "10.0.34.1",
+              "remote_as": 65002,
+              "networks": [
+                "192.168.40.0/24"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "EBGP-1",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "IBGP-1",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "EBGP-2",
+        "from": {
+          "node": "R3",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R4",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "rr-client",
+        "description": "R2 configure R3 comme client du route reflector.",
+        "device": "R2",
+        "path": "config.routes[0].route_reflector_client",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "rr-source",
+        "description": "La session iBGP utilise une source Loopback0 stable.",
+        "device": "R2",
+        "path": "config.routes[0].update_source",
+        "operator": "equals",
+        "expected": "Loopback0"
+      },
+      {
+        "id": "rr-next-hop",
+        "description": "La politique next-hop-self est explicite.",
+        "device": "R2",
+        "path": "config.routes[0].next_hop_self",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "rr-auth",
+        "description": "L’authentification de la session est configurée.",
+        "device": "R2",
+        "path": "config.routes[0].password_configured",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "rr-graceful",
+        "description": "La reprise BGP gracieuse est activée.",
+        "device": "R2",
+        "path": "config.routes[0].graceful_restart",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "rr-local-as",
+        "description": "Le route reflector utilise l’AS interne 65002.",
+        "device": "R2",
+        "path": "config.routes[0].local_as",
+        "operator": "equals",
+        "expected": 65002
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
