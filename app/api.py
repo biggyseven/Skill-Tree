@@ -1344,6 +1344,9 @@ def _create_exam_session(
     question_pool: list[Question] | None = None,
     node_id: str | None = None,
     exam_type: str = "category",
+    module_scope: str = "",
+    level_scope: str = "",
+    scope_node_ids: list[str] | None = None,
 ) -> dict:
     pool = question_pool if question_pool is not None else _exam_question_pool(tree, nodes)
     if not pool:
@@ -1356,12 +1359,14 @@ def _create_exam_session(
     session_id = uuid.uuid4().hex
     category = category.strip() or "Examen personnalisé"
     effective_pass_score = EXAM_PASS_SCORE
+    effective_scope_ids = list(scope_node_ids if scope_node_ids is not None else (node.id for node in nodes))
     tree.conn.execute(
         "INSERT INTO exam_sessions "
         "(session_id, category, question_ids, started_at, expires_at, submitted, "
         "score, passed, correct, total, submitted_at, time_expired, answers_json, details_json, "
-        "paused_at, paused_seconds, node_id, exam_type, passing_score, result_json) "
-        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]', NULL, 0, ?, ?, ?, '')",
+        "paused_at, paused_seconds, node_id, exam_type, passing_score, result_json, "
+        "module_scope, level_scope, scope_node_ids_json) "
+        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]', NULL, 0, ?, ?, ?, '', ?, ?, ?)",
         (
             session_id,
             category,
@@ -1372,6 +1377,9 @@ def _create_exam_session(
             node_id,
             exam_type,
             effective_pass_score,
+            module_scope,
+            level_scope,
+            json.dumps(effective_scope_ids, ensure_ascii=False),
         ),
     )
     tree.conn.commit()
@@ -1387,6 +1395,11 @@ def _create_exam_session(
         "passing_score": effective_pass_score,
         "requested_count": count,
         "question_count": len(selected),
+        **({
+            "module_scope": module_scope,
+            "level_scope": level_scope,
+            "scope_node_ids": effective_scope_ids,
+        } if exam_type == "certification" else {}),
         "questions": [_exam_public_question(question, nodes_by_id) for question in selected],
     }
 
@@ -1593,6 +1606,11 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
         "submitted": True,
         "offline": False,
         "submitted_at": submitted_at,
+        **({
+            "module_scope": str(row["module_scope"] or ""),
+            "level_scope": str(row["level_scope"] or ""),
+            "scope_node_ids": json.loads(row["scope_node_ids_json"] or "[]"),
+        } if exam_type == "certification" else {}),
     }
 
     if course_node is not None:
@@ -2092,9 +2110,539 @@ def load_lab_topology_v2(lab_id: str) -> dict[str, Any]:
         conn.close()
 
 
+def _certificate_scope(tree: SkillTree, module_label: object, level_slug: object) -> tuple[str, list[Node]]:
+    if not isinstance(module_label, str) or not module_label.strip():
+        raise HTTPException(422, "Le module du diplôme est manquant ou invalide.")
+    if not isinstance(level_slug, str) or level_slug.strip().lower() not in {"debutant", "intermediaire", "expert"}:
+        raise HTTPException(422, "Le niveau du diplôme est invalide.")
+
+    requested_module = module_label.strip()
+    normalized_level = level_slug.strip().lower()
+    nodes = tree.nodes()
+    canonical_module = next(
+        (node.module for node in nodes if node.module.strip().casefold() == requested_module.casefold()),
+        None,
+    )
+    if canonical_module is None:
+        raise HTTPException(404, "Module introuvable dans le parcours.")
+
+    scope = [
+        node for node in nodes
+        if node.module == canonical_module and _exam_level(node.id, node.title) == normalized_level
+    ]
+    if not scope:
+        raise HTTPException(404, "Aucun cours ne correspond à ce module et à ce niveau.")
+    return canonical_module, scope
+
+
+def _certificate_payload(row) -> dict:
+    number = str(row["number"])
+    return {
+        "id": number,
+        "number": number,
+        "name": str(row["name"]),
+        "module": str(row["module_id"] or ""),
+        "module_id": str(row["module_id"] or ""),
+        "module_label": str(row["module"] or ""),
+        "level": str(row["level_slug"] or ""),
+        "date": str(row["issued_at"]),
+        "issued_at": str(row["issued_at"]),
+        "score": int(row["score"] or 0),
+        "courses": int(row["courses_count"] or 0),
+        "exam_session_id": str(row["exam_session_id"] or ""),
+    }
+
+
+@app.get("/api/certificates")
+def list_certificates(tree: SkillTree = Depends(get_tree)) -> dict:
+    rows = tree.conn.execute(
+        "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+        "exam_session_id, score, courses_count FROM certificates "
+        "WHERE module <> '' AND level_slug <> '' ORDER BY issued_at DESC"
+    ).fetchall()
+    certificates = [_certificate_payload(row) for row in rows]
+
+    exam_rows = tree.conn.execute(
+        "SELECT session_id, module_scope, level_scope, scope_node_ids_json, score, passed, "
+        "total, submitted_at, time_expired FROM exam_sessions "
+        "WHERE exam_type = 'certification' AND submitted = 1 "
+        "AND module_scope <> '' AND level_scope <> '' ORDER BY submitted_at DESC"
+    ).fetchall()
+    exams = []
+    for row in exam_rows:
+        try:
+            node_ids = json.loads(row["scope_node_ids_json"] or "[]")
+            if not isinstance(node_ids, list) or not all(isinstance(item, str) for item in node_ids):
+                node_ids = []
+        except (TypeError, ValueError, json.JSONDecodeError):
+            node_ids = []
+        exams.append({
+            "session_id": str(row["session_id"]),
+            "module_label": str(row["module_scope"]),
+            "level": str(row["level_scope"]),
+            "score": int(row["score"] or 0),
+            "passed": bool(row["passed"]) and int(row["score"] or 0) >= EXAM_PASS_SCORE,
+            "total": int(row["total"] or 0),
+            "submitted_at": int(row["submitted_at"] or 0),
+            "time_expired": bool(row["time_expired"]),
+            "scope_node_ids": node_ids,
+        })
+    return {"items": certificates, "exams": exams}
+
+
+@app.post("/api/certificate/exam/start")
+def start_certificate_exam(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    module_label, scope = _certificate_scope(tree, payload.get("module"), payload.get("level"))
+    statuses = tree.statuses()
+    missing = [node.title for node in scope if statuses.get(node.id) is not Status.VALIDATED]
+    if missing:
+        preview = ", ".join(missing[:4])
+        suffix = "…" if len(missing) > 4 else ""
+        raise HTTPException(
+            409,
+            f"Tous les cours du niveau doivent être validés avant l’examen de diplôme. "
+            f"Cours restants : {preview}{suffix}",
+        )
+
+    question_pool = [
+        question for question in _exam_question_pool(tree, scope)
+        if question.question_type == "qcm"
+    ]
+    if not question_pool:
+        raise HTTPException(422, "Aucune question QCM disponible pour l’examen officiel de ce niveau.")
+
+    level_slug = str(payload.get("level")).strip().lower()
+    level_label = {
+        "debutant": "Débutant",
+        "intermediaire": "Intermédiaire",
+        "expert": "Expert",
+    }[level_slug]
+    return _create_exam_session(
+        tree,
+        scope,
+        count=EXAM_QUESTION_COUNT,
+        time_limit=EXAM_DURATION_SECONDS,
+        category=f"Diplôme · {module_label} · {level_label}",
+        question_pool=question_pool,
+        exam_type="certification",
+        module_scope=module_label,
+        level_scope=level_slug,
+        scope_node_ids=[node.id for node in scope],
+    )
+
+
+@app.post("/api/certificate/issue")
+def issue_certificate(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    module_label, scope = _certificate_scope(tree, payload.get("module"), payload.get("level"))
+    level_slug = str(payload.get("level")).strip().lower()
+
+    existing = tree.conn.execute(
+        "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+        "exam_session_id, score, courses_count FROM certificates "
+        "WHERE module = ? AND level_slug = ?",
+        (module_label, level_slug),
+    ).fetchone()
+    if existing is not None:
+        return {"success": True, "already_issued": True, "certificate": _certificate_payload(existing)}
+
+    statuses = tree.statuses()
+    missing = [node.title for node in scope if statuses.get(node.id) is not Status.VALIDATED]
+    if missing:
+        raise HTTPException(409, "Le diplôme exige la validation de tous les cours du niveau.")
+
+    session_id = str(payload.get("exam_session_id") or "").strip()
+    if not session_id or len(session_id) > 64:
+        raise HTTPException(422, "Identifiant de session d’examen manquant ou invalide.")
+    exam = tree.conn.execute(
+        "SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)
+    ).fetchone()
+    if exam is None or str(exam["exam_type"] or "") != "certification":
+        raise HTTPException(409, "Cette session n’est pas un examen officiel de diplôme.")
+    if not exam["submitted"] or not exam["passed"] or int(exam["score"] or 0) < EXAM_PASS_SCORE:
+        raise HTTPException(409, f"L’examen officiel doit être terminé avec au moins {EXAM_PASS_SCORE} %.")
+    if (
+        str(exam["module_scope"] or "") != module_label
+        or str(exam["level_scope"] or "") != level_slug
+    ):
+        raise HTTPException(409, "L’examen réussi ne correspond pas au module et au niveau demandés.")
+    try:
+        submitted_scope = json.loads(exam["scope_node_ids_json"] or "[]")
+    except (TypeError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(409, "Le périmètre de la session d’examen est invalide.") from error
+    expected_scope = [node.id for node in scope]
+    if not isinstance(submitted_scope, list) or sorted(submitted_scope) != sorted(expected_scope):
+        raise HTTPException(409, "Le périmètre des cours a changé depuis l’examen ; repasse l’examen du niveau.")
+
+    submitted_name = str(payload.get("name") or "").strip()
+    configured_name = str(CERTIFICATE_NAME or "").strip()
+    placeholders = {"ton nom", "votre nom", "your name", "full name"}
+    if not submitted_name or submitted_name.casefold() in placeholders:
+        if not configured_name or configured_name.casefold() in placeholders:
+            raise HTTPException(
+                422,
+                "Renseigne ton nom dans les paramètres avant de délivrer le diplôme.",
+            )
+        name = configured_name
+    else:
+        name = submitted_name
+    if not name:
+        raise HTTPException(422, "Le nom à inscrire sur le diplôme est obligatoire.")
+    if len(name) > 100:
+        raise HTTPException(422, "Le nom inscrit sur le diplôme doit faire 100 caractères maximum.")
+    module_id = str(payload.get("module_id") or "").strip()
+    if not module_id or len(module_id) > 100 or not re.fullmatch(r"[a-zA-Z0-9_-]+", module_id):
+        raise HTTPException(422, "Identifiant du module invalide.")
+
+    number = "SKT-" + uuid.uuid4().hex[:12].upper()
+    issued_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    level_number = {"debutant": 1, "intermediaire": 2, "expert": 3}[level_slug]
+    try:
+        tree.conn.execute(
+            "INSERT INTO certificates "
+            "(number, name, level, issued_at, module, module_id, level_slug, exam_session_id, score, courses_count) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                number, name, level_number, issued_at, module_label, module_id,
+                level_slug, session_id, int(exam["score"]), len(scope),
+            ),
+        )
+        tree.conn.commit()
+    except sqlite3.INTEGRITY_ERROR_CLASSES:
+        tree.conn.rollback()
+        existing = tree.conn.execute(
+            "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+            "exam_session_id, score, courses_count FROM certificates "
+            "WHERE module = ? AND level_slug = ?",
+            (module_label, level_slug),
+        ).fetchone()
+        if existing is None:
+            raise
+        return {"success": True, "already_issued": True, "certificate": _certificate_payload(existing)}
+
+    row = tree.conn.execute(
+        "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+        "exam_session_id, score, courses_count FROM certificates WHERE number = ?",
+        (number,),
+    ).fetchone()
+    return {"success": True, "already_issued": False, "certificate": _certificate_payload(row)}
+
+
+def _pdf_literal(value: object) -> bytes:
+    text = str(value or "").replace("\r", " ").replace("\n", " ")
+    encoded = text.encode("cp1252", "replace")
+    escaped = encoded.replace(b"\\", b"\\\\").replace(b"(", b"\\(").replace(b")", b"\\)")
+    return b"(" + escaped + b")"
+
+
+def _certificate_pdf(certificate: dict) -> bytes:
+    module_label = certificate["module"]
+    level_label = {
+        "debutant": "Débutant",
+        "intermediaire": "Intermédiaire",
+        "expert": "Expert",
+    }.get(certificate["level"], str(certificate["level"]))
+    date_label = str(certificate["issued_at"]).replace("T", " ").replace("+00:00", " UTC")
+    lines = [
+        (b"/F2 30 Tf", 150, 475, "SKILL TREE"),
+        (b"/F1 15 Tf", 150, 438, "CERTIFICAT DE RÉUSSITE"),
+        (b"/F1 12 Tf", 150, 392, "Ce certificat atteste que"),
+        (b"/F2 24 Tf", 150, 350, certificate["name"]),
+        (b"/F1 12 Tf", 150, 309, "a validé l’ensemble des cours du niveau"),
+        (b"/F2 18 Tf", 150, 279, level_label),
+        (b"/F2 15 Tf", 150, 250, module_label),
+        (b"/F1 12 Tf", 150, 206, f"Résultat à l’examen officiel : {certificate['score']} %"),
+        (b"/F1 12 Tf", 150, 183, f"Cours validés : {certificate['courses']}"),
+        (b"/F1 10 Tf", 150, 137, f"Numéro de certificat : {certificate['number']}"),
+        (b"/F1 10 Tf", 150, 116, f"Délivré le : {date_label}"),
+    ]
+    commands = [
+        b"q",
+        b"0.10 0.20 0.35 RG 3 w 26 26 790 543 re S",
+        b"0.73 0.55 0.25 RG 1 w 38 38 766 519 re S",
+        b"Q",
+    ]
+    for font, x, y, label in lines:
+        commands.append(b"BT " + font + f" 1 0 0 1 {x} {y} Tm ".encode("ascii") + _pdf_literal(label) + b" Tj ET")
+    stream = b"\n".join(commands) + b"\n"
+    objects = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>",
+        b"<< /Length " + str(len(stream)).encode("ascii") + b" >>\nstream\n" + stream + b"endstream",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>",
+    ]
+    pdf = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
+    offsets = [0]
+    for index, obj in enumerate(objects, start=1):
+        offsets.append(len(pdf))
+        pdf.extend(f"{index} 0 obj\n".encode("ascii"))
+        pdf.extend(obj)
+        pdf.extend(b"\nendobj\n")
+    xref_offset = len(pdf)
+    pdf.extend(f"xref\n0 {len(offsets)}\n".encode("ascii"))
+    pdf.extend(b"0000000000 65535 f \n")
+    for offset in offsets[1:]:
+        pdf.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
+    pdf.extend(
+        f"trailer\n<< /Size {len(offsets)} /Root 1 0 R >>\nstartxref\n{xref_offset}\n%%EOF\n".encode("ascii")
+    )
+    return bytes(pdf)
+
+
+@app.get("/api/certificates")
+def list_certificates(tree: SkillTree = Depends(get_tree)) -> dict:
+    rows = tree.conn.execute(
+        "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+        "exam_session_id, score, courses_count FROM certificates "
+        "WHERE module <> '' AND level_slug <> '' ORDER BY issued_at DESC"
+    ).fetchall()
+    certificates = [_certificate_payload(row) for row in rows]
+
+    exam_rows = tree.conn.execute(
+        "SELECT session_id, module_scope, level_scope, scope_node_ids_json, score, passed, "
+        "total, submitted_at, time_expired FROM exam_sessions "
+        "WHERE exam_type = 'certification' AND submitted = 1 "
+        "AND module_scope <> '' AND level_scope <> '' ORDER BY submitted_at DESC"
+    ).fetchall()
+    exams = []
+    for row in exam_rows:
+        try:
+            node_ids = json.loads(row["scope_node_ids_json"] or "[]")
+            if not isinstance(node_ids, list) or not all(isinstance(item, str) for item in node_ids):
+                node_ids = []
+        except (TypeError, ValueError, json.JSONDecodeError):
+            node_ids = []
+        exams.append({
+            "session_id": str(row["session_id"]),
+            "module_label": str(row["module_scope"]),
+            "level": str(row["level_scope"]),
+            "score": int(row["score"] or 0),
+            "passed": bool(row["passed"]) and int(row["score"] or 0) >= EXAM_PASS_SCORE,
+            "total": int(row["total"] or 0),
+            "submitted_at": int(row["submitted_at"] or 0),
+            "time_expired": bool(row["time_expired"]),
+            "scope_node_ids": node_ids,
+        })
+    return {"items": certificates, "exams": exams}
+
+
+@app.post("/api/certificate/exam/start")
+def start_certificate_exam(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    module_label, scope = _certificate_scope(tree, payload.get("module"), payload.get("level"))
+    statuses = tree.statuses()
+    missing = [node.title for node in scope if statuses.get(node.id) is not Status.VALIDATED]
+    if missing:
+        preview = ", ".join(missing[:4])
+        suffix = "…" if len(missing) > 4 else ""
+        raise HTTPException(
+            409,
+            f"Tous les cours du niveau doivent être validés avant l’examen de diplôme. "
+            f"Cours restants : {preview}{suffix}",
+        )
+
+    question_pool = [
+        question for question in _exam_question_pool(tree, scope)
+        if question.question_type == "qcm"
+    ]
+    if not question_pool:
+        raise HTTPException(422, "Aucune question QCM disponible pour l’examen officiel de ce niveau.")
+
+    level_slug = str(payload.get("level")).strip().lower()
+    level_label = {
+        "debutant": "Débutant",
+        "intermediaire": "Intermédiaire",
+        "expert": "Expert",
+    }[level_slug]
+    return _create_exam_session(
+        tree,
+        scope,
+        count=EXAM_QUESTION_COUNT,
+        time_limit=EXAM_DURATION_SECONDS,
+        category=f"Diplôme · {module_label} · {level_label}",
+        question_pool=question_pool,
+        exam_type="certification",
+        module_scope=module_label,
+        level_scope=level_slug,
+        scope_node_ids=[node.id for node in scope],
+    )
+
+
+@app.post("/api/certificate/issue")
+def issue_certificate(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    module_label, scope = _certificate_scope(tree, payload.get("module"), payload.get("level"))
+    level_slug = str(payload.get("level")).strip().lower()
+
+    existing = tree.conn.execute(
+        "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+        "exam_session_id, score, courses_count FROM certificates "
+        "WHERE module = ? AND level_slug = ?",
+        (module_label, level_slug),
+    ).fetchone()
+    if existing is not None:
+        return {"success": True, "already_issued": True, "certificate": _certificate_payload(existing)}
+
+    statuses = tree.statuses()
+    missing = [node.title for node in scope if statuses.get(node.id) is not Status.VALIDATED]
+    if missing:
+        raise HTTPException(409, "Le diplôme exige la validation de tous les cours du niveau.")
+
+    session_id = str(payload.get("exam_session_id") or "").strip()
+    if not session_id or len(session_id) > 64:
+        raise HTTPException(422, "Identifiant de session d’examen manquant ou invalide.")
+    exam = tree.conn.execute(
+        "SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)
+    ).fetchone()
+    if exam is None or str(exam["exam_type"] or "") != "certification":
+        raise HTTPException(409, "Cette session n’est pas un examen officiel de diplôme.")
+    if not exam["submitted"] or not exam["passed"] or int(exam["score"] or 0) < EXAM_PASS_SCORE:
+        raise HTTPException(409, f"L’examen officiel doit être terminé avec au moins {EXAM_PASS_SCORE} %.")
+    if (
+        str(exam["module_scope"] or "") != module_label
+        or str(exam["level_scope"] or "") != level_slug
+    ):
+        raise HTTPException(409, "L’examen réussi ne correspond pas au module et au niveau demandés.")
+    try:
+        submitted_scope = json.loads(exam["scope_node_ids_json"] or "[]")
+    except (TypeError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(409, "Le périmètre de la session d’examen est invalide.") from error
+    expected_scope = [node.id for node in scope]
+    if not isinstance(submitted_scope, list) or sorted(submitted_scope) != sorted(expected_scope):
+        raise HTTPException(409, "Le périmètre des cours a changé depuis l’examen ; repasse l’examen du niveau.")
+
+    name = str(payload.get("name") or CERTIFICATE_NAME).strip()
+    if not name:
+        raise HTTPException(422, "Le nom à inscrire sur le diplôme est obligatoire.")
+    if len(name) > 100:
+        raise HTTPException(422, "Le nom inscrit sur le diplôme doit faire 100 caractères maximum.")
+    module_id = str(payload.get("module_id") or "").strip()
+    if not module_id or len(module_id) > 100 or not re.fullmatch(r"[a-zA-Z0-9_-]+", module_id):
+        raise HTTPException(422, "Identifiant du module invalide.")
+
+    number = "SKT-" + uuid.uuid4().hex[:12].upper()
+    issued_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    level_number = {"debutant": 1, "intermediaire": 2, "expert": 3}[level_slug]
+    try:
+        tree.conn.execute(
+            "INSERT INTO certificates "
+            "(number, name, level, issued_at, module, module_id, level_slug, exam_session_id, score, courses_count) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                number, name, level_number, issued_at, module_label, module_id,
+                level_slug, session_id, int(exam["score"]), len(scope),
+            ),
+        )
+        tree.conn.commit()
+    except sqlite3.INTEGRITY_ERROR_CLASSES:
+        tree.conn.rollback()
+        existing = tree.conn.execute(
+            "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+            "exam_session_id, score, courses_count FROM certificates "
+            "WHERE module = ? AND level_slug = ?",
+            (module_label, level_slug),
+        ).fetchone()
+        if existing is None:
+            raise
+        return {"success": True, "already_issued": True, "certificate": _certificate_payload(existing)}
+
+    row = tree.conn.execute(
+        "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+        "exam_session_id, score, courses_count FROM certificates WHERE number = ?",
+        (number,),
+    ).fetchone()
+    return {"success": True, "already_issued": False, "certificate": _certificate_payload(row)}
+
+
+def _pdf_literal(value: object) -> bytes:
+    text = str(value or "").replace("\r", " ").replace("\n", " ")
+    encoded = text.encode("cp1252", "replace")
+    escaped = encoded.replace(b"\\", b"\\\\").replace(b"(", b"\\(").replace(b")", b"\\)")
+    return b"(" + escaped + b")"
+
+
+def _certificate_pdf(certificate: dict) -> bytes:
+    module_label = certificate["module"]
+    level_label = {
+        "debutant": "Débutant",
+        "intermediaire": "Intermédiaire",
+        "expert": "Expert",
+    }.get(certificate["level"], str(certificate["level"]))
+    date_label = str(certificate["issued_at"]).replace("T", " ").replace("+00:00", " UTC")
+    lines = [
+        (b"/F2 30 Tf", 150, 475, "SKILL TREE"),
+        (b"/F1 15 Tf", 150, 438, "CERTIFICAT DE RÉUSSITE"),
+        (b"/F1 12 Tf", 150, 392, "Ce certificat atteste que"),
+        (b"/F2 24 Tf", 150, 350, certificate["name"]),
+        (b"/F1 12 Tf", 150, 309, "a validé l’ensemble des cours du niveau"),
+        (b"/F2 18 Tf", 150, 279, level_label),
+        (b"/F2 15 Tf", 150, 250, module_label),
+        (b"/F1 12 Tf", 150, 206, f"Résultat à l’examen officiel : {certificate['score']} %"),
+        (b"/F1 12 Tf", 150, 183, f"Cours validés : {certificate['courses']}"),
+        (b"/F1 10 Tf", 150, 137, f"Numéro de certificat : {certificate['number']}"),
+        (b"/F1 10 Tf", 150, 116, f"Délivré le : {date_label}"),
+    ]
+    commands = [
+        b"q",
+        b"0.10 0.20 0.35 RG 3 w 26 26 790 543 re S",
+        b"0.73 0.55 0.25 RG 1 w 38 38 766 519 re S",
+        b"Q",
+    ]
+    for font, x, y, label in lines:
+        commands.append(b"BT " + font + f" 1 0 0 1 {x} {y} Tm ".encode("ascii") + _pdf_literal(label) + b" Tj ET")
+    stream = b"\n".join(commands) + b"\n"
+    objects = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>",
+        b"<< /Length " + str(len(stream)).encode("ascii") + b" >>\nstream\n" + stream + b"endstream",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>",
+    ]
+    pdf = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
+    offsets = [0]
+    for index, obj in enumerate(objects, start=1):
+        offsets.append(len(pdf))
+        pdf.extend(f"{index} 0 obj\n".encode("ascii"))
+        pdf.extend(obj)
+        pdf.extend(b"\nendobj\n")
+    xref_offset = len(pdf)
+    pdf.extend(f"xref\n0 {len(offsets)}\n".encode("ascii"))
+    pdf.extend(b"0000000000 65535 f \n")
+    for offset in offsets[1:]:
+        pdf.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
+    pdf.extend(
+        f"trailer\n<< /Size {len(offsets)} /Root 1 0 R >>\nstartxref\n{xref_offset}\n%%EOF\n".encode("ascii")
+    )
+    return bytes(pdf)
+
+
 @app.get("/api/certificate")
-def download_certificate(request: Request, tree: SkillTree = Depends(get_tree)):
-    return StreamingResponse(io.BytesIO(b"PDF EXEMPLE"), media_type="application/pdf")
+def download_certificate(number: str = Query(..., min_length=1, max_length=80), tree: SkillTree = Depends(get_tree)):
+    row = tree.conn.execute(
+        "SELECT number, name, level, issued_at, module, module_id, level_slug, "
+        "exam_session_id, score, courses_count FROM certificates "
+        "WHERE number = ? AND module <> '' AND level_slug <> ''",
+        (number.strip(),),
+    ).fetchone()
+    if row is None:
+        raise HTTPException(404, "Certificat officiel introuvable.")
+    certificate = _certificate_payload(row)
+    pdf = _certificate_pdf({
+        "number": certificate["number"],
+        "name": certificate["name"],
+        "module": certificate["module_label"],
+        "level": certificate["level"],
+        "issued_at": certificate["issued_at"],
+        "score": certificate["score"],
+        "courses": certificate["courses"],
+    })
+    safe_number = re.sub(r"[^A-Za-z0-9_-]", "", certificate["number"]) or "diplome"
+    return StreamingResponse(
+        io.BytesIO(pdf),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="diplome-{safe_number}.pdf"'},
+    )
+
 
 @app.get("/api/shop")
 def read_shop(tree: SkillTree = Depends(get_tree)) -> dict:
