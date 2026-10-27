@@ -217,7 +217,24 @@ L'amélioration continue consiste à tirer des enseignements des incidents et de
 | Prédictive | À partir de données d'état | Anticiper un risque probable | Examiner une alerte d'usure |
 | Évolutive | Lorsqu'un besoin change | Adapter le système | Augmenter la capacité d'un serveur |
 
-Ces catégories peuvent être complémentaires. Une organisation peut surveiller un équipement, réaliser des inspections planifiées, corriger les incidents et faire évoluer l'infrastructure.
+
+
+### Schéma de choix du type de maintenance
+
+```mermaid
+flowchart TD
+    A[Un besoin de maintenance apparaît] --> B{Une défaillance est-elle déjà constatée ?}
+    B -->|Oui| C[Maintenance corrective]
+    B -->|Non| D{Un contrôle planifié permet-il de réduire le risque ?}
+    D -->|Oui| E[Maintenance préventive]
+    D -->|Non| F{Des données permettent-elles d'estimer un risque de défaillance ?}
+    F -->|Oui| G[Maintenance prédictive]
+    F -->|Non| H{Un nouveau besoin ou une évolution est-il demandé ?}
+    H -->|Oui| I[Maintenance évolutive]
+    H -->|Non| J[Clarifier le besoin avant de choisir]
+```
+
+Ce schéma est un guide de première orientation. Dans la pratique, plusieurs formes de maintenance peuvent se combiner : il faut retenir celle qui décrit l'objectif principal de l'action, puis documenter les activités complémentaires.Ces catégories peuvent être complémentaires. Une organisation peut surveiller un équipement, réaliser des inspections planifiées, corriger les incidents et faire évoluer l'infrastructure.
 
 ## 4. Les notions indispensables pour comprendre un incident
 
@@ -396,6 +413,23 @@ Clôturer lorsque les critères de résolution sont satisfaits et que les inform
 
 Si le problème persiste, dépasse les compétences disponibles ou présente un risque élevé, transmettre le dossier à l'équipe appropriée.
 
+### Schéma récapitulatif du cycle d'intervention
+
+```mermaid
+flowchart TD
+    A[Recevoir la demande] --> B[Qualifier impact et urgence]
+    B --> C[Préparer et sécuriser l'intervention]
+    C --> D[Diagnostiquer par des tests adaptés]
+    D --> E[Corriger ou mettre en place un contournement]
+    E --> F[Vérifier le besoin initial]
+    F --> G{Les critères de résolution sont-ils atteints ?}
+    G -->|Oui| H[Documenter et clôturer selon la procédure]
+    G -->|Non| I[Compléter le diagnostic ou escalader]
+    I --> D
+```
+
+Le cycle n'est pas toujours strictement linéaire. Une nouvelle information peut obliger à revenir au diagnostic ou à modifier la priorité. L'important est de documenter ce qui a été fait et de ne pas clôturer sans vérification.
+
 ## 6. Qualifier et prioriser les incidents
 
 Le technicien doit aider l'organisation à traiter en premier les problèmes qui ont les conséquences les plus importantes.
@@ -436,6 +470,22 @@ Un incident peut nécessiter une intervention rapide si un risque de perte de do
 Cette matrice est illustrative. Les niveaux, délais et règles de priorité doivent être définis par l'organisation.
 
 Le technicien ne doit pas se contenter de choisir un niveau : il doit pouvoir expliquer la décision à partir des informations disponibles.
+
+### Schéma de décision pour la priorité
+
+```mermaid
+flowchart TD
+    A[Évaluer un incident] --> B[Mesurer l'impact sur les personnes et l'activité]
+    B --> C[Évaluer l'urgence et les risques]
+    C --> D{Impact élevé et urgence élevée ?}
+    D -->|Oui| E[Proposer P1 selon la politique interne]
+    D -->|Non| F[Comparer impact, urgence et solutions de contournement]
+    F --> G[Attribuer une priorité cohérente]
+    E --> H[Documenter la justification et réévaluer si la situation change]
+    G --> H
+```
+
+Le classement doit respecter les règles de l'organisation. Les niveaux de priorité servent à organiser le travail ; ils ne remplacent pas le jugement fondé sur les risques et les conséquences réelles.
 
 ### 6.4. Exemples de priorisation
 
