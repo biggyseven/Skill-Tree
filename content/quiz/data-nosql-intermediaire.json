@@ -1,0 +1,102 @@
+{
+  "node_id": "data-nosql-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel modèle correspond le mieux à MongoDB ?",
+      "choices": [
+        "Une base exclusivement relationnelle sans documents",
+        "Une base orientée documents qui stocke des documents BSON regroupés en collections",
+        "Un serveur DNS hiérarchique",
+        "Un moteur d’indexation de fichiers sans persistance"
+      ],
+      "answer": 1,
+      "explanation": "MongoDB organise les documents BSON dans des collections. Le modèle flexible exige malgré tout une conception des schémas et des validations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage convient souvent à Redis ?",
+      "choices": [
+        "Remplacer systématiquement l’entrepôt décisionnel",
+        "Conserver uniquement des fichiers CSV sur disque",
+        "Mettre en cache des valeurs à accès rapide avec des clés et des politiques d’expiration",
+        "Exécuter des jointures relationnelles complexes comme modèle principal"
+      ],
+      "answer": 2,
+      "explanation": "Redis est souvent utilisé comme cache, magasin clé-valeur et pour des structures en mémoire. Persistance et durabilité dépendent de sa configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand est-il raisonnable d’embarquer un sous-document dans MongoDB plutôt que de référencer une autre entité ?",
+      "choices": [
+        "Lorsque les données sont fréquemment lues ensemble et que leur duplication contrôlée reste acceptable",
+        "Dans tous les cas, même pour une collection sans borne",
+        "Jamais, car MongoDB interdit les documents imbriqués",
+        "Uniquement lorsque les deux entités ont des cycles de vie totalement indépendants"
+      ],
+      "answer": 0,
+      "explanation": "L’embarquement réduit certains aller-retours mais doit tenir compte de la taille, de la fréquence de mise à jour et des limites du modèle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi créer un index sur un champ de recherche fréquent dans MongoDB ?",
+      "choices": [
+        "Pour garantir l’absence de toute latence",
+        "Pour répliquer automatiquement les données vers un autre site",
+        "Pour supprimer les validations de schéma",
+        "Pour réduire le nombre de documents examinés, au prix de stockage et de maintenance supplémentaires"
+      ],
+      "answer": 3,
+      "explanation": "Les index peuvent accélérer les recherches sélectives, mais leur coût en mémoire, disque et écritures doit être mesuré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une collection MongoDB répliquée constitue-t-elle une sauvegarde suffisante contre une suppression logique accidentelle ?",
+      "choices": [
+        "Oui, chaque suppression reste uniquement sur le primaire",
+        "Non, l’opération peut se propager ; il faut des sauvegardes ou versions restaurables",
+        "Oui, si le nom de la collection est long",
+        "Non, car la réplication n’est jamais utile à la disponibilité"
+      ],
+      "answer": 1,
+      "explanation": "La réplication améliore la disponibilité et la tolérance à certaines pannes, mais ne fournit pas à elle seule un historique de restauration après erreur logique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème une clé TTL Redis ou un index TTL MongoDB peut-il résoudre ?",
+      "choices": [
+        "Chiffrer automatiquement toutes les données",
+        "Créer un schéma relationnel normalisé",
+        "Expirer automatiquement des éléments après une durée définie, selon la sémantique du système",
+        "Garantir une suppression à la milliseconde près dans tous les moteurs"
+      ],
+      "answer": 2,
+      "explanation": "Les mécanismes TTL automatisent l’expiration, mais leur précision et leur comportement doivent être pris en compte dans les exigences métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie la cohérence éventuelle dans un système distribué ?",
+      "choices": [
+        "Les répliques peuvent temporairement diverger puis converger si les mises à jour cessent et que le système progresse",
+        "Toutes les lectures retournent toujours immédiatement la dernière écriture globale",
+        "Aucune donnée n’est répliquée",
+        "La base ne peut pas avoir de pannes"
+      ],
+      "answer": 0,
+      "explanation": "La cohérence éventuelle autorise des délais de propagation. L’application doit préciser quelles lectures acceptent ce décalage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment rendre un traitement rejouable après une interruption sans créer de doublons métier ?",
+      "choices": [
+        "Désactiver les accusés de réception",
+        "Effacer le journal du consommateur à chaque redémarrage",
+        "Compter sur une exécution unique sans déduplication",
+        "Utiliser des clés d’idempotence, des contraintes d’unicité ou une logique de déduplication"
+      ],
+      "answer": 3,
+      "explanation": "Les retries et reprises sont fréquents dans les systèmes distribués. L’idempotence permet de répéter une opération sans multiplier ses effets."
+    }
+  ]
+}

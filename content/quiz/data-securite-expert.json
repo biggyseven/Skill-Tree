@@ -1,0 +1,102 @@
+{
+  "node_id": "data-securite-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction est correcte entre chiffrement au repos et chiffrement en transit ?",
+      "choices": [
+        "Les deux termes désignent uniquement l’anonymisation",
+        "Au repos protège les données stockées ; en transit protège les échanges sur le réseau",
+        "Au repos protège uniquement les sauvegardes, jamais les tables",
+        "En transit remplace la gestion des identités"
+      ],
+      "answer": 1,
+      "explanation": "Les deux contrôles couvrent des expositions différentes. Leur efficacité dépend aussi de la gestion des clés, certificats et autorisations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer les clés de chiffrement des données qu’elles protègent ?",
+      "choices": [
+        "Pour rendre la rotation impossible",
+        "Pour conserver une seule clé universelle dans le code",
+        "Pour limiter l’impact d’une compromission et permettre contrôle, rotation et révocation",
+        "Pour désactiver les audits cryptographiques"
+      ],
+      "answer": 2,
+      "explanation": "La séparation des clés et des données facilite le contrôle d’accès, la rotation et la réduction du risque en cas de fuite d’un stockage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue le mieux pseudonymisation et anonymisation ?",
+      "choices": [
+        "La pseudonymisation remplace ou sépare des identifiants mais une réidentification peut rester possible ; l’anonymisation vise à rendre cette réidentification raisonnablement impossible",
+        "Elles garantissent toutes deux un risque de réidentification nul par définition",
+        "La pseudonymisation consiste à publier les identités en clair",
+        "L’anonymisation se résume toujours à chiffrer une colonne"
+      ],
+      "answer": 0,
+      "explanation": "La pseudonymisation réduit l’exposition mais conserve parfois une table de correspondance ou un risque de recoupement. L’anonymisation doit être évaluée face aux possibilités de réidentification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand le contrôle d’accès basé sur les rôles (RBAC) est-il utile ?",
+      "choices": [
+        "Pour donner l’accès complet à tous les comptes",
+        "Pour remplacer les sauvegardes",
+        "Pour empêcher toute création de rôle",
+        "Pour attribuer des permissions à des rôles métier puis relier les utilisateurs aux rôles nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "RBAC centralise les droits par fonction. Les rôles doivent rester limités, revus périodiquement et complétés par des contraintes contextuelles si nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe du RGPD conduit à ne collecter que les données nécessaires à une finalité déterminée ?",
+      "choices": [
+        "L’ouverture universelle des données",
+        "La minimisation des données",
+        "La conservation illimitée",
+        "La diffusion des identifiants"
+      ],
+      "answer": 1,
+      "explanation": "La minimisation réduit les données collectées et traitées à ce qui est nécessaire pour la finalité. Elle influence le schéma, les journaux, l’analytique et les exports."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il prévoir lorsqu’une donnée personnelle atteint sa durée de conservation définie ?",
+      "choices": [
+        "La laisser dans toutes les copies sans contrôle",
+        "La conserver indéfiniment si l’espace disque est disponible",
+        "Un processus de suppression ou d’anonymisation contrôlé, tenant compte des copies, sauvegardes et obligations applicables",
+        "La rendre publique pour signaler sa fin de vie"
+      ],
+      "answer": 2,
+      "explanation": "Le cycle de vie doit couvrir les systèmes actifs, répliques, exports, journaux et règles de restauration, tout en respectant les obligations légales applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels éléments sont importants pour rendre un accès administrateur à une base auditable ?",
+      "choices": [
+        "Identité individuelle, horodatage, action, résultat et protection des journaux contre les altérations",
+        "Un compte partagé sans traces",
+        "Uniquement une capture d’écran du tableau de bord",
+        "Les mots de passe et clés stockés dans les logs"
+      ],
+      "answer": 0,
+      "explanation": "Les journaux doivent permettre d’attribuer les actions sans enregistrer de secrets. Leur accès, intégrité, conservation et synchronisation temporelle sont essentiels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi classer les jeux de données par sensibilité ?",
+      "choices": [
+        "Pour désactiver les mécanismes de sauvegarde",
+        "Pour utiliser la même règle publique pour tous les jeux de données",
+        "Pour supprimer les contrôles d’accès aux données internes",
+        "Pour appliquer des protections, règles de partage, de conservation et de surveillance proportionnées au risque"
+      ],
+      "answer": 3,
+      "explanation": "La classification permet d’aligner les contrôles sur le risque : droits, chiffrement, masquage, journalisation, transfert et règles de conservation."
+    }
+  ]
+}

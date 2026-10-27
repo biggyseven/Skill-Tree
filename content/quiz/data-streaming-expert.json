@@ -1,0 +1,102 @@
+{
+  "node_id": "data-streaming-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans Kafka, quelle garantie d’ordre s’applique normalement aux enregistrements d’une même partition ?",
+      "choices": [
+        "L’ordre est garanti au niveau de tout le cluster sans condition",
+        "L’ordre d’écriture et de lecture est préservé dans une partition",
+        "Les messages sont toujours triés par contenu JSON",
+        "L’ordre dépend uniquement de l’horloge du consommateur"
+      ],
+      "answer": 1,
+      "explanation": "Kafka conserve l’ordre dans une partition, mais ne garantit pas un ordre total entre partitions distinctes. La clé de partition est donc importante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi choisir une clé de partition stable pour les événements d’un même compte ?",
+      "choices": [
+        "Pour distribuer chaque événement d’un compte dans une partition aléatoire",
+        "Pour désactiver l’ordonnancement",
+        "Pour conserver le même compte dans une partition et préserver l’ordre relatif de ses événements",
+        "Pour éviter de surveiller le débit"
+      ],
+      "answer": 2,
+      "explanation": "Une clé métier stable regroupe les événements de la même entité. Il faut équilibrer cette propriété avec le risque de partition chaude."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue un consumer group Kafka ?",
+      "choices": [
+        "Répartir la charge de consommation de partitions entre ses membres",
+        "Archiver automatiquement une copie de chaque base relationnelle",
+        "Générer le schéma métier des messages",
+        "Garantir que tout traitement externe est exécuté exactement une seule fois"
+      ],
+      "answer": 0,
+      "explanation": "Dans un groupe, les partitions sont attribuées aux consommateurs ; une partition donnée est traitée par un membre à la fois dans ce groupe, selon l’état courant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un consommateur en traitement au moins une fois doit-il être conçu pour tolérer les doublons ?",
+      "choices": [
+        "Parce que Kafka supprime obligatoirement chaque message deux fois",
+        "Parce que les offsets sont toujours perdus",
+        "Parce qu’un traitement ne peut jamais échouer",
+        "Parce qu’un message peut être retraité si la sortie réussit mais que l’offset n’est pas confirmé"
+      ],
+      "answer": 3,
+      "explanation": "Un crash entre la production de l’effet métier et la validation de l’offset peut entraîner une reprise. Une sortie idempotente ou une transaction appropriée protège contre les doublons."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie raisonnablement « exactly-once » dans un traitement Kafka correctement configuré ?",
+      "choices": [
+        "Un événement ne peut jamais être dupliqué dans aucun système externe",
+        "Les effets consommateur-producteur couverts par les mécanismes transactionnels Kafka peuvent être traités atomiquement dans leur périmètre",
+        "Les messages ne nécessitent aucune supervision",
+        "Le système est garanti sans panne matérielle"
+      ],
+      "answer": 1,
+      "explanation": "Les garanties exactement-une-fois ont un périmètre. Les bases externes ou API doivent être intégrées de façon transactionnelle ou idempotente pour étendre la garantie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale existe entre rétention par durée et compaction par clé ?",
+      "choices": [
+        "Les deux suppriment toujours immédiatement tous les messages",
+        "La rétention par durée conserve uniquement la dernière valeur de chaque clé",
+        "La compaction conserve à terme la dernière valeur connue par clé, tandis que la rétention par durée élimine les segments selon leur âge",
+        "La compaction interdit les clés de message"
+      ],
+      "answer": 2,
+      "explanation": "La rétention contrôle l’ancienneté conservée ; la compaction permet de reconstruire l’état le plus récent par clé dans un journal compacté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi gérer explicitement l’évolution du schéma d’un événement ?",
+      "choices": [
+        "Pour permettre aux producteurs et consommateurs d’évoluer de façon compatible et prévenir les ruptures de contrat",
+        "Pour éviter tout versionnement",
+        "Pour que chaque consommateur devine les nouveaux champs",
+        "Pour transformer automatiquement les messages anciens en données correctes"
+      ],
+      "answer": 0,
+      "explanation": "Un contrat de schéma documenté permet de contrôler la compatibilité des ajouts, suppressions et changements de type avant déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que révèle généralement une augmentation persistante du consumer lag ?",
+      "choices": [
+        "Que la conservation de messages a été désactivée dans toutes les partitions",
+        "Que le schéma est nécessairement valide",
+        "Que les offsets sont toujours invalides",
+        "Que les consommateurs prennent du retard par rapport au rythme de production, à investiguer par partition et par étape"
+      ],
+      "answer": 3,
+      "explanation": "Le lag peut venir d’un débit insuffisant, d’une partition déséquilibrée, d’appels externes lents ou de pannes de consommateurs. Il faut mesurer avant d’augmenter la capacité."
+    }
+  ]
+}

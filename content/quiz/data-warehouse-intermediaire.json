@@ -1,0 +1,102 @@
+{
+  "node_id": "data-warehouse-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue généralement une table de faits dans un entrepôt de données ?",
+      "choices": [
+        "Stocker uniquement la documentation des colonnes",
+        "Enregistrer des mesures ou événements au grain défini, reliés à des dimensions",
+        "Remplacer toutes les dimensions par du texte libre",
+        "Conserver les mots de passe des outils ETL"
+      ],
+      "answer": 1,
+      "explanation": "Le grain de la table de faits doit être précisé : une ligne peut représenter une vente, une ligne de commande, une mesure ou un autre événement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir explicitement le grain d’une table de faits ?",
+      "choices": [
+        "Pour éviter que deux utilisateurs puissent lire les mêmes données",
+        "Pour déduire automatiquement toutes les règles de sécurité",
+        "Pour savoir exactement ce qu’une ligne représente et éviter les doubles comptes lors des agrégations",
+        "Pour supprimer les dimensions"
+      ],
+      "answer": 2,
+      "explanation": "Un grain clair guide la modélisation, les clés, les mesures et les jointures. Des grains mélangés conduisent souvent à des agrégations incorrectes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle structure caractérise couramment un schéma en étoile ?",
+      "choices": [
+        "Une table de faits centrale reliée à des dimensions descriptives",
+        "Des tables sans clés ni relations documentées",
+        "Une seule table avec toutes les données et colonnes dupliquées sans contrôle",
+        "Un graphe réseau utilisé exclusivement pour les logs"
+      ],
+      "answer": 0,
+      "explanation": "Le schéma en étoile sépare les mesures des descriptions. Il est conçu pour faciliter les requêtes analytiques et les agrégations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction décrit ETL versus ELT ?",
+      "choices": [
+        "ETL signifie chiffrer, ELT signifie supprimer",
+        "ELT impose toujours un moteur différent de SQL",
+        "ETL ne transforme jamais les données",
+        "ETL transforme avant le chargement cible ; ELT charge d’abord puis transforme dans la plateforme cible"
+      ],
+      "answer": 3,
+      "explanation": "La différence porte sur le moment où les transformations sont exécutées. Le choix dépend de la plateforme, des volumes, de la gouvernance et des besoins de latence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une dimension à évolution lente de type 2 (SCD Type 2) ?",
+      "choices": [
+        "À écraser systématiquement toute ancienne valeur",
+        "À conserver l’historique des versions d’un attribut avec des lignes datées ou versionnées",
+        "À retirer la clé de substitution",
+        "À interdire toute correction d’adresse"
+      ],
+      "answer": 1,
+      "explanation": "SCD Type 2 conserve les états historiques, par exemple l’agence d’un client au fil du temps, pour permettre des analyses historiques cohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser un watermark dans un chargement incrémental ?",
+      "choices": [
+        "Pour rendre les lignes non vérifiables",
+        "Pour marquer la fin physique du disque",
+        "Pour suivre un point de progression comme une date ou un identifiant et sélectionner les changements à traiter",
+        "Pour convertir une table de faits en dimension"
+      ],
+      "answer": 2,
+      "explanation": "Un watermark suit l’avancement du traitement. Il doit gérer les retards, les mises à jour hors ordre et le chevauchement éventuel pour éviter les pertes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle qualité est particulièrement utile après un chargement ETL ?",
+      "choices": [
+        "Comparer volumes, sommes de contrôle ou règles métier attendues entre source, rejets et cible",
+        "Vérifier seulement que le processus s’est terminé avec le code 0",
+        "Supprimer les lignes qui ne correspondent pas sans journaliser",
+        "Ignorer les différences de fuseau horaire"
+      ],
+      "answer": 0,
+      "explanation": "Le succès technique ne prouve pas la complétude. Les contrôles de réconciliation détectent les pertes, doublons et changements de conversion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une clé de substitution dans une dimension ?",
+      "choices": [
+        "Remplacer toute clé de source dans le système opérationnel",
+        "Garantir que l’attribut ne changera jamais",
+        "Éviter de documenter la provenance des données",
+        "Fournir une clé technique stable dans l’entrepôt, indépendante des clés métier source"
+      ],
+      "answer": 3,
+      "explanation": "Une clé de substitution facilite l’intégration de sources multiples et la gestion des versions historiques, même si les clés métier changent."
+    }
+  ]
+}

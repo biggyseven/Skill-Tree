@@ -1,0 +1,102 @@
+{
+  "node_id": "data-optimisation-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement EXPLAIN (ou l’outil équivalent du SGBD) ?",
+      "choices": [
+        "À supprimer les lignes inutilisées",
+        "À inspecter la stratégie d’exécution estimée ou réelle d’une requête",
+        "À chiffrer automatiquement toute la base",
+        "À remplacer les tests de performance"
+      ],
+      "answer": 1,
+      "explanation": "Le plan expose les accès, jointures, tris et estimations de cardinalité. Une mesure réelle complète l’analyse lorsque l’outil propose l’exécution instrumentée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand un index composé sur (client_id, created_at) est-il généralement le plus directement exploitable ?",
+      "choices": [
+        "Uniquement pour une recherche sur une colonne aléatoire sans filtre",
+        "Seulement après avoir supprimé client_id",
+        "Pour des filtres adaptés au préfixe gauche, par exemple client_id, puis éventuellement created_at",
+        "Pour accélérer toutes les écritures sans coût"
+      ],
+      "answer": 2,
+      "explanation": "L’ordre des colonnes d’un index composé compte. Les règles exactes varient selon le moteur, mais un filtre sur le préfixe gauche est souvent déterminant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une forte sélectivité d’un index ?",
+      "choices": [
+        "La valeur ou la combinaison indexée distingue une petite fraction des lignes",
+        "L’index contient toutes les lignes dans un ordre aléatoire",
+        "La table ne contient aucune clé",
+        "Le moteur désactive automatiquement les statistiques"
+      ],
+      "answer": 0,
+      "explanation": "Un prédicat très sélectif réduit fortement le nombre de lignes candidates, ce qui peut rendre un accès par index intéressant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi appliquer une fonction à une colonne filtrée peut-il empêcher l’usage direct d’un index ordinaire ?",
+      "choices": [
+        "Parce que toute fonction efface les données",
+        "Parce que les index ne peuvent jamais servir aux filtres",
+        "Parce que l’optimiseur doit toujours lire toute la base",
+        "Parce que le prédicat devient parfois non sargable, sauf index fonctionnel ou transformation adaptée"
+      ],
+      "answer": 3,
+      "explanation": "Un filtre calculé sur chaque valeur peut empêcher un accès direct. On peut parfois réécrire la condition sur la colonne brute ou créer un index expression adapté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel coût peut entraîner un trop grand nombre d’index sur une table fortement modifiée ?",
+      "choices": [
+        "Une suppression automatique des clés primaires",
+        "Davantage de stockage et de travail à chaque insertion, mise à jour ou suppression",
+        "Une garantie de latence nulle",
+        "La désactivation des transactions"
+      ],
+      "answer": 1,
+      "explanation": "Chaque index doit être maintenu lors des écritures. Les index inutiles ralentissent les changements et consomment de l’espace ; leur utilité doit être mesurée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel effet peut avoir des statistiques d’optimiseur obsolètes ?",
+      "choices": [
+        "Des estimations de cardinalité incorrectes et des plans moins adaptés",
+        "Une conversion automatique de la base en mémoire",
+        "Une augmentation de la sécurité des comptes",
+        "La création de nouvelles lignes sans écriture"
+      ],
+      "answer": 0,
+      "explanation": "Les estimations aident l’optimiseur à choisir les jointures et accès. Des statistiques mal à jour peuvent produire des choix coûteux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’appelle-t-on communément le problème N+1 côté accès aux données ?",
+      "choices": [
+        "Une seule requête qui lit toutes les tables",
+        "Une erreur qui ne survient que si la base contient une seule ligne",
+        "Une requête initiale suivie d’une requête supplémentaire répétée pour chaque élément",
+        "Un index couvrant toutes les colonnes"
+      ],
+      "answer": 2,
+      "explanation": "N+1 provoque de nombreux aller-retours. Une jointure, un chargement groupé ou une stratégie de préchargement peut réduire ce coût."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est la plus fiable pour optimiser un tableau de bord lent ?",
+      "choices": [
+        "Supprimer les données les plus anciennes sans validation",
+        "Augmenter tous les paramètres sans mesurer",
+        "Ajouter systématiquement un index à chaque colonne affichée",
+        "Mesurer les requêtes réelles, analyser plans et volumes, puis vérifier le gain et les régressions"
+      ],
+      "answer": 3,
+      "explanation": "L’optimisation est un cycle de mesure, hypothèse, changement et comparaison. Il faut aussi surveiller les effets sur les écritures et les autres requêtes."
+    }
+  ]
+}

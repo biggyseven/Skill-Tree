@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sauvegarde-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme permet généralement une restauration à un instant précis (PITR) ?",
+      "choices": [
+        "La seule réplication synchrone",
+        "Une sauvegarde de base complétée par les journaux transactionnels nécessaires",
+        "Un export CSV sans horodatage",
+        "La conservation du dernier fichier de log applicatif uniquement"
+      ],
+      "answer": 1,
+      "explanation": "La PITR combine une base de départ cohérente avec les journaux qui permettent de rejouer les changements jusqu’à l’instant choisi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement une sauvegarde incrémentale ?",
+      "choices": [
+        "Elle copie uniquement les changements depuis la dernière sauvegarde, selon la chaîne utilisée",
+        "Elle contient nécessairement chaque bloc depuis la dernière sauvegarde complète",
+        "Elle est toujours plus rapide à restaurer que toute sauvegarde complète",
+        "Elle ne nécessite jamais de sauvegarde de référence"
+      ],
+      "answer": 0,
+      "explanation": "Une incrémentale collecte les changements depuis le point de sauvegarde précédent dans la chaîne. La stratégie influe sur la quantité à restaurer et la complexité de la chaîne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence caractérise généralement une sauvegarde différentielle ?",
+      "choices": [
+        "Elle supprime les journaux après chaque écriture",
+        "Elle ne capture que les schémas, jamais les données",
+        "Elle accumule les changements depuis la dernière sauvegarde complète",
+        "Elle est identique à une réplication en temps réel"
+      ],
+      "answer": 2,
+      "explanation": "Une différentielle se réfère à la dernière sauvegarde complète, alors qu’une incrémentale se réfère au point précédent de la séquence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que mesure le RTO ?",
+      "choices": [
+        "Le volume maximal de perte de données acceptable",
+        "Le nombre de sauvegardes nécessaires chaque mois",
+        "La durée de conservation des données personnelles",
+        "Le délai cible de rétablissement du service"
+      ],
+      "answer": 3,
+      "explanation": "Le RTO exprime la durée d’indisponibilité acceptable ou cible. Il faut le vérifier par des exercices réels et non par une simple estimation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi restaurer périodiquement une sauvegarde dans un environnement isolé ?",
+      "choices": [
+        "Pour prouver que le fichier existe, sans vérifier son contenu",
+        "Pour valider intégrité, procédures, dépendances, droits et temps réel de récupération",
+        "Pour forcer la production à utiliser des données de test",
+        "Pour éviter de chiffrer les sauvegardes"
+      ],
+      "answer": 1,
+      "explanation": "Un test de restauration éprouve toute la chaîne de récupération : média, clés, versions, journaux, ordonnancement et contrôles applicatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie améliore la résilience face à un rançongiciel qui atteint le réseau principal ?",
+      "choices": [
+        "Garder toutes les copies accessibles avec les mêmes droits d’écriture",
+        "Supprimer les versions précédentes après chaque sauvegarde",
+        "Conserver des copies isolées ou immuables avec des identifiants et accès distincts",
+        "Désactiver toute supervision des tâches"
+      ],
+      "answer": 2,
+      "explanation": "Des copies hors ligne ou immuables et des accès séparés réduisent le risque qu’un compte compromis détruise aussi les sauvegardes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une sauvegarde chiffrée nécessite-t-elle une procédure de gestion des clés ?",
+      "choices": [
+        "Parce que les données peuvent être irrécupérables si les clés sont perdues ou inaccessibles",
+        "Parce que le chiffrement garantit à lui seul une restauration cohérente",
+        "Parce que les clés doivent être placées en clair dans l’archive",
+        "Parce que la sauvegarde ne peut être copiée vers un autre site"
+      ],
+      "answer": 0,
+      "explanation": "La protection des clés doit être séparée, disponible aux opérateurs autorisés et testée dans les scénarios de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une restauration PITR, quel contrôle est le plus pertinent avant de remettre l’application en service ?",
+      "choices": [
+        "Vérifier uniquement la taille des fichiers",
+        "Supprimer tous les journaux d’audit",
+        "Considérer la restauration réussie sans test applicatif",
+        "Contrôler cohérence des données, heure de reprise et transactions attendues avec les responsables applicatifs"
+      ],
+      "answer": 3,
+      "explanation": "L’intégrité technique ne suffit pas toujours : il faut confirmer le point temporel restauré et vérifier les invariants métier ainsi que les flux dépendants."
+    }
+  ]
+}
