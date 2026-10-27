@@ -2070,6 +2070,32 @@
         debutant: ['Principes DevOps et cycle CI/CD', 'Git et gestion de versions', 'Linux pour DevOps', 'YAML, JSON et formats de configuration', 'Docker : images et conteneurs', 'Introduction au cloud'],
         intermediaire: ['Docker Compose et registres', 'CI/CD avec GitHub Actions et GitLab CI', 'Infrastructure as Code avec Terraform', 'Configuration avec Ansible', 'Observabilité : Prometheus et Grafana', 'Kubernetes : les bases'],
         expert: ['Kubernetes avancé : réseau et sécurité', 'GitOps avec ArgoCD', 'IaC à grande échelle', 'SRE : SLI, SLO et gestion des incidents', 'DevSecOps', 'Service mesh'] } },
+      { id: 'data', label: 'Data & Bases de données', short: 'Data', icon: '📊', roadmap: {
+        debutant: [
+          'Concepts des bases de données relationnelles — Débutant',
+          'Requêtes SQL de base (SELECT, INSERT) — Débutant',
+          'Modélisation et diagrammes (MCD/MLD) — Débutant',
+          'Jointures et agrégations SQL — Débutant',
+          'Normalisation (1NF, 2NF, 3NF) — Débutant',
+          'Travaux pratiques (MySQL/PostgreSQL) — Débutant'
+        ],
+        intermediaire: [
+          'Rôle du DBA et architecture SGBD — Intermédiaire',
+          'Sous-requêtes, CTE, Procédures stockées — Intermédiaire',
+          "Indexation et plans d'exécution — Intermédiaire",
+          'Backup, PITR et restauration — Intermédiaire',
+          'Introduction à MongoDB et Redis — Intermédiaire',
+          'Entrepôt de données et ETL — Intermédiaire'
+        ],
+        expert: [
+          'Architecture Hadoop et Spark — Expert',
+          'Kafka et traitement en temps réel — Expert',
+          'Data Lakes et Lakehouse — Expert',
+          "Chiffrement, RGPD et contrôle d'accès — Expert",
+          'Qualité, lignage et gouvernance — Expert',
+          'Pipelines de données complexes — Expert'
+        ] } },
+
     ];
 
     /* Niveau par défaut des cours qui n'ont pas "level" ni de mot-clé dans leur titre. À ajuster librement. */
@@ -2176,10 +2202,12 @@
         moduleOf(n) {
           const o = this.moduleOverrides[n.id]; if (o) return o;
           const raw = this.norm(n.module || '');
+          if (String(n.id || '').startsWith('data-') || raw.startsWith('data') || raw.includes('bases de donnees') || raw.includes('database')) return 'data';
           if (raw) { if (/reseau|network/.test(raw)) return 'admin-reseaux'; if (/syst/.test(raw)) return 'admin-systeme'; if (/devops/.test(raw)) return 'devops'; }
           if (/^(sys|sysadmin|linux|win)-/.test(n.id)) return 'admin-systeme';
           if (/^(devops|k8s|docker|git)-/.test(n.id)) return 'devops';
           const cat = this.norm(n.category || '');
+          if (String(n.id || '').startsWith('data-') || cat.startsWith('data') || cat.includes('bases de donnees') || cat.includes('database')) return 'data';
           if (/^administration syst/.test(cat)) return 'admin-systeme';
           if (/^devops/.test(cat)) return 'devops';
           return 'admin-reseaux';

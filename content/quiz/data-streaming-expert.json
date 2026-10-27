@@ -1,0 +1,102 @@
+{
+  "node_id": "data-streaming-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans Kafka, où l’ordre des événements est-il garanti par le modèle de base ?",
+      "choices": [
+        "Entre tous les topics et tous les consommateurs",
+        "À l’intérieur d’une partition, selon l’ordre d’écriture",
+        "Entre toutes les partitions d’un topic sans coordination",
+        "Pour tous les événements de plusieurs clusters"
+      ],
+      "answer": 1,
+      "explanation": "L’ordre est maintenu au sein d’une partition. Des événements répartis entre plusieurs partitions n’ont pas d’ordre total automatique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert l’offset d’un consommateur Kafka ?",
+      "choices": [
+        "À chiffrer le contenu des messages",
+        "À définir le nom d’un schéma SQL",
+        "À repérer une position de lecture dans une partition",
+        "À remplacer la clé de partitionnement"
+      ],
+      "answer": 2,
+      "explanation": "L’offset indique la position d’un message dans une partition. La stratégie de commit détermine le point de reprise après interruption."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un consommateur valide son offset avant de finir le traitement métier. Quel risque apparaît ?",
+      "choices": [
+        "Un message peut être considéré comme traité puis perdu pour l’application si le consommateur tombe en panne",
+        "Le cluster réécrit automatiquement les données source",
+        "La rétention devient infinie",
+        "Les messages sont nécessairement traités deux fois"
+      ],
+      "answer": 0,
+      "explanation": "Un commit trop précoce peut faire sauter des événements après une panne. Le bon ordre entre traitement et commit dépend de la sémantique de livraison visée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une application Kafka doit-elle souvent tolérer les doublons ?",
+      "choices": [
+        "Parce que Kafka n’utilise jamais d’offsets",
+        "Parce que les partitions sont supprimées à chaque redémarrage",
+        "Parce que les doublons sont toujours des erreurs réseau impossibles à gérer",
+        "Les reprises après une panne peuvent retraiter un événement si le traitement et l’offset ne sont pas atomiques"
+      ],
+      "answer": 3,
+      "explanation": "Le traitement métier et le commit d’offset ne sont pas automatiquement atomiques ensemble. Idempotence ou déduplication protège les effets externes contre les reprises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue la clé d’un message dans le choix de partition Kafka ?",
+      "choices": [
+        "Elle force l’ordre global sur tout le cluster",
+        "Elle permet généralement de répartir les messages de même clé vers une même partition",
+        "Elle règle la durée de rétention à elle seule",
+        "Elle crée automatiquement une transaction de base de données"
+      ],
+      "answer": 1,
+      "explanation": "Avec le partitionneur habituel, une même clé est routée vers la même partition, ce qui aide à préserver l’ordre par entité. Le comportement exact dépend du partitionneur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre la rétention temporelle et la compaction de topic ?",
+      "choices": [
+        "La rétention ne supprime jamais de messages",
+        "La compaction efface tous les messages immédiatement",
+        "La rétention supprime selon l’âge ou la taille ; la compaction conserve en principe la dernière valeur par clé",
+        "Elles sont identiques dans tous les cas"
+      ],
+      "answer": 2,
+      "explanation": "La politique de rétention limite le volume ou l’âge des segments. La compaction élimine les anciennes versions d’une clé tout en préservant son état le plus récent selon les règles du broker."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qui peut se produire lors d’un rééquilibrage de groupe de consommateurs ?",
+      "choices": [
+        "La réassignation de partitions et une interruption temporaire du traitement pendant la transition",
+        "La conversion automatique du topic en table SQL",
+        "La suppression définitive de tous les offsets",
+        "L’annulation de la réplication des partitions"
+      ],
+      "answer": 0,
+      "explanation": "Un changement du groupe ou de ses membres déclenche une réassignation des partitions. Les stratégies coopératives peuvent réduire l’impact mais ne suppriment pas toute coordination."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un pipeline temporel utilise-t-il parfois des watermarks ?",
+      "choices": [
+        "Pour chiffrer les messages en transit",
+        "Pour supprimer toutes les données en retard dès réception",
+        "Pour imposer un ordre global par numéro de partition",
+        "Pour encadrer l’attente des événements tardifs et permettre la clôture de fenêtres temporelles"
+      ],
+      "answer": 3,
+      "explanation": "Les watermarks expriment une estimation de l’avancement du temps événementiel. Ils aident à arbitrer entre latence et prise en compte des événements tardifs."
+    }
+  ]
+}
