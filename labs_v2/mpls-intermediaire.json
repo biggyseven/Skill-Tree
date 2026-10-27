@@ -1,0 +1,251 @@
+{
+  "schema_version": 2,
+  "id": "mpls-intermediaire",
+  "title": "MPLS — LDP, LSR ID et synchronisation IGP",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Activez MPLS/LDP sur PE1, P1 et PE2. Définissez un LSR ID et une adresse de transport stables, choisissez la distribution de labels attendue et synchronisez la disponibilité LDP avec l’IGP.",
+  "objectives": [
+    "Activer LDP sur les routeurs concernés.",
+    "Utiliser une loopback comme identifiant stable.",
+    "Configurer la distribution de labels.",
+    "Activer la synchronisation LDP/IGP."
+  ],
+  "hints": [
+    "LDP a besoin d’une connectivité IP entre les LSR.",
+    "Un LSR ID stable ne doit pas être une adresse d’interface temporaire.",
+    "La synchronisation IGP évite de router le trafic vers un voisin dont les labels ne sont pas prêts."
+  ],
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-mpls-intermediaire",
+    "metadata": {
+      "name": "MPLS — LDP et transport de labels",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "PE1",
+        "type": "router",
+        "x": 160,
+        "y": 220,
+        "label": "PE1",
+        "model": "PE1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.3.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE1",
+          "routes": [
+            {
+              "protocol": "mpls",
+              "ldp_enabled": false,
+              "lsr_id": "0.0.0.0",
+              "transport_address": "0.0.0.0",
+              "label_advertisement_mode": "ordered",
+              "igp_sync": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "P1",
+        "type": "router",
+        "x": 480,
+        "y": 220,
+        "label": "P1",
+        "model": "P1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.3.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.3.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "P1",
+          "routes": [
+            {
+              "protocol": "mpls",
+              "ldp_enabled": false,
+              "lsr_id": "0.0.0.0",
+              "transport_address": "0.0.0.0",
+              "label_advertisement_mode": "ordered",
+              "igp_sync": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "PE2",
+        "type": "router",
+        "x": 800,
+        "y": 220,
+        "label": "PE2",
+        "model": "PE2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.3.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE2",
+          "routes": [
+            {
+              "protocol": "mpls",
+              "ldp_enabled": false,
+              "lsr_id": "0.0.0.0",
+              "transport_address": "0.0.0.0",
+              "label_advertisement_mode": "ordered",
+              "igp_sync": false
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "PE1-P1",
+        "from": {
+          "node": "PE1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "P1",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "P1-PE2",
+        "from": {
+          "node": "P1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "PE2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "ldp-pe1",
+        "description": "LDP est activé sur PE1.",
+        "device": "PE1",
+        "path": "config.routes[0].ldp_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "lsr-id",
+        "description": "PE1 utilise un LSR ID stable.",
+        "device": "PE1",
+        "path": "config.routes[0].lsr_id",
+        "operator": "equals",
+        "expected": "10.255.0.1"
+      },
+      {
+        "id": "transport",
+        "description": "L’adresse de transport LDP est la loopback.",
+        "device": "PE1",
+        "path": "config.routes[0].transport_address",
+        "operator": "equals",
+        "expected": "10.255.0.1"
+      },
+      {
+        "id": "advertisement",
+        "description": "La distribution de labels utilise downstream unsolicited.",
+        "device": "PE1",
+        "path": "config.routes[0].label_advertisement_mode",
+        "operator": "equals",
+        "expected": "downstream-unsolicited"
+      },
+      {
+        "id": "igp-sync",
+        "description": "LDP/IGP synchronisation est activée.",
+        "device": "PE1",
+        "path": "config.routes[0].igp_sync",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "ldp-p",
+        "description": "LDP est activé sur le routeur de cœur.",
+        "device": "P1",
+        "path": "config.routes[0].ldp_enabled",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
