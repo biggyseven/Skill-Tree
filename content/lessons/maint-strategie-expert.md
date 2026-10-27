@@ -1178,7 +1178,7 @@ Il ne faut pas supposer qu'un phénomène s'applique à tous les actifs. Identif
 
 Une pièce peut avoir un faible coût d'achat et être critique en raison de sa position dans la chaîne. Les défaillances en cascade, les dépendances communes, les utilités partagées, les systèmes de contrôle, l'accès à un site ou une seule source de pièces peuvent dominer le risque d'un portefeuille. Une analyse qui se limite au classement de chaque actif individuellement peut manquer ces dépendances.
 
-Cartographier les fonctions et les services dépendants, les points uniques de défaillance, les redondances réellement indépendantes, les besoins de restauration et les ressources communes. Une redondance n'offre pas la protection attendue si les composants ne partagent pas les mêmes causes de panne, l'alimentation, le réseau, le refroidissement, la commande ou une autre dépendance vulnérable. Une redondance n'offre pas la protection attendue si les deux voies partagent l'alimentation, le refroidissement, le réseau, la commande ou un mode commun de panne.
+Cartographier les fonctions et les services dépendants, les points uniques de défaillance, les redondances réellement indépendantes, les besoins de restauration et les ressources communes. Une redondance peut ne pas offrir la protection attendue si les deux voies partagent une cause de panne commune, par exemple l'alimentation, le réseau, le refroidissement, la commande ou une autre dépendance vulnérable.
 
 ### 23.3 Construire des scénarios de résilience
 
