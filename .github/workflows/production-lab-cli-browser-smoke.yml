@@ -1,0 +1,48 @@
+name: Production Lab CLI browser smoke
+
+on:
+  push:
+    branches:
+      - "test/production-lab-cli-smoke-20261027"
+    paths:
+      - "tests/e2e/specs/production-lab-cli.spec.cjs"
+      - "tests/e2e/production-playwright.config.cjs"
+      - ".github/workflows/production-lab-cli-browser-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-browser:
+    name: Browser verification of 17 production CLI labs (read only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BASE_URL: https://skill-tree-vjon.onrender.com
+    steps:
+      - name: Checkout isolated test branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright test runner
+        run: npm install --prefix tests/e2e --no-audit --no-fund
+
+      - name: Install Chromium
+        run: tests/e2e/node_modules/.bin/playwright install chromium
+
+      - name: Run production browser smoke
+        run: tests/e2e/node_modules/.bin/playwright test --config=tests/e2e/production-playwright.config.cjs
+
+      - name: Upload Playwright diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-lab-cli-browser-diagnostics
+          path: tests/e2e/test-results-production/
+          if-no-files-found: ignore
+          retention-days: 7
