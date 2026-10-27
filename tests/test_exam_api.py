@@ -239,6 +239,43 @@ class ExamApiTests(unittest.TestCase):
         self.assertEqual(profile.status_code, 200, profile.text)
         self.assertEqual(profile.json()["exams_passed"], 1)
 
+    def test_course_exam_accepts_80_percent_even_if_legacy_threshold_is_85(self) -> None:
+        self._unlock_ipv6_exam_prerequisite()
+        with sqlite3.connect(self.database_path) as connection:
+            connection.execute(
+                "UPDATE requirements SET min_score = 85 WHERE node_id = 'ipv6-expert' AND kind = 'exam'"
+            )
+            connection.commit()
+
+        response = self.client.post("/api/exam/start", json={"node_id": "ipv6-expert"})
+        self.assertEqual(response.status_code, 200, response.text)
+        exam = response.json()
+        self.assertEqual(exam["passing_score"], 80)
+        correct_answers = self._answer_key(exam)
+        self.assertEqual(len(correct_answers), 10)
+
+        # Huit bonnes réponses sur dix donnent exactement 80 %.
+        answers = [
+            correct_answers[index] if index < 8 else None
+            for index in range(len(correct_answers))
+        ]
+        submitted = self.client.post(
+            "/api/exam/submit",
+            json={"session_id": exam["id"], "answers": answers},
+        )
+        self.assertEqual(submitted.status_code, 200, submitted.text)
+        result = submitted.json()
+        self.assertEqual(result["score"], 80)
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["pass_score"], 80)
+
+        with sqlite3.connect(self.database_path) as connection:
+            attempt = connection.execute(
+                "SELECT score, passed FROM attempts "
+                "WHERE node_id = 'ipv6-expert' AND kind = 'exam' ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+        self.assertEqual(tuple(attempt), (80, 1))
+
     def test_course_exam_rejects_missing_prerequisites_and_missing_requirement(self) -> None:
         blocked = self.client.post("/api/exam/start", json={"node_id": "ipv6-expert"})
         self.assertEqual(blocked.status_code, 409, blocked.text)
