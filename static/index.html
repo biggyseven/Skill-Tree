@@ -653,7 +653,7 @@
   <aside x-show="!focusMode" class="skill-sidebar hidden h-full flex-col bg-[color:var(--bg)] py-6 transition-all duration-300 md:flex" :class="sidebarCollapsed ? 'w-20 px-2' : 'w-64 px-4'">
     <!-- Logo & Toggle -->
     <div class="flex h-16 shrink-0 items-center mb-6 transition-all" :class="sidebarCollapsed ? 'justify-center' : 'justify-between px-2'">
-      <div class="flex items-center gap-3 cursor-pointer" @click="sidebarCollapsed = false">
+      <div class="flex items-center gap-3" :class="sidebarCollapsed ? 'cursor-pointer rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70' : 'cursor-default'" @click="sidebarCollapsed && setSidebarCollapsed(false)" @keydown.enter.prevent="sidebarCollapsed && setSidebarCollapsed(false)" @keydown.space.prevent="sidebarCollapsed && setSidebarCollapsed(false)" :role="sidebarCollapsed ? 'button' : null" :tabindex="sidebarCollapsed ? 0 : -1" :aria-label="sidebarCollapsed ? 'Développer la barre latérale' : null" :title="sidebarCollapsed ? 'Développer la barre latérale' : null">
         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 shadow-[0_0_20px_-4px_rgba(52,211,153,0.5)]">
           <svg class="h-5 w-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4l12 8-12 8Z"></path><path d="M14 14l6 6"></path></svg>
         </div>
@@ -662,7 +662,7 @@
           <p class="text-[10px] text-zinc-500">Admin Réseau Senior</p>
         </div>
       </div>
-      <button type="button" @click="sidebarCollapsed = !sidebarCollapsed" x-show="!sidebarCollapsed" class="text-zinc-500 hover:text-white transition">
+      <button type="button" @click="toggleSidebarCollapsed()" x-show="!sidebarCollapsed" aria-label="Rétracter la barre latérale" title="Rétracter la barre latérale" class="text-zinc-500 hover:text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 rounded-lg">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"></path></svg>
       </button>
     </div>
@@ -2624,9 +2624,11 @@
             const p = JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}');
             this.compactUi = p.compactUi === true;
             this.reduceMotion = p.reduceMotion === true;
+            this.sidebarCollapsed = p.sidebarCollapsed === true;
           } catch (_) {
             this.compactUi = false;
             this.reduceMotion = false;
+            this.sidebarCollapsed = false;
           }
           this.applySettingsPrefs();
         },
@@ -2636,12 +2638,20 @@
         applySettingsPrefs() {
           document.documentElement.classList.toggle('reduce-motion', !!this.reduceMotion);
         },
+        setSidebarCollapsed(collapsed) {
+          this.sidebarCollapsed = !!collapsed;
+          this.saveSettingsPrefs();
+        },
+        toggleSidebarCollapsed() {
+          this.setSidebarCollapsed(!this.sidebarCollapsed);
+        },
         saveSettingsPrefs() {
           this.applySettingsPrefs();
           try {
             localStorage.setItem('skilltree-settings-v1', JSON.stringify({
               compactUi: !!this.compactUi,
               reduceMotion: !!this.reduceMotion,
+              sidebarCollapsed: !!this.sidebarCollapsed,
             }));
           } catch (_) { }
         },
@@ -2651,6 +2661,7 @@
           this.isFullscreen = false;
           this.compactUi = false;
           this.reduceMotion = false;
+          this.sidebarCollapsed = false;
           this.saveUiPrefs();
           this.saveSettingsPrefs();
           if (typeof this.setTheme === 'function') this.setTheme('graphite');
