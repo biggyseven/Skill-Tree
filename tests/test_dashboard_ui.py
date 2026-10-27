@@ -1028,12 +1028,14 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("readingWidth: this.readingWidth", DASHBOARD_HTML)
         self.assertIn("p.readingWidth === 'comfortable' || p.readingWidth === 'wide'", DASHBOARD_HTML)
 
-    def test_course_reader_navigation_uses_explicit_order_and_module_context(self):
+    def test_course_reader_navigation_uses_canonical_catalogue_order_and_module_context(self):
+        self.assertIn("def _configured_node_orders()", API_SOURCE)
+        self.assertIn('"order": configured_orders.get(n.id, n.sort_order)', API_SOURCE)
         self.assertIn('"sort_order": n.sort_order', API_SOURCE)
         start = DASHBOARD_HTML.index("        get lessonSequence()")
         end = DASHBOARD_HTML.index("        async show(nodeId)", start)
         navigation_logic = DASHBOARD_HTML[start:end]
-        self.assertIn("const rawOrder = node.sort_order ?? node.order;", navigation_logic)
+        self.assertIn("const rawOrder = node.order ?? node.sort_order;", navigation_logic)
         self.assertIn("get lessonCurrentIndex()", navigation_logic)
         self.assertIn("get lessonNeighbors()", navigation_logic)
         self.assertIn('aria-label="Navigation entre les leçons"', DASHBOARD_HTML)

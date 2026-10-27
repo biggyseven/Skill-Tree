@@ -3514,7 +3514,7 @@
           const nodes = Array.isArray(this.nodes) ? this.nodes : [];
           return nodes
             .map((node, index) => {
-              const rawOrder = node.sort_order ?? node.order;
+              const rawOrder = node.order ?? node.sort_order;
               const order = rawOrder === null || rawOrder === undefined || rawOrder === '' ? Number.NaN : Number(rawOrder);
               return { node, index, order };
             })
