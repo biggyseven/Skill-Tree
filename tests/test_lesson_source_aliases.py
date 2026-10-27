@@ -41,16 +41,24 @@ class LessonSourceAliasTests(unittest.TestCase):
             if isinstance(node.get("lesson_source_id"), str)
         }
         expected = {
-            "maint-communication-debutant": "maint-glossaire-debutant",
-            "maint-securite-base-debutant": "maint-securite-bases-debutant",
-            "maint-procedures-intermediaire": "maint-procedure-intermediaire",
-            "maint-reporting-incident-intermediaire": "maint-reporting-technique-intermediaire",
+            "maint-audit-expert": "maint-audits-expert",
+            "maint-glossaire-debutant": "maint-communication-debutant",
+            "maint-bases-debutant": "maint-fondamentaux-debutant",
+            "maint-vendor-expert": "maint-fournisseurs-expert",
+            "maint-tickets-debutant": "maint-helpdesk-debutant",
+            "maint-maintenance-predictive-expert": "maint-predictive-expert",
+            "maint-procedure-intermediaire": "maint-procedures-intermediaire",
+            "maint-reporting-technique-intermediaire": "maint-reporting-incident-intermediaire",
+            "maint-retour-experience-expert": "maint-retex-expert",
+            "maint-securite-bases-debutant": "maint-securite-base-debutant",
         }
         self.assertEqual({k: aliases.get(k) for k in expected}, expected)
-        for source_id in expected.values():
-            source = lessons_dir / f"{source_id}.md"
-            self.assertTrue(source.is_file(), f"Leçon canonique absente : {source_id}")
-            self.assertGreater(len(source.read_text(encoding="utf-8").strip()), 1000, source_id)
+        for canonical_id in expected.values():
+            source = lessons_dir / f"{canonical_id}.md"
+            self.assertTrue(source.is_file(), f"Leçon canonique absente : {canonical_id}")
+            content = source.read_text(encoding="utf-8").strip()
+            self.assertGreater(len(content), 1000, canonical_id)
+            self.assertNotIn("[Contenu à rédiger]", content, canonical_id)
 
 
 if __name__ == "__main__":
