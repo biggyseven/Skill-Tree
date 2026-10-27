@@ -7537,7 +7537,7 @@
     "title": "Fondamentaux de la maintenance informatique — Débutant",
     "category": "Fondamentaux",
     "order": 4308,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Comprendre le cycle de maintenance, les rôles, les priorités et la traçabilité d’une intervention informatique.",
     "prereqs": [],
     "requirements": [
       {
@@ -7603,7 +7603,7 @@
     "title": "Fondamentaux du Helpdesk et support utilisateur — Débutant",
     "category": "Helpdesk",
     "order": 4312,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Qualifier une demande, ouvrir un ticket exploitable, assurer le suivi et confirmer la résolution avec l’utilisateur.",
     "prereqs": [
       "maint-fondamentaux-debutant"
     ],
@@ -7620,7 +7620,7 @@
     "title": "Communication avec les utilisateurs — Débutant",
     "category": "Communication",
     "order": 4313,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Communiquer clairement et avec empathie pendant une intervention, y compris lorsque l’utilisateur est stressé ou non technique.",
     "prereqs": [
       "maint-helpdesk-debutant"
     ],
@@ -7654,7 +7654,7 @@
     "title": "Sécurité informatique de base pour le support — Débutant",
     "category": "Sécurité base",
     "order": 4315,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Appliquer les règles essentielles de confidentialité, de contrôle d’accès, de sauvegarde et de sécurité pendant le support.",
     "prereqs": [
       "maint-fondamentaux-debutant",
       "maint-os-debutant"
@@ -7671,7 +7671,7 @@
     "module": "Maintenance & Reporting",
     "title": "Supervision et monitoring des services — Intermédiaire",
     "category": "Monitoring",
-    "order": 4316,
+    "order": 4317,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-outils-diagnostic-debutant",
@@ -7689,7 +7689,7 @@
     "module": "Maintenance & Reporting",
     "title": "Sauvegarde et restauration — Intermédiaire",
     "category": "Sauvegarde",
-    "order": 4317,
+    "order": 4318,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-os-debutant"
@@ -7706,9 +7706,10 @@
     "module": "Maintenance & Reporting",
     "title": "Maintenance préventive — Intermédiaire",
     "category": "Préventive",
-    "order": 4318,
+    "order": 4319,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
+      "maint-preventive-debutant",
       "maint-hardware-debutant",
       "maint-os-debutant"
     ],
@@ -7724,7 +7725,7 @@
     "module": "Maintenance & Reporting",
     "title": "Gestion du parc informatique — Intermédiaire",
     "category": "Gestion parc",
-    "order": 4319,
+    "order": 4320,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-hardware-debutant",
@@ -7742,8 +7743,8 @@
     "module": "Maintenance & Reporting",
     "title": "Procédures d’exploitation et de maintenance — Intermédiaire",
     "category": "Procédures",
-    "order": 4320,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "order": 4321,
+    "description": "Concevoir, tester, faire approuver et maintenir des procédures et checklists reproductibles.",
     "prereqs": [
       "maint-documentation-debutant"
     ],
@@ -7759,7 +7760,7 @@
     "module": "Maintenance & Reporting",
     "title": "Gestion des escalades du support — Intermédiaire",
     "category": "Escalade",
-    "order": 4321,
+    "order": 4322,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-helpdesk-debutant",
@@ -7777,7 +7778,7 @@
     "module": "Maintenance & Reporting",
     "title": "ITIL et gestion des services IT — Intermédiaire",
     "category": "ITIL",
-    "order": 4322,
+    "order": 4323,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-helpdesk-debutant",
@@ -7795,7 +7796,7 @@
     "module": "Maintenance & Reporting",
     "title": "Analyse des causes racines (RCA) — Intermédiaire",
     "category": "RCA",
-    "order": 4323,
+    "order": 4324,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-outils-diagnostic-debutant",
@@ -7813,7 +7814,7 @@
     "module": "Maintenance & Reporting",
     "title": "SLA, SLO et gestion des engagements — Intermédiaire",
     "category": "SLA",
-    "order": 4324,
+    "order": 4325,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-itil-intermediaire"
@@ -7830,8 +7831,8 @@
     "module": "Maintenance & Reporting",
     "title": "Reporting des incidents — Intermédiaire",
     "category": "Reporting incident",
-    "order": 4325,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "order": 4326,
+    "description": "Produire un reporting d’incident factuel reliant chronologie, impact, diagnostic, résolution et actions de suivi.",
     "prereqs": [
       "maint-escalade-intermediaire",
       "maint-documentation-debutant"
@@ -7848,7 +7849,7 @@
     "module": "Maintenance & Reporting",
     "title": "Reporting mensuel de maintenance — Intermédiaire",
     "category": "Reporting mensuel",
-    "order": 4326,
+    "order": 4327,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-monitoring-intermediaire",
@@ -7866,7 +7867,7 @@
     "module": "Maintenance & Reporting",
     "title": "Automatisation des tâches de maintenance — Intermédiaire",
     "category": "Automatisation",
-    "order": 4327,
+    "order": 4328,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-os-debutant",
@@ -7884,8 +7885,8 @@
     "module": "Maintenance & Reporting",
     "title": "Maintenance prédictive et analyse de tendances — Expert",
     "category": "Prédictive",
-    "order": 4328,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "order": 4329,
+    "description": "Structurer une démarche prédictive à partir des mesures, tendances, seuils, historiques de panne et limites des modèles.",
     "prereqs": [
       "maint-monitoring-intermediaire",
       "maint-automatisation-intermediaire"
@@ -7902,8 +7903,8 @@
     "module": "Maintenance & Reporting",
     "title": "Audits techniques et conformité — Expert",
     "category": "Audits",
-    "order": 4329,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "order": 4330,
+    "description": "Évaluer la conformité, l’efficacité des contrôles et la maîtrise des risques à partir de critères, d’échantillons et de preuves vérifiables.",
     "prereqs": [
       "maint-procedures-intermediaire",
       "maint-securite-base-debutant"
@@ -7920,7 +7921,7 @@
     "module": "Maintenance & Reporting",
     "title": "Conception et pilotage des KPI de maintenance — Expert",
     "category": "KPI",
-    "order": 4330,
+    "order": 4331,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-reporting-mensuel-intermediaire",
@@ -7938,7 +7939,7 @@
     "module": "Maintenance & Reporting",
     "title": "Capitalisation du savoir et knowledge management — Expert",
     "category": "Capitalisation",
-    "order": 4331,
+    "order": 4332,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-documentation-debutant",
@@ -7956,7 +7957,7 @@
     "module": "Maintenance & Reporting",
     "title": "Gestion de crise et continuité de service — Expert",
     "category": "Gestion crise",
-    "order": 4332,
+    "order": 4333,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-monitoring-intermediaire",
@@ -7975,7 +7976,7 @@
     "module": "Maintenance & Reporting",
     "title": "Rédaction et analyse des appels d’offres IT — Expert",
     "category": "Appels d’offres",
-    "order": 4333,
+    "order": 4334,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-audits-expert",
@@ -7993,8 +7994,8 @@
     "module": "Maintenance & Reporting",
     "title": "Gestion des fournisseurs et contrats IT — Expert",
     "category": "Fournisseurs",
-    "order": 4334,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "order": 4335,
+    "description": "Évaluer la qualité d’une prestation, les engagements contractuels, les SLA, les risques tiers et les plans d’amélioration.",
     "prereqs": [
       "maint-appels-offres-expert",
       "maint-sla-intermediaire"
@@ -8011,7 +8012,7 @@
     "module": "Maintenance & Reporting",
     "title": "Management d’une équipe support et maintenance — Expert",
     "category": "Management",
-    "order": 4335,
+    "order": 4336,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-escalade-intermediaire",
@@ -8029,7 +8030,7 @@
     "module": "Maintenance & Reporting",
     "title": "Budget et maîtrise des coûts de maintenance IT — Expert",
     "category": "Budget",
-    "order": 4336,
+    "order": 4337,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-kpi-expert",
@@ -8047,7 +8048,7 @@
     "module": "Maintenance & Reporting",
     "title": "Transformation et modernisation du support IT — Expert",
     "category": "Transformation",
-    "order": 4337,
+    "order": 4338,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-automatisation-intermediaire",
@@ -8065,7 +8066,7 @@
     "module": "Maintenance & Reporting",
     "title": "Stratégie de maintenance et gouvernance IT — Expert",
     "category": "Stratégie",
-    "order": 4338,
+    "order": 4339,
     "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
     "prereqs": [
       "maint-audits-expert",
@@ -8084,8 +8085,8 @@
     "module": "Maintenance & Reporting",
     "title": "RETEX et amélioration continue — Expert",
     "category": "RETEX",
-    "order": 4339,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "order": 4340,
+    "description": "Animer un retour d’expérience sans recherche de blâme, puis convertir les enseignements en actions suivies et mesurables.",
     "prereqs": [
       "maint-rca-intermediaire",
       "maint-gestion-crise-expert",
@@ -8095,6 +8096,23 @@
       {
         "kind": "quiz",
         "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "maint-preventive-debutant",
+    "module": "Maintenance & Reporting",
+    "title": "Introduction à la maintenance préventive — Débutant",
+    "category": "Préventive",
+    "order": 4316,
+    "description": "Reconnaître les opérations préventives de base, choisir une périodicité, documenter l’exécution et appliquer les règles de sécurité.",
+    "prereqs": [
+      "maint-fondamentaux-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
       }
     ]
   }
