@@ -23,7 +23,7 @@
     "schema_version": 2,
     "topology_id": "topo-cli-ntp-syslog",
     "metadata": {
-      "name": "CLI — Synchronisation NTP et collecte Syslog",
+      "name": "NTP et Syslog centralisés",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -32,9 +32,9 @@
       {
         "id": "R1",
         "type": "router",
-        "model": "generic-router",
-        "x": 180,
-        "y": 300,
+        "model": "generic-1841",
+        "x": 200,
+        "y": 260,
         "label": "R1",
         "ports": [
           {
@@ -42,14 +42,15 @@
             "name": "Gi0/0",
             "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "192.0.2.1",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Interface de gestion",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -59,16 +60,17 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "up",
+            "state": "down",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
             "description": "",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -91,6 +93,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -103,8 +106,8 @@
         "id": "SW1",
         "type": "switch",
         "model": "generic-2960",
-        "x": 520,
-        "y": 300,
+        "x": 510,
+        "y": 260,
         "label": "SW1",
         "ports": [
           {
@@ -112,14 +115,35 @@
             "name": "Fa0/1",
             "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Serveur NTP",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Collecteur Syslog",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -131,14 +155,15 @@
             "name": "Fa0/24",
             "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Vers R1",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -161,6 +186,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -170,26 +196,27 @@
         }
       },
       {
-        "id": "PC1",
-        "type": "pc",
-        "model": "generic-pc",
-        "x": 850,
-        "y": 90,
-        "label": "PC1",
+        "id": "NTP",
+        "type": "server",
+        "model": "generic-server",
+        "x": 820,
+        "y": 120,
+        "label": "Serveur NTP",
         "ports": [
           {
             "id": "eth0",
             "name": "eth0",
             "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "192.0.2.123",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Source de temps de référence",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -198,7 +225,7 @@
           }
         ],
         "config": {
-          "hostname": "PC1",
+          "hostname": "NTP",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -212,6 +239,60 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SYSLOG",
+        "type": "server",
+        "model": "generic-server",
+        "x": 820,
+        "y": 400,
+        "label": "Collecteur Syslog",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": "192.0.2.50",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Collecteur central de journaux",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SYSLOG",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -238,13 +319,28 @@
         "latency_ms": 1
       },
       {
-        "id": "L-SW1-PC1",
+        "id": "L-SW1-NTP",
         "from": {
           "node": "SW1",
           "port": "Fa0/1"
         },
         "to": {
-          "node": "PC1",
+          "node": "NTP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-SW1-SYSLOG",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "SYSLOG",
           "port": "eth0"
         },
         "cable_type": "copper_straight",
