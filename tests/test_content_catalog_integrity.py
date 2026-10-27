@@ -15,7 +15,15 @@ class PedagogicalCatalogIntegrityTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.nodes = json.loads((CONTENT / "nodes.json").read_text(encoding="utf-8"))
         cls.node_by_id = {node["id"]: node for node in cls.nodes}
-        cls.lesson_paths = {path.stem: path for path in (CONTENT / "lessons").glob("*.md")}
+        all_lesson_paths = {path.stem: path for path in (CONTENT / "lessons").glob("*.md")}
+        cls.empty_lesson_paths = {
+            lesson_id: path for lesson_id, path in all_lesson_paths.items()
+            if not path.read_text(encoding="utf-8").strip()
+        }
+        cls.lesson_paths = {
+            lesson_id: path for lesson_id, path in all_lesson_paths.items()
+            if path.read_text(encoding="utf-8").strip()
+        }
         cls.quiz_paths = {path.stem: path for path in (CONTENT / "quiz").glob("*.json")}
 
     def test_node_ids_are_unique_and_prerequisites_resolve(self) -> None:
@@ -42,6 +50,15 @@ class PedagogicalCatalogIntegrityTests(unittest.TestCase):
             self.assertEqual(data.get("node_id"), quiz_id, f"{path.name}: node_id incohérent.")
             self.assertIsInstance(data.get("questions"), list, f"{path.name}: questions absentes.")
             self.assertGreater(len(data["questions"]), 0, f"{path.name}: aucune question.")
+
+    def test_empty_lesson_stubs_are_not_attached_to_catalogued_nodes(self) -> None:
+        node_ids = set(self.node_by_id)
+        empty_catalogued_lessons = sorted(set(self.empty_lesson_paths) & node_ids)
+        self.assertEqual(
+            empty_catalogued_lessons,
+            [],
+            f"Leçons vides déjà référencées dans le catalogue : {empty_catalogued_lessons}",
+        )
 
     def test_tracks_that_have_three_levels_are_cumulative(self) -> None:
         groups: dict[str, set[str]] = {}
