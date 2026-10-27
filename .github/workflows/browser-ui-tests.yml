@@ -61,6 +61,20 @@ jobs:
       - name: Run browser UI regression suite
         run: npm --prefix tests/e2e test
 
+      - name: Run read-only visual smoke test against production
+        env:
+          TARGET_URL: https://skill-tree-vjon.onrender.com
+        run: node tests/e2e/production-visual-check.cjs
+
+      - name: Upload production visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-visual-evidence
+          path: tests/e2e/test-results/production-visual/
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Upload Playwright diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
