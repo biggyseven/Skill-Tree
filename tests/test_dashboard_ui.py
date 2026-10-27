@@ -105,7 +105,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("new Intl.Segmenter('fr', { granularity: 'sentence' })", DASHBOARD_HTML)
         self.assertIn("quelle intonation adopter", DASHBOARD_HTML)
         self.assertIn("Le blanc entre paragraphes devient une pause", DASHBOARD_HTML)
-        self.assertIn("Le groupe ne se réinitialise qu’en cas de longueur", DASHBOARD_HTML)
+        self.assertIn("Le groupe ne se réinitialise qu'en cas de longueur", DASHBOARD_HTML)
         self.assertIn("appendSentence(group)", DASHBOARD_HTML)
         self.assertIn("Lecture naturelle des cours, schémas textuels et tableaux ligne par ligne", DASHBOARD_HTML)
 
