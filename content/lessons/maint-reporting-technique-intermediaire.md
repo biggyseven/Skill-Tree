@@ -248,3 +248,26 @@ Rédige un rapport sur un incident fictif affectant deux sites, avec une chronol
 
 - Atlassian, Incident Management Handbook : https://wac-cdn.atlassian.com/dam/jcr%3Af79066c7-2877-4b1d-8779-bb0af946b59a/Atlassian-incident-management-handbook-.pdf?cdnVersion=2756
 - Atlassian, métriques de gestion des incidents et définitions de MTTR/MTTA/MTBF : https://www.atlassian.com/incident-management/kpis/common-metrics
+
+
+## 17. Réviser et diffuser le rapport
+
+Le rapport doit avoir un statut : brouillon, en revue, validé ou remplacé. Précise son propriétaire et conserve les liens vers les preuves d'origine. Les changements de chiffres après publication doivent être traçables : quelle donnée a été corrigée, pourquoi, qui a validé et quelle version remplace l'ancienne.
+
+Avant diffusion, vérifie les heures, le périmètre, les doublons, les conclusions causales, les actions ouvertes et les données sensibles. Fais relire le rapport par une personne qui connaît la technique et, lorsque l'impact métier est important, par le propriétaire du service. L'expertise technique peut confirmer un symptôme sans être en mesure de valider seule les conséquences commerciales.
+
+~~~mermaid
+flowchart LR
+    A[Brouillon et preuves] --> B[Revue technique]
+    B --> C[Revue métier si nécessaire]
+    C --> D{Données et conclusions validées ?}
+    D -->|Non| E[Corriger et documenter l'écart]
+    E --> B
+    D -->|Oui| F[Version approuvée]
+    F --> G[Diffusion selon audience]
+    G --> H[Actions liées et suivi]
+~~~
+
+Une annexe doit être suffisante pour reproduire l'interprétation : sources, commandes ou méthodes autorisées, filtres, versions, unités et limites. Elle ne doit pas exposer de secret ni d'extrait de journal plus large que nécessaire. Si les données sont sensibles, le résumé peut être diffusé plus largement tandis que l'annexe est restreinte aux équipes autorisées.
+
+Le rapport technique et la post-mortem doivent être retrouvables par identifiant d'incident, service, période et version. Les liens vers les tickets, changements et actions permettent à l'équipe du mois suivant de vérifier que les conclusions ont bien été suivies. Un document difficile à retrouver est rarement utilisé pour prévenir le prochain incident.
