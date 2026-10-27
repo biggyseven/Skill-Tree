@@ -6,6 +6,8 @@ on:
       - feature/lab-workspace
     paths:
       - .github/workflows/production-lab-persistence-smoke.yml
+      - labs_v2/**
+      - app/lab_routes.py
   workflow_dispatch:
 
 permissions:
@@ -37,6 +39,51 @@ jobs:
               time.sleep(5)
           else:
               raise SystemExit(f"Production API unavailable: {last_error}")
+          PY
+
+      - name: Verify the Linux intermediate lab is exposed with a playable v2 topology
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          import urllib.error
+          import urllib.request
+
+          base = "https://skill-tree-vjon.onrender.com"
+          path = "/api/lab/v2/reseau-linux-intermediaire"
+          last_error = "scenario not yet deployed"
+          for _ in range(36):
+              try:
+                  with urllib.request.urlopen(base + path, timeout=25) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  topology = payload.get("initial_topology") or {}
+                  definition = payload.get("definition") or {}
+                  rules = (definition.get("check") or {}).get("rules") or []
+                  if (
+                      payload.get("id") == "reseau-linux-intermediaire"
+                      and payload.get("sandbox") is not True
+                      and len(topology.get("nodes") or []) >= 5
+                      and len(topology.get("links") or []) >= 4
+                      and len(rules) >= 9
+                  ):
+                      print("PRODUCTION_LINUX_LAB=available")
+                      print("EQUIPMENT_COUNT=" + str(len(topology["nodes"])))
+                      print("CABLE_COUNT=" + str(len(topology["links"])))
+                      print("AUTOMATED_RULE_COUNT=" + str(len(rules)))
+                      break
+                  last_error = "API response lacks the expected playable v2 topology"
+              except urllib.error.HTTPError as error:
+                  detail = error.read().decode("utf-8", errors="replace")
+                  last_error = f"HTTP {error.code}: {detail[:400]}"
+              except Exception as error:
+                  last_error = str(error)
+              time.sleep(5)
+          else:
+              raise SystemExit(
+                  "Production Linux scenario did not become available after deployment: "
+                  + last_error
+              )
           PY
 
       - name: Save and reload a uniquely named production smoke topology
