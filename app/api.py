@@ -155,17 +155,65 @@ async def lifespan(_app: FastAPI):
         conn.close()
     yield
 
+from urllib.parse import urlsplit
+
 from fastapi.middleware.cors import CORSMiddleware
+
+
+def _cors_origins_from_environment(value: str | None = None) -> list[str]:
+    """Charge une liste stricte d'origines CORS; une configuration vide reste same-origin."""
+    raw = os.environ.get("SKILLTREE_CORS_ORIGINS", "") if value is None else value
+    origins: list[str] = []
+    for raw_origin in raw.split(","):
+        origin = raw_origin.strip().rstrip("/")
+        if not origin:
+            continue
+        if origin == "*":
+            raise ValueError("SKILLTREE_CORS_ORIGINS interdit l'origine générique '*'.")
+        parsed = urlsplit(origin)
+        try:
+            parsed.port
+        except ValueError as error:
+            raise ValueError("Origine CORS invalide dans SKILLTREE_CORS_ORIGINS.") from error
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError(
+                "SKILLTREE_CORS_ORIGINS doit contenir uniquement des origines HTTP(S) explicites."
+            )
+        origins.append(origin)
+    return list(dict.fromkeys(origins))
+
 
 app = FastAPI(title="Skilltree API", lifespan=lifespan)
 
+# Le frontend est servi depuis la même origine. Les intégrations cross-origin
+# doivent être explicitement déclarées dans SKILLTREE_CORS_ORIGINS.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_cors_origins_from_environment(),
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
 )
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    """Ajoute des en-têtes de défense en profondeur sans casser le frontend actuel."""
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), geolocation=(), payment=()")
+    return response
+
 
 # Lab Workspace v2 : nouvelles routes séparées des endpoints legacy.
 app.include_router(lab_v2_router, prefix="/api")
@@ -923,8 +971,24 @@ def read_diagnostic(diag_id: str) -> dict:
 # ROUTES DOCKER & LABS (Legacy)
 # ---------------------------------------------------------
 
+def _require_legacy_docker_labs_enabled() -> None:
+    """Refuse les anciens labs shell tant qu'un opérateur ne les active pas explicitement."""
+    enabled = os.environ.get("SKILLTREE_ENABLE_LEGACY_DOCKER_LABS", "").strip().lower()
+    if enabled not in {"1", "true", "yes", "on"}:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Les anciens laboratoires Docker sont désactivés par défaut pour des raisons "
+                "de sécurité. Utilise Lab Workspace v2. L'option "
+                "SKILLTREE_ENABLE_LEGACY_DOCKER_LABS ne doit être activée que dans un "
+                "environnement de développement de confiance."
+            ),
+        )
+
+
 @app.post("/api/lab/start")
 def start_lab(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    _require_legacy_docker_labs_enabled()
     node_id = payload.get("node_id")
     try:
         node = tree.playable(node_id)
@@ -946,11 +1010,13 @@ def start_lab(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) ->
 
 @app.post("/api/lab/exec")
 def exec_lab(payload: dict = Body(...)) -> dict:
+    _require_legacy_docker_labs_enabled()
     result = exec_in_lab(payload.get("lab_id"), payload.get("command"))
     return {"success": True, "stdout": result.stdout, "stderr": result.stderr, "exit_code": result.exit_code}
 
 @app.post("/api/lab/validate")
 def validate_lab_route(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    _require_legacy_docker_labs_enabled()
     lab_id = payload.get("lab_id")
     if not lab_id: raise HTTPException(400, "lab_id manquant")
     try:
