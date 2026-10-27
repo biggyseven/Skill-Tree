@@ -150,3 +150,13 @@ test('les nouveaux types de câbles gardent leur identité dans la topologie', (
   assert.equal(topology.links.length, 1);
   assert.equal(topology.links[0].cable_type, 'fiber_singlemode');
 });
+
+
+test('les nouveaux câbles conservent un type distinct dans la topologie', () => {
+  useLabStore.getState().loadLab('lab-test', { title: 'Lab de test' }, makeTopology());
+  const cables = [['ethernet_cat6a','ethernet_cat6a'],['ethernet_cat8','ethernet_cat8'],['cable_poe','copper_poe'],['fiber_gpon','fiber_gpon'],['fiber_armored','fiber_armored'],['fiber_lc_patch','fiber_lc_patch'],['console_usb_c','console_usb_c'],['serial_rs232','serial_rs232'],['dac_qsfp','dac_qsfp']];
+  for (const [paletteId, storedType] of cables) {
+    useLabStore.getState().addLink({ source: 'R1', target: 'R2', sourceHandle: 'Fa0/0::source', targetHandle: 'Fa0/0::target' }, paletteId);
+    assert.equal(useLabStore.getState().topology.links.at(-1).cable_type, storedType, paletteId);
+  }
+});
