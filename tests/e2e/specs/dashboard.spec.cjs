@@ -594,21 +594,19 @@ Poste de secours</code></pre>
 
   expect(narration).toContain('Tableau : Ports réseau.');
   expect(narration).toContain('Les colonnes présentent un élément de référence');
-  expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
-  expect(narration).toContain('l’usage indiqué est « Web chiffré »');
-  expect(narration).toContain('Pour DNS, le port utilisé est 53');
-  expect(narration).toContain('l’usage indiqué est « Résolution de noms »');
+  expect(narration).toContain('Le protocole HTTPS utilise le port 443 pour la navigation Web chiffrée.');
+  expect(narration).toContain('Le protocole DNS utilise le port 53. Il sert à la résolution de noms.');
   expect(narration).toContain('Ce tableau associe chaque protocole au port réseau qu’il utilise et à l’usage correspondant.');
   expect(narration).toContain('La différence importante est que HTTP sert à la navigation Web non chiffrée, tandis que HTTPS protège les échanges. Les ports associés sont respectivement 80 et 443.');
   expect(narration).toContain('Le flux d’information va de « Client » vers « Serveur ».');
   expect(narration).toContain('Le flux d’information va de « Serveur » vers « Base de données ».');
   expect(narration).not.toContain('Une liaison va du bloc « Client » vers le bloc « Serveur »');
-  expect(narration).toContain('Le bloc « Client » envoie « requête HTTPS » au bloc « API ».');
-  expect(narration).toContain('Le bloc « API » envoie « requête SQL » au bloc « Base de données ».');
+  expect(narration).toContain('Le bloc « Client » envoie la requête HTTPS au bloc « API ».');
+  expect(narration).toContain('Le bloc « API » envoie la requête SQL au bloc « Base de données ».');
   expect(narration).toContain('En résumé, le flux suit ce parcours : « Client », puis « API », puis « Base de données ».');
   expect(narration).toContain('Tableau textuel.');
-  expect(narration).toContain('Pour HTTP, le port utilisé est 80');
-  expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
+  expect(narration).toContain('Le protocole HTTP utilise le port 80 pour la navigation Web non chiffrée.');
+  expect(narration).toContain('Le protocole HTTPS utilise le port 443 pour la navigation Web chiffrée.');
   expect(narration).toContain('Le bloc « Client » communique avec le bloc « API » en utilisant HTTPS.');
   expect(narration).toContain('Une liaison va du bloc « API » vers le bloc « Base de données »');
   expect(narration).toContain('Le flux d’information va de « Poste de travail » vers « Routeur ».');
@@ -643,8 +641,8 @@ Poste de secours</code></pre>
       bullets: state.splitSpeechText('Premier élément\n\nDeuxième élément.', 1800),
     };
   });
-  expect(eloquenceChecks.polished).toContain('Dans ce cours, nous allons découvrir Comprendre D N S et H T T P S.');
-  expect(eloquenceChecks.polished).toContain('Commençons par Cycle de requête.');
+  expect(eloquenceChecks.polished).toContain('Bienvenue dans ce cours consacré à « Comprendre D N S et H T T P S ».');
+  expect(eloquenceChecks.polished).toContain('Commençons par la partie « Cycle de requête ».');
   expect(eloquenceChecks.polished).toContain('la requête H T T P S à l’A P I');
   expect(eloquenceChecks.polished).toContain('192 point 168 point 1 point 1');
   expect(eloquenceChecks.polished).toContain('75 pour cent');
