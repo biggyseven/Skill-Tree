@@ -242,16 +242,43 @@ def _answer_matches(pattern: str, answer: str, *, terminal: bool = False) -> boo
 # ROUTES DE BASE
 # ---------------------------------------------------------
 
+@lru_cache(maxsize=1)
+def _configured_lesson_sources() -> dict[str, str]:
+    """Retourne les identifiants de leçon canoniques déclarés dans nodes.json."""
+    path = CONTENT_DIR / "nodes.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(payload, list):
+        return {}
+
+    sources: dict[str, str] = {}
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        node_id = item.get("id")
+        source_id = item.get("lesson_source_id")
+        if isinstance(node_id, str) and node_id and isinstance(source_id, str) and source_id:
+            sources[node_id] = source_id
+    return sources
+
+
 @app.get("/api/node/{node_id}/lesson", response_class=PlainTextResponse)
 def read_lesson(node_id: str, tree: SkillTree = Depends(get_tree)):
     node = _get_node(tree, node_id)
+    source_id = _configured_lesson_sources().get(node.id, node.id)
     try:
         lessons = load_lessons(CONTENT_DIR, {item.id for item in tree.nodes()})
-        content = lessons.get(node.id, "")
+        content = lessons.get(source_id, "")
     except ContentError as e:
         print(f"Avertissement Loader : {e}")
-        file_path = CONTENT_DIR / "lessons" / f"{node_id}.md"
-        content = file_path.read_text(encoding="utf-8") if file_path.exists() else ""
+        file_path = CONTENT_DIR / "lessons" / f"{source_id}.md"
+        content = file_path.read_text(encoding="utf-8").strip() if file_path.exists() else ""
+
+    # Une leçon réutilisée garde le contenu canonique mais affiche le titre du nœud demandé.
+    if content and source_id != node.id:
+        content = re.sub(r"(?m)^# .+$", f"# {node.title}", content, count=1)
 
     return PlainTextResponse(content, media_type="text/markdown; charset=utf-8")
 

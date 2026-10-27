@@ -7695,7 +7695,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-glossaire-debutant"
   },
   {
     "id": "maint-documentation-debutant",
@@ -7746,7 +7747,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-securite-bases-debutant"
   },
   {
     "id": "maint-monitoring-intermediaire",
@@ -7848,7 +7850,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-procedure-intermediaire"
   },
   {
     "id": "maint-escalade-intermediaire",
@@ -7950,7 +7953,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-reporting-technique-intermediaire"
   },
   {
     "id": "maint-reporting-mensuel-intermediaire",
