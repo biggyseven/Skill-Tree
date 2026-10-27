@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Maintenance matérielle (PC, serveurs, baies) » ?",
+      "prompt": "Un poste ne montre aucun voyant et ne réagit pas au bouton de démarrage. Quel est le meilleur premier contrôle ?",
       "choices": [
-        "Le sujet principal du cours : Maintenance matérielle (PC, serveurs, baies)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Vérifier les éléments externes autorisés : prise, câble, interrupteur et onduleur",
+        "Remplacer immédiatement la carte mère",
+        "Ouvrir le bloc d'alimentation",
+        "Réinstaller le système d'exploitation"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Les vérifications externes, sûres et autorisées sont prioritaires. L'absence de voyant ne permet pas à elle seule d'identifier la pièce en panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il vérifier la référence exacte avant de commander une barrette de mémoire ?",
+      "choices": [
+        "La couleur du dissipateur détermine toujours la compatibilité",
+        "La compatibilité dépend du type de mémoire et des exigences de la plateforme",
+        "Toutes les générations de mémoire utilisent le même connecteur",
+        "Une barrette plus rapide est toujours compatible"
+      ],
+      "answer": 1,
+      "explanation": "La génération, le format, les caractéristiques et les configurations validées dépendent de la carte mère et du modèle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de manipuler une carte ou une barrette de mémoire, quelle précaution est adaptée ?",
+      "choices": [
+        "Toucher les contacts pour vérifier leur température",
+        "Laisser le système sous tension pour conserver les paramètres",
+        "Respecter la procédure d'arrêt et les précautions contre les décharges électrostatiques",
+        "Poser le composant sur n'importe quelle surface"
+      ],
+      "answer": 2,
+      "explanation": "Il faut suivre les consignes du fabricant, isoler les sources d'énergie prévues par la procédure et utiliser une protection antistatique adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un test mémoire ne signale aucune erreur. Que peut-on conclure ?",
+      "choices": [
+        "La mémoire ne pourra jamais provoquer de problème",
+        "Le système entier est nécessairement sain",
+        "Il faut remplacer la mémoire par précaution",
+        "Aucune erreur n'a été détectée pendant ce test, mais d'autres causes restent possibles"
+      ],
+      "answer": 3,
+      "explanation": "Le résultat est limité à l'outil, aux conditions et à la durée du test. Il faut le recouper avec les symptômes et les autres indices."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un disque présente des alertes de défaillance et contient des données importantes. Quelle priorité adopter ?",
+      "choices": [
+        "Préserver les données et suivre la procédure de sauvegarde ou de récupération approuvée",
+        "Exécuter plusieurs tests lourds sans évaluer le risque",
+        "Redémarrer jusqu'à disparition de l'alerte",
+        "Formater le disque avant toute vérification"
+      ],
+      "answer": 0,
+      "explanation": "Les manipulations répétées peuvent aggraver certains défauts. La priorité est d'évaluer le risque pour les données et d'appliquer une stratégie approuvée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un serveur dispose d'un ensemble RAID. Quelle affirmation est correcte ?",
+      "choices": [
+        "Le RAID protège contre toutes les suppressions accidentelles",
+        "Le RAID peut tolérer certaines pannes de disque selon le niveau, mais ne remplace pas une sauvegarde",
+        "Le RAID garantit qu'aucune donnée ne sera corrompue",
+        "Le RAID élimine le besoin de surveiller les disques"
+      ],
+      "answer": 1,
+      "explanation": "Le RAID vise notamment la disponibilité ou la tolérance à certaines pannes. Les suppressions, corruptions, sinistres ou compromissions nécessitent d'autres protections."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le serveur signale qu'une alimentation redondante est défaillante, mais continue de fonctionner. Que faut-il faire ?",
+      "choices": [
+        "Ignorer l'alerte tant que le serveur fonctionne",
+        "Débrancher l'autre alimentation pour vérifier",
+        "Traiter l'alerte selon la procédure, car la redondance est dégradée",
+        "Désactiver la supervision"
+      ],
+      "answer": 2,
+      "explanation": "Le fonctionnement continu peut masquer une perte de redondance. Il faut planifier une intervention contrôlée et respecter la procédure du constructeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une température élevée est observée sur un serveur. Quelle démarche est la plus appropriée ?",
+      "choices": [
+        "Modifier immédiatement les limites thermiques",
+        "Ouvrir le serveur en marche et toucher le ventilateur",
+        "Supposer que le processeur est détruit",
+        "Comparer les mesures aux spécifications et examiner la charge, la ventilation et les alertes"
+      ],
+      "answer": 3,
+      "explanation": "Les seuils sont propres au matériel. La charge, l'environnement, la circulation d'air et les alertes aident à comprendre le symptôme sans intervention dangereuse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand peut-on remplacer à chaud un disque dans un serveur ?",
+      "choices": [
+        "Uniquement si le système, le contrôleur, le châssis et la procédure permettent explicitement cette opération",
+        "Dès qu'un disque possède une poignée",
+        "Sur tous les ordinateurs et serveurs",
+        "À condition que le système ne produise aucun bruit"
+      ],
+      "answer": 0,
+      "explanation": "Le remplacement à chaud dépend de la conception et de la configuration. Il faut suivre les indications du constructeur et vérifier l'état de la grappe avant l'intervention."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après le remplacement autorisé d'un composant, quelle étape permet de clôturer correctement l'intervention ?",
+      "choices": [
+        "Fermer le ticket dès que la machine s'allume",
+        "Vérifier les fonctions concernées et la stabilité attendue, puis consigner les résultats",
+        "Supprimer les alertes sans examiner leur cause",
+        "Ne pas informer le demandeur pour éviter un retour"
+      ],
+      "answer": 1,
+      "explanation": "Un démarrage seul ne prouve pas que le problème initial est résolu. Il faut effectuer des tests adaptés, documenter les pièces et les résultats, puis valider la remise en service."
     }
   ]
 }
