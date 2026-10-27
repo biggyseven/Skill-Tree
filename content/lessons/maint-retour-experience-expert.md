@@ -315,6 +315,55 @@ Produire le RETEX d'un incident critique affectant plusieurs équipes, avec troi
 
 **Correction attendue.** Une solution experte est cohérente, mesurable et gouvernée. Elle ne confond pas une estimation et un résultat confirmé, ne masque pas les coûts ou risques, compare les options dans un cadre commun et prévoit le contrôle de fin. Elle identifie les décisions qui nécessitent une validation spécialisée et laisse une piste compréhensible pour une revue ultérieure.
 
+
+## Modèle RETEX détaillé — chronologie, facteurs et actions vérifiables
+
+Un RETEX utile se construit à partir de sources et de décisions, pas d'un récit reconstruit de mémoire seul. Le facilitateur doit pouvoir relier les affirmations importantes à un ticket, un journal, une mesure, une configuration, une observation ou une déclaration clairement identifiée. La chronologie ne cherche pas à attribuer une faute ; elle explique l'enchaînement et les points où une meilleure information ou une barrière différente aurait limité l'impact.
+
+### Exemple de chronologie de travail
+
+| Heure illustrative | Observation ou décision | Source à confirmer | Question de RETEX |
+|---|---|---|---|
+| 09:02 | Une alerte de latence apparaît | Supervision | L'alerte était-elle routée vers une personne disponible ? |
+| 09:08 | Un ticket est créé avec une priorité moyenne | Outil de tickets | Les règles de priorité reflétaient-elles l'impact métier ? |
+| 09:14 | Une modification est mise en cause | Journal de changement et entretien | Quelles preuves ont rendu cette hypothèse plausible ? |
+| 09:23 | Une action de mitigation commence | Journal d'intervention | Les préconditions et effets de bord étaient-ils compris ? |
+| 09:41 | Le graphique revient à une valeur normale | Supervision | Quelle fonction était effectivement rétablie ? |
+| 10:05 | L'application métier est confirmée disponible | Test métier ou utilisateur | Pourquoi le contrôle métier a-t-il eu lieu plus tard ? |
+
+Ces heures sont un exemple, pas un cas réel. La chronologie définitive doit préciser les fuseaux horaires, les sources, les incertitudes et les événements qui ne peuvent pas être datés précisément. Elle indique aussi les décisions qui ont été révisées à mesure que de nouvelles informations sont apparues.
+
+### Utiliser les techniques causales sans forcer la conclusion
+
+Les cinq pourquoi peuvent aider à explorer une séquence, mais ne doivent pas être appliqués comme un questionnaire mécanique qui aboutit obligatoirement à une unique cause. Le diagramme causes-effet permet de vérifier les dimensions techniques, processus, environnement, données, compétences et coordination. L'analyse des barrières demande quelles protections étaient censées prévenir, détecter, limiter ou permettre de récupérer, et pourquoi elles n'ont pas fonctionné comme prévu. Les arbres de défaillance peuvent être utiles pour des systèmes complexes lorsque les relations logiques sont comprises et étayées.
+
+Pour chaque hypothèse, poser les mêmes questions : quelle preuve la soutient, quelle preuve la contredit, quelles autres causes expliqueraient le même symptôme, quelles informations manquent et quelle action permettrait de réduire le risque même si la cause exacte reste incertaine ? Un rapport peut donc conclure qu'une alerting insuffisante a amplifié l'impact alors que le déclencheur technique n'est pas encore confirmé. Cette conclusion reste utile si le contrôle d'alerte est bien démontré et si l'action est validée.
+
+### Distinguer actions immédiates, correctives et systémiques
+
+| Type d'action | Finalité | Exemple | Vérification |
+|---|---|---|---|
+| Contention | Limiter immédiatement l'impact | Isoler une dépendance compromise | Risque de propagation réduit |
+| Correction locale | Rétablir le cas précis | Restaurer une configuration validée | Tests du service et contrôle d'intégrité |
+| Action corrective | Traiter la cause d'un écart | Ajouter une validation automatisée avant déploiement | Test de non-régression et revue d'échantillon |
+| Action systémique | Réduire une classe de risque | Modifier le modèle de changement partagé par plusieurs équipes | Audit de déploiement et mesure sur période |
+| Apprentissage | Transférer ce qui est réutilisable | Article de diagnostic validé, formation ou simulation | Test par une personne non impliquée |
+
+Les actions doivent éviter les formulations non vérifiables. « Améliorer la surveillance » doit devenir un changement observable : métrique collectée, seuil, routage, propriétaire, test de notification et contrôle de la couverture. « Améliorer la communication » doit préciser audience, canal, cadence et champs de situation qui seront transmis.
+
+### Vérification d'efficacité et gouvernance des actions
+
+Un tableau de suivi inclut identifiant, facteur concerné, type d'action, propriétaire, priorité, échéance, état, preuve de réalisation, critère d'efficacité, date de test et risque résiduel. La personne qui met en œuvre l'action ne doit pas être la seule à déclarer son efficacité lorsque la criticité justifie une vérification indépendante. Les retards doivent déclencher une discussion sur les causes, les ressources et le risque plutôt qu'une simple relance périodique.
+
+Le critère d'efficacité dépend de l'action. Une nouvelle alerte peut être testée par un événement synthétique ; une procédure par un exercice réalisé par un autre technicien ; un changement d'architecture par une mesure de récurrence ou de couverture ; une formation par une démonstration d'autonomie. L'absence d'incident pendant deux jours peut être un signal faible si l'événement est rare. Définir une période cohérente avec la fréquence et le risque du phénomène.
+
+### Transformer un RETEX en connaissance réutilisable
+
+Le RETEX complet peut contenir des détails qui ne doivent pas être partagés largement. Préparer une version de synthèse qui retire les données personnelles, secrets, identifiants sensibles et pièces inutiles. La leçon partagée comprend le contexte, le symptôme, les conditions d'applicabilité, les indices qui permettent de distinguer les causes, les actions validées, les limites et les liens vers les procédures. Elle est ensuite relue par un expert et associée à un propriétaire de contenu.
+
+La boucle est achevée lorsque la leçon a été appliquée : le runbook a changé, la formation a été faite, le contrôle a été déployé, le risque est réévalué et l'efficacité mesurée. Le dépôt d'un PDF dans un répertoire ne prouve ni que les équipes l'ont trouvé ni qu'une pratique a évolué. Une revue transversale des RETEX recherche les thèmes répétés pour décider des investissements qui dépassent un seul incident ou une seule équipe.
+
+
 ## Ressources techniques et références
 
 - [Google SRE — Postmortem Culture: Learning from Failure](https://sre.google/sre-book/postmortem-culture/)
