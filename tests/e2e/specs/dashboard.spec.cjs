@@ -1286,3 +1286,48 @@ test('le guide explique les ports bleus et gris et affiche le nom du port physiq
   await expect(guide).toContainText('Maintiens le clic sur le point bleu');
 });
 
+test('la connexion restaure la destination demandée après validation du mot de passe', async ({ page }) => {
+  await page.route('**/api/auth/status', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ required: true, configured: true, authenticated: false }),
+  }));
+  await page.route('**/api/auth/login', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ success: true, required: true, authenticated: true }),
+  }));
+
+  await page.goto('/login.html?next=%2F%3FopenTab%3Dlabs');
+  await page.getByLabel("Mot de passe de l'application").fill('mot-de-passe-de-test');
+  await page.getByRole('button', { name: 'Se connecter' }).click();
+
+  await expect.poll(() => page.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.tab || '';
+  }), { timeout: 30_000 }).toBe('labs');
+});
+
+test('recliquer sur l’onglet actif conserve la position de défilement', async ({ page }) => {
+  await openDashboard(page);
+
+  const mainScroll = page.locator('[x-ref="mainScroll"]');
+  const activeTab = page
+    .getByRole('navigation', { name: 'Navigation principale' })
+    .locator('button[aria-current="page"]')
+    .first();
+
+  await mainScroll.evaluate(element => {
+    element.scrollTop = Math.min(420, element.scrollHeight - element.clientHeight);
+  });
+  const before = await mainScroll.evaluate(element => element.scrollTop);
+  expect(before).toBeGreaterThan(0);
+
+  await activeTab.click();
+  await page.waitForTimeout(150);
+
+  const after = await mainScroll.evaluate(element => element.scrollTop);
+  expect(after).toBeGreaterThan(0);
+  expect(after).toBe(before);
+});
+
