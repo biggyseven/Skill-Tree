@@ -6,7 +6,7 @@
   "module": "Routage",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Activez OSPF processus 10, définissez le router-id 1.1.1.1 et annoncez 10.10.0.0/24 dans l’area 0. Les contrôles vérifient les données OSPF stockées.",
+  "prompt": "Contexte : R1 doit rejoindre le processus OSPF 10 avec le router-id 1.1.1.1 et annoncer 10.10.0.0/24 dans l’area 0. Configurez ces trois éléments dans le bon mode CLI, en utilisant le wildcard 0.0.0.255 pour le préfixe /24. Ce laboratoire vérifie la configuration OSPF locale ; il ne simule pas à lui seul l’établissement d’une adjacence avec un voisin.",
   "objectives": [
     "Exécuter puis vérifier : router ospf 10",
     "Exécuter puis vérifier : router-id 1.1.1.1",
@@ -14,8 +14,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; router ospf 10 ; router-id 1.1.1.1 ; network 10.10.0.0 0.0.0.255 area 0 ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : le processus OSPF se configure en mode global avec router ospf 10.",
+    "Indice 2 : définissez le router-id puis annoncez le réseau avec son wildcard et l’area 0. N’utilisez pas le masque /24 à la place du wildcard dans la commande network.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; router ospf 10 ; router-id 1.1.1.1 ; network 10.10.0.0 0.0.0.255 area 0 ; end.",
+    "La validation vérifie l’activation d’OSPF, le router-id et l’annonce structurée du réseau dans l’area 0."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -38,7 +40,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -57,7 +59,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -108,7 +110,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -127,7 +129,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -178,7 +180,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -283,7 +285,7 @@
     "rules": [
       {
         "id": "ospf_enabled",
-        "description": "Contrôle serveur : ospf enabled doit être conforme.",
+        "description": "Le processus OSPF 10 est activé sur R1.",
         "device": "R1",
         "path": "config.ospf.enabled",
         "operator": "equals",
@@ -291,7 +293,7 @@
       },
       {
         "id": "ospf_router_id",
-        "description": "Contrôle serveur : ospf router id doit être conforme.",
+        "description": "Le router-id OSPF de R1 est 1.1.1.1.",
         "device": "R1",
         "path": "config.ospf.router_id",
         "operator": "equals",
@@ -299,7 +301,7 @@
       },
       {
         "id": "ospf_area_network",
-        "description": "Contrôle serveur : ospf area network doit être conforme.",
+        "description": "Le réseau 10.10.0.0/24 est associé à l’area 0.",
         "device": "R1",
         "path": "config.ospf.areas",
         "operator": "contains",
