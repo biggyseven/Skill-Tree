@@ -320,6 +320,38 @@ Présenter un dossier d'investissement sur cinq ans pour remplacer une famille d
 
 **Correction attendue.** Une solution experte est cohérente, mesurable et gouvernée. Elle ne confond pas une estimation et un résultat confirmé, ne masque pas les coûts ou risques, compare les options dans un cadre commun et prévoit le contrôle de fin. Elle identifie les décisions qui nécessitent une validation spécialisée et laisse une piste compréhensible pour une revue ultérieure.
 
+
+## Exemple financier détaillé — arbitrage d'un projet d'automatisation
+
+Le dossier financier doit rendre les hypothèses lisibles. Considérons un projet fictif d'automatisation des contrôles de maintenance avec un investissement initial de 40 000 unités monétaires. Le projet prévoit 24 000 unités d'économies de trésorerie par an, mais exige 6 000 unités de coûts récurrents supplémentaires. Le bénéfice net annuel attendu est donc de 18 000 unités, si les économies sont réellement réalisables et si tous les coûts récurrents pertinents sont inclus.
+
+Sur trois ans, les bénéfices nets non actualisés totalisent 54 000 unités. Le ROI simple défini comme (bénéfices nets cumulés − investissement initial) / investissement initial donne (54 000 − 40 000) / 40 000 = 35 %. Le délai de récupération simple est 40 000 / 18 000, soit environ 2,22 ans, si les flux sont uniformes et si les économies commencent immédiatement. Ces chiffres ne prennent pas en compte la valeur temporelle de l'argent, les variations de calendrier ni un éventuel coût de sortie.
+
+Avec un taux d'actualisation illustratif de 8 % et trois flux de 18 000 à la fin de chaque année, la VAN est approximativement : 18 000/1,08 + 18 000/1,08² + 18 000/1,08³ − 40 000, soit environ 6 400 unités positives. Le taux utilisé doit provenir des règles de financement ou de l'analyse approuvée ; il ne faut pas choisir un taux après calcul dans le but de rendre la VAN positive.
+
+### Tester la robustesse du business case
+
+| Scénario | Bénéfice net annuel estimé | Durée | Lecture de la décision |
+|---|---:|---:|---|
+| Bas | 10 000 | 3 ans | Flux total de 30 000 avant actualisation ; le projet ne récupère pas les 40 000 d'investissement dans l'horizon |
+| Central | 18 000 | 3 ans | Flux total de 54 000 avant actualisation, avec ROI simple de 35 % |
+| Haut | 23 000 | 3 ans | Flux total de 69 000 avant actualisation ; la valeur augmente, mais les hypothèses doivent être justifiées |
+
+Ce tableau ne constitue pas une prévision. Il montre que la décision est sensible à la réalisation des économies. Le propriétaire des bénéfices doit expliquer d'où vient l'économie annuelle, quel contrat ou poste budgétaire peut réellement baisser, quand cet effet apparaît et quelles tâches seront réaffectées. Si les 24 000 unités correspondent essentiellement à des heures libérées, le bénéfice de trésorerie doit être recalculé et la capacité libérée décrite séparément.
+
+### Budget opérationnel de maintenance
+
+Le budget opérationnel doit être accompagné d'un profil temporel. Les dépenses de pièces peuvent dépendre des délais et de la saisonnalité ; un projet de remplacement requiert un financement avant que les économies se matérialisent ; un contrat annuel peut facturer une prestation avant les mesures de bénéfice. Le phasage évite que le budget global paraisse équilibré alors que la trésorerie et les ressources sont insuffisantes dans les premiers mois.
+
+Chaque ligne importante porte sa source, quantité, prix unitaire, hypothèse de croissance, propriétaire, niveau de confiance, engagement, calendrier et risque associé. Les variations sont analysées séparément : effet prix, effet volume, effet de calendrier, changement de périmètre et dérive de l'estimation. Une provision pour risque doit être associée à un événement et à des règles de consommation. Elle ne sert pas à compenser des estimations délibérément basses.
+
+### Règles de décision et suivi après investissement
+
+Avant d'approuver, décider les conditions qui entraîneraient un report, une étape pilote ou l'arrêt. Pour une automatisation, un critère peut exiger un taux d'erreur inférieur à un seuil et une traçabilité complète avant de réduire le contrôle manuel. Pour un remplacement, la décision peut dépendre de la disponibilité des pièces, de la réussite des tests de migration et de la capacité à maintenir le service pendant la transition.
+
+Après mise en œuvre, suivre les flux réalisés et les bénéfices selon la même définition. Si les coûts sont au-dessus du budget ou les économies inférieures, expliquer les causes, prévoir les conséquences sur la VAN et choisir une action : corriger le périmètre, renégocier, suspendre une vague ou accepter un nouvel état de bénéfice. L'équipe ne doit pas réécrire le business case initial sans conserver son historique, car la direction doit pouvoir comprendre ce qui a changé.
+
+
 ## Ressources techniques et références
 
 - [HM Treasury — The Green Book (édition 2026)](https://www.gov.uk/government/publications/the-green-book--2)
