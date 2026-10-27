@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger un reporting mensuel » ?",
+      "prompt": "Que doit contenir le dictionnaire d'un KPI ?",
       "choices": [
-        "Le sujet principal du cours : Rédiger un reporting mensuel",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Une couleur et un nom",
+        "Une définition, formule, périmètre, source, fréquence et propriétaire",
+        "Une capture d'écran uniquement",
+        "Un chiffre sans unité"
+      ],
+      "answer": 1,
+      "explanation": "La définition stable permet des comparaisons reproductibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi contrôler la qualité des données avant le reporting ?",
+      "choices": [
+        "Pour rendre le rapport plus long",
+        "Pour exclure les résultats défavorables",
+        "Pour éviter que doublons, dates manquantes ou périmètres incohérents faussent les conclusions",
+        "Pour se passer de sources"
+      ],
+      "answer": 2,
+      "explanation": "Les données brutes doivent être contrôlées avant interprétation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment comparer deux mois ayant des volumes d'activité différents ?",
+      "choices": [
+        "Comparer seulement les nombres bruts",
+        "Masquer le mois le plus chargé",
+        "Changer les définitions au milieu de la série",
+        "Utiliser des taux appropriés et tenir compte du périmètre et du calendrier"
+      ],
+      "answer": 3,
+      "explanation": "Les taux et l'analyse de contexte évitent les conclusions dues à un changement de volume."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un backlog vieillissant alors que le stock est stable ?",
+      "choices": [
+        "Des tickets anciens peuvent rester bloqués même si de nouveaux sont fermés",
+        "Le processus est nécessairement excellent",
+        "Tous les SLA sont respectés",
+        "Il faut supprimer les anciens dossiers"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le stock seul masque l'âge et les blocages."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi annoter un graphique avec les changements majeurs ?",
+      "choices": [
+        "Pour décorer le rapport",
+        "Pour distinguer les effets plausibles d'événements connus des variations sans contexte",
+        "Pour remplacer l'historique",
+        "Pour cacher les anomalies"
+      ],
+      "answer": 1,
+      "explanation": "Les annotations relient les tendances aux événements à examiner."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un MTTR plus faible garantit-il à lui seul un meilleur service ?",
+      "choices": [
+        "Oui, quelles que soient les réouvertures",
+        "Oui si le graphique est vert",
+        "Non, il faut aussi vérifier la définition, les réouvertures et la qualité du rétablissement",
+        "Non, le temps de résolution n'a jamais d'intérêt"
+      ],
+      "answer": 2,
+      "explanation": "Un KPI isolé peut créer des effets pervers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire d'une prévision construite sur peu de données ?",
+      "choices": [
+        "La présenter comme une certitude",
+        "Cacher les hypothèses",
+        "Ne jamais la réviser",
+        "Expliquer l'incertitude et l'utiliser comme signal, pas comme vérité"
+      ],
+      "answer": 3,
+      "explanation": "La précision d'une projection dépend des données et hypothèses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le plan d'action mensuel ?",
+      "choices": [
+        "À assigner responsables, échéances et mesures de succès pour traiter les écarts",
+        "À recopier le mois précédent sans mise à jour",
+        "À fermer tous les tickets",
+        "À remplacer l'analyse des données"
+      ],
+      "answer": 0,
+      "explanation": "Le reporting doit conduire à un suivi concret."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi versionner les formules de calcul ?",
+      "choices": [
+        "Pour permettre une variation invisible",
+        "Pour savoir quand la définition a changé et préserver la comparabilité",
+        "Pour empêcher l'audit",
+        "Pour supprimer les anciennes mesures"
+      ],
+      "answer": 1,
+      "explanation": "Une rupture de calcul doit être explicite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle lecture complète un indicateur technique ?",
+      "choices": [
+        "Le nombre de couleurs du tableau",
+        "Le titre du graphique uniquement",
+        "La qualité des données, l'impact métier, la tendance et les actions en cours",
+        "La taille du fichier exporté"
+      ],
+      "answer": 2,
+      "explanation": "La mesure doit éclairer une décision opérationnelle."
     }
   ]
 }
