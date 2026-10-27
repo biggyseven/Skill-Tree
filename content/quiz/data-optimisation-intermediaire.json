@@ -1,0 +1,66 @@
+{
+  "node_id": "data-optimisation-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une requête filtre sur un statut qui concerne 95 % des lignes. Pourquoi l'optimiseur peut-il choisir un scan séquentiel malgré un index ?",
+      "choices": [
+        "Un index ne peut jamais être utilisé sur une colonne de statut",
+        "Le scan est toujours préféré pour les requêtes SQL",
+        "Lire une grande part de la table via l'index peut coûter plus cher que de parcourir les pages séquentiellement",
+        "L'index rend les données non cohérentes"
+      ],
+      "answer": 2,
+      "explanation": "L'index aide surtout lorsqu'il réduit suffisamment les lignes à lire. Quand la plupart des lignes correspondent, les accès indirects et les lectures de pages peuvent coûter plus cher qu'un parcours séquentiel ; le plan doit être évalué avec le volume réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le plan estime 100 lignes pour un filtre, mais en retourne 50 000. Quelle est la première démarche utile ?",
+      "choices": [
+        "Identifier la première étape où l'estimation diverge, puis examiner statistiques, distribution et paramètres",
+        "Ajouter systématiquement un index sur toutes les colonnes",
+        "Augmenter immédiatement la mémoire du serveur",
+        "Forcer un ordre de jointure sans autre analyse"
+      ],
+      "answer": 0,
+      "explanation": "Une forte divergence de cardinalité peut entraîner de mauvais choix en aval. Il faut localiser la première estimation erronée, vérifier les statistiques et les distributions, puis tester une correction ciblée plutôt que de modifier plusieurs paramètres à la fois."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel point est particulièrement important lors de la conception d'un index composé B-tree ?",
+      "choices": [
+        "Il doit inclure toutes les colonnes de toutes les tables",
+        "L'ordre des colonnes doit correspondre aux filtres, égalités, plages et tris réellement utilisés",
+        "La première colonne doit toujours être le champ texte le plus long",
+        "Les index composés ne consomment aucun espace supplémentaire"
+      ],
+      "answer": 1,
+      "explanation": "L'ordre de clé influence les préfixes utilisables par le moteur et les requêtes qui peuvent tirer parti de l'index. Il faut concevoir à partir des requêtes réelles et mesurer le compromis entre lectures, écritures et taille."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester les écritures après avoir ajouté un index conçu pour accélérer une recherche ?",
+      "choices": [
+        "Parce que les index changent toujours la logique du résultat",
+        "Parce qu'un index interdit les transactions",
+        "Parce que les statistiques de la table ne peuvent plus être mises à jour",
+        "Parce que les insertions, modifications et suppressions doivent aussi entretenir l'index, ce qui peut augmenter leur coût"
+      ],
+      "answer": 3,
+      "explanation": "Un index occupe de l'espace et doit être maintenu lorsque les données pertinentes changent. Le bénéfice sur une requête de lecture doit être évalué face au coût d'écriture, à la maintenance et aux autres opérations du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle comparaison constitue la meilleure preuve d'une optimisation réussie ?",
+      "choices": [
+        "Une seule exécution plus rapide sur un jeu minuscule",
+        "Un résultat correct et des mesures avant/après reproductibles, avec contexte et effets sur les autres opérations",
+        "Le fait que le plan comporte le mot Index",
+        "Un gain de latence moyenne sans vérifier la correction du résultat"
+      ],
+      "answer": 1,
+      "explanation": "Une optimisation doit préserver la sémantique et être mesurée dans un contexte comparable. Il faut inclure les paramètres, la distribution des données, la concurrence, les ressources et le coût des écritures afin de vérifier que le gain est réel et soutenable."
+    }
+  ]
+}
