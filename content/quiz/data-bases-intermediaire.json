@@ -1,0 +1,102 @@
+{
+  "node_id": "data-bases-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Deux sessions réservent la dernière place en lisant d'abord le compteur puis en l'incrémentant. Quelle protection est la plus adaptée ?",
+      "choices": [
+        "Se fier à la validation de formulaire du navigateur",
+        "Mettre la condition de capacité dans une opération atomique et vérifier les lignes affectées",
+        "Ajouter un index sur toutes les colonnes",
+        "Relancer systématiquement toute requête sans limite"
+      ],
+      "answer": 1,
+      "explanation": "La condition doit être vérifiée dans l'écriture atomique ou protégée par un mécanisme transactionnel adapté. Le nombre de lignes affectées indique si la réservation a obtenu la place."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une migration ajoute une colonne obligatoire à une table très volumineuse. Quelle approche réduit généralement le risque de compatibilité ?",
+      "choices": [
+        "Supprimer l'ancienne table avant de migrer",
+        "Changer simultanément toutes les applications et la structure sans test",
+        "Ajouter une structure compatible, remplir par lots, vérifier puis appliquer la contrainte finale",
+        "Désactiver durablement les contraintes"
+      ],
+      "answer": 2,
+      "explanation": "L'approche par phases préserve la compatibilité avec les anciennes versions, permet un backfill contrôlé et retarde la contrainte jusqu'à ce que les données soient conformes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le résultat zéro ligne modifiée après une mise à jour conditionnelle ?",
+      "choices": [
+        "La transaction a forcément réussi intégralement",
+        "Le moteur a perdu la table",
+        "La requête doit être répétée sans lire l'état",
+        "La précondition peut ne plus être vraie ou la cible peut être absente, et le cas doit être interprété"
+      ],
+      "answer": 3,
+      "explanation": "Le nombre de lignes affectées fait partie du contrat. L'application doit distinguer conflit, absence de cible et réussite plutôt que supposer qu'une absence d'exception prouve le succès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une contrainte unique métier reste-t-elle utile avec un identifiant technique ?",
+      "choices": [
+        "Parce qu'elle empêche les doublons logiques que l'identifiant technique n'interdit pas",
+        "Parce qu'elle remplace toutes les clés étrangères",
+        "Parce qu'elle garantit le chiffrement",
+        "Parce qu'elle rend les migrations impossibles"
+      ],
+      "answer": 0,
+      "explanation": "Une clé primaire identifie chaque ligne, mais plusieurs lignes distinctes peuvent représenter le même objet métier. Une contrainte unique exprime l'unicité métier requise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon usage d'un plan d'exécution ?",
+      "choices": [
+        "Prouver que la requête sera toujours rapide dans toutes les charges",
+        "Remplacer les tests de concurrence",
+        "Examiner les chemins d'accès et confronter estimations et mesures sur des données représentatives",
+        "Créer automatiquement un index sur chaque filtre"
+      ],
+      "answer": 2,
+      "explanation": "Le plan aide à expliquer les scans, jointures, tris et estimations. Il doit être rapproché de mesures et du profil de données réel ; il ne garantit pas toutes les latences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un client perd la connexion juste après l'envoi de COMMIT. Quelle hypothèse est correcte ?",
+      "choices": [
+        "La transaction est obligatoirement annulée",
+        "Le résultat est inconnu pour le client et l'opération peut avoir été validée",
+        "Le réplica annule automatiquement l'écriture",
+        "La requête peut être rejouée sans risque dans tous les cas"
+      ],
+      "answer": 1,
+      "explanation": "La validation peut être appliquée alors que la réponse est perdue. Une clé d'idempotence ou une vérification de l'état connu évite qu'une reprise crée une seconde opération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment choisir l'ordre des colonnes d'un index composite ?",
+      "choices": [
+        "Toujours trier les colonnes par ordre alphabétique",
+        "Choisir uniquement la colonne la plus longue",
+        "Copier l'ordre d'un index d'une autre table",
+        "Étudier les filtres, tris, cardinalités et plans des requêtes réelles"
+      ],
+      "answer": 3,
+      "explanation": "L'ordre dépend des accès observés et de la distribution. Il faut mesurer le bénéfice et le coût en écriture, mémoire et maintenance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester une restauration au lieu de vérifier uniquement qu'une sauvegarde existe ?",
+      "choices": [
+        "La restauration peut révéler des dépendances manquantes, des durées excessives ou des données incohérentes",
+        "Une sauvegarde ne contient jamais de données",
+        "Le test remplace les contrôles d'accès",
+        "La restauration est toujours instantanée"
+      ],
+      "answer": 0,
+      "explanation": "Une sauvegarde n'est utile que si elle peut être restaurée dans le délai attendu et si le résultat est fonctionnel. Le test doit vérifier données, dépendances, intégrité et RTO/RPO."
+    }
+  ]
+}
