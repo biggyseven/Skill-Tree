@@ -4,147 +4,267 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quelle mesure inclut acquisition, mise en œuvre, exploitation et sortie sur un horizon défini ?",
+      "prompt": "Quelle définition décrit le mieux un TCO utile pour une décision d'investissement ?",
       "choices": [
-        "TCO",
-        "MTTR",
-        "RPO",
-        "Backlog"
-      ],
-      "answer": 0,
-      "explanation": "Le coût total de possession couvre le cycle de vie défini, pas uniquement le prix initial."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel problème une analyse de sensibilité cherche-t-elle à comprendre ?",
-      "choices": [
-        "La date de signature uniquement",
-        "L'effet des hypothèses incertaines sur le résultat et la décision",
-        "Le nombre de personnes en réunion",
-        "La version d'un document"
+        "Le prix initial seulement",
+        "Les coûts pertinents sur un horizon défini, dont acquisition, transition, exploitation, maintenance et sortie",
+        "Le budget annuel sans coûts futurs",
+        "Le seul coût comptable amorti"
       ],
       "answer": 1,
-      "explanation": "La sensibilité fait ressortir les hypothèses qui peuvent changer le classement ou la rentabilité."
+      "explanation": "Le coût total de possession doit couvrir les postes pertinents sur le cycle de vie et utiliser un horizon et des hypothèses cohérents."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle formule simple du ROI net peut être utilisée si les définitions sont explicites ?",
+      "prompt": "Quelle distinction entre CAPEX/OPEX et flux de trésorerie est correcte ?",
       "choices": [
-        "Investissement / bénéfices × 100",
-        "Bénéfices bruts + temps",
-        "(Bénéfices retenus − coûts retenus) / coûts retenus × 100",
-        "Coûts fixes uniquement"
+        "CAPEX et OPEX indiquent toujours exactement le moment du paiement",
+        "Toute dépense élevée est nécessairement du CAPEX",
+        "La classification comptable et le moment du flux de trésorerie sont des questions distinctes",
+        "Un coût OPEX ne peut jamais être récurrent"
       ],
       "answer": 2,
-      "explanation": "Le ROI dépend d'une définition explicite des coûts et bénéfices inclus."
+      "explanation": "Une dépense d'investissement peut être payée au départ mais affecter le résultat comptable sur plusieurs périodes ; le traitement dépend des règles applicables."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi un ROI positif ne suffit-il pas à décider ?",
+      "prompt": "Un projet coûte 40 000 et produit 52 000 de bénéfices retenus sur l'horizon, sans autre coût dans l'exercice. Quel est son ROI simple cumulé ?",
       "choices": [
-        "Le ROI ne peut pas être calculé",
-        "Toute dépense est forcément acceptable",
-        "Le coût initial est toujours nul",
-        "Risque, délai, coût complet, obligations et options alternatives comptent aussi"
-      ],
-      "answer": 3,
-      "explanation": "Le ROI est une aide à la décision, pas une règle unique."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une équipe gagne 100 heures par mois. Est-ce automatiquement une économie de trésorerie ?",
-      "choices": [
-        "Non, c'est d'abord une capacité libérée à valoriser selon son usage ou les coûts réellement évités",
-        "Oui, toujours",
-        "Oui, si les heures sont documentées",
-        "Non, les heures ne peuvent jamais être valorisées"
+        "30 %",
+        "23 %",
+        "130 %",
+        "12 %"
       ],
       "answer": 0,
-      "explanation": "Un gain de capacité ne devient pas automatiquement une réduction de facture."
+      "explanation": "Le gain net est 52 000 − 40 000 = 12 000 ; ROI = 12 000 / 40 000 = 30 %. Le résultat doit être accompagné de son horizon et du périmètre des coûts et bénéfices."
     },
     {
       "type": "qcm",
-      "prompt": "Que fait une VAN ?",
+      "prompt": "Pourquoi le ROI simple ne suffit-il pas toujours à comparer deux investissements ?",
       "choices": [
-        "Ignore les flux futurs",
-        "Actualise les flux nets futurs selon un taux et un horizon, puis retranche l'investissement initial",
-        "Compte seulement les heures",
-        "Remplace le TCO"
-      ],
-      "answer": 1,
-      "explanation": "La VAN tient compte du calendrier des flux selon les hypothèses retenues."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que faut-il comparer entre deux options de maintenance ?",
-      "choices": [
-        "Seulement le prix catalogue",
-        "Le coût de première année uniquement",
-        "TCO, valeur, risques et horizon commun avec hypothèses explicites",
-        "Les noms des fournisseurs"
-      ],
-      "answer": 2,
-      "explanation": "La comparaison doit inclure les coûts de cycle de vie et les différences de risque."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que doit contenir un suivi budgétaire robuste ?",
-      "choices": [
-        "Uniquement le budget approuvé",
-        "Uniquement les dépenses payées",
-        "Le nombre de projets",
-        "Prévu, engagé, réel, reste à faire, prévision à terminaison et explication des écarts"
+        "Parce qu'il ne peut pas être exprimé en pourcentage",
+        "Parce que le ROI inclut toujours toutes les incertitudes",
+        "Parce que le ROI mesure seulement le nombre de postes comptables",
+        "Parce qu'il ne décrit pas à lui seul le calendrier des flux, leur taille, le risque ni les contraintes de financement"
       ],
       "answer": 3,
-      "explanation": "Une prévision opérationnelle doit être mise à jour à partir de l'exécution réelle."
+      "explanation": "Deux projets peuvent afficher le même ROI simple mais avoir des horizons, des flux et des risques très différents. La VAN et l'analyse des contraintes complètent la comparaison."
     },
     {
       "type": "qcm",
-      "prompt": "Comment éviter un double comptage de bénéfices ?",
+      "prompt": "À quoi sert principalement la valeur actuelle nette (VAN) ?",
       "choices": [
-        "Décomposer les flux et vérifier qu'une même économie n'est pas valorisée dans deux catégories",
-        "Augmenter le taux d'actualisation au hasard",
-        "Compter plusieurs fois les heures libérées",
-        "Supprimer les coûts de transition"
+        "À transformer les flux futurs en valeur à une date commune au moyen d'un taux d'actualisation cohérent",
+        "À supprimer tous les risques du projet",
+        "À remplacer le budget annuel",
+        "À calculer le nombre de personnes dans une équipe"
       ],
       "answer": 0,
-      "explanation": "Le business case doit montrer les catégories et supprimer les recouvrements."
+      "explanation": "La VAN actualise des flux datés. Elle ne démontre pas à elle seule la faisabilité, l'abordabilité ou l'acceptabilité des risques."
     },
     {
       "type": "qcm",
-      "prompt": "Une mise à niveau est obligatoire pour traiter un risque grave mais son ROI direct est faible. Que faire ?",
+      "prompt": "Quelle erreur faut-il éviter lors du choix du taux d'actualisation ?",
       "choices": [
-        "L'écarter automatiquement",
-        "Respecter le processus de risque et d'obligation, puis comparer les options de réalisation",
-        "Falsifier les bénéfices",
-        "Attendre l'incident"
+        "Documenter la source du taux",
+        "Changer le taux après calcul simplement pour faire passer l'option préférée",
+        "Vérifier la cohérence avec la période",
+        "Utiliser des conventions cohérentes entre flux nominaux ou réels et taux"
       ],
       "answer": 1,
-      "explanation": "Les obligations ou risques majeurs ne sont pas décidés sur le seul ROI."
+      "explanation": "Le taux doit venir d'une politique ou méthode applicable, et non être ajusté après coup pour orienter le résultat."
     },
     {
       "type": "qcm",
-      "prompt": "Quand faut-il définir le propriétaire des bénéfices ?",
+      "prompt": "Une automatisation libère 400 heures annuelles, mais aucun coût ni recrutement n'est réduit. Comment présenter ce résultat ?",
       "choices": [
-        "Après la clôture",
-        "Seulement si les bénéfices sont financiers",
-        "Avant l'approbation, avec baseline, formule et date de mesure",
-        "Le propriétaire n'est jamais nécessaire"
+        "Comme une économie de trésorerie certaine",
+        "Comme un revenu supplémentaire déjà encaissé",
+        "Comme une capacité libérée, en identifiant l'usage qui pourrait en transformer une partie en valeur mesurable",
+        "Comme une VAN positive sans autre calcul"
       ],
       "answer": 2,
-      "explanation": "L'attribution préalable permet de mesurer les résultats après livraison."
+      "explanation": "Les heures libérées ne constituent pas automatiquement une économie encaissable. Il faut préciser l'usage de la capacité et mesurer le bénéfice réel."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi utiliser des scénarios bas, central et haut ?",
+      "prompt": "Pourquoi faut-il comparer les options à une situation de référence ?",
       "choices": [
-        "Pour masquer l'incertitude",
-        "Pour garantir que le scénario central sera réalisé",
-        "Pour éviter de documenter les hypothèses",
-        "Pour rendre explicite l'incertitude des coûts, délais et bénéfices"
+        "Pour attribuer à l'investissement tous les bénéfices existants",
+        "Pour ignorer le coût de ne rien faire",
+        "Pour choisir automatiquement l'option la plus chère",
+        "Pour isoler les coûts et bénéfices incrémentaux réellement dus à l'option"
       ],
       "answer": 3,
-      "explanation": "Les scénarios aident à comprendre la robustesse de la décision."
+      "explanation": "Une base de référence permet de mesurer ce qui change grâce à l'investissement et évite d'attribuer des bénéfices qui auraient existé de toute façon."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que révèle une analyse de sensibilité ?",
+      "choices": [
+        "L'effet des hypothèses variables sur le résultat et sur la stabilité de la décision",
+        "Le nom du contrôleur de gestion",
+        "Une garantie que le scénario central se réalisera",
+        "Le nombre de factures d'un fournisseur uniquement"
+      ],
+      "answer": 0,
+      "explanation": "La sensibilité identifie les hypothèses qui influencent le plus la valeur ou le classement et peut faire apparaître des seuils de bascule."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une valeur de bascule dans un business case ?",
+      "choices": [
+        "À masquer les coûts de sortie",
+        "À déterminer la valeur d'une hypothèse à laquelle la recommandation ou le résultat change",
+        "À modifier rétroactivement le budget de base",
+        "À remplacer la mesure des bénéfices"
+      ],
+      "answer": 1,
+      "explanation": "Le seuil de bascule indique à quel niveau de coût, de retard ou de bénéfice l'option cesse de satisfaire le critère retenu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème crée le double comptage des bénéfices ?",
+      "choices": [
+        "Il rend toujours le ROI plus prudent",
+        "Il réduit automatiquement le coût à terminaison",
+        "Il surestime la valeur en comptant deux fois le même effet économique",
+        "Il empêche de mesurer le coût initial"
+      ],
+      "answer": 2,
+      "explanation": "Les bénéfices doivent avoir des mécanismes, des bases de référence et des propriétaires distincts ou une règle de répartition explicite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne approche pour une contingence budgétaire ?",
+      "choices": [
+        "La fixer sans justification à 20 % pour tout projet",
+        "La considérer comme une somme libre de contrôle",
+        "Compter deux fois tous les risques critiques",
+        "La lier aux risques, à la maturité de l'estimation et à des règles d'utilisation documentées"
+      ],
+      "answer": 3,
+      "explanation": "La contingence doit couvrir des incertitudes définies et être gouvernée afin de ne pas doubler les risques déjà inclus dans la base."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un budget est consommé à 90 %, mais seulement 70 % du calendrier est écoulé. Quelle conclusion est correcte ?",
+      "choices": [
+        "Il existe un signal de risque qui demande une prévision à terminaison, sans prouver à lui seul le dépassement final",
+        "Le projet est nécessairement en dépassement de 20 %",
+        "Le projet est forcément rentable",
+        "Il faut réécrire le budget initial immédiatement"
+      ],
+      "answer": 0,
+      "explanation": "Il faut examiner le profil des dépenses, le travail restant, les engagements, le périmètre et les risques avant d'estimer le coût final."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une dépense reportée à l'année suivante mais toujours nécessaire ?",
+      "choices": [
+        "La présenter automatiquement comme une économie définitive",
+        "La montrer comme un décalage de calendrier et l'inclure dans la prévision future",
+        "La supprimer du modèle",
+        "La compter comme un bénéfice encaissé"
+      ],
+      "answer": 1,
+      "explanation": "Un report décale le flux, mais ne réduit pas nécessairement le coût total. La prévision doit refléter la dépense toujours attendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal objectif d'une revue post-investissement ?",
+      "choices": [
+        "Confirmer que le projet a consommé tout le budget",
+        "Remplacer le responsable métier",
+        "Comparer les résultats et bénéfices réels à la base, expliquer les écarts et améliorer les estimations futures",
+        "Modifier les anciennes données pour correspondre au business case"
+      ],
+      "answer": 2,
+      "explanation": "La revue mesure la valeur réellement produite, distingue livraison et bénéfices, et crée des références pour les décisions futures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter un projet nécessaire pour la sécurité mais affichant un ROI financier faible ?",
+      "choices": [
+        "Inventer des économies pour augmenter le ROI",
+        "Ignorer l'obligation parce que la VAN est faible",
+        "Attribuer une valeur monétaire arbitraire à tous les risques",
+        "Documenter la nécessité et comparer les options conformes, les coûts et les risques sans fabriquer de bénéfices"
+      ],
+      "answer": 3,
+      "explanation": "Le ROI financier informe la décision mais ne remplace pas une obligation de sécurité ou de conformité. Il faut choisir parmi les options admissibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle incohérence existe si des flux nominaux qui intègrent l'inflation sont actualisés avec un taux réel ?",
+      "choices": [
+        "Les flux et le taux ne reposent pas sur la même convention monétaire, ce qui peut fausser la VAN",
+        "Le calcul devient toujours exact",
+        "Le budget annuel est automatiquement équilibré",
+        "Le ROI simple devient identique au TRI"
+      ],
+      "answer": 0,
+      "explanation": "Les flux nominaux doivent être cohérents avec un taux nominal, ou les flux en monnaie constante avec un taux réel, selon la méthode retenue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel bénéfice doit être considéré comme confirmé ?",
+      "choices": [
+        "Une promesse commerciale dans la proposition",
+        "Un résultat mesuré selon une méthode définie, comparé à une référence et validé par son propriétaire",
+        "Un objectif inscrit dans un tableau sans mesure",
+        "Une estimation non révisée depuis l'approbation"
+      ],
+      "answer": 1,
+      "explanation": "Un bénéfice doit disposer d'une définition, d'une base, d'une mesure, d'un propriétaire et d'une validation après mise en œuvre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une VAN positive ne suffit-elle pas pour approuver un investissement ?",
+      "choices": [
+        "Parce que la VAN ne peut jamais être positive",
+        "Parce que la VAN mesure seulement les personnes en réunion",
+        "Parce que le projet doit aussi être abordable, faisable, conforme et acceptable en risque",
+        "Parce qu'un budget approuvé n'a jamais de contraintes"
+      ],
+      "answer": 2,
+      "explanation": "La valeur financière est une dimension de décision. Les contraintes de financement, de capacité, de conformité et les risques doivent aussi être évalués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche aide à réduire le biais d'optimisme dans l'estimation des coûts ?",
+      "choices": [
+        "Utiliser seulement le scénario le plus favorable",
+        "Ignorer les coûts des projets précédents",
+        "Augmenter le bénéfice pour compenser l'incertitude",
+        "Comparer les estimations aux coûts réels de projets comparables, documenter les hypothèses et tester des scénarios prudents"
+      ],
+      "answer": 3,
+      "explanation": "L'historique, les hypothèses documentées, les estimations indépendantes et les sensibilités réduisent le risque d'estimations systématiquement trop favorables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être suivi après l'approbation du business case ?",
+      "choices": [
+        "Le coût réel, les engagements, le coût à terminaison, les changements, les risques et les bénéfices",
+        "Uniquement le montant initial de la commande",
+        "Uniquement la date de signature",
+        "Seulement les dépenses de l'année en cours"
+      ],
+      "answer": 0,
+      "explanation": "Le suivi doit couvrir les coûts et les résultats, conserver le budget de base et actualiser la prévision sans effacer les décisions passées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode est la plus pertinente si l'on veut connaître la date à laquelle les flux cumulés compensent l'investissement initial ?",
+      "choices": [
+        "Le taux de disponibilité",
+        "Le délai de récupération, simple ou actualisé selon la question",
+        "Le taux de réouverture des tickets",
+        "Le nombre de postes budgétaires"
+      ],
+      "answer": 1,
+      "explanation": "Le délai de récupération indique quand les flux cumulés compensent l'investissement, mais il doit être complété car il ignore les flux après le seuil."
     }
   ]
 }
