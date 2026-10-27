@@ -29,10 +29,13 @@ export function BriefPanel() {
       )}
 
       {lab.courseLocked === true && (
-        <section role="alert" aria-label="Prérequis du parcours" className="rounded-xl border border-[#f85149]/35 bg-[#f85149]/[0.08] p-4">
-          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#ff7b72]">Laboratoire verrouillé</div>
+        <section role="status" aria-label="Prérequis du parcours" className="rounded-xl border border-[#f85149]/35 bg-[#f85149]/[0.08] p-4">
+          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#ff7b72]">Laboratoire verrouillé — mode entraînement</div>
           <p className="text-xs leading-relaxed text-[#e6edf3]">
-            {lab.courseLockMessage || 'Validez les prérequis du parcours avant de vérifier ou soumettre ce laboratoire.'}
+            {lab.courseLockMessage || 'Validez les prérequis du parcours avant de soumettre ce laboratoire.'}
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-[#cbd5e1]">
+            Vous pouvez configurer le scénario et vérifier les règles en entraînement. La soumission, les XP, les badges et la progression restent bloqués jusqu’à validation des prérequis.
           </p>
         </section>
       )}
@@ -70,6 +73,12 @@ export function BriefPanel() {
           {checkResult.ok === true
             ? 'La tentative a été enregistrée pour la configuration envoyée, mais la topologie a changé pendant le traitement. Vérifiez à nouveau la configuration actuelle.'
             : 'La topologie a changé pendant la vérification. Relancez le contrôle avant de soumettre.'}
+        </div>
+      )}
+
+      {checkResult?.practice_only === true && (
+        <div role="status" className="rounded-lg border border-[#64748b]/35 bg-[#64748b]/[0.08] px-3 py-2 text-xs leading-relaxed text-[#cbd5e1]">
+          Contrôle d’entraînement uniquement : ce score ne valide pas le cours, n’enregistre aucune tentative et n’accorde ni XP ni badge. Validez les prérequis puis revérifiez et soumettez pour enregistrer une réussite.
         </div>
       )}
       {typeof checkResult?.xp_gained === 'number' && (
