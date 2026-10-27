@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -47,6 +48,28 @@ class SecurityBaselineTests(unittest.TestCase):
         self.assertIn('branches: ["feature/lab-workspace"]', publisher)
         self.assertNotIn("pull_request:", publisher)
         self.assertIn("contents: write", publisher)
+
+    def test_legacy_docker_shell_routes_are_disabled_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            database_path = Path(temporary) / "skilltree.sqlite3"
+            with (
+                patch.object(api, "DB_PATH", database_path),
+                patch.dict(os.environ, {"SKILLTREE_ENABLE_LEGACY_DOCKER_LABS": ""}),
+                TestClient(api.app) as client,
+            ):
+                responses = [
+                    client.post("/api/lab/start", json={"node_id": "intro-reseau-debutant"}),
+                    client.post("/api/lab/exec", json={"lab_id": "fake", "command": "id"}),
+                    client.post("/api/lab/validate", json={"lab_id": "fake"}),
+                ]
+
+        for response in responses:
+            self.assertEqual(response.status_code, 503, response.text)
+            self.assertIn("désactivés par défaut", response.json()["detail"])
+
+    def test_legacy_docker_shell_requires_explicit_opt_in(self) -> None:
+        with patch.dict(os.environ, {"SKILLTREE_ENABLE_LEGACY_DOCKER_LABS": "true"}):
+            api._require_legacy_docker_labs_enabled()
 
     def test_unapproved_origin_receives_no_cors_grant_and_security_headers_are_present(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
