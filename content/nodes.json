@@ -8271,5 +8271,309 @@
         "min_score": 85
       }
     ]
+  },
+  {
+    "id": "data-bases-debutant",
+    "module": "Data & Bases de données",
+    "title": "Concepts des bases de données relationnelles — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4340,
+    "description": "Tables, clés, contraintes, transactions et intégrité relationnelle.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-1-debutant",
+    "module": "Data & Bases de données",
+    "title": "Requêtes SQL de base (SELECT, INSERT) — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4341,
+    "description": "Lecture et écriture SQL paramétrées, filtres et opérations sûres.",
+    "prereqs": [
+      "data-bases-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-modelisation-debutant",
+    "module": "Data & Bases de données",
+    "title": "Modélisation et diagrammes (MCD/MLD) — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4342,
+    "description": "Entités, relations, cardinalités et passage du MCD au MLD.",
+    "prereqs": [
+      "data-sql-1-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-2-debutant",
+    "module": "Data & Bases de données",
+    "title": "Jointures et agrégations SQL — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4343,
+    "description": "Jointures, granularité, agrégats, NULL et prévention du double comptage.",
+    "prereqs": [
+      "data-modelisation-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-normalisation-debutant",
+    "module": "Data & Bases de données",
+    "title": "Normalisation (1NF, 2NF, 3NF) — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4344,
+    "description": "Dépendances fonctionnelles, formes normales et décomposition sans perte.",
+    "prereqs": [
+      "data-sql-2-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-pratique-debutant",
+    "module": "Data & Bases de données",
+    "title": "Travaux pratiques (MySQL/PostgreSQL) — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4345,
+    "description": "Laboratoire SQL reproductible, migrations, jeux d'essai et tests.",
+    "prereqs": [
+      "data-normalisation-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-dba-role-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Rôle du DBA et architecture SGBD — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4346,
+    "description": "Architecture, rôles DBA, concurrence, observabilité et haute disponibilité.",
+    "prereqs": [
+      "data-sql-pratique-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-avance-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Sous-requêtes, CTE, Procédures stockées — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4347,
+    "description": "Sous-requêtes, CTE récursives, fenêtres et routines persistantes.",
+    "prereqs": [
+      "data-dba-role-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-optimisation-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Indexation et plans d'exécution — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4348,
+    "description": "Index, EXPLAIN, cardinalités, statistiques et mesure de performance.",
+    "prereqs": [
+      "data-sql-avance-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sauvegarde-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Backup, PITR et restauration — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4349,
+    "description": "RPO/RTO, sauvegardes, journaux, récupération temporelle et tests de reprise.",
+    "prereqs": [
+      "data-optimisation-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-nosql-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Introduction à MongoDB et Redis — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4350,
+    "description": "Modèle documentaire, structures Redis, index, cohérence et cache.",
+    "prereqs": [
+      "data-sauvegarde-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-warehouse-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Entrepôt de données et ETL — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4351,
+    "description": "Modèle en étoile, ETL/ELT, orchestration et contrôles de qualité.",
+    "prereqs": [
+      "data-nosql-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-bigdata-expert",
+    "module": "Data & Bases de données",
+    "title": "Architecture Hadoop et Spark — Expert",
+    "category": "Data & Bases de données",
+    "order": 4352,
+    "description": "Architecture distribuée, stockage, calcul Spark et résilience des traitements.",
+    "prereqs": [
+      "data-warehouse-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-streaming-expert",
+    "module": "Data & Bases de données",
+    "title": "Kafka et traitement en temps réel — Expert",
+    "category": "Data & Bases de données",
+    "order": 4353,
+    "description": "Topics, partitions, offsets, garanties de livraison et pipelines streaming.",
+    "prereqs": [
+      "data-bigdata-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-datalake-expert",
+    "module": "Data & Bases de données",
+    "title": "Data Lakes et Lakehouse — Expert",
+    "category": "Data & Bases de données",
+    "order": 4354,
+    "description": "Stockage objet, formats colonnaires, tables lakehouse et gouvernance multi-moteur.",
+    "prereqs": [
+      "data-streaming-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-securite-expert",
+    "module": "Data & Bases de données",
+    "title": "Chiffrement, RGPD et contrôle d'accès — Expert",
+    "category": "Data & Bases de données",
+    "order": 4355,
+    "description": "Chiffrement, gestion des clés, minimisation, droits et cycle de vie des données.",
+    "prereqs": [
+      "data-datalake-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-gouvernance-expert",
+    "module": "Data & Bases de données",
+    "title": "Qualité, lignage et gouvernance — Expert",
+    "category": "Data & Bases de données",
+    "order": 4356,
+    "description": "Contrats de données, qualité mesurable, catalogue, lignage et responsabilité.",
+    "prereqs": [
+      "data-securite-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-ingestion-expert",
+    "module": "Data & Bases de données",
+    "title": "Pipelines de données complexes — Expert",
+    "category": "Data & Bases de données",
+    "order": 4357,
+    "description": "Orchestration, ingestion incrémentale, idempotence, rejeu et observabilité.",
+    "prereqs": [
+      "data-gouvernance-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   }
 ]
