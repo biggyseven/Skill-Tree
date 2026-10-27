@@ -6,7 +6,7 @@
   "module": "Supervision",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Ajoutez le serveur NTP 192.0.2.123, le collecteur Syslog 192.0.2.50 et le niveau de gravité informational. Les trois éléments sont vérifiés dans l’état structuré.",
+  "prompt": "Contexte : pour corréler les journaux d’incidents, les équipements doivent utiliser une source de temps commune et transmettre leurs événements à un collecteur central. Sur R1, configurez le serveur NTP 192.0.2.123, le collecteur Syslog 192.0.2.50 et le niveau informational. Les adresses appartiennent à un bloc de documentation. L’exercice contrôle les paramètres locaux, pas la disponibilité de services distants.",
   "objectives": [
     "Exécuter puis vérifier : ntp server 192.0.2.123",
     "Exécuter puis vérifier : logging host 192.0.2.50",
@@ -14,8 +14,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; ntp server 192.0.2.123 ; logging host 192.0.2.50 ; logging trap informational ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : NTP et Syslog sont deux services distincts ; la configuration d’un serveur ne configure pas automatiquement l’autre.",
+    "Indice 2 : utilisez logging host pour le collecteur et logging trap informational pour le niveau des événements envoyés.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; ntp server 192.0.2.123 ; logging host 192.0.2.50 ; logging trap informational ; end.",
+    "La validation vérifie les serveurs NTP et Syslog ainsi que le niveau de gravité configuré."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -38,7 +40,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -57,7 +59,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -108,7 +110,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -127,7 +129,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -178,7 +180,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -283,7 +285,7 @@
     "rules": [
       {
         "id": "ntp_server",
-        "description": "Contrôle serveur : ntp server doit être conforme.",
+        "description": "R1 utilise 192.0.2.123 comme serveur NTP.",
         "device": "R1",
         "path": "config.protocols.ntp.servers",
         "operator": "contains",
@@ -291,7 +293,7 @@
       },
       {
         "id": "syslog_host",
-        "description": "Contrôle serveur : syslog host doit être conforme.",
+        "description": "R1 envoie ses journaux au collecteur 192.0.2.50.",
         "device": "R1",
         "path": "config.protocols.syslog.hosts",
         "operator": "contains",
@@ -299,7 +301,7 @@
       },
       {
         "id": "syslog_trap",
-        "description": "Contrôle serveur : syslog trap doit être conforme.",
+        "description": "Le niveau Syslog est configuré sur informational.",
         "device": "R1",
         "path": "config.protocols.syslog.trap_severity",
         "operator": "equals",
