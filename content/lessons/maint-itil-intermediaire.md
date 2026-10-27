@@ -241,3 +241,12 @@ flowchart TD
 Les pratiques ITIL doivent être utilisées comme un langage commun, non comme une obligation d'adopter un formulaire identique pour toutes les situations. Le service doit choisir les contrôles requis et définir qui prend les décisions. Pour un changement simple et répétitif, un modèle préautorisé peut suffire ; pour une modification risquée du réseau central, il faut un examen plus approfondi et une validation de fin.
 
 La connaissance opérationnelle doit se mettre à jour à partir de l'expérience. Une erreur connue, un article d'aide ou une procédure doit être révisé si le contournement cesse de fonctionner, si les versions changent ou si un test révèle une limite. Un processus mature relie les incidents aux problèmes, aux changements et aux connaissances, puis vérifie si les actions ont réduit la récurrence.
+
+
+## 15. Qualification et priorisation des incidents
+
+La priorité doit refléter l'impact et l'urgence selon les critères du service. L'impact décrit l'étendue des activités touchées ; l'urgence exprime le temps disponible avant que la conséquence devienne inacceptable. Les niveaux précis, délais et escalades sont établis par l'organisation. Le vocabulaire commun évite qu'un même incident soit classé différemment selon l'insistance de la personne qui le signale.
+
+Une matrice de priorité n'est utile que si elle guide une action. Pour chaque niveau, indique la communication attendue, le délai de prise en charge, le rôle de coordination, l'obligation d'escalade et les critères de sortie. La gravité peut être réévaluée si le périmètre change, si une solution de contournement disparaît ou si de nouvelles informations sont confirmées.
+
+Les mesures doivent éviter d'encourager le sous-classement. Une équipe ne doit pas réduire artificiellement le nombre d'incidents majeurs pour paraître meilleure. Les revues étudient les exemples, les impacts et la justesse des décisions de priorité, plutôt que le seul nombre dans chaque catégorie.
