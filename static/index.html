@@ -1883,6 +1883,7 @@
           <div class="card-sm text-center"><p class="eyebrow">Diplômes</p><p class="mt-1 font-mono text-2xl text-amber-300" x-text="issuedDiplomas.length"></p></div>
         </div>
         <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-white">🎓 Diplômes</h3>
+        <p x-show="diplomasError" x-cloak class="mb-4 text-sm text-amber-300" role="alert" x-text="diplomasError"></p>
         <div class="mb-8 space-y-4">
           <template x-for="m in modules" :key="m.id">
             <div class="card">
@@ -6076,8 +6077,7 @@
             this.certificationExams = Array.isArray(payload.exams) ? payload.exams : [];
             this.diplomasError = '';
           } catch (error) {
-            this.issuedDiplomas = [];
-            this.certificationExams = [];
+            // Conserve les données serveur déjà chargées lors d'une erreur réseau temporaire.
             this.diplomasError = 'Les diplômes ne peuvent pas être chargés depuis le serveur.';
           }
         },
