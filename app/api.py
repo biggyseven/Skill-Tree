@@ -944,8 +944,24 @@ def read_diagnostic(diag_id: str) -> dict:
 # ROUTES DOCKER & LABS (Legacy)
 # ---------------------------------------------------------
 
+def _require_legacy_docker_labs_enabled() -> None:
+    """Refuse les anciens labs shell tant qu'un opérateur ne les active pas explicitement."""
+    enabled = os.environ.get("SKILLTREE_ENABLE_LEGACY_DOCKER_LABS", "").strip().lower()
+    if enabled not in {"1", "true", "yes", "on"}:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Les anciens laboratoires Docker sont désactivés par défaut pour des raisons "
+                "de sécurité. Utilise Lab Workspace v2. L'option "
+                "SKILLTREE_ENABLE_LEGACY_DOCKER_LABS ne doit être activée que dans un "
+                "environnement de développement de confiance."
+            ),
+        )
+
+
 @app.post("/api/lab/start")
 def start_lab(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    _require_legacy_docker_labs_enabled()
     node_id = payload.get("node_id")
     try:
         node = tree.playable(node_id)
@@ -967,11 +983,13 @@ def start_lab(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) ->
 
 @app.post("/api/lab/exec")
 def exec_lab(payload: dict = Body(...)) -> dict:
+    _require_legacy_docker_labs_enabled()
     result = exec_in_lab(payload.get("lab_id"), payload.get("command"))
     return {"success": True, "stdout": result.stdout, "stderr": result.stderr, "exit_code": result.exit_code}
 
 @app.post("/api/lab/validate")
 def validate_lab_route(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    _require_legacy_docker_labs_enabled()
     lab_id = payload.get("lab_id")
     if not lab_id: raise HTTPException(400, "lab_id manquant")
     try:
