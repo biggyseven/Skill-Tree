@@ -292,14 +292,17 @@ class LabValidationTests(unittest.TestCase):
                 self.assertIsNotNone(payload, f"Aucun scénario v2 ne résout {course['id']}")
                 definition = payload["definition"]
                 self.assertEqual(definition.id, course["id"])
-                self.assertGreaterEqual(len(definition.initial_topology.nodes), 20)
-                self.assertGreaterEqual(len(definition.initial_topology.links), 20)
+                # Les anciens scénarios ont 3 équipements de base + les 16 équipements EXT-*.
+                self.assertGreaterEqual(len(definition.initial_topology.nodes), 19)
+                self.assertGreaterEqual(len(definition.initial_topology.links), 19)
 
         for lab_id in new_scenario_ids:
             with self.subTest(new_lab=lab_id):
                 definition = lab_routes._load_lab_file(lab_id)["definition"]
                 self.assertEqual(definition.check.type, "config_assertions")
                 self.assertGreaterEqual(len(definition.check.rules), 3)
+                self.assertGreaterEqual(len(definition.initial_topology.nodes), 25)
+                self.assertGreaterEqual(len(definition.initial_topology.links), 24)
                 result = lab_routes._evaluate_lab_check(definition, definition.initial_topology)
                 self.assertFalse(result["passed"], "Un scénario neuf ne doit pas réussir avant la configuration.")
                 malformed_paths = [
