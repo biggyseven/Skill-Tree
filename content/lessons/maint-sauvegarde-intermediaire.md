@@ -40,61 +40,79 @@ Les principes directeurs sont les suivants : intervention autorisée, moindre pr
 | Retour arrière | Séquence permettant de retrouver un état stable si les critères de réussite ne sont pas satisfaits. |
 | Récurrence | Réapparition d'un problème similaire après un traitement précédent. |
 
-## Cartographie des processus
+## Schémas adaptés au sujet
 
-### Schéma 1 — chaîne opérationnelle
-
-```mermaid
-flowchart LR
-  A[Signal] --> B[Collecte] --> C[Seuil] --> D[Décision] --> E[Action]
-```
-
-Ce schéma résume la chaîne à observer pour stratégies de sauvegarde (3-2-1). Chaque étape possède une entrée, une sortie et une responsabilité. Si une transition n'est pas visible, la procédure doit prévoir une vérification plutôt que supposer que l'étape précédente a réussi.
-
-### Schéma 2 — cycle de traitement
+### Schéma 1 — Règle 3-2-1
 
 ```mermaid
 flowchart LR
-  A[Préparer] --> B[Exécuter] --> C[Contrôler] --> D[Valider] --> E[Tracer]
+  A[Données actives] --> B[Copie locale]
+  A --> C[Support distinct]
+  A --> D[Copie hors site]
+  D --> E[Accès séparé]
 ```
 
-Le cycle doit être parcouru du début à la fin, sans supprimer la validation ni la trace. Une intervention peut être techniquement terminée alors que son résultat n'est pas encore accepté par le service concerné.
+Les copies doivent survivre à un domaine de panne commun ; plusieurs répertoires sur le même volume ne forment pas une stratégie 3-2-1 robuste.
 
-### Schéma 3 — maîtrise du risque
+### Schéma 2 — Chaîne de protection
 
 ```mermaid
 flowchart LR
-  A[Actif] --> B[Risque] --> C[Contrôle] --> D[Preuve] --> E[Revue]
+  A[Données] --> B[Snapshot cohérent]
+  B --> C[Chiffrement]
+  C --> D[Stockage séparé]
+  D --> E[Vérification]
 ```
 
-La décision finale doit tenir compte du risque et des preuves. Une alerte, une action ou un changement de statut n'est utile que si l'information est assez fiable pour permettre la suite du travail.
+La chaîne inclut cohérence, protection du contenu, séparation et contrôle d'intégrité.
 
-### Schéma 4 — parcours d'une demande
+### Schéma 3 — Choisir un point de reprise
+
+```mermaid
+flowchart TD
+  A[Incident détecté] --> B[Identifier fenêtre]
+  B --> C[Choisir snapshot sain]
+  C --> D[Restauration isolée]
+  D --> E[Test fonctionnel]
+```
+
+La date la plus récente n'est pas automatiquement la meilleure si elle est postérieure à la compromission ou déjà corrompue.
+
+### Schéma 4 — RPO
 
 ```mermaid
 flowchart LR
-  A[Demande] --> B[Qualification] --> C[Traitement] --> D[Validation] --> E[Clôture]
+  A[Fréquence définie] --> B[Points créés]
+  B --> C[Dernier point sain]
+  C --> D[Âge mesuré]
+  D --> E[Écart RPO]
 ```
 
-Le parcours doit laisser au technicien un état explicite à chaque étape : en attente, en cours, bloqué, validé ou escaladé. Des états ambigus rendent les indicateurs de délai et le pilotage peu fiables.
+Le respect du RPO se mesure par l'âge du dernier point effectivement restaurable, pas seulement par le dernier job terminé.
 
-### Schéma 5 — démarche d'analyse
+### Schéma 5 — RTO
+
+```mermaid
+flowchart TD
+  A[Préparation] --> B[Accès aux copies]
+  B --> C[Transfert]
+  C --> D[Recette applicative]
+  D --> E[Service rétabli]
+```
+
+Le temps de transfert n'est qu'une partie du RTO. Les accès, clés, tests et dépendances doivent aussi être disponibles.
+
+### Schéma 6 — Séparation des privilèges
 
 ```mermaid
 flowchart LR
-  A[Mesure] --> B[Analyse] --> C[Hypothèse] --> D[Test] --> E[Conclusion]
+  A[Compte production] -. droits limités .-> B[Plan de sauvegarde]
+  B --> C[Compte sauvegarde]
+  C --> D[Copie protégée]
+  D --> E[Compte restauration contrôlé]
 ```
 
-L'analyse gagne à séparer constat, hypothèse et conclusion. Les preuves qui ne soutiennent pas l'hypothèse doivent rester disponibles afin d'expliquer pourquoi une piste a été écartée.
-
-### Schéma 6 — boucle d'amélioration
-
-```mermaid
-flowchart LR
-  A[Détection] --> B[Escalade] --> C[Diagnostic] --> D[Rétablissement] --> E[Retour]
-```
-
-La boucle se ferme lorsque les retours et incidents servent à changer le dispositif, puis qu'un contrôle démontre l'effet de cette amélioration. Une action documentaire sans vérification de terrain reste incomplète.
+La séparation d'identités réduit le risque qu'une compromission en production permette de supprimer toutes les copies.
 
 ## Fondements techniques du domaine
 
