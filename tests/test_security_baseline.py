@@ -36,6 +36,18 @@ class SecurityBaselineTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     api._cors_origins_from_environment(invalid)
 
+    def test_quality_workflows_keep_pr_checks_read_only(self) -> None:
+        root = Path(api.PROJECT_ROOT)
+        quality = (root / ".github" / "workflows" / "quality-checks.yml").read_text(encoding="utf-8")
+        publisher = (root / ".github" / "workflows" / "publish-lab-bundle.yml").read_text(encoding="utf-8")
+
+        self.assertIn("permissions:\\n  contents: read", quality)
+        self.assertNotIn("contents: write", quality)
+        self.assertNotIn("Publish generated static bundle", quality)
+        self.assertIn('branches: ["feature/lab-workspace"]', publisher)
+        self.assertIn("pull_request:", publisher) is False
+        self.assertIn("contents: write", publisher)
+
     def test_unapproved_origin_receives_no_cors_grant_and_security_headers_are_present(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             database_path = Path(temporary) / "skilltree.sqlite3"
