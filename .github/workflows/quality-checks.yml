@@ -5,9 +5,9 @@ permissions:
 
 on:
   push:
-    branches: ["feature/lab-workspace"]
+    branches: ["feature/lab-workspace", "feat/neon-postgres-integration"]
   pull_request:
-    branches: ["main", "feature/lab-workspace", "test/browser-ui-regression-2026-10-26", "fix/theme-indicator-2026-10-26"]
+    branches: ["main", "feature/lab-workspace", "feat/neon-postgres-integration", "test/browser-ui-regression-2026-10-26", "fix/theme-indicator-2026-10-26"]
 
 jobs:
   python-tests:
