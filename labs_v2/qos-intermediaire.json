@@ -3,19 +3,22 @@
   "id": "qos-intermediaire",
   "title": "QoS — Prioriser la voix sur la sortie WAN",
   "level": "intermédiaire",
-  "module": "Priorisez la voix sur R1 avec DSCP EF, une file de faible latence et un shaping adapté au débit du WAN. Le reste du trafic doit conserver une bande passante contrôlée.",
-  "prompt": [
+  "module": "Administration Réseaux",
+  "prompt": "Priorisez la voix sur R1 avec DSCP EF, une file de faible latence et un shaping adapté au débit du WAN. Le reste du trafic doit conserver une bande passante contrôlée.",
+  "objectives": [
     "Identifier la classe voix avec DSCP EF.",
     "Réserver une part de la priorité à la voix.",
     "Activer un shaping inférieur au débit physique du lien.",
     "Activer une politique de policing pour le trafic abusif."
   ],
-  "objectives": [
+  "hints": [
     "La priorité voix doit être bornée pour éviter qu’elle ne monopolise tout le lien.",
     "Le shaping lisse les rafales ; le policing peut abandonner ou marquer le trafic excédentaire.",
     "Conservez une classe par défaut pour le reste du trafic."
   ],
-  "hints": {
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-qos-intermediaire",
     "metadata": {
@@ -128,6 +131,20 @@
             "description": "",
             "access_group_in": null,
             "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Vers PC client",
+            "access_group_in": null,
+            "access_group_out": null
           }
         ],
         "config": {
@@ -230,7 +247,7 @@
         "id": "DATA",
         "from": {
           "node": "SW1",
-          "port": "Fa0/1"
+          "port": "Fa0/3"
         },
         "to": {
           "node": "PC-A",
@@ -247,62 +264,59 @@
       "event_log": []
     }
   },
-  "duration_min": 30,
-  "difficulty": "intermédiaire",
-  "initial_topology": [
-    {
-      "id": "policy",
-      "description": "La policy QoS WAN-OUT est appliquée.",
-      "device": "R1",
-      "path": "config.routes[0].policy_map",
-      "operator": "equals",
-      "expected": "WAN-OUT"
-    },
-    {
-      "id": "voice-dscp",
-      "description": "La classe voix utilise DSCP EF.",
-      "device": "R1",
-      "path": "config.routes[0].classes[0].dscp",
-      "operator": "equals",
-      "expected": "ef"
-    },
-    {
-      "id": "voice-priority",
-      "description": "La classe voix dispose d’une file prioritaire.",
-      "device": "R1",
-      "path": "config.routes[0].classes[0].priority_percent",
-      "operator": "equals",
-      "expected": 20
-    },
-    {
-      "id": "shaping",
-      "description": "Le shaping WAN est activé.",
-      "device": "R1",
-      "path": "config.routes[0].shaping.enabled",
-      "operator": "equals",
-      "expected": true
-    },
-    {
-      "id": "shape-rate",
-      "description": "Le débit de shaping correspond au WAN.",
-      "device": "R1",
-      "path": "config.routes[0].shaping.rate_kbps",
-      "operator": "equals",
-      "expected": 10000
-    },
-    {
-      "id": "policing",
-      "description": "Le policing de sécurité est actif.",
-      "device": "R1",
-      "path": "config.routes[0].policing.enabled",
-      "operator": "equals",
-      "expected": true
-    }
-  ],
   "check": {
     "type": "config_assertions",
     "pass_threshold": 1,
-    "rules": 25,
+    "rules": [
+      {
+        "id": "policy",
+        "description": "La policy QoS WAN-OUT est appliquée.",
+        "device": "R1",
+        "path": "config.routes[0].policy_map",
+        "operator": "equals",
+        "expected": "WAN-OUT"
+      },
+      {
+        "id": "voice-dscp",
+        "description": "La classe voix utilise DSCP EF.",
+        "device": "R1",
+        "path": "config.routes[0].classes[0].dscp",
+        "operator": "equals",
+        "expected": "ef"
+      },
+      {
+        "id": "voice-priority",
+        "description": "La classe voix dispose d’une file prioritaire.",
+        "device": "R1",
+        "path": "config.routes[0].classes[0].priority_percent",
+        "operator": "equals",
+        "expected": 20
+      },
+      {
+        "id": "shaping",
+        "description": "Le shaping WAN est activé.",
+        "device": "R1",
+        "path": "config.routes[0].shaping.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "shape-rate",
+        "description": "Le débit de shaping correspond au WAN.",
+        "device": "R1",
+        "path": "config.routes[0].shaping.rate_kbps",
+        "operator": "equals",
+        "expected": 10000
+      },
+      {
+        "id": "policing",
+        "description": "Le policing de sécurité est actif.",
+        "device": "R1",
+        "path": "config.routes[0].policing.enabled",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
     "time_bonus": {}
   },
   "xp_reward": 30,
