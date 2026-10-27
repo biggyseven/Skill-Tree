@@ -22,7 +22,7 @@
     "Indice 2 : une ACL standard sélectionne le réseau source pour la traduction. Le wildcard 0.0.0.255 correspond au réseau 192.168.1.0/24.",
     "Indice 3 : configurez le rôle NAT inside sur Fa0/0 et outside sur Fa0/1. La commande overload doit référencer l’ACL 1 et l’interface extérieure Fa0/1.",
     "Solution de référence sur R1 (à consulter en dernier) : enable ; configure terminal ; interface Fa0/0 ; ip address 192.168.1.1 255.255.255.0 ; no shutdown ; exit ; ip dhcp excluded-address 192.168.1.1 192.168.1.20 ; ip dhcp pool LAN-CLIENTS ; network 192.168.1.0 255.255.255.0 ; default-router 192.168.1.1 ; dns-server 192.168.1.53 ; lease 7 ; exit ; access-list 1 permit 192.168.1.0 0.0.0.255 ; interface Fa0/0 ; ip nat inside ; exit ; interface Fa0/1 ; ip nat outside ; exit ; ip nat inside source list 1 interface Fa0/1 overload ; end.",
-    "Solution complémentaire sur SW1 (à consulter en dernier) : enable ; configure terminal ; interface Fa0/1 ; switchport mode access ; exit ; interface Fa0/2 ; switchport mode access ; end.",
+    "Solution de référence sur SW1 (à consulter en dernier) : enable ; configure terminal ; interface Fa0/1 ; switchport mode access ; exit ; interface Fa0/2 ; switchport mode access ; end.",
     "La validation vérifie le pool DHCP, les exclusions, l’adressage LAN, l’ACL NAT, les rôles inside/outside et la surcharge. Le test ne simule pas un bail client ni une traduction de paquet réelle."
   ],
   "initial_topology": {
