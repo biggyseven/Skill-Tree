@@ -6,6 +6,7 @@ implements a site-wide owner session rather than pretending to provide multi-use
 from __future__ import annotations
 
 import base64
+import binascii
 import hashlib
 import hmac
 import os
@@ -112,7 +113,7 @@ def verify_session_token(token: str | None, *, now: int | None = None) -> bool:
         if issued_at > current + 60 or current - issued_at > AUTH_SESSION_TTL_SECONDS:
             return False
         return True
-    except (KeyError, ValueError, UnicodeError, TypeError):
+    except (KeyError, ValueError, UnicodeError, TypeError, binascii.Error):
         return False
 
 
