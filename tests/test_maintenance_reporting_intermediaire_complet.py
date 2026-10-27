@@ -1,3 +1,4 @@
+# Re-run catalog and content validation after branch-base cleanup.
 # Regression checks for the complete intermediate Maintenance & Reporting path.
 import json
 import re
