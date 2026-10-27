@@ -1018,7 +1018,7 @@ Une proposition ne peut pas être considérée comme maîtrisée si elle ignore 
 - [ISO/TS 55010:2024 — alignement des fonctions financières et non financières](https://www.iso.org/standard/84051.html) : coordination des décisions financières et techniques.
 - [ISO 17359:2018 — surveillance et diagnostic d'état des machines](https://www.iso.org/fr/standard/71194.html) : lignes directrices de programme de surveillance conditionnelle ; la page ISO indique que l'édition a été confirmée en 2023.
 - [ISO 14224:2016 — collecte et échange de données de fiabilité et de maintenance](https://www.iso.org/standard/64076.html) : référentiel sectoriel pour les industries du pétrole, du gaz naturel et de la pétrochimie. Ne pas l'étendre sans discernement à tous les secteurs ; sa portée exclut notamment les coûts directs.
-- [ISO 55012:2024 — implication du personnel et compétences](https://www.iso.org/standard/84053.html) : consulter la fiche ISO pour connaître la portée et l'état de publication.
+- [ISO 55012:2024 — implication du personnel et compétences](https://www.iso.org/standard/82454.html) : consulter la fiche ISO pour connaître la portée et l'état de publication.
 - [ISO/TC 251 — informations sur les normes de gestion d'actifs](https://committee.iso.org/sites/tc251/home/projects/published/iso-55000.html).
 
 Ces documents fournissent des principes et des méthodes ; ils ne remplacent pas les exigences sectorielles, les lois, les contrats, les procédures de sécurité ni les décisions des autorités compétentes. Vérifier le statut, la version, le périmètre d'application et les éventuelles mises à jour avant d'utiliser une référence comme critère formel.
