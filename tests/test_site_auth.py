@@ -70,7 +70,7 @@ class SiteAuthenticationTests(unittest.TestCase):
         self.assertEqual(self.client.get("/", follow_redirects=False).status_code, 200)
 
     def test_protected_deep_link_is_preserved_in_login_redirect(self) -> None:
-        destination = "/lab.html?openLab=ospf-intermediaire&openTab=labs"
+        destination = "/?openTab=labs&openLab=ospf-intermediaire"
         response = self.client.get(destination, follow_redirects=False)
 
         self.assertEqual(response.status_code, 303, response.text)
