@@ -40,61 +40,80 @@ Les principes directeurs sont les suivants : intervention autorisée, moindre pr
 | Retour arrière | Séquence permettant de retrouver un état stable si les critères de réussite ne sont pas satisfaits. |
 | Récurrence | Réapparition d'un problème similaire après un traitement précédent. |
 
-## Cartographie des processus
+## Schémas adaptés au sujet
 
-### Schéma 1 — chaîne opérationnelle
-
-```mermaid
-flowchart LR
-  A[Signal] --> B[Collecte] --> C[Seuil] --> D[Décision] --> E[Action]
-```
-
-Ce schéma résume la chaîne à observer pour supervision réseau (nagios, zabbix). Chaque étape possède une entrée, une sortie et une responsabilité. Si une transition n'est pas visible, la procédure doit prévoir une vérification plutôt que supposer que l'étape précédente a réussi.
-
-### Schéma 2 — cycle de traitement
+### Schéma 1 — Chaîne de supervision
 
 ```mermaid
 flowchart LR
-  A[Préparer] --> B[Exécuter] --> C[Contrôler] --> D[Valider] --> E[Tracer]
+  A[Équipements] --> B[ICMP SNMP Agent]
+  B --> C[Collecte]
+  C --> D[Seuils et tendances]
+  D --> E[Alerte qualifiée]
 ```
 
-Le cycle doit être parcouru du début à la fin, sans supprimer la validation ni la trace. Une intervention peut être techniquement terminée alors que son résultat n'est pas encore accepté par le service concerné.
+Les signaux des équipements ne deviennent utiles qu'après collecte, interprétation et qualification. Une alerte doit ensuite être reliée à une action et à un propriétaire.
 
-### Schéma 3 — maîtrise du risque
+### Schéma 2 — Collecte Zabbix
 
 ```mermaid
 flowchart LR
-  A[Actif] --> B[Risque] --> C[Contrôle] --> D[Preuve] --> E[Revue]
+  A[Hôte] --> B[Agent ou SNMP]
+  B --> C[Zabbix Server]
+  C --> D[Historique]
+  D --> E[Tableau de bord]
 ```
 
-La décision finale doit tenir compte du risque et des preuves. Une alerte, une action ou un changement de statut n'est utile que si l'information est assez fiable pour permettre la suite du travail.
+Ce flux distingue la mesure, le traitement et la visualisation ; un graphique vide peut venir de la collecte même si l'hôte fonctionne.
 
-### Schéma 4 — parcours d'une demande
+### Schéma 3 — Qualification d'alerte
+
+```mermaid
+flowchart TD
+  A[Mesure anormale] --> B{Durée confirmée ?}
+  B -->|Oui| C[Évaluer impact]
+  B -->|Non| D[Surveiller]
+  C --> E[Ticket et responsable]
+```
+
+Une temporisation adaptée évite que chaque pic fugitif déclenche une escalade. La gravité doit tenir compte du service touché.
+
+### Schéma 4 — Corrélation réseau
 
 ```mermaid
 flowchart LR
-  A[Demande] --> B[Qualification] --> C[Traitement] --> D[Validation] --> E[Clôture]
+  A[Passerelle] --> B[Services dépendants]
+  A --> C[Liens réseau]
+  B --> D[Incident parent]
+  C --> D
 ```
 
-Le parcours doit laisser au technicien un état explicite à chaque étape : en attente, en cours, bloqué, validé ou escaladé. Des états ambigus rendent les indicateurs de délai et le pilotage peu fiables.
+La corrélation aide à reconnaître un événement racine et à rattacher les symptômes sans perdre les traces utiles.
 
-### Schéma 5 — démarche d'analyse
+### Schéma 5 — Capacité
+
+```mermaid
+flowchart TD
+  A[Compteurs] --> B[Référence normale]
+  B --> C[Tendance]
+  C --> D{Seuil durable ?}
+  D -->|Oui| E[Plan capacité]
+  D -->|Non| F[Continuer collecte]
+```
+
+Les tendances et les cycles d'activité aident à séparer une pointe normale d'une saturation progressive.
+
+### Schéma 6 — Fin de maintenance
 
 ```mermaid
 flowchart LR
-  A[Mesure] --> B[Analyse] --> C[Hypothèse] --> D[Test] --> E[Conclusion]
+  A[Fenêtre ouverte] --> B[Alertes ciblées]
+  B --> C[Fin intervention]
+  C --> D[Test témoin]
+  D --> E[Réactiver et vérifier]
 ```
 
-L'analyse gagne à séparer constat, hypothèse et conclusion. Les preuves qui ne soutiennent pas l'hypothèse doivent rester disponibles afin d'expliquer pourquoi une piste a été écartée.
-
-### Schéma 6 — boucle d'amélioration
-
-```mermaid
-flowchart LR
-  A[Détection] --> B[Escalade] --> C[Diagnostic] --> D[Rétablissement] --> E[Retour]
-```
-
-La boucle se ferme lorsque les retours et incidents servent à changer le dispositif, puis qu'un contrôle démontre l'effet de cette amélioration. Une action documentaire sans vérification de terrain reste incomplète.
+La sortie de maintenance exige une vérification explicite et une réactivation pour éviter qu'une panne ultérieure reste masquée.
 
 ## Fondements techniques du domaine
 
