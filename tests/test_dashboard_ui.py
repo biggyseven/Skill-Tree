@@ -74,6 +74,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("readable.querySelectorAll('.lesson-diagram-block').forEach(root =>", DASHBOARD_HTML)
         self.assertIn("Les colonnes présentent un élément de référence", DASHBOARD_HTML)
         self.assertIn("isSpeechNetworkEquipment(value)", DASHBOARD_HTML)
+        self.assertIn("label.replace(/[\\s_-]*\\d+[a-z]?$/iu, '')", DASHBOARD_HTML)
         self.assertIn("speechNetworkInventory(equipmentLabels, connectionCount)", DASHBOARD_HTML)
         self.assertIn("Inventaire du schéma : ", DASHBOARD_HTML)
         self.assertIn("équipements identifiables", DASHBOARD_HTML)

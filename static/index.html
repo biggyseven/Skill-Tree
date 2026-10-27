@@ -4178,7 +4178,8 @@
           if (!label) return false;
           const equipmentWords = /\b(?:routeur|router|switch|commutateur|pare[\s-]?feu|firewall|serveur|server|client|ordinateur|computer|poste(?: de travail)?|point d['’ ]?acc[eè]s|access point|borne wi[\s-]?fi|modem|passerelle|gateway|spine|leaf|hub|bridge|nas|imprimante|printer|proxy|load balancer|équilibreur)\b/iu;
           const equipmentId = /^(?:pc|sw|s|r|rt|rtr|fw|ap|srv|gw|h|nas|esx|esxi|spine|leaf)[\s_-]*\d+[a-z]?$/iu;
-          return equipmentWords.test(label) || equipmentId.test(label);
+          const baseLabel = label.replace(/[\s_-]*\d+[a-z]?$/iu, '');
+          return equipmentWords.test(baseLabel) || equipmentId.test(label);
         },
         speechNetworkInventory(equipmentLabels, connectionCount) {
           const counts = new Map();
