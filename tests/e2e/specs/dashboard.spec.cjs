@@ -303,10 +303,12 @@ test('la navigation du lecteur reste dans le module sélectionné, même quand l
     networkTieOrder.indexOf('incident-ospf') + 1,
   );
 
-  await page.evaluate(async (nodeId) => {
-    const state = window.Alpine.$data(document.body);
-    await state.show(nodeId);
-  }, firstCourseId);
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const searchResults = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill('La Triade CIA');
+  const firstCourseResult = searchResults.locator('button').filter({ hasText: 'La Triade CIA' }).first();
+  await expect(firstCourseResult).toBeVisible();
+  await firstCourseResult.click();
 
   await expect(page.locator('#course-reader-title')).toHaveText('La Triade CIA');
   const navigation = page.getByRole('region', { name: 'Navigation entre les leçons' });
