@@ -192,7 +192,7 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         refresh_start = dashboard.index("        async refreshAll() {")
         refresh_end = dashboard.index("        async retryDashboardData()", refresh_start)
         refresh_method = dashboard[refresh_start:refresh_end]
-        self.assertIn("await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()])", refresh_method)
+        self.assertIn("await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats(), this.loadDiplomas()])", refresh_method)
 
     def test_workspace_check_wraps_the_topology_for_the_check_request_schema(self):
         bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
