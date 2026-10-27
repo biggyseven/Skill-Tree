@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Routage statique & tables - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quelle distinction entre RIB et FIB est la plus juste ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La RIB ne concerne que les adresses MAC",
+        "La FIB contient uniquement les routes non installées",
+        "La RIB maintient les informations de routage sélectionnées ; la FIB sert au transfert rapide des paquets",
+        "La RIB est toujours identique à la configuration saisie"
+      ],
+      "answer": 2,
+      "explanation": "La RIB décrit les routes retenues par le plan de contrôle ; la FIB est la structure optimisée exploitée par le plan de données. Les détails d’implémentation varient selon la plate-forme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi associer parfois un résumé de routes à une route de rejet vers Null0 ?",
+      "choices": [
+        "Pour empêcher tout trafic légitime vers les sous-réseaux couverts",
+        "Pour éviter de boucler des paquets destinés à des sous-réseaux inconnus inclus dans l’agrégat",
+        "Pour convertir la route statique en route directement connectée",
+        "Pour forcer toutes les destinations à suivre une route par défaut"
+      ],
+      "answer": 1,
+      "explanation": "Une route Null0 pour l’agrégat permet de rejeter les destinations non couvertes par des routes plus spécifiques au lieu de réinjecter indéfiniment le trafic vers un autre annonceur de l’agrégat. Elle peut aussi provoquer des rejets attendus qu’il faut documenter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route statique doit être retirée si une adresse de supervision située au-delà du prochain saut devient injoignable. Quel mécanisme Cisco peut lier la route à ce test ?",
+      "choices": [
+        "Une entrée ARP permanente sans contrôle",
+        "Une simple modification de description d’interface",
+        "Une augmentation de la MTU",
+        "IP SLA associé à Object Tracking, si la plate-forme le supporte"
+      ],
+      "answer": 3,
+      "explanation": "IP SLA peut mesurer une cible au-delà du prochain saut ; Object Tracking permet de conditionner l’installation de la route au résultat du suivi. Le test doit réellement représenter le service que l’on veut protéger."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux routes installées couvrent une destination : `10.0.0.0/8` et `10.1.0.0/16`. La première a une distance administrative plus favorable. Quel principe détermine le chemin pour `10.1.2.3` ?",
+      "choices": [
+        "Le préfixe `/16` est choisi car il est plus spécifique, une fois les routes installées",
+        "La route `/8` est toujours préférée si sa distance administrative est plus faible",
+        "Le routeur choisit la route ajoutée en dernier",
+        "Le routeur transmet sur les deux chemins dans tous les cas"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Pour le transfert vers une destination donnée, le longest-prefix match favorise le préfixe le plus spécifique parmi les routes utilisables. La distance administrative sert en amont à départager des sources de routes vers le même préfixe sur les implémentations concernées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence décrit le mieux le routage par politique (PBR) par rapport au routage classique ?",
+      "choices": [
+        "PBR ignore toutes les règles de sécurité et chiffre les paquets",
+        "PBR est un synonyme de route statique flottante",
+        "PBR peut faire dépendre la décision de critères supplémentaires au-delà du seul préfixe de destination",
+        "PBR est un protocole de routage à état de liens"
+      ],
+      "answer": 2,
+      "explanation": "Le routage classique sélectionne le chemin à partir de la destination et de la table de routage. PBR peut appliquer une politique basée sur d’autres critères, selon les capacités de la plate-forme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une VRF sur un routeur ?",
+      "choices": [
+        "Désactiver le longest-prefix match",
+        "Maintenir des tables de routage séparées pour des contextes de routage distincts",
+        "Faire annoncer toutes les routes dans la table globale",
+        "Remplacer le prochain saut par une adresse MAC"
+      ],
+      "answer": 1,
+      "explanation": "Une VRF isole logiquement les informations de routage et de transfert d’un contexte. Les routes ne deviennent pas automatiquement accessibles à la table globale ou aux autres VRF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi deux routes ECMP n’impliquent-elles pas forcément une alternance paquet par paquet ?",
+      "choices": [
+        "Parce que seules les routes OSPF peuvent utiliser ECMP",
+        "Parce que le hachage interdit d’avoir plusieurs routes installées",
+        "Parce que chaque flux doit changer de route à chaque paquet",
+        "Parce que la plate-forme peut répartir par flux afin de préserver l’ordre des paquets"
+      ],
+      "answer": 3,
+      "explanation": "De nombreux équipements utilisent un hachage de champs du flux pour choisir un prochain saut. Le partage et ses limites dépendent de l’implémentation et de la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route principale reste installée alors qu’un service distant derrière le prochain saut est en panne. Quelle conclusion est correcte ?",
+      "choices": [
+        "La présence de la route prouve seulement que les conditions d’installation sont satisfaites ; un suivi adapté est nécessaire pour tester ce service",
+        "Il faut toujours supprimer toutes les routes par défaut",
+        "Le routeur doit recalculer automatiquement la route statique au niveau applicatif",
+        "Le paquet sera forcément redirigé par le protocole ARP"
+      ],
+      "answer": 0,
+      "explanation": "Une route statique simple ne vérifie pas toutes les dépendances situées au-delà du prochain saut. Il faut un mécanisme de suivi pertinent et des critères de basculement testés."
     }
   ]
 }

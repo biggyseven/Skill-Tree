@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Routage statique & tables - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Les routes installées sont `10.0.0.0/8`, `10.20.0.0/16` et `10.20.30.0/24`. Vers quelle route envoyer un paquet destiné à `10.20.30.8` ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La route `10.0.0.0/8`",
+        "La route par défaut `0.0.0.0/0`",
+        "La route `10.20.30.0/24`",
+        "La route `10.20.0.0/16`"
+      ],
+      "answer": 2,
+      "explanation": "Le routeur applique le longest-prefix match : parmi les préfixes qui correspondent à la destination, il choisit le plus spécifique, ici le `/24`."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle destination représente la route par défaut IPv4 ?",
+      "choices": [
+        "`0.0.0.0/0`",
+        "`255.255.255.255/32`",
+        "`127.0.0.0/8`",
+        "`224.0.0.0/4`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le préfixe `0.0.0.0/0` correspond à toute destination IPv4 et sert lorsque aucune route plus spécifique ne correspond."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un poste doit joindre une adresse située dans un autre sous-réseau. À quelle adresse MAC envoie-t-il normalement sa première trame ?",
+      "choices": [
+        "À la MAC du serveur distant, obtenue par ARP local",
+        "À la MAC de sa passerelle par défaut",
+        "À la MAC de diffusion de tous les routeurs Internet",
+        "À une MAC dérivée directement de l’adresse IP distante"
+      ],
+      "answer": 1,
+      "explanation": "La couche 2 ne traverse pas les routeurs. Le poste envoie la trame à la MAC de sa passerelle locale ; le paquet IP conserve l’adresse de destination finale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le préfixe réseau de `192.0.2.77/24` ?",
+      "choices": [
+        "`192.0.0.0/24`",
+        "`192.0.2.77/24`",
+        "`192.0.2.0/25`",
+        "`192.0.2.0/24`"
+      ],
+      "answer": 3,
+      "explanation": "Avec un préfixe `/24`, les 24 premiers bits définissent le réseau : `192.0.2.0/24`."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand un routeur apprend-il normalement une route directement connectée ?",
+      "choices": [
+        "Dès que le câble est branché, même si l’interface est désactivée",
+        "Lorsqu’une interface configurée avec une adresse de ce réseau est opérationnelle",
+        "Uniquement après réception d’une annonce BGP",
+        "Après ajout manuel d’une route statique pour le même réseau"
+      ],
+      "answer": 1,
+      "explanation": "Une interface IP active permet d’installer le réseau auquel elle est directement connectée. Un câble branché ne suffit pas si l’interface est administrativement arrêtée ou mal configurée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur Cisco IOS/IOS XE, quelle commande affiche la table de routage IPv4 ?",
+      "choices": [
+        "`show ip route`",
+        "`show interfaces status`",
+        "`show vlan brief`",
+        "`show mac address-table`"
+      ],
+      "answer": 0,
+      "explanation": "`show ip route` permet d’examiner les préfixes installés, leur source, leur prochain saut et les informations associées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement une route statique simple ?",
+      "choices": [
+        "Elle choisit toujours un itinéraire de secours sans configuration supplémentaire",
+        "Elle réécrit automatiquement la topologie après toute panne distante",
+        "Elle est configurée explicitement et ne détecte pas seule toutes les pannes situées au-delà du prochain saut",
+        "Elle remplace nécessairement toutes les routes dynamiques"
+      ],
+      "answer": 2,
+      "explanation": "Une route statique exprime un chemin configuré. Un mécanisme de suivi ou un protocole dynamique peut être nécessaire pour réagir à certaines pannes distantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle longueur de préfixe IPv4 désigne une route vers une seule adresse hôte ?",
+      "choices": [
+        "`/8`",
+        "`/16`",
+        "`/24`",
+        "`/32`"
+      ],
+      "answer": 3,
+      "explanation": "Un préfixe IPv4 `/32` ne couvre qu’une adresse. Il est plus spécifique qu’une route vers tout un sous-réseau."
     }
   ]
 }

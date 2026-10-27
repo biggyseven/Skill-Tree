@@ -1,1 +1,102 @@
-{"node_id":"bgp-intermediaire","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel port TCP est utilisé par BGP ?","choices":["179","89","110","443"],"answer":0,"explanation":"BGP utilise le port TCP 179 pour établir ses sessions."},{"type":"qcm","prompt":"Quel état BGP indique que la connexion TCP n'arrive pas à s'établir ?","choices":["Active","Established","OpenSent","Connect"],"answer":0,"explanation":"L'état 'Active' signifie que le routeur essaie de se connecter (ou d'accepter) en TCP mais n'y arrive pas."},{"type":"qcm","prompt":"Quelle règle empêche un routeur iBGP de transmettre une route apprise via iBGP à un autre voisin iBGP ?","choices":["La règle du Split Horizon (BGP)","La règle du Next-Hop","La règle de l'AS_PATH","La règle de l'Administrative Distance"],"answer":0,"explanation":"Pour éviter les boucles, un routeur iBGP ne transmet pas une route iBGP à un autre routeur iBGP."},{"type":"qcm","prompt":"À quoi sert la commande 'next-hop-self' ?","choices":["À modifier l'adresse Next-Hop annoncée à un voisin","À changer sa propre adresse IP","À ignorer le Next-Hop","À redémarrer la session BGP"],"answer":0,"explanation":"'next-hop-self' force le routeur à s'annoncer lui-même comme prochain saut pour les routes venant d'eBGP."}]}
+{
+  "node_id": "bgp-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel problème un route reflector résout-il dans un domaine iBGP ?",
+      "choices": [
+        "Il chiffre les sessions entre systèmes autonomes",
+        "Il remplace automatiquement les filtres d’import et d’export",
+        "Il réduit le besoin d’un full mesh iBGP en réfléchissant certaines routes entre clients et pairs",
+        "Il remplace le protocole TCP par UDP"
+      ],
+      "answer": 2,
+      "explanation": "Dans un grand AS, le route reflector réduit le nombre de sessions iBGP nécessaires. Il ne remplace ni les politiques de routage ni la vérification des boucles et des next-hops."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une politique BGP habituelle au sein d’un AS, quelle route a la préférence la plus élevée selon Local Preference ?",
+      "choices": [
+        "Celle dont le MED est le plus élevé dans tous les contextes",
+        "Celle dont la Local Preference est la plus élevée",
+        "Celle dont l’AS_PATH est toujours le plus long",
+        "Celle qui a été reçue en dernier"
+      ],
+      "answer": 1,
+      "explanation": "Une Local Preference plus élevée exprime généralement un chemin sortant préféré à l’intérieur du même AS. Les étapes exactes de sélection dépendent aussi des règles et de l’implémentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une communauté BGP dans une politique opérateur ?",
+      "choices": [
+        "À remplacer la destination IP du paquet",
+        "À établir seule une session TCP",
+        "À assurer un chiffrement de bout en bout",
+        "À marquer une route pour que des politiques configurées puissent la traiter"
+      ],
+      "answer": 3,
+      "explanation": "Une communauté est une étiquette transportée avec la route. Elle n’applique pas une action universelle à elle seule : des politiques doivent interpréter cette étiquette."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel effet vise généralement l’AS_PATH prepending sur les annonces envoyées à d’autres AS ?",
+      "choices": [
+        "Ajouter plusieurs fois son propre ASN pour rendre le chemin annoncé plus long, sans garantir la décision distante",
+        "Augmenter la Local Preference des routeurs distants",
+        "Forcer tous les opérateurs à préférer la route",
+        "Rendre l’AS_PATH invisible"
+      ],
+      "answer": 0,
+      "explanation": "Le prepending allonge l’AS_PATH annoncé et peut rendre la route moins attractive pour certains pairs. Il ne garantit pas un résultat, car les politiques distantes peuvent primer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle aide à empêcher qu’un routeur annonce des préfixes qui ne devraient pas sortir de son domaine ?",
+      "choices": [
+        "Désactiver les journaux BGP",
+        "Augmenter le hold timer uniquement",
+        "Appliquer une politique d’export explicite avec des filtres de préfixes adaptés",
+        "Rendre tous les voisins route reflectors"
+      ],
+      "answer": 2,
+      "explanation": "Les filtres d’export contrôlent les préfixes annoncés à chaque voisin. Ils doivent correspondre au rôle du peer et être testés avant un changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un next-hop BGP n’est pas résolvable dans le contexte du routeur. Quelle conséquence est probable ?",
+      "choices": [
+        "Le routeur le remplace toujours par l’adresse du serveur DNS",
+        "La route peut être exclue de la sélection ou ne pas être installée tant que le next-hop n’est pas résolu",
+        "Le routeur convertit la route en réseau directement connecté",
+        "La session BGP est nécessairement supprimée"
+      ],
+      "answer": 1,
+      "explanation": "BGP ne peut pas utiliser une route dont le next-hop est inexploitable dans la décision de routage. Il faut vérifier l’IGP, la résolution récursive et les politiques de next-hop."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque faut-il analyser avant d’annoncer un préfixe agrégé BGP ?",
+      "choices": [
+        "L’agrégation fait toujours doubler le nombre de routes",
+        "Un agrégat modifie systématiquement les adresses des hôtes",
+        "L’agrégat élimine le besoin de politiques d’export",
+        "Un résumé trop large peut attirer du trafic vers des destinations qu’on ne peut pas réellement acheminer"
+      ],
+      "answer": 3,
+      "explanation": "L’agrégation réduit le nombre de préfixes annoncés, mais peut masquer la perte de routes spécifiques ou attirer du trafic pour des sous-réseaux indisponibles. Le comportement de discard et les détails d’annonce doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour comprendre pourquoi une route BGP attendue n’est pas retenue, quelle démarche est la plus utile ?",
+      "choices": [
+        "Vérifier les routes reçues, les politiques, l’état best-path, la résolution du next-hop puis la route installée",
+        "Augmenter sans mesure tous les timers BGP",
+        "Supprimer l’IGP avant d’examiner les annonces",
+        "Vérifier seulement que le port TCP/179 est ouvert"
+      ],
+      "answer": 0,
+      "explanation": "Une session établie ne suffit pas. Le diagnostic doit suivre le cycle de vie de la route : réception, filtrage, sélection, next-hop, installation en RIB et transfert."
+    }
+  ]
+}

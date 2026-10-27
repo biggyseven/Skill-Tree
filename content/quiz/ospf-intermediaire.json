@@ -1,1 +1,102 @@
-{"node_id":"ospf-intermediaire","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel est le rôle du DR (Designated Router) dans OSPF ?","choices":["Centraliser les échanges de mises à jour sur un réseau broadcast","Bloquer les routes dangereuses","Traduire les adresses IP en adresses MAC","Créer des adresses IP"],"answer":0,"explanation":"Le DR centralise les LSA pour éviter que tous les routeurs se parlent entre eux."},{"type":"qcm","prompt":"Quel routeur est élu en premier lors de l'élection du DR ?","choices":["Celui avec la plus haute priorité OSPF","Celui avec la plus basse adresse IP","Celui qui a le plus de RAM","Le premier allumé"],"answer":0,"explanation":"La priorité (par défaut 1) est le premier critère. En cas d'égalité, c'est le Router-ID le plus haut qui gagne."},{"type":"qcm","prompt":"Quel état de voisinage indique que les bases de données sont entièrement synchronisées ?","choices":["FULL","2-WAY","EXSTART","INIT"],"answer":0,"explanation":"L'état FULL signifie que les routeurs ont échangé tous leurs LSA et ont la même LSDB."},{"type":"qcm","prompt":"Que se passe-t-il si la MTU diffère entre deux routeurs OSPF ?","choices":["Le voisinage reste bloqué en EXSTART","Le voisinage passe en FULL immédiatement","Le routeur redémarre","La métrique est mise à zéro"],"answer":0,"explanation":"OSPF vérifie la MTU lors de l'échange des DBD. Si elle diffère, le voisinage bloque à l'état EXSTART."}]}
+{
+  "node_id": "ospf-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un ABR dans OSPF ?",
+      "choices": [
+        "Distribuer uniquement les adresses DHCP",
+        "Relier des aires OSPF et gérer les informations inter-aires, en respectant le rôle du backbone",
+        "Agir obligatoirement comme DR sur tous les segments",
+        "Remplacer tous les routeurs internes"
+      ],
+      "answer": 1,
+      "explanation": "Un Area Border Router est rattaché à plusieurs aires et participe à la diffusion des informations inter-aires. La conception classique utilise Area 0 comme backbone."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle décrit le mieux un ASBR OSPF ?",
+      "choices": [
+        "Introduire dans OSPF des routes provenant d’autres sources de routage, selon la configuration",
+        "Élire le BDR d’une aire",
+        "Attribuer un Router ID à tous les voisins",
+        "Filtrer les paquets ARP"
+      ],
+      "answer": 0,
+      "explanation": "Un Autonomous System Boundary Router peut redistribuer des routes externes dans OSPF. La redistribution doit être filtrée et contrôlée afin d’éviter des fuites ou des boucles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert généralement une LSA de type 3 ?",
+      "choices": [
+        "À annoncer un réseau directement connecté uniquement à l’intérieur d’une seule interface",
+        "À transporter le mot de passe d’authentification",
+        "À annoncer des informations de réseau inter-aires générées par un ABR",
+        "À élire le DR"
+      ],
+      "answer": 2,
+      "explanation": "Les LSA de type 3 portent des informations de résumé de réseau entre aires. Leur présence ne remplace pas la vérification de la RIB et des règles de filtrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur les routes externes d’une NSSA est correcte ?",
+      "choices": [
+        "Elles sont toujours annoncées partout uniquement avec des LSA de type 1",
+        "Les LSA de type 5 traversent sans restriction toute NSSA",
+        "Les LSA de type 7 ne peuvent jamais être traduites",
+        "La NSSA utilise des LSA de type 7 pour les routes externes qu’elle introduit, avec traduction possible par l’ABR vers le type 5 à l’extérieur"
+      ],
+      "answer": 3,
+      "explanation": "Une NSSA permet d’introduire des routes externes à l’aide de LSA de type 7. Un ABR peut les traduire en type 5 pour la propagation hors de la NSSA, selon la conception."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement est caractéristique d’une aire OSPF de type stub classique ?",
+      "choices": [
+        "Elle n’accepte pas les LSA externes de type 5 et peut utiliser une route par défaut fournie par l’ABR",
+        "Elle supprime tous les Hello OSPF",
+        "Elle devient automatiquement l’Area 0",
+        "Elle bloque nécessairement toutes les LSA de type 3 dans toutes les implémentations"
+      ],
+      "answer": 0,
+      "explanation": "Une aire stub bloque les annonces externes de type 5 et reçoit généralement une route par défaut de l’ABR. Les variantes totalement stub sont des extensions dépendantes de la plate-forme et filtrent davantage d’informations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un routeur Cisco, que signifie généralement une route OSPF dont le coût total est inférieur à celui d’une route alternative vers le même préfixe dans le même contexte OSPF ?",
+      "choices": [
+        "Qu’elle a toujours un AS_PATH plus court",
+        "Qu’elle doit être rejetée comme route externe",
+        "Qu’elle est normalement préférée selon la métrique OSPF, sous réserve des règles de sélection applicables",
+        "Qu’elle ne peut pas être installée dans la RIB"
+      ],
+      "answer": 2,
+      "explanation": "OSPF choisit ses chemins à partir des coûts. Les types de routes et les règles de sélection inter-aires/externe doivent néanmoins être pris en compte ; on ne compare pas isolément des nombres sans le contexte de route."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux routeurs OSPF sur le même lien ont une Area ID différente. Quel symptôme est plausible ?",
+      "choices": [
+        "Le préfixe devient automatiquement une route par défaut",
+        "L’adjacence ne se forme pas normalement en raison du désaccord de paramètres d’aire",
+        "Les deux routeurs sont forcément élus DR",
+        "La session est transférée vers TCP 179"
+      ],
+      "answer": 1,
+      "explanation": "Les voisins doivent être configurés dans l’aire correspondante sur le lien. Un désaccord d’Area ID est une cause classique d’absence d’adjacence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un voisinage OSPF est FULL, mais le préfixe attendu n’est pas dans la table de routage. Quelle démarche est la plus pertinente ?",
+      "choices": [
+        "Supprimer les voisins puis désactiver les Hello",
+        "Changer l’Area ID au hasard",
+        "Conclure que le service applicatif est automatiquement disponible",
+        "Vérifier la LSDB, l’origine et la portée de la LSA, le type de route, la sélection RIB et le transfert"
+      ],
+      "answer": 3,
+      "explanation": "Un voisinage FULL ne prouve pas qu’un préfixe précis est annoncé, accepté ou sélectionné. Il faut suivre l’information depuis la LSDB jusqu’à la RIB, la FIB et le chemin de bout en bout."
+    }
+  ]
+}

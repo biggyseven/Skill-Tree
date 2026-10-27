@@ -1,3 +1,102 @@
-{"node_id":"eigrp-expert","scope":"quiz","questions":[
-  {"type":"qcm","prompt":"Quel est le principal avantage des Wide Metrics dans le Named Mode d'EIGRP ?","choices":["Ils supportent les liens à très haute vitesse (10 Gbps et plus)","Ils suppriment l'utilisation du DUAL","Ils permettent de configurer VTPv3","Ils remplacent l'authentification MD5"],"answer":0,"explanation":"Les Wide Metrics utilisent 64 bits, ce qui permet de calculer des métriques précises pour les liens très rapides sans saturation."}
-]}
+{
+  "node_id": "eigrp-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il interpréter la condition de faisabilité EIGRP ?",
+      "choices": [
+        "Elle est nécessaire pour identifier tous les chemins sans boucle possibles",
+        "Elle garantit que le voisin est toujours le chemin de coût minimal",
+        "Elle s’applique uniquement aux routes statiques",
+        "Elle est une condition suffisante pour garantir qu’un chemin est sans boucle, mais tous les chemins sans boucle ne la satisfont pas nécessairement"
+      ],
+      "answer": 3,
+      "explanation": "La RFC 7868 décrit la condition comme suffisante mais non nécessaire. Un chemin qui la satisfait est garanti sans boucle ; un chemin qui échoue au test n’est pas automatiquement prouvé en boucle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La FD enregistrée par EIGRP est-elle toujours identique à la métrique courante du meilleur chemin ?",
+      "choices": [
+        "Non. La FD est une référence historique liée à l’état DUAL depuis la dernière transition ACTIVE vers PASSIVE, et peut être inférieure à la meilleure métrique courante",
+        "Oui, elle est recalculée sans condition après chaque paquet",
+        "Oui, elle est uniquement l’adresse du successeur",
+        "Non, elle est le numéro d’AS EIGRP"
+      ],
+      "answer": 0,
+      "explanation": "La FD conserve la plus faible distance connue depuis la fin de la dernière computation selon la définition EIGRP. Elle n’est donc pas toujours la métrique courante du meilleur chemin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel périmètre la machine d’états DUAL raisonne-t-elle ?",
+      "choices": [
+        "Pour toutes les destinations du réseau avec un état unique",
+        "Indépendamment pour chaque destination, même si une panne peut affecter plusieurs destinations",
+        "Uniquement pour les interfaces Ethernet",
+        "Uniquement pendant un redémarrage du routeur"
+      ],
+      "answer": 1,
+      "explanation": "Le calcul d’état DUAL est effectué par destination. Un incident de lien peut déclencher des calculs pour plusieurs destinations, mais chaque route a son propre état."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles mesures peuvent aider à limiter la portée des requêtes EIGRP et les risques de convergence étendue ?",
+      "choices": [
+        "Désactiver l’IGP dans le backbone",
+        "Diffuser les requêtes sans filtre vers toutes les branches",
+        "Concevoir les frontières de résumé et les routeurs stub en vérifiant soigneusement la couverture des préfixes",
+        "Employer des Router ID identiques sur les voisins"
+      ],
+      "answer": 2,
+      "explanation": "Le résumé et EIGRP Stub peuvent réduire la portée des requêtes. Leur conception doit préserver les routes nécessaires et tenir compte des conséquences de rejet d’un agrégat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Face à un incident SIA, quelle approche est la plus défendable ?",
+      "choices": [
+        "Augmenter tous les timers et conclure à la résolution",
+        "Supprimer les routes de secours sans analyser la topologie",
+        "Désactiver les messages EIGRP pour réduire le bruit",
+        "Suivre la chronologie Query/Reply, les voisins en attente, les pertes ou congestions et les causes de retard"
+      ],
+      "answer": 3,
+      "explanation": "SIA signale que la résolution d’une destination reste active trop longtemps. Il faut localiser la réponse manquante ou tardive et le domaine de requête plutôt que masquer le symptôme par un changement non mesuré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les métriques étendues EIGRP sur les plates-formes qui les prennent en charge ?",
+      "choices": [
+        "À améliorer la granularité des métriques pour les liens à très haut débit, sous réserve de compatibilité et de paramètres cohérents",
+        "À remplacer la condition de faisabilité",
+        "À transformer tous les chemins en routes par défaut",
+        "À chiffrer les messages Query et Reply"
+      ],
+      "answer": 0,
+      "explanation": "Les wide metrics améliorent la représentation des métriques pour les liens rapides. Leur prise en charge et les règles de compatibilité dépendent de la version et de la plate-forme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble de contrôles convient à une redistribution EIGRP/OSPF en production ?",
+      "choices": [
+        "Redistribuer de manière bidirectionnelle toutes les routes",
+        "Définir des métriques explicites, filtrer les préfixes, marquer leur provenance et tester les scénarios de boucle",
+        "Se fier uniquement à la valeur du Router ID",
+        "Supprimer les routes connectées pour simplifier la table"
+      ],
+      "answer": 1,
+      "explanation": "La redistribution peut créer des boucles et de la fuite de routes si la provenance n’est pas contrôlée. Les filtres, les métriques et les tags doivent être cohérents dans chaque sens."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route est visible dans la RIB, mais un test de trafic échoue après une convergence EIGRP. Que faut-il vérifier ?",
+      "choices": [
+        "Uniquement le texte de la commande `router eigrp`",
+        "Seulement l’état PASSIVE de la destination",
+        "La programmation FIB/adjacence, les ACL et le chemin retour, en plus de la route retenue",
+        "Seulement le nombre de voisins OSPF"
+      ],
+      "answer": 2,
+      "explanation": "Une route sélectionnée ne garantit pas à elle seule que le trafic est transféré jusqu’au service. Il faut vérifier le plan de données, les adjacences de transfert, les politiques et le chemin retour."
+    }
+  ]
+}

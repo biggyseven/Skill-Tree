@@ -1,4 +1,102 @@
-{"node_id":"eigrp-intermediaire","scope":"quiz","questions":[
-  {"type":"qcm","prompt":"Que signifie la Condition de Faisabilité (Feasibility Condition) dans EIGRP ?","choices":["La RD du voisin est strictement inférieure à la FD locale","La FD du voisin est strictement inférieure à la RD locale","La métrique est égale à zéro","Le voisin est en état actif"],"answer":0,"explanation":"La FC stipule que pour être Feasible Successor, la Reported Distance (RD) du voisin doit être inférieure à la Feasible Distance (FD) locale. Cela garantit l'absence de boucle."},
-  {"type":"qcm","prompt":"Quel mode de configuration EIGRP permet de gérer IPv4 et IPv6 dans le même processus ?","choices":["Classic Mode","Named Mode","Stub Mode","Passive Mode"],"answer":1,"explanation":"Le Named Mode (ex: router eigrp PROD) permet de configurer plusieurs address-family (IPv4, IPv6) au sein d'un même processus EIGRP."}
-]}
+{
+  "node_id": "eigrp-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelles conditions s’appliquent à un chemin candidat au partage de charge EIGRP avec `variance` ?",
+      "choices": [
+        "Il suffit qu’il soit présent dans la table ARP",
+        "Il doit satisfaire la condition de faisabilité et respecter le seuil de métrique lié à la variance, selon les règles de la plate-forme",
+        "Il doit avoir une métrique nulle",
+        "Il doit appartenir à une autre aire OSPF"
+      ],
+      "answer": 1,
+      "explanation": "`variance` autorise certains chemins de coût inégal, mais ne supprime pas les règles de faisabilité. Il faut vérifier les candidats effectivement installés et le comportement de la plate-forme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi EIGRP peut-il installer une route Null0 associée à un résumé ?",
+      "choices": [
+        "Pour forcer toutes les routes spécifiques à être retirées",
+        "Pour établir la session de voisinage",
+        "Pour attribuer une adresse IP au routeur",
+        "Pour éviter que des destinations inconnues contenues dans l’agrégat soient renvoyées vers une autre route annonçant le même résumé"
+      ],
+      "answer": 3,
+      "explanation": "La route de rejet de l’agrégat peut prévenir les boucles. Elle provoque aussi un rejet pour les destinations couvertes par le résumé mais sans route plus spécifique ; il faut vérifier cette conséquence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif courant d’EIGRP Stub sur un routeur de branche ?",
+      "choices": [
+        "Limiter les requêtes diffusées vers la branche en indiquant aux voisins les catégories de routes qu’elle annonce",
+        "Empêcher la branche d’annoncer toute route vers le reste du réseau",
+        "Remplacer le calcul DUAL par SPF",
+        "Forcer le routeur à devenir successeur pour chaque destination"
+      ],
+      "answer": 0,
+      "explanation": "EIGRP Stub permet de caractériser un routeur de branche et de réduire la portée des requêtes. Il continue à annoncer les routes prévues par sa configuration stub."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage le mode nommé EIGRP apporte-t-il notamment ?",
+      "choices": [
+        "Il élimine le besoin de paramètres de métrique",
+        "Il convertit automatiquement EIGRP en OSPF",
+        "Il organise la configuration en hiérarchie et peut gérer plusieurs address-family selon la plate-forme",
+        "Il interdit toute redistribution"
+      ],
+      "answer": 2,
+      "explanation": "Le mode nommé offre une structure de configuration hiérarchique et, selon l’implémentation, permet de regrouper les paramètres et address-family. La syntaxe doit être vérifiée sur la version cible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lors d’une redistribution entre OSPF et EIGRP, que faut-il prévoir ?",
+      "choices": [
+        "Redistribuer toutes les routes sans inspection",
+        "Définir les préfixes autorisés, les métriques nécessaires et des tags ou filtres anti-boucle",
+        "Supprimer les tables topologiques avant chaque mise à jour",
+        "Configurer la même adresse IP sur les routeurs de frontière"
+      ],
+      "answer": 1,
+      "explanation": "La redistribution nécessite des métriques adaptées et des contrôles de provenance. Des filtres et tags cohérents permettent de limiter les boucles et les annonces non désirées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une destination EIGRP reste ACTIVE et la convergence tarde. Quelle piste est la plus pertinente ?",
+      "choices": [
+        "Changer immédiatement l’adresse du Router ID OSPF",
+        "Augmenter la MTU de tous les routeurs sans collecte",
+        "Désactiver tous les voisins",
+        "Rechercher les requêtes et réponses DUAL en attente, les voisins concernés, les pertes de paquets et la portée de la computation"
+      ],
+      "answer": 3,
+      "explanation": "ACTIVE indique une computation en cours pour une destination. Il faut rechercher quelles requêtes n’ont pas reçu de réponse, et pourquoi, plutôt que modifier arbitrairement les timers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route est visible dans la table topologique EIGRP mais pas installée dans la RIB. Que faut-il analyser ?",
+      "choices": [
+        "La sélection du successeur, la condition de faisabilité, la métrique et la résolution du prochain saut",
+        "Uniquement l’adresse MAC du serveur web",
+        "Le numéro de port TCP de BGP",
+        "Le nom DNS de l’AS"
+      ],
+      "answer": 0,
+      "explanation": "La table topologique conserve des informations de chemins candidats. Toutes les routes connues n’ont pas vocation à être installées dans la table de routage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi `variance` ne garantit-elle pas une répartition égale du trafic entre tous les liens candidats ?",
+      "choices": [
+        "Parce qu’EIGRP ne peut jamais installer plusieurs routes",
+        "Parce qu’il s’agit toujours de routes OSPF",
+        "Parce que l’installation des routes et la répartition réelle des flux sont distinctes et dépendent du mécanisme de transfert",
+        "Parce que les routes EIGRP ne peuvent pas avoir de métrique"
+      ],
+      "answer": 2,
+      "explanation": "`variance` agit sur l’éligibilité de chemins de coût inégal. La répartition du trafic dépend ensuite du plan de données, du hachage et de la configuration."
+    }
+  ]
+}
