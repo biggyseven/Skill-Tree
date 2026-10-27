@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Frameworks ITIL (incidents, changements) » ?",
+      "prompt": "Quel est l'objectif principal de la gestion des incidents ?",
       "choices": [
-        "Le sujet principal du cours : Frameworks ITIL (incidents, changements)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Réécrire toute l'architecture",
+        "Rétablir le service et réduire l'impact de l'interruption",
+        "Exiger une cause racine confirmée avant toute action",
+        "Remplacer la gestion des changements"
+      ],
+      "answer": 1,
+      "explanation": "La gestion des incidents se concentre sur le rétablissement et la limitation de l'impact ; l'analyse de fond peut continuer séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert la gestion des problèmes ?",
+      "choices": [
+        "Remplacer chaque demande de service",
+        "Fermer tous les incidents immédiatement",
+        "Analyser les causes et réduire le risque de récurrence",
+        "Modifier rétroactivement les SLA"
+      ],
+      "answer": 2,
+      "explanation": "La gestion des problèmes cherche à comprendre les causes ou facteurs contributifs et à réduire les récidives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un nouvel employé demande un accès standard préautorisé et validé. Quel flux est généralement approprié ?",
+      "choices": [
+        "Demande de service selon le processus défini",
+        "Incident majeur automatiquement",
+        "Analyse post-incident",
+        "Urgence de changement systématique"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Un accès standard peut relever d'une demande de service lorsqu'il respecte les règles et autorisations prévues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui caractérise un changement standard ?",
+      "choices": [
+        "Il n'a besoin d'aucune règle ni documentation",
+        "Il doit toujours être traité par un comité de direction",
+        "Il peut être réalisé par n'importe qui sans contrôle",
+        "Il est à faible risque, documenté et préapprouvé dans un périmètre défini"
+      ],
+      "answer": 3,
+      "explanation": "La préapprobation s'applique à une procédure et un périmètre clairement contrôlés ; elle ne supprime pas les règles d'exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une modification urgente doit être appliquée pour réduire une menace. Quelle affirmation est correcte ?",
+      "choices": [
+        "L'urgence autorise à ignorer les preuves et le retour arrière",
+        "Un processus accéléré doit quand même définir l'autorité, le risque, les contrôles et la revue adaptée",
+        "La modification doit être enregistrée seulement si elle échoue",
+        "Les tests après changement sont toujours inutiles"
+      ],
+      "answer": 1,
+      "explanation": "Un changement d'urgence suit un chemin accéléré mais reste traçable et contrôlé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le service est rétabli mais la cause reste inconnue. Quelle pratique est raisonnable ?",
+      "choices": [
+        "Conserver le service indisponible jusqu'à trouver la cause",
+        "Déclarer une cause racine au hasard",
+        "Clôturer l'incident si les critères de rétablissement sont satisfaits et suivre le problème séparément si nécessaire",
+        "Supprimer les journaux pour éviter la confusion"
+      ],
+      "answer": 2,
+      "explanation": "Le rétablissement et l'analyse de fond ont des objectifs distincts et peuvent être suivis dans des enregistrements liés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un test post-changement échoue et le seuil d'arrêt défini est atteint. Que doit-on faire ?",
+      "choices": [
+        "Arrêter et appliquer le retour arrière ou l'escalade approuvée",
+        "Clôturer parce que la commande s'est terminée",
+        "Masquer le résultat au responsable",
+        "Modifier la définition de réussite après coup"
+      ],
+      "answer": 0,
+      "explanation": "Les critères d'arrêt et le plan de retour arrière doivent être appliqués si les tests ne respectent pas les objectifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il interpréter les indicateurs ITSM avec le contexte et la qualité de résolution ?",
+      "choices": [
+        "Pour éviter d'enregistrer les tickets",
+        "Parce qu'un indicateur élevé prouve toujours que le service est bon",
+        "Pour pouvoir ignorer la satisfaction",
+        "Parce qu'une amélioration apparente peut résulter de sous-déclaration ou de clôtures prématurées"
+      ],
+      "answer": 3,
+      "explanation": "Les indicateurs peuvent être trompeurs si les règles de calcul et les effets sur les utilisateurs ne sont pas examinés."
     }
   ]
 }

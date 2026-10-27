@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Gestion de l'escalade (N1/N2/N3) » ?",
+      "prompt": "Quelle situation correspond à une escalade fonctionnelle ?",
       "choices": [
-        "Le sujet principal du cours : Gestion de l'escalade (N1/N2/N3)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Informer uniquement le client à la clôture",
+        "Transférer le ticket à l'équipe qui possède l'expertise nécessaire",
+        "Changer la priorité sans motif",
+        "Fermer le ticket après une réponse automatique"
+      ],
+      "answer": 1,
+      "explanation": "L'escalade fonctionnelle confie le diagnostic ou l'action à une équipe disposant de l'expertise ou des accès appropriés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une escalade hiérarchique peut-elle être nécessaire ?",
+      "choices": [
+        "Lorsqu'un ticket contient une faute de frappe",
+        "Pour éviter d'ajouter des résultats de tests",
+        "Quand l'impact est important ou qu'une décision dépasse l'autorité de l'équipe",
+        "Chaque fois qu'un utilisateur demande un mot de passe"
+      ],
+      "answer": 2,
+      "explanation": "Elle mobilise une autorité pour la coordination, la priorité ou une décision qui dépasse le niveau courant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles informations rendent un transfert utile au niveau suivant ?",
+      "choices": [
+        "Impact, heure, symptômes, tests avec résultats, actions déjà faites et prochaine étape",
+        "Seulement « ça ne marche pas »",
+        "Le mot de passe de l'utilisateur",
+        "Une supposition présentée comme un fait"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le destinataire doit pouvoir comprendre et poursuivre le diagnostic sans répéter les contrôles ni exposer des secrets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le ping d'un serveur réussit, mais le contrôle HTTP échoue. Quelle décision est adaptée ?",
+      "choices": [
+        "Clôturer : le serveur répond",
+        "Réinitialiser immédiatement le serveur sans autorisation",
+        "Déclarer que le fournisseur est fautif",
+        "Documenter les résultats et poursuivre le diagnostic applicatif ou escalader"
+      ],
+      "answer": 3,
+      "explanation": "Le ping confirme une réponse réseau ciblée mais pas le fonctionnement de l'application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "L'impact augmente et le délai de prise en charge approche de sa limite. Que doit faire le support ?",
+      "choices": [
+        "Masquer l'alerte pour éviter le bruit",
+        "Appliquer l'escalade technique et hiérarchique prévue et documenter la situation",
+        "Attendre sans informer personne",
+        "Créer de nouveaux tickets sans relier les incidents"
+      ],
+      "answer": 1,
+      "explanation": "L'escalade prévue mobilise les bons intervenants et permet d'alerter les responsables sans perdre la traçabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ticket a été envoyé au N2, mais personne n'a confirmé la prise en charge. Que faut-il faire si l'incident est critique ?",
+      "choices": [
+        "Considérer que le transfert suffit",
+        "Clôturer le ticket",
+        "Suivre le mécanisme d'astreinte ou d'escalade prévu et vérifier la prise en charge",
+        "Supprimer la chronologie"
+      ],
+      "answer": 2,
+      "explanation": "Un transfert non accepté ne garantit pas que quelqu'un agit ; le processus doit prévoir un suivi explicite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "En cas de suspicion de compromission, quelle pratique est la plus sûre ?",
+      "choices": [
+        "Suivre le circuit de sécurité autorisé et préserver les preuves",
+        "Effacer les journaux avant transfert",
+        "Partager les identifiants dans le ticket",
+        "Réinstaller immédiatement toutes les machines touchées sans coordination"
+      ],
+      "answer": 0,
+      "explanation": "Il faut préserver les preuves et limiter les accès et actions aux personnes habilitées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément est nécessaire avant de clôturer un incident rétabli ?",
+      "choices": [
+        "Une hypothèse non testée sur la cause",
+        "Un transfert vers n'importe quelle équipe",
+        "La suppression des tickets similaires",
+        "La validation du service par un contrôle pertinent et une documentation du résultat"
+      ],
+      "answer": 3,
+      "explanation": "La clôture s'appuie sur un critère de rétablissement et une trace, pas sur une correction supposée."
     }
   ]
 }
