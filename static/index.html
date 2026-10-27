@@ -1211,7 +1211,7 @@
         <div id="tree-grid" class="flex flex-col gap-10">
           <template x-for="(category, categoryIndex) in categories" :key="category.name">
             <section>
-              <div class="mb-5 flex items-center gap-4"><h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white" x-text="category.name"></h2><span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-400"><span x-text="category.validated"></span>/<span x-text="category.items.length"></span></span><div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div></div>
+              <div class="mb-5 flex items-center gap-4"><h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white" x-text="category.name === 'Data &amp; Bases de données' ? '📊 ' + category.name : category.name"></h2><span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-400"><span x-text="category.validated"></span>/<span x-text="category.items.length"></span></span><div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div></div>
               <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <template x-for="(node, nodeIndex) in category.items" :key="node.id">
                   <div class="animate-rise relative h-full" :style="`animation-delay: ${Math.min(categoryIndex * 60 + nodeIndex * 45, 500)}ms`">
@@ -5326,6 +5326,32 @@
         intermediaire: ['Docker Compose et registres', 'CI/CD avec GitHub Actions et GitLab CI', 'Infrastructure as Code avec Terraform', 'Configuration avec Ansible', 'Observabilité : Prometheus et Grafana', 'Kubernetes : les bases'],
         expert: ['Kubernetes avancé : réseau et sécurité', 'GitOps avec ArgoCD', 'IaC à grande échelle', 'SRE : SLI, SLO et gestion des incidents', 'DevSecOps', 'Service mesh'] } },
       { id: 'cloud', label: 'Cloud Computing', short: 'Cloud', icon: '☁️', roadmap: {} },
+      { id: 'data', label: 'Data & Bases de données', short: 'Data', icon: '📊', roadmap: {
+        debutant: [
+          'Concepts des bases de données relationnelles',
+          'Requêtes SQL de base (SELECT, INSERT)',
+          'Modélisation et diagrammes (MCD/MLD)',
+          'Jointures et agrégations SQL',
+          'Normalisation (1NF, 2NF, 3NF)',
+          'Travaux pratiques (MySQL/PostgreSQL)'
+        ],
+        intermediaire: [
+          'Rôle du DBA et architecture SGBD',
+          'Sous-requêtes, CTE et procédures stockées',
+          'Indexation et plans d’exécution',
+          'Backup, PITR et restauration',
+          'Introduction à MongoDB et Redis',
+          'Entrepôt de données et ETL'
+        ],
+        expert: [
+          'Architecture Hadoop et Spark',
+          'Kafka et traitement en temps réel',
+          'Data Lakes et Lakehouse',
+          'Chiffrement, RGPD et contrôle d’accès',
+          'Qualité, lignage et gouvernance',
+          'Pipelines de données complexes'
+        ]
+      } },
       { id: 'telecom', label: 'Opérateurs & Télécoms', short: 'Télécoms', icon: '📡', roadmap: {} },
       { id: 'voix', label: 'Voix & Collaboration', short: 'Voix', icon: '📞', roadmap: {} },
       { id: 'ot', label: 'Réseaux Industriels (OT)', short: 'OT', icon: '🏭', roadmap: {} },
@@ -5669,6 +5695,7 @@
           
           // 1. D'abord, on vérifie le champ "module" exact.
           const raw = String(n.module || '').trim();
+          if (raw === 'Data & Bases de données' || raw.toLowerCase().startsWith('data')) return 'data';
           if (raw === 'Cybersécurité') return 'cybersecurite';
           
           if (raw === 'Réseaux Industriels (OT)') return 'ot';
@@ -5680,6 +5707,7 @@
           if (raw === 'Administration Réseaux') return 'admin-reseaux';
 
           // 2. Ensuite, on vérifie l'ID du cours (au cas où le champ module serait absent).
+          if (id.startsWith('data-')) return 'data';
           if (id.startsWith('secu-')) return 'cybersecurite';
           if (id.startsWith('ot-')) return 'ot';
           if (id.startsWith('cloud-aws') || id.startsWith('cloud-azure') || id.startsWith('cloud-gcp') || id.startsWith('cloud-serverless')) return 'cloud';
