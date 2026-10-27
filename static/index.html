@@ -4805,7 +4805,7 @@
             if (!isContentsList(list)) return;
             const heading = list.previousElementSibling;
             list.remove();
-            if (heading && /^H[1-6]$/.test(heading.tagName) && /^(sommaire|table des matières|table des matieres|plan du cours)$/iu.test(heading.textContent.trim())) heading.remove();
+            if (heading && /^H[1-6]$/.test(heading.tagName) && /^(?:sommaire(?: du (?:cours|module|chapitre))?|table des matières(?: du cours)?|table des matieres(?: du cours)?|plan du cours)$/iu.test(heading.textContent.trim())) heading.remove();
           });
 
           // Préserver les signes de ponctuation du cours et ne jamais inventer de ponctuation à la fin d'un bloc.
@@ -4986,7 +4986,12 @@
             .trim();
           if (!normalized) return [];
 
-          const paragraphs = normalized.split(/\n{2,}/).map(part => part.replace(/\n+/g, ' ').trim()).filter(Boolean);
+          const paragraphs = normalized.split(/\n{2,}/).map(part => {
+            const paragraph = part.replace(/\n+/g, ' ').trim();
+            if (!paragraph) return '';
+            // Un bloc ou élément de liste sans ponctuation finale doit quand même produire une pause nette.
+            return /[.!?…;:]$/u.test(paragraph) ? paragraph : paragraph + '.';
+          }).filter(Boolean);
           const chunks = [];
           const appendSentence = sentence => {
             const clean = String(sentence || '').replace(/\s+/g, ' ').trim();
@@ -5012,6 +5017,9 @@
             if (part) chunks.push(part);
           };
 
+          // Le blanc entre paragraphes devient une pause grâce à la ponctuation, sans lancer
+          // un nouvel appel audio à chaque bloc. Le groupe ne se réinitialise qu'en cas de longueur.
+          let group = '';
           for (const paragraph of paragraphs) {
             let sentences;
             if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
@@ -5021,9 +5029,6 @@
               // Le fallback conserve les points, interrogations, exclamations, points-virgules et deux-points.
               sentences = paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
             }
-            // Garder plusieurs phrases voisines dans un même segment audio pour une prosodie
-            // plus continue ; ne couper qu’aux limites de paragraphe ou lorsqu’un segment devient long.
-            let group = '';
             sentences.forEach(sentence => {
               const candidate = group ? group + ' ' + sentence : sentence;
               if (group && candidate.length > maxLength) {
@@ -5033,8 +5038,8 @@
                 group = candidate;
               }
             });
-            if (group) appendSentence(group);
           }
+          if (group) appendSentence(group);
           return chunks;
         },
         async loadSpeechChunk(index, runId) {
