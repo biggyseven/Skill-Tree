@@ -17,10 +17,10 @@ class SecurityBaselineTests(unittest.TestCase):
             middleware for middleware in api.app.user_middleware
             if middleware.cls is CORSMiddleware
         )
-        self.assertEqual(cors.options["allow_origins"], [])
-        self.assertFalse(cors.options["allow_credentials"])
-        self.assertEqual(cors.options["allow_methods"], ["GET", "POST"])
-        self.assertEqual(cors.options["allow_headers"], ["Authorization", "Content-Type"])
+        self.assertEqual(cors.kwargs["allow_origins"], [])
+        self.assertFalse(cors.kwargs["allow_credentials"])
+        self.assertEqual(cors.kwargs["allow_methods"], ["GET", "POST"])
+        self.assertEqual(cors.kwargs["allow_headers"], ["Authorization", "Content-Type"])
 
     def test_cors_environment_accepts_only_explicit_http_origins(self) -> None:
         self.assertEqual(
