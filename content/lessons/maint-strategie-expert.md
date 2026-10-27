@@ -382,6 +382,26 @@ La revue confronte objectifs, actifs, risques, incidents, efficacité des politi
 Une stratégie mature n'est pas un document figé à cinq ans. Elle fournit une direction stable et un processus d'adaptation aux signaux réels. La valeur apparaît lorsque les politiques sont cohérentes avec les fonctions, les investissements arrivent au bon moment, les exceptions sont maîtrisées et les résultats sont revus à partir de preuves.
 
 
+
+## Évaluer la performance d'une stratégie sans favoriser un seul KPI
+
+Un portefeuille ne doit pas être évalué à partir d'un indicateur qui récompense un comportement contraire au but de maintenance. Un ratio élevé de maintenance préventive peut coexister avec des tâches mal choisies. Un MTTR plus faible peut refléter la clôture de tickets avant validation. Une baisse du coût peut provenir du report de tâches ou de la réduction de stock critique. Relier chaque KPI à une preuve de qualité et à une vue par criticité aide à identifier les effets pervers.
+
+La revue peut comparer quatre dimensions : résultats de service (disponibilité, interruptions, récurrence), efficacité des tâches (préventif, essais, maintenance conditionnelle), coût et capacité (budget, pièces, charge) et exposition au risque (obsolescence, absence de compétences, exceptions, dépendances). Les tendances sont interprétées sur une population cohérente, avec les changements de définition et les données manquantes visibles. Les actifs sans mesure ne disparaissent pas du rapport ; leur absence de données constitue elle-même une question de gouvernance.
+
+### Exemple de décision stratégique
+
+Une famille d'équipements présente une baisse du nombre de pannes déclarées et une hausse des coûts de maintenance. Avant de décider de réduire le préventif, analyser les événements, les pièces consommées, les tâches ajoutées, l'âge et l'intensité d'utilisation. Le nombre de pannes peut avoir diminué parce qu'un composant a été remplacé, mais les coûts peuvent refléter un rattrapage temporaire nécessaire. Une série de plusieurs périodes et une vérification des causes est plus utile qu'une réaction au dernier mois.
+
+Pour comparer les politiques, définir la baseline, le périmètre, l'horizon, les coûts inclus, les risques et le critère de réussite. Si un pilote change l'intervalle de maintenance, sélectionner des actifs comparables ou un déploiement progressif, garder des mesures de sécurité et vérifier les effets inattendus. Ne pas réduire une tâche exigée par une obligation ou nécessaire à la sécurité sans l'autorité et les preuves appropriées.
+
+### Mise à jour du portefeuille
+
+Les décisions stratégiques doivent être reliées à la liste d'actifs et aux projets financés. Chaque initiative indique les hypothèses, les ressources, les besoins d'approvisionnement, le plan de transition, la fenêtre, le risque et le résultat attendu. Si une ressource clé ou une pièce devient indisponible, revoir le calendrier, la mitigation et le risque résiduel. L'ordre des projets peut changer, mais les décisions doivent être traçables afin d'expliquer pourquoi une action critique a été différée.
+
+Une stratégie efficace ne promet pas zéro panne ; elle optimise le niveau de risque acceptable et la valeur sur le cycle de vie, tout en respectant les obligations applicables. Son amélioration est continue : les données, les RETEX, les audits, les changements et les contraintes de capacité révisent les hypothèses, et les résultats sont vérifiés avant de généraliser une nouvelle politique.
+
+
 ## Ressources techniques et références
 
 - [ISO 55000:2024 — gestion d'actifs, principes et cycle de vie](https://www.iso.org/standard/83053.html)
