@@ -884,9 +884,7 @@ test('le menu contextuel démarre la lecture vocale depuis la section visée', a
     .replace(/^\s*\d+(?:\.\d+)*[.)]?\s+/u, '')
     .replace(/[ \t]+/gu, ' ')
     .trim();
-  const expectedHeadingSpeech = /[.!?…;:]$/u.test(normalizedHeadingText)
-    ? normalizedHeadingText
-    : normalizedHeadingText + '.';
+  const expectedHeadingTitle = normalizedHeadingText.replace(/[.:;]+$/u, '').trim();
 
   // Garde le test indépendant du fournisseur audio et ne lance aucun flux réseau TTS.
   await page.evaluate(() => {
@@ -913,7 +911,7 @@ test('le menu contextuel démarre la lecture vocale depuis la section visée', a
   expect(speech.start).toBe(headingId);
   expect(speech.kind).toBe('lesson');
   expect(speech.status).toBe('starting');
-  expect(speech.text.startsWith('Section : ' + expectedHeadingSpeech)).toBe(true);
+  expect(speech.text.startsWith('Commençons par la partie « ' + expectedHeadingTitle + ' ».')).toBe(true);
   await expect(page.getByRole('group', { name: 'Commandes flottantes de lecture vocale' })).toBeVisible();
 });
 
@@ -1056,7 +1054,7 @@ test('le sélecteur Démarrer à fait aussi commencer la lecture à la section c
   const targetId = await targetHeading.getAttribute('id');
   const targetText = (await targetHeading.innerText()).replace(/\s+/g, ' ').trim()
     .replace(/^\s*\d+(?:\.\d+)*[.)]?\s+/u, '')
-    .replace(/[.!?…:;]+$/u, '')
+    .replace(/[.:;]+$/u, '')
     .trim();
 
   await page.evaluate(() => {
@@ -1071,7 +1069,7 @@ test('le sélecteur Démarrer à fait aussi commencer la lecture à la section c
   await page.getByRole('button', { name: 'Écouter le cours' }).click();
 
   const speechText = await page.evaluate(() => window.Alpine.$data(document.body).speechQueue.join(' '));
-  expect(speechText.startsWith('Section : ' + targetText + '.')).toBe(true);
+  expect(speechText.startsWith('Commençons par la partie « ' + targetText + ' ».')).toBe(true);
 });
 
 
@@ -1398,6 +1396,6 @@ test('un lien openLab ouvre le Workspace quand la topologie est exposée à la r
     return url.pathname + url.search;
   }, { timeout: 45_000 }).toBe('/lab.html?id=fixture-topology-root');
   await expect(page.getByText('Lab actif', { exact: true })).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByText('Scénario de test depuis un lien', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Scénario de test depuis un lien', exact: true })).toBeVisible();
 });
 
