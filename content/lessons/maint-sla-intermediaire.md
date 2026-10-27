@@ -1,3 +1,3 @@
-# SLA, SLO et gestion des engagements — Intermédiaire
+# SLA, OLA et satisfaction utilisateur
 
 [Contenu à rédiger]

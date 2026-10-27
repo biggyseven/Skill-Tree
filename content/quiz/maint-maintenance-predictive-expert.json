@@ -1,0 +1,18 @@
+{
+  "node_id": "maint-maintenance-predictive-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Maintenance prédictive (IA, IoT) » ?",
+      "choices": [
+        "Le sujet principal du cours : Maintenance prédictive (IA, IoT)",
+        "Un sujet sans rapport avec la maintenance",
+        "Une réponse non vérifiée",
+        "Aucune vérification n'est nécessaire"
+      ],
+      "answer": 0,
+      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+    }
+  ]
+}

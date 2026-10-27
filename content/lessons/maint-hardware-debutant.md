@@ -1,3 +1,3 @@
-# Maintenance matérielle et composants (Hardware) — Débutant
+# Maintenance matérielle (PC, serveurs, baies)
 
 [Contenu à rédiger]

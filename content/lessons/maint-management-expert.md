@@ -1,3 +1,3 @@
-# Management d’une équipe support et maintenance — Expert
+# Management d'une équipe technique
 
 [Contenu à rédiger]

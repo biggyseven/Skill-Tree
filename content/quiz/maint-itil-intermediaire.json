@@ -4,15 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel point central devra être couvert dans le cours « ITIL et gestion des services IT — Intermédiaire » ?",
+      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Frameworks ITIL (incidents, changements) » ?",
       "choices": [
-        "Le sujet principal du cours, à préciser lors de la rédaction",
+        "Le sujet principal du cours : Frameworks ITIL (incidents, changements)",
         "Un sujet sans rapport avec la maintenance",
         "Une réponse non vérifiée",
-        "Aucune vérification n’est nécessaire"
+        "Aucune vérification n'est nécessaire"
       ],
       "answer": 0,
-      "explanation": "Question provisoire : à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
     }
   ]
 }

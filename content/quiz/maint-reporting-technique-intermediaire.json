@@ -1,0 +1,18 @@
+{
+  "node_id": "maint-reporting-technique-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger un rapport d'incident » ?",
+      "choices": [
+        "Le sujet principal du cours : Rédiger un rapport d'incident",
+        "Un sujet sans rapport avec la maintenance",
+        "Une réponse non vérifiée",
+        "Aucune vérification n'est nécessaire"
+      ],
+      "answer": 0,
+      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+    }
+  ]
+}

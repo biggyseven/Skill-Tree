@@ -1,3 +1,3 @@
-# Automatisation des tâches de maintenance — Intermédiaire
+# Automatiser les tâches (scripts, Ansible)
 
 [Contenu à rédiger]

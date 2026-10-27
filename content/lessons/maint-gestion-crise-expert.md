@@ -1,3 +1,3 @@
-# Gestion de crise et continuité de service — Expert
+# Gestion de crise et Plan de Reprise
 
 [Contenu à rédiger]

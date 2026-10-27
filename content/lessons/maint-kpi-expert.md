@@ -1,3 +1,3 @@
-# Conception et pilotage des KPI de maintenance — Expert
+# KPI de maintenance (MTTR, MTBF)
 
 [Contenu à rédiger]

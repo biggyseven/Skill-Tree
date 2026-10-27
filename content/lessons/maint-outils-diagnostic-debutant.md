@@ -1,3 +1,3 @@
-# Outils de diagnostic informatique — Débutant
+# Boîte à outils du technicien
 
 [Contenu à rédiger]

@@ -1,3 +1,3 @@
-# Gestion du parc informatique — Intermédiaire
+# Gestion de parc (GLPI, OCS)
 
 [Contenu à rédiger]

@@ -1,3 +1,3 @@
-# Capitalisation du savoir et knowledge management — Expert
+# Capitalisation des connaissances
 
 [Contenu à rédiger]

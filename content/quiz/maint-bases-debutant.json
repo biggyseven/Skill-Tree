@@ -1,0 +1,18 @@
+{
+  "node_id": "maint-bases-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Les fondamentaux de la maintenance » ?",
+      "choices": [
+        "Le sujet principal du cours : Les fondamentaux de la maintenance",
+        "Un sujet sans rapport avec la maintenance",
+        "Une réponse non vérifiée",
+        "Aucune vérification n'est nécessaire"
+      ],
+      "answer": 0,
+      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+    }
+  ]
+}

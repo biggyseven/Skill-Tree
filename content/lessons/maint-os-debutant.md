@@ -1,3 +1,3 @@
-# Maintenance des systèmes d’exploitation — Débutant
+# Maintenance des systèmes d'exploitation
 
 [Contenu à rédiger]

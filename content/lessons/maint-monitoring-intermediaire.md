@@ -1,3 +1,3 @@
-# Supervision et monitoring des services — Intermédiaire
+# Supervision réseau (Nagios, Zabbix)
 
 [Contenu à rédiger]

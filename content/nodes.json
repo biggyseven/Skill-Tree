@@ -7532,12 +7532,12 @@
     ]
   },
   {
-    "id": "maint-fondamentaux-debutant",
+    "id": "maint-bases-debutant",
     "module": "Maintenance & Reporting",
-    "title": "Fondamentaux de la maintenance informatique — Débutant",
+    "title": "Les fondamentaux de la maintenance",
     "category": "Fondamentaux",
     "order": 4308,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Les fondamentaux de la maintenance",
     "prereqs": [],
     "requirements": [
       {
@@ -7549,12 +7549,12 @@
   {
     "id": "maint-outils-diagnostic-debutant",
     "module": "Maintenance & Reporting",
-    "title": "Outils de diagnostic informatique — Débutant",
+    "title": "Boîte à outils du technicien",
     "category": "Outils diagnostic",
     "order": 4309,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Boîte à outils du technicien",
     "prereqs": [
-      "maint-fondamentaux-debutant"
+      "maint-bases-debutant"
     ],
     "requirements": [
       {
@@ -7566,12 +7566,12 @@
   {
     "id": "maint-hardware-debutant",
     "module": "Maintenance & Reporting",
-    "title": "Maintenance matérielle et composants (Hardware) — Débutant",
+    "title": "Maintenance matérielle (PC, serveurs, baies)",
     "category": "Hardware",
     "order": 4310,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Maintenance matérielle (PC, serveurs, baies)",
     "prereqs": [
-      "maint-fondamentaux-debutant"
+      "maint-outils-diagnostic-debutant"
     ],
     "requirements": [
       {
@@ -7583,12 +7583,12 @@
   {
     "id": "maint-os-debutant",
     "module": "Maintenance & Reporting",
-    "title": "Maintenance des systèmes d’exploitation — Débutant",
+    "title": "Maintenance des systèmes d'exploitation",
     "category": "OS",
     "order": 4311,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Maintenance des systèmes d'exploitation",
     "prereqs": [
-      "maint-fondamentaux-debutant"
+      "maint-hardware-debutant"
     ],
     "requirements": [
       {
@@ -7598,14 +7598,14 @@
     ]
   },
   {
-    "id": "maint-helpdesk-debutant",
+    "id": "maint-tickets-debutant",
     "module": "Maintenance & Reporting",
-    "title": "Fondamentaux du Helpdesk et support utilisateur — Débutant",
+    "title": "Gestion des tickets et du helpdesk",
     "category": "Helpdesk",
     "order": 4312,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Gestion des tickets et du helpdesk",
     "prereqs": [
-      "maint-fondamentaux-debutant"
+      "maint-os-debutant"
     ],
     "requirements": [
       {
@@ -7615,14 +7615,14 @@
     ]
   },
   {
-    "id": "maint-communication-debutant",
+    "id": "maint-glossaire-debutant",
     "module": "Maintenance & Reporting",
-    "title": "Communication avec les utilisateurs — Débutant",
+    "title": "Vocabulaire technique et communication",
     "category": "Communication",
     "order": 4313,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Vocabulaire technique et communication",
     "prereqs": [
-      "maint-helpdesk-debutant"
+      "maint-tickets-debutant"
     ],
     "requirements": [
       {
@@ -7634,12 +7634,12 @@
   {
     "id": "maint-documentation-debutant",
     "module": "Maintenance & Reporting",
-    "title": "Documentation technique et base de connaissances — Débutant",
+    "title": "Rédiger une fiche d'intervention",
     "category": "Documentation",
     "order": 4314,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Rédiger une fiche d'intervention",
     "prereqs": [
-      "maint-communication-debutant"
+      "maint-glossaire-debutant"
     ],
     "requirements": [
       {
@@ -7649,15 +7649,14 @@
     ]
   },
   {
-    "id": "maint-securite-base-debutant",
+    "id": "maint-securite-bases-debutant",
     "module": "Maintenance & Reporting",
-    "title": "Sécurité informatique de base pour le support — Débutant",
+    "title": "Sécurité de base pour les interventions",
     "category": "Sécurité base",
     "order": 4315,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Sécurité de base pour les interventions",
     "prereqs": [
-      "maint-fondamentaux-debutant",
-      "maint-os-debutant"
+      "maint-documentation-debutant"
     ],
     "requirements": [
       {
@@ -7669,13 +7668,12 @@
   {
     "id": "maint-monitoring-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Supervision et monitoring des services — Intermédiaire",
+    "title": "Supervision réseau (Nagios, Zabbix)",
     "category": "Monitoring",
     "order": 4316,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Supervision réseau (Nagios, Zabbix)",
     "prereqs": [
-      "maint-outils-diagnostic-debutant",
-      "maint-os-debutant"
+      "maint-securite-bases-debutant"
     ],
     "requirements": [
       {
@@ -7687,12 +7685,12 @@
   {
     "id": "maint-sauvegarde-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Sauvegarde et restauration — Intermédiaire",
+    "title": "Stratégies de sauvegarde (3-2-1)",
     "category": "Sauvegarde",
     "order": 4317,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Stratégies de sauvegarde (3-2-1)",
     "prereqs": [
-      "maint-os-debutant"
+      "maint-monitoring-intermediaire"
     ],
     "requirements": [
       {
@@ -7702,15 +7700,14 @@
     ]
   },
   {
-    "id": "maint-preventive-intermediaire",
+    "id": "maint-maintenance-preventive-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Maintenance préventive — Intermédiaire",
+    "title": "Planifier la maintenance préventive",
     "category": "Préventive",
     "order": 4318,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Planifier la maintenance préventive",
     "prereqs": [
-      "maint-hardware-debutant",
-      "maint-os-debutant"
+      "maint-sauvegarde-intermediaire"
     ],
     "requirements": [
       {
@@ -7722,13 +7719,12 @@
   {
     "id": "maint-gestion-parc-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Gestion du parc informatique — Intermédiaire",
+    "title": "Gestion de parc (GLPI, OCS)",
     "category": "Gestion parc",
     "order": 4319,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Gestion de parc (GLPI, OCS)",
     "prereqs": [
-      "maint-hardware-debutant",
-      "maint-outils-diagnostic-debutant"
+      "maint-maintenance-preventive-intermediaire"
     ],
     "requirements": [
       {
@@ -7738,14 +7734,14 @@
     ]
   },
   {
-    "id": "maint-procedures-intermediaire",
+    "id": "maint-procedure-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Procédures d’exploitation et de maintenance — Intermédiaire",
+    "title": "Rédiger des procédures et checklists",
     "category": "Procédures",
     "order": 4320,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Rédiger des procédures et checklists",
     "prereqs": [
-      "maint-documentation-debutant"
+      "maint-gestion-parc-intermediaire"
     ],
     "requirements": [
       {
@@ -7757,13 +7753,12 @@
   {
     "id": "maint-escalade-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Gestion des escalades du support — Intermédiaire",
+    "title": "Gestion de l'escalade (N1/N2/N3)",
     "category": "Escalade",
     "order": 4321,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Gestion de l'escalade (N1/N2/N3)",
     "prereqs": [
-      "maint-helpdesk-debutant",
-      "maint-communication-debutant"
+      "maint-procedure-intermediaire"
     ],
     "requirements": [
       {
@@ -7775,13 +7770,12 @@
   {
     "id": "maint-itil-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "ITIL et gestion des services IT — Intermédiaire",
+    "title": "Frameworks ITIL (incidents, changements)",
     "category": "ITIL",
     "order": 4322,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Frameworks ITIL (incidents, changements)",
     "prereqs": [
-      "maint-helpdesk-debutant",
-      "maint-documentation-debutant"
+      "maint-escalade-intermediaire"
     ],
     "requirements": [
       {
@@ -7793,13 +7787,12 @@
   {
     "id": "maint-rca-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Analyse des causes racines (RCA) — Intermédiaire",
+    "title": "Analyse de cause racine (5 Pourquoi, Ishikawa)",
     "category": "RCA",
     "order": 4323,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Analyse de cause racine (5 Pourquoi, Ishikawa)",
     "prereqs": [
-      "maint-outils-diagnostic-debutant",
-      "maint-documentation-debutant"
+      "maint-itil-intermediaire"
     ],
     "requirements": [
       {
@@ -7811,12 +7804,12 @@
   {
     "id": "maint-sla-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "SLA, SLO et gestion des engagements — Intermédiaire",
+    "title": "SLA, OLA et satisfaction utilisateur",
     "category": "SLA",
     "order": 4324,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "SLA, OLA et satisfaction utilisateur",
     "prereqs": [
-      "maint-itil-intermediaire"
+      "maint-rca-intermediaire"
     ],
     "requirements": [
       {
@@ -7826,15 +7819,14 @@
     ]
   },
   {
-    "id": "maint-reporting-incident-intermediaire",
+    "id": "maint-reporting-technique-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Reporting des incidents — Intermédiaire",
+    "title": "Rédiger un rapport d'incident",
     "category": "Reporting incident",
     "order": 4325,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Rédiger un rapport d'incident",
     "prereqs": [
-      "maint-escalade-intermediaire",
-      "maint-documentation-debutant"
+      "maint-sla-intermediaire"
     ],
     "requirements": [
       {
@@ -7846,13 +7838,12 @@
   {
     "id": "maint-reporting-mensuel-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Reporting mensuel de maintenance — Intermédiaire",
+    "title": "Rédiger un reporting mensuel",
     "category": "Reporting mensuel",
     "order": 4326,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Rédiger un reporting mensuel",
     "prereqs": [
-      "maint-monitoring-intermediaire",
-      "maint-reporting-incident-intermediaire"
+      "maint-reporting-technique-intermediaire"
     ],
     "requirements": [
       {
@@ -7864,13 +7855,12 @@
   {
     "id": "maint-automatisation-intermediaire",
     "module": "Maintenance & Reporting",
-    "title": "Automatisation des tâches de maintenance — Intermédiaire",
+    "title": "Automatiser les tâches (scripts, Ansible)",
     "category": "Automatisation",
     "order": 4327,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Automatiser les tâches (scripts, Ansible)",
     "prereqs": [
-      "maint-os-debutant",
-      "maint-outils-diagnostic-debutant"
+      "maint-reporting-mensuel-intermediaire"
     ],
     "requirements": [
       {
@@ -7880,14 +7870,13 @@
     ]
   },
   {
-    "id": "maint-predictive-expert",
+    "id": "maint-maintenance-predictive-expert",
     "module": "Maintenance & Reporting",
-    "title": "Maintenance prédictive et analyse de tendances — Expert",
+    "title": "Maintenance prédictive (IA, IoT)",
     "category": "Prédictive",
     "order": 4328,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Maintenance prédictive (IA, IoT)",
     "prereqs": [
-      "maint-monitoring-intermediaire",
       "maint-automatisation-intermediaire"
     ],
     "requirements": [
@@ -7898,15 +7887,14 @@
     ]
   },
   {
-    "id": "maint-audits-expert",
+    "id": "maint-audit-expert",
     "module": "Maintenance & Reporting",
-    "title": "Audits techniques et conformité — Expert",
+    "title": "Audits techniques et rapports de conformité",
     "category": "Audits",
     "order": 4329,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Audits techniques et rapports de conformité",
     "prereqs": [
-      "maint-procedures-intermediaire",
-      "maint-securite-base-debutant"
+      "maint-maintenance-predictive-expert"
     ],
     "requirements": [
       {
@@ -7918,13 +7906,12 @@
   {
     "id": "maint-kpi-expert",
     "module": "Maintenance & Reporting",
-    "title": "Conception et pilotage des KPI de maintenance — Expert",
+    "title": "KPI de maintenance (MTTR, MTBF)",
     "category": "KPI",
     "order": 4330,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "KPI de maintenance (MTTR, MTBF)",
     "prereqs": [
-      "maint-reporting-mensuel-intermediaire",
-      "maint-sla-intermediaire"
+      "maint-audit-expert"
     ],
     "requirements": [
       {
@@ -7936,13 +7923,12 @@
   {
     "id": "maint-capitalisation-expert",
     "module": "Maintenance & Reporting",
-    "title": "Capitalisation du savoir et knowledge management — Expert",
+    "title": "Capitalisation des connaissances",
     "category": "Capitalisation",
     "order": 4331,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Capitalisation des connaissances",
     "prereqs": [
-      "maint-documentation-debutant",
-      "maint-rca-intermediaire"
+      "maint-kpi-expert"
     ],
     "requirements": [
       {
@@ -7954,14 +7940,12 @@
   {
     "id": "maint-gestion-crise-expert",
     "module": "Maintenance & Reporting",
-    "title": "Gestion de crise et continuité de service — Expert",
+    "title": "Gestion de crise et Plan de Reprise",
     "category": "Gestion crise",
     "order": 4332,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Gestion de crise et Plan de Reprise",
     "prereqs": [
-      "maint-monitoring-intermediaire",
-      "maint-escalade-intermediaire",
-      "maint-sla-intermediaire"
+      "maint-capitalisation-expert"
     ],
     "requirements": [
       {
@@ -7971,15 +7955,14 @@
     ]
   },
   {
-    "id": "maint-appels-offres-expert",
+    "id": "maint-appel-offre-expert",
     "module": "Maintenance & Reporting",
-    "title": "Rédaction et analyse des appels d’offres IT — Expert",
-    "category": "Appels d’offres",
+    "title": "Rédaction d'appels d'offres",
+    "category": "Appels d'offres",
     "order": 4333,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Rédaction d'appels d'offres",
     "prereqs": [
-      "maint-audits-expert",
-      "maint-sla-intermediaire"
+      "maint-gestion-crise-expert"
     ],
     "requirements": [
       {
@@ -7989,15 +7972,14 @@
     ]
   },
   {
-    "id": "maint-fournisseurs-expert",
+    "id": "maint-vendor-expert",
     "module": "Maintenance & Reporting",
-    "title": "Gestion des fournisseurs et contrats IT — Expert",
+    "title": "Gestion des fournisseurs",
     "category": "Fournisseurs",
     "order": 4334,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Gestion des fournisseurs",
     "prereqs": [
-      "maint-appels-offres-expert",
-      "maint-sla-intermediaire"
+      "maint-appel-offre-expert"
     ],
     "requirements": [
       {
@@ -8009,13 +7991,12 @@
   {
     "id": "maint-management-expert",
     "module": "Maintenance & Reporting",
-    "title": "Management d’une équipe support et maintenance — Expert",
+    "title": "Management d'une équipe technique",
     "category": "Management",
     "order": 4335,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Management d'une équipe technique",
     "prereqs": [
-      "maint-escalade-intermediaire",
-      "maint-itil-intermediaire"
+      "maint-vendor-expert"
     ],
     "requirements": [
       {
@@ -8027,13 +8008,12 @@
   {
     "id": "maint-budget-expert",
     "module": "Maintenance & Reporting",
-    "title": "Budget et maîtrise des coûts de maintenance IT — Expert",
+    "title": "Budgétisation et calcul du ROI",
     "category": "Budget",
     "order": 4336,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Budgétisation et calcul du ROI",
     "prereqs": [
-      "maint-kpi-expert",
-      "maint-fournisseurs-expert"
+      "maint-management-expert"
     ],
     "requirements": [
       {
@@ -8045,13 +8025,12 @@
   {
     "id": "maint-transformation-expert",
     "module": "Maintenance & Reporting",
-    "title": "Transformation et modernisation du support IT — Expert",
+    "title": "Transformation numérique (ITSM, IA)",
     "category": "Transformation",
     "order": 4337,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Transformation numérique (ITSM, IA)",
     "prereqs": [
-      "maint-automatisation-intermediaire",
-      "maint-kpi-expert"
+      "maint-budget-expert"
     ],
     "requirements": [
       {
@@ -8063,14 +8042,12 @@
   {
     "id": "maint-strategie-expert",
     "module": "Maintenance & Reporting",
-    "title": "Stratégie de maintenance et gouvernance IT — Expert",
+    "title": "Stratégie de maintenance à long terme",
     "category": "Stratégie",
     "order": 4338,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Stratégie de maintenance à long terme",
     "prereqs": [
-      "maint-audits-expert",
-      "maint-management-expert",
-      "maint-budget-expert"
+      "maint-transformation-expert"
     ],
     "requirements": [
       {
@@ -8080,16 +8057,14 @@
     ]
   },
   {
-    "id": "maint-retex-expert",
+    "id": "maint-retour-experience-expert",
     "module": "Maintenance & Reporting",
-    "title": "RETEX et amélioration continue — Expert",
+    "title": "Retour d'expérience (RETEX)",
     "category": "RETEX",
     "order": 4339,
-    "description": "Ossature du module créée. Contenu pédagogique à rédiger.",
+    "description": "Retour d'expérience (RETEX)",
     "prereqs": [
-      "maint-rca-intermediaire",
-      "maint-gestion-crise-expert",
-      "maint-kpi-expert"
+      "maint-strategie-expert"
     ],
     "requirements": [
       {
