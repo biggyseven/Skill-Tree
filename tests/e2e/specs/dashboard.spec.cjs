@@ -268,7 +268,7 @@ test('la navigation du lecteur respecte l’ordre pédagogique et contextualise 
   await expect(page.locator('#course-reader-title')).toHaveText("Qu'est-ce qu'un réseau ? - Débutant");
   const navigation = page.getByRole('region', { name: 'Navigation entre les leçons' });
   await expect(navigation).toBeVisible();
-  await expect(navigation.getByText('Début du parcours', { exact: true })).toBeVisible();
+  await expect(navigation.getByText('Début du module', { exact: true })).toBeVisible();
   await expect(navigation.getByText('Étape 1 sur', { exact: false })).toBeVisible();
 
   const nextLesson = navigation.getByRole('button', {
@@ -349,7 +349,7 @@ test('la navigation du lecteur reste dans le module sélectionné, même quand l
   });
 });
 
-test('un cours cybersécurité en attente affiche un état de préparation au lieu d’un lecteur vide', async ({ page }) => {
+test('un cours cybersécurité complet affiche son contenu dans le lecteur', async ({ page }) => {
   await openDashboard(page);
 
   const searchInput = page.locator('input[x-ref="searchBox"]');
@@ -361,10 +361,12 @@ test('un cours cybersécurité en attente affiche un état de préparation au li
   await lessonResult.click();
 
   await expect(page.locator('#course-reader-title')).toHaveText('Analyse de malwares');
-  await expect(page.getByText('Contenu en préparation', { exact: true })).toBeVisible();
-  await expect(page.locator('[x-ref="lessonArticle"]')).toHaveCount(0);
+  await expect(page.getByText('Contenu en préparation', { exact: true })).toBeHidden();
+  const article = page.locator('[x-ref="lessonArticle"]');
+  await expect(article).toHaveCount(1);
+  await expect(article).toContainText('Mise en contexte');
+  await expect(article).toContainText('préserver les preuves');
   await expect(page.getByText(/Contenu de 5000 mots à rédiger/i)).toHaveCount(0);
-  await expect(page.getByTitle('Réduire le texte')).toBeHidden();
 });
 
 test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans un nouvel onglet', async ({ page }) => {
@@ -700,8 +702,8 @@ Poste de secours</code></pre>
   expect(narration).toContain('l’usage indiqué est « Web chiffré »');
   expect(narration).toContain('Pour DNS, le port utilisé est 53');
   expect(narration).toContain('l’usage indiqué est « Résolution de noms »');
-  expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « Serveur »');
-  expect(narration).toContain('Une liaison va du bloc « Serveur » vers le bloc « Base de données »');
+  expect(narration).toContain('Le schéma relie le bloc « Client » au bloc « Serveur »');
+  expect(narration).toContain('Le schéma relie le bloc « Serveur » au bloc « Base de données »');
   expect(narration).toContain('Tableau textuel.');
   expect(narration).toContain('Pour HTTP, le port utilisé est 80');
   expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
