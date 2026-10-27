@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « SLA, OLA et satisfaction utilisateur » ?",
+      "prompt": "Que doit préciser un SLA ?",
       "choices": [
-        "Le sujet principal du cours : SLA, OLA et satisfaction utilisateur",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Uniquement le nom du service",
+        "Le périmètre, les définitions de mesure, les objectifs, les périodes et les exclusions",
+        "Le nom de l'outil de ticketing seulement",
+        "Une cible sans unité"
+      ],
+      "answer": 1,
+      "explanation": "La définition permet de calculer et contester l'engagement de manière cohérente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un OLA sert à :",
+      "choices": [
+        "Remplacer l'ensemble des contrats client",
+        "Mesurer uniquement la satisfaction",
+        "Organiser les engagements internes entre équipes qui contribuent au service",
+        "Supprimer la responsabilité du fournisseur"
+      ],
+      "answer": 2,
+      "explanation": "Les engagements internes doivent permettre de tenir le niveau de service global."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une mesure ICMP seule est-elle insuffisante pour un SLA applicatif ?",
+      "choices": [
+        "Parce que l'ICMP est toujours faux",
+        "Parce qu'il n'y a aucun lien entre réseau et service",
+        "Parce que les mesures ne peuvent jamais être automatisées",
+        "Parce qu'un hôte peut répondre alors que la transaction métier échoue"
+      ],
+      "answer": 3,
+      "explanation": "Le point de mesure doit représenter le service qui a été promis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction est importante entre réponse et résolution ?",
+      "choices": [
+        "La première réponse et le rétablissement sont des étapes et des durées différentes",
+        "Les deux ont toujours la même durée",
+        "La réponse se mesure une fois par mois",
+        "La résolution est le moment de création du ticket"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Des définitions séparées permettent de repérer les blocages du processus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment doit être interprétée la satisfaction utilisateur ?",
+      "choices": [
+        "Comme une preuve absolue sans contexte",
+        "Avec le taux de réponse, la période, les commentaires et les biais possibles",
+        "Sans tenir compte du service concerné",
+        "En remplaçant toutes les métriques techniques"
+      ],
+      "answer": 1,
+      "explanation": "La satisfaction complète les métriques techniques et demande une lecture prudente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi mesurer l'âge des tickets en attente ?",
+      "choices": [
+        "Pour augmenter artificiellement le nombre de dossiers",
+        "Pour ignorer les retards",
+        "Pour identifier les blocages et risques de non-respect d'engagement",
+        "Pour supprimer les demandes anciennes"
+      ],
+      "answer": 2,
+      "explanation": "Le backlog et son ancienneté aident à piloter les files de traitement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire lorsqu'une exclusion contractuelle est contestée ?",
+      "choices": [
+        "Modifier la formule dans le rapport sans avertir",
+        "Choisir la valeur la plus favorable",
+        "Supprimer les données brutes",
+        "Appliquer la règle convenue et fournir les preuves de calcul"
+      ],
+      "answer": 3,
+      "explanation": "Une exclusion doit être explicite et appuyée par des données traçables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un OLA plus lent que la marge disponible du SLA :",
+      "choices": [
+        "Met l'engagement global en risque",
+        "Garantit automatiquement le respect du SLA",
+        "Est sans importance",
+        "Remplace la surveillance"
+      ],
+      "answer": 0,
+      "explanation": "Les étapes internes doivent laisser assez de marge pour atteindre l'objectif final."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une disponibilité doit-elle avoir un périmètre ?",
+      "choices": [
+        "Pour rendre le résultat plus élevé",
+        "Pour savoir précisément quels services, périodes et critères sont mesurés",
+        "Pour éviter toute discussion",
+        "Pour remplacer le SLA"
+      ],
+      "answer": 1,
+      "explanation": "Sans périmètre, un chiffre de disponibilité n'a pas de signification fiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi doit mener une revue de service ?",
+      "choices": [
+        "Uniquement à une présentation de graphiques",
+        "À l'archivage automatique des incidents",
+        "À des décisions, responsables, échéances et mesures de suivi",
+        "À une réinitialisation des KPI chaque mois"
+      ],
+      "answer": 2,
+      "explanation": "La revue doit transformer les écarts en actions suivies."
     }
   ]
 }
