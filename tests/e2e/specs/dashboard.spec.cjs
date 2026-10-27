@@ -532,6 +532,7 @@ test('la lecture vocale raconte les tableaux, les schémas ASCII et les relation
           <caption>Ports réseau</caption>
           <thead><tr><th>Protocole</th><th>Port</th><th>Usage</th></tr></thead>
           <tbody>
+            <tr><td>HTTP</td><td>80</td><td>Web non chiffré</td></tr>
             <tr><td>HTTPS</td><td>443</td><td>Web chiffré</td></tr>
             <tr><td>DNS</td><td>53</td><td>Résolution de noms</td></tr>
           </tbody>
@@ -549,10 +550,10 @@ Serveur --> Base de données</code></pre>
       <div class="lesson-diagram-block" data-diagram-type="schéma textuel">
         <div class="code-container">
           <div class="code-header"><span class="code-lang">ASCII</span></div>
-          <pre><code>| Protocol | Port |
-|----------|------|
-| HTTP     | 80   |
-| HTTPS    | 443  |</code></pre>
+          <pre><code>| Protocol | Port | Usage |
+|----------|------|-------|
+| HTTP     | 80   | Web non chiffré |
+| HTTPS    | 443  | Web chiffré |</code></pre>
         </div>
       </div>
       <div class="lesson-diagram-block" data-diagram-type="schéma HTML">
@@ -598,20 +599,22 @@ Poste de secours</code></pre>
   expect(narration).toContain('Pour DNS, le port utilisé est 53');
   expect(narration).toContain('l’usage indiqué est « Résolution de noms »');
   expect(narration).toContain('Ce tableau associe chaque protocole au port réseau qu’il utilise et à l’usage correspondant.');
-  expect(narration).toContain('À retenir : le tableau associe HTTP au port 80 et HTTPS au port 443.');
-  expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « Serveur »');
-  expect(narration).toContain('Une liaison va du bloc « Serveur » vers le bloc « Base de données »');
+  expect(narration).toContain('La différence importante est que HTTP sert à la navigation Web non chiffrée, tandis que HTTPS protège les échanges. Les ports associés sont respectivement 80 et 443.');
+  expect(narration).toContain('Le flux d’information va de « Client » vers « Serveur ».');
+  expect(narration).toContain('Le flux d’information va de « Serveur » vers « Base de données ».');
+  expect(narration).not.toContain('Une liaison va du bloc « Client » vers le bloc « Serveur »');
   expect(narration).toContain('Le bloc « Client » envoie « requête HTTPS » au bloc « API ».');
   expect(narration).toContain('Le bloc « API » envoie « requête SQL » au bloc « Base de données ».');
-  expect(narration).toContain('Le parcours principal commence au bloc « Client », passe ensuite par « API », puis arrive au bloc « Base de données ».');
+  expect(narration).toContain('En résumé, le flux suit ce parcours : « Client », puis « API », puis « Base de données ».');
   expect(narration).toContain('Tableau textuel.');
   expect(narration).toContain('Pour HTTP, le port utilisé est 80');
   expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
-  expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « API » en passant par HTTPS');
+  expect(narration).toContain('Le bloc « Client » communique avec le bloc « API » en utilisant HTTPS.');
   expect(narration).toContain('Une liaison va du bloc « API » vers le bloc « Base de données »');
-  expect(narration).toContain('Une liaison va du bloc « Poste de travail » vers le bloc « Routeur »');
-  expect(narration).toContain('Une liaison va du bloc « Poste de secours » vers le bloc « Routeur »');
-  expect(narration).toContain('Le schéma se lit ainsi : Client va vers Passerelle.');
+  expect(narration).toContain('Le flux d’information va de « Poste de travail » vers « Routeur ».');
+  expect(narration).toContain('Le flux d’information va de « Poste de secours » vers « Routeur ».');
+  expect(narration).toContain('Le flux part du bloc « Client » et arrive au bloc « Passerelle ».');
+  expect(narration).not.toContain('Le parcours représenté part de « Client » et se poursuit vers « Passerelle ».');
   expect(narration).not.toContain('→');
   expect(narration).not.toContain('Copier');
   expect(narration).not.toContain('Texte guide qui ne doit pas remplacer les données.');
@@ -629,11 +632,24 @@ Poste de secours</code></pre>
   expect(processNarration).toContain('À l’étape 1, l’action consiste à « Envoyer une requête HTTPS ».');
   expect(processNarration).toContain('Elle produit le résultat suivant : « Le serveur reçoit la demande ».');
 
-  const audioSegments = await page.evaluate(() => {
+  const eloquenceChecks = await page.evaluate(() => {
     const state = window.Alpine.$data(document.body);
-    return state.splitSpeechText('Première phrase. Deuxième phrase.', 1800);
+    const polished = state.prepareSpeechText(
+      'Titre du cours : Comprendre DNS et HTTPS.\n\nSection : Cycle de requête.\n\nLe client envoie une requête HTTPS à l’API. Une adresse est 192.168.1.1 et la disponibilité est de 75%.'
+    );
+    return {
+      polished,
+      adjacentParagraphs: state.splitSpeechText('Première phrase.\n\nDeuxième phrase.', 1800),
+      bullets: state.splitSpeechText('Premier élément\n\nDeuxième élément.', 1800),
+    };
   });
-  expect(audioSegments).toEqual(['Première phrase. Deuxième phrase.']);
+  expect(eloquenceChecks.polished).toContain('Dans ce cours, nous allons découvrir Comprendre D N S et H T T P S.');
+  expect(eloquenceChecks.polished).toContain('Commençons par Cycle de requête.');
+  expect(eloquenceChecks.polished).toContain('la requête H T T P S à l’A P I');
+  expect(eloquenceChecks.polished).toContain('192 point 168 point 1 point 1');
+  expect(eloquenceChecks.polished).toContain('75 pour cent');
+  expect(eloquenceChecks.adjacentParagraphs).toEqual(['Première phrase. Deuxième phrase.']);
+  expect(eloquenceChecks.bullets).toEqual(['Premier élément. Deuxième élément.']);
 });
 
 test('le menu contextuel démarre la lecture vocale depuis la section visée', async ({ page }) => {
