@@ -4,6 +4,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -67,6 +68,21 @@ class SiteAuthenticationTests(unittest.TestCase):
         tree = self.client.get("/api/tree")
         self.assertEqual(tree.status_code, 200, tree.text)
         self.assertEqual(self.client.get("/", follow_redirects=False).status_code, 200)
+
+    def test_protected_deep_link_is_preserved_in_login_redirect(self) -> None:
+        destination = "/lab.html?openLab=ospf-intermediaire&openTab=labs"
+        response = self.client.get(destination, follow_redirects=False)
+
+        self.assertEqual(response.status_code, 303, response.text)
+        redirect = urlsplit(response.headers["location"])
+        self.assertEqual(redirect.path, "/login.html")
+        self.assertEqual(parse_qs(redirect.query).get("next"), [destination])
+
+        login_page = self.client.get(response.headers["location"])
+        self.assertEqual(login_page.status_code, 200, login_page.text)
+        self.assertIn("new URLSearchParams(window.location.search).get('next')", login_page.text)
+        self.assertIn("candidate.origin !== window.location.origin", login_page.text)
+        self.assertIn("candidate.pathname === '/login.html'", login_page.text)
 
     def test_login_rejects_wrong_password_and_uses_secure_cookie_attributes(self) -> None:
         failed = self.client.post("/api/auth/login", json={"password": "not the password"})
