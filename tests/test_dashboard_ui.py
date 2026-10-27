@@ -680,7 +680,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         open_lab_method = DASHBOARD_HTML[start:end]
 
         self.assertIn("fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`)", open_lab_method)
-        self.assertIn("const topologyNodes = labPayload.definition?.initial_topology?.nodes;", open_lab_method)
+        self.assertIn("const topologyNodes = labPayload.initial_topology?.nodes?.length", open_lab_method)
+        self.assertIn("labPayload.initial_topology.nodes", open_lab_method)
+        self.assertIn("labPayload.definition?.initial_topology?.nodes", open_lab_method)
         self.assertIn("Array.isArray(topologyNodes)", open_lab_method)
         self.assertIn("topologyNodes.length > 0", open_lab_method)
         self.assertIn("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
