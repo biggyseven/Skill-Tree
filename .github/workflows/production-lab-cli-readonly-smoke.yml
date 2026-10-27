@@ -1,0 +1,147 @@
+name: Production Lab CLI read-only smoke
+
+on:
+  push:
+    branches:
+      - "test/production-lab-cli-smoke-20261027"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Read-only production API checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check catalog and all 17 CLI scenarios (GET only)
+        env:
+          BASE_URL: https://skill-tree-vjon.onrender.com
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import sys
+          import time
+          import urllib.error
+          import urllib.request
+
+          base_url = os.environ["BASE_URL"].rstrip("/")
+          expected_ids = [
+              "cli-acl-interface",
+              "cli-bgp-neighbor",
+              "cli-dhcp-pool",
+              "cli-dns-host-records",
+              "cli-eigrp-network",
+              "cli-hsrp-gateway",
+              "cli-ipv4-interfaces",
+              "cli-ipv6-interface",
+              "cli-nat-overload",
+              "cli-ntp-syslog",
+              "cli-ospf-area",
+              "cli-port-security",
+              "cli-qos-voice-policy",
+              "cli-static-routing",
+              "cli-stp-hardening",
+              "cli-vlan-access",
+              "cli-vlan-trunk",
+          ]
+
+          def get_json(path, attempts=12):
+              url = base_url + path
+              last_error = None
+              for attempt in range(1, attempts + 1):
+                  req = urllib.request.Request(
+                      url,
+                      headers={
+                          "Accept": "application/json",
+                          "Cache-Control": "no-cache",
+                          "User-Agent": "SkillTree-Production-ReadOnly-Smoke/1.0",
+                      },
+                      method="GET",
+                  )
+                  try:
+                      with urllib.request.urlopen(req, timeout=25) as response:
+                          status = response.status
+                          raw = response.read()
+                      if status != 200:
+                          raise RuntimeError(f"{path}: HTTP {status}")
+                      try:
+                          return json.loads(raw.decode("utf-8"))
+                      except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                          raise RuntimeError(f"{path}: réponse non JSON valide: {exc}") from exc
+                  except urllib.error.HTTPError as exc:
+                      body = exc.read(500).decode("utf-8", "replace")
+                      last_error = RuntimeError(f"{path}: HTTP {exc.code}: {body}")
+                      if exc.code not in (429, 500, 502, 503, 504):
+                          raise last_error
+                  except (urllib.error.URLError, TimeoutError, OSError) as exc:
+                      last_error = RuntimeError(f"{path}: {type(exc).__name__}: {exc}")
+                  if attempt < attempts:
+                      print(f"Retry {attempt}/{attempts - 1} for {path}: {last_error}", flush=True)
+                      time.sleep(5)
+              raise last_error or RuntimeError(f"{path}: failed without a response")
+
+          print("1/2 - GET /api/lab/v2 (read-only catalog)", flush=True)
+          catalog = get_json("/api/lab/v2")
+          if not isinstance(catalog, list):
+              raise SystemExit(f"Catalog response must be a JSON list, got {type(catalog).__name__}")
+          catalog_by_id = {
+              item.get("id"): item
+              for item in catalog
+              if isinstance(item, dict) and isinstance(item.get("id"), str)
+          }
+          missing = sorted(set(expected_ids) - set(catalog_by_id))
+          if missing:
+              raise SystemExit("CLI IDs missing from production catalog: " + ", ".join(missing))
+          print(f"PASS catalog: all {len(expected_ids)} CLI IDs are listed ({len(catalog)} labs total)", flush=True)
+
+          print("2/2 - GET each CLI lab detail (read-only; no check/submit POST)", flush=True)
+          failures = []
+          for index, lab_id in enumerate(expected_ids, start=1):
+              try:
+                  payload = get_json("/api/lab/v2/" + lab_id)
+                  if not isinstance(payload, dict):
+                      raise AssertionError("response is not a JSON object")
+                  if payload.get("id") != lab_id:
+                      raise AssertionError(f"unexpected id: {payload.get('id')!r}")
+                  if payload.get("schema_version") != 2:
+                      raise AssertionError(f"schema_version is {payload.get('schema_version')!r}, expected 2")
+
+                  definition = payload.get("definition") or {}
+                  check = definition.get("check") or {}
+                  if check.get("type") != "config_assertions":
+                      raise AssertionError(f"check.type is {check.get('type')!r}")
+                  rules = check.get("rules") or []
+                  if not rules:
+                      raise AssertionError("no server-side check rules exposed")
+
+                  topology = payload.get("initial_topology") or definition.get("initial_topology") or {}
+                  nodes = topology.get("nodes") or []
+                  links = topology.get("links") or []
+                  if len(nodes) < 3 or len(links) < 2:
+                      raise AssertionError(f"topology too small: nodes={len(nodes)}, links={len(links)}")
+
+                  catalog_entry = catalog_by_id[lab_id]
+                  if catalog_entry.get("schema_version") != 2:
+                      raise AssertionError(
+                          f"catalog schema_version is {catalog_entry.get('schema_version')!r}"
+                      )
+                  print(
+                      f"PASS {index:02d}/17 {lab_id}: HTTP 200, schema v2, "
+                      f"{len(nodes)} nodes, {len(links)} links, {len(rules)} server rules",
+                      flush=True,
+                  )
+              except Exception as exc:
+                  failures.append((lab_id, str(exc)))
+                  print(f"FAIL {lab_id}: {exc}", flush=True)
+
+          if failures:
+              print("\nProduction read-only smoke failed:", flush=True)
+              for lab_id, reason in failures:
+                  print(f"- {lab_id}: {reason}", flush=True)
+              sys.exit(1)
+
+          print("\nSUCCESS: catalog + all 17 CLI detail endpoints passed. No data was written.", flush=True)
+          PY
