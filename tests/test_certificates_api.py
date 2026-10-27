@@ -150,6 +150,13 @@ class CertificateApiTests(unittest.TestCase):
             "exam_session_id": exam["id"],
             "name": "Élodie Réseau",
         }
+        placeholder = self.client.post(
+            "/api/certificate/issue",
+            json={**payload, "name": "Ton Nom"},
+        )
+        self.assertEqual(placeholder.status_code, 422, placeholder.text)
+        self.assertIn("Renseigne ton nom", placeholder.json()["detail"])
+
         issued = self.client.post("/api/certificate/issue", json=payload)
         self.assertEqual(issued.status_code, 200, issued.text)
         self.assertTrue(issued.json()["success"])
