@@ -244,6 +244,19 @@ class LabValidationTests(unittest.TestCase):
             "netflow-intermediaire",
             "ha-intermediaire",
             "ha-expert",
+            "vxlan-intermediaire",
+            "vxlan-expert",
+            "sd-wan-intermediaire",
+            "sd-wan-expert",
+            "segment-routing-intermediaire",
+            "segment-routing-expert",
+            "aws-vpc-intermediaire",
+            "aws-vpc-expert",
+            "azure-vnet-intermediaire",
+            "azure-vnet-expert",
+            "cloud-aws-intermediaire",
+            "cloud-azure-intermediaire",
+            "cloud-gcp-intermediaire",
         )
         for lab_id in scenario_ids:
             with self.subTest(lab_id=lab_id):
