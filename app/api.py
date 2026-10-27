@@ -335,7 +335,7 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
                     "prompt": str(
                         getattr(definition, "prompt", "") or node.description or node.title
                     ),
-                    "hint": "\\n".join(str(hint) for hint in hints if str(hint).strip()),
+                    "hint": "\n".join(str(hint) for hint in hints if str(hint).strip()),
                     "duration": f"{duration_min} min" if duration_min else "",
                     "difficulty": str(
                         getattr(definition, "difficulty", "")
