@@ -3,12 +3,14 @@ import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useReactFl
 import { useLabStore } from '../store/useLabStore.js';
 import { nodeTypes, edgeTypes } from './nodeTypes.js';
 import { Toolbar } from './Toolbar.jsx';
+import { CABLES, WIRELESS_LINK } from './cableCatalog.js';
 
 const defaultEdgeOptions = { type: 'cable' };
 
 export function LabCanvas() {
   const topology = useLabStore(s => s.topology);
   const selectDevice = useLabStore(s => s.selectDevice);
+  const selectedDevice = useLabStore(s => s.selectedDevice);
   const updateNodePosition = useLabStore(s => s.updateNodePosition);
   const addNode = useLabStore(s => s.addNode);
   const addLink = useLabStore(s => s.addLink);
@@ -22,10 +24,20 @@ export function LabCanvas() {
       const anyUp = (n.ports || []).some(p => p.state === 'up');
       return {
         id: n.id, type: n.type, position: { x: n.x || 100, y: n.y || 100 },
-        data: { type: n.type, iconType: n.iconType || n.type, model: n.model || 'Modèle non renseigné', label: n.label || n.id, hostname: (n.config && n.config.hostname) || n.id, state: anyUp ? 'up' : 'down', ports: n.ports },
+        data: {
+          nodeId: n.id,
+          type: n.type,
+          iconType: n.iconType || n.type,
+          model: n.model || 'Modèle non renseigné',
+          label: n.label || n.id,
+          hostname: (n.config && n.config.hostname) || n.id,
+          state: anyUp ? 'up' : 'down',
+          ports: n.ports,
+          showPortLabels: selectedDevice === n.id,
+        },
       };
     });
-  }, [topology]);
+  }, [topology, selectedDevice]);
 
   const flowEdges = useMemo(() => {
     if (!topology) return [];
@@ -105,25 +117,43 @@ export function LabCanvas() {
       <div
         role="note"
         aria-label="Guide de connexion des ports"
-        className="pointer-events-none absolute left-3 top-3 z-40 w-72 max-w-[90%] rounded-xl border border-[#334155] bg-[#0d1117]/95 p-3 shadow-xl backdrop-blur-sm"
+        data-testid="port-connection-guide"
+        className="pointer-events-none absolute left-3 top-3 z-40 w-[360px] max-w-[90%] rounded-xl border border-[#334155] bg-[#0d1117]/95 p-3.5 shadow-xl backdrop-blur-sm"
       >
-        <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#e6edf3]">
-          Comprendre les ports
+        <div className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-[#e6edf3]">
+          Relier deux équipements
         </div>
-        <div className="flex items-center gap-2 text-[10px] leading-relaxed text-[#c9d1d9]">
-          <span className="h-2.5 w-2.5 shrink-0 rounded-sm border border-[#7dd3fc] bg-[#0ea5e9]" />
-          <span><strong className="text-[#7dd3fc]">Bleu</strong> : départ du câble.</span>
+
+        <div className="rounded-lg border border-[#30363d] bg-[#161b22] p-2.5">
+          <div className="mb-2 text-[11px] font-semibold text-[#c9d1d9]">Un seul port physique, deux points de connexion</div>
+          <div className="flex items-center gap-2">
+            <span className="rounded border border-[#475569] bg-[#0d1117] px-2 py-1 font-mono text-[11px] font-bold text-white">Fa0/0</span>
+            <span className="h-3 w-3 shrink-0 rounded-sm border border-[#7dd3fc] bg-[#0ea5e9]" />
+            <span className="text-[10px] font-semibold text-[#7dd3fc]">Bleu = départ</span>
+            <span className="mx-0.5 h-px min-w-2 flex-1 bg-[#475569]" />
+            <span className="h-3 w-3 shrink-0 rounded-sm border border-[#cbd5e1] bg-[#64748b]" />
+            <span className="text-[10px] font-semibold text-[#cbd5e1]">Gris = arrivée</span>
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-[#c9d1d9]">
+            Les deux petits points correspondent au même port. Son nom, par exemple <strong>Fa0/0</strong>, est affiché à côté quand tu sélectionnes l’équipement.
+          </p>
         </div>
-        <div className="mt-1 flex items-center gap-2 text-[10px] leading-relaxed text-[#c9d1d9]">
-          <span className="h-2.5 w-2.5 shrink-0 rounded-sm border border-[#cbd5e1] bg-[#64748b]" />
-          <span><strong className="text-[#cbd5e1]">Gris</strong> : arrivée du câble.</span>
-        </div>
-        <p className="mt-2 border-t border-[#30363d] pt-2 text-[10px] leading-relaxed text-[#8b949e]">
-          Les points bleu et gris représentent le même port physique, pas deux ports différents.
-          Choisis un câble, puis glisse du bleu d’un équipement vers le gris de l’autre.
-        </p>
-        <p className="mt-2 text-[10px] leading-relaxed text-[#fca5a5]">
-          Un câble rouge pointillé signale qu’au moins un port est OFF. Active les deux interfaces dans Inspecteur → Hardware, ou avec « no shutdown » dans la CLI.
+
+        {activeTool === 'select' ? (
+          <div className="mt-2 text-[11px] leading-relaxed text-[#c9d1d9]">
+            <p><strong className="text-white">1.</strong> Ouvre l’onglet <strong>Câbles</strong> à gauche et choisis le type de liaison.</p>
+            <p className="mt-1"><strong className="text-white">2.</strong> Maintiens le clic sur le point <strong className="text-[#7dd3fc]">bleu</strong> d’un équipement, glisse jusqu’au point <strong className="text-[#cbd5e1]">gris</strong> de l’autre, puis relâche.</p>
+            <p className="mt-1 text-[10px] text-[#8b949e]">Sans choix de câble, le système utilise Ethernet droit par défaut.</p>
+          </div>
+        ) : (
+          <div className="mt-2 rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/10 p-2 text-[11px] leading-relaxed text-[#c9d1d9]">
+            <strong className="text-[#7dd3fc]">Câble choisi :</strong> {CABLES.find(cable => cable.id === activeTool)?.name || (activeTool === WIRELESS_LINK.id ? WIRELESS_LINK.name : activeTool)}.
+            <span> Maintiens le clic sur le point bleu du premier équipement, puis relâche sur le point gris de l’autre.</span>
+          </div>
+        )}
+
+        <p className="mt-2 text-[11px] leading-relaxed text-[#fca5a5]">
+          Liaison rouge pointillée = au moins un port est éteint (OFF). Sélectionne l’équipement, ouvre Inspecteur → Hardware et active l’interface, ou utilise « no shutdown » dans la CLI.
         </p>
       </div>
 
