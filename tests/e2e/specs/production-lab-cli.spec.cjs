@@ -1,10 +1,23 @@
 const { test, expect } = require('@playwright/test');
 
 const BASE_SCENARIOS = [
+  'cli-acl-interface',
+  'cli-bgp-neighbor',
+  'cli-dhcp-pool',
+  'cli-dns-host-records',
+  'cli-eigrp-network',
+  'cli-hsrp-gateway',
   'cli-ipv4-interfaces',
-  'cli-vlan-access',
-  'cli-static-routing',
+  'cli-ipv6-interface',
+  'cli-nat-overload',
+  'cli-ntp-syslog',
+  'cli-ospf-area',
+  'cli-port-security',
   'cli-qos-voice-policy',
+  'cli-static-routing',
+  'cli-stp-hardening',
+  'cli-vlan-access',
+  'cli-vlan-trunk',
 ];
 
 test.describe('Lab Workspace CLI — production browser smoke (read only)', () => {
@@ -96,9 +109,9 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
       await expect(page.locator('section[aria-label="Serveurs & stockage"]')).toBeVisible();
       await expect(page.locator('section[aria-label="Sécurité & distribution"]')).toBeVisible();
 
-      // Le test API en lecture seule couvre les 17 scénarios; ici on exerce quatre parcours UI représentatifs.
+      // La saisie réelle du terminal et le contrôle serveur sont exercés sur chacun des 17 scénarios.
       // La saisie CLI réelle est jouée sur quatre représentants de familles différentes.
-      if (['cli-ipv4-interfaces', 'cli-vlan-access', 'cli-static-routing', 'cli-qos-voice-policy'].includes(labId)) {
+      if (BASE_SCENARIOS.includes(labId)) {
         console.log('Début interaction CLI xterm : ' + labId);
         // Exécuter la séquence de référence dans xterm, comme un apprenant.
         // Le seul POST autorisé est /check : jamais /submit ni /save en production.
