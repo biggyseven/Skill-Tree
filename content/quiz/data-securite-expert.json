@@ -1,0 +1,102 @@
+{
+  "node_id": "data-securite-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider les permissions d’un compte qui interroge une base sensible ?",
+      "choices": [
+        "Donner les droits superutilisateur pour éviter les refus",
+        "Réutiliser un compte partagé entre tous les services",
+        "Accorder les permissions minimales nécessaires et séparer les rôles",
+        "Désactiver les journaux pour réduire le volume"
+      ],
+      "answer": 2,
+      "explanation": "Le moindre privilège limite l’impact d’une compromission et rend les accès plus faciles à auditer. Les comptes techniques doivent être distincts et contrôlés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que protège le chiffrement en transit ?",
+      "choices": [
+        "Les données pendant leur transfert sur le réseau, lorsqu’il est correctement configuré et authentifié",
+        "Toutes les copies locales après déchiffrement",
+        "Les données contre toute erreur métier",
+        "Les sauvegardes même si elles sont stockées en clair"
+      ],
+      "answer": 0,
+      "explanation": "TLS protège le canal de communication, sous réserve d’une configuration et d’une validation des certificats appropriées. Il ne remplace pas le chiffrement au repos."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une stratégie de gestion des clés doit-elle séparer les rôles ?",
+      "choices": [
+        "Pour donner accès aux clés à toutes les applications",
+        "Pour réduire le contrôle d’accès aux clés, permettre la rotation et limiter l’impact d’une compromission",
+        "Pour rendre les clés visibles dans les logs",
+        "Pour supprimer la nécessité de sauvegarder les données"
+      ],
+      "answer": 1,
+      "explanation": "Les clés doivent être protégées par des permissions dédiées, un cycle de vie et des procédures de rotation et récupération. Les secrets ne doivent pas être inclus dans le dépôt."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe du RGPD soutient la collecte du minimum de données nécessaire à une finalité donnée ?",
+      "choices": [
+        "La conservation illimitée par défaut",
+        "La diffusion publique des données brutes",
+        "L’utilisation libre pour tout objectif ultérieur",
+        "La minimisation des données et la limitation des finalités"
+      ],
+      "answer": 3,
+      "explanation": "Les données personnelles doivent être adéquates, pertinentes et limitées à ce qui est nécessaire, et traitées pour des finalités déterminées et légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle défense est prioritaire contre l’injection SQL ?",
+      "choices": [
+        "Masquer les erreurs sans corriger la requête",
+        "Utiliser des requêtes paramétrées et limiter les privilèges de l’identité applicative",
+        "Autoriser les comptes clients à modifier le schéma",
+        "Supprimer les contraintes de type"
+      ],
+      "answer": 1,
+      "explanation": "La paramétrisation empêche de traiter des valeurs comme du SQL exécutable. Le moindre privilège limite ensuite l’impact d’une éventuelle faille résiduelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre pseudonymisation et anonymisation ?",
+      "choices": [
+        "Elles sont toujours synonymes",
+        "La pseudonymisation rend toute réidentification mathématiquement impossible",
+        "La pseudonymisation remplace les identifiants directs mais une réassociation peut rester possible ; l’anonymisation vise à empêcher la réidentification",
+        "L’anonymisation consiste à chiffrer avec une clé commune"
+      ],
+      "answer": 2,
+      "explanation": "Des données pseudonymisées restent potentiellement personnelles si elles peuvent être reliées à une personne via des informations supplémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information est utile dans un journal d’audit d’accès aux données sensibles ?",
+      "choices": [
+        "Identité ou service, action, ressource et horodatage, sans exposer inutilement les secrets ou données complètes",
+        "Le mot de passe en clair pour faciliter les diagnostics",
+        "Toutes les valeurs sensibles dans chaque ligne de log",
+        "Un simple message « succès » sans contexte"
+      ],
+      "answer": 0,
+      "explanation": "Les journaux doivent permettre d’établir qui a fait quoi et quand, avec intégrité et restrictions d’accès. Ils doivent eux-mêmes éviter de divulguer des secrets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle réduit le risque qu’un secret de connexion fuite dans Git ?",
+      "choices": [
+        "Le stocker en clair dans un fichier d’exemple",
+        "Le mettre dans un commentaire privé du code",
+        "Le chiffrer avec une clé écrite à côté",
+        "Le fournir via une gestion de secrets ou des variables sécurisées et vérifier les historiques avant publication"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets doivent être gérés hors du code, avec permissions limitées et rotation. Si un secret a été commité, il faut le révoquer, pas seulement supprimer la ligne."
+    }
+  ]
+}

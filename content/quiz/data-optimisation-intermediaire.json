@@ -1,0 +1,102 @@
+{
+  "node_id": "data-optimisation-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal d’un index B-tree sur une colonne souvent filtrée ?",
+      "choices": [
+        "Garantir que chaque requête ne lit qu’une seule page",
+        "Réduire le coût de recherche pour certains prédicats et ordres, si l’index est adapté",
+        "Supprimer le coût de toutes les écritures",
+        "Remplacer toutes les contraintes métier"
+      ],
+      "answer": 1,
+      "explanation": "Un index bien choisi permet d’éviter certains balayages complets, mais son intérêt dépend de la sélectivité, de la taille des tables et du coût associé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’ordre des colonnes est-il important dans un index composite `(client_id, created_at)` ?",
+      "choices": [
+        "Parce que l’ordre n’a aucun effet",
+        "Parce qu’il rend toutes les colonnes automatiquement uniques",
+        "Parce qu’il favorise certains filtres et tris utilisant le préfixe gauche de l’index",
+        "Parce qu’il remplace une clé étrangère"
+      ],
+      "answer": 2,
+      "explanation": "Un index composite est ordonné selon les colonnes définies. Les prédicats portant sur le préfixe gauche sont généralement les mieux servis, selon le SGBD."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il lire en priorité dans `EXPLAIN ANALYZE` ?",
+      "choices": [
+        "Les opérations choisies, les lignes estimées et réelles ainsi que les durées observées",
+        "Uniquement le nom de la table",
+        "Le nombre de commentaires SQL",
+        "Uniquement le coût estimé, sans données réelles"
+      ],
+      "answer": 0,
+      "explanation": "La comparaison des estimations et des lignes réellement traitées révèle des erreurs de cardinalité et les opérations coûteuses. L’exécution peut avoir des effets selon la requête et le SGBD."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une fonction est appliquée à la colonne filtrée dans `WHERE`. Pourquoi cela peut-il gêner un index classique ?",
+      "choices": [
+        "Les fonctions sont interdites dans SQL",
+        "Toute fonction rend les résultats aléatoires",
+        "Une fonction supprime les permissions du compte",
+        "L’expression calculée peut empêcher l’utilisation directe de l’index, sauf index d’expression ou transformation adaptée"
+      ],
+      "answer": 3,
+      "explanation": "L’optimiseur peut perdre l’accès direct à l’ordre de l’index. Un index d’expression ou un prédicat sargable peut être approprié selon le moteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel compromis apporte l’ajout de plusieurs index sur une table fortement modifiée ?",
+      "choices": [
+        "Plus d’index accélèrent toujours les INSERT sans contrepartie",
+        "Les écritures doivent maintenir davantage d’index, ce qui consomme temps et espace",
+        "Les sauvegardes deviennent inutiles",
+        "Les index garantissent l’absence de verrouillage"
+      ],
+      "answer": 1,
+      "explanation": "Chaque insertion, suppression ou mise à jour pertinente peut devoir maintenir plusieurs structures d’index. Il faut mesurer le gain de lecture par rapport à ce coût."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi mettre à jour les statistiques du SGBD peut-il améliorer certaines requêtes ?",
+      "choices": [
+        "Cela change nécessairement la logique des résultats",
+        "Cela garantit que chaque index sera utilisé",
+        "Cela donne à l’optimiseur des estimations plus réalistes de distribution et de cardinalité",
+        "Cela convertit une requête en procédure stockée"
+      ],
+      "answer": 2,
+      "explanation": "Les statistiques permettent de choisir les jointures, accès et ordres de traitement sur la base d’estimations de données. Des statistiques obsolètes peuvent dégrader ces choix."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un index couvrant pour une requête donnée ?",
+      "choices": [
+        "À fournir depuis l’index les colonnes requises, ce qui peut éviter certaines lectures de la table",
+        "À chiffrer la sauvegarde",
+        "À garantir l’ordre métier sans clause ORDER BY",
+        "À normaliser les tables"
+      ],
+      "answer": 0,
+      "explanation": "Si toutes les colonnes nécessaires se trouvent dans l’index, certains moteurs peuvent répondre sans accès supplémentaire à la table, selon leur organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une API exécute une requête pour chaque ligne d’une liste de 500 éléments. Quel problème faut-il examiner ?",
+      "choices": [
+        "Un index rend toujours ces 500 appels optimaux",
+        "Le cache navigateur remplace les requêtes SQL",
+        "La présence de clés étrangères",
+        "Le schéma N+1 ; envisager jointure, chargement par lot ou requête groupée"
+      ],
+      "answer": 3,
+      "explanation": "Le coût des allers-retours répétés peut dominer. Le chargement par lot réduit les appels, mais il faut conserver les limites de taille et le comportement fonctionnel."
+    }
+  ]
+}

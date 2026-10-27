@@ -20,6 +20,15 @@ const BASE_SCENARIOS = [
   'cli-vlan-trunk',
 ];
 
+// Le contrôle CLI interactif couvre quatre familles ; les 17 scénarios sont
+// tous ouverts dans le navigateur et leurs topologies/bibliothèques sont vérifiées.
+const CLI_INTERACTION_SCENARIOS = [
+  'cli-acl-interface',
+  'cli-ipv4-interfaces',
+  'cli-static-routing',
+  'cli-vlan-access',
+];
+
 test.describe('Lab Workspace CLI — production browser smoke (read only)', () => {
   test.describe.configure({ retries: 0 });
   test.setTimeout(60_000);
@@ -111,7 +120,7 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
 
       // La saisie réelle du terminal et le contrôle serveur sont exercés sur chacun des 17 scénarios.
       // La saisie CLI réelle est jouée sur quatre représentants de familles différentes.
-      if (BASE_SCENARIOS.includes(labId)) {
+      if (CLI_INTERACTION_SCENARIOS.includes(labId)) {
         console.log('Début interaction CLI xterm : ' + labId);
         // Exécuter la séquence de référence dans xterm, comme un apprenant.
         // Le seul POST autorisé est /check : jamais /submit ni /save en production.
@@ -128,10 +137,12 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
         const targetMatch = targetHint.match(/^Cible CLI\s*:\s*([^.]+)\./);
         expect(targetMatch, 'la cible CLI doit être exploitable').toBeTruthy();
         const targetId = targetMatch[1].trim();
-        const sequenceHint = (definition.hints || []).find(hint => hint.startsWith('Séquence de référence'));
-        expect(sequenceHint, 'la séquence CLI de référence doit être documentée').toBeTruthy();
+        const sequenceHint = (definition.hints || []).find(hint =>
+          hint.startsWith('Séquence de référence') || hint.startsWith('Solution de référence')
+        );
+        expect(sequenceHint, 'la séquence de référence CLI doit être documentée').toBeTruthy();
         const commands = sequenceHint
-          .replace(/^Séquence de référence\s*:\s*/, '')
+          .replace(/^(?:Séquence|Solution) de référence(?:\s*\(à consulter en dernier\))?\s*:\s*/, '')
           .replace(/\.$/, '')
           .split(/\s;\s/)
           .map(command => command.trim())

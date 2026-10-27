@@ -1,0 +1,102 @@
+{
+  "node_id": "data-bigdata-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal de HDFS dans l’écosystème Hadoop ?",
+      "choices": [
+        "Exécuter le JavaScript du navigateur",
+        "Conserver des fichiers volumineux répartis en blocs sur plusieurs nœuds avec réplication configurable",
+        "Garantir une transaction SQL globale entre toutes les applications",
+        "Remplacer les outils de gouvernance des données"
+      ],
+      "answer": 1,
+      "explanation": "HDFS répartit les blocs et conserve des répliques selon la politique configurée, ce qui vise la tolérance aux pannes et le traitement de grands volumes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans MapReduce, que fait l’étape Reduce ?",
+      "choices": [
+        "Elle configure les utilisateurs du cluster",
+        "Elle compresse toujours chaque fichier avant ingestion",
+        "Elle agrège ou combine les valeurs regroupées par clé après le shuffle",
+        "Elle remplace les blocs HDFS par des tables SQL"
+      ],
+      "answer": 2,
+      "explanation": "La phase Reduce reçoit les valeurs regroupées par clé et produit les résultats agrégés ou transformés du calcul distribué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi Spark est-il souvent décrit comme utilisant une exécution paresseuse ?",
+      "choices": [
+        "Les transformations construisent un plan qui est exécuté lorsqu’une action déclenche le calcul",
+        "Les transformations sont toujours immédiatement persistées sur disque",
+        "Spark interdit les traitements mémoire",
+        "Tout calcul Spark doit être lancé manuellement sur chaque nœud"
+      ],
+      "answer": 0,
+      "explanation": "Les transformations définissent un DAG. Une action déclenche l’exécution nécessaire, ce qui permet au moteur d’optimiser et de planifier les opérations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un shuffle massif peut-il ralentir un job Spark ?",
+      "choices": [
+        "Il supprime les partitions de sortie",
+        "Il garantit qu’aucune donnée ne passe sur le réseau",
+        "Il réduit toujours la quantité de mémoire nécessaire",
+        "Il implique échanges réseau, sérialisation et parfois écritures disque entre partitions"
+      ],
+      "answer": 3,
+      "explanation": "Le shuffle est coûteux en réseau, CPU, mémoire et disque. Il faut analyser les étapes, la distribution des clés et le volume échangé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un job distribué est ralenti par une clé qui concentre une grande part des enregistrements. Quel phénomène est probable ?",
+      "choices": [
+        "Une absence de sérialisation",
+        "Un déséquilibre de données (skew) qui crée quelques partitions très chargées",
+        "Une garantie de cohérence ACID",
+        "Un manque de permissions sur toutes les tables"
+      ],
+      "answer": 1,
+      "explanation": "Une distribution asymétrique fait que quelques tâches traitent beaucoup plus de données. Des stratégies de salage, de repartitionnement ou d’agrégation peuvent aider."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand la persistance (`cache`/`persist`) d’un DataFrame est-elle pertinente ?",
+      "choices": [
+        "Pour chaque objet, même utilisé une seule fois",
+        "Pour remplacer les checkpoints de calcul d’un pipeline entier",
+        "Quand un résultat coûteux est réutilisé et que le gain mesuré justifie la mémoire ou le stockage consommé",
+        "Pour rendre les données source immuables"
+      ],
+      "answer": 2,
+      "explanation": "La persistance peut éviter des recalculs répétés. Il faut considérer la réutilisation, la taille, le niveau de stockage et l’éviction des données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt du data locality dans un cluster Hadoop ?",
+      "choices": [
+        "Réduire les transferts en rapprochant le calcul des données lorsque le planificateur le permet",
+        "Forcer toutes les données à voyager vers un nœud unique",
+        "Garantir que le réseau n’est jamais utilisé",
+        "Remplacer le besoin de répliquer des blocs"
+      ],
+      "answer": 0,
+      "explanation": "Exécuter le calcul près des blocs réduit les transferts réseau. La localité reste une optimisation, pas une garantie pour chaque tâche."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d’augmenter la taille du cluster, quelle étape est la plus utile pour un job Spark lent ?",
+      "choices": [
+        "Doubler tous les paramètres sans mesure",
+        "Désactiver les métriques",
+        "Supprimer les contrôles qualité",
+        "Examiner le DAG, les tâches lentes, le shuffle, l’occupation mémoire et la distribution des données"
+      ],
+      "answer": 3,
+      "explanation": "Les métriques et le plan d’exécution orientent vers la vraie cause : partitionnement, skew, mémoire, I/O, jointure ou capacité. Ajouter des nœuds n’est pas toujours la solution."
+    }
+  ]
+}

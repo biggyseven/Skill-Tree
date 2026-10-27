@@ -1,0 +1,102 @@
+{
+  "node_id": "data-ingestion-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une clé d’idempotence est-elle utile dans un pipeline d’ingestion ?",
+      "choices": [
+        "Pour rendre les événements impossibles à perdre en toutes circonstances",
+        "Pour reconnaître une même opération répétée et éviter de dupliquer son effet",
+        "Pour supprimer la nécessité de valider le schéma",
+        "Pour forcer toutes les données dans une seule partition"
+      ],
+      "answer": 1,
+      "explanation": "Une clé stable permet de dédupliquer les reprises et les doubles envois. Sa portée et sa durée de conservation doivent correspondre au processus métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie de retry convient mieux à un service temporairement indisponible ?",
+      "choices": [
+        "Relancer en boucle à la milliseconde sans limite",
+        "Abandonner tous les événements sans trace",
+        "Utiliser des tentatives limitées, un backoff exponentiel et éventuellement du jitter",
+        "Modifier les données pour éviter le code d’erreur"
+      ],
+      "answer": 2,
+      "explanation": "Le backoff avec limites réduit les tempêtes de requêtes. Il faut distinguer les erreurs transitoires des erreurs permanentes et journaliser l’épuisement des tentatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une dead-letter queue dans un système d’ingestion ?",
+      "choices": [
+        "Isoler les messages qui échouent durablement pour analyse et reprise contrôlée",
+        "À stocker les mots de passe des producteurs",
+        "À remplacer toutes les validations",
+        "À supprimer les erreurs sans conserver de diagnostic"
+      ],
+      "answer": 0,
+      "explanation": "Une DLQ évite qu’un message poison bloque indéfiniment le flux. Elle doit conserver le contexte nécessaire, protéger les données sensibles et disposer d’un processus de replay."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un pipeline CDC doit-il enregistrer son watermark ou offset de progression ?",
+      "choices": [
+        "Pour éviter d’avoir besoin d’une source durable",
+        "Pour définir automatiquement la politique de confidentialité",
+        "Pour compresser les événements",
+        "Pour reprendre depuis une position connue et limiter les pertes ou relectures après incident"
+      ],
+      "answer": 3,
+      "explanation": "Le checkpoint d’avancement aide à reprendre après interruption. La cohérence entre l’offset et l’écriture de sortie doit être définie pour gérer les reprises correctement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faire évoluer un schéma sans casser immédiatement les anciens consommateurs ?",
+      "choices": [
+        "Supprimer les champs existants sans avertissement",
+        "Favoriser une évolution compatible, documentée et déployée progressivement avec contrôles",
+        "Réutiliser un même champ pour une nouvelle signification",
+        "Désactiver la validation des messages"
+      ],
+      "answer": 1,
+      "explanation": "Les changements compatibles, les versions explicites et les tests de contrat facilitent les déploiements. Les changements incompatibles exigent un plan de migration coordonné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand choisir un chargement par lot plutôt qu’un flux continu ?",
+      "choices": [
+        "Toujours, quel que soit le besoin de fraîcheur",
+        "Jamais, car les lots sont techniquement obsolètes",
+        "Quand la latence de quelques minutes ou heures est acceptable et qu’un traitement périodique est plus simple ou économique",
+        "Uniquement lorsque les données ne sont pas validées"
+      ],
+      "answer": 2,
+      "explanation": "Le mode d’ingestion doit suivre le besoin de fraîcheur, le volume et le coût opérationnel. Le streaming apporte aussi des contraintes de reprise et de supervision."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un consommateur reçoit de nouveau un événement après redémarrage. Quelle conception rend la sortie plus fiable ?",
+      "choices": [
+        "Une écriture idempotente ou une déduplication avec identifiant d’événement",
+        "Une confiance absolue dans le fait que le réseau n’a jamais de panne",
+        "La suppression de toutes les clés métier",
+        "Un timestamp local utilisé seul comme identifiant unique"
+      ],
+      "answer": 0,
+      "explanation": "Les reprises sont normales dans un système distribué. L’identifiant d’événement stable et la déduplication permettent d’éviter des effets métier en double."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire d’un enregistrement qui échoue une règle de validation de schéma ?",
+      "choices": [
+        "Le convertir silencieusement en n’importe quel type",
+        "Le supprimer sans compteur",
+        "Le publier tout de même aux consommateurs critiques",
+        "Le rejeter ou le mettre en quarantaine avec la cause et les métadonnées nécessaires au diagnostic"
+      ],
+      "answer": 3,
+      "explanation": "La mise en quarantaine protège les sorties fiables tout en conservant la trace des rejets. La politique doit prévoir correction, replay, alerte et gestion des données sensibles."
+    }
+  ]
+}
