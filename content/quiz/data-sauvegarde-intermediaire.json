@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sauvegarde-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que mesure le RPO dans un plan de reprise ?",
+      "choices": [
+        "Le temps nécessaire pour reconstruire un index",
+        "La durée maximale acceptable d’interruption",
+        "La quantité maximale de données que l’on accepte de perdre mesurée dans le temps",
+        "Le nombre de répliques d’une base"
+      ],
+      "answer": 2,
+      "explanation": "Le RPO indique le point de récupération acceptable et donc la perte de données tolérée, par exemple au maximum cinq minutes de transactions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence essentielle distingue une sauvegarde différentielle d’une incrémentale classique ?",
+      "choices": [
+        "La différentielle contient les changements depuis la dernière sauvegarde complète ; l’incrémentale depuis la sauvegarde précédente",
+        "La différentielle ne contient jamais de données",
+        "L’incrémentale est toujours plus simple à restaurer quelle que soit la chaîne",
+        "Il n’existe aucune différence entre les deux"
+      ],
+      "answer": 0,
+      "explanation": "Une restauration différentielle combine généralement la dernière complète et la dernière différentielle. Une chaîne incrémentale nécessite la complète puis les incréments successifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "De quoi une restauration PITR dépend-elle typiquement dans PostgreSQL ?",
+      "choices": [
+        "Uniquement d’une copie du fichier de configuration",
+        "D’une sauvegarde de base compatible et d’une chaîne WAL couvrant le point visé",
+        "Uniquement du cache de l’application",
+        "D’un export CSV des tables les plus volumineuses"
+      ],
+      "answer": 1,
+      "explanation": "La récupération à un instant précis rejoue les journaux WAL à partir d’une sauvegarde de base jusqu’au point de récupération choisi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve montre le mieux qu’une sauvegarde est exploitable ?",
+      "choices": [
+        "Le fichier existe dans le dossier attendu",
+        "La tâche planifiée affiche une coche verte",
+        "Le fichier est nommé `backup_valid`",
+        "Une restauration réelle a réussi et les contrôles de cohérence ont été exécutés"
+      ],
+      "answer": 3,
+      "explanation": "Une sauvegarde peut être incomplète, corrompue ou inutilisable. Des essais périodiques de restauration et des contrôles métier valident son exploitabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une réplique active ne suffit-elle pas comme seule protection contre la perte de données ?",
+      "choices": [
+        "Une réplique ne peut jamais servir de source de lecture",
+        "Une suppression ou corruption peut être répliquée immédiatement",
+        "Une réplique ne contient pas les données",
+        "Une réplique empêche toutes les transactions"
+      ],
+      "answer": 1,
+      "explanation": "La réplication propage souvent les changements, y compris les erreurs logiques. Il faut des points de sauvegarde séparés avec une rétention adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure protège une sauvegarde contre la compromission du compte applicatif ?",
+      "choices": [
+        "Stocker la seule copie dans le même compte et le même répertoire",
+        "Utiliser le même mot de passe partout",
+        "Séparer les identités et permissions de sauvegarde, et conserver si possible une copie immuable ou isolée",
+        "Désactiver la journalisation"
+      ],
+      "answer": 2,
+      "explanation": "La séparation des droits et l’isolement d’une copie réduisent la possibilité qu’un compte applicatif compromis efface aussi les sauvegardes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment déterminer une fréquence de sauvegarde adaptée ?",
+      "choices": [
+        "À partir des RPO/RTO, du volume de changements et du temps de restauration mesuré",
+        "En prenant toujours une sauvegarde par an",
+        "En choisissant un intervalle uniquement selon l’espace disque disponible",
+        "En se fondant sur le nombre de développeurs"
+      ],
+      "answer": 0,
+      "explanation": "La stratégie doit satisfaire les objectifs de perte maximale et de rétablissement, en tenant compte de la rétention et du débit de restauration réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est important après une restauration de base de données ?",
+      "choices": [
+        "Vérifier uniquement que le serveur répond au ping",
+        "Effacer les journaux de restauration",
+        "Supposer que toutes les lignes sont présentes parce que le processus s’est terminé",
+        "Vérifier intégrité, cohérence applicative, permissions et disponibilité des fonctions critiques"
+      ],
+      "answer": 3,
+      "explanation": "La restauration technique doit être suivie de vérifications d’intégrité et d’un test métier ciblé avant la remise en service."
+    }
+  ]
+}
