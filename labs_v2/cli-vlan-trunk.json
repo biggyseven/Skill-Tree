@@ -15,10 +15,10 @@
     "Vérifier le VLAN et les deux extrémités du lien inter-switch"
   ],
   "hints": [
-    "Cible CLI : commencez par SW1, puis sélectionnez SW2 dans le sélecteur d’équipement avant de configurer la seconde extrémité.",
+    "Cible CLI : SW1. Le scénario utilise deux commutateurs ; configurez les deux extrémités du trunk.",
     "Indice 1 : le VLAN 10 doit exister sur les deux commutateurs. Un trunk peut transporter plusieurs VLAN, mais le VLAN doit être présent aux deux extrémités pour cet exercice.",
     "Indice 2 : sélectionnez Fa0/24 sur chacun des commutateurs et passez-le en mode trunk. Ne configurez pas Fa0/1, le port d’accès relié au poste.",
-    "Solution de référence (à consulter en dernier) : sur SW1, enable ; configure terminal ; vlan 10 ; name VLAN10 ; interface Fa0/24 ; switchport mode trunk ; end. Répétez les mêmes commandes sur SW2.",
+    "Solution de référence (à consulter en dernier) : SW1 => enable ; configure terminal ; vlan 10 ; name VLAN10 ; interface Fa0/24 ; switchport mode trunk ; end || SW2 => enable ; configure terminal ; vlan 10 ; name VLAN10 ; interface Fa0/24 ; switchport mode trunk ; end.",
     "La validation vérifie le VLAN 10 et le mode trunk de Fa0/24 sur SW1 et SW2. Elle ne simule pas le trafic ni la négociation d’un trunk réel."
   ],
   "initial_topology": {
