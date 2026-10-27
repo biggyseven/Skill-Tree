@@ -26,6 +26,7 @@ jobs:
       - name: Verify production authentication and optional authenticated content
         shell: bash
         env:
+          SKILLTREE_RUN_AUTHENTICATED_SMOKE: \${{ vars.SKILLTREE_RUN_AUTHENTICATED_SMOKE }}
           SKILLTREE_PRODUCTION_TEST_PASSWORD: \${{ secrets.SKILLTREE_PRODUCTION_TEST_PASSWORD }}
         run: |
           python - <<'PY'
@@ -48,6 +49,7 @@ jobs:
               "maint-fournisseurs-expert",
               "maint-retex-expert",
           )
+          RUN_AUTHENTICATED = os.environ.get("SKILLTREE_RUN_AUTHENTICATED_SMOKE", "").strip().lower() == "true"
           PASSWORD = os.environ.get("SKILLTREE_PRODUCTION_TEST_PASSWORD", "")
           nodes = json.loads(Path("content/nodes.json").read_text(encoding="utf-8-sig"))
           titles = {
@@ -63,6 +65,9 @@ jobs:
                   "Target ids absent from the checked-out catalogue: "
                   + ", ".join(missing_catalogue)
               )
+
+          class NonRetryableSmokeError(Exception):
+              pass
 
           def fetch(opener, path, accept="application/json", method="GET", body=None):
               headers = {
@@ -93,11 +98,12 @@ jobs:
               if auth_status.get("required") is not True or auth_status.get("authenticated") is not False:
                   raise RuntimeError("Production does not report the expected private, unauthenticated state")
 
-              # These routes must not expose lesson/quiz material without a signed session.
+              # Lesson and quiz content must not be exposed without a signed session.
               for course_id in TARGETS:
                   for resource in ("lesson", "quiz"):
                       route = f"/api/node/{course_id}/{resource}"
-                      code, body = fetch(anonymous, route, "text/markdown" if resource == "lesson" else "application/json")
+                      accept = "text/markdown" if resource == "lesson" else "application/json"
+                      code, body = fetch(anonymous, route, accept)
                       if code != 401:
                           raise RuntimeError(
                               f"Expected protected route {route} to return HTTP 401; got {code} "
@@ -105,11 +111,16 @@ jobs:
                           )
               print(f"PRODUCTION_AUTH_BOUNDARY=passed protected_routes={len(TARGETS) * 2}")
 
-              if not PASSWORD:
-                  print("PRODUCTION_CONTENT_CHECK=skipped; SKILLTREE_PRODUCTION_TEST_PASSWORD is not configured")
+              # By default this workflow does not attempt a production login.
+              # Enable explicitly only after setting a valid test credential in GitHub Actions secrets.
+              if not RUN_AUTHENTICATED:
+                  print("PRODUCTION_CONTENT_CHECK=skipped; authenticated smoke is not explicitly enabled")
                   return
+              if not PASSWORD:
+                  raise NonRetryableSmokeError(
+                      "authenticated smoke is enabled but SKILLTREE_PRODUCTION_TEST_PASSWORD is not configured"
+                  )
 
-              # Only check course material after logging in successfully; never print the password or cookie.
               jar = http.cookiejar.CookieJar()
               authenticated = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
               code, login_text = fetch(
@@ -123,13 +134,13 @@ jobs:
               except json.JSONDecodeError:
                   login_payload = {}
               if code != 200 or login_payload.get("authenticated") is not True:
-                  raise RuntimeError(
-                      "Configured production test credential did not authenticate; "
-                      "the password value is intentionally not logged"
+                  raise NonRetryableSmokeError(
+                      "Configured production test credential was rejected; "
+                      "no retry was attempted to avoid triggering login rate limiting"
                   )
               code, session_text = fetch(authenticated, "/api/auth/status")
               if code != 200 or json.loads(session_text).get("authenticated") is not True:
-                  raise RuntimeError("Production session was not retained after login")
+                  raise NonRetryableSmokeError("Production session was not retained after login")
 
               for course_id in TARGETS:
                   code, lesson_text = fetch(
@@ -146,18 +157,20 @@ jobs:
                   code, quiz_text = fetch(
                       authenticated, f"/api/node/{course_id}/quiz", "application/json"
                   )
+                  if code != 200:
+                      raise RuntimeError(f"{course_id} quiz returned HTTP {code}")
                   try:
                       quiz = json.loads(quiz_text)
                   except json.JSONDecodeError as error:
                       raise RuntimeError(f"{course_id} quiz did not return valid JSON") from error
                   questions = quiz.get("questions")
-                  if code != 200 or quiz.get("node_id") != course_id or not isinstance(questions, list) or not questions:
-                      raise RuntimeError(f"{course_id} quiz has no questions or returned HTTP {code}")
+                  if quiz.get("node_id") != course_id or not isinstance(questions, list) or not questions:
+                      raise RuntimeError(f"{course_id} quiz has no questions or the wrong node_id")
                   if any(
                       "answer" in question or "answer_regex" in question
                       for question in questions if isinstance(question, dict)
                   ):
-                      raise RuntimeError(f"{course_id} public quiz payload leaks expected answers")
+                      raise RuntimeError(f"{course_id} quiz leaks expected answers to the API client")
                   print(
                       f"PRODUCTION_COURSE_OK id={course_id} "
                       f"lesson_bytes={len(lesson_text.encode('utf-8'))} quiz_questions={len(questions)}"
@@ -165,16 +178,18 @@ jobs:
               print(f"PRODUCTION_CONTENT_CHECK=passed courses={len(TARGETS)}")
 
           last_error = "production did not respond"
-          # Render may restart during deployment. Retry read-only checks; never mutate application data.
+          # Retry transient readiness errors only; a bad credential is always non-retryable.
           for attempt in range(1, 19):
               try:
                   verify()
                   break
+              except NonRetryableSmokeError as error:
+                  raise SystemExit(f"Production authenticated smoke stopped: {error}") from error
               except Exception as error:
                   last_error = f"{type(error).__name__}: {error}"
-                  print(f"Attempt {attempt}/18: {last_error}")
+                  print(f"Readiness attempt {attempt}/18: {last_error}")
                   if attempt < 18:
                       time.sleep(10)
           else:
-              raise SystemExit("Production authentication/content smoke failed: " + last_error)
+              raise SystemExit("Production lesson/authentication smoke failed after retries: " + last_error)
           PY
