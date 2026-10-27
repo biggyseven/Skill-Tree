@@ -99,7 +99,7 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         palette = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "Palette.jsx").read_text(encoding="utf-8-sig")
         cables = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "CablePalette.jsx").read_text(encoding="utf-8-sig")
         static_entry = (STATIC_LAB / "index.html").read_text(encoding="utf-8")
-        static_library_script = STATIC_LAB / "libraries.js"
+        static_library_bundle = STATIC_LAB / "main.js"
 
         self.assertIn('data-library-tabs', app)
         self.assertIn('data-library-tab="equipment"', app)
@@ -110,12 +110,13 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn('Fibre optique', cables)
         self.assertIn('console', cables)
         self.assertIn('wireless', cables)
-        self.assertTrue(static_library_script.is_file(), "Live Lab Workspace library UI sidecar is missing")
-        self.assertIn('/lab/libraries.js', static_entry)
-        script = static_library_script.read_text(encoding="utf-8")
-        self.assertIn('application/reactflow', script)
-        self.assertIn('Bibliothèque de câbles', script)
-        self.assertIn('Câble Droit', script)
+        self.assertTrue(static_library_bundle.is_file(), "Published Lab Workspace JavaScript bundle is missing")
+        self.assertIn('src="/lab/main.js"', static_entry)
+        bundle = static_library_bundle.read_text(encoding="utf-8")
+        self.assertIn('data-library-tabs', bundle)
+        self.assertIn('data-library-tab', bundle)
+        self.assertIn('Cuivre droit', bundle)
+        self.assertIn('Fibre optique', bundle)
 
     def test_cli_rebinds_to_current_device_and_submit_requires_fresh_check(self):
         cli = (ROOT / "app" / "lab-workspace" / "src" / "cli" / "CLITab.jsx").read_text(encoding="utf-8-sig")
