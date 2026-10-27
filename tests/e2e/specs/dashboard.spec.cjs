@@ -285,6 +285,62 @@ test('la navigation du lecteur respecte l’ordre pédagogique et contextualise 
   await expect(navigation.getByText('Étape 2 sur', { exact: false })).toBeVisible();
 });
 
+test('la navigation du lecteur reste dans le module sélectionné, même quand les ordres se chevauchent entre modules', async ({ page }) => {
+  await openDashboard(page);
+
+  const firstCourseId = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    state.setModule('cybersecurite');
+    return state.moduleNextCourseId;
+  });
+  expect(firstCourseId).toBe('secu-cia-debutant');
+
+  await page.evaluate(async (nodeId) => {
+    const state = window.Alpine.$data(document.body);
+    await state.show(nodeId);
+  }, firstCourseId);
+
+  await expect(page.locator('#course-reader-title')).toHaveText('La Triade CIA');
+  const navigation = page.getByRole('region', { name: 'Navigation entre les leçons' });
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByText('Étape 1 sur 35 · Cybersécurité', { exact: true })).toBeVisible();
+
+  const nextLesson = navigation.getByRole('button', {
+    name: /Ouvrir la leçon suivante.*Panorama des menaces/,
+  });
+  await expect(nextLesson).toBeVisible();
+  await expect(nextLesson).not.toContainText(/Wireshark/);
+  await nextLesson.click();
+
+  await expect(page.locator('#course-reader-title')).toHaveText('Panorama des menaces');
+  await expect(navigation.getByRole('button', {
+    name: /Ouvrir la leçon précédente.*La Triade CIA/,
+  })).toBeVisible();
+  await expect(navigation.getByRole('button', {
+    name: /Ouvrir la leçon suivante.*Cryptographie/,
+  })).toBeVisible();
+
+  const navigationState = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return {
+      module: state.lessonNavigationModule,
+      previous: state.lessonNeighbors.prev?.id || null,
+      next: state.lessonNeighbors.next?.id || null,
+      sequenceLength: state.lessonSequence.length,
+      currentIndex: state.lessonCurrentIndex,
+      wiresharkIndex: state.lessonSequence.findIndex(node => node.id === 'wireshark-debutant'),
+    };
+  });
+  expect(navigationState).toEqual({
+    module: 'cybersecurite',
+    previous: 'secu-cia-debutant',
+    next: 'secu-crypto-debutant',
+    sequenceLength: 35,
+    currentIndex: 2,
+    wiresharkIndex: -1,
+  });
+});
+
 test('un cours cybersécurité en attente affiche un état de préparation au lieu d’un lecteur vide', async ({ page }) => {
   await openDashboard(page);
 
