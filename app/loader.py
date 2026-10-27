@@ -685,6 +685,9 @@ def _write(
         for node_id in removed:
             conn.execute("DELETE FROM nodes WHERE id = ?", (node_id,))
 
+        # Insérer d'abord tous les nœuds : certains prérequis sont déclarés
+        # plus loin dans nodes.json. Insérer les arêtes dans la même boucle
+        # provoquait une violation FK sur une base SQLite vierge.
         for node in nodes:
             conn.execute(
                 "INSERT INTO nodes (id, title, description, category, sort_order)"
@@ -696,6 +699,9 @@ def _write(
                 " sort_order = excluded.sort_order",
                 (node.id, node.title, node.description, node.category, node.order),
             )
+
+        # Les cibles de toutes les clés étrangères sont maintenant présentes.
+        for node in nodes:
             for prereq in node.prereqs:
                 conn.execute(
                     "INSERT INTO edges (node_id, prereq_id) VALUES (?, ?)",
