@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Analyse de cause racine (5 Pourquoi, Ishikawa) » ?",
+      "prompt": "Pourquoi commencer par un énoncé de problème précis ?",
       "choices": [
-        "Le sujet principal du cours : Analyse de cause racine (5 Pourquoi, Ishikawa)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Pour conclure immédiatement à une erreur humaine",
+        "Pour réduire l'enquête à un seul composant",
+        "Pour décrire un symptôme et un périmètre sans préjuger de la cause",
+        "Pour éviter de recueillir les preuves"
+      ],
+      "answer": 2,
+      "explanation": "Un bon énoncé distingue le constat de l'explication à démontrer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La méthode des cinq pourquoi :",
+      "choices": [
+        "Explore une chaîne causale, mais chaque réponse doit être vérifiée",
+        "Impose toujours exactement cinq réponses même si elles sont fausses",
+        "Remplace les logs et les mesures",
+        "Prouve automatiquement la cause"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le nombre est un guide ; les preuves restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le diagramme d'Ishikawa sert à :",
+      "choices": [
+        "Mesurer directement la disponibilité",
+        "Supprimer toutes les hypothèses concurrentes",
+        "Remplacer la chronologie",
+        "Organiser les causes possibles par familles pour structurer l'investigation"
+      ],
+      "answer": 3,
+      "explanation": "Le diagramme aide à générer et classifier les hypothèses, pas à confirmer automatiquement une cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre corrélation et causalité ?",
+      "choices": [
+        "Aucune différence",
+        "Deux événements qui coïncident dans le temps ne démontrent pas que l'un a provoqué l'autre",
+        "Toute modification récente est nécessairement fautive",
+        "Une chronologie n'est jamais utile"
+      ],
+      "answer": 1,
+      "explanation": "Il faut tester le mécanisme supposé et examiner les alternatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi considérer les conditions de travail et les procédures ?",
+      "choices": [
+        "Pour éviter toute responsabilité technique",
+        "Pour ne pas examiner les composants",
+        "Parce que le contexte et les contrôles peuvent permettre ou amplifier une erreur",
+        "Pour remplacer la collecte de traces"
+      ],
+      "answer": 2,
+      "explanation": "L'analyse systémique traite les conditions ayant rendu l'incident possible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'une action corrective utile ?",
+      "choices": [
+        "Une action liée à un mécanisme causal, avec propriétaire et preuve d'efficacité",
+        "Une formation générique sans lien avec l'incident",
+        "Une action sans date",
+        "La fermeture du ticket de problème"
+      ],
+      "answer": 0,
+      "explanation": "L'action doit réduire un risque réel et son efficacité doit être vérifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire avec une preuve qui contredit l'hypothèse initiale ?",
+      "choices": [
+        "L'ignorer si l'équipe a déjà choisi une cause",
+        "Supprimer le journal",
+        "Réécrire la chronologie",
+        "La conserver, réviser l'hypothèse et explorer les explications compatibles"
+      ],
+      "answer": 3,
+      "explanation": "Les preuves contraires font partie d'une analyse rigoureuse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand la RCA peut-elle être considérée comme utile ?",
+      "choices": [
+        "Quand le diagramme est très coloré",
+        "Quand les actions ciblent des causes établies et que leur effet est vérifié",
+        "Quand cinq personnes ont assisté à la réunion",
+        "Quand un responsable a signé le compte rendu seulement"
+      ],
+      "answer": 1,
+      "explanation": "La qualité se juge à la robustesse des conclusions et à l'effet des actions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un piège des cinq pourquoi ?",
+      "choices": [
+        "Documenter les réponses",
+        "Tester une hypothèse",
+        "Forcer une chaîne linéaire alors que plusieurs facteurs ont contribué",
+        "Conserver les journaux"
+      ],
+      "answer": 2,
+      "explanation": "Plusieurs causes peuvent interagir ; il faut éviter les explications trop simplistes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si les logs nécessaires n'existent pas ?",
+      "choices": [
+        "Noter cette limite et créer une action pour améliorer la collecte",
+        "Inventer les événements manquants",
+        "Conclure que l'incident n'a pas eu lieu",
+        "Fermer l'analyse sans mention"
+      ],
+      "answer": 0,
+      "explanation": "Les limites de preuve doivent être transparentes et peuvent conduire à améliorer la détection."
     }
   ]
 }
