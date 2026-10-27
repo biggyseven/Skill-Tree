@@ -1292,6 +1292,30 @@ def list_labs_v2() -> list[dict[str, Any]]:
                     "module": str(node.get("module") or node.get("category") or ""),
                 }
 
+        # Les scénarios CLI autonomes sont aussi découvrables dans le catalogue.
+        # On ne publie que les définitions v2 jouables et automatiquement vérifiables ;
+        # les vieux laboratoires texte/orphelins restent exclus.
+        for lab_path in sorted(LABS_V2_DIR.glob("cli-*.json")):
+            standalone_id = lab_path.stem
+            try:
+                standalone_payload = _load_lab_file(standalone_id)
+            except HTTPException:
+                standalone_payload = None
+            if standalone_payload is None:
+                continue
+            standalone_definition = standalone_payload["definition"]
+            if (
+                not standalone_definition.initial_topology.nodes
+                or standalone_definition.check.type != "config_assertions"
+                or not standalone_definition.check.rules
+            ):
+                continue
+            course_ids.add(standalone_id)
+            course_metadata.setdefault(standalone_id, {
+                "title": standalone_definition.title or standalone_id,
+                "module": standalone_definition.module or "Labs CLI",
+            })
+
         catalog: list[dict[str, Any]] = []
         for lab_id in sorted(course_ids):
             row = db_rows.get(lab_id, {})

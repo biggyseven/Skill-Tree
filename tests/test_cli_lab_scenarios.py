@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
+from app import lab_routes
 from app.lab_routes import _path_tokens, evaluate_rules
 from app.lab_schema_v2 import LabDefinition, model_to_dict
 
@@ -63,6 +66,15 @@ def _append_path(root: dict[str, Any], device: str, path: str, value: Any) -> No
     current.append(value)
 
 class CLIScenarioServerCheckTests(unittest.TestCase):
+    def test_cli_scenarios_appear_in_the_catalog_without_course_nodes(self) -> None:
+        conn = sqlite3.connect(":memory:")
+        conn.row_factory = sqlite3.Row
+        with patch.object(lab_routes, "_database_connection", return_value=conn):
+            catalog = lab_routes.list_labs_v2()
+        visible_ids = {item["id"] for item in catalog}
+        self.assertTrue(set(SCENARIOS).issubset(visible_ids),
+                        f"Scénarios CLI absents du catalogue : {sorted(set(SCENARIOS) - visible_ids)}")
+
     def test_all_seventeen_scenarios_use_automatic_structured_assertions(self) -> None:
         self.assertEqual(len(SCENARIOS), 17)
         for scenario_id in SCENARIOS:
