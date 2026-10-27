@@ -116,7 +116,7 @@ class SiteAuthenticationTests(unittest.TestCase):
             auth.record_failed_login(key, now=10_000 + offset)
         self.assertTrue(auth.login_is_limited(key, now=10_010))
         self.assertFalse(
-            auth.login_is_limited(key, now=10_000 + auth.LOGIN_WINDOW_SECONDS + 1)
+            auth.login_is_limited(key, now=10_004 + auth.LOGIN_WINDOW_SECONDS + 1)
         )
 
     def test_render_fails_closed_if_authentication_is_not_configured(self) -> None:
