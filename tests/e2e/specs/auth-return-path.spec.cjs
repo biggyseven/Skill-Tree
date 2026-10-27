@@ -43,9 +43,10 @@ test('la connexion reprend le lien Labs demandé au lieu du tableau de bord', as
 
 test('une destination next externe est ignorée après connexion', async ({ page }) => {
   await mockAuthentication(page);
-  const origin = new URL(page.url() || 'http://127.0.0.1:8011').origin;
-
-  await submitLogin(page, 'https://attacker.example/steal');
+  await page.goto('/login.html?next=' + encodeURIComponent('https://attacker.example/steal'));
+  const origin = new URL(page.url()).origin;
+  await page.getByLabel("Mot de passe de l'application").fill('mot-de-passe-de-test');
+  await page.getByRole('button', { name: 'Se connecter' }).click();
 
   await expect.poll(() => page.evaluate(() => window.location.origin)).toBe(origin);
   await expect(page.getByRole('button', { name: 'Ouvrir les paramètres' })).toBeVisible();
