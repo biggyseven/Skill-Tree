@@ -263,8 +263,14 @@ class SkillTree:
         passed: bool,
         evidence: str = "",
         detail: str = "",
+        *,
+        commit: bool = True,
     ) -> tuple[Attempt, bool]:
-        """Enregistre une tentative. Retourne (tentative, nœud désormais validé)."""
+        """Enregistre une tentative. Retourne (tentative, nœud désormais validé).
+
+        commit=False permet d'inclure la preuve et les récompenses dans la transaction
+        du demandeur (notamment la finalisation d'une session d'examen).
+        """
         self.playable(node_id)
         score = max(0, min(100, int(score)))
         created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -273,12 +279,13 @@ class SkillTree:
             " VALUES (?, ?, ?, ?, ?, ?, ?)",
             (node_id, kind.value, score, int(passed), evidence, detail, created_at),
         )
-        self.conn.commit()
-        touch_daily_streak(self.conn)
-        self.last_reward = award_attempt_xp(self.conn, kind) if passed else None
-        
-        # CORRECTION 3 : Appel correct de la méthode check_badges
-        self.last_badges = self.check_badges(node_id, kind, passed, score)
+        if commit:
+            self.conn.commit()
+        touch_daily_streak(self.conn, commit=commit)
+        self.last_reward = award_attempt_xp(self.conn, kind, commit=commit) if passed else None
+
+        # Les badges font partie de la même transaction lorsqu'on utilise commit=False.
+        self.last_badges = self.check_badges(node_id, kind, passed, score, commit=commit)
         
         attempt = Attempt(
             id=cursor.lastrowid,
@@ -321,7 +328,15 @@ class SkillTree:
         self.conn.commit()
         return cursor.rowcount
 
-    def check_badges(self, node_id: str, kind: ProofKind, passed: bool, score: int) -> list[dict]:
+    def check_badges(
+        self,
+        node_id: str,
+        kind: ProofKind,
+        passed: bool,
+        score: int,
+        *,
+        commit: bool = True,
+    ) -> list[dict]:
         """Vérifie et débloque les badges après une tentative."""
         if not passed:
             return []
@@ -340,21 +355,30 @@ class SkillTree:
         if node_id and kind == ProofKind.QUIZ:
             total_validated = self.conn.execute("SELECT COUNT(DISTINCT node_id) FROM attempts WHERE passed = 1").fetchone()[0]
             if total_validated >= 1:
-                self._unlock_badge("first_blood", "Premier Sang", "Valider son premier nœud", "🩸", unlocked)
+                self._unlock_badge("first_blood", "Premier Sang", "Valider son premier nœud", "🩸", unlocked, commit=commit)
 
         # 2. Machine de Guerre (5 labs)
         if kind == ProofKind.LAB:
             total_labs = self.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind = 'lab' AND passed = 1").fetchone()[0]
             if total_labs >= 5:
-                self._unlock_badge("war_machine", "Machine de Guerre", "Valider 5 labs", "⚔️", unlocked)
+                self._unlock_badge("war_machine", "Machine de Guerre", "Valider 5 labs", "⚔️", unlocked, commit=commit)
 
         # 3. Sans Faute (100% à un examen)
         if kind == ProofKind.EXAM and score == 100:
-            self._unlock_badge("flawless", "Sans Faute", "Avoir 100% à un examen", "💯", unlocked)
+            self._unlock_badge("flawless", "Sans Faute", "Avoir 100% à un examen", "💯", unlocked, commit=commit)
 
         return unlocked
 
-    def _unlock_badge(self, badge_id: str, nom: str, desc: str, icone: str, unlocked_list: list):
+    def _unlock_badge(
+        self,
+        badge_id: str,
+        nom: str,
+        desc: str,
+        icone: str,
+        unlocked_list: list,
+        *,
+        commit: bool = True,
+    ):
         """Fonction utilitaire pour insérer un badge s'il n'existe pas."""
         existing = self.conn.execute("SELECT id FROM badges WHERE id = ?", (badge_id,)).fetchone()
         if not existing:
@@ -363,7 +387,8 @@ class SkillTree:
                 "INSERT INTO badges (id, nom, description, icone, condition_debloquee_le) VALUES (?, ?, ?, ?, ?)",
                 (badge_id, nom, desc, icone, now)
             )
-            self.conn.commit()
+            if commit:
+                self.conn.commit()
             unlocked_list.append({"id": badge_id, "nom": nom, "icone": icone})
 
 

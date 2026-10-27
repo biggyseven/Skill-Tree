@@ -4,6 +4,8 @@ import json
 import sqlite3
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier, local
 from pathlib import Path
 from unittest.mock import patch
 
@@ -238,6 +240,59 @@ class ExamApiTests(unittest.TestCase):
         profile = self.client.get("/api/profile")
         self.assertEqual(profile.status_code, 200, profile.text)
         self.assertEqual(profile.json()["exams_passed"], 1)
+
+    def test_concurrent_course_exam_submissions_record_one_attempt_and_one_reward(self) -> None:
+        self._unlock_ipv6_exam_prerequisite()
+        exam_response = self.client.post("/api/exam/start", json={"node_id": "ipv6-expert"})
+        self.assertEqual(exam_response.status_code, 200, exam_response.text)
+        exam = exam_response.json()
+        answers = self._answer_key(exam)
+
+        second_client = TestClient(api.app)
+        second_client.__enter__()
+        self.addCleanup(second_client.__exit__, None, None, None)
+
+        barrier = Barrier(2)
+        thread_state = local()
+        original_grade = api._grade_exam_question
+
+        def synchronized_grade(question, answer):
+            if not getattr(thread_state, "waited", False):
+                thread_state.waited = True
+                barrier.wait(timeout=10)
+            return original_grade(question, answer)
+
+        payload = {"session_id": exam["id"], "answers": answers}
+        with patch.object(api, "_grade_exam_question", side_effect=synchronized_grade):
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                first = executor.submit(self.client.post, "/api/exam/submit", json=payload)
+                second = executor.submit(second_client.post, "/api/exam/submit", json=payload)
+                responses = [first.result(timeout=20), second.result(timeout=20)]
+
+        self.assertEqual([response.status_code for response in responses], [200, 200])
+        self.assertEqual(responses[0].json(), responses[1].json())
+        self.assertTrue(responses[0].json()["passed"])
+
+        with sqlite3.connect(self.database_path) as connection:
+            attempt_count = connection.execute(
+                "SELECT COUNT(*) FROM attempts WHERE node_id = 'ipv6-expert' AND kind = 'exam'"
+            ).fetchone()[0]
+            total_xp, coins = connection.execute(
+                "SELECT total_xp, coins FROM user_stats WHERE id = 1"
+            ).fetchone()
+            streak_minutes = connection.execute(
+                "SELECT COALESCE(SUM(minutes_etudiees), 0) FROM daily_streak"
+            ).fetchone()[0]
+            session = connection.execute(
+                "SELECT submitted, score, passed FROM exam_sessions WHERE session_id = ?",
+                (exam["id"],),
+            ).fetchone()
+
+        self.assertEqual(attempt_count, 1)
+        self.assertEqual(total_xp, 100)
+        self.assertEqual(coins, 50)
+        self.assertEqual(streak_minutes, 5)
+        self.assertEqual(tuple(session), (1, 100, 1))
 
     def test_course_exam_accepts_80_percent_even_if_legacy_threshold_is_85(self) -> None:
         self._unlock_ipv6_exam_prerequisite()
