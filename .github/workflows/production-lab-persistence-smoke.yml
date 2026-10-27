@@ -17,6 +17,8 @@ jobs:
   production-lab-read-only-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    env:
+      SKILLTREE_PRODUCTION_SMOKE_PASSWORD: ${{ secrets.SKILLTREE_PRODUCTION_SMOKE_PASSWORD }}
     steps:
       - name: Wait for production API (read-only)
         shell: bash
@@ -52,9 +54,13 @@ jobs:
           import time
           import urllib.error
           import urllib.request
+          import sys
+          sys.path.insert(0, "tests")
+          from production_smoke_auth import authenticated_opener
           from pathlib import Path
 
           base = "https://skill-tree-vjon.onrender.com"
+          opener = authenticated_opener(base)
           nodes = json.loads(Path("content/nodes.json").read_text(encoding="utf-8-sig"))
           required = {
               item["id"]: item
@@ -70,7 +76,7 @@ jobs:
           for _ in range(24):
               try:
                   request = urllib.request.Request(base + "/api/lab/v2", headers={"Accept": "application/json"})
-                  with urllib.request.urlopen(request, timeout=30) as response:
+                  with opener.open(request, timeout=30) as response:
                       playable = json.loads(response.read().decode("utf-8"))
                   if isinstance(playable, list):
                       break
@@ -118,8 +124,12 @@ jobs:
           import time
           import urllib.error
           import urllib.request
+          import sys
+          sys.path.insert(0, "tests")
+          from production_smoke_auth import authenticated_opener
 
           base = "https://skill-tree-vjon.onrender.com"
+          opener = authenticated_opener(base)
           expected = [
               "nat-debutant",
               "ipv6-intermediaire",
@@ -138,7 +148,7 @@ jobs:
 
           def get_json(path):
               request = urllib.request.Request(base + path, headers={"Accept": "application/json"})
-              with urllib.request.urlopen(request, timeout=25) as response:
+              with opener.open(request, timeout=25) as response:
                   return json.loads(response.read().decode("utf-8"))
 
           last_error = "the latest scenario files are not in the live API yet"
