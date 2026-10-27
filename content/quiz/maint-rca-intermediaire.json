@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Analyse de cause racine (5 Pourquoi, Ishikawa) » ?",
+      "prompt": "Quelle différence existe entre symptôme et cause racine ?",
       "choices": [
-        "Le sujet principal du cours : Analyse de cause racine (5 Pourquoi, Ishikawa)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Un symptôme est toujours une cause racine",
+        "Le symptôme est observé ; la cause racine est une explication causale étayée par des preuves",
+        "Une cause racine n'a jamais besoin d'être vérifiée",
+        "Il n'existe aucune différence"
+      ],
+      "answer": 1,
+      "explanation": "Une panne observée décrit le résultat ; les causes doivent être étayées par une chronologie, des mesures et des tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment utiliser correctement les 5 Pourquoi ?",
+      "choices": [
+        "Comme une preuve automatique après la cinquième question",
+        "Pour trouver une personne à blâmer",
+        "Pour formuler une chaîne d'hypothèses dont chaque réponse doit être vérifiée",
+        "Pour remplacer les journaux techniques"
+      ],
+      "answer": 2,
+      "explanation": "Les 5 Pourquoi structurent le raisonnement mais ne valident pas les réponses à eux seuls."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un diagramme d'Ishikawa ?",
+      "choices": [
+        "À organiser les hypothèses par catégories pour élargir l'analyse",
+        "À certifier la cause sans test",
+        "À calculer le taux de disponibilité",
+        "À supprimer les causes alternatives"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Ishikawa aide à explorer des facteurs possibles, qui doivent ensuite être testés à partir de preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le service fonctionne après un redémarrage. Quelle conclusion est justifiée ?",
+      "choices": [
+        "La cause racine est certainement le redémarrage",
+        "Le problème ne reviendra jamais",
+        "Le fournisseur est nécessairement responsable",
+        "Le service a été rétabli, mais la cause doit encore être analysée"
+      ],
+      "answer": 3,
+      "explanation": "Le redémarrage peut être un contournement ; il ne démontre pas la cause sous-jacente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément renforce une chronologie d'incident ?",
+      "choices": [
+        "Des heures estimées sans source",
+        "Des horodatages cohérents liés à des journaux, tickets et métriques identifiés",
+        "Une conclusion écrite après coup sans preuve",
+        "La suppression des événements contradictoires"
+      ],
+      "answer": 1,
+      "explanation": "Une chronologie fiable identifie la source des observations et signale les écarts d'horloge ou les incertitudes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une hausse de latence apparaît après une mise à jour. Quelle affirmation est la plus rigoureuse ?",
+      "choices": [
+        "La mise à jour est nécessairement la cause",
+        "La proximité dans le temps prouve le lien causal",
+        "La mise à jour est une hypothèse à vérifier avec la chronologie et des tests adaptés",
+        "Il faut effacer les journaux de la mise à jour"
+      ],
+      "answer": 2,
+      "explanation": "La succession temporelle suggère une piste, mais d'autres facteurs doivent être examinés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action est la plus exploitable après une analyse de cause ?",
+      "choices": [
+        "Une action avec responsable, échéance, résultat attendu et critère d'efficacité",
+        "« Améliorer le système » sans précision",
+        "Attendre que le même incident revienne",
+        "Fermer les suivis sans vérifier les résultats"
+      ],
+      "answer": 0,
+      "explanation": "Les actions mesurables et attribuées permettent de suivre leur exécution et de vérifier leur efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si les preuves ne permettent pas encore d'identifier la cause ?",
+      "choices": [
+        "Inventer une cause vraisemblable",
+        "Blâmer l'équipe intervenue en dernier",
+        "Déclarer le problème définitivement résolu",
+        "Documenter les faits, les hypothèses, les limites et les prochaines investigations"
+      ],
+      "answer": 3,
+      "explanation": "L'incertitude doit être explicitée et associée à un plan de collecte ou de test, pas masquée par une conclusion non prouvée."
     }
   ]
 }

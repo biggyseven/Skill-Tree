@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « SLA, OLA et satisfaction utilisateur » ?",
+      "prompt": "Que définit principalement un SLA ?",
       "choices": [
-        "Le sujet principal du cours : SLA, OLA et satisfaction utilisateur",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Les seules permissions des administrateurs",
+        "Une liste de commandes Linux",
+        "Les objectifs de service convenus avec le client ou le métier et leurs règles de mesure",
+        "Un inventaire matériel uniquement"
+      ],
+      "answer": 2,
+      "explanation": "Un SLA définit les objectifs convenus, le périmètre, les règles de mesure et les modalités de suivi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un OLA ?",
+      "choices": [
+        "À répartir les engagements opérationnels entre les équipes internes qui soutiennent le service",
+        "À remplacer toutes les relations avec les utilisateurs",
+        "À garantir qu'aucune panne ne se produira",
+        "À fixer les lois nationales"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Les OLA structurent les contributions internes et les délais de coopération nécessaires au SLA global."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une réponse initiale est envoyée rapidement, mais le service reste indisponible. Qu'est-ce que cela prouve ?",
+      "choices": [
+        "Que le délai de rétablissement est forcément respecté",
+        "Seulement que l'indicateur de première réponse peut être respecté ; le rétablissement doit être mesuré séparément",
+        "Que la disponibilité est de 100 %",
+        "Que l'incident peut être supprimé"
+      ],
+      "answer": 1,
+      "explanation": "Le délai de première réponse et le délai de rétablissement sont deux indicateurs différents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur 30 jours continus, quelle indisponibilité représente 99,9 % de disponibilité selon le calcul simple ?",
+      "choices": [
+        "43,2 heures",
+        "432 minutes",
+        "4,32 minutes",
+        "Environ 43,2 minutes"
+      ],
+      "answer": 3,
+      "explanation": "30 jours représentent 43 200 minutes ; 0,1 % de cette durée équivaut à 43,2 minutes, avant application des règles contractuelles spécifiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il gérer les exclusions d'un SLA ?",
+      "choices": [
+        "Les inventer après l'incident",
+        "Les appliquer uniquement si cela améliore la note du mois",
+        "Les définir à l'avance, les documenter et appliquer les règles convenues",
+        "Les supprimer des rapports"
+      ],
+      "answer": 2,
+      "explanation": "Les exclusions doivent être convenues et traçables ; elles ne doivent pas être ajoutées rétroactivement pour masquer un écart."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi analyser le taux de réponse d'une enquête de satisfaction ?",
+      "choices": [
+        "Parce que les répondants peuvent ne pas représenter tous les utilisateurs",
+        "Pour éviter d'écouter les retours négatifs",
+        "Pour considérer la note moyenne comme toujours exacte",
+        "Pour remplacer les métriques techniques"
+      ],
+      "answer": 0,
+      "explanation": "Le taux et la composition des répondants aident à évaluer les biais et les limites de l'interprétation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information rend un indicateur de service vérifiable ?",
+      "choices": [
+        "Un nom vague comme « rapide »",
+        "La formule, la période, la source, le périmètre et les exclusions convenues",
+        "Une valeur sans unité",
+        "Un graphique sans date"
+      ],
+      "answer": 1,
+      "explanation": "La définition complète permet de reproduire le calcul et d'interpréter les écarts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le calcul montre qu'un SLA a été dépassé. Quelle est la bonne suite ?",
+      "choices": [
+        "Modifier rétrospectivement le SLA",
+        "Effacer les tickets liés",
+        "Ne rien documenter si le service revient",
+        "Valider les données, confirmer l'impact, communiquer et suivre les actions correctives"
+      ],
+      "answer": 3,
+      "explanation": "Un écart doit être vérifié, partagé selon le processus et suivi d'actions mesurables."
     }
   ]
 }
