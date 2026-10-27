@@ -144,6 +144,28 @@ Ce schéma illustre des relations générales. Les connexions exactes et la rép
 
 Le premier démarrage fournit des indices. Il faut noter précisément ce qui se passe au lieu de dire simplement « le PC est mort ».
 
+### Schéma — diagnostiquer un problème de démarrage sans conclure trop tôt
+
+```mermaid
+flowchart TD
+    A["Le poste ne démarre pas normalement"] --> B{"Un voyant ou ventilateur réagit ?"}
+    B -- "Non" --> C["Vérifier les éléments externes autorisés"]
+    C --> D["Prise, câble, interrupteur, onduleur"]
+    B -- "Oui" --> E{"Un affichage ou un code apparaît ?"}
+    E -- "Oui" --> F["Noter le message ou le code exact"]
+    E -- "Non" --> G["Observer les signes de démarrage documentés"]
+    D --> H{"Cause clairement étayée ?"}
+    F --> H
+    G --> H
+    H -- "Non" --> I["Consulter la procédure du modèle"]
+    H -- "Oui" --> J["Préparer une action autorisée"]
+    I --> K["Arrêter et escalader si risque ou doute"]
+    J --> L["Vérifier le résultat et documenter"]
+    K --> L
+```
+
+Le but de cet arbre est de séparer les symptômes observés des causes possibles. L'absence de voyant ne prouve pas à elle seule la panne du bloc d'alimentation ; un code de démarrage doit être interprété avec la documentation du modèle exact.
+
 ### 4.1 Aucun signe d'alimentation
 
 Si aucun voyant ne s'allume, aucun ventilateur ne tourne et aucun signe de démarrage n'apparaît, vérifie d'abord les éléments externes autorisés : prise, câble d'alimentation, interrupteur, multiprise ou onduleur. Sur un portable, l'état du chargeur et les indicateurs de charge peuvent aider.
@@ -172,6 +194,24 @@ Un écran noir ne prouve pas que le poste ne démarre pas. Il faut distinguer l'
 
 ## 5. Diagnostic méthodique avant ouverture
 
+### Schéma — démarche de diagnostic avant ouverture
+
+```mermaid
+flowchart TD
+    A["Décrire le symptôme précis"] --> B["Recueillir l'heure et les changements récents"]
+    B --> C["Identifier le modèle et la configuration"]
+    C --> D["Observer les connexions et indicateurs externes"]
+    D --> E["Formuler plusieurs hypothèses"]
+    E --> F["Choisir un contrôle sûr et discriminant"]
+    F --> G["Noter le résultat et ses limites"]
+    G --> H{"La cause est-elle étayée ?"}
+    H -- "Non" --> I["Sélectionner un autre contrôle ou escalader"]
+    I --> E
+    H -- "Oui" --> J["Planifier une action proportionnée"]
+```
+
+Un diagnostic solide utilise les résultats pour réduire l'incertitude. Il évite de remplacer des pièces au hasard ou d'attribuer la panne au dernier événement survenu sans autre preuve.
+
 ### 5.1 Recueillir l'historique
 
 Demande ce qui a changé : déplacement, choc, installation, mise à jour, ajout d'un périphérique, coupure électrique, bruit inhabituel ou intervention précédente. L'historique peut orienter les vérifications, mais la proximité temporelle ne prouve pas automatiquement la cause.
@@ -199,6 +239,26 @@ Note le résultat et les limites. Si le test ne permet pas de trancher, passe à
 ## 6. Sécurité avant intervention matérielle
 
 La sécurité est prioritaire sur la rapidité. Le travail matériel peut comporter des risques électriques, mécaniques et liés aux données.
+
+### Schéma — points d'arrêt de sécurité avant une intervention
+
+```mermaid
+flowchart TD
+    A["Intervention envisagée"] --> B{"Autorisation et procédure disponibles ?"}
+    B -- "Non" --> X["Ne pas ouvrir ; demander validation"]
+    B -- "Oui" --> C["Identifier le modèle et la pièce"]
+    C --> D["Évaluer données, garantie et impact"]
+    D --> E["Arrêter proprement selon la procédure"]
+    E --> F["Isoler les sources d'énergie prévues"]
+    F --> G["Préparer protection ESD et poste adapté"]
+    G --> H{"Risque résiduel compris ?"}
+    H -- "Non" --> X
+    H -- "Oui" --> I["Commencer uniquement l'opération autorisée"]
+    X --> J["Documenter l'arrêt ou l'escalade"]
+    I --> J
+```
+
+Ce parcours n'autorise pas à intervenir sur des composants électriques dangereux. Les alimentations internes, batteries et dispositifs à haute énergie doivent être traités selon les instructions du fabricant et par du personnel qualifié.
 
 ### 6.1 Autorisation et préparation
 
@@ -243,6 +303,25 @@ Un poste de travail désordonné augmente le risque de perdre une vis, de connec
 
 ## 7. Remplacer un composant : compatibilité et méthode
 
+### Schéma — valider un composant de remplacement
+
+```mermaid
+flowchart TD
+    A["Composant suspecté"] --> B["Confirmer le diagnostic"]
+    B --> C["Lire la référence exacte du système"]
+    C --> D["Vérifier format et connectique"]
+    D --> E["Vérifier spécifications et compatibilité"]
+    E --> F["Examiner firmware, puissance et refroidissement"]
+    F --> G{"Compatibilité documentée ?"}
+    G -- "Non" --> H["Suspendre l'achat et demander confirmation"]
+    G -- "Oui" --> I["Préparer données et retour arrière"]
+    I --> J["Remplacer selon la procédure constructeur"]
+    J --> K["Tester puis consigner la pièce installée"]
+    H --> L["Maintenir le système dans son état sûr"]
+```
+
+La compatibilité doit être confirmée dans la documentation du fabricant ou les références validées de l'organisation. Une pièce qui entre physiquement dans un emplacement n'est pas nécessairement compatible électriquement ou fonctionnellement.
+
 ### 7.1 Ne pas acheter sur la seule apparence
 
 La compatibilité dépend du type de connecteur, du format, des spécifications, du micrologiciel, de la consommation électrique, du refroidissement et parfois de la configuration du fabricant.
@@ -279,6 +358,27 @@ Le remplacement n'est validé que lorsque le système détecte le composant et q
 
 ## 8. Mémoire : symptômes et contrôle
 
+### Schéma — investigation d'une suspicion de défaut mémoire
+
+```mermaid
+flowchart TD
+    A["Instabilité, redémarrages ou échec de démarrage"] --> B["Noter les symptômes et les codes"]
+    B --> C["Consulter les journaux et diagnostics constructeur"]
+    C --> D{"Test mémoire autorisé et planifié ?"}
+    D -- "Non" --> E["Préparer une fenêtre ou escalader"]
+    D -- "Oui" --> F["Exécuter le test selon les instructions"]
+    F --> G{"Des erreurs sont-elles signalées ?"}
+    G -- "Oui" --> H["Conserver le résultat et investiguer la configuration"]
+    G -- "Non" --> I["Ne pas exclure toutes les autres causes"]
+    H --> J["Toute manipulation de RAM exige l'arrêt et la protection ESD"]
+    I --> K["Comparer avec d'autres indices"]
+    E --> K
+    J --> L["Documenter et décider de la suite"]
+    K --> L
+```
+
+Un test réussi sur une période donnée ne garantit pas l'absence de toute panne intermittente. Les codes, règles de population des barrettes et combinaisons prises en charge dépendent du système.
+
 ### 8.1 Signes possibles
 
 Les problèmes de RAM peuvent se manifester par des erreurs intermittentes, des redémarrages, des plantages, des échecs de démarrage ou des résultats anormaux lors de tests mémoire. Ces signes peuvent aussi provenir d'autres composants ou de logiciels.
@@ -298,6 +398,25 @@ Cette opération ne doit être réalisée qu'après préparation, mise hors tens
 Sur un serveur, ne déplace pas les modules au hasard. Consulte la documentation du constructeur afin de respecter les règles de population et de conserver les informations nécessaires à l'équipe de maintenance.
 
 ## 9. Stockage : diagnostic et protection des données
+
+### Schéma — protéger les données en cas d'alerte de stockage
+
+```mermaid
+flowchart TD
+    A["Alerte ou symptôme de stockage"] --> B["Identifier le support et les données concernées"]
+    B --> C["Relever l'alerte et les événements disponibles"]
+    C --> D{"Signes de défaillance et données critiques ?"}
+    D -- "Oui" --> E["Limiter les manipulations et prévenir le responsable"]
+    E --> F["Suivre le plan de sauvegarde ou de récupération approuvé"]
+    D -- "Non" --> G["Contrôler capacité, connexion et état selon le fabricant"]
+    G --> H["Distinguer saturation, erreur logique et panne matérielle"]
+    F --> I["Remplacement ou récupération selon procédure"]
+    H --> J["Choisir une action autorisée"]
+    I --> K["Vérifier les données et le fonctionnement"]
+    J --> K
+```
+
+Si le support semble physiquement défaillant, multiplier les redémarrages ou les tests lourds peut aggraver la situation. La stratégie doit tenir compte de la criticité des données et des procédures de récupération.
 
 ### 9.1 Reconnaître les symptômes
 
@@ -325,6 +444,24 @@ Un disque neuf ne rétablit pas automatiquement les données ou les applications
 
 ## 10. Refroidissement, bruit et alimentation
 
+### Schéma — relier chaleur, charge et symptômes
+
+```mermaid
+flowchart TD
+    A["Bruit, chaleur ou arrêt soudain"] --> B["Noter quand le symptôme apparaît"]
+    B --> C["Observer charge, environnement et alertes disponibles"]
+    C --> D["Comparer aux seuils et consignes constructeur"]
+    D --> E{"Surchauffe ou risque immédiat suspecté ?"}
+    E -- "Oui" --> F["Protéger le service et escalader selon la procédure"]
+    E -- "Non" --> G["Examiner ventilation et historique"]
+    G --> H["Formuler une hypothèse vérifiable"]
+    H --> I["Contrôle adapté sans toucher aux pièces mobiles"]
+    F --> J["Consigner les mesures et décisions"]
+    I --> J
+```
+
+N'ouvre pas un équipement en fonctionnement pour toucher un ventilateur ou une pièce mobile. Une température ne doit être jugée qu'en référence au modèle, à la charge et aux mesures disponibles.
+
 ### 10.1 Bruits inhabituels
 
 Un bruit nouveau peut provenir d'un ventilateur, d'une pièce mécanique ou d'un autre élément. Il faut noter quand il apparaît et s'il évolue avec la charge. Un bruit répétitif provenant d'un disque mécanique peut justifier une intervention rapide, notamment si les données sont importantes.
@@ -346,6 +483,28 @@ Vérifie les événements disponibles et les connexions externes lorsque c'est s
 ## 11. Les particularités des serveurs
 
 Un serveur peut héberger plusieurs services utilisés par de nombreux collaborateurs. Une action sur un seul composant peut donc avoir des conséquences importantes.
+
+### Schéma — comprendre la portée de la redondance d'un serveur
+
+```mermaid
+flowchart TD
+    A["Serveur en production"] --> B["Alimentations redondantes"]
+    A --> C["Ventilateurs redondants"]
+    A --> D["Ensemble de disques RAID"]
+    B --> E["Tolérance à certaines pannes"]
+    C --> E
+    D --> E
+    E --> F["Surveiller les alertes et la capacité restante"]
+    F --> G{"Un élément redondant est-il dégradé ?"}
+    G -- "Oui" --> H["Planifier rapidement une intervention maîtrisée"]
+    G -- "Non" --> I["Continuer la surveillance prévue"]
+    H --> J["Vérifier sauvegardes et procédure constructeur"]
+    J --> K["Remplacer et contrôler selon autorisation"]
+    I --> L["Consigner l'état"]
+    K --> L
+```
+
+La redondance ne protège que contre certains scénarios définis par la conception. Un RAID ne remplace pas une sauvegarde restaurable, et une alimentation de secours défaillante peut rester invisible jusqu'à une seconde panne.
 
 ### 11.1 Redondance et disponibilité
 
@@ -380,6 +539,24 @@ Certains composants sont conçus pour être remplacés sans arrêter le système
 Avant l'opération, vérifie la procédure, l'état de redondance, l'identification du composant et l'autorisation. Si la procédure n'est pas disponible ou si l'état du système est incertain, escalade.
 
 ## 12. Baies informatiques et câblage
+
+### Schéma — principes d'organisation d'une baie
+
+```mermaid
+flowchart TB
+    A["Arrivée électrique et onduleur"] --> B["Distribution électrique identifiée"]
+    B --> C["Alimentations des équipements"]
+    D["Liaisons opérateur et réseau"] --> E["Panneaux de brassage"]
+    E --> F["Switchs et équipements réseau"]
+    F --> G["Liaisons vers serveurs et postes"]
+    C --> H["Étiquettes et documentation"]
+    E --> H
+    F --> H
+    G --> H
+    H --> I["Ports, câbles et équipements traçables"]
+```
+
+Ce schéma représente les relations fonctionnelles, pas un plan de câblage à appliquer aveuglément. Les circuits électriques et les chemins réseau doivent respecter le plan réel de la salle et les règles de sécurité de l'organisation.
 
 ### 12.1 Rôle d'une baie
 
@@ -428,6 +605,25 @@ Le dessin est fonctionnel et volontairement simplifié. Le câblage réel peut i
 
 ## 13. Maintenance préventive matérielle
 
+### Schéma — construire un cycle de maintenance préventive
+
+```mermaid
+flowchart TD
+    A["Inventaire et criticité"] --> B["Consignes constructeur et historique"]
+    B --> C["Définir fréquence et contrôles"]
+    C --> D["Planifier une fenêtre si nécessaire"]
+    D --> E["Réaliser les contrôles autorisés"]
+    E --> F["Classer les résultats"]
+    F --> G{"Anomalie constatée ?"}
+    G -- "Non" --> H["Enregistrer l'état conforme"]
+    G -- "Oui" --> I["Ouvrir une action corrective"]
+    I --> J["Affecter un responsable et une échéance"]
+    H --> K["Mettre à jour l'inventaire et le prochain contrôle"]
+    J --> K
+```
+
+Une maintenance préventive doit laisser une trace et déboucher sur une décision. La fréquence dépend notamment de la criticité, de l'environnement, des recommandations du fabricant et des tendances observées.
+
 ### 13.1 Définir un programme
 
 Un programme de maintenance préventive doit être adapté à la criticité, aux recommandations du fabricant, à l'environnement et à l'historique des incidents. Une fréquence uniforme pour tous les équipements n'est pas toujours pertinente.
@@ -463,6 +659,24 @@ L'inventaire et l'historique des incidents permettent de préparer ce renouvelle
 ## 14. Procédure type d'intervention matérielle
 
 Une procédure écrite aide à réduire les oublis et à transférer le travail entre techniciens.
+
+### Schéma — cycle complet d'une intervention matérielle
+
+```mermaid
+flowchart LR
+    A["Ticket et périmètre"] --> B["Diagnostic et risques"]
+    B --> C["Autorisation et préparation"]
+    C --> D["Intervention contrôlée"]
+    D --> E["Remise en service"]
+    E --> F["Tests fonctionnels"]
+    F --> G{"Résultat conforme ?"}
+    G -- "Non" --> H["Retour arrière ou escalade"]
+    G -- "Oui" --> I["Validation et clôture"]
+    H --> J["Documenter l'état et les suites"]
+    I --> J
+```
+
+La clôture doit s'appuyer sur des résultats réellement observés. Si le système n'est pas suffisamment testé ou si le symptôme persiste, il faut conserver le ticket ouvert ou transmettre le dossier plutôt que déclarer la réparation terminée.
 
 ### Avant l'intervention
 
@@ -737,6 +951,25 @@ Pourquoi faut-il enregistrer la référence d'un composant installé et celle du
 Un poste redémarre après le remplacement d'une barrette mémoire. Peut-on considérer automatiquement l'intervention terminée ?
 
 **Correction : non.** Il faut vérifier la détection de la mémoire, exécuter les tests prévus, observer la stabilité et contrôler l'usage initial. Il faut aussi enregistrer le composant utilisé et les résultats obtenus.
+
+### Schéma — organiser le diagnostic du défi final
+
+```mermaid
+flowchart TD
+    A["Poste instable ou arrêt soudain"] --> B["Clarifier le symptôme, l'heure et l'impact"]
+    B --> C["Identifier modèle et changements récents"]
+    C --> D["Contrôles externes non intrusifs"]
+    D --> E["Journaux, températures et diagnostics disponibles"]
+    E --> F["Comparer les hypothèses aux résultats"]
+    F --> G{"Données ou sécurité à risque ?"}
+    G -- "Oui" --> H["Préserver l'état et escalader"]
+    G -- "Non" --> I["Préparer intervention autorisée si nécessaire"]
+    I --> J["Vérifier fonctionnement et stabilité"]
+    H --> K["Rédiger la fiche complète"]
+    J --> K
+```
+
+La bonne réponse au défi n'est pas de choisir immédiatement une pièce à remplacer : c'est de produire un diagnostic traçable, de respecter les limites de compétence et d'expliquer la vérification nécessaire pour démontrer que le problème est résolu.
 
 ## 19. Défi final — Diagnostiquer un poste et préparer l'intervention
 
