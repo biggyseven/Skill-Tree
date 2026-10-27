@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Vocabulaire technique et communication » ?",
+      "prompt": "Quelle phrase distingue correctement un symptôme d'une cause ?",
       "choices": [
-        "Le sujet principal du cours : Vocabulaire technique et communication",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Le symptôme est ce qui est observé ; la cause explique pourquoi cela se produit",
+        "Le symptôme est toujours un composant matériel cassé",
+        "La cause peut être déclarée sans vérification",
+        "Symptôme et cause signifient toujours la même chose"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le symptôme décrit un fait observé ; la cause est une explication qui doit être étayée par des éléments du diagnostic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur peut se connecter à un portail, mais reçoit un message indiquant qu'il n'a pas le droit de consulter une page. Quelle distinction est la plus utile ?",
+      "choices": [
+        "Latence et débit",
+        "Authentification et autorisation",
+        "RAM et stockage",
+        "SLA et KPI"
+      ],
+      "answer": 1,
+      "explanation": "L'authentification vérifie l'identité ; l'autorisation détermine les actions permises à cette identité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie généralement « incident » dans le contexte du support informatique ?",
+      "choices": [
+        "Une demande standard de nouveau logiciel",
+        "Une procédure documentée",
+        "Une interruption ou dégradation non prévue d'un service",
+        "La cause racine confirmée de tous les incidents similaires"
+      ],
+      "answer": 2,
+      "explanation": "Un incident concerne une interruption ou une dégradation du service. L'analyse d'un problème vise plutôt les causes réelles ou potentielles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle formulation est la plus professionnelle quand la cause d'un accès impossible n'est pas encore connue ?",
+      "choices": [
+        "Le serveur est forcément cassé",
+        "Le réseau de l'entreprise est nul",
+        "L'utilisateur a probablement mal fait les choses",
+        "L'accès échoue lors du test réalisé ; la cause reste à vérifier et nous poursuivons le diagnostic"
+      ],
+      "answer": 3,
+      "explanation": "Cette formulation décrit le constat, rend l'incertitude explicite et annonce la suite sans accuser qui que ce soit ni inventer une cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le contexte de la gestion des services, que représente généralement un SLA ?",
+      "choices": [
+        "Un accord définissant les engagements de niveau de service",
+        "Un mot de passe partagé par le support",
+        "Un type de mémoire vive",
+        "Une commande de diagnostic réseau"
+      ],
+      "answer": 0,
+      "explanation": "Un SLA précise des objectifs ou engagements de service convenus, par exemple des cibles de réponse ou de résolution, selon le contrat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment communiquer un délai de résolution quand il dépend d'une équipe externe et reste inconnu ?",
+      "choices": [
+        "Promettre une résolution avant la fin de l'heure",
+        "Indiquer le blocage et annoncer le prochain point d'information réaliste",
+        "Ne plus informer l'utilisateur",
+        "Marquer le ticket résolu pour éviter l'attente"
+      ],
+      "answer": 1,
+      "explanation": "Il est préférable d'expliquer ce qui est connu, ce qui bloque et quand une nouvelle information sera donnée, sans garantir un résultat incontrôlable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que devrait contenir une bonne transmission entre techniciens ?",
+      "choices": [
+        "Un commentaire privé sans contexte",
+        "Uniquement un lien vers un ticket vide",
+        "Le symptôme, l'impact, les contrôles et résultats, les hypothèses et la question restante",
+        "Une liste de toutes les commandes possibles, même non exécutées"
+      ],
+      "answer": 2,
+      "explanation": "Une transmission doit permettre à l'équipe suivante de reprendre le travail sans confondre les tests prévus avec les tests réellement effectués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un technicien veut expliquer à un utilisateur que le DNS est impliqué dans un incident. Quelle méthode est la meilleure ?",
+      "choices": [
+        "Utiliser beaucoup d'acronymes sans explication",
+        "Dire que l'utilisateur ne peut pas comprendre",
+        "Éviter d'expliquer le problème",
+        "Expliquer avec des mots simples que le nom du service ne semble pas être traduit correctement en adresse, si cela correspond aux résultats"
+      ],
+      "answer": 3,
+      "explanation": "L'explication doit correspondre aux faits, employer des mots adaptés au destinataire et éviter d'affirmer un résultat que les contrôles n'ont pas démontré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle donnée ne doit pas figurer en clair dans un ticket de support partagé ?",
+      "choices": [
+        "Un mot de passe ou un jeton d'accès",
+        "L'heure de l'incident",
+        "Le nom de l'application si cela est autorisé",
+        "Le résultat assaini d'un test"
+      ],
+      "answer": 0,
+      "explanation": "Les secrets d'authentification ne doivent pas être consignés dans un ticket. Les éléments partagés doivent être nécessaires, protégés et autorisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un glossaire d'équipe doit-il être revu et maintenu ?",
+      "choices": [
+        "Pour remplacer les procédures de sécurité",
+        "Parce que le sens et les usages peuvent varier selon le contexte et évoluer avec les outils",
+        "Pour imposer des mots compliqués à tous les utilisateurs",
+        "Pour pouvoir publier des hypothèses non vérifiées"
+      ],
+      "answer": 1,
+      "explanation": "Un glossaire utile conserve des définitions claires, contextualisées et cohérentes, et doit être actualisé quand la technologie ou les procédures changent."
     }
   ]
 }
