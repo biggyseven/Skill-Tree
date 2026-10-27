@@ -29,7 +29,7 @@ export function DeviceNode({ data, selected }) {
               data-port-label={name}
               aria-hidden="true"
               className="pointer-events-none absolute z-20 whitespace-nowrap rounded border border-[#30363d] bg-[#161b22] px-1 py-0.5 font-mono text-[9px] leading-none text-[#c9d1d9] shadow-lg"
-              style={{ ...labelStyle, top: `calc(${topPercent}% - 5px)` }}
+              style={{ ...labelStyle, top: `calc(${topPercent}%)` }}
             >
               {name}
             </span>
