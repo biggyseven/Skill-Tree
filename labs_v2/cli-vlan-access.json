@@ -6,7 +6,7 @@
   "module": "Commutation",
   "duration_min": 25,
   "difficulty": "débutant",
-  "prompt": "Sur SW1, créez le VLAN 10 et placez Fa0/1 en mode access dans ce VLAN. La validation porte sur l’objet VLAN et les propriétés structurées du port.",
+  "prompt": "Contexte : le poste utilisateur relié à Fa0/1 doit être isolé dans le VLAN 10. Sur SW1, créez le VLAN 10 nommé VLAN10, puis configurez Fa0/1 comme port d’accès et affectez-le à ce VLAN. Le port Fa0/24 est le lien montant vers R1 et ne doit pas recevoir cette affectation. Vérifiez la présence du VLAN et les propriétés du port.",
   "objectives": [
     "Exécuter puis vérifier : vlan 10",
     "Exécuter puis vérifier : interface Fa0/1",
@@ -15,8 +15,10 @@
   ],
   "hints": [
     "Cible CLI : SW1.",
-    "Séquence de référence : enable ; configure terminal ; vlan 10 ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : créez le VLAN dans le mode de configuration global avant de modifier le port.",
+    "Indice 2 : sélectionnez Fa0/1 puis appliquez switchport mode access et switchport access vlan 10.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; vlan 10 ; name VLAN10 ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; end.",
+    "La validation vérifie le VLAN 10, son nom, le mode access et l’affectation de Fa0/1."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -39,7 +41,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -58,7 +60,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -109,7 +111,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -128,7 +130,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -179,7 +181,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -284,7 +286,7 @@
     "rules": [
       {
         "id": "vlan10",
-        "description": "Contrôle serveur : vlan10 doit être conforme.",
+        "description": "Le VLAN 10 est créé et nommé VLAN10.",
         "device": "SW1",
         "path": "config.vlans",
         "operator": "contains",
@@ -295,7 +297,7 @@
       },
       {
         "id": "access_mode",
-        "description": "Contrôle serveur : access mode doit être conforme.",
+        "description": "Fa0/1 est configuré en mode access.",
         "device": "SW1",
         "path": "ports[0].mode",
         "operator": "equals",
@@ -303,7 +305,7 @@
       },
       {
         "id": "access_vlan",
-        "description": "Contrôle serveur : access vlan doit être conforme.",
+        "description": "Fa0/1 est affecté au VLAN 10.",
         "device": "SW1",
         "path": "ports[0].vlan",
         "operator": "equals",
