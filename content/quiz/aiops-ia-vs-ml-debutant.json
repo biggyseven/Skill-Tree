@@ -1,0 +1,66 @@
+{
+  "node_id": "aiops-ia-vs-ml-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Des catégories d'incidents fiables n'existent pas. L'équipe souhaite repérer des configurations inhabituelles : quelle famille de techniques essayer ?",
+      "choices": [
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Définir le résultat opérationnel, les sources autorisées, le contexte et les critères de succès avant de choisir une technique."
+      ],
+      "answer": 3,
+      "explanation": "Dans IA, Machine Learning, Deep Learning, le choix commence par un problème mesurable. Distinguer règles déterministes, Machine Learning, Deep Learning et modèles génératifs. Une définition claire permet de comparer les alternatives et de refuser une solution qui n'améliore pas le service. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un modèle atteint 99 % d'exactitude, mais les incidents critiques sont très rares. Que faut-il examiner ?",
+      "choices": [
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Comparer à une baseline, examiner précision, rappel et F1 et analyser les erreurs selon la criticité plutôt que s'appuyer sur un seul score global.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance."
+      ],
+      "answer": 2,
+      "explanation": "La mesure précision, rappel et F1 n'a de sens qu'avec une baseline et des cas représentatifs. Examiner les erreurs par cohorte évite qu'une moyenne masque la dégradation d'un site critique. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment comparer honnêtement une méthode complexe à une règle de seuil simple ?",
+      "choices": [
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Limiter privilèges et périmètre, vérifier les préconditions, obtenir les approbations nécessaires et préparer des postconditions et un rollback testables.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements."
+      ],
+      "answer": 1,
+      "explanation": "La sécurité doit limiter l'impact avant l'action. Une opération est acceptée seulement si les droits, le périmètre, les préconditions et la manière de vérifier le résultat sont définis ; la commande seule ne prouve pas le succès. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un LLM propose une cause élégante sans source qui la confirme. Quelle conclusion adopter ?",
+      "choices": [
+        "Reconstituer la chronologie, garder les données manquantes visibles, confronter plusieurs hypothèses et utiliser un test qui les distingue.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière."
+      ],
+      "answer": 0,
+      "explanation": "Une chronologie et des hypothèses concurrentes diminuent le risque de conclure trop tôt. Les preuves et contre-indices doivent être conservés ; si elles sont insuffisantes, l'équipe doit s'abstenir ou escalader. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les variables d'entraînement contiennent des informations créées après l'incident. Quel problème cela crée-t-il ?",
+      "choices": [
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Déployer progressivement, surveiller qualité et dérive, mesurer un résultat indépendant et conserver une voie de restauration."
+      ],
+      "answer": 3,
+      "explanation": "Un déploiement progressif réduit l'impact d'une erreur. La surveillance doit inclure la qualité des données et le résultat opérationnel ; le rollback doit être disponible et testé. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    }
+  ]
+}
