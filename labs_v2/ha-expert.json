@@ -1,0 +1,366 @@
+{
+  "schema_version": 2,
+  "id": "ha-expert",
+  "title": "Haute disponibilité expert — VRRPv3 et tracking",
+  "level": "expert",
+  "module": "Renforcez la redondance de passerelle avec VRRPv3. Configurez un groupe unique, une IP virtuelle commune, une priorité primaire supérieure, le preempt, le suivi d’uplink avec decrement et l’authentification dans le modèle du scénario.",
+  "prompt": [
+    "Utiliser VRRPv3 sur les deux routeurs.",
+    "Partager l’adresse virtuelle et le groupe VRRP.",
+    "Rendre R1 prioritaire avec preempt.",
+    "Suivre l’uplink pour faire baisser la priorité en cas de panne.",
+    "Conserver une politique de sécurité identique sur les deux membres."
+  ],
+  "objectives": [
+    "VRRPv3 prend en charge IPv4 et IPv6 ; ici, l’exercice utilise IPv4.",
+    "L’IP virtuelle doit être identique sur R1 et R2.",
+    "Le decrement doit provoquer l’élection du routeur de secours lorsque l’uplink est indisponible."
+  ],
+  "hints": {
+    "schema_version": 2,
+    "topology_id": "topo-ha-expert",
+    "metadata": {
+      "name": "Haute disponibilité expert — VRRPv3 et tracking",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 200,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.2",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.9.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "vrrp",
+              "version": 2,
+              "group": 20,
+              "priority": 100,
+              "preempt": false,
+              "virtual_ip": "192.168.20.1",
+              "track": {
+                "interface": "Gi0/1",
+                "decrement": 0
+              },
+              "authentication": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 500,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.3",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.9.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "vrrp",
+              "version": 3,
+              "group": 20,
+              "priority": 100,
+              "preempt": true,
+              "virtual_ip": "192.168.20.254",
+              "track": {
+                "interface": "Gi0/1",
+                "decrement": 30
+              },
+              "authentication": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 500,
+        "y": 430,
+        "label": "SW1",
+        "model": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 20,
+              "name": "HA-CLIENTS"
+            }
+          ]
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 800,
+        "y": 430,
+        "label": "PC-A",
+        "model": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-SW",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-SW",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "SW-PC",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "duration_min": 30,
+  "difficulty": "expert",
+  "initial_topology": [
+    {
+      "id": "version",
+      "description": "VRRPv3 is configured on R1.",
+      "device": "R1",
+      "path": "config.routes[0].version",
+      "operator": "equals",
+      "expected": 3
+    },
+    {
+      "id": "group",
+      "description": "The VRRP group is 20.",
+      "device": "R1",
+      "path": "config.routes[0].group",
+      "operator": "equals",
+      "expected": 20
+    },
+    {
+      "id": "vip",
+      "description": "The shared virtual gateway is .254.",
+      "device": "R1",
+      "path": "config.routes[0].virtual_ip",
+      "operator": "equals",
+      "expected": "192.168.20.254"
+    },
+    {
+      "id": "priority",
+      "description": "R1 is preferred active router.",
+      "device": "R1",
+      "path": "config.routes[0].priority",
+      "operator": "equals",
+      "expected": 110
+    },
+    {
+      "id": "preempt",
+      "description": "R1 preempts after recovery.",
+      "device": "R1",
+      "path": "config.routes[0].preempt",
+      "operator": "equals",
+      "expected": true
+    },
+    {
+      "id": "tracking",
+      "description": "R1 tracks its uplink.",
+      "device": "R1",
+      "path": "config.routes[0].track.interface",
+      "operator": "equals",
+      "expected": "Gi0/1"
+    },
+    {
+      "id": "decrement",
+      "description": "Tracking reduces priority by 30.",
+      "device": "R1",
+      "path": "config.routes[0].track.decrement",
+      "operator": "equals",
+      "expected": 30
+    },
+    {
+      "id": "auth",
+      "description": "Authentication is enabled in this model.",
+      "device": "R1",
+      "path": "config.routes[0].authentication",
+      "operator": "equals",
+      "expected": true
+    },
+    {
+      "id": "standby-vip",
+      "description": "R2 has the same virtual gateway.",
+      "device": "R2",
+      "path": "config.routes[0].virtual_ip",
+      "operator": "equals",
+      "expected": "192.168.20.254"
+    }
+  ],
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": 40,
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
