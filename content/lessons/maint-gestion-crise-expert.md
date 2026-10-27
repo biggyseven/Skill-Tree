@@ -134,6 +134,24 @@ Une même personne peut porter plusieurs rôles dans une petite organisation, ma
 
 Cette matrice est un modèle à adapter, non une délégation universelle. L’organisation doit documenter les conflits d’intérêts, les suppléances et les situations dans lesquelles une autorité normale est elle-même indisponible.
 
+### Schéma — De la situation à une décision contrôlée
+
+~~~mermaid
+flowchart TD
+  A[Équipes et sources] --> B[Situation commune]
+  B --> C[Coordinateur formule la décision attendue]
+  C --> D[Évaluation technique, métier et sécurité]
+  D --> E{Décision dans la délégation ?}
+  E -->|Oui| F[Autorité opérationnelle approuve]
+  E -->|Non| G[Escalade au décideur habilité]
+  F --> H[Action attribuée et journalisée]
+  G --> H
+  H --> I[Résultat contrôlé]
+  I --> B
+~~~
+
+Ce circuit évite de confondre une information remontée avec une décision prise. Chaque action revient dans la situation commune avec un résultat ou un obstacle ; le coordinateur peut alors confirmer, ajuster ou escalader.
+
 ## 3. Conduite de crise : situation commune et qualité des décisions
 
 ### 3.1 Construire une image opérationnelle partagée
@@ -202,6 +220,25 @@ Les conséquences évoluent. Une interruption de dix minutes peut être absorbab
 - **Interdépendance :** effet sur d’autres activités, sites, filiales ou partenaires.
 
 Le montant financier ne doit pas être le seul critère. Une activité peu rentable peut être essentielle pour la sécurité, le respect d’une obligation ou la protection d’autres services.
+
+### Schéma — Construire les objectifs à partir du besoin métier
+
+~~~mermaid
+flowchart TD
+  A[Activité et propriétaire métier] --> B[Conséquences selon la durée]
+  B --> C[Niveau minimal de service]
+  B --> D[MTPD motivé]
+  C --> E[Objectif RTO et délai de validation]
+  C --> F[Besoin de données et RPO]
+  D --> G[Comparer objectifs et tolérance]
+  E --> G
+  F --> G
+  G --> H{Objectifs réalistes et testables ?}
+  H -->|Non| I[Arbitrer stratégie, capacité ou risque]
+  H -->|Oui| J[Approuver et planifier les tests]
+~~~
+
+Le résultat attendu n’est pas une série de nombres isolés. Les objectifs doivent être reliés au besoin, à la capacité technique et à la preuve qui permettra de vérifier leur respect.
 
 ### 4.3 Différencier MTPD, RTO et RPO
 
@@ -327,6 +364,25 @@ Les organisations emploient souvent des notions comme *cold site*, *warm site* e
 
 L’étiquette choisie ne doit pas remplacer un essai. Un « site chaud » qui n’a pas de certificat valide, d’accès opérateur ou de capacité de stockage suffisante est chaud sur le schéma, pas nécessairement en production.
 
+### Schéma — Choisir une stratégie selon le scénario
+
+~~~mermaid
+flowchart TD
+  A[Scénario de perturbation] --> B{Intégrité de la source connue ?}
+  B -->|Non| C[Préserver, investiguer et restaurer en zone contrôlée]
+  B -->|Oui| D{Données et dépendances disponibles ?}
+  D -->|Non| E[Mode dégradé contrôlé ou autre source]
+  D -->|Oui| F{Objectifs de reprise atteignables ?}
+  F -->|Non| G[Réduire le périmètre, augmenter la capacité ou arbitrer]
+  F -->|Oui| H[Exécuter la bascule documentée]
+  C --> I[Tests techniques et métier]
+  E --> I
+  G --> I
+  H --> I
+~~~
+
+La disponibilité d’une option n’implique pas son acceptabilité. Le choix final dépend aussi de l’autorité de décision, du coût de l’attente, des risques résiduels et de la possibilité de revenir en arrière.
+
 ### 6.4 Comparer les options de façon défendable
 
 Évaluer au minimum le RTO plausible, le RPO démontré, la résilience aux causes communes, le coût total, la compétence nécessaire, la complexité d’exploitation, le risque de corruption, le temps d’approvisionnement, le comportement sous charge et la possibilité d’un retour contrôlé. Les objectifs les plus ambitieux peuvent nécessiter des coûts et des opérations disproportionnés. Le bon choix est celui qui réduit les conséquences critiques à un niveau accepté, avec des preuves suffisamment solides.
@@ -402,6 +458,26 @@ Le plan doit prévoir comment les opérateurs obtiennent les accès indispensabl
 
 Les opérations sensibles devraient appliquer une vérification à deux personnes lorsque le risque le justifie : l’une exécute et l’autre valide la portée ou la preuve. Ce contrôle est particulièrement important pour changer la source de vérité, promouvoir une base, modifier les routes, restaurer des données de production ou désactiver des contrôles de sécurité.
 
+### Schéma — Retour contrôlé vers l’environnement nominal
+
+~~~mermaid
+flowchart TD
+  A[Secours stabilisé] --> B[Définir source de vérité]
+  B --> C[Planifier synchronisation et fenêtre]
+  C --> D[Contrôler écarts de données]
+  D --> E{Écarts expliqués et acceptés ?}
+  E -->|Non| F[Arrêt et rapprochement]
+  F --> D
+  E -->|Oui| G[Autoriser le retour]
+  G --> H[Basculer progressivement]
+  H --> I[Tests métier et supervision]
+  I --> J{Critères satisfaits ?}
+  J -->|Non| K[Appliquer stratégie de repli approuvée]
+  J -->|Oui| L[Confirmer stabilité et fermer la phase]
+~~~
+
+Le retour ne doit pas être traité comme le simple inverse de la bascule. Il faut protéger les écritures faites en secours, éviter deux sources maîtres simultanées et définir à l’avance les critères qui déclenchent un arrêt.
+
 ### 7.5 Retour au nominal et retour arrière
 
 Le retour au service normal est une opération planifiée à part entière. L’environnement de secours peut avoir reçu des écritures nouvelles, tandis que l’ancien environnement contient des états plus anciens ou une configuration différente. Il faut définir la source faisant autorité, la méthode de synchronisation, la fenêtre, les contrôles de cohérence, le propriétaire qui valide et les critères d’arrêt.
@@ -474,6 +550,25 @@ Une séquence adaptée au contexte peut inclure :
 
 Cette séquence est un cadre de préparation, pas une procédure universelle de réponse à incident. L’ordre exact dépend du scénario, de l’architecture et des autorités compétentes.
 
+### Schéma — Récupération après suspicion de compromission
+
+~~~mermaid
+flowchart TD
+  A[Signal cyber] --> B[Activer coordination et sécurité]
+  B --> C[Limiter la propagation selon procédure]
+  C --> D[Préserver les preuves utiles]
+  D --> E[Évaluer identités, sauvegardes et plan de gestion]
+  E --> F[Choisir une source défendable]
+  F --> G[Restaurer ou reconstruire en zone contrôlée]
+  G --> H[Réinitialiser les accès et vérifier la confiance]
+  H --> I[Tests sécurité, données et métier]
+  I --> J{Critères approuvés atteints ?}
+  J -->|Non| K[Conserver l'isolement et investiguer]
+  J -->|Oui| L[Ouverture progressive avec surveillance]
+~~~
+
+L’ordre exact doit suivre le plan cyber local et les contraintes du scénario. Cette vue sert à vérifier que la remise en ligne reste coordonnée avec le confinement, les preuves et la restauration de la confiance.
+
 ### 9.3 Sauvegardes réellement résistantes
 
 Une copie est vulnérable si les mêmes identifiants privilégiés peuvent modifier la production et détruire toutes les sauvegardes. Des contrôles peuvent inclure une séparation de comptes, des droits limités, une copie hors ligne ou immuable, une protection des clés, une surveillance de suppression, une période de rétention adaptée et des tests de restauration isolés. La stratégie doit couvrir les configurations, les certificats, les secrets, les images de reconstruction, les procédures et les données métier, selon les besoins du système.
@@ -524,6 +619,23 @@ Pour chaque fournisseur critique, demander ce qui est réellement garanti : pér
 Une communication efficace est rapide, factuelle, cohérente, adaptée à l’audience et révisable. Elle sépare ce qui est confirmé de ce qui est en cours d’analyse. Elle indique les actions que le destinataire doit entreprendre et l’heure du prochain point, même lorsque le délai final de résolution est inconnu.
 
 Ne pas promettre une heure de retour sur une intuition. Préférer « prochaine mise à jour à 11 h 30 » à « tout sera réparé à midi » lorsque la seconde affirmation n’est pas étayée. Ne pas attribuer de cause avant que les éléments la soutiennent. La transparence n’oblige pas à révéler publiquement des détails techniques qui exposeraient davantage les systèmes ou des données personnelles.
+
+### Schéma — Circuit de validation des communications
+
+~~~mermaid
+flowchart LR
+  A[Faits validés dans la situation commune] --> B[Responsable communication prépare le message]
+  B --> C{Audience et risque identifiés ?}
+  C -->|Non| D[Préciser le public et les conséquences]
+  D --> B
+  C -->|Oui| E[Validation par les rôles habilités]
+  E --> F[Diffusion sur le canal autorisé]
+  F --> G[Heure du prochain point enregistrée]
+  G --> H[Nouveau fait significatif]
+  H --> A
+~~~
+
+Le circuit prévient les promesses contradictoires et les annonces prématurées. En cas de correction, conserver le message initial, expliquer l’évolution et diffuser rapidement l’information rectifiée.
 
 ### 11.2 Adapter le message
 
