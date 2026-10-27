@@ -278,6 +278,27 @@ def _configured_node_orders() -> dict[str, int]:
 
 
 @lru_cache(maxsize=1)
+@lru_cache(maxsize=1)
+def _configured_node_positions() -> dict[str, int]:
+    """Retourne la position exacte des cours dans le catalogue JSON.
+
+    Le champ order est local et peut être partagé par plusieurs cours d'un même module ;
+    l'index du catalogue sert donc de départage stable lorsque deux ordres sont égaux.
+    """
+    path = CONTENT_DIR / 'nodes.json'
+    try:
+        payload = json.loads(path.read_text(encoding='utf-8-sig'))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(payload, list):
+        return {}
+    return {
+        item['id']: index
+        for index, item in enumerate(payload)
+        if isinstance(item, dict) and isinstance(item.get('id'), str)
+    }
+
+
 def _configured_node_labs() -> dict[str, dict[str, Any]]:
     """Lit les métadonnées de lab attachées aux nœuds du catalogue JSON."""
     path = CONTENT_DIR / "nodes.json"
@@ -733,6 +754,7 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
     nodes = tree.nodes()
     statuses = tree.statuses()
     configured_orders = _configured_node_orders()
+    configured_positions = _configured_node_positions()
     validated = sum(1 for status in statuses.values() if status is Status.VALIDATED)
     return {
         "total": len(nodes), "validated": validated,
@@ -743,11 +765,12 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
             "category": n.category,
             "module": n.module,
             "order": configured_orders.get(n.id, n.sort_order),
+            "catalog_index": configured_positions.get(n.id, fallback_index),
             "sort_order": n.sort_order,
             "status": statuses[n.id].value,
             "prereqs": list(n.prereqs),
             "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements],
-        } for n in nodes]
+        } for fallback_index, n in enumerate(nodes)]
     }
 
 @app.get("/api/stats")
