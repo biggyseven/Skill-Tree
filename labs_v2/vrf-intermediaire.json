@@ -1,0 +1,294 @@
+{
+  "schema_version": 2,
+  "id": "vrf-intermediaire",
+  "title": "VRF — Instancier une VRF client sur les PE",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Configurez une VRF CLIENT-A sur les routeurs PE1 et PE2. Définissez les RD/RT, associez le port client à la VRF et empêchez les tables de routage des clients de se mélanger.",
+  "objectives": [
+    "Créer la VRF CLIENT-A sur les deux PE.",
+    "Définir un RD distinct par PE.",
+    "Configurer les route-targets import/export compatibles.",
+    "Associer l’interface d’accès client à la VRF."
+  ],
+  "hints": [
+    "Le RD identifie une route VPN ; les RT gouvernent import/export.",
+    "Les RD peuvent être distincts alors que les RT du même client sont compatibles.",
+    "Une interface client ne doit appartenir qu’à la VRF voulue."
+  ],
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-vrf-intermediaire",
+    "metadata": {
+      "name": "VRF — Séparer deux clients",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "PE1",
+        "type": "router",
+        "x": 160,
+        "y": 220,
+        "label": "PE1",
+        "model": "PE1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE1",
+          "routes": [
+            {
+              "protocol": "vrf",
+              "enabled": false,
+              "vrf": "CLIENT-A",
+              "rd": "65000:10",
+              "rt_import": [
+                "65000:10"
+              ],
+              "rt_export": [
+                "65000:100"
+              ],
+              "interface_binding": "Gi0/1"
+            }
+          ]
+        }
+      },
+      {
+        "id": "P1",
+        "type": "router",
+        "x": 460,
+        "y": 220,
+        "label": "P1",
+        "model": "P1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "P1",
+          "routes": [
+            {
+              "protocol": "mpls",
+              "ldp_enabled": false,
+              "lsr_id": "0.0.0.0"
+            }
+          ]
+        }
+      },
+      {
+        "id": "PE2",
+        "type": "router",
+        "x": 760,
+        "y": 220,
+        "label": "PE2",
+        "model": "PE2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE2",
+          "routes": [
+            {
+              "protocol": "vrf",
+              "enabled": false,
+              "vrf": "CLIENT-A",
+              "rd": "65000:20",
+              "rt_import": [
+                "65000:20"
+              ],
+              "rt_export": [
+                "65000:200"
+              ],
+              "interface_binding": "Gi0/1"
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "PE1-P1",
+        "from": {
+          "node": "PE1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "P1",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "P1-PE2",
+        "from": {
+          "node": "P1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "PE2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "vrf-enabled",
+        "description": "La VRF est activée sur PE1.",
+        "device": "PE1",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "vrf-name",
+        "description": "Le nom de VRF est CLIENT-A.",
+        "device": "PE1",
+        "path": "config.routes[0].vrf",
+        "operator": "equals",
+        "expected": "CLIENT-A"
+      },
+      {
+        "id": "vrf-rd",
+        "description": "Le route distinguisher est défini.",
+        "device": "PE1",
+        "path": "config.routes[0].rd",
+        "operator": "equals",
+        "expected": "65000:10"
+      },
+      {
+        "id": "vrf-import",
+        "description": "Le RT import est cohérent avec CLIENT-A.",
+        "device": "PE1",
+        "path": "config.routes[0].rt_import",
+        "operator": "contains",
+        "expected": "65000:10"
+      },
+      {
+        "id": "vrf-export",
+        "description": "Le RT export correspond à la politique client.",
+        "device": "PE1",
+        "path": "config.routes[0].rt_export",
+        "operator": "contains",
+        "expected": "65000:10"
+      },
+      {
+        "id": "vrf-interface",
+        "description": "Le port CE est lié à la VRF.",
+        "device": "PE1",
+        "path": "config.routes[0].interface_binding",
+        "operator": "equals",
+        "expected": "Gi0/1"
+      },
+      {
+        "id": "vrf-pe2",
+        "description": "PE2 utilise la même VRF logique.",
+        "device": "PE2",
+        "path": "config.routes[0].vrf",
+        "operator": "equals",
+        "expected": "CLIENT-A"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
