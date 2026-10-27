@@ -4,15 +4,375 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Forensique réseau et système » : à rédiger après le cours complet.",
+      "prompt": "Quel est l'objectif central de la forensique numérique ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Exécuter les fichiers suspects pour les identifier",
+        "Préserver et analyser des traces pour répondre à des questions vérifiables",
+        "Remplacer les équipes de réponse à incident",
+        "Garantir qu'aucune incertitude ne reste"
+      ],
+      "answer": 1,
+      "explanation": "La forensique exige la préservation, la provenance, l'examen et des conclusions proportionnées aux preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet principalement une empreinte SHA-256 concordante entre deux copies ?",
+      "choices": [
+        "De prouver que l'auteur est légitime",
+        "De prouver que le fichier est sans risque",
+        "De comparer les octets des copies avec une forte assurance pratique",
+        "De confirmer que la collecte était complète"
+      ],
+      "answer": 2,
+      "explanation": "Une empreinte aide à vérifier l'intégrité entre copies mais ne prouve ni l'authenticité initiale ni la complétude."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une chaîne de conservation ?",
+      "choices": [
+        "Uniquement le nom de l'analyste",
+        "Les transferts, accès, opérations, heures et emplacements des éléments de preuve",
+        "Seulement le résumé exécutif",
+        "Uniquement les résultats concluants"
+      ],
+      "answer": 1,
+      "explanation": "La chaîne de conservation trace l'historique des manipulations et des accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les données volatiles peuvent-elles être prioritaires ?",
+      "choices": [
+        "Elles sont toujours plus fiables que les fichiers",
+        "Elles peuvent disparaître ou changer au redémarrage ou avec le temps",
+        "Elles ne contiennent jamais de données sensibles",
+        "Elles n'ont pas besoin d'être documentées"
+      ],
+      "answer": 1,
+      "explanation": "Les processus, connexions et certaines données mémoire peuvent être perdus ou modifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une limite importante de la collecte live ?",
+      "choices": [
+        "Elle ne collecte jamais aucun événement utile",
+        "Elle peut modifier l'état du système et consommer des ressources",
+        "Elle est toujours interdite",
+        "Elle prouve l'intégrité de tout le disque"
+      ],
+      "answer": 1,
+      "explanation": "Une collecte en fonctionnement peut être utile mais son impact et ses limites doivent être documentés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une requête DNS observée prouve-t-elle une connexion à l'adresse résolue ?",
+      "choices": [
+        "Oui toujours",
+        "Oui si le nom est rare",
+        "Non, la requête DNS ne démontre pas à elle seule une connexion applicative",
+        "Oui si le DNS a répondu"
+      ],
+      "answer": 2,
+      "explanation": "La résolution DNS et la connexion réseau sont des événements distincts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve un SYN TCP sans réponse dans le PCAP ?",
+      "choices": [
+        "Une session TLS complète",
+        "Un transfert de données abouti",
+        "La présence du paquet SYN observé, sans preuve suffisante de connexion établie",
+        "Une exfiltration confirmée"
+      ],
+      "answer": 2,
+      "explanation": "Un SYN seul peut être une tentative, une retransmission ou le reflet d'une capture incomplète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre filtre de capture et filtre d'affichage Wireshark ?",
+      "choices": [
+        "Aucune différence",
+        "Le filtre de capture limite les paquets enregistrés, le filtre d'affichage sélectionne ceux montrés",
+        "Le filtre d'affichage supprime définitivement les paquets du fichier",
+        "Le filtre de capture s'utilise uniquement après ouverture du PCAP"
+      ],
+      "answer": 1,
+      "explanation": "Les deux filtres ont une syntaxe et un effet différents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il conserver l'heure source et l'heure normalisée ?",
+      "choices": [
+        "Pour éviter de consigner le fuseau original",
+        "Pour pouvoir analyser les décalages et reproduire la conversion",
+        "Pour remplacer la source du journal",
+        "Pour masquer les retards d'ingestion"
+      ],
+      "answer": 1,
+      "explanation": "L'heure originale et l'heure UTC normalisée permettent d'examiner les fuseaux, la dérive et les délais."
+    },
+    {
+      "type": "qcm",
+      "prompt": "L'absence d'événement dans le SIEM signifie-t-elle qu'il ne s'est rien passé ?",
+      "choices": [
+        "Oui sans exception",
+        "Oui si la machine est un serveur",
+        "Non, les journaux peuvent être incomplets, filtrés ou hors rétention",
+        "Non, car les SIEM n'ont aucune valeur"
+      ],
+      "answer": 2,
+      "explanation": "Il faut vérifier la couverture, l'ingestion, la rétention, les filtres et les horloges."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet une image disque ?",
+      "choices": [
+        "Une représentation acquise d'un support selon une méthode et un périmètre donnés",
+        "Une garantie que tous les événements volatils sont inclus",
+        "Une preuve que tous les fichiers ont été ouverts",
+        "Une attribution automatique à un utilisateur"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "L'image représente le support acquis, mais ne contient pas automatiquement tout état volatil ou tout contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire si un outil forensique détecte un artefact suspect ?",
+      "choices": [
+        "Présenter immédiatement le résultat comme une certitude",
+        "Ignorer la version de l'outil",
+        "Vérifier les entrées, paramètres, limites et corroborer avec d'autres sources",
+        "Modifier la preuve originale pour tester"
+      ],
+      "answer": 2,
+      "explanation": "Le résultat d'un outil doit être replacé dans son contexte et contrôlé, notamment pour les faux positifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l'identifiant PID seul ne suffit-il pas pour relier deux événements ?",
+      "choices": [
+        "Les PID ne sont jamais numériques",
+        "Les PID peuvent être réutilisés et nécessitent contexte et horodatage",
+        "Les PID identifient toujours l'utilisateur réel",
+        "Les PID sont identiques sur tous les systèmes"
+      ],
+      "answer": 1,
+      "explanation": "Un PID peut être réutilisé ; le chemin, l'heure, le parent et l'identifiant de l'hôte apportent du contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une connexion TCP établie prouve-t-elle une exfiltration ?",
+      "choices": [
+        "Oui toujours",
+        "Non, elle prouve une session TCP observée mais pas le contenu ou l'intention",
+        "Oui si le port est 443",
+        "Non, car TCP ne transporte jamais de données"
+      ],
+      "answer": 1,
+      "explanation": "Une connexion établie ne suffit pas à démontrer un transfert précis ni son caractère exfiltrant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une capture réseau peut-elle ne pas montrer un événement vu par un pare-feu ?",
+      "choices": [
+        "Le pare-feu ne traite jamais de paquets",
+        "La capture peut être prise sur une autre interface, filtrée ou avoir perdu des paquets",
+        "Les PCAP n'ont pas d'horodatages",
+        "Le DNS empêche toute capture"
+      ],
+      "answer": 1,
+      "explanation": "Le point d'observation, les filtres et les pertes peuvent expliquer une différence entre sources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la conclusion correcte si un nom de fichier supprimé est retrouvé mais pas son contenu ?",
+      "choices": [
+        "Le contenu entier est forcément récupéré",
+        "Le fichier a nécessairement été exécuté",
+        "Un artefact de nom est présent, mais le contenu n'est pas établi par cette preuve",
+        "Le fichier n'a jamais existé"
+      ],
+      "answer": 2,
+      "explanation": "Le nom peut subsister dans les métadonnées sans que les octets du contenu soient disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un usage défensif de Wireshark ?",
+      "choices": [
+        "Modifier les preuves pour les rendre plus claires",
+        "Examiner les paquets capturés et appliquer des filtres d'affichage documentés",
+        "Contourner les contrôles réseau tiers",
+        "Exécuter des fichiers issus du trafic"
+      ],
+      "answer": 1,
+      "explanation": "Wireshark aide à examiner les captures ; les filtres et résultats doivent être consignés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas diffuser un PCAP complet sans examen ?",
+      "choices": [
+        "Les PCAP ne contiennent jamais d'information utile",
+        "Il peut contenir des secrets, noms internes ou données personnelles",
+        "Il perd automatiquement ses empreintes",
+        "Il ne peut pas être ouvert par un autre analyste"
+      ],
+      "answer": 1,
+      "explanation": "La minimisation et le contrôle des accès protègent les informations sensibles contenues dans une capture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'un fait analytique ?",
+      "choices": [
+        "Une intuition sans source",
+        "Une observation directement soutenue par une source identifiée",
+        "Une action décidée par un responsable",
+        "Une hypothèse non testée"
+      ],
+      "answer": 1,
+      "explanation": "Un fait doit renvoyer à une source et à une observation décrite précisément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une chronologie avec des trous de télémétrie ?",
+      "choices": [
+        "Il faut inventer les événements les plus probables",
+        "Les périodes sans données doivent être clairement signalées et limiter les conclusions",
+        "Le système était forcément inactif",
+        "Les autres sources doivent être supprimées"
+      ],
+      "answer": 1,
+      "explanation": "Les lacunes de collecte réduisent la portée des conclusions et doivent être visibles dans le rapport."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui rend deux preuves réellement plus corroborantes ?",
+      "choices": [
+        "Le même événement copié dans plusieurs tableaux de bord",
+        "Des sources distinctes et compatibles qui confirment une hypothèse",
+        "Un plus grand nombre de captures identiques",
+        "Des hypothèses répétées sans vérification"
+      ],
+      "answer": 1,
+      "explanation": "L'indépendance des sources compte davantage que le nombre de représentations d'une même source."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l'horodatage d'un fichier ne suffit-il pas à prouver l'heure d'une activité malveillante ?",
+      "choices": [
+        "Les dates ne peuvent jamais être lues",
+        "Une copie, restauration, extraction ou opération peut changer les métadonnées",
+        "Les systèmes de fichiers n'enregistrent aucune date",
+        "Une empreinte remplace l'horodatage"
+      ],
+      "answer": 1,
+      "explanation": "La signification de chaque champ temporel dépend du système de fichiers et des opérations effectuées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action est appropriée lorsqu'une donnée hors périmètre apparaît ?",
+      "choices": [
+        "La collecter entièrement puisque c'est intéressant",
+        "Arrêter l'action concernée, documenter et demander une décision au responsable",
+        "La publier dans le rapport général",
+        "Ignorer les règles d'autorisation"
+      ],
+      "answer": 1,
+      "explanation": "Le périmètre est une limite d'autorisation qui doit être respectée et escaladée si besoin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque particulier existe lors d'une acquisition brute sur un support ?",
+      "choices": [
+        "Une acquisition ne peut jamais échouer",
+        "Une erreur de source ou destination peut endommager les données",
+        "Elle préserve automatiquement la mémoire vive",
+        "Elle permet d'éviter la traçabilité"
+      ],
+      "answer": 1,
+      "explanation": "Une acquisition doit être réalisée avec une procédure validée, car une erreur de périphérique peut détruire les données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant de réutiliser une commande trouvée en ligne ?",
+      "choices": [
+        "Uniquement sa longueur",
+        "Sa documentation, version, entrées, effets et autorisation",
+        "Que personne n'a jamais utilisé la commande",
+        "Qu'elle supprime toutes les traces"
+      ],
+      "answer": 1,
+      "explanation": "Les outils et syntaxes évoluent ; la commande doit être comprise et adaptée au périmètre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objet d'une bonne corrélation endpoint-réseau ?",
+      "choices": [
+        "Affirmer qu'un processus est lié à chaque flux proche dans le temps",
+        "Relier les événements au moyen d'identifiants, d'horaires et de sources compatibles",
+        "Ignorer les erreurs d'horloge",
+        "Remplacer les journaux par un résumé"
+      ],
+      "answer": 1,
+      "explanation": "La proximité temporelle ne suffit pas : les identifiants et les limites de couverture doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il traiter une capture mémoire potentiellement sensible ?",
+      "choices": [
+        "La déposer sur un lien public pour faciliter la revue",
+        "La partager intégralement par messagerie non sécurisée",
+        "Restreindre l'accès, protéger le stockage et minimiser les extraits partagés",
+        "Effacer les métadonnées de conservation"
+      ],
+      "answer": 2,
+      "explanation": "Une capture mémoire peut contenir secrets et données personnelles ; elle doit être protégée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une opération anormale survient pendant une maintenance planifiée. Que conclure ?",
+      "choices": [
+        "La maintenance prouve que tout est légitime",
+        "L'opération est forcément malveillante",
+        "Le ticket est une explication possible à vérifier contre les comptes, heures et processus",
+        "La chronologie ne sert plus"
+      ],
+      "answer": 2,
+      "explanation": "Une fenêtre de maintenance donne du contexte mais doit être rapprochée des événements précis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un rapport forensique professionnel ?",
+      "choices": [
+        "Un rapport qui donne toujours une attribution certaine",
+        "Un rapport qui sépare faits, hypothèses, limites, décisions et actions de suivi",
+        "Une liste de commandes sans contexte",
+        "Un rapport sans références aux preuves"
+      ],
+      "answer": 1,
+      "explanation": "Le rapport doit être transparent, reproductible et fidèle à la portée des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information ne peut pas être déduite d'une empreinte seule ?",
+      "choices": [
+        "Que deux copies ont des octets identiques au moment du calcul",
+        "Une valeur permettant de comparer des fichiers",
+        "Que le fichier a été collecté de façon complète et authentique",
+        "La valeur de hash obtenue"
+      ],
+      "answer": 2,
+      "explanation": "L'empreinte porte sur le contenu calculé, pas sur l'authenticité ou la complétude de la collecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but final de la forensique réseau et système ?",
+      "choices": [
+        "Collecter le maximum de données sans périmètre",
+        "Transformer les traces préservées en conclusions et décisions défensives vérifiables",
+        "Supprimer tous les fichiers suspects avant toute collecte",
+        "Éliminer toute incertitude même sans preuve"
+      ],
+      "answer": 1,
+      "explanation": "Le but est d'aider à répondre à des questions et à prendre des décisions proportionnées sur la base de preuves."
     }
   ]
 }
