@@ -20,6 +20,30 @@ test('le tableau de bord charge le parcours et la navigation principale', async 
   await expect(page.locator('html')).toHaveAttribute('data-theme', /.+/);
 });
 
+test('recliquer sur l’onglet Radar actif ne relance pas inutilement son chargement', async ({ page }) => {
+  await openDashboard(page);
+
+  let statsRequests = 0;
+  page.on('request', request => {
+    if (new URL(request.url()).pathname === '/api/stats') statsRequests += 1;
+  });
+
+  const radarButton = page
+    .getByRole('navigation', { name: 'Navigation principale' })
+    .getByRole('button', { name: 'Radar' });
+  const statsResponse = page.waitForResponse(response => new URL(response.url()).pathname === '/api/stats');
+  await radarButton.click();
+  await statsResponse;
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).statsLoading)).toBe(false);
+
+  const requestsAfterFirstVisit = statsRequests;
+  expect(requestsAfterFirstVisit).toBeGreaterThan(0);
+
+  await radarButton.click();
+  await page.waitForTimeout(250);
+  expect(statsRequests).toBe(requestsAfterFirstVisit);
+});
+
 test('un clic extérieur ferme le menu Paramètres sans bloquer la navigation', async ({ page }) => {
   await openDashboard(page);
 

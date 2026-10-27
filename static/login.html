@@ -28,7 +28,7 @@
   <main>
     <div class="mark" aria-hidden="true">🌳</div>
     <h1>Skill-Tree</h1>
-    <p>Connecte-toi pour retrouver ton parcours, tes examens et tes laboratoires.</p>
+    <p>Saisis le mot de passe de l’application pour ouvrir ton espace privé. Après connexion, ton tableau de bord s’ouvrira automatiquement. Tu resteras connecté dans ce navigateur pendant 12 heures.</p>
     <div id="setup" role="alert"></div>
     <form id="login-form" autocomplete="on">
       <label for="password">Mot de passe de l'application</label>
@@ -66,6 +66,7 @@
         })
         .catch(error => { message.textContent = error.message || 'Connexion momentanément indisponible.'; });
 
+      let redirecting = false;
       form.addEventListener('submit', async event => {
         event.preventDefault();
         message.textContent = '';
@@ -81,14 +82,21 @@
           });
           const result = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(result.detail || 'Échec de la connexion.');
+          redirecting = true;
           input.value = '';
+          input.disabled = true;
+          button.textContent = 'Ouverture du tableau de bord…';
+          message.style.color = '#86efac';
+          message.textContent = 'Connexion réussie. Ouverture de ton parcours…';
           window.location.replace('/');
         } catch (error) {
           message.textContent = error.message || 'Échec de la connexion.';
           input.select();
         } finally {
-          button.disabled = false;
-          button.textContent = 'Se connecter';
+          if (!redirecting) {
+            button.disabled = false;
+            button.textContent = 'Se connecter';
+          }
         }
       });
     })();

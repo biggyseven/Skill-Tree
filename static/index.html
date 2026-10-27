@@ -1033,7 +1033,7 @@
       </div>
 
       <!-- ============ ONGLET SKILL TREE ============ -->
-      <section x-show="tab === 'tree'">
+      <section x-show="tab === 'tree'" x-transition.opacity.duration.150ms>
         <section class="mb-8 grid gap-4 sm:gap-6 lg:grid-cols-[1fr_2fr]">
           <div class="relative isolate flex min-w-0 flex-col justify-between overflow-hidden rounded-3xl border border-emerald-400/20 bg-[color:var(--s1)] p-5 shadow-2xl sm:p-7">
             <div aria-hidden="true" class="pointer-events-none absolute -right-14 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl"></div>
@@ -1256,7 +1256,7 @@
       </section>
 
       <!-- ============ ONGLET DÉFIS ============ -->
-      <section x-show="tab === 'challenges'" x-cloak>
+      <section x-show="tab === 'challenges'" x-cloak x-transition.opacity.duration.150ms>
         <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div class="min-w-0">
             <p class="eyebrow">Pratique · architecture réseau</p>
@@ -1455,7 +1455,7 @@
       </section>
 
       <!-- ============ ONGLET LABS ============ -->
-      <section x-show="tab === 'labs'" x-cloak>
+      <section x-show="tab === 'labs'" x-cloak x-transition.opacity.duration.150ms>
         <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div><p class="eyebrow">Pratique</p><h2 class="mt-1 text-2xl font-semibold text-white">Labs par niveau</h2><p class="mt-1 text-sm text-zinc-400">Chaque cours peut proposer un lab guidé. Les labs réussis comptent pour tes badges.</p></div>
           <div class="flex flex-wrap gap-2">
@@ -1496,7 +1496,7 @@
       </section>
 
       <!-- ============ ONGLET RADAR ============ -->
-      <section x-show="tab === 'stats'" x-cloak>
+      <section x-show="tab === 'stats'" x-cloak x-transition.opacity.duration.150ms>
         <div class="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p class="eyebrow">Analyse personnelle</p><h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Radar de compétences</h2><p class="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">Repère les thèmes solides et ceux à retravailler. Les indicateurs proviennent de tes statistiques enregistrées, pas d’une estimation.</p></div><button type="button" @click="loadStats()" :disabled="statsLoading" class="btn"><span x-text="statsLoading ? 'Actualisation…' : '↻ Actualiser'">Actualiser</span></button></div>
         <div class="mb-6 grid gap-3 sm:grid-cols-3">
           <div class="card-sm"><p class="eyebrow">Tentatives</p><p class="mt-2 font-mono text-2xl font-semibold text-white" x-text="stats?.totals?.attempts ?? '—'"></p><p class="mt-1 text-xs text-zinc-500">Évaluations enregistrées</p></div>
@@ -1546,7 +1546,7 @@
       </section>
 
       <!-- ============ ONGLET RÉVISIONS ============ -->
-      <section x-show="tab === 'memo'" x-cloak>
+      <section x-show="tab === 'memo'" x-cloak x-transition.opacity.duration.150ms>
         <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div><p class="eyebrow">Révisions</p><h2 class="mt-1 text-2xl font-semibold text-white">Révisions espacées</h2><p class="mt-1 text-sm text-zinc-400">Consolide les notions avec des cartes ciblées ou révise tous les modules, même lorsqu’aucune révision n’est encore due dans le plan du jour.</p></div>
           <div class="flex flex-wrap gap-2">
@@ -1610,7 +1610,7 @@
       </section>
 
       <!-- ============ ONGLET DIAGNOSTIC ============ -->
-      <section x-show="tab === 'diagnostic'" x-cloak>
+      <section x-show="tab === 'diagnostic'" x-cloak x-transition.opacity.duration.150ms>
         <template x-if="!diagData">
           <div>
             <div class="mb-6"><p class="eyebrow">Dépannage</p><h2 class="mt-1 text-2xl font-semibold text-white">Diagnostic interactif</h2><p class="mt-1 text-sm text-zinc-400">Choisis un scénario de panne et mène l'enquête pas à pas. Tes décisions sont évaluées.</p></div>
@@ -1751,7 +1751,7 @@
       </section>
 
       <!-- ============ ONGLET EXAMEN ============ -->
-      <section x-show="tab === 'exam'" x-cloak>
+      <section x-show="tab === 'exam'" x-cloak x-transition.opacity.duration.150ms>
         <template x-if="!exam">
           <div class="space-y-8">
             <div class="flex flex-wrap items-end justify-between gap-3">
@@ -1898,7 +1898,7 @@
       </section>
 
       <!-- ============ ONGLET RÉCOMPENSES ============ -->
-      <section x-show="tab === 'rewards'" x-cloak>
+      <section x-show="tab === 'rewards'" x-cloak x-transition.opacity.duration.150ms>
         <div class="mb-6"><p class="eyebrow">Progression</p><h2 class="mt-1 text-2xl font-semibold text-white">Récompenses et diplômes</h2><p class="mt-1 text-sm text-zinc-400">Un diplôme s'obtient quand tous les cours d'un niveau sont validés et que l'examen de ce niveau est réussi (80 % minimum).</p></div>
         <div class="mb-8 grid gap-4 sm:grid-cols-4">
           <div class="card-sm text-center"><p class="eyebrow">Niveau</p><p class="mt-1 font-mono text-2xl text-emerald-400" x-text="userStatsLoaded ? userStats.current_level + ' · ' + userStats.level_name : '—'"></p></div>
@@ -2925,7 +2925,8 @@
         },
 
         async setTab(name, options = {}) {
-          if (name !== this.tab) {
+          const tabChanged = name !== this.tab;
+          if (tabChanged) {
             if (!options.skipHistory) {
               if (name === 'tree') {
                 this.tabHistory = [];
@@ -2939,6 +2940,7 @@
           this.notificationsOpen = false; this.settingsMenuOpen = false; this.profileMenuOpen = false;
           this.$nextTick(() => { const m = this.$refs.mainScroll; if (m) m.scrollTop = 0; });
           try {
+            if (!tabChanged) return;
             if (name === 'stats') await this.loadStats();
             if (name === 'memo') await this.loadFlashcards();
             if (name === 'diagnostic') await this.loadDiagnostic();
