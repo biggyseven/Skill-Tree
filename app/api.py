@@ -275,7 +275,11 @@ async def enforce_site_authentication(request: Request, call_next):
         request.cookies.get(AUTH_COOKIE_NAME)
     )
 
-    if path in _AUTH_GATED_PAGES and not authenticated:
+    is_gated_page = (
+        path in _AUTH_GATED_PAGES
+        or (path.lower().endswith(".html") and path != "/login.html")
+    )
+    if is_gated_page and not authenticated:
         return RedirectResponse(url="/login.html", status_code=303)
 
     if path.startswith("/api/"):
