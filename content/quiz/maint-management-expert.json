@@ -4,147 +4,255 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est l'objectif principal d'une délégation efficace ?",
+      "prompt": "Quel est le meilleur signe d'une délégation réellement efficace ?",
       "choices": [
-        "Transférer résultat, autorité, limites, ressources et modalités de suivi",
-        "Transférer la tâche sans donner de contexte",
-        "Conserver toutes les décisions au manager",
-        "Éviter d'évaluer le résultat"
+        "Le manager approuve chaque détail mais attribue la responsabilité à un collaborateur",
+        "Le collaborateur reçoit le résultat attendu, les droits, les limites, les ressources et les conditions d'escalade",
+        "La tâche est confiée sans contexte pour tester la motivation",
+        "Le résultat n'est pas contrôlé afin de préserver la confiance"
       ],
-      "answer": 0,
-      "explanation": "La personne doit savoir ce qu'elle peut décider et quand escalader."
+      "answer": 1,
+      "explanation": "Une délégation efficace aligne résultat, autorité, ressources, contraintes et contrôle proportionné ; elle ne transfère pas seulement la tâche."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi ne faut-il pas planifier 100 % de la capacité nominale ?",
+      "prompt": "Pourquoi une équipe ne devrait-elle généralement pas planifier 100 % de sa capacité nominale ?",
       "choices": [
-        "Parce que les objectifs doivent être absents",
-        "Parce que les absences, urgences, astreintes et activités indirectes consomment de la capacité",
-        "Parce que le préventif n'a pas de valeur",
-        "Pour maintenir le backlog sans contrôle"
+        "Parce que les objectifs doivent être supprimés",
+        "Parce que la documentation n'est pas un travail réel",
+        "Parce que les urgences, absences, astreintes, coordination et variabilité consomment une partie de la capacité",
+        "Parce que le manager doit toujours laisser la moitié du temps vide"
       ],
-      "answer": 1,
-      "explanation": "Un plan réaliste doit réserver une capacité aux aléas et aux tâches non liées aux tickets."
+      "answer": 2,
+      "explanation": "La capacité réelle doit intégrer le travail indirect et non planifié ainsi que la variabilité. Le niveau de réserve doit être fondé sur les données et le contexte."
     },
     {
       "type": "qcm",
       "prompt": "Quelle preuve montre le mieux qu'une compétence a été transférée ?",
       "choices": [
+        "La personne a assisté à une formation",
         "La personne a reçu un document",
-        "Elle a assisté à la réunion",
-        "Elle exécute un scénario représentatif de façon autonome selon les critères",
-        "L'expert dit que la formation est terminée"
-      ],
-      "answer": 2,
-      "explanation": "Une démonstration d'autonomie mesure la capacité à appliquer le savoir."
-    },
-    {
-      "type": "qcm",
-      "prompt": "La sécurité psychologique signifie-t-elle l'absence de responsabilité ?",
-      "choices": [
-        "Oui, toute erreur est ignorée",
-        "Oui, les règles n'ont plus d'effet",
-        "Oui, les résultats ne sont pas mesurés",
-        "Non, elle permet de signaler et apprendre tout en maintenant une responsabilité équitable"
+        "L'expert affirme que la transmission est terminée",
+        "La personne exécute un scénario représentatif de façon autonome et connaît les critères d'escalade"
       ],
       "answer": 3,
-      "explanation": "L'apprentissage sans humiliation n'exclut pas l'examen de faits ni le traitement d'une violation volontaire."
+      "explanation": "Une démonstration d'autonomie dans un périmètre défini mesure mieux la capacité réelle qu'une présence à une formation."
     },
     {
       "type": "qcm",
-      "prompt": "Comment donner un feedback utile ?",
+      "prompt": "Une hausse du nombre de tickets clos s'accompagne d'une hausse des réouvertures. Quelle interprétation est la plus utile ?",
       "choices": [
-        "Décrire comportement observable, impact, attente et prochaine action",
-        "Attribuer une étiquette personnelle",
-        "Comparer la personne à un collègue sans preuve",
-        "Faire un retour vague à la fin de l'année"
+        "Le KPI de volume peut créer un effet pervers et doit être analysé avec la qualité, les réouvertures et le contexte",
+        "La hausse prouve automatiquement que chaque personne est plus productive",
+        "Il faut supprimer immédiatement toutes les mesures",
+        "Il faut augmenter encore la cible de tickets clos"
       ],
       "answer": 0,
-      "explanation": "Le feedback factuel permet de comprendre ce qui doit changer."
+      "explanation": "Un indicateur isolé peut orienter le comportement vers la fermeture rapide plutôt que vers une résolution durable. Les résultats doivent être mesurés de façon équilibrée."
     },
     {
       "type": "qcm",
-      "prompt": "Quel risque présente une astreinte sans relève ni récupération ?",
+      "prompt": "Que faire lorsque deux priorités ne peuvent pas être traitées avec la capacité disponible ?",
       "choices": [
-        "Une réduction certaine du MTTR",
-        "Fatigue, erreurs, perte de jugement et dégradation de la continuité",
-        "Une meilleure qualité permanente",
-        "Une diminution des dépendances"
-      ],
-      "answer": 1,
-      "explanation": "Les rotations et la récupération font partie du dispositif de continuité opérationnelle."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi équilibrer les indicateurs d'équipe ?",
-      "choices": [
-        "Pour avoir plus de chiffres que nécessaire",
-        "Pour rendre les comparaisons impossibles",
-        "Pour éviter qu'un objectif de volume pousse à fermer prématurément ou négliger la qualité",
-        "Pour supprimer les résultats individuels observables"
+        "Promettre les deux dates sans modifier le plan",
+        "Demander aux collaborateurs de faire des heures supplémentaires indéfiniment",
+        "Présenter les coûts d'opportunité, proposer des options et obtenir l'arbitrage de l'autorité compétente",
+        "Retirer silencieusement le travail préventif"
       ],
       "answer": 2,
-      "explanation": "Volume doit être mis en regard de qualité, réouvertures, sécurité et complexité."
+      "explanation": "Le manager doit rendre visible l'incompatibilité de capacité et permettre une décision explicite sur le périmètre, le délai ou le risque."
     },
     {
       "type": "qcm",
-      "prompt": "Comment arbitrer un désaccord technique important ?",
+      "prompt": "Quelle formulation de feedback est la plus utile ?",
       "choices": [
-        "Par ancienneté uniquement",
-        "En laissant le conflit sans décision",
-        "En suivant la personne qui parle le plus fort",
-        "En comparant objectifs, preuves, risques et options, puis en utilisant l'autorité de décision définie"
+        "Tu n'es pas professionnel",
+        "Lors des deux derniers transferts, le journal était incomplet, ce qui a retardé la relève ; au prochain transfert, consigne les étapes et les points d'arrêt",
+        "Tout le monde trouve que tu travailles mal",
+        "Tu dois changer d'attitude immédiatement sans autre précision"
+      ],
+      "answer": 1,
+      "explanation": "Le feedback efficace décrit des faits observables, leur impact et l'attente future sans réduire la personne à une étiquette."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie la sécurité psychologique dans une équipe ?",
+      "choices": [
+        "L'absence de standards et de responsabilité",
+        "L'obligation d'être toujours d'accord avec le manager",
+        "La garantie qu'aucune erreur n'aura de conséquence",
+        "La possibilité de poser une question, signaler une erreur ou exprimer un désaccord sans humiliation ou représailles informelles"
       ],
       "answer": 3,
-      "explanation": "Une décision traçable s'appuie sur le fond et le rôle habilité."
+      "explanation": "La sécurité psychologique facilite la remontée des risques mais ne supprime ni les standards ni la responsabilité."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle pratique réduit une dépendance à un seul expert ?",
+      "prompt": "Comment traiter une erreur technique qui aurait pu provoquer une panne ?",
       "choices": [
-        "Binômage, documentation et exercice d'autonomie sur les compétences critiques",
-        "Demander à l'expert de faire plus d'heures",
-        "Garder les informations dans des messages privés",
-        "Supprimer les cas complexes des statistiques"
+        "Sécuriser d'abord l'impact, établir les faits et examiner à la fois les conditions du système et la responsabilité individuelle",
+        "Sanctionner immédiatement la personne sans analyse",
+        "Ne jamais évoquer la responsabilité pour préserver la confiance",
+        "Supprimer les journaux afin d'éviter les tensions"
       ],
       "answer": 0,
-      "explanation": "Le transfert vérifié réduit le risque de perte de compétence."
+      "explanation": "L'analyse doit comprendre le contexte, les contrôles et les décisions, puis déterminer une réponse proportionnée. Apprendre n'exclut pas la responsabilité."
     },
     {
       "type": "qcm",
-      "prompt": "Que révèle une hausse persistante du travail non planifié ?",
+      "prompt": "Quel est le bon premier réflexe lorsque des signaux de surcharge apparaissent durablement ?",
       "choices": [
-        "Que l'équipe doit toujours travailler plus vite",
-        "Un besoin d'analyser fiabilité, qualité des changements, capacité ou qualification des demandes",
-        "Que les tâches préventives doivent être supprimées",
-        "Que le plan doit être rempli à 100 %"
-      ],
-      "answer": 1,
-      "explanation": "Le travail imprévu est un signal de système, pas seulement un problème de productivité personnelle."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi les revues d'équipe doivent-elles déboucher sur un registre de décisions ?",
-      "choices": [
-        "Pour remplacer les conversations",
-        "Pour produire plus de documents",
-        "Pour attribuer des propriétaires, échéances, dépendances et critères de résultat",
-        "Pour éviter les suivis"
+        "Exiger une meilleure gestion personnelle du temps sans examiner le travail",
+        "Diagnostiquer soi-même une maladie chez les personnes concernées",
+        "Examiner la charge, les interruptions, les priorités, les horaires et les conditions de travail avec les personnes concernées",
+        "Interdire toute discussion sur les difficultés"
       ],
       "answer": 2,
-      "explanation": "Les décisions suivies relient discussion et changement réel."
+      "explanation": "Le management doit d'abord examiner les conditions et facteurs organisationnels et solliciter les dispositifs compétents lorsque nécessaire, sans poser de diagnostic médical."
     },
     {
       "type": "qcm",
-      "prompt": "Quel comportement est préférable après une erreur involontaire ?",
+      "prompt": "Pourquoi faut-il limiter le travail en cours (WIP) ?",
       "choices": [
-        "Humilier publiquement la personne",
-        "Cacher l'incident",
-        "Supprimer les logs pour préserver la confiance",
-        "Stabiliser le risque, comprendre les facteurs et corriger les contrôles tout en traitant équitablement les responsabilités"
+        "Pour empêcher toute flexibilité de l'équipe",
+        "Pour réduire les changements de contexte, rendre les blocages visibles et favoriser la finition du travail commencé",
+        "Pour augmenter la durée d'attente des utilisateurs",
+        "Pour que chaque personne ait un grand nombre de tâches simultanées"
+      ],
+      "answer": 1,
+      "explanation": "Une limite WIP aide à révéler les blocages et à réduire la dispersion. Elle doit être adaptée au type de travail et aux urgences réelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur de capacité est le plus pertinent pour une équipe spécialisée ?",
+      "choices": [
+        "Le nombre total de personnes, sans examiner leurs compétences",
+        "Le nombre de réunions par personne",
+        "Le nombre de messages envoyés",
+        "La capacité disponible par compétence, en tenant compte des absences, astreintes et dépendances"
       ],
       "answer": 3,
-      "explanation": "L'analyse constructive permet de corriger les conditions systémiques et d'éviter la répétition."
+      "explanation": "Les personnes ne sont pas interchangeables lorsque les compétences diffèrent. La planification doit refléter la capacité réelle par activité critique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une personne signale un risque de mise en production et est exclue ensuite des discussions. Quelle est la meilleure réaction managériale ?",
+      "choices": [
+        "Vérifier le risque sur les faits, clarifier la décision et traiter séparément tout comportement inapproprié",
+        "Considérer le signalement comme un manque de loyauté",
+        "Promettre que tous les risques signalés seront automatiquement acceptés",
+        "Interdire les avis contradictoires pendant les réunions"
+      ],
+      "answer": 0,
+      "explanation": "Un signalement doit être évalué selon les preuves. Les désaccords sont tranchés par les droits de décision prévus, sans punir la remontée de bonne foi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'une matrice de compétences ?",
+      "choices": [
+        "Classer la valeur humaine des collaborateurs",
+        "Remplacer les entretiens individuels",
+        "Identifier les capacités observables, les lacunes et les risques de dépendance afin de planifier le développement et la relève",
+        "Garantir que personne ne changera jamais de poste"
+      ],
+      "answer": 2,
+      "explanation": "Une matrice de compétences relie les activités critiques aux niveaux démontrés d'autonomie et soutient le transfert, la formation et la continuité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le volume de tickets ne suffit-il pas pour comparer les performances individuelles ?",
+      "choices": [
+        "Parce qu'aucune mesure n'a jamais de valeur",
+        "Parce que les tâches diffèrent en complexité, risque, dépendances et contribution à l'équipe",
+        "Parce que le débit doit être ignoré",
+        "Parce que tous les tickets ont exactement la même difficulté"
+      ],
+      "answer": 1,
+      "explanation": "Un classement brut peut pénaliser le travail complexe, la prévention, le mentorat et la documentation ; les mesures doivent être contextualisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment devrait se terminer une réunion de décision importante ?",
+      "choices": [
+        "Par une reformulation de la décision, du responsable, de l'échéance, des points d'arrêt et du moment de réexamen",
+        "Par un consensus supposé sans action écrite",
+        "Par la seule liste des personnes présentes",
+        "Par une nouvelle série de sujets sans propriétaire"
+      ],
+      "answer": 0,
+      "explanation": "Une décision doit être exécutable, attribuée et vérifiable ; sa trace facilite la coordination et la relève."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment vérifier qu'un changement est réellement adopté ?",
+      "choices": [
+        "Constater que l'annonce a été envoyée",
+        "Vérifier que la documentation a été publiée, sans observer l'usage",
+        "Compter uniquement les participants à la réunion de lancement",
+        "Observer des scénarios représentatifs, recueillir les obstacles et vérifier les critères d'utilisation et de résultat"
+      ],
+      "answer": 3,
+      "explanation": "L'annonce et la formation ne prouvent pas l'adoption. Il faut vérifier l'usage, la compréhension des exceptions et les résultats obtenus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire un manager lorsqu'un conflit inclut un signalement de harcèlement ou de discrimination ?",
+      "choices": [
+        "Le traiter automatiquement comme une simple différence de personnalité",
+        "Suivre les procédures compétentes, limiter la diffusion des informations et protéger autant que possible contre les représailles",
+        "Promettre une confidentialité absolue quelle que soit la procédure",
+        "Demander à l'équipe de voter sur la culpabilité"
+      ],
+      "answer": 1,
+      "explanation": "Les situations sensibles doivent suivre les procédures RH ou légales applicables. Le manager ne doit ni improviser une enquête ni banaliser le signalement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif d'une rétrospective après incident ?",
+      "choices": [
+        "Identifier un coupable pour chaque panne",
+        "Prouver que l'équipe n'a jamais commis d'erreur",
+        "Comprendre la chronologie, les facteurs contributifs et les améliorations qui peuvent être vérifiées",
+        "Fermer les actions sans responsable"
+      ],
+      "answer": 2,
+      "explanation": "Une rétrospective utile vise l'apprentissage, la réduction du risque de récurrence et des actions avec responsables et preuves d'efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi réserver de la capacité pour le travail préventif ?",
+      "choices": [
+        "Parce que la prévention, la documentation et la réduction de dette peuvent diminuer les incidents et la charge future",
+        "Parce qu'il faut ignorer les urgences",
+        "Pour réduire artificiellement le débit de l'équipe",
+        "Parce que la documentation remplace les opérations"
+      ],
+      "answer": 0,
+      "explanation": "Sans capacité préventive, les causes récurrentes restent présentes et consomment de plus en plus de temps en urgence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe est central dans un plan d'amélioration de performance individuel ?",
+      "choices": [
+        "Des attentes vagues qui changent à chaque entretien",
+        "Des échéances impossibles pour vérifier la motivation",
+        "Aucun soutien de la part du manager",
+        "Des écarts observables, des résultats attendus, un soutien, des jalons et des critères de revue explicites"
+      ],
+      "answer": 3,
+      "explanation": "Un plan défendable rend les attentes et les moyens clairs. Les procédures RH applicables doivent être suivies pour les conséquences formelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment utiliser un objectif d'équipe lorsqu'un événement majeur modifie la capacité disponible ?",
+      "choices": [
+        "Le maintenir sans expliquer l'impact, quel que soit le contexte",
+        "Réexaminer les hypothèses, présenter les conséquences et ajuster par une décision explicite et documentée",
+        "Effacer les résultats précédents",
+        "Déplacer toute la charge sur la personne la plus compétente"
+      ],
+      "answer": 1,
+      "explanation": "Les objectifs doivent évoluer avec les priorités et la capacité. La révision doit être transparente et ne pas effacer rétroactivement les résultats."
     }
   ]
 }
