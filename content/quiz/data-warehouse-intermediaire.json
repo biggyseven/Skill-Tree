@@ -1,0 +1,66 @@
+{
+  "node_id": "data-warehouse-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir le grain d'une table de faits avant d'écrire les jointures ?",
+      "choices": [
+        "Pour rendre le modèle plus long",
+        "Pour que toutes les tables contiennent le même nombre de colonnes",
+        "Pour éviter que des relations un-à-plusieurs ne multiplient les mesures et faussent les agrégats",
+        "Pour éliminer le besoin de clés étrangères"
+      ],
+      "answer": 2,
+      "explanation": "Le grain définit ce que représente une ligne. Une jointure à une relation de plusieurs lignes par fait peut répéter un montant parent et créer un double comptage, même si la requête s'exécute sans erreur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence fondamentale distingue ETL de ELT ?",
+      "choices": [
+        "ETL transforme avant le chargement de la cible, tandis qu'ELT charge d'abord puis transforme dans la cible",
+        "ETL ne fonctionne qu'avec des fichiers texte",
+        "ELT interdit l'utilisation d'une zone brute",
+        "ETL et ELT sont deux noms obligatoirement équivalents"
+      ],
+      "answer": 0,
+      "explanation": "La différence porte sur l'emplacement de l'étape de transformation. Le choix dépend des capacités de la cible, du volume, des contraintes de sécurité et du besoin de retraitement ; aucun des deux modèles n'est universellement supérieur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un pipeline doit-il être idempotent ?",
+      "choices": [
+        "Pour s'assurer qu'une relance après échec ne duplique pas les lignes et ne laisse pas un état incohérent",
+        "Pour empêcher toutes les modifications de source",
+        "Pour supprimer les données brutes après chaque étape",
+        "Pour éviter tous les tests de qualité"
+      ],
+      "answer": 0,
+      "explanation": "Les échecs et timeouts conduisent souvent à rejouer une tâche. L'idempotence et les identifiants de lot permettent de répéter une étape sans compter plusieurs fois les mêmes événements, à condition que le traitement et les métadonnées soient conçus en conséquence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel calcul convient pour le taux global de résolution dans les délais lorsque les volumes varient selon les sites ?",
+      "choices": [
+        "Faire la moyenne simple des pourcentages de chaque site",
+        "Additionner les pourcentages et diviser par le nombre de jours",
+        "Prendre le taux du site le plus grand",
+        "Additionner les résolutions dans les délais puis diviser par le nombre total de cas éligibles"
+      ],
+      "answer": 3,
+      "explanation": "Le ratio global se calcule à partir des numérateurs et dénominateurs agrégés. Une moyenne simple des taux par site donne le même poids à un petit site et à un très grand site, ce qui ne représente pas forcément le total attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une source retardée alors que le rapport est attendu ?",
+      "choices": [
+        "Afficher sans avertissement des données anciennes comme si elles étaient actuelles",
+        "Appliquer une politique de publication définie, surveiller la fraîcheur et indiquer clairement l'heure ou le périmètre de données",
+        "Supprimer la source du modèle sans trace",
+        "Remplacer automatiquement les valeurs manquantes par zéro"
+      ],
+      "answer": 1,
+      "explanation": "La politique peut bloquer la publication, conserver la dernière version validée ou publier partiellement avec avertissement selon le risque. Dans tous les cas, la fraîcheur et les limites doivent être visibles et les consommateurs ne doivent pas être trompés."
+    }
+  ]
+}
