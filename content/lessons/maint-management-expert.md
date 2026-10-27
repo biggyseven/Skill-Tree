@@ -313,6 +313,42 @@ Préparer un plan de management sur 90 jours pour une équipe maintenance sous p
 
 **Correction attendue.** Une solution experte ne se contente pas de choisir une option ; elle compare les scénarios, fixe les critères avant le résultat, documente les responsabilités et signale les informations manquantes. Elle prévoit les conditions d'arrêt, les mesures temporaires, la communication, les dépendances et la vérification de fin. Le plan d'action est réaliste, ses résultats sont mesurables et le risque résiduel est soumis à une personne habilitée.
 
+
+## Modèle de capacité, rituels et pilotage de l'équipe
+
+Le management de la maintenance doit rendre visible la capacité réelle sans transformer chaque heure en quota individuel. Une équipe a des obligations de service, des interruptions, des congés, des astreintes, de la formation, de la documentation et des activités d'amélioration. Le plan doit contenir ces coûts de capacité, faute de quoi les tâches préventives et le développement des compétences deviennent les premières variables sacrifiées.
+
+### Exemple de calcul de capacité
+
+Considérons une équipe fictive de huit personnes à 35 heures par semaine : la capacité théorique est de 280 heures. Sur une semaine représentative, les absences et formations planifiées consomment 28 heures, les réunions et activités de coordination 24 heures, et la charge d'astreinte estimée à 20 heures. Il reste 208 heures avant réserve pour les urgences et les imprévus. Si le manager décide de réserver 15 % de ce reste, soit 31,2 heures, pour le travail non planifié, la capacité planifiable est d'environ 176,8 heures. Ce calcul n'est qu'un modèle de départ ; il faut adapter les hypothèses aux rythmes et métiers réels.
+
+La capacité planifiable ne doit pas être confondue avec une promesse de production. Les tickets diffèrent en complexité et en risque, et une tâche interrompue peut demander du temps de reprise cognitive. La planification doit tenir compte des compétences requises : dix heures de travail réseau ne peuvent pas forcément être affectées à une personne sans les habilitations correspondantes. Une capacité globale suffisante peut coexister avec une compétence critique saturée.
+
+### Cadence de management proposée
+
+| Cadence | Objectif | Livrable ou décision |
+|---|---|---|
+| Quotidienne, courte | État de service, incidents majeurs, blocages, relève | Priorités immédiates et escalades |
+| Hebdomadaire | Backlog, préventif, capacité et dépendances | Arbitrage des tâches et charge de la semaine |
+| Mensuelle | KPI, récidives, qualité, astreinte, ressources | Décisions sur les causes et les actions |
+| Trimestrielle | Compétences, succession, risques et objectifs | Plan de développement et couverture des compétences |
+| Après incident majeur | Apprentissage, soutien de l'équipe et actions | RETEX et plan de suivi |
+
+Les rituels doivent rester proportionnés. Une réunion sans décision claire peut être remplacée par un compte rendu asynchrone ; un incident majeur nécessite au contraire une coordination explicite. Les actions et décisions importantes sont consignées dans un registre commun. Limiter la surveillance qui impose une charge de reporting disproportionnée et ne transforme pas les réunions en mécanisme de blâme.
+
+### Entretiens individuels et progression
+
+Un entretien individuel de qualité porte sur les objectifs, les obstacles, les compétences, la charge, la sécurité, la collaboration et le développement. Le manager apporte des exemples observables et écoute la perspective du technicien. Les données individuelles doivent être interprétées en contexte et partagées uniquement avec les personnes habilitées. Une conversation sur la performance n'est pas un substitut à la résolution d'un problème de conception du travail ou de capacité.
+
+Le plan de développement précise une compétence, la tâche cible, le soutien fourni, la pratique, le critère d'autonomie et la date de revue. Exemple : « À la fin du mois, la personne doit prendre en charge seule, sur un scénario de laboratoire, le diagnostic DNS défini, consigner les preuves, respecter les conditions d'arrêt et effectuer la passation. » Le succès est observé par une démonstration ; la simple remise d'un cours ou la participation à une formation ne suffit pas.
+
+### Arbitrer un backlog contradictoire
+
+Lorsque l'équipe reçoit simultanément des demandes urgentes, le manager applique les règles définies : criticité, impact utilisateur, sécurité, obligations, dépendances, échéance et disponibilité des compétences. Les tâches à risque fort ne doivent pas perdre leur priorité parce qu'elles sont peu visibles. Si une intervention doit être repoussée, documenter pourquoi, qui l'a autorisée, quelles mesures temporaires s'appliquent et quand le risque sera réévalué. L'acceptation du risque appartient à l'autorité habilitée, pas à la personne qui a simplement déplacé l'élément du backlog.
+
+Les indicateurs d'équipe équilibrent vitesse, qualité, prévention, récidive, satisfaction, charge et couverture de compétences. Les performances individuelles sont difficiles à comparer lorsque les dossiers diffèrent en complexité, en horaires et en dépendances. Employer les chiffres pour poser des questions et identifier des obstacles, pas pour créer un classement simpliste qui incite à choisir les tickets faciles ou à éviter les transferts complexes.
+
+
 ## Ressources techniques et références
 
 - [ISO 30414:2025 — reporting et indicateurs du capital humain](https://www.iso.org/standard/30414)
