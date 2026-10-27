@@ -6,12 +6,7 @@
     "order": 1,
     "description": "Les bases : LAN, WAN, client/serveur et topologies.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "intro-reseau-intermediaire",
@@ -19,15 +14,8 @@
     "category": "Fondamentaux",
     "order": 2,
     "description": "Approfondissement des topologies et des architectures.",
-    "prereqs": [
-      "intro-reseau-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["intro-reseau-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "intro-reseau-expert",
@@ -35,15 +23,8 @@
     "category": "Fondamentaux",
     "order": 3,
     "description": "Design de réseaux complexes et notions de SLA.",
-    "prereqs": [
-      "intro-reseau-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["intro-reseau-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "materiel-reseau-debutant",
@@ -52,12 +33,7 @@
     "order": 4,
     "description": "Câbles, switch, routeur et box Internet.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "materiel-reseau-intermediaire",
@@ -65,15 +41,8 @@
     "category": "Fondamentaux",
     "order": 5,
     "description": "Châssis, modules, alimentations redondantes.",
-    "prereqs": [
-      "materiel-reseau-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["materiel-reseau-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "materiel-reseau-expert",
@@ -81,15 +50,8 @@
     "category": "Fondamentaux",
     "order": 6,
     "description": "Architectures matérielles Datacenter (Spine/Leaf, backplane).",
-    "prereqs": [
-      "materiel-reseau-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["materiel-reseau-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "adressage-debutant",
@@ -98,12 +60,7 @@
     "order": 7,
     "description": "IP publique/privée, DHCP, DNS et passerelle.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "adressage-intermediaire",
@@ -111,15 +68,8 @@
     "category": "Fondamentaux",
     "order": 8,
     "description": "Plan d'adressage et gestion des plages.",
-    "prereqs": [
-      "adressage-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["adressage-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "adressage-expert",
@@ -127,15 +77,8 @@
     "category": "Fondamentaux",
     "order": 9,
     "description": "Architecture d'adressage multi-sites et summarisation.",
-    "prereqs": [
-      "adressage-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["adressage-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "cabling-debutant",
@@ -144,12 +87,7 @@
     "order": 10,
     "description": "Cuivre, fibre, normes T568A/B, catégories et connecteurs.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "cabling-intermediaire",
@@ -157,15 +95,8 @@
     "category": "Fondamentaux",
     "order": 11,
     "description": "Certification des liens, atténuation et diaphonie.",
-    "prereqs": [
-      "cabling-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["cabling-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "cabling-expert",
@@ -173,15 +104,8 @@
     "category": "Fondamentaux",
     "order": 12,
     "description": "Câblage Datacenter haute densité et fibre optique.",
-    "prereqs": [
-      "cabling-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["cabling-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "equipment-debutant",
@@ -190,16 +114,7 @@
     "order": 13,
     "description": "Relie un PC à un switch, le switch au routeur, puis le routeur au cloud.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "manual", "min_score": 100 }]
   },
   {
     "id": "equipment-intermediaire",
@@ -207,15 +122,8 @@
     "category": "Fondamentaux",
     "order": 14,
     "description": "Rôles des équipements et commutation.",
-    "prereqs": [
-      "equipment-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["equipment-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "equipment-expert",
@@ -223,15 +131,8 @@
     "category": "Fondamentaux",
     "order": 15,
     "description": "Architectures campus et choix des équipements.",
-    "prereqs": [
-      "equipment-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["equipment-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "osi-debutant",
@@ -240,12 +141,7 @@
     "order": 16,
     "description": "Les 7 couches OSI, les 4 couches TCP/IP et l'encapsulation.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "osi-intermediaire",
@@ -253,15 +149,8 @@
     "category": "Fondamentaux",
     "order": 17,
     "description": "Fonctionnement des protocoles par couche.",
-    "prereqs": [
-      "osi-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["osi-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "osi-expert",
@@ -269,15 +158,8 @@
     "category": "Fondamentaux",
     "order": 18,
     "description": "Analyse de paquets et débogage couche par couche.",
-    "prereqs": [
-      "osi-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["osi-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "tcp-udp-debutant",
@@ -285,15 +167,8 @@
     "category": "Fondamentaux",
     "order": 19,
     "description": "Fiabilité, fenêtrage, multiplexage par ports.",
-    "prereqs": [
-      "osi-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["osi-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "tcp-udp-intermediaire",
@@ -301,15 +176,8 @@
     "category": "Fondamentaux",
     "order": 20,
     "description": "Handshake TCP, états et performances.",
-    "prereqs": [
-      "tcp-udp-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["tcp-udp-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "tcp-udp-expert",
@@ -317,15 +185,8 @@
     "category": "Fondamentaux",
     "order": 21,
     "description": "Optimisation TCP, QUIC et dépannage.",
-    "prereqs": [
-      "tcp-udp-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["tcp-udp-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "poe-debutant",
@@ -333,15 +194,8 @@
     "category": "Fondamentaux",
     "order": 22,
     "description": "Alimenter les équipements réseau via le câble Ethernet.",
-    "prereqs": [
-      "cabling-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["cabling-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "poe-intermediaire",
@@ -349,15 +203,8 @@
     "category": "Fondamentaux",
     "order": 23,
     "description": "Normes 802.3af/at/bt et budgets de puissance.",
-    "prereqs": [
-      "poe-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["poe-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "poe-expert",
@@ -365,15 +212,8 @@
     "category": "Fondamentaux",
     "order": 24,
     "description": "Dimensionnement de PoE pour la voix et les caméras.",
-    "prereqs": [
-      "poe-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["poe-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "ethernet-debutant",
@@ -381,15 +221,8 @@
     "category": "Couche 2 — Commutation",
     "order": 30,
     "description": "Trames, adressage MAC et apprentissage du switch.",
-    "prereqs": [
-      "osi-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["osi-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ethernet-intermediaire",
@@ -397,15 +230,8 @@
     "category": "Couche 2 — Commutation",
     "order": 31,
     "description": "Tables MAC, broadcast, et spanning-tree de base.",
-    "prereqs": [
-      "ethernet-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ethernet-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ethernet-expert",
@@ -413,15 +239,8 @@
     "category": "Couche 2 — Commutation",
     "order": 32,
     "description": "Trames Jumbo, QoS L2 et optimisation de la commutation.",
-    "prereqs": [
-      "ethernet-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["ethernet-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "wifi-debutant",
@@ -429,19 +248,8 @@
     "category": "Couche 2 — Commutation",
     "order": 33,
     "description": "Bandes, canaux, WPA2/WPA3, roaming et contrôleurs WLC.",
-    "prereqs": [
-      "ethernet-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "terminal",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ethernet-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "terminal", "min_score": 100 }]
   },
   {
     "id": "wifi-intermediaire",
@@ -449,15 +257,8 @@
     "category": "Couche 2 — Commutation",
     "order": 34,
     "description": "Sites surveys, interférences et densité.",
-    "prereqs": [
-      "wifi-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["wifi-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "wifi-expert",
@@ -465,15 +266,8 @@
     "category": "Couche 2 — Commutation",
     "order": 35,
     "description": "Wi-Fi 6E, 7 et architectures Wi-Fi d'entreprise.",
-    "prereqs": [
-      "wifi-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["wifi-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "etherchannel-debutant",
@@ -481,15 +275,8 @@
     "category": "Couche 2 — Commutation",
     "order": 36,
     "description": "Combiner plusieurs liens physiques en un seul lien logique.",
-    "prereqs": [
-      "vlan-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vlan-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "etherchannel-intermediaire",
@@ -497,15 +284,8 @@
     "category": "Couche 2 — Commutation",
     "order": 37,
     "description": "LACP, PAgP et équilibrage de charge.",
-    "prereqs": [
-      "etherchannel-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["etherchannel-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "etherchannel-expert",
@@ -513,15 +293,8 @@
     "category": "Couche 2 — Commutation",
     "order": 38,
     "description": "vPC, MLAG et agrégation multi-châssis.",
-    "prereqs": [
-      "etherchannel-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["etherchannel-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "vtp-debutant",
@@ -529,15 +302,8 @@
     "category": "Couche 2 — Commutation",
     "order": 39,
     "description": "Propager la base de données VLAN entre les switchs.",
-    "prereqs": [
-      "vlan-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vlan-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "vtp-intermediaire",
@@ -545,15 +311,8 @@
     "category": "Couche 2 — Commutation",
     "order": 40,
     "description": "Modes serveur/client/transparent et sécurité.",
-    "prereqs": [
-      "vtp-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vtp-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "vtp-expert",
@@ -561,15 +320,8 @@
     "category": "Couche 2 — Commutation",
     "order": 41,
     "description": "VTPv3, authentification et migrations.",
-    "prereqs": [
-      "vtp-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["vtp-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "vlan-debutant",
@@ -577,15 +329,8 @@
     "category": "Couche 2 — Commutation",
     "order": 42,
     "description": "Comprendre la segmentation logique, les ports Access et la création de VLANs.",
-    "prereqs": [
-      "ethernet-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ethernet-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "vlan-intermediaire",
@@ -593,19 +338,8 @@
     "category": "Couche 2 — Commutation",
     "order": 43,
     "description": "Le tagging 802.1Q, le VLAN Natif, le routage Inter-VLAN et VTP.",
-    "prereqs": [
-      "vlan-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["vlan-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "vlan-expert",
@@ -613,19 +347,8 @@
     "category": "Couche 2 — Commutation",
     "order": 44,
     "description": "Private VLANs, VLANs de Voix et protection contre le VLAN Hopping.",
-    "prereqs": [
-      "vlan-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["vlan-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "stp-debutant",
@@ -633,15 +356,8 @@
     "category": "Couche 2 — Commutation",
     "order": 45,
     "description": "Comprendre les boucles de niveau 2 et l'élection du pont racine.",
-    "prereqs": [
-      "vlan-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vlan-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "stp-intermediaire",
@@ -649,19 +365,8 @@
     "category": "Couche 2 — Commutation",
     "order": 46,
     "description": "Rôles des ports, états, calcul des coûts et convergence RSTP.",
-    "prereqs": [
-      "stp-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["stp-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "stp-expert",
@@ -669,19 +374,8 @@
     "category": "Couche 2 — Commutation",
     "order": 47,
     "description": "MSTP, sécurisation (BPDU Guard, Root Guard) et optimisation de la convergence.",
-    "prereqs": [
-      "stp-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["stp-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ipv4-debutant",
@@ -689,19 +383,8 @@
     "category": "Couche 3 — Adressage",
     "order": 60,
     "description": "Masques, découpage en sous-réseaux, adresses privées.",
-    "prereqs": [
-      "osi-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["osi-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ipv4-intermediaire",
@@ -709,15 +392,8 @@
     "category": "Couche 3 — Adressage",
     "order": 61,
     "description": "VLSM, summarisation et plans d'adressage.",
-    "prereqs": [
-      "ipv4-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ipv4-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ipv4-expert",
@@ -725,15 +401,8 @@
     "category": "Couche 3 — Adressage",
     "order": 62,
     "description": "Architecture d'adressage complexe et CIRD.",
-    "prereqs": [
-      "ipv4-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["ipv4-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "arp-debutant",
@@ -741,16 +410,8 @@
     "category": "Couche 3 — Adressage",
     "order": 70,
     "description": "Correspondance IP/MAC, cache ARP, proxy ARP.",
-    "prereqs": [
-      "ethernet-debutant",
-      "ipv4-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ethernet-debutant", "ipv4-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "arp-intermediaire",
@@ -758,15 +419,8 @@
     "category": "Couche 3 — Adressage",
     "order": 71,
     "description": "ARP Spoofing, inspection ARP dynamique.",
-    "prereqs": [
-      "arp-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["arp-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "arp-expert",
@@ -774,15 +428,8 @@
     "category": "Couche 3 — Adressage",
     "order": 72,
     "description": "Optimisation ARP et dépannage avancé.",
-    "prereqs": [
-      "arp-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["arp-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "ipv6-debutant",
@@ -790,15 +437,8 @@
     "category": "Couche 3 — Adressage",
     "order": 80,
     "description": "Format des adresses, types de préfixes et adresses Link-Local.",
-    "prereqs": [
-      "ipv4-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ipv4-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ipv6-intermediaire",
@@ -806,19 +446,8 @@
     "category": "Couche 3 — Adressage",
     "order": 81,
     "description": "Neighbor Discovery (NDP), SLAAC et routage statique IPv6.",
-    "prereqs": [
-      "ipv6-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ipv6-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ipv6-expert",
@@ -826,19 +455,8 @@
     "category": "Couche 3 — Adressage",
     "order": 82,
     "description": "OSPFv3, MP-BGP IPv6 et mécanismes de transition (NAT64, Tunnels).",
-    "prereqs": [
-      "ipv6-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "exam",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["ipv6-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "exam", "min_score": 85 }]
   },
   {
     "id": "nat-debutant",
@@ -846,19 +464,8 @@
     "category": "Couche 3 — Adressage",
     "order": 90,
     "description": "Traduction statique, dynamique et surcharge de ports.",
-    "prereqs": [
-      "ipv4-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ipv4-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "nat-intermediaire",
@@ -866,15 +473,8 @@
     "category": "Couche 3 — Adressage",
     "order": 91,
     "description": "NAT et routage, hairpinning et dépannage.",
-    "prereqs": [
-      "nat-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["nat-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "nat-expert",
@@ -882,15 +482,8 @@
     "category": "Couche 3 — Adressage",
     "order": 92,
     "description": "CGNAT, NAT64 et architectures de traduction à grande échelle.",
-    "prereqs": [
-      "nat-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["nat-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "routing-debutant",
@@ -898,19 +491,8 @@
     "category": "Routage",
     "order": 100,
     "description": "Table de routage, next-hop, route par défaut.",
-    "prereqs": [
-      "ipv4-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ipv4-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "routing-intermediaire",
@@ -918,15 +500,8 @@
     "category": "Routage",
     "order": 101,
     "description": "Routage statique, flottant et redistribution.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "routing-expert",
@@ -934,15 +509,8 @@
     "category": "Routage",
     "order": 102,
     "description": "PBR, VRF et routage basé sur les politiques.",
-    "prereqs": [
-      "routing-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["routing-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "ha-debutant",
@@ -950,15 +518,8 @@
     "category": "Routage",
     "order": 105,
     "description": "Comprendre la redondance, la passerelle par défaut et le concept de basculement.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ha-intermediaire",
@@ -966,19 +527,8 @@
     "category": "Routage",
     "order": 106,
     "description": "Configurer VRRP, HSRP et l'agrégation de liens (LACP).",
-    "prereqs": [
-      "ha-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ha-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ha-expert",
@@ -986,19 +536,8 @@
     "category": "Routage",
     "order": 107,
     "description": "Gérer le split brain, BFD, MLAG/vPC et le tuning avancé.",
-    "prereqs": [
-      "ha-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ha-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ospf-debutant",
@@ -1006,15 +545,8 @@
     "category": "Routage",
     "order": 110,
     "description": "Configuration de base, voisinage et découverte des routes.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ospf-intermediaire",
@@ -1022,19 +554,8 @@
     "category": "Routage",
     "order": 111,
     "description": "Aires multiples, élection DR/BDR, coût et summarisation.",
-    "prereqs": [
-      "ospf-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ospf-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ospf-expert",
@@ -1042,19 +563,8 @@
     "category": "Routage",
     "order": 112,
     "description": "Aires Stub/NSSA, LSA avancés, redistribution et tuning.",
-    "prereqs": [
-      "ospf-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ospf-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "bgp-debutant",
@@ -1062,15 +572,8 @@
     "category": "Routage",
     "order": 120,
     "description": "Sessions eBGP, voisinage et annonce de réseaux.",
-    "prereqs": [
-      "ospf-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ospf-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "bgp-intermediaire",
@@ -1078,19 +581,8 @@
     "category": "Routage",
     "order": 121,
     "description": "Sessions iBGP, états de voisinage, Next-Hop et attributs de base.",
-    "prereqs": [
-      "bgp-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["bgp-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "bgp-expert",
@@ -1098,19 +590,8 @@
     "category": "Routage",
     "order": 122,
     "description": "Sélection de route, Route Reflectors, filtrage et tuning.",
-    "prereqs": [
-      "bgp-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["bgp-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "eigrp-debutant",
@@ -1118,15 +599,8 @@
     "category": "Routage",
     "order": 123,
     "description": "Configurer EIGRP entre deux routeurs Cisco, vérifier le voisinage et les routes apprises (D).",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "eigrp-intermediaire",
@@ -1134,19 +608,8 @@
     "category": "Routage",
     "order": 124,
     "description": "Condition de Faisabilité (RD < FD), Successor/Feasible Successor, stub, summarisation, variance, passive-interface et authentification.",
-    "prereqs": [
-      "eigrp-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["eigrp-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "eigrp-expert",
@@ -1154,19 +617,8 @@
     "description": "Named Mode, IPv6, wide metrics, redistribution, tuning (SIA timer, throttling), comparaison OSPF/IS-IS/BGP et interopérabilité FRR.",
     "category": "Routage",
     "order": 125,
-    "prereqs": [
-      "eigrp-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["eigrp-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "dhcp-dns-debutant",
@@ -1174,15 +626,8 @@
     "category": "Services",
     "order": 130,
     "description": "Fonctionnement du bail DHCP et résolution de noms de base.",
-    "prereqs": [
-      "ipv4-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ipv4-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "dhcp-dns-intermediaire",
@@ -1190,19 +635,8 @@
     "category": "Services",
     "order": 131,
     "description": "Configuration de serveurs DHCP, relais DHCP et enregistrements DNS (A, PTR, CNAME).",
-    "prereqs": [
-      "dhcp-dns-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["dhcp-dns-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "dhcp-dns-expert",
@@ -1210,19 +644,8 @@
     "category": "Services",
     "order": 132,
     "description": "DNSSEC, attaques DHCP (Spoofing/Starvation), et DNS Anycast.",
-    "prereqs": [
-      "dhcp-dns-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["dhcp-dns-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ntp-syslog-debutant",
@@ -1230,15 +653,8 @@
     "category": "Services",
     "order": 134,
     "description": "Synchronisation NTP et centralisation Syslog.",
-    "prereqs": [
-      "dhcp-dns-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["dhcp-dns-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ntp-syslog-intermediaire",
@@ -1246,15 +662,8 @@
     "category": "Services",
     "order": 135,
     "description": "Configuration NTP et serveurs Syslog.",
-    "prereqs": [
-      "ntp-syslog-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ntp-syslog-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ntp-syslog-expert",
@@ -1262,15 +671,8 @@
     "category": "Services",
     "order": 136,
     "description": "Sécurisation NTP, logs avancés.",
-    "prereqs": [
-      "ntp-syslog-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["ntp-syslog-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "acl-debutant",
@@ -1278,19 +680,8 @@
     "category": "Sécurité",
     "order": 140,
     "description": "ACL standard/étendue et deny implicite.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "acl-intermediaire",
@@ -1298,15 +689,8 @@
     "category": "Sécurité",
     "order": 141,
     "description": "Placement, ordre et bonnes pratiques.",
-    "prereqs": [
-      "acl-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["acl-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "acl-expert",
@@ -1314,15 +698,8 @@
     "category": "Sécurité",
     "order": 142,
     "description": "ACL avancées, filtrage par VRF.",
-    "prereqs": [
-      "acl-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["acl-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "firewall-debutant",
@@ -1330,19 +707,8 @@
     "category": "Sécurité",
     "order": 143,
     "description": "Firewall stateful, zones, NAT et DPI.",
-    "prereqs": [
-      "acl-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["acl-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "firewall-intermediaire",
@@ -1350,15 +716,8 @@
     "category": "Sécurité",
     "order": 144,
     "description": "Règles, NAT, inspection et HA.",
-    "prereqs": [
-      "firewall-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["firewall-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "firewall-expert",
@@ -1366,15 +725,8 @@
     "category": "Sécurité",
     "order": 145,
     "description": "Architectures Zero Trust et NGFW avancés.",
-    "prereqs": [
-      "firewall-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["firewall-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "vpn-debutant",
@@ -1382,15 +734,8 @@
     "category": "Sécurité",
     "order": 146,
     "description": "IPsec, IKEv2, SSL/TLS et WireGuard.",
-    "prereqs": [
-      "acl-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["acl-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "vpn-intermediaire",
@@ -1398,15 +743,8 @@
     "category": "Sécurité",
     "order": 147,
     "description": "Site-to-site et Remote Access.",
-    "prereqs": [
-      "vpn-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vpn-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "vpn-expert",
@@ -1414,15 +752,8 @@
     "category": "Sécurité",
     "order": 148,
     "description": "DMVPN, GET VPN.",
-    "prereqs": [
-      "vpn-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["vpn-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "aaa-debutant",
@@ -1430,15 +761,8 @@
     "category": "Sécurité",
     "order": 149,
     "description": "AAA, RADIUS, TACACS+ et 802.1X.",
-    "prereqs": [
-      "acl-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["acl-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "aaa-intermediaire",
@@ -1446,15 +770,8 @@
     "category": "Sécurité",
     "order": 150,
     "description": "Configuration RADIUS/TACACS+.",
-    "prereqs": [
-      "aaa-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["aaa-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "aaa-expert",
@@ -1462,15 +779,8 @@
     "category": "Sécurité",
     "order": 151,
     "description": "802.1X avancé, MAB, CoA.",
-    "prereqs": [
-      "aaa-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["aaa-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "secu-l2-debutant",
@@ -1478,15 +788,8 @@
     "category": "Sécurité",
     "order": 152,
     "description": "Port Security, BPDU Guard et les bases de la protection des switchs.",
-    "prereqs": [
-      "vlan-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vlan-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "secu-l2-intermediaire",
@@ -1494,19 +797,8 @@
     "category": "Sécurité",
     "order": 153,
     "description": "DHCP Snooping, Dynamic ARP Inspection et IP Source Guard.",
-    "prereqs": [
-      "secu-l2-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["secu-l2-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "secu-l2-expert",
@@ -1514,19 +806,8 @@
     "category": "Sécurité",
     "order": 154,
     "description": "802.1X, MACsec, et architecture Zero Trust au niveau de l'accès.",
-    "prereqs": [
-      "secu-l2-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["secu-l2-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "troubleshooting-debutant",
@@ -1534,21 +815,8 @@
     "category": "Exploitation",
     "order": 155,
     "description": "Diagnostic structuré et preuve d'un incident réel.",
-    "prereqs": [
-      "arp-debutant",
-      "dhcp-dns-debutant",
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["arp-debutant", "dhcp-dns-debutant", "routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "manual", "min_score": 100 }]
   },
   {
     "id": "troubleshooting-intermediaire",
@@ -1556,15 +824,8 @@
     "category": "Exploitation",
     "order": 156,
     "description": "Analyse de pannes réseau complexes.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["troubleshooting-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "troubleshooting-expert",
@@ -1572,15 +833,8 @@
     "category": "Exploitation",
     "order": 157,
     "description": "Résolution d'incidents majeurs.",
-    "prereqs": [
-      "troubleshooting-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["troubleshooting-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "cloud-debutant",
@@ -1589,16 +843,7 @@
     "order": 160,
     "description": "VPC avec deux subnets et passerelle Internet.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "manual", "min_score": 100 }]
   },
   {
     "id": "cloud-intermediaire",
@@ -1606,15 +851,8 @@
     "category": "Cloud & Automatisation",
     "order": 161,
     "description": "VPC Peering, VPN Cloud, Direct Connect.",
-    "prereqs": [
-      "cloud-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["cloud-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "cloud-expert",
@@ -1622,15 +860,8 @@
     "category": "Cloud & Automatisation",
     "order": 162,
     "description": "Architectures hybrides, Transit Gateway.",
-    "prereqs": [
-      "cloud-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["cloud-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "automation-debutant",
@@ -1639,12 +870,7 @@
     "order": 170,
     "description": "API REST, Netmiko, Ansible et Jinja2.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "automation-intermediaire",
@@ -1652,19 +878,8 @@
     "category": "Cloud & Automatisation",
     "order": 171,
     "description": "Scripting Python et déploiement automatisé.",
-    "prereqs": [
-      "automation-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["automation-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "automation-expert",
@@ -1672,15 +887,8 @@
     "category": "Cloud & Automatisation",
     "order": 172,
     "description": "CI/CD, IaC et orchestration.",
-    "prereqs": [
-      "automation-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["automation-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "cisco-aci-debutant",
@@ -1688,16 +896,8 @@
     "category": "Cloud & Automatisation",
     "order": 180,
     "description": "Architecture SDN de datacenter pilotée par APIC.",
-    "prereqs": [
-      "vxlan-intermediaire",
-      "spine-leaf-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vxlan-intermediaire", "spine-leaf-debutant"],
+    "requirements": [{"kind": "quiz", "min_score": 80}]
   },
   {
     "id": "cisco-aci-intermediaire",
@@ -1705,15 +905,8 @@
     "category": "Cloud & Automatisation",
     "order": 181,
     "description": "Fabric, Tenants, EPG, Contracts.",
-    "prereqs": [
-      "cisco-aci-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["cisco-aci-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "cisco-aci-expert",
@@ -1721,15 +914,8 @@
     "category": "Cloud & Automatisation",
     "order": 182,
     "description": "Multi-pod, Multi-site et intégration externe.",
-    "prereqs": [
-      "cisco-aci-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["cisco-aci-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "vxlan-debutant",
@@ -1737,15 +923,8 @@
     "category": "Cloud & Automatisation",
     "order": 183,
     "description": "Comprendre les limites des VLANs et le concept d'overlay VXLAN.",
-    "prereqs": [
-      "vlan-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vlan-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "vxlan-intermediaire",
@@ -1753,20 +932,8 @@
     "category": "Cloud & Automatisation",
     "order": 184,
     "description": "Plan de données VXLAN (VTEP, VNI) et plan de contrôle BGP EVPN.",
-    "prereqs": [
-      "vxlan-debutant",
-      "bgp-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["vxlan-debutant", "bgp-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "vxlan-expert",
@@ -1774,19 +941,8 @@
     "category": "Cloud & Automatisation",
     "order": 185,
     "description": "Architectures Datacenter modernes (Spine/Leaf), Multi-pod et Cisco ACI.",
-    "prereqs": [
-      "vxlan-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["vxlan-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "spine-leaf-debutant",
@@ -1794,15 +950,8 @@
     "category": "Cloud & Automatisation",
     "order": 186,
     "description": "Topologie de datacenter moderne.",
-    "prereqs": [
-      "etherchannel-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["etherchannel-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "spine-leaf-intermediaire",
@@ -1810,15 +959,8 @@
     "category": "Cloud & Automatisation",
     "order": 187,
     "description": "Conception de fabrics et routage L3.",
-    "prereqs": [
-      "spine-leaf-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["spine-leaf-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "spine-leaf-expert",
@@ -1826,15 +968,8 @@
     "category": "Cloud & Automatisation",
     "order": 188,
     "description": "Déploiement multi-site et EVPN.",
-    "prereqs": [
-      "spine-leaf-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["spine-leaf-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "mpls-debutant",
@@ -1842,15 +977,8 @@
     "category": "Routage Avancé",
     "order": 400,
     "description": "Comprendre les bases du labels switching et l'isolation avec les VRF.",
-    "prereqs": [
-      "bgp-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["bgp-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "mpls-intermediaire",
@@ -1858,19 +986,8 @@
     "category": "Routage Avancé",
     "order": 401,
     "description": "LDP, MP-BGP, et configuration de VPN MPLS de niveau 3.",
-    "prereqs": [
-      "mpls-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["mpls-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "mpls-expert",
@@ -1878,19 +995,8 @@
     "category": "Routage Avancé",
     "order": 402,
     "description": "Traffic Engineering (RSVP-TE), L3VPN avancé et inter-AS.",
-    "prereqs": [
-      "mpls-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["mpls-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "qos-debutant",
@@ -1898,15 +1004,8 @@
     "category": "Routage Avancé",
     "order": 403,
     "description": "Comprendre les files d'attente, le marquage et la priorisation du trafic.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "qos-intermediaire",
@@ -1914,19 +1013,8 @@
     "category": "Routage Avancé",
     "order": 404,
     "description": "Classification, marquage DSCP, et files d'attente CBWFQ / LLQ.",
-    "prereqs": [
-      "qos-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["qos-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "qos-expert",
@@ -1934,19 +1022,8 @@
     "category": "Routage Avancé",
     "order": 405,
     "description": "Shaping, Policing, WRED et optimisation pour la voix/vidéo.",
-    "prereqs": [
-      "qos-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["qos-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "multicast-debutant",
@@ -1954,15 +1031,8 @@
     "category": "Routage Avancé",
     "order": 406,
     "description": "Comprendre les adresses Multicast (224.0.0.0/4) et le protocole IGMP.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "multicast-intermediaire",
@@ -1970,19 +1040,8 @@
     "category": "Routage Avancé",
     "order": 407,
     "description": "Protocoles PIM (Dense vs Sparse Mode) et Rendezvous Point (RP).",
-    "prereqs": [
-      "multicast-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["multicast-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "multicast-expert",
@@ -1990,19 +1049,8 @@
     "category": "Routage Avancé",
     "order": 408,
     "description": "SSM (Source-Specific Multicast), MSDP et routage Multicast dans le Datacenter.",
-    "prereqs": [
-      "multicast-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["multicast-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "vrf-debutant",
@@ -2010,15 +1058,8 @@
     "category": "Routage Avancé",
     "order": 500,
     "description": "Comprendre l'isolation des tables de routage (Virtual Routing and Forwarding).",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "vrf-intermediaire",
@@ -2026,19 +1067,8 @@
     "category": "Routage Avancé",
     "order": 501,
     "description": "VRF-Lite, configuration d'interfaces et routage statique par VRF.",
-    "prereqs": [
-      "vrf-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["vrf-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "vrf-expert",
@@ -2046,19 +1076,8 @@
     "category": "Routage Avancé",
     "order": 502,
     "description": "VRF et routage dynamique (OSPF/BGP multi-VRF), et route leaking (fuite de routes).",
-    "prereqs": [
-      "vrf-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["vrf-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "sd-wan-debutant",
@@ -2066,15 +1085,8 @@
     "category": "Cloud & Automatisation",
     "order": 510,
     "description": "Architecture SD-WAN, les controlers (vManage, vBond) et les overlays.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "sd-wan-intermediaire",
@@ -2082,19 +1094,8 @@
     "category": "Cloud & Automatisation",
     "order": 511,
     "description": "Politiques de routage (Traffic Engineering), VPN IPsec et qualité de service.",
-    "prereqs": [
-      "sd-wan-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["sd-wan-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "sd-wan-expert",
@@ -2102,19 +1103,8 @@
     "category": "Cloud & Automatisation",
     "order": 512,
     "description": "Sécurité dans le SD-WAN (SASE, SASE), et déploiement multi-sites complexes.",
-    "prereqs": [
-      "sd-wan-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["sd-wan-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "segment-routing-debutant",
@@ -2122,15 +1112,8 @@
     "category": "Routage Avancé",
     "order": 520,
     "description": "Concept de Source Routing et fonctionnement de SR-MPLS.",
-    "prereqs": [
-      "ospf-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ospf-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "segment-routing-intermediaire",
@@ -2138,19 +1121,8 @@
     "category": "Routage Avancé",
     "order": 521,
     "description": "Configuration de SR-MPLS avec OSPF/IS-IS et gestion des labels.",
-    "prereqs": [
-      "segment-routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["segment-routing-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "segment-routing-expert",
@@ -2158,19 +1130,8 @@
     "category": "Routage Avancé",
     "order": 522,
     "description": "SR-TE (Traffic Engineering), TI-LFA (Fast Reroute) et SRv6.",
-    "prereqs": [
-      "segment-routing-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["segment-routing-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "zero-trust-debutant",
@@ -2178,16 +1139,8 @@
     "category": "Sécurité",
     "order": 600,
     "description": "Concept du 'Ne jamais faire confiance, toujours vérifier'.",
-    "prereqs": [
-      "firewall-debutant",
-      "aaa-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["firewall-debutant", "aaa-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "zero-trust-intermediaire",
@@ -2195,19 +1148,8 @@
     "category": "Sécurité",
     "order": 601,
     "description": "Micro-segmentation et contrôle d'accès basé sur l'identité (IAM).",
-    "prereqs": [
-      "zero-trust-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["zero-trust-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "zero-trust-expert",
@@ -2215,19 +1157,8 @@
     "category": "Sécurité",
     "order": 602,
     "description": "Architectures SASE, SSE et déploiement à grande échelle.",
-    "prereqs": [
-      "zero-trust-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["zero-trust-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ddos-mitigation-debutant",
@@ -2235,15 +1166,8 @@
     "category": "Sécurité",
     "order": 610,
     "description": "Comprendre les attaques volumétriques et les mécanismes de défense.",
-    "prereqs": [
-      "firewall-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["firewall-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ddos-mitigation-intermediaire",
@@ -2251,19 +1175,8 @@
     "category": "Sécurité",
     "order": 611,
     "description": "Mise en place de protections anti-DDoS.",
-    "prereqs": [
-      "ddos-mitigation-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ddos-mitigation-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ddos-mitigation-expert",
@@ -2271,19 +1184,8 @@
     "category": "Sécurité",
     "order": 612,
     "description": "Architectures de mitigation à grande échelle et scrubbing centers.",
-    "prereqs": [
-      "ddos-mitigation-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ddos-mitigation-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "ids-ips-debutant",
@@ -2291,15 +1193,8 @@
     "category": "Sécurité",
     "order": 620,
     "description": "Détecter et bloquer les intrusions avec Snort ou Suricata.",
-    "prereqs": [
-      "firewall-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["firewall-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ids-ips-intermediaire",
@@ -2307,15 +1202,8 @@
     "category": "Sécurité",
     "order": 621,
     "description": "Règles de détection et signature.",
-    "prereqs": [
-      "ids-ips-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ids-ips-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ids-ips-expert",
@@ -2323,15 +1211,8 @@
     "category": "Sécurité",
     "order": 622,
     "description": "Tuning avancé et intégration SIEM.",
-    "prereqs": [
-      "ids-ips-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["ids-ips-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "ipsec-debutant",
@@ -2339,15 +1220,8 @@
     "category": "Sécurité",
     "order": 630,
     "description": "Tunnels chiffrés de site à site.",
-    "prereqs": [
-      "vpn-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vpn-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ipsec-intermediaire",
@@ -2355,15 +1229,8 @@
     "category": "Sécurité",
     "order": 631,
     "description": "IKEv2, ESP et configurations avancées.",
-    "prereqs": [
-      "ipsec-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["ipsec-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "ipsec-expert",
@@ -2371,15 +1238,8 @@
     "category": "Sécurité",
     "order": 632,
     "description": "DMVPN, FlexVPN.",
-    "prereqs": [
-      "ipsec-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["ipsec-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "radius-debutant",
@@ -2387,15 +1247,8 @@
     "category": "Sécurité",
     "order": 640,
     "description": "Contrôle d'accès réseau via un serveur central.",
-    "prereqs": [
-      "aaa-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["aaa-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "radius-intermediaire",
@@ -2403,15 +1256,8 @@
     "category": "Sécurité",
     "order": 641,
     "description": "Configuration et intégration.",
-    "prereqs": [
-      "radius-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["radius-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "radius-expert",
@@ -2419,15 +1265,8 @@
     "category": "Sécurité",
     "order": 642,
     "description": "Haute disponibilité et sécurité.",
-    "prereqs": [
-      "radius-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["radius-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "wireguard-debutant",
@@ -2435,15 +1274,8 @@
     "category": "Sécurité",
     "order": 650,
     "description": "VPN moderne, ultra-rapide et simple à configurer.",
-    "prereqs": [
-      "vpn-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["vpn-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "wireguard-intermediaire",
@@ -2451,15 +1283,8 @@
     "category": "Sécurité",
     "order": 651,
     "description": "Déploiement et gestion des clés.",
-    "prereqs": [
-      "wireguard-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["wireguard-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "wireguard-expert",
@@ -2467,15 +1292,8 @@
     "category": "Sécurité",
     "order": 652,
     "description": "Architectures mesh et performance.",
-    "prereqs": [
-      "wireguard-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["wireguard-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "pki-debutant",
@@ -2483,15 +1301,8 @@
     "category": "Sécurité",
     "order": 660,
     "description": "Autorités de certification, CSR et déploiement de certificats.",
-    "prereqs": [
-      "aaa-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["aaa-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "pki-intermediaire",
@@ -2499,15 +1310,8 @@
     "category": "Sécurité",
     "order": 661,
     "description": "Gestion de PKI et révocation.",
-    "prereqs": [
-      "pki-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["pki-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "pki-expert",
@@ -2515,15 +1319,8 @@
     "category": "Sécurité",
     "order": 662,
     "description": "Architectures PKI complexes.",
-    "prereqs": [
-      "pki-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["pki-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "aws-vpc-debutant",
@@ -2531,15 +1328,8 @@
     "category": "Cloud",
     "order": 800,
     "description": "Concevoir un réseau virtuel dans AWS (Subnets, Route Tables, IGW).",
-    "prereqs": [
-      "cloud-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["cloud-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "aws-vpc-intermediaire",
@@ -2547,19 +1337,8 @@
     "category": "Cloud",
     "order": 801,
     "description": "Peering VPC, Transit Gateway et VPN Site-to-Site.",
-    "prereqs": [
-      "aws-vpc-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["aws-vpc-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "aws-vpc-expert",
@@ -2567,19 +1346,8 @@
     "category": "Cloud",
     "order": 802,
     "description": "Architectures multi-comptes, Direct Connect et sécurité avancée.",
-    "prereqs": [
-      "aws-vpc-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["aws-vpc-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "azure-vnet-debutant",
@@ -2587,15 +1355,8 @@
     "category": "Cloud",
     "order": 810,
     "description": "Créer un réseau virtuel Azure avec Subnets et Route Tables.",
-    "prereqs": [
-      "cloud-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["cloud-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "azure-vnet-intermediaire",
@@ -2603,19 +1364,8 @@
     "category": "Cloud",
     "order": 811,
     "description": "VNet Peering, Network Security Groups (NSG) et Load Balancers.",
-    "prereqs": [
-      "azure-vnet-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["azure-vnet-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "azure-vnet-expert",
@@ -2623,19 +1373,8 @@
     "category": "Cloud",
     "order": 812,
     "description": "Azure Virtual WAN, ExpressRoute et architectures Hub-and-Spoke.",
-    "prereqs": [
-      "azure-vnet-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      },
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["azure-vnet-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }, { "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "wireshark-debutant",
@@ -2643,15 +1382,8 @@
     "category": "Exploitation",
     "order": 900,
     "description": "Capturer et analyser le trafic réseau pour le dépannage.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["troubleshooting-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "wireshark-intermediaire",
@@ -2659,15 +1391,8 @@
     "category": "Exploitation",
     "order": 901,
     "description": "Filtres d'affichage et suivi de flux.",
-    "prereqs": [
-      "wireshark-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["wireshark-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "wireshark-expert",
@@ -2675,15 +1400,8 @@
     "category": "Exploitation",
     "order": 902,
     "description": "Analyse de latence et de pertes.",
-    "prereqs": [
-      "wireshark-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["wireshark-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "itil-rca-debutant",
@@ -2691,15 +1409,8 @@
     "category": "Exploitation",
     "order": 903,
     "description": "Méthodologie de résolution d'incidents et analyse des causes racines.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["troubleshooting-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "itil-rca-intermediaire",
@@ -2707,15 +1418,8 @@
     "category": "Exploitation",
     "order": 904,
     "description": "Mise en place de processus ITIL.",
-    "prereqs": [
-      "itil-rca-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["itil-rca-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "itil-rca-expert",
@@ -2723,15 +1427,8 @@
     "category": "Exploitation",
     "order": 905,
     "description": "Analyse de causes racines complexes.",
-    "prereqs": [
-      "itil-rca-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["itil-rca-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "mtu-pmtud-debutant",
@@ -2739,15 +1436,8 @@
     "category": "Exploitation",
     "order": 906,
     "description": "Résoudre les problèmes de fragmentation et de découverte de MTU.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["troubleshooting-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "mtu-pmtud-intermediaire",
@@ -2755,15 +1445,8 @@
     "category": "Exploitation",
     "order": 907,
     "description": "Comprendre PMTUD et les tunnels.",
-    "prereqs": [
-      "mtu-pmtud-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["mtu-pmtud-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "mtu-pmtud-expert",
@@ -2771,15 +1454,8 @@
     "category": "Exploitation",
     "order": 908,
     "description": "Problèmes de MTU sur les overlays.",
-    "prereqs": [
-      "mtu-pmtud-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["mtu-pmtud-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "wireshark-advanced-debutant",
@@ -2787,15 +1463,8 @@
     "category": "Exploitation",
     "order": 909,
     "description": "Filtres complexes, suivi de flux TCP et analyse de latence.",
-    "prereqs": [
-      "wireshark-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["wireshark-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "wireshark-advanced-intermediaire",
@@ -2803,15 +1472,8 @@
     "category": "Exploitation",
     "order": 910,
     "description": "Analyse de captures et expert info.",
-    "prereqs": [
-      "wireshark-advanced-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["wireshark-advanced-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "wireshark-advanced-expert",
@@ -2819,15 +1481,8 @@
     "category": "Exploitation",
     "order": 911,
     "description": "Analyse de performances et sécurité.",
-    "prereqs": [
-      "wireshark-advanced-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["wireshark-advanced-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "netmiko-debutant",
@@ -2835,15 +1490,8 @@
     "category": "Cloud & Automatisation",
     "order": 920,
     "description": "Se connecter en SSH et configurer des routeurs avec Python.",
-    "prereqs": [
-      "automation-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["automation-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "netmiko-intermediaire",
@@ -2851,15 +1499,8 @@
     "category": "Cloud & Automatisation",
     "order": 921,
     "description": "Boucles et envoi de configurations multiples.",
-    "prereqs": [
-      "netmiko-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["netmiko-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "netmiko-expert",
@@ -2867,15 +1508,8 @@
     "category": "Cloud & Automatisation",
     "order": 922,
     "description": "Gestion des erreurs et concurrence.",
-    "prereqs": [
-      "netmiko-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["netmiko-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "restconf-debutant",
@@ -2883,15 +1517,8 @@
     "category": "Cloud & Automatisation",
     "order": 930,
     "description": "Configurer les équipements via des API HTTP/XML.",
-    "prereqs": [
-      "automation-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["automation-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "restconf-intermediaire",
@@ -2899,15 +1526,8 @@
     "category": "Cloud & Automatisation",
     "order": 931,
     "description": "Requêtes et modèles de données.",
-    "prereqs": [
-      "restconf-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["restconf-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "restconf-expert",
@@ -2915,15 +1535,8 @@
     "category": "Cloud & Automatisation",
     "order": 932,
     "description": "Automatisation avancée via API.",
-    "prereqs": [
-      "restconf-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["restconf-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "napalm-debutant",
@@ -2931,15 +1544,8 @@
     "category": "Cloud & Automatisation",
     "order": 940,
     "description": "Abstraction multi-constructeurs pour automatiser les équipements.",
-    "prereqs": [
-      "automation-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["automation-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "napalm-intermediaire",
@@ -2947,15 +1553,8 @@
     "category": "Cloud & Automatisation",
     "order": 941,
     "description": "Déploiement multi-équipements.",
-    "prereqs": [
-      "napalm-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["napalm-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "napalm-expert",
@@ -2963,15 +1562,8 @@
     "category": "Cloud & Automatisation",
     "order": 942,
     "description": "Intégration de NAPALM avec Ansible.",
-    "prereqs": [
-      "napalm-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["napalm-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "cicd-network-debutant",
@@ -2979,15 +1571,8 @@
     "category": "Cloud & Automatisation",
     "order": 950,
     "description": "Versionner et déployer la configuration réseau via des pipelines.",
-    "prereqs": [
-      "automation-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["automation-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "cicd-network-intermediaire",
@@ -2995,15 +1580,8 @@
     "category": "Cloud & Automatisation",
     "order": 951,
     "description": "Création de pipelines simples.",
-    "prereqs": [
-      "cicd-network-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["cicd-network-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "cicd-network-expert",
@@ -3011,15 +1589,8 @@
     "category": "Cloud & Automatisation",
     "order": 952,
     "description": "Pipelines CI/CD complets.",
-    "prereqs": [
-      "cicd-network-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["cicd-network-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "netconf-yang-debutant",
@@ -3027,15 +1598,8 @@
     "category": "Cloud & Automatisation",
     "order": 960,
     "description": "Modélisation de données et configuration programmatique.",
-    "prereqs": [
-      "restconf-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["restconf-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "netconf-yang-intermediaire",
@@ -3043,15 +1607,8 @@
     "category": "Cloud & Automatisation",
     "order": 961,
     "description": "Modèles YANG avancés.",
-    "prereqs": [
-      "netconf-yang-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["netconf-yang-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "netconf-yang-expert",
@@ -3059,15 +1616,8 @@
     "category": "Cloud & Automatisation",
     "order": 962,
     "description": "Personnalisation de modèles.",
-    "prereqs": [
-      "netconf-yang-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["netconf-yang-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "terraform-debutant",
@@ -3075,15 +1625,8 @@
     "category": "Cloud & Automatisation",
     "order": 970,
     "description": "Déployer l'infrastructure réseau via du code déclaratif.",
-    "prereqs": [
-      "automation-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["automation-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "terraform-intermediaire",
@@ -3091,15 +1634,8 @@
     "category": "Cloud & Automatisation",
     "order": 971,
     "description": "Providers et variables.",
-    "prereqs": [
-      "terraform-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["terraform-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "terraform-expert",
@@ -3107,15 +1643,8 @@
     "category": "Cloud & Automatisation",
     "order": 972,
     "description": "Modules, state et CI/CD.",
-    "prereqs": [
-      "terraform-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["terraform-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "lab_netns",
@@ -3123,15 +1652,8 @@
     "category": "Labs pratiques",
     "order": 200,
     "description": "Configurer l'adressage et les routes entre 3 namespaces Linux.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "lab_bridge",
@@ -3139,15 +1661,8 @@
     "category": "Labs pratiques",
     "order": 210,
     "description": "Attacher deux veths à un bridge.",
-    "prereqs": [
-      "ethernet-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["ethernet-debutant"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "lab_troubleshoot_vlan",
@@ -3155,15 +1670,8 @@
     "category": "Labs pratiques",
     "order": 215,
     "description": "Erreur L2 volontaire à diagnostiquer.",
-    "prereqs": [
-      "vlan-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["vlan-expert"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "lab_tshoot_dns",
@@ -3171,15 +1679,8 @@
     "category": "Labs pratiques",
     "order": 216,
     "description": "Enregistrement DNS mal configuré.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["troubleshooting-debutant"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "lab_tshoot_route",
@@ -3187,15 +1688,8 @@
     "category": "Labs pratiques",
     "order": 217,
     "description": "Route par défaut manquante.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["troubleshooting-debutant"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "lab_tshoot_mtu",
@@ -3203,15 +1697,8 @@
     "category": "Labs pratiques",
     "order": 218,
     "description": "MTU trop petit sur le chemin.",
-    "prereqs": [
-      "troubleshooting-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["troubleshooting-debutant"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "challenge-osi",
@@ -3221,29 +1708,14 @@
     "order": 220,
     "description": "Connecte un Routeur à un Switch et un PC.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
     "challenge": {
       "time_limit": 120,
       "expected_topology": {
-        "nodes": {
-          "router": 1,
-          "switch": 1,
-          "pc": 1
-        },
+        "nodes": { "router": 1, "switch": 1, "pc": 1 },
         "connections": [
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "pc"
-          }
+          { "from": "router", "to": "switch" },
+          { "from": "switch", "to": "pc" }
         ]
       }
     }
@@ -3255,47 +1727,18 @@
     "category": "Défis d'Architecture",
     "order": 301,
     "description": "Concevoir un réseau d'entreprise sécurisé (Cloud, Firewall, Routeur, Switch, PC, Serveur).",
-    "prereqs": [
-      "challenge-osi"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
+    "prereqs": ["challenge-osi"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
     "challenge": {
       "time_limit": 300,
       "expected_topology": {
-        "nodes": {
-          "cloud": 1,
-          "firewall": 1,
-          "router": 1,
-          "switch": 1,
-          "pc": 1,
-          "server": 1
-        },
+        "nodes": { "cloud": 1, "firewall": 1, "router": 1, "switch": 1, "pc": 1, "server": 1 },
         "connections": [
-          {
-            "from": "cloud",
-            "to": "firewall"
-          },
-          {
-            "from": "firewall",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "pc"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          }
+          { "from": "cloud", "to": "firewall" },
+          { "from": "firewall", "to": "router" },
+          { "from": "router", "to": "switch" },
+          { "from": "switch", "to": "pc" },
+          { "from": "switch", "to": "server" }
         ]
       }
     }
@@ -3307,40 +1750,17 @@
     "category": "Défis d'Architecture",
     "order": 302,
     "description": "Architecture haute disponibilité avec redondance des liens (Full Mesh).",
-    "prereqs": [
-      "challenge-small-business"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
+    "prereqs": ["challenge-small-business"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
     "challenge": {
       "time_limit": 420,
       "expected_topology": {
-        "nodes": {
-          "router": 2,
-          "switch": 2,
-          "server": 2
-        },
+        "nodes": { "router": 2, "switch": 2, "server": 2 },
         "connections": [
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          }
+          { "from": "router", "to": "switch" },
+          { "from": "router", "to": "switch" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" }
         ]
       }
     }
@@ -3352,46 +1772,18 @@
     "category": "Défis d'Architecture",
     "order": 303,
     "description": "Relier un réseau local sécurisé à un environnement Cloud (DMZ, VPC).",
-    "prereqs": [
-      "challenge-datacenter"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
+    "prereqs": ["challenge-datacenter"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
     "challenge": {
       "time_limit": 360,
       "expected_topology": {
-        "nodes": {
-          "cloud": 1,
-          "firewall": 1,
-          "router": 1,
-          "switch": 2,
-          "server": 2
-        },
+        "nodes": { "cloud": 1, "firewall": 1, "router": 1, "switch": 2, "server": 2 },
         "connections": [
-          {
-            "from": "cloud",
-            "to": "firewall"
-          },
-          {
-            "from": "firewall",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "firewall",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          }
+          { "from": "cloud", "to": "firewall" },
+          { "from": "firewall", "to": "switch" },
+          { "from": "switch", "to": "server" },
+          { "from": "firewall", "to": "router" },
+          { "from": "router", "to": "switch" }
         ]
       }
     }
@@ -3403,56 +1795,21 @@
     "category": "Défis d'Architecture",
     "order": 310,
     "description": "Conçois une architecture Datacenter moderne avec 2 routeurs Spine, 2 switchs Leaf et 4 serveurs. Chaque Leaf doit être relié aux deux Spine.",
-    "prereqs": [
-      "spine-leaf-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
+    "prereqs": ["spine-leaf-expert"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
     "challenge": {
       "time_limit": 480,
       "expected_topology": {
-        "nodes": {
-          "router": 2,
-          "switch": 2,
-          "server": 4
-        },
+        "nodes": { "router": 2, "switch": 2, "server": 4 },
         "connections": [
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "router",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          }
+          { "from": "router", "to": "switch" },
+          { "from": "router", "to": "switch" },
+          { "from": "router", "to": "switch" },
+          { "from": "router", "to": "switch" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" }
         ]
       }
     }
@@ -3464,67 +1821,24 @@
     "category": "Défis d'Architecture",
     "order": 311,
     "description": "Concevez un backbone opérateur SR-MPLS : deux CE, deux PE, un cœur P1/P2 maillé, un route-reflector et un contrôleur SR-TE.",
-    "prereqs": [
-      "segment-routing-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
+    "prereqs": ["segment-routing-expert"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
     "challenge": {
       "time_limit": 420,
       "expected_topology": {
-        "nodes": {
-          "router": 7,
-          "server": 3
-        },
+        "nodes": { "router": 7, "server": 3 },
         "connections": [
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "router"
-          },
-          {
-            "from": "router",
-            "to": "server"
-          },
-          {
-            "from": "router",
-            "to": "server"
-          },
-          {
-            "from": "router",
-            "to": "server"
-          }
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "router" },
+          { "from": "router", "to": "server" },
+          { "from": "router", "to": "server" },
+          { "from": "router", "to": "server" }
         ]
       }
     }
@@ -3536,72 +1850,25 @@
     "category": "Défis d'Architecture",
     "order": 312,
     "description": "Construisez une fabric Cisco ACI : 2 spines, 3 leafs, un cluster APIC, des serveurs applicatifs et un routeur WAN.",
-    "prereqs": [
-      "cisco-aci-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "manual",
-        "min_score": 100
-      }
-    ],
+    "prereqs": ["cisco-aci-expert"],
+    "requirements": [{ "kind": "manual", "min_score": 100 }],
     "challenge": {
       "time_limit": 600,
       "expected_topology": {
-        "nodes": {
-          "router": 1,
-          "switch": 5,
-          "server": 5
-        },
+        "nodes": { "router": 1, "switch": 5, "server": 5 },
         "connections": [
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "switch"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "server"
-          },
-          {
-            "from": "switch",
-            "to": "router"
-          }
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "switch" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "server" },
+          { "from": "switch", "to": "router" }
         ]
       }
     }
@@ -3612,15 +1879,8 @@
     "category": "War Games (Scénarios de crise)",
     "order": 900,
     "description": "Un incident a coupé la connectivité. Tu as 3 minutes pour diagnostiquer et réparer.",
-    "prereqs": [
-      "routing-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "lab",
-        "min_score": 100
-      }
-    ]
+    "prereqs": ["routing-debutant"],
+    "requirements": [{ "kind": "lab", "min_score": 100 }]
   },
   {
     "id": "data-bases-debutant",
@@ -3630,12 +1890,7 @@
     "order": 4340,
     "description": "Tables, clés, contraintes, transactions et intégrité relationnelle.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-sql-1-debutant",
@@ -3644,15 +1899,8 @@
     "category": "Data & Bases de données",
     "order": 4341,
     "description": "Lecture et écriture SQL paramétrées, filtres et opérations sûres.",
-    "prereqs": [
-      "data-bases-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-bases-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-modelisation-debutant",
@@ -3661,15 +1909,8 @@
     "category": "Data & Bases de données",
     "order": 4342,
     "description": "Entités, relations, cardinalités et passage du MCD au MLD.",
-    "prereqs": [
-      "data-sql-1-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-sql-1-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-sql-2-debutant",
@@ -3678,15 +1919,8 @@
     "category": "Data & Bases de données",
     "order": 4343,
     "description": "Jointures, granularité, agrégats, NULL et prévention du double comptage.",
-    "prereqs": [
-      "data-modelisation-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-modelisation-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-normalisation-debutant",
@@ -3695,15 +1929,8 @@
     "category": "Data & Bases de données",
     "order": 4344,
     "description": "Dépendances fonctionnelles, formes normales et décomposition sans perte.",
-    "prereqs": [
-      "data-sql-2-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-sql-2-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-sql-pratique-debutant",
@@ -3712,15 +1939,8 @@
     "category": "Data & Bases de données",
     "order": 4345,
     "description": "Laboratoire SQL reproductible, migrations, jeux d'essai et tests.",
-    "prereqs": [
-      "data-normalisation-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-normalisation-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-dba-role-intermediaire",
@@ -3729,15 +1949,8 @@
     "category": "Data & Bases de données",
     "order": 4346,
     "description": "Architecture, rôles DBA, concurrence, observabilité et haute disponibilité.",
-    "prereqs": [
-      "data-sql-pratique-debutant"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-sql-pratique-debutant"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-sql-avance-intermediaire",
@@ -3746,15 +1959,8 @@
     "category": "Data & Bases de données",
     "order": 4347,
     "description": "Sous-requêtes, CTE récursives, fenêtres et routines persistantes.",
-    "prereqs": [
-      "data-dba-role-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-dba-role-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-optimisation-intermediaire",
@@ -3763,15 +1969,8 @@
     "category": "Data & Bases de données",
     "order": 4348,
     "description": "Index, EXPLAIN, cardinalités, statistiques et mesure de performance.",
-    "prereqs": [
-      "data-sql-avance-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-sql-avance-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-sauvegarde-intermediaire",
@@ -3780,15 +1979,8 @@
     "category": "Data & Bases de données",
     "order": 4349,
     "description": "RPO/RTO, sauvegardes, journaux, récupération temporelle et tests de reprise.",
-    "prereqs": [
-      "data-optimisation-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-optimisation-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-nosql-intermediaire",
@@ -3797,15 +1989,8 @@
     "category": "Data & Bases de données",
     "order": 4350,
     "description": "Modèle documentaire, structures Redis, index, cohérence et cache.",
-    "prereqs": [
-      "data-sauvegarde-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-sauvegarde-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-warehouse-intermediaire",
@@ -3814,15 +1999,8 @@
     "category": "Data & Bases de données",
     "order": 4351,
     "description": "Modèle en étoile, ETL/ELT, orchestration et contrôles de qualité.",
-    "prereqs": [
-      "data-nosql-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "prereqs": ["data-nosql-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 80 }]
   },
   {
     "id": "data-bigdata-expert",
@@ -3831,15 +2009,8 @@
     "category": "Data & Bases de données",
     "order": 4352,
     "description": "Architecture distribuée, stockage, calcul Spark et résilience des traitements.",
-    "prereqs": [
-      "data-warehouse-intermediaire"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["data-warehouse-intermediaire"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "data-streaming-expert",
@@ -3848,15 +2019,8 @@
     "category": "Data & Bases de données",
     "order": 4353,
     "description": "Topics, partitions, offsets, garanties de livraison et pipelines streaming.",
-    "prereqs": [
-      "data-bigdata-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["data-bigdata-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "data-datalake-expert",
@@ -3865,15 +2029,8 @@
     "category": "Data & Bases de données",
     "order": 4354,
     "description": "Stockage objet, formats colonnaires, tables lakehouse et gouvernance multi-moteur.",
-    "prereqs": [
-      "data-streaming-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["data-streaming-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "data-securite-expert",
@@ -3882,15 +2039,8 @@
     "category": "Data & Bases de données",
     "order": 4355,
     "description": "Chiffrement, gestion des clés, minimisation, droits et cycle de vie des données.",
-    "prereqs": [
-      "data-datalake-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["data-datalake-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "data-gouvernance-expert",
@@ -3899,15 +2049,8 @@
     "category": "Data & Bases de données",
     "order": 4356,
     "description": "Contrats de données, qualité mesurable, catalogue, lignage et responsabilité.",
-    "prereqs": [
-      "data-securite-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["data-securite-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   },
   {
     "id": "data-ingestion-expert",
@@ -3916,14 +2059,7 @@
     "category": "Data & Bases de données",
     "order": 4357,
     "description": "Orchestration, ingestion incrémentale, idempotence, rejeu et observabilité.",
-    "prereqs": [
-      "data-gouvernance-expert"
-    ],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 85
-      }
-    ]
+    "prereqs": ["data-gouvernance-expert"],
+    "requirements": [{ "kind": "quiz", "min_score": 85 }]
   }
 ]
