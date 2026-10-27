@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - feat/neon-postgres-integration
+  pull_request:
+    branches:
+      - feature/lab-workspace
+    paths:
+      - .github/workflows/neon-validation-smoke.yml
+      - .github/workflows/production-lab-persistence-smoke.yml
   workflow_dispatch:
 
 permissions:
@@ -129,4 +135,84 @@ jobs:
               "attempt_recorded=", submitted.get("attempt_recorded"),
               "xp_gained=", submitted.get("xp_gained"),
           )
+          PY
+- name: Save and reload a topology against Neon validation only
+        shell: bash
+        env:
+          SMOKE_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.request
+
+          # This test writes only to the isolated Neon validation service.
+          base = "https://skill-tree-neon-validation.onrender.com"
+          lab_id = "validation-persistence-smoke-" + os.environ["SMOKE_RUN_ID"]
+          topology = {
+              "schema_version": 2,
+              "topology_id": lab_id,
+              "metadata": {
+                  "name": lab_id,
+                  "author": "github-actions-validation-smoke-test",
+                  "created_at": "2026-10-27T00:00:00Z",
+                  "mode": "lab",
+              },
+              "nodes": [
+                  {
+                      "id": "SMOKE-R1",
+                      "type": "router",
+                      "x": 120,
+                      "y": 180,
+                      "label": "SMOKE-R1",
+                      "ports": [
+                          {
+                              "id": "Fa0/0",
+                              "name": "Fa0/0",
+                              "state": "up",
+                              "ip": "10.254.254.1",
+                              "mask": "255.255.255.252",
+                          }
+                      ],
+                      "config": {"hostname": "SMOKE-R1"},
+                  }
+              ],
+              "links": [],
+              "simulation": {"state": "idle", "event_log": []},
+          }
+
+          def request_json(path, method="GET", body=None):
+              data = None if body is None else json.dumps(body, separators=(",", ":")).encode("utf-8")
+              headers = {} if data is None else {"Content-Type": "application/json"}
+              request = urllib.request.Request(base + path, data=data, headers=headers, method=method)
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      return json.loads(response.read().decode("utf-8"))
+              except urllib.error.HTTPError as error:
+                  detail = error.read().decode("utf-8", errors="replace")
+                  raise SystemExit(f"{method} {path} returned HTTP {error.code}: {detail}") from error
+
+          saved = request_json(
+              f"/api/lab/v2/{lab_id}/save",
+              method="POST",
+              body={"topology": topology},
+          )
+          assert saved.get("success") is True, saved
+          backend = saved.get("storage_backend")
+          assert backend == "postgresql", (
+              "Validation save did not confirm PostgreSQL/Neon: "
+              + json.dumps(saved, ensure_ascii=False)
+          )
+
+          loaded = request_json(f"/api/lab/v2/{lab_id}/load")
+          assert loaded.get("topology") == topology, (
+              "Loaded validation topology differs from saved data: "
+              + json.dumps({"saved": topology, "loaded": loaded}, ensure_ascii=False)
+          )
+          assert loaded.get("lab_id") == lab_id, loaded
+          print("VALIDATION_TOPOLOGY_PERSISTENCE=passed")
+          print("STORAGE_BACKEND=postgresql")
+          print("ROUND_TRIP=exact")
+          print("SMOKE_LAB_ID=" + lab_id)
           PY
