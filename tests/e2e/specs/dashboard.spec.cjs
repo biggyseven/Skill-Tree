@@ -1190,16 +1190,14 @@ test('les bibliothèques affichent de nombreux modèles d’équipements et de c
 
   const equipmentTab = page.getByRole('tab', { name: /Équipements/ });
   await expect(equipmentTab).toContainText('46 modèles');
-  // L'interface conserve aussi un rendu responsive caché de la même bibliothèque.
-  // Ne compter que les éléments visibles évite de compter chaque modèle deux fois.
-  const equipmentItems = page.locator('[data-testid^="equipment-model-"]:visible');
+  const equipmentItems = page.locator('[data-testid^="equipment-model-"]');
   await expect(equipmentItems).toHaveCount(46);
   await expect(page.getByTestId('equipment-model-switch-l3-48')).toBeVisible();
 
   const cableTab = page.getByRole('tab', { name: /Câbles/ });
   await cableTab.click();
   await expect(cableTab).toContainText('19 câbles');
-  const cableItems = page.locator('[data-testid^="cable-item-"]:visible');
+  const cableItems = page.locator('[data-testid^="cable-item-"]');
   await expect(cableItems).toHaveCount(20);
   await expect(page.getByTestId('cable-item-fiber_multimode')).toBeVisible();
   await expect(page.getByTestId('cable-item-fiber_singlemode')).toBeVisible();
