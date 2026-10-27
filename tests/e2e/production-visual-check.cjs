@@ -40,6 +40,55 @@ async function main() {
   });
 
   try {
+    // La production protège le tableau de bord derrière une authentification.
+    // N'attendez donc jamais un bouton du tableau de bord avant d'avoir traité la connexion.
+    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    const authState = await page.evaluate(async () => {
+      const response = await fetch('/api/auth/status', { cache: 'no-store', credentials: 'same-origin' });
+      if (!response.ok) throw new Error('Impossible de lire l’état de connexion de production (HTTP ' + response.status + ').');
+      return response.json();
+    });
+    report.checks.authenticationRequired = Boolean(authState.required);
+    report.checks.authenticationConfigured = Boolean(authState.configured);
+
+    if (authState.required && !authState.configured) {
+      throw new Error('Authentification de production non configurée : le contrôle visuel complet ne peut pas être exécuté.');
+    }
+
+    if (authState.required && !authState.authenticated) {
+      const productionPassword = process.env.SKILLTREE_PRODUCTION_TEST_PASSWORD;
+      if (!productionPassword) {
+        // Ne pas faire passer une inspection partielle pour un contrôle visuel complet.
+        // Le rapport et la capture rendent explicite le manque de secret, sans exposer de donnée sensible.
+        const loginShot = path.join(OUT, 'production-login-auth-required.png');
+        await page.screenshot({ path: loginShot, fullPage: true, animations: 'disabled' }).catch(() => {});
+        report.screenshots.push(loginShot);
+        report.status = 'partial';
+        report.checks.dashboardVisuals = 'skipped: configure GitHub Actions secret SKILLTREE_PRODUCTION_TEST_PASSWORD';
+        report.completedAt = new Date().toISOString();
+        await fs.writeFile(path.join(OUT, 'production-visual-summary.json'), JSON.stringify(report, null, 2));
+        console.log('::warning::Production requires authentication. Dashboard and Lab Workspace visual checks were skipped because SKILLTREE_PRODUCTION_TEST_PASSWORD is not configured.');
+        console.log(JSON.stringify(report, null, 2));
+        return;
+      }
+
+      await page.getByLabel("Mot de passe de l'application").fill(productionPassword);
+      await page.getByRole('button', { name: 'Se connecter' }).click();
+      await page.waitForURL(url => url.origin === origin && url.pathname === '/', {
+        waitUntil: 'domcontentloaded',
+        timeout: 45000,
+      });
+      const authenticatedState = await page.evaluate(async () => {
+        const response = await fetch('/api/auth/status', { cache: 'no-store', credentials: 'same-origin' });
+        if (!response.ok) throw new Error('Impossible de confirmer la session de production.');
+        return response.json();
+      });
+      assert(authenticatedState.authenticated, 'La connexion de test n’a pas créé de session authentifiée.');
+      report.checks.authenticatedProductionSession = true;
+    } else {
+      report.checks.authenticatedProductionSession = Boolean(authState.authenticated || !authState.required);
+    }
+
     // Après une fusion, Render peut déployer quelques instants après GitHub Actions.
     // On attend la version attendue via GET seulement; aucune écriture de production n'est faite.
     const readyDeadline = Date.now() + 8 * 60 * 1000;
