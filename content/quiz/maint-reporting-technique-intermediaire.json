@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger un rapport d'incident » ?",
+      "prompt": "Quelle phrase sépare correctement un fait d'une hypothèse ?",
       "choices": [
-        "Le sujet principal du cours : Rédiger un rapport d'incident",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "La mise à jour a forcément cassé le serveur",
+        "Le serveur est mal configuré, sans preuve",
+        "Les erreurs ont suivi la mise à jour ; le lien causal reste à vérifier",
+        "Le fournisseur est responsable parce qu'il est externe"
+      ],
+      "answer": 2,
+      "explanation": "La proximité temporelle peut orienter l'investigation, mais ne prouve pas la causalité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une chronologie d'incident fiable ?",
+      "choices": [
+        "Des événements horodatés, leur source et les limites éventuelles des données",
+        "Uniquement l'heure de clôture",
+        "Des heures choisies sans source",
+        "Une liste d'hypothèses sans résultat"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La chronologie permet de reconstruire la séquence et de distinguer les événements confirmés des estimations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément devrait apparaître dans un rapport d'incident complet ?",
+      "choices": [
+        "Les mots de passe utilisés pendant l'intervention",
+        "L'impact, la chronologie, les contrôles, le rétablissement et les suivis",
+        "Seulement le nom du technicien",
+        "Une cause racine même si elle est inconnue"
+      ],
+      "answer": 1,
+      "explanation": "Le rapport doit rendre le déroulement compréhensible et conserver les actions et inconnues sans exposer des secrets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le rapport indique « le serveur est tombé », mais le ping réussissait et seul HTTP échouait. Que faut-il corriger ?",
+      "choices": [
+        "Supprimer les résultats contradictoires",
+        "Conserver la formulation vague",
+        "Conclure que tout le réseau était en panne",
+        "Décrire précisément le point de mesure et le service : connectivité présente, contrôle HTTP en échec"
+      ],
+      "answer": 3,
+      "explanation": "Une description précise évite de confondre panne applicative et indisponibilité de l'hôte ou du réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter les données présentes dans un rapport diffusé ?",
+      "choices": [
+        "Pour pouvoir supprimer toutes les preuves",
+        "Pour rendre le rapport impossible à reproduire",
+        "Pour éviter d'exposer inutilement secrets et données personnelles et appliquer le moindre partage",
+        "Pour éviter de mentionner les impacts"
+      ],
+      "answer": 2,
+      "explanation": "Le rapport doit inclure les preuves nécessaires, mais protéger les informations sensibles selon les règles applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après le redémarrage, le service fonctionne mais la cause reste inconnue. Comment le rapport doit-il conclure ?",
+      "choices": [
+        "Rétablissement observé, cause non confirmée, suivi à prévoir selon le risque",
+        "Correction définitive confirmée",
+        "Incident sans impact",
+        "Aucune investigation nécessaire dans tous les cas"
+      ],
+      "answer": 0,
+      "explanation": "Le retour du service est un fait distinct de la confirmation d'une cause durable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle caractéristique rend une action de suivi vérifiable ?",
+      "choices": [
+        "Aucun responsable attribué",
+        "Un responsable, une échéance et un critère d'acceptation clair",
+        "Une intention générale sans date",
+        "Une action déjà clôturée sans preuve"
+      ],
+      "answer": 1,
+      "explanation": "Ces éléments permettent de contrôler l'avancement et de décider si le résultat attendu est atteint."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi joindre la source et la plage temporelle d'un extrait de journal ?",
+      "choices": [
+        "Pour augmenter artificiellement le volume du rapport",
+        "Pour remplacer le résumé exécutif",
+        "Pour inclure tous les secrets",
+        "Pour permettre la vérification et conserver le contexte de la preuve"
+      ],
+      "answer": 3,
+      "explanation": "Les références et le contexte permettent de relire l'élément pertinent sans perdre sa provenance."
     }
   ]
 }

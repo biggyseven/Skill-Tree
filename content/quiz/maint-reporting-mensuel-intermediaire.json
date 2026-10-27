@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger un reporting mensuel » ?",
+      "prompt": "Quel est le premier travail avant de calculer les KPI du reporting mensuel ?",
       "choices": [
-        "Le sujet principal du cours : Rédiger un reporting mensuel",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Choisir les couleurs des graphiques",
+        "Définir période, périmètre, audience et règles de calcul",
+        "Écrire une conclusion avant de consulter les données",
+        "Fusionner toutes les sources sans vérification"
+      ],
+      "answer": 1,
+      "explanation": "La période, le périmètre, l'audience et les définitions doivent être établis avant la collecte afin que les chiffres soient comparables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il documenter le dictionnaire des indicateurs ?",
+      "choices": [
+        "Pour imposer le même résultat à tous les services sans nuance",
+        "Pour éviter d'avoir à contrôler les données",
+        "Pour préciser définition, unité, source, formule, exclusions et propriétaire",
+        "Pour remplacer les outils sources par une seule capture"
+      ],
+      "answer": 2,
+      "explanation": "Une définition partagée évite que deux personnes calculent le même indicateur différemment."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une supervision n'a fourni aucune donnée pendant huit heures. Quelle conclusion est correcte ?",
+      "choices": [
+        "La disponibilité est forcément de 100 %",
+        "La disponibilité est forcément de 0 %",
+        "La valeur doit être inventée à partir du mois précédent",
+        "La période contient une lacune à signaler et à traiter selon la méthode convenue"
+      ],
+      "answer": 3,
+      "explanation": "L'absence de mesure ne prouve ni disponibilité ni indisponibilité. Il faut exposer la lacune et appliquer la règle de calcul définie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi compléter une moyenne de délai par des percentiles ou l'examen des cas extrêmes ?",
+      "choices": [
+        "Une moyenne peut masquer quelques incidents très longs",
+        "Les percentiles remplacent toutes les données sources",
+        "Les moyennes ne peuvent jamais être calculées",
+        "Les percentiles démontrent à eux seuls la cause racine"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Une distribution ou des cas extrêmes aident à repérer les délais rares mais importants que la moyenne peut masquer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que devrait contenir un plan d'action du reporting ?",
+      "choices": [
+        "Une formule générale telle que « améliorer le support » uniquement",
+        "Une action précise, un responsable, une échéance et une preuve de réussite",
+        "Seulement la date de publication du rapport",
+        "Le nom du dernier technicien qui a touché au système"
+      ],
+      "answer": 1,
+      "explanation": "Une action doit pouvoir être suivie et clôturée sur la base d'un résultat vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le nombre de tickets a augmenté de 30 %. Quelle interprétation est la plus fiable ?",
+      "choices": [
+        "La qualité a obligatoirement diminué de 30 %",
+        "Tous les tickets sont des pannes",
+        "Il faut examiner le périmètre, les types, les utilisateurs et les événements avant de conclure",
+        "Le chiffre doit être supprimé car il est défavorable"
+      ],
+      "answer": 2,
+      "explanation": "Une variation est un constat, pas une preuve de cause ; les changements de périmètre ou de déclaration peuvent aussi expliquer l'évolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment doit-on présenter une sauvegarde qui a réussi mais dont aucune restauration n'a été testée récemment ?",
+      "choices": [
+        "Comme une preuve absolue de reprise",
+        "Comme une donnée sans intérêt",
+        "Comme un service disponible à 100 %",
+        "Distinguer l'exécution réussie de la capacité de restauration non récemment démontrée"
+      ],
+      "answer": 3,
+      "explanation": "La tâche de sauvegarde et la récupérabilité sont deux résultats différents. Le rapport doit exposer le test de restauration manquant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure utilisation du résumé exécutif ?",
+      "choices": [
+        "Résumer les constats majeurs, leurs impacts et les décisions attendues",
+        "Reproduire toutes les lignes de journaux",
+        "Masquer les écarts de données",
+        "Fournir seulement les captures d'écran"
+      ],
+      "answer": 0,
+      "explanation": "Le résumé traduit les résultats en impacts et décisions, tandis que les détails techniques sont conservés dans les sections ou annexes."
     }
   ]
 }

@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Automatiser les tâches (scripts, Ansible) » ?",
+      "prompt": "Que signifie l'idempotence dans un playbook ou un script ?",
       "choices": [
-        "Le sujet principal du cours : Automatiser les tâches (scripts, Ansible)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Que le programme ne peut jamais échouer",
+        "Que plusieurs exécutions aboutissent au même état souhaité lorsque la tâche est conçue pour cela",
+        "Que toutes les commandes doivent être exécutées en administrateur",
+        "Que chaque exécution redémarre tous les services"
+      ],
+      "answer": 1,
+      "explanation": "L'idempotence vise à obtenir l'état attendu sans répéter inutilement les changements, mais elle dépend de la tâche et du module."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter l'inventaire et exécuter d'abord sur un hôte pilote ?",
+      "choices": [
+        "Pour éviter de documenter le déploiement",
+        "Pour faire passer tous les échecs en réussite",
+        "Pour réduire la portée d'une erreur et vérifier le comportement avant de l'élargir",
+        "Pour remplacer le besoin de test post-exécution"
+      ],
+      "answer": 2,
+      "explanation": "Le pilote limite l'impact et donne des preuves avant l'extension à un plus grand nombre de systèmes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les options Ansible --check et --diff lorsqu'elles sont prises en charge ?",
+      "choices": [
+        "À simuler les changements et présenter des différences avant/après",
+        "À garantir l'absence de tout risque dans chaque module",
+        "À ignorer automatiquement les erreurs",
+        "À chiffrer tous les secrets pendant l'exécution"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le mode check simule les tâches prises en charge et le diff présente les changements ; leurs limites doivent être connues et la sortie peut exposer des secrets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où doit-on stocker un mot de passe technique utilisé par un playbook ?",
+      "choices": [
+        "Dans le nom d'hôte de l'inventaire",
+        "Dans un commentaire du dépôt public",
+        "Dans un message de journal pour faciliter le dépannage",
+        "Dans un mécanisme de secrets approuvé, par exemple un fichier protégé par Ansible Vault selon la politique"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets ne doivent pas être écrits en clair dans les playbooks ou journaux. Vault protège le contenu chiffré au repos mais ne prévient pas les fuites à l'exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire un script si une étape obligatoire échoue ?",
+      "choices": [
+        "Imprimer « succès » pour ne pas bloquer le calendrier",
+        "Enregistrer le contexte, retourner un statut d'échec approprié et suivre la procédure prévue",
+        "Relancer indéfiniment la même commande",
+        "Effacer les journaux pour éviter les faux positifs"
+      ],
+      "answer": 1,
+      "explanation": "Les codes de retour, journaux et règles de reprise permettent à l'ordonnanceur et aux opérateurs de comprendre l'échec."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il éviter les tâches planifiées concurrentes sans garde-fou ?",
+      "choices": [
+        "Elles rendent les logs toujours plus fiables",
+        "Elles éliminent tous les risques de double traitement",
+        "Elles peuvent écraser des résultats, doubler la charge ou répéter des effets",
+        "Elles empêchent les erreurs de réseau"
+      ],
+      "answer": 2,
+      "explanation": "Une durée supérieure à l'intervalle de lancement peut produire plusieurs instances concurrentes. Un verrou ou une politique de non-concurrence est nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'Ansible Vault protège principalement ?",
+      "choices": [
+        "Les données chiffrées au repos, tout en laissant à gérer les fuites possibles pendant leur utilisation",
+        "Tous les secrets même s'ils sont affichés par debug",
+        "Le serveur contre toutes les vulnérabilités",
+        "L'ensemble des communications réseau indépendamment de la configuration"
+      ],
+      "answer": 0,
+      "explanation": "Vault chiffre des fichiers et variables. Les secrets sont déchiffrés pendant l'exécution, donc les permissions et logs restent importants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une automatisation réussit sur 18 hôtes et échoue sur 2. Quelle suite est appropriée ?",
+      "choices": [
+        "Relancer immédiatement le playbook sur tous les hôtes",
+        "Marquer les deux erreurs comme réussies",
+        "Supprimer les deux hôtes de l'inventaire sans enquête",
+        "Examiner les résultats par hôte, vérifier les états, puis reprendre seulement si l'action est sûre et autorisée"
+      ],
+      "answer": 3,
+      "explanation": "Un état partiel doit être diagnostiqué. Une reprise ciblée réduit les risques et conserve la distinction entre succès, échec et inaccessibilité."
     }
   ]
 }
