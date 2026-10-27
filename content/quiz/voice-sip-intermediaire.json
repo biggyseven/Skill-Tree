@@ -4,63 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel protocole transporte généralement la voix ?",
+      "prompt": "Dans le routage d’appels sur une passerelle Cisco IOS/IOS XE, quelle distinction entre dial peer entrant et sortant est la plus juste ?",
       "choices": [
-        "RTP",
-        "SIP",
-        "DNS",
-        "DHCP"
+        "Le dial peer entrant identifie le contexte de l’appel reçu ; le sortant est sélectionné pour acheminer l’appel vers la destination suivante",
+        "Le dial peer entrant chiffre le RTP et le sortant attribue le VLAN",
+        "Le dial peer sortant est toujours sélectionné uniquement par l’adresse MAC",
+        "Les deux rôles sont identiques et ne dépendent d’aucun critère"
       ],
       "answer": 0,
-      "explanation": "SIP contrôle la session ; RTP transporte généralement le média."
+      "explanation": "Le traitement entrant associe l’appel reçu au contexte approprié, tandis que le traitement sortant choisit où l’acheminer. Les critères exacts dépendent du type de trunk, de la signalisation et de la plateforme."
     },
     {
       "type": "qcm",
-      "prompt": "Que signifie une réponse SIP 488 ?",
+      "prompt": "Que suggère le code SIP 488 Not Acceptable Here lors d’une tentative d’appel ?",
       "choices": [
-        "Paramètres de session non acceptables",
-        "Destination toujours occupée",
-        "Succès confirmé",
-        "Adresse IP attribuée"
+        "Le DNS a obligatoirement perdu l’adresse du PBX",
+        "Le téléphone a répondu 180 Ringing",
+        "Les paramètres de session proposés, souvent média/SDP, ne sont pas acceptés par le destinataire",
+        "L’appel est toujours bloqué uniquement par un mot de passe incorrect"
       ],
-      "answer": 0,
-      "explanation": "Examiner SDP, codecs et paramètres média."
+      "answer": 2,
+      "explanation": "488 indique que la demande ou la description de session n’est pas acceptable. Examine SDP, codecs, formats et politiques média, sans conclure que le réseau IP est nécessairement en panne."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle de SDP ?",
+      "prompt": "Quel est le rôle du modèle offre/réponse SDP décrit par la RFC 3264 ?",
       "choices": [
-        "Décrire les paramètres média négociés",
-        "Transporter les échantillons audio",
-        "Distribuer les adresses DHCP",
-        "Remplacer le routage"
+        "Attribuer un numéro de poste à chaque utilisateur",
+        "Négocier des paramètres de session compatibles, par exemple les codecs et les flux média",
+        "Remplacer les messages INVITE et ACK",
+        "Chiffrer automatiquement tous les paquets RTP"
       ],
-      "answer": 0,
-      "explanation": "SDP annonce notamment adresses, ports et codecs."
+      "answer": 1,
+      "explanation": "Le modèle offre/réponse précise comment les parties proposent puis acceptent ou refusent les paramètres de session décrits en SDP. Il ne remplace ni la signalisation SIP ni le transport média."
     },
     {
       "type": "qcm",
-      "prompt": "Quel port est usuel pour Modbus TCP ?",
+      "prompt": "Une réponse SIP 183 Session Progress contient du SDP. Quel comportement cela peut-il permettre ?",
       "choices": [
-        "TCP/502",
-        "UDP/161",
-        "TCP/5060",
-        "UDP/514"
+        "Il garantit que l’appel est déjà répondu avec un code 200",
+        "Il met toujours fin à la tentative d’appel",
+        "Il indique que le serveur DNS a commencé la résolution",
+        "Il peut permettre de l’early media avant la réponse finale, si la configuration et les capacités des deux côtés le permettent"
       ],
-      "answer": 0,
-      "explanation": "Modbus TCP utilise généralement TCP/502."
+      "answer": 3,
+      "explanation": "183 Session Progress peut être utilisé avec SDP pour établir des médias précoces, par exemple une annonce du réseau téléphonique avant la réponse. Ce n’est pas systématique et cela dépend de l’interopérabilité."
     },
     {
       "type": "qcm",
-      "prompt": "Quel symptôme suggère un problème RTP ?",
+      "prompt": "Les deux terminaux peuvent s’entendre dans un seul sens. Quelle cause faut-il examiner en priorité ?",
       "choices": [
-        "Appel établi mais audio unidirectionnel",
-        "Numéro rejeté avant sonnerie",
-        "Aucun dial peer sélectionné",
-        "Réponse 404"
+        "Les adresses et ports RTP annoncés, les règles de pare-feu/NAT et le chemin média dans les deux directions",
+        "Le contenu de la table DHCP uniquement",
+        "La valeur de DSCP de tous les paquets DNS",
+        "Le fait que SIP ait un code 200 OK, qui prouve que le RTP est correct"
       ],
       "answer": 0,
-      "explanation": "Analyser flux média, SDP, NAT et ACL."
+      "explanation": "L’audio à sens unique est souvent lié à un chemin média asymétrique, à des adresses/ports non joignables ou aux règles NAT/pare-feu. Une signalisation réussie ne garantit pas que les deux flux RTP fonctionnent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une cause fréquente d’échec DTMF entre deux systèmes SIP/RTP ?",
+      "choices": [
+        "Le port TCP/502 est fermé",
+        "Un bail DHCP du téléphone a expiré nécessairement",
+        "Les extrémités n’utilisent pas une méthode DTMF compatible, par exemple événements RTP telephone-event ou tonalités dans le média",
+        "L’utilisation de tout codec audio compresse automatiquement les requêtes SIP"
+      ],
+      "answer": 2,
+      "explanation": "Les méthodes DTMF doivent être compatibles de bout en bout. Les événements RTP sont souvent préférés aux tonalités encodées dans l’audio car les codecs avec compression peuvent altérer les fréquences des tonalités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un échange SIP, quelle distinction entre TLS et SRTP est correcte ?",
+      "choices": [
+        "TLS chiffre obligatoirement tout audio RTP et SRTP chiffre les requêtes DNS",
+        "TLS peut protéger la signalisation SIP ; SRTP protège les flux média lorsqu’il est négocié et pris en charge",
+        "TLS et SRTP sont deux noms pour le même mécanisme",
+        "Activer TLS garantit que chaque appel utilise automatiquement SRTP"
+      ],
+      "answer": 1,
+      "explanation": "TLS peut protéger le transport de la signalisation SIP. SRTP protège le média ; leur activation et la négociation des clés relèvent de mécanismes distincts et doivent être vérifiées séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas appliquer aveuglément une règle globale de normalisation de numéros sortants ?",
+      "choices": [
+        "Parce que la normalisation des numéros ne concerne aucun appel VoIP",
+        "Parce que tous les plans de numérotation utilisent les mêmes préfixes",
+        "Parce que les numéros SIP ne peuvent pas contenir de chiffres",
+        "Elle peut supprimer ou ajouter des chiffres de manière incorrecte, créer des appels mal routés ou des doubles transformations ; la règle doit être testée sur des plages représentatives"
+      ],
+      "answer": 3,
+      "explanation": "La traduction doit tenir compte du format entrant, du contexte d’appel et des exigences du destinataire. Des tests positifs et négatifs évitent d’altérer les numéros d’urgence, nationaux ou internationaux."
     }
   ]
 }

@@ -1,18 +1,102 @@
 {
   "node_id": "voice-sip-debutant",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "À quoi sert principalement SIP dans un appel de téléphonie IP ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "À transporter directement les échantillons audio dans chaque paquet",
+        "À attribuer les adresses IP du réseau de téléphonie",
+        "À établir, modifier et terminer la session de communication",
+        "À remplacer le codec audio"
+      ],
+      "answer": 2,
+      "explanation": "SIP est un protocole de signalisation : il orchestre l’établissement et la gestion de la session. Le média audio circule généralement séparément, par exemple avec RTP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle habituel de SDP dans un échange SIP ?",
+      "choices": [
+        "Décrire les paramètres média proposés ou acceptés, notamment les codecs, adresses et ports de média",
+        "Authentifier le mot de passe de l’utilisateur auprès de l’annuaire",
+        "Transporter les paquets audio à la place de RTP",
+        "Sélectionner le VLAN de voix sur le commutateur"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "SDP décrit la session média et les paramètres nécessaires à la communication. Dans SIP, le modèle offre/réponse permet aux parties de négocier les paramètres compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une réponse SIP, que signifie généralement le code 180 Ringing ?",
+      "choices": [
+        "L’appel est terminé et le média RTP est arrêté",
+        "Le serveur a refusé toute authentification TLS",
+        "Le codec audio a été sélectionné avec succès",
+        "Le terminal appelé est averti et l’appel est en cours de sonnerie"
+      ],
+      "answer": 3,
+      "explanation": "180 Ringing indique que l’appel sonne côté appelé. Ce code ne prouve pas que le média RTP est établi ou audible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi peut-on entendre aucun son alors que l’appel SIP a été accepté ?",
+      "choices": [
+        "Parce que SIP et RTP sont exactement le même protocole",
+        "Parce que la signalisation peut réussir alors que le chemin RTP, les ports, les adresses média ou le filtrage posent problème",
+        "Parce que tout appel SIP doit passer par TCP port 502",
+        "Parce que le codec sélectionné est toujours DNS"
+      ],
+      "answer": 1,
+      "explanation": "Un appel accepté ne garantit pas la connectivité média. Vérifie l’adresse/port annoncés par SDP, le chemin RTP, les règles de pare-feu, le NAT et les statistiques média."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode SIP est couramment utilisée pour commencer l’établissement d’un appel ?",
+      "choices": [
+        "BYE",
+        "ACK",
+        "INVITE",
+        "REGISTER seulement"
+      ],
+      "answer": 2,
+      "explanation": "INVITE initie une session SIP. REGISTER permet d’enregistrer une adresse de contact ; BYE termine un dialogue établi, et ACK accuse réception de la réponse finale à INVITE selon les règles SIP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole transporte généralement les paquets audio après la négociation média ?",
+      "choices": [
+        "RTP",
+        "SIP uniquement",
+        "DNS",
+        "DHCP"
+      ],
+      "answer": 0,
+      "explanation": "RTP transporte habituellement les médias en temps réel. RTCP peut fournir des rapports de réception et de qualité ; le déploiement exact dépend de l’architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les méthodes DTMF ne doivent-elles pas être supposées identiques dans tous les appels VoIP ?",
+      "choices": [
+        "Parce que le DTMF est toujours transmis dans les en-têtes DNS",
+        "Parce que le DTMF n’existe que sur les téléphones analogiques",
+        "Parce que le DTMF est toujours retiré par les codecs",
+        "Parce que les chiffres peuvent être transportés comme événements RTP (par exemple telephone-event), comme tonalités dans l’audio ou par signalisation, selon la configuration et l’interopérabilité"
+      ],
+      "answer": 3,
+      "explanation": "Les événements RTP conformément à la RFC 4733 sont souvent utilisés pour le DTMF, mais les équipements doivent s’accorder sur la méthode. Des méthodes incohérentes peuvent faire perdre les chiffres dans un serveur vocal ou un transfert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur une passerelle Cisco avec dial peers, à quoi sert principalement `destination-pattern` dans le routage d’appels classique ?",
+      "choices": [
+        "À configurer l’adresse IP du téléphone",
+        "À faire correspondre un numéro appelé afin de contribuer à la sélection d’un dial peer sortant",
+        "À réserver le débit QoS du flux RTP",
+        "À chiffrer automatiquement l’appel avec SRTP"
+      ],
+      "answer": 1,
+      "explanation": "Dans les configurations classiques Cisco IOS/IOS XE, destination-pattern participe surtout à la sélection sortante selon le numéro appelé. Les critères entrants et les fonctions disponibles varient selon la version et la configuration."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

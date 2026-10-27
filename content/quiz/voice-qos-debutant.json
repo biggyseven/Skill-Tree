@@ -1,18 +1,102 @@
 {
   "node_id": "voice-qos-debutant",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel DSCP est couramment utilisé pour la classe Expedited Forwarding (EF), souvent choisie pour l’audio RTP ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "DSCP 0",
+        "DSCP 8",
+        "DSCP 46",
+        "DSCP 63"
+      ],
+      "answer": 2,
+      "explanation": "EF correspond au codepoint DSCP 46 et est souvent utilisé pour l’audio interactif dans une politique définie. Le marquage seul ne crée pas de priorité : les équipements doivent appliquer le traitement prévu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels indicateurs sont particulièrement importants pour juger la qualité de la voix en temps réel ?",
+      "choices": [
+        "Uniquement la quantité d’adresses IP",
+        "La latence, la gigue, la perte de paquets et la bande passante disponible",
+        "Uniquement la vitesse du lien du commutateur",
+        "La durée du bail DHCP et le TTL DNS"
+      ],
+      "answer": 1,
+      "explanation": "La voix est sensible au délai, aux variations de délai et aux pertes. Le débit disponible reste important, mais une liaison rapide peut quand même fournir un son dégradé si le chemin est congestionné ou instable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un VLAN voix garantit-il à lui seul une bonne qualité audio ?",
+      "choices": [
+        "Oui, parce qu’un VLAN réserve automatiquement toute la bande passante",
+        "Oui, tous les paquets d’un VLAN sont toujours prioritaires",
+        "Oui, parce que VLAN voix chiffre le flux RTP",
+        "Non : le VLAN organise le réseau, tandis que la QoS, la capacité, les files et les conditions du chemin doivent aussi être conçues"
+      ],
+      "answer": 3,
+      "explanation": "Un VLAN voix sépare logiquement le trafic, mais n’alloue pas automatiquement une priorité de bout en bout. Il faut définir les marquages et files de sortie, maîtriser la congestion et vérifier le chemin réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre latence et gigue est correcte ?",
+      "choices": [
+        "La latence est le délai de transit, tandis que la gigue décrit les variations de délai entre paquets",
+        "La latence mesure le nombre d’appels ; la gigue le nombre de postes",
+        "La latence est identique au DSCP",
+        "La gigue est toujours égale au débit de l’interface"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La latence mesure un délai, et la gigue décrit sa variation. Le tampon de gigue au récepteur peut lisser les variations, mais un tampon plus long ajoute du délai."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il vérifier le marquage DSCP à la frontière de confiance ?",
+      "choices": [
+        "Pour attribuer une adresse MAC stable à chaque téléphone",
+        "Pour supprimer le besoin de files QoS",
+        "Pour éviter qu’un poste non autorisé marque son trafic comme EF et tente d’utiliser une file prioritaire",
+        "Pour empêcher la signalisation SIP de s’établir"
+      ],
+      "answer": 2,
+      "explanation": "Un terminal peut parfois fixer arbitrairement son DSCP. La politique d’accès doit décider quelles sources sont fiables et normaliser le marquage si nécessaire, plutôt que de faire confiance à tous les paquets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un calcul simple IPv4 pour G.711 avec une paquetisation de 20 ms, environ quel débit IP résulte du payload audio et des en-têtes RTP/UDP/IPv4, hors couche 2 et autres extensions ?",
+      "choices": [
+        "Environ 8 kbit/s",
+        "Environ 80 kbit/s par flux",
+        "Exactement 64 Mbit/s",
+        "Zéro, car RTP ne consomme pas de bande passante"
+      ],
+      "answer": 1,
+      "explanation": "G.711 produit 64 kbit/s de payload. À 20 ms, un paquet contient typiquement 160 octets audio ; en ajoutant 40 octets d’en-têtes RTP/UDP/IPv4 à 50 paquets/s, on obtient environ 80 kbit/s au niveau IP, hors surcharge couche 2, tunnels et sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale oppose policing et shaping dans une politique QoS ?",
+      "choices": [
+        "Le policing crée toujours une file plus longue, tandis que le shaping chiffre les paquets",
+        "Les deux mécanismes augmentent automatiquement la capacité physique",
+        "Le policing ne fonctionne que pour SIP",
+        "Le policing mesure la conformité et traite les dépassements ; le shaping met généralement les paquets en tampon pour lisser le débit"
+      ],
+      "answer": 3,
+      "explanation": "Le policing peut supprimer ou re-marquer des paquets non conformes. Le shaping retarde les paquets pour réguler leur émission et peut introduire du délai si la file grandit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il limiter et dimensionner une file prioritaire pour l’audio ?",
+      "choices": [
+        "Un trafic prioritaire non contrôlé peut monopoliser la sortie et affamer d’autres classes",
+        "Parce que l’audio ne peut jamais être prioritaire",
+        "Pour forcer tous les paquets de données à être supprimés",
+        "Pour désactiver les statistiques RTP"
+      ],
+      "answer": 0,
+      "explanation": "Une file à priorité stricte peut réduire l’attente de la voix, mais elle doit être plafonnée et dimensionnée. Sinon, un excès de trafic prioritaire peut dégrader les autres classes et le service global."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

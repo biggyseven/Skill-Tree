@@ -4,63 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel DSCP est couramment utilisé pour la voix RTP ?",
+      "prompt": "Quel ensemble fournit une validation plus solide d’un SLO de voix que la seule utilisation moyenne du lien ?",
       "choices": [
-        "EF 46",
-        "CS0",
-        "AF11",
-        "CS1"
+        "Le nombre de téléphones sous tension",
+        "La présence d’un VLAN nommé VOICE",
+        "Des mesures horodatées de RTP/RTCP, perte et gigue, compteurs de files et de police, et tests représentatifs dans les deux sens",
+        "Une seule capture SIP INVITE prise à vide"
       ],
-      "answer": 0,
-      "explanation": "EF est souvent choisi pour une classe voix à faible latence."
+      "answer": 2,
+      "explanation": "Une moyenne d’utilisation peut masquer une congestion locale ou des microbursts. Corrèle les métriques applicatives/média et les compteurs réseau à des tests horodatés, sur le chemin et le sens concernés."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi limiter la file LLQ ?",
+      "prompt": "Pourquoi faut-il vérifier les valeurs DSCP internes et externes lorsqu’une voix traverse un tunnel VPN ou un WAN encapsulé ?",
       "choices": [
-        "Éviter qu'elle affame les autres classes",
-        "Doubler le débit physique",
-        "Supprimer la classification",
-        "Remplacer la supervision"
+        "Le tunnel supprime toujours la voix",
+        "Le DSCP externe peut être copié, fixé ou mappé différemment du DSCP interne selon la configuration et le domaine traversé",
+        "Le DSCP est le numéro de séquence RTP",
+        "L’encapsulation ne peut jamais changer la classification QoS"
       ],
-      "answer": 0,
-      "explanation": "Une priorité non bornée peut pénaliser les autres classes."
+      "answer": 1,
+      "explanation": "Les paquets encapsulés peuvent posséder un en-tête interne et un en-tête externe. Les politiques de copie, de mapping et de re-marking doivent être documentées et vérifiées à chaque frontière."
     },
     {
       "type": "qcm",
-      "prompt": "La QoS augmente-t-elle la capacité physique ?",
+      "prompt": "Quel principe devrait guider le dimensionnement expert de la file LLQ pour les appels simultanés ?",
       "choices": [
-        "Non, elle gère la contention",
-        "Oui, elle double le débit",
-        "Oui si DSCP 46",
-        "Seulement en IPv6"
+        "Réserver 100 % du lien à EF quelle que soit la charge",
+        "Donner la même priorité à tous les flux utilisateur",
+        "Ignorer les en-têtes, codecs et périodes de paquetisation lors de l’estimation",
+        "Estimer le débit réel par appel et le nombre maximal admis, y compris les surcharges, puis plafonner la classe et tester la capacité restante"
       ],
-      "answer": 0,
-      "explanation": "La QoS gère le traitement en congestion, pas la capacité physique."
+      "answer": 3,
+      "explanation": "La classe temps réel doit être dimensionnée selon le codec, la paquetisation, les encapsulations et le nombre d’appels. Le plafond protège les autres classes ; l’admission et les tests de capacité doivent refléter les scénarios de pointe."
     },
     {
       "type": "qcm",
-      "prompt": "Quel mécanisme lisse le débit en mettant en tampon ?",
+      "prompt": "Pourquoi faut-il vérifier la frontière de confiance et le marquage des terminaux avant d’accorder EF sans restriction ?",
       "choices": [
-        "Shaping",
-        "DNS caching",
-        "NAT",
-        "ARP"
+        "Des sources non autorisées peuvent usurper EF et provoquer la congestion ou la famine de classes moins prioritaires",
+        "Parce que les téléphones IP ne savent jamais envoyer de DSCP",
+        "Parce que les files prioritaires ne possèdent pas de compteurs",
+        "Parce que les règles QoS ne peuvent pas classifier les flux RTP"
       ],
       "answer": 0,
-      "explanation": "Le shaping retarde les paquets pour lisser le débit."
+      "explanation": "Un DSCP n’est pas une identité. Le réseau doit vérifier la source et la politique, normaliser les marques non fiables et limiter les flux prioritaires afin d’éviter les abus ou les erreurs de configuration."
     },
     {
       "type": "qcm",
-      "prompt": "EF marqué mais sans amélioration : que vérifier ?",
+      "prompt": "Un shaping parent doit contrôler un service WAN contractuel. Quel facteur est crucial avant de fixer son débit ?",
       "choices": [
-        "Conservation DSCP, classification, files et tous les segments",
-        "Le TTL uniquement",
-        "Désactiver toutes les ACL",
-        "Changer les numéros"
+        "Uniquement la vitesse du port Ethernet physique",
+        "La valeur DSCP de l’appel SIP uniquement",
+        "Le CIR et le point de mesure du fournisseur, les encapsulations et la façon dont les octets sont comptés",
+        "Le nombre de serveurs DNS du site"
+      ],
+      "answer": 2,
+      "explanation": "Le débit utile du service peut être inférieur à la capacité du port. L’encapsulation, le VPN et le comptage du fournisseur influencent le réglage ; un shaper trop élevé peut laisser un policer distant supprimer les paquets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les appels paraissent corrects en moyenne, mais certains utilisateurs signalent des gels brefs lors de rafales de données. Quelle investigation est la plus adaptée ?",
+      "choices": [
+        "Augmenter la moyenne de latence dans le rapport",
+        "Collecter des mesures fines/percentiles, deltas de drops de files et statistiques RTP pendant l’événement, puis corréler les horodatages",
+        "Désactiver tous les marquages DSCP",
+        "Changer le dial plan sans corrélation"
+      ],
+      "answer": 1,
+      "explanation": "Des microbursts ou files brièvement saturées peuvent être invisibles dans une moyenne. Utilise des intervalles d’observation adaptés et compare les symptômes RTP aux drops et à l’occupation des files."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on examiner lorsqu’un flux vidéo de conférence reçoit AF41 dans une partie du réseau mais un traitement inattendu dans un domaine fournisseur ?",
+      "choices": [
+        "Conclure que AF41 impose partout une priorité identique",
+        "Re-marquer tous les flux en EF sans examen",
+        "Désactiver toute politique QoS à l’entrée",
+        "Le contrat de classes du domaine fournisseur, les mappings DSCP/CoS/MPLS et tout re-marking au passage des frontières"
+      ],
+      "answer": 3,
+      "explanation": "Le DSCP exprime un codepoint, pas une garantie universelle de traitement. Les réseaux externes peuvent mapper ou réécrire les classes ; une table de correspondance et une validation de bout en bout sont nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi comparer les deux directions média dans un incident de voix ?",
+      "choices": [
+        "Parce que l’audio RTP peut être asymétrique et que les politiques, routes, NAT ou files du trajet retour peuvent différer de ceux de l’aller",
+        "Parce que tous les appels envoient un seul flux dans un seul sens",
+        "Parce que la signalisation SIP transporte toujours le média retour",
+        "Parce que les compteurs de QoS concernent nécessairement les deux sens à la fois"
       ],
       "answer": 0,
-      "explanation": "Le marquage seul n'assure pas le traitement de bout en bout."
+      "explanation": "Le média utilise souvent des flux distincts par direction. Le bon fonctionnement du flux aller ne prouve pas que le retour traverse les bonnes routes, traductions d’adresses, politiques et files."
     }
   ]
 }
