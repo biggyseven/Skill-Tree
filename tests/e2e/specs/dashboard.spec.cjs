@@ -1135,3 +1135,112 @@ Routeur1 ---- Serveur1</code></pre>
 
   await page.evaluate(() => window.Alpine.$data(document.body).stopSpeech());
 });
+
+test('une erreur de correction côté serveur conserve les réponses et n’invente pas de résultat', async ({ page }) => {
+  await openDashboard(page);
+
+  await page.route('**/api/exam/build', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      id: 'exam-session-network-error',
+      category: 'Test',
+      exam_type: 'category',
+      time_limit: 1800,
+      duration_seconds: 1800,
+      pass_score: 70,
+      passing_score: 70,
+      questions: [{
+        id: 901,
+        node_id: 'intro-reseau-debutant',
+        level: 'debutant',
+        type: 'qcm',
+        prompt: 'Question test pour la correction serveur',
+        choices: ['Réponse A', 'Réponse B', 'Réponse C', 'Réponse D']
+      }]
+    })
+  }));
+  await page.route('**/api/exam/submit', route => route.fulfill({
+    status: 503,
+    contentType: 'application/json',
+    body: JSON.stringify({ detail: 'Correction indisponible pour le test.' })
+  }));
+
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  await nav.getByRole('button', { name: 'Examens', exact: true }).click();
+  await page.getByRole('button', { name: 'Examen · 20 q · 30 min' }).first().click();
+  await expect(page.getByText('Question test pour la correction serveur')).toBeVisible();
+  await page.getByRole('button', { name: /Réponse A/ }).click();
+  const historyBefore = await page.evaluate(() => window.Alpine.$data(document.body).examHistory.length);
+
+  await page.getByRole('button', { name: 'Terminer', exact: true }).click();
+  await page.getByRole('button', { name: 'Oui', exact: true }).click();
+
+  await expect(page.getByRole('alert')).toContainText('Correction indisponible pour le test.');
+  await expect(page.getByText(/Examen non validé/)).toHaveCount(0);
+  await expect(page.getByText('Question test pour la correction serveur')).toBeVisible();
+  const state = await page.evaluate(() => {
+    const app = window.Alpine.$data(document.body);
+    return { answer: app.examAnswers[0], result: app.examResult, historyLength: app.examHistory.length };
+  });
+  expect(state.answer).toBe(0);
+  expect(state.result).toBeNull();
+  expect(state.historyLength).toBe(historyBefore);
+});
+
+test('le seuil de réussite affiché provient du résultat du serveur', async ({ page }) => {
+  await openDashboard(page);
+
+  await page.route('**/api/exam/build', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      id: 'exam-session-custom-threshold',
+      category: 'Test',
+      exam_type: 'category',
+      time_limit: 1800,
+      duration_seconds: 1800,
+      pass_score: 70,
+      passing_score: 70,
+      questions: [{
+        id: 902,
+        node_id: 'intro-reseau-debutant',
+        level: 'debutant',
+        type: 'qcm',
+        prompt: 'Question test du seuil serveur',
+        choices: ['Choix A', 'Choix B', 'Choix C', 'Choix D']
+      }]
+    })
+  }));
+  await page.route('**/api/exam/submit', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      success: true,
+      session_id: 'exam-session-custom-threshold',
+      score: 70,
+      passed: false,
+      correct: 7,
+      total: 10,
+      duration: 60,
+      time_expired: false,
+      answers: [0],
+      details: [{ question_id: 902, correct: false, answer: 1, explanation: 'Explication de test.' }],
+      pass_score: 85,
+      passing_score: 85,
+      node_id: 'intro-reseau-debutant',
+      exam_type: 'course',
+      submitted: true,
+      offline: false
+    })
+  }));
+
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  await nav.getByRole('button', { name: 'Examens', exact: true }).click();
+  await page.getByRole('button', { name: 'Examen · 20 q · 30 min' }).first().click();
+  await page.getByRole('button', { name: 'Terminer', exact: true }).click();
+  await page.getByRole('button', { name: 'Oui', exact: true }).click();
+
+  await expect(page.getByText('Examen non validé (85 % requis)')).toBeVisible();
+});
+
