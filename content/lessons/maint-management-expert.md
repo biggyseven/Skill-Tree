@@ -349,6 +349,26 @@ Lorsque l'équipe reçoit simultanément des demandes urgentes, le manager appli
 Les indicateurs d'équipe équilibrent vitesse, qualité, prévention, récidive, satisfaction, charge et couverture de compétences. Les performances individuelles sont difficiles à comparer lorsque les dossiers diffèrent en complexité, en horaires et en dépendances. Employer les chiffres pour poser des questions et identifier des obstacles, pas pour créer un classement simpliste qui incite à choisir les tickets faciles ou à éviter les transferts complexes.
 
 
+
+## Manager les astreintes, les transferts et le risque de surcharge
+
+La continuité dépend d'une relève fiable. Un transfert doit mentionner l'état du service, l'impact, la chronologie, les faits, les hypothèses, les actions, les changements récents, les accès nécessaires, le prochain contrôle, le propriétaire et les conditions d'escalade. Un transfert incomplet oblige le collègue à reconstruire l'investigation et peut déclencher des actions contradictoires. Vérifier la qualité par échantillon et faire évoluer le modèle si certaines informations reviennent systématiquement manquantes.
+
+L'astreinte doit faire l'objet d'une gouvernance explicite. Définir les événements qui déclenchent un appel, les délais, les remplaçants, les compétences nécessaires, les outils accessibles hors site, les limites des interventions et le canal d'escalade. Mesurer le volume, la fréquence, la durée des appels et l'impact sur le travail du lendemain. Si un même technicien porte régulièrement plusieurs rôles critiques, le plan doit créer une solution de relève ou réduire la concentration, pas seulement multiplier les rappels.
+
+### Signaux de surcharge à examiner
+
+Les heures supplémentaires répétées, les congés reportés, les incidents récurrents, les tâches préventives constamment repoussées, les erreurs de transfert, la hausse des réouvertures et la dépendance à deux experts peuvent indiquer un déséquilibre. Aucun signal isolé ne permet de conclure sur l'état d'une personne ; les données sont utilisées pour questionner l'organisation de la charge et discuter avec l'équipe de manière respectueuse et confidentielle.
+
+Une réponse peut inclure la réduction du travail en cours, le réexamen des priorités, l'amélioration de la qualification des demandes, des périodes sans interruption, le binômage, l'automatisation des tâches répétitives ou une demande de capacité supplémentaire. L'externalisation n'élimine pas la responsabilité de supervision ni les risques de transfert de connaissance ; elle doit être évaluée avec le même sérieux que toute autre option.
+
+### Conduire une rétrospective managériale
+
+Une rétrospective d'équipe pose trois questions : qu'est-ce qui a aidé la réalisation du travail, qu'est-ce qui a créé une friction et quelle action limitée pourrait améliorer la prochaine période ? Chaque action choisie doit avoir un propriétaire, un délai et un critère de résultat. Trop d'actions diluent la responsabilité ; mieux vaut prioriser quelques changements vérifiables et fermer la boucle au point suivant.
+
+Le manager vérifie que les contributions sont réellement entendues, notamment lorsque le désaccord vient d'une personne moins expérimentée ou d'une équipe dépendante. Faire remonter un risque ne doit pas produire automatiquement une sanction informelle ou une surcharge. En parallèle, la qualité et la responsabilité restent explicites : une personne qui applique volontairement une action non autorisée doit être traitée selon le processus approprié, sans confondre cette situation avec une erreur honnête liée à une procédure confuse.
+
+
 ## Ressources techniques et références
 
 - [ISO 30414:2025 — reporting et indicateurs du capital humain](https://www.iso.org/standard/30414)
