@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Stratégie de maintenance à long terme » ?",
+      "prompt": "Sur quoi doit s'appuyer une stratégie de maintenance ?",
       "choices": [
-        "Le sujet principal du cours : Stratégie de maintenance à long terme",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Criticité, fonctions, risques, conditions d'exploitation, coût et résultats attendus",
+        "Uniquement sur l'âge des actifs",
+        "Uniquement sur le montant des factures",
+        "Sur la fréquence uniforme de préventif"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La politique dépend de la fonction et des conséquences de défaillance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'une AMDEC/FMEA ?",
+      "choices": [
+        "Déterminer le salaire des techniciens",
+        "Structurer les modes de défaillance, leurs effets, leurs causes et les contrôles",
+        "Remplacer l'inventaire",
+        "Garantie d'absence de panne"
+      ],
+      "answer": 1,
+      "explanation": "L'AMDEC aide à décider quelles actions répondent aux risques identifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une maintenance conditionnelle est-elle pertinente ?",
+      "choices": [
+        "Lorsque tous les actifs doivent suivre le même calendrier",
+        "Seulement après la panne",
+        "Lorsqu'un signal d'état fiable peut déclencher une action utile et vérifiable",
+        "Lorsqu'il n'existe aucun capteur"
+      ],
+      "answer": 2,
+      "explanation": "Elle nécessite une mesure adaptée, un seuil et une conduite à tenir."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la maintenance prédictive n'est-elle pas toujours préférable ?",
+      "choices": [
+        "Elle n'utilise jamais de données",
+        "Elle évite toutes les pannes",
+        "Elle supprime les coûts de maintenance",
+        "Le gain dépend de la qualité des données, de la prévisibilité, des actions et des coûts"
+      ],
+      "answer": 3,
+      "explanation": "Un modèle peut être coûteux, peu fiable ou produire des alertes sans valeur opérationnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter un actif en fin de support ?",
+      "choices": [
+        "Évaluer risques, pièces, correctifs, alternatives, coût de cycle de vie et calendrier",
+        "Le laisser hors inventaire",
+        "Supposer qu'il fonctionne sans risque",
+        "Prolonger indéfiniment sans décision"
+      ],
+      "answer": 0,
+      "explanation": "L'obsolescence doit être un risque visible et associé à une décision."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une stratégie corrective ?",
+      "choices": [
+        "Qu'aucun risque n'existe",
+        "Accepter une intervention après défaillance lorsque les conséquences et la récupération le permettent",
+        "Toujours supprimer le préventif",
+        "Remplacer automatiquement l'actif"
+      ],
+      "answer": 1,
+      "explanation": "La corrective peut être un choix maîtrisé pour certains modes de défaillance, pas une absence d'analyse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il mettre en relation actifs et fonctions métier ?",
+      "choices": [
+        "Pour modifier les identifiants",
+        "Pour ignorer les dépendances",
+        "Parce qu'une pièce peu coûteuse peut être critique si sa défaillance bloque un service important",
+        "Pour éviter l'analyse de risque"
+      ],
+      "answer": 2,
+      "explanation": "La criticité dépend des conséquences du système, pas seulement du prix de l'actif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure preuve d'efficacité d'une nouvelle politique préventive ?",
+      "choices": [
+        "Le nombre de réunions",
+        "Une procédure publiée uniquement",
+        "Un objectif sans baseline",
+        "Une mesure après action comparable à la référence et analysée selon le mode de défaillance"
+      ],
+      "answer": 3,
+      "explanation": "L'effet doit être vérifié avec des données et une population comparables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la disponibilité des pièces entre-t-elle dans la stratégie ?",
+      "choices": [
+        "Les délais de pièces peuvent prolonger l'indisponibilité et orienter les stocks critiques",
+        "Elle n'influence jamais le MTTR",
+        "Elle affecte uniquement les achats",
+        "Elle remplace les contrats de maintenance"
+      ],
+      "answer": 0,
+      "explanation": "La stratégie doit intégrer les délais, les substitutions et le coût de stock."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire d'une exception de maintenance non financée ?",
+      "choices": [
+        "La supprimer du registre",
+        "La documenter avec son risque résiduel, le propriétaire et la décision d'acceptation ou de mitigation",
+        "La déclarer sans risque",
+        "La fermer sans revue"
+      ],
+      "answer": 1,
+      "explanation": "Le risque différé doit rester visible et accepté par une personne habilitée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi segmenter les KPI par famille d'actifs ?",
+      "choices": [
+        "Pour multiplier artificiellement les résultats",
+        "Pour éviter d'examiner les moyennes",
+        "Pour limiter l'effet de composition et comparer des populations pertinentes",
+        "Pour cacher les mauvais résultats"
+      ],
+      "answer": 2,
+      "explanation": "La segmentation montre les écarts entre systèmes et améliore l'actionabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle activité doit déclencher une révision de stratégie ?",
+      "choices": [
+        "Seulement le bilan annuel",
+        "Aucune tant que le budget existe",
+        "Seulement une panne catastrophique",
+        "Un changement majeur, une évolution de risque ou un seuil important"
+      ],
+      "answer": 3,
+      "explanation": "La stratégie doit évoluer lorsque les hypothèses, l'état ou les objectifs changent."
     }
   ]
 }
