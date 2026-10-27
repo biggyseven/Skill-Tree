@@ -33,7 +33,20 @@ def main() -> int:
             if prereq not in known:
                 errors.append(f"{node.get('id')}: prérequis inconnu {prereq}")
 
-    lessons = {path.stem: path for path in (CONTENT / "lessons").glob("*.md")}
+    lessons: dict[str, Path] = {}
+    empty_drafts: dict[str, Path] = {}
+    for path in sorted((CONTENT / "lessons").glob("*.md")):
+        try:
+            content = path.read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            errors.append(f"Lecture impossible de {path.name}: {exc}")
+            continue
+        if not content:
+            # Fichiers créés avant le contenu/nœud : conservés comme brouillons,
+            # mais exclus du catalogue actif tant qu'ils restent vides.
+            empty_drafts[path.stem] = path
+            continue
+        lessons[path.stem] = path
     quizzes = {path.stem: path for path in (CONTENT / "quiz").glob("*.json")}
     for lesson_id in sorted(lessons):
         if lesson_id not in known:
@@ -94,7 +107,8 @@ def main() -> int:
     ]
 
     print("Audit du catalogue pédagogique Skill-Tree")
-    print(f"  Nœuds: {len(nodes)} | cours Markdown: {len(lessons)} | quiz: {len(quizzes)}")
+    print(f"  Nœuds: {len(nodes)} | cours Markdown actifs: {len(lessons)} | quiz: {len(quizzes)}")
+    print(f"  Brouillons Markdown vides ignorés: {len(empty_drafts)}")
     print(f"  Erreurs de rattachement/structure: {len(errors)}")
     print(f"  Parcours incomplets en niveaux: {len(missing_tracks)}")
     for topic, missing in sorted(missing_tracks.items()):

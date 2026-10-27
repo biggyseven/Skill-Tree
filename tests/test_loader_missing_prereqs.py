@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from app.db import connect, initialize
-from app.loader import load_content
+from app.loader import ContentError, load_content, load_lessons
 
 
 class MissingPrerequisiteLoaderTests(unittest.TestCase):
@@ -61,6 +61,37 @@ class MissingPrerequisiteLoaderTests(unittest.TestCase):
                 )
             finally:
                 conn.close()
+
+
+    def test_empty_unregistered_lesson_stubs_are_ignored_but_filled_orphans_fail(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            content_dir = Path(temporary) / "content"
+            lessons_dir = content_dir / "lessons"
+            lessons_dir.mkdir(parents=True)
+            (content_dir / "nodes.json").write_text(
+                json.dumps(
+                    [
+                        {
+                            "id": "course-a",
+                            "title": "Cours A",
+                            "prereqs": [],
+                            "requirements": [{"kind": "manual", "min_score": 80}],
+                        }
+                    ],
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            (lessons_dir / "course-a.md").write_text("# Cours A", encoding="utf-8")
+            stub = lessons_dir / "draft-course.md"
+            stub.write_text("", encoding="utf-8")
+
+            self.assertEqual(load_lessons(content_dir), {"course-a": "# Cours A"})
+
+            stub.write_text("# Une vraie leçon non enregistrée", encoding="utf-8")
+            with self.assertRaisesRegex(ContentError, "draft-course.*absent de nodes.json"):
+                load_lessons(content_dir)
+
 
 
 if __name__ == "__main__":
