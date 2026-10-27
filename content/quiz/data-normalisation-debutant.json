@@ -4,63 +4,183 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Dans le cadre de « Normalisation (1NF, 2NF, 3NF) », quelle démarche fournit la meilleure preuve de maîtrise ?",
+      "prompt": "Quel problème la normalisation cherche-t-elle principalement à réduire ?",
       "choices": [
-        "Exécuter le seul cas normal et conclure si aucune erreur n'apparaît",
-        "Définir préconditions et postconditions, tester cas normal et limite puis vérifier l'état réellement obtenu",
-        "Augmenter les privilèges jusqu'à ce que tout passe",
-        "Conserver une capture sans noter version ni données"
+        "Toutes les jointures de la base",
+        "Les redondances inutiles et les anomalies d'insertion, de mise à jour et de suppression",
+        "Le besoin de clés primaires",
+        "L'utilisation de requêtes SQL"
       ],
       "answer": 1,
-      "explanation": "La preuve doit relier une règle à un résultat observé et reproductible. Elle précise préconditions, cas limites et postcondition ; une capture ou une absence d'erreur ne démontre pas à elle seule l'intégrité."
+      "explanation": "La normalisation organise les faits selon leurs dépendances afin de réduire les copies contradictoires et les anomalies de manipulation."
     },
     {
       "type": "qcm",
-      "prompt": "Une opération liée à « Normalisation (1NF, 2NF, 3NF) » fonctionne sur un petit échantillon mais échoue ailleurs. Quelle première démarche est la plus rigoureuse ?",
+      "prompt": "Que signifie apprenant_id → nom_apprenant dans le modèle relationnel ?",
       "choices": [
-        "Réécrire tout le composant sans recueillir d'indices",
-        "Désactiver les contraintes pour laisser passer les lignes",
-        "Réduire le cas, comparer données, versions et hypothèses puis isoler une cause",
-        "Tout réexécuter jusqu'au résultat souhaité"
+        "Tous les apprenants portent le même nom",
+        "Pour un apprenant donné, son identifiant détermine son nom selon les règles du modèle",
+        "Le nom permet toujours d'identifier une personne",
+        "Le nom est nécessairement une clé étrangère"
       ],
-      "answer": 2,
-      "explanation": "La reproduction et la réduction du cas distinguent problèmes de données, règles, configuration, droits et concurrence. La répétition aveugle peut aggraver l'état ; désactiver les contrôles masque le défaut."
+      "answer": 1,
+      "explanation": "Une dépendance fonctionnelle indique que la valeur de gauche détermine une valeur unique à droite dans le domaine considéré."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est le risque d'une règle importante présente uniquement dans l'interface ?",
+      "prompt": "Une table utilise cours_1, cours_2 et cours_3 pour stocker les cours d'un apprenant. Quel problème cela illustre-t-il ?",
       "choices": [
-        "Un autre chemin d'écriture peut la contourner et persister des données incohérentes",
-        "Les index sont automatiquement désactivés",
-        "La sauvegarde devient impossible",
-        "La clé primaire perd nécessairement son unicité"
+        "Un groupe de colonnes répétitives et une limite arbitraire au nombre de cours",
+        "Une dépendance transitive nécessaire",
+        "Une table déjà en troisième forme normale",
+        "Un index trop sélectif"
       ],
       "answer": 0,
-      "explanation": "Une base peut recevoir des écritures d'une API, d'un import ou d'une tâche planifiée. Les invariants essentiels doivent être garantis par des contraintes ou mécanismes centraux adaptés, avec validation applicative complémentaire."
+      "explanation": "Les colonnes numérotées forment un groupe répétitif. Une ligne par association apprenant-cours est plus flexible et permet les clés étrangères."
     },
     {
       "type": "qcm",
-      "prompt": "Le test principal passe, mais le nombre d'éléments touchés est le double de celui prévu. Quelle conclusion est correcte ?",
+      "prompt": "Pourquoi une liste '100,200,300' dans une seule colonne est-elle fragile ?",
       "choices": [
-        "La modification réussit puisque le code de retour est positif",
-        "Il suffit d'effacer des éléments sans rechercher la cause",
-        "Le volume n'a pas d'importance si l'affichage semble correct",
-        "La postcondition échoue : il faut expliquer le périmètre et la multiplication avant de poursuivre"
+        "Elle garantit toutes les clés étrangères",
+        "Elle remplace toujours une clé composée",
+        "Les références individuelles sont difficiles à valider et à manipuler comme des relations",
+        "Elle oblige le SGBD à créer un index"
       ],
-      "answer": 3,
-      "explanation": "Le volume touché fait partie du contrat et peut révéler filtre, jointure ou reprise incorrecte. La correction doit viser la cause et se vérifier par un test de non-régression, pas par un nettoyage manuel inexpliqué."
+      "answer": 2,
+      "explanation": "Une table d'association explicite chaque référence et permet au moteur de vérifier les liens référentiels."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle combinaison améliore le plus la maintenabilité d'une opération récurrente ?",
+      "prompt": "Une table d'inscription possède la clé composée (apprenant_id, cours_id). Le nom de l'apprenant dépend seulement d'apprenant_id. Quelle anomalie de dépendance cela révèle-t-il ?",
       "choices": [
-        "Dépendre de la mémoire de l'opérateur",
-        "Versionner la procédure, documenter prérequis, vérifier le résultat, journaliser sans secrets et tester la reprise",
-        "Supprimer les journaux",
-        "Laisser les paramètres implicites"
+        "Une dépendance partielle par rapport à la clé composée",
+        "Une dépendance transitive du nom du formateur",
+        "Une violation automatique de 1NF",
+        "L'absence de toute clé candidate"
+      ],
+      "answer": 0,
+      "explanation": "La 2NF traite les attributs non-clés qui dépendent d'une partie propre d'une clé candidate composée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle modification répond à la dépendance partielle de nom_apprenant par apprenant_id ?",
+      "choices": [
+        "Copier le nom dans toutes les tables",
+        "Placer nom_apprenant dans APPRENANTS et conserver apprenant_id dans INSCRIPTIONS comme référence",
+        "Supprimer apprenant_id",
+        "Remplacer le nom par COUNT(*)"
       ],
       "answer": 1,
-      "explanation": "Une procédure maintenable est reproductible, observable et récupérable. Versionnement, préconditions, journaux sans secrets et tests de reprise réduisent la dépendance aux connaissances individuelles."
+      "explanation": "Le nom décrit l'apprenant ; il est conservé dans sa relation, tandis que la table d'inscription garde une référence vers lui."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle idée décrit le mieux la deuxième forme normale (2NF) ?",
+      "choices": [
+        "Chaque table possède exactement deux colonnes",
+        "La relation est en 1NF et les attributs non-clés dépendent de la clé candidate complète, pas d'une partie propre",
+        "Toutes les clés composées sont interdites",
+        "Toutes les colonnes doivent être numériques"
+      ],
+      "answer": 1,
+      "explanation": "La 2NF ajoute à la 1NF l'élimination des dépendances partielles des attributs non-clés par rapport aux clés candidates."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans COURS(cours_id, titre, formateur_id, nom_formateur), cours_id détermine formateur_id et formateur_id détermine nom_formateur. Quel problème apparaît ?",
+      "choices": [
+        "nom_formateur dépend transitivement de cours_id via formateur_id",
+        "cours_id ne peut pas déterminer le titre",
+        "formateur_id doit être une fonction d'agrégation",
+        "titre doit dépendre du nom du formateur"
+      ],
+      "answer": 0,
+      "explanation": "Le nom du formateur dépend de son propre identifiant. Une table FORMATEURS permet de conserver ce fait à un seul endroit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle structure réduit la duplication du nom d'un formateur partagé par plusieurs cours ?",
+      "choices": [
+        "Mettre nom_formateur dans chaque inscription",
+        "Ajouter plusieurs colonnes nom_formateur dans COURS",
+        "Créer FORMATEURS(formateur_id, nom_formateur) et référencer formateur_id depuis COURS",
+        "Utiliser nom_formateur comme clé primaire partout"
+      ],
+      "answer": 2,
+      "explanation": "La table FORMATEURS conserve le nom courant et COURS référence le formateur avec une clé étrangère."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une table possède inscription_id comme clé primaire, mais un seul couple apprenant-cours est autorisé. Faut-il une contrainte supplémentaire ?",
+      "choices": [
+        "Non, inscription_id interdit aussi les couples métier dupliqués",
+        "Oui, UNIQUE(apprenant_id, cours_id) si cette règle métier est confirmée",
+        "Non, il suffit de trier les inscriptions",
+        "Oui, il faut supprimer toutes les clés étrangères"
+      ],
+      "answer": 1,
+      "explanation": "Une clé technique distincte n'empêche pas deux lignes de représenter le même couple. Une contrainte UNIQUE protège la règle métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une décomposition sans perte ?",
+      "choices": [
+        "Supprimer toutes les données redondantes sans contrôle",
+        "Reconstituer les associations prévues sans perdre de faits ni créer de combinaisons artificielles",
+        "Éviter toutes les jointures",
+        "Effacer l'ancienne table avant de vérifier la nouvelle"
+      ],
+      "answer": 1,
+      "explanation": "Une décomposition sans perte permet de reconstruire les tuples et associations attendus à partir des relations décomposées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après normalisation, une jointure affiche le nom d'un apprenant sur plusieurs lignes d'inscription. Cela prouve-t-il un échec ?",
+      "choices": [
+        "Oui, aucune valeur ne peut apparaître deux fois dans un résultat",
+        "Oui, une jointure rend une clé primaire non unique",
+        "Non, la répétition dans une vue de lecture n'est pas la même chose que la duplication du fait dans les tables source",
+        "Non, parce que les clés étrangères sont ignorées"
+      ],
+      "answer": 2,
+      "explanation": "Un rapport peut répéter le nom pour chaque inscription. La normalisation concerne les dépendances dans le stockage, pas l'absence de répétitions dans toute sortie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une redondance peut-elle être volontairement conservée ?",
+      "choices": [
+        "Lorsqu'elle représente un instantané historique ou une donnée dérivée avec source de vérité et stratégie de cohérence explicites",
+        "Dès qu'une requête comporte plusieurs tables",
+        "Lorsque les règles métier sont inconnues",
+        "Pour remplacer toutes les clés étrangères"
+      ],
+      "answer": 0,
+      "explanation": "Une dénormalisation peut être justifiée par l'historique ou la performance mesurée, mais son sens et sa synchronisation doivent être documentés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d'utiliser (apprenant_id, cours_id) comme clé de l'inscription, quelle règle faut-il confirmer ?",
+      "choices": [
+        "Le nom de l'apprenant est unique",
+        "Le système autorise au plus une inscription par apprenant et par cours dans le périmètre choisi",
+        "Tous les cours ont le même titre",
+        "Aucune colonne ne peut contenir NULL"
+      ],
+      "answer": 1,
+      "explanation": "Les sessions, réinscriptions ou tentatives multiples peuvent nécessiter d'ajouter session_id ou une autre identité à la clé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la démarche la plus sûre avant de normaliser une table existante en production ?",
+      "choices": [
+        "Supprimer les colonnes jugées redondantes sans sauvegarde",
+        "Créer des tables au hasard puis nettoyer plus tard",
+        "Documenter les dépendances, préparer et tester une migration, puis vérifier la reconstruction et les données existantes",
+        "Désactiver les contraintes définitivement"
+      ],
+      "answer": 2,
+      "explanation": "Une migration doit préserver les associations et les faits, traiter les données existantes, et être testée avec une stratégie de sauvegarde et de retour arrière."
     }
   ]
 }
