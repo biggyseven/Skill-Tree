@@ -84,6 +84,22 @@ La gestion des fournisseurs ne peut pas reposer uniquement sur le gestionnaire d
 
 Dans certaines organisations, une personne remplit plusieurs rôles. Il faut alors établir des contrôles compensatoires pour les décisions sensibles : approbation indépendante, vérification des données, deuxième validation d'une modification ou revue des conflits d'intérêts. Une matrice de responsabilités doit préciser qui réalise, qui approuve, qui contribue et qui doit être informé.
 
+### Schéma — Relier chaque rôle à une décision
+
+~~~mermaid
+flowchart TD
+  A[Mesure opérationnelle] --> B[Responsable de service valide les faits]
+  B --> C[Gestionnaire fournisseur relie faits et contrat]
+  C --> D[Achats / juridique évaluent les options contractuelles]
+  C --> E[Sécurité / risque évaluent l'exposition]
+  D --> F[Décision dans la délégation]
+  E --> F
+  F --> G[Action attribuée et date de contrôle]
+  G --> H[Preuve et mise à jour du registre]
+~~~
+
+Une décision est robuste lorsque les informations utiles sont réunies sans diluer la responsabilité. Le groupe de travail conseille et produit les preuves ; l'autorité habilitée décide dans les limites de sa délégation. Le schéma doit être adapté à l'organisation et à ses fonctions réelles.
+
 ## 2. Segmenter le portefeuille selon la criticité
 
 ### 2.1 Pourquoi la segmentation est indispensable
@@ -240,6 +256,23 @@ Un désaccord de performance doit se fonder sur le contrat et les données, pas 
 
 Gérer la relation demande aussi une écoute réelle du fournisseur : une dépendance de l'acheteur peut empêcher la prestation, une demande de changement peut sortir du périmètre et une prévision de volume erronée peut affecter la capacité. La responsabilité doit être répartie sur les faits. Collaborer pour résoudre une cause ne signifie pas effacer les responsabilités contractuelles ; appliquer une clause sans vérifier le contexte peut toutefois aggraver le problème au lieu de le résoudre.
 
+### Schéma — De la donnée brute à une décision de performance
+
+~~~mermaid
+flowchart TD
+  A[Événements et mesures sources] --> B[Contrôle du périmètre et de l'horodatage]
+  B --> C[Calcul selon la définition approuvée]
+  C --> D[Comparaison à la cible et aux périodes précédentes]
+  D --> E{Données fiables et résultat interprétable ?}
+  E -->|Non| F[Corriger la mesure et déclarer la limite]
+  E -->|Oui| G[Analyser impact, tendance et cause]
+  F --> G
+  G --> H[Décision, action et responsable]
+  H --> I[Test ou revue au point suivant]
+~~~
+
+La mesure est un processus gouverné. Si les données sont incomplètes, le rapport doit le signaler au lieu de présenter une précision fictive. La décision tient compte de la qualité de la mesure et de la conséquence métier.
+
 ## 6. Mesurer la performance qui compte vraiment
 
 ### 6.1 Les indicateurs doivent éclairer une décision
@@ -309,6 +342,23 @@ Exemple pédagogique pour un service de maintenance critique :
 | Amélioration et valeur | 5 % | Résultats démontrés et risques supprimés |
 
 Une note globale ne doit pas masquer un défaut critique. Une règle d'escalade peut imposer un plan d'action indépendant du score si une exigence de sécurité, une obligation majeure ou la continuité est compromise.
+
+### Schéma — Du risque identifié à son acceptation maîtrisée
+
+~~~mermaid
+flowchart TD
+  A[Événement de risque] --> B[Causes, conséquences et preuve]
+  B --> C[Contrôles en place et lacunes]
+  C --> D[Évaluer le risque actuel]
+  D --> E[Réduire, transférer, éviter ou accepter]
+  E --> F{Dans la délégation et la tolérance ?}
+  F -->|Non| G[Escalade avec options et conséquences]
+  F -->|Oui| H[Enregistrer propriétaire et échéance]
+  G --> H
+  H --> I[Mesurer l'efficacité et réévaluer]
+~~~
+
+Il faut calculer le risque après les contrôles réellement appliqués, pas après les actions prévues. Une acceptation n'est valable que si elle est prise par l'autorité habilitée et assortie d'une portée, d'une durée ou d'une date de réexamen.
 
 ## 7. Gérer les risques de bout en bout
 
@@ -385,6 +435,22 @@ Le schéma rappelle que le risque peut se trouver en dehors de l'entité qui sig
 Un fournisseur qui n'accède qu'à une documentation publique présente un profil différent d'un prestataire qui administre les serveurs, accède aux données clients ou déploie du code en production. Définir la classification, les données, les comptes, les privilèges, les interfaces, les régions, les environnements et les opérations permises. La qualification doit être basée sur les accès réellement accordés, pas uniquement sur le nom de la prestation.
 
 Les contrôles peuvent inclure l'authentification forte, des comptes nominatifs, le moindre privilège, la séparation des environnements, l'enregistrement des actions sensibles, les sessions temporaires, les revues d'accès, les procédures d'urgence, la gestion des vulnérabilités et la notification des incidents. Le choix et le niveau d'exigence dépendent du risque et des obligations réelles.
+
+### Schéma — Contrôler un accès fournisseur sensible
+
+~~~mermaid
+flowchart TD
+  A[Demande d'accès motivée] --> B[Propriétaire confirme le périmètre]
+  B --> C[Sécurité vérifie les privilèges et conditions]
+  C --> D{Autorisation valide ?}
+  D -->|Non| E[Refuser ou demander une nouvelle justification]
+  D -->|Oui| F[Accès nominatif et limité dans le temps]
+  F --> G[Journaliser les actions sensibles]
+  G --> H[Revue après intervention]
+  H --> I[Révoquer ou renouveler selon besoin]
+~~~
+
+Un accès fournisseur doit avoir une finalité et un propriétaire. La revue après intervention permet de confirmer les modifications, de détecter un accès excessif et de mettre à jour l'inventaire. Les cas d'urgence doivent suivre un processus explicite et être contrôlés après usage.
 
 ### 8.2 Accès privilégiés et opérations à distance
 
@@ -493,6 +559,27 @@ flowchart TD
   G -->|Oui| I[Clore avec preuve et réviser le risque]
 ~~~
 
+### Schéma — Escalade proportionnée d'un écart
+
+~~~mermaid
+flowchart TD
+  A[Écart confirmé ou risque majeur] --> B[Équipe opérationnelle et action immédiate]
+  B --> C{Résultat dans le délai convenu ?}
+  C -->|Oui| D[Vérifier l'efficacité et documenter]
+  C -->|Non| E[Plan correctif formel]
+  E --> F{Progrès et risque acceptables ?}
+  F -->|Oui| G[Suivi rapproché avec critères]
+  F -->|Non| H[Arbitrage contractuel et risque]
+  H --> I{Reste dans les délégations ?}
+  I -->|Oui| J[Appliquer le remède prévu]
+  I -->|Non| K[Escalade exécutive / juridique]
+  K --> L[Décision documentée]
+  J --> L
+  G --> D
+~~~
+
+L'escalade doit être fondée sur des seuils et des preuves. Elle ne remplace pas la résolution opérationnelle : les mesures de continuité, de sécurité ou de confinement peuvent être requises pendant que les discussions contractuelles se poursuivent.
+
 ### 10.4 Escalade progressive
 
 Une escalade utile est déclenchée par des seuils prévus : criticité de l'incident, dépassement de SLA, répétition, absence de progrès, risque financier, défaut de sécurité ou non-réponse. Chaque niveau doit identifier qui participe, quelle décision est attendue et à quel moment le problème est réexaminé.
@@ -563,6 +650,24 @@ La revue de renouvellement considère :
 - l'état du marché et la crédibilité d'une alternative ;
 - les conséquences d'un changement et les coûts de transition ;
 - les contraintes de la procédure et du contrat applicable.
+
+### Schéma — Préparer une décision de renouvellement ou de sortie
+
+~~~mermaid
+flowchart TD
+  A[Revue à l'avance de l'échéance] --> B[Performance, risques, coûts et marché]
+  B --> C[Tester la capacité de sortie et la transition]
+  C --> D[Comparer renouvellement, correction, concurrence ou internalisation]
+  D --> E{Risque acceptable et décision autorisée ?}
+  E -->|Oui, poursuivre| F[Renouveler avec conditions et objectifs]
+  E -->|Non ou valeur insuffisante| G[Préparer remise en concurrence ou sortie]
+  F --> H[Mettre à jour le contrat et la gouvernance]
+  G --> I[Planifier données, accès, compétences et continuité]
+  H --> J[Contrôle à date définie]
+  I --> J
+~~~
+
+Il faut commencer la décision avant les préavis et la durée de transition. Une bonne performance courante n'efface pas un risque de dépendance ; inversement, un incident ne prouve pas à lui seul qu'un changement de fournisseur sera plus sûr.
 
 ### 13.2 Options de décision
 
