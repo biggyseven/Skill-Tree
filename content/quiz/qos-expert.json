@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour QoS - Expert. Avez-vous lu le cours ?",
+      "prompt": "Dans une conception HQoS parent/enfant, quel partage de responsabilités est le plus courant ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La policy enfant contrôle tout le routage inter-domaines et le parent chiffre les paquets",
+        "Le parent ne sert qu’à renommer les classes sans effet sur le débit",
+        "Le parent façonne généralement le trafic agrégé tandis que la policy enfant répartit le traitement entre les classes, selon la plateforme",
+        "La policy parent garantit qu’aucune classe enfant ne perdra jamais un paquet"
+      ],
+      "answer": 2,
+      "explanation": "Dans une hiérarchie QoS courante, le parent contrôle le débit agrégé, par exemple par shaping, et la policy enfant arbitre les classes à l’intérieur de ce service. La syntaxe et les combinaisons supportées varient selon le matériel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un opérateur vend un accès avec un débit contractuel inférieur au débit physique du port Ethernet. Que faut-il examiner avant de fixer le débit de shaping local ?",
+      "choices": [
+        "Le débit contractuel effectif, le point de mesure du fournisseur, les encapsulations et le comportement de son policer",
+        "Uniquement la vitesse maximale inscrite sur l’étiquette du port",
+        "Le nombre de serveurs DNS du client",
+        "La priorité STP de l’interface LAN"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Si le shaping local dépasse le profil réellement appliqué par le fournisseur, les paquets peuvent être supprimés en aval sans mise en file contrôlée localement. L’encapsulation et les unités de comptage peuvent modifier le débit utile ; il faut mesurer et valider."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation rappelle correctement la portée d’une politique QoS de sortie ?",
+      "choices": [
+        "Elle ordonne automatiquement tous les flux de bout en bout après une seule configuration",
+        "Elle s’applique uniquement aux paquets entrants de toute l’entreprise",
+        "Elle garantit une capacité supplémentaire sur l’ensemble du trajet",
+        "Elle contrôle le traitement à son point d’application et dans son sens ; les autres goulots et le chemin retour doivent aussi être mesurés"
+      ],
+      "answer": 3,
+      "explanation": "Une policy d’egress agit sur le traitement de sortie de l’interface ou du point concerné. Elle ne configure pas automatiquement les queues des autres routeurs, du fournisseur ou du chemin retour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation est la plus exacte à propos de L4S (Low Latency, Low Loss, Scalable Throughput) ?",
+      "choices": [
+        "L4S est un code DSCP qui doit être appliqué à tous les paquets UDP",
+        "L4S s’appuie sur des mécanismes de congestion tels qu’ECN et une architecture de queues compatibles ; le marquage DSCP seul ne l’active pas",
+        "L4S signifie que les routeurs n’ont plus besoin de gérer les files",
+        "L4S est une fonction réservée au protocole STP"
+      ],
+      "answer": 1,
+      "explanation": "L4S repose sur une architecture de contrôle de congestion et des mécanismes associés, notamment ECN et une gestion de files compatible. Son comportement dépend de la prise en charge par l’émetteur, le classificateur, le chemin et les équipements de congestion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À une frontière entre entreprise, VPN et opérateur, quelle stratégie DiffServ est la plus robuste ?",
+      "choices": [
+        "Supposer que le DSCP sera conservé partout sans configuration",
+        "Assigner EF à tous les flux applicatifs pour éviter les pertes",
+        "Documenter une correspondance entre classes de service et traitements, puis vérifier les remplacements de marquage et les mappings entre domaines",
+        "Remplacer toutes les politiques par une priorité basée uniquement sur le numéro de port TCP"
+      ],
+      "answer": 2,
+      "explanation": "Les domaines administratifs peuvent employer des mappings ou des classes différents. La conception doit définir ce qui est conservé, re-marqué ou remis en best effort à chaque frontière, puis vérifier les paquets observés et les files associées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les compteurs montrent une hausse inattendue des paquets EF alors qu’aucun changement de téléphonie n’a été prévu. Quelle action est la plus rigoureuse ?",
+      "choices": [
+        "Augmenter immédiatement la taille de la file prioritaire",
+        "Identifier les sources, inspecter le trafic et le marquage à la frontière de confiance, puis comparer aux politiques approuvées",
+        "Désactiver ECN sur tous les routeurs",
+        "Supprimer les classes AF et Default"
+      ],
+      "answer": 1,
+      "explanation": "Une hausse d’EF peut venir d’un nouveau flux légitime, d’un mauvais marquage ou d’un abus. Identifier la source et le traitement appliqué avant d’augmenter la priorité évite de masquer le problème ou de créer une famine d’autres classes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une mesure de latence moyenne peut-elle masquer une dégradation QoS importante ?",
+      "choices": [
+        "Parce que la moyenne ignore la vitesse physique du lien dans tous les cas",
+        "Parce que les DSCP ne s’appliquent jamais aux mesures de latence",
+        "Parce que la moyenne mesure directement le nombre d’octets en file",
+        "Elle peut lisser des pics et des microbursts ; les percentiles, les séries temporelles et les compteurs de file révèlent parfois un p99 dégradé malgré une moyenne stable"
+      ],
+      "answer": 3,
+      "explanation": "Une collecte trop espacée ou une moyenne peut masquer des rafales courtes, des pertes de paquets et des pointes de latence. Corrèle les mesures de percentile et les deltas de compteurs à des tests horodatés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La capture montre des paquets DSCP attendus, mais la classe QoS correspondante ne compte aucun paquet. Quel diagnostic initial est le plus pertinent ?",
+      "choices": [
+        "Contrôler la classification effective, la policy attachée et son sens, les frontières de re-marquage et la programmation matérielle avant de changer les seuils de file",
+        "Doubler le débit physique sur tous les liens sans mesure",
+        "Considérer que DSCP garantit la sélection de classe même sans politique configurée",
+        "Remplacer la policy parent par une route statique"
+      ],
+      "answer": 0,
+      "explanation": "Un DSCP observé dans une capture ne prouve pas que la classe prévue le reconnaît ou que la policy est appliquée à la sortie concernée. Vérifie d’abord les critères de match, l’interface, le sens, les mappings et les compteurs du matériel."
     }
   ]
 }
