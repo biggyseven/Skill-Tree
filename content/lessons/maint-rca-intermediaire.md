@@ -259,3 +259,27 @@ Un stockage sature tous les deux mois. L'équipe supprime manuellement des fichi
 Une application tombe en panne chaque fin de mois. Prépare un rapport RCA avec symptôme, impact, chronologie, hypothèses, éléments de preuve, cause confirmée ou limites, actions immédiates, actions permanentes et critères de validation.
 
 **Correction détaillée :** comparer plusieurs occurrences, pas seulement la dernière ; aligner les journaux et métriques sur la même fenêtre temporelle ; examiner la charge, les tâches planifiées et les dépendances ; tester les hypothèses ; préciser les facteurs contributifs ; affecter les actions à un propriétaire et définir une période d'observation. Si la cause n'est pas confirmée, écris « cause probable » ou « non déterminée », ne fabrique pas une certitude. La prévention est vérifiée sur plusieurs fins de mois et les incidents récurrents sont suivis jusqu'à ce que les critères convenus soient atteints.
+
+
+## 15. Faciliter une analyse sans blâme
+
+L'analyse de cause racine vise à comprendre pourquoi le système a permis à l'incident de survenir et pourquoi il n'a pas été détecté ou limité plus tôt. La recherche d'un coupable détourne souvent l'équipe des conditions qui rendent l'erreur probable : procédures ambiguës, contrôles inexistants, accès trop larges, dépendances mal documentées, surcharge ou absence de données. Cela ne supprime pas les responsabilités individuelles ; cela fait porter l'investigation sur des éléments qui peuvent être vérifiés et améliorés.
+
+Commence par poser le cadre : quel service, quel intervalle, quel impact, quelles sources, quelles questions restent ouvertes, qui peut effectuer les tests et quelle information doit être protégée. Invite les personnes qui connaissent le système et le processus, sans exiger que l'une d'elles défende une conclusion à l'avance. Note les divergences de témoignage comme des points à examiner.
+
+Une bonne réunion d'analyse sépare les faits, les hypothèses, les décisions et les actions. Affiche une chronologie commune, évite de confondre le déclencheur immédiat et la cause systémique, et recherche les éléments qui pourraient contredire l'hypothèse favorite. Une analyse n'a pas besoin d'annoncer une cause unique si plusieurs mécanismes ont contribué ou si les preuves restent incomplètes.
+
+~~~mermaid
+flowchart TD
+    A[Réunion RCA] --> B[Revoir faits et chronologie]
+    B --> C[Énoncer plusieurs hypothèses]
+    C --> D[Choisir preuves et tests]
+    D --> E[Confronter résultats]
+    E --> F[Cause et facteurs contributifs]
+    F --> G[Actions vérifiables]
+    G --> H[Revue de l'efficacité]
+~~~
+
+Pour éviter une liste d'actions sans effet, classe-les par impact, probabilité de succès, coût, dépendances et délai. Une action de détection peut réduire le temps d'impact sans éliminer la cause ; une correction technique peut éliminer le mode de défaillance mais demander un changement ; une action de processus peut éviter que la même situation soit créée. Le rapport doit distinguer ces catégories et prévoir les preuves attendues.
+
+Les actions dont la date est dépassée restent dans le suivi. Si une action a été abandonnée, documente la décision et l'acceptation du risque. Si l'action a été réalisée mais qu'aucune mesure ne montre une amélioration, révise l'hypothèse. L'analyse ne se termine pas à la publication du document ; elle se termine lorsque les actions ont été vérifiées ou que le risque résiduel est explicitement accepté.
