@@ -1,0 +1,283 @@
+{
+  "schema_version": 2,
+  "id": "ipv6-intermediaire",
+  "title": "IPv6 — Routage statique entre deux LAN",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Rétablissez la connectivité IPv6 entre 2001:db8:10::/64 et 2001:db8:20::/64. Les interfaces sont adressées, mais les routes statiques et les next-hops sont incorrects.",
+  "objectives": [
+    "Vérifier l’adressage IPv6.",
+    "Ajouter une route vers le LAN distant sur chaque routeur.",
+    "Utiliser le voisin du lien de transit comme next-hop.",
+    "Valider le chemin aller et le chemin retour."
+  ],
+  "hints": [
+    "Les réseaux directement connectés ne suffisent pas pour joindre le LAN distant.",
+    "Le next-hop doit être l’adresse IPv6 du routeur voisin.",
+    "Une route aller sans route de retour ne garantit pas la connectivité."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-ipv6-intermediaire",
+    "metadata": {
+      "name": "Routage IPv6 entre deux LAN",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 80,
+        "y": 230,
+        "label": "PC-A",
+        "model": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "2001:db8:10::10",
+            "mask": "64",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      },
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 350,
+        "y": 230,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "2001:db8:10::1",
+            "mask": "64",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "2001:db8:12::1",
+            "mask": "64",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "static-v6",
+              "destination": "2001:db8:30::/64",
+              "next_hop": "2001:db8:12::9"
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 660,
+        "y": 230,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "2001:db8:12::2",
+            "mask": "64",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "2001:db8:20::1",
+            "mask": "64",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "static-v6",
+              "destination": "2001:db8:40::/64",
+              "next_hop": "2001:db8:12::9"
+            }
+          ]
+        }
+      },
+      {
+        "id": "PC-B",
+        "type": "pc",
+        "x": 930,
+        "y": 230,
+        "label": "PC-B",
+        "model": "PC-B",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "2001:db8:20::20",
+            "mask": "64",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-B"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "LAN-A",
+        "from": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "TRANSIT",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Fa0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "LAN-B",
+        "from": {
+          "node": "R2",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC-B",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "r1-protocol",
+        "description": "La route de R1 est statique IPv6.",
+        "device": "R1",
+        "path": "config.routes[0].protocol",
+        "operator": "equals",
+        "expected": "static-v6"
+      },
+      {
+        "id": "r1-prefix",
+        "description": "R1 route le LAN B.",
+        "device": "R1",
+        "path": "config.routes[0].destination",
+        "operator": "equals",
+        "expected": "2001:db8:20::/64"
+      },
+      {
+        "id": "r1-next-hop",
+        "description": "R1 utilise R2 comme next-hop.",
+        "device": "R1",
+        "path": "config.routes[0].next_hop",
+        "operator": "equals",
+        "expected": "2001:db8:12::2"
+      },
+      {
+        "id": "r2-prefix",
+        "description": "R2 possède la route de retour vers le LAN A.",
+        "device": "R2",
+        "path": "config.routes[0].destination",
+        "operator": "equals",
+        "expected": "2001:db8:10::/64"
+      },
+      {
+        "id": "r2-next-hop",
+        "description": "R2 utilise R1 comme next-hop.",
+        "device": "R2",
+        "path": "config.routes[0].next_hop",
+        "operator": "equals",
+        "expected": "2001:db8:12::1"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
