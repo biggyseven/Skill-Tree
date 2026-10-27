@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { beforeEach, test } from 'node:test';
-import { useLabStore } from './useLabStore.js';
+import { syncPhysicalLinkStates, useLabStore } from './useLabStore.js';
 
 function makeTopology() {
   const port = (id) => ({ id, name: id, state: 'down', ip: null, mask: null });
@@ -77,6 +77,43 @@ test('les ports de n’importe quel côté peuvent servir de départ et d’arri
   assert.equal(topology.links[1].cable_type, 'fiber');
   assert.deepEqual(topology.links[1].from, { node: 'R2', port: 'Fa0/1' });
   assert.deepEqual(topology.links[1].to, { node: 'R1', port: 'Fa0/0' });
+});
+
+test('l’état d’un câble suit l’état des deux interfaces physiques', () => {
+  useLabStore.getState().loadLab('lab-test', { title: 'Lab de test' }, makeTopology());
+
+  useLabStore.getState().addLink({
+    source: 'R1', target: 'R2',
+    sourceHandle: 'Fa0/0::source', targetHandle: 'Fa0/0::target',
+  }, 'cable_straight');
+
+  assert.equal(useLabStore.getState().topology.links[0].state, 'down');
+
+  useLabStore.getState().togglePortState('R1', 'Fa0/0');
+  assert.equal(useLabStore.getState().topology.links[0].state, 'down', 'un seul port ON ne suffit pas');
+
+  useLabStore.getState().togglePortState('R2', 'Fa0/0');
+  assert.equal(useLabStore.getState().topology.links[0].state, 'up', 'les deux ports ON rendent le lien opérationnel');
+
+  useLabStore.getState().togglePortState('R1', 'Fa0/0');
+  assert.equal(useLabStore.getState().topology.links[0].state, 'down', 'désactiver un port coupe le lien');
+});
+
+test('la synchronisation recalcule aussi les liens après une commande CLI', () => {
+  const topology = makeTopology();
+  topology.links = [{
+    id: 'link-cli',
+    from: { node: 'R1', port: 'Fa0/0' },
+    to: { node: 'R2', port: 'Fa0/0' },
+    cable_type: 'copper_straight',
+    state: 'up',
+  }];
+
+  topology.nodes[0].ports[0].state = 'up';
+  assert.equal(syncPhysicalLinkStates(topology).links[0].state, 'down');
+
+  topology.nodes[1].ports[0].state = 'up';
+  assert.equal(syncPhysicalLinkStates(topology).links[0].state, 'up');
 });
 
 test('la configuration IPv4 d’un port est enregistrée et invalide le contrôle précédent', () => {
