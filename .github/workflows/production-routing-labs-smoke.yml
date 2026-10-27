@@ -1,0 +1,147 @@
+name: Production advanced routing labs smoke
+
+on:
+  push:
+    branches:
+      - feature/lab-workspace
+    paths:
+      - labs_v2/**
+      - .github/workflows/production-routing-labs-smoke.yml
+      - tests/test_lab_routes.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  advanced-routing-labs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Wait for the deployed API and scenario catalog
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          import urllib.request
+
+          base = "https://skill-tree-vjon.onrender.com"
+          expected = [
+              "isis-intermediaire",
+              "isis-expert",
+              "vrf-intermediaire",
+              "vrf-expert",
+              "mpls-intermediaire",
+              "mpls-expert",
+              "qos-intermediaire",
+              "qos-expert",
+              "multicast-intermediaire",
+              "multicast-expert",
+              "netflow-intermediaire",
+              "ha-intermediaire",
+              "ha-expert",
+          ]
+          last_error = "the latest scenario files are not in the live API yet"
+          for _ in range(36):
+              try:
+                  with urllib.request.urlopen(base + "/openapi.json", timeout=20) as response:
+                      if response.status != 200:
+                          raise RuntimeError(f"OpenAPI returned HTTP {response.status}")
+                  with urllib.request.urlopen(base + "/api/lab/v2", timeout=25) as response:
+                      catalog = json.loads(response.read().decode("utf-8"))
+                  available = {
+                      item.get("id")
+                      for item in catalog
+                      if isinstance(item, dict) and isinstance(item.get("id"), str)
+                  }
+                  missing = sorted(set(expected) - available)
+                  if not missing:
+                      print("ADVANCED_LABS_IN_CATALOG=13")
+                      break
+                  last_error = "labs not yet exposed: " + ", ".join(missing)
+              except Exception as error:
+                  last_error = str(error)
+              time.sleep(5)
+          else:
+              raise SystemExit("Production catalog has not caught up with deploy: " + last_error)
+          PY
+
+      - name: Verify topology, equipment and automatic checks for every advanced lab
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import urllib.error
+          import urllib.request
+
+          base = "https://skill-tree-vjon.onrender.com"
+          expected = [
+              "isis-intermediaire",
+              "isis-expert",
+              "vrf-intermediaire",
+              "vrf-expert",
+              "mpls-intermediaire",
+              "mpls-expert",
+              "qos-intermediaire",
+              "qos-expert",
+              "multicast-intermediaire",
+              "multicast-expert",
+              "netflow-intermediaire",
+              "ha-intermediaire",
+              "ha-expert",
+          ]
+
+          for lab_id in expected:
+              request = urllib.request.Request(
+                  base + "/api/lab/v2/" + lab_id,
+                  headers={"Accept": "application/json"},
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+              except urllib.error.HTTPError as error:
+                  detail = error.read().decode("utf-8", errors="replace")
+                  raise SystemExit(f"{lab_id}: HTTP {error.code}: {detail[:500]}") from error
+
+              topology = payload.get("initial_topology") or {}
+              definition = payload.get("definition") or {}
+              check = definition.get("check") or {}
+              nodes = topology.get("nodes") or []
+              links = topology.get("links") or []
+              rules = check.get("rules") or []
+              if (
+                  payload.get("id") != lab_id
+                  or payload.get("sandbox") is True
+                  or len(nodes) < 2
+                  or len(links) < 1
+                  or check.get("type") != "config_assertions"
+                  or len(rules) < 3
+              ):
+                  raise SystemExit(
+                      f"{lab_id}: scenario isn't playable and gradeable: "
+                      + json.dumps(
+                          {"id": payload.get("id"), "sandbox": payload.get("sandbox"),
+                           "equipment": len(nodes), "cables": len(links),
+                           "check_type": check.get("type"), "rules": len(rules)},
+                          ensure_ascii=False,
+                      )
+                  )
+              node_ids = {node.get("id") for node in nodes}
+              used_ports = set()
+              for link in links:
+                  for endpoint in (link.get("from") or {}, link.get("to") or {}):
+                      node = next((item for item in nodes if item.get("id") == endpoint.get("node")), None)
+                      if node is None or not any(port.get("id") == endpoint.get("port") for port in node.get("ports", [])):
+                          raise SystemExit(f"{lab_id}: invalid endpoint on link {link.get('id')}")
+                      key = (endpoint.get("node"), endpoint.get("port"))
+                      if key in used_ports:
+                          raise SystemExit(f"{lab_id}: a physical port is attached to multiple links: {key}")
+                      used_ports.add(key)
+              print(
+                  f"PLAYABLE_LAB={lab_id} EQUIPMENT={len(nodes)} "
+                  f"CABLES={len(links)} RULES={len(rules)}"
+              )
+
+          print("ADVANCED_ROUTING_PRODUCTION_CHECK=passed")
+          PY
