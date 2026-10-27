@@ -318,6 +318,44 @@ Les tests et logs consomment beaucoup plus que prévu. Définir budgets, étique
 
 **Correction attendue.** Une solution experte est cohérente, mesurable et gouvernée. Elle ne confond pas une estimation et un résultat confirmé, ne masque pas les coûts ou risques, compare les options dans un cadre commun et prévoit le contrôle de fin. Elle identifie les décisions qui nécessitent une validation spécialisée et laisse une piste compréhensible pour une revue ultérieure.
 
+
+## Feuille de route, architecture cible et gouvernance des cas d'usage d'IA
+
+La transformation doit être découpée en capacités livrables plutôt qu'en achats isolés. Une feuille de route réaliste relie chaque capacité à des prérequis, un responsable, une décision de passage, un budget, des risques et une preuve de valeur. Les dépendances typiques comprennent qualité d'inventaire, identité, classification des données, intégration, compétences, support de niveau 2, sécurité et gestion de changement.
+
+### Exemple de feuille de route en vagues
+
+| Vague | Travaux principaux | Critères de passage |
+|---|---|---|
+| Cadrage | Résultats, baseline, parcours, risques, propriétaire et architecture | Besoin priorisé et critères de valeur approuvés |
+| Préparation | Qualité des données, identité, intégrations, rôles, logging et support | Contrôles de base validés et données de test représentatives |
+| Pilote | Petit groupe, scénarios normaux et erreurs, formation et support | Valeur mesurée, défauts critiques résolus, utilisateurs capables d'agir |
+| Extension | Déploiement progressif, surveillance, accompagnement des équipes | Capacités et support suffisants, résultats stables |
+| Optimisation | Réduction des coûts, retrait d'anciens workflows, amélioration continue | Dette, redondances et objectifs de service revus |
+
+Chaque vague comprend une décision « go/no-go ». Les critères ne doivent pas être modifiés uniquement pour respecter le calendrier. Si le pilote montre que les identifiants d'actifs ne sont pas fiables, l'organisation peut poursuivre les travaux qui ne dépendent pas de ces identifiants, mais doit limiter les automatismes qui pourraient appliquer une action au mauvais actif.
+
+### Gouvernance d'un cas d'usage IA
+
+Un dossier d'usage décrit les données, le modèle ou service, les sorties, l'utilisateur, le domaine de décision, les erreurs possibles et leurs conséquences. Évaluer l'impact d'une recommandation incorrecte : une suggestion de tag est généralement moins risquée qu'une décision automatique d'accès, de fermeture d'incident ou de commande de pièces. Le contrôle doit correspondre à ce risque. L'utilisateur doit comprendre quand une sortie est une proposition et quelles sources doivent être vérifiées avant action.
+
+Une validation humaine n'est efficace que si la personne dispose du temps, de la compétence et de l'information nécessaires. Si l'interface pousse à accepter toutes les suggestions, l'humain devient une simple approbation automatique. Mesurer les corrections apportées, les erreurs détectées, la qualité des sources, les cas sans réponse et les conditions dans lesquelles le système doit s'abstenir. Les mécanismes d'accès aux données et la confidentialité doivent être intégrés au design.
+
+La surveillance couvre les changements de données, la qualité des réponses, les incidents, les retours utilisateur, les versions et les dépendances du fournisseur. Un modèle peut se dégrader même si le code n'a pas changé, par exemple lorsque les types d'incident ou les produits sont nouveaux. Définir le propriétaire du monitoring, les seuils d'arrêt, le processus de mise à jour et la méthode de retour à une procédure humaine ou déterministe.
+
+### Architecture cible et responsabilités
+
+Le modèle d'architecture précise les systèmes de référence, les flux d'événements, les APIs, l'identité, les journaux, le chiffrement, les environnements et la gestion des erreurs. Chaque interface doit définir le propriétaire de chaque champ, la gestion des conflits, les reprises, la limite de débit, la version, les notifications et la surveillance. Les intégrations ne doivent pas accepter silencieusement un champ inconnu ou un identifiant absent.
+
+Un modèle de responsabilité opérationnelle identifie qui tient la feuille de route du produit, qui soutient les utilisateurs, qui traite les incidents, qui valide les changements, qui suit les coûts, qui revoit les privilèges et qui peut arrêter le service. Sans propriétaire après le départ de l'équipe projet, même une plateforme correctement installée devient vulnérable à l'obsolescence et à la dérive de configuration.
+
+### Valeur, adoption et arrêt
+
+Définir un indicateur pour le résultat métier, un pour la qualité, un pour le risque et un pour l'adoption. Une diminution du délai de qualification peut être accompagnée d'un taux de mauvaise classification et de réouverture. Un outil de recherche IA peut augmenter le nombre de réponses mais réduire la confiance si les citations ou sources sont erronées. La décision de poursuivre repose sur le résultat global et les limites, pas sur une métrique favorable isolée.
+
+Documenter aussi le plan d'arrêt : export des données, retrait des intégrations, maintien d'un workflow de secours, révocation des accès, conservation des preuves, résiliation des services et communication. La sortie doit être testée à partir d'un périmètre représentatif, car la portabilité annoncée n'est pas toujours égale à une exportation réellement exploitable.
+
+
 ## Ressources techniques et références
 
 - [Microsoft Learn — Azure Cloud Adoption Framework](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/overview)
