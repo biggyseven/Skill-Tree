@@ -1,0 +1,747 @@
+{
+  "schema_version": 2,
+  "id": "voice-sip-intermediaire",
+  "title": "Protocole SIP — Domaine, dial-peer et QoS",
+  "level": "intermédiaire",
+  "module": "Voix & Collaboration",
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "prompt": "Préparez un service de téléphonie IP. Définissez le domaine SIP, le dial-peer 2001, un codec compatible, l’enregistrement et un profil QoS pour prioriser la voix.",
+  "objectives": [
+    "Configurer le domaine SIP voice.skilltree.local.",
+    "Déclarer le dial-peer 2001.",
+    "Choisir le codec G.711 A-law.",
+    "Activer l’enregistrement SIP.",
+    "Définir le VLAN voix 30.",
+    "Activer le profil QoS voice-priority."
+  ],
+  "hints": [
+    "Sur la CLI de APP1, saisissez enable puis configure terminal.",
+    "Exécutez : workload voice sip_domain voice.skilltree.local.",
+    "Exécutez : workload voice dial_peer 2001.",
+    "Exécutez : workload voice codec g711alaw.",
+    "Exécutez : workload voice registration enabled.",
+    "Exécutez : workload voice voice_vlan 30.",
+    "Exécutez : workload voice qos_profile voice-priority.",
+    "Utilisez show workloads pour relire l’état structuré avant de lancer « Vérifier »."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-voice-sip-intermediaire",
+    "metadata": {
+      "name": "Protocole SIP — Domaine, dial-peer et QoS",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 320,
+        "y": 120,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "LAN interne",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit FW1",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "Layer 2",
+        "x": 300,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Uplink R1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Poste utilisateur 1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Poste utilisateur 2",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/4",
+            "name": "Fa0/4",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Web frontend A",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/5",
+            "name": "Fa0/5",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Web frontend B",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/6",
+            "name": "Fa0/6",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Base de données",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "model": "PC",
+        "x": 90,
+        "y": 450,
+        "label": "PC1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Poste utilisateur 1",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "model": "PC",
+        "x": 230,
+        "y": 490,
+        "label": "PC2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.11",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Poste utilisateur 2",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP1",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 500,
+        "y": 430,
+        "label": "APP1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur applicatif A",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {
+            "voice": {
+              "sip_domain": "non-configure",
+              "dial_peer": "non-configure",
+              "codec": "non-configure",
+              "registration": false,
+              "voice_vlan": 0,
+              "qos_profile": "non-configure"
+            }
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP2",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 670,
+        "y": 490,
+        "label": "APP2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.21",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur applicatif B",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "DB1",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 850,
+        "y": 430,
+        "label": "DB1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.30",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Base de données",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DB1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "FW1",
+        "type": "firewall",
+        "model": "Linux Firewall",
+        "x": 510,
+        "y": 170,
+        "label": "FW1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Inside R1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "eth1",
+            "name": "eth1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Outside",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "FW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "model": "Cloud",
+        "x": 800,
+        "y": 160,
+        "label": "INTERNET",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Upstream Internet",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "INTERNET",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/4"
+        },
+        "to": {
+          "node": "APP1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L5",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/5"
+        },
+        "to": {
+          "node": "APP2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L6",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/6"
+        },
+        "to": {
+          "node": "DB1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L7",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "FW1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L8",
+        "from": {
+          "node": "FW1",
+          "port": "eth1"
+        },
+        "to": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 2
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "voice-sip_domain",
+        "description": "Configurer le domaine SIP voice.skilltree.local.",
+        "device": "APP1",
+        "path": "config.workloads.voice.sip_domain",
+        "operator": "equals",
+        "expected": "voice.skilltree.local"
+      },
+      {
+        "id": "voice-dial_peer",
+        "description": "Déclarer le dial-peer 2001.",
+        "device": "APP1",
+        "path": "config.workloads.voice.dial_peer",
+        "operator": "equals",
+        "expected": 2001
+      },
+      {
+        "id": "voice-codec",
+        "description": "Choisir le codec G.711 A-law.",
+        "device": "APP1",
+        "path": "config.workloads.voice.codec",
+        "operator": "equals",
+        "expected": "g711alaw"
+      },
+      {
+        "id": "voice-registration",
+        "description": "Activer l’enregistrement SIP.",
+        "device": "APP1",
+        "path": "config.workloads.voice.registration",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "voice-voice_vlan",
+        "description": "Définir le VLAN voix 30.",
+        "device": "APP1",
+        "path": "config.workloads.voice.voice_vlan",
+        "operator": "equals",
+        "expected": 30
+      },
+      {
+        "id": "voice-qos_profile",
+        "description": "Activer le profil QoS voice-priority.",
+        "device": "APP1",
+        "path": "config.workloads.voice.qos_profile",
+        "operator": "equals",
+        "expected": "voice-priority"
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 120,
+  "badges": [
+    "first_blood"
+  ]
+}

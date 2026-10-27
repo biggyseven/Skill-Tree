@@ -296,6 +296,65 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(nat["port_forward"][0]["destination_port"], 8080)
 
 
+    def test_all_courses_requiring_lab_have_a_loadable_v2_scenario(self) -> None:
+        catalog_path = lab_routes.PROJECT_ROOT / "content" / "nodes.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8-sig"))
+        required = [
+            node for node in catalog
+            if any(
+                isinstance(requirement, dict) and requirement.get("kind") == "lab"
+                for requirement in node.get("requirements", [])
+            )
+        ]
+        self.assertEqual(len(required), 78, "Le périmètre de l'audit a changé ; actualiser le contrôle explicitement.")
+
+        new_scenario_ids = ["automation-intermediaire","ddos-mitigation-intermediaire","ddos-mitigation-expert","incident-ospf","lab_bridge","lab_netns","lab_tshoot_dns","lab_tshoot_mtu","lab_tshoot_route","lab_troubleshoot_vlan","linux-intermediaire","db-intermediaire","users-intermediaire","scripting-intermediaire","ha-sys-intermediaire","windows-server-intermediaire","virt-intermediaire","web-server-intermediaire","scripting-debutant","storage-intermediaire","monitoring-intermediaire","cicd-intermediaire","docker-debutant","docker-intermediaire","git-debutant","iac-intermediaire","k8s-intermediaire","observability-intermediaire","voice-sip-intermediaire"]
+        auto_injected_id = re.compile(r"^EXT-(?:SW1|FW1|R1|CLOUD1|PC\d{2}|SRV\d{2})$")
+        for course in required:
+            with self.subTest(course=course["id"]):
+                payload = lab_routes._load_lab_file(course["id"])
+                self.assertIsNotNone(payload, f"Aucun scénario v2 ne résout {course['id']}")
+                definition = payload["definition"]
+                self.assertEqual(definition.id, course["id"])
+                topology = definition.initial_topology
+                self.assertGreaterEqual(len(topology.nodes), 2)
+                self.assertGreaterEqual(len(topology.links), 1)
+                node_ids = {node.id for node in topology.nodes}
+                self.assertFalse(
+                    any(auto_injected_id.fullmatch(node.id) for node in topology.nodes),
+                    "Le catalogue de matériel ne doit pas être injecté dans le scénario au chargement.",
+                )
+                self.assertFalse(
+                    any(link.id.startswith("EXT-LINK-") for link in topology.links),
+                    "Les liaisons de l'ancienne branche automatique ne doivent pas être ajoutées.",
+                )
+                for link in topology.links:
+                    self.assertIn(link.from_endpoint.node, node_ids)
+                    self.assertIn(link.to_endpoint.node, node_ids)
+
+        for lab_id in new_scenario_ids:
+            with self.subTest(new_lab=lab_id):
+                definition = lab_routes._load_lab_file(lab_id)["definition"]
+                self.assertEqual(definition.check.type, "config_assertions")
+                self.assertGreaterEqual(len(definition.check.rules), 4)
+                # Les 29 scénarios ajoutés définissent leur topologie dans leur JSON ;
+                # aucune extension globale ne doit être nécessaire pour atteindre ce seuil.
+                self.assertGreaterEqual(len(definition.initial_topology.nodes), 9)
+                self.assertGreaterEqual(len(definition.initial_topology.links), 8)
+                self.assertFalse(
+                    any(auto_injected_id.fullmatch(node.id) for node in definition.initial_topology.nodes)
+                )
+                self.assertFalse(
+                    any(link.id.startswith("EXT-LINK-") for link in definition.initial_topology.links)
+                )
+                result = lab_routes._evaluate_lab_check(definition, definition.initial_topology)
+                self.assertFalse(result["passed"], "Un scénario neuf ne doit pas réussir avant la configuration.")
+                malformed_paths = [
+                    item["message"] for item in result["results"]
+                    if "Chemin invalide" in item["message"]
+                ]
+                self.assertEqual(malformed_paths, [], "Chaque contrôle doit cibler un champ existant du schéma.")
+
     def test_course_lab_definitions_are_not_artificially_populated(self) -> None:
         scenario_paths = sorted(lab_routes.LABS_V2_DIR.glob("*.json"))
         self.assertGreaterEqual(len(scenario_paths), 30)
