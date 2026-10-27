@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Architecture Zero Trust - Débutant. Avez-vous lu le cours ?",
+      "prompt": "Quel principe fondamental décrit le mieux l’approche Zero Trust ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Faire confiance à tout utilisateur connecté au VPN",
+        "Vérifier explicitement les demandes d’accès plutôt que de considérer le réseau interne comme automatiquement fiable",
+        "Autoriser tout le trafic entre les VLAN de l’entreprise",
+        "Remplacer les journaux par une authentification unique"
+      ],
+      "answer": 1,
+      "explanation": "Zero Trust réduit la confiance implicite. Chaque demande d’accès doit être évaluée selon l’identité, la ressource, le contexte et les politiques applicables, même si la connexion vient d’un réseau interne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble résume trois principes courants de Zero Trust enseignés dans le cours ?",
+      "choices": [
+        "Désactiver le MFA, autoriser le LAN et conserver les droits indéfiniment",
+        "Faire confiance au site, autoriser tous les ports et surveiller seulement les serveurs",
+        "Centraliser les mots de passe, agrandir le VPN et partager les comptes",
+        "Vérifier explicitement, appliquer le moindre privilège et supposer qu’une compromission peut survenir"
+      ],
+      "answer": 3,
+      "explanation": "Ces principes sont complémentaires : vérifier les accès, limiter les droits au besoin réel et concevoir les contrôles en considérant qu’un compte ou un appareil peut être compromis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d’un Policy Enforcement Point (PEP) dans une architecture Zero Trust ?",
+      "choices": [
+        "Appliquer la décision d’accès sur le chemin entre le sujet et la ressource, notamment en permettant, surveillant ou terminant la connexion",
+        "Créer automatiquement les comptes d’annuaire",
+        "Décider seul de toute la politique d’entreprise sans consulter de contexte",
+        "Remplacer le chiffrement TLS"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le PEP applique les décisions d’accès. Dans une mise en œuvre, il peut être un proxy, une passerelle ou un composant de l’application, selon l’architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l’authentification multifacteur (MFA) ne suffit-elle pas, à elle seule, à garantir un accès autorisé ?",
+      "choices": [
+        "Parce que le MFA ne fonctionne qu’avec les serveurs DNS",
+        "Parce que le MFA chiffre tous les fichiers mais pas les paquets IP",
+        "Parce qu’une identité authentifiée peut encore ne pas avoir le droit d’accéder à cette ressource dans ce contexte",
+        "Parce que le MFA est un protocole de routage"
+      ],
+      "answer": 2,
+      "explanation": "L’authentification contribue à établir l’identité, tandis que l’autorisation décide si cette identité peut accéder à une ressource. Les règles peuvent aussi tenir compte de l’appareil, du contexte et du risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement la relation entre un VPN et Zero Trust ?",
+      "choices": [
+        "Tout utilisateur connecté au VPN devient automatiquement fiable pour toutes les ressources",
+        "Un VPN peut fournir un chemin d’accès chiffré, mais l’autorisation Zero Trust doit encore contrôler les ressources et les actions accessibles",
+        "Zero Trust interdit l’usage de tout VPN",
+        "Un VPN remplace les politiques d’identité et d’autorisation"
+      ],
+      "answer": 1,
+      "explanation": "Un VPN est une méthode de connectivité. Il peut faire partie d’une architecture Zero Trust, mais la présence sur un tunnel ne justifie pas l’accès général au réseau ou à toutes les applications."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel bénéfice vise principalement la microsegmentation dans un environnement Zero Trust ?",
+      "choices": [
+        "Accélérer automatiquement toutes les connexions Internet",
+        "Remplacer la gestion des identités par des adresses MAC",
+        "Autoriser l’accès à toutes les applications d’un même VLAN",
+        "Limiter les communications entre charges de travail ou ressources à des flux explicitement nécessaires"
+      ],
+      "answer": 3,
+      "explanation": "La microsegmentation réduit les communications latérales en définissant des politiques ciblées entre ressources, services ou charges de travail. Le découpage doit être validé pour ne pas couper les flux légitimes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une première étape raisonnable avant d’appliquer une politique Zero Trust à grande échelle ?",
+      "choices": [
+        "Inventorier les ressources, les identités et les flux légitimes, puis lancer un pilote ciblé et mesurable",
+        "Bloquer immédiatement tous les flux inter-VLAN de production",
+        "Exiger que chaque application partage le même compte administrateur",
+        "Désactiver l’audit durant la migration"
+      ],
+      "answer": 0,
+      "explanation": "Un inventaire et une cartographie des flux permettent de définir les accès réellement nécessaires. Un pilote réduit le risque d’interruption et facilite la mesure avant l’extension."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels journaux sont les plus utiles pour examiner une décision d’accès Zero Trust ?",
+      "choices": [
+        "Le seul nom du réseau Wi-Fi",
+        "Le numéro de série du commutateur, sans contexte d’identité",
+        "L’identité, la ressource, le résultat, le contexte de décision et un identifiant de corrélation, sans enregistrer de secrets",
+        "La liste des mots de passe en clair des utilisateurs"
+      ],
+      "answer": 2,
+      "explanation": "Des journaux structurés permettent de comprendre pourquoi un accès a été accepté ou refusé et de relier les événements. Il faut éviter d’y enregistrer mots de passe, jetons ou données sensibles inutiles."
     }
   ]
 }
