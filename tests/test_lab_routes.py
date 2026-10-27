@@ -300,7 +300,7 @@ class LabValidationTests(unittest.TestCase):
             with self.subTest(new_lab=lab_id):
                 definition = lab_routes._load_lab_file(lab_id)["definition"]
                 self.assertEqual(definition.check.type, "config_assertions")
-                self.assertGreaterEqual(len(definition.check.rules), 3)
+                self.assertGreaterEqual(len(definition.check.rules), 4)
                 self.assertGreaterEqual(len(definition.initial_topology.nodes), 25)
                 self.assertGreaterEqual(len(definition.initial_topology.links), 24)
                 result = lab_routes._evaluate_lab_check(definition, definition.initial_topology)
