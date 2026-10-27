@@ -21,6 +21,7 @@ const BASE_SCENARIOS = [
 ];
 
 test.describe('Lab Workspace CLI — production browser smoke (read only)', () => {
+  test.describe.configure({ retries: 0 });
   test.setTimeout(60_000);
 
   for (const labId of BASE_SCENARIOS) {
@@ -131,11 +132,12 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
           .filter(Boolean);
         expect(commands.length, 'la séquence de commandes ne doit pas être vide').toBeGreaterThan(0);
   
-        const targetNode = page.locator('.react-flow__node[data-id="' + targetId + '"]');
-        await expect(targetNode, 'l’équipement cible doit être présent sur le canevas').toBeVisible();
-        await targetNode.click();
+        const targetNode = page.locator('.react-flow__node').filter({ hasText: targetId }).first();
+        await expect(targetNode, 'l’équipement cible doit être présent sur le canevas').toBeVisible({ timeout: 5000 });
+        await targetNode.getByText(targetId, { exact: true }).click();
+        await expect(page.getByRole('button', { name: /Console CLI/ }), 'l’inspecteur doit sélectionner l’équipement').toBeVisible({ timeout: 5000 });
         const terminal = page.locator('.xterm').first();
-        await expect(terminal, 'la console xterm doit apparaître après sélection').toBeVisible();
+        await expect(terminal, 'la console xterm doit apparaître après sélection').toBeVisible({ timeout: 5000 });
         await terminal.click({ position: { x: 100, y: 60 } });
         for (const command of commands) {
           await page.keyboard.type(command);
