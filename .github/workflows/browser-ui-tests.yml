@@ -1,6 +1,14 @@
 name: Browser UI regressions
 
 on:
+  push:
+    branches: ["feature/lab-workspace"]
+    paths:
+      - "static/**"
+      - "app/**"
+      - "tests/e2e/**"
+      - "requirements.txt"
+      - ".github/workflows/browser-ui-tests.yml"
   pull_request:
     branches: ["main", "feature/lab-workspace", "test/browser-ui-regression-2026-10-26", "fix/theme-indicator-2026-10-26"]
     paths:

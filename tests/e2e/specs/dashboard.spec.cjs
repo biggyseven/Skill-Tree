@@ -1052,3 +1052,81 @@ test('le lecteur reprend la dernière section après fermeture et respecte le d�
   await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBe(0);
   expect(targetText.length).toBeGreaterThan(0);
 });
+
+test('la lecture vocale annonce le nombre d’équipements et de liaisons des schémas ASCII et Mermaid', async ({ page }) => {
+  await openDashboard(page);
+
+  await page.evaluate(async () => {
+    const state = window.Alpine.$data(document.body);
+    await state.show('intro-reseau-debutant');
+  });
+  await expect(page.locator('#course-reader-title')).toHaveText("Qu'est-ce qu'un réseau ? - Débutant");
+  await expect(page.locator('[x-ref="lessonArticle"]')).toBeVisible();
+
+  const ttsRequests = [];
+  await page.route('**/api/tts', async route => {
+    const payload = route.request().postDataJSON();
+    ttsRequests.push(payload);
+    // Réponse audio factice non vide : on valide le texte envoyé à la voix sans dépendre
+    // du fournisseur TTS externe ni de la présence d'un codec audio sur le runner.
+    await route.fulfill({
+      status: 200,
+      contentType: 'audio/mpeg',
+      body: Buffer.from('skilltree-test-audio-segment'),
+    });
+  });
+
+  const fixture = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    const article = state.$refs.lessonArticle;
+    article.innerHTML = `
+      <div class="code-container">
+        <div class="code-header"><span class="code-lang">ascii</span></div>
+        <pre><code>PC1 ---- Switch1
+Switch1 ---- Routeur1
+Routeur1 ---- Serveur1</code></pre>
+      </div>
+      <figure class="lesson-mermaid">
+        <pre class="lesson-mermaid-source">flowchart LR
+  PC2[PC2] --> SW2[Switch2]
+  SW2[Switch2] --> R2[Routeur2]
+  R2[Routeur2] --> SRV2[Serveur2]</pre>
+      </figure>
+    `;
+
+    state.prepareLessonDiagrams(article);
+    const spokenText = state.speechTextFromArticle();
+    const chunks = state.splitSpeechText(spokenText);
+    const result = {
+      diagramCount: article.querySelectorAll('.lesson-diagram-block').length,
+      spokenText,
+      chunks,
+      readerOpen: Boolean(state.open && state.detail?.id === 'intro-reseau-debutant'),
+    };
+    state.startSpeech(spokenText, 'lesson');
+    return result;
+  });
+
+  expect(fixture.readerOpen).toBe(true);
+  expect(fixture.diagramCount).toBe(2);
+
+  // Chaque représentation possède quatre équipements distincts et trois liens directs.
+  expect((fixture.spokenText.match(/4 équipements identifiables/gu) || []).length).toBe(2);
+  expect((fixture.spokenText.match(/3 liaisons directes identifiables entre équipements/gu) || []).length).toBe(2);
+  expect((fixture.spokenText.match(/3 câbles physiques/gu) || []).length).toBe(2);
+  expect(fixture.spokenText).toContain('PC1, Switch1, Routeur1, Serveur1');
+  expect(fixture.spokenText).toContain('PC2, Switch2, Routeur2, Serveur2');
+  expect(fixture.spokenText).toContain('les liens Wi-Fi et les flux logiques ne sont pas des câbles');
+
+  // Vérifier que le bilan calculé passe aussi par le chemin réel de lecture vers /api/tts.
+  await expect.poll(
+    () => ttsRequests.some(request => String(request.text || '').includes('Inventaire du schéma :')),
+    { timeout: 10_000 },
+  ).toBe(true);
+  const spokenRequest = ttsRequests.find(request => String(request.text || '').includes('Inventaire du schéma :'));
+  expect(spokenRequest.text).toContain('4 équipements identifiables');
+  expect(spokenRequest.text).toContain('3 liaisons directes identifiables entre équipements');
+  expect(spokenRequest.text).toContain('3 câbles physiques');
+
+  await page.evaluate(() => window.Alpine.$data(document.body).stopSpeech());
+});
