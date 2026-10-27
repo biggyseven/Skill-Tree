@@ -244,6 +244,36 @@ def read_lesson(node_id: str, tree: SkillTree = Depends(get_tree)):
     return PlainTextResponse(content, media_type="text/markdown; charset=utf-8")
 
 @lru_cache(maxsize=1)
+def _configured_node_orders() -> dict[str, int]:
+    """Retourne l'ordre pédagogique faisant autorité dans content/nodes.json.
+
+    La base peut être persistante et dater d'un déploiement antérieur : sa colonne
+    sort_order n'est donc pas une source fiable lorsque le catalogue JSON a changé.
+    """
+    path = CONTENT_DIR / "nodes.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(payload, list):
+        return {}
+
+    orders: dict[str, int] = {}
+    for item in payload:
+        if not isinstance(item, dict) or not isinstance(item.get("id"), str):
+            continue
+        raw_order = item.get("order")
+        if isinstance(raw_order, bool):
+            continue
+        try:
+            order = int(raw_order)
+        except (TypeError, ValueError, OverflowError):
+            continue
+        orders[item["id"]] = order
+    return orders
+
+
+@lru_cache(maxsize=1)
 def _configured_node_labs() -> dict[str, dict[str, Any]]:
     """Lit les métadonnées de lab attachées aux nœuds du catalogue JSON."""
     path = CONTENT_DIR / "nodes.json"
@@ -698,11 +728,22 @@ def submit_answer(node_id: str, payload: dict = Body(...), tree: SkillTree = Dep
 def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
     nodes = tree.nodes()
     statuses = tree.statuses()
+    configured_orders = _configured_node_orders()
     validated = sum(1 for status in statuses.values() if status is Status.VALIDATED)
     return {
         "total": len(nodes), "validated": validated,
         "progress_percent": round((validated / len(nodes)) * 100) if nodes else 0,
-        "nodes": [{"id": n.id, "title": n.title, "category": n.category, "module": n.module, "sort_order": n.sort_order, "status": statuses[n.id].value, "prereqs": list(n.prereqs), "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements]} for n in nodes]
+        "nodes": [{
+            "id": n.id,
+            "title": n.title,
+            "category": n.category,
+            "module": n.module,
+            "order": configured_orders.get(n.id, n.sort_order),
+            "sort_order": n.sort_order,
+            "status": statuses[n.id].value,
+            "prereqs": list(n.prereqs),
+            "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements],
+        } for n in nodes]
     }
 
 @app.get("/api/stats")
