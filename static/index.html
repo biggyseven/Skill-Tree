@@ -4694,37 +4694,37 @@
             let sectionIndex = 0;
             let subsectionIndex = 0;
             const sectionOpeners = [
-              'Commençons par ',
-              'Passons maintenant à ',
-              'Voyons ensuite ',
-              'Abordons à présent ',
-              'Intéressons-nous maintenant à ',
+              'Commençons par la partie ',
+              'Passons ensuite à la partie ',
+              'Voyons maintenant la partie ',
+              'Abordons à présent la partie ',
+              'Intéressons-nous maintenant à la partie ',
             ];
             const subsectionOpeners = [
               'Regardons de plus près ',
-              'Voyons comment fonctionne ',
-              'Précisons maintenant ',
-              'Pour aller un peu plus loin, examinons ',
+              'Voyons maintenant ',
+              'Précisons un peu mieux ',
+              'Pour aller plus loin, examinons ',
             ];
             normalized = normalized.split(/\n{2,}/gu).map(paragraph => {
               const value = paragraph.trim();
-              const stripEnding = source => String(source || '').trim().replace(/[.!?…:;]+$/gu, '').trim();
+              const stripEnding = source => String(source || '').trim().replace(/[.:;]+$/gu, '').trim();
               let match = value.match(/^Titre du cours\s*:\s*([\s\S]+)$/iu);
-              if (match) return 'Dans ce cours, nous allons découvrir ' + stripEnding(match[1]) + '.';
+              if (match) return 'Bienvenue dans ce cours consacré à « ' + stripEnding(match[1]) + ' ».';
               match = value.match(/^Section\s*:\s*([\s\S]+)$/iu);
               if (match) {
                 const opener = sectionOpeners[sectionIndex % sectionOpeners.length];
                 sectionIndex += 1;
-                return opener + stripEnding(match[1]).replace(/^[a-zà-ÿ]/u, letter => letter.toLocaleUpperCase('fr-FR')) + '.';
+                return opener + '« ' + stripEnding(match[1]) + ' ».';
               }
               match = value.match(/^Sous-section\s*:\s*([\s\S]+)$/iu);
               if (match) {
                 const opener = subsectionOpeners[subsectionIndex % subsectionOpeners.length];
                 subsectionIndex += 1;
-                return opener + stripEnding(match[1]).replace(/^[a-zà-ÿ]/u, letter => letter.toLocaleLowerCase('fr-FR')) + '.';
+                return opener + '« ' + stripEnding(match[1]) + ' ».';
               }
               match = value.match(/^Tableau\s*:\s*([\s\S]+)$/iu);
-              if (match) return 'Observons le tableau consacré à ' + stripEnding(match[1]).replace(/^[a-zà-ÿ]/u, letter => letter.toLocaleLowerCase('fr-FR')) + '.';
+              if (match) return 'Voici un tableau intitulé « ' + stripEnding(match[1]) + ' ».';
               if (/^Tableau textuel\.?$/iu.test(value)) return 'Voici le tableau présenté sous forme de texte.';
               if (/^Schéma textuel\./iu.test(value)) return value.replace(/^Schéma textuel\./iu, 'Suivons le parcours représenté.');
               if (/^Suivons le parcours représenté\./iu.test(value)) return value.replace(/^Suivons le parcours représenté\./iu, 'Suivons maintenant le parcours représenté.');
