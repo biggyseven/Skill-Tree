@@ -1,0 +1,262 @@
+{
+  "schema_version": 2,
+  "id": "nat-debutant",
+  "title": "NAT & PAT — Publier la sortie Internet d’un LAN",
+  "level": "débutant",
+  "module": "Administration Réseaux",
+  "duration_min": 20,
+  "difficulty": "débutant",
+  "prompt": "Configurez le NAT/PAT sur R1 afin que le LAN 192.168.10.0/24 accède au réseau opérateur avec l’adresse WAN du routeur. Fa0/0 est l’interface LAN et Gig0/1 l’interface WAN.",
+  "objectives": [
+    "Activer le NAT sortant et la surcharge PAT.",
+    "Déclarer les interfaces inside/outside sans les inverser.",
+    "Appliquer le NAT au réseau 192.168.10.0/24.",
+    "Vérifier la politique NAT avant le test de connectivité."
+  ],
+  "hints": [
+    "Le LAN doit utiliser Fa0/0 et le réseau opérateur Gig0/1.",
+    "La surcharge PAT partage l’adresse de l’interface WAN entre les hôtes internes.",
+    "Le NAT ne remplace pas la route par défaut."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-nat-debutant",
+    "metadata": {
+      "name": "NAT/PAT sortant pour un LAN",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "ISP",
+        "type": "cloud",
+        "x": 80,
+        "y": 240,
+        "label": "Internet",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "198.51.100.1",
+            "mask": "255.255.255.0",
+            "description": "Réseau opérateur"
+          }
+        ],
+        "config": {
+          "hostname": "ISP"
+        }
+      },
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 360,
+        "y": 240,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "description": "Inside LAN"
+          },
+          {
+            "id": "Gig0/1",
+            "name": "Gig0/1",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.0",
+            "description": "Outside WAN"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": {
+              "enabled": false,
+              "overload": false,
+              "inside_interface": "",
+              "outside_interface": "",
+              "inside_network": ""
+            }
+          }
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 620,
+        "y": 240,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mode": "access",
+            "vlan": 10,
+            "description": "Vers R1"
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mode": "access",
+            "vlan": 10,
+            "description": "Vers PC-A"
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 10,
+              "name": "LAN-INTERNE"
+            }
+          ]
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 870,
+        "y": 240,
+        "label": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "description": "Client LAN"
+          }
+        ],
+        "config": {
+          "hostname": "PC-A",
+          "routes": [
+            {
+              "destination": "0.0.0.0/0",
+              "next_hop": "192.168.10.1"
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "WAN-01",
+        "from": {
+          "node": "ISP",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "R1",
+          "port": "Gig0/1"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 2
+      },
+      {
+        "id": "LAN-01",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "LAN-02",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "time_bonus": {},
+    "rules": [
+      {
+        "id": "nat-enabled",
+        "description": "Le NAT sortant est activé.",
+        "device": "R1",
+        "path": "config.services.nat.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "pat-overload",
+        "description": "Le PAT utilise la surcharge d’adresses.",
+        "device": "R1",
+        "path": "config.services.nat.overload",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "inside-interface",
+        "description": "L’interface LAN est déclarée inside.",
+        "device": "R1",
+        "path": "config.services.nat.inside_interface",
+        "operator": "equals",
+        "expected": "Fa0/0"
+      },
+      {
+        "id": "outside-interface",
+        "description": "L’interface WAN est déclarée outside.",
+        "device": "R1",
+        "path": "config.services.nat.outside_interface",
+        "operator": "equals",
+        "expected": "Gig0/1"
+      },
+      {
+        "id": "inside-network",
+        "description": "Le NAT cible le réseau interne attendu.",
+        "device": "R1",
+        "path": "config.services.nat.inside_network",
+        "operator": "equals",
+        "expected": "192.168.10.0/24"
+      }
+    ]
+  },
+  "xp_reward": 30,
+  "badges": []
+}
