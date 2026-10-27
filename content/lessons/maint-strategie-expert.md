@@ -34,14 +34,14 @@ Avant une action importante, définir le périmètre, les objectifs, la source d
 
 ## Schémas de référence
 
-### Schéma 1 — Vision et décision
+### Schéma 1 — Cascade de la stratégie vers le travail
 
 ~~~mermaid
 flowchart TD
-  A["Objectifs de l'organisation"] --> B["Niveau de service et contraintes"]
+  A["Objectifs métier"] --> B["Niveau de service et contraintes"]
   B --> C["Politique de gestion d'actifs"]
   C --> D["Stratégie de maintenance par famille"]
-  D --> E["Plans : tâches, ressources, pièces et arrêts"]
+  D --> E["Tâches, ressources, pièces et fenêtres"]
   E --> F["Résultats, risques et coûts observés"]
   F --> G{"Hypothèses toujours valides ?"}
   G -- "Oui" --> D
@@ -49,162 +49,156 @@ flowchart TD
   H --> C
 ~~~
 
-Objectifs d'actifs : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+Le schéma montre la chaîne de décision complète. Une stratégie n'est utile que si elle se traduit en actions réalisables et si les résultats peuvent ensuite invalider les hypothèses initiales.
 
-### Schéma 2 — Rôles et contrôles
+### Schéma 2 — Criticité et conséquence
 
 ~~~mermaid
 flowchart TD
-  A["Actif et fonction dans le système"] --> B["Conséquences de défaillance"]
-  B --> C["Obligations et conséquences inacceptables ?"]
-  C -- "Oui" --> D["Contrôles obligatoires et analyse détaillée"]
-  C -- "Non" --> E["Évaluer sécurité, service, coût et récupération"]
-  D --> F["Classe et décision validées"]
-  E --> F
+  A["Actif et fonction dans le système"] --> B["Conséquences plausibles de défaillance"]
+  B --> C["Sécurité, service, environnement, conformité"]
+  C --> D["Délais de rétablissement et solutions de secours"]
+  D --> E["Classe de criticité validée"]
+  E --> F["Politique, contrôles et priorité"]
   F --> G["Revue si fonction, état ou contexte change"]
 ~~~
 
-Criticité : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+La criticité doit refléter les conséquences au niveau du service, pas seulement le prix de l'équipement. Une obligation ou un risque de sécurité doit rester identifiable même si un score agrégé paraît modéré.
 
-### Schéma 3 — Données et dépendances
+### Schéma 3 — Choisir une politique de maintenance
 
 ~~~mermaid
 flowchart TD
-  A["Définir la fonction attendue"] --> B["Identifier la perte de fonction et le mode"]
-  B --> C{"Conséquence inacceptable ?"}
-  C -- "Oui" --> D["Tâche efficace, conception ou protection"]
-  C -- "Non" --> E{"Défaillance détectable à temps ?"}
-  E -- "Oui" --> F["Surveillance conditionnelle avec seuil et action"]
-  E -- "Non" --> G{"Vieillissement / intervalle justifié ?"}
-  G -- "Oui" --> H["Préventif planifié, remplacement ou restauration"]
-  G -- "Non" --> I["Corrective contrôlée ou recherche de panne"]
-  D --> J["Planifier, vérifier et réévaluer"]
-  F --> J
-  H --> J
-  I --> J
+  A["Définir fonction et mode de défaillance"] --> B{"Conséquence inacceptable ?"}
+  B -- "Oui" --> C["Contrôle obligatoire, protection ou changement de conception"]
+  B -- "Non" --> D{"Signal détectable assez tôt ?"}
+  D -- "Oui" --> E["Conditionnelle si signal, seuil et action sont fiables"]
+  D -- "Non" --> F{"Tâche périodique techniquement efficace ?"}
+  F -- "Oui" --> G["Préventif selon mécanisme et intervalle justifié"]
+  F -- "Non" --> H["Corrective contrôlée ou autre mesure de réduction"]
+  C --> I["Planifier, vérifier et réévaluer"]
+  E --> I
+  G --> I
+  H --> I
 ~~~
 
-Choix de politique : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+Le diagramme n'est pas un automate de décision universel. Il structure la discussion et rappelle que les obligations, les conséquences et l'efficacité technique de la tâche priment sur les habitudes.
 
-### Schéma 4 — Cycle de mise en œuvre
+### Schéma 4 — Analyse de modes de défaillance et apprentissage
 
 ~~~mermaid
 flowchart LR
-  A["Fonction et contexte"] --> B["Modes de défaillance"]
-  B --> C["Effets locaux et système"]
-  C --> D["Conséquences et contrôles"]
-  D --> E["Tâches techniquement efficaces"]
-  E --> F["Ressources, pièces et fréquence"]
-  F --> G["Exécution et preuve"]
-  G --> H["Résultat réel et retour d'expérience"]
+  A["Fonction et contexte"] --> B["Perte de fonction et mode"]
+  B --> C["Effets locaux et effets système"]
+  C --> D["Causes plausibles et contrôles existants"]
+  D --> E["Conséquence et action techniquement efficace"]
+  E --> F["Ressources, pièces et preuve d'exécution"]
+  F --> G["Vérification d'efficacité"]
+  G --> H["Mise à jour de l'analyse et des plans"]
   H --> B
 ~~~
 
-RCM / AMDEC : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+L'AMDEC et les démarches de maintenance centrée sur la fiabilité sont utiles lorsqu'elles partent des fonctions réelles et produisent des décisions exécutables. Une grille remplie sans vérifier les causes, les contrôles et les résultats ne suffit pas.
 
-### Schéma 5 — Risque et exceptions
+### Schéma 5 — Cycle de vie des actifs
 
 ~~~mermaid
 flowchart LR
-  A["Conception et acquisition"] --> B["Mise en service"]
+  A["Conception et acquisition"] --> B["Réception et mise en service"]
   B --> C["Exploitation"]
   C --> D["Maintenance et amélioration"]
   D --> E{"Maintenir, moderniser ou remplacer ?"}
   E -- "Maintenir" --> C
-  E -- "Moderniser" --> F["Projet de migration et validation"]
+  E -- "Moderniser" --> F["Migration et validation"]
   E -- "Remplacer" --> G["Acquisition et transition"]
   F --> C
   G --> B
-  C --> H["Retrait, données, pièces et contrats"]
+  C --> H["Retrait, contrats, données et pièces"]
 ~~~
 
-Cycle de vie : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+Le coût total et le risque s'accumulent sur toute la durée de vie. L'entretien courant ne peut donc pas être séparé des choix de conception, de standardisation, de disponibilité des pièces et de retrait.
 
-### Schéma 6 — Validation des résultats
+### Schéma 6 — Gouverner le risque résiduel
 
 ~~~mermaid
 flowchart TD
-  A["Défaillance ou changement de contexte"] --> B["Évaluer conséquence et urgence"]
-  B --> C{"Risque au-dessus du niveau autorisé ?"}
-  C -- "Oui" --> D["Mesure immédiate de réduction et escalade"]
-  C -- "Non" --> E["Plan d'action priorisé"]
-  D --> F["Propriétaire et décision d'acceptation"]
+  A["Défaillance, écart ou changement de contexte"] --> B["Évaluer conséquence et urgence"]
+  B --> C{"Risque au-dessus des limites autorisées ?"}
+  C -- "Oui" --> D["Mitigation immédiate et escalade"]
+  C -- "Non" --> E["Action planifiée avec échéance"]
+  D --> F["Décision par une autorité habilitée"]
   E --> F
-  F --> G["Date d'expiration / revue"]
-  G --> H{"Contrôle efficace et risque réduit ?"}
-  H -- "Oui" --> I["Clôture avec preuve"]
-  H -- "Non" --> J["Nouvelle mitigation ou arrêt d'exploitation si requis"]
+  F --> G["Propriétaire, mesures provisoires et date de revue"]
+  G --> H{"Risque maîtrisé et preuve disponible ?"}
+  H -- "Oui" --> I["Clôture et conservation des preuves"]
+  H -- "Non" --> J["Nouvelle mitigation ou arrêt en sécurité"]
 ~~~
 
-Obsolescence : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+Toute exception doit conserver son propriétaire, sa durée et les mesures compensatoires. Une acceptation de risque n'est ni une fermeture administrative ni une permission de contourner une obligation.
 
-### Schéma 7 — Gouvernance et mesure
+### Schéma 7 — Renouvellement et arbitrage du portefeuille
 
 ~~~mermaid
 flowchart TD
   A["Besoin de renouvellement"] --> B["État, criticité, support et dépendances"]
-  B --> C["Options : réparer, prolonger, moderniser, remplacer, retirer"]
-  C --> D["Coût total, bénéfices, risques et capacité"]
-  D --> E["Scénarios et incertitudes"]
-  E --> F["Arbitrage de portefeuille"]
-  F --> G["Projet, calendrier, ressources et transition"]
-  G --> H["Vérification après mise en service"]
+  B --> C["Réparer, prolonger, moderniser, remplacer ou retirer"]
+  C --> D["Coût complet, risques, bénéfices et capacité"]
+  D --> E["Scénarios, incertitudes et transition"]
+  E --> F["Arbitrage documenté"]
+  F --> G["Projet, calendrier et ressources"]
+  G --> H["Tests de réception et bénéfices après mise en service"]
 ~~~
 
-Données de condition : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+Le portefeuille doit contenir la justification des options rejetées, les conséquences du report et les points où une nouvelle donnée peut changer le classement. Les priorités financières ne suppriment pas les obligations de sécurité ou de conformité.
 
-### Schéma 8 — Traitement des écarts
+### Schéma 8 — Tableau de bord orienté décision
 
 ~~~mermaid
 flowchart LR
-  A["Données de travail fiables"] --> B["Indicateurs avec définitions stables"]
+  A["Données de travail et de condition"] --> B["Indicateurs à définitions stables"]
   B --> C["Segmentation par criticité et famille"]
-  C --> D["Revue des tendances et des exceptions"]
-  D --> E["Décision documentée et responsable"]
-  E --> F["Action, délai et preuve d'efficacité"]
+  C --> D["Tendances, incertitudes et exceptions"]
+  D --> E["Décision et responsable"]
+  E --> F["Action, échéance et preuve d'efficacité"]
   F --> A
 ~~~
 
-Portefeuille de renouvellement : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+Les KPI ne sont pas des objectifs isolés. Le tableau de bord doit montrer les effets pervers possibles, les actifs hors couverture et la décision réellement prise à partir du résultat.
 
-### Schéma 9 — Amélioration continue
-
-~~~mermaid
-flowchart TD
-  A["Revoir une famille d'actifs"] --> B["Valider périmètre et données"]
-  B --> C["Vérifier tâches et modes de défaillance"]
-  C --> D["Examiner coût, risque, capacité et stock"]
-  D --> E["Comparer la pratique actuelle aux options"]
-  E --> F["Pilote ou modification contrôlée"]
-  F --> G["Comparer résultat et effets secondaires"]
-  G --> H{"Bénéfice et risque acceptables ?"}
-  H -- "Oui" --> I["Standardiser et mettre à jour les plans"]
-  H -- "Non" --> J["Corriger, limiter ou revenir à la pratique précédente"]
-  I --> K["Revue périodique"]
-  J --> K
-~~~
-
-Tableau de bord stratégie : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
-
-### Schéma 10 — Sortie et apprentissage
+### Schéma 9 — Revue d'efficacité
 
 ~~~mermaid
 flowchart TD
-  A["Actif en service"] --> B["Question stratégique"]
-  B --> C{"Obsolescence ou risque de support ?"}
-  C -- "Non" --> D["Optimiser politique et fiabilité"]
-  C -- "Oui" --> E["Comparer prolongation, modernisation, remplacement"]
-  E --> F["Dépendances, coût complet et transition"]
-  F --> G{"Option exécutable et risques maîtrisés ?"}
-  G -- "Oui" --> H["Financer et séquencer le projet"]
-  G -- "Non" --> I["Mitigation provisoire et risque résiduel explicite"]
-  H --> J["Tester, migrer et vérifier"]
-  I --> K["Réexaminer selon échéance / signal"]
-  J --> D
-  K --> E
+  A["Choisir une famille ou un mode de panne"] --> B["Valider données et baseline"]
+  B --> C["Comparer tâche actuelle et options"]
+  C --> D["Pilote ou modification contrôlée"]
+  D --> E["Mesurer performance et effets secondaires"]
+  E --> F{"Résultat et risque acceptables ?"}
+  F -- "Oui" --> G["Standardiser et mettre à jour les plans"]
+  F -- "Non" --> H["Corriger, limiter ou revenir à la pratique précédente"]
+  G --> I["Revue périodique"]
+  H --> I
 ~~~
 
-Revue déclenchée : ce modèle clarifie les étapes de décision, les dépendances ou les contrôles. Les seuils et responsabilités doivent être adaptés aux règles validées de l'organisation.
+La vérification d'efficacité est différente de la preuve d'exécution. Elle doit examiner la population, l'exposition, les changements simultanés et la gravité des défaillances, pas seulement le nombre d'ordres fermés.
+
+### Schéma 10 — Décision d'obsolescence
+
+~~~mermaid
+flowchart TD
+  A["Actif en service"] --> B{"Fin de support, pièce rare ou risque nouveau ?"}
+  B -- "Non" --> C["Optimiser stratégie et surveiller les évolutions"]
+  B -- "Oui" --> D["Comparer prolongation, modernisation, remplacement et retrait"]
+  D --> E["Coût complet, dépendances et plan de transition"]
+  E --> F{"Risque et exécution maîtrisés ?"}
+  F -- "Oui" --> G["Financer, séquencer et tester"]
+  F -- "Non" --> H["Mitigation temporaire et acceptation du risque habilitée"]
+  G --> I["Migrer, retirer et vérifier"]
+  H --> J["Date de revue et plan de sortie"]
+~~~
+
+La fin de support est un signal de décision anticipée, et non un ordre automatique de remplacement. La stratégie doit comparer les options et gérer explicitement la période de transition.
+
 
 ## 1. Définir les objectifs de gestion d'actifs
 
@@ -561,6 +555,16 @@ Un pareto des défaillances peut mettre en évidence les familles ou modes qui c
 
 Pour un mode récurrent, recueillir les faits avant d'affirmer une cause. Vérifier les conditions d'utilisation, l'installation, la lubrification, la contamination, la température, les vibrations, l'alimentation, les paramètres, l'entretien antérieur, la qualité des pièces et les changements récents. L'action corrective doit agir sur un mécanisme plausible et disposer d'un test de vérification.
 
+~~~mermaid
+flowchart TD
+  A["Événements de défaillance"] --> B["Exposition et temps d'arrêt cohérents"]
+  B --> C["Séparer fréquence et durée de rétablissement"]
+  C --> D["Relier l'actif au service dépendant"]
+  D --> E["Examiner redondance et causes communes"]
+  E --> F["Choisir mesures de fiabilité et de service"]
+  F --> G["Revoir les hypothèses et les écarts"]
+~~~
+
 ### 8.5 De la fiabilité au résultat du service
 
 Une baisse du nombre de pannes d'un composant ne garantit pas automatiquement une meilleure disponibilité du service si d'autres dépendances deviennent le goulot. À l'inverse, une intervention préventive qui augmente temporairement les arrêts planifiés peut améliorer la disponibilité sur la période entière. Il faut définir le périmètre système, les événements, les fenêtres de mesure et les effets sur les utilisateurs.
@@ -580,6 +584,19 @@ Les grandes familles de tâches comprennent :
 - la restauration ou le remplacement planifié, lorsque les caractéristiques du mode de défaillance rendent la tâche efficace ;
 - la maintenance corrective, lorsque la conséquence et la récupération la rendent acceptable ;
 - la modification de conception, de matériau, d'environnement ou de procédure lorsqu'aucune tâche de maintenance n'est suffisante.
+
+~~~mermaid
+flowchart TD
+  A["Mode de défaillance"] --> B["Tâche potentiellement efficace"]
+  B --> C["Critère d'acceptation défini"]
+  C --> D["Préparer accès, compétence et conditions"]
+  D --> E["Exécuter et enregistrer le résultat"]
+  E --> F{"Résultat acceptable ?"}
+  F -- "Oui" --> G["Remettre en service selon la procédure"]
+  F -- "Non" --> H["Évaluer le risque et appliquer la mesure approuvée"]
+  H --> I["Réparer puis retester"]
+  I --> G
+~~~
 
 ### 9.2 Vérifier les tâches de sécurité et de protection
 
@@ -653,6 +670,16 @@ Pour les articles importants, examiner :
 - partage éventuel entre sites et risque de demande simultanée.
 
 Ne pas appliquer un même modèle de réapprovisionnement à tous les articles. Pour une pièce critique à demande rare, la moyenne historique peut être un mauvais estimateur : le risque de panne et la conséquence peuvent justifier une décision spécifique. Documenter la justification, le propriétaire du risque et la date de revue.
+
+~~~mermaid
+flowchart TD
+  A["Pièce ou famille d'articles"] --> B["Criticité de l'actif"]
+  B --> C["Délai, variabilité et alternatives"]
+  C --> D["Demande, coût et conservation"]
+  D --> E["Règle de stock ou solution de secours"]
+  E --> F["Surveiller fin de fabrication et substitutions"]
+  F --> G["Réexaminer le risque et le stock"]
+~~~
 
 ### 11.2 Prévenir l'obsolescence du stock
 
@@ -760,6 +787,19 @@ La revue fournisseur examine les causes des écarts, les risques futurs, l'obsol
 Le plan doit distinguer dépenses opérationnelles récurrentes, travaux correctifs, prévention, améliorations de fiabilité, renouvellement, réduction d'obsolescence, conformité et projets de données. Chaque initiative doit avoir un résultat attendu, un propriétaire, un coût estimé, une capacité, les dépendances, les risques et un critère de bénéfice. Les coûts doivent tenir compte de l'exécution et de la transition, pas seulement des pièces et équipements.
 
 Un plan pluriannuel indique les décisions nécessaires maintenant pour éviter une échéance future : remplacement d'un actif sans support, constitution d'un stock stratégique, formation d'une compétence rare, qualification d'un fournisseur alternatif ou standardisation d'un composant. Les incertitudes doivent apparaître sous forme de scénarios et de dates de réexamen.
+
+~~~mermaid
+flowchart TD
+  A["Portefeuille de maintenance"] --> B["Continuité et obligations"]
+  A --> C["Fiabilité et causes récurrentes"]
+  A --> D["Cycle de vie et obsolescence"]
+  B --> E["Capacité, budget et dépendances"]
+  C --> E
+  D --> E
+  E --> F["Arbitrage documenté"]
+  F --> G["Exécution et preuve"]
+  G --> H["Revue et réallocation"]
+~~~
 
 ### 15.2 Préparer trois vues du plan
 
