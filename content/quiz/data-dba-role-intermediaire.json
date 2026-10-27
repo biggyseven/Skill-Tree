@@ -1,0 +1,66 @@
+{
+  "node_id": "data-dba-role-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Un service dispose de plusieurs répliques, mais aucune sauvegarde isolée. Quelle conclusion est la plus juste ?",
+      "choices": [
+        "La réplication peut propager des erreurs logiques ; il faut un mécanisme indépendant de sauvegarde et des tests de restauration",
+        "La réplication garantit la récupération de tout état historique",
+        "Trois répliques équivalent automatiquement à une sauvegarde complète",
+        "La sauvegarde est inutile dès qu'un réplica est disponible"
+      ],
+      "answer": 0,
+      "explanation": "La réplication répercute normalement les modifications, y compris certaines suppressions ou corruptions logiques. Une sauvegarde conservée indépendamment permet de revenir à un état antérieur, à condition que la restauration soit testée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une augmentation du pool de connexions fait empirer la latence. Quelle démarche est la plus appropriée ?",
+      "choices": [
+        "Augmenter encore le pool jusqu'à faire disparaître l'attente applicative",
+        "Examiner la concurrence, les sessions actives, les transactions longues et la saturation avant de choisir une limite",
+        "Désactiver tous les contrôles de concurrence",
+        "Ajouter immédiatement un index sur chaque colonne"
+      ],
+      "answer": 1,
+      "explanation": "Un pool trop grand peut intensifier la concurrence et épuiser les ressources du moteur. Il faut mesurer le débit utile et les attentes, puis ajuster la taille sur des observations et non sur le seul nombre de connexions en attente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un plan SQL peut-il devenir mauvais alors que la requête n'a pas changé ?",
+      "choices": [
+        "L'optimiseur ne tient jamais compte des données",
+        "Les index sont toujours ignorés après une mise à jour",
+        "La distribution des données, le volume ou les statistiques ont changé, ce qui modifie les estimations de coût",
+        "Une requête SQL utilise toujours le même plan physique"
+      ],
+      "answer": 2,
+      "explanation": "L'optimiseur se base notamment sur les statistiques, les cardinalités estimées et les coûts. Une croissance ou une distribution différente peut rendre un plan précédent moins adapté ; les plans réels et estimés doivent être comparés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement le RPO et le RTO ?",
+      "choices": [
+        "Le RPO mesure la durée totale d'indisponibilité et le RTO le nombre de sauvegardes",
+        "Ce sont des objectifs qui se garantissent sans exercice dès lors que la réplication est active",
+        "Le RPO et le RTO sont deux noms pour le délai de réplication",
+        "Le RPO concerne la perte de données temporelle tolérée et le RTO la durée cible de reprise ; les deux doivent être validés par des tests"
+      ],
+      "answer": 3,
+      "explanation": "Le RPO traduit l'objectif de point de récupération, tandis que le RTO indique le temps cible pour rétablir le service. La capacité réelle dépend de la sauvegarde, des journaux, de la procédure, de l'infrastructure et de l'application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour diagnostiquer une latence élevée, pourquoi est-il risqué de redémarrer la base immédiatement sans collecter de données ?",
+      "choices": [
+        "L'action peut masquer les symptômes, interrompre davantage le service et faire perdre des éléments de diagnostic sans traiter la cause",
+        "Un redémarrage corrige toujours les verrous et les plans SQL",
+        "Le redémarrage assure un rollback applicatif complet",
+        "Les bases relationnelles ne produisent aucun journal exploitable"
+      ],
+      "answer": 0,
+      "explanation": "Un redémarrage peut être nécessaire dans certains incidents, mais il ne remplace pas le diagnostic. Quand c'est sûr, préserver la chronologie, les attentes, les transactions et les ressources facilite l'identification de la cause et la prévention de la récidive."
+    }
+  ]
+}
