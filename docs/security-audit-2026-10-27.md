@@ -9,6 +9,7 @@ Analyse statique du code de `feature/lab-workspace`, des workflows GitHub Action
 - **CORS :** suppression de l'origine universelle et des identifiants CORS. La liste `SKILLTREE_CORS_ORIGINS` est vide par défaut (l'interface hébergée sur la même origine continue de fonctionner), n'accepte que des origines HTTP(S) explicites et ne prend pas en charge `*`. Les méthodes et en-têtes CORS sont limités.
 - **En-têtes HTTP :** ajout de `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` et `Permissions-Policy`. La CSP n'est pas imposée dans cette PR : l'interface actuelle repose sur des scripts inline et une politique trop stricte pourrait casser le site. Une CSP avec nonces ou hashes doit être planifiée séparément.
 - **GitHub Actions :** les vérifications Python et frontend des PR utilisent maintenant un jeton en lecture seule. La publication du bundle statique est déplacée dans un workflow distinct déclenché uniquement par un push sur `feature/lab-workspace`; le droit d'écriture est limité au job de publication.
+- **Ancien moteur Docker :** les trois endpoints legacy qui démarrent/exécutent/valident un shell de laboratoire renvoient désormais 503 tant que `SKILLTREE_ENABLE_LEGACY_DOCKER_LABS` n'est pas explicitement activé. L'option est documentée comme réservée aux environnements de confiance.
 - **Dépendances :** ajout d'un audit automatisé avec `pip-audit` et de mises à jour Dependabot hebdomadaires pour Python et GitHub Actions.
 - **Fichiers de base de données :** les copies SQLite de test/sauvegarde ne doivent pas faire partie du dépôt public. Cette PR les retire de l'arbre courant et renforce `.gitignore`. Cette suppression ne les efface pas des commits historiques.
 
@@ -20,11 +21,11 @@ La plupart des routes d'écriture et de lecture ne portent pas d'identité utili
 
 **Suite recommandée :** choisir un vrai mécanisme de connexion/identité, puis rattacher chaque session d'examen, tentative, topologie, inventaire et profil à l'identifiant utilisateur côté serveur. Ajouter des tests d'accès croisé entre deux utilisateurs avant de rendre le parcours multi-utilisateur fiable.
 
-### Élevé si le runtime dispose de Docker — anciens endpoints de shell de laboratoire
+### Élevé si le moteur legacy est explicitement activé — endpoints de shell Docker
 
-Les routes historiques `/api/lab/start`, `/api/lab/exec` et `/api/lab/validate` n'ont pas de dépendance d'authentification. Le runner peut démarrer un conteneur en mode `--privileged` et exécuter une commande fournie par le client dans ce conteneur. Si un déploiement dispose d'un démon Docker accessible, cela expose un risque important d'abus de ressources et d'escalade vers l'hôte.
+Cette PR désactive par défaut les routes `/api/lab/start`, `/api/lab/exec` et `/api/lab/validate` ; chacune refuse la requête avant de lancer le runner tant que `SKILLTREE_ENABLE_LEGACY_DOCKER_LABS` n'est pas explicitement activé. Si cette option est activée, le code historique peut encore démarrer un conteneur en mode `--privileged` et exécuter une commande fournie par le client. Sur un hôte disposant d'un démon Docker accessible, cela reste un risque important d'abus de ressources et d'escalade vers l'hôte.
 
-**Suite recommandée :** désactiver les routes legacy sur les déploiements publics ou les protéger par une authentification serveur, plafonner le nombre de sessions et leur durée, supprimer `--privileged` au profit de capacités minimales, et tester les scénarios réseau avant déploiement. Le code seul ne prouve pas que Docker est disponible sur le service Render actuel.
+**Suite recommandée :** ne pas activer l'option sur un site public ; pour les usages locaux de confiance, supprimer `--privileged` au profit de capacités minimales, plafonner les sessions et tester les scénarios réseau avant de réactiver ce moteur. La disponibilité de Docker sur le service Render actuel n'est pas prouvée par le code seul.
 
 ### Élevé — absence de limite de débit sur les fonctionnalités coûteuses
 
