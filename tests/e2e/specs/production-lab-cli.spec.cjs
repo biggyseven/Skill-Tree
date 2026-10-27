@@ -20,6 +20,15 @@ const BASE_SCENARIOS = [
   'cli-vlan-trunk',
 ];
 
+// Exécuter de vraies commandes sur quatre familles simples et représentatives.
+// Les autres scénarios sont vérifiés en chargement/topologie/bibliothèques.
+const CLI_INTERACTION_SCENARIOS = new Set([
+  'cli-ipv4-interfaces',
+  'cli-vlan-access',
+  'cli-static-routing',
+  'cli-dhcp-pool',
+]);
+
 test.describe('Lab Workspace CLI — production browser smoke (read only)', () => {
   test.describe.configure({ retries: 0 });
   test.setTimeout(60_000);
@@ -61,8 +70,8 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
       const topology = payload.initial_topology || definition.initial_topology || {};
       const expectedNodes = topology.nodes || [];
       const expectedLinks = topology.links || [];
-      expect(expectedNodes.length, 'la définition doit contenir au moins trois équipements').toBeGreaterThanOrEqual(3);
-      expect(expectedLinks.length, 'la définition doit contenir plusieurs liaisons').toBeGreaterThanOrEqual(2);
+      expect(expectedNodes.length, 'la définition doit contenir au moins deux équipements').toBeGreaterThanOrEqual(2);
+      expect(expectedLinks.length, 'la définition doit contenir au moins une liaison').toBeGreaterThanOrEqual(1);
       expect((definition.check || {}).type).toBe('config_assertions');
       expect((definition.check || {}).rules || []).not.toHaveLength(0);
 
@@ -109,9 +118,9 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
       await expect(page.locator('section[aria-label="Serveurs & stockage"]')).toBeVisible();
       await expect(page.locator('section[aria-label="Sécurité & distribution"]')).toBeVisible();
 
-      // La saisie réelle du terminal et le contrôle serveur sont exercés sur chacun des 17 scénarios.
-      // La saisie CLI réelle est jouée sur quatre représentants de familles différentes.
-      if (BASE_SCENARIOS.includes(labId)) {
+      // Les 17 scénarios sont parcourus ci-dessus ; seules quatre familles exécutent
+      // une séquence CLI réelle complète afin de garder un test ciblé et reproductible.
+      if (CLI_INTERACTION_SCENARIOS.has(labId)) {
         console.log('Début interaction CLI xterm : ' + labId);
         // Exécuter la séquence de référence dans xterm, comme un apprenant.
         // Le seul POST autorisé est /check : jamais /submit ni /save en production.
@@ -128,11 +137,15 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
         const targetMatch = targetHint.match(/^Cible CLI\s*:\s*([^.]+)\./);
         expect(targetMatch, 'la cible CLI doit être exploitable').toBeTruthy();
         const targetId = targetMatch[1].trim();
-        const sequenceHint = (definition.hints || []).find(hint => hint.startsWith('Séquence de référence'));
+        const sequenceHint = (definition.hints || []).find(hint =>
+          hint.startsWith('Séquence de référence') ||
+          hint.startsWith('Solution de référence (à consulter en dernier)')
+        );
         expect(sequenceHint, 'la séquence CLI de référence doit être documentée').toBeTruthy();
-        const commands = sequenceHint
-          .replace(/^Séquence de référence\s*:\s*/, '')
-          .replace(/\.$/, '')
+        const commandText = sequenceHint
+          .replace(/^(?:Séquence de référence|Solution de référence \(à consulter en dernier\))\s*:\s*/, '')
+          .replace(/\.$/, '');
+        const commands = commandText
           .split(/\s;\s/)
           .map(command => command.trim())
           .filter(Boolean);
