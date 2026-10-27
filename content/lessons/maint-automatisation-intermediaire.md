@@ -40,61 +40,79 @@ Les principes directeurs sont les suivants : intervention autorisée, moindre pr
 | Retour arrière | Séquence permettant de retrouver un état stable si les critères de réussite ne sont pas satisfaits. |
 | Récurrence | Réapparition d'un problème similaire après un traitement précédent. |
 
-## Cartographie des processus
+## Schémas adaptés au sujet
 
-### Schéma 1 — chaîne opérationnelle
-
-```mermaid
-flowchart LR
-  A[Signal] --> B[Collecte] --> C[Seuil] --> D[Décision] --> E[Action]
-```
-
-Ce schéma résume la chaîne à observer pour automatiser les tâches (scripts, ansible). Chaque étape possède une entrée, une sortie et une responsabilité. Si une transition n'est pas visible, la procédure doit prévoir une vérification plutôt que supposer que l'étape précédente a réussi.
-
-### Schéma 2 — cycle de traitement
+### Schéma 1 — Cycle de livraison Ansible
 
 ```mermaid
 flowchart LR
-  A[Préparer] --> B[Exécuter] --> C[Contrôler] --> D[Valider] --> E[Tracer]
+  A[Git versionné] --> B[Syntaxe et lint]
+  B --> C[Check et diff]
+  C --> D[Lot canari]
+  D --> E[Déploiement contrôlé]
 ```
 
-Le cycle doit être parcouru du début à la fin, sans supprimer la validation ni la trace. Une intervention peut être techniquement terminée alors que son résultat n'est pas encore accepté par le service concerné.
+Le code est revu, testé et déployé progressivement. Le contrôle de syntaxe ne prouve pas à lui seul que le changement est sûr.
 
-### Schéma 3 — maîtrise du risque
+### Schéma 2 — Idempotence
+
+```mermaid
+flowchart TD
+  A[État observé] --> B{Déjà conforme ?}
+  B -->|Oui| C[Aucune modification]
+  B -->|Non| D[Appliquer état cible]
+  D --> E[Recontrôler]
+```
+
+Un run doit converger vers l'état cible sans ajouter le même changement à chaque exécution.
+
+### Schéma 3 — Gestion des secrets
 
 ```mermaid
 flowchart LR
-  A[Actif] --> B[Risque] --> C[Contrôle] --> D[Preuve] --> E[Revue]
+  A[Identité de service] --> B[Coffre de secrets]
+  B --> C[Exécution autorisée]
+  C --> D[Journal sans secret]
+  D --> E[Rotation contrôlée]
 ```
 
-La décision finale doit tenir compte du risque et des preuves. Une alerte, une action ou un changement de statut n'est utile que si l'information est assez fiable pour permettre la suite du travail.
+Les secrets ne doivent pas apparaître dans le code, les sorties ou l'historique ; tout secret publié doit être révoqué.
 
-### Schéma 4 — parcours d'une demande
+### Schéma 4 — Traitement des erreurs
+
+```mermaid
+flowchart TD
+  A[Entrées validées] --> B[Exécution ciblée]
+  B --> C{Résultat conforme ?}
+  C -->|Oui| D[Tracer succès]
+  C -->|Non| E[Échec explicite et reprise]
+```
+
+Les erreurs doivent remonter par cible sans annoncer un succès global trompeur.
+
+### Schéma 5 — Limiter l'impact
 
 ```mermaid
 flowchart LR
-  A[Demande] --> B[Qualification] --> C[Traitement] --> D[Validation] --> E[Clôture]
+  A[Inventaire] --> B[--limit groupe]
+  B --> C[Test pilote]
+  C --> D[Validation]
+  D --> E[Généralisation]
 ```
 
-Le parcours doit laisser au technicien un état explicite à chaque étape : en attente, en cours, bloqué, validé ou escaladé. Des états ambigus rendent les indicateurs de délai et le pilotage peu fiables.
+Le lot pilote vérifie l'inventaire et les variables avant une généralisation à toute la flotte.
 
-### Schéma 5 — démarche d'analyse
+### Schéma 6 — Boucle de livraison
 
 ```mermaid
 flowchart LR
-  A[Mesure] --> B[Analyse] --> C[Hypothèse] --> D[Test] --> E[Conclusion]
+  A[Ticket de changement] --> B[Pull request]
+  B --> C[Revue par pair]
+  C --> D[Exécution tracée]
+  D --> E[Contrôle post-déploiement]
 ```
 
-L'analyse gagne à séparer constat, hypothèse et conclusion. Les preuves qui ne soutiennent pas l'hypothèse doivent rester disponibles afin d'expliquer pourquoi une piste a été écartée.
-
-### Schéma 6 — boucle d'amélioration
-
-```mermaid
-flowchart LR
-  A[Détection] --> B[Escalade] --> C[Diagnostic] --> D[Rétablissement] --> E[Retour]
-```
-
-La boucle se ferme lorsque les retours et incidents servent à changer le dispositif, puis qu'un contrôle démontre l'effet de cette amélioration. Une action documentaire sans vérification de terrain reste incomplète.
+Relier ticket, commit, exécution et validation rend le changement explicable et reproductible.
 
 ## Fondements techniques du domaine
 
