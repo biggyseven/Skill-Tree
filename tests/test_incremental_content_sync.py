@@ -36,6 +36,16 @@ class IncrementalContentSyncTests(unittest.TestCase):
                 "prereqs": ["existing-course"],
                 "requirements": [{"kind": "quiz", "min_score": 85}],
             },
+            {
+                "id": "course-with-placeholder",
+                "title": "Cours toujours temporaire",
+                "description": "Son contenu source est toujours temporaire.",
+                "module": "Cybersécurité",
+                "category": "Cybersécurité",
+                "order": 12,
+                "prereqs": [],
+                "requirements": [{"kind": "quiz", "min_score": 80}],
+            },
         ]
         (root / "nodes.json").write_text(
             json.dumps(nodes, ensure_ascii=False), encoding="utf-8"
@@ -74,6 +84,24 @@ class IncrementalContentSyncTests(unittest.TestCase):
                         ],
                         "answer": 1,
                         "explanation": "Une hypothèse décrit les conditions et les observations attendues.",
+                    }
+                ],
+            },
+            "course-with-placeholder": {
+                "node_id": "course-with-placeholder",
+                "scope": "quiz",
+                "questions": [
+                    {
+                        "type": "qcm",
+                        "prompt": "Question placeholder pour le cours restant à rédiger.",
+                        "choices": [
+                            "Option A (placeholder)",
+                            "Option B (placeholder)",
+                            "Option C (placeholder)",
+                            "Option D (placeholder)",
+                        ],
+                        "answer": 0,
+                        "explanation": "Question temporaire à remplacer quand le cours sera écrit.",
                     }
                 ],
             },
@@ -117,6 +145,30 @@ class IncrementalContentSyncTests(unittest.TestCase):
                     ),
                 )
                 conn.execute(
+                    "INSERT INTO nodes (id, title, description, category, module, sort_order)"
+                    " VALUES (?, ?, ?, ?, ?, ?)",
+                    ("course-with-placeholder", "Cours existant temporaire", "Description temporaire", "Général", "Général", 2),
+                )
+                conn.execute(
+                    "INSERT INTO requirements (node_id, kind, min_score) VALUES (?, ?, ?)",
+                    ("course-with-placeholder", "quiz", 80),
+                )
+                conn.execute(
+                    "INSERT INTO questions"
+                    " (node_id, scope, prompt, choices, answer, question_type, explanation, position)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        "course-with-placeholder",
+                        "quiz",
+                        "Question placeholder dans la base existante.",
+                        json.dumps(["Option A (placeholder)", "Option B", "Option C", "Option D"]),
+                        0,
+                        "qcm",
+                        "Question temporaire persistante.",
+                        0,
+                    ),
+                )
+                conn.execute(
                     "INSERT INTO attempts (node_id, kind, score, passed, evidence, detail, created_at)"
                     " VALUES (?, ?, ?, ?, ?, ?, ?)",
                     (
@@ -131,9 +183,9 @@ class IncrementalContentSyncTests(unittest.TestCase):
                 )
                 conn.execute(
                     "INSERT INTO exam_sessions"
-                    " (session_id, category, question_ids, started_at, expires_at, node_id, exam_type)"
-                    " VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    ("session-active", "Cybersécurité", "[]", 100, 200, "existing-course", "course"),
+                    " (session_id, category, question_ids, started_at, expires_at)"
+                    " VALUES (?, ?, ?, ?, ?)",
+                    ("session-active", "Cybersécurité", "[]", 100, 200),
                 )
                 conn.commit()
 
@@ -181,6 +233,14 @@ class IncrementalContentSyncTests(unittest.TestCase):
                 self.assertEqual(second_report["nodes_added"], 0)
                 self.assertEqual(second_report["quiz_banks_added"], 0)
                 self.assertEqual(second_report["quiz_banks_refreshed"], 0)
+                unchanged_placeholder = conn.execute(
+                    "SELECT prompt FROM questions"
+                    " WHERE node_id = 'course-with-placeholder' AND scope = 'quiz'"
+                ).fetchone()
+                self.assertEqual(
+                    unchanged_placeholder["prompt"],
+                    "Question placeholder dans la base existante.",
+                )
                 self.assertEqual(
                     conn.execute("SELECT COUNT(*) FROM attempts").fetchone()[0], 1
                 )

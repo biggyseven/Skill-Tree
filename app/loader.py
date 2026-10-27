@@ -1075,9 +1075,24 @@ def sync_content_additions(
                     ).lower()
                     for row in stored
                 )
-                if scope == "quiz" and any(
+                incoming_text = " ".join(
+                    " ".join(
+                        str(value or "")
+                        for value in (
+                            question.prompt,
+                            question.choices,
+                            question.explanation,
+                        )
+                    ).lower()
+                    for question in questions
+                )
+                stored_is_temporary = any(
                     marker in stored_text for marker in temporary_question_markers
-                ):
+                )
+                incoming_is_temporary = any(
+                    marker in incoming_text for marker in temporary_question_markers
+                )
+                if scope == "quiz" and stored_is_temporary and not incoming_is_temporary:
                     conn.execute(
                         "DELETE FROM questions WHERE node_id = ? AND scope = ?",
                         (node_id, scope),
