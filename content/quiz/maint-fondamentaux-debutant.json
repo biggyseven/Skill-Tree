@@ -1,0 +1,126 @@
+{
+  "node_id": "maint-fondamentaux-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif principal de la maintenance informatique ?",
+      "choices": [
+        "Remplacer régulièrement tous les équipements, même s'ils fonctionnent",
+        "Maintenir ou rétablir le service attendu en maîtrisant les risques",
+        "Redémarrer tout système dès qu'un utilisateur signale un problème",
+        "Privilégier la vitesse même sans autorisation ni vérification"
+      ],
+      "answer": 1,
+      "explanation": "La maintenance vise la continuité et la fiabilité du service, avec des interventions adaptées, autorisées, tracées et vérifiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un serveur est allumé, mais les utilisateurs ne peuvent plus ouvrir les dossiers partagés. Quelle conclusion est la plus juste ?",
+      "choices": [
+        "Le service fonctionne nécessairement puisque le serveur est allumé",
+        "La panne ne peut être que matérielle",
+        "Il faut vérifier le service rendu et ses dépendances, pas seulement l'état apparent du serveur",
+        "Il faut clôturer le ticket si aucun voyant rouge n'est allumé"
+      ],
+      "answer": 2,
+      "explanation": "L'état d'un équipement ne prouve pas que la fonction attendue est disponible. Le diagnostic doit inclure le service et le parcours utilisateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un technicien remplace un ventilateur après la détection d'une défaillance. Il s'agit principalement de quelle famille de maintenance ?",
+      "choices": [
+        "Maintenance corrective",
+        "Maintenance évolutive",
+        "Maintenance prédictive",
+        "Maintenance documentaire uniquement"
+      ],
+      "answer": 0,
+      "explanation": "La maintenance corrective intervient après la constatation d'un défaut afin de rétablir la fonction attendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information décrit un symptôme plutôt qu'une cause confirmée ?",
+      "choices": [
+        "Le test reproduit montre que le service renvoie une erreur 503",
+        "Les journaux révèlent une saturation de mémoire confirmée",
+        "Le fournisseur a reproduit un défaut logiciel précis",
+        "Les utilisateurs constatent des lenteurs, sans que leur origine soit encore établie"
+      ],
+      "answer": 3,
+      "explanation": "Un symptôme est observable. La cause doit être recherchée puis confirmée par des éléments et des tests, plutôt que supposée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment choisir la priorité d'un incident ?",
+      "choices": [
+        "Selon l'ordre d'arrivée uniquement",
+        "Selon l'impact sur les services et l'activité, l'urgence et les règles de l'organisation",
+        "Selon la personne qui insiste le plus",
+        "Selon le prix de l'équipement seulement"
+      ],
+      "answer": 1,
+      "explanation": "L'impact, l'urgence, la criticité du service, les dépendances et les engagements applicables doivent guider la priorité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une intervention risquée sur un équipement de production, quelle préparation est la plus appropriée ?",
+      "choices": [
+        "Commencer immédiatement puis documenter si un problème survient",
+        "S'appuyer uniquement sur la mémoire du technicien",
+        "Vérifier l'autorisation, le périmètre, les prérequis, les sauvegardes pertinentes, les tests et les conditions d'arrêt ou de retour arrière",
+        "Prévoir un retour arrière sans vérifier qu'il est applicable"
+      ],
+      "answer": 2,
+      "explanation": "Une intervention doit être préparée : autorisations, cible exacte, risques, dépendances, moyens, validations et plan de repli réaliste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle valide le mieux le rétablissement après une intervention ?",
+      "choices": [
+        "Un test représentatif du service et du parcours attendu, accompagné des vérifications techniques adaptées",
+        "La seule disparition du voyant d'alarme",
+        "Le fait que le technicien ait terminé les commandes prévues",
+        "Le redémarrage de l'équipement sans autre test"
+      ],
+      "answer": 0,
+      "explanation": "Le succès se juge par rapport au résultat attendu. Il faut vérifier le service et les fonctions concernées, pas seulement l'exécution des commandes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un compte rendu d'intervention utile à un collègue ?",
+      "choices": [
+        "Seulement le nom du technicien et la durée",
+        "Uniquement la cause supposée",
+        "Les identifiants et secrets utilisés afin de pouvoir les retrouver",
+        "Les faits observés, les horaires pertinents, les actions menées, les résultats des tests, l'état final et les suites à donner"
+      ],
+      "answer": 3,
+      "explanation": "Un compte rendu factuel assure la traçabilité et permet la reprise. Les mots de passe, clés et jetons ne doivent pas y être consignés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une réparation temporaire rétablit le service, mais la cause n'est pas encore connue. Quelle est la bonne conduite ?",
+      "choices": [
+        "Présenter la réparation comme définitive",
+        "Signaler le caractère temporaire, documenter le risque résiduel et définir la suite du traitement",
+        "Supprimer le ticket pour éviter les doublons",
+        "Éviter toute communication tant que l'analyse n'est pas terminée"
+      ],
+      "answer": 1,
+      "explanation": "Il faut distinguer le rétablissement immédiat de la résolution durable, communiquer les limites et assurer le suivi de la cause non résolue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tenir à jour l'historique d'un actif et les procédures ?",
+      "choices": [
+        "Pour remplacer tous les tests pratiques",
+        "Pour éviter de transmettre les informations entre équipes",
+        "Pour rendre les interventions répétables, faciliter le diagnostic et tirer des enseignements des incidents",
+        "Pour garantir qu'aucune panne future ne se produira"
+      ],
+      "answer": 2,
+      "explanation": "Une documentation maîtrisée améliore la reproductibilité, la continuité entre techniciens et l'amélioration continue, sans supprimer tout risque de panne."
+    }
+  ]
+}
