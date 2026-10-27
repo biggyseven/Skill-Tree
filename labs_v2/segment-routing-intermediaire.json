@@ -1,0 +1,276 @@
+{
+  "schema_version": 2,
+  "id": "segment-routing-intermediaire",
+  "title": "Segment Routing — SR-MPLS et Prefix-SID",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Activez SR-MPLS sur R1 et harmonisez le SRGB avec le cœur. Attribuez un Prefix-SID unique et diffusez les informations de segment routing via l’IGP ; préparez TI-LFA pour la convergence rapide.",
+  "objectives": [
+    "Activer SR-MPLS sur le routeur.",
+    "Définir l’index Prefix-SID et l’espace SRGB.",
+    "Activer les extensions IGP.",
+    "Activer TI-LFA pour les protections de chemin."
+  ],
+  "hints": [
+    "Le Prefix-SID index doit être unique dans le domaine.",
+    "Le SRGB doit être cohérent pour interpréter les labels de façon prévisible.",
+    "TI-LFA pré-calcule un chemin de secours local."
+  ],
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-segment-routing-intermediaire",
+    "metadata": {
+      "name": "Segment Routing — SR-MPLS et Prefix-SID",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 180,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.30.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "segment-routing",
+              "enabled": false,
+              "mode": "sr-mpls",
+              "prefix_sid_index": 0,
+              "srgb_start": 16000,
+              "srgb_size": 8000,
+              "igp_extensions": false,
+              "ldp_compatibility": true,
+              "ti_lfa": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 490,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.30.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.30.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "segment-routing",
+              "enabled": true,
+              "mode": "sr-mpls",
+              "prefix_sid_index": 102,
+              "srgb_start": 16000,
+              "srgb_size": 8000,
+              "igp_extensions": true,
+              "ldp_compatibility": false,
+              "ti_lfa": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 800,
+        "y": 220,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.30.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "segment-routing",
+              "enabled": true,
+              "mode": "sr-mpls",
+              "prefix_sid_index": 103,
+              "srgb_start": 16000,
+              "srgb_size": 8000,
+              "igp_extensions": true,
+              "ldp_compatibility": false,
+              "ti_lfa": true
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "sr-enabled",
+        "description": "Segment Routing is enabled on R1.",
+        "device": "R1",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "sr-mode",
+        "description": "R1 uses SR-MPLS.",
+        "device": "R1",
+        "path": "config.routes[0].mode",
+        "operator": "equals",
+        "expected": "sr-mpls"
+      },
+      {
+        "id": "sid-index",
+        "description": "R1 has a valid Prefix-SID index.",
+        "device": "R1",
+        "path": "config.routes[0].prefix_sid_index",
+        "operator": "equals",
+        "expected": 101
+      },
+      {
+        "id": "srgb",
+        "description": "R1 uses the shared SRGB start.",
+        "device": "R1",
+        "path": "config.routes[0].srgb_start",
+        "operator": "equals",
+        "expected": 16000
+      },
+      {
+        "id": "srgb-size",
+        "description": "R1 uses the shared SRGB size.",
+        "device": "R1",
+        "path": "config.routes[0].srgb_size",
+        "operator": "equals",
+        "expected": 8000
+      },
+      {
+        "id": "igp-ext",
+        "description": "IGP extensions advertise segment routing.",
+        "device": "R1",
+        "path": "config.routes[0].igp_extensions",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "ldp",
+        "description": "Legacy LDP compatibility is not required in this design.",
+        "device": "R1",
+        "path": "config.routes[0].ldp_compatibility",
+        "operator": "equals",
+        "expected": false
+      },
+      {
+        "id": "ti-lfa",
+        "description": "TI-LFA fast reroute is enabled.",
+        "device": "R1",
+        "path": "config.routes[0].ti_lfa",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
