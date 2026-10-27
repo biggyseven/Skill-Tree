@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « KPI de maintenance (MTTR, MTBF) » ?",
+      "prompt": "Quelle formule décrit le MTBF pour un ensemble défini d'actifs réparables ?",
       "choices": [
-        "Le sujet principal du cours : KPI de maintenance (MTTR, MTBF)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Temps d'indisponibilité total divisé par le nombre d'incidents",
+        "Temps de fonctionnement retenu divisé par le nombre de défaillances éligibles",
+        "Nombre de tickets divisés par le temps de réparation",
+        "Temps de maintenance planifiée divisé par le nombre d'actifs"
+      ],
+      "answer": 1,
+      "explanation": "Le MTBF utilise le temps de fonctionnement selon une convention documentée et le nombre de défaillances retenues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il préciser la convention MTTR dans un dictionnaire de KPI ?",
+      "choices": [
+        "Parce que l'acronyme peut désigner réparation, rétablissement ou résolution selon l'organisation",
+        "Parce que le MTTR n'a jamais d'unité de temps",
+        "Parce que tout MTTR doit exclure les interruptions de service",
+        "Parce qu'il est impossible de calculer un temps moyen"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Les points de départ et de fin changent la mesure ; la convention doit être explicite pour comparer les périodes ou équipes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un actif a enregistré 1 800 heures de fonctionnement et 6 défaillances éligibles. Quel MTBF observé obtient-on ?",
+      "choices": [
+        "30 heures",
+        "108 heures",
+        "300 heures",
+        "1 794 heures"
+      ],
+      "answer": 2,
+      "explanation": "MTBF = 1 800 / 6 = 300 heures, sous réserve que l'exposition et les événements soient correctement définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle situation peut faire paraître le MTBF meilleur sans amélioration réelle de fiabilité ?",
+      "choices": [
+        "Rapprocher l'inventaire avec une source indépendante",
+        "Documenter un changement de formule",
+        "Dédupliquer les alertes représentant une seule panne selon une règle approuvée",
+        "Exclure du périmètre les actifs les plus sujets aux pannes sans le rendre visible"
+      ],
+      "answer": 3,
+      "explanation": "Une modification cachée de population peut relever artificiellement la moyenne et rendre les périodes non comparables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi suivre le P90 en complément du MTTR moyen ?",
+      "choices": [
+        "Pour prouver que tous les incidents durent exactement le P90",
+        "Pour mieux voir les durées longues et la queue de distribution",
+        "Pour supprimer le besoin d'examiner les cas individuels",
+        "Pour calculer le nombre d'actifs dans l'inventaire"
+      ],
+      "answer": 1,
+      "explanation": "Le P90 indique le niveau sous lequel se situent environ 90 % des observations selon une méthode de calcul documentée et met en évidence les cas longs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement l'utilisation d'une formule simplifiée de disponibilité MTBF/(MTBF+MTTR) ?",
+      "choices": [
+        "Elle remplace toujours les règles de calcul d'un SLA",
+        "Elle garantit la disponibilité future de tout système",
+        "Elle est utile sous des hypothèses cohérentes, mais ne remplace pas nécessairement la disponibilité observée ou contractuelle",
+        "Elle n'utilise aucune donnée de temps"
+      ],
+      "answer": 2,
+      "explanation": "La formule est un modèle simplifié ; les fenêtres planifiées, la redondance et la convention de disponibilité peuvent nécessiter un calcul différent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire d'un ticket clos dont l'horodatage de rétablissement est absent ?",
+      "choices": [
+        "Lui attribuer une durée de zéro par défaut",
+        "Le compter comme réparation instantanée",
+        "L'ignorer sans enregistrer l'exclusion",
+        "Le signaler comme incomplet, le vérifier ou le mettre en quarantaine selon la règle approuvée"
+      ],
+      "answer": 3,
+      "explanation": "Une valeur inconnue ne signifie pas une durée nulle ; les exclusions et leur couverture doivent être documentées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure décrit généralement le temps jusqu'à ce qu'une panne soit détectée ?",
+      "choices": [
+        "MTTD",
+        "MTBF",
+        "MTTF",
+        "OEE"
+      ],
+      "answer": 0,
+      "explanation": "MTTD est couramment utilisé pour le temps moyen de détection, selon des bornes temporelles définies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le MTTR diminue mais les tickets rouverts et les plaintes augmentent. Quelle réaction est la plus appropriée ?",
+      "choices": [
+        "Déclarer l'amélioration confirmée sur la seule base du MTTR",
+        "Supprimer les tickets rouverts du calcul",
+        "Examiner la définition de rétablissement, les réouvertures et la validation métier avant de conclure",
+        "Augmenter la précision décimale du graphique"
+      ],
+      "answer": 2,
+      "explanation": "La baisse peut venir d'une clôture prématurée ou d'un changement de définition ; il faut valider le résultat opérationnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un dictionnaire de KPI versionné ?",
+      "choices": [
+        "À permettre aux équipes de modifier les formules sans traçabilité",
+        "À documenter définition, formule, population, source, exclusions, fréquence et propriétaire",
+        "À remplacer les tests de qualité des données",
+        "À supprimer le besoin de comprendre l'indicateur"
+      ],
+      "answer": 1,
+      "explanation": "Un dictionnaire versionné rend la mesure reproductible et permet d'expliquer les ruptures de série."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la hausse du taux de maintenance préventive doit-elle être vérifiée sur un échantillon ?",
+      "choices": [
+        "Parce que toutes les tâches préventives sont forcément erronées",
+        "Parce qu'un KPI est toujours inutile",
+        "Pour vérifier que le dénominateur, les reports, les annulations et les preuves de réalisation sont cohérents",
+        "Pour supprimer les contrôles indépendants"
+      ],
+      "answer": 2,
+      "explanation": "Le taux peut s'améliorer artificiellement si les tâches exigibles sont retirées du dénominateur ou clôturées sans exécution vérifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure base pour conclure qu'une intervention a amélioré un KPI ?",
+      "choices": [
+        "Une cible ambitieuse choisie après le résultat",
+        "Une capture d'écran isolée sans historique",
+        "Une comparaison entre populations non comparables",
+        "Une référence définie avant l'action, une formule stable, des données validées et une analyse des effets secondaires"
+      ],
+      "answer": 3,
+      "explanation": "L'évaluation demande une référence, des définitions cohérentes, une population comparable et une recherche des effets secondaires."
     }
   ]
 }
