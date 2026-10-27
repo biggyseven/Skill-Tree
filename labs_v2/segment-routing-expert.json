@@ -66,7 +66,10 @@
                 {
                   "type": "explicit",
                   "preference": 100,
-                  "segments": []
+                  "segments": [
+                    0,
+                    0
+                  ]
                 }
               ],
               "ti_lfa": false,
