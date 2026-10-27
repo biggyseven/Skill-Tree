@@ -1,0 +1,310 @@
+{
+  "schema_version": 2,
+  "id": "qos-intermediaire",
+  "title": "QoS — Prioriser la voix sur la sortie WAN",
+  "level": "intermédiaire",
+  "module": "Priorisez la voix sur R1 avec DSCP EF, une file de faible latence et un shaping adapté au débit du WAN. Le reste du trafic doit conserver une bande passante contrôlée.",
+  "prompt": [
+    "Identifier la classe voix avec DSCP EF.",
+    "Réserver une part de la priorité à la voix.",
+    "Activer un shaping inférieur au débit physique du lien.",
+    "Activer une politique de policing pour le trafic abusif."
+  ],
+  "objectives": [
+    "La priorité voix doit être bornée pour éviter qu’elle ne monopolise tout le lien.",
+    "Le shaping lisse les rafales ; le policing peut abandonner ou marquer le trafic excédentaire.",
+    "Conservez une classe par défaut pour le reste du trafic."
+  ],
+  "hints": {
+    "schema_version": 2,
+    "topology_id": "topo-qos-intermediaire",
+    "metadata": {
+      "name": "QoS — Priorité à la voix et shaping WAN",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 200,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "qos",
+              "policy_map": "WAN-OUT",
+              "classes": [
+                {
+                  "name": "VOICE",
+                  "dscp": "ef",
+                  "priority_percent": 0
+                },
+                {
+                  "name": "DEFAULT",
+                  "dscp": "be",
+                  "bandwidth_percent": 100
+                }
+              ],
+              "shaping": {
+                "enabled": false,
+                "rate_kbps": 0
+              },
+              "policing": {
+                "enabled": false,
+                "rate_kbps": 0,
+                "action": "transmit"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 500,
+        "y": 220,
+        "label": "SW1",
+        "model": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 10,
+              "name": "USERS"
+            }
+          ]
+        }
+      },
+      {
+        "id": "PHONE",
+        "type": "pc",
+        "x": 780,
+        "y": 100,
+        "label": "PHONE",
+        "model": "PHONE",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PHONE"
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 780,
+        "y": 340,
+        "label": "PC-A",
+        "model": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.30",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "ROUTER-SW",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VOICE",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PHONE",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "DATA",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": [
+    {
+      "id": "policy",
+      "description": "La policy QoS WAN-OUT est appliquée.",
+      "device": "R1",
+      "path": "config.routes[0].policy_map",
+      "operator": "equals",
+      "expected": "WAN-OUT"
+    },
+    {
+      "id": "voice-dscp",
+      "description": "La classe voix utilise DSCP EF.",
+      "device": "R1",
+      "path": "config.routes[0].classes[0].dscp",
+      "operator": "equals",
+      "expected": "ef"
+    },
+    {
+      "id": "voice-priority",
+      "description": "La classe voix dispose d’une file prioritaire.",
+      "device": "R1",
+      "path": "config.routes[0].classes[0].priority_percent",
+      "operator": "equals",
+      "expected": 20
+    },
+    {
+      "id": "shaping",
+      "description": "Le shaping WAN est activé.",
+      "device": "R1",
+      "path": "config.routes[0].shaping.enabled",
+      "operator": "equals",
+      "expected": true
+    },
+    {
+      "id": "shape-rate",
+      "description": "Le débit de shaping correspond au WAN.",
+      "device": "R1",
+      "path": "config.routes[0].shaping.rate_kbps",
+      "operator": "equals",
+      "expected": 10000
+    },
+    {
+      "id": "policing",
+      "description": "Le policing de sécurité est actif.",
+      "device": "R1",
+      "path": "config.routes[0].policing.enabled",
+      "operator": "equals",
+      "expected": true
+    }
+  ],
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": 25,
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
