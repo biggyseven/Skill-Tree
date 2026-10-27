@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-budget-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une offre SaaS est moins chère la première année que la solution interne, mais les coûts de connecteurs, d’export de données et de support sont élevés. Quelle comparaison est correcte ?",
+      "choices": [
+        "Comparer seulement le prix affiché de la licence",
+        "Comparer le coût total sur l’horizon retenu, incluant implémentation, usage, exploitation, support, évolution et sortie",
+        "Ajouter les coûts d’exploitation uniquement à l’option interne",
+        "Ignorer le coût de sortie puisqu’il est payé à la fin"
+      ],
+      "answer": 1,
+      "explanation": "Le coût total de possession couvre les coûts de cycle de vie et pas seulement le prix d’acquisition ou d’abonnement. La comparaison doit utiliser un horizon commun, les mêmes hypothèses d’usage et les coûts de transition ou de sortie. Un coût tardif reste pertinent pour une décision d’investissement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le tableau de suivi présente 40 % du budget consommé alors que seules 15 % des livraisons vérifiables sont acceptées. Que peut-on conclure ?",
+      "choices": [
+        "Le projet est forcément en avance puisqu’il reste 60 % du budget",
+        "Les dépenses sont toujours correctement alignées sur les résultats",
+        "Il faut augmenter immédiatement le budget sans analyser la cause",
+        "Une dérive potentielle doit être examinée en reliant coût réel, valeur acquise, travail restant et prévision à terminaison"
+      ],
+      "answer": 3,
+      "explanation": "La consommation budgétaire seule ne dit pas si le projet progresse. L’écart entre dépense et livrables acceptés peut révéler reprise, coûts front-loaded ou problème de productivité ; il faut vérifier le contexte et actualiser le coût final. Une augmentation immédiate sans analyse risque seulement de financer davantage la même dérive."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un fournisseur a reçu un bon de commande de 20 000 €, mais n’a pas encore envoyé la facture. Quel statut budgétaire est le plus pertinent ?",
+      "choices": [
+        "La somme peut être engagée même si elle n’est pas encore comptabilisée comme coût réel facturé",
+        "Le coût doit être traité comme nul jusqu’à la facture",
+        "La somme ne compte que si le fournisseur livre avant la clôture",
+        "Il faut réduire le budget approuvé de 20 000 € puisque rien n’a été payé"
+      ],
+      "answer": 0,
+      "explanation": "Un engagement contractuel crée une obligation ou une dépense future probable avant le paiement et la facturation. Un tableau complet distingue montant engagé, coût réel constaté et coût restant à engager. Ne suivre que les factures peut faire paraître le projet sous budget alors que les obligations sont déjà prises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe ajoute une fonction à périmètre constant et annonce qu’elle sera absorbée « par la réserve ». Aucune analyse de risque ou règle de réserve n’est fournie. Quelle question est la plus importante ?",
+      "choices": [
+        "Qui a la couleur du tableau budgétaire ?",
+        "Peut-on supprimer l’historique du budget de référence ?",
+        "La réserve couvre-t-elle ce changement selon les règles approuvées, et quel est son impact sur les risques, coûts et délais ?",
+        "Peut-on accepter le changement avant d’en connaître le contenu ?"
+      ],
+      "answer": 2,
+      "explanation": "Une réserve n’est pas un budget libre sans règle. Il faut vérifier son objectif, son autorité d’usage, les hypothèses couvertes et les impacts du changement. Une demande de périmètre peut nécessiter une réestimation ou une nouvelle autorisation, même si une réserve existe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le coût réel est inférieur au profil planifié, mais deux lots critiques n’ont pas commencé à cause d’une approbation en attente. Quelle interprétation est la plus rigoureuse ?",
+      "choices": [
+        "Le projet est nécessairement rentable car il dépense moins",
+        "La faible dépense peut être le symptôme d’un retard ; il faut prévoir le coût à terminaison et évaluer l’effet de l’attente",
+        "Le budget n’est plus utile une fois le premier lot livré",
+        "Il suffit de considérer tous les lots non commencés comme terminés à zéro coût"
+      ],
+      "answer": 1,
+      "explanation": "Une dépense inférieure au budget peut refléter un travail non effectué, pas une économie. Le chef de projet doit mesurer l’effet de la dépendance sur le calendrier, le coût futur, les ressources mobilisées et les engagements fournisseurs. Le coût final se prévoit selon le travail restant, pas selon la trésorerie dépensée à ce jour."
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-bases-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une direction demande de « moderniser le support IT » sans cible mesurable. Quelle action transforme le mieux cette demande en objectif de projet pilotable ?",
+      "choices": [
+        "Choisir immédiatement une plateforme connue pour rassurer le sponsor",
+        "Définir un résultat mesurable avec une valeur de départ, un horizon et un responsable métier",
+        "Découper d'abord le travail en tâches techniques et laisser le bénéfice émerger",
+        "Fixer une date finale et considérer le respect de cette date comme preuve de succès"
+      ],
+      "answer": 1,
+      "explanation": "Un objectif mesurable relie le travail à un résultat métier contrôlable. La valeur de départ permet d’évaluer le changement, l’horizon précise quand l’effet sera observé et le responsable garde la responsabilité du bénéfice. Un produit ou une date seuls ne prouvent pas que le problème est résolu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un portail a été livré à la date prévue, mais les salariés continuent à envoyer leurs demandes par e-mail et le délai de traitement n’a pas changé. Quelle conclusion de pilotage est la plus juste ?",
+      "choices": [
+        "Le projet est nécessairement réussi puisque le livrable a été installé",
+        "Le projet échoue uniquement parce que les utilisateurs refusent le changement",
+        "Le livrable existe, mais le résultat et les bénéfices attendus ne sont pas encore démontrés",
+        "Il faut fermer le projet et supprimer les mesures d’adoption pour éviter un indicateur défavorable"
+      ],
+      "answer": 2,
+      "explanation": "Il faut distinguer livrable, résultat et bénéfice. L’application peut être techniquement livrée sans être adoptée ni améliorer le service. Le projet doit examiner les freins, le transfert au support et les mesures d’usage, puis affecter à un responsable le suivi des bénéfices post-livraison."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un sponsor ajoute une fonction de reporting à la veille du lancement. Elle semble simple mais nécessite de nouvelles données personnelles. Quelle est la bonne première décision ?",
+      "choices": [
+        "Analyser l’effet sur le périmètre, la sécurité, la qualité, les délais et le coût, puis faire décider au niveau approprié",
+        "Accepter la demande parce que le sponsor est la partie prenante la plus influente",
+        "Refuser automatiquement toute nouvelle demande après la planification",
+        "Ajouter la fonction sans la documenter si l’équipe pense pouvoir terminer à temps"
+      ],
+      "answer": 0,
+      "explanation": "Le changement doit être évalué selon ses effets croisés, notamment la protection des données et les tests requis. La gouvernance décide selon les délégations et les critères d’acceptation. L’approbation du sponsor ne dispense pas des contrôles de sécurité ni de la traçabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le fournisseur affirme qu’une interface sera disponible « probablement au début du mois », mais aucun engagement écrit n’existe. Comment gérer cette information dans le plan ?",
+      "choices": [
+        "La transformer en date ferme pour pouvoir bâtir le Gantt",
+        "Ignorer la dépendance tant qu’elle ne constitue pas un problème",
+        "Supprimer l’intégration du périmètre sans consulter le métier",
+        "La consigner comme hypothèse/dépendance, obtenir une confirmation datée et préparer une option de repli"
+      ],
+      "answer": 3,
+      "explanation": "Une information incertaine ne doit pas être présentée comme un engagement. La dépendance doit avoir un propriétaire, une échéance de confirmation et un impact clairement évalué. Une option de repli aide à limiter les conséquences si la disponibilité de l’interface n’est pas confirmée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le projet respecte budget et date, mais les contrôles d’accès sont volontairement repoussés après la mise en production. Quelle évaluation est la plus professionnelle ?",
+      "choices": [
+        "Le projet est réussi puisque les contraintes coût et délai sont atteintes",
+        "Le succès ne peut être déclaré sans examiner la qualité, la sécurité et les critères obligatoires d’acceptation",
+        "Les contrôles peuvent être ignorés si aucun incident n’est encore survenu",
+        "Il faut modifier les critères de succès pour refléter ce qui a été livré"
+      ],
+      "answer": 1,
+      "explanation": "Le succès ne se réduit pas au budget et au calendrier. Les exigences de sécurité et d’acceptation doivent être satisfaites ou faire l’objet d’une décision de risque dûment autorisée lorsque cela est permis. Modifier les critères après coup ou se fier à l’absence d’incident ne prouve pas que le produit est sûr."
+    }
+  ]
+}

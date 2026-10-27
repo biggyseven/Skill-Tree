@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-cycle-vie-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une étude préliminaire montre qu’une migration est possible, mais que ses coûts dépassent les bénéfices attendus et qu’une option plus simple répond au besoin. Quelle décision est la plus conforme à une bonne initiation ?",
+      "choices": [
+        "Continuer puisque des dépenses d’étude ont déjà été engagées",
+        "Augmenter automatiquement le périmètre pour justifier le budget initial",
+        "Revoir le business case et arrêter ou reformuler le projet si sa justification n’est plus suffisante",
+        "Passer directement à l’exécution afin de ne pas perdre de temps"
+      ],
+      "answer": 2,
+      "explanation": "L’initiation sert notamment à vérifier la justification et comparer des options, y compris l’arrêt. Les dépenses déjà engagées sont des coûts passés et ne suffisent pas à justifier un investissement futur. Le sponsor doit décider à partir des coûts, risques et bénéfices prévisionnels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pendant la planification, l’équipe découvre que la même spécialiste est indispensable à la migration et à la validation de restauration durant la même fenêtre. Que faut-il faire ?",
+      "choices": [
+        "Maintenir les deux tâches en parallèle, car les dates sont déjà approuvées",
+        "Traiter la contrainte de capacité, réviser les dépendances et comparer un autre créneau ou une ressource de remplacement",
+        "Réduire la durée des deux tâches sans consulter la spécialiste",
+        "Retirer le test de restauration pour conserver le jalon de mise en production"
+      ],
+      "answer": 1,
+      "explanation": "Un calendrier doit refléter la disponibilité des ressources et les contraintes techniques. Il faut étudier l’ordonnancement, une ressource qualifiée de remplacement ou une autre fenêtre avant de prendre un engagement. Supprimer un contrôle de restauration déplace un risque majeur vers l’exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un chef d’équipe remplace silencieusement la baseline par une date plus tardive après un retard. Le tableau de bord redevient vert. Quel est le défaut de gouvernance ?",
+      "choices": [
+        "La prévision a été actualisée, ce qui est toujours interdit",
+        "Le retard aurait dû être caché jusqu’à la clôture",
+        "La baseline n’est utile que pour les projets très longs",
+        "L’historique de référence a été effacé au lieu de tracer l’écart et de faire approuver le changement"
+      ],
+      "answer": 3,
+      "explanation": "La prévision doit refléter la meilleure estimation actuelle, tandis que la baseline approuvée permet de mesurer l’écart historique. Une modification de référence exige le processus et l’autorité prévus, sans supprimer l’historique. Sinon, les décideurs ne peuvent plus juger la performance ni les effets du changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe veut lancer la répétition générale de migration. Quelle combinaison constitue le meilleur jalon de décision ?",
+      "choices": [
+        "Critères d’acceptation définis, environnement représentatif disponible, données préparées, responsabilités et plan de retour arrière confirmés",
+        "Toutes les tâches du planning marquées à 100 % par leurs responsables",
+        "Accord verbal du développeur principal même si l’exploitation n’a pas participé",
+        "Date atteinte et budget non consommé, quel que soit l’état des tests"
+      ],
+      "answer": 0,
+      "explanation": "Un jalon doit vérifier les conditions nécessaires à l’étape suivante, pas seulement la date ou la déclaration de progression. Les critères, l’environnement, les données, les responsabilités et le retour arrière rendent l’essai significatif et sûr. Les tâches terminées ne prouvent pas que les prérequis sont effectivement réunis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "L’équipe utilise une seule estimation de durée pour une interface encore mal documentée. Quelle amélioration rend le plan plus utile à la décision ?",
+      "choices": [
+        "Ajouter davantage de décimales à la durée annoncée",
+        "Confirmer que toute incertitude doit être absorbée par les heures supplémentaires",
+        "Estimer une fourchette optimiste/probable/pessimiste, expliciter les hypothèses et identifier l’investigation qui réduira l’incertitude",
+        "Fixer une date engagée au scénario le plus optimiste"
+      ],
+      "answer": 2,
+      "explanation": "Une fourchette d’estimation représente mieux l’incertitude que la précision artificielle d’une valeur unique. Les hypothèses et les recherches nécessaires permettent au sponsor de comprendre le niveau de confiance et de choisir une réserve ou une stratégie de réduction du risque. Le scénario optimiste ne doit pas être traité comme la prévision centrale."
+    }
+  ]
+}

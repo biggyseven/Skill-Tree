@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-gestion-risques-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Un registre indique : « le fournisseur retardera l’API et provoquera un retard de recette ». Quel complément rend la formulation du risque la plus exploitable ?",
+      "choices": [
+        "Ajouter seulement le nom du chef de projet en propriétaire",
+        "Ajouter un code couleur sans décrire les causes",
+        "Séparer la cause, l’événement incertain et l’impact, puis nommer un propriétaire et un déclencheur observable",
+        "Transformer immédiatement le risque en problème même si l’API n’est pas encore en retard"
+      ],
+      "answer": 2,
+      "explanation": "Une formulation structurée relie cause, événement et effet potentiel. Le propriétaire, le déclencheur et l’action donnent les moyens de répondre avant que le risque survienne. Le risque doit rester distinct d’un problème réel tant que l’événement n’est pas constaté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un risque a une probabilité faible mais pourrait exposer des données hautement sensibles et provoquer des conséquences réglementaires majeures. Peut-on le classer comme peu prioritaire sur la seule probabilité ?",
+      "choices": [
+        "Oui, car une faible probabilité annule un impact élevé",
+        "Non ; il faut évaluer la sévérité, le contexte, les obligations et l’exposition, et appliquer les seuils de risque concernés",
+        "Oui, si le tableau de bord portefeuille est vert",
+        "Non, tous les risques doivent obligatoirement avoir la même priorité maximale"
+      ],
+      "answer": 1,
+      "explanation": "La priorité ne doit pas être déterminée par la probabilité seule. Une conséquence majeure peut nécessiter des contrôles ou une escalade même pour un événement rare. À l’inverse, marquer tous les risques au maximum empêche la priorisation ; la méthode doit combiner probabilité, impact, urgence et appétence au risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le contrat avec un fournisseur inclut une indemnisation financière en cas de retard. Quelle affirmation décrit correctement le transfert de risque ?",
+      "choices": [
+        "Le transfert rend le risque inexistant et élimine toute responsabilité du client",
+        "L’indemnisation garantit que le projet ne sera pas retardé",
+        "Le fournisseur doit nécessairement assumer tous les risques de cybersécurité",
+        "Le transfert peut déplacer certaines conséquences ou responsabilités contractuelles, mais n’élimine pas les impacts résiduels ni les obligations propres à l’organisation"
+      ],
+      "answer": 3,
+      "explanation": "Le transfert ne fait pas disparaître toutes les conséquences. Une indemnisation peut réduire une partie du coût financier, mais elle n’empêche pas nécessairement un retard, une atteinte à la réputation, une violation d’obligation ou une interruption. Les risques résiduels doivent rester visibles et être acceptés par l’autorité appropriée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le fournisseur n’a pas livré une version testable à la date convenue, déclencheur défini dans le registre. Quelle action manque si le responsable se contente de mettre le risque en rouge ?",
+      "choices": [
+        "Activer ou décider la réponse prévue, réévaluer l’impact sur le plan et informer le niveau de gouvernance concerné",
+        "Ajouter une deuxième couleur au registre",
+        "Supprimer le risque parce que le déclencheur a été constaté",
+        "Attendre le prochain comité pour confirmer que le déclencheur a eu lieu"
+      ],
+      "answer": 0,
+      "explanation": "Un déclencheur est utile lorsqu’il conduit à une action. Il faut appliquer la réponse prévue ou escalader si elle n’est plus adaptée, réviser la prévision et actualiser les informations communiquées. Une couleur seule ne réduit pas l’exposition, et le risque devenu problème doit être traité comme tel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une analyse après incident révèle que les restaurations n’ont jamais été répétées, malgré plusieurs avertissements. Quelle mesure est la plus robuste ?",
+      "choices": [
+        "Ajouter « mieux communiquer » comme seule leçon sans responsable",
+        "Augmenter la note de risque mais garder la même pratique",
+        "Définir une action de contrôle avec un responsable, une échéance, une preuve de test et une vérification d’efficacité ultérieure",
+        "Clore l’incident dès que les systèmes redémarrent"
+      ],
+      "answer": 2,
+      "explanation": "Une action corrective doit changer la condition qui a permis l’incident et produire une preuve vérifiable. Le responsable, l’échéance et les critères d’efficacité permettent de vérifier que le risque a réellement diminué. Le simple changement d’une note ne remplace pas la répétition d’une restauration dans un environnement représentatif."
+    }
+  ]
+}

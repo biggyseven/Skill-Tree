@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-leadership-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "L’équipe sécurité refuse une mise en production car un risque résiduel est insuffisamment contrôlé. Le sponsor accuse cette équipe de bloquer le projet. Quelle réponse de leadership est la plus utile ?",
+      "choices": [
+        "Faire remonter une plainte sur le manque de coopération de la sécurité",
+        "Écarter le responsable sécurité de la décision pour respecter la date",
+        "Clarifier le risque, les critères de décision et les options ; permettre un arbitrage par l’autorité compétente avec des conséquences explicites",
+        "Demander à chaque équipe de publier sa propre décision et conserver les deux versions"
+      ],
+      "answer": 2,
+      "explanation": "Le leadership transforme un conflit en décision structurée. Il faut comprendre les faits, les critères et les options, puis clarifier qui possède l’autorité sur le risque. Dénigrer un acteur ou le retirer du processus ne supprime pas le risque et fragilise la gouvernance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "En négociation, le métier demande une livraison intégrale avant une date fixe et l’exploitation refuse une mise en service sans supervision. Quelle proposition est la plus susceptible de concilier les intérêts ?",
+      "choices": [
+        "Explorer un lancement progressif avec périmètre limité, critères de supervision et point d’arrêt convenu",
+        "Demander à l’exploitation d’accepter l’intégralité du risque pour le métier",
+        "Promettre la totalité des fonctionnalités sans examiner les contraintes",
+        "Décider sur la base du niveau hiérarchique le plus élevé sans comparer les options"
+      ],
+      "answer": 0,
+      "explanation": "La négociation raisonnée examine les intérêts sous-jacents plutôt que de répéter des positions opposées. Un déploiement progressif peut fournir une partie de la valeur tout en définissant les conditions de supervision et d’arrêt. La proposition doit être évaluée par des critères partagés, et non seulement par la position d’une personne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une partie prenante à forte influence n’assiste jamais aux réunions et découvre tardivement les impacts du projet. Quel ajustement d’engagement est le plus approprié ?",
+      "choices": [
+        "Envoyer le même compte rendu détaillé chaque jour à tous les acteurs",
+        "Considérer son absence comme une preuve qu’elle n’est pas concernée",
+        "Supprimer cette partie prenante de la cartographie",
+        "Identifier ses intérêts et contraintes, convenir d’un canal et de points de décision adaptés, et vérifier sa compréhension"
+      ],
+      "answer": 3,
+      "explanation": "La cartographie doit guider une stratégie d’engagement ciblée. Une personne influente peut manquer de temps ou ne pas recevoir les informations dans un format utile. Il faut comprendre ses préoccupations, préciser les décisions qui la concernent et vérifier qu’elle a une possibilité réelle d’apporter une contribution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pendant une crise, un dirigeant exige une annonce immédiate sur la cause d’un incident alors que les faits sont incomplets. Quelle communication protège le mieux la confiance ?",
+      "choices": [
+        "Attribuer publiquement la cause à l’équipe supposée responsable",
+        "Communiquer les faits confirmés, les inconnues, les actions en cours, les impacts connus et l’heure du prochain point de situation",
+        "Attendre que toute l’investigation soit terminée avant d’informer qui que ce soit",
+        "Annoncer que le service est sûr sans disposer de preuve pour calmer les utilisateurs"
+      ],
+      "answer": 1,
+      "explanation": "Une communication de crise doit être rapide, factuelle et honnête sur les inconnues. Elle doit préciser ce qui est fait, les impacts confirmés et quand de nouvelles informations seront disponibles. Spéculer ou rassurer sans preuve peut diffuser des informations fausses et endommager durablement la confiance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une décision est prise en comité mais trois équipes comprennent différemment leurs obligations. Quel artefact simple permet le mieux de réduire la confusion ?",
+      "choices": [
+        "Une présentation générale sur le leadership sans noms ni dates",
+        "Une liste brute de toutes les réunions passées",
+        "Un journal de décision qui consigne le choix, le motif, les actions, les propriétaires, les échéances et le point de contrôle",
+        "Une instruction verbale du chef de projet transmise par relais informels"
+      ],
+      "answer": 2,
+      "explanation": "Un journal de décision préserve la mémoire et rend l’exécution vérifiable. Les décisions doivent être reliées aux actions attendues, à leurs propriétaires et à leurs échéances. Une présentation générale ou une instruction relayée oralement ne permet pas de résoudre facilement les divergences de compréhension."
+    }
+  ]
+}

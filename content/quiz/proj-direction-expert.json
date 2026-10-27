@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-direction-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Le portefeuille comprend une migration cloud, un CRM et un programme de cybersécurité. Les trois plans supposent que le même architecte sécurité soit disponible à temps plein. Quel problème doit être traité en premier ?",
+      "choices": [
+        "Les trois projets doivent conserver leurs engagements pour éviter des discussions de priorisation",
+        "La capacité commune et les dépendances doivent être modélisées, puis le portefeuille doit arbitrer l’ordre, les moyens ou le périmètre",
+        "L’architecte doit travailler davantage jusqu’à ce que les trois projets soient terminés",
+        "Le programme cyber doit être retiré du portefeuille puisqu’il ne produit pas directement un revenu"
+      ],
+      "answer": 1,
+      "explanation": "Le portefeuille doit gérer la capacité réelle et les ressources rares. Sans arbitrage, chaque projet construit un plan incompatible et la prévision consolidée devient illusoire. La direction doit comparer les impacts stratégiques, les contraintes réglementaires, les dépendances et les options de capacité, sans écarter un contrôle de sécurité simplement parce que son retour financier est indirect."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un programme livre tous ses composants, mais les bénéfices opérationnels ne sont jamais mesurés car les responsables métier estiment que la responsabilité se terminait à la livraison. Quelle correction est la plus importante ?",
+      "choices": [
+        "Confier au chef de projet l’ensemble des bénéfices à perpétuité",
+        "Fermer les projets plus rapidement pour éviter le sujet",
+        "Ajouter un responsable de réalisation des bénéfices, une mesure de référence et des dates de suivi dans la gouvernance",
+        "Remplacer les indicateurs de bénéfices par le nombre de livrables"
+      ],
+      "answer": 2,
+      "explanation": "Les bénéfices apparaissent souvent après que les livrables sont intégrés aux opérations. Ils nécessitent un propriétaire métier qui contrôle l’adoption et les résultats au fil du temps. Le programme doit définir qui mesure quoi, quand et avec quelle source, sans confondre production de livrables et changement durable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un projet est très en retard mais sa justification économique a disparu après un changement de stratégie. L’équipe réclame le budget restant parce qu’elle est proche de la fin. Quelle décision portefeuille est la plus rationnelle ?",
+      "choices": [
+        "Comparer la poursuite, la reconfiguration et l’arrêt selon coûts futurs, risques, bénéfices résiduels et coût d’opportunité",
+        "Poursuivre systématiquement puisque l’essentiel du coût a déjà été engagé",
+        "Continuer jusqu’à ce que le budget soit consommé puis réévaluer",
+        "Masquer la perte de justification jusqu’à la clôture pour protéger le moral"
+      ],
+      "answer": 0,
+      "explanation": "Les coûts passés ne suffisent pas à justifier de nouveaux investissements. Le portefeuille doit examiner les bénéfices restant à réaliser, le coût de poursuite, les risques et la valeur des ressources si elles sont réaffectées. L’arrêt ou la réduction du périmètre peut être la meilleure décision lorsque l’hypothèse stratégique n’est plus valide."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux initiatives ont des valeurs financières similaires. La première réduit un risque réglementaire imminent ; la seconde apporte une amélioration client importante mais réversible. Quel modèle d’arbitrage est le meilleur ?",
+      "choices": [
+        "Classer selon la date à laquelle chaque équipe a soumis sa demande",
+        "Comparer uniquement les VAN sans tenir compte des obligations",
+        "Donner priorité au projet le plus médiatisé",
+        "Appliquer des critères transparents incluant urgence, conformité, risque, capacité, dépendances et valeur, puis documenter le jugement de direction"
+      ],
+      "answer": 3,
+      "explanation": "Une priorisation de portefeuille combine plusieurs critères et ne peut se réduire à un indicateur financier. Les obligations et l’exposition temporelle peuvent modifier le classement, tandis que la capacité et les dépendances déterminent la faisabilité. Un modèle explicite aide à expliquer l’arbitrage et à le réexaminer lorsque les hypothèses changent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un tableau de portefeuille indique « 90 % terminé » pour un programme mais ne montre ni coûts à terminaison, ni risques croisés, ni bénéfices. Pourquoi est-il insuffisant ?",
+      "choices": [
+        "Parce que tout tableau de portefeuille doit afficher exactement 100 indicateurs",
+        "Parce qu’il mesure une activité agrégée sans donner une vision des prévisions, de la capacité, des dépendances, des bénéfices et des décisions nécessaires",
+        "Parce qu’un portefeuille ne doit jamais utiliser d’indicateurs numériques",
+        "Parce que chaque projet doit utiliser un outil distinct"
+      ],
+      "answer": 1,
+      "explanation": "Un indicateur de pourcentage terminé ne permet pas d’évaluer la situation consolidée ni les décisions à prendre. Un tableau utile expose les prévisions, risques, ressources, dépendances, bénéfices et arbitrages attendus, avec des définitions communes et une source fiable. Le but n’est pas d’ajouter beaucoup d’indicateurs, mais de rendre les décisions portefeuille possibles."
+    }
+  ]
+}

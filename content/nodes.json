@@ -8575,5 +8575,309 @@
         "min_score": 85
       }
     ]
+  },
+  {
+    "id": "proj-bases-debutant",
+    "module": "Gestion de Projet IT",
+    "title": "Introduction à la gestion de projet IT",
+    "category": "Gestion de projet",
+    "order": 4358,
+    "description": "Définir un projet IT, sa justification, ses contraintes, sa gouvernance et ses critères de succès.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-cycle-vie-debutant",
+    "module": "Gestion de Projet IT",
+    "title": "Phases d'un projet (Initiation, Planification)",
+    "category": "Gestion de projet",
+    "order": 4359,
+    "description": "Comprendre le cycle de vie, les livrables de phase et les décisions de passage.",
+    "prereqs": [
+      "proj-bases-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-roles-debutant",
+    "module": "Gestion de Projet IT",
+    "title": "Rôles (Chef de projet, MOA, MOE)",
+    "category": "Gestion de projet",
+    "order": 4360,
+    "description": "Clarifier responsabilités, décisions et interfaces métier-technique.",
+    "prereqs": [
+      "proj-cycle-vie-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-outils-debutant",
+    "module": "Gestion de Projet IT",
+    "title": "Outils de gestion (Jira, Trello, MS Project)",
+    "category": "Gestion de projet",
+    "order": 4361,
+    "description": "Choisir les outils de planification, suivi et collaboration selon les besoins.",
+    "prereqs": [
+      "proj-roles-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-planning-debutant",
+    "module": "Gestion de Projet IT",
+    "title": "Notions de Gantt et PERT",
+    "category": "Gestion de projet",
+    "order": 4362,
+    "description": "Construire un calendrier et analyser dépendances, marges et chemin critique.",
+    "prereqs": [
+      "proj-outils-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-budget-debutant",
+    "module": "Gestion de Projet IT",
+    "title": "Estimation des coûts et budget",
+    "category": "Gestion de projet",
+    "order": 4363,
+    "description": "Estimer charges, coûts, réserves et écarts budgétaires.",
+    "prereqs": [
+      "proj-planning-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-agile-bases-intermediaire",
+    "module": "Gestion de Projet IT",
+    "title": "Manifeste Agile et framework Scrum",
+    "category": "Gestion de projet",
+    "order": 4364,
+    "description": "Appliquer les valeurs agiles, les responsabilités, événements et artefacts Scrum.",
+    "prereqs": [
+      "proj-budget-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-scrum-master-intermediaire",
+    "module": "Gestion de Projet IT",
+    "title": "Rôle du Scrum Master et cérémonies",
+    "category": "Gestion de projet",
+    "order": 4365,
+    "description": "Faciliter les événements Scrum, résoudre les obstacles et développer l’amélioration continue.",
+    "prereqs": [
+      "proj-agile-bases-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-pmp-intermediaire",
+    "module": "Gestion de Projet IT",
+    "title": "Fondamentaux du PMI et de la certification PMP",
+    "category": "Gestion de projet",
+    "order": 4366,
+    "description": "Relier référentiels PMI, domaines de performance et préparation PMP.",
+    "prereqs": [
+      "proj-scrum-master-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-prince2-intermediaire",
+    "module": "Gestion de Projet IT",
+    "title": "Méthodologie PRINCE2",
+    "category": "Gestion de projet",
+    "order": 4367,
+    "description": "Utiliser principes, pratiques, processus et contrôles PRINCE2 adaptés au contexte.",
+    "prereqs": [
+      "proj-pmp-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-gestion-risques-intermediaire",
+    "module": "Gestion de Projet IT",
+    "title": "Identification et mitigation des risques",
+    "category": "Gestion de projet",
+    "order": 4368,
+    "description": "Évaluer les risques, attribuer les réponses et suivre les déclencheurs.",
+    "prereqs": [
+      "proj-prince2-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-qualite-intermediaire",
+    "module": "Gestion de Projet IT",
+    "title": "Assurance qualité et tests de recette",
+    "category": "Gestion de projet",
+    "order": 4369,
+    "description": "Définir qualité, tests, anomalies, recette et acceptation formelle.",
+    "prereqs": [
+      "proj-gestion-risques-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "proj-direction-expert",
+    "module": "Gestion de Projet IT",
+    "title": "Direction de programme et portefeuille",
+    "category": "Gestion de projet",
+    "order": 4370,
+    "description": "Arbitrer bénéfices, capacités, dépendances et investissements d’un portefeuille.",
+    "prereqs": [
+      "proj-qualite-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "proj-transformation-expert",
+    "module": "Gestion de Projet IT",
+    "title": "Conduite du changement IT",
+    "category": "Gestion de projet",
+    "order": 4371,
+    "description": "Diagnostiquer les impacts et organiser l’adoption, la formation et l’ancrage.",
+    "prereqs": [
+      "proj-direction-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "proj-hybride-expert",
+    "module": "Gestion de Projet IT",
+    "title": "Méthodologies hybrides Agile/Waterfall",
+    "category": "Gestion de projet",
+    "order": 4372,
+    "description": "Composer une méthode hybride cohérente selon risques, conformité et incertitudes.",
+    "prereqs": [
+      "proj-transformation-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "proj-leadership-expert",
+    "module": "Gestion de Projet IT",
+    "title": "Leadership et gestion des parties prenantes",
+    "category": "Gestion de projet",
+    "order": 4373,
+    "description": "Mobiliser les acteurs, négocier, résoudre les conflits et aligner la gouvernance.",
+    "prereqs": [
+      "proj-hybride-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "proj-itsm-expert",
+    "module": "Gestion de Projet IT",
+    "title": "Intégration ITSM et stratégie",
+    "category": "Gestion de projet",
+    "order": 4374,
+    "description": "Intégrer livraison projet, transition opérationnelle, ITSM et stratégie de service.",
+    "prereqs": [
+      "proj-leadership-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "proj-audit-expert",
+    "module": "Gestion de Projet IT",
+    "title": "Audit de projet et capitalisation",
+    "category": "Gestion de projet",
+    "order": 4375,
+    "description": "Auditer performance, conformité, clôture et capitalisation des apprentissages.",
+    "prereqs": [
+      "proj-itsm-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   }
 ]

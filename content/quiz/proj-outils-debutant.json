@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-outils-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une équipe de six personnes veut seulement visualiser les cartes en cours et les blocages. Les dépendances et rapports financiers sont modestes. Quel choix est le plus défendable ?",
+      "choices": [
+        "Déployer tout de suite un outil de portefeuille avec un workflow complexe",
+        "Utiliser un tableau Kanban léger, clarifier les états et mesurer s’il réduit réellement les blocages",
+        "Créer un statut distinct pour chaque personne afin de détailler l’activité",
+        "Acheter MS Project parce que tout projet exige un Gantt complet"
+      ],
+      "answer": 1,
+      "explanation": "L’outil doit être proportionné au problème et à la taille de l’équipe. Un tableau simple peut rendre le flux visible et améliorer la coordination ; il faut observer son utilité avant d’ajouter de la complexité. Les fonctionnalités avancées ne sont justifiées que si elles soutiennent des décisions ou contrôles nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans Jira, les tickets passent à « Terminé » dès que le développeur a terminé son code, mais la recette et la documentation restent ouvertes. Quel ajustement est le plus utile ?",
+      "choices": [
+        "Supprimer le statut Terminé pour tous les projets",
+        "Ajouter une dizaine de statuts sans définir leur signification",
+        "Définir les critères de sortie de l’état Terminé et les appliquer comme convention d’équipe",
+        "Demander au chef de projet de corriger manuellement chaque ticket à la fin"
+      ],
+      "answer": 2,
+      "explanation": "Les états n’ont de valeur que s’ils correspondent à une définition commune et observable. L’état Terminé doit signifier que les critères convenus sont satisfaits, y compris les contrôles applicables. Des statuts supplémentaires ou des corrections manuelles ne corrigent pas une règle de flux ambiguë."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ticket contient une capture d’écran de production où apparaît un jeton d’accès. Quel traitement est le plus approprié ?",
+      "choices": [
+        "Retirer la donnée sensible, appliquer la procédure d’incident si le secret a été exposé et utiliser des preuves expurgées",
+        "Laisser la capture car l’outil est réservé aux employés",
+        "Copier le jeton dans un commentaire privé pour faciliter le diagnostic",
+        "Fermer le ticket puis conserver la pièce jointe pour l’audit"
+      ],
+      "answer": 0,
+      "explanation": "Les tickets et pièces jointes peuvent propager des secrets vers des intégrations, des exports ou des comptes externes. Il faut supprimer ou sécuriser l’exposition selon la procédure, évaluer si le secret doit être révoqué et ne conserver qu’une preuve expurgée. Un accès interne ne garantit pas qu’une donnée sensible soit correctement protégée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le nombre de tickets fermés augmente, mais le temps entre création et résolution et le volume de blocages augmentent aussi. Quelle mesure est la plus pertinente ?",
+      "choices": [
+        "Fixer un quota individuel de tickets fermés",
+        "Masquer les tickets bloqués pour ne pas dégrader le rapport",
+        "Conclure que la productivité a forcément augmenté",
+        "Examiner les délais de cycle, l’âge des éléments en cours, les files d’attente et la qualité des résultats"
+      ],
+      "answer": 3,
+      "explanation": "Le volume de tickets fermés n’explique pas à lui seul la performance du flux. Les délais, l’âge du travail en cours, les blocages et les retours en arrière révèlent où le processus se dégrade. Les quotas individuels et la dissimulation des blocages peuvent inciter à découper artificiellement les tâches ou à fermer des sujets trop tôt."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le projet utilise Jira pour les tâches et MS Project pour le calendrier. Les deux affichent des responsables et des dates différents. Que faire en priorité ?",
+      "choices": [
+        "Conserver les deux états sans règle pour laisser une liberté aux équipes",
+        "Définir quelle source fait autorité pour chaque donnée, synchroniser les décisions clés et attribuer la responsabilité de mise à jour",
+        "Abandonner tous les outils et revenir aux e-mails",
+        "Considérer le fichier modifié le plus récemment comme toujours correct"
+      ],
+      "answer": 1,
+      "explanation": "Les outils peuvent avoir des usages distincts mais les responsabilités et données de référence doivent être explicites. Il faut décider quelle source contrôle le planning intégré, comment le travail opérationnel alimente le calendrier et qui traite les conflits. La date de modification n’est pas une preuve d’exactitude."
+    }
+  ]
+}

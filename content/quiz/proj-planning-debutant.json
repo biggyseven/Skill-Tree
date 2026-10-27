@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-planning-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans un réseau de tâches, l’infrastructure dure 5 jours et les interfaces 5 jours après la même tâche d’architecture. L’intégration attend les deux. Quelle conséquence en découle si les ressources sont indépendantes ?",
+      "choices": [
+        "Les deux branches doivent nécessairement être additionnées l’une après l’autre",
+        "La durée du projet est égale à la somme des deux tâches parallèles",
+        "La durée jusqu’à l’intégration est gouvernée par la branche la plus longue, et non par la somme des deux durées parallèles",
+        "Les deux tâches n’ont aucune relation au réseau puisqu’elles démarrent ensemble"
+      ],
+      "answer": 2,
+      "explanation": "Quand les deux branches démarrent après la même dépendance et que l’intégration attend les deux, la date de l’intégration dépend de la branche qui se termine le plus tard. Il faut toutefois confirmer que les ressources et calendriers autorisent le parallélisme. Si les mêmes personnes sont requises sur les deux tâches, le modèle doit être recalculé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un Gantt montre une tâche de deux jours, mais le spécialiste nécessaire n’est disponible que la semaine suivante et la fenêtre de mise en production est fixe. Quelle donnée manque au planning ?",
+      "choices": [
+        "Le nom de la couleur utilisée pour afficher la tâche",
+        "La date de publication du dernier rapport hebdomadaire",
+        "La liste de tous les employés de l’organisation même s’ils ne sont pas concernés",
+        "Le calendrier de disponibilité des ressources et les fenêtres de travail autorisées"
+      ],
+      "answer": 3,
+      "explanation": "La durée de travail ne suffit pas à calculer la date : les disponibilités, compétences et fenêtres de changement influencent le calendrier. Un planning crédible modélise les calendriers réels et les contraintes de ressources au lieu d’assimiler effort et durée calendaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une tâche a 3 jours de marge totale. Elle prend 2 jours de retard alors que ses successeurs n’ont pas changé. Quelle conclusion est exacte ?",
+      "choices": [
+        "Le retard peut être absorbé par la marge totale sans déplacer la date de fin, sous réserve que la marge soit toujours valide",
+        "Le projet est immédiatement en retard de deux jours",
+        "La tâche devient automatiquement critique et ne peut plus être suivie",
+        "La marge totale et la marge libre désignent toujours exactement la même mesure"
+      ],
+      "answer": 0,
+      "explanation": "La marge totale mesure le retard possible avant d’affecter la date finale du projet, dans les hypothèses du réseau et des calendriers. Si deux jours sont consommés sur une marge de trois, le projet peut garder sa date finale, mais il reste une marge réduite et les dépendances doivent être recalculées après tout changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un chef de projet chevauche le développement et les tests pour gagner une semaine, mais les contrats d’interface ne sont pas stables. Quel risque faut-il souligner ?",
+      "choices": [
+        "Le chevauchement augmente toujours la qualité puisqu’il accélère le feedback",
+        "Les tests peuvent produire des résultats obsolètes et multiplier les retests ; le gain doit être comparé à ce coût et au risque",
+        "Le chemin critique disparaît dès que deux tâches se chevauchent",
+        "Les dates des tâches ne sont plus nécessaires lorsqu’un plan est compressé"
+      ],
+      "answer": 1,
+      "explanation": "Le chevauchement, souvent appelé fast-tracking, peut réduire le calendrier mais augmente les dépendances croisées et le risque de reprise. Il faut vérifier si les éléments requis sont assez stables, définir les critères d’entrée et comparer le gain attendu au coût de retest et au risque de qualité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une estimation prévoit une intégration à 3 jours optimistes, 5 jours probables et 9 jours pessimistes. Quelle utilisation de ces trois points est la plus correcte ?",
+      "choices": [
+        "Retenir obligatoirement 3 jours pour encourager l’équipe",
+        "Retenir 9 jours comme promesse contractuelle garantie",
+        "Utiliser la fourchette pour expliciter l’incertitude, comparer le risque et décider si une investigation ou une réserve est nécessaire",
+        "Ignorer la valeur probable car seules les bornes sont utiles"
+      ],
+      "answer": 2,
+      "explanation": "Les trois points rendent visible la variabilité potentielle. Ils aident à discuter de l’exposition, de la confiance dans l’estimation et de l’intérêt de réduire l’incertitude. La durée optimiste n’est pas une promesse et la durée pessimiste n’est pas une garantie sans hypothèse de probabilité ou de contexte."
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-roles-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Le métier juge le parcours acceptable, mais l’équipe technique indique que l’exigence d’audit et de traçabilité n’est pas satisfaite. Qui doit décider comment résoudre ce conflit ?",
+      "choices": [
+        "Le développeur qui connaît le mieux le code doit modifier seul le critère métier",
+        "La décision suit la gouvernance : métier clarifie la valeur, technique expose les options et l’autorité compétente arbitre les contraintes",
+        "Le chef de projet doit accepter le risque de conformité sans escalade",
+        "Le fournisseur doit décider puisque la solution est achetée"
+      ],
+      "answer": 1,
+      "explanation": "Les rôles sont complémentaires : le métier exprime et valide l’usage, la réalisation apporte la faisabilité et les options, et l’autorité prévue tranche les changements ou risques qui dépassent la délégation du chef de projet. Une exigence d’audit ne peut pas être supprimée simplement pour résoudre une divergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une matrice RACI donne trois personnes « A » (Accountable) pour la même validation finale. Quel est le principal risque ?",
+      "choices": [
+        "La validation sera nécessairement plus rapide car plusieurs personnes sont responsables",
+        "RACI ne peut servir que pour les tâches de développement",
+        "Il devient difficile de savoir qui est redevable de la décision finale ; il faut clarifier une responsabilité unique ou une règle d’approbation explicite",
+        "Le rôle « Consulted » doit remplacer tous les décideurs"
+      ],
+      "answer": 2,
+      "explanation": "RACI cherche à clarifier l’exécution, la redevabilité, la consultation et l’information. Plusieurs « A » pour une décision unique créent une responsabilité ambiguë et peuvent provoquer des blocages ou des validations contradictoires. Si une approbation collective est nécessaire, sa règle doit être formalisée clairement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le sponsor demande au chef de projet d’engager une dépense qui dépasse son seuil de délégation. Quel comportement est approprié ?",
+      "choices": [
+        "Préparer l’impact, les options et la recommandation, puis demander l’arbitrage à l’autorité habilitée",
+        "S’engager oralement puis documenter après la commande",
+        "Demander à l’équipe de répartir la dépense entre plusieurs tâches pour rester sous le seuil",
+        "Refuser de transmettre les informations pour éviter d’être impliqué"
+      ],
+      "answer": 0,
+      "explanation": "Une délégation définit les décisions que le rôle peut prendre. Lorsque le seuil est dépassé, le chef de projet doit préparer une analyse structurée et escalader au niveau approprié, plutôt que contourner les contrôles ou engager l’organisation sans autorité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le fournisseur livre un connecteur, mais la documentation et les conditions de support sont absentes. Quel rôle doit s’assurer que ces obligations sont intégrées aux critères de livraison ?",
+      "choices": [
+        "Uniquement l’utilisateur final qui ouvrira des tickets",
+        "Aucun rôle : le code fonctionne donc le fournisseur a terminé",
+        "Seulement le sponsor, qui ne doit intervenir qu’après la production",
+        "Le pilotage du projet doit coordonner contrat, critères d’acceptation, réalisation et préparation des opérations avec les responsables concernés"
+      ],
+      "answer": 3,
+      "explanation": "Le chef de projet coordonne les interfaces et la preuve de livraison, tandis que le propriétaire contractuel, le métier et l’exploitation assurent leurs responsabilités respectives. Le code seul n’est pas le service complet : documentation, support, transfert et critères contractuels doivent être pris en compte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux experts se disputent sur l’architecture. Le manager veut que le chef de projet choisisse immédiatement sans données comparables. Quelle est la meilleure démarche ?",
+      "choices": [
+        "Choisir la personne au niveau hiérarchique le plus élevé",
+        "Clarifier les critères de décision, comparer risques et conséquences des options avec les experts, puis faire arbitrer au niveau prévu",
+        "Reporter toute discussion jusqu’à la fin du projet",
+        "Choisir la solution la moins chère sans vérifier sécurité et exploitation"
+      ],
+      "answer": 1,
+      "explanation": "Le leadership ne signifie pas remplacer l’expertise par une décision arbitraire. La bonne démarche rend les critères visibles, demande des preuves et compare les effets sur les objectifs et contraintes. Si l’arbitrage dépasse le mandat du chef de projet, il doit être transmis à l’autorité compétente avec une recommandation."
+    }
+  ]
+}

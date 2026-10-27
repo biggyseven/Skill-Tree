@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-audit-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Un audit conclut qu’un changement n’a pas été approuvé. L’équipe produit une preuve que le comité a autorisé le changement, mais le journal des décisions n’a pas été mis à jour. Quelle conclusion est la plus juste ?",
+      "choices": [
+        "L’audit doit ignorer la preuve car elle n’était pas dans le journal",
+        "Le constat doit distinguer l’autorisation réelle et la faiblesse de traçabilité, puis évaluer l’effet de cette faiblesse selon les critères d’audit",
+        "Le changement doit nécessairement être annulé même si l’autorisation valide existe",
+        "L’absence de journal prouve que le comité n’a jamais pris de décision"
+      ],
+      "answer": 1,
+      "explanation": "L’audit doit évaluer les éléments probants, leur fiabilité et les critères définis. Une autorisation valide peut contredire l’hypothèse d’un changement non approuvé, tandis que l’absence de trace reste une faiblesse de traçabilité à traiter. La conclusion ne doit ni ignorer les preuves ni inférer plus qu’elles ne permettent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La même erreur de planification se produit sur trois projets et l’équipe accuse chaque fois un chef de projet différent. Quelle démarche d’analyse de cause est la plus solide ?",
+      "choices": [
+        "Chercher les mécanismes communs, les contraintes de processus, les dépendances et les données d’estimation plutôt que choisir immédiatement un responsable à blâmer",
+        "Sanctionner le dernier responsable car son projet est le plus récent",
+        "Supprimer les historiques pour éviter de répéter les erreurs",
+        "Rédiger une leçon vague demandant « plus d’attention »"
+      ],
+      "answer": 0,
+      "explanation": "Des écarts répétés indiquent souvent un mécanisme systémique, par exemple des validations fournisseur absentes, des estimations biaisées ou des responsabilités floues. L’analyse de cause rassemble des faits et teste les hypothèses avant de proposer des actions. Une leçon vague n’est pas réutilisable et ne permet pas de vérifier l’amélioration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une action corrective est indiquée comme fermée parce que la procédure a été réécrite. Comment vérifier qu’elle a réellement réduit le risque ?",
+      "choices": [
+        "Vérifier seulement que le fichier existe dans le dépôt documentaire",
+        "Demander au responsable s’il estime que le sujet est résolu",
+        "Mesurer l’application de la procédure, observer des dossiers ou tests représentatifs et vérifier la diminution de la récurrence après une période définie",
+        "Supprimer le risque du registre dès la mise à jour du document"
+      ],
+      "answer": 2,
+      "explanation": "La présence d’une procédure prouve qu’un document a été créé, pas qu’il est utilisé ni efficace. La vérification doit examiner l’application réelle, la qualité des preuves et un indicateur lié au problème initial. Un suivi après une période pertinente confirme si l’action a réduit le risque ou si elle doit être renforcée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À la clôture, plusieurs risques résiduels restent présents et le support n’a pas confirmé qu’il pouvait opérer le service. Quelle démarche est correcte ?",
+      "choices": [
+        "Fermer immédiatement car le budget a été consommé",
+        "Transférer tous les risques à l’exploitation sans les décrire",
+        "Reporter la décision de transfert au prochain audit annuel",
+        "Documenter les risques et responsabilités, faire accepter ce qui relève d’une autorité habilitée et confirmer les critères de transfert avant de déclarer la clôture complète"
+      ],
+      "answer": 3,
+      "explanation": "La clôture doit préserver les responsabilités et les risques qui restent ouverts. L’exploitation ne doit pas hériter de risques ou d’une solution qu’elle ne peut pas supporter sans une décision explicite et des conditions de transfert. Les bénéfices, actions résiduelles et échéances de suivi doivent avoir des propriétaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un auditeur est aussi le responsable qui a approuvé l’architecture examinée. Quelle mesure protège le mieux la crédibilité de l’audit ?",
+      "choices": [
+        "Garder le même auditeur sans mentionner son implication",
+        "Déclarer le conflit potentiel et mettre en place une revue indépendante ou réaffecter l’examen selon la politique d’audit",
+        "Limiter l’audit aux seules parties faciles à vérifier",
+        "Demander au responsable d’approuver lui-même la conclusion d’audit"
+      ],
+      "answer": 1,
+      "explanation": "L’indépendance et l’impartialité sont essentielles pour que les conclusions inspirent confiance. Un conflit potentiel doit être déclaré et traité par une revue indépendante, une séparation des rôles ou une réaffectation prévue par la politique. L’absence de mention du conflit fragilise la crédibilité même si les preuves collectées sont correctes."
+    }
+  ]
+}

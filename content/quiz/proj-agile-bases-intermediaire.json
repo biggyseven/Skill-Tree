@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-agile-bases-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Un Product Owner demande à l’équipe de livrer toutes les fonctionnalités du backlog durant le Sprint, même si le Sprint Goal devient irréaliste. Quelle réponse est la plus cohérente avec Scrum ?",
+      "choices": [
+        "Sélectionner toutes les demandes puis prolonger le Sprint autant que nécessaire",
+        "Laisser le manager choisir seul les tâches et retirer l’objectif",
+        "Préserver la cohérence autour du Sprint Goal et collaborer pour renégocier le périmètre du Sprint selon les découvertes",
+        "Arrêter les tests pour pouvoir déclarer toutes les fonctionnalités terminées"
+      ],
+      "answer": 2,
+      "explanation": "Le Sprint Goal donne une direction cohérente au travail, tandis que les détails du périmètre peuvent être clarifiés et renégociés entre Developers et Product Owner. Scrum ne demande pas de promettre toute une liste indépendamment de la capacité. La Definition of Done et la qualité ne doivent pas être sacrifiées pour donner une impression de complétude."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe publie un incrément chaque Sprint, mais les retours utilisateurs n’influencent jamais le backlog car toutes les priorités ont été figées par la direction pour six mois. Quelle faiblesse est la plus importante ?",
+      "choices": [
+        "L’équipe respecte trop bien le principe d’empirisme",
+        "Le retour n’est pas relié à une capacité réelle d’inspection et d’adaptation ; l’agilité est réduite à une cadence de livraison",
+        "Le Product Backlog doit être remplacé par un Gantt immuable",
+        "Il faut supprimer la Sprint Review pour éviter de recevoir des changements"
+      ],
+      "answer": 1,
+      "explanation": "L’empirisme repose sur transparence, inspection et adaptation. Livrer régulièrement sans pouvoir réviser les priorités empêche l’organisation d’utiliser l’apprentissage pour maximiser la valeur. Les engagements stratégiques restent importants, mais doivent être traduits en objectifs et contraintes dans lesquels l’équipe peut faire des choix."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La direction dit que « Done » signifie que le code est fusionné. Les équipes de test et d’exploitation découvrent ensuite plusieurs défauts critiques. Quelle pratique corrige le mieux cette situation ?",
+      "choices": [
+        "Élargir la Definition of Done avec les contrôles de qualité pertinents et faire respecter la même définition pour l’incrément",
+        "Créer un statut spécial « presque fini » sans modifier la définition",
+        "Demander à la QA de tester uniquement après la livraison finale",
+        "Laisser chaque développeur décider si son code est assez bon"
+      ],
+      "answer": 0,
+      "explanation": "La Definition of Done rend transparent le niveau de qualité nécessaire pour qu’un incrément soit utilisable. Elle doit inclure les contrôles pertinents, comme tests d’intégration, sécurité, documentation et exploitabilité selon le contexte. Une définition ambiguë reporte les défauts vers la fin et rend les prévisions trompeuses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un backlog contient 80 demandes. Une exigence de sécurité peu visible débloque la recette réglementaire, alors qu’une fonction très demandée améliore seulement l’apparence. Comment prioriser ?",
+      "choices": [
+        "Toujours commencer par les demandes les plus populaires",
+        "Prendre les plus petites cartes pour maximiser la vélocité",
+        "Conserver l’ordre chronologique des demandes reçues",
+        "Comparer valeur, risque, dépendances, obligations et apprentissage ; la demande de sécurité peut passer en premier si elle conditionne l’acceptation"
+      ],
+      "answer": 3,
+      "explanation": "La priorisation ne se réduit ni à la popularité ni à la taille. Les risques, obligations de conformité et dépendances peuvent conditionner la possibilité de livrer les autres fonctionnalités. Le Product Owner doit rendre le raisonnement visible et relier l’ordre du backlog au Product Goal et à la valeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un prototype, les utilisateurs montrent que la fonctionnalité initialement prioritaire résout mal leur problème. Que devrait faire l’équipe ?",
+      "choices": [
+        "Persister jusqu’à livraison complète puisque le budget est approuvé",
+        "Utiliser le feedback vérifiable pour adapter l’ordre du backlog et expliquer les conséquences sur les prévisions",
+        "Considérer le prototype comme un échec et supprimer tout travail d’apprentissage",
+        "Modifier les critères de réussite pour confirmer la décision initiale"
+      ],
+      "answer": 1,
+      "explanation": "Un prototype est utile s’il réduit l’incertitude. Si les observations contredisent une hypothèse, les priorités et les options doivent être revues en cohérence avec l’objectif de produit. Persister uniquement pour défendre une décision initiale gaspille la valeur de l’apprentissage et peut retarder une solution plus adaptée."
+    }
+  ]
+}

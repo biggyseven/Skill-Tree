@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-scrum-master-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Au Daily Scrum, le manager exige que chaque personne lui explique ce qu’elle a fait la veille et promette ce qu’elle fera demain. Quel comportement du Scrum Master est le plus approprié ?",
+      "choices": [
+        "Accepter car le Daily est principalement un rapport au chef",
+        "Déplacer le Daily au vendredi afin de réduire les interruptions",
+        "Rappeler le but du Daily Scrum comme inspection du progrès vers le Sprint Goal et aider les Developers à adapter leur plan",
+        "Demander au Scrum Master de distribuer les tâches individuellement à la place de l’équipe"
+      ],
+      "answer": 2,
+      "explanation": "Le Daily Scrum est destiné aux Developers pour inspecter le progrès vers le Sprint Goal et adapter le plan. Le transformer en reporting individuel détourne le but de l’événement et renforce la dépendance hiérarchique. Le Scrum Master aide l’organisation à comprendre ce but, sans prendre le contrôle du travail."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux rétrospectives consécutives identifient des revues de code trop lentes, mais aucune action n’est suivie. Quelle amélioration est la plus efficace ?",
+      "choices": [
+        "Ajouter un long rapport sans propriétaire pour démontrer que la réunion a eu lieu",
+        "Demander à chacun de faire plus d’efforts sans modifier le système",
+        "Supprimer les rétrospectives puisqu’elles n’ont pas donné de résultat",
+        "Choisir une expérience précise, désigner un responsable, fixer une mesure de référence et vérifier l’effet au Sprint suivant"
+      ],
+      "answer": 3,
+      "explanation": "Une rétrospective doit conduire à des améliorations qui augmentent la qualité et l’efficacité. Une action est testable si elle a un propriétaire, une échéance et une mesure, et si l’équipe examine son effet. Les rapports seuls ou l’appel à l’effort ne modifient pas les causes du problème."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le Product Owner a des items vagues et n’arrive pas à réunir les parties prenantes pour les clarifier. Comment le Scrum Master peut-il aider sans prendre la responsabilité du backlog ?",
+      "choices": [
+        "Faciliter une séance de clarification et aider à établir des modes de collaboration, tout en laissant le Product Owner responsable de l’efficacité du backlog",
+        "Réécrire seul toutes les priorités et les critères métier",
+        "Demander aux Developers de choisir la valeur commerciale à la place du Product Owner",
+        "Reporter tout travail jusqu’à ce que chaque exigence soit détaillée pour plusieurs mois"
+      ],
+      "answer": 0,
+      "explanation": "Le Scrum Master sert le Product Owner en soutenant la collaboration, les techniques de gestion du backlog et la compréhension de Scrum. Il ne remplace pas la responsabilité de maximiser la valeur et d’ordonner le backlog. Une clarification continue est plus adaptée que l’exigence de spécifier tout le futur d’un produit complexe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un environnement de test indisponible empêche les Developers d’atteindre le Sprint Goal. Le problème dépend d’une équipe plateforme externe. Quelle réponse est la meilleure ?",
+      "choices": [
+        "Réassigner les tâches des Developers sans parler à l’équipe plateforme",
+        "Aider à rendre l’obstacle visible, travailler avec les propriétaires concernés et escalader l’impact et l’échéance nécessaires",
+        "Demander aux Developers de déclarer l’objectif atteint malgré l’absence de tests",
+        "Fermer l’obstacle dans le tableau puisqu’il ne relève pas du Scrum Team"
+      ],
+      "answer": 1,
+      "explanation": "Le Scrum Master aide à supprimer les obstacles qui entravent la progression, y compris ceux qui nécessitent une collaboration organisationnelle. L’impact, le propriétaire et l’échéance doivent être visibles. Déclarer le résultat atteint sans preuve ou fermer administrativement le blocage ne résout pas la dépendance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un dirigeant veut utiliser la vélocité pour classer les développeurs et leur imposer une cible individuelle. Quel risque doit être expliqué ?",
+      "choices": [
+        "La vélocité est le seul indicateur officiel de qualité Scrum",
+        "Les équipes doivent augmenter leur vélocité en permanence",
+        "La mesure devient un quota qui encourage la manipulation des estimations et détruit la valeur des tendances utilisées pour planifier une équipe",
+        "La vélocité mesure directement la satisfaction des utilisateurs"
+      ],
+      "answer": 2,
+      "explanation": "La vélocité, lorsqu’elle est utilisée par une équipe, peut aider à construire ses prévisions ; ce n’est pas une mesure de performance individuelle ni un quota universel. Un objectif imposé incite à gonfler les estimations, réduit la sécurité psychologique et rend les comparaisons interéquipes trompeuses. Les mesures doivent soutenir l’amélioration du flux et la livraison de valeur."
+    }
+  ]
+}

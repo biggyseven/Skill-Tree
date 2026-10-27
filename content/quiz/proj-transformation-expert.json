@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-transformation-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Après la formation, 95 % des employés ont ouvert une session, mais seuls 30 % arrivent à terminer la nouvelle procédure sans assistance. Quel diagnostic est le plus solide ?",
+      "choices": [
+        "Le changement est adopté puisque le taux de connexion est élevé",
+        "Le problème vient nécessairement de la résistance des utilisateurs",
+        "L’indicateur d’accès ne mesure pas la compétence ni la réussite de tâche ; il faut analyser les obstacles et ajuster conception, accompagnement ou support",
+        "Il faut mettre fin au suivi de l’adoption après la formation"
+      ],
+      "answer": 2,
+      "explanation": "Une connexion n’est qu’un indicateur d’accès et ne prouve pas la capacité à réaliser la tâche attendue. Il faut examiner les parcours, les erreurs, l’accessibilité, la formation et les besoins d’assistance. Les causes doivent être investiguées avant d’attribuer l’échec à une résistance individuelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les équipes d’un site refusent le nouvel outil parce que la recherche ne retrouve pas les dossiers les plus utilisés. Quelle réaction de conduite du changement est la meilleure ?",
+      "choices": [
+        "Investiguer le retour comme une possible faiblesse du produit, prioriser la correction et expliquer les étapes et le soutien disponible",
+        "Nommer les employés comme opposants et demander au sponsor de les sanctionner",
+        "Augmenter les messages de communication sans vérifier le problème",
+        "Imposer le déploiement complet avant de recueillir d’autres retours"
+      ],
+      "answer": 0,
+      "explanation": "La résistance peut révéler un problème réel de conception, de processus ou de capacité d’adoption. Une équipe de changement doit écouter, vérifier les faits et agir sur les causes, pas étiqueter une objection comme simple négativité. Le pilote permet d’ajuster le produit et les pratiques avant d’étendre l’impact."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un lancement national approche. Les champions locaux sont formés, mais le service desk n’a pas de scripts, d’horaires de renfort ni de voie d’escalade. Quelle décision protégera le mieux le lancement ?",
+      "choices": [
+        "Compter sur les champions pour remplacer complètement le support formel",
+        "Conserver la date même si le support n’est pas prêt puisqu’il ne s’agit pas d’un livrable applicatif",
+        "Réduire le nombre d’utilisateurs sans informer les responsables locaux",
+        "Préparer l’hypercare, tester les procédures d’assistance et inclure la capacité support dans les critères de readiness"
+      ],
+      "answer": 3,
+      "explanation": "La réussite dépend aussi de la capacité à résoudre les problèmes après la mise en service. Les champions peuvent aider localement, mais ils ne remplacent pas le service desk ni les responsabilités opérationnelles. Les procédures, plages de couverture, escalades et seuils de rollback font partie de la préparation au changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Les managers envoient des messages différents : certains affirment que l’ancien processus sera supprimé immédiatement, d’autres disent qu’il restera disponible indéfiniment. Comment corriger ce risque ?",
+      "choices": [
+        "Laisser chaque équipe choisir son propre calendrier",
+        "Aligner les messages avec le sponsor et les propriétaires de processus, clarifier dates, exceptions, aide et impacts, puis équiper les managers locaux",
+        "Arrêter toute communication jusqu’à ce que les utilisateurs oublient la contradiction",
+        "Envoyer uniquement un lien vers une documentation technique longue"
+      ],
+      "answer": 1,
+      "explanation": "Des messages contradictoires détruisent la confiance et produisent des comportements incompatibles. Il faut établir une version commune du changement, préciser ce qui change ou non, communiquer les dates et les voies d’assistance, puis donner aux managers des réponses adaptées aux questions de leurs équipes. Le message doit être accessible et actionnable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un pilote réussit avec les utilisateurs experts du siège, mais une autre région possède des accès, langues et horaires différents. Peut-on généraliser sur la seule base de ce pilote ?",
+      "choices": [
+        "Oui, car un pilote réussi garantit toutes les conditions de déploiement",
+        "Oui, si la satisfaction moyenne est supérieure à 80 %",
+        "Non, il faut vérifier la représentativité du pilote, analyser les impacts locaux et confirmer la préparation des accès, formations et supports avant extension",
+        "Non, le déploiement d’un changement ne doit jamais dépasser le groupe pilote"
+      ],
+      "answer": 2,
+      "explanation": "Un pilote réduit l’incertitude mais ne représente pas nécessairement tous les groupes. L’organisation doit examiner les différences de langue, d’accès, de calendrier, de compétences et de processus, puis adapter le plan d’extension. La décision se fonde sur des critères de readiness et sur les apprentissages, pas sur une moyenne globale seule."
+    }
+  ]
+}
