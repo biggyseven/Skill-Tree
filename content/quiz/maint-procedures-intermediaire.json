@@ -1,0 +1,102 @@
+{
+  "node_id": "maint-procedures-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif central d’une procédure technique ?",
+      "choices": [
+        "Décrire seulement l’intention générale",
+        "Permettre à un intervenant autorisé d’exécuter une tâche de manière reproductible et contrôlée",
+        "Remplacer toute formation et tout jugement",
+        "Garantir que chaque incident a exactement la même cause"
+      ],
+      "answer": 1,
+      "explanation": "Une procédure fournit une séquence claire, des contrôles et des conditions d’arrêt."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle structure rend une procédure opérationnelle ?",
+      "choices": [
+        "Un texte sans prérequis ni résultat attendu",
+        "Uniquement une liste de commandes",
+        "Périmètre, rôles, prérequis, étapes, contrôles, critères de réussite et retour arrière",
+        "Une capture d’écran seule"
+      ],
+      "answer": 2,
+      "explanation": "Les parties amont et aval rendent la procédure exécutable et vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une procédure doit être modifiée après un changement d’architecture. Comment la publier ?",
+      "choices": [
+        "Remplacer silencieusement le document partagé",
+        "Laisser deux versions sans date",
+        "Modifier uniquement le titre du fichier",
+        "Faire réviser, versionner, approuver et communiquer la modification selon le processus prévu"
+      ],
+      "answer": 3,
+      "explanation": "La gestion de version et l’approbation empêchent l’usage d’instructions obsolètes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire un opérateur si le résultat d’une étape ne correspond pas au critère d’acceptation ?",
+      "choices": [
+        "S’arrêter au point prévu, documenter l’écart et suivre la décision d’escalade ou de retour arrière",
+        "Passer à l’étape suivante en espérant que l’écart disparaisse",
+        "Changer le seuil sans autorisation",
+        "Supprimer le résultat observé"
+      ],
+      "answer": 0,
+      "explanation": "Une procédure doit empêcher la poursuite aveugle lorsque le résultat attendu n’est pas atteint."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi préciser les responsabilités dans le runbook ?",
+      "choices": [
+        "Pour qu’aucune personne ne soit responsable",
+        "Pour savoir qui exécute, valide, communique et autorise chaque action importante",
+        "Pour obliger chaque personne à exécuter toutes les étapes",
+        "Pour éviter l’escalade"
+      ],
+      "answer": 1,
+      "explanation": "Des responsabilités explicites diminuent les oublis et les ambiguïtés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment vérifier qu’une procédure de reprise est fiable ?",
+      "choices": [
+        "Lire son titre",
+        "Supposer qu’elle fonctionne parce qu’elle n’a jamais été utilisée",
+        "La tester dans un environnement adapté et mesurer le résultat selon des critères définis",
+        "La garder confidentielle à une seule personne"
+      ],
+      "answer": 2,
+      "explanation": "Un retour arrière non testé peut échouer au moment où il est le plus nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur révèle souvent qu’une procédure doit être revue ?",
+      "choices": [
+        "Le document possède un numéro de version",
+        "La procédure a un propriétaire",
+        "Les étapes comprennent des critères de réussite",
+        "Des exceptions répétées, des retours arrière ou des écarts entre le document et la réalité"
+      ],
+      "answer": 3,
+      "explanation": "Les incidents et écarts signalent que le contenu peut être incomplet ou obsolète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser des commandes copiables avec paramètres et résultats attendus ?",
+      "choices": [
+        "Pour diminuer les erreurs de saisie et rendre les contrôles reproductibles, tout en identifiant les valeurs à adapter",
+        "Pour masquer les paramètres dangereux",
+        "Pour exécuter les commandes sans vérifier les droits",
+        "Pour éviter de documenter les prérequis"
+      ],
+      "answer": 0,
+      "explanation": "Des exemples contextualisés sont plus faciles à vérifier, à adapter et à auditer."
+    }
+  ]
+}
