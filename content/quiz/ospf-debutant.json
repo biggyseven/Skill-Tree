@@ -1,1 +1,102 @@
-{"node_id":"ospf-debutant","scope":"quiz","questions":[{"type":"qcm","prompt":"Que signifie OSPF ?","choices":["Open Shortest Path First","Open System Path First","Optimal Shortest Path Forwarding","Open Standard Protocol Format"],"answer":0,"explanation":"OSPF signifie Open Shortest Path First."},{"type":"qcm","prompt":"Quel est le numéro de l'Area principale (Backbone) dans OSPF ?","choices":["0","1","100","255"],"answer":0,"explanation":"L'Area 0 est toujours l'aire principale (Backbone) dans OSPF."},{"type":"qcm","prompt":"Quelle commande permet de vérifier si les voisins OSPF sont bien connectés ?","choices":["show ip ospf neighbor","show ip route ospf","show ip protocols","show running-config"],"answer":0,"explanation":"La commande 'show ip ospf neighbor' permet de voir l'état des voisins."},{"type":"qcm","prompt":"Quel type de métrique OSPF est utilisée pour choisir le meilleur chemin ?","choices":["Le coût (Cost)","La bande passante (Bandwidth)","Le nombre de sauts (Hop count)","Le délai (Delay)"],"answer":0,"explanation":"OSPF utilise le Coût (Cost), qui est inversement proportionnel à la bande passante."}]}
+{
+  "node_id": "ospf-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que signifie OSPF ?",
+      "choices": [
+        "Open System Path First",
+        "Optimal Shortest Path Forwarding",
+        "Open Shortest Path First",
+        "Open Standard Protocol Format"
+      ],
+      "answer": 2,
+      "explanation": "OSPF signifie Open Shortest Path First ; c’est un protocole de routage interne à état de liens."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’identifiant de l’aire backbone OSPF ?",
+      "choices": [
+        "Area 0",
+        "Area 1",
+        "Area 100",
+        "Area 255 uniquement"
+      ],
+      "answer": 0,
+      "explanation": "L’aire backbone est Area 0. Dans une conception multi-aires classique, les autres aires doivent être reliées au backbone directement ou via un mécanisme OSPF approprié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un routeur Cisco IOS/IOS XE, quelle commande affiche les voisins OSPF et leurs états ?",
+      "choices": [
+        "`show ip route ospf`",
+        "`show ip ospf neighbor`",
+        "`show ip protocols summary`",
+        "`show spanning-tree`"
+      ],
+      "answer": 1,
+      "explanation": "`show ip ospf neighbor` affiche notamment les voisins OSPF et leur état. Une route OSPF dans la table ne remplace pas la vérification de l’adjacence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle métrique OSPF permet de comparer les chemins ?",
+      "choices": [
+        "Le nombre de sauts seulement",
+        "Le délai TCP mesuré vers le serveur",
+        "La priorité du Root Bridge",
+        "Le coût OSPF, calculé à partir de règles de coût configurées, souvent reliées à la bande passante de référence sur Cisco"
+      ],
+      "answer": 3,
+      "explanation": "OSPF additionne les coûts des interfaces sur le chemin. Les valeurs et leur calcul dépendent de la configuration et de la plateforme ; il faut notamment vérifier la bande passante de référence utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type de protocole est OSPF ?",
+      "choices": [
+        "Un protocole à état de liens qui calcule des chemins à partir de la base d’état de liens",
+        "Un protocole de résolution DNS",
+        "Un protocole de transport utilisant TCP 179",
+        "Un protocole de contrôle de boucle de couche 2"
+      ],
+      "answer": 0,
+      "explanation": "OSPF échange des informations d’état de liens et calcule des chemins SPF ; il ne s’agit ni d’un protocole DNS, ni de BGP, ni de STP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un équipement Cisco, quel numéro de protocole IP est utilisé par OSPFv2 ?",
+      "choices": [
+        "TCP 179",
+        "UDP 67",
+        "Le numéro de protocole IP 89",
+        "TCP 443"
+      ],
+      "answer": 2,
+      "explanation": "OSPFv2 est transporté directement sur IP, avec le numéro de protocole IP 89 ; il n’utilise pas un port TCP ou UDP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une configuration OSPF classique Cisco, que sélectionne le paramètre `network 192.168.10.0 0.0.0.255 area 0` ?",
+      "choices": [
+        "Les interfaces dont le nom contient `area0`",
+        "Les interfaces dont l’adresse correspond au réseau indiqué par le masque wildcard, afin d’activer OSPF dans l’Area 0",
+        "Tous les hôtes DHCP du réseau",
+        "Uniquement les routes par défaut"
+      ],
+      "answer": 1,
+      "explanation": "Dans la syntaxe de processus OSPF classique Cisco, l’instruction `network` et son masque wildcard sélectionnent les interfaces auxquelles OSPF s’applique et leur aire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle condition aide deux routeurs voisins à établir correctement un voisinage OSPF sur une interface partagée ?",
+      "choices": [
+        "Des noms d’hôtes identiques",
+        "Un même numéro de port TCP",
+        "Des adresses IP identiques sur les interfaces",
+        "Des paramètres compatibles, notamment Area ID, temporisations Hello/Dead, authentification et type de réseau"
+      ],
+      "answer": 3,
+      "explanation": "Le voisinage dépend de plusieurs paramètres compatibles : aire, temporisations, authentification et type de réseau, ainsi que de la connectivité et de paramètres de protocole pertinents."
+    }
+  ]
+}

@@ -1,1 +1,102 @@
-{"node_id":"ospf-expert","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel type de LSA est utilisé dans une zone NSSA pour les routes externes ?","choices":["Type 7","Type 5","Type 3","Type 1"],"answer":0,"explanation":"Les routes externes dans une NSSA sont injectées avec le LSA Type 7, puis converties en Type 5 par l'ABR."},{"type":"qcm","prompt":"Quelle est la caractéristique d'une Totally Stubby Area ?","choices":["Elle bloque les LSA Type 3, 4 et 5","Elle bloque uniquement les LSA Type 5","Elle autorise toutes les routes","Elle utilise le LSA Type 7"],"answer":0,"explanation":"La Totally Stubby Area bloque toutes les routes inter-aires et externes, ne laissant qu'une route par défaut."},{"type":"qcm","prompt":"Quelle commande permet de résumer les routes de l'Area 1 vers l'Area 0 ?","choices":["area 1 range X.X.X.X M.M.M.M","summary-address X.X.X.X M.M.M.M","ip summary-address ospf X.X.X.X","redistribute summary"],"answer":0,"explanation":"La commande 'area 1 range' s'utilise sur l'ABR pour résumer les routes d'une aire."},{"type":"qcm","prompt":"Quelle commande permet d'activer l'authentification MD5 sur une interface OSPF ?","choices":["ip ospf authentication message-digest","ip ospf auth md5","ospf authentication enable","md5 ospf enable"],"answer":0,"explanation":"La commande 'ip ospf authentication message-digest' active l'authentification MD5 sur l'interface."}]}
+{
+  "node_id": "ospf-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans une NSSA OSPF, quel est le rôle d’un LSA de type 7 ?",
+      "choices": [
+        "Il remplace tous les Router-LSA de type 1",
+        "Il représente une route externe annoncée à l’intérieur de la NSSA ; un ABR traducteur peut convertir un Type 7 éligible en Type 5 pour l’extérieur",
+        "Il est utilisé exclusivement pour les routes intra-aires",
+        "Il signifie que le voisinage est en état FULL"
+      ],
+      "answer": 1,
+      "explanation": "Les ASBR d’une NSSA utilisent des LSA Type 7 pour les routes externes dans cette aire. Un ABR traducteur peut convertir les annonces éligibles (notamment selon le P-bit et les règles de traduction) en Type 5 pour les autres aires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une Totally Stubby Area de style Cisco, quelle affirmation décrit le mieux le filtrage des annonces ?",
+      "choices": [
+        "Elle n’accepte aucun paquet IP",
+        "Elle transmet toutes les routes externes sans restriction",
+        "Elle bloque les annonces inter-aires détaillées de type 3, ainsi que les types 4 et 5, tandis qu’une route par défaut peut être injectée par l’ABR",
+        "Elle transforme chaque LSA Type 1 en Type 7"
+      ],
+      "answer": 2,
+      "explanation": "La fonctionnalité Cisco Totally Stubby Area réduit les routes détaillées connues dans l’aire en bloquant la plupart des résumés Type 3 et les Types 4/5, tout en s’appuyant généralement sur une route par défaut injectée par l’ABR."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur Cisco IOS, quelle commande utilisée sur un ABR résume les réseaux d’une aire OSPF classique ?",
+      "choices": [
+        "`area 1 range 10.20.0.0 255.255.0.0` dans le processus OSPF",
+        "`ip route summary-address ospf 10.20.0.0/16` sur un PC",
+        "`neighbor 10.20.0.0 summary`",
+        "`redistribute summary-address ospf`"
+      ],
+      "answer": 0,
+      "explanation": "Dans la syntaxe Cisco IOS classique, `area <area-id> range <address> <mask>` s’utilise sur l’ABR pour agréger les réseaux d’une aire dans les annonces inter-aires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour l’authentification OSPF MD5 classique sur Cisco IOS, quel ensemble est le plus proche de la configuration attendue sur l’interface ?",
+      "choices": [
+        "`neighbor md5 enable` seulement",
+        "`ip ospf key md5` en mode global sans clé",
+        "`router ospf md5 enable` seulement",
+        "`ip ospf authentication message-digest` et une clé configurée avec `ip ospf message-digest-key <id> md5 <secret>`, si la plateforme prend en charge cette méthode"
+      ],
+      "answer": 3,
+      "explanation": "La configuration IOS classique active l’authentification message-digest sur l’interface et associe une clé à un identifiant. MD5 est une méthode historique ; privilégier les méthodes plus robustes lorsque la plateforme et les exigences le permettent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale entre un LSA Type 3 et un LSA Type 5 en OSPFv2 ?",
+      "choices": [
+        "Type 3 annonce les routes inter-aires via un ABR ; Type 5 annonce des routes externes injectées par un ASBR dans les aires qui acceptent ces annonces",
+        "Type 3 est uniquement un message Hello ; Type 5 signifie que le voisin est mort",
+        "Type 3 sert à STP ; Type 5 sert à DHCP",
+        "Les deux sont des états de voisinage et ne transportent aucune route"
+      ],
+      "answer": 0,
+      "explanation": "Les LSA Type 3 décrivent des préfixes inter-aires et sont générés par des ABR. Les Type 5 représentent des routes externes et sont diffusés dans les aires qui les acceptent, à l’exception notamment des aires stub."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre les types métriques OSPF externes E1 et E2 est généralement correcte ?",
+      "choices": [
+        "E1 et E2 désignent les états de voisinage EXSTART et FULL",
+        "E1 ajoute le coût OSPF interne vers l’ASBR à la métrique externe, alors qu’E2 conserve généralement la métrique externe comme critère principal avec le coût interne comme départage",
+        "E2 n’est jamais utilisable dans OSPFv2",
+        "E1 ne transporte que des routes IPv6"
+      ],
+      "answer": 1,
+      "explanation": "Dans les implémentations OSPF courantes, E1 combine la métrique externe et le coût interne jusqu’à l’ASBR. E2 compare d’abord la métrique externe, puis utilise le coût interne comme départage selon les règles du protocole et de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une redistribution entre OSPF et un autre protocole doit-elle être contrôlée par des filtres, tags ou politiques adaptées ?",
+      "choices": [
+        "Pour forcer le Root Bridge à devenir l’ASBR",
+        "Pour contourner les adresses IP du prochain saut",
+        "Pour éviter les réinjections indésirables, les boucles de routage et l’annonce de préfixes qui ne devraient pas être exportés",
+        "Pour rendre inutile la base LSDB"
+      ],
+      "answer": 2,
+      "explanation": "La redistribution franchit des frontières de protocole. Sans politique et mécanismes de contrôle, des routes peuvent être réinjectées, créer des boucles ou diffuser des préfixes non souhaités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un problème de routage OSPF n’apparaît que dans une aire après un résumé. Quelle méthode fournit une preuve plus forte que la seule présence de la route dans la RIB ?",
+      "choices": [
+        "Changer les Router IDs jusqu’à ce que la route réapparaisse",
+        "Désactiver toutes les aires non concernées",
+        "Comparer uniquement la priorité DR",
+        "Examiner la LSDB et les LSA d’origine, le résumé sur l’ABR, les routes installées et le chemin de transfert réel"
+      ],
+      "answer": 3,
+      "explanation": "Il faut suivre l’origine de la route, sa représentation dans la LSDB, le traitement du résumé, son installation et le transfert réel. Cela permet de distinguer une annonce absente d’un problème d’installation ou de forwarding."
+    }
+  ]
+}

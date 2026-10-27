@@ -1,1 +1,102 @@
-{"node_id":"stp-debutant","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel est le rôle principal du protocole STP ?","choices":["Éviter les boucles de niveau 2","Router les paquets IP","Créer des VLANs","Chiffrer les données"],"answer":0,"explanation":"STP empêche les boucles de niveau 2 qui causent des tempêtes de broadcast."},{"type":"qcm","prompt":"Que se passe-t-il si une boucle de niveau 2 n'est pas bloquée ?","choices":["Tempête de broadcast et instabilité de la table MAC","Le réseau devient plus rapide","Les adresses IP changent","Le routeur redémarre"],"answer":0,"explanation":"Sans STP, les broadcasts tournent à l'infini et saturent le réseau."},{"type":"qcm","prompt":"Quel switch est élu Root Bridge (Pont Racine) dans un réseau STP ?","choices":["Celui avec la priorité la plus basse","Celui avec la priorité la plus haute","Celui qui a le plus de ports","Celui qui a le plus de VLANs"],"answer":0,"explanation":"C'est la priorité la plus faible qui gagne (32768 par défaut)."},{"type":"qcm","prompt":"Quel protocole utilise l'algorithme de Dijkstra (SPF) ?","choices":["OSPF","STP","RIP","VTP"],"answer":0,"explanation":"OSPF utilise Dijkstra. STP utilise l'algorithme de Radia Perlman pour casser les boucles."}]}
+{
+  "node_id": "stp-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel problème STP cherche-t-il principalement à éviter dans un réseau Ethernet commuté redondant ?",
+      "choices": [
+        "La saturation d’un serveur DNS",
+        "Les boucles de couche 2 qui peuvent provoquer des tempêtes de broadcast et une instabilité de la table MAC",
+        "La duplication des adresses IPv4 par DHCP",
+        "La perte de chiffrement des sessions HTTPS"
+      ],
+      "answer": 1,
+      "explanation": "STP construit une topologie logique sans boucle tout en conservant des liens physiques redondants. Une boucle de couche 2 peut faire circuler indéfiniment des trames et déstabiliser l’apprentissage MAC."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment le Root Bridge est-il choisi par STP ?",
+      "choices": [
+        "Le switch qui possède le plus de ports actifs",
+        "Le switch dont l’adresse IP de gestion est la plus basse",
+        "Le switch dont le Bridge ID est le plus faible, en tenant compte de la priorité puis des éléments de départage comme l’adresse MAC",
+        "Le switch démarré le premier"
+      ],
+      "answer": 2,
+      "explanation": "L’élection compare le Bridge ID. La priorité STP la plus basse est préférable ; en cas d’égalité, des champs de départage, notamment l’adresse MAC dans le Bridge ID, déterminent le résultat. Le premier démarré n’est pas garanti gagnant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un switch non racine, quel est le rôle général d’un Root Port ?",
+      "choices": [
+        "Le port qui offre le meilleur chemin vers le Root Bridge",
+        "Le port qui relie obligatoirement un PC",
+        "Le port qui désactive STP pour tous les VLAN",
+        "Le port qui attribue les adresses IP"
+      ],
+      "answer": 0,
+      "explanation": "Un switch non racine sélectionne un Root Port par instance STP : c’est le port offrant le meilleur chemin vers le pont racine selon les coûts et les règles de départage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que contient une BPDU dans le contexte STP ?",
+      "choices": [
+        "Une réservation DHCP pour le switch",
+        "Un certificat TLS du contrôleur",
+        "Une entrée DNS pour le VLAN natif",
+        "Des informations de protocole utilisées par les switches pour calculer et maintenir la topologie sans boucle"
+      ],
+      "answer": 3,
+      "explanation": "Les Bridge Protocol Data Units transmettent les informations de contrôle STP, notamment les identifiants de pont et les coûts, qui permettent aux switches de calculer la topologie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un lien redondant de couche 2, pourquoi STP peut-il placer un port en état bloquant ou discarding ?",
+      "choices": [
+        "Pour convertir le port en interface routée",
+        "Pour empêcher qu’un chemin redondant crée une boucle tout en conservant un chemin de secours",
+        "Pour augmenter automatiquement la vitesse physique du lien",
+        "Pour distribuer les paramètres DNS"
+      ],
+      "answer": 1,
+      "explanation": "STP/RSTP retire du transfert certains chemins redondants. Le port peut rester disponible comme chemin alternatif et être activé si la topologie change."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel algorithme de plus court chemin est utilisé par OSPF, mais pas par STP ?",
+      "choices": [
+        "Spanning Tree Learning",
+        "Vector Routing",
+        "Dijkstra (SPF)",
+        "CSMA/CA"
+      ],
+      "answer": 2,
+      "explanation": "OSPF calcule les chemins à partir de sa base d’état de liens en appliquant SPF, basé sur l’algorithme de Dijkstra. STP suit une autre logique pour éliminer les boucles de couche 2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un équipement Cisco, quelle commande est un point de départ pour observer le Root Bridge et les rôles/états des ports STP ?",
+      "choices": [
+        "`show spanning-tree`",
+        "`show ip dhcp binding`",
+        "`show version history`",
+        "`show interfaces transceiver`"
+      ],
+      "answer": 0,
+      "explanation": "La commande `show spanning-tree` affiche, selon la plateforme et les options, l’état STP, le pont racine, les coûts et les rôles des ports."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un réseau a besoin de liens physiques redondants entre plusieurs switches. Quelle affirmation est correcte ?",
+      "choices": [
+        "Tout lien redondant doit être débranché définitivement",
+        "STP ne fonctionne qu’avec un seul switch",
+        "Il faut attribuer la même adresse IP à tous les switches",
+        "STP peut laisser certains chemins en réserve pour fournir une topologie logique sans boucle tout en gardant de la redondance physique"
+      ],
+      "answer": 3,
+      "explanation": "La redondance physique améliore les possibilités de reprise, mais elle doit être gérée pour éviter les boucles. STP/RSTP/MSTP décide quels chemins transmettent dans chaque topologie/instance."
+    }
+  ]
+}

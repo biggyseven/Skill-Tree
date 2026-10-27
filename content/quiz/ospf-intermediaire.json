@@ -1,1 +1,102 @@
-{"node_id":"ospf-intermediaire","scope":"quiz","questions":[{"type":"qcm","prompt":"Quel est le rôle du DR (Designated Router) dans OSPF ?","choices":["Centraliser les échanges de mises à jour sur un réseau broadcast","Bloquer les routes dangereuses","Traduire les adresses IP en adresses MAC","Créer des adresses IP"],"answer":0,"explanation":"Le DR centralise les LSA pour éviter que tous les routeurs se parlent entre eux."},{"type":"qcm","prompt":"Quel routeur est élu en premier lors de l'élection du DR ?","choices":["Celui avec la plus haute priorité OSPF","Celui avec la plus basse adresse IP","Celui qui a le plus de RAM","Le premier allumé"],"answer":0,"explanation":"La priorité (par défaut 1) est le premier critère. En cas d'égalité, c'est le Router-ID le plus haut qui gagne."},{"type":"qcm","prompt":"Quel état de voisinage indique que les bases de données sont entièrement synchronisées ?","choices":["FULL","2-WAY","EXSTART","INIT"],"answer":0,"explanation":"L'état FULL signifie que les routeurs ont échangé tous leurs LSA et ont la même LSDB."},{"type":"qcm","prompt":"Que se passe-t-il si la MTU diffère entre deux routeurs OSPF ?","choices":["Le voisinage reste bloqué en EXSTART","Le voisinage passe en FULL immédiatement","Le routeur redémarre","La métrique est mise à zéro"],"answer":0,"explanation":"OSPF vérifie la MTU lors de l'échange des DBD. Si elle diffère, le voisinage bloque à l'état EXSTART."}]}
+{
+  "node_id": "ospf-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Sur un segment OSPF broadcast, quel est le rôle principal du DR ?",
+      "choices": [
+        "Attribuer des adresses IPv4 aux routeurs",
+        "Coordonner les adjacences et l’échange/flooding d’informations sur le segment pour réduire les échanges complets entre tous les routeurs",
+        "Remplacer la table de routage IP",
+        "Empêcher les boucles de couche 2 à la place de STP"
+      ],
+      "answer": 1,
+      "explanation": "Le DR et le BDR réduisent la complexité des adjacences complètes sur les réseaux broadcast/NBMA pris en charge ; ils ne sont pas élus sur les réseaux point-à-point classiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment est choisi le DR lors d’une élection OSPF sur un réseau qui nécessite un DR/BDR ?",
+      "choices": [
+        "Le routeur dont l’interface a la priorité OSPF la plus élevée ; en cas d’égalité, le Router ID le plus élevé départage, et priorité 0 est inéligible",
+        "Le routeur avec la priorité OSPF la plus basse",
+        "Le routeur qui possède le plus de routes statiques",
+        "Le routeur qui a redémarré le plus récemment"
+      ],
+      "answer": 0,
+      "explanation": "Sur les segments concernés, OSPF choisit le DR selon la priorité d’interface, puis le Router ID en cas d’égalité. Une priorité 0 empêche l’interface de devenir DR/BDR. L’élection n’est pas préemptive dans tous les cas lorsqu’un routeur de priorité supérieure apparaît plus tard."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel état OSPF indique qu’une adjacency a terminé la synchronisation des bases d’état de liens ?",
+      "choices": [
+        "INIT",
+        "2-WAY",
+        "FULL",
+        "DOWN"
+      ],
+      "answer": 2,
+      "explanation": "FULL indique que les bases d’état de liens ont été synchronisées entre les voisins qui doivent former une adjacency complète. Sur certains segments, les voisins DROTHER restent 2-WAY entre eux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux routeurs Cisco restent en EXSTART/EXCHANGE dans OSPF. Quel contrôle est particulièrement utile si la configuration semble similaire ?",
+      "choices": [
+        "Le nom du domaine VTP",
+        "La présence d’un bail DHCP sur le routeur",
+        "Le port TCP 179",
+        "La MTU sur les interfaces et le contenu des paquets Database Description"
+      ],
+      "answer": 3,
+      "explanation": "Une MTU incohérente peut provoquer un blocage pendant les échanges de base de données. Il faut aussi inspecter les logs et les paramètres OSPF plutôt que supposer que la MTU est toujours en cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un réseau OSPF de type point-à-point, que faut-il normalement attendre concernant l’élection DR/BDR ?",
+      "choices": [
+        "Il n’y a normalement pas d’élection DR/BDR sur ce type de réseau",
+        "Chaque voisin devient obligatoirement DR",
+        "Le routeur avec la plus grande adresse IPv4 devient le Root Bridge",
+        "OSPF désactive le partage des routes"
+      ],
+      "answer": 0,
+      "explanation": "Les réseaux OSPF point-à-point n’utilisent normalement pas de DR/BDR : les deux routeurs établissent directement leur adjacency complète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur un ABR Cisco IOS, quelle commande de configuration classique permet de résumer les préfixes d’une aire vers les autres aires ?",
+      "choices": [
+        "`ip summary-address ospf` sur un hôte",
+        "`area 1 range adresse masque` dans le contexte de processus OSPF, pour résumer les routes de l’aire 1",
+        "`router bgp range`",
+        "`summary-address` en mode DHCP"
+      ],
+      "answer": 1,
+      "explanation": "La commande IOS classique `area area-id range adresse masque` est utilisée sur un ABR pour agréger des routes inter-aires. La syntaxe et le comportement précis dépendent de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une valeur de bande passante de référence OSPF trop faible peut-elle être problématique sur des liens modernes ?",
+      "choices": [
+        "OSPF cessera nécessairement d’envoyer les Hello",
+        "Tous les liens seront automatiquement mis dans Area 0",
+        "Des liens rapides différents peuvent recevoir le même coût, réduisant la finesse du choix de chemin",
+        "La bande passante de référence affecte seulement DNS"
+      ],
+      "answer": 2,
+      "explanation": "Si la bande passante de référence ne reflète plus la vitesse des interfaces, plusieurs liens rapides peuvent obtenir le même coût. Une valeur cohérente et uniforme dans le domaine permet un calcul plus discriminant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on comparer si deux voisins OSPF ne se forment pas après un changement d’authentification ?",
+      "choices": [
+        "Les numéros de VLAN d’un réseau sans lien",
+        "Le nom du fichier de sauvegarde",
+        "Le niveau de batterie du poste administrateur",
+        "Le type, l’activation et les paramètres de clé d’authentification aux deux extrémités"
+      ],
+      "answer": 3,
+      "explanation": "Des paramètres d’authentification incompatibles empêchent le traitement des messages OSPF. La méthode activée et les clés doivent être cohérentes sur les interfaces concernées."
+    }
+  ]
+}
