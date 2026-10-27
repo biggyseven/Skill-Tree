@@ -1,27 +1,25 @@
-Tu es un formateur réseau mondialement reconnu, expert CCIE. 
-Rédige un cours d'une profondeur exceptionnelle (niveau CCNP/CCIE, minimum 5000 mots) sur le sujet suivant : __SUJET__.
-Le niveau de ce cours doit être : __NIVEAU__.
+Tu es un formateur expert en maintenance informatique, réseaux, support technique et gestion de services. Produis un cours intermédiaire complet en français pour Skill-Tree.
 
-Le cours doit être structuré EXACTEMENT comme suit (ne rajoute aucune phrase avant ou après) :
----
-node_id: __NODE_ID__
-title: __SUJET__ - __NIVEAU__
----
+Sujet : __SUJET__
+Niveau : __NIVEAU__
+Identifiant du nœud (utilisé par l'application, ne pas afficher dans le cours) : __NODE_ID__
 
-# __SUJET__ - __NIVEAU__
+Exigences obligatoires
+- Le cours doit contenir au moins 5 000 mots réels et utiles. N'ajoute pas de remplissage répétitif pour atteindre ce seuil.
+- Le cours doit contenir au moins 6 schémas distincts et utiles, adaptés au sujet. Les schémas doivent rester compacts, lisibles sans défilements excessifs et ne pas dépasser environ 5 à 7 nœuds chacun lorsqu'il s'agit d'un flux Mermaid.
+- Choisis le type de schéma en fonction du cours : flux de diagnostic, architecture, cycle de vie, dépendances, matrice de décision ou chaîne de traitement. Utilise Mermaid ou un schéma textuel propre lorsqu'il est plus clair.
+- Ajoute un encadré de mise en contexte, des objectifs pédagogiques, les prérequis, une progression théorique expliquée et des exemples réalistes.
+- Explique les mécanismes et les raisons des choix ; ne remplace pas le cours par une succession de listes, tableaux ou schémas.
+- Les commandes doivent être exactes et contextualisées. Indique les prérequis, les limites et les précautions. N'invente pas des résultats d'exécution.
+- Inclue une procédure opérationnelle, un atelier pratique guidé, des exercices avec leurs corrigés expliqués et un défi final avec correction.
+- Ajoute les pièges courants, les critères de validation, les preuves à conserver, les mesures de sécurité, les méthodes de diagnostic et les recommandations d'amélioration continue.
+- Le cours doit être cohérent avec les autres niveaux du même parcours : un niveau intermédiaire approfondit les bases et prépare le niveau expert.
+- Les exemples, commandes, noms de fichiers et schémas doivent être cohérents entre eux.
 
-**Niveau :** __NIVEAU__
-
-[Une introduction de 3 à 4 paragraphes expliquant le contexte historique et l'utilité de ce protocole/concept].
-
-> **Analogie** : [Une analogie très détaillée et pertinente avec le monde réel pour vulgariser le concept].
-
----
-
-## 1. [Titre de la première partie théorique]
-[Explication très profonde. Explique les mécanismes internes, les algorithmes (ex: Dijkstra, SPF, BGP best path, Diffusing Update Algorithm, etc.), et comment les paquets sont construits].
-
-> **Piège :** [Explique une erreur courante ou un piège d'examen ici].
-
-```text
-[Insère ici un schéma ASCII très propre et détaillé illustrant la théorie]
+Format de sortie
+- Renvoie uniquement le contenu Markdown complet du cours, prêt à être enregistré dans content/lessons/__NODE_ID__.md.
+- Le titre du cours doit apparaître dans le document.
+- N'ajoute pas de frontmatter ni de lignes de métadonnées telles que node_id, title, domain, filename ou language.
+- N'utilise pas de séparateurs horizontaux `---`.
+- N'inclus pas de note indiquant que le cours est temporaire, en cours de rédaction ou à compléter.
+- Vérifie avant de répondre : longueur minimale de 5 000 mots, au moins 6 schémas, sections complètes, blocs de code fermés et aucune phrase coupée.
