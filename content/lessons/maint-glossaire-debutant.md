@@ -129,6 +129,24 @@ Une procédure décrit une méthode approuvée pour effectuer une tâche ou gér
 
 La documentation rassemble les informations permettant de comprendre et de suivre le système, la demande ou l'intervention. Une bonne documentation distingue les faits, les hypothèses, les actions et les résultats.
 
+### 3.16 Distinguer incident, demande de service et problème
+
+Ces termes sont proches, mais ils ne décrivent pas la même chose. Un **incident** correspond à une interruption ou à une dégradation imprévue d'un service. Une **demande de service** porte sur une prestation standard prévue par l'organisation, par exemple l'accès à un outil ou l'installation d'un logiciel autorisé. Un **problème** désigne la cause — connue ou encore à identifier — d'un ou de plusieurs incidents. Un **changement** est une modification susceptible d'affecter un service et qui doit être préparée selon les règles de l'équipe.
+
+```mermaid
+flowchart TD
+    A[Signalement reçu] --> B{Un service est-il interrompu ou dégradé ?}
+    B -->|Oui| C[Enregistrer un incident]
+    B -->|Non| D{La demande correspond-elle à un service standard ?}
+    D -->|Oui| E[Traiter une demande de service]
+    D -->|Non| F[Clarifier le besoin et le périmètre]
+    C --> G{Incident récurrent ou cause inconnue ?}
+    G -->|Oui| H[Associer une analyse de problème]
+    G -->|Non| I[Poursuivre le traitement de l'incident]
+```
+
+Ce schéma sert de repère initial, pas de remplacement à la procédure de catégorisation de l'organisation. Les catégories peuvent coexister dans un même dossier : plusieurs incidents peuvent être rattachés à un problème, et une correction peut ensuite nécessiter un changement autorisé. La fiche doit conserver les faits observés et ne pas présenter une cause comme certaine avant qu'elle soit vérifiée.
+
 ## 4. Vocabulaire du système d'exploitation et du matériel
 
 ### 4.1 Système d'exploitation (OS)

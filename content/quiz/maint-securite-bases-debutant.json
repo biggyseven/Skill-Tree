@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Sécurité de base pour les interventions » ?",
+      "prompt": "Vous devez modifier un équipement de production, mais l'autorisation et le retour arrière ne sont pas définis. Que faire ?",
       "choices": [
-        "Le sujet principal du cours : Sécurité de base pour les interventions",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Exécuter la modification pendant une période calme sans prévenir",
+        "Arrêter la préparation et obtenir les validations nécessaires avant d'agir",
+        "Désactiver temporairement toutes les protections",
+        "Demander le mot de passe personnel à l'utilisateur"
+      ],
+      "answer": 1,
+      "explanation": "Une intervention risquée exige un périmètre, une autorisation, une vérification et un moyen de retour arrière adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution appliquer avant d'intervenir à l'intérieur d'un ordinateur ?",
+      "choices": [
+        "Respecter la procédure du fabricant, la mise hors tension appropriée et les précautions antistatiques",
+        "Toucher les composants immédiatement pour gagner du temps",
+        "Ouvrir systématiquement le bloc d'alimentation",
+        "Travailler avec les câbles d'alimentation connectés sans consigne spécifique"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La préparation doit prévenir les risques électriques et électrostatiques. Un bloc d'alimentation ne doit pas être ouvert par un débutant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser les précautions contre les décharges électrostatiques ?",
+      "choices": [
+        "Pour rendre le réseau plus rapide",
+        "Pour éviter d'avoir à documenter l'intervention",
+        "Pour réduire le risque d'endommager les composants électroniques sensibles",
+        "Pour supprimer le besoin d'autorisation"
+      ],
+      "answer": 2,
+      "explanation": "Une décharge électrostatique peut détériorer un composant même si le dommage n'est pas immédiatement visible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une opération susceptible d'affecter des données, que faut-il faire ?",
+      "choices": [
+        "Supposer que la synchronisation suffit toujours",
+        "Copier les données dans un espace personnel non approuvé",
+        "Lancer l'opération et créer une sauvegarde si elle échoue",
+        "Vérifier la sauvegarde pertinente et la possibilité de restauration selon la procédure"
+      ],
+      "answer": 3,
+      "explanation": "La présence d'une sauvegarde ne suffit pas toujours : il faut vérifier son périmètre et appliquer les règles de restauration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que recommande le principe du moindre privilège ?",
+      "choices": [
+        "Utiliser un compte administrateur pour toutes les tâches",
+        "N'accorder que les droits nécessaires à l'action autorisée",
+        "Partager un compte pour simplifier la traçabilité",
+        "Conserver les accès de tous les anciens employés"
+      ],
+      "answer": 1,
+      "explanation": "Limiter les privilèges réduit les effets possibles d'une erreur ou d'une compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un poste présente des signes pouvant indiquer un logiciel malveillant. Quelle première réaction est la plus adaptée ?",
+      "choices": [
+        "Préserver les informations utiles et prévenir l'équipe responsable selon la procédure",
+        "Effacer immédiatement les journaux",
+        "Brancher le support sur plusieurs postes pour comparer",
+        "Envoyer les fichiers suspects à tous les collègues"
+      ],
+      "answer": 0,
+      "explanation": "Il faut éviter d'aggraver l'incident, conserver les éléments utiles et déclencher la réponse prévue par l'organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de débrancher un câble dans une baie informatique, que faut-il faire ?",
+      "choices": [
+        "Le débrancher puis chercher à quoi il servait",
+        "Se fier uniquement à sa couleur",
+        "Identifier les deux extrémités, vérifier le périmètre et suivre la procédure autorisée",
+        "Débrancher plusieurs câbles simultanément"
+      ],
+      "answer": 2,
+      "explanation": "L'identification et la vérification du périmètre préviennent une interruption de service causée par un câble mal identifié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information faut-il éviter dans un compte rendu d'intervention ?",
+      "choices": [
+        "La référence de l'équipement",
+        "L'heure de début et de fin",
+        "Le résultat d'un contrôle",
+        "Un mot de passe, une clé privée ou un jeton d'accès"
+      ],
+      "answer": 3,
+      "explanation": "Les comptes rendus doivent rester utiles sans contenir de secrets. Leur partage doit respecter les règles de confidentialité."
     }
   ]
 }

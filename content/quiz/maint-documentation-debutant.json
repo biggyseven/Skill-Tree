@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger une fiche d'intervention » ?",
+      "prompt": "Quel est le but principal d'une fiche d'intervention ?",
       "choices": [
-        "Le sujet principal du cours : Rédiger une fiche d'intervention",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Remplacer toutes les procédures de l'organisation",
+        "Conserver les faits, les tests, les actions, les résultats et le suivi",
+        "Démontrer que le technicien n'a jamais commis d'erreur",
+        "Permettre de clôturer sans vérifier le service"
+      ],
+      "answer": 1,
+      "explanation": "La fiche donne une trace exploitable à l'équipe et permet de comprendre ou reprendre l'intervention."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il enregistrer plusieurs contrôles effectués pendant une intervention ?",
+      "choices": [
+        "Dans l'ordre chronologique, avec les résultats et les heures utiles",
+        "En regroupant uniquement les actions qui ont réussi",
+        "À la fin, de mémoire, sans indiquer l'ordre",
+        "En ne conservant que le nom des outils"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Une chronologie relie les symptômes, les tests et les changements, et évite de répéter les mêmes étapes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le technicien a rétabli l'accès par une solution temporaire. Comment la qualifier ?",
+      "choices": [
+        "Comme une réparation définitive sans réserve",
+        "Comme une cause racine confirmée",
+        "Comme un contournement, avec ses limites et le suivi nécessaire",
+        "Comme une résolution non documentable"
+      ],
+      "answer": 2,
+      "explanation": "Un contournement rétablit parfois le service sans supprimer la cause. Sa portée et le suivi restant doivent être explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il indiquer lors de la consignation d'une commande de diagnostic ?",
+      "choices": [
+        "Seulement « commande exécutée »",
+        "Le mot de passe saisi pour lancer la commande",
+        "Uniquement une capture sans contexte",
+        "Le but du test, le périmètre, le résultat pertinent et toute limite connue"
+      ],
+      "answer": 3,
+      "explanation": "Le lecteur doit comprendre pourquoi la commande a été lancée et ce qu'elle permet de conclure, sans exposer de secret."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La cause d'une panne n'est pas prouvée. Quelle note est la plus fiable ?",
+      "choices": [
+        "« Cause inconnue à ce stade ; les erreurs de lecture observées doivent être confirmées »",
+        "« Le disque est mort », pour gagner du temps",
+        "« Tout est réglé », car le poste a redémarré",
+        "Supprimer le champ cause"
+      ],
+      "answer": 0,
+      "explanation": "Une hypothèse doit être marquée comme telle. Il est préférable de décrire les faits et les vérifications restantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est essentiel avant de clôturer une intervention ?",
+      "choices": [
+        "Vérifier uniquement que le technicien a terminé sa tâche",
+        "Tester le besoin initial selon des critères définis et noter le résultat",
+        "Effacer les anciennes notes du ticket",
+        "Demander à un collègue de supposer que le problème est résolu"
+      ],
+      "answer": 1,
+      "explanation": "La résolution doit être vérifiée au regard du symptôme initial, avec une trace du résultat et des limites éventuelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si une fiche semble devoir contenir un mot de passe pour expliquer une action ?",
+      "choices": [
+        "L'enregistrer dans le champ commentaire",
+        "Le masquer avec des astérisques mais le conserver dans une pièce jointe",
+        "Ne pas enregistrer le secret ; décrire l'action sans sa valeur confidentielle",
+        "L'envoyer par courriel à toutes les équipes"
+      ],
+      "answer": 2,
+      "explanation": "Une fiche ne doit pas divulguer d'identifiants ou de secrets. Les accès doivent être gérés par les mécanismes prévus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit recevoir le technicien à qui le dossier est transféré ?",
+      "choices": [
+        "Le ticket sans les anciennes notes",
+        "Uniquement le nom de la personne qui a signalé le problème",
+        "Un avis personnel sans résultats de tests",
+        "Les symptômes, l'impact, les contrôles, leurs résultats, les changements et la prochaine action"
+      ],
+      "answer": 3,
+      "explanation": "Une transmission exploitable permet de poursuivre le diagnostic sans répéter inutilement les contrôles."
     }
   ]
 }
