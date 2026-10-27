@@ -181,6 +181,24 @@ Si la protection des données ou l'autorisation nécessaire n'est pas disponible
 
 ## 5. Comptes, privilèges et permissions
 
+### Schéma — utiliser les privilèges avec discernement
+
+```mermaid
+flowchart TD
+    A["Tâche de maintenance"] --> B{"La tâche exige-t-elle des privilèges élevés ?"}
+    B -- "Non" --> C["Utiliser le compte standard"]
+    B -- "Oui" --> D["Vérifier l'autorisation et le périmètre"]
+    D --> E{"Le changement est-il prévu et compris ?"}
+    E -- "Non" --> F["Suspendre et demander validation"]
+    E -- "Oui" --> G["Élever les privilèges pour l'action nécessaire"]
+    G --> H["Contrôler le résultat et retirer l'élévation"]
+    C --> I["Documenter si la tâche appartient à un incident"]
+    F --> I
+    H --> I
+```
+
+Les privilèges administrateur ne doivent pas servir par défaut à toutes les tâches. Réduire la portée et la durée de l'élévation diminue le risque d'erreur et l'impact d'un logiciel malveillant.
+
 ### 5.1. Compte standard et compte administrateur
 
 Un compte standard permet les tâches courantes sans disposer automatiquement de tous les droits de modification. Un compte administrateur peut effectuer des opérations plus sensibles, comme installer certains logiciels ou modifier la configuration système.
@@ -253,6 +271,25 @@ Remplace le nom d'exemple par celui d'un service réel. Les permissions peuvent 
 
 Les commandes qui démarrent, arrêtent ou redémarrent un service modifient son état. Sur un système de production, ne les utilise pas comme de simples tests : évalue les dépendances, l'impact et l'autorisation.
 
+### Schéma — diagnostiquer un service sans le redémarrer au hasard
+
+```mermaid
+flowchart TD
+    A["Une fonction ne marche plus"] --> B["Identifier le service réellement concerné"]
+    B --> C["Consulter son état et ses dépendances"]
+    C --> D["Lire les journaux à l'heure du symptôme"]
+    D --> E["Comparer avec les changements récents"]
+    E --> F{"Cause probable et action autorisée ?"}
+    F -- "Non" --> G["Collecter les éléments manquants ou escalader"]
+    F -- "Oui" --> H["Planifier la modification si nécessaire"]
+    H --> I["Effectuer l'action approuvée"]
+    I --> J["Vérifier service et fonction utilisateur"]
+    G --> K["Documenter les constats"]
+    J --> K
+```
+
+Un service marqué « démarré » n'est pas forcément fonctionnel : il peut dépendre d'un autre service, d'un port, d'un fichier ou d'une autorisation. Il faut tester la fonction attendue sans modifier immédiatement l'état du service.
+
 ### 6.4. Méthode de diagnostic d'un service
 
 1. Décrire le symptôme utilisateur.
@@ -279,6 +316,26 @@ Une mise à jour peut aussi introduire une incompatibilité avec un pilote ou un
 Un correctif (*patch*) résout généralement un défaut ciblé ou une vulnérabilité. Une mise à niveau de version peut apporter des changements beaucoup plus importants. Un pilote permet au système d'interagir avec un composant matériel. Une mise à jour de micrologiciel concerne le logiciel intégré au matériel et peut avoir des risques spécifiques.
 
 Il faut savoir ce qui est modifié avant d'installer un paquet. Une mise à jour de système, une mise à jour de pilote et une mise à jour de firmware ne se gèrent pas nécessairement de la même manière.
+
+### Schéma — déployer une mise à jour par étapes
+
+```mermaid
+flowchart TD
+    A["Inventorier systèmes et correctifs"] --> B["Évaluer sécurité, compatibilité et impact"]
+    B --> C["Vérifier sauvegarde et retour arrière"]
+    C --> D["Tester sur une machine pilote"]
+    D --> E{"Tests pilotes conformes ?"}
+    E -- "Non" --> F["Suspendre et analyser l'échec"]
+    E -- "Oui" --> G["Déployer par groupes selon le calendrier"]
+    G --> H["Contrôler erreurs, performances et applications"]
+    H --> I{"Résultat global acceptable ?"}
+    I -- "Non" --> J["Stopper le déploiement et appliquer le plan validé"]
+    I -- "Oui" --> K["Documenter les versions et clôturer"]
+    F --> L["Corriger ou escalader avant reprise"]
+    J --> L
+```
+
+Le déploiement progressif permet de détecter les incompatibilités avant qu'elles touchent tout le parc. Les sauvegardes, fenêtres de maintenance et possibilités de retour arrière doivent être planifiées avant le début du changement.
 
 ### 7.3. Préparer un déploiement
 
@@ -431,6 +488,23 @@ La commande indique l'utilisation des systèmes de fichiers montés. Un point de
 
 Pour examiner la taille d'un répertoire connu, une commande comme `du -sh /var/log` peut être utilisée si le chemin et les droits sont appropriés. Le répertoire cité est un exemple.
 
+### Schéma — traiter un manque d'espace sans supprimer à l'aveugle
+
+```mermaid
+flowchart TD
+    A["Alerte de stockage"] --> B["Mesurer l'espace disponible"]
+    B --> C["Identifier les volumes et répertoires concernés"]
+    C --> D["Repérer les fichiers et leur fonction"]
+    D --> E{"Données métier, journaux réglementés ou fichiers système ?"}
+    E -- "Oui ou incertain" --> F["Ne pas supprimer ; vérifier la politique et escalader"]
+    E -- "Non, nettoyage autorisé" --> G["Utiliser l'outil approuvé"]
+    G --> H["Vérifier l'espace libéré et les services"]
+    F --> I["Documenter la décision"]
+    H --> I
+```
+
+Un espace disque insuffisant peut dégrader un service, mais une suppression non maîtrisée peut être plus grave que le problème initial. Il faut connaître la rétention des journaux, les dépendances applicatives et les mécanismes de nettoyage approuvés.
+
 ### 9.4. Nettoyage sûr
 
 Avant de supprimer des données :
@@ -513,6 +587,24 @@ Les systèmes Linux utilisent différents systèmes de journalisation selon la d
 
 Commence par identifier la source qui correspond au symptôme. Une recherche trop large peut produire beaucoup de lignes sans rapport. Les droits d'accès peuvent également limiter ce qui est visible au technicien.
 
+### Schéma — reconstruire la chronologie d'un incident système
+
+```mermaid
+flowchart LR
+    A["Symptôme et heure de début"] --> B["Journaux système"]
+    A --> C["Journaux applicatifs disponibles"]
+    A --> D["Historique des changements"]
+    B --> E["Aligner heures et fuseaux"]
+    C --> E
+    D --> E
+    E --> F["Identifier les événements précédents et suivants"]
+    F --> G["Comparer avec un système fonctionnel si utile"]
+    G --> H["Formuler une hypothèse et les incertitudes"]
+    H --> I["Choisir le contrôle suivant ou escalader"]
+```
+
+La chronologie sert à rapprocher les éléments, pas à démontrer automatiquement une causalité. Vérifie l'heure, la source et le contexte de chaque événement ; un message isolé peut être secondaire ou être une conséquence du problème.
+
 ### 11.4. Construire une chronologie
 
 Lorsque plusieurs anomalies semblent liées, consigne leur heure dans une chronologie. Par exemple : l'utilisateur remarque une lenteur à 9 h 10, une mise à jour a commencé à 9 h 00 et un service signale une erreur à 9 h 12.
@@ -526,6 +618,24 @@ Cette chronologie permet d'orienter les tests, mais une succession temporelle ne
 La maintenance du système d'exploitation comprend l'état des mécanismes de sécurité : mises à jour, protection contre les logiciels malveillants, pare-feu, comptes, permissions et journaux.
 
 Une alerte doit être traitée conformément aux règles de l'organisation. Ne la désactive pas simplement pour faire disparaître un message ou permettre une installation.
+
+### Schéma — réagir à une suspicion de compromission
+
+```mermaid
+flowchart TD
+    A["Comportement suspect ou alerte de sécurité"] --> B["Noter les symptômes et les alertes exactes"]
+    B --> C["Appliquer la procédure de sécurité de l'organisation"]
+    C --> D{"Risque immédiat ou consigne d'isolement ?"}
+    D -- "Oui" --> E["Isoler par le moyen approuvé sans détruire les preuves"]
+    D -- "Non ou incertain" --> F["Limiter les manipulations et contacter l'équipe sécurité"]
+    E --> G["Préserver journaux et informations nécessaires"]
+    F --> G
+    G --> H["Analyser avec les outils autorisés"]
+    H --> I["Rétablir uniquement après validation"]
+    I --> J["Documenter les actions et surveiller"]
+```
+
+N'improvise pas une suppression de fichiers ou une désactivation de protections. En cas de suspicion crédible, suis la procédure d'incident : des actions non coordonnées peuvent détruire des preuves ou propager la menace.
 
 ### 12.2. Suspicion de malware
 
@@ -576,6 +686,28 @@ Ces commandes peuvent demander des privilèges administratifs, du temps et l'acc
 Une restauration permet de revenir à un état sauvegardé ou à une configuration antérieure, selon le mécanisme disponible. Elle peut être utile après une mise à jour ou une modification problématique, mais elle peut également écraser des changements récents.
 
 Avant la restauration, vérifie le point de récupération, les données qui seront remplacées, les dépendances et la possibilité de revenir en arrière. La restauration doit être réalisée par une personne autorisée, avec un plan de validation.
+
+### Schéma — choisir entre réparation, restauration et réinstallation
+
+```mermaid
+flowchart TD
+    A["Système instable ou non fonctionnel"] --> B["Définir l'impact et protéger les données"]
+    B --> C["Collecter symptômes, journaux et changements"]
+    C --> D{"Défaut identifié et réparation ciblée sûre ?"}
+    D -- "Oui" --> E["Appliquer la réparation approuvée"]
+    D -- "Non" --> F{"Point de restauration ou image validée disponible ?"}
+    F -- "Oui" --> G["Évaluer l'impact puis restaurer selon procédure"]
+    F -- "Non" --> H["Préparer une réinstallation contrôlée"]
+    E --> I["Tester fonctions, données et sécurité"]
+    G --> I
+    H --> J["Confirmer sauvegarde, licences, pilotes et plan de retour"]
+    J --> I
+    I --> K{"Résultat validé ?"}
+    K -- "Non" --> L["Escalader ou appliquer le retour arrière prévu"]
+    K -- "Oui" --> M["Documenter et remettre en service"]
+```
+
+Une réinstallation ne doit pas être le premier réflexe : elle peut effacer des données, compliquer l'analyse et demander de reconfigurer applications et accès. Choisis la mesure la moins risquée qui peut répondre au besoin, après avoir protégé les données.
 
 ### 13.3. Réinstallation
 
@@ -638,6 +770,26 @@ flowchart LR
 
 Ce modèle reste simplifié. Les détails varient selon le système, le chiffrement, le type de démarrage et la configuration.
 
+### Schéma — localiser l'étape de l'échec au démarrage
+
+```mermaid
+flowchart TD
+    A["Le système ne démarre pas normalement"] --> B{"Le micrologiciel s'affiche-t-il ?"}
+    B -- "Non" --> C["Relever voyants et codes matériels"]
+    B -- "Oui" --> D{"Le disque ou l'entrée de démarrage est-il détecté ?"}
+    D -- "Non" --> E["Examiner détection, configuration et alertes matérielles"]
+    D -- "Oui" --> F{"Le chargeur commence-t-il ?"}
+    F -- "Non" --> G["Examiner les options de récupération documentées"]
+    F -- "Oui" --> H["Relever l'erreur du noyau ou du système"]
+    C --> I["Consulter les procédures du modèle"]
+    E --> I
+    G --> I
+    H --> I
+    I --> J["Évaluer données et risques avant toute réparation"]
+```
+
+Cette séparation évite de chercher une panne logicielle lorsque le système ne détecte même pas le support, ou une panne matérielle lorsqu'un message identifie plutôt une étape de chargement. Les codes doivent être interprétés pour le modèle et le système concernés.
+
 ### 14.2. Échec avant le chargement
 
 Si le système n'apparaît pas ou si le micrologiciel ne trouve pas le périphérique prévu, il faut vérifier les messages et les options de démarrage sans modifier les réglages au hasard.
@@ -690,6 +842,24 @@ Avant un déploiement large, une organisation peut tester une mise à jour ou un
 
 Un test réussi ne garantit pas l'absence de tous les problèmes, mais il réduit le risque avant généralisation. Les anomalies du groupe pilote doivent être analysées avant de poursuivre.
 
+### Schéma — maintenir un parc de systèmes de façon maîtrisée
+
+```mermaid
+flowchart TD
+    A["Inventaire des postes et serveurs"] --> B["Classer criticité et dépendances"]
+    B --> C["Définir les groupes et fenêtres de maintenance"]
+    C --> D["Préparer le changement et les critères de retour arrière"]
+    D --> E["Tester sur un groupe pilote"]
+    E --> F{"Validation obtenue ?"}
+    F -- "Non" --> G["Analyser, corriger et reporter le déploiement"]
+    F -- "Oui" --> H["Déployer par vagues"]
+    H --> I["Surveiller incidents et conformité"]
+    I --> J["Mettre à jour inventaire et compte rendu"]
+    G --> J
+```
+
+Un parc ne doit pas être mis à jour uniquement en fonction du calendrier : la criticité, les dépendances, l'exposition et la capacité de retour arrière comptent. Les serveurs critiques demandent souvent une validation et un suivi plus stricts que les postes pilotes.
+
 ### 15.4. Gestion des changements
 
 Une modification importante doit disposer d'un objectif, d'un périmètre, d'un responsable, de critères de validation et d'un plan de retour arrière lorsque nécessaire.
@@ -715,6 +885,24 @@ Une restauration peut réintroduire une ancienne configuration. Il faut donc con
 Confirme que les données requises sont présentes et accessibles, que les applications attendues démarrent et que les licences ou configurations nécessaires ont été récupérées selon la procédure.
 
 Si certains éléments restent indisponibles, documente les limites et ne déclare pas le système entièrement rétabli.
+
+### Schéma — prouver que la maintenance a réussi
+
+```mermaid
+flowchart TD
+    A["Changement terminé"] --> B["Vérifier le démarrage et l'état du système"]
+    B --> C["Tester les fonctions liées à l'incident"]
+    C --> D["Contrôler sécurité, accès et protection"]
+    D --> E["Vérifier données, sauvegardes et applications"]
+    E --> F["Surveiller journaux et alertes pendant la période prévue"]
+    F --> G{"Critères d'acceptation atteints ?"}
+    G -- "Non" --> H["Maintenir le ticket ouvert et escalader ou revenir en arrière"]
+    G -- "Oui" --> I["Faire valider et documenter la remise en service"]
+    H --> J["Tracer les décisions"]
+    I --> J
+```
+
+La machine qui s'allume après l'intervention n'est pas la seule preuve de réussite. Les tests doivent couvrir le symptôme initial, les services dépendants, la sécurité et les données nécessaires au travail de l'utilisateur.
 
 ### 16.4. Surveillance après changement
 
@@ -767,6 +955,42 @@ Ce modèle est un exemple de structure, pas un compte rendu d'un incident réel.
 Escalade si le système ne démarre plus, si les données sont en danger, si une mise à jour critique est incohérente, si les autorisations manquent, si un incident de sécurité est suspecté ou si les contrôles disponibles n'expliquent pas le symptôme.
 
 L'escalade doit inclure les actions déjà réalisées et leurs résultats pour éviter les répétitions inutiles.
+
+## Parcours pratique du débutant
+
+Ce parcours est conçu pour environ 60 à 90 minutes dans une machine de test ou un environnement de formation autorisé. Tu n'as pas besoin de modifier le système : commence par des commandes d'observation et écris les changements envisagés sans les appliquer. Sur un poste professionnel, respecte les consignes de l'organisation et les droits accordés.
+
+### Étape 1 — Identifier l'environnement
+
+Relève le système d'exploitation, sa version, le nom du poste si cela est autorisé, son rôle (poste de travail ou serveur), les applications importantes et les changements récents. Ne publie pas les numéros de série, noms de comptes ou informations internes en dehors des outils approuvés.
+
+### Étape 2 — Observer les ressources sans rien modifier
+
+Sous Windows, consulte les paramètres système et le Gestionnaire des tâches ; selon les autorisations, `Get-ComputerInfo`, `Get-Process` et `Get-Service` peuvent fournir des éléments complémentaires. Sous Linux, commence par `uname -a`, `free -h`, `df -h`, `uptime` et `systemctl --failed` sur un système utilisant systemd. Certaines commandes ou champs peuvent varier selon la distribution et les droits.
+
+Note la question à laquelle chaque commande répond et ce qu'elle ne permet pas de prouver. Une valeur élevée de mémoire ou un service arrêté doit être replacé dans le contexte de la machine.
+
+### Étape 3 — Examiner un symptôme fictif
+
+Choisis un cas d'entraînement : démarrage lent, application inaccessible, partition presque pleine ou service indisponible. Décris le symptôme en termes observables, l'heure approximative et les utilisateurs concernés. Sépare les faits des hypothèses.
+
+### Étape 4 — Consulter les journaux
+
+Sous Windows, utilise l'Observateur d'événements ou une commande ciblée comme `Get-WinEvent`. Sous Linux avec systemd, consulte `journalctl`, éventuellement avec un filtre de service ou de période. Recherche les événements autour du symptôme plutôt que de collecter tout le journal sans objectif.
+
+### Étape 5 — Préparer un changement sans le lancer
+
+Écris les étapes d'une mise à jour, d'un redémarrage de service ou d'un nettoyage de stockage, mais ne les exécute pas sur une machine réelle sans autorisation. Indique l'impact attendu, la sauvegarde nécessaire, le résultat attendu, les critères d'arrêt et le retour arrière.
+
+### Étape 6 — Établir une preuve de bon fonctionnement
+
+Définis avant l'intervention les tests qui démontreraient que le problème est corrigé : ouverture de l'application, état du service, espace disponible, absence de nouvelle erreur pertinente ou réussite d'une opération métier. Un simple démarrage du système est rarement suffisant.
+
+### Étape 7 — Rédiger le compte rendu
+
+Consigne le système et le contexte, le symptôme, les commandes autorisées, les résultats observés, les limites, les risques et la prochaine action. Utilise des données fictives pour le TP et ne déclare pas une opération effectuée si elle n'a pas réellement eu lieu.
+
+**Critère de réussite :** tu sais choisir une vérification non intrusive, interpréter son résultat avec prudence, expliquer quand un changement doit être approuvé et définir comment vérifier la remise en service.
 
 ## 18. Travaux pratiques guidés
 
