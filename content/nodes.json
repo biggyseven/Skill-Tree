@@ -7652,7 +7652,7 @@
     "title": "Helpdesk : prise en charge et résolution des demandes",
     "category": "Helpdesk pratique",
     "order": 4312,
-    "description": "Qualifier une demande, recueillir les informations utiles, définir une priorité, suivre un ticket et communiquer sa résolution.",
+    "description": "Qualifier une demande, ouvrir un ticket exploitable, assurer le suivi et confirmer la résolution avec l’utilisateur.",
     "prereqs": [
       "maint-os-debutant"
     ],
@@ -7661,7 +7661,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-tickets-debutant"
   },
   {
     "id": "maint-glossaire-debutant",
@@ -7686,7 +7687,7 @@
     "title": "Communication technique avec les utilisateurs",
     "category": "Communication pratique",
     "order": 4313,
-    "description": "Expliquer un incident sans jargon inutile, poser les bonnes questions, reformuler un besoin et rédiger des messages d’intervention clairs.",
+    "description": "Écouter et reformuler le besoin, communiquer sans jargon inutile, annoncer des mises à jour fiables et protéger les informations pendant une intervention.",
     "prereqs": [
       "maint-helpdesk-debutant"
     ],
@@ -7695,8 +7696,7 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ],
-    "lesson_source_id": "maint-glossaire-debutant"
+    ]
   },
   {
     "id": "maint-documentation-debutant",
@@ -8044,12 +8044,13 @@
   {
     "id": "maint-audits-expert",
     "module": "Maintenance & Reporting",
-    "title": "Audit technique : préparation, preuves et plan d’action",
+    "title": "Audits techniques et conformité — Expert",
     "category": "Audit technique — pratique",
     "order": 4329,
-    "description": "Préparer un audit, collecter des preuves traçables, qualifier les écarts, prioriser les risques et suivre les actions correctives.",
+    "description": "Évaluer la conformité, l’efficacité des contrôles et la maîtrise des risques à partir de critères, d’échantillons et de preuves vérifiables.",
     "prereqs": [
-      "maint-maintenance-predictive-expert"
+      "maint-procedures-intermediaire",
+      "maint-securite-base-debutant"
     ],
     "requirements": [
       {
@@ -8149,7 +8150,7 @@
     "title": "Pilotage et évaluation des fournisseurs",
     "category": "Fournisseurs — pilotage",
     "order": 4334,
-    "description": "Évaluer les engagements contractuels, les SLA, les coûts, la qualité de service et les risques liés aux fournisseurs techniques.",
+    "description": "Évaluer la qualité d’une prestation, les engagements contractuels, les SLA, les risques tiers et les plans d’amélioration.",
     "prereqs": [
       "maint-appel-offre-expert"
     ],
