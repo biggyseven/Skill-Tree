@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Retour d'expérience (RETEX) » ?",
+      "prompt": "Quel est l'objectif d'un RETEX ?",
       "choices": [
-        "Le sujet principal du cours : Retour d'expérience (RETEX)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Comprendre l'expérience et changer les pratiques ou contrôles pour réduire la répétition et l'impact",
+        "Déterminer une personne à blâmer",
+        "Réécrire l'incident en version simplifiée",
+        "Remplacer les preuves par un récit"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le RETEX vise l'apprentissage et des actions suivies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi reconstruire ce que l'équipe savait au moment des décisions ?",
+      "choices": [
+        "Pour supprimer les erreurs du compte rendu",
+        "Pour limiter le biais rétrospectif et évaluer le contexte réel de décision",
+        "Pour rendre toutes les décisions correctes",
+        "Pour éviter l'analyse technique"
+      ],
+      "answer": 1,
+      "explanation": "La connaissance acquise après coup ne doit pas être projetée sur les décisions prises pendant l'incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si deux sources ont des horodatages contradictoires ?",
+      "choices": [
+        "Choisir le système le plus récent",
+        "Supprimer l'une des sources",
+        "Vérifier fuseaux horaires, synchronisation et sémantique, puis garder la limite si elle persiste",
+        "Déduire une cause unique"
+      ],
+      "answer": 2,
+      "explanation": "La chronologie doit être établie avec des sources fiables et leurs incertitudes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une approche sans blâme ?",
+      "choices": [
+        "Aucune responsabilité n'existe",
+        "Toutes les actions étaient correctes",
+        "Les incidents ne doivent pas être rapportés",
+        "Analyser le système et le contexte sans humiliation, tout en conservant les voies appropriées de responsabilité"
+      ],
+      "answer": 3,
+      "explanation": "Le blamelessness vise l'apprentissage et ne supprime pas la responsabilité pour des violations établies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action est la plus vérifiable ?",
+      "choices": [
+        "Ajouter une alerte avec déclencheur, destinataire, seuil et test d'alerte",
+        "Sensibiliser davantage",
+        "Faire attention",
+        "Améliorer la communication"
+      ],
+      "answer": 0,
+      "explanation": "Une action claire possède un état final observable et un test d'efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi distinguer déclencheur et facteurs contributifs ?",
+      "choices": [
+        "Pour attribuer tous les incidents à une seule cause",
+        "Un déclencheur peut initier l'événement alors que d'autres conditions amplifient l'impact ou empêchent la détection",
+        "Pour ne pas examiner les procédures",
+        "Pour éviter les mesures préventives"
+      ],
+      "answer": 1,
+      "explanation": "Les événements complexes résultent souvent de plusieurs barrières et conditions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand diffuser un RETEX plus largement ?",
+      "choices": [
+        "Toujours avec tous les journaux non expurgés",
+        "Uniquement aux auteurs",
+        "Après validation et en appliquant classification, minimisation et publics pertinents",
+        "Seulement après cinq ans"
+      ],
+      "answer": 2,
+      "explanation": "Le contenu doit être adapté aux bénéficiaires sans diffuser de données sensibles inutiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est nécessaire pour clôturer une action issue de RETEX ?",
+      "choices": [
+        "Un commentaire de réunion",
+        "Un changement de couleur dans le tableau de bord",
+        "Un message disant que c'est fait",
+        "La preuve de mise en œuvre et un test d'efficacité défini"
+      ],
+      "answer": 3,
+      "explanation": "La réalisation et l'efficacité sont deux étapes distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si la cause reste incertaine ?",
+      "choices": [
+        "Documenter les faits et limites, indiquer les hypothèses et chercher des actions de détection ou de résilience adaptées",
+        "Inventer une cause plausible",
+        "Supprimer les contradictions",
+        "Conclure qu'aucune action n'est possible"
+      ],
+      "answer": 0,
+      "explanation": "Un RETEX fiable garde l'incertitude visible et peut quand même proposer des améliorations utiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre RETEX et capitalisation ?",
+      "choices": [
+        "Aucune",
+        "Le RETEX analyse une expérience et produit des leçons ; la capitalisation organise et rend réutilisables les connaissances validées",
+        "Le RETEX remplace toute procédure",
+        "La capitalisation ne concerne pas l'expérience"
+      ],
+      "answer": 1,
+      "explanation": "Les deux processus se complètent entre analyse d'événement et transfert durable du savoir."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi examiner les actions issues de plusieurs RETEX ensemble ?",
+      "choices": [
+        "Pour éviter les arbitrages",
+        "Pour augmenter le nombre de documents",
+        "Pour repérer des causes récurrentes et investir dans des améliorations systémiques",
+        "Pour transformer chaque événement en projet"
+      ],
+      "answer": 2,
+      "explanation": "Les tendances transverses peuvent justifier une action commune qui dépasse une équipe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui rend une leçon utile ?",
+      "choices": [
+        "Un récit long sans décision",
+        "Une chronologie uniquement",
+        "Un titre générique",
+        "Une conclusion contextualisée reliée à une pratique, une action, une ressource ou un contrôle vérifiable"
+      ],
+      "answer": 3,
+      "explanation": "L'apprentissage doit influencer les pratiques et rester applicable dans un contexte défini."
     }
   ]
 }
