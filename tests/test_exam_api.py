@@ -250,7 +250,7 @@ class ExamApiTests(unittest.TestCase):
 
         second_client = TestClient(api.app)
         second_client.__enter__()
-        self.addCleanup(second_client.__exit__, None, None, None, None)
+        self.addCleanup(second_client.__exit__, None, None, None)
 
         barrier = Barrier(2)
         thread_state = local()
@@ -281,7 +281,7 @@ class ExamApiTests(unittest.TestCase):
                 "SELECT total_xp, coins FROM user_stats WHERE id = 1"
             ).fetchone()
             streak_minutes = connection.execute(
-                "SELECT minutes_etudiees FROM daily_streak WHERE date_jour = date('now')"
+                "SELECT COALESCE(SUM(minutes_etudiees), 0) FROM daily_streak"
             ).fetchone()[0]
             session = connection.execute(
                 "SELECT submitted, score, passed FROM exam_sessions WHERE session_id = ?",
