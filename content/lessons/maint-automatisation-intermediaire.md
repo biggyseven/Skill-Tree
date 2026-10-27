@@ -114,13 +114,103 @@ flowchart LR
 
 Relier ticket, commit, exécution et validation rend le changement explicable et reproductible.
 
+
+### Schéma 7 — Décider quoi automatiser
+
+~~~mermaid
+flowchart TD
+  A[Tâche répétée] --> B{Règles stables ?}
+  B -->|Non| C[Clarifier la procédure]
+  B -->|Oui| D{Résultat mesurable ?}
+  D -->|Non| E[Définir le critère]
+  D -->|Oui| F{Risque maîtrisable ?}
+  F -->|Non| G[Réduire le périmètre ou reporter]
+  F -->|Oui| H[Prototype testé]
+~~~
+
+La fréquence seule ne suffit pas. Si les règles sont ambiguës, l'automatisation rendra les erreurs plus rapides et plus nombreuses ; stabiliser la décision avant d'écrire le code.
+
+### Schéma 8 — Pipeline d'un script de maintenance
+
+~~~mermaid
+flowchart LR
+  A[Entrée versionnée] --> B[Validation]
+  B -->|Valide| C[Calcul]
+  B -->|Invalide| X[Échec explicite]
+  C --> D[Simulation]
+  D --> E{Approbation}
+  E -->|Non| F[Rapport de simulation]
+  E -->|Oui| G[Écriture contrôlée]
+  G --> H[Contrôle final]
+~~~
+
+Séparer lecture, validation, calcul et écriture facilite les tests et empêche une donnée invalide d'atteindre directement une action.
+
+### Schéma 9 — Validation d'une entrée tabulaire
+
+~~~mermaid
+flowchart TD
+  A[Lire en-têtes] --> B{Colonnes requises ?}
+  B -->|Non| X[Arrêt avec diagnostic]
+  B -->|Oui| C[Valider chaque ligne]
+  C --> D{Type et valeurs valides ?}
+  D -->|Non| X
+  D -->|Oui| E[Contrôler doublons]
+  E --> F[Accepter les données]
+~~~
+
+Le validateur doit être strict sur les champs indispensables et explicite sur les lignes rejetées. Continuer avec des valeurs par défaut silencieuses peut produire des indicateurs trompeurs.
+
+### Schéma 10 — Politique de reprise
+
+~~~mermaid
+flowchart TD
+  A[Échec détecté] --> B{Erreur transitoire ?}
+  B -->|Oui| C[Nombre limité de tentatives]
+  C --> D{Toujours en échec ?}
+  D -->|Non| E[Contrôler le résultat]
+  D -->|Oui| F[Arrêt et escalade]
+  B -->|Non| F
+~~~
+
+Ne relancer automatiquement que les erreurs transitoires et les opérations sûres à répéter. Une validation de données invalide n'est pas résolue par plusieurs nouvelles tentatives.
+
+### Schéma 11 — Retour arrière et compensation
+
+~~~mermaid
+flowchart LR
+  A[État initial vérifié] --> B[Changement limité]
+  B --> C[Tests d'acceptation]
+  C -->|Réussite| D[Clôture documentée]
+  C -->|Échec| E[Arrêt des lots suivants]
+  E --> F[Restaurer ou compenser]
+  F --> G[Vérification indépendante]
+~~~
+
+Le retour arrière doit être planifié avant l'action. Il peut s'agir d'une restauration, d'une version antérieure ou d'une compensation ; une simple promesse de revenir en arrière n'est pas un plan exécutable.
+
+### Schéma 12 — Mesurer les bénéfices sans cacher le risque
+
+~~~mermaid
+flowchart TD
+  A[Temps économisé] --> D[Évaluation globale]
+  B[Taux d'échec] --> D
+  C[Incidents causés] --> D
+  E[Données rejetées] --> D
+  D --> F{Bénéfice net démontré ?}
+  F -->|Oui| G[Maintenir et surveiller]
+  F -->|Non| H[Corriger ou désactiver]
+~~~
+
+Une baisse du temps manuel doit être mise en regard des erreurs, des reprises et de la qualité des données. Un seul indicateur de vitesse peut pousser à masquer les exceptions.
+
 ## Fondements techniques du domaine
 
 ### 1. Sélection du candidat
 
 Automatiser d'abord une tâche fréquente, stable, mesurable et avec des critères de sortie connus. Évaluer fréquence, temps humain, risque, exceptions, variabilité des environnements et coût de maintenance du script avant de coder.
 
-**Mise en œuvre.** Pour appliquer ce principe dans automatiser les tâches (scripts, ansible), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre.** Prenons la vérification quotidienne d'un export de tickets : elle est répétitive, possède des champs attendus et peut produire un bilan contrôlable. Avant de coder, mesurer le temps manuel, le nombre de fichiers et les erreurs observées. Un processus qui exige une décision experte différente à chaque occurrence n'est pas prêt à être automatisé ; clarifier d'abord les règles et les exceptions.
 
 **Preuves et interprétation.** La référence manuelle et le gain mesuré permettent de décider si l'automatisation vaut le coût. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
 
@@ -130,7 +220,7 @@ Automatiser d'abord une tâche fréquente, stable, mesurable et avec des critèr
 
 Une tâche idempotente conduit à l'état attendu même lorsqu'elle est exécutée plusieurs fois. Décrire un état cible, vérifier l'état initial et modifier uniquement lorsqu'une différence existe ; utiliser les modules Ansible plutôt que des commandes shell arbitraires quand c'est possible.
 
-**Mise en œuvre.** Pour appliquer ce principe dans automatiser les tâches (scripts, ansible), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre.** Pour qu'un script de rapport soit idempotent, le même fichier source doit produire le même contenu sans ajouter une nouvelle ligne à chaque exécution. Préférer une sortie reconstruite à partir des données plutôt qu'un ajout aveugle. Dans Ansible, déclarer l'état voulu avec des modules comme file, copy ou package au lieu de lancer systématiquement une commande modificatrice.
 
 **Preuves et interprétation.** Comparer la première et la seconde exécution aide à détecter les changements non idempotents. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
 
@@ -140,7 +230,7 @@ Une tâche idempotente conduit à l'état attendu même lorsqu'elle est exécut�
 
 Les cibles, chemins, noms de service et paramètres doivent être contrôlés avant toute exécution. Utiliser des listes d'hôtes autorisées, des types, des limites, des valeurs par défaut sûres et des contrôles qui échouent clairement.
 
-**Mise en œuvre.** Pour appliquer ce principe dans automatiser les tâches (scripts, ansible), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre.** Un CSV peut contenir une colonne absente, un identifiant vide, un statut inconnu ou une durée écrite en lettres. Rejeter l'entrée invalide avant la première écriture et ne pas remplacer silencieusement une valeur inconnue par zéro. Valider les colonnes, les types, les valeurs autorisées et les doublons, puis mentionner le numéro de ligne pour permettre la correction à la source.
 
 **Preuves et interprétation.** Les tests de validation et les messages d'erreur rendent les échecs compréhensibles. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
 
@@ -150,7 +240,7 @@ Les cibles, chemins, noms de service et paramètres doivent être contrôlés av
 
 Le processus doit utiliser le moindre privilège et ne jamais placer de mot de passe ou jeton directement dans le dépôt. Utiliser un coffre approuvé, des identités nominatives ou de service, des droits minimaux et une rotation documentée.
 
-**Mise en œuvre.** Pour appliquer ce principe dans automatiser les tâches (scripts, ansible), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre.** Séparer l'identité qui lit l'inventaire de celle qui applique les changements, et n'utiliser become que sur les tâches qui en ont besoin. Dans Ansible, protéger les variables sensibles avec un mécanisme approuvé comme Ansible Vault et utiliser no_log sur les tâches dont la sortie pourrait exposer un secret. Cette option doit rester ciblée : masquer toutes les sorties rend le diagnostic plus difficile.
 
 **Preuves et interprétation.** Le contrôle de l'historique Git, des journaux et des variables d'environnement fait partie de la revue de sécurité. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
 
@@ -160,7 +250,7 @@ Le processus doit utiliser le moindre privilège et ne jamais placer de mot de p
 
 Un mode check/diff aide à voir les changements prévus avant de les appliquer, mais n'est pas une garantie absolue. Commencer en local ou dans une maquette, tester les cas normaux et les erreurs, puis exécuter sur un lot canari avant une généralisation.
 
-**Mise en œuvre.** Pour appliquer ce principe dans automatiser les tâches (scripts, ansible), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre.** Le mode de simulation n'est utile que si l'équipe connaît ses limites. ansible-playbook --syntax-check valide la syntaxe, tandis que --check prévoit les changements pour les modules compatibles ; une commande arbitraire peut ne pas produire de simulation complète. Tester le succès, l'entrée erronée, l'hôte inaccessible et le délai dépassé dans une maquette avant le lot pilote.
 
 **Preuves et interprétation.** Conserver la sortie de simulation, le résultat des tests et l'autorisation du déploiement renforce la traçabilité. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
 
@@ -170,7 +260,7 @@ Un mode check/diff aide à voir les changements prévus avant de les appliquer, 
 
 Un automate doit fournir un résultat par cible, un code de sortie correct et un identifiant d'exécution. Séparer les erreurs des messages ordinaires, masquer les secrets et prévoir une reprise idempotente ou une compensation documentée.
 
-**Mise en œuvre.** Pour appliquer ce principe dans automatiser les tâches (scripts, ansible), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre.** Chaque exécution peut enregistrer l'heure, la version du script, le nombre de lignes lues et rejetées, la durée et le code de sortie. Les journaux ne doivent pas contenir de mots de passe, de jetons ni de lignes complètes sensibles. En cas d'échec partiel, fournir un résumé par cible plutôt qu'un message global de succès qui cacherait les hôtes en erreur.
 
 **Preuves et interprétation.** Les logs structurés avec hôte, tâche, durée et statut facilitent la supervision. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
 
@@ -180,7 +270,7 @@ Un automate doit fournir un résultat par cible, un code de sortie correct et un
 
 Ansible sépare inventaire, variables, playbooks, rôles et secrets ; cette séparation permet la réutilisation et la revue. Utiliser des groupes explicites, des variables par environnement, des handlers, des rôles limités et des commandes `--limit` contrôlées.
 
-**Mise en œuvre.** Pour appliquer ce principe dans automatiser les tâches (scripts, ansible), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre.** Un inventaire Ansible doit distinguer les environnements et les groupes opérationnels. Examiner l'inventaire effectif avec ansible-inventory --graph, confirmer les membres du groupe et choisir un hôte pilote nommé explicitement. Préférer le module command avec des arguments séparés lorsque le shell n'est pas nécessaire ; employer shell seulement si ses opérateurs sont indispensables et que les valeurs sont maîtrisées.
 
 **Preuves et interprétation.** Le diff, le check mode, la revue Git et l'exécution par lot servent de garde-fous successifs. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
 
@@ -190,69 +280,408 @@ Ansible sépare inventaire, variables, playbooks, rôles et secrets ; cette sép
 
 L'automatisation est un changement à part entière lorsqu'elle modifie des systèmes de production. Versionner le code, exiger une revue, utiliser un environnement de test, limiter le lot, prévoir une interruption et un retour arrière.
 
-**Mise en œuvre.** Pour appliquer ce principe dans automatiser les tâches (scripts, ansible), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre.** Versionner scripts, inventaires non sensibles, playbooks et tests dans Git. La revue doit examiner les cibles, les privilèges, les chemins, les opérations destructives, les reprises et les preuves de validation. Pour une action à impact, relier le lancement à un ticket approuvé, une fenêtre et un point d'arrêt. Le droit technique de lancer le playbook ne remplace pas l'autorisation du changement.
 
 **Preuves et interprétation.** Le lien entre commit, ticket, exécution et résultat permet de répondre à la question « qu'est-ce qui a changé, quand et pourquoi ? ». L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
 
 **Pièges et décision.** Lancer manuellement une version non identifiée depuis un poste personnel rend difficile la reproduction et l'audit. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
 
+
+## Construire un script Python de rapport contrôlé
+
+Un script intermédiaire doit avoir un contrat simple et observable : quelles données il accepte, quelles règles il applique, ce qu'il produit, comment il signale un échec et dans quelles conditions il écrit un fichier. Le script suivant illustre un besoin fréquent après le reporting mensuel : transformer un export approuvé de tickets en synthèse exploitable, sans modifier les tickets ni se connecter aux équipements.
+
+### 1. Définir le format d'entrée
+
+Le fichier source, tickets.csv, contient les colonnes ticket_id, asset_id, environment, status et duration_min.
+
+~~~csv
+ticket_id,asset_id,environment,status,duration_min
+INC-401,SRV-APP-01,prod,closed,35
+INC-402,SW-EDGE-02,prod,in_progress,20
+INC-403,LAP-023,test,closed,15
+~~~
+
+Dans cette démonstration, les statuts autorisés sont open, in_progress, resolved et closed, et les environnements autorisés sont prod, preprod et test. Dans un contexte réel, adapter ces règles au dictionnaire de données approuvé. Une nouvelle valeur ne doit pas être ignorée discrètement : elle doit déclencher un diagnostic permettant de corriger la source ou de faire évoluer la règle.
+
+### 2. Implémenter lecture, validation et sortie
+
+Le code standard de Python suffit ; aucune dépendance externe n'est nécessaire. Le comportement par défaut est une simulation : le rapport est calculé et affiché, mais aucun fichier n'est écrit. L'option --apply autorise l'écriture, et --overwrite est requis pour remplacer un rapport existant.
+
+~~~python
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import logging
+import os
+import tempfile
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+REQUIRED_COLUMNS = {
+    "ticket_id", "asset_id", "environment", "status", "duration_min"
+}
+ALLOWED_ENVIRONMENTS = {"prod", "preprod", "test"}
+ALLOWED_STATUSES = {"open", "in_progress", "resolved", "closed"}
+
+
+def load_rows(source: Path) -> list[dict[str, Any]]:
+    if not source.is_file():
+        raise ValueError(f"Le fichier source n'existe pas : {source}")
+
+    rows: list[dict[str, Any]] = []
+    seen_tickets: set[str] = set()
+
+    with source.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None:
+            raise ValueError("Le fichier CSV est vide ou sans en-tête.")
+
+        missing = REQUIRED_COLUMNS - set(reader.fieldnames)
+        if missing:
+            raise ValueError("Colonnes manquantes : " + ", ".join(sorted(missing)))
+
+        for line_number, raw in enumerate(reader, start=2):
+            ticket_id = (raw.get("ticket_id") or "").strip()
+            asset_id = (raw.get("asset_id") or "").strip()
+            environment = (raw.get("environment") or "").strip().lower()
+            status = (raw.get("status") or "").strip().lower()
+            duration_text = (raw.get("duration_min") or "").strip()
+
+            if not ticket_id or not asset_id:
+                raise ValueError(
+                    f"Ligne {line_number} : ticket_id et asset_id sont obligatoires."
+                )
+            if ticket_id in seen_tickets:
+                raise ValueError(f"Ligne {line_number} : doublon {ticket_id!r}.")
+            if environment not in ALLOWED_ENVIRONMENTS:
+                raise ValueError(
+                    f"Ligne {line_number} : environnement inconnu {environment!r}."
+                )
+            if status not in ALLOWED_STATUSES:
+                raise ValueError(f"Ligne {line_number} : statut inconnu {status!r}.")
+
+            try:
+                duration = int(duration_text)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Ligne {line_number} : duration_min doit être un entier."
+                ) from exc
+            if duration < 0:
+                raise ValueError(
+                    f"Ligne {line_number} : duration_min ne peut pas être négatif."
+                )
+
+            seen_tickets.add(ticket_id)
+            rows.append({
+                "ticket_id": ticket_id,
+                "asset_id": asset_id,
+                "environment": environment,
+                "status": status,
+                "duration_min": duration,
+            })
+
+    if not rows:
+        raise ValueError("Aucune ligne exploitable dans le fichier source.")
+    return rows
+
+
+def build_report(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    by_status = Counter(row["status"] for row in rows)
+    by_environment = Counter(row["environment"] for row in rows)
+    return {
+        "schema_version": 1,
+        "tickets_total": len(rows),
+        "duration_total_min": sum(row["duration_min"] for row in rows),
+        "by_status": dict(sorted(by_status.items())),
+        "by_environment": dict(sorted(by_environment.items())),
+    }
+
+
+def write_atomically(destination: Path, payload: str) -> None:
+    if not destination.parent.is_dir():
+        raise ValueError(
+            f"Le répertoire de sortie n'existe pas : {destination.parent}"
+        )
+
+    temporary_name: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="\\n",
+            dir=destination.parent,
+            prefix=f".{destination.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temporary_name = handle.name
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+
+        os.replace(temporary_name, destination)
+        temporary_name = None
+    finally:
+        if temporary_name is not None:
+            Path(temporary_name).unlink(missing_ok=True)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Valider un export de tickets et produire une synthèse."
+    )
+    parser.add_argument("source", type=Path, help="Chemin du CSV approuvé.")
+    parser.add_argument(
+        "--output", type=Path, default=Path("report.json"),
+        help="Chemin du rapport JSON."
+    )
+    parser.add_argument(
+        "--apply", action="store_true",
+        help="Écrire le rapport ; sans cette option, le script simule."
+    )
+    parser.add_argument(
+        "--overwrite", action="store_true",
+        help="Autoriser le remplacement d'un rapport existant."
+    )
+    args = parser.parse_args()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+    )
+
+    try:
+        source = args.source.resolve()
+        destination = args.output.resolve()
+        if source == destination:
+            raise ValueError("La sortie ne peut pas remplacer le fichier source.")
+        if args.overwrite and not args.apply:
+            raise ValueError("--overwrite exige aussi --apply.")
+        if args.apply and destination.exists() and not args.overwrite:
+            raise ValueError(
+                f"La sortie existe déjà : {destination}. "
+                "Choisir un autre chemin ou confirmer --overwrite."
+            )
+
+        rows = load_rows(source)
+        report = build_report(rows)
+        payload = json.dumps(report, indent=2, ensure_ascii=False) + "\\n"
+        logging.info(
+            "Validation terminée : %d tickets, %d minutes cumulées.",
+            report["tickets_total"], report["duration_total_min"]
+        )
+
+        if not args.apply:
+            print("SIMULATION : aucun fichier écrit.")
+            print(payload)
+            return 0
+
+        write_atomically(destination, payload)
+        logging.info("Rapport écrit : %s", destination)
+        return 0
+
+    except (OSError, ValueError) as exc:
+        logging.error("Échec du traitement : %s", exc)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+~~~
+
+### 3. Comprendre l'exécution
+
+La simulation se lance ainsi :
+
+~~~bash
+python build_report.py tickets.csv --output report.json
+~~~
+
+Le rapport calculé est affiché, mais n'est pas enregistré. Après les contrôles et la revue, l'écriture est explicitement autorisée :
+
+~~~bash
+python build_report.py tickets.csv --output report.json --apply
+~~~
+
+Si report.json existe déjà, le script refuse de l'écraser. Pour tester explicitement ce comportement :
+
+~~~bash
+python build_report.py tickets.csv --output report.json --apply --overwrite
+~~~
+
+Tester dans un répertoire temporaire avec un export de démonstration. Ne pas versionner un export réel contenant des données personnelles. Le code est limité au traitement local : il ne se connecte à aucun serveur, n'exécute aucune commande distante et ne change aucun équipement.
+
+### 4. Pourquoi ces choix importent
+
+- **Validation avant calcul** : une durée négative, un statut inconnu ou un doublon arrête le traitement avec un numéro de ligne utile.
+- **Simulation par défaut** : la première exécution montre ce qui serait produit. Le drapeau --apply rend l'intention d'écrire visible dans la commande.
+- **Refus d'écraser la source** : la résolution des chemins permet de détecter une sortie qui pointe vers l'entrée.
+- **Écriture atomique** : le contenu est écrit dans un fichier temporaire puis remplacé. Cela réduit le risque de laisser un JSON incomplet en cas d'interruption pendant l'écriture.
+- **Codes de sortie** : le code 0 indique un traitement terminé et le code 2 une erreur d'entrée ou d'écriture. Un ordonnanceur peut s'appuyer sur cette valeur.
+- **Journalisation utile** : les journaux donnent des agrégats et le résultat, pas les lignes entières ni les secrets.
+- **Sortie déterministe** : le rapport ne dépend pas de l'heure d'exécution ; à données égales, les agrégats sont identiques.
+
+Ce script reste pédagogique. Avant son adoption, vérifier les droits du répertoire de sortie, le volume maximal, la politique de conservation, l'encodage de la source et la définition des statuts. Avec un ordonnanceur, surveiller le code de sortie, signaler les échecs et nommer un responsable pour les exceptions.
+
+### 5. Tests ciblés
+
+Tester les cas normaux et les erreurs qui pourraient fausser un rapport : export valide, statut inconnu, doublon, durée non numérique, fichier vide et tentative de remplacer la source. Vérifier le contenu produit, pas seulement que le script ne lève aucune exception.
+
+~~~python
+import unittest
+
+from build_report import build_report
+
+
+class BuildReportTests(unittest.TestCase):
+    def test_aggregates_statuses_and_durations(self):
+        rows = [
+            {"ticket_id": "INC-1", "asset_id": "SRV-1",
+             "environment": "prod", "status": "closed", "duration_min": 30},
+            {"ticket_id": "INC-2", "asset_id": "SW-2",
+             "environment": "test", "status": "open", "duration_min": 10},
+        ]
+        report = build_report(rows)
+        self.assertEqual(report["tickets_total"], 2)
+        self.assertEqual(report["duration_total_min"], 40)
+        self.assertEqual(report["by_status"], {"closed": 1, "open": 1})
+        self.assertEqual(report["by_environment"], {"prod": 1, "test": 1})
+
+
+if __name__ == "__main__":
+    unittest.main()
+~~~
+
+Lancer avec python -m unittest -v. Pour tester load_rows, créer des fichiers temporaires pendant les tests afin de simuler les colonnes manquantes et les valeurs erronées sans toucher aux exports réels. Dans la CI, toute assertion échouée doit conduire à un code de sortie non nul.
+
+## Déployer un état cible avec Ansible
+
+Python convient bien à la transformation et à la validation des données ; Ansible est souvent mieux adapté à l'application d'un état déclaré sur un ensemble d'hôtes. Préférer les modules qui décrivent le résultat souhaité, séparer les variables d'environnement et restreindre le premier déploiement à un hôte pilote.
+
+L'exemple suivant ne démarre aucun service et ne supprime aucun contenu. Il prépare un répertoire de dépôt et une configuration sur des hôtes Linux de test. Ne l'utiliser que dans une maquette ou sur des hôtes explicitement autorisés.
+
+~~~yaml
+- name: Préparer le dépôt des rapports de maintenance
+  hosts: groupe_pilote
+  become: true
+  gather_facts: false
+
+  vars:
+    report_dir: /var/lib/skilltree-maintenance
+    report_owner: root
+
+  tasks:
+    - name: Vérifier que la cible appartient au groupe pilote
+      ansible.builtin.assert:
+        that:
+          - inventory_hostname in groups["groupe_pilote"]
+        fail_msg: "Cette cible n'appartient pas au groupe pilote."
+
+    - name: Créer le répertoire de rapports
+      ansible.builtin.file:
+        path: "{{ report_dir }}"
+        state: directory
+        owner: "{{ report_owner }}"
+        group: "{{ report_owner }}"
+        mode: "0750"
+
+    - name: Déployer la configuration de rapport
+      ansible.builtin.copy:
+        dest: "{{ report_dir }}/automation.yml"
+        content: |
+          schema_version: 1
+          report_format: json
+          reporting_enabled: true
+        owner: "{{ report_owner }}"
+        group: "{{ report_owner }}"
+        mode: "0640"
+~~~
+
+Le module file maintient un répertoire à l'état souhaité et copy gère le contenu du fichier. Une deuxième exécution ne doit pas réécrire le contenu lorsque l'état est conforme. Cette convergence est un signe d'idempotence, pas une raison d'ignorer les contrôles du service.
+
+Une séquence de validation possible, dans le répertoire contenant maintenance.yml et inventory.ini :
+
+~~~bash
+ansible-inventory -i inventory.ini --graph
+ansible-playbook --syntax-check -i inventory.ini maintenance.yml
+ansible-playbook --check --diff -i inventory.ini --limit hote-pilote maintenance.yml
+ansible-playbook -i inventory.ini --limit hote-pilote maintenance.yml
+ansible-playbook --check --diff -i inventory.ini --limit hote-pilote maintenance.yml
+~~~
+
+Avant le lancement réel, confirmer que hote-pilote est le nom exact d'une cible autorisée et que groupe_pilote existe dans l'inventaire. Si le résultat ne correspond pas au critère attendu, ne pas étendre le lot. Le mode diff peut révéler des données de configuration ; limiter sa sortie et éviter les contenus sensibles.
+
+### Liste de contrôle de revue
+
+1. **Contrat** : entrées, valeurs acceptées, sorties, erreurs et effets de bord documentés.
+2. **Périmètre** : chemins, hôtes et environnements explicites ; une valeur vide ne signifie jamais « toute la flotte ».
+3. **Validation** : une donnée absente ou inconnue échoue clairement avant l'action.
+4. **Privilèges** : seuls les droits nécessaires sont demandés.
+5. **Secrets** : aucun secret en clair dans Git, les paramètres ou les journaux.
+6. **Tests** : cas normal, cas limite et erreurs simulés ; résultats archivés avec la version.
+7. **Reprise** : relance sûre, limites de tentatives, point d'arrêt et retour arrière définis.
+8. **Validation** : contrôle post-exécution indépendant, résultats par cible et restitution compréhensible.
+
 ## Méthode transversale pour une opération maîtrisée
 
 ### 1. Gouvernance
 
-L'intervention doit être reliée à un objectif de service, un propriétaire et une décision explicite. Le contrôle de gouvernance n'a de valeur que s'il aide à identifier qui peut accepter le risque et qui doit être informé. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+L'intervention doit être reliée à un objectif de service, un propriétaire et une décision explicite. Le contrôle de gouvernance n'a de valeur que s'il aide à identifier qui peut accepter le risque et qui doit être informé. Pour la gouvernance, tenir un registre qui indique le propriétaire, l'objectif, les permissions, les dépôts, les cibles autorisées et la procédure d'arrêt. Le propriétaire doit pouvoir suspendre l'exécution, expliquer les dépendances et démontrer que le gain de temps ne compromet pas la qualité de service.
 
 ### 2. Cycle de vie
 
-La solution doit être pensée depuis la préparation jusqu'à la sortie, y compris le maintien des compétences et le retrait des anciennes données. Une étape oubliée en fin de cycle transforme souvent une réussite ponctuelle en risque latent. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+La solution doit être pensée depuis la préparation jusqu'à la sortie, y compris le maintien des compétences et le retrait des anciennes données. Une étape oubliée en fin de cycle transforme souvent une réussite ponctuelle en risque latent. Le cycle de vie commence par une procédure manuelle comprise, continue par un prototype, des tests et une revue, puis se poursuit avec un pilote et une surveillance. Si la source, l'API ou le format d'entrée évolue, requalifier le script : un succès passé ne prouve pas que la règle traite les champs actuels.
 
 ### 3. Qualité de données
 
-Toute mesure dépend de la qualité de son périmètre, de l'horodatage, de l'unité et de la provenance. Il faut identifier les champs manquants et les conventions contradictoires avant de tirer une conclusion. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Toute mesure dépend de la qualité de son périmètre, de l'horodatage, de l'unité et de la provenance. Il faut identifier les champs manquants et les conventions contradictoires avant de tirer une conclusion. Pour un export CSV, vérifier la provenance, le séparateur, l'encodage, les champs obligatoires, les doublons, la période et les lignes incomplètes. Compter les entrées acceptées et rejetées. Un rapport calculé sur une partie des tickets ne doit pas être présenté comme exhaustif sans préciser son taux de couverture.
 
 ### 4. Gestion du risque
 
-Le risque se juge par probabilité, impact, capacité de détection et marge de récupération. Les éléments critiques doivent recevoir plus de contrôles, sans imposer la même lourdeur aux opérations réversibles et aux changements irréversibles. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Le risque se juge par probabilité, impact, capacité de détection et marge de récupération. Les éléments critiques doivent recevoir plus de contrôles, sans imposer la même lourdeur aux opérations réversibles et aux changements irréversibles. Classer les opérations selon l'impact et la réversibilité. La lecture seule peut être largement testée avant exécution ; la suppression, la rotation de secrets ou le redémarrage d'un service exige un contrôle renforcé, un petit lot et une reprise documentée. Une simulation n'est pas une garantie lorsque des modules ne prennent pas complètement en charge le mode check.
 
 ### 5. Communication
 
-Une communication utile indique ce qui est connu, ce qui reste à vérifier, qui agit ensuite et quand une nouvelle information sera fournie. Les formulations doivent éviter les promesses non vérifiées. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Une communication utile indique ce qui est connu, ce qui reste à vérifier, qui agit ensuite et quand une nouvelle information sera fournie. Les formulations doivent éviter les promesses non vérifiées. Le message d'exploitation précise le changement prévu, le lot, la durée, le comportement attendu et le canal d'escalade. Après exécution, annoncer le nombre de cibles réussies, en échec et ignorées, puis fixer la prochaine mise à jour. Ne pas déclarer le service rétabli tant que le contrôle métier n'a pas été réalisé.
 
 ### 6. Sécurité
 
-Le périmètre technique doit rester limité aux systèmes autorisés, avec une identité traçable et les droits minimaux nécessaires. Les secrets doivent être protégés dans les fichiers, les journaux, les captures et les exports. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Le périmètre technique doit rester limité aux systèmes autorisés, avec une identité traçable et les droits minimaux nécessaires. Les secrets doivent être protégés dans les fichiers, les journaux, les captures et les exports. La sécurité se vérifie dans le code et l'environnement : entrées contrôlées, permissions minimales, secrets injectés depuis un coffre, dépendances surveillées et journaux filtrés. Si une valeur peut atteindre une commande système, ne pas construire une chaîne shell avec cette valeur ; préférer des arguments séparés et validés.
 
 ### 7. Traçabilité
 
-Une action exploitable doit laisser un résultat vérifiable, un horodatage, un propriétaire et un lien avec le ticket ou le changement. La trace doit permettre à un autre technicien de comprendre ce qui a été fait. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Une action exploitable doit laisser un résultat vérifiable, un horodatage, un propriétaire et un lien avec le ticket ou le changement. La trace doit permettre à un autre technicien de comprendre ce qui a été fait. Une trace utile relie la version du code, le commit, l'identifiant d'exécution, le périmètre effectif, les paramètres non sensibles, les horaires, les résultats par cible et la validation. Conserver la trace selon les règles internes et vérifier qu'elle reste accessible aux personnes autorisées sans devenir un dépôt de secrets.
 
 ### 8. Gestion des exceptions
 
-Les cas hors procédure doivent être visibles et conduire à un point d'arrêt, une décision ou une escalade. Une exception récurrente est souvent le signal qu'il faut faire évoluer la procédure plutôt que la répéter. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Les cas hors procédure doivent être visibles et conduire à un point d'arrêt, une décision ou une escalade. Une exception récurrente est souvent le signal qu'il faut faire évoluer la procédure plutôt que la répéter. Définir à l'avance le comportement lorsqu'un hôte est inaccessible, qu'un fichier est illisible ou que le format n'est pas reconnu. Une donnée critique absente doit bloquer le rapport plutôt que produire un résultat incomplet présenté comme fiable. Distinguer échec global et échec partiel puis attribuer une suite à chaque exception.
 
 ### 9. Amélioration continue
 
-Les incidents, les retours utilisateurs et les contrôles qualité doivent transformer les règles et procédures. Il faut vérifier si les modifications réduisent réellement le risque, et pas seulement si les documents ont été mis à jour. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Les incidents, les retours utilisateurs et les contrôles qualité doivent transformer les règles et procédures. Il faut vérifier si les modifications réduisent réellement le risque, et pas seulement si les documents ont été mis à jour. Une amélioration part d'un incident ou d'une mesure : classifier les erreurs fréquentes, écrire un test qui reproduit le cas, corriger le script, faire relire le diff et comparer le taux d'échec avant/après. Un jeu de données représentatif permet de détecter les régressions lorsque l'outil ou la règle évolue.
 
 ### 10. Capacité
 
-Les ressources, compétences, fenêtres et dépendances limitent le volume d'opérations réalisables. Une planification crédible tient compte de la charge, des temps de contrôle et des imprévus. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Les ressources, compétences, fenêtres et dépendances limitent le volume d'opérations réalisables. Une planification crédible tient compte de la charge, des temps de contrôle et des imprévus. Surveiller le temps de traitement, les délais d'attente, la taille des lots, la mémoire et la charge lorsque ces facteurs affectent le service. Trop de tâches parallèles peuvent dégrader le système ou provoquer des limites d'API ; ajuster les forks et les lots selon les résultats d'essais contrôlés.
 
 ### 11. Contrôle du changement
 
-Une modification nécessite un état initial connu, un périmètre, des critères de réussite et une solution de repli adaptée au risque. L'urgence ne supprime pas le besoin de garder une trace des décisions. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Une modification nécessite un état initial connu, un périmètre, des critères de réussite et une solution de repli adaptée au risque. L'urgence ne supprime pas le besoin de garder une trace des décisions. Un changement de script suit le processus de changement : demande, analyse, revue, tests, fenêtre, approbation, exécution et vérification. Les corrections urgentes doivent également laisser une trace et être revues après coup. Un commit prouve qu'un fichier a changé, pas que son exécution en production est autorisée.
 
 ### 12. Mesure d'efficacité
 
-Un indicateur ne vaut que si sa définition reste constante et si sa variation peut conduire à une décision. Les chiffres doivent être accompagnés d'une période, d'un périmètre et des limites de mesure. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Un indicateur ne vaut que si sa définition reste constante et si sa variation peut conduire à une décision. Les chiffres doivent être accompagnés d'une période, d'un périmètre et des limites de mesure. Mesurer un indicateur d'efficacité et un indicateur de risque. Le temps économisé peut être comparé au taux d'échec, au volume de données rejetées et aux incidents après exécution. Un script plus rapide n'est pas meilleur s'il ignore plus de lignes invalides ou crée davantage de reprises.
 
 ### 13. Passation
 
-Une tâche doit pouvoir être reprise par une autre personne sans dépendre des souvenirs du technicien présent. La transmission contient contexte, preuves, étapes déjà tentées et prochaine action. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Une tâche doit pouvoir être reprise par une autre personne sans dépendre des souvenirs du technicien présent. La transmission contient contexte, preuves, étapes déjà tentées et prochaine action. Une passation doit fournir le dépôt et la version exacte, la commande, le périmètre, les résultats, les erreurs pertinentes, les limites connues, la procédure d'arrêt et le propriétaire. Ne jamais passer un mot de passe ou un jeton dans le ticket ; utiliser le mécanisme sécurisé prévu pour accorder l'accès.
 
 ### 14. Validation métier
 
-Le résultat technique doit être confirmé du point de vue du service. Un équipement joignable ou un script qui termine sans erreur ne suffit pas si l'utilisateur ne peut pas accomplir son opération. Pour automatiser les tâches (scripts, ansible), cela signifie que la personne qui agit doit relier la règle à un élément concret : taux de réussite, durée économisée, échecs récupérables, changements non prévus, taux de simulation positive, dérive de configuration, incidents causés par l'automatisation. Avant l'opération, noter l'état de départ et ce qui fera considérer le résultat comme acceptable. Pendant l'action, conserver le contexte des changements et indiquer immédiatement les écarts. Après l'action, exécuter le contrôle correspondant au risque, enregistrer le résultat et affecter les suites restantes. Cette discipline augmente la qualité de la passation et réduit la dépendance à une personne unique.
+Le résultat technique doit être confirmé du point de vue du service. Un équipement joignable ou un script qui termine sans erreur ne suffit pas si l'utilisateur ne peut pas accomplir son opération. La validation métier confirme que l'automatisation sert le processus. Pour un rapport de maintenance, vérifier la période, les totaux par statut, la règle des durées et la possibilité d'exploiter les résultats. Une exécution techniquement réussie ne prouve ni que le rapport est complet ni que le service est satisfaisant.
 
 ## Indicateurs : définition, lecture et limites
 
@@ -295,7 +724,7 @@ Les commandes de cette section servent à illustrer la collecte de preuves. Remp
 ansible-playbook --syntax-check -i inventory.ini maintenance.yml
 ```
 
-Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+Cette vérification détecte notamment les erreurs de syntaxe et certains problèmes de chargement, mais elle n'exécute pas les tâches et ne prouve pas que les hôtes sont joignables. Conserver la version d'Ansible et le résultat du contrôle, puis poursuivre par les tests dans l'environnement approprié.
 
 #### Exemple 2 — Simuler les changements, si les modules concernés prennent en charge le mode check
 
@@ -303,7 +732,7 @@ Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne dém
 ansible-playbook --check --diff -i inventory.ini --limit groupe-pilote maintenance.yml
 ```
 
-Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+Lire le résultat de simulation hôte par hôte. Le mode check est partiel pour certaines tâches et le diff peut révéler des lignes confidentielles ; ne partager la sortie qu'avec les personnes autorisées. Si le résultat dépend de conditions exécutées plus tôt dans le playbook, vérifier ce parcours dans une maquette.
 
 #### Exemple 3 — Limiter explicitement l'exécution à un groupe pilote
 
@@ -311,7 +740,7 @@ Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne dém
 ansible-playbook -i inventory.ini --limit groupe-pilote maintenance.yml
 ```
 
-Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+Avant le lancement, confirmer que le groupe pilote existe et que ses membres sont ceux attendus. --limit réduit le nombre de cibles, mais ne corrige ni un inventaire erroné ni des variables dangereuses. Relire le plan et le code immédiatement avant toute exécution réelle.
 
 #### Exemple 4 — Analyser les modifications d'un script avant de le publier
 
@@ -319,29 +748,49 @@ Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne dém
 git diff --check && git diff -- script.py
 ```
 
-Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+git diff --check signale des problèmes d'espacement et git diff permet de revoir le changement avant validation. Contrôler aussi les tests, les fichiers générés et la présence éventuelle de secrets. Une revue efficace cherche les conséquences du diff, pas seulement sa propreté visuelle.
 
 ## Atelier pratique guidé
 
 ### Situation de départ
 
-L'équipe reçoit une demande concernant automatiser les tâches (scripts, ansible). Le contexte est incomplet : l'utilisateur décrit un symptôme, une mesure semble inhabituelle et une intervention antérieure est mentionnée sans détail. Le travail consiste à produire une réponse reproductible, sans prendre de risque inutile et sans annoncer une conclusion que les preuves ne soutiennent pas.
+À la fin du mois, l'équipe maintenance produit une synthèse depuis un export de tickets. La collecte manuelle prend du temps et les totaux ne concordent pas toujours, car certaines lignes sont dupliquées, des statuts varient selon les équipes et des durées sont saisies en texte. L'objectif est d'automatiser le calcul sans automatiser aveuglément l'interprétation métier.
 
-### Phase A — Qualification
+Le CSV utilisé est une copie de données de test. Le résultat attendu est un rapport JSON dont les totaux peuvent être comparés à la source. Aucun ticket ni équipement ne sera modifié.
 
-Créer ou mettre à jour le ticket ; identifier le service, les utilisateurs concernés, le propriétaire technique, la période et les changements récents. Réunir les journaux et les mesures disponibles. Séparer les faits confirmés des déclarations de l'utilisateur. Déterminer si le problème est en cours, intermittent ou résolu, et préciser ce qui manque encore. Définir l'impact selon les critères de service et la priorité de traitement. Si la cible n'est pas certaine, valider son identité par l'inventaire avant d'exécuter la moindre action.
+### Phase A — Écrire le contrat avant le code
 
-### Phase B — Hypothèses et tests
+Définir les champs obligatoires, les statuts autorisés, les environnements attendus, la règle de traitement des doublons et la signification de duration_min. Préciser le propriétaire de l'export et la période couverte. Pour cet atelier, un ticket doit avoir un identifiant unique, un actif, un environnement reconnu, un statut autorisé et une durée entière non négative.
 
-Formuler au moins deux hypothèses concurrentes. Pour chacune, préciser le signal qui devrait être observé si elle est vraie, le signal qui permettrait de la rejeter et le coût du test. Commencer par les contrôles en lecture seule, puis ne réaliser une modification que si elle est autorisée et nécessaire. Garder les résultats qui contredisent l'hypothèse initiale ; ils évitent de persister sur la mauvaise piste. Si les tests se contredisent, vérifier l'horloge, la version des données, la portée du contrôle et la possibilité d'une panne intermittente.
+Le critère de réussite est double : le rapport contient le nombre exact de tickets valides, la somme des durées correspond aux lignes reconnues et le programme retourne un code d'échec en présence d'une donnée obligatoire invalide. La vitesse d'exécution est secondaire tant que la qualité n'est pas démontrée.
 
-### Phase C — Action contrôlée
+### Phase B — Préparer des données de test
 
-Choisir une action proportionnée au risque et limitée au périmètre identifié. Avant de modifier, noter l'état initial, confirmer la sauvegarde ou le retour arrière adapté et prévenir les personnes concernées. Exécuter une seule modification majeure à la fois lorsque cela permet d'isoler son effet. Si un point d'arrêt est atteint, conserver les preuves et contacter le niveau compétent plutôt que contourner la règle. Après l'action, répéter le test initial et vérifier le service par une transaction ou un parcours représentatif.
+Créer une copie du CSV avec quelques lignes normales puis des erreurs volontaires : colonne absente, statut pending inconnu, durée abc, valeur négative et identifiant dupliqué. Tester chaque cas séparément. Il faut identifier quelle règle arrête le programme et vérifier qu'aucun fichier final partiel n'est écrit.
 
-### Phase D — Validation et restitution
+Ne pas corriger automatiquement une valeur inconnue sauf si une règle métier approuvée précise exactement la transformation. Une conversion arbitraire peut réduire les erreurs apparentes tout en faussant les indicateurs.
 
-Comparer le résultat aux critères d'acceptation. Décrire ce qui a changé, ce qui a été vérifié, ce qui reste incertain et les actions ouvertes. La restitution doit être compréhensible pour un utilisateur non spécialiste et suffisamment technique pour un collègue qui reprendrait le dossier. Associer chaque action à un responsable et une échéance. Lorsque la procédure a été difficile à appliquer, signaler précisément la phrase, le champ ou le contrôle à améliorer.
+### Phase C — Exécuter en simulation puis écrire
+
+Lancer d'abord python build_report.py tickets.csv --output report.json. Examiner les agrégats et comparer les totaux à la source. Essayer ensuite une écriture dans un dossier temporaire avec --apply, vérifier le JSON et relancer vers le même fichier sans --overwrite : le programme doit refuser de remplacer le rapport. Ajouter explicitement --overwrite seulement pour tester ce cas.
+
+Exécuter les tests unitaires avant la publication. Si les tests sont automatisés en CI, faire échouer le pipeline en cas de résultat inattendu. Conserver le résultat de test, le commit et la version des règles métier.
+
+### Phase D — Préparer la livraison par Ansible
+
+Dans une maquette distincte, examiner l'inventaire avec ansible-inventory --graph, vérifier la syntaxe, simuler avec --check --diff sur un hôte pilote puis exécuter seulement après approbation. Comparer le résultat réel au diff prédit et relancer un contrôle pour vérifier que la seconde passe ne propose plus de changement inattendu.
+
+Ne pas généraliser parce que le playbook fonctionne sur une seule machine. Confirmer que le système d'exploitation, les chemins et les permissions sont comparables dans le lot suivant et vérifier les exceptions propres à certains hôtes.
+
+### Phase E — Restituer le résultat
+
+La restitution précise le nombre de lignes source, les enregistrements acceptés, les erreurs rejetées, la période, les totaux et la version du script. Une ligne rejetée ne doit pas disparaître du suivi : indiquer à qui elle est attribuée et quand elle sera corrigée. Si l'export est incomplet, le bilan doit le signaler et éviter de prétendre couvrir tout le mois.
+
+### Résultat attendu et critères de notation
+
+L'atelier est réussi si le script n'écrit rien par défaut, refuse les valeurs invalides, produit des agrégats reproductibles, détecte les doublons, protège la source et retourne un code exploitable. Le déploiement Ansible est réussi si l'inventaire est compris, le changement est limité, le diff est relu, les permissions sont conformes et une seconde exécution ne révèle pas de modification inattendue.
+
+Une solution qui produit le bon total mais ignore silencieusement les lignes incorrectes n'est pas validée. Une solution qui effectue un changement sur une cible non prévue ne l'est pas non plus, même si la commande se termine sans erreur.
 
 ## Études de cas
 
@@ -375,37 +824,37 @@ Comparer le résultat aux critères d'acceptation. Décrire ce qui a changé, ce
 
 **Question.** Une demande décrit un problème sans identifier clairement l'actif concerné. Quelles informations obtenir avant de lancer un contrôle ?
 
-**Corrigé expliqué.** Identifier le service, la cible, l'utilisateur, la période, l'impact, l'autorisation, les dépendances et le résultat attendu. Aucun changement ne doit précéder la confirmation de la cible. Dans le contexte de automatiser les tâches (scripts, ansible), appliquer cette réponse en reliant le raisonnement à une preuve disponible, au risque et au service concerné. L'objectif n'est pas de remplir un formulaire, mais de rendre la décision reproductible et d'éviter qu'un résultat ambigu soit transformé en certitude.
+**Corrigé expliqué.** Identifier le service, la cible, l'utilisateur, la période, l'impact, l'autorisation, les dépendances et le résultat attendu. Aucun changement ne doit précéder la confirmation de la cible. Dans un pipeline Python/Ansible, le périmètre doit venir d'une liste explicite de cibles autorisées. Un paramètre vide ou un groupe trop large doit provoquer un arrêt, jamais déclencher l'opération sur toute une flotte.
 
 ### Exercice 2 — Distinguer fait et hypothèse
 
 **Question.** Une alerte apparaît juste après une modification. Peut-on écrire que la modification est la cause ?
 
-**Corrigé expliqué.** Non. La proximité temporelle est un indice. Il faut comparer l'état avant/après, tester le mécanisme supposé et évaluer les autres facteurs possibles. Dans le contexte de automatiser les tâches (scripts, ansible), appliquer cette réponse en reliant le raisonnement à une preuve disponible, au risque et au service concerné. L'objectif n'est pas de remplir un formulaire, mais de rendre la décision reproductible et d'éviter qu'un résultat ambigu soit transformé en certitude.
+**Corrigé expliqué.** Non. La proximité temporelle est un indice. Il faut comparer l'état avant/après, tester le mécanisme supposé et évaluer les autres facteurs possibles. Dans un script de maintenance, le témoignage d'un utilisateur est un signal à examiner, pas une preuve de cause racine. Comparer la chronologie aux journaux, au statut de la tâche et aux changements récents avant d'ajouter une règle automatique.
 
 ### Exercice 3 — Choisir la mesure
 
 **Question.** Un indicateur semble bon mais les utilisateurs signalent un problème. Quelle démarche appliquer ?
 
-**Corrigé expliqué.** Vérifier que le point de mesure représente le service, examiner le périmètre et la fraîcheur des données, puis croiser avec un test de bout en bout et le retour utilisateur. Dans le contexte de automatiser les tâches (scripts, ansible), appliquer cette réponse en reliant le raisonnement à une preuve disponible, au risque et au service concerné. L'objectif n'est pas de remplir un formulaire, mais de rendre la décision reproductible et d'éviter qu'un résultat ambigu soit transformé en certitude.
+**Corrigé expliqué.** Vérifier que le point de mesure représente le service, examiner le périmètre et la fraîcheur des données, puis croiser avec un test de bout en bout et le retour utilisateur. Choisir un indicateur qui permet de décider : taux de lignes valides, durée d'exécution, proportion de cibles en échec ou nombre de changements inattendus. Définir numérateur, dénominateur et période pour rendre les mesures comparables.
 
 ### Exercice 4 — Protéger la production
 
 **Question.** Une opération comporte un risque de perte de données ou d'indisponibilité. Quelles garanties vérifier ?
 
-**Corrigé expliqué.** Autorisation, fenêtre, état initial, sauvegarde ou retour arrière adapté, prérequis, lot limité, critères de réussite, point d'arrêt et responsable du rétablissement. Dans le contexte de automatiser les tâches (scripts, ansible), appliquer cette réponse en reliant le raisonnement à une preuve disponible, au risque et au service concerné. L'objectif n'est pas de remplir un formulaire, mais de rendre la décision reproductible et d'éviter qu'un résultat ambigu soit transformé en certitude.
+**Corrigé expliqué.** Autorisation, fenêtre, état initial, sauvegarde ou retour arrière adapté, prérequis, lot limité, critères de réussite, point d'arrêt et responsable du rétablissement. En production, la sécurité combine simulation, limitation des cibles, privilèges minimaux, point d'arrêt et contrôle après action. Aucun mécanisme ne remplace les autres ; définir aussi la conduite à tenir si le contrôle échoue.
 
 ### Exercice 5 — Rédiger la passation
 
 **Question.** Un autre technicien reprend l'incident en milieu d'investigation. Quelles informations minimales transmettre ?
 
-**Corrigé expliqué.** Résumé, impact, heure, cible, faits, hypothèses testées, preuves, actions déjà effectuées, changements récents, risques, propriétaire et prochaine action proposée. Dans le contexte de automatiser les tâches (scripts, ansible), appliquer cette réponse en reliant le raisonnement à une preuve disponible, au risque et au service concerné. L'objectif n'est pas de remplir un formulaire, mais de rendre la décision reproductible et d'éviter qu'un résultat ambigu soit transformé en certitude.
+**Corrigé expliqué.** Résumé, impact, heure, cible, faits, hypothèses testées, preuves, actions déjà effectuées, changements récents, risques, propriétaire et prochaine action proposée. Une passation d'automatisation fournit la version du script, la commande, le périmètre exact, les résultats par lot, les erreurs pertinentes et la prochaine action. Les secrets sont transmis via un coffre, jamais dans le ticket.
 
 ### Exercice 6 — Vérifier l'efficacité
 
 **Question.** Comment démontrer qu'une action corrective a amélioré la situation ?
 
-**Corrigé expliqué.** Définir une référence, un indicateur, une fenêtre d'observation et un critère de réussite avant l'action ; mesurer ensuite le résultat et documenter les limites. Dans le contexte de automatiser les tâches (scripts, ansible), appliquer cette réponse en reliant le raisonnement à une preuve disponible, au risque et au service concerné. L'objectif n'est pas de remplir un formulaire, mais de rendre la décision reproductible et d'éviter qu'un résultat ambigu soit transformé en certitude.
+**Corrigé expliqué.** Définir une référence, un indicateur, une fenêtre d'observation et un critère de réussite avant l'action ; mesurer ensuite le résultat et documenter les limites. Comparer une période de référence et une période après mise en œuvre avec le même périmètre et la même définition. Rechercher les effets négatifs, comme un taux de rejet supérieur ou des incidents après exécution, avant de conclure que l'automatisation est efficace.
 
 ## Glossaire opérationnel
 
@@ -435,11 +884,24 @@ Comparer le résultat aux critères d'acceptation. Décrire ce qui a changé, ce
 
 ## Défi final — traiter un cas de bout en bout
 
-Le service responsable vous signale une dégradation après plusieurs changements récents. Les données sont partielles, une mesure contredit un témoignage et la prochaine fenêtre d'intervention est limitée. Vous devez livrer un dossier que pourrait reprendre un collègue, sans multiplier les manipulations et sans promettre une résolution avant preuve.
+Le reporting mensuel est encore assemblé manuellement depuis plusieurs exports. La responsable constate des doublons, un statut inconnu et un total de durées différent du tableau de bord. Vous devez proposer un script de validation et de calcul, puis un déploiement contrôlé de sa configuration sur un hôte pilote. Les données sont des copies de test ; aucune modification distante ni généralisation n'est autorisée tant que les critères d'acceptation ne sont pas satisfaits.
 
-**Travail demandé.** Rédiger le périmètre, la chronologie, trois hypothèses, les preuves associées, le test le moins risqué, la décision d'escalade éventuelle, le plan de validation, les actions de suivi et le message destiné au demandeur. Pour chaque étape, préciser les conditions qui vous feraient arrêter ou changer de stratégie.
+**Travail demandé.** Définir le schéma CSV, les règles de validation, les erreurs qui arrêtent le script, le rapport JSON attendu, les tests unitaires et les codes de sortie. Décrire ensuite le pipeline Git, la syntaxe Ansible, la simulation, le choix du pilote, le contrôle après déploiement et le critère qui autorise le lot suivant. Expliquer comment gérer les lignes invalides, protéger les données et revenir à une version stable.
 
-**Correction attendue.** Le dossier commence par l'impact et les faits confirmés, puis présente les hypothèses avec des tests discriminants. Les contrôles en lecture seule précèdent les modifications. L'action choisie est autorisée, limitée et réversible dans la mesure du possible. Le résultat est vérifié par une mesure indépendante et une validation du service. Les éléments manquants restent explicitement notés. Les conclusions sont prudentes, les preuves sont accessibles et les actions restantes possèdent un propriétaire, une échéance et un indicateur d'efficacité.
+**Correction attendue.** Le contrat de données précède le code. Les champs, statuts et durées sont validés avant la création du rapport ; doublons et valeurs inconnues provoquent un échec explicite. La simulation est le comportement par défaut et l'écriture exige une option explicite. Ansible est validé par inventaire, syntaxe et simulation sur un pilote, puis contrôlé après exécution. La généralisation reste bloquée tant que les totaux, permissions, résultats par cible et conditions de reprise ne sont pas vérifiés.
+
+
+## Ressources techniques et références
+
+Les options exactes peuvent évoluer avec les versions ; consulter les pages de référence lors de la préparation d'une automatisation.
+
+- [Documentation Ansible — Introduction aux playbooks et idempotence](https://docs.ansible.com/projects/ansible/latest/playbook_guide/playbooks_intro.html) : état souhaité, exécution et mode check.
+- [Documentation Ansible — Check mode et diff mode](https://docs.ansible.com/projects/ansible-core/devel/playbook_guide/playbooks_checkmode.html) : limites de la simulation et précautions sur les différences affichées.
+- [Documentation Ansible — Module ansible.builtin.command](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/command_module.html) : arguments séparés et différences avec le shell.
+- [Documentation Python — subprocess](https://docs.python.org/3/library/subprocess.html) : codes de retour, délais d'attente et sécurité liée à l'exécution shell.
+- [Documentation Python — Logging HOWTO](https://docs.python.org/3/howto/logging.html) : niveaux de journalisation et choix entre journal et exception.
+
+Ces ressources servent à vérifier les options et les comportements actuels. Une commande copiée depuis une documentation doit être testée dans la version et l'environnement réellement utilisés ; elle ne remplace pas l'analyse du risque ni l'autorisation opérationnelle.
 
 ## Synthèse
 
