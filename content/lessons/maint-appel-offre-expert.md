@@ -317,6 +317,44 @@ Rédiger un dossier de consultation pour l'externalisation d'un service de maint
 
 **Correction attendue.** Une solution experte ne se contente pas de choisir une option ; elle compare les scénarios, fixe les critères avant le résultat, documente les responsabilités et signale les informations manquantes. Elle prévoit les conditions d'arrêt, les mesures temporaires, la communication, les dépendances et la vérification de fin. Le plan d'action est réaliste, ses résultats sont mesurables et le risque résiduel est soumis à une personne habilitée.
 
+
+## Dossier de consultation approfondi — matrices, notation et réception
+
+Le dossier de consultation doit relier la demande à la livraison puis à l'exploitation. Une règle de rédaction efficace consiste à examiner chaque exigence de bout en bout : qui l'a demandée, pourquoi elle est nécessaire, si elle est obligatoire ou évaluée, quelle preuve sera demandée, comment elle sera notée et comment la livraison sera acceptée.
+
+### Exemple de matrice de traçabilité
+
+| ID | Besoin ou source | Exigence rédigée | Statut | Preuve en consultation | Test de recette |
+|---|---|---|---|---|---|
+| OPS-01 | Continuité des actifs critiques | Le prestataire remet un plan de continuité documenté couvrant le périmètre nommé et les responsables de reprise | Obligatoire si approuvée comme telle | Plan et description des dépendances | Exercice ou revue selon les critères contractuels |
+| DATA-02 | Traçabilité des tickets | Chaque intervention doit conserver un identifiant de ticket, d'actif, une période, un résultat et un propriétaire | Obligatoire | Exemple anonymisé et description du schéma | Échantillon de tickets de réception |
+| SEC-03 | Gestion des accès | Les comptes et privilèges doivent suivre le processus d'autorisation défini par l'acheteur | Obligatoire selon le besoin approuvé | Description des contrôles et preuves autorisées | Test de rôle et vérification des journaux |
+| SERV-04 | Support hors horaires | La couverture doit préciser les jours, heures, fuseaux, criticités et canaux | Notée ou obligatoire selon la stratégie | Planning, modèle d'astreinte et escalade | Scénario de demande en dehors des horaires normaux |
+| EXIT-05 | Sortie de contrat | Les données et documents doivent être restitués dans des formats exploitables selon un calendrier défini | Contractuelle | Plan de réversibilité et coûts | Export, validation de complétude et lecture des données |
+
+Les statuts de cette matrice sont à décider avec les parties compétentes. Il ne faut pas marquer toutes les exigences « obligatoires » par précaution : des critères éliminatoires injustifiés peuvent restreindre la concurrence et réduire le nombre d'offres utiles. À l'inverse, une exigence liée à la sécurité, à la continuité ou à une obligation applicable doit être évaluée explicitement.
+
+### Exemple de grille de notation
+
+Avant publication, le groupe peut définir des critères notés totalisant 100 points, en plus des critères obligatoires vérifiés séparément. Exemple illustratif : approche technique 30 points, qualité et gouvernance du service 25 points, coût total sur l'horizon choisi 20 points, transition et transfert de connaissances 15 points, capacité d'amélioration et de reporting 10 points. La sécurité fondamentale peut être un seuil de conformité si cette décision est justifiée par le besoin et approuvée.
+
+Pour chaque critère, définir l'échelle. Par exemple, un score de 1 peut correspondre à une réponse qui n'explique pas la méthode ou ne fournit pas de preuve ; un score de 3 à une solution cohérente avec des hypothèses encore à confirmer ; un score de 5 à une réponse complète, adaptée au scénario, avec preuve, dépendances, critères de réussite et gestion des exceptions. Le score pondéré se calcule ensuite selon la formule annoncée : score reçu divisé par le score maximal de l'échelle, multiplié par le poids du critère. Les règles d'arrondi et de traitement des égalités doivent être fixées avant l'évaluation.
+
+Des critères descriptifs réduisent l'effet de la préférence personnelle des évaluateurs. Chaque évaluateur note indépendamment, consigne une justification et cite la section de l'offre ou la preuve correspondante. Une réunion de consolidation discute les écarts de note sans effacer les opinions minoritaires importantes. Les conflits d'intérêts sont déclarés selon la procédure applicable. La décision finale est approuvée par l'autorité compétente.
+
+### Questions de clarification et démonstrations
+
+Les clarifications doivent porter sur la compréhension de l'offre dans le cadre autorisé. Tenir un registre avec la question, le destinataire, la réponse, la date, la règle utilisée et l'effet éventuel sur l'évaluation. Si une réponse fournit une information qui modifie de façon significative ce que les concurrents pouvaient proposer, consulter la fonction achats ou juridique pour déterminer le traitement approprié. Ne pas utiliser une clarification pour réécrire après coup les critères de préférence.
+
+Une démonstration est plus informative si elle suit un scénario identique pour chaque offre. L'équipe peut demander au fournisseur de créer une demande, de la relier à un actif, de gérer une priorité, de montrer une autorisation, d'enregistrer une intervention et de produire un rapport comprenant les horodatages et les exclusions. Le test doit aussi inclure une erreur réaliste : un actif inconnu, un ticket réouvert ou un prestataire indisponible. Consigner les différences entre le comportement observé et la réponse écrite de l'offre.
+
+### Recette, acceptation et passage en exploitation
+
+Le plan de recette fixe les environnements, les données de test, les participants, les préconditions, les seuils et la règle de traitement des défauts. Distinguer défaut bloquant, défaut majeur accepté sous réserve et amélioration non bloquante. L'acceptation doit être prononcée par la personne habilitée ; une démonstration réussie ne suffit pas si la migration, la formation, la sécurité, les supports ou les interfaces ne sont pas livrés.
+
+Un dossier d'attribution bien préparé fournit une piste d'audit complète : besoin, stratégie, dossier publié, questions-réponses, offres, grilles d'évaluation, contrôles de recevabilité, analyse des risques, décision, contrat et critères de recette. Cette piste doit être conservée selon les règles applicables, avec accès limité aux documents commerciaux sensibles.
+
+
 ## Ressources techniques et références
 
 - [World Bank — Procurement Framework et documents types](https://www.worldbank.org/ext/en/what-we-do/project-procurement/framework)
