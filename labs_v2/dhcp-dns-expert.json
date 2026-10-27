@@ -1,0 +1,460 @@
+{
+  "schema_version": 2,
+  "id": "dhcp-dns-expert",
+  "title": "DHCP/DNS expert — Failover, DNSSEC et récursion",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Durcissez DHCP/DNS : activez le failover DHCP, réduisez la durée des baux, activez DNSSEC, restreignez la récursion et configurez DNS2 comme secondaire de DNS1.",
+  "objectives": [
+    "Activer le failover et définir son pair.",
+    "Réduire la durée du bail pour faciliter la reprise.",
+    "Activer DNSSEC et configurer un redirecteur fiable.",
+    "Restreindre la récursion au réseau interne.",
+    "Configurer le serveur DNS secondaire."
+  ],
+  "hints": [
+    "Le failover demande une définition de pair cohérente.",
+    "Une récursion ouverte à tout Internet est un risque.",
+    "Une zone secondaire doit référencer son maître."
+  ],
+  "duration_min": 35,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-dhcp-dns-expert",
+    "metadata": {
+      "name": "DHCP/DNS — Redondance et sécurité",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 100,
+        "y": 250,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1"
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 340,
+        "y": 250,
+        "label": "SW1",
+        "model": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 30,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 30,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 30,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/4",
+            "name": "Fa0/4",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 30,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 30,
+              "name": "SERVICES"
+            }
+          ]
+        }
+      },
+      {
+        "id": "DHCP1",
+        "type": "server",
+        "x": 610,
+        "y": 100,
+        "label": "DHCP1",
+        "model": "DHCP1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DHCP1",
+          "services": {
+            "dhcp": {
+              "enabled": true,
+              "network": "192.168.30.0/24",
+              "start": "192.168.30.100",
+              "end": "192.168.30.220",
+              "gateway": "192.168.30.1",
+              "dns": "192.168.30.20",
+              "lease_time": 7200,
+              "failover": {
+                "enabled": false,
+                "peer": "",
+                "mode": "load-balance"
+              }
+            },
+            "dns": null,
+            "nat": null
+          }
+        }
+      },
+      {
+        "id": "DNS1",
+        "type": "server",
+        "x": 610,
+        "y": 240,
+        "label": "DNS1",
+        "model": "DNS1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DNS1",
+          "services": {
+            "dhcp": null,
+            "dns": {
+              "enabled": true,
+              "zone": "corp.lab",
+              "forwarders": [
+                "8.8.8.8"
+              ],
+              "dnssec_validation": false,
+              "allow_recursion": "any",
+              "records": [
+                {
+                  "name": "app.corp.lab",
+                  "type": "A",
+                  "value": "192.168.30.30"
+                }
+              ]
+            },
+            "nat": null
+          }
+        }
+      },
+      {
+        "id": "DNS2",
+        "type": "server",
+        "x": 610,
+        "y": 380,
+        "label": "DNS2",
+        "model": "DNS2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.21",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DNS2",
+          "services": {
+            "dhcp": null,
+            "dns": {
+              "enabled": false,
+              "zone": "corp.lab",
+              "secondary": true,
+              "master": "192.168.30.20"
+            },
+            "nat": null
+          }
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 920,
+        "y": 250,
+        "label": "PC-A",
+        "model": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.111",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R-SW",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "DHCP",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "DHCP1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "DNS1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "DNS1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "DNS2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "DNS2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "CLIENT",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/4"
+        },
+        "to": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "dhcp-failover",
+        "description": "Le failover DHCP est activé.",
+        "device": "DHCP1",
+        "path": "config.services.dhcp.failover.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dhcp-peer",
+        "description": "Le pair DHCP est défini.",
+        "device": "DHCP1",
+        "path": "config.services.dhcp.failover.peer",
+        "operator": "equals",
+        "expected": "192.168.30.11"
+      },
+      {
+        "id": "dhcp-lease",
+        "description": "La durée du bail est de 3600 secondes.",
+        "device": "DHCP1",
+        "path": "config.services.dhcp.lease_time",
+        "operator": "equals",
+        "expected": 3600
+      },
+      {
+        "id": "dns-forwarder",
+        "description": "DNS utilise le redirecteur prévu.",
+        "device": "DNS1",
+        "path": "config.services.dns.forwarders",
+        "operator": "contains",
+        "expected": "1.1.1.1"
+      },
+      {
+        "id": "dnssec",
+        "description": "La validation DNSSEC est active.",
+        "device": "DNS1",
+        "path": "config.services.dns.dnssec_validation",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dns-recursion",
+        "description": "La récursion est limitée au LAN.",
+        "device": "DNS1",
+        "path": "config.services.dns.allow_recursion",
+        "operator": "equals",
+        "expected": "192.168.30.0/24"
+      },
+      {
+        "id": "dns-secondary",
+        "description": "DNS2 sert de secondaire.",
+        "device": "DNS2",
+        "path": "config.services.dns.secondary",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dns-master",
+        "description": "DNS2 référence DNS1 comme maître.",
+        "device": "DNS2",
+        "path": "config.services.dns.master",
+        "operator": "equals",
+        "expected": "192.168.30.20"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
