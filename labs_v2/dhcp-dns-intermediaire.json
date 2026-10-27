@@ -1,0 +1,377 @@
+{
+  "schema_version": 2,
+  "id": "dhcp-dns-intermediaire",
+  "title": "DHCP & DNS — Pool, passerelle et zone locale",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Configurez SVC1 pour distribuer des baux DHCP sur 192.168.20.0/24 et résoudre www.lab.local vers le serveur Web 192.168.20.20. La configuration de départ ne distribue aucun bail.",
+  "objectives": [
+    "Activer DHCP et configurer une plage cohérente.",
+    "Distribuer la passerelle et le DNS aux clients.",
+    "Activer la zone DNS locale.",
+    "Créer l’enregistrement A du serveur Web."
+  ],
+  "hints": [
+    "Excluez les adresses statiques de la plage DHCP.",
+    "L’adresse DNS distribuée doit correspondre au serveur hébergeant la zone.",
+    "L’enregistrement A doit pointer vers le Web, pas vers le DNS."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-dhcp-dns-intermediaire",
+    "metadata": {
+      "name": "DHCP et DNS — Services d’un LAN",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 100,
+        "y": 240,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1"
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 360,
+        "y": 240,
+        "label": "SW1",
+        "model": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 20,
+              "name": "SERVICES"
+            }
+          ]
+        }
+      },
+      {
+        "id": "SVC1",
+        "type": "server",
+        "x": 620,
+        "y": 100,
+        "label": "SVC1",
+        "model": "SVC1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SVC1",
+          "services": {
+            "dhcp": {
+              "enabled": false,
+              "network": "192.168.20.0/24",
+              "start": "192.168.20.100",
+              "end": "192.168.20.200",
+              "gateway": "192.168.20.1",
+              "dns": "192.168.20.10"
+            },
+            "dns": {
+              "enabled": false,
+              "zone": "lab.local",
+              "records": [
+                {
+                  "name": "www.lab.local",
+                  "type": "A",
+                  "value": "192.168.20.20"
+                }
+              ]
+            },
+            "nat": null
+          }
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 620,
+        "y": 340,
+        "label": "PC-A",
+        "model": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "0.0.0.0",
+            "mask": "0.0.0.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      },
+      {
+        "id": "WEB",
+        "type": "server",
+        "x": 900,
+        "y": 340,
+        "label": "WEB",
+        "model": "WEB",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "WEB"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R-SW",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "SVC",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "SVC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "CLIENT",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "WEB",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "WEB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "dhcp-enabled",
+        "description": "Le service DHCP est actif.",
+        "device": "SVC1",
+        "path": "config.services.dhcp.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dhcp-network",
+        "description": "Le pool correspond au réseau attendu.",
+        "device": "SVC1",
+        "path": "config.services.dhcp.network",
+        "operator": "equals",
+        "expected": "192.168.20.0/24"
+      },
+      {
+        "id": "dhcp-gateway",
+        "description": "Le pool distribue la bonne passerelle.",
+        "device": "SVC1",
+        "path": "config.services.dhcp.gateway",
+        "operator": "equals",
+        "expected": "192.168.20.1"
+      },
+      {
+        "id": "dhcp-start",
+        "description": "Le début de plage est correct.",
+        "device": "SVC1",
+        "path": "config.services.dhcp.start",
+        "operator": "equals",
+        "expected": "192.168.20.100"
+      },
+      {
+        "id": "dhcp-dns",
+        "description": "Le DHCP distribue le DNS prévu.",
+        "device": "SVC1",
+        "path": "config.services.dhcp.dns",
+        "operator": "equals",
+        "expected": "192.168.20.10"
+      },
+      {
+        "id": "dns-enabled",
+        "description": "Le service DNS est actif.",
+        "device": "SVC1",
+        "path": "config.services.dns.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dns-zone",
+        "description": "La zone locale est déclarée.",
+        "device": "SVC1",
+        "path": "config.services.dns.zone",
+        "operator": "equals",
+        "expected": "lab.local"
+      },
+      {
+        "id": "dns-record",
+        "description": "L’enregistrement Web pointe vers le serveur.",
+        "device": "SVC1",
+        "path": "config.services.dns.records[0].value",
+        "operator": "equals",
+        "expected": "192.168.20.20"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
