@@ -245,7 +245,11 @@ test('la navigation du lecteur respecte l’ordre pédagogique et contextualise 
   const orderedIds = await page.evaluate(() => {
     const state = window.Alpine.$data(document.body);
     const originalNodes = state.nodes;
-    state.nodes = [...originalNodes].reverse();
+    // Simulate a persistent DB whose sort_order is stale and contradicts nodes.json.
+    state.nodes = [...originalNodes].reverse().map((node, index) => ({
+      ...node,
+      sort_order: -1 * Number(node.order ?? index + 1),
+    }));
     const ordered = state.lessonSequence.slice(0, 3).map(node => node.id);
     state.nodes = originalNodes;
     return ordered;
