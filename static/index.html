@@ -755,7 +755,7 @@
             <button type="button" @click.stop="openShop(); mobileActionsOpen = false" class="rounded-xl border border-amber-400/20 bg-amber-400/10 px-2 py-3 text-center text-amber-100 transition hover:bg-amber-400/15"><span class="block text-[10px] font-semibold">💎 Pièces</span><strong class="mt-1 block font-mono text-xs" x-text="userStatsLoaded ? userStats.coins : '—'"></strong></button>
             <div class="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-2 py-3 text-center"><span class="block text-[10px] font-semibold text-emerald-200" x-text="userStatsLoaded ? 'Niv. ' + userStats.current_level : 'Niveau —'"></span><strong class="mt-1 block font-mono text-xs text-emerald-100" x-text="userStatsLoaded ? userStats.total_xp + ' XP' : '— XP'"></strong></div>
           </div>
-        <button type="button" @click.stop="openMobileSearch(); mobileActionsOpen = false" aria-label="Rechercher un cours" :aria-expanded="mobileSearchOpen" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/5 bg-[color:var(--s1)] text-zinc-300 shadow-md transition hover:border-emerald-400/30 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 lg:hidden">
+        <button type="button" @click.stop="openMobileSearch()" aria-label="Rechercher un cours" :aria-expanded="mobileSearchOpen" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/5 bg-[color:var(--s1)] text-zinc-300 shadow-md transition hover:border-emerald-400/30 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 lg:hidden">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
           <span class="mobile-action-label">Rechercher un cours</span>
         </button>
@@ -5705,6 +5705,7 @@
           this.searchIdx = idx; this.searchBusy = false;
         },
         openMobileSearch() {
+          this.mobileActionsOpen = false;
           this.mobileSearchOpen = true; this.searchOpen = true;
           this.$nextTick(() => this.$refs.mobileSearchBox?.focus());
         },
