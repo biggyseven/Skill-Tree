@@ -1,0 +1,102 @@
+{
+  "node_id": "maint-securite-base-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Avant une intervention sur un équipement électrique, quel réflexe est prioritaire ?",
+      "choices": [
+        "Se fier uniquement à l’absence de bruit",
+        "Appliquer les règles de sécurité du site, vérifier les risques et l’autorisation, et mettre en sécurité si nécessaire",
+        "Ouvrir immédiatement le boîtier",
+        "Demander à un collègue de toucher l’équipement pour vérifier"
+      ],
+      "answer": 1,
+      "explanation": "Le travail doit respecter les procédures et les protections applicables avant toute manipulation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Tu constates une odeur de brûlé sur une alimentation. Que faire ?",
+      "choices": [
+        "Continuer la checklist pour finir plus vite",
+        "Débrancher au hasard sans évaluer le danger",
+        "Arrêter l’action dangereuse, sécuriser selon la procédure et alerter le responsable",
+        "Ignorer l’odeur si le voyant est vert"
+      ],
+      "answer": 2,
+      "explanation": "Un signe de risque matériel impose un point d’arrêt et une escalade adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment appliquer le principe du moindre privilège ?",
+      "choices": [
+        "Utiliser un compte administrateur partagé pour toutes les tâches",
+        "Conserver les droits élevés en permanence",
+        "Réutiliser le compte d’un collègue",
+        "Utiliser uniquement les droits nécessaires, pour la durée nécessaire, avec un compte attribué"
+      ],
+      "answer": 3,
+      "explanation": "La limitation des droits réduit l’impact d’une erreur ou d’une compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une intervention peut entraîner une perte de données. Quelle préparation est indispensable ?",
+      "choices": [
+        "Vérifier qu’une sauvegarde exploitable ou un retour arrière adapté existe et que l’intervention est autorisée",
+        "Supposer que la sauvegarde est automatique",
+        "Copier les données sur un support personnel",
+        "Commencer avant d’identifier le périmètre"
+      ],
+      "answer": 0,
+      "explanation": "Une sauvegarde doit être adaptée au risque et sa restauration doit être crédible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter un support contenant des données sensibles ?",
+      "choices": [
+        "Le prêter librement à l’équipe",
+        "Respecter les règles d’accès, de stockage, de transport et d’effacement sécurisé",
+        "Envoyer une copie vers une adresse privée",
+        "Laisser le support sans surveillance"
+      ],
+      "answer": 1,
+      "explanation": "Les données sensibles doivent être protégées pendant tout leur cycle de vie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il suspendre une procédure standard et demander une aide ?",
+      "choices": [
+        "Quand une étape prend quelques secondes de plus",
+        "Chaque fois qu’un voyant change de couleur, sans autre contrôle",
+        "Quand une condition de sécurité ou un prérequis critique n’est pas satisfait",
+        "Uniquement après la fin de l’intervention"
+      ],
+      "answer": 2,
+      "explanation": "Une procédure sûre comprend des points d’arrêt explicites lorsque les conditions ne sont pas réunies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi identifier les câbles et équipements avant de les déconnecter ?",
+      "choices": [
+        "Pour rendre le schéma plus décoratif",
+        "Pour éviter de rédiger un compte rendu",
+        "Pour éviter de vérifier les dépendances",
+        "Pour limiter les erreurs de manipulation et conserver la traçabilité des connexions"
+      ],
+      "answer": 3,
+      "explanation": "L’identification réduit le risque de couper le mauvais service et facilite la remise en état."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si tu découvres un accès non autorisé pendant une maintenance ?",
+      "choices": [
+        "Conserver les preuves utiles et signaler l’événement selon la procédure de sécurité",
+        "Effacer les journaux pour repartir proprement",
+        "Partager l’information sur un canal public",
+        "Désactiver les contrôles de sécurité pour terminer la tâche"
+      ],
+      "answer": 0,
+      "explanation": "Il faut préserver les éléments d’investigation et suivre le processus de signalement officiel."
+    }
+  ]
+}
