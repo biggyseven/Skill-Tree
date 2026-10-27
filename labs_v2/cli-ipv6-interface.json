@@ -6,7 +6,7 @@
   "module": "IPv6",
   "duration_min": 25,
   "difficulty": "débutant",
-  "prompt": "Configurez 2001:db8:10::1/64 sur Gi0/0 et activez l’interface. La validation vérifie le préfixe IPv6 conservé dans le modèle.",
+  "prompt": "Contexte : l’interface de gestion Gi0/0 de R1 doit rejoindre le préfixe de documentation IPv6 2001:db8:10::/64. Configurez 2001:db8:10::1/64, puis activez l’interface. Le port commence désactivé ; vérifiez aussi que le préfixe /64 est conservé et que l’état de l’interface devient up.",
   "objectives": [
     "Exécuter puis vérifier : interface Gi0/0",
     "Exécuter puis vérifier : ipv6 address 2001:db8:10::1/64",
@@ -14,8 +14,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; interface Gi0/0 ; ipv6 address 2001:db8:10::1/64 ; no shutdown ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : IPv6 utilise la commande ipv6 address et une notation de préfixe, ici /64.",
+    "Indice 2 : après avoir configuré l’adresse sur Gi0/0, activez l’interface avec no shutdown dans le même mode.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; interface Gi0/0 ; ipv6 address 2001:db8:10::1/64 ; no shutdown ; end.",
+    "La validation vérifie l’adresse IPv6 complète avec son préfixe et l’état up de Gi0/0."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -57,7 +59,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -108,7 +110,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -127,7 +129,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -178,7 +180,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -231,7 +233,7 @@
           "port": "Fa0/24"
         },
         "cable_type": "copper_straight",
-        "state": "up",
+        "state": "down",
         "bandwidth": 1000,
         "latency_ms": 1
       },
@@ -283,7 +285,7 @@
     "rules": [
       {
         "id": "ipv6_prefix",
-        "description": "Contrôle serveur : ipv6 prefix doit être conforme.",
+        "description": "Gi0/0 contient 2001:db8:10::1/64.",
         "device": "R1",
         "path": "ports[0].ipv6",
         "operator": "equals",
@@ -291,7 +293,7 @@
       },
       {
         "id": "ipv6_state",
-        "description": "Contrôle serveur : ipv6 state doit être conforme.",
+        "description": "Gi0/0 est activée.",
         "device": "R1",
         "path": "ports[0].state",
         "operator": "equals",
