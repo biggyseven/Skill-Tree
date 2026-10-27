@@ -22,10 +22,7 @@ from .engine import BADGE_DEFINITIONS, DomainError, SkillTree
 from .lab_schema_v2 import (
     CheckDefinition,
     CheckRequest,
-    Device,
     LabDefinition,
-    Link,
-    Port,
     SubmitRequest,
     Topology,
     model_to_dict,
@@ -98,218 +95,6 @@ def _database_connection() -> sqlite3.Connection:
 
 
 
-def _ensure_extended_practice_topology(definition: LabDefinition) -> None:
-    """Ajoute une branche réseau riche sans remplacer le scénario évalué.
-
-    La branche comprend 8 postes, 4 serveurs, un switch, un pare-feu, un routeur
-    et un cloud, avec 16 liaisons. Les contrôles notés gardent leurs équipements
-    et leurs ports d'origine ; ces équipements supplémentaires servent à explorer
-    le câblage et la configuration dans le même atelier.
-    """
-    topology = definition.initial_topology
-    if not topology.nodes or any(node.id == "EXT-SW1" for node in topology.nodes):
-        return
-
-    root = next((node for node in topology.nodes if node.type == "switch"), None)
-    if root is None:
-        root = next((node for node in topology.nodes if node.type == "router"), None)
-    if root is None:
-        root = next((node for node in topology.nodes if node.type == "firewall"), None)
-    if root is None:
-        root = topology.nodes[0]
-
-    port_prefix = "Fa0/" if root.type in {"switch", "router"} else "eth"
-    used_ports = {
-        value
-        for port in root.ports
-        for value in (port.id, port.name)
-        if value
-    }
-    root_port = next(
-        (
-            f"{port_prefix}{index}"
-            for index in range(1, 257)
-            if f"{port_prefix}{index}" not in used_ports
-        ),
-        f"{port_prefix}ext",
-    )
-    root_mode = (
-        "trunk" if root.type == "switch"
-        else "routed" if root.type in {"router", "firewall", "cloud"}
-        else "access"
-    )
-    root.ports.append(
-        Port(
-            id=root_port,
-            name=root_port,
-            state="up",
-            speed=1000,
-            mode=root_mode,
-            description="Liaison vers la branche réseau complémentaire",
-        )
-    )
-
-    xs = [float(node.x) for node in topology.nodes]
-    ys = [float(node.y) for node in topology.nodes]
-    center_x = (min(xs) + max(xs)) / 2 if xs else 500.0
-    max_y = max(ys) if ys else 250.0
-    switch_y = max_y + 160
-    pc_y = max_y + 310
-    server_y = max_y + 450
-    edge_y = max_y + 600
-
-    def make_port(port_id: str, mode: str, description: str) -> Port:
-        return Port(
-            id=port_id,
-            name=port_id,
-            state="up",
-            speed=1000,
-            mode=mode,
-            description=description,
-        )
-
-    def make_device(
-        device_id: str,
-        device_type: str,
-        model: str,
-        x: float,
-        y: float,
-        ports: list[Port],
-    ) -> Device:
-        return Device(
-            id=device_id,
-            type=device_type,
-            model=model,
-            x=x,
-            y=y,
-            label=device_id,
-            ports=ports,
-            config={"hostname": device_id},
-        )
-
-    switch_ports = [
-        make_port("Fa0/1", "trunk", "Uplink vers la topologie du cours")
-    ]
-    for index in range(1, 9):
-        switch_ports.append(
-            make_port(f"Fa0/{index + 1}", "access", f"Poste EXT-PC{index:02d}")
-        )
-    for index in range(1, 5):
-        switch_ports.append(
-            make_port(f"Fa0/{index + 9}", "access", f"Serveur EXT-SRV{index:02d}")
-        )
-    switch_ports.append(make_port("Fa0/14", "access", "Pare-feu EXT-FW1"))
-
-    extension_devices: list[Device] = [
-        make_device(
-            "EXT-SW1", "switch", "generic-24-port-switch",
-            center_x, switch_y, switch_ports,
-        )
-    ]
-
-    for index in range(1, 9):
-        x = max(0.0, center_x + (index - 4.5) * 150)
-        extension_devices.append(
-            make_device(
-                f"EXT-PC{index:02d}", "pc", "generic-pc",
-                x, pc_y,
-                [make_port("eth0", "access", "Accès réseau utilisateur")],
-            )
-        )
-
-    for index in range(1, 5):
-        x = center_x + (index - 2.5) * 240
-        extension_devices.append(
-            make_device(
-                f"EXT-SRV{index:02d}", "server", "generic-server",
-                x, server_y,
-                [make_port("eth0", "access", "Interface serveur")],
-            )
-        )
-
-    extension_devices.extend([
-        make_device(
-            "EXT-FW1", "firewall", "generic-firewall",
-            center_x - 220, edge_y,
-            [
-                make_port("eth0", "access", "Vers le switch de distribution"),
-                make_port("eth1", "routed", "Vers le routeur de sortie"),
-            ],
-        ),
-        make_device(
-            "EXT-R1", "router", "generic-router",
-            center_x, edge_y,
-            [
-                make_port("Fa0/0", "routed", "Vers le pare-feu"),
-                make_port("Fa0/1", "routed", "Vers le cloud"),
-            ],
-        ),
-        make_device(
-            "EXT-CLOUD1", "cloud", "generic-cloud",
-            center_x + 220, edge_y,
-            [make_port("eth0", "routed", "Accès WAN simulé")],
-        ),
-    ])
-
-    def make_link(
-        link_id: str,
-        source_node: str,
-        source_port: str,
-        target_node: str,
-        target_port: str,
-        cable_type: str = "copper_straight",
-    ) -> Link:
-        return Link(
-            id=link_id,
-            from_endpoint={"node": source_node, "port": source_port},
-            to_endpoint={"node": target_node, "port": target_port},
-            cable_type=cable_type,
-            state="up",
-            bandwidth=1000,
-            latency_ms=1,
-        )
-
-    extension_links = [
-        make_link(
-            "EXT-LINK-CORE-SW", root.id, root_port,
-            "EXT-SW1", "Fa0/1",
-            "fiber" if root.type == "switch" else "copper_straight",
-        )
-    ]
-    for index in range(1, 9):
-        extension_links.append(
-            make_link(
-                f"EXT-LINK-PC{index:02d}",
-                "EXT-SW1", f"Fa0/{index + 1}",
-                f"EXT-PC{index:02d}", "eth0",
-            )
-        )
-    for index in range(1, 5):
-        extension_links.append(
-            make_link(
-                f"EXT-LINK-SRV{index:02d}",
-                "EXT-SW1", f"Fa0/{index + 9}",
-                f"EXT-SRV{index:02d}", "eth0",
-            )
-        )
-    extension_links.extend([
-        make_link("EXT-LINK-SW-FW", "EXT-SW1", "Fa0/14", "EXT-FW1", "eth0"),
-        make_link("EXT-LINK-FW-R", "EXT-FW1", "eth1", "EXT-R1", "Fa0/0"),
-        make_link("EXT-LINK-R-CLOUD", "EXT-R1", "Fa0/1", "EXT-CLOUD1", "eth0"),
-    ])
-
-    topology.nodes.extend(extension_devices)
-    topology.links.extend(extension_links)
-    hint = (
-        "La branche EXT-SW1 ajoute 16 équipements et 16 liaisons physiques "
-        "(8 postes, 4 serveurs, pare-feu, routeur et cloud). Elle sert à explorer "
-        "le câblage et le matériel ; les contrôles notés restent centrés sur les "
-        "équipements explicitement visés par la mission."
-    )
-    if not any("branche EXT-SW1" in item for item in definition.hints):
-        definition.hints.append(hint)
-
-
 def _lab_payload_from_definition(
     lab_id: str,
     definition: LabDefinition,
@@ -317,7 +102,6 @@ def _lab_payload_from_definition(
     schema_version: int = 2,
 ) -> dict[str, Any]:
     """Normalise la réponse du lab pour les clients du Lab Workspace."""
-    _ensure_extended_practice_topology(definition)
     return {
         "id": lab_id,
         "schema_version": schema_version,
@@ -851,112 +635,74 @@ def _evaluate_lab_check(
     return {"passed": score >= check.pass_threshold, "score": round(score, 4), "results": results}
 
 
-def _merge_saved_topology_extensions(
-    saved_topology: dict[str, Any],
-    current_topology: Topology | dict[str, Any] | None,
-) -> dict[str, Any]:
-    """Préserve une topologie enregistrée tout en y ajoutant les équipements v2 manquants.
+_LEGACY_AUTO_NODE_ID = re.compile(r"^EXT-(?:SW1|FW1|R1|CLOUD1|PC\d{2}|SRV\d{2})$")
+_LEGACY_AUTO_LINK_ID = re.compile(r"^EXT-LINK-")
 
-    Les anciennes sauvegardes ne contiennent pas nécessairement la branche EXT-*.
-    On les complète uniquement avec les équipements, ports et liens de cette branche ;
-    les nœuds, câbles et configurations existants ne sont jamais remplacés.
+def _strip_legacy_auto_practice_branch(topology: dict[str, Any]) -> dict[str, Any]:
+    """Retire les équipements ajoutés automatiquement par l'ancienne version.
+
+    Le nettoyage ne touche qu'aux identifiants exacts de la branche EXT-* injectée
+    par l'ancien code. Tous les autres équipements, câbles et réglages sont conservés.
+    La fonction retourne une copie : une simple ouverture ne réécrit pas la sauvegarde.
     """
-    if isinstance(current_topology, Topology):
-        current_data = model_to_dict(current_topology, by_alias=True)
-    elif isinstance(current_topology, dict):
-        current_data = current_topology
-    else:
-        return saved_topology
+    if not isinstance(topology, dict):
+        return topology
 
-    result = copy.deepcopy(saved_topology)
-    result_nodes = result.get("nodes")
-    result_links = result.get("links")
-    current_nodes = current_data.get("nodes")
-    current_links = current_data.get("links")
-    if not isinstance(result_nodes, list) or not isinstance(result_links, list):
-        return result
-    if not isinstance(current_nodes, list) or not isinstance(current_links, list):
-        return result
+    cleaned = copy.deepcopy(topology)
+    nodes = cleaned.get("nodes")
+    links = cleaned.get("links")
+    if not isinstance(nodes, list) or not isinstance(links, list):
+        return cleaned
 
-    saved_nodes_by_id = {
-        str(node.get("id")): node
-        for node in result_nodes
-        if isinstance(node, dict) and node.get("id")
+    removed_node_ids = {
+        str(node.get("id"))
+        for node in nodes
+        if isinstance(node, dict) and _LEGACY_AUTO_NODE_ID.fullmatch(str(node.get("id") or ""))
     }
-    current_nodes_by_id = {
-        str(node.get("id")): node
-        for node in current_nodes
-        if isinstance(node, dict) and node.get("id")
-    }
+    if not removed_node_ids and not any(
+        isinstance(node, dict)
+        and any(
+            isinstance(port, dict)
+            and port.get("description") == "Liaison vers la branche réseau complémentaire"
+            for port in node.get("ports", [])
+        )
+        for node in nodes
+    ):
+        return cleaned
 
-    # Ajouter le port d'uplink au switch/routeur historique sans modifier ses autres ports.
-    uplink_description = "Liaison vers la branche réseau complémentaire"
-    for node_id, current_node in current_nodes_by_id.items():
-        saved_node = saved_nodes_by_id.get(node_id)
-        if saved_node is None or node_id.startswith("EXT-"):
+    cleaned["nodes"] = [
+        node for node in nodes
+        if not isinstance(node, dict) or str(node.get("id") or "") not in removed_node_ids
+    ]
+    cleaned["links"] = [
+        link for link in links
+        if isinstance(link, dict)
+        and not _LEGACY_AUTO_LINK_ID.match(str(link.get("id") or ""))
+        and str((link.get("from") or {}).get("node") or "") not in removed_node_ids
+        and str((link.get("to") or {}).get("node") or "") not in removed_node_ids
+    ]
+
+    linked_ports = set()
+    for link in cleaned["links"]:
+        for side in ("from", "to"):
+            endpoint = link.get(side)
+            if isinstance(endpoint, dict):
+                linked_ports.add((str(endpoint.get("node") or ""), str(endpoint.get("port") or "")))
+
+    for node in cleaned["nodes"]:
+        if not isinstance(node, dict) or not isinstance(node.get("ports"), list):
             continue
-        saved_ports = saved_node.setdefault("ports", [])
-        if not isinstance(saved_ports, list):
-            saved_ports = []
-            saved_node["ports"] = saved_ports
-        existing_port_ids = {
-            str(port.get("id"))
-            for port in saved_ports
-            if isinstance(port, dict) and port.get("id")
-        }
-        for port in current_node.get("ports", []):
-            if (
+        node_id = str(node.get("id") or "")
+        node["ports"] = [
+            port for port in node["ports"]
+            if not (
                 isinstance(port, dict)
-                and port.get("description") == uplink_description
-                and str(port.get("id")) not in existing_port_ids
-            ):
-                saved_ports.append(copy.deepcopy(port))
-                existing_port_ids.add(str(port.get("id")))
+                and port.get("description") == "Liaison vers la branche réseau complémentaire"
+                and (node_id, str(port.get("id") or "")) not in linked_ports
+            )
+        ]
 
-    # Ajoute ou complète les nœuds supplémentaires en préservant les réglages déjà faits.
-    for current_node in current_nodes:
-        if not isinstance(current_node, dict):
-            continue
-        node_id = str(current_node.get("id") or "")
-        if not node_id.startswith("EXT-"):
-            continue
-        saved_node = saved_nodes_by_id.get(node_id)
-        if saved_node is None:
-            copied_node = copy.deepcopy(current_node)
-            result_nodes.append(copied_node)
-            saved_nodes_by_id[node_id] = copied_node
-            continue
-
-        saved_ports = saved_node.setdefault("ports", [])
-        if not isinstance(saved_ports, list):
-            saved_ports = []
-            saved_node["ports"] = saved_ports
-        existing_port_ids = {
-            str(port.get("id"))
-            for port in saved_ports
-            if isinstance(port, dict) and port.get("id")
-        }
-        for port in current_node.get("ports", []):
-            if isinstance(port, dict) and str(port.get("id")) not in existing_port_ids:
-                saved_ports.append(copy.deepcopy(port))
-                existing_port_ids.add(str(port.get("id")))
-
-    # Ajoute les liaisons EXT-* manquantes, sans dupliquer celles déjà sauvegardées.
-    existing_link_ids = {
-        str(link.get("id"))
-        for link in result_links
-        if isinstance(link, dict) and link.get("id")
-    }
-    for current_link in current_links:
-        if not isinstance(current_link, dict):
-            continue
-        link_id = str(current_link.get("id") or "")
-        if link_id.startswith("EXT-LINK-") and link_id not in existing_link_ids:
-            result_links.append(copy.deepcopy(current_link))
-            existing_link_ids.add(link_id)
-
-    return result
-
+    return cleaned
 
 
 @router.get("/lab/v2/{lab_id}", response_class=UTF8JSONResponse)
@@ -1019,15 +765,11 @@ def get_lab_v2(lab_id: str) -> dict[str, Any]:
                     status_code=500,
                     detail="La topologie sauvegardée pour ce laboratoire est invalide.",
                 ) from error
-            # Les sauvegardes créées avant l'ajout de la branche EXT-* doivent
-            # conserver le travail de l'utilisateur tout en affichant le matériel ajouté
-            # au scénario depuis. La donnée stockée n'est pas modifiée par cette fusion.
-            merged_topology = _merge_saved_topology_extensions(
-                saved_topology,
-                payload.get("initial_topology"),
-            )
+            # Retire seulement l'ancienne branche EXT-* injectée automatiquement.
+            # Les autres nœuds, câbles et configurations sauvegardés restent intacts.
             payload["initial_topology"] = model_to_dict(
-                Topology(**merged_topology), by_alias=True
+                Topology(**_strip_legacy_auto_practice_branch(saved_topology)),
+                by_alias=True,
             )
             payload["saved_topology_at"] = str(saved_row["updated_at"])
     except HTTPException as error:

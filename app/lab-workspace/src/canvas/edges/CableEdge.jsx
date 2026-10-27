@@ -10,6 +10,8 @@ export function CableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePositi
 
   if (data?.cable_type === 'copper_crossover') { strokeColor = '#f97316'; strokeDasharray = '6,4'; } // Orange
   if (data?.cable_type === 'fiber') { strokeColor = '#a855f7'; } // Violet
+  if (data?.cable_type === 'console') { strokeColor = '#eab308'; strokeDasharray = '3,3'; }
+  if (data?.cable_type === 'wireless') { strokeColor = '#22c55e'; strokeDasharray = '2,5'; }
   if (data?.state === 'down') { strokeColor = '#ef4444'; strokeDasharray = '4,4'; } // Rouge
   if (selected) { strokeColor = '#10b981'; }
 

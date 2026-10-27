@@ -4,6 +4,7 @@ import { LabCanvas } from './canvas/LabCanvas.jsx';
 import { TopologyToolbar } from './canvas/TopologyToolbar.jsx';
 import { BriefPanel } from './brief/BriefPanel.jsx';
 import { Palette } from './canvas/Palette.jsx';
+import { CablePalette } from './canvas/CablePalette.jsx';
 import { InspectorPanel } from './inspector/InspectorPanel.jsx';
 
 function fetchLabFromUrl(labId) {
@@ -151,6 +152,7 @@ export default function App() {
   const loading = useLabStore(s => s.loading);
   const error = useLabStore(s => s.error);
   const [mobilePane, setMobilePane] = useState('brief');
+  const [libraryTab, setLibraryTab] = useState('equipment');
   const [panelSizes, setPanelSizes] = useState(readPanelSizes);
   const resizeRef = useRef(null);
 
@@ -330,8 +332,8 @@ export default function App() {
           <div
             role="separator"
             aria-orientation="horizontal"
-            aria-label="Redimensionner la bibliothèque d’équipements"
-            title="Glisser pour redimensionner la bibliothèque d’équipements"
+            aria-label="Redimensionner les bibliothèques d’équipements et de câbles"
+            title="Glisser pour redimensionner les bibliothèques d’équipements et de câbles"
             tabIndex={0}
             onPointerDown={event => beginResize(event, 'equipment')}
             onKeyDown={event => resizeWithKeyboard(event, 'equipment')}
@@ -339,10 +341,43 @@ export default function App() {
           >
             <span className="h-0.5 w-10 rounded-full bg-[#8b949e]" />
           </div>
-          <section data-testid="equipment-palette-panel" className="flex h-[var(--lab-equipment-height)] shrink-0 flex-col border-t border-[#30363d] bg-[#0d1117]/50">
-            <PanelHeader eyebrow="02 / Device library" title="Bibliothèque d'équipements" />
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <Palette />
+          <section data-testid="equipment-palette-panel" className="flex h-[var(--lab-equipment-height)] shrink-0 flex-col overflow-hidden border-t border-[#30363d] bg-[#0d1117]/50">
+            <div data-library-tabs role="tablist" aria-label="Bibliothèques du laboratoire" className="grid shrink-0 grid-cols-2 gap-1 border-b border-[#30363d] bg-[#161b22] p-1.5">
+              <button
+                id="lab-equipment-tab"
+                type="button"
+                role="tab"
+                data-library-tab="equipment"
+                aria-controls="lab-library-panel"
+                aria-selected={libraryTab === 'equipment'}
+                onClick={() => setLibraryTab('equipment')}
+                className={libraryTab === 'equipment'
+                  ? 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 text-[11px] font-semibold text-[#7dd3fc]'
+                  : 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-transparent px-2 text-[11px] font-medium text-[#8b949e] hover:bg-[#0d1117] hover:text-[#e6edf3]'}
+              >
+                <span aria-hidden="true">▦</span>
+                Équipements
+                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">6 types</span>
+              </button>
+              <button
+                id="lab-cables-tab"
+                type="button"
+                role="tab"
+                data-library-tab="cables"
+                aria-controls="lab-library-panel"
+                aria-selected={libraryTab === 'cables'}
+                onClick={() => setLibraryTab('cables')}
+                className={libraryTab === 'cables'
+                  ? 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 text-[11px] font-semibold text-[#7dd3fc]'
+                  : 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-transparent px-2 text-[11px] font-medium text-[#8b949e] hover:bg-[#0d1117] hover:text-[#e6edf3]'}
+              >
+                <span aria-hidden="true">⟷</span>
+                Câbles
+                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">5 types</span>
+              </button>
+            </div>
+            <div id="lab-library-panel" role="tabpanel" aria-labelledby={libraryTab === 'equipment' ? 'lab-equipment-tab' : 'lab-cables-tab'} className="min-h-0 flex-1 overflow-hidden">
+              {libraryTab === 'equipment' ? <Palette /> : <CablePalette />}
             </div>
           </section>
         </aside>

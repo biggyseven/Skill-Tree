@@ -8,15 +8,6 @@ export function Toolbar() {
     { id: 'select', icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path><path d="M13 13l6 6"></path></svg>
     ), label: 'Sélectionner' },
-    { id: 'cable_straight', icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round"><path d="M4 12h16M4 12l4-4m-4 4l4 4m12-4l-4-4m4 4l-4 4"></path></svg>
-    ), label: 'Câble Droit' },
-    { id: 'cable_cross', icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeDasharray="2 2"><path d="M4 12h16M4 12l4-4m-4 4l4 4m12-4l-4-4m4 4l-4 4"></path></svg>
-    ), label: 'Câble Croisé' },
-    { id: 'fiber', icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round"><path d="M4 12h16M4 12l4-4m-4 4l4 4m12-4l-4-4m4 4l-4 4"></path></svg>
-    ), label: 'Fibre Optique' },
   ];
 
   return (

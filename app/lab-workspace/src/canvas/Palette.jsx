@@ -14,7 +14,7 @@ const DEVICE_GROUPS = [
   {
     title: 'PC',
     caption: 'Postes clients',
-    devices: [{ type: 'pc', label: 'PC / Poste client' }],
+    devices: [{ type: 'pc', label: 'PC fixe' }],
   },
   {
     title: 'Serveurs',
@@ -26,7 +26,7 @@ const DEVICE_GROUPS = [
     caption: 'Périmètre réseau',
     devices: [
       { type: 'firewall', label: 'Pare-feu' },
-      { type: 'cloud', label: 'Cloud WAN' },
+      { type: 'cloud', label: 'Cloud / WAN' },
     ],
   },
 ];
@@ -47,7 +47,7 @@ export function Palette() {
     <div className="flex h-full min-h-0 flex-col bg-[#161b22]">
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#30363d] px-3 py-2.5">
         <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#8b949e]">
-          Device library
+          Bibliothèque d'équipements
         </div>
         <span className="rounded border border-[#30363d] bg-[#0d1117] px-1.5 py-0.5 font-mono text-[9px] text-[#8b949e]">
           {DEVICE_GROUPS.reduce((total, group) => total + group.devices.length, 0)} types
@@ -82,7 +82,7 @@ export function Palette() {
                   ].join(' ')}
                 >
                   <span className="absolute left-2 top-2 h-1.5 w-1.5 rounded-full bg-[#30363d] transition-colors group-hover:bg-[#0ea5e9]" />
-                  <DeviceIcon kind={device.type} className="h-6 w-6 text-[#0ea5e9] transition-transform duration-150 group-hover:scale-110" />
+                  <DeviceIcon type={device.type} className="h-6 w-6 text-[#0ea5e9] transition-transform duration-150 group-hover:scale-110" />
                   <span className="text-[10px] font-semibold text-[#c9d1d9] transition-colors group-hover:text-white">
                     {device.label}
                   </span>
@@ -96,7 +96,7 @@ export function Palette() {
       <div className="shrink-0 border-t border-[#30363d] bg-[#0d1117]/60 px-3 py-2.5">
         <div className="flex items-center justify-center gap-2 text-[10px] text-[#8b949e]">
           <span className="text-[#0ea5e9]">↘</span>
-          Glisser-déposer vers le canvas
+          Glisser un équipement vers la topologie
         </div>
       </div>
     </div>

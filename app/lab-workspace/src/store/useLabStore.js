@@ -171,7 +171,13 @@ export const useLabStore = create((set, get) => ({
       id: 'link-' + crypto.randomUUID(),
       from: { node: connection.source, port: sourcePortId },
       to: { node: connection.target, port: targetPortId },
-      cable_type: type === 'cable_cross' ? 'copper_crossover' : (type === 'fiber' ? 'fiber' : 'copper_straight'),
+      cable_type: ({
+        cable_straight: 'copper_straight',
+        cable_cross: 'copper_crossover',
+        fiber: 'fiber',
+        console: 'console',
+        wireless: 'wireless',
+      })[type] || 'copper_straight',
       state: 'up'
     };
     set({ topology: { ...topo, links: [...topo.links, newLink] }, activeTool: 'select', checkResult: null });

@@ -93,6 +93,30 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("lab.hints.map((hint, i)", brief)
         self.assertIn('aria-label="Indices pour réussir"', brief)
 
+
+    def test_equipment_and_cable_libraries_are_separate_and_published(self):
+        app = (ROOT / "app" / "lab-workspace" / "src" / "App.jsx").read_text(encoding="utf-8-sig")
+        palette = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "Palette.jsx").read_text(encoding="utf-8-sig")
+        cables = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "CablePalette.jsx").read_text(encoding="utf-8-sig")
+        static_entry = (STATIC_LAB / "index.html").read_text(encoding="utf-8")
+        static_library_script = STATIC_LAB / "libraries.js"
+
+        self.assertIn('data-library-tabs', app)
+        self.assertIn('data-library-tab="equipment"', app)
+        self.assertIn('data-library-tab="cables"', app)
+        self.assertIn('Bibliothèque', palette)
+        self.assertIn('Cuivre droit', cables)
+        self.assertIn('Cuivre croisé', cables)
+        self.assertIn('Fibre optique', cables)
+        self.assertIn('console', cables)
+        self.assertIn('wireless', cables)
+        self.assertTrue(static_library_script.is_file(), "Live Lab Workspace library UI sidecar is missing")
+        self.assertIn('/lab/libraries.js', static_entry)
+        script = static_library_script.read_text(encoding="utf-8")
+        self.assertIn('application/reactflow', script)
+        self.assertIn('Bibliothèque de câbles', script)
+        self.assertIn('Câble Droit', script)
+
     def test_cli_rebinds_to_current_device_and_submit_requires_fresh_check(self):
         cli = (ROOT / "app" / "lab-workspace" / "src" / "cli" / "CLITab.jsx").read_text(encoding="utf-8-sig")
         toolbar = (ROOT / "app" / "lab-workspace" / "src" / "canvas" / "TopologyToolbar.jsx").read_text(encoding="utf-8")

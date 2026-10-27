@@ -42,7 +42,12 @@ from .labs_runner import (
     LabRunnerError, LabSessionError, exec_in_lab, start_interactive_lab, validate_lab,
 )
 from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons, sync_content_additions
-from .lab_routes import _fetch_lab, router as lab_v2_router, seed_lab_v2_catalog
+from .lab_routes import (
+    _fetch_lab,
+    _strip_legacy_auto_practice_branch,
+    router as lab_v2_router,
+    seed_lab_v2_catalog,
+)
 from .lab_schema_v2 import Topology
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -1644,7 +1649,9 @@ def _validate_workspace_topology(value: Any) -> dict[str, Any]:
 @app.post("/api/lab/v2/{lab_id}/save")
 def save_lab_topology_v2(lab_id: str, payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
     """Enregistre la dernière topologie de travail associée à un lab v2."""
-    topology = _validate_workspace_topology(payload.get("topology"))
+    topology = _strip_legacy_auto_practice_branch(
+        _validate_workspace_topology(payload.get("topology"))
+    )
 
     try:
         serialized = json.dumps(topology, ensure_ascii=False, separators=(",", ":"))
@@ -1750,7 +1757,9 @@ def load_lab_topology_v2(lab_id: str) -> dict[str, Any]:
         if not isinstance(topology_data, dict):
             raise HTTPException(status_code=500, detail="La topologie sauvegardée n'est pas un objet JSON.")
         try:
-            topology_data = _validate_workspace_topology(topology_data)
+            topology_data = _strip_legacy_auto_practice_branch(
+                _validate_workspace_topology(topology_data)
+            )
         except HTTPException as error:
             raise HTTPException(
                 status_code=500,
