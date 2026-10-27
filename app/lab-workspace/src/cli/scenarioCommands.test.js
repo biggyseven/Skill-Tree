@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { isDeepStrictEqual } from 'node:util';
 import { test } from 'node:test';
 import { CLIParser } from './parser.js';
 
@@ -91,4 +93,57 @@ test('une adresse IPv6 invalide est refusée sans changement du port', () => {
   const out=p.execute('ipv6 address not-an-ip/64');
   assert.match(out.output,/Invalid IPv6/);
   assert.equal(r.ports[0].ipv6,undefined);
+});
+
+
+const SCENARIO_IDS = [
+  'cli-ipv4-interfaces', 'cli-vlan-access', 'cli-vlan-trunk', 'cli-static-routing',
+  'cli-ospf-area', 'cli-bgp-neighbor', 'cli-eigrp-network', 'cli-acl-interface',
+  'cli-dhcp-pool', 'cli-dns-host-records', 'cli-nat-overload', 'cli-ipv6-interface',
+  'cli-stp-hardening', 'cli-hsrp-gateway', 'cli-port-security', 'cli-ntp-syslog',
+  'cli-qos-voice-policy'
+];
+
+function valueAtPath(root, path) {
+  const tokens = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+  return tokens.reduce((value, token) => {
+    if (value === null || value === undefined) return undefined;
+    return value[token];
+  }, root);
+}
+
+function ruleSatisfied(topology, rule) {
+  const device = topology.nodes.find(item => item.id === rule.device || item.label === rule.device || item.config?.hostname === rule.device);
+  if (!device) return false;
+  const actual = valueAtPath(device, rule.path);
+  if (rule.operator === 'equals') return isDeepStrictEqual(actual, rule.expected);
+  if (rule.operator === 'contains' && Array.isArray(actual)) return actual.some(item => isDeepStrictEqual(item, rule.expected));
+  if (rule.operator === 'contains' && typeof actual === 'string') return actual.includes(String(rule.expected));
+  return false;
+}
+
+test('les séquences CLI de chacun des 17 labs satisfont leurs assertions serveur après exécution réelle', () => {
+  for (const scenarioId of SCENARIO_IDS) {
+    const scenario = JSON.parse(readFileSync(new URL(`../../../../labs_v2/${scenarioId}.json`, import.meta.url), 'utf8'));
+    const targetMatch = scenario.hints[0].match(/^Cible CLI\s*:\s*([^.]+)\./);
+    assert.ok(targetMatch, `${scenarioId}: cible CLI absente`);
+    const target = targetMatch[1].trim();
+    const commandsHint = scenario.hints.find(item => item.startsWith('Séquence de référence'));
+    assert.ok(commandsHint, `${scenarioId}: séquence CLI absente`);
+    const commands = commandsHint.replace(/^Séquence de référence\s*:\s*/, '').replace(/\.$/, '').split(/\s;\s/);
+    const topology = JSON.parse(JSON.stringify(scenario.initial_topology));
+    const device = topology.nodes.find(item => item.id === target);
+    assert.ok(device, `${scenarioId}: équipement cible ${target} absent`);
+    const parser = new CLIParser(device);
+
+    for (const command of commands) {
+      const result = parser.execute(command);
+      assert.doesNotMatch(result.output || '', /^% (?:Invalid|Interface not found|Class not found)/,
+        `${scenarioId}: commande refusée : ${command}`);
+    }
+    for (const rule of scenario.check.rules) {
+      assert.ok(ruleSatisfied(topology, rule),
+        `${scenarioId}: assertion serveur non satisfaite après les commandes : ${rule.id} (${rule.device}.${rule.path})`);
+    }
+  }
 });
