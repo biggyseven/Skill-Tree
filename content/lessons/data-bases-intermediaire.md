@@ -1,6 +1,6 @@
 # Concepts des bases de données relationnelles — Intermédiaire
 
-> **Mise en contexte.** Comprendre comment tables, relations, clés, contraintes et transactions rendent les données cohérentes. Le but n'est pas seulement d'obtenir une sortie plausible, mais de construire une solution dont le sens métier est clair, le comportement vérifiable et les limites connues. Les exemples sont pédagogiques ; adaptez-les au moteur, à sa version, aux exigences de sécurité et aux règles de l'organisation. Utilisez un environnement isolé et des données synthétiques pour les premières manipulations. Ne stockez jamais de secrets dans les scripts, journaux ou captures partagées.
+> **Mise en contexte.** Vous maîtrisez les relations, les clés, les contraintes de base et les transactions simples. Le niveau intermédiaire approfondit la concurrence, les invariants qui portent sur plusieurs écritures, les migrations compatibles, la sélection raisonnée des index et la reprise opérationnelle. Vous devez savoir expliquer pourquoi une opération est atomique, détecter les conflits, mesurer le comportement du moteur et prouver que les données finales respectent les règles métier. Adaptez chaque exemple au moteur et à sa version, et validez les scénarios dans une base isolée.
 
 ## Introduction et objectifs pédagogiques
 
@@ -409,3 +409,16 @@ Sur une base locale, créez un quota et une table de réservations, puis simulez
 ### 18. Critères d'acceptation du niveau
 
 La maîtrise intermédiaire est démontrée si l'apprenant peut expliquer un invariant et un contre-exemple, choisir une contrainte ou une transaction qui le protège, observer le résultat réel, tester deux écritures concurrentes, diagnostiquer une anomalie, mesurer une requête, faire évoluer le schéma de façon compatible et décrire une restauration. La réussite n'est pas fondée sur un simple code de retour. Elle exige des tests reproductibles, des contrôles de lignes affectées, une compréhension des différences entre moteurs et une communication claire des limites restantes.
+
+
+## Diagramme complémentaire : de la règle à la preuve
+
+```mermaid
+flowchart TD
+    A[Règle métier] --> B[Contrainte ou transaction]
+    B --> C[Test normal]
+    B --> D[Test concurrent]
+    C --> E[Vérifier les postconditions]
+    D --> E
+    E --> F[Mesures et limites documentées]
+```
