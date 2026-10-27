@@ -1,0 +1,387 @@
+{
+  "schema_version": 2,
+  "id": "sd-wan-expert",
+  "title": "SD-WAN expert — Multitransport, BFD et SLA",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Durcissez l’architecture SD-WAN avec transports Internet/MPLS, détection rapide de panne par BFD, redondance contrôleur et routage applicatif voix qui bascule selon le profil SLA.",
+  "objectives": [
+    "Activer les deux transports underlay.",
+    "Activer BFD et la redondance des contrôleurs.",
+    "Associer la voix à un profil SLA mesuré.",
+    "Configurer les seuils de latence/perte et le fallback.",
+    "Séparer les flux corporate dans le VPN prévu."
+  ],
+  "hints": [
+    "La disponibilité des transports doit être suivie indépendamment du tunnel overlay.",
+    "Les seuils SLA doivent être alignés sur l’application transportée.",
+    "La segmentation VPN évite de mélanger les flux de clients et de collaborateurs."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-sd-wan-expert",
+    "metadata": {
+      "name": "SD-WAN expert — Multitransport et bascule SLA",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "EDGE1",
+        "type": "router",
+        "x": 250,
+        "y": 220,
+        "label": "EDGE1",
+        "model": "EDGE1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Internet",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.20.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "MPLS",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/2",
+            "name": "Gi0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Branch LAN",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "EDGE1",
+          "routes": [
+            {
+              "protocol": "sd-wan",
+              "enabled": true,
+              "dual_transport": {
+                "internet": false,
+                "mpls": false
+              },
+              "bfd_enabled": false,
+              "controller_redundancy": false,
+              "app_route": {
+                "enabled": false,
+                "application": "voice",
+                "sla_profile": "voice-gold",
+                "latency_threshold_ms": 80,
+                "loss_threshold_percent": 1,
+                "preferred_transport": "internet",
+                "fallback_enabled": false
+              },
+              "segmentation": {
+                "guest_vpn": 0,
+                "corp_vpn": 0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "HUB",
+        "type": "router",
+        "x": 580,
+        "y": 220,
+        "label": "HUB",
+        "model": "HUB",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.20.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.20.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "HUB",
+          "routes": [
+            {
+              "protocol": "sd-wan",
+              "enabled": true,
+              "dual_transport": {
+                "internet": true,
+                "mpls": true
+              },
+              "bfd_enabled": true,
+              "controller_redundancy": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "EDGE2",
+        "type": "router",
+        "x": 890,
+        "y": 220,
+        "label": "EDGE2",
+        "model": "EDGE2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.20.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "EDGE2",
+          "routes": [
+            {
+              "protocol": "sd-wan",
+              "enabled": true,
+              "dual_transport": {
+                "internet": true,
+                "mpls": true
+              },
+              "bfd_enabled": true,
+              "controller_redundancy": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "VOICE",
+        "type": "server",
+        "x": 890,
+        "y": 430,
+        "label": "VOICE",
+        "model": "VOICE",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "VOICE"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "EDGE1-HUB",
+        "from": {
+          "node": "EDGE1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "HUB",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "HUB-EDGE2",
+        "from": {
+          "node": "HUB",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "EDGE2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "EDGE2-VOICE",
+        "from": {
+          "node": "EDGE2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "VOICE",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "dual-internet",
+        "description": "The branch has an Internet transport.",
+        "device": "EDGE1",
+        "path": "config.routes[0].dual_transport.internet",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dual-mpls",
+        "description": "The branch has an MPLS transport.",
+        "device": "EDGE1",
+        "path": "config.routes[0].dual_transport.mpls",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "bfd",
+        "description": "BFD failure detection is enabled.",
+        "device": "EDGE1",
+        "path": "config.routes[0].bfd_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "controller-redundancy",
+        "description": "Controller redundancy is configured.",
+        "device": "EDGE1",
+        "path": "config.routes[0].controller_redundancy",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "app-route",
+        "description": "The voice application route is active.",
+        "device": "EDGE1",
+        "path": "config.routes[0].app_route.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "sla-profile",
+        "description": "The voice SLA profile is selected.",
+        "device": "EDGE1",
+        "path": "config.routes[0].app_route.sla_profile",
+        "operator": "equals",
+        "expected": "voice-gold"
+      },
+      {
+        "id": "latency",
+        "description": "The latency threshold is 80 ms.",
+        "device": "EDGE1",
+        "path": "config.routes[0].app_route.latency_threshold_ms",
+        "operator": "equals",
+        "expected": 80
+      },
+      {
+        "id": "loss",
+        "description": "The loss threshold is 1 percent.",
+        "device": "EDGE1",
+        "path": "config.routes[0].app_route.loss_threshold_percent",
+        "operator": "equals",
+        "expected": 1
+      },
+      {
+        "id": "fallback",
+        "description": "SLA-driven fallback is enabled.",
+        "device": "EDGE1",
+        "path": "config.routes[0].app_route.fallback_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "corp-vpn",
+        "description": "Corporate segmentation is assigned VPN 10.",
+        "device": "EDGE1",
+        "path": "config.routes[0].segmentation.corp_vpn",
+        "operator": "equals",
+        "expected": 10
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
