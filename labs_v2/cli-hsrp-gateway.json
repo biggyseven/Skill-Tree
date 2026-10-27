@@ -6,7 +6,7 @@
   "module": "Haute disponibilité",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Sur Gi0/0, configurez le groupe HSRP 10, l’adresse virtuelle 10.10.10.254, la priorité 110 et la préemption.",
+  "prompt": "Contexte : les postes d’un LAN doivent utiliser la passerelle virtuelle 10.10.10.254. Sur R1, configurez HSRP groupe 10 sur Gi0/0, réglez la priorité à 110 et activez la préemption pour permettre à R1 de reprendre le rôle actif quand il redevient disponible. Le contrôle porte sur les paramètres locaux de R1 ; un basculement réel nécessite un second routeur HSRP compatible, non simulé dans ce scénario.",
   "objectives": [
     "Exécuter puis vérifier : interface Gi0/0",
     "Exécuter puis vérifier : standby 10 ip 10.10.10.254",
@@ -15,8 +15,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; interface Gi0/0 ; standby 10 ip 10.10.10.254 ; standby 10 priority 110 ; standby 10 preempt ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : les paramètres HSRP se configurent dans le mode d’interface concerné, pas dans le mode global.",
+    "Indice 2 : l’adresse virtuelle, la priorité et la préemption appartiennent au même groupe HSRP. Utilisez le numéro de groupe 10 partout.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; interface Gi0/0 ; standby 10 ip 10.10.10.254 ; standby 10 priority 110 ; standby 10 preempt ; end.",
+    "La validation vérifie la présence du groupe 10, de l’adresse virtuelle, de la priorité 110 et de la préemption."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -39,7 +41,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -58,7 +60,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -109,7 +111,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -128,7 +130,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -179,7 +181,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -284,7 +286,7 @@
     "rules": [
       {
         "id": "hsrp_group",
-        "description": "Contrôle serveur : hsrp group doit être conforme.",
+        "description": "Gi0/0 porte le groupe HSRP 10, la VIP 10.10.10.254, la priorité 110 et la préemption.",
         "device": "R1",
         "path": "ports[0].hsrp",
         "operator": "contains",
