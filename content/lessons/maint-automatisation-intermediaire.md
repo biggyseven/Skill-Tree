@@ -412,7 +412,7 @@ def write_atomically(destination: Path, payload: str) -> None:
         with tempfile.NamedTemporaryFile(
             mode="w",
             encoding="utf-8",
-            newline="\\n",
+            newline="\n",
             dir=destination.parent,
             prefix=f".{destination.name}.",
             suffix=".tmp",
@@ -468,7 +468,7 @@ def main() -> int:
 
         rows = load_rows(source)
         report = build_report(rows)
-        payload = json.dumps(report, indent=2, ensure_ascii=False) + "\\n"
+        payload = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
         logging.info(
             "Validation terminée : %d tickets, %d minutes cumulées.",
             report["tickets_total"], report["duration_total_min"]
