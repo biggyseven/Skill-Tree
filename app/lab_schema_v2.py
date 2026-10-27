@@ -75,6 +75,8 @@ class DeviceConfig(SchemaModel):
     ospf: OSPFConfig = Field(default_factory=OSPFConfig)
     acls: list[Any] = Field(default_factory=list)
     services: ServicesConfig = Field(default_factory=ServicesConfig)
+    # Structured system/application settings are retained across workspace API round-trips.
+    workloads: dict[str, Any] = Field(default_factory=dict)
 
 
 class DeviceRuntime(SchemaModel):

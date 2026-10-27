@@ -272,6 +272,43 @@ class LabValidationTests(unittest.TestCase):
                 )
                 self.assertFalse(initial_result["passed"])
 
+
+    def test_all_courses_requiring_lab_have_a_loadable_v2_scenario(self) -> None:
+        catalog_path = lab_routes.PROJECT_ROOT / "content" / "nodes.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8-sig"))
+        required = [
+            node for node in catalog
+            if any(
+                isinstance(requirement, dict) and requirement.get("kind") == "lab"
+                for requirement in node.get("requirements", [])
+            )
+        ]
+        self.assertEqual(len(required), 78, "Le périmètre de l'audit a changé ; actualiser le contrôle explicitement.")
+
+        new_scenario_ids = ["automation-intermediaire","ddos-mitigation-intermediaire","ddos-mitigation-expert","incident-ospf","lab_bridge","lab_netns","lab_tshoot_dns","lab_tshoot_mtu","lab_tshoot_route","lab_troubleshoot_vlan","linux-intermediaire","db-intermediaire","users-intermediaire","scripting-intermediaire","ha-sys-intermediaire","windows-server-intermediaire","virt-intermediaire","web-server-intermediaire","scripting-debutant","storage-intermediaire","monitoring-intermediaire","cicd-intermediaire","docker-debutant","docker-intermediaire","git-debutant","iac-intermediaire","k8s-intermediaire","observability-intermediaire","voice-sip-intermediaire"]
+        for course in required:
+            with self.subTest(course=course["id"]):
+                payload = lab_routes._load_lab_file(course["id"])
+                self.assertIsNotNone(payload, f"Aucun scénario v2 ne résout {course['id']}")
+                definition = payload["definition"]
+                self.assertEqual(definition.id, course["id"])
+                self.assertGreaterEqual(len(definition.initial_topology.nodes), 20)
+                self.assertGreaterEqual(len(definition.initial_topology.links), 20)
+
+        for lab_id in new_scenario_ids:
+            with self.subTest(new_lab=lab_id):
+                definition = lab_routes._load_lab_file(lab_id)["definition"]
+                self.assertEqual(definition.check.type, "config_assertions")
+                self.assertGreaterEqual(len(definition.check.rules), 3)
+                result = lab_routes._evaluate_lab_check(definition, definition.initial_topology)
+                self.assertFalse(result["passed"], "Un scénario neuf ne doit pas réussir avant la configuration.")
+                malformed_paths = [
+                    item["message"] for item in result["results"]
+                    if "Chemin invalide" in item["message"]
+                ]
+                self.assertEqual(malformed_paths, [], "Chaque contrôle doit cibler un champ existant du schéma.")
+
+
     def test_linux_firewall_nat_intermediate_scenario_has_topology_and_real_checks(self) -> None:
         payload = lab_routes._load_lab_file("reseau-linux-intermediaire")
         self.assertIsNotNone(payload)

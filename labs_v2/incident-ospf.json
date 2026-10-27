@@ -1,0 +1,818 @@
+{
+  "schema_version": 2,
+  "id": "incident-ospf",
+  "title": "WAR GAME : Routeur muet (Routage)",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "duration_min": 35,
+  "difficulty": "expert",
+  "prompt": "Un incident a coupé les échanges entre trois sites. Rétablissez OSPF area 0 sur R1, R2 et R3 en restaurant les router-id et les annonces des réseaux LAN et de transit.",
+  "objectives": [
+    "Activer OSPF processus 1 sur les trois routeurs.",
+    "Configurer les router-id 1.1.1.1, 2.2.2.2 et 3.3.3.3.",
+    "Annoncer les réseaux LAN et de transit dans l’area 0.",
+    "Vérifier les paramètres par les contrôles serveur."
+  ],
+  "hints": [
+    "Sur chaque routeur, exécutez enable, configure terminal puis router ospf 1.",
+    "Dans le mode OSPF, définissez router-id et les commandes network avec le wildcard adapté.",
+    "R1 annonce 192.168.10.0/24, 10.0.12.0/30 et 10.0.13.0/30 ; configurez de même R2 et R3."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-incident-ospf",
+    "metadata": {
+      "name": "WAR GAME : Routeur muet (Routage)",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 320,
+        "y": 120,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "LAN Site A",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit R2",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.13.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit R3",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 620,
+        "y": 80,
+        "label": "R2",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit R1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit R3",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "LAN Site B",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 620,
+        "y": 260,
+        "label": "R3",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.13.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit R1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit R2",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "LAN Site C",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "Layer 2",
+        "x": 120,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Uplink Site A",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Poste A1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Poste A2",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/4",
+            "name": "Fa0/4",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Monitoring",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "model": "PC",
+        "x": 40,
+        "y": 430,
+        "label": "PC1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": 10,
+            "description": "Poste A1",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "model": "PC",
+        "x": 180,
+        "y": 430,
+        "label": "PC2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.10.11",
+            "mask": "255.255.255.0",
+            "vlan": 10,
+            "description": "Poste A2",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP1",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 800,
+        "y": 110,
+        "label": "APP1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.20.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur Site B",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP2",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 40,
+        "y": 520,
+        "label": "APP2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.10.21",
+            "mask": "255.255.255.0",
+            "vlan": 10,
+            "description": "Monitoring",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "DB1",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 800,
+        "y": 280,
+        "label": "DB1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.30.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur Site C",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DB1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/4"
+        },
+        "to": {
+          "node": "APP2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L5",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L6",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L7",
+        "from": {
+          "node": "R2",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Fa0/1"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L8",
+        "from": {
+          "node": "R2",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "APP1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L9",
+        "from": {
+          "node": "R3",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "DB1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "r1-enabled",
+        "description": "R1 active OSPF",
+        "device": "R1",
+        "path": "config.ospf.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "r1-id",
+        "description": "R1 utilise le router-id 1.1.1.1",
+        "device": "R1",
+        "path": "config.ospf.router_id",
+        "operator": "equals",
+        "expected": "1.1.1.1"
+      },
+      {
+        "id": "r1-lan",
+        "description": "R1 annonce son LAN dans l’area 0",
+        "device": "R1",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "192.168.10.0/24"
+        }
+      },
+      {
+        "id": "r1-transit",
+        "description": "R1 annonce le transit vers R2",
+        "device": "R1",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "10.0.12.0/30"
+        }
+      },
+      {
+        "id": "r2-enabled",
+        "description": "R2 active OSPF",
+        "device": "R2",
+        "path": "config.ospf.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "r2-id",
+        "description": "R2 utilise le router-id 2.2.2.2",
+        "device": "R2",
+        "path": "config.ospf.router_id",
+        "operator": "equals",
+        "expected": "2.2.2.2"
+      },
+      {
+        "id": "r2-lan",
+        "description": "R2 annonce son LAN dans l’area 0",
+        "device": "R2",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "192.168.20.0/24"
+        }
+      },
+      {
+        "id": "r3-enabled",
+        "description": "R3 active OSPF",
+        "device": "R3",
+        "path": "config.ospf.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "r3-id",
+        "description": "R3 utilise le router-id 3.3.3.3",
+        "device": "R3",
+        "path": "config.ospf.router_id",
+        "operator": "equals",
+        "expected": "3.3.3.3"
+      },
+      {
+        "id": "r3-lan",
+        "description": "R3 annonce son LAN dans l’area 0",
+        "device": "R3",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "192.168.30.0/24"
+        }
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 180,
+  "badges": [
+    "first_blood"
+  ]
+}

@@ -16,6 +16,220 @@ function isIPv4Mask(value) {
   return /^1+0*$/.test(bits);
 }
 
+const WORKLOAD_SETTINGS = {
+  "automation": [
+    "tool",
+    "playbook",
+    "idempotent",
+    "backup_before_change",
+    "error_handling",
+    "strict_mode",
+    "exit_code_check",
+    "plan_review",
+    "state_backend",
+    "lock_enabled",
+    "drift_detection",
+    "script",
+    "inventory"
+  ],
+  "security": [
+    "ddos_protection",
+    "rate_limit_pps",
+    "upstream_scrubbing",
+    "syn_cookies",
+    "blackhole_route",
+    "default_input_policy",
+    "ssh_allowlist",
+    "firewall_backend",
+    "tls_enforced"
+  ],
+  "network": [
+    "bridge_name",
+    "bridge_stp",
+    "native_vlan",
+    "vlan",
+    "mtu",
+    "host_ip",
+    "namespace_a",
+    "namespace_b",
+    "veth_pair",
+    "subnet",
+    "forwarding",
+    "static_route",
+    "dns_server",
+    "pmtud",
+    "jumbo_frames",
+    "path_mtu_discovery",
+    "next_hop",
+    "route_check"
+  ],
+  "dns": [
+    "primary_server",
+    "forwarder",
+    "record_a",
+    "record_cname",
+    "search_domain",
+    "recursion_enabled",
+    "zone_transfer",
+    "port",
+    "ttl"
+  ],
+  "linux": [
+    "firewall_backend",
+    "default_input_policy",
+    "ssh_allowlist",
+    "ip_forward",
+    "audit_rules",
+    "log_rotation",
+    "sysctl_hardening"
+  ],
+  "database": [
+    "engine",
+    "replication",
+    "backups",
+    "backup_retention_days",
+    "tls",
+    "max_connections",
+    "failover",
+    "read_replica",
+    "backup_destination",
+    "connection_pool"
+  ],
+  "directory": [
+    "protocol",
+    "server",
+    "mfa",
+    "tls",
+    "base_dn",
+    "domain",
+    "gpo",
+    "scope",
+    "audit_policy",
+    "firewall_enabled"
+  ],
+  "ha": [
+    "cluster_name",
+    "virtual_ip",
+    "quorum",
+    "health_check_interval",
+    "failover_mode",
+    "replica_count"
+  ],
+  "virtualization": [
+    "hypervisor",
+    "overcommit",
+    "live_migration",
+    "network_bridge",
+    "storage_pool"
+  ],
+  "web": [
+    "reverse_proxy",
+    "tls",
+    "healthcheck",
+    "backend_pool",
+    "sticky_sessions",
+    "listen_port",
+    "upstream_protocol"
+  ],
+  "storage": [
+    "volume_group",
+    "logical_volume",
+    "raid_level",
+    "snapshot",
+    "mountpoint",
+    "encryption",
+    "redundancy"
+  ],
+  "monitoring": [
+    "exporter",
+    "target",
+    "alert_cpu_percent",
+    "alert_disk_percent",
+    "stack",
+    "scrape_interval_seconds",
+    "alert_rule",
+    "dashboard",
+    "retention_days",
+    "service_discovery"
+  ],
+  "pipeline": [
+    "provider",
+    "test_stage",
+    "deploy_stage",
+    "approval_required",
+    "artifact_retention_days",
+    "branch",
+    "tests",
+    "environment",
+    "security_scan"
+  ],
+  "docker": [
+    "image",
+    "runtime",
+    "exposed_port",
+    "healthcheck",
+    "restart_policy",
+    "compose_file",
+    "web_replicas",
+    "database_volume",
+    "network",
+    "memory_limit",
+    "cpu_limit"
+  ],
+  "git": [
+    "remote",
+    "branch",
+    "protected_branch",
+    "require_review",
+    "tag",
+    "signed_commits",
+    "mainline"
+  ],
+  "kubernetes": [
+    "cluster_name",
+    "replicas",
+    "network_policy",
+    "readiness_probe",
+    "persistent_volume",
+    "namespace",
+    "resource_limits",
+    "rolling_update",
+    "ingress"
+  ],
+  "voice": [
+    "sip_domain",
+    "dial_peer",
+    "codec",
+    "registration",
+    "voice_vlan",
+    "qos_profile",
+    "emergency_route"
+  ],
+  "backup": [
+    "enabled",
+    "retention_days",
+    "destination",
+    "encryption",
+    "restore_tested",
+    "schedule"
+  ]
+};
+
+const WORKLOAD_BOOLEAN_VALUES = {
+  enabled: true, enable: true, true: true, on: true, yes: true,
+  disabled: false, disable: false, false: false, off: false, no: false,
+};
+
+function parseWorkloadValue(rawValue) {
+  const value = String(rawValue || '').trim();
+  const normalized = value.toLowerCase();
+  if (Object.prototype.hasOwnProperty.call(WORKLOAD_BOOLEAN_VALUES, normalized)) {
+    return WORKLOAD_BOOLEAN_VALUES[normalized];
+  }
+  if (/^-?\d+$/.test(value)) return Number(value);
+  return value;
+}
+
 export class CLIParser {
   constructor(device, mode = 'user', context = {}) {
     this.device = device;
@@ -81,6 +295,24 @@ export class CLIParser {
       if (cmd === 'hostname' && tokens[1]) {
         this.device.config.hostname = tokens[1];
         this.device.label = tokens[1];
+        return { output: '' };
+      }
+
+      // Structured workload state is checked by the server-side course assertions.
+      if (cmd === 'workload') {
+        const domain = String(tokens[1] || '').toLowerCase();
+        const setting = String(tokens[2] || '').toLowerCase();
+        const rawValue = tokens.slice(3).join(' ').trim();
+        if (!domain || !setting || !rawValue || !Array.isArray(WORKLOAD_SETTINGS[domain]) || !WORKLOAD_SETTINGS[domain].includes(setting)) {
+          return { output: '% Invalid workload setting. Use workload <domain> <setting> <value> with a supported setting.' };
+        }
+        if (!this.device.config.workloads || typeof this.device.config.workloads !== 'object' || Array.isArray(this.device.config.workloads)) {
+          this.device.config.workloads = {};
+        }
+        if (!this.device.config.workloads[domain] || typeof this.device.config.workloads[domain] !== 'object' || Array.isArray(this.device.config.workloads[domain])) {
+          this.device.config.workloads[domain] = {};
+        }
+        this.device.config.workloads[domain][setting] = parseWorkloadValue(rawValue);
         return { output: '' };
       }
 
@@ -184,6 +416,7 @@ export class CLIParser {
 
   doShow(args) {
     if (args[0] === 'running-config') return { output: this.formatRunningConfig() };
+    if (args[0] === 'workloads') return { output: JSON.stringify(this.device.config?.workloads || {}, null, 2) };
     if (args[0] === 'ip' && args[1] === 'interface' && args[2] === 'brief') return { output: this.formatIpIntBrief() };
     if (args[0] === 'ip' && args[1] === 'route') return { output: this.formatIpRoute() };
     if (args[0] === 'vlan' && args[1] === 'brief') return { output: this.formatVlanBrief() };
@@ -236,6 +469,14 @@ export class CLIParser {
       c.routes.forEach(r => { out += `ip route ${r.network} ${r.mask} ${r.next_hop}\n`; });
       out += '!\n';
     }
+    // Workload settings are emitted in replayable form for course verification.
+    Object.entries(c.workloads || {}).forEach(([domain, fields]) => {
+      if (!fields || typeof fields !== 'object' || Array.isArray(fields)) return;
+      Object.entries(fields).forEach(([setting, value]) => {
+        const printable = typeof value === 'boolean' ? (value ? 'enabled' : 'disabled') : String(value);
+        out += `workload ${domain} ${setting} ${printable}\\n`;
+      });
+    });
     out += 'end';
     return out;
   }
