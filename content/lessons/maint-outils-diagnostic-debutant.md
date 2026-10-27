@@ -88,6 +88,40 @@ flowchart TD
 
 Ce diagramme rappelle qu'un test n'est pas une fin en soi. Il doit faire avancer le diagnostic. Si le résultat ne permet pas de trancher, il faut choisir une autre vérification plutôt que transformer une supposition en certitude.
 
+## Parcours pratique du débutant
+
+Ce premier parcours peut être réalisé sur un poste de test en 45 à 60 minutes. Il ne demande pas de modifier la configuration. Les commandes d'observation suffisent pour apprendre à recueillir des indices. Si tu utilises un poste professionnel, respecte les règles de ton organisation et n'exécute que les contrôles autorisés.
+
+### Étape 1 — Décrire l'état de départ
+
+Choisis un symptôme observable, par exemple une application qui semble lente ou une page interne qui ne s'ouvre pas. Note l'heure, le poste concerné, l'utilisateur ou le profil testé, le message exact et le nombre de personnes touchées. Ne note pas de mot de passe ni de donnée personnelle non nécessaire.
+
+### Étape 2 — Observer avant d'agir
+
+Sous Windows, ouvre le Gestionnaire des tâches et observe le processeur, la mémoire, le disque et le réseau pendant que le symptôme se produit. Sous Linux, tu peux commencer par `top` ou `free -h`, selon les outils disponibles. Une mesure ponctuelle est un indice ; compare-la au comportement attendu et à la durée du problème.
+
+### Étape 3 — Collecter les informations système utiles
+
+Sous Windows, utilise `ipconfig /all` pour observer la configuration réseau. Sous Linux, utilise `ip address` et `ip route`. Ne modifie aucune adresse ni route pour « essayer » : relève plutôt ce qui est configuré et compare-le aux paramètres attendus.
+
+### Étape 4 — Tester une hypothèse à la fois
+
+Si le problème concerne un accès réseau, formule une question précise : le nom est-il résolu ? Le port TCP attendu est-il joignable ? Le poste utilise-t-il la bonne passerelle ? Choisis ensuite une commande pertinente, par exemple `nslookup` ou `Test-NetConnection` sous Windows, et note les limites du résultat. Ne lance pas de scan large ni de test intrusif.
+
+### Étape 5 — Examiner les événements pertinents
+
+Filtre les journaux autour de l'heure de l'incident. Sur Windows, l'Observateur d'événements ou `Get-WinEvent` peuvent aider. Sur Linux avec systemd, consulte `journalctl`. Cherche les messages qui correspondent au service, à la machine et à la période étudiés ; ne considère pas une simple coïncidence comme une preuve de causalité.
+
+### Étape 6 — Rédiger une fiche courte
+
+Consigne le symptôme, l'impact, l'heure, les outils et commandes utilisés, les résultats exacts, les limites et la prochaine étape. Sépare clairement les faits des hypothèses. Si tu n'as pas identifié la cause, écris-le au lieu d'inventer une conclusion.
+
+### Étape 7 — Vérifier les autorisations et décider
+
+Aucune commande de redémarrage, suppression, réinstallation, modification réseau ou désactivation d'une protection n'est nécessaire pour ce parcours. Une intervention réelle exige une autorisation et une évaluation du risque. Si les droits, les compétences ou les éléments disponibles sont insuffisants, prépare une escalade documentée.
+
+À la fin du parcours, tu dois pouvoir expliquer non seulement quelle commande tu as utilisée, mais surtout quelle question elle a permis d'examiner et ce qu'elle ne permet pas de conclure.
+
 ## 4. Les outils physiques de base
 
 Les outils physiques servent à examiner le matériel, à vérifier des connexions ou à effectuer une opération de maintenance. Ils doivent être choisis selon le composant, les instructions du fabricant et les compétences du technicien.
@@ -129,6 +163,25 @@ Un technicien débutant ne doit pas mesurer des circuits sous tension ni ouvrir 
 Le nettoyage peut faire partie de la maintenance préventive, mais il doit être adapté au matériel. Il faut éviter les liquides, les produits non compatibles, les objets qui produisent de l'électricité statique et les méthodes susceptibles d'endommager les ventilateurs ou les connecteurs.
 
 La poussière, la chaleur et une mauvaise ventilation peuvent contribuer à des problèmes matériels. Toutefois, la présence de poussière ne prouve pas à elle seule la cause d'une panne : il faut relier l'observation aux symptômes et aux tests disponibles.
+
+### Schéma — choisir un outil physique sans créer un nouveau risque
+
+```mermaid
+flowchart TD
+    A["Symptôme matériel observé"] --> B{"Une inspection visuelle suffit-elle ?"}
+    B -- "Oui" --> C["Observer sans démonter"]
+    B -- "Non" --> D{"Le test nécessite-t-il une déconnexion ?"}
+    D -- "Oui" --> E["Identifier les extrémités et vérifier l'impact"]
+    D -- "Non" --> F["Choisir un outil compatible"]
+    E --> G{"Interruption autorisée ?"}
+    G -- "Non" --> H["Planifier ou escalader"]
+    G -- "Oui" --> F
+    C --> I["Noter le résultat et ses limites"]
+    F --> I
+    H --> I
+```
+
+Le choix de l'outil commence par le risque : une inspection, un testeur de câble et un multimètre ne sont pas interchangeables. En cas de doute sur la sécurité électrique ou sur l'impact d'une déconnexion, on arrête le test et on demande l'aide appropriée.
 
 ## 5. Les outils d'observation du système
 
@@ -192,6 +245,23 @@ Cherche d'abord la période correspondant au symptôme. Une lecture ciblée est 
 Les informations système permettent d'identifier le système d'exploitation, la mémoire disponible, le modèle de machine et certains composants. Ces informations aident à comparer un poste fonctionnel à un poste en difficulté.
 
 Il faut toutefois respecter la confidentialité. Les numéros de série, noms de machines, noms de comptes, adresses et autres éléments d'inventaire ne doivent pas être publiés dans un espace non autorisé.
+
+### Schéma — observer un système avant de modifier quoi que ce soit
+
+```mermaid
+flowchart LR
+    A["Symptôme reproduit"] --> B["Gestionnaire des tâches"]
+    B --> C["Ressources processeur, mémoire, disque"]
+    C --> D["Journaux autour de l'heure"]
+    D --> E["Comparer avec l'activité attendue"]
+    E --> F{"Indice cohérent ?"}
+    F -- "Oui" --> G["Formuler une hypothèse vérifiable"]
+    F -- "Non" --> H["Élargir prudemment la collecte"]
+    G --> I["Choisir un test discriminant"]
+    H --> I
+```
+
+Ce parcours aide à éviter deux erreurs : prendre une capture ponctuelle pour une preuve définitive ou modifier le système avant d'avoir relevé son état initial.
 
 ## 6. Les commandes de diagnostic Windows
 
@@ -292,6 +362,29 @@ La commande affiche les processus visibles avec leurs informations disponibles. 
 
 Évite de terminer un processus uniquement parce que son nom est inconnu ou qu'il consomme temporairement beaucoup de ressources.
 
+### Schéma — rôle des commandes Windows présentées dans cette section
+
+```mermaid
+flowchart TD
+    A["Quelle question faut-il résoudre ?"] --> B{"Configuration locale ?"}
+    B -- "Oui" --> C["ipconfig /all"]
+    B -- "Non" --> D{"Connectivité ou routage ?"}
+    D -- "Connectivité" --> E["ping avec une destination connue"]
+    D -- "Routage" --> F["route print"]
+    D -- "Nom" --> G["nslookup"]
+    D -- "Port TCP" --> H["Test-NetConnection"]
+    D -- "Service local" --> I["Get-Service"]
+    C --> J["Comparer au résultat attendu"]
+    E --> J
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+    J --> K["Documenter sans conclure au-delà du test"]
+```
+
+Une commande doit être choisie en fonction de la question, pas parce qu'elle est facile à lancer. Plusieurs contrôles peuvent être nécessaires, mais chaque résultat doit réduire l'incertitude.
+
 ## 7. Les commandes de diagnostic Linux
 
 Les commandes suivantes sont courantes sur de nombreuses distributions Linux, mais les options disponibles peuvent varier. Utilise-les sur les machines autorisées et adapte les tests au système concerné.
@@ -356,6 +449,24 @@ ps aux
 
 Cette commande affiche des informations sur les processus. Les colonnes et leur interprétation peuvent varier légèrement selon le système. Pour étudier un processus, examine son rôle, sa durée de vie et sa consommation plutôt que d'utiliser un seul chiffre isolé.
 
+### Schéma — routine de vérification côté Linux
+
+```mermaid
+flowchart TD
+    A["Décrire le symptôme et l'heure"] --> B["ip address"]
+    B --> C["Comparer l'adresse et l'état de l'interface"]
+    C --> D["ip route"]
+    D --> E["Vérifier la route attendue"]
+    E --> F{"La question concerne-t-elle le service ?"}
+    F -- "Non" --> G["Noter les constats locaux"]
+    F -- "Oui" --> H["Vérifier service, journaux et port autorisés"]
+    H --> I["Comparer plusieurs indices"]
+    G --> J["Compte rendu"]
+    I --> J
+```
+
+Les commandes Linux fournissent une vue du système local. Elles n'indiquent pas automatiquement ce que voit un pare-feu, un serveur distant ou une application ; il faut vérifier chaque couche séparément.
+
 ## 8. Les outils de diagnostic réseau
 
 Le diagnostic réseau consiste à déterminer où la communication échoue, sans supposer dès le départ que tout le réseau est indisponible.
@@ -419,6 +530,25 @@ N'effectue pas de balayage de ports, de capture du trafic ou de test de charge s
 
 Le technicien débutant doit privilégier les contrôles approuvés et demander l'aide de l'équipe réseau lorsque des analyses plus avancées sont nécessaires.
 
+### Schéma — diagnostic réseau couche par couche
+
+```mermaid
+flowchart TD
+    A["Application inaccessible"] --> B["Vérifier le symptôme et le périmètre"]
+    B --> C["Configuration locale et interface"]
+    C --> D["Connectivité IP si le test est pertinent"]
+    D --> E["Résolution du nom"]
+    E --> F["Route et filtrage"]
+    F --> G["Port et service cible"]
+    G --> H["Authentification et fonctionnement applicatif"]
+    H --> I["Rassembler les indices"]
+    I --> J{"Cause confirmée ?"}
+    J -- "Oui" --> K["Proposer une correction autorisée"]
+    J -- "Non" --> L["Escalader avec les résultats"]
+```
+
+Cette séquence est un guide et non une obligation de lancer tous les tests. Si une étape n'est pas pertinente, inaccessible ou interdite, consigne la limite et adapte le diagnostic.
+
 ## 9. Les outils de stockage et de matériel
 
 Un problème de performance ou de disponibilité peut provenir du matériel, mais il ne faut pas le supposer sans preuve.
@@ -455,6 +585,25 @@ Le remplacement temporaire par un composant de référence peut aider à isoler 
 
 Après le test, vérifie le fonctionnement et remets en place ou identifie clairement les éléments selon le plan prévu. Un échange de pièces non tracé peut créer de la confusion lors d'une intervention future.
 
+### Schéma — trier une alerte de stockage ou de matériel
+
+```mermaid
+flowchart TD
+    A["Alerte ou symptôme matériel"] --> B["Vérifier l'heure, l'équipement et l'impact"]
+    B --> C["Observer l'espace disque et les indicateurs disponibles"]
+    C --> D{"Un indicateur est-il réellement anormal ?"}
+    D -- "Non" --> E["Comparer au fonctionnement habituel"]
+    D -- "Oui" --> F["Vérifier les journaux et l'évolution"]
+    F --> G{"Données ou composant à risque ?"}
+    G -- "Oui" --> H["Préserver les données et escalader"]
+    G -- "Non" --> I["Préparer une action autorisée"]
+    E --> J["Documenter les constats"]
+    H --> J
+    I --> J
+```
+
+Une partition pleine ou une température élevée est un signal à examiner. Ne supprime pas immédiatement les fichiers volumineux et ne remplace pas un composant sans avoir vérifié son rôle, les données et les procédures.
+
 ## 10. Outils de ticketing et d'inventaire
 
 Les outils de maintenance ne se limitent pas aux commandes. Le ticketing et l'inventaire permettent de conserver la mémoire du service informatique.
@@ -489,6 +638,22 @@ Associer un incident à l'équipement concerné facilite l'analyse des récurren
 
 Cette analyse reste limitée par la qualité des données : des noms d'équipement incohérents ou des tickets sans identifiant rendent les tendances plus difficiles à exploiter.
 
+### Schéma — relier le ticket, l'équipement et l'intervention
+
+```mermaid
+flowchart LR
+    A["Signalement utilisateur ou alerte"] --> B["Créer ou retrouver le ticket"]
+    B --> C["Identifier le poste ou service dans l'inventaire"]
+    C --> D["Consigner l'impact et les observations"]
+    D --> E["Affecter le responsable"]
+    E --> F["Actions et résultats datés"]
+    F --> G["Validation avec le demandeur ou le test"]
+    G --> H["Résolution et clôture documentées"]
+    H --> I["Historique réutilisable"]
+```
+
+Un ticket sans équipement identifié ni résultat vérifiable est difficile à reprendre. L'inventaire et la traçabilité donnent le contexte nécessaire aux intervenants suivants.
+
 ## 11. Sauvegarde, supervision et outils de sécurité
 
 ### 11.1. Outils de sauvegarde
@@ -512,6 +677,24 @@ Les organisations utilisent des antivirus ou outils de protection des postes, de
 Lorsqu'un comportement suspect apparaît, il faut respecter la procédure de sécurité. Ne désactive pas les protections pour faciliter un diagnostic et n'efface pas des traces susceptibles d'être nécessaires à l'analyse.
 
 Si tu soupçonnes un incident de sécurité, limite tes actions aux procédures prévues et avertis l'équipe responsable. Une intervention bien intentionnée peut altérer les éléments nécessaires à l'investigation.
+
+### Schéma — fonctions complémentaires des outils d'exploitation
+
+```mermaid
+flowchart TD
+    A["Postes, serveurs et équipements"] --> B["Supervision : détecter les écarts"]
+    A --> C["Journaux : comprendre les événements"]
+    A --> D["Sécurité : examiner les alertes et les contrôles"]
+    A --> E["Sauvegarde : protéger et restaurer les données"]
+    B --> F["Ticket et diagnostic"]
+    C --> F
+    D --> F
+    E --> G["Vérifier l'état et les tests de restauration"]
+    F --> H["Décision documentée"]
+    G --> H
+```
+
+Ces outils sont complémentaires : une alerte de supervision signale un changement, un journal apporte du contexte, un outil de sécurité observe d'autres indicateurs et une sauvegarde sert à restaurer des données. Aucun ne remplace les autres.
 
 ## 12. Organiser les résultats des tests
 
@@ -546,6 +729,23 @@ Cette différence est essentielle lorsqu'un dossier est transmis à une autre é
 Les sorties de commandes peuvent révéler des noms de machines, adresses, utilisateurs, chemins, ports ou détails de configuration. Ne les publie pas dans un forum ou une conversation publique sans autorisation et sans vérification.
 
 Dans un ticket, ne conserve que les données utiles à la résolution et respecte la politique de rétention de l'organisation.
+
+### Schéma — transformer un résultat en note exploitable
+
+```mermaid
+flowchart TD
+    A["Résultat brut d'un outil"] --> B["Conserver la commande, l'heure et la cible"]
+    B --> C["Décrire ce qui a été observé"]
+    C --> D["Ajouter les limites du test"]
+    D --> E["Séparer fait et hypothèse"]
+    E --> F{"Le résultat permet-il une conclusion ?"}
+    F -- "Oui, dans la limite du test" --> G["Écrire la conclusion prudente"]
+    F -- "Non" --> H["Indiquer ce qui reste inconnu"]
+    G --> I["Prochaine étape ou vérification"]
+    H --> I
+```
+
+La fiche de diagnostic doit permettre à une autre personne de comprendre ce qui a été fait et de reproduire le contrôle. Une sortie de commande sans cible, heure ni interprétation est rarement suffisante.
 
 ## 13. Choisir le prochain test : exemples guidés
 
@@ -597,6 +797,28 @@ Dans un ticket, ne conserve que les données utiles à la résolution et respect
 
 **Précaution :** ne considère pas l'incident résolu sans preuve que la sauvegarde attendue est disponible ou qu'une mesure alternative est validée.
 
+### Schéma — sélectionner un prochain test selon le symptôme
+
+```mermaid
+flowchart TD
+    A["Symptôme décrit"] --> B{"Ralentissement ?"}
+    B -- "Oui" --> C["Observer ressources, durée et processus"]
+    B -- "Non" --> D{"Accès réseau impossible ?"}
+    D -- "Oui" --> E["Comparer configuration, nom, route et port"]
+    D -- "Non" --> F{"Erreur liée à un service ?"}
+    F -- "Oui" --> G["Consulter état et journaux du service"]
+    F -- "Non" --> H{"Stockage ou matériel ?"}
+    H -- "Oui" --> I["Contrôler indicateurs et historique"]
+    H -- "Non" --> J["Reformuler le symptôme et le périmètre"]
+    C --> K["Documenter puis choisir le test suivant"]
+    E --> K
+    G --> K
+    I --> K
+    J --> K
+```
+
+Ce schéma fournit des premières pistes, pas un arbre de décision universel. Le contexte, le périmètre et les autorisations restent essentiels dans chaque cas.
+
 ## 14. Erreurs fréquentes lors de l'utilisation des outils
 
 ### Erreur 1 : exécuter une commande sans question précise
@@ -646,6 +868,27 @@ Dans un ticket, ne conserve que les données utiles à la résolution et respect
 **Conséquence :** l'équipe suivante ne peut pas reproduire le test ni comprendre sa portée.
 
 **Correction :** consigne la méthode et le résultat de chaque vérification importante.
+
+### Schéma — contrôles de qualité avant de lancer une commande
+
+```mermaid
+flowchart TD
+    A["Commande envisagée"] --> B{"Cible et objectif connus ?"}
+    B -- "Non" --> C["Préciser la question et la cible"]
+    B -- "Oui" --> D{"Commande en lecture seule ?"}
+    D -- "Non" --> E["Évaluer impact, autorisation et retour arrière"]
+    D -- "Oui" --> F{"Test autorisé et proportionné ?"}
+    E --> G{"Validation obtenue ?"}
+    G -- "Non" --> H["Ne pas exécuter et demander conseil"]
+    G -- "Oui" --> I["Exécuter dans le périmètre prévu"]
+    F -- "Non" --> H
+    F -- "Oui" --> I
+    C --> A
+    I --> J["Noter le résultat et les limites"]
+    H --> J
+```
+
+Cette vérification préalable est particulièrement importante pour les commandes qui redémarrent un service, modifient le réseau, suppriment des fichiers ou affectent plusieurs utilisateurs.
 
 ## 15. Travaux pratiques
 
@@ -726,6 +969,21 @@ Prépare une checklist qui indique :
 - le plan de retour arrière ou d'escalade.
 
 Tu n'as pas à redémarrer réellement le service pour réussir ce TP. L'objectif est de montrer que tu sais préparer une action plutôt que la déclencher au hasard.
+
+### Schéma — déroulement d'un travail pratique reproductible
+
+```mermaid
+flowchart LR
+    A["Préparer un environnement autorisé"] --> B["Définir le symptôme fictif"]
+    B --> C["Écrire les hypothèses"]
+    C --> D["Choisir un contrôle non intrusif"]
+    D --> E["Collecter et noter le résultat"]
+    E --> F["Interpréter avec ses limites"]
+    F --> G["Rédiger une fiche"]
+    G --> H["Faire relire et comparer les conclusions"]
+```
+
+Un TP réussi ne se limite pas à obtenir la bonne commande : la fiche doit montrer le raisonnement, la sécurité du test et la différence entre observation et conclusion.
 
 ## 16. Exercices avec corrections
 
@@ -810,6 +1068,24 @@ Tu copies plusieurs milliers de lignes d'un journal dans le ticket sans indiquer
 Le Gestionnaire des tâches montre une utilisation élevée du processeur pendant quelques secondes. Le technicien déclare que le processeur est défectueux. Pourquoi ce raisonnement est-il incorrect ?
 
 **Correction :** une utilisation élevée peut être provoquée par une tâche normale ou une application sollicitée. Il faut examiner la durée, le processus, le contexte et les autres indices. La mesure prouve une activité élevée à un instant donné, pas une défaillance physique du processeur.
+
+### Schéma — stratégie de résolution du défi final
+
+```mermaid
+flowchart TD
+    A["Application interne inaccessible pour une personne"] --> B["Confirmer message, heure et impact"]
+    B --> C["Comparer avec deux postes fonctionnels"]
+    C --> D["Vérifier la configuration du poste concerné"]
+    D --> E["Tester résolution et port avec autorisation"]
+    E --> F["Examiner les événements locaux"]
+    F --> G{"Différence locale étayée ?"}
+    G -- "Oui" --> H["Proposer une correction autorisée et la vérifier"]
+    G -- "Non" --> I["Préparer l'escalade applicative"]
+    H --> J["Documenter résultat et impact"]
+    I --> J
+```
+
+Le diagnostic doit progresser par comparaison et par hypothèses vérifiables. Il ne faut ni conclure trop tôt à une panne serveur, ni essayer de contourner les restrictions d'accès.
 
 ## 17. Défi final — Choisir les outils pour un diagnostic complet
 
