@@ -1,0 +1,102 @@
+{
+  "node_id": "maint-audits-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Comment définir correctement le périmètre d’un audit technique ?",
+      "choices": [
+        "En auditant tout sans limite de temps ni objectif",
+        "En précisant objectifs, actifs, période, critères, exclusions et responsabilités",
+        "En laissant chaque audité choisir les critères après coup",
+        "En se limitant aux systèmes les plus faciles d’accès"
+      ],
+      "answer": 1,
+      "explanation": "Un périmètre explicite rend l’audit proportionné, compréhensible et reproductible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence faut-il faire entre une preuve et une opinion ?",
+      "choices": [
+        "Une opinion est toujours plus importante",
+        "Une preuve est un avis du responsable",
+        "Une preuve est un élément traçable et vérifiable relié à un critère ; une opinion doit être corroborée",
+        "Les deux sont interchangeables dans le rapport"
+      ],
+      "answer": 2,
+      "explanation": "Les constats doivent s’appuyer sur des éléments vérifiables et des critères définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi conserver la provenance et la date des éléments collectés ?",
+      "choices": [
+        "Pour donner une apparence de précision",
+        "Pour pouvoir modifier les éléments sans trace",
+        "Pour éviter que d’autres auditeurs les examinent",
+        "Pour assurer la traçabilité et comprendre dans quel contexte la preuve a été recueillie"
+      ],
+      "answer": 3,
+      "explanation": "La provenance et l’horodatage aident à évaluer l’intégrité et la pertinence des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment formuler un constat d’audit solide ?",
+      "choices": [
+        "Relier un critère à la condition observée, à la preuve et au risque ou à l’impact",
+        "Se limiter à dire que le système est mauvais",
+        "Attribuer une intention à une personne sans élément",
+        "Présenter une recommandation comme si elle était déjà réalisée"
+      ],
+      "answer": 0,
+      "explanation": "Un constat utile explique l’écart et pourquoi il importe, avec des faits à l’appui."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si l’échantillon audité est trop limité pour conclure ?",
+      "choices": [
+        "Généraliser immédiatement à toute l’organisation",
+        "Indiquer la limite, compléter l’échantillon si possible ou restreindre la conclusion",
+        "Ignorer les résultats contradictoires",
+        "Remplacer la preuve par une déclaration orale"
+      ],
+      "answer": 1,
+      "explanation": "Les conclusions doivent être proportionnées à la couverture et à la qualité des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan d’action répond le mieux à une non-conformité majeure ?",
+      "choices": [
+        "Une recommandation sans date ni responsable",
+        "Une réunion sans suivi",
+        "Une mesure corrective avec propriétaire, délai, priorité, preuve attendue et vérification d’efficacité",
+        "Une modification immédiate sans analyse de risque"
+      ],
+      "answer": 2,
+      "explanation": "Un plan d’action devient exécutable lorsque la responsabilité, l’échéance et la preuve sont définies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi examiner l’efficacité des actions après leur clôture ?",
+      "choices": [
+        "Pour rouvrir tous les audits automatiquement",
+        "Pour augmenter le nombre d’indicateurs",
+        "Pour confirmer que le propriétaire a envoyé un message",
+        "Pour vérifier que le risque ou l’écart a réellement diminué et que le problème ne persiste pas"
+      ],
+      "answer": 3,
+      "explanation": "La clôture administrative ne prouve pas à elle seule l’efficacité de la correction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment préserver l’indépendance de l’audit ?",
+      "choices": [
+        "Déclarer les conflits d’intérêts, appliquer des critères convenus et distinguer constats et préférences personnelles",
+        "Laisser l’équipe auditée choisir seule les résultats",
+        "Modifier les critères après avoir vu les preuves",
+        "Éviter toute revue contradictoire"
+      ],
+      "answer": 0,
+      "explanation": "L’indépendance repose sur la transparence, des critères stables et des conclusions étayées."
+    }
+  ]
+}

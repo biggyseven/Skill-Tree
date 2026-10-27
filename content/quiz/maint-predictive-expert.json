@@ -1,0 +1,102 @@
+{
+  "node_id": "maint-predictive-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence essentielle existe entre maintenance préventive périodique et maintenance prédictive ?",
+      "choices": [
+        "La maintenance prédictive ne nécessite aucune donnée",
+        "La maintenance prédictive estime le risque ou l’état futur à partir de mesures, tendances et modèles",
+        "La maintenance périodique attend toujours une panne",
+        "Les deux approches sont identiques dans tous les contextes"
+      ],
+      "answer": 1,
+      "explanation": "La prédiction exploite les données pour adapter le moment ou la nature d’une intervention."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d’entraîner un modèle de détection de défaillance, quel contrôle est prioritaire ?",
+      "choices": [
+        "Choisir immédiatement l’algorithme le plus complexe",
+        "Supprimer les valeurs qui semblent inhabituelles sans les examiner",
+        "Contrôler la qualité, la provenance, l’horodatage, les valeurs manquantes et la représentativité des données",
+        "Mélanger aléatoirement des données futures dans l’entraînement"
+      ],
+      "answer": 2,
+      "explanation": "La qualité des données et l’absence de fuite entre passé et futur déterminent la crédibilité de l’évaluation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les séries temporelles demandent-elles une séparation chronologique des jeux de données ?",
+      "choices": [
+        "Pour garantir que les capteurs ont tous la même marque",
+        "Pour rendre l’échantillon d’entraînement plus grand artificiellement",
+        "Pour rendre les tests plus faciles",
+        "Pour éviter qu’informations futures et événements corrélés contaminent l’évaluation du passé"
+      ],
+      "answer": 3,
+      "explanation": "Une séparation temporelle reproduit mieux le scénario réel de prédiction sur des données futures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque pose un nombre élevé de faux négatifs dans un modèle de maintenance ?",
+      "choices": [
+        "Des défaillances réelles risquent de ne pas être signalées à temps",
+        "Le modèle déclenche trop d’alertes inutiles",
+        "Les données deviennent automatiquement plus propres",
+        "Les coûts d’intervention disparaissent"
+      ],
+      "answer": 0,
+      "explanation": "Un faux négatif peut laisser passer un signe précurseur important ; son coût doit être évalué selon la criticité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi comparer un modèle à une règle de référence simple ?",
+      "choices": [
+        "Pour empêcher toute évolution du modèle",
+        "Pour vérifier qu’il apporte une amélioration mesurable par rapport à une méthode simple et compréhensible",
+        "Pour éviter une évaluation indépendante",
+        "Pour garantir que chaque prédiction est vraie"
+      ],
+      "answer": 1,
+      "explanation": "Une baseline révèle si la complexité apporte réellement de la valeur opérationnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un capteur est déplacé et produit des valeurs différentes. Que doit faire l’équipe ?",
+      "choices": [
+        "Conserver le même seuil sans réévaluation",
+        "Supprimer toutes les alertes liées au capteur",
+        "Vérifier l’étalonnage, documenter le changement et réévaluer la comparabilité des mesures",
+        "Modifier les étiquettes historiques pour améliorer le score"
+      ],
+      "answer": 2,
+      "explanation": "Les modifications du capteur ou de son contexte peuvent changer la distribution et invalider certains seuils."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment mesurer l’utilité opérationnelle d’un système prédictif ?",
+      "choices": [
+        "Seulement avec l’exactitude globale, même si les pannes sont rares",
+        "En comptant le nombre de graphiques produits",
+        "En vérifiant uniquement que le modèle s’exécute",
+        "Avec des métriques adaptées aux coûts d’erreur, le délai d’alerte, les faux positifs et l’effet sur les pannes ou interventions"
+      ],
+      "answer": 3,
+      "explanation": "Les métriques doivent refléter le risque métier et la capacité réelle à agir sur l’alerte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle gouvernance convient à une alerte prédictive critique ?",
+      "choices": [
+        "Définir un seuil d’escalade, un responsable, une vérification humaine et une trace de la décision",
+        "Laisser le modèle arrêter automatiquement toute infrastructure sans garde-fou",
+        "Traiter les alertes comme des certitudes de panne",
+        "Ne jamais réviser le modèle après déploiement"
+      ],
+      "answer": 0,
+      "explanation": "Une alerte est une aide à la décision ; la criticité impose des garde-fous, une responsabilité et un suivi."
+    }
+  ]
+}

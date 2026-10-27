@@ -1,0 +1,126 @@
+{
+  "node_id": "maint-preventive-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal de la maintenance préventive ?",
+      "choices": [
+        "Attendre une panne avant d’intervenir",
+        "Réduire la probabilité de panne et repérer les signes de dégradation avant une interruption",
+        "Remplacer tous les équipements à date fixe, quel que soit leur état",
+        "Supprimer les contrôles pour limiter le temps d’intervention"
+      ],
+      "answer": 1,
+      "explanation": "La maintenance préventive organise des contrôles et des actions en amont pour limiter les défaillances et leurs conséquences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle situation correspond à une opération corrective plutôt que préventive ?",
+      "choices": [
+        "Contrôler chaque mois l’état des ventilateurs",
+        "Vérifier périodiquement la capacité d’une batterie",
+        "Remplacer un ventilateur après la constatation de sa panne",
+        "Planifier un nettoyage selon les recommandations du fabricant"
+      ],
+      "answer": 2,
+      "explanation": "La maintenance corrective répond à une défaillance constatée ; la préventive intervient avant la panne ou la dégradation critique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment choisir la fréquence des inspections d’un équipement ?",
+      "choices": [
+        "Utiliser la même fréquence pour tous les actifs",
+        "Choisir uniquement le jour où le technicien est libre",
+        "Éviter de modifier le calendrier même si les pannes se répètent",
+        "Tenir compte de la criticité, du risque, de l’usage, des recommandations et de l’historique"
+      ],
+      "answer": 3,
+      "explanation": "Le calendrier doit être adapté au risque et révisé avec les données d’exploitation, plutôt qu’appliqué mécaniquement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une intervention pouvant interrompre un service, quelle préparation est la plus complète ?",
+      "choices": [
+        "Vérifier l’autorisation, l’impact, les dépendances, la fenêtre, les sauvegardes et le retour arrière",
+        "Commencer immédiatement si la tâche est déjà connue",
+        "Prévenir uniquement les autres techniciens après l’intervention",
+        "Désactiver la supervision pour éviter les alertes"
+      ],
+      "answer": 0,
+      "explanation": "Une intervention planifiée doit avoir un périmètre autorisé, une fenêtre, des contrôles préalables et une solution de reprise adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il consigner dans le compte rendu d’une inspection préventive ?",
+      "choices": [
+        "Seulement le nom du technicien",
+        "La date, l’actif, les contrôles effectués, les mesures, les écarts et la décision prise",
+        "Uniquement les tâches qui ont échoué",
+        "Une mention générale indiquant que tout semble normal, sans preuve"
+      ],
+      "answer": 1,
+      "explanation": "Une trace exploitable permet à un autre intervenant de comprendre ce qui a été vérifié, les résultats et les actions à suivre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pendant le contrôle d’un serveur, tu détectes une odeur de brûlé et une alimentation anormalement chaude. Que faire ?",
+      "choices": [
+        "Continuer jusqu’à la fin de la checklist",
+        "Redémarrer le serveur sans prévenir personne",
+        "Appliquer la procédure de sécurité, arrêter l’intervention dangereuse et alerter la personne responsable",
+        "Ignorer le signe si le serveur répond encore au réseau"
+      ],
+      "answer": 2,
+      "explanation": "Un indice pouvant signaler un danger matériel impose un point d’arrêt et une escalade selon les procédures de sécurité du site."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi mesurer ou vérifier l’état du système avant et après une intervention ?",
+      "choices": [
+        "Pour éviter d’écrire un compte rendu",
+        "Pour remplacer la validation par le seul ressenti du technicien",
+        "Pour prouver que la maintenance a été planifiée",
+        "Pour comparer les résultats, détecter une régression et confirmer les critères de service"
+      ],
+      "answer": 3,
+      "explanation": "Les contrôles avant/après fournissent des éléments comparables et rendent la validation plus objective."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une mise à jour de firmware est prévue dans le cadre de la maintenance. Quelle démarche est la plus sûre ?",
+      "choices": [
+        "Vérifier la compatibilité, les notes de version, les sauvegardes, le test préalable et le retour arrière",
+        "Installer la version la plus récente sur tous les équipements en même temps, sans test",
+        "Ne pas vérifier le fonctionnement après la mise à jour",
+        "Supprimer la configuration actuelle avant de confirmer que la sauvegarde est exploitable"
+      ],
+      "answer": 0,
+      "explanation": "Une mise à jour peut modifier le comportement d’un équipement ; elle doit être préparée, testée et assortie de critères de validation et de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Plusieurs tâches préventives sont en retard et l’équipe ne peut pas tout réaliser aujourd’hui. Comment prioriser ?",
+      "choices": [
+        "Traiter d’abord les tâches les plus faciles, quel que soit le risque",
+        "Évaluer la criticité, le risque de défaillance, l’impact, les tendances et les contraintes opérationnelles",
+        "Repousser toutes les tâches jusqu’au prochain mois",
+        "Choisir les équipements les plus récents en premier"
+      ],
+      "answer": 1,
+      "explanation": "La priorisation doit réduire le risque global et être justifiée ; les reports importants doivent être tracés et acceptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une inspection échoue à un critère défini dans la procédure. Quelle est la meilleure réaction ?",
+      "choices": [
+        "Clôturer la tâche puisque l’inspection a été réalisée",
+        "Modifier le seuil d’acceptation pour faire disparaître l’écart",
+        "Documenter l’écart, évaluer le risque, appliquer le point d’arrêt ou l’escalade et prévoir une action",
+        "Effacer les mesures et recommencer jusqu’à obtenir un résultat favorable"
+      ],
+      "answer": 2,
+      "explanation": "Un résultat non conforme doit être traité explicitement. Les critères ne doivent pas être modifiés pour masquer un défaut."
+    }
+  ]
+}

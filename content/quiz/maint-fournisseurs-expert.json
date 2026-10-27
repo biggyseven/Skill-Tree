@@ -1,0 +1,102 @@
+{
+  "node_id": "maint-fournisseurs-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel élément est essentiel pour évaluer la performance d’un fournisseur ?",
+      "choices": [
+        "Une impression générale lors de la dernière réunion",
+        "Des indicateurs définis, leurs sources, la période observée et les engagements contractuels pertinents",
+        "Le nombre de courriels échangés uniquement",
+        "Une comparaison sans tenir compte du périmètre de service"
+      ],
+      "answer": 1,
+      "explanation": "Une évaluation juste repose sur des métriques vérifiables et des engagements clairement définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre SLA et KPI ?",
+      "choices": [
+        "Ce sont toujours des termes identiques",
+        "Le KPI est forcément une pénalité contractuelle",
+        "Le SLA formalise un niveau de service convenu ; les KPI mesurent la performance ou les tendances, selon leur définition",
+        "Le SLA n’a pas besoin de méthode de mesure"
+      ],
+      "answer": 2,
+      "explanation": "Un indicateur peut suivre la performance sans être lui-même un engagement contractuel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de renouveler un fournisseur critique, quelle démarche est la plus complète ?",
+      "choices": [
+        "Renouveler automatiquement pour gagner du temps",
+        "Choisir uniquement le tarif le plus bas",
+        "Ignorer les incidents passés",
+        "Évaluer performance, sécurité, dépendances, coûts, risques, réversibilité et options disponibles"
+      ],
+      "answer": 3,
+      "explanation": "Le renouvellement doit prendre en compte la valeur globale et les risques opérationnels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir un plan de réversibilité ?",
+      "choices": [
+        "Pour prévoir comment récupérer données, configurations, accès et services en cas de changement ou de fin de contrat",
+        "Pour augmenter la dépendance à un fournisseur",
+        "Pour éviter d’identifier les formats de données",
+        "Pour conserver les accès du fournisseur sans limite"
+      ],
+      "answer": 0,
+      "explanation": "La réversibilité limite le verrouillage fournisseur et soutient la continuité de service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment réagir à des incidents répétés qui dépassent le SLA ?",
+      "choices": [
+        "Supprimer les incidents des tableaux de bord",
+        "Documenter les écarts, analyser les causes, activer la gouvernance prévue et convenir d’un plan d’amélioration",
+        "Changer les indicateurs après coup",
+        "Cesser de mesurer la disponibilité"
+      ],
+      "answer": 1,
+      "explanation": "Les dépassements doivent déclencher une analyse et les mécanismes prévus au contrat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi évaluer la sécurité du fournisseur et de ses sous-traitants ?",
+      "choices": [
+        "Parce qu’un contrat transfère tous les risques au fournisseur",
+        "Uniquement pour remplir un questionnaire annuel",
+        "Parce que leurs accès, données et dépendances peuvent affecter la sécurité de l’organisation",
+        "Parce que la sécurité n’a pas de lien avec la continuité"
+      ],
+      "answer": 2,
+      "explanation": "Les fournisseurs et sous-traitants peuvent devenir une voie d’accès ou une source d’interruption."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une gouvernance fournisseur efficace ?",
+      "choices": [
+        "Des réunions sans ordre du jour",
+        "Un seul indicateur non expliqué",
+        "Des échanges informels sans compte rendu",
+        "Des rôles, revues périodiques, indicateurs partagés, mécanismes d’escalade et suivi d’actions"
+      ],
+      "answer": 3,
+      "explanation": "La gouvernance structure la prise de décision et assure le suivi des engagements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment comparer des offres dont les prix ne couvrent pas exactement le même service ?",
+      "choices": [
+        "Normaliser le périmètre, les exclusions, les coûts récurrents, les options et les risques avant de comparer",
+        "Classer uniquement le total initial",
+        "Ignorer les coûts de transition et de sortie",
+        "Retenir l’offre la moins détaillée"
+      ],
+      "answer": 0,
+      "explanation": "Une comparaison crédible utilise un périmètre comparable et prend en compte les coûts sur le cycle de vie."
+    }
+  ]
+}

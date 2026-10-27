@@ -1,0 +1,102 @@
+{
+  "node_id": "maint-communication-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure façon de commencer un échange avec un utilisateur qui signale une panne ?",
+      "choices": [
+        "Interrompre l’utilisateur pour proposer tout de suite une solution",
+        "Écouter, reformuler le besoin et poser des questions factuelles sur le symptôme",
+        "Promettre une résolution immédiate",
+        "Demander à l’utilisateur de trouver lui-même la cause"
+      ],
+      "answer": 1,
+      "explanation": "L’écoute et la reformulation clarifient le problème avant d’engager un diagnostic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment expliquer une panne réseau à une personne non technique ?",
+      "choices": [
+        "Utiliser uniquement les acronymes du métier",
+        "Donner une longue liste de commandes sans contexte",
+        "Décrire l’impact, ce qui est vérifié et la prochaine étape avec des mots compréhensibles",
+        "Éviter toute information jusqu’à la résolution"
+      ],
+      "answer": 2,
+      "explanation": "Une communication utile présente l’impact et les actions dans un langage adapté au destinataire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une cause n’est pas encore confirmée. Que dire à l’utilisateur ?",
+      "choices": [
+        "Présenter l’hypothèse comme un fait établi",
+        "Cacher toutes les observations",
+        "Accuser immédiatement le fournisseur",
+        "Séparer les faits des hypothèses et annoncer le prochain contrôle"
+      ],
+      "answer": 3,
+      "explanation": "Présenter honnêtement le niveau de certitude évite les conclusions hâtives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel message d’avancement est le plus professionnel ?",
+      "choices": [
+        "La panne touche les connexions du service X ; le diagnostic continue et un nouveau point sera communiqué à l’heure convenue",
+        "Tout est bientôt réparé, sans confirmation technique",
+        "Ce n’est pas notre problème",
+        "Merci de ne plus signaler la panne"
+      ],
+      "answer": 0,
+      "explanation": "Un bon point de situation contient l’impact connu, l’action en cours et la prochaine mise à jour."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi reformuler la demande avant de la traiter ?",
+      "choices": [
+        "Pour ajouter du délai au ticket",
+        "Pour confirmer que le technicien et l’utilisateur parlent du même problème",
+        "Pour éviter de collecter des faits",
+        "Pour transférer systématiquement le ticket"
+      ],
+      "answer": 1,
+      "explanation": "La reformulation révèle les malentendus et permet de définir le résultat attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur est mécontent et parle sur un ton agressif. Quelle réaction convient ?",
+      "choices": [
+        "Répondre sur le même ton",
+        "Clôturer le ticket immédiatement",
+        "Rester calme, reconnaître l’impact et recentrer l’échange sur les faits et les prochaines étapes",
+        "Garantir une résolution avant tout diagnostic"
+      ],
+      "answer": 2,
+      "explanation": "Rester factuel et calme aide à maintenir une collaboration sans faire de promesse irréaliste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information ne doit pas être publiée dans un compte rendu partagé largement ?",
+      "choices": [
+        "L’heure du début de la panne",
+        "L’impact sur le service",
+        "Les contrôles déjà réalisés",
+        "Un mot de passe ou un secret d’authentification"
+      ],
+      "answer": 3,
+      "explanation": "Les tickets et comptes rendus ne doivent jamais exposer des secrets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand peut-on annoncer qu’un incident est résolu ?",
+      "choices": [
+        "Lorsque les contrôles prévus sont réussis et que le rétablissement attendu est confirmé",
+        "Dès qu’une commande ne retourne plus d’erreur",
+        "Dès qu’un redémarrage est terminé",
+        "Lorsque l’utilisateur cesse d’envoyer des messages"
+      ],
+      "answer": 0,
+      "explanation": "La résolution se fonde sur des critères observables et, si possible, sur la confirmation du service rendu."
+    }
+  ]
+}
