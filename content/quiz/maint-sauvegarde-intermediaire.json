@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Stratégies de sauvegarde (3-2-1) » ?",
+      "prompt": "Que signifie la règle classique 3-2-1 ?",
       "choices": [
-        "Le sujet principal du cours : Stratégies de sauvegarde (3-2-1)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Trois administrateurs, deux mots de passe, un serveur",
+        "Trois copies, deux supports ou domaines différents, une copie hors site",
+        "Trois sauvegardes sur le même disque",
+        "Trois jours de rétention uniquement"
+      ],
+      "answer": 1,
+      "explanation": "La règle vise des copies indépendantes et une copie hors site, afin de limiter les défaillances communes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le RPO décrit principalement…",
+      "choices": [
+        "La quantité ou durée de données que l'on accepte de perdre",
+        "La durée du mot de passe",
+        "Le nombre de techniciens",
+        "La taille du serveur"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le RPO fixe la perte de données maximale acceptable, généralement exprimée en temps."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le RTO désigne…",
+      "choices": [
+        "Le type de support de sauvegarde",
+        "La fréquence des mises à jour",
+        "Le délai cible pour rétablir le service",
+        "La durée de conservation des journaux"
+      ],
+      "answer": 2,
+      "explanation": "Le RTO est un objectif de durée de reprise du service après interruption."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester la restauration ?",
+      "choices": [
+        "Pour remplacer la surveillance des tâches",
+        "Pour prouver que les données et la procédure permettent réellement de récupérer le service",
+        "Pour rendre l'archive plus petite",
+        "Pour éviter d'enregistrer les comptes rendus"
+      ],
+      "answer": 1,
+      "explanation": "Une sauvegarde peut être incomplète, incohérente, illisible ou impossible à restaurer sans ses dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d'utiliser trois répertoires du même disque comme trois copies ?",
+      "choices": [
+        "Il devient impossible de calculer une somme de contrôle",
+        "Le RTO est forcément nul",
+        "Les répertoires ne peuvent pas contenir de fichiers",
+        "Une panne ou une compromission du disque peut toucher toutes les copies"
+      ],
+      "answer": 3,
+      "explanation": "Les copies partagent le même domaine de défaillance et ne satisfont pas à l'indépendance recherchée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que valide la commande tar -tzf archive.tar.gz ?",
+      "choices": [
+        "Que l'application fonctionne en production",
+        "Que l'archive peut être listée et que son index est lisible",
+        "Que l'archive est stockée hors site",
+        "Que toutes les clés de chiffrement sont disponibles"
+      ],
+      "answer": 1,
+      "explanation": "Elle vérifie que l'archive peut être parcourue, mais pas que le service complet est restaurable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter l'option rsync --delete dans un premier exercice ?",
+      "choices": [
+        "Elle peut supprimer les fichiers de destination absents de la source si les chemins sont inversés",
+        "Elle chiffre systématiquement les fichiers",
+        "Elle empêche toute copie de répertoire",
+        "Elle rend le mode --dry-run impossible"
+      ],
+      "answer": 0,
+      "explanation": "Une mauvaise source ou destination avec --delete peut entraîner des suppressions. Il faut d'abord vérifier les chemins et utiliser le mode à blanc."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une sauvegarde se termine sans erreur, mais n'a jamais été restaurée. Quelle affirmation est la plus juste ?",
+      "choices": [
+        "Le RTO est démontré",
+        "La copie hors site est garantie",
+        "La restauration reste non démontrée et doit être testée",
+        "Les données sont forcément chiffrées"
+      ],
+      "answer": 2,
+      "explanation": "Le journal de succès ne prouve pas à lui seul l'intégrité fonctionnelle ni la capacité de reprise."
     }
   ]
 }

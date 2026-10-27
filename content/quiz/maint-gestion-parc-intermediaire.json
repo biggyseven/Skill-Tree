@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Gestion de parc (GLPI, OCS) » ?",
+      "prompt": "Quelle différence existe entre découverte technique et gestion des actifs ?",
       "choices": [
-        "Le sujet principal du cours : Gestion de parc (GLPI, OCS)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Aucune : les deux connaissent toujours le propriétaire métier",
+        "La découverte relève les informations observables ; la gestion des actifs maintient aussi affectation, cycle de vie et responsabilités",
+        "La gestion des actifs ne conserve jamais d'historique",
+        "La découverte garantit la conformité contractuelle"
+      ],
+      "answer": 1,
+      "explanation": "Les données techniques ne suffisent pas à établir le propriétaire, la garantie, l'état métier ou la décision de réforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil est couramment utilisé pour la gestion des services et des actifs, tandis qu'OCS Inventory collecte des informations de parc ?",
+      "choices": [
+        "Un outil de dessin",
+        "Un antivirus uniquement",
+        "GLPI",
+        "Un serveur DNS seul"
+      ],
+      "answer": 2,
+      "explanation": "GLPI peut centraliser les fiches et processus ITSM ; OCS Inventory NG fournit une collecte d'inventaire selon sa configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne pas supprimer tout de suite une machine absente de la découverte depuis un mois ?",
+      "choices": [
+        "Elle peut être hors site, éteinte, en réparation ou réinstallée ; il faut vérifier avant de changer son statut",
+        "Un actif ne peut jamais être réformé",
+        "Les inventaires ne doivent pas être mis à jour",
+        "Les adresses IP sont toujours permanentes"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Une absence de détection est un signal à vérifier, pas une preuve absolue de disparition."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle source est généralement adaptée pour confirmer l'affectation métier d'un ordinateur ?",
+      "choices": [
+        "Un ping",
+        "Un seuil CPU",
+        "Une adresse IP seule",
+        "Le processus d'affectation validé et son historique"
+      ],
+      "answer": 3,
+      "explanation": "La responsabilité métier doit être confirmée par la source d'affectation, un transfert ou un propriétaire habilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d'écraser tous les champs manuels à chaque import automatique ?",
+      "choices": [
+        "L'inventaire devient impossible à consulter",
+        "Des informations métier validées peuvent être perdues",
+        "Les numéros de série deviennent toujours uniques",
+        "Les tickets sont nécessairement chiffrés"
+      ],
+      "answer": 1,
+      "explanation": "Il faut des règles explicites de source d'autorité par champ et une revue des divergences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi conserver l'historique d'un actif réformé ?",
+      "choices": [
+        "Pour le rendre actif à nouveau automatiquement",
+        "Pour empêcher tout audit",
+        "Pour relier les anciens tickets, contrats et décisions de réforme",
+        "Pour exposer les données personnelles"
+      ],
+      "answer": 2,
+      "explanation": "Le statut historique aide à justifier les décisions et à comprendre les tickets et coûts passés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider les droits d'un agent d'inventaire ?",
+      "choices": [
+        "Le moindre privilège, avec uniquement les droits et flux nécessaires",
+        "Administrateur global sur tout le réseau",
+        "Réutilisation du compte personnel de l'utilisateur",
+        "Aucun contrôle des identifiants"
+      ],
+      "answer": 0,
+      "explanation": "Des droits excessifs élargissent l'impact potentiel d'une compromission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire lorsqu'un nom d'hôte a changé mais que l'identité de l'actif est confirmée ?",
+      "choices": [
+        "Créer toujours un nouvel actif sans vérifier",
+        "Supprimer les anciens tickets",
+        "Changer tous les identifiants de parc",
+        "Mettre à jour la fiche selon la procédure en conservant l'identifiant stable et l'historique"
+      ],
+      "answer": 3,
+      "explanation": "Le nom d'hôte est une donnée qui peut évoluer ; une mise à jour contrôlée évite les doublons et préserve l'historique."
     }
   ]
 }

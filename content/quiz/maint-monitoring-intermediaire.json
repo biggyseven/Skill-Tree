@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Supervision réseau (Nagios, Zabbix) » ?",
+      "prompt": "Un ping réussit, mais l'application web ne répond pas. Quelle conclusion est correcte ?",
       "choices": [
-        "Le sujet principal du cours : Supervision réseau (Nagios, Zabbix)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "La connectivité ICMP est testée, pas le fonctionnement de l'application",
+        "Le service web est nécessairement sain",
+        "La base de données fonctionne forcément",
+        "Il faut supprimer l'alerte"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le ping vérifie une réponse réseau ciblée. Il faut tester le port, HTTP/TLS et le parcours fonctionnel utile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert l'historique des métriques ?",
+      "choices": [
+        "À éviter tous les tests fonctionnels",
+        "À reconnaître des tendances et comparer les périodes",
+        "À remplacer les sauvegardes",
+        "À garantir qu'un seuil reste toujours juste"
+      ],
+      "answer": 1,
+      "explanation": "L'historique donne un contexte temporel pour analyser une dérive, un changement ou un incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans Zabbix, quel élément évalue une condition sur les valeurs collectées ?",
+      "choices": [
+        "Le template uniquement",
+        "Le compte utilisateur",
+        "Le trigger",
+        "Le port TCP"
+      ],
+      "answer": 2,
+      "explanation": "Un trigger évalue une expression sur les valeurs des items et participe à la détection d'un problème."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l'état UNKNOWN dans un contrôle ?",
+      "choices": [
+        "Tout fonctionne",
+        "Une panne matérielle est certaine",
+        "Le service est en maintenance planifiée dans tous les cas",
+        "La supervision ne peut pas conclure avec les éléments disponibles"
+      ],
+      "answer": 3,
+      "explanation": "UNKNOWN doit déclencher une vérification de la sonde, du réseau, des droits ou de la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment limiter les alertes répétées causées par la panne d'un routeur parent ?",
+      "choices": [
+        "Supprimer toutes les alertes de serveur",
+        "Modéliser les dépendances ou la corrélation et conserver l'alerte principale",
+        "Désactiver la supervision",
+        "Augmenter tous les seuils sans mesure"
+      ],
+      "answer": 1,
+      "explanation": "La modélisation des dépendances peut réduire les notifications en cascade sans perdre les symptômes utiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal est le plus adapté pour confirmer qu'un site web répond ?",
+      "choices": [
+        "Un ping seul",
+        "Le nombre de processeurs installé",
+        "Un contrôle HTTP/TLS adapté au service",
+        "La date de création du compte"
+      ],
+      "answer": 2,
+      "explanation": "Un contrôle HTTP/TLS teste davantage le service web que la seule connectivité ICMP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve l'acquittement d'une alerte ?",
+      "choices": [
+        "Qu'un opérateur l'a prise en charge, selon le processus",
+        "Que le service est réparé",
+        "Que la cause racine est connue",
+        "Que l'historique peut être effacé"
+      ],
+      "answer": 0,
+      "explanation": "L'acquittement indique la prise en charge, il ne remplace ni le diagnostic ni la validation du rétablissement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider le choix d'un seuil ?",
+      "choices": [
+        "Copier le seuil d'un autre réseau sans le vérifier",
+        "Choisir la valeur la plus basse possible",
+        "Ignorer l'impact métier",
+        "S'appuyer sur une référence, un historique, l'impact et l'action attendue"
+      ],
+      "answer": 3,
+      "explanation": "Les seuils doivent équilibrer détection utile et bruit, en tenant compte du service et de son comportement normal."
     }
   ]
 }
