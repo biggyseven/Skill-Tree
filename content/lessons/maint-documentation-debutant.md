@@ -52,6 +52,23 @@ Les fiches permettent d'identifier des incidents récurrents, des équipements v
 
 Une bonne documentation aide à résoudre le problème présent et à réduire la probabilité de répétition.
 
+### Schéma — choisir le bon document de support
+
+```mermaid
+flowchart TD
+    A["Information à consigner"] --> B{"Suivre une demande en cours ?"}
+    B -- "Oui" --> C["Ticket : statut, propriétaire et suivi"]
+    B -- "Non" --> D{"Décrire une intervention réalisée ?"}
+    D -- "Oui" --> E["Fiche : actions, résultats et vérifications"]
+    D -- "Non" --> F{"Décrire une suite d'actions reproductibles ?"}
+    F -- "Oui" --> G["Procédure : étapes et précautions"]
+    F -- "Non" --> H{"Analyser un incident important ?"}
+    H -- "Oui" --> I["Rapport d'incident : impact, chronologie, bilan"]
+    H -- "Non" --> J["Checklist : points à vérifier"]
+```
+
+Ces documents se complètent. Un ticket assure le suivi, la fiche décrit le travail réellement effectué, la procédure guide une action reproductible, le rapport analyse un incident et la checklist aide à éviter les oublis.
+
 ## 3. Distinguer les documents courants
 
 ### 3.1 Ticket
@@ -77,6 +94,22 @@ Le rapport d'incident peut être plus large qu'une fiche. Il peut inclure l'impa
 ### 3.5 Checklist
 
 Une checklist est une liste de contrôles à réaliser. Elle aide à éviter les oublis, mais elle ne remplace pas la consignation des résultats. Une case cochée sans preuve peut être insuffisante pour comprendre l'état réel d'un système.
+
+### Schéma — les composants d'une fiche complète
+
+```mermaid
+flowchart TD
+    A["Identification et référence du ticket"] --> B["Symptôme et impact"]
+    B --> C["État initial et contexte"]
+    C --> D["Contrôles, outils et résultats horodatés"]
+    D --> E["Actions réalisées et changements"]
+    E --> F["Cause et niveau de certitude"]
+    F --> G["Vérification et résultat utilisateur"]
+    G --> H["Statut, suites et responsable"]
+    H --> I["Contrôle de confidentialité avant partage"]
+```
+
+Une fiche n'est pas complète parce que tous les champs sont remplis : elle est complète si les informations nécessaires à la compréhension, à la reprise et à la vérification sont disponibles. Un champ inconnu doit rester explicitement inconnu.
 
 ## 4. Les informations indispensables
 
@@ -146,6 +179,24 @@ La conclusion doit décrire les tests effectués après l'action. Indique si le 
 
 Le statut doit refléter le résultat réel : en cours, temporairement rétabli, résolu selon les critères, escaladé ou en attente selon les états disponibles dans l'outil.
 
+### Schéma — de la prise en charge à la clôture documentée
+
+```mermaid
+flowchart LR
+    A["Signalement"] --> B["État initial"]
+    B --> C["Hypothèses et tests prévus"]
+    C --> D["Actions et résultats réellement observés"]
+    D --> E["Correction ou contournement"]
+    E --> F["Tests de vérification"]
+    F --> G{"Critères atteints ?"}
+    G -- "Non" --> H["Poursuivre, escalader ou retour arrière prévu"]
+    G -- "Oui" --> I["Compte rendu et validation"]
+    H --> J["Mettre à jour la fiche"]
+    I --> J
+```
+
+Cette chronologie distingue ce qui était prévu de ce qui a réellement été fait. Elle permet à un autre technicien de comprendre pourquoi une décision a été prise, quelles tentatives ont échoué et quels tests restent nécessaires.
+
 ## 5. Construire une fiche étape par étape
 
 ### Étape 1 : enregistrer le signalement
@@ -188,6 +239,23 @@ flowchart LR
 ```
 
 Le document est construit au fil de l'intervention. Il ne faut pas attendre la fin pour noter les résultats critiques, notamment lors d'une intervention complexe ou d'un incident majeur.
+
+### Schéma — transformer une impression en observation vérifiable
+
+```mermaid
+flowchart TD
+    A["Note brute : « le réseau est mauvais »"] --> B["Préciser la cible et l'heure"]
+    B --> C["Décrire le test effectué"]
+    C --> D["Consigner la sortie ou le résultat pertinent"]
+    D --> E["Indiquer les limites du test"]
+    E --> F{"La cause est-elle démontrée ?"}
+    F -- "Non" --> G["Écrire « hypothèse à vérifier »"]
+    F -- "Oui" --> H["Citer les éléments qui soutiennent la conclusion"]
+    G --> I["Définir la prochaine vérification"]
+    H --> I
+```
+
+Une bonne observation doit pouvoir être comprise et, lorsque c'est possible, reproduite par un collègue. Évite les qualificatifs vagues tels que « lent », « cassé » ou « bizarre » sans mesure, message, heure ou description du comportement.
 
 ## 6. Rédiger des observations factuelles
 
@@ -233,6 +301,20 @@ Un test qui ne confirme pas l'hypothèse reste utile. Il peut éliminer une pist
 
 Note le test et son résultat sans présenter l'échec de la recherche comme une faute. Le diagnostic est souvent une succession d'hypothèses examinées.
 
+### Schéma — documenter une commande de façon reproductible
+
+```mermaid
+flowchart TD
+    A["Question de diagnostic"] --> B["Nom de l'outil et contexte"]
+    B --> C["Commande exacte et cible"]
+    C --> D["Heure et droits utilisés si pertinents"]
+    D --> E["Résultat utile, sans données sensibles"]
+    E --> F["Interprétation et limites"]
+    F --> G["Prochaine action ou conclusion prudente"]
+```
+
+Ne note pas seulement « ping effectué » ou « commande exécutée ». Consigne la cible, le résultat utile et la signification limitée du test. Ne copie pas des sorties massives ou des secrets qui ne sont pas nécessaires à la reprise du diagnostic.
+
 ## 7. Décrire les commandes et outils
 
 ### 7.1 Une commande n'est pas une conclusion
@@ -262,6 +344,24 @@ Une capture peut prouver la présence d'un message. Avant de la joindre, vérifi
 
 Utilise le dépôt ou le ticketing prévu. Évite les copies dans des espaces personnels ou publics.
 
+### Schéma — garder la trace d'une modification et de son retour arrière
+
+```mermaid
+flowchart TD
+    A["Action corrective envisagée"] --> B["État initial et risque"]
+    B --> C["Autorisation et plan de changement"]
+    C --> D["Action réellement exécutée"]
+    D --> E["Résultat immédiat et éventuelles erreurs"]
+    E --> F["Vérification fonctionnelle"]
+    F --> G{"Résultat conforme ?"}
+    G -- "Oui" --> H["Enregistrer la configuration finale"]
+    G -- "Non" --> I["Appliquer la suite ou le retour arrière approuvé"]
+    H --> J["Consigner la décision et l'heure"]
+    I --> J
+```
+
+La fiche doit permettre de savoir ce qui a changé et comment revenir à un état sûr lorsque le plan le prévoit. Ne consigne jamais une opération envisagée comme si elle avait été exécutée.
+
 ## 8. Rédiger une action corrective claire
 
 ### 8.1 Décrire ce qui a changé
@@ -288,6 +388,24 @@ Un test ou une action infructueuse peut être important. Il faut indiquer brièv
 Les changements significatifs doivent être associés aux procédures et tickets appropriés. La fiche doit permettre de retrouver l'action, mais les secrets ne doivent pas y être exposés.
 
 Sur un système critique, l'intervention doit également conserver la validation, le plan de test et le retour arrière conformément aux règles internes.
+
+### Schéma — définir les preuves avant de déclarer l'intervention terminée
+
+```mermaid
+flowchart TD
+    A["Symptôme initial"] --> B["Définir le test qui représente le besoin utilisateur"]
+    B --> C["Choisir les critères d'acceptation"]
+    C --> D["Effectuer la correction autorisée"]
+    D --> E["Exécuter le test prévu"]
+    E --> F["Contrôler les effets secondaires et alertes"]
+    F --> G{"Critères atteints et résultat stable ?"}
+    G -- "Non" --> H["Garder ouvert, approfondir ou escalader"]
+    G -- "Oui" --> I["Noter la preuve et obtenir la validation prévue"]
+    I --> J["Clôturer selon la procédure"]
+    H --> K["Mettre à jour la fiche"]
+```
+
+La validation doit répondre au besoin initial. Par exemple, un poste qui démarre n'est pas nécessairement un poste sur lequel l'application est redevenue utilisable. Mentionne les tests non réalisés et la durée d'observation si la stabilité doit être confirmée.
 
 ## 9. Vérification après intervention
 
@@ -323,6 +441,22 @@ Lorsque c'est approprié, demande à l'utilisateur de confirmer le rétablisseme
 
 Si le service fonctionne après un redémarrage mais retombe en panne régulièrement, consigne le rétablissement temporaire et le suivi nécessaire. Le statut ne doit pas donner l'impression que la cause racine a été supprimée si ce n'est pas le cas.
 
+### Schéma — protéger les informations pendant toute la documentation
+
+```mermaid
+flowchart TD
+    A["Résultat, capture ou journal disponible"] --> B["Est-il nécessaire à la compréhension du ticket ?"]
+    B -- "Non" --> C["Ne pas le joindre"]
+    B -- "Oui" --> D{"Contient-il un secret ou une donnée personnelle ?"}
+    D -- "Oui" --> E["Masquer ou utiliser le canal approuvé"]
+    D -- "Non" --> F["Vérifier les permissions d'accès"]
+    E --> F
+    F --> G["Joindre la preuve minimale utile"]
+    G --> H["Respecter durée de conservation et règles de partage"]
+```
+
+Une fiche doit contenir assez d'information pour expliquer l'intervention, pas toutes les informations auxquelles le technicien a accès. Les mots de passe, jetons, clés privées et données personnelles inutiles ne doivent pas être copiés dans les notes.
+
 ## 10. Confidentialité et qualité des informations
 
 ### 10.1 Principe de minimisation
@@ -348,6 +482,22 @@ La politique de conservation dépend de l'organisation et des obligations applic
 ### 10.4 Erreur dans un compte rendu
 
 Si une information importante est incorrecte, corrige-la de façon traçable selon le fonctionnement de l'outil. Ne modifie pas l'historique de manière à effacer la réalité d'une décision ou d'une action.
+
+### Schéma — utiliser un modèle sans inventer les résultats
+
+```mermaid
+flowchart TD
+    A["Choisir un modèle adapté au type d'intervention"] --> B["Remplir les données connues"]
+    B --> C["Marquer les informations manquantes"]
+    C --> D["Ajouter les observations réellement collectées"]
+    D --> E["Distinguer hypothèses et conclusions"]
+    E --> F["Ajouter les actions et tests exécutés"]
+    F --> G["Vérifier les champs obligatoires"]
+    G --> H["Faire relire si la criticité l'exige"]
+    H --> I["Enregistrer dans l'outil officiel"]
+```
+
+Un modèle donne une structure, mais ne remplace pas le jugement. Il faut adapter le niveau de détail au risque, et conserver explicitement les inconnues au lieu de combler les champs par des suppositions.
 
 ## 11. Modèles de fiches
 
@@ -484,6 +634,21 @@ flowchart TD
 
 Ce contrôle prévient la clôture prématurée et les comptes rendus qui ne permettent pas de comprendre le résultat.
 
+### Schéma — assurer la reprise d'un dossier sans recommencer le diagnostic
+
+```mermaid
+flowchart LR
+    A["Fiche à jour"] --> B["Résumé du symptôme et de l'impact"]
+    B --> C["Chronologie et contrôles réalisés"]
+    C --> D["Résultats et actions déjà tentées"]
+    D --> E["État actuel et risques connus"]
+    E --> F["Hypothèses et questions ouvertes"]
+    F --> G["Prochaine action et équipe responsable"]
+    G --> H["Transmission et confirmation de prise en charge"]
+```
+
+Une transmission efficace indique clairement où le travail s'est arrêté et quelle décision est attendue. Le prochain technicien doit pouvoir distinguer les tests exécutés des tests proposés et ne pas croire qu'une action a réussi si son résultat n'a pas été vérifié.
+
 ## 14. Transmission à un autre technicien
 
 ### 14.1 Pourquoi une transmission peut être nécessaire
@@ -519,6 +684,21 @@ flowchart LR
 
 Le schéma montre l'objectif principal de la traçabilité : conserver une continuité entre les personnes, pas multiplier les documents pour eux-mêmes.
 
+### Schéma — améliorer la qualité de la documentation à partir de retours
+
+```mermaid
+flowchart TD
+    A["Examiner un échantillon de fiches clôturées"] --> B["Évaluer complétude et clarté"]
+    B --> C["Identifier les champs souvent manquants"]
+    C --> D["Chercher les causes : modèle, formation ou processus"]
+    D --> E["Proposer une amélioration concrète"]
+    E --> F["Mettre à jour le modèle ou la formation"]
+    F --> G["Réexaminer un échantillon après changement"]
+    G --> H["Comparer la qualité sans pousser à remplir artificiellement"]
+```
+
+L'objectif est que la fiche serve réellement au diagnostic, à la continuité et à l'audit. Une métrique de complétude ne doit pas encourager des réponses inventées ni des clôtures hâtives : la qualité du contenu compte plus que le nombre de champs remplis.
+
 ## 15. Indicateurs et amélioration des fiches
 
 ### 15.1 Taux de tickets réouverts
@@ -540,6 +720,40 @@ En associant les tickets similaires, l'équipe peut identifier des problèmes r�
 ### 15.5 Ne pas transformer la mesure en objectif aveugle
 
 Réduire le temps passé à documenter peut faire baisser un indicateur à court terme, mais augmenter les reprises et les risques. Le but est de produire le niveau de documentation adapté à l'importance du travail.
+
+## Parcours pratique du débutant
+
+Prévois 45 à 60 minutes dans un environnement de formation, avec un scénario fictif. Tu vas apprendre à documenter des faits ; tu ne dois pas prétendre qu'une intervention a été réellement réalisée ni inclure de vraies données sensibles.
+
+### Étape 1 — Définir le contexte
+
+Scénario : un utilisateur indique qu'une application métier ne s'ouvre plus sur son poste. Écris la référence fictive du ticket, le symptôme exact disponible, l'heure approximative et l'impact connu. Marque explicitement les informations absentes : message d'erreur, autres utilisateurs concernés, changement récent ou résultat réseau.
+
+### Étape 2 — Formuler le test avant son exécution
+
+Choisis une hypothèse raisonnable, puis indique quel test autorisé pourrait l'évaluer. Précise l'outil, la cible et le résultat attendu. Comme tu travailles à partir d'un cas fictif, indique « test proposé » au lieu d'inventer une sortie de commande.
+
+### Étape 3 — Distinguer les faits des hypothèses
+
+Crée deux colonnes dans ta fiche. Dans « faits », inscris uniquement ce que le scénario confirme. Dans « hypothèses », indique les explications possibles et les éléments qui permettraient de les vérifier. Une cause inconnue doit rester « à confirmer ».
+
+### Étape 4 — Enregistrer les actions
+
+Utilise une chronologie simple : heure, action, résultat, décision. Si une tentative échoue ou n'est pas autorisée, note-le également. Ne déclare jamais qu'un service a été redémarré, qu'un pilote a été remplacé ou qu'une application fonctionne si le scénario ne fournit pas cette information.
+
+### Étape 5 — Définir le contrôle après intervention
+
+Décris comment tu vérifierais que le besoin initial est satisfait : reproduire le scénario utilisateur, vérifier le service concerné et observer les erreurs pertinentes. Définis ce qui permettrait de conclure et ce qui obligerait à garder le ticket ouvert.
+
+### Étape 6 — Contrôler les informations jointes
+
+Prépare la liste minimale de preuves nécessaires, par exemple un message d'erreur assaini et le résultat d'un test. Ne joins ni mot de passe, ni jeton, ni données personnelles inutiles. Choisis un canal et un emplacement de stockage autorisés.
+
+### Étape 7 — Rédiger le résumé transmissible
+
+Écris un résumé d'une dizaine de lignes destiné à un autre technicien : symptôme, impact, faits, contrôles effectués ou proposés, résultats connus, risques, statut et prochaine action. Le lecteur doit comprendre exactement où en est le dossier.
+
+**Critère de réussite :** une personne qui n'a pas assisté à l'intervention peut comprendre le contexte, différencier les faits des suppositions, identifier ce qui a été réellement fait et poursuivre le travail sans devoir reconstruire tout l'historique.
 
 ## 16. Travaux pratiques
 
