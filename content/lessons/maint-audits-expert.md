@@ -954,7 +954,103 @@ Consulte toujours l’édition applicable à la date de la mission et vérifie l
 
 Pour une mission réelle, complète ces références par les politiques de l’organisation, les contrats, les exigences sectorielles et les obligations légales qui s’appliquent effectivement au service audité. Documente la version utilisée : une référence peut évoluer, et un audit reproductible doit pouvoir être relu avec les critères en vigueur au moment de la mission.
 
-## 19. Conclusion
+## 19. Schémas Mermaid de synthèse
+
+Les schémas suivants sont des modèles à adapter au mandat. Ils résument le raisonnement d’audit sans remplacer le détail des tests, des critères et des preuves.
+
+### 19.1 Cycle de vie d’une mission
+
+```mermaid
+flowchart TD
+    A[Mandat et objectifs] --> B[Périmètre et critères]
+    B --> C[Analyse des risques]
+    C --> D[Plan de tests et échantillons]
+    D --> E[Collecte des preuves]
+    E --> F[Corroboration et comparaison]
+    F --> G[Constats factuels]
+    G --> H[Rapport et décisions]
+    H --> I[Actions correctives]
+    I --> J[Vérification de l'efficacité]
+    J -->|Échec| I
+    J -->|Efficace| K[Clôture documentée]
+```
+
+### 19.2 Relier un risque à un test
+
+```mermaid
+flowchart LR
+    A[Objectif métier] --> B[Événement redouté]
+    B --> C[Impact et probabilité]
+    C --> D[Contrôle attendu]
+    D --> E[Question d'audit]
+    E --> F[Test précis]
+    F --> G[Preuve vérifiable]
+    G --> H[Conclusion limitée au périmètre]
+```
+
+### 19.3 Corroborer une preuve
+
+```mermaid
+flowchart TD
+    A[Affirmation d'un responsable] --> B[Procédure ou politique]
+    A --> C[Journal technique]
+    A --> D[Ticket ou approbation]
+    B --> E[Comparer les sources]
+    C --> E
+    D --> E
+    E --> F{Sources cohérentes ?}
+    F -->|Oui| G[Conclusion soutenue]
+    F -->|Non| H[Demander des compléments]
+    H --> E
+```
+
+### 19.4 Tester un contrôle
+
+```mermaid
+flowchart TD
+    A[Contrôle déclaré] --> B{Conception adaptée ?}
+    B -->|Non| C[Constat de conception]
+    B -->|Oui| D{Contrôle exécuté ?}
+    D -->|Non| E[Constat de fonctionnement]
+    D -->|Oui| F{Preuve complète et fiable ?}
+    F -->|Non| G[Étendre ou limiter la conclusion]
+    F -->|Oui| H[Comparer aux critères]
+    H --> I[Constat et risque]
+```
+
+### 19.5 Suivre une action jusqu’au résultat
+
+```mermaid
+flowchart TD
+    A[Constat validé] --> B[Correction immédiate si nécessaire]
+    B --> C[Analyse de la cause]
+    C --> D[Action corrective et responsable]
+    D --> E[Échéance et résultat attendu]
+    E --> F[Preuve de mise en œuvre]
+    F --> G[Test d'efficacité]
+    G -->|Insuffisant| C
+    G -->|Satisfaisant| H[Clôture approuvée]
+```
+
+### 19.6 Distinguer la responsabilité du fournisseur et celle du client
+
+```mermaid
+flowchart LR
+    A[Service utilisé] --> B[Contrôles du fournisseur]
+    A --> C[Configuration du client]
+    A --> D[Contrôles partagés]
+    B --> E[Rapport fournisseur et réserves]
+    C --> F[Preuves du tenant et des usages]
+    D --> G[Responsabilités contractuelles]
+    E --> H[Analyse des lacunes]
+    F --> H
+    G --> H
+    H --> I[Conclusion sur le périmètre réellement couvert]
+```
+
+Ces schémas doivent rester cohérents avec la mission réelle. Si le périmètre ne permet pas de tester une étape, note la limitation au lieu de la considérer comme validée.
+
+## 20. Conclusion
 
 Un audit technique expert n’est pas une chasse aux erreurs et ne se limite pas à une longue checklist. C’est une méthode pour savoir si les contrôles importants existent, s’ils sont bien conçus, s’ils fonctionnent dans la réalité et s’ils réduisent suffisamment les risques. Chaque conclusion doit être traçable jusqu’à des critères et à des preuves ; chaque limite doit être déclarée ; chaque action importante doit avoir un responsable, une échéance et une preuve de réussite.
 
