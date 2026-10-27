@@ -1,0 +1,736 @@
+{
+  "schema_version": 2,
+  "id": "lab_tshoot_dns",
+  "title": "Lab : dépannage DNS",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "prompt": "Diagnostiquez une résolution DNS défaillante. Définissez le serveur DNS primaire, le forwarder, l’enregistrement A du service, puis autorisez la récursion tout en empêchant les transferts de zone non contrôlés.",
+  "objectives": [
+    "Définir DB1 comme serveur DNS primaire simulé.",
+    "Configurer 1.1.1.1 comme forwarder.",
+    "Associer app.skilltree.local à 10.10.10.20.",
+    "Activer la récursion DNS.",
+    "Désactiver les transferts de zone non autorisés."
+  ],
+  "hints": [
+    "Sur la CLI de APP1, saisissez enable puis configure terminal.",
+    "Exécutez : workload dns primary_server 10.10.10.30.",
+    "Exécutez : workload dns forwarder 1.1.1.1.",
+    "Exécutez : workload dns record_a app.skilltree.local=10.10.10.20.",
+    "Exécutez : workload dns recursion_enabled enabled.",
+    "Exécutez : workload dns zone_transfer disabled.",
+    "Utilisez show workloads pour relire l’état structuré avant de lancer « Vérifier »."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-lab_tshoot_dns",
+    "metadata": {
+      "name": "Lab : dépannage DNS",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 320,
+        "y": 120,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "LAN interne",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit FW1",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "Layer 2",
+        "x": 300,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Uplink R1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Poste utilisateur 1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Poste utilisateur 2",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/4",
+            "name": "Fa0/4",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Web frontend A",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/5",
+            "name": "Fa0/5",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Web frontend B",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/6",
+            "name": "Fa0/6",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Base de données",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "model": "PC",
+        "x": 90,
+        "y": 450,
+        "label": "PC1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Poste utilisateur 1",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "model": "PC",
+        "x": 230,
+        "y": 490,
+        "label": "PC2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.11",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Poste utilisateur 2",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP1",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 500,
+        "y": 430,
+        "label": "APP1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur applicatif A",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {
+            "dns": {
+              "primary_server": "non-configure",
+              "forwarder": "non-configure",
+              "record_a": "non-configure",
+              "recursion_enabled": false,
+              "zone_transfer": true
+            }
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP2",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 670,
+        "y": 490,
+        "label": "APP2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.21",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur applicatif B",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "DB1",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 850,
+        "y": 430,
+        "label": "DB1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.30",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Base de données",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DB1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "FW1",
+        "type": "firewall",
+        "model": "Linux Firewall",
+        "x": 510,
+        "y": 170,
+        "label": "FW1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Inside R1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "eth1",
+            "name": "eth1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Outside",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "FW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "model": "Cloud",
+        "x": 800,
+        "y": 160,
+        "label": "INTERNET",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Upstream Internet",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "INTERNET",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/4"
+        },
+        "to": {
+          "node": "APP1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L5",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/5"
+        },
+        "to": {
+          "node": "APP2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L6",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/6"
+        },
+        "to": {
+          "node": "DB1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L7",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "FW1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L8",
+        "from": {
+          "node": "FW1",
+          "port": "eth1"
+        },
+        "to": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 2
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "dns-primary_server",
+        "description": "Définir DB1 comme serveur DNS primaire simulé.",
+        "device": "APP1",
+        "path": "config.workloads.dns.primary_server",
+        "operator": "equals",
+        "expected": "10.10.10.30"
+      },
+      {
+        "id": "dns-forwarder",
+        "description": "Configurer 1.1.1.1 comme forwarder.",
+        "device": "APP1",
+        "path": "config.workloads.dns.forwarder",
+        "operator": "equals",
+        "expected": "1.1.1.1"
+      },
+      {
+        "id": "dns-record_a",
+        "description": "Associer app.skilltree.local à 10.10.10.20.",
+        "device": "APP1",
+        "path": "config.workloads.dns.record_a",
+        "operator": "equals",
+        "expected": "app.skilltree.local=10.10.10.20"
+      },
+      {
+        "id": "dns-recursion_enabled",
+        "description": "Activer la récursion DNS.",
+        "device": "APP1",
+        "path": "config.workloads.dns.recursion_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dns-zone_transfer",
+        "description": "Désactiver les transferts de zone non autorisés.",
+        "device": "APP1",
+        "path": "config.workloads.dns.zone_transfer",
+        "operator": "equals",
+        "expected": false
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 120,
+  "badges": [
+    "first_blood"
+  ]
+}

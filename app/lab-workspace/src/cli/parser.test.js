@@ -120,3 +120,21 @@ test('ip access-group refuse une direction ou un numéro invalide', () => {
   assert.match(parser.execute('ip access-group nope in').output, /Invalid input/);
   assert.equal(device.ports[0].access_group_in, undefined);
 });
+
+test('workload CLI enregistre un état structuré typé et l’affiche dans running-config', () => {
+  const device = makeDevice();
+  const parser = new CLIParser(device);
+  parser.execute('enable');
+  parser.execute('configure terminal');
+  assert.equal(parser.execute('workload database engine postgresql').output, '');
+  assert.equal(parser.execute('workload database replication enabled').output, '');
+  assert.equal(parser.execute('workload database max_connections 200').output, '');
+  assert.deepEqual(device.config.workloads.database, { engine: 'postgresql', replication: true, max_connections: 200 });
+  assert.match(parser.execute('workload unknown engine postgresql').output, /Invalid workload setting/);
+  parser.execute('end');
+  const running = parser.execute('show running-config').output;
+  assert.match(running, /workload database engine postgresql/);
+  assert.match(running, /workload database replication enabled/);
+  assert.match(running, /workload database max_connections 200/);
+  assert.match(parser.execute('show workloads').output, /\"max_connections\": 200/);
+});
