@@ -64,8 +64,10 @@ class LabV2CatalogIntegrityTests(unittest.TestCase):
     def test_dhcp_nat_checks_the_structured_state_written_by_cli(self) -> None:
         _, payload = self.payloads["dhcp-nat"]
         rules = payload.get("check", {}).get("rules", [])
-        pool_rule = next((rule for rule in rules if rule.get("path") == "config.protocols.dhcp.pools"), None)
+        rules_by_id = {rule.get("id"): rule for rule in rules}
+        pool_rule = rules_by_id.get("r1_dhcp_pool")
         self.assertIsNotNone(pool_rule, "Le contrôle DHCP doit cibler les pools structurés écrits par la CLI.")
+        self.assertEqual((pool_rule or {}).get("path"), "config.protocols.dhcp.pools")
         self.assertEqual((pool_rule or {}).get("operator"), "contains")
         expected = (pool_rule or {}).get("expected") or {}
         self.assertEqual(expected.get("name"), "LAN-CLIENTS")
@@ -74,6 +76,29 @@ class LabV2CatalogIntegrityTests(unittest.TestCase):
         self.assertEqual(expected.get("default_router"), "192.168.1.1")
         self.assertEqual(expected.get("dns_server"), "192.168.1.53")
         self.assertEqual(expected.get("lease_days"), 7)
+        exclusion = rules_by_id.get("r1_dhcp_exclusion")
+        self.assertIsNotNone(exclusion, "La plage réservée doit être validée.")
+        self.assertEqual((exclusion or {}).get("path"), "config.protocols.dhcp.excluded_addresses")
+        nat_expectations = {
+            "r1_nat_acl": ("config.acls", "contains", "1 permit 192.168.1.0 0.0.0.255"),
+            "r1_nat_inside": ("ports[0].nat_role", "equals", "inside"),
+            "r1_nat_outside": ("ports[1].nat_role", "equals", "outside"),
+            "r1_nat_overload": ("config.protocols.nat", "equals", {
+                "acl_number": 1, "outside_interface": "Fa0/1", "overload": True
+            }),
+        }
+        for rule_id, (path, operator, expected_value) in nat_expectations.items():
+            with self.subTest(rule=rule_id):
+                self.assertIn(rule_id, rules_by_id, f"Assertion NAT manquante : {rule_id}")
+                self.assertEqual(rules_by_id[rule_id].get("path"), path)
+                self.assertEqual(rules_by_id[rule_id].get("operator"), operator)
+                self.assertEqual(rules_by_id[rule_id].get("expected"), expected_value)
+        nodes = payload.get("initial_topology", {}).get("nodes", [])
+        self.assertIn("ISP", {node.get("id") for node in nodes}, "Le WAN doit être visible dans la topologie.")
+        self.assertTrue(any(
+            {((link.get("from") or {}).get("node")), ((link.get("to") or {}).get("node"))} == {"R1", "ISP"}
+            for link in payload.get("initial_topology", {}).get("links", [])
+        ), "La topologie doit relier R1 au routeur WAN simulé.")
         self.assertFalse(any("pas prises en charge" in hint for hint in payload.get("hints", [])))
 
     def test_cli_trunk_lab_has_two_switches_and_checks_both_ends(self) -> None:
