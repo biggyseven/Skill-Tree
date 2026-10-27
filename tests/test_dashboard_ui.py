@@ -720,6 +720,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
             self.assertIn(f"this.dashboardDataErrors.{error_key} = null;", body)
             self.assertIn(f"this.dashboardDataErrors.{error_key} =", body)
             if method == "loadStats":
+                self.assertIn("if (this.statsLoaded && !force && !this.dashboardDataErrors.stats)", body)
                 self.assertIn("this.statsLoaded = true;", body)
             self.assertIn("catch (e)", body)
 
@@ -905,8 +906,10 @@ class DashboardUiRegressionTests(unittest.TestCase):
         method = DASHBOARD_HTML[start:end]
         self.assertIn("if (!r.ok) throw new Error", method)
         self.assertIn("Array.isArray(d.cards)", method)
+        self.assertIn("if (this.flashcardsLoaded && !force && !this.cardLoadError)", method)
         self.assertIn("this.flashcardsLoaded = true;", method)
         self.assertIn("this.flashcardDeckSignature !== this.cardDeckSignature()", method)
+        self.assertIn("this.flashcardDeckSignature = signature;", method)
         self.assertIn("this.cardLoadError =", method)
         self.assertIn("finally", method)
 
