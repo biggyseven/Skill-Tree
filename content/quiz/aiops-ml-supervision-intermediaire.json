@@ -1,0 +1,66 @@
+{
+  "node_id": "aiops-ml-supervision-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Comment éviter une fuite temporelle dans un modèle prédisant une congestion dans quinze minutes ?",
+      "choices": [
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Définir le résultat opérationnel, les sources autorisées, le contexte et les critères de succès avant de choisir une technique.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée."
+      ],
+      "answer": 2,
+      "explanation": "Dans ML pour la supervision réseau, le choix commence par un problème mesurable. Créer des variables temporelles et évaluer des modèles de supervision réseau. Une définition claire permet de comparer les alternatives et de refuser une solution qui n'améliore pas le service. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une alerte apparaît tous les jours pendant les sauvegardes planifiées. Quelle amélioration tester ?",
+      "choices": [
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Comparer à une baseline, examiner rappel à l'horizon défini et analyser les erreurs selon la criticité plutôt que s'appuyer sur un seul score global.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance."
+      ],
+      "answer": 1,
+      "explanation": "La mesure rappel à l'horizon défini n'a de sens qu'avec une baseline et des cas représentatifs. Examiner les erreurs par cohorte évite qu'une moyenne masque la dégradation d'un site critique. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le MAE est bon mais le modèle manque les congestions critiques de certains liens. Quel contrôle manque ?",
+      "choices": [
+        "Limiter privilèges et périmètre, vérifier les préconditions, obtenir les approbations nécessaires et préparer des postconditions et un rollback testables.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements."
+      ],
+      "answer": 0,
+      "explanation": "La sécurité doit limiter l'impact avant l'action. Une opération est acceptée seulement si les droits, le périmètre, les préconditions et la manière de vérifier le résultat sont définis ; la commande seule ne prouve pas le succès. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La capacité WAN double après une migration, mais le modèle conserve ses anciennes caractéristiques. Quel risque apparaît ?",
+      "choices": [
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Reconstituer la chronologie, garder les données manquantes visibles, confronter plusieurs hypothèses et utiliser un test qui les distingue."
+      ],
+      "answer": 3,
+      "explanation": "Une chronologie et des hypothèses concurrentes diminuent le risque de conclure trop tôt. Les preuves et contre-indices doivent être conservés ; si elles sont insuffisantes, l'équipe doit s'abstenir ou escalader. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contexte rend une prédiction utile au centre de supervision ?",
+      "choices": [
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Déployer progressivement, surveiller qualité et dérive, mesurer un résultat indépendant et conserver une voie de restauration.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires."
+      ],
+      "answer": 2,
+      "explanation": "Un déploiement progressif réduit l'impact d'une erreur. La surveillance doit inclure la qualité des données et le résultat opérationnel ; le rollback doit être disponible et testé. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    }
+  ]
+}
