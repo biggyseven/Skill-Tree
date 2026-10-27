@@ -3,19 +3,22 @@
   "id": "qos-expert",
   "title": "QoS expert — Shaping hiérarchique, WRED et policing",
   "level": "expert",
-  "module": "Configurez une policy QoS hiérarchique : shaping parent à 50 Mbit/s, priorité bornée pour le trafic temps réel, bande passante garantie pour la classe business, WRED et policing restrictif pour le trafic scavenger.",
-  "prompt": [
+  "module": "Administration Réseaux",
+  "prompt": "Configurez une policy QoS hiérarchique : shaping parent à 50 Mbit/s, priorité bornée pour le trafic temps réel, bande passante garantie pour la classe business, WRED et policing restrictif pour le trafic scavenger.",
+  "objectives": [
     "Activer le shaping parent.",
     "Réserver des ressources à la voix et au trafic business.",
     "Activer WRED pour gérer la congestion.",
     "Abandonner le trafic scavenger excédentaire."
   ],
-  "objectives": [
+  "hints": [
     "La somme des garanties de bande passante doit rester compatible avec le débit disponible.",
     "La priorité stricte doit être limitée.",
     "WRED réduit les effets de congestion avant la file pleine."
   ],
-  "hints": {
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-qos-expert",
     "metadata": {
@@ -206,70 +209,67 @@
       "event_log": []
     }
   },
-  "duration_min": 30,
-  "difficulty": "expert",
-  "initial_topology": [
-    {
-      "id": "parent-shaper",
-      "description": "Le shaping parent est activé.",
-      "device": "R1",
-      "path": "config.routes[0].parent_shaper.enabled",
-      "operator": "equals",
-      "expected": true
-    },
-    {
-      "id": "shape-rate",
-      "description": "Le shaping parent est fixé à 50 Mbit/s.",
-      "device": "R1",
-      "path": "config.routes[0].parent_shaper.rate_kbps",
-      "operator": "equals",
-      "expected": 50000
-    },
-    {
-      "id": "realtime",
-      "description": "La classe temps réel réserve 20 % de priorité.",
-      "device": "R1",
-      "path": "config.routes[0].classes[0].priority_percent",
-      "operator": "equals",
-      "expected": 20
-    },
-    {
-      "id": "business-bandwidth",
-      "description": "La classe business réserve 40 % de bande passante.",
-      "device": "R1",
-      "path": "config.routes[0].classes[1].bandwidth_percent",
-      "operator": "equals",
-      "expected": 40
-    },
-    {
-      "id": "wred",
-      "description": "WRED est activé sur la classe business.",
-      "device": "R1",
-      "path": "config.routes[0].classes[1].wred",
-      "operator": "equals",
-      "expected": true
-    },
-    {
-      "id": "scavenger-police",
-      "description": "Le trafic scavenger excédentaire est abandonné.",
-      "device": "R1",
-      "path": "config.routes[0].classes[2].police_action",
-      "operator": "equals",
-      "expected": "drop"
-    },
-    {
-      "id": "policy",
-      "description": "La policy hiérarchique correcte est utilisée.",
-      "device": "R1",
-      "path": "config.routes[0].policy_map",
-      "operator": "equals",
-      "expected": "CORE-HIERARCHICAL"
-    }
-  ],
   "check": {
     "type": "config_assertions",
     "pass_threshold": 1,
-    "rules": 40,
+    "rules": [
+      {
+        "id": "parent-shaper",
+        "description": "Le shaping parent est activé.",
+        "device": "R1",
+        "path": "config.routes[0].parent_shaper.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "shape-rate",
+        "description": "Le shaping parent est fixé à 50 Mbit/s.",
+        "device": "R1",
+        "path": "config.routes[0].parent_shaper.rate_kbps",
+        "operator": "equals",
+        "expected": 50000
+      },
+      {
+        "id": "realtime",
+        "description": "La classe temps réel réserve 20 % de priorité.",
+        "device": "R1",
+        "path": "config.routes[0].classes[0].priority_percent",
+        "operator": "equals",
+        "expected": 20
+      },
+      {
+        "id": "business-bandwidth",
+        "description": "La classe business réserve 40 % de bande passante.",
+        "device": "R1",
+        "path": "config.routes[0].classes[1].bandwidth_percent",
+        "operator": "equals",
+        "expected": 40
+      },
+      {
+        "id": "wred",
+        "description": "WRED est activé sur la classe business.",
+        "device": "R1",
+        "path": "config.routes[0].classes[1].wred",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "scavenger-police",
+        "description": "Le trafic scavenger excédentaire est abandonné.",
+        "device": "R1",
+        "path": "config.routes[0].classes[2].police_action",
+        "operator": "equals",
+        "expected": "drop"
+      },
+      {
+        "id": "policy",
+        "description": "La policy hiérarchique correcte est utilisée.",
+        "device": "R1",
+        "path": "config.routes[0].policy_map",
+        "operator": "equals",
+        "expected": "CORE-HIERARCHICAL"
+      }
+    ],
     "time_bonus": {}
   },
   "xp_reward": 45,
