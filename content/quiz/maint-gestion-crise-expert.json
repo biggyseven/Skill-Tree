@@ -4,147 +4,195 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle principal du RTO ?",
+      "prompt": "Une alerte indique que plusieurs services critiques sont indisponibles, mais la cause est inconnue. Quelle approche d'activation est la plus défendable ?",
       "choices": [
-        "Indiquer le délai cible de reprise d'un service",
-        "Définir la fréquence des sauvegardes uniquement",
-        "Mesurer le temps de détection",
-        "Désigner le coordinateur de crise"
-      ],
-      "answer": 0,
-      "explanation": "Le RTO est un objectif de délai de rétablissement validé par rapport au besoin métier."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que représente le RPO ?",
-      "choices": [
-        "La durée maximale d'un exercice",
-        "Le point de données jusqu'auquel la restauration doit être possible",
-        "Le délai d'accusé de réception d'un ticket",
-        "Le coût de la stratégie de secours"
+        "Attendre la confirmation définitive de la cause avant de contacter les décideurs",
+        "Activer provisoirement la coordination selon les critères approuvés, consigner l'incertitude et réévaluer",
+        "Déclarer immédiatement une cyberattaque sans preuve",
+        "Laisser chaque équipe appliquer sa propre stratégie de reprise"
       ],
       "answer": 1,
-      "explanation": "Le RPO exprime une perte de données maximale acceptable selon la définition approuvée."
+      "explanation": "L'activation vise à coordonner les décisions face à l'impact et à l'incertitude. Une activation provisoire peut être adaptée si les seuils le permettent ; elle ne confirme pas une cause."
     },
     {
       "type": "qcm",
-      "prompt": "Une sauvegarde a réussi. Quelle conclusion est justifiée ?",
+      "prompt": "Quelle affirmation décrit correctement la relation entre MTPD et RTO ?",
       "choices": [
-        "Le PRA est validé",
-        "La reprise complète respectera le RTO",
-        "La sauvegarde a produit un résultat déclaré positif, mais la restauration doit encore être testée",
-        "La communication de crise est terminée"
+        "Le RTO est le délai technique d'une seule machine et n'inclut jamais la validation",
+        "Le MTPD et le RTO sont des synonymes",
+        "Le RTO cible doit être cohérent avec le temps avant que l'impact métier devienne inacceptable, validation comprise selon le périmètre défini",
+        "Le MTPD est déterminé uniquement par la capacité du site de secours"
       ],
       "answer": 2,
-      "explanation": "Une exécution de sauvegarde ne prouve pas la restauration, l'intégrité ni la disponibilité des dépendances."
+      "explanation": "Le MTPD représente la période maximale tolérable de perturbation selon les critères métier. Le RTO est un objectif de reprise ; il doit être cohérent avec le besoin et le délai réel de retour au service convenu."
     },
     {
       "type": "qcm",
-      "prompt": "Qui doit activer la cellule de crise ?",
+      "prompt": "Le RTO est de deux heures, mais l'estimation exclut l'activation des accès de secours et les tests métier. Quelle conclusion faut-il tirer ?",
       "choices": [
-        "Toute personne sans règle de notification",
-        "Uniquement le fournisseur principal",
-        "Le technicien le plus ancien",
-        "Le rôle habilité par les critères et la chaîne d'escalade"
-      ],
-      "answer": 3,
-      "explanation": "L'autorité d'activation et ses suppléants sont définis dans le plan."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi la BIA est-elle importante ?",
-      "choices": [
-        "Elle relie les interruptions à leurs conséquences et priorités métier",
-        "Elle fournit automatiquement les mots de passe",
-        "Elle remplace les tests de reprise",
-        "Elle garantit une absence de panne"
-      ],
-      "answer": 0,
-      "explanation": "La BIA sert à prioriser les activités, dépendances et objectifs de continuité."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel résultat prouve le mieux la reprise d'un service ?",
-      "choices": [
-        "Une machine virtuelle est démarrée",
-        "Les tests techniques et métier convenus réussissent dans les objectifs",
-        "Le fournisseur confirme que le serveur est prêt",
-        "Le ticket est marqué fermé"
+        "L'objectif est démontré puisque la restauration technique prend moins de deux heures",
+        "Les temps omis doivent être inclus ou justifiés par un chevauchement démontré, puis l'objectif doit être retesté",
+        "Il faut automatiquement supprimer les tests métier",
+        "Le RTO peut être réécrit après l'incident pour correspondre au temps mesuré"
       ],
       "answer": 1,
-      "explanation": "La reprise exige des critères de service et de cohérence des données, pas seulement un démarrage technique."
+      "explanation": "Un RTO de bout en bout doit prendre en compte les étapes nécessaires au service défini. Une estimation partielle mesure une étape technique, pas forcément la reprise du service."
     },
     {
       "type": "qcm",
-      "prompt": "Que doit contenir un journal de crise ?",
+      "prompt": "Une réplication très récente est disponible après une suppression accidentelle. Pourquoi n'est-elle pas nécessairement la meilleure source de reprise ?",
       "choices": [
-        "Seulement la liste des personnes présentes",
-        "Une conclusion sans chronologie",
-        "Faits, décisions, responsables, échéances et horodatages",
-        "Uniquement les communications externes"
+        "La réplication est toujours plus lente que la sauvegarde",
+        "Une réplication ne peut jamais être utilisée pour une reprise",
+        "Elle a pu répliquer la suppression ou la corruption logique",
+        "Elle n'inclut jamais de données"
       ],
       "answer": 2,
-      "explanation": "Un journal commun permet de suivre les décisions et la situation évolutive."
+      "explanation": "La réplication peut réduire la perte liée à certains types de panne, mais elle peut aussi propager une erreur logique. La source doit être choisie selon le scénario et l'intégrité."
     },
     {
       "type": "qcm",
-      "prompt": "Que faire si le PRA dépasse le RTO ?",
+      "prompt": "L'application est démarrée sur le site secondaire, mais les utilisateurs ne peuvent pas s'authentifier. Quelle faiblesse est la plus probable ?",
       "choices": [
-        "Modifier le RTO dans le rapport après le test",
-        "Cacher l'écart si le service revient",
-        "Fermer l'exercice puisque le système fonctionne",
-        "Documenter l'écart, informer les décideurs et convenir d'actions correctives"
-      ],
-      "answer": 3,
-      "explanation": "Un objectif ne doit pas être réécrit a posteriori pour faire apparaître une réussite."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi un mode dégradé doit-il être décrit ?",
-      "choices": [
-        "Pour préciser capacités, limites, contrôles compensatoires et retour au mode normal",
-        "Pour supprimer le besoin d'autorisation",
-        "Pour garantir que toutes les données seront synchronisées",
-        "Pour empêcher l'utilisateur d'être informé"
+        "La stratégie a vérifié l'application mais pas la dépendance commune d'identité",
+        "Le service doit être déclaré restauré puisque le serveur est démarré",
+        "Il suffit de partager un compte administrateur permanent",
+        "Le problème est uniquement un défaut de communication"
       ],
       "answer": 0,
-      "explanation": "Le mode dégradé doit être contrôlé et limité, avec des critères d'arrêt et de rapprochement."
+      "explanation": "L'identité est une dépendance de bout en bout. La redondance applicative ne garantit pas que les services partagés et les accès opérateur sont disponibles."
     },
     {
       "type": "qcm",
-      "prompt": "Quel exercice teste surtout la coordination et les décisions sans bascule technique réelle ?",
+      "prompt": "Quelle entrée de journal de crise est la plus utile pour un audit et une relève ?",
       "choices": [
-        "Restauration complète en production",
-        "Exercice sur table",
-        "Effacement d'une base",
-        "Remplacement du fournisseur"
-      ],
-      "answer": 1,
-      "explanation": "Un exercice sur table permet de tester rôles, communications et décisions sans exécuter une reprise réelle."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que faut-il vérifier pour les dépendances de reprise ?",
-      "choices": [
-        "Uniquement les serveurs applicatifs",
-        "Les licences uniquement",
-        "Identité, réseau, DNS, certificats, secrets, fournisseurs et données",
-        "Seulement l'interface utilisateur"
-      ],
-      "answer": 2,
-      "explanation": "La reprise peut échouer si une dépendance indispensable reste indisponible."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quand clôturer une action issue d'un exercice ?",
-      "choices": [
-        "Dès que le ticket est fermé",
-        "Quand l'équipe a assisté à la réunion",
-        "Après changement du statut documentaire",
-        "Après preuve de mise en œuvre et test d'efficacité adapté"
+        "« Tout va mal, on cherche encore »",
+        "Une copie intégrale non structurée de tous les messages de discussion",
+        "Une conclusion sans heure ni responsable",
+        "Une décision horodatée, les faits et incertitudes, le décideur, le responsable d'exécution, la condition et le résultat"
       ],
       "answer": 3,
-      "explanation": "La clôture requiert une vérification du résultat, pas seulement une déclaration."
+      "explanation": "Le journal doit permettre de comprendre la chronologie, les raisons des décisions et les actions encore ouvertes, plutôt que reproduire un flux de messages."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une suspicion de rançongiciel, pourquoi ne faut-il pas restaurer automatiquement la sauvegarde la plus récente ?",
+      "choices": [
+        "Parce que toutes les sauvegardes sont inutilisables après un incident cyber",
+        "Parce que le point le plus récent peut être compromis, corrompu ou incompatible avec une source saine",
+        "Parce que le RPO n'a aucune valeur en cybersécurité",
+        "Parce que le PRA doit toujours attendre une semaine"
+      ],
+      "answer": 1,
+      "explanation": "Le scénario cyber oblige à vérifier l'intégrité des sources, le périmètre de compromission et la période suspecte, tout en protégeant les preuves pertinentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve démontre le mieux que le service métier a été rétabli ?",
+      "choices": [
+        "Le fournisseur a confirmé que son infrastructure répond",
+        "Le serveur a redémarré",
+        "Les critères techniques, la cohérence des données et les scénarios métier convenus ont réussi et le propriétaire du service a validé",
+        "Le ticket d'incident est fermé"
+      ],
+      "answer": 2,
+      "explanation": "Un composant disponible ne garantit pas un service utilisable. La validation de bout en bout et la confirmation métier sont essentielles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit prévoir un mode dégradé utilisant des formulaires manuels ?",
+      "choices": [
+        "La saisie sans identifiant afin de gagner du temps",
+        "L'absence de limite de volume",
+        "Une réimportation libre de toutes les lignes après restauration",
+        "Des références uniques, des contrôles, une limite de capacité, une traçabilité et un rapprochement contre les doublons"
+      ],
+      "answer": 3,
+      "explanation": "La continuité manuelle peut créer des erreurs et doublons. Les contrôles compensatoires et la procédure de sortie doivent être définis avant le mode dégradé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le fournisseur déclare son service disponible, mais les commandes restent en retard dans les files. Quelle action est appropriée ?",
+      "choices": [
+        "Clôturer la crise sur la seule déclaration du fournisseur",
+        "Mesurer la capacité, le backlog, les erreurs et la cohérence métier, puis ajuster la reprise",
+        "Effacer la file d'attente sans analyse",
+        "Désactiver la supervision afin de réduire les alertes"
+      ],
+      "answer": 1,
+      "explanation": "La disponibilité du fournisseur ne prouve pas le rétablissement du service métier. Les files, débits, erreurs et transactions doivent être vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le critère approprié pour clôturer une action corrective issue d'un exercice ?",
+      "choices": [
+        "Le ticket a été fermé par son propriétaire",
+        "Le document a été modifié",
+        "La correction est mise en œuvre et une preuve adaptée montre que le défaut ne se reproduit plus ou que le risque résiduel a été formellement accepté",
+        "L'équipe a participé à une réunion de retour d'expérience"
+      ],
+      "answer": 2,
+      "explanation": "La clôture exige une preuve d'efficacité proportionnée au risque ; à défaut, le risque reste ouvert ou doit être formellement accepté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il définir un point d'arrêt dans un runbook ?",
+      "choices": [
+        "Pour empêcher la poursuite d'une procédure lorsque ses préconditions ou les preuves attendues ne sont pas satisfaites",
+        "Pour permettre aux opérateurs d'ignorer les contrôles si le délai est dépassé",
+        "Pour remplacer les autorisations de changement",
+        "Pour garantir que toutes les étapes seront exécutées même si la source est douteuse"
+      ],
+      "answer": 0,
+      "explanation": "Un point d'arrêt empêche une étape risquée de se poursuivre sur une hypothèse fausse. Il indique à qui escalader et quelle condition doit être résolue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une communication externe ne peut pas encore donner une estimation fiable du retour. Quel contenu est préférable ?",
+      "choices": [
+        "Promettre une heure optimiste pour rassurer",
+        "Ne communiquer aucune information jusqu'à la résolution complète",
+        "Attribuer la cause au fournisseur même si elle n'est pas confirmée",
+        "Décrire l'impact confirmé, les consignes validées, les inconnues et l'heure de la prochaine mise à jour"
+      ],
+      "answer": 3,
+      "explanation": "La communication doit rester factuelle et utile. Il est préférable de promettre un prochain point d'information plutôt qu'un délai de résolution non démontré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel défaut révèle un site secondaire qui partage le même système d'identité indisponible que le site principal ?",
+      "choices": [
+        "Une dépendance commune qui peut provoquer une défaillance simultanée malgré la redondance physique",
+        "Un problème uniquement lié à la documentation",
+        "Une preuve que le RPO est toujours nul",
+        "Une redondance parfaite entre les deux sites"
+      ],
+      "answer": 0,
+      "explanation": "Les domaines de panne communs incluent les dépendances logiques, comptes d'administration, fournisseurs et plans de gestion, pas seulement les emplacements physiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe permet de réduire le risque de commandes dupliquées lors du rattrapage de transactions manuelles ?",
+      "choices": [
+        "Réimporter les données sans ordre afin d'accélérer le traitement",
+        "Utiliser des identifiants uniques, une procédure de déduplication et un rapprochement des totaux",
+        "Supprimer les horodatages avant la réimportation",
+        "Faire confiance à la mémoire des opérateurs"
+      ],
+      "answer": 1,
+      "explanation": "Les identifiants uniques et les contrôles de rapprochement aident à détecter les doublons et les divergences entre la procédure manuelle et le système restauré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit le mieux une stratégie de reprise de niveau expert ?",
+      "choices": [
+        "Le site secondaire est suffisant dès qu'il est présent",
+        "Une sauvegarde réussie prouve la conformité du PRA",
+        "La stratégie est reliée à une BIA approuvée, ses dépendances sont cartographiées, ses objectifs sont testés et ses risques résiduels sont gouvernés",
+        "La meilleure stratégie est toujours celle avec le RTO le plus court, quel qu'en soit le coût"
+      ],
+      "answer": 2,
+      "explanation": "Une stratégie défendable relie les besoins métier aux capacités démontrées et prend en compte coûts, dépendances, scénarios et risques résiduels."
     }
   ]
 }
