@@ -1344,6 +1344,9 @@ def _create_exam_session(
     question_pool: list[Question] | None = None,
     node_id: str | None = None,
     exam_type: str = "category",
+    module_scope: str = "",
+    level_scope: str = "",
+    scope_node_ids: list[str] | None = None,
 ) -> dict:
     pool = question_pool if question_pool is not None else _exam_question_pool(tree, nodes)
     if not pool:
@@ -1356,12 +1359,14 @@ def _create_exam_session(
     session_id = uuid.uuid4().hex
     category = category.strip() or "Examen personnalisé"
     effective_pass_score = EXAM_PASS_SCORE
+    effective_scope_ids = list(scope_node_ids if scope_node_ids is not None else (node.id for node in nodes))
     tree.conn.execute(
         "INSERT INTO exam_sessions "
         "(session_id, category, question_ids, started_at, expires_at, submitted, "
         "score, passed, correct, total, submitted_at, time_expired, answers_json, details_json, "
-        "paused_at, paused_seconds, node_id, exam_type, passing_score, result_json) "
-        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]', NULL, 0, ?, ?, ?, '')",
+        "paused_at, paused_seconds, node_id, exam_type, passing_score, result_json, "
+        "module_scope, level_scope, scope_node_ids_json) "
+        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]', NULL, 0, ?, ?, ?, '', ?, ?, ?)",
         (
             session_id,
             category,
@@ -1372,6 +1377,9 @@ def _create_exam_session(
             node_id,
             exam_type,
             effective_pass_score,
+            module_scope,
+            level_scope,
+            json.dumps(effective_scope_ids, ensure_ascii=False),
         ),
     )
     tree.conn.commit()
@@ -1387,6 +1395,11 @@ def _create_exam_session(
         "passing_score": effective_pass_score,
         "requested_count": count,
         "question_count": len(selected),
+        **({
+            "module_scope": module_scope,
+            "level_scope": level_scope,
+            "scope_node_ids": effective_scope_ids,
+        } if exam_type == "certification" else {}),
         "questions": [_exam_public_question(question, nodes_by_id) for question in selected],
     }
 
@@ -1593,6 +1606,11 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
         "submitted": True,
         "offline": False,
         "submitted_at": submitted_at,
+        **({
+            "module_scope": str(row["module_scope"] or ""),
+            "level_scope": str(row["level_scope"] or ""),
+            "scope_node_ids": json.loads(row["scope_node_ids_json"] or "[]"),
+        } if exam_type == "certification" else {}),
     }
 
     if course_node is not None:
