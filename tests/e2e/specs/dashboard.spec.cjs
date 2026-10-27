@@ -608,7 +608,7 @@ Poste de secours</code></pre>
   expect(narration).toContain('Le protocole HTTP utilise le port 80 pour la navigation Web non chiffrée.');
   expect(narration).toContain('Le protocole HTTPS utilise le port 443 pour la navigation Web chiffrée.');
   expect(narration).toContain('Le bloc « Client » communique avec le bloc « API » en utilisant HTTPS.');
-  expect(narration).toContain('Une liaison va du bloc « API » vers le bloc « Base de données »');
+  expect(narration).toContain('Le flux d’information va de « API » vers « Base de données ».');
   expect(narration).toContain('Le flux d’information va de « Poste de travail » vers « Routeur ».');
   expect(narration).toContain('Le flux d’information va de « Poste de secours » vers « Routeur ».');
   expect(narration).toContain('Le flux part du bloc « Client » et arrive au bloc « Passerelle ».');
