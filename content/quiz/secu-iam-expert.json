@@ -4,15 +4,267 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Gestion des identités et des accès avancée » : à rédiger après le cours complet.",
+      "prompt": "Quelle distinction est correcte entre authentification et autorisation ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "L'authentification donne tous les droits à un compte",
+        "L'authentification vérifie une preuve ; l'autorisation décide de l'action permise",
+        "L'autorisation remplace toujours le contrôle de session",
+        "Les deux termes désignent uniquement les mots de passe"
+      ],
+      "answer": 1,
+      "explanation": "L'authentification vérifie la preuve d'identité, tandis que l'autorisation évalue l'action et la ressource demandées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit principalement OAuth 2.0 ?",
+      "choices": [
+        "Un inventaire de comptes RH",
+        "Une méthode unique de biométrie",
+        "Un cadre de délégation d'accès aux ressources",
+        "Une base de données de permissions Kubernetes"
+      ],
+      "answer": 2,
+      "explanation": "OAuth 2.0 porte sur la délégation d'autorisation ; OIDC ajoute une couche standardisée d'identité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue OIDC d'OAuth 2.0 ?",
+      "choices": [
+        "OIDC ajoute une couche d'identité à OAuth 2.0",
+        "OIDC est un type de pare-feu réseau",
+        "OIDC supprime la nécessité d'autoriser chaque ressource",
+        "OIDC est un format de mot de passe"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "OIDC permet notamment au client de vérifier l'identité d'un utilisateur via des assertions standardisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l'ID Token ne doit-il pas être utilisé comme Access Token ?",
+      "choices": [
+        "Il contient toujours le mot de passe de l'utilisateur",
+        "Il est nécessairement non signé",
+        "Il ne peut jamais expirer",
+        "Ils servent à des objectifs et audiences différents"
+      ],
+      "answer": 3,
+      "explanation": "L'ID Token porte des informations d'authentification destinées au client OIDC ; l'Access Token est destiné à la ressource protégée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire une application avant de faire confiance à un JWT ?",
+      "choices": [
+        "Seulement décoder son contenu Base64URL",
+        "Vérifier signature, émetteur, audience, expiration et contraintes du flux",
+        "Afficher son contenu dans la console",
+        "Accepter l'algorithme fourni sans restriction"
+      ],
+      "answer": 1,
+      "explanation": "Le décodage n'authentifie pas le jeton ; il faut effectuer les validations attendues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle complète une politique MFA robuste ?",
+      "choices": [
+        "Un même mot de passe saisi deux fois",
+        "Un groupe administrateur partagé",
+        "Une procédure de récupération de compte aussi forte que le mécanisme normal",
+        "La désactivation des journaux de connexion"
+      ],
+      "answer": 2,
+      "explanation": "Un mécanisme de récupération trop faible peut contourner la MFA."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les facteurs résistants au phishing sont-ils utiles pour l'administration ?",
+      "choices": [
+        "Ils peuvent lier cryptographiquement l'authentification à l'origine légitime selon le mécanisme utilisé",
+        "Ils remplacent toutes les politiques d'autorisation",
+        "Ils garantissent la sécurité du code source",
+        "Ils empêchent tout vol de session après connexion"
+      ],
+      "answer": 0,
+      "explanation": "Les mécanismes comme WebAuthn/passkeys peuvent limiter le relais d'authentification vers un site frauduleux, selon l'implémentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur HttpOnly est correcte ?",
+      "choices": [
+        "Il chiffre toute la base de données",
+        "Il remplace toutes les protections CSRF",
+        "Il rend la session éternelle",
+        "Il empêche les scripts ordinaires de lire le cookie, sans régler tous les autres risques"
+      ],
+      "answer": 3,
+      "explanation": "HttpOnly réduit la lecture du cookie via JavaScript mais ne remplace pas les protections contre CSRF, XSS ou l'abus d'autorisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un modèle d'autorisation deny by default ?",
+      "choices": [
+        "Toutes les requêtes sont acceptées puis examinées",
+        "Une action non explicitement autorisée est refusée",
+        "Le navigateur décide seul des permissions",
+        "Les administrateurs ne peuvent jamais accéder aux ressources"
+      ],
+      "answer": 1,
+      "explanation": "Le refus par défaut évite qu'une nouvelle route ou une règle manquante donne implicitement accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand RBAC est-il particulièrement utile ?",
+      "choices": [
+        "Quand tous les accès doivent être aléatoires",
+        "Pour remplacer l'annuaire central",
+        "Quand les permissions peuvent être regroupées en rôles métier compréhensibles",
+        "Quand chaque objet doit être partagé publiquement"
+      ],
+      "answer": 2,
+      "explanation": "RBAC est efficace lorsque les rôles correspondent à des responsabilités stables et explicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle condition est essentielle pour ABAC ?",
+      "choices": [
+        "Les attributs de décision doivent provenir de sources fiables et être validés",
+        "L'utilisateur doit pouvoir modifier librement tous ses attributs",
+        "Aucune politique n'est nécessaire",
+        "Les ressources n'ont pas besoin d'identifiant"
+      ],
+      "answer": 0,
+      "explanation": "Un attribut falsifiable peut provoquer une autorisation abusive."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un exemple de ReBAC ?",
+      "choices": [
+        "Tous les membres ont automatiquement le rôle administrateur",
+        "Une politique qui n'utilise que l'heure",
+        "Une permission définie uniquement par la longueur du mot de passe",
+        "Un enseignant modifie un cours parce qu'une relation active le lie à ce cours"
+      ],
+      "answer": 3,
+      "explanation": "ReBAC prend en compte les relations entre sujets et ressources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif du moindre privilège ?",
+      "choices": [
+        "Accorder tous les droits afin d'éviter les demandes",
+        "Donner uniquement les actions, la portée et la durée nécessaires",
+        "Rendre les rôles identiques à tous les utilisateurs",
+        "Supprimer tous les comptes techniques"
+      ],
+      "answer": 1,
+      "explanation": "La permission doit être limitée au besoin démontré, sur une ressource et une période précises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que procure l'accès juste-à-temps (JIT) ?",
+      "choices": [
+        "Une permission temporaire qui expire après la fenêtre requise",
+        "Une permission permanente plus facile à auditer",
+        "Un compte partagé entre administrateurs",
+        "Une désactivation des approbations"
+      ],
+      "answer": 0,
+      "explanation": "JIT réduit la durée d'exposition d'un privilège et doit automatiser son expiration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un compte break-glass doit-il être surveillé ?",
+      "choices": [
+        "Parce qu'il est sans privilège",
+        "Parce qu'il ne doit jamais fonctionner",
+        "Parce qu'il peut donner un accès d'urgence élevé et doit déclencher une enquête à son usage",
+        "Parce qu'il remplace la sauvegarde"
+      ],
+      "answer": 2,
+      "explanation": "Les comptes d'urgence sont rares, puissants et leur usage doit être alerté et revu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle convient aux identités de service ?",
+      "choices": [
+        "Partager une clé globale avec tous les services",
+        "Ne jamais définir de propriétaire",
+        "Ne jamais journaliser leur utilisation",
+        "Attribuer une identité distincte, un propriétaire et des droits minimaux"
+      ],
+      "answer": 3,
+      "explanation": "Les identités séparées limitent le rayon d'impact et facilitent la révocation et l'attribution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le droit de créer un Pod peut-il être sensible dans Kubernetes ?",
+      "choices": [
+        "Il peut parfois permettre de choisir un compte de service puissant ou d'utiliser des volumes risqués",
+        "Il ne permet jamais d'exécuter du code",
+        "Il ne concerne que le système DNS",
+        "Il retire automatiquement tous les privilèges"
+      ],
+      "answer": 0,
+      "explanation": "Les permissions doivent être évaluées selon leurs effets indirects et les politiques de sécurité des Pods."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit produire une mobilité interne dans le processus IAM ?",
+      "choices": [
+        "Uniquement ajouter les nouveaux groupes",
+        "Recalculer les droits et retirer ceux devenus inutiles",
+        "Dupliquer l'identité et garder les deux comptes actifs",
+        "Désactiver tous les contrôles d'accès"
+      ],
+      "answer": 1,
+      "explanation": "Le processus Mover empêche l'accumulation de privilèges issus de l'ancien poste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La désactivation du compte IdP révoque-t-elle toujours toutes les sessions et clés d'applications immédiatement ?",
+      "choices": [
+        "Oui, dans tous les protocoles",
+        "Oui, même si les applications n'ont aucun mécanisme de révocation",
+        "Non, il faut un processus couvrant les sessions, jetons, clés et comptes locaux",
+        "Elle augmente la durée de toutes les sessions"
+      ],
+      "answer": 2,
+      "explanation": "La révocation varie selon les applications et types de jetons ; elle doit être conçue et vérifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but de la recertification des accès ?",
+      "choices": [
+        "Confirmer les droits sans fournir de contexte",
+        "Créer plus de comptes administratifs",
+        "Prolonger automatiquement chaque exception",
+        "Vérifier que les accès effectifs restent justifiés et révoquer ceux qui ne le sont plus"
+      ],
+      "answer": 3,
+      "explanation": "La recertification compare les permissions à la responsabilité actuelle et produit des décisions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire une API lorsqu'un utilisateur change l'identifiant d'un objet pour celui d'un autre utilisateur ?",
+      "choices": [
+        "Vérifier côté serveur l'autorisation sur l'objet ciblé",
+        "Faire confiance au bouton affiché dans le navigateur",
+        "Accepter si l'utilisateur est authentifié",
+        "Se limiter à vérifier que l'identifiant est numérique"
+      ],
+      "answer": 0,
+      "explanation": "L'autorisation doit être vérifiée pour chaque ressource, pas seulement pour la route ou l'interface."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles sont les étapes essentielles après la compromission d'un compte privilégié ?",
+      "choices": [
+        "Changer le fond d'écran du compte",
+        "Révoquer sessions, jetons et rôles, préserver les preuves et rechercher la persistance",
+        "Supprimer les journaux avant l'analyse",
+        "Créer un autre compte administrateur sans examiner les modifications"
+      ],
+      "answer": 1,
+      "explanation": "La réponse doit invalider les capacités existantes, rechercher les comptes et clés de persistance et préserver les traces."
     }
   ]
 }
