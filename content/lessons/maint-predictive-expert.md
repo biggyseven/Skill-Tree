@@ -184,7 +184,269 @@ flowchart TD
     I -- Non --> H
 ~~~
 
-## 8. TP guidé : définir un seuil défendable
+## 8. Choisir les actifs et les modes de défaillance à surveiller
+
+Une démarche prédictive ne commence pas par le choix d'un algorithme. Elle commence par l'identification d'un actif, de sa fonction, des conséquences d'une défaillance et des signes observables avant l'événement. L'objectif est de détecter suffisamment tôt une évolution qui justifie une action, sans générer tant de fausses alertes que l'équipe cesse de les lire.
+
+Pour les équipements d'une salle informatique, les actifs peuvent inclure les unités de refroidissement, les ventilateurs, les pompes, les onduleurs, les batteries, les alimentations, les unités de distribution électrique et certains composants d'infrastructure. Pour un environnement IT, les signaux possibles comprennent aussi la température, les erreurs de stockage, la correction d'erreurs mémoire, les compteurs d'interface, la capacité d'alimentation, les délais de service et les journaux d'incidents. Le signal doit avoir une relation plausible avec le mode de défaillance étudié.
+
+### 8.1 Définir la cible avant de chercher des caractéristiques
+
+Écris la cible en termes opérationnels. « Prévoir une panne » est trop vague. Une cible plus utile pourrait être : « identifier les unités de refroidissement présentant un risque accru d'échec de ventilateur dans les sept jours précédant un incident qui provoque une interruption ou une intervention corrective ». Cette définition fixe l'actif, l'événement, l'horizon temporel et la preuve de panne.
+
+Il faut également préciser comment les étiquettes sont produites. Un ticket de maintenance peut être fermé sans que la pièce soit réellement défaillante ; un capteur peut avoir été remplacé de façon préventive ; une alarme peut être liée à un test. Définis les catégories confirmé, probable, préventif et inconnu. Ne transforme pas automatiquement toute intervention en étiquette « panne ». Si la qualité des étiquettes est faible, commence par un usage de surveillance et d'aide à l'investigation plutôt que d'affirmer une capacité prédictive robuste.
+
+~~~mermaid
+flowchart TD
+    A[Actif et fonction] --> B[Mode de défaillance]
+    B --> C[Conséquence métier]
+    C --> D[Signal ou mesure observable]
+    D --> E[Horizon d'anticipation]
+    E --> F[Définition de la cible]
+    F --> G[Validation de la qualité des étiquettes]
+    G --> H[Modèle ou règles de surveillance]
+~~~
+
+### 8.2 Relier le mode de panne aux mesures utiles
+
+| Mode de défaillance possible | Mesures candidates | Points de vigilance |
+|---|---|---|
+| Dégradation de ventilation | Vibration, vitesse, température, intensité électrique | Charge, température ambiante, poussière, régime de fonctionnement |
+| Batterie d'onduleur vieillissante | Tension, température, résistance interne si mesurée, résultats de test | Type de batterie, âge, température et procédure de test |
+| Encrassement ou perte d'efficacité du refroidissement | Températures, débit, pression, puissance consommée | Charge thermique, ouverture des portes, conditions ambiantes |
+| Dégradation d'un disque ou volume de stockage | Erreurs corrigées, délais d'E/S, files d'attente, alertes de contrôleur | Modèle du matériel, firmware, charge et fenêtre de maintenance |
+| Problème d'interface réseau | Erreurs, pertes, changements d'état, utilisation, latence | Vitesse, duplex, changements de configuration, congestion |
+| Dégradation de capacité d'un service | Latence, taux d'erreur, saturation, files d'attente | Déploiements, trafic, dépendances et saisonnalité |
+
+Ces mesures sont des candidats, pas des diagnostics automatiques. Le fait qu'une température augmente ne signifie pas toujours que l'équipement va tomber en panne : une hausse de charge ou de température ambiante peut expliquer le signal. La démarche doit comparer la mesure à un contexte de fonctionnement et au comportement historique de l'actif.
+
+## 9. Maîtriser la qualité des capteurs et des mesures
+
+Un modèle ne peut pas corriger magiquement une mesure incorrecte. Avant l'apprentissage, documente l'origine, l'unité, la fréquence, le délai de transmission, la calibration, l'emplacement, le firmware, les interruptions et les modifications des capteurs. Deux capteurs nommés « température » peuvent mesurer des zones différentes, avoir des unités différentes ou être relevés à des fréquences qui ne permettent pas une comparaison directe.
+
+### 9.1 Vérifier les données à l'arrivée
+
+Les contrôles de base incluent :
+- horodatage parsable, fuseau connu et absence de dates futures inattendues ;
+- identifiant d'actif stable et correspondance avec l'inventaire ;
+- unité et gamme de valeurs plausibles selon le fabricant et le contexte ;
+- duplication, ordre des événements et données reçues en retard ;
+- taux de valeurs manquantes et durée maximale d'une lacune ;
+- fraîcheur du dernier point reçu ;
+- cohérence des changements de capteur, de firmware, de configuration et de charge ;
+- qualité des étiquettes de panne et des tickets liés.
+
+Il ne faut pas remplacer toutes les valeurs absentes par zéro. Zéro peut être une valeur physique légitime ou, au contraire, une indication de capteur en défaut. La méthode de traitement doit dépendre de la signification de la mesure et doit préserver un indicateur de donnée manquante si celui-ci est informatif. Un capteur muet doit produire un état « données indisponibles », pas un score rassurant calculé à partir d'une dernière observation ancienne.
+
+### 9.2 Distinguer mesure, anomalie et panne
+
+Une mesure hors de sa plage habituelle n'est pas automatiquement une panne. Une anomalie statistique est une observation ou une séquence qui diffère du comportement de référence. Une défaillance est un événement défini selon des critères opérationnels. Une action de maintenance est une décision prise à partir de la mesure, du contexte et du coût d'erreur.
+
+~~~mermaid
+flowchart TD
+    A[Mesure reçue] --> B{Donnée valide et fraîche ?}
+    B -->|Non| C[Alarme de qualité de mesure]
+    B -->|Oui| D[Comparer au contexte et à la référence]
+    D --> E{Anomalie ou tendance ?}
+    E -->|Non| F[Surveillance normale]
+    E -->|Oui| G[Évaluer le risque et corroborer]
+    G --> H{Critère opérationnel atteint ?}
+    H -->|Non| I[Observer ou compléter les mesures]
+    H -->|Oui| J[Créer une recommandation]
+    J --> K[Validation humaine et action autorisée]
+~~~
+
+### 9.3 Calibration et dérive des capteurs
+
+La calibration, le remplacement et le déplacement d'un capteur peuvent créer un saut qui ressemble à une anomalie. Conserve les dates de maintenance et les versions de configuration dans le dataset. Après une modification, vérifie si le modèle de référence reste comparable. La dérive peut venir du capteur lui-même, mais aussi de la charge, des saisons, de l'environnement, du logiciel de collecte ou d'une modification de l'installation.
+
+Pour les mesures qui contribuent à une décision de sécurité, de refroidissement ou d'alimentation, respecte les méthodes de mesure et les procédures du fabricant. Un score prédictif ne remplace pas une protection technique ou une inspection exigée. Le modèle doit compléter les contrôles prévus, pas les désactiver.
+
+## 10. Préparer des séries temporelles sans fuite de données
+
+La fuite de données survient lorsqu'une caractéristique ou une étape d'entraînement utilise une information qui ne serait pas disponible au moment réel de la prédiction. Elle produit souvent des résultats de test artificiellement élevés. En maintenance, les données après panne, le ticket clôturé, la pièce remplacée ou la décision d'intervention peuvent révéler indirectement l'événement cible.
+
+Exemple : on veut prédire à 08 h si un ventilateur risque de tomber en panne dans les prochaines 48 heures. Si une caractéristique contient le nombre d'alarmes créées à 11 h le même jour, le test utilise une information future. Le modèle peut paraître excellent dans l'historique et échouer en production.
+
+### 10.1 Respecter l'ordre temporel
+
+Un découpage aléatoire ordinaire peut placer des observations du même équipement et de la même panne dans l'entraînement et dans le test. Le modèle apprend alors des détails très proches de l'événement à prédire. Préfère un découpage chronologique, et si le contexte le justifie, garde certains actifs ou sites entièrement hors de l'entraînement afin de tester la généralisation.
+
+~~~mermaid
+flowchart LR
+    A[Historique ancien] --> B[Entraînement]
+    B --> C[Validation sur période ultérieure]
+    C --> D[Réglage de la méthode]
+    D --> E[Test final encore plus récent]
+    E --> F[Déploiement contrôlé]
+    G[Données futures de production] --> H[Surveillance après déploiement]
+    F --> H
+~~~
+
+Les caractéristiques, normalisations, imputations, sélections de variables et seuils doivent être ajustés uniquement à partir de l'ensemble d'entraînement ou selon la procédure de validation définie. Si tu normalises toutes les données avant le découpage, l'information sur la distribution du futur peut fuiter dans le processus d'apprentissage. Construis un pipeline qui apprend ses paramètres sur l'entraînement puis les applique aux périodes suivantes.
+
+### 10.2 Fenêtres et horizons d'anticipation
+
+Décris la fenêtre d'observation, l'horizon de prédiction et la période d'exclusion autour de l'événement si les données proches de la panne sont trop directement liées à l'alarme finale. Par exemple, les mesures des 24 heures précédant une intervention peuvent servir à détecter l'approche de la panne, mais elles peuvent aussi contenir une alarme déjà visible par un système classique. Il faut comparer l'apport du modèle à une simple règle de seuil afin de savoir si la complexité ajoute une valeur réelle.
+
+Les mesures répétées d'un même actif ne sont pas indépendantes. Un découpage par ligne peut surestimer la performance si les mêmes actifs apparaissent dans chaque ensemble. Teste sur une période ultérieure et, lorsque pertinent, sur des actifs, sites ou modèles d'équipement différents. Une validation robuste demande plusieurs fenêtres temporelles et une description claire des limites du jeu de données.
+
+## 11. Choisir une approche et établir une référence simple
+
+Le modèle le plus complexe n'est pas nécessairement le meilleur choix. Un seuil défini selon le fabricant, une tendance, une règle statistique ou un modèle de référence peuvent être plus fiables, plus explicables et moins coûteux à exploiter. Compare toujours les solutions à une référence.
+
+| Approche | Quand elle peut être utile | Limite principale |
+|---|---|---|
+| Seuil technique validé | Limite physique connue ou consigne fabricant | Peut manquer les évolutions lentes et le contexte |
+| Tendance et taux de variation | Dérive progressive d'une mesure | Sensible au bruit, au changement de charge et à la fenêtre choisie |
+| Règle combinée | Plusieurs conditions sont nécessaires pour déclencher | Les règles peuvent devenir difficiles à maintenir |
+| Détection d'anomalies non supervisée | Peu d'exemples étiquetés de panne | Une anomalie n'indique pas nécessairement une panne |
+| Classification supervisée | Historique d'événements de qualité suffisante | Biais des étiquettes, fuite temporelle et changement de contexte |
+| Modèle de durée de vie restante (RUL) | Décision liée à une estimation de dégradation et d'horizon | Nécessite des hypothèses, un historique adapté et une incertitude explicite |
+
+Un modèle supervisé peut estimer une probabilité sur un horizon précis. Cette probabilité n'est utile que si elle est suffisamment calibrée pour le contexte, et si les décideurs comprennent ce que « risque de panne dans les sept jours » signifie. Un modèle d'anomalie peut classer des observations inhabituelles sans pouvoir dire quelle panne va se produire. Un RUL est une estimation de durée restante sous des conditions et des hypothèses spécifiques, pas une date certaine de panne.
+
+### 11.1 Séparer exploration et décision
+
+L'exploration analytique aide à comprendre les données ; la décision opérationnelle exige des règles explicites. On peut visualiser une variable, tester plusieurs fenêtres ou comparer différents modèles lors de l'analyse. Mais le seuil de production doit être versionné, approuvé et évalué selon les conséquences des faux positifs et des défauts manqués.
+
+Avant un essai, documente :
+- la question de décision et le propriétaire ;
+- le mode de panne ciblé ;
+- les données disponibles au moment de la prédiction ;
+- la référence actuelle et ses résultats ;
+- les métriques retenues et les seuils d'acceptation ;
+- les limites connues et la solution de repli.
+
+### 11.2 Exemple de pipeline expérimental avec Python
+
+Cet exemple illustre un découpage temporel simple dans scikit-learn. Il suppose que les lignes ont déjà été triées chronologiquement, que la colonne cible est construite sans données futures et que les données ne contiennent pas plusieurs observations du même événement réparties entre les ensembles. Pour des équipements fortement corrélés, ajoute un contrôle par actif ou par site.
+
+~~~python
+from sklearn.model_selection import TimeSeriesSplit
+
+# X et y doivent être triés selon l'instant de décision.
+# Tout prétraitement qui apprend des paramètres doit être ajusté
+# à l'intérieur de chaque pli, pas sur l'ensemble complet.
+splitter = TimeSeriesSplit(n_splits=5)
+
+for fold, (train_idx, test_idx) in enumerate(splitter.split(X), start=1):
+    X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+    y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+
+    print(
+        f"Pli {fold}: "
+        f"{len(train_idx)} observations d'entraînement, "
+        f"{len(test_idx)} observations de test"
+    )
+~~~
+
+Ce code ne crée pas à lui seul une validation parfaite. Il faut encore vérifier les périodes, les étiquettes, la présence d'événements chevauchants, le prétraitement, le déséquilibre des classes et la représentativité du test. Pour une évaluation de production, conserve les bornes temporelles de chaque pli et les résultats détaillés.
+
+## 12. Évaluer les résultats selon les conséquences métier
+
+Les pannes sont souvent rares. Un modèle qui annonce « aucun défaut » peut afficher une exactitude de 99 % si seulement 1 % des fenêtres contiennent une panne. Cela ne veut pas dire qu'il fournit une valeur opérationnelle. Il faut analyser la matrice de confusion, la précision, le rappel, le nombre d'alertes, les défauts critiques manqués et le temps d'anticipation.
+
+- **Vrai positif** : une alerte précède une panne ou un état confirmé correspondant à la cible.
+- **Faux positif** : une alerte est déclenchée sans événement correspondant dans l'horizon défini.
+- **Faux négatif** : l'événement survient sans alerte exploitable dans la fenêtre d'anticipation.
+- **Vrai négatif** : aucune alerte et aucun événement correspondant pendant la période définie.
+
+La précision indique la proportion d'alertes qui correspondent à une cible selon la définition utilisée. Le rappel indique la proportion des événements cibles détectés. L'une ou l'autre ne suffit pas à choisir un seuil. Une équipe ayant peu de techniciens peut être submergée par un grand nombre de fausses alertes ; une organisation qui tolère mal les défauts critiques peut devoir privilégier le rappel et accepter davantage d'inspections, sous réserve de capacité.
+
+### 12.1 Définir un seuil à partir du coût des erreurs
+
+Construis une matrice de décision avec les responsables. Un faux positif peut déclencher une inspection, un déplacement ou une pièce préparée inutilement. Un faux négatif peut causer une interruption de service, une perte de production ou une intervention d'urgence. Les montants ne sont parfois connus que sous forme de plages ou de niveaux qualitatifs. Il vaut mieux documenter ces hypothèses qu'inventer une précision monétaire.
+
+~~~mermaid
+flowchart TD
+    A[Probabilité ou score du modèle] --> B[Seuil candidat]
+    B --> C[Historique de validation]
+    C --> D[Estimer fausses alertes et défauts manqués]
+    D --> E[Évaluer coût, délai et capacité]
+    E --> F{Risque résiduel acceptable ?}
+    F -->|Non| G[Modifier le seuil ou le dispositif]
+    G --> C
+    F -->|Oui| H[Approuver un pilote sous surveillance]
+~~~
+
+### 12.2 Mesurer l'anticipation réelle
+
+La bonne métrique dépend de la décision. Mesure le délai entre la première alerte exploitable et l'événement confirmé. Une alerte envoyée deux minutes avant la panne peut compter comme une détection, mais elle ne donne pas suffisamment de temps pour planifier une intervention. À l'inverse, une alerte dix jours à l'avance peut être inutile si son incertitude est trop grande ou si elle arrive trop tôt pour déclencher une action économique.
+
+Évalue aussi l'alert fatigue : alertes répétées sur le même actif, alertes ouvertes sans action, seuils fréquemment ignorés, événements inconnus et temps nécessaire pour vérifier chaque alerte. Regroupe les alertes selon une politique approuvée et conserve l'historique pour pouvoir évaluer la méthode. Ne supprime pas les alertes gênantes sans analyser pourquoi elles se produisent.
+
+## 13. Mettre le modèle en production sans perdre le contrôle
+
+Un modèle prédictif doit être traité comme un composant opérationnel avec version, propriétaire, paramètres, journalisation, tests et solution de repli. La surveillance couvre à la fois la chaîne de données et le modèle : disponibilité du capteur, fraîcheur, taux de valeurs manquantes, erreurs de calcul, version de modèle, fréquence des alertes, qualité des résultats vérifiés et changement de distribution des données.
+
+### 13.1 Déploiement par étapes
+
+Commence par le mode observation : le modèle produit des alertes qui sont comparées aux contrôles existants, sans déclencher automatiquement une intervention. Après une période de validation, un pilote limité peut autoriser des recommandations ou créer des demandes de revue, toujours selon le processus approuvé. L'automatisation directe d'une action physique ou d'un changement de configuration nécessite une évaluation de sécurité distincte et des protections adéquates.
+
+~~~mermaid
+flowchart LR
+    A[Analyse historique] --> B[Mode observation]
+    B --> C[Revue par experts]
+    C --> D[Pilote limité]
+    D --> E[Validation des alertes et coûts]
+    E --> F{Critères tenus ?}
+    F -->|Non| G[Corriger, suspendre ou revenir à la référence]
+    G --> B
+    F -->|Oui| H[Déploiement gradué]
+    H --> I[Surveillance continue et revue périodique]
+~~~
+
+### 13.2 Prévoir les modes de défaillance du système prédictif
+
+Le système lui-même peut tomber en panne : capteur muet, collecte interrompue, horloge incorrecte, modèle non chargé, configuration mal versionnée, service de prédiction indisponible ou alertes non transmises. Définis un état explicite pour chaque situation. Si la mesure n'est plus fraîche, l'interface doit indiquer « données indisponibles » ; elle ne doit pas afficher le dernier score comme s'il décrivait l'état courant.
+
+La procédure de repli peut revenir à des seuils techniques, à une tournée d'inspection renforcée ou au plan de maintenance habituel selon l'actif. Il faut connaître le propriétaire qui décide du repli, les seuils qui déclenchent la suspension, la manière d'en informer les techniciens et les preuves à conserver.
+
+### 13.3 Gérer la dérive du modèle
+
+La dérive peut toucher les données d'entrée, la relation entre les mesures et la panne ou la façon dont les tickets sont enregistrés. Un changement de pièce, de firmware, de charge, de température ambiante ou de fournisseur de capteur peut modifier la distribution. La répartition des pannes peut aussi évoluer après une campagne de maintenance.
+
+Surveille les indicateurs de données et les résultats vérifiés au fil du temps. Ne réentraîne pas automatiquement le modèle dès qu'un seuil de dérive est franchi : conserve les données, recherche la cause, compare la méthode actuelle à une référence et fais valider la nouvelle version. Si les pannes réelles sont rares, les métriques de performance peuvent nécessiter une fenêtre plus longue avant d'être interprétables.
+
+### 13.4 La boucle de retour des techniciens
+
+Les retours des intervenants constituent un élément essentiel. Pour chaque alerte, recueille le résultat de l'inspection, le mode de panne confirmé ou non, l'action choisie, le temps passé et la présence d'une condition particulière. Distingue « alerte non confirmée », « inspection insuffisante », « défaut absent dans l'horizon », « donnée erronée » et « cible mal définie ». Toutes ces situations n'ont pas la même signification pour l'amélioration du modèle.
+
+## 14. Mesurer la valeur et gouverner le cycle de vie
+
+La maintenance prédictive est utile si elle améliore une décision ou un résultat opérationnel par rapport aux pratiques existantes. Le bon point de comparaison peut être la maintenance préventive, la maintenance conditionnelle, des seuils techniques ou une stratégie basée sur le risque. Mesure une période de référence avant le déploiement et définis des métriques qui reflètent le coût total : interventions d'urgence, temps d'arrêt, inspection, pièces remplacées, fausses alertes, heures de mise au point et exploitation du système.
+
+Un pilote doit avoir une limite de temps et un critère de sortie. Si la valeur n'est pas démontrée, il faut pouvoir revenir à une méthode plus simple. Évite de conserver un modèle coûteux uniquement parce qu'il a demandé beaucoup de travail. À l'inverse, une absence de panne pendant le pilote ne prouve pas à elle seule que le modèle est inefficace ; compare les résultats aux périodes et groupes pertinents, en notant l'incertitude.
+
+### 14.1 Exemple d'analyse coût-bénéfice
+
+Supposons qu'un modèle génère 30 alertes sur un trimestre. Vingt alertes déclenchent une inspection utile, six sont sans défaut confirmé et quatre ne peuvent pas être évaluées faute de mesure complémentaire. Tu ne dois pas présenter automatiquement 20/30 comme la précision finale si les quatre cas non évalués sont ignorés sans justification. Indique la population évaluable, les raisons des exclusions et une analyse de sensibilité si ces cas pouvaient modifier la conclusion.
+
+Compare ensuite le coût des inspections supplémentaires et du dispositif aux changements mesurés : réduction des interruptions, meilleur délai de planification, disponibilité des pièces, temps d'investigation ou baisse des interventions d'urgence. Si le coût d'une panne est très élevé, une politique de rappel élevé peut être justifiée ; si les alertes mobilisent une équipe déjà saturée, il faut aussi estimer la capacité nécessaire et le risque d'ignorer une alerte critique.
+
+### Schéma — De l'expérimentation à une décision de gestion d'actif
+
+~~~mermaid
+flowchart TD
+    A[Définir la ligne de base] --> B[Mesurer la performance technique]
+    B --> C[Mesurer les effets opérationnels]
+    C --> D[Calculer coûts et bénéfices avec leurs incertitudes]
+    D --> E[Comparer à la stratégie actuelle]
+    E --> F{Valeur et sécurité démontrées ?}
+    F -->|Oui| G[Déploiement contrôlé et revue périodique]
+    F -->|Non| H[Réviser le cas d'usage ou abandonner]
+    H --> I[Documenter les leçons et le repli]
+~~~
+
+### 14.2 Gouvernance et responsabilités
+
+Attribue un propriétaire métier de l'actif, un responsable technique de l'infrastructure de données, un responsable de la méthode analytique, un propriétaire du processus de maintenance et une personne qui autorise les actions. Dans un petit environnement, les rôles peuvent être combinés, mais la décision de sécurité et les changements qui affectent le service doivent suivre le processus existant.
+
+Conserve les versions du jeu de données, des caractéristiques, du modèle, des seuils, des critères de validation et des règles d'alerte. La traçabilité permet de répondre à trois questions : pourquoi l'alerte a-t-elle été émise à cette date, quelle information était disponible à cet instant, et quelle décision a été prise à partir de cette information ? Sans cette trace, il devient difficile d'expliquer les faux positifs, les défauts manqués ou une modification de comportement après une mise à jour.
+
+
+## 15. TP guidé : définir un seuil défendable
 
 **Scénario.** Une équipe supervise la température de baies informatiques. Elle observe des dépassements fréquents pendant les pointes de charge, mais les contrôles manuels confirment peu de défauts. L'équipe veut éviter de créer des tickets inutiles.
 
@@ -198,7 +460,7 @@ flowchart TD
 
 **Critère de réussite :** le résultat contient les données utilisées, la règle, les métriques, les limites, les cas d'échec et la décision opérationnelle proposée. Une capture du graphique seule ne constitue pas une validation.
 
-## 9. Exercices corrigés
+## 16. Exercices corrigés
 
 ### Exercice 1 — Fuite de données
 
@@ -218,7 +480,7 @@ Un capteur ne transmet plus de mesure depuis deux heures. Le dernier score préd
 
 **Correction.** Non. La fraîcheur des données fait partie du fonctionnement. Le statut doit signaler une mesure indisponible et appliquer la stratégie de surveillance de repli. Un score ancien ne prouve pas que l'état courant est sain.
 
-## 10. Défi final corrigé
+## 17. Défi final corrigé
 
 **Mission.** Tu dois proposer un pilote de maintenance prédictive pour les unités de refroidissement d'une salle informatique, sans autoriser le modèle à commander directement les équipements.
 
@@ -235,8 +497,11 @@ Un capteur ne transmet plus de mesure depuis deux heures. Le dernier score préd
 7. Surveiller fraîcheur et dérive, versionner chaque modèle et revenir à la méthode de référence si la qualité baisse.
 8. Mesurer à intervalle défini si les interventions sont plus anticipées et si les interruptions diminuent. Ne revendiquer une amélioration que si les données la soutiennent.
 
-## Références pour approfondir
+## 18. Références et approfondissement
 
 - [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework) — gouvernance, mesure et gestion des risques associés aux systèmes d'IA.
 - [NIST — publications et ressources de confiance](https://www.nist.gov/) — méthodes de validation, gestion des risques et pratiques d'ingénierie.
+- [ISO 17359:2018 — Condition monitoring and diagnostics of machines: General guidelines](https://www.iso.org/standard/71194.html) — procédures de mise en place d'un programme de surveillance des équipements, analyse de criticité, méthodes de mesure, seuils et examen des résultats. Cette édition a été confirmée par ISO en 2023.
+- [ISO 13374-1:2003 — Data processing, communication and presentation](https://www.iso.org/standard/21832.html) — lignes directrices pour le traitement, la communication et la présentation des données de surveillance d'état ; édition confirmée en 2025.
+- [NASA — Reliability-Centered Maintenance Guide](https://www.nasa.gov/fred/documents/operations-and-maintenance/) — principes de maintenance centrée sur la fiabilité et sélection des tâches selon le risque et les modes de défaillance.
 - La documentation du fabricant de l'actif et du capteur reste la référence prioritaire pour les plages physiques, les consignes de sécurité et les fréquences recommandées.
