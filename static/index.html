@@ -6762,11 +6762,11 @@
         },
 
         // ---------- mémo (révision espacée de Leitner) ----------
-        cardFilter: { module: 'all', level: 'all', mode: 'due' }, reviewNodeId: null, reviewDaysSince: null, cardLoadError: null, flashcardsLoaded: false, cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },
+        cardFilter: { module: 'all', level: 'all', mode: 'due' }, reviewNodeId: null, reviewDaysSince: null, cardLoadError: null, flashcardsLoaded: false, flashcardDeckSignature: '', cardBoxes: LS.get('card-boxes', {}), cardSession: { known: 0, unknown: 0, total: 0 },
         cardKey(c) { return c.id || `${c.node_id || ''}|${c.front}`; },
         async loadFlashcards(force = false) {
           if (this.flashcardsLoaded && !force && !this.cardLoadError) {
-            this.buildDeck();
+            if (this.flashcardDeckSignature !== this.cardDeckSignature()) this.buildDeck();
             return;
           }
           this.flashcardsLoading = true;
@@ -6788,7 +6788,15 @@
             this.buildDeck();
           }
         },
+        cardDeckSignature() {
+          return JSON.stringify({
+            reviewNodeId: this.reviewNodeId == null ? null : String(this.reviewNodeId),
+            reviewDaysSince: this.reviewDaysSince == null ? null : Number(this.reviewDaysSince),
+            cardFilter: this.cardFilter,
+          });
+        },
         buildDeck() {
+          const signature = this.cardDeckSignature();
           const now = Date.now(); const f = this.cardFilter;
           let cards = this.flashcards.filter(c => {
             if (this.reviewNodeId !== null && this.reviewNodeId !== undefined) {
@@ -6803,6 +6811,7 @@
           if (!this.reviewNodeId && f.mode === 'due') cards = cards.filter(c => { const b = this.cardBoxes[this.cardKey(c)]; return !b || b.due <= now; });
           for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
           this.flashcardQueue = cards; this.flashcardFlipped = false; this.cardSession = { known: 0, unknown: 0, total: cards.length };
+          this.flashcardDeckSignature = signature;
         },
         clearGuidedReview() {
           this.reviewNodeId = null;
