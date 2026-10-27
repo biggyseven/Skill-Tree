@@ -118,84 +118,66 @@ Analyser les conditions de travail et les barrières techniques aide à préveni
 
 ### 1. Définir le problème
 
-Un énoncé de problème décrit un symptôme observable, un périmètre et une période sans conclure prématurément sur sa cause. Formuler une mesure de référence et préciser ce qui fonctionne encore évite d'investiguer un problème trop large.
+Une RCA commence par une description de l'écart observable, pas par une explication choisie à l'avance. Une formulation robuste précise le service ou le processus, l'état attendu, l'état constaté, la période, le périmètre et les conséquences. « Le réseau est instable » ne permet pas de vérifier une cause. « Sur le site B, 18 postes ont perdu leur connexion à l'application entre 09 h 12 et 09 h 26, alors que les postes du site A fonctionnaient » fixe un début d'enquête sans conclure trop tôt au réseau.
 
-**Mise en œuvre.** Pour appliquer ce principe dans analyse de cause racine (5 pourquoi, ishikawa), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Définir ce qui est inclus et exclu. Indiquer les actifs, versions, sites, utilisateurs, transactions, fenêtres horaires et conditions de reproduction connus. Comparer avec un groupe qui ne présente pas le symptôme aide souvent à déterminer les variables pertinentes. Préciser la méthode de détection et les limites de mesure : une alarme mal configurée peut être elle-même un problème de mesure.
 
-**Preuves et interprétation.** Conserver la chronologie, les captures, les journaux et la source de chaque fait protège l'analyse contre les souvenirs imprécis. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Écrire « erreur humaine » dès le départ confond souvent un déclencheur immédiat avec une cause systémique. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Un bon énoncé ne contient ni accusation, ni cause présumée, ni solution déjà décidée. Les expressions « erreur de l'opérateur », « mauvais fournisseur » ou « changement défectueux » sont des hypothèses si elles ne sont pas démontrées. L'énoncé doit rester stable pendant la collecte de preuves; s'il évolue parce que le périmètre change, noter cette évolution et la raison. En cas d'incident encore actif, protéger le service et suivre les procédures d'urgence en parallèle : la RCA ne doit pas retarder une mesure de sécurité ou de restauration nécessaire.
 ### 2. Collecter des preuves
 
-La qualité de la cause proposée dépend de preuves contemporaines, cohérentes et reliées au périmètre de l'incident. Corréler supervision, changements, métriques, logs, état matériel et communications sur la même ligne de temps.
+La qualité de l'analyse dépend de la qualité des données disponibles. Construire une chronologie unifiée avec les heures, sources et fuseaux cohérents. Rassembler les tickets liés, les alarmes, les journaux système, les métriques, les changements, les inventaires et les témoignages horodatés. Ne pas supposer que toutes les horloges sont synchronisées : vérifier les dérives et documenter toute correction appliquée à la chronologie.
 
-**Mise en œuvre.** Pour appliquer ce principe dans analyse de cause racine (5 pourquoi, ishikawa), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Séparer quatre catégories dans le dossier :
+- **Faits observés** : événements, mesures, valeurs de configuration ou comportements reproduits avec leur source.
+- **Hypothèses** : explications provisoires qui restent à tester.
+- **Décisions** : actions entreprises, auteur, moment, autorisation et motif.
+- **Inconnues** : données indisponibles, fenêtre non couverte, logs manquants et limites du dispositif d'observation.
 
-**Preuves et interprétation.** Marquer les faits, les hypothèses et les éléments non disponibles évite de transformer une supposition en certitude. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+Conserver les données sources conformément à la politique interne; ne pas éditer silencieusement les journaux originaux. Pour les extraits, noter le système d'origine, l'intervalle temporel, les filtres et l'heure d'extraction. Protéger les secrets, les données personnelles et les informations sensibles; restreindre l'accès aux personnes qui en ont besoin. Si une donnée essentielle n'existe pas, cette absence n'est pas la preuve d'une absence d'événement : c'est une limite de l'enquête et potentiellement une action d'amélioration du système de surveillance.
 
-**Pièges et décision.** Un journal manquant doit être indiqué comme une limite, pas remplacé par un récit inventé. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Une cause plausible doit produire des prédictions vérifiables. Si l'hypothèse est que la saturation d'un lien a provoqué une perte de sessions, rechercher les mesures de charge, les compteurs d'erreurs, les pertes et la concordance temporelle. Une simple coïncidence entre un changement et un incident ne prouve pas que le changement est causal; comparer avec la configuration antérieure, les composants non affectés et les autres changements contemporains.
 ### 3. Cinq pourquoi
 
-La méthode déroule une chaîne de questions sur le mécanisme qui rend le résultat possible ; le nombre cinq est un guide, pas une obligation mathématique. À chaque niveau, demander quelle preuve soutient la réponse et si une autre branche causale est plausible.
+La méthode des cinq pourquoi est une conversation guidée qui cherche à creuser les mécanismes sous un symptôme. « Cinq » est un repère, pas un nombre obligatoire. Il faut arrêter lorsqu'une réponse devient trop spéculative, lorsqu'on n'a plus de preuves, ou lorsqu'il faut ouvrir une branche causale différente. Chaque réponse devrait être formulée comme une affirmation testable, liée à une preuve ou à un plan de vérification.
 
-**Mise en œuvre.** Pour appliquer ce principe dans analyse de cause racine (5 pourquoi, ishikawa), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Exemple illustratif : des postes perdent l'accès à une application après un renouvellement de certificats. Pourquoi les sessions échouent-elles ? Parce que certains clients ne valident plus la chaîne présentée. Pourquoi ? Parce que le certificat intermédiaire attendu n'est pas envoyé sur le chemin utilisé. Pourquoi la différence n'a-t-elle pas été détectée ? Parce que le test avant changement ne couvrait qu'un client récent. Pourquoi le plan d'essai était-il limité ? Parce que les profils de clients n'étaient pas maintenus dans le référentiel de test. Pourquoi ce référentiel n'était-il pas à jour ? Parce que son propriétaire et sa revue n'étaient pas définis. Cette dernière réponse suggère une défaillance de gouvernance de test, mais elle reste à valider : les logs, versions, changements et résultats de reproduction doivent soutenir chaque lien.
 
-**Preuves et interprétation.** Les réponses validées et les hypothèses restant ouvertes doivent être conservées dans le compte rendu. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une suite linéaire peut masquer plusieurs causes contributives ; arrêter dès qu'une réponse devient spéculative. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Ne force pas une chaîne linéaire si plusieurs causes contribuent au même effet. Le défaut technique, l'absence d'un test représentatif, la faiblesse de l'alerte et l'absence de procédure de retour peuvent coexister sans qu'une seule soit « la » cause. Évite le raisonnement circulaire comme « cela a échoué parce que cela ne marchait pas » et les réponses vagues telles que « erreur humaine ». Demande plutôt quelle condition rendait l'erreur possible, quels contrôles auraient dû la détecter et pourquoi ils n'ont pas fonctionné.
 ### 4. Ishikawa
 
-Le diagramme d'Ishikawa organise les causes possibles par familles, par exemple méthode, matériel, logiciel, mesure, environnement et organisation. Faire générer les hypothèses par plusieurs rôles, puis les classer selon preuves et possibilité de test.
+Le diagramme d'Ishikawa, ou diagramme de cause à effet, organise les causes possibles en familles avant de décider quoi tester. Les catégories dites des 6 M — méthodes, main-d'œuvre, machines, matières, mesures et milieu — viennent d'environnements industriels, mais leur adaptation doit refléter le problème réel. En maintenance informatique, on peut examiner les personnes et compétences, les procédures, les composants matériels ou logiciels, les données, les mesures de supervision, les fournisseurs et le contexte d'exploitation.
 
-**Mise en œuvre.** Pour appliquer ce principe dans analyse de cause racine (5 pourquoi, ishikawa), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+L'objectif est d'élargir la recherche puis de prioriser les branches vérifiables, pas de remplir chaque arête pour faire joli. Une liste d'idées issue d'un atelier reste un inventaire d'hypothèses. Chaque branche utile doit être associée à une observation attendue, une source de preuve, un test sûr, un propriétaire et une décision si l'hypothèse est infirmée. Les participants qui connaissent le travail réel doivent être représentés; une RCA menée uniquement par des personnes éloignées du terrain risque d'ignorer des contraintes invisibles dans les documents.
 
-**Preuves et interprétation.** Le diagramme annoté avec les causes confirmées, rejetées et ouvertes rend le raisonnement compréhensible. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Un diagramme rempli d'hypothèses non testées est un brainstorming, pas une conclusion de RCA. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Après la séance, classer les causes candidates selon l'impact possible, la force des indices, le coût du test et le délai. Ne pas confondre vote majoritaire et preuve. Une hypothèse minoritaire mais falsifiable peut être plus utile qu'une explication populaire non vérifiée. Si plusieurs facteurs sont confirmés, documente leur relation : certains provoquent l'événement, d'autres permettent qu'il atteigne l'utilisateur ou retardent sa détection.
 ### 5. Facteurs humains et système
 
-Les erreurs surviennent dans un contexte de charge, d'interface, de procédure, de supervision et d'autorité ; l'analyse doit examiner ces conditions. Examiner si une action était raisonnable avec les informations disponibles et si les contrôles étaient réalistes.
+Une RCA utile examine l'interaction entre les individus, les procédures, les outils, les informations, la charge de travail, l'environnement et les mécanismes de contrôle. La question « qui a fait cela ? » peut aider à établir la chronologie, mais ne suffit pas à expliquer pourquoi l'action semblait correcte, pourquoi elle n'a pas été détectée et pourquoi les barrières n'ont pas limité ses conséquences.
 
-**Mise en œuvre.** Pour appliquer ce principe dans analyse de cause racine (5 pourquoi, ishikawa), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Examiner, par exemple, si une instruction était ambiguë, si l'interface rendait deux actifs semblables, si les droits étaient excessifs, si la consigne d'arrêt était connue, si les alertes étaient saturées, si la fatigue ou l'interruption ont affecté l'exécution et si l'organisation autorisait de fait une pratique non documentée. Ces éléments ne dédouanent pas automatiquement une personne; ils permettent de proposer des mesures qui réduisent le risque même lorsque des personnes différentes exécutent la même tâche.
 
-**Preuves et interprétation.** Les témoignages sont confrontés à des preuves sans effacer les incertitudes ni présumer la mauvaise intention. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Attribuer toute panne à une personne peut empêcher de corriger l'interface, les permissions ou les contrôles ayant permis l'erreur. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Une action « rappeler aux techniciens d'être plus attentifs » est rarement suffisante seule. Préférer des contrôles qui agissent sur le mécanisme : confirmation explicite de la cible, validation à deux personnes pour les actions critiques, séparation des environnements, test automatisé sur un profil représentatif, permission minimale ou alerte mesurable. La formation reste utile si un déficit de compétence a été démontré, mais elle ne remplace pas un contrôle technique possible.
 ### 6. Cause immédiate et causes contributives
 
-Une action ou un composant peut déclencher l'incident alors que plusieurs faiblesses expliquent son ampleur ou sa durée. Distinguer déclencheur, conditions latentes, défaut de détection et obstacle au rétablissement.
+La cause immédiate décrit le mécanisme proche de l'effet observé. Les facteurs contributifs expliquent pourquoi ce mécanisme s'est produit ou pourquoi son impact a été plus important. Les conditions latentes concernent des contrôles, des décisions ou des défauts d'organisation qui ont rendu l'événement plus probable. Les barrières de détection et de récupération méritent leur propre analyse : comprendre l'origine d'une panne ne suffit pas si l'organisation aurait pu la détecter plus tôt ou limiter son rayon d'impact.
 
-**Mise en œuvre.** Pour appliquer ce principe dans analyse de cause racine (5 pourquoi, ishikawa), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Un incident peut avoir plusieurs chaînes causales. Par exemple, une saturation est causée par une croissance de charge; l'impact devient important parce que la capacité n'a pas été surveillée; il dure longtemps parce que l'alerte n'est pas routée vers le bon propriétaire; la récupération est lente parce qu'aucune procédure de délestage n'a été testée. Il ne faut pas déclarer chacun de ces éléments « cause racine » sans préciser leur rôle. Distinguer déclencheur, mécanisme, facteur aggravant, échec de détection et échec de récupération rend les actions plus ciblées.
 
-**Preuves et interprétation.** Une carte causale annotée aide à lier chaque action corrective à un mécanisme concret. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Corriger seulement le déclencheur peut rendre l'incident moins fréquent sans réduire le risque global. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Le diagramme causal doit être validé par la chronologie et les données. Vérifier que la cause proposée précède l'effet, qu'elle est compatible avec les faits et que les observations contraires ont été traitées. Une causalité peut être renforcée par un test contrôlé, une reproduction, une comparaison entre périmètres affectés et non affectés, ou l'évolution des indicateurs après correction. Si la preuve reste incomplète, documenter un niveau de confiance et les prochaines vérifications au lieu d'affirmer une certitude artificielle.
 ### 7. Actions correctives
 
-Une action utile modifie un mécanisme causal, a un propriétaire, une échéance et une méthode de vérification. Combiner mesures techniques, procédures, formation, supervision et changements de gouvernance selon les causes démontrées.
+Les actions doivent viser le mécanisme causal établi et les barrières qui auraient réduit l'impact. Séparer les mesures immédiates de stabilisation, les corrections définitives, les améliorations de détection et les actions organisationnelles. Attribuer à chaque action un responsable, une date cible, des dépendances, le risque traité et un critère d'achèvement vérifiable. Une tâche « revoir la procédure » est insuffisante sans indiquer quelle ambiguïté sera corrigée et comment la version révisée sera testée.
 
-**Mise en œuvre.** Pour appliquer ce principe dans analyse de cause racine (5 pourquoi, ishikawa), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Privilégier la hiérarchie des contrôles lorsqu'elle est pertinente : éliminer la condition dangereuse, rendre l'erreur plus difficile, détecter l'écart avant son impact, limiter les conséquences, puis soutenir la bonne pratique par une procédure ou une formation. Le choix dépend du contexte; une action plus simple peut être appropriée si elle est suffisante et peut être validée rapidement. Vérifier qu'une correction n'introduit pas un autre risque ou une dégradation d'accessibilité.
 
-**Preuves et interprétation.** La preuve d'efficacité est une mesure observée après mise en œuvre, pas la simple fermeture du ticket d'action. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une formation générique ne compense pas une architecture fragile ou un contrôle automatique absent. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Une action corrective est achevée lorsque l'état attendu a été démontré, pas lorsqu'une tâche est marquée « terminée » dans le système de tickets. Conserver les tests, leur périmètre, les résultats et les limites. Pour une modification de production, utiliser le circuit de changement applicable. Si la correction doit être déployée par vagues, définir la taille des lots, les critères d'arrêt et le retour arrière. Les actions non réalisées doivent rester visibles avec un propriétaire et un risque résiduel explicitement accepté par la personne autorisée.
 ### 8. Vérifier l'efficacité
 
-La RCA n'est utile que si les mesures diminuent la probabilité, l'impact ou le temps de détection de la panne. Définir avant l'action une mesure de base, un délai d'observation et un critère de réussite ou de réouverture.
+Une RCA n'est pas achevée lorsque le rapport est publié. Il faut vérifier que les actions ont changé le comportement du système et que la récurrence ou l'impact ont diminué. Définir avant l'action une mesure de référence, une cible, une durée d'observation et un propriétaire du suivi. Selon le problème, mesurer le nombre d'incidents comparables par période, le taux d'échec, le temps de détection, la durée d'interruption, le pourcentage d'essais réussis ou le taux de conformité à une procédure.
 
-**Mise en œuvre.** Pour appliquer ce principe dans analyse de cause racine (5 pourquoi, ishikawa), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Éviter les conclusions à partir d'un petit échantillon ou d'une période atypique. Si le volume est faible, compléter les mesures par un test de défaillance en environnement contrôlé ou un examen d'échantillons. Segmenter par version, site, type d'actif ou scénario afin de ne pas masquer une régression localisée. Un indicateur qui s'améliore peut refléter une baisse de déclaration plutôt qu'une réduction réelle des incidents; trianguler les tickets, la supervision et le retour des utilisateurs.
 
-**Preuves et interprétation.** Comparer les événements similaires, les quasi-incidents et les résultats de tests permet de vérifier l'effet. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** L'absence d'incident sur une courte période ne prouve pas à elle seule que le risque est supprimé. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Si le résultat attendu n'est pas atteint, ne déclare pas automatiquement que les équipes ont mal exécuté la correction. Reprendre l'analyse : cause initiale incomplète, mise en œuvre partielle, effet secondaire, mesure mal choisie ou facteurs externes. Les actions correctives peuvent devoir être adaptées. Fermer la RCA lorsque le résultat convenu est vérifié, ou documenter explicitement pourquoi un risque résiduel demeure et qui a accepté ce risque.
 ## Méthode transversale pour une opération maîtrisée
 
 ### 1. Gouvernance
@@ -320,6 +302,253 @@ sha256sum fichier-preuve.log
 ```
 
 Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+
+
+## Boîte à outils RCA pour l'équipe de maintenance
+
+Une analyse efficace combine plusieurs outils au lieu de demander à une seule méthode de produire toute la vérité. Les cinq pourquoi aident à creuser un mécanisme; Ishikawa élargit les causes possibles; la chronologie révèle les relations temporelles; Pareto aide à sélectionner les occurrences les plus fréquentes; les comparaisons « est / n'est pas » isolent les différences; un arbre de défaillances représente des combinaisons logiques; et un plan d'action transforme les conclusions en améliorations vérifiables. Le choix dépend de la question et des données disponibles.
+
+### Comparer « est / n'est pas » avant de conclure
+
+Quand le symptôme ne se produit que sur une partie du parc, la comparaison structurée peut être plus informative qu'une longue séance d'idées. Décrire ce qui est touché et ce qui ne l'est pas selon des dimensions comparables : qui, quoi, où, quand, combien, version, changement et conditions de fonctionnement. Les différences constituent des pistes, non une preuve en elles-mêmes.
+
+| Dimension | EST : observation | N'EST PAS : contraste utile | Question à tester |
+|---|---|---|---|
+| Qui | Postes de deux équipes d'un site | Postes d'un autre site | Différence de profil ou de stratégie ? |
+| Où | VLAN utilisateurs X | VLAN utilisateurs Y | Chemin réseau ou règle différente ? |
+| Quand | Apparition après une fenêtre de changement | Période antérieure stable | Quel état a réellement changé ? |
+| Quoi | Connexion à une application précise | Autres applications accessibles | Dépendance commune ou spécifique ? |
+| Combien | 18 actifs affectés | 140 actifs comparables sans défaut | Quel élément différencie ces groupes ? |
+| Version | Clients avec une version donnée | Clients de version précédente | Compatibilité ou déploiement incomplet ? |
+
+Ne pas sélectionner uniquement les différences qui confirment la première hypothèse. Noter aussi les différences sans effet et tester si elles sont réellement pertinentes. Une comparaison utile porte sur des actifs aussi similaires que possible et utilise une même méthode de mesure. Si les groupes diffèrent sur beaucoup de dimensions, isoler progressivement les variables plutôt que conclure sur un seul facteur.
+
+~~~mermaid
+flowchart TD
+    A[Définir le symptôme] --> B[Choisir un groupe affecté]
+    A --> C[Choisir un groupe non affecté comparable]
+    B --> D[Relever versions, lieu, heure et état]
+    C --> D
+    D --> E[Comparer les différences]
+    E --> F[Formuler plusieurs hypothèses]
+    F --> G[Choisir un test discriminant]
+    G --> H{Les résultats correspondent-ils ?}
+    H -- Non --> F
+    H -- Oui --> I[Confirmer avec une preuve indépendante]
+~~~
+
+### Pareto : choisir où approfondir sans ignorer le risque
+
+Le diagramme de Pareto classe les catégories par fréquence ou contribution mesurée, souvent avec une courbe cumulative. Il aide à décider où concentrer l'investigation lorsque de nombreux incidents se ressemblent. Il ne démontre pas la causalité et ne doit pas servir à ignorer un incident rare à conséquence très grave. Les événements de sécurité, d'intégrité ou de continuité peuvent demander une analyse prioritaire même s'ils sont peu fréquents.
+
+Avant de construire le Pareto, définir l'unité : nombre de tickets, minutes d'indisponibilité, coût, actifs touchés ou échecs de contrôle. Ces mesures répondent à des questions différentes. Dédupliquer les alertes répétées si elles décrivent un seul événement; autrement, une sonde bruyante peut dominer artificiellement les résultats. Garder la période, les règles de classification et les limites de données dans le rapport.
+
+~~~mermaid
+flowchart LR
+    A[Exporter les incidents comparables] --> B[Nettoyer doublons et catégories]
+    B --> C[Choisir une mesure adaptée]
+    C --> D[Classer les catégories du plus grand au plus faible]
+    D --> E[Examiner le cumul et le contexte]
+    E --> F[Prioriser les investigations]
+    F --> G[Tester les causes, pas seulement les fréquences]
+~~~
+
+### Arbre de défaillances : comprendre les combinaisons de facteurs
+
+Un arbre de défaillances part d'un événement redouté et décompose les conditions susceptibles de le produire. Les portes logiques AND et OR représentent des relations précises : une porte OR signifie qu'une seule des branches suffit selon le modèle; une porte AND signifie que plusieurs conditions doivent être réunies. Il faut préciser les hypothèses et le périmètre de chaque porte. L'arbre reste un modèle tant que les relations n'ont pas été corroborées.
+
+Exemple : l'interruption d'accès à un service pourrait nécessiter simultanément la perte de la route principale et l'indisponibilité du chemin de secours. Si un seul de ces événements suffit à interrompre le service dans l'architecture réelle, le modèle doit utiliser une autre relation. Une erreur de logique rendrait l'analyse trompeuse.
+
+~~~mermaid
+flowchart TD
+    A[Perte totale du service] --> OR{OU}
+    OR --> B[Défaillance du chemin principal]
+    OR --> C[Erreur de configuration commune]
+    B --> AND{ET}
+    AND --> D[Route principale indisponible]
+    AND --> E[Chemin secondaire non opérationnel]
+    C --> F[Changement appliqué à plusieurs chemins]
+~~~
+
+Ne pas interpréter l'arbre comme une preuve que toutes les branches sont survenues. Il sert à identifier les données à recueillir, les barrières à examiner et les scénarios à tester. Les seuils d'acceptation, les conséquences et le plan de continuité restent documentés à part.
+
+### Relier chronologie, changement et impact
+
+Une timeline RCA comprend idéalement le dernier état connu comme sain, le premier signal anormal, les changements observés, les symptômes utilisateurs, les décisions, les mitigations et le moment où les critères de rétablissement sont satisfaits. Les heures doivent être normalisées tout en conservant les horodatages d'origine. En cas de décalage d'horloge, noter la correction estimée et son incertitude.
+
+~~~mermaid
+timeline
+    title Exemple de chronologie d'incident
+    08:45 : Service encore sain selon la supervision
+    09:00 : Changement approuvé appliqué
+    09:07 : Première alerte de latence
+    09:10 : Premiers tickets utilisateurs
+    09:18 : Mitigation déclenchée
+    09:32 : Test fonctionnel concluant
+    10:00 : Surveillance renforcée et suivi
+~~~
+
+Cette chronologie est un exemple pédagogique, pas un enregistrement d'incident réel. Dans une véritable RCA, remplacer chaque étape par des preuves traçables et indiquer les intervalles où il est impossible de préciser l'heure. Si l'alerte est arrivée après le début de l'effet, examiner aussi le délai de détection et non seulement la cause de l'événement.
+
+### Vérifier une hypothèse par un test discriminant
+
+Une bonne investigation ne multiplie pas les tests au hasard. Pour chaque hypothèse prioritaire, écrire ce qui devrait être observé si elle est vraie, ce qu'on devrait voir si elle est fausse, quel système fournit la mesure et quel résultat pourrait être ambigu. Le test doit distinguer les hypothèses concurrentes sans créer un risque disproportionné.
+
+| Hypothèse | Résultat attendu si elle est vraie | Test adapté | Limite à noter |
+|---|---|---|---|
+| Un changement a modifié un paramètre fautif | Écart entre état précédent et état courant sur les actifs affectés | Diff de configuration et comparaison d'actifs | D'autres changements ont pu survenir |
+| Le lien est saturé | Charge élevée concordant avec pertes et latence | Courbes d'utilisation, compteurs et mesures de bout en bout | Une moyenne peut masquer les pics |
+| La procédure de déploiement omet un profil | Les clients de ce profil échouent plus fréquemment | Comparaison reproductible par profil | Les profils peuvent différer sur d'autres critères |
+| L'alerte n'est pas correctement routée | Le signal existe mais la notification ou l'assignation échoue | Historique de règle, destination et accusé | Un incident de canal peut imiter une règle incorrecte |
+
+Un test non concluant n'est pas une validation partielle de l'hypothèse. Il peut signifier que la fenêtre est trop courte, la méthode inadéquate, le signal absent ou l'hypothèse mal formulée. Enregistrer ce qui a été appris et modifier le plan d'enquête. Si le test exige une modification de production, passer par l'autorisation appropriée et convenir d'un retour arrière.
+
+~~~mermaid
+flowchart TD
+    A[Énoncer une hypothèse falsifiable] --> B[Prédire le résultat attendu]
+    B --> C[Définir le test et la source de preuve]
+    C --> D[Évaluer sécurité et autorisation]
+    D --> E[Exécuter le test contrôlé]
+    E --> F{Résultat discriminant ?}
+    F -- Non --> G[Documenter la limite et redessiner le test]
+    G --> C
+    F -- Oui --> H[Conserver données et interprétation]
+    H --> I[Confirmer ou rejeter l'hypothèse]
+~~~
+
+### Construire un Ishikawa et convertir les idées en tests
+
+Pour une panne informatique, les familles classiques peuvent être adaptées à l'environnement : personnes et compétences, méthodes et procédures, matériel et logiciel, données et mesures, environnement, fournisseurs et gouvernance. Les causes peuvent apparaître dans plusieurs familles; l'important est de rendre visible l'hypothèse, pas de ranger chaque idée dans une case parfaite.
+
+~~~mermaid
+flowchart LR
+    A[Personnes et compétences] --> X[Incident analysé]
+    B[Méthodes et procédures] --> X
+    C[Matériel et logiciel] --> X
+    D[Données et mesures] --> X
+    E[Environnement et charge] --> X
+    F[Fournisseurs et gouvernance] --> X
+~~~
+
+Dans chaque famille, formuler des causes précises. « Supervision » est une catégorie; « le seuil d'alerte ne se déclenche que lorsque le délai moyen dépasse la limite sur cinq minutes, ce qui retarde la détection d'un pic bref » est une hypothèse testable. Associer ensuite chaque idée à une source et à une méthode de test. Les idées qui ne peuvent être testées faute de donnée deviennent des limites et des possibilités d'amélioration du dispositif de mesure.
+
+### Plan d'actions correctives et préventives
+
+Un plan d'action relie la preuve à une mesure proportionnée. Il ne s'agit pas de remplir une longue liste : chaque action doit répondre à une cause confirmée ou à un risque de détection/récupération démontré.
+
+| Champ | Question de contrôle |
+|---|---|
+| Cause ou barrière visée | Quelle observation ou conclusion justifie l'action ? |
+| Action choisie | Quel changement concret sera fait ? |
+| Responsable | Qui possède la compétence et l'autorité pour la réaliser ? |
+| Échéance | Quelle date correspond au risque et aux dépendances ? |
+| Risque secondaire | Quel effet indésirable peut être introduit ? |
+| Validation | Quel test prouvera que l'action fonctionne ? |
+| Efficacité | Quel indicateur ou échantillon vérifiera l'effet dans le temps ? |
+| Risque résiduel | Qu'est-ce qui restera possible, et qui accepte ce risque ? |
+
+~~~mermaid
+flowchart TD
+    A[Cause ou barrière confirmée] --> B[Proposer plusieurs mesures]
+    B --> C[Évaluer effet, effort et risque secondaire]
+    C --> D[Choisir la mesure proportionnée]
+    D --> E[Nommer responsable et échéance]
+    E --> F[Mettre en œuvre sous contrôle]
+    F --> G[Test d'acceptation]
+    G --> H{Test concluant ?}
+    H -- Non --> B
+    H -- Oui --> I[Surveiller l'efficacité dans le temps]
+    I --> J{Récurrence ou impact réduit ?}
+    J -- Non --> A
+    J -- Oui --> K[Clôturer et partager l'apprentissage]
+~~~
+
+Une action de prévention doit viser les conditions qui permettent à la défaillance de se reproduire; une action de détection vise à réduire le délai entre l'événement et sa prise en compte; une action d'atténuation réduit le rayon d'impact; une action de récupération réduit le temps pour retrouver un état stable. Ces catégories aident à vérifier que le plan ne s'appuie pas uniquement sur la formation ou sur une nouvelle consigne.
+
+### Rapport RCA : structure recommandée
+
+~~~text
+1. Résumé exécutif et décision attendue
+2. Service, périmètre et impact mesuré
+3. Chronologie avec sources et niveau de confiance
+4. Symptôme précis et critères de détection
+5. Actions de protection et de restauration réalisées
+6. Faits confirmés, hypothèses et données manquantes
+7. Analyse causale (5 pourquoi, Ishikawa, comparaison ou arbre)
+8. Cause immédiate, facteurs contributifs et barrières défaillantes
+9. Éléments qui soutiennent ou contredisent chaque hypothèse
+10. Actions correctives, préventives et de détection
+11. Responsables, échéances, risques secondaires
+12. Méthode et date de vérification d'efficacité
+13. Risque résiduel et acceptation éventuelle
+14. Annexes, sources, versions et preuves protégées
+~~~
+
+Le rapport doit permettre à un lecteur qui n'a pas participé à l'enquête de comprendre les faits, reproduire le raisonnement et voir ce qui reste inconnu. La taille du rapport dépend de la gravité et de la complexité; un incident limité peut être documenté brièvement si toutes les décisions et preuves essentielles sont présentes.
+
+### Cas guidé : saturation de stockage pendant les sauvegardes
+
+Un serveur de fichiers devient lent chaque nuit durant la fenêtre de sauvegarde. Les premiers tickets accusent la sauvegarde, mais aucune preuve n'établit encore que le logiciel lui-même est défectueux. L'équipe doit examiner la chronologie, l'utilisation de stockage, la concurrence des travaux, les politiques de rétention et les indicateurs de latence avant de choisir une correction.
+
+**Énoncé du problème.** Plusieurs utilisateurs signalent une dégradation du partage de fichiers pendant la fenêtre nocturne. La supervision indique une hausse de latence et une baisse temporaire des opérations d'entrée-sortie terminées. Les informations sont des observations initiales à vérifier par comparaison des journaux et des heures.
+
+**Hypothèses concurrentes.** Le volume de sauvegarde a augmenté; un autre traitement consomme les mêmes ressources; la cible de sauvegarde est lente; la rétention retient trop de données; le stockage approche une limite de capacité; une modification récente a déplacé les fenêtres de plusieurs jobs. Ces hypothèses ne sont pas exclusives.
+
+**Investigation.** Comparer des nuits avec et sans dégradation, aligner les courbes de latence et de débit avec les travaux de sauvegarde et les autres traitements planifiés, vérifier les changements et la capacité disponible, puis choisir des tests qui différencient les hypothèses. Ne pas désactiver la protection des données pour voir si la latence disparaît sans décision de risque et solution de retour.
+
+**Conclusion provisoire.** Supposons que la chronologie montre une concurrence entre une sauvegarde incrémentale et une tâche d'indexation déplacée récemment. Le changement de planification est une piste forte, mais il faut confirmer la relation avec des mesures répétées ou un test contrôlé. La cause ne doit pas être déclarée sur la seule coïncidence temporelle.
+
+**Actions possibles.** Replanifier la tâche après évaluation des fenêtres et dépendances, établir des seuils d'alerte sur la latence et la saturation, documenter les critères d'escalade, puis surveiller plusieurs cycles. Le propriétaire métier valide l'acceptabilité des performances; l'équipe technique prouve que le changement a été appliqué et que la sauvegarde continue de produire les résultats attendus.
+
+~~~mermaid
+flowchart TD
+    A[Dégradation pendant la sauvegarde] --> B[Aligner tickets, travaux et métriques]
+    B --> C[Formuler plusieurs hypothèses]
+    C --> D[Comparer nuits affectées et non affectées]
+    D --> E{Facteur causal confirmé ?}
+    E -- Non --> F[Collecter une mesure discriminante]
+    F --> C
+    E -- Oui --> G[Évaluer une action réversible]
+    G --> H[Test contrôlé et validation métier]
+    H --> I[Surveiller plusieurs cycles]
+    I --> J{Performance et sauvegarde acceptables ?}
+    J -- Non --> C
+    J -- Oui --> K[Documenter cause, action et efficacité]
+~~~
+
+### Cas guidé : incident après un changement d'identité
+
+Après un changement de configuration d'authentification, certains utilisateurs ne peuvent plus ouvrir une application, alors que d'autres restent opérationnels. Il faut éviter de conclure trop vite à une panne générale de l'identité ou à une erreur de l'équipe de changement. Le comportement différentiel peut dépendre du profil, du site, du cache, de la version client ou du chemin réseau.
+
+**Collecter.** Préserver l'identifiant du changement et sa version, les heures des premiers échecs, les utilisateurs et groupes affectés, le résultat de tests sur des profils non affectés, les journaux d'authentification et la méthode exacte de reproduction. Protéger les identifiants et données sensibles dans les preuves partagées.
+
+**Analyser.** Utiliser un tableau « est / n'est pas » pour comparer les clients, puis l'Ishikawa pour identifier d'autres facteurs. Les cinq pourquoi peuvent ensuite creuser une branche confirmée. Un changement temporellement proche est un point de départ, pas une preuve suffisante.
+
+**Rétablir.** Les options de mitigation doivent être approuvées et réversibles. Après le test de correction, vérifier plusieurs profils représentatifs, mesurer l'erreur sur la période et documenter les personnes encore affectées. Si la cause ne peut être confirmée, rédiger les limites du rapport et les prochaines hypothèses à tester.
+
+**Prévenir.** Améliorer le jeu de profils de test, le plan de changement, les contrôles sur les clients anciens et la supervision des échecs d'authentification, à condition que l'investigation ait démontré ces lacunes. Chaque mesure doit avoir un propriétaire et une validation d'efficacité.
+
+### Pièges de la RCA à éviter
+
+- **Confondre cause et corrélation.** Un changement juste avant une panne est une piste; il faut démontrer le mécanisme.
+- **S'arrêter à « erreur humaine ».** Identifier les conditions, les interfaces, les procédures et les barrières qui ont rendu l'erreur possible.
+- **Forcer cinq réponses.** Le nombre de questions est une heuristique; des branches multiples peuvent être nécessaires.
+- **Transformer Ishikawa en verdict.** Les branches sont des possibilités jusqu'à vérification.
+- **N'utiliser que la fréquence.** Une cause rare peut avoir un impact très grave.
+- **Choisir une action sans test.** Une tâche terminée n'est pas une preuve d'efficacité.
+- **Effacer les éléments contradictoires.** Une hypothèse doit être revue lorsqu'une donnée la contredit.
+- **Publier un rapport sans propriétaire des actions.** Les causes documentées ne réduisent pas le risque si personne ne traite les mesures.
+- **Confondre absence de journal et absence d'événement.** Les lacunes de mesure doivent apparaître dans le rapport et devenir des actions si nécessaire.
+
+### Ressources officielles pour approfondir
+
+- **ASQ — Root Cause Analysis Tools.** Présente des outils d'analyse des causes, notamment Ishikawa, Pareto et les diagrammes de dispersion. [Ressources ASQ](https://asq.org/quality-resources/root-cause-analysis/tools).
+- **ASQ — Five Whys and Five Hows.** Explique l'utilisation des cinq pourquoi et rappelle que le nombre peut être inférieur ou supérieur à cinq selon le problème. [Guide ASQ](https://asq.org/quality-resources/five-whys).
+- **ASQ — Fishbone Diagram.** Décrit le diagramme de cause à effet, son usage en atelier et le besoin d'examiner les causes identifiées avant de les traiter comme avérées. [Guide ASQ](https://asq.org/quality-resources/fishbone).
+- **NIST CSRC — Root Cause Analysis.** Définit la RCA comme une approche systémique pour identifier des causes sous-jacentes associées à des risques. [Glossaire NIST](https://csrc.nist.gov/glossary/term/root_cause_analysis).
+- **AHRQ — Using Root Cause Analysis to Improve Quality and Performance.** Présente les cinq pourquoi, Ishikawa et l'analyse des écarts dans un contexte d'amélioration de la qualité; les principes d'analyse structurée peuvent être adaptés à la maintenance informatique. [Ressource AHRQ](https://www.ahrq.gov/evidencenow/tools/root-cause-analysis.html).
+
+Ces ressources aident à choisir et appliquer les outils mais ne remplacent pas les règles de conservation des preuves, de sécurité, de gestion des changements et de responsabilité propres à l'organisation. La RCA doit être proportionnée au risque, transparente sur les limites et orientée vers des mesures dont l'effet peut être vérifié.
 
 ## Atelier pratique guidé
 
