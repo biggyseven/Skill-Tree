@@ -1,0 +1,327 @@
+{
+  "schema_version": 2,
+  "id": "sd-wan-intermediaire",
+  "title": "SD-WAN — Overlay de branche et application ERP",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Rétablissez la connexion de la branche EDGE1 au HUB. Activez le canal de contrôle et l’overlay, puis appliquez une politique applicative ERP qui choisit un transport en fonction des mesures SLA.",
+  "objectives": [
+    "Établir le contrôle avec l’orchestrateur.",
+    "Monter le tunnel overlay vers le HUB.",
+    "Activer la politique BRANCH-APP.",
+    "Activer le routage applicatif et le suivi SLA."
+  ],
+  "hints": [
+    "Le plan de contrôle et le plan de données sont distincts.",
+    "L’overlay repose sur les transports underlay, qui doivent rester joignables.",
+    "Les règles applicatives doivent être associées à des seuils SLA."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-sd-wan-intermediaire",
+    "metadata": {
+      "name": "SD-WAN — Overlay de branche et politique applicative",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "EDGE1",
+        "type": "router",
+        "x": 250,
+        "y": 220,
+        "label": "EDGE1",
+        "model": "EDGE1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Internet underlay",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.1.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transport privé",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/2",
+            "name": "Gi0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "LAN branche",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "EDGE1",
+          "routes": [
+            {
+              "protocol": "sd-wan",
+              "enabled": false,
+              "orchestrator": "vsmart",
+              "control_connection": false,
+              "overlay_tunnel": false,
+              "policy_name": "BRANCH-APP",
+              "app_route": {
+                "enabled": false,
+                "application": "erp",
+                "preferred_transport": "mpls",
+                "loss_threshold": 5,
+                "latency_ms": 50
+              },
+              "sla_tracking": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "HUB",
+        "type": "router",
+        "x": 570,
+        "y": 220,
+        "label": "HUB",
+        "model": "HUB",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.1.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.101.2",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "HUB",
+          "routes": [
+            {
+              "protocol": "sd-wan",
+              "enabled": true,
+              "orchestrator": "vsmart",
+              "control_connection": true,
+              "overlay_tunnel": true,
+              "policy_name": "HUB-DEFAULT"
+            }
+          ]
+        }
+      },
+      {
+        "id": "ISP",
+        "type": "cloud",
+        "x": 570,
+        "y": 430,
+        "label": "ISP",
+        "model": "ISP",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "ISP"
+        }
+      },
+      {
+        "id": "APP",
+        "type": "server",
+        "x": 890,
+        "y": 220,
+        "label": "APP",
+        "model": "APP",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.100.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "EDGE-INTERNET",
+        "from": {
+          "node": "EDGE1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "ISP",
+          "port": "eth0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "EDGE-HUB",
+        "from": {
+          "node": "EDGE1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "HUB",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "EDGE-APP",
+        "from": {
+          "node": "EDGE1",
+          "port": "Gi0/2"
+        },
+        "to": {
+          "node": "APP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "sdwan-enabled",
+        "description": "SD-WAN is enabled on the branch edge.",
+        "device": "EDGE1",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "control",
+        "description": "The control connection is established.",
+        "device": "EDGE1",
+        "path": "config.routes[0].control_connection",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "overlay",
+        "description": "The overlay tunnel is up.",
+        "device": "EDGE1",
+        "path": "config.routes[0].overlay_tunnel",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "policy",
+        "description": "The branch uses the intended application policy.",
+        "device": "EDGE1",
+        "path": "config.routes[0].policy_name",
+        "operator": "equals",
+        "expected": "BRANCH-APP"
+      },
+      {
+        "id": "app-route",
+        "description": "The ERP application route is active.",
+        "device": "EDGE1",
+        "path": "config.routes[0].app_route.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "transport",
+        "description": "ERP prefers the private MPLS transport.",
+        "device": "EDGE1",
+        "path": "config.routes[0].app_route.preferred_transport",
+        "operator": "equals",
+        "expected": "mpls"
+      },
+      {
+        "id": "sla",
+        "description": "Application SLA tracking is enabled.",
+        "device": "EDGE1",
+        "path": "config.routes[0].sla_tracking",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
