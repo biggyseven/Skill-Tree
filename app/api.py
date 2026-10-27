@@ -170,7 +170,7 @@ async def lifespan(_app: FastAPI):
         conn.close()
     yield
 
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -280,7 +280,15 @@ async def enforce_site_authentication(request: Request, call_next):
         or (path.lower().endswith(".html") and path != "/login.html")
     )
     if is_gated_page and not authenticated:
-        return RedirectResponse(url="/login.html", status_code=303)
+        # Conserver la destination et ses paramètres (ex. ?openLab=... ou ?openTab=labs)
+        # afin que la connexion reprenne l'action demandée au lieu du tableau de bord.
+        requested_path = request.url.path
+        if request.url.query:
+            requested_path += "?" + request.url.query
+        login_url = "/login.html"
+        if requested_path != "/" or request.url.query:
+            login_url += "?next=" + quote(requested_path, safe="")
+        return RedirectResponse(url=login_url, status_code=303)
 
     if path.startswith("/api/"):
         if not configured:
