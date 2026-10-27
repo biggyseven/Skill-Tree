@@ -6,14 +6,18 @@
   "module": "Routage",
   "duration_min": 25,
   "difficulty": "débutant",
-  "prompt": "Ajoutez sur R1 une route statique vers 172.16.20.0/24 via 10.0.0.2. La validation compare l’entrée structurée de la table de routage.",
+  "prompt": "Contexte : le réseau distant 172.16.20.0/24 est joignable via le prochain saut 10.0.0.2. Ajoutez sur R1 une route statique avec le masque 255.255.255.0 et ce next-hop. Une route présente dans la configuration n’est utilisable que si le prochain saut est lui-même résolu via une interface ou une route existante ; ce mini-laboratoire valide l’entrée configurée sans simuler toute la chaîne de routage.",
   "objectives": [
-    "Exécuter puis vérifier : ip route 172.16.20.0 255.255.255.0 10.0.0.2"
+    "Identifier le réseau de destination 172.16.20.0/24 et son next-hop 10.0.0.2",
+    "Ajouter la route statique avec le masque 255.255.255.0",
+    "Vérifier la route enregistrée et la différence entre configuration présente et next-hop joignable"
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; ip route 172.16.20.0 255.255.255.0 10.0.0.2 ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : une route IPv4 statique prend le réseau de destination, son masque, puis l’adresse IP du prochain saut.",
+    "Indice 2 : /24 correspond à 255.255.255.0. Le next-hop est 10.0.0.2 ; ne confondez pas cette adresse avec le réseau de destination.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; ip route 172.16.20.0 255.255.255.0 10.0.0.2 ; end.",
+    "La validation confirme la présence de la route 172.16.20.0/24 via 10.0.0.2 ; elle ne prétend pas que ce next-hop est joignable."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -36,7 +40,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -55,7 +59,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -106,7 +110,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -125,7 +129,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -176,7 +180,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -281,7 +285,7 @@
     "rules": [
       {
         "id": "static_route",
-        "description": "Contrôle serveur : static route doit être conforme.",
+        "description": "R1 contient une route vers 172.16.20.0/24 via 10.0.0.2.",
         "device": "R1",
         "path": "config.routes",
         "operator": "contains",
