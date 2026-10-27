@@ -38,6 +38,8 @@ jobs:
       - name: Wait for the fixed production UI and capture screenshots
         env:
           TARGET_URL: https://skill-tree-vjon.onrender.com
+          # Add this repository Actions secret to enable the complete authenticated visual suite.
+          SKILLTREE_PRODUCTION_TEST_PASSWORD: ${{ secrets.SKILLTREE_PRODUCTION_TEST_PASSWORD }}
         run: node tests/e2e/production-visual-check.cjs
 
       - name: Upload production visual evidence
