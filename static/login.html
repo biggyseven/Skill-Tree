@@ -28,7 +28,7 @@
   <main>
     <div class="mark" aria-hidden="true">🌳</div>
     <h1>Skill-Tree</h1>
-    <p>Saisis le mot de passe de l’application pour ouvrir ton espace privé. Après connexion, ton tableau de bord s’ouvrira automatiquement. Tu resteras connecté dans ce navigateur pendant 12 heures.</p>
+    <p>Saisis le mot de passe de l’application pour ouvrir ton espace privé. Après connexion, tu reprendras directement la page demandée. Tu resteras connecté dans ce navigateur pendant 12 heures.</p>
     <div id="setup" role="alert"></div>
     <form id="login-form" autocomplete="on">
       <label for="password">Mot de passe de l'application</label>
@@ -50,6 +50,20 @@
         setup.style.display = 'block';
         form.style.display = 'none';
       };
+      // Seules les destinations internes sont acceptées : le paramètre next ne peut
+      // pas transformer la page de connexion en redirection ouverte vers un site tiers.
+      const rawNext = new URLSearchParams(window.location.search).get('next');
+      const nextPath = (() => {
+        if (!rawNext || !rawNext.startsWith('/') || rawNext.startsWith('//') || rawNext.includes('\\')) return '/';
+        try {
+          const target = new URL(rawNext, window.location.origin);
+          if (target.origin !== window.location.origin || target.pathname === '/login.html' || target.pathname.startsWith('/api/auth/')) return '/';
+          return target.pathname + target.search + target.hash;
+        } catch (_) {
+          return '/';
+        }
+      })();
+      const navigateToNext = () => window.location.replace(nextPath);
       fetch('/api/auth/status', { cache: 'no-store', credentials: 'same-origin' })
         .then(async response => {
           if (!response.ok) throw new Error('Le service de connexion ne répond pas correctement.');
@@ -57,7 +71,7 @@
         })
         .then(status => {
           if (!status.required || status.authenticated) {
-            window.location.replace('/');
+            navigateToNext();
             return;
           }
           if (!status.configured) {
@@ -85,10 +99,10 @@
           redirecting = true;
           input.value = '';
           input.disabled = true;
-          button.textContent = 'Ouverture du tableau de bord…';
+          button.textContent = 'Ouverture de la page demandée…';
           message.style.color = '#86efac';
           message.textContent = 'Connexion réussie. Ouverture de ton parcours…';
-          window.location.replace('/');
+          navigateToNext();
         } catch (error) {
           message.textContent = error.message || 'Échec de la connexion.';
           input.select();
