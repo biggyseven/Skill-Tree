@@ -7652,7 +7652,7 @@
     "title": "Helpdesk : prise en charge et résolution des demandes",
     "category": "Helpdesk pratique",
     "order": 4312,
-    "description": "Qualifier une demande, recueillir les informations utiles, définir une priorité, suivre un ticket et communiquer sa résolution.",
+    "description": "Qualifier une demande, ouvrir un ticket exploitable, assurer le suivi et confirmer la résolution avec l’utilisateur.",
     "prereqs": [
       "maint-os-debutant"
     ],
@@ -7661,7 +7661,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-tickets-debutant"
   },
   {
     "id": "maint-glossaire-debutant",
@@ -7686,7 +7687,7 @@
     "title": "Communication technique avec les utilisateurs",
     "category": "Communication pratique",
     "order": 4313,
-    "description": "Expliquer un incident sans jargon inutile, poser les bonnes questions, reformuler un besoin et rédiger des messages d’intervention clairs.",
+    "description": "Écouter et reformuler le besoin, communiquer sans jargon inutile, annoncer des mises à jour fiables et protéger les informations pendant une intervention.",
     "prereqs": [
       "maint-helpdesk-debutant"
     ],
@@ -7695,8 +7696,7 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ],
-    "lesson_source_id": "maint-glossaire-debutant"
+    ]
   },
   {
     "id": "maint-documentation-debutant",
@@ -7738,7 +7738,7 @@
     "title": "Sécurité opérationnelle lors des interventions",
     "category": "Sécurité opérationnelle",
     "order": 4315,
-    "description": "Appliquer les contrôles préalables, la prévention des risques électriques et matériels, la protection des données et les règles de remise en service.",
+    "description": "Appliquer les contrôles de sécurité, de confidentialité, d’autorisation et de remise en service pendant une intervention.",
     "prereqs": [
       "maint-documentation-debutant"
     ],
@@ -7996,7 +7996,7 @@
     "title": "Maintenance prédictive (IA, IoT)",
     "category": "Prédictive",
     "order": 4328,
-    "description": "Maintenance prédictive (IA, IoT)",
+    "description": "Concevoir et évaluer un pilote de maintenance prédictive en maîtrisant les capteurs, la qualité temporelle, les métriques, les alertes et le repli opérationnel.",
     "prereqs": [
       "maint-automatisation-intermediaire"
     ],
@@ -8005,7 +8005,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-predictive-expert"
   },
   {
     "id": "maint-predictive-expert",
@@ -8013,8 +8014,9 @@
     "title": "Maintenance prédictive : capteurs, données et modèles",
     "category": "Prédictive — approfondissement",
     "order": 4328,
-    "description": "Approfondir la collecte de télémétrie, la qualité des données, les indicateurs d’anomalie et l’évaluation des alertes prédictives.",
+    "description": "Concevoir et évaluer un pilote de maintenance prédictive en maîtrisant les capteurs, la qualité temporelle, les métriques, les alertes et le repli opérationnel.",
     "prereqs": [
+      "maint-monitoring-intermediaire",
       "maint-automatisation-intermediaire"
     ],
     "requirements": [
@@ -8030,7 +8032,7 @@
     "title": "Audits techniques et rapports de conformité",
     "category": "Audits",
     "order": 4329,
-    "description": "Audits techniques et rapports de conformité",
+    "description": "Évaluer la conformité, l’efficacité des contrôles et la maîtrise des risques à partir de critères, d’échantillons et de preuves vérifiables.",
     "prereqs": [
       "maint-maintenance-predictive-expert"
     ],
@@ -8039,17 +8041,19 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-audits-expert"
   },
   {
     "id": "maint-audits-expert",
     "module": "Maintenance & Reporting",
-    "title": "Audit technique : préparation, preuves et plan d’action",
+    "title": "Audits techniques et conformité — Expert",
     "category": "Audit technique — pratique",
     "order": 4329,
-    "description": "Préparer un audit, collecter des preuves traçables, qualifier les écarts, prioriser les risques et suivre les actions correctives.",
+    "description": "Évaluer la conformité, l’efficacité des contrôles et la maîtrise des risques à partir de critères, d’échantillons et de preuves vérifiables.",
     "prereqs": [
-      "maint-maintenance-predictive-expert"
+      "maint-procedures-intermediaire",
+      "maint-securite-base-debutant"
     ],
     "requirements": [
       {
@@ -8132,7 +8136,7 @@
     "title": "Gestion des fournisseurs",
     "category": "Fournisseurs",
     "order": 4334,
-    "description": "Gestion des fournisseurs",
+    "description": "Évaluer la qualité d’une prestation, les engagements contractuels, les SLA, les risques tiers et les plans d’amélioration.",
     "prereqs": [
       "maint-appel-offre-expert"
     ],
@@ -8141,7 +8145,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-fournisseurs-expert"
   },
   {
     "id": "maint-fournisseurs-expert",
@@ -8149,7 +8154,7 @@
     "title": "Pilotage et évaluation des fournisseurs",
     "category": "Fournisseurs — pilotage",
     "order": 4334,
-    "description": "Évaluer les engagements contractuels, les SLA, les coûts, la qualité de service et les risques liés aux fournisseurs techniques.",
+    "description": "Évaluer la qualité d’une prestation, les engagements contractuels, les SLA, les risques tiers et les plans d’amélioration.",
     "prereqs": [
       "maint-appel-offre-expert"
     ],
@@ -8234,7 +8239,7 @@
     "title": "Retour d'expérience (RETEX)",
     "category": "RETEX",
     "order": 4339,
-    "description": "Retour d'expérience (RETEX)",
+    "description": "RETEX : capitalisation et amélioration continue, avec analyse causale, actions mesurables et suivi de leur efficacité.",
     "prereqs": [
       "maint-strategie-expert"
     ],
@@ -8243,7 +8248,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-retex-expert"
   },
   {
     "id": "maint-retex-expert",
@@ -8251,7 +8257,7 @@
     "title": "RETEX : capitalisation et amélioration continue",
     "category": "RETEX — pratique",
     "order": 4339,
-    "description": "Animer un retour d’expérience factuel, identifier les causes systémiques, transformer les enseignements en actions et vérifier leur efficacité.",
+    "description": "RETEX : capitalisation et amélioration continue, avec analyse causale, actions mesurables et suivi de leur efficacité.",
     "prereqs": [
       "maint-strategie-expert"
     ],
