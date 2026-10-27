@@ -518,3 +518,17 @@ flowchart LR
 **Correction attendue.** Le primaire ou le service qui détient l'autorité d'écriture doit être clairement identifié. La stratégie de basculement doit empêcher deux autorités concurrentes et définir comment le trafic est rerouté. Les chemins qui exigent la lecture après écriture doivent rester sur la source autoritaire ou utiliser un mécanisme de cohérence documenté. Chaque demande qui peut produire une réservation ou un effet financier porte une clé d'idempotence stockée dans la transaction. Les rôles runtime, migration et reporting sont séparés ; les secrets sont gérés en dehors du dépôt ; les journaux contiennent des identifiants de corrélation et pas de données personnelles inutiles.
 
 La migration s'effectue par expansion, déploiement compatible, backfill borné, comparaison, bascule et contraction différée. Les tests couvrent les anciennes et nouvelles versions, les erreurs du backfill, les interruptions et le retour arrière. Les tests de disponibilité suppriment un nœud ou retardent la réplication dans un environnement isolé, chronomètrent la détection et la reprise et comparent les réservations finales à la source de vérité. L'exercice n'est accepté que si les objectifs RPO/RTO sont mesurés, les écarts réconciliés, les contrôles de sécurité exécutés et les limites documentées.
+
+
+## Diagramme de synthèse : preuves d'architecture
+
+```mermaid
+flowchart TD
+    A[Objectifs de service] --> B[Options d'architecture]
+    B --> C[Analyse des modes de panne]
+    C --> D[Tests et mesures]
+    D --> E{Objectifs démontrés ?}
+    E -- Non --> F[Réviser le choix]
+    F --> B
+    E -- Oui --> G[Runbook et surveillance]
+```
