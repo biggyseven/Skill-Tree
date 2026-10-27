@@ -271,3 +271,12 @@ flowchart LR
 Une annexe doit être suffisante pour reproduire l'interprétation : sources, commandes ou méthodes autorisées, filtres, versions, unités et limites. Elle ne doit pas exposer de secret ni d'extrait de journal plus large que nécessaire. Si les données sont sensibles, le résumé peut être diffusé plus largement tandis que l'annexe est restreinte aux équipes autorisées.
 
 Le rapport technique et la post-mortem doivent être retrouvables par identifiant d'incident, service, période et version. Les liens vers les tickets, changements et actions permettent à l'équipe du mois suivant de vérifier que les conclusions ont bien été suivies. Un document difficile à retrouver est rarement utilisé pour prévenir le prochain incident.
+
+
+## 18. Décider quand un rapport peut être clôturé
+
+La clôture documentaire ne signifie pas que toutes les améliorations sont terminées. Le service peut être rétabli, le rapport approuvé et les actions préventives encore ouvertes. Dans ce cas, le document doit distinguer le rétablissement, l'analyse, les actions immédiates et le travail de prévention. Les actions en attente restent suivies dans l'outil prévu, avec un identifiant, un responsable et une date.
+
+Avant approbation, vérifie que le rapport ne contredit pas le ticket, le journal de changement ou la chronologie. Les différences peuvent être légitimes si elles sont expliquées, par exemple lorsqu'une heure initialement estimée est corrigée par une source plus fiable. Un rapport rectifié doit indiquer la version qui remplace la précédente et garder la trace de la correction.
+
+La revue doit répondre à trois questions : que sait-on désormais, que reste-t-il incertain, et quelle action réduit le risque ? Si aucune cause racine n'est connue, le rapport reste utile en documentant les faits et les limites de l'investigation. L'absence de cause confirmée n'est pas une raison pour rédiger une explication inventée.
