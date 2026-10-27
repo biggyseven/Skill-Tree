@@ -1,0 +1,102 @@
+{
+  "node_id": "data-dba-role-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d’un DBA dans un système de production ?",
+      "choices": [
+        "Écrire seul toutes les fonctionnalités métier",
+        "Garantir disponibilité, sécurité, performance et restaurabilité des bases",
+        "Remplacer les tests applicatifs par des sauvegardes",
+        "Donner les droits administrateur à tous les développeurs"
+      ],
+      "answer": 1,
+      "explanation": "Le DBA exploite et fiabilise le SGBD : capacité, sécurité, sauvegarde, restauration, disponibilité et diagnostic. Il collabore avec les développeurs sans se substituer à eux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un pool de connexions entre l’application et le SGBD ?",
+      "choices": [
+        "À supprimer le besoin de gérer les transactions",
+        "À conserver toutes les requêtes en mémoire indéfiniment",
+        "À réutiliser un nombre borné de connexions et limiter leur coût d’ouverture",
+        "À répliquer automatiquement les données sur un autre site"
+      ],
+      "answer": 2,
+      "explanation": "Le pool réutilise des connexions et impose une limite de concurrence. Il doit être dimensionné selon les capacités du SGBD et libérer les connexions après usage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur aide le plus à détecter une saturation des connexions ?",
+      "choices": [
+        "Le nombre de connexions actives et en attente comparé aux limites du serveur",
+        "La taille du logo de l’application",
+        "Le nombre de commentaires dans le code source",
+        "La date de création de la base, prise isolément"
+      ],
+      "answer": 0,
+      "explanation": "Les connexions utilisées, disponibles, en attente et les limites configurées montrent si le pool ou le SGBD est saturé. Il faut les corréler aux temps de réponse et aux erreurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une architecture primaire-réplique, quel énoncé est correct ?",
+      "choices": [
+        "La réplique remplace nécessairement une sauvegarde hors ligne",
+        "La réplication garantit toujours zéro perte de données",
+        "Toutes les écritures doivent être envoyées à n’importe quelle réplique",
+        "La réplication améliore certains usages de disponibilité ou de lecture, mais ne remplace pas les sauvegardes"
+      ],
+      "answer": 3,
+      "explanation": "Une suppression ou une corruption peut se propager aux répliques. La sauvegarde indépendante et les essais de restauration restent indispensables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif d’une politique de moindre privilège pour les comptes techniques ?",
+      "choices": [
+        "Autoriser chaque compte à modifier le schéma et les données",
+        "N’accorder que les opérations nécessaires à la fonction du compte",
+        "Partager un compte DBA entre toutes les applications",
+        "Désactiver les journaux pour éviter les traces"
+      ],
+      "answer": 1,
+      "explanation": "Séparer les identités et limiter leurs permissions réduit l’impact d’une erreur ou d’un compte compromis. Les accès privilégiés doivent être justifiés et audités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un pic de latence apparaît chaque jour à 10 h. Quelle démarche de diagnostic est la plus utile ?",
+      "choices": [
+        "Redémarrer systématiquement le serveur sans relever de métriques",
+        "Ajouter de la mémoire sans mesurer la charge",
+        "Corréler latence, requêtes lentes, verrous, connexions et tâches planifiées à cette heure",
+        "Désactiver les contraintes d’intégrité"
+      ],
+      "answer": 2,
+      "explanation": "La corrélation temporelle entre métriques, plans d’exécution, verrous et traitements batch aide à identifier la cause avant de choisir une correction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’une procédure de changement pour une migration de schéma ?",
+      "choices": [
+        "Documenter le risque, les étapes, la validation et le retour arrière",
+        "Garantir qu’aucun test n’est nécessaire",
+        "Remplacer les sauvegardes par un message de validation",
+        "Autoriser l’application à ignorer les erreurs"
+      ],
+      "answer": 0,
+      "explanation": "Une migration contrôlée explicite les dépendances, les mesures de vérification, le responsable, la fenêtre d’exécution et les possibilités de restauration ou de retour arrière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel dispositif vérifie réellement la capacité de reprise après incident ?",
+      "choices": [
+        "Un fichier de sauvegarde dont le nom contient la date",
+        "Une promesse du fournisseur sans test interne",
+        "Le fait que la réplication affiche un état vert",
+        "Un exercice de restauration documenté avec mesure du temps et contrôle de cohérence"
+      ],
+      "answer": 3,
+      "explanation": "Seule une restauration contrôlée démontre que les sauvegardes sont lisibles et que le service peut revenir dans les objectifs de reprise."
+    }
+  ]
+}

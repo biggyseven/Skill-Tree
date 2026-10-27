@@ -1,0 +1,30 @@
+name: Data module integrity
+
+on:
+  push:
+    branches:
+      - feat/data-db-module-main-integration-20261027
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "content/nodes.json"
+      - "content/lessons/**"
+      - "content/quiz/**"
+      - "static/index.html"
+      - "tests/test_data_module_integrity.py"
+      - ".github/workflows/data-module-integrity.yml"
+
+jobs:
+  integrity:
+    name: Validate catalogue, lessons, quizzes and UI routing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run data module integrity tests
+        run: python tests/test_data_module_integrity.py

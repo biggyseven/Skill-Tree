@@ -1,0 +1,102 @@
+{
+  "node_id": "data-nosql-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel modèle convient naturellement à MongoDB ?",
+      "choices": [
+        "Uniquement des tables à colonnes fixes sans documents",
+        "Un stockage de documents BSON organisés en collections",
+        "Uniquement des fichiers journaux non indexés",
+        "Un stockage exclusivement en mémoire volatile"
+      ],
+      "answer": 1,
+      "explanation": "MongoDB stocke des documents BSON dans des collections, avec des schémas flexibles et des index adaptés aux requêtes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue un pipeline d’agrégation MongoDB ?",
+      "choices": [
+        "Remplacer les mécanismes de sauvegarde",
+        "Chiffrer toutes les données automatiquement",
+        "Enchaîner des étapes de filtrage, transformation et regroupement des documents",
+        "Distribuer les droits IAM dans le cloud"
+      ],
+      "answer": 2,
+      "explanation": "Un pipeline d’agrégation traite les documents étape après étape, par exemple avec match, group, project ou sort."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand Redis est-il particulièrement utile comme cache ?",
+      "choices": [
+        "Lorsqu’un ensemble de données fréquemment lu peut être recalculé ou rechargé et qu’une expiration est définie",
+        "Quand chaque clé doit toujours être stockée sans aucune politique de mémoire",
+        "Pour remplacer systématiquement la base de référence transactionnelle",
+        "Quand les données ne doivent jamais être invalidées"
+      ],
+      "answer": 0,
+      "explanation": "Redis peut réduire la latence et la charge de la source. La stratégie doit prévoir expiration, invalidation, capacité mémoire et comportement en cas de cache miss."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un index MongoDB adapté au prédicat principal ?",
+      "choices": [
+        "Il supprime tous les besoins de validation",
+        "Il garantit un ordre global sans tri",
+        "Il rend toujours les insertions plus rapides",
+        "Il peut éviter un balayage de collection, au prix d’espace et de maintenance des écritures"
+      ],
+      "answer": 3,
+      "explanation": "Les index accélèrent les lectures correspondantes, mais occupent de la mémoire et du disque et doivent être maintenus lors des modifications."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution est essentielle lorsqu’une application relance une écriture après un timeout ?",
+      "choices": [
+        "Considérer le timeout comme une preuve que l’écriture n’a pas eu lieu",
+        "Rendre l’opération idempotente ou utiliser une clé de déduplication",
+        "Supprimer les contraintes d’unicité",
+        "Changer au hasard de base de données"
+      ],
+      "answer": 1,
+      "explanation": "Le serveur peut avoir validé l’écriture avant que la réponse soit perdue. Une clé idempotente permet de reconnaître les reprises et d’éviter les doublons."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fournit Redis AOF dans une configuration qui l’active ?",
+      "choices": [
+        "La garantie que les disques ne peuvent jamais tomber en panne",
+        "La réplication automatique de chaque clé vers un navigateur",
+        "Un journal des opérations d’écriture permettant de reconstruire l’état, selon la politique de fsync",
+        "Un schéma relationnel normalisé"
+      ],
+      "answer": 2,
+      "explanation": "Append Only File conserve les opérations d’écriture et peut permettre de rejouer l’état. La durabilité exacte dépend de la politique de synchronisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il décider avant de choisir entre MongoDB et une base relationnelle ?",
+      "choices": [
+        "Les relations, contraintes, transactions, requêtes, évolutions du schéma et besoins opérationnels du domaine",
+        "Le nom le plus court du produit",
+        "Le nombre de couleurs sur le tableau de bord",
+        "La possibilité d’éviter toute sauvegarde"
+      ],
+      "answer": 0,
+      "explanation": "Le choix dépend de la structure des données et des accès attendus, de la cohérence requise, des transactions et du coût opérationnel, pas d’une mode technologique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir une politique de TTL dans Redis ?",
+      "choices": [
+        "Pour garantir que les clés ne disparaîtront jamais",
+        "Pour rendre chaque clé immuable",
+        "Pour créer automatiquement une copie hors site",
+        "Pour faire expirer les données temporaires et limiter les entrées obsolètes, sans dépendre uniquement d’un nettoyage manuel"
+      ],
+      "answer": 3,
+      "explanation": "Le TTL est utile pour sessions, cache et données temporaires. Il faut toutefois éviter de l’utiliser pour des données qui exigent une conservation durable."
+    }
+  ]
+}

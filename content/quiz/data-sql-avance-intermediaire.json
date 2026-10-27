@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sql-avance-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel bénéfice apporte une CTE (`WITH`) dans une requête SQL complexe ?",
+      "choices": [
+        "Elle désactive automatiquement les contrôles d’accès",
+        "Elle peut nommer une étape logique pour améliorer la lisibilité et la composition de la requête",
+        "Elle garantit toujours une exécution plus rapide qu’une sous-requête",
+        "Elle rend les résultats persistants après la fin de la session"
+      ],
+      "answer": 1,
+      "explanation": "Une CTE donne un nom à un résultat intermédiaire dans une instruction. Son impact sur le plan et la matérialisation dépend du SGBD et de la requête."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une sous-requête corrélée est-elle dite corrélée ?",
+      "choices": [
+        "Lorsqu’elle ne contient aucun filtre",
+        "Lorsqu’elle ne s’exécute que pendant une sauvegarde",
+        "Lorsqu’elle fait référence à une colonne de la requête externe",
+        "Lorsqu’elle retourne nécessairement plusieurs lignes"
+      ],
+      "answer": 2,
+      "explanation": "La sous-requête dépend de valeurs de la ligne externe. L’optimiseur peut parfois la transformer, mais sa logique dépend bien de cette référence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème les fonctions de fenêtre (`ROW_NUMBER`, `SUM OVER`) résolvent-elles bien ?",
+      "choices": [
+        "Calculer un classement ou un cumul par groupe sans réduire toutes les lignes en une seule ligne par groupe",
+        "Créer un utilisateur du SGBD",
+        "Chiffrer les données au repos",
+        "Remplacer les clés étrangères"
+      ],
+      "answer": 0,
+      "explanation": "Les fonctions de fenêtre calculent classement, cumul ou valeur précédente sur un ensemble ordonné tout en gardant les lignes individuelles dans le résultat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique rend une procédure stockée plus robuste lorsqu’elle réalise plusieurs écritures liées ?",
+      "choices": [
+        "Ignorer toutes les exceptions",
+        "Exécuter chaque écriture sans transaction même si l’ensemble doit être atomique",
+        "Afficher les erreurs uniquement dans un commentaire",
+        "Définir la frontière transactionnelle et traiter les erreurs afin d’éviter un état partiellement appliqué"
+      ],
+      "answer": 3,
+      "explanation": "Si les écritures forment une unité logique, la transaction et la gestion des erreurs doivent garantir le commit complet ou le rollback approprié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment transmettre une valeur utilisateur dans une requête SQL ?",
+      "choices": [
+        "Concaténer la valeur directement dans la chaîne SQL",
+        "Utiliser des paramètres liés avec le pilote de base de données",
+        "Remplacer les apostrophes sans autre contrôle et construire la requête",
+        "Donner au compte applicatif les droits DBA"
+      ],
+      "answer": 1,
+      "explanation": "Les paramètres liés séparent les valeurs des instructions SQL et réduisent le risque d’injection. Les noms de colonnes dynamiques nécessitent une liste blanche distincte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage est approprié pour une CTE récursive ?",
+      "choices": [
+        "Calculer le hash d’un mot de passe",
+        "Désactiver les index",
+        "Parcourir une hiérarchie comme une arborescence ou un graphe de dépendances encadré",
+        "Garantir le chiffrement du réseau"
+      ],
+      "answer": 2,
+      "explanation": "Une CTE récursive exprime un point de départ et une étape récursive, utiles pour parcourir des structures hiérarchiques. Il faut prévoir une condition d’arrêt."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie `IS NULL` en SQL ?",
+      "choices": [
+        "Tester si une valeur est absente ou inconnue selon la sémantique SQL",
+        "Comparer deux nombres à zéro",
+        "Tester l’égalité de deux chaînes vides",
+        "Vérifier automatiquement une contrainte unique"
+      ],
+      "answer": 0,
+      "explanation": "NULL représente une valeur inconnue ou absente. On utilise IS NULL ou IS NOT NULL, car une comparaison ordinaire avec NULL ne renvoie pas TRUE."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une procédure stockée reçoit un identifiant de table à choisir dynamiquement. Quelle défense est adaptée ?",
+      "choices": [
+        "Considérer le paramètre comme une valeur liée même s’il s’agit d’un identifiant SQL",
+        "Accepter tout texte provenant du client",
+        "Désactiver les journaux d’audit",
+        "Valider l’identifiant avec une liste blanche et utiliser le mécanisme sûr du SGBD pour les identifiants"
+      ],
+      "answer": 3,
+      "explanation": "Les paramètres SQL protègent les valeurs, pas tous les éléments syntaxiques comme les noms de table. Une liste blanche et les fonctions de quoting du SGBD sont requises."
+    }
+  ]
+}
