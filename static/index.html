@@ -1739,10 +1739,11 @@
             <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div><p class="eyebrow" x-text="exam.category"></p><h2 class="text-xl font-semibold text-white" x-text="'Question ' + (examIdx + 1) + ' / ' + exam.questions.length"></h2></div>
               <div class="flex flex-wrap items-center gap-2"><span class="chip" x-text="examAnswered + ' répondue(s)'"></span><span class="chip font-mono" :class="{ '!border-rose-400/50 !text-rose-300': examLeft < 300 }" x-text="'⏱ ' + examClock"></span>
-                <button type="button" class="btn" x-show="!examPaused" @click="pauseExam()">⏸ Mettre en pause</button>
-                <button type="button" class="btn btn-primary" x-show="examPaused" @click="resumeExam()">▶ Reprendre</button>
+                <button type="button" class="btn" x-show="!examPaused" :disabled="examBusy" @click="pauseExam()">⏸ Mettre en pause</button>
+                <button type="button" class="btn btn-primary" x-show="examPaused" :disabled="examBusy" @click="resumeExam()">▶ Reprendre</button>
               </div>
             </div>
+            <p x-show="examErr" x-cloak role="alert" aria-live="assertive" class="mb-4 rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200" x-text="examErr"></p>
             <div x-show="examPaused" x-cloak class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4" role="status" aria-live="polite">
               <div><p class="font-semibold text-amber-200">Examen en pause</p><p class="mt-1 text-xs text-amber-100/80">Le compte à rebours est arrêté et les réponses sont temporairement verrouillées.</p></div>
               <button type="button" class="btn btn-primary" @click="resumeExam()">Reprendre l’examen</button>
@@ -1751,7 +1752,7 @@
             <div class="grid gap-4 lg:grid-cols-[1fr_14rem]">
               <article class="card">
                 <div class="flex items-start justify-between gap-3"><p class="text-base font-medium leading-relaxed text-white" x-text="exam.questions[examIdx].prompt"></p><button type="button" class="chip cursor-pointer" :class="{ 'chip-on': examFlags[examIdx] }" @click="examFlags = { ...examFlags, [examIdx]: !examFlags[examIdx] }" :disabled="examPaused">🚩 À revoir</button></div>
-                <template x-if="exam.questions[examIdx].choices && exam.questions[examIdx].type !== 'input'">
+                <template x-if="exam.questions[examIdx].choices?.length && !['input', 'terminal'].includes(exam.questions[examIdx].type)">
                   <div class="mt-4 space-y-3">
                     <template x-for="(c, ci) in exam.questions[examIdx].choices" :key="ci">
                       <button type="button" class="card-sm flex w-full items-start gap-3 text-left text-sm text-zinc-200 transition hover:border-white/30" :class="{ '!border-emerald-400/60 !bg-emerald-500/10': examAnswers[examIdx] === ci }" @click="examAnswers[examIdx] = ci" :disabled="examPaused">
@@ -1760,7 +1761,7 @@
                     </template>
                   </div>
                 </template>
-                <template x-if="!exam.questions[examIdx].choices || exam.questions[examIdx].type === 'input'">
+                <template x-if="!exam.questions[examIdx].choices?.length || ['input', 'terminal'].includes(exam.questions[examIdx].type)">
                   <input type="text" class="field mt-4 font-mono" placeholder="Ta réponse" x-model="examAnswers[examIdx]" :disabled="examPaused">
                 </template>
                 <div class="mt-6 flex justify-between"><button type="button" class="btn" :disabled="examPaused || examIdx === 0" @click="examIdx--">← Précédente</button><button type="button" class="btn" :disabled="examPaused || examIdx === exam.questions.length - 1" @click="examIdx++">Suivante →</button></div>
@@ -1800,8 +1801,8 @@
               <div class="mt-3 space-y-3">
                 <template x-for="w in examWrong" :key="w.i">
                   <div class="card-sm text-[12px]"><p class="font-semibold text-white" x-text="(w.i + 1) + '. ' + w.q.prompt"></p>
-                    <p class="mt-1 text-rose-300" x-text="'Ta réponse : ' + (w.q.choices && examAnswers[w.i] !== null ? w.q.choices[examAnswers[w.i]] : (examAnswers[w.i] || 'aucune'))"></p>
-                    <p class="text-emerald-300" x-show="w.q.choices && w.d.answer !== undefined" x-text="'Bonne réponse : ' + (w.q.choices ? w.q.choices[w.d.answer] : '')"></p>
+                    <p class="mt-1 text-rose-300" x-text="'Ta réponse : ' + (['input', 'terminal'].includes(w.q.type) || !w.q.choices?.length ? (examAnswers[w.i] || 'aucune') : (examAnswers[w.i] !== null && examAnswers[w.i] !== undefined ? w.q.choices[examAnswers[w.i]] : 'aucune'))"></p>
+                    <p class="text-emerald-300" x-show="w.d.answer !== undefined" x-text="'Bonne réponse : ' + (['input', 'terminal'].includes(w.q.type) || !w.q.choices?.length ? w.d.answer : w.q.choices[w.d.answer])"></p>
                     <p class="mt-1 text-zinc-400" x-show="w.d.explanation" x-text="w.d.explanation"></p></div>
                 </template>
               </div>
@@ -7652,37 +7653,66 @@
             if (this.examLeft <= 0) this.submitExam(true);
           }, 1000);
         };
-        app.pauseExam = function () {
-          if (!this.exam || this.examResult || this.examPaused) return;
-          this.examPaused = true;
-          this.stopExamTimer();
-          this.notify('Examen mis en pause. Le temps restant est conservé.');
+        app.pauseExam = async function () {
+          if (!this.exam || !this.exam.id || this.examResult || this.examPaused || this.examBusy) return;
+          this.examBusy = true;
+          try {
+            const r = await fetch('/api/exam/pause', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: this.exam.id }) });
+            const text = await r.text(); let data; try { data = JSON.parse(text); } catch (_) { data = { detail: text }; }
+            if (!r.ok) throw new Error(data.detail || text || ('HTTP ' + r.status));
+            this.examPaused = true;
+            this.stopExamTimer();
+            this.notify('Examen mis en pause. Le serveur prolonge aussi l’échéance.');
+          } catch (error) {
+            this.examErr = 'Impossible de mettre l’examen en pause : ' + (error.message || 'erreur réseau') + '. Réessaie.';
+            this.notify(this.examErr);
+          } finally { this.examBusy = false; }
         };
-        app.resumeExam = function () {
-          if (!this.exam || this.examResult || !this.examPaused) return;
-          this.examPaused = false;
-          this.startExamTimer();
-          this.notify('Examen repris.');
+        app.resumeExam = async function () {
+          if (!this.exam || !this.exam.id || this.examResult || !this.examPaused || this.examBusy) return;
+          this.examBusy = true;
+          try {
+            const r = await fetch('/api/exam/resume', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: this.exam.id }) });
+            const text = await r.text(); let data; try { data = JSON.parse(text); } catch (_) { data = { detail: text }; }
+            if (!r.ok) throw new Error(data.detail || text || ('HTTP ' + r.status));
+            this.examPaused = false;
+            this.examErr = '';
+            this.startExamTimer();
+            this.notify('Examen repris.');
+          } catch (error) {
+            this.examErr = 'Impossible de reprendre l’examen : ' + (error.message || 'erreur réseau') + '. Réessaie.';
+            this.notify(this.examErr);
+          } finally { this.examBusy = false; }
         };
         app.submitExam = async function (auto) {
-          if (!this.exam || this.examResult || this.examBusy) return;
-          this.examBusy = true; this.stopExamTimer(); this.examPaused = false; this.examConfirm = false;
-          const duration = Math.max(0, (Number(this.examInitialTime) || Number(this.examLeft) || 0) - Number(this.examLeft || 0));
-          let res = null;
+          if (!this.exam || !this.exam.id || this.examResult || this.examBusy) return;
+          this.examBusy = true; this.stopExamTimer(); this.examConfirm = false;
+          const clientDuration = Math.max(0, (Number(this.examInitialTime) || Number(this.examLeft) || 0) - Number(this.examLeft || 0));
+          let res;
           try {
-            if (this.exam.id) {
-              const r = await fetch('/api/exam/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers }) });
-              if (r.ok) res = await r.json();
-            }
-          } catch (e) { console.warn('Soumission serveur indisponible', e); }
-          const local = this.gradeLocally();
-          if (!res || res.score === undefined) res = local || { score: 0, correct: 0, total: this.exam.questions.length, offline: true };
-          else if (local && !res.details) res.details = local.details;
+            const r = await fetch('/api/exam/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers })
+            });
+            const text = await r.text();
+            try { res = JSON.parse(text); } catch (_) { res = { detail: text }; }
+            if (!r.ok || res.score === undefined) throw new Error(res.detail || text || ('HTTP ' + r.status));
+          } catch (error) {
+            this.examErr = 'L’examen n’a pas été enregistré : ' + (error.message || 'erreur réseau') + '. Tes réponses sont conservées à l’écran ; réessaie de terminer.';
+            this.notify(this.examErr);
+            this.examBusy = false;
+            if (!auto && Number(this.examLeft) > 0 && !this.examPaused) this.startExamTimer();
+            return;
+          }
           const score = Math.round(Number(res.score) || 0);
-          const passed = res.passed !== undefined ? !!res.passed : score >= PASS_SCORE;
-          const correct = res.correct !== undefined ? res.correct : (local ? local.correct : 0);
-          const total = res.total !== undefined ? res.total : this.exam.questions.length;
-          this.examResult = { ...res, score, passed, auto: !!auto, duration, correct, total };
+          const passed = !!res.passed;
+          const correct = Number(res.correct) || 0;
+          const total = Number(res.total) || this.exam.questions.length;
+          const duration = res.duration !== undefined ? Math.max(0, Number(res.duration) || 0) : clientDuration;
+          const timedOut = !!auto || !!res.time_expired;
+          this.examErr = '';
+          this.examResult = { ...res, score, passed, auto: timedOut, duration, correct, total };
           this.examHistory = [{ id: Date.now(), date: new Date().toISOString(), module: this.exam.cfg.module, levels: this.exam.cfg.levels, score, passed, correct, total, duration }, ...this.examHistory].slice(0, 50);
           LS.set('exam-history', this.examHistory);
           this.examBusy = false;
