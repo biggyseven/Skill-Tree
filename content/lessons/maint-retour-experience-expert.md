@@ -64,6 +64,17 @@ Ces activités peuvent se nourrir mutuellement, mais ne doivent pas être confon
 
 Tous les événements ne justifient pas la même investigation. Un petit écart sans potentiel grave peut être enregistré et analysé rapidement. Un incident à conséquences importantes, un presque-accident révélant une barrière défaillante, une panne répétitive ou un changement avec des effets inattendus peut exiger une équipe pluridisciplinaire et une analyse détaillée. Le choix ne doit pas dépendre uniquement du dommage effectivement observé : la chance peut expliquer qu'un scénario dangereux se soit terminé sans blessure ni arrêt prolongé.
 
+```mermaid
+flowchart TD
+    A["Événement ou signal faible"] --> B["Sécuriser et enregistrer"]
+    B --> C["Évaluer conséquences potentielles et répétition"]
+    C --> D{"Barrière critique, récurrence ou apprentissage important ?"}
+    D -- "Oui" --> E["RETEX structuré ou approfondi"]
+    D -- "Non" --> F["Traitement léger documenté"]
+    E --> G["Nommer responsable, périmètre et échéance"]
+    F --> G
+```
+
 ### 2.1 Critères de déclenchement
 
 Évaluer de façon cohérente :
@@ -247,6 +258,16 @@ Un entretien de RETEX vise à comprendre comment l'événement a été vécu et 
 
 Interroger les rôles pertinents : opérateurs, techniciens, planificateurs, superviseurs, spécialistes, support, fournisseur, responsable d'astreinte et utilisateurs touchés. Les hiérarchiques ne doivent pas nécessairement être présents lors du premier échange avec une personne si leur présence risquerait de limiter la parole. Le choix doit être adapté au contexte et au besoin d'équité.
 
+```mermaid
+flowchart TD
+    A["Expliquer objectif et règles de l'entretien"] --> B["Demander une narration libre"]
+    B --> C["Reconstituer le contexte et les informations visibles"]
+    C --> D["Clarifier décisions, actions et contraintes"]
+    D --> E["Séparer souvenir, trace et interprétation"]
+    E --> F["Relire les faits avec la personne"]
+    F --> G["Documenter les questions ouvertes"]
+```
+
 ### 5.2 Questions ouvertes et neutres
 
 Préférer :
@@ -333,6 +354,21 @@ Une « cause racine » n'est pas un mot magique désignant la réponse la plus p
 
 Une analyse complète n'a pas besoin de trouver un facteur dans chaque catégorie. Elle doit examiner les familles plausibles selon l'événement et justifier les exclusions importantes.
 
+```mermaid
+flowchart TD
+    A["Question d'analyse"] --> B{"Nature du problème ?"}
+    B -- "Séquence assez simple" --> C["Pourquoi successifs, puis test des branches"]
+    B -- "Facteurs multiples" --> D["Causes-effets ou arbre causal"]
+    B -- "Défense défaillante" --> E["Analyse des barrières"]
+    B -- "Scénario combinatoire" --> F["Arbre de défaillance ou bow-tie"]
+    B -- "Modes potentiels d'un actif" --> G["AMDEC / FMEA"]
+    C --> H["Vérifier chaque relation par les preuves"]
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+```
+
 ### 6.3 Méthode des « pourquoi » successifs
 
 Les questions de type « pourquoi » aident à dépasser la première description, mais elles peuvent créer une chaîne artificielle si l'analyste suppose qu'une réponse n'en possède qu'une seule. Plusieurs facteurs peuvent converger, et une question peut révéler une condition plutôt qu'une cause.
@@ -416,6 +452,19 @@ Un arbre de défaillance explore les combinaisons de conditions qui peuvent cond
 
 Le contre-factuel aide à examiner la pertinence d'une action, mais il n'est pas une preuve à lui seul. Une question telle que « l'événement aurait-il eu lieu si le technicien avait reçu une formation ? » doit être testée contre les contraintes, la fréquence, l'interface et les cas comparables. Si la réponse demeure incertaine, choisir plusieurs actions complémentaires et vérifier leurs effets.
 
+```mermaid
+flowchart LR
+    A["Hypothèse causale"] --> B["Mécanisme attendu"]
+    B --> C["Prédiction vérifiable"]
+    C --> D["Comparer avec les traces et cas similaires"]
+    D --> E{"Prédiction confirmée ?"}
+    E -- "Oui, avec limites" --> F["Renforcer le niveau de confiance"]
+    E -- "Non" --> G["Réviser ou rejeter l'hypothèse"]
+    E -- "Données insuffisantes" --> H["Documenter l'incertitude"]
+    F --> I["Définir l'action adaptée"]
+    G --> A
+```
+
 ### 6.9 Ne pas confondre corrélation et cause
 
 Deux événements peuvent apparaître ensemble parce qu'ils sont influencés par une troisième variable. Une diminution de pannes après une formation peut coïncider avec une baisse de charge ou un renouvellement d'équipements. Le RETEX doit décrire la relation observée sans prétendre à une causalité qui n'est pas établie.
@@ -454,6 +503,19 @@ Lorsque c'est possible et proportionné, préférer une mesure qui élimine le d
 - compléter par une procédure, une formation ou une communication.
 
 Ce n'est pas une hiérarchie universelle applicable sans analyse à tout incident. Dans certains cas, la conception technique peut être complexe ou créer d'autres risques. Le choix doit expliquer la réduction attendue, les effets secondaires, la fiabilité et le besoin de maintenir la mesure dans le temps.
+
+```mermaid
+flowchart TD
+    A["Facteur / barrière à traiter"] --> B["Éliminer le danger si possible"]
+    B --> C["Sinon : contrôle technique robuste"]
+    C --> D["Compléter avec organisation et procédure"]
+    D --> E["Formation / communication si besoin démontré"]
+    E --> F["Test d'acceptation puis test d'efficacité"]
+    F --> G{"Preuve suffisante ?"}
+    G -- "Oui" --> H["Clôture traçable"]
+    G -- "Non" --> I["Corriger ou rouvrir l'action"]
+    I --> B
+```
 
 ### 7.3 Une action de qualité est vérifiable
 
@@ -613,6 +675,20 @@ Plusieurs RETEX peuvent conduire à la même action transverse, par exemple renf
 
 Créer un lien entre les RETEX, la cause commune, l'action transverse et les actifs ou services concernés. Cette relation permet de mesurer le nombre de cas couverts, de suivre la progression et de réexaminer les dossiers lorsque l'action systémique évolue. Elle évite aussi de prétendre qu'une correction locale a éliminé un problème présent ailleurs.
 
+```mermaid
+flowchart TD
+    A["Registre d'actions"] --> B["Trier par risque et dépendance"]
+    B --> C["Identifier retards et actions sans preuve"]
+    C --> D["Examiner récidives et thèmes communs"]
+    D --> E{"Décision locale suffisante ?"}
+    E -- "Oui" --> F["Attribuer, financer et suivre"]
+    E -- "Non" --> G["Escalade vers portefeuille ou direction"]
+    G --> H["Arbitrage et risque résiduel explicite"]
+    H --> F
+    F --> I["Revue d'efficacité"]
+    I --> A
+```
+
 ### 9.4 Revues de gouvernance
 
 Une revue périodique doit examiner :
@@ -709,6 +785,18 @@ Les indicateurs doivent aider à prendre des décisions. Ils peuvent comprendre 
 - retour des participants sur l'équité, la clarté et l'utilité du processus.
 
 Aucun indicateur n'est parfait. Une baisse du nombre de RETEX peut signaler une amélioration, une sous-déclaration ou une capacité d'investigation insuffisante. Un temps de clôture court peut montrer de la réactivité ou pousser à produire des analyses trop superficielles. Interpréter les mesures avec les tendances, les contrôles de qualité et les observations de terrain.
+
+```mermaid
+flowchart LR
+    A["Définir une mesure et son dénominateur"] --> B["Établir la baseline"]
+    B --> C["Suivre action et signal avancé"]
+    C --> D["Observer résultat et récurrence"]
+    D --> E["Analyser l'exposition et les changements de collecte"]
+    E --> F{"Amélioration attribuable et durable ?"}
+    F -- "Oui" --> G["Maintenir et surveiller"]
+    F -- "Non / incertain" --> H["Réexaminer l'hypothèse et l'action"]
+    H --> A
+```
 
 ### 11.2 Indicateurs de résultat et signaux avancés
 
