@@ -277,6 +277,66 @@
       ],
       "answer": 3,
       "explanation": "Le backlog doit aider à organiser le travail et à gérer le risque. Les travaux prêts, bloqués et critiques nécessitent des décisions différentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal du plan stratégique de gestion d'actifs (PSGA/SAMP) ?",
+      "choices": [
+        "Définir uniquement le calendrier des inspections mensuelles",
+        "Relier les objectifs organisationnels, les décisions de cycle de vie, les capacités, les risques et les horizons de financement",
+        "Remplacer les plans de maintenance opérationnels",
+        "Fixer un seul score de criticité pour tous les actifs"
+      ],
+      "answer": 1,
+      "explanation": "Le PSGA relie les objectifs à la gestion des actifs sur leur cycle de vie. Les stratégies par famille et les plans opérationnels traduisent ensuite ces orientations en tâches et ressources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il comparer plusieurs options de renouvellement sur un horizon cohérent ?",
+      "choices": [
+        "Pour forcer le remplacement de tout actif ancien",
+        "Pour supprimer l'analyse de risque",
+        "Pour comparer les coûts et les niveaux de service selon des hypothèses comparables, en explicitant les risques non monétisés",
+        "Parce que les valeurs résiduelles sont toujours nulles"
+      ],
+      "answer": 2,
+      "explanation": "Une comparaison de cycle de vie exige un horizon cohérent et des hypothèses explicites. Les différences de risque, de service et de contrainte doivent rester visibles, même lorsqu'elles ne sont pas monétisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un résultat de coût actualisé inférieur pour une option de remplacement ?",
+      "choices": [
+        "Que l'option est automatiquement autorisée quels que soient les risques",
+        "Que les coûts comparés sont plus faibles selon les hypothèses du modèle, sans suffire à trancher les contraintes ou conséquences non chiffrées",
+        "Que le risque de panne disparaît",
+        "Que l'analyse de transition peut être omise"
+      ],
+      "answer": 1,
+      "explanation": "La valeur actualisée dépend de l'horizon, du taux et des flux estimés. Les risques de sécurité, la faisabilité de transition, le niveau de service et les coûts omis doivent être examinés séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne manière de traiter la révision d'une référence ISO encore au stade DIS ?",
+      "choices": [
+        "La présenter comme obligatoire dès maintenant",
+        "Supprimer toute référence aux éditions publiées antérieures",
+        "La considérer comme publiée si un vote est ouvert",
+        "Distinguer l'édition publiée en vigueur du projet en consultation et vérifier son statut avant de l'utiliser comme exigence"
+      ],
+      "answer": 3,
+      "explanation": "Un projet DIS est encore dans le processus de développement de la norme. Il doit être distingué de l'édition publiée et ne doit pas être présenté comme une exigence déjà applicable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi analyser les dépendances systémiques et les modes communs de défaillance ?",
+      "choices": [
+        "Parce qu'une redondance apparente peut partager une cause de panne et ne pas protéger le service comme prévu",
+        "Pour remplacer l'inventaire des actifs par un organigramme",
+        "Pour supprimer les essais de restauration",
+        "Parce que la criticité dépend uniquement du coût d'achat"
+      ],
+      "answer": 0,
+      "explanation": "La résilience du service dépend des dépendances et des causes communes. Deux composants redondants peuvent échouer ensemble s'ils partagent l'alimentation, l'environnement ou une dépendance critique."
     }
   ]
 }
