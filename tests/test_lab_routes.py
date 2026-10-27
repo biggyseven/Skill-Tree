@@ -231,6 +231,19 @@ class LabValidationTests(unittest.TestCase):
             "secu-l2-expert",
             "zero-trust-intermediaire",
             "zero-trust-expert",
+            "isis-intermediaire",
+            "isis-expert",
+            "vrf-intermediaire",
+            "vrf-expert",
+            "mpls-intermediaire",
+            "mpls-expert",
+            "qos-intermediaire",
+            "qos-expert",
+            "multicast-intermediaire",
+            "multicast-expert",
+            "netflow-intermediaire",
+            "ha-intermediaire",
+            "ha-expert",
         )
         for lab_id in scenario_ids:
             with self.subTest(lab_id=lab_id):
