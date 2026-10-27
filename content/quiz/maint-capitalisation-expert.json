@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Capitalisation des connaissances » ?",
+      "prompt": "Quel est l'objectif principal de la capitalisation des connaissances ?",
       "choices": [
-        "Le sujet principal du cours : Capitalisation des connaissances",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Augmenter le nombre de documents stockés, quelle que soit leur utilité",
+        "Remplacer toute formation par des articles",
+        "Rendre les connaissances utiles fiables, trouvables, transmissibles et réutilisables",
+        "Conserver sans revue toutes les notes individuelles"
+      ],
+      "answer": 2,
+      "explanation": "La capitalisation vise une capacité opérationnelle durable ; le nombre de fichiers n'est pas une preuve de valeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche convient le mieux à une connaissance tacite difficile à exprimer par écrit ?",
+      "choices": [
+        "Supprimer l'entretien pour éviter les ambiguïtés",
+        "Combiner observation, démonstration, entretien structuré et pratique accompagnée",
+        "Demander uniquement à l'expert d'écrire un document long",
+        "Publier immédiatement une procédure générée automatiquement"
+      ],
+      "answer": 1,
+      "explanation": "Le savoir tacite est souvent transmis plus efficacement par la pratique et l'interaction, en complément d'une formalisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément rend une leçon issue d'un REX réellement exploitable ?",
+      "choices": [
+        "Une chronologie, des faits, des facteurs contributifs vérifiés et des actions suivies",
+        "Un nom de personne à blâmer",
+        "Une conclusion causale sans test",
+        "Une liste de symptômes sans contexte"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le REX doit préserver le contexte, distinguer hypothèses et faits et relier les enseignements à des actions vérifiables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qui doit être responsable de l'exactitude et de la revue d'un article publié ?",
+      "choices": [
+        "Uniquement l'utilisateur qui le consulte",
+        "Un propriétaire de contenu clairement désigné, avec les validations techniques nécessaires",
+        "Le moteur de recherche",
+        "La personne qui a créé le référentiel, quel que soit le domaine"
+      ],
+      "answer": 1,
+      "explanation": "La gouvernance attribue explicitement la responsabilité du cycle de vie et des validations adaptées au risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure renseigne le mieux sur la valeur réelle d'une base de connaissances ?",
+      "choices": [
+        "Le nombre de fichiers téléchargés une seule fois",
+        "Le nombre de pages sans tenir compte de leur qualité",
+        "Le volume total de stockage",
+        "La réutilisation vérifiée et les effets opérationnels, complétés par des indicateurs de qualité et de recherche"
+      ],
+      "answer": 3,
+      "explanation": "La consultation ou le volume ne suffisent pas ; il faut évaluer l'application et les résultats."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une procédure critique décrit une commande qui modifie la production. Quelle condition est essentielle avant publication ?",
+      "choices": [
+        "La commande doit avoir l'air familière",
+        "Le rédacteur doit être seul à l'approuver",
+        "La revue doit vérifier autorisations, prérequis, risques, tests, résultats attendus et conditions d'arrêt selon le processus",
+        "Il faut retirer toutes les mises en garde pour faciliter la lecture"
+      ],
+      "answer": 2,
+      "explanation": "Un contenu à risque exige une validation adaptée, un contexte précis et des garde-fous opérationnels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il distinguer une correction factuelle d'une hypothèse dans un REX ?",
+      "choices": [
+        "Pour empêcher toute amélioration",
+        "Pour ne pas transformer une corrélation ou une impression en cause démontrée",
+        "Pour supprimer les témoignages",
+        "Pour s'assurer que toutes les pannes ont une cause unique"
+      ],
+      "answer": 1,
+      "explanation": "Le REX doit être étayé ; l'incertitude doit rester visible jusqu'à ce que des preuves permettent de conclure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire d'une procédure ancienne qui apparaît toujours en premier dans la recherche ?",
+      "choices": [
+        "La laisser prioritaire car elle est la plus consultée",
+        "La supprimer sans vérifier s'il existe une ressource de remplacement",
+        "La vérifier, la remplacer ou la retirer du parcours courant et rediriger vers la version validée",
+        "Modifier sa date sans revoir son contenu"
+      ],
+      "answer": 2,
+      "explanation": "Le cycle de vie doit empêcher qu'un contenu obsolète soit présenté comme une instruction actuelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur test d'un transfert de connaissance vers un successeur ?",
+      "choices": [
+        "Le successeur exécute un scénario représentatif de façon autonome et respecte les conditions d'arrêt",
+        "Le successeur signe la liste des documents remis",
+        "L'expert affirme que la formation est terminée",
+        "La réunion de passation a duré plus de deux heures"
+      ],
+      "answer": 0,
+      "explanation": "Une démonstration d'autonomie vérifie que le bénéficiaire peut retrouver, comprendre et appliquer la connaissance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque doit être évité lorsqu'un outil d'IA résume des incidents pour créer un article ?",
+      "choices": [
+        "Le fait que le document possède un titre",
+        "Le fait d'utiliser une taxonomie contrôlée",
+        "La validation par un expert",
+        "La publication de faits mélangés, d'une cause inventée ou de données sensibles sans revue"
+      ],
+      "answer": 3,
+      "explanation": "Une sortie générée peut être plausible mais erronée ; les sources, les faits, la confidentialité et la validation humaine restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre une procédure approuvée et une preuve d'exécution ?",
+      "choices": [
+        "Aucune : l'approbation prouve que chaque intervention a suivi la procédure",
+        "La procédure décrit une règle ; une trace d'exécution démontre ce qui a été fait dans un cas donné",
+        "Une preuve d'exécution n'a pas besoin de source",
+        "La procédure doit être détruite dès qu'une intervention est terminée"
+      ],
+      "answer": 1,
+      "explanation": "L'existence d'une procédure démontre l'intention ou la règle, pas automatiquement son application effective."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il prioriser les connaissances à préserver lorsqu'un expert quitte l'équipe ?",
+      "choices": [
+        "Selon la taille des documents déjà existants",
+        "En commençant uniquement par les sujets les plus simples à écrire",
+        "Selon l'impact de perte, la concentration du savoir, la possibilité de reconstruction et le temps de transfert",
+        "En demandant à l'expert de tout écrire le dernier jour"
+      ],
+      "answer": 2,
+      "explanation": "La priorité dépend du risque de perte et des conséquences opérationnelles, pas de la facilité de documentation."
     }
   ]
 }
