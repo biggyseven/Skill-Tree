@@ -1,0 +1,66 @@
+{
+  "node_id": "data-sql-avance-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une requête additionne le coût fixe d'une intervention après une jointure avec plusieurs lignes de pièces. Comment éviter le double comptage ?",
+      "choices": [
+        "Ajouter DISTINCT à tous les champs du SELECT",
+        "Agréger les pièces au niveau de l'intervention puis joindre un résultat ayant le grain voulu",
+        "Multiplier le coût fixe par le nombre de pièces puis l'annuler plus tard",
+        "Remplacer toutes les valeurs manquantes par zéro"
+      ],
+      "answer": 1,
+      "explanation": "Une relation un-à-plusieurs répète la ligne parent dans le résultat. L'agrégation au bon grain préserve la signification des métriques ; DISTINCT ne répare pas de manière générale une logique de jointure erronée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi NOT IN peut-il exclure des lignes de manière inattendue si la sous-requête renvoie NULL ?",
+      "choices": [
+        "Parce que NULL est toujours égal à zéro",
+        "Parce que IN convertit toutes les chaînes en nombres",
+        "Parce que la logique SQL à trois états peut évaluer la comparaison à UNKNOWN",
+        "Parce que NOT IN ignore automatiquement la sous-requête"
+      ],
+      "answer": 2,
+      "explanation": "Une comparaison avec une valeur NULL peut être UNKNOWN. Comme WHERE ne conserve que TRUE, des lignes attendues peuvent disparaître. Une formulation explicite, souvent NOT EXISTS, doit être choisie selon la règle métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'intérêt principal d'une fonction de fenêtre par rapport à un GROUP BY ?",
+      "choices": [
+        "Elle permet de calculer un rang ou un cumul tout en conservant les lignes détaillées",
+        "Elle garantit toujours un plan d'exécution plus rapide",
+        "Elle supprime les valeurs NULL par défaut",
+        "Elle rend ORDER BY facultatif pour toute sortie déterministe"
+      ],
+      "answer": 0,
+      "explanation": "Une fenêtre calcule une valeur au sein d'un ensemble lié sans réduire la relation à une ligne par groupe. Le tri et le cadre de fenêtre doivent néanmoins correspondre à la règle attendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une procédure stockée appelée deux fois après un timeout crée deux événements métier. Quel principe faut-il traiter ?",
+      "choices": [
+        "Augmenter seulement le timeout du client",
+        "Supprimer la journalisation",
+        "Mettre toutes les erreurs en statut succès",
+        "Définir une stratégie d'idempotence et une contrainte ou clé qui gère les répétitions"
+      ],
+      "answer": 3,
+      "explanation": "Un timeout client ne prouve pas que la transaction serveur n'a pas été validée. Le système doit pouvoir détecter une répétition sûre, retourner un état cohérent et éviter les effets en double."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche convient pour optimiser une requête complexe ?",
+      "choices": [
+        "Remplacer toutes les CTE par des sous-requêtes sans mesurer",
+        "Définir le grain, valider les cas limites puis comparer les plans et temps sur des volumes représentatifs",
+        "Ajouter un index sur chaque colonne de chaque table",
+        "Considérer qu'une procédure stockée rend automatiquement la requête plus rapide"
+      ],
+      "answer": 1,
+      "explanation": "La correction sémantique doit précéder l'optimisation. Le plan, les cardinalités, les tris, la concurrence et le volume influencent le coût réel ; aucune forme syntaxique n'est toujours la meilleure."
+    }
+  ]
+}
