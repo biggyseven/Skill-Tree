@@ -103,7 +103,8 @@ async function main() {
     report.checks.workspaceLabActive = true;
     report.checks.equipmentLibraryTabVisible = await equipmentTab.isVisible();
     report.checks.equipmentLibraryBadge = (await equipmentTab.innerText()).trim();
-    report.checks.equipmentPaletteButtonCount = await labPage.locator('#lab-library-panel button').count();
+    // Equipment cards are draggable divs, not buttons; inspect the actual library items.
+    report.checks.equipmentPaletteItemCount = await labPage.locator('#lab-library-panel [draggable="true"]').count();
 
     const workspaceEquipmentShot = path.join(OUT, 'production-lab-workspace-equipment.png');
     await labPage.screenshot({ path: workspaceEquipmentShot, fullPage: true, animations: 'disabled' });
@@ -123,7 +124,10 @@ async function main() {
     report.checks.reactFlowNodeCount = await labPage.locator('.react-flow__node').count();
     report.checks.reactFlowEdgeCount = await labPage.locator('.react-flow__edge').count();
     assert(report.checks.reactFlowNodeCount > 0, 'Lab Workspace shows no React Flow equipment nodes');
-    assert(report.checks.equipmentPaletteButtonCount > 0, 'Equipment library rendered no selectable items');
+    assert(
+      report.checks.equipmentPaletteItemCount > 7,
+      `Equipment library currently exposes only ${report.checks.equipmentPaletteItemCount} types; expected more than seven.`
+    );
 
     report.checks.desktopLayout = await labPage.evaluate(() => ({
       width: window.innerWidth,
@@ -140,6 +144,7 @@ async function main() {
     report.failure = error.stack || String(error);
     report.completedAt = new Date().toISOString();
     await fs.writeFile(path.join(OUT, 'production-visual-summary.json'), JSON.stringify(report, null, 2)).catch(() => {});
+    console.log(JSON.stringify(report, null, 2));
     throw error;
   } finally {
     await browser.close();
