@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Gestion avancée de l'hyperviseur",
+      "prompt": "Quelles conditions faut-il vérifier avant une migration à chaud de VM entre deux hôtes ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Que les hôtes portent exactement le même nom DNS uniquement",
+        "La compatibilité CPU/versions, la connectivité, l’accès aux disques ou leur migration et les contraintes de la plateforme",
+        "Que toutes les VM soient éteintes définitivement",
+        "Que l’adresse IP de la VM change obligatoirement"
+      ],
+      "answer": 1,
+      "explanation": "La migration à chaud dépend de la compatibilité des hôtes et des chemins de stockage/réseau. Les prérequis exacts dépendent de l’hyperviseur et du type de stockage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre réservation, limite et partage CPU/mémoire est la plus proche de l’usage courant des hyperviseurs ?",
+      "choices": [
+        "Les trois désignent la même chose dans toutes les plateformes",
+        "La réservation désactive le réseau virtuel",
+        "La limite est toujours une garantie de ressource minimale",
+        "La réservation peut garantir une capacité minimale, la limite plafonne l’usage et les partages influencent l’arbitrage en contention, selon la plateforme"
+      ],
+      "answer": 3,
+      "explanation": "Les notions exactes varient d’un hyperviseur à l’autre, mais elles servent à gérer garanties, plafonds et priorités relatives lorsque les ressources sont disputées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle étape valide réellement qu’une sauvegarde de VM peut servir à la reprise ?",
+      "choices": [
+        "Effectuer des restaurations de test dans un environnement contrôlé et vérifier le système et les services",
+        "Vérifier seulement que le fichier de sauvegarde existe",
+        "Augmenter la taille du disque source",
+        "Renommer l’archive sans la relire"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Une sauvegarde n’est fiable que si elle est exploitable et restaurable. Les tests doivent vérifier l’intégrité, le démarrage et les critères applicatifs nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un template de VM dans un parc administré ?",
+      "choices": [
+        "À agréger les journaux de tous les switches",
+        "À remplacer la supervision de l’hyperviseur",
+        "À fournir une base standardisée et reproductible pour créer des machines similaires",
+        "À garantir que chaque VM possède un noyau différent"
+      ],
+      "answer": 2,
+      "explanation": "Un template réduit la dérive et accélère le déploiement, à condition de gérer les mises à jour, les identifiants uniques et les personnalisations au clonage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le thin provisioning pour un datastore ?",
+      "choices": [
+        "Que chaque VM consomme forcément immédiatement toute sa capacité maximale",
+        "Que la capacité virtuelle promise peut dépasser l’espace physique actuellement consommé, ce qui impose une surveillance attentive de la capacité réelle",
+        "Que les données sont automatiquement répliquées sur trois sites",
+        "Que les disques ne peuvent pas être sauvegardés"
+      ],
+      "answer": 1,
+      "explanation": "Le stockage provisionné finement alloue l’espace selon l’usage ou les besoins de la plateforme. Si la consommation dépasse l’espace physique disponible, les VM peuvent subir des erreurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur une VM KVM/Linux, un temps de `steal` élevé indique généralement quoi ?",
+      "choices": [
+        "Que le serveur DNS a expiré un certificat",
+        "Que le disque virtuel est nécessairement corrompu",
+        "Que le noyau invité refuse toutes les connexions réseau",
+        "Que le vCPU invité a attendu d’être planifié par l’hyperviseur pendant que la capacité CPU était disputée"
+      ],
+      "answer": 3,
+      "explanation": "Le temps de steal indique que le système invité a été prêt à s’exécuter mais n’a pas reçu immédiatement du temps CPU physique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire avant de placer un hôte en maintenance dans un cluster ?",
+      "choices": [
+        "Vérifier la capacité restante, les contraintes de compatibilité, les règles d’affinité et la mobilité des VM avant de les évacuer",
+        "Arrêter tous les contrôles de santé sans vérifier les VM",
+        "Supprimer les sauvegardes pour libérer de la place",
+        "Désactiver les protections d’accès des machines invitées"
+      ],
+      "answer": 0,
+      "explanation": "L’évacuation n’est possible que si les ressources et dépendances le permettent. Il faut vérifier la capacité cible, le stockage, le réseau et les règles de placement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel inventaire contribue le plus à une exploitation fiable des VM ?",
+      "choices": [
+        "Uniquement la marque du processeur de l’hôte",
+        "Une capture d’écran de la console réalisée une fois",
+        "Identifiant, propriétaire, environnement, ressources, réseaux, état de sauvegarde, maintenance et criticité de chaque VM",
+        "Le mot de passe administrateur écrit dans une feuille partagée"
+      ],
+      "answer": 2,
+      "explanation": "Un inventaire utile relie les ressources à leur usage et à leurs responsabilités. Il permet le suivi du cycle de vie, de la capacité, des sauvegardes et des changements."
     }
   ]
 }

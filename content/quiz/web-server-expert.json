@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Haute Performance Web",
+      "prompt": "Pourquoi suivre le percentile de latence p95 ou p99 en plus de la moyenne ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Parce que la moyenne décrit toujours la pire requête",
+        "Parce que les percentiles ne dépendent jamais de la charge",
+        "Pour détecter une dégradation de la queue de distribution que la moyenne peut masquer",
+        "Pour remplacer les indicateurs de taux d’erreur"
+      ],
+      "answer": 2,
+      "explanation": "La moyenne peut masquer un sous-ensemble de requêtes très lentes. Les percentiles décrivent les expériences plus défavorables d’une partie des demandes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avec la loi de Little, si un service reçoit 100 requêtes par seconde et que le temps moyen passé dans le système est de 0,2 seconde, quelle concurrence moyenne est approximativement attendue ?",
+      "choices": [
+        "500 requêtes",
+        "20 requêtes",
+        "2000 requêtes",
+        "5 requêtes"
+      ],
+      "answer": 1,
+      "explanation": "La loi de Little donne L = λ × W. Ici, 100 requêtes/s × 0,2 s ≈ 20 requêtes en moyenne dans le système, si les mesures portent sur le même périmètre et un régime stable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une mise en cache Web renvoie parfois le contenu d’un autre utilisateur. Quel aspect faut-il traiter en priorité ?",
+      "choices": [
+        "Vérifier les clés de cache, les en-têtes de variation et les règles d’exclusion des réponses personnalisées ou sensibles",
+        "Augmenter le TTL de toutes les réponses sans distinction",
+        "Désactiver la journalisation de l’application",
+        "Augmenter le nombre de workers sans analyser les réponses"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Une clé de cache mal conçue peut mélanger des variantes ou des contenus privés. La stratégie doit prendre en compte les en-têtes pertinents et exclure ce qui ne doit pas être partagé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La latence augmente seulement lorsque le débit atteint un certain niveau. Quelle démarche est la plus utile ?",
+      "choices": [
+        "Changer simultanément tous les paramètres du serveur",
+        "Désactiver les limites de requêtes sans mesure",
+        "Augmenter immédiatement tous les timeouts à plusieurs minutes",
+        "Comparer une référence reproductible et mesurer CPU, mémoire, I/O, réseau, pools applicatifs et saturation à différents niveaux de charge"
+      ],
+      "answer": 3,
+      "explanation": "Un diagnostic de performance cherche le goulot réel à partir de mesures reproductibles. Modifier de nombreux paramètres à la fois rend la cause d’une amélioration ou d’une régression difficile à identifier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme réduit notamment le coût de rétablir une connexion TCP/TLS pour chaque requête indépendante ?",
+      "choices": [
+        "Désactiver toute négociation TLS",
+        "Réutiliser les connexions lorsque le protocole et la configuration le permettent, avec keep-alive et des limites adaptées",
+        "Rediriger toutes les requêtes vers un nouveau port aléatoire",
+        "Désactiver les réponses HTTP"
+      ],
+      "answer": 1,
+      "explanation": "La réutilisation des connexions limite les handshakes et certains coûts par requête. Les durées, le nombre de connexions et la capacité des serveurs doivent rester bornés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un pic de trafic épuise les workers et provoque une cascade d’échecs. Quelle combinaison est généralement la plus saine ?",
+      "choices": [
+        "Retenter indéfiniment chaque requête sans délai",
+        "Supprimer la surveillance et continuer à accepter une charge illimitée",
+        "Limiter la concurrence/les files, définir des timeouts raisonnables, appliquer une politique de rejet et observer les erreurs",
+        "Augmenter tous les timeouts au maximum et supprimer les contrôles de santé"
+      ],
+      "answer": 2,
+      "explanation": "Le contrôle de surcharge limite les files et le travail inutile. Les délais, la concurrence bornée et les rejets explicites protègent le système contre une saturation qui s’auto-entretient."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel compromis faut-il évaluer lorsqu’on active la compression HTTP ?",
+      "choices": [
+        "Le gain de bande passante face au coût CPU et au type/taille des contenus compressibles",
+        "La possibilité de supprimer les certificats des clients",
+        "L’obligation de remplacer DNS par une adresse IP fixe",
+        "Le nombre de groupes dans `/etc/group`"
+      ],
+      "answer": 0,
+      "explanation": "La compression peut réduire les octets transmis mais consomme du CPU et apporte peu sur des contenus déjà compressés. Il faut l’activer de manière ciblée et mesurer l’effet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant un changement visant à augmenter la capacité Web, quelle méthode offre le meilleur contrôle du risque ?",
+      "choices": [
+        "Appliquer en production sans référence ni critères d’arrêt",
+        "Modifier tous les serveurs simultanément et supprimer l’ancien paramétrage",
+        "Conserver seulement une capture d’écran des graphiques",
+        "Définir une référence et des critères de réussite, déployer progressivement, comparer les résultats et garder une voie de retour"
+      ],
+      "answer": 3,
+      "explanation": "Un changement de capacité doit être lié à des métriques vérifiables et à une stratégie de retour. Une progression par étapes limite l’impact d’un mauvais réglage."
     }
   ]
 }

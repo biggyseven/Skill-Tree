@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Virtualisation (KVM, Proxmox, VMware)",
+      "prompt": "Quel énoncé caractérise généralement un hyperviseur de type 1 ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il s’exécute directement sur le matériel ou dans une architecture bare-metal conçue pour héberger les VM",
+        "Il doit toujours être une application lancée dans le navigateur",
+        "Il sert uniquement à compiler des conteneurs",
+        "Il ne peut exécuter qu’un seul système invité"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Un hyperviseur de type 1 fonctionne sur la plateforme physique sans nécessiter un système d’exploitation généraliste hôte de type bureau comme dans le modèle 2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence fondamentale entre une machine virtuelle traditionnelle et un conteneur système ?",
+      "choices": [
+        "Une VM ne possède jamais d’adresse réseau",
+        "Un conteneur contient toujours un noyau complet indépendant de l’hôte",
+        "Une VM exécute en général son propre système invité, tandis qu’un conteneur partage le noyau de l’hôte",
+        "Un conteneur ne peut exécuter aucun processus"
+      ],
+      "answer": 2,
+      "explanation": "Une VM virtualise une machine pour un système invité. Les conteneurs isolent des processus tout en partageant normalement le noyau de l’hôte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un vCPU attribué à une VM signifie-t-il nécessairement qu’un cœur physique lui est réservé en permanence ?",
+      "choices": [
+        "Oui, un vCPU correspond toujours à un cœur physique dédié",
+        "Non, les vCPU sont planifiés par l’hyperviseur et peuvent partager la capacité CPU physique",
+        "Oui, et l’hyperviseur ne peut jamais surallouer le CPU",
+        "Non, un vCPU représente une adresse IP"
+      ],
+      "answer": 1,
+      "explanation": "Le nombre de vCPU décrit les processeurs logiques présentés à l’invité. La capacité réellement disponible dépend de la planification et de la charge de l’hôte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un bridge ou un commutateur virtuel dans un hôte de virtualisation ?",
+      "choices": [
+        "À remplacer le stockage des disques de VM",
+        "À attribuer des mots de passe aux invités",
+        "À sauvegarder automatiquement les bases de données",
+        "À relier les interfaces réseau virtuelles aux autres interfaces ou segments réseau configurés"
+      ],
+      "answer": 3,
+      "explanation": "Le bridge ou commutateur virtuel connecte les interfaces des VM au réseau virtuel ou physique selon la topologie et les règles de l’hôte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un snapshot de VM ne doit-il pas être considéré automatiquement comme une sauvegarde complète ?",
+      "choices": [
+        "Il peut dépendre du disque et du stockage d’origine, et ne garantit pas à lui seul une copie indépendante restaurable",
+        "Il est toujours stocké sur un autre site par défaut",
+        "Il contient nécessairement une sauvegarde applicative cohérente",
+        "Il remplace toute procédure de restauration testée"
+      ],
+      "answer": 0,
+      "explanation": "Un snapshot est utile pour certains retours en arrière, mais il peut dépendre du datastore original et ne constitue pas nécessairement une sauvegarde indépendante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque peut apparaître quand plusieurs VM utilisent la majorité de la mémoire physique disponible sur le même hôte ?",
+      "choices": [
+        "Les adresses MAC se transforment automatiquement en UID",
+        "Les VM obtiennent chacune un disque physique dédié",
+        "La pression mémoire peut provoquer de la contention, du swapping ou une dégradation importante",
+        "Les VLAN deviennent inutiles"
+      ],
+      "answer": 2,
+      "explanation": "La surallocation doit être suivie par des métriques réelles. Une charge mémoire excessive peut dégrader fortement les performances, voire provoquer l’instabilité des services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage fournit couramment le format qcow2 avec KVM/QEMU ?",
+      "choices": [
+        "Il rend la VM indépendante de tout stockage physique",
+        "Il prend en charge des fonctions comme l’allocation dynamique et certains mécanismes de snapshot, selon la chaîne d’outils",
+        "Il remplace l’hyperviseur",
+        "Il garantit le chiffrement de tous les paquets réseau"
+      ],
+      "answer": 1,
+      "explanation": "qcow2 est un format d’image disque QEMU prenant en charge diverses fonctionnalités, dont l’allocation dynamique. Les possibilités précises dépendent des outils et de la configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de créer plusieurs VM sur le même serveur, que faut-il estimer ?",
+      "choices": [
+        "Uniquement la couleur des interfaces de gestion",
+        "La quantité de câbles USB nécessaires à chaque invité",
+        "Le nombre de comptes navigateur à créer",
+        "Les besoins CPU, mémoire, stockage, I/O et réseau, avec une marge adaptée à la charge"
+      ],
+      "answer": 3,
+      "explanation": "La consolidation doit être dimensionnée selon les ressources et le profil de charge des VM. Une marge permet d’absorber les pointes et les opérations de maintenance."
     }
   ]
 }

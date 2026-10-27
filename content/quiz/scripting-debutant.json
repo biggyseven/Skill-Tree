@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Scripting Bash",
+      "prompt": "Quelle première ligne indique qu’un script doit être interprété par Bash trouvé dans l’environnement ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`#!/usr/bin/env bash`",
+        "`<bash>`",
+        "`#include <bash.h>`",
+        "`#!/etc/passwd`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le shebang indique l’interpréteur utilisé lors de l’exécution directe. `/usr/bin/env bash` recherche Bash dans le `PATH` de l’environnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un script Bash lancé avec `./rapport.sh mars`, que contient `$1` ?",
+      "choices": [
+        "Le nom du second processus créé",
+        "Le premier argument transmis au script, ici `mars`",
+        "Le code de retour du script",
+        "La sortie standard de la dernière commande"
+      ],
+      "answer": 1,
+      "explanation": "Les paramètres positionnels `$1`, `$2`, etc. correspondent aux arguments transmis au script."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi écrire `fichier=\"$nom\"` plutôt que `fichier=$nom` lorsqu’on manipule un nom de fichier ?",
+      "choices": [
+        "Pour transformer automatiquement le nom en chemin absolu",
+        "Pour rendre le fichier exécutable",
+        "Pour éviter que les espaces et caractères de motif dans la valeur provoquent un découpage ou une expansion indésirable",
+        "Pour chiffrer le nom de fichier"
+      ],
+      "answer": 2,
+      "explanation": "Les guillemets autour d’une expansion empêchent notamment le découpage en mots et l’expansion des jokers sur la valeur développée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande rend un script exécutable pour son propriétaire si les permissions le permettent ?",
+      "choices": [
+        "`chown bash script.sh`",
+        "`cat +x script.sh`",
+        "`bash --chmod script.sh`",
+        "`chmod u+x script.sh`"
+      ],
+      "answer": 3,
+      "explanation": "`chmod u+x` ajoute le droit d’exécution au propriétaire. Il reste possible d’exécuter un script en appelant directement l’interpréteur, par exemple `bash script.sh`."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test conditionnel vérifie que `chemin` désigne un fichier régulier ?",
+      "choices": [
+        "`[[ -f \"$chemin\" ]]`",
+        "`[[ -z / ]]`",
+        "`[[ -x \"$(whoami)\" ]]`",
+        "`[[ -d /dev/null ]]`"
+      ],
+      "answer": 0,
+      "explanation": "Le test `-f` vérifie qu’un chemin existe et désigne un fichier régulier. `-d` sert à vérifier un répertoire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que renvoie la substitution de commande `jour=$(date +%F)` ?",
+      "choices": [
+        "La permission du fichier `date`",
+        "Le code de retour de toutes les commandes passées",
+        "La sortie standard de `date +%F`, affectée à la variable `jour`",
+        "Un fichier nommé `jour` dans le répertoire courant"
+      ],
+      "answer": 2,
+      "explanation": "La substitution `$(...)` exécute une commande et capture sa sortie standard pour l’utiliser dans une expression ou une affectation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un script shell, que signifie généralement un code de retour égal à `0` ?",
+      "choices": [
+        "La machine doit être redémarrée",
+        "La commande précédente a signalé un succès",
+        "Le script a été interrompu par une erreur",
+        "Le compte courant dispose de tous les privilèges"
+      ],
+      "answer": 1,
+      "explanation": "Par convention Unix, le code `0` indique un succès ; un code non nul signale généralement une erreur ou une condition particulière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle construction parcourt simplement plusieurs valeurs connues en Bash ?",
+      "choices": [
+        "`if [ $x = y ]`",
+        "`chmod 755 *`",
+        "`sudo for item in liste`",
+        "`for item in alpha beta; do printf '%s\\n' \"$item\"; done`"
+      ],
+      "answer": 3,
+      "explanation": "La boucle `for` parcourt les éléments indiqués. Mettre entre guillemets la variable utilisée dans le corps aide à préserver les espaces."
     }
   ]
 }

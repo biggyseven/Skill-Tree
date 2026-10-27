@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Serveurs Web (Nginx/Apache)",
+      "prompt": "Lorsqu’un utilisateur saisit `https://exemple.test`, quel service traduit normalement le nom d’hôte en adresse IP avant l’établissement de la connexion ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "DNS",
+        "NTP",
+        "DHCP",
+        "Syslog"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "DNS permet de résoudre le nom d’hôte en adresse IP. La connexion réseau et la requête HTTPS interviennent ensuite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande valide la syntaxe de la configuration Nginx avant un rechargement ?",
+      "choices": [
+        "`nginx --apply-now`",
+        "`nginx -t`",
+        "`chmod -R 777 /etc/nginx`",
+        "`curl --rewrite-config`"
+      ],
+      "answer": 1,
+      "explanation": "`nginx -t` vérifie la syntaxe et tente d’ouvrir les fichiers référencés par la configuration. Il faut corriger toute erreur avant de recharger le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une page renvoie HTTP 502 Bad Gateway depuis un reverse proxy. Quelle cause est plausible ?",
+      "choices": [
+        "Le navigateur n’a pas d’écran",
+        "L’enregistrement DNS du domaine est nécessairement absent",
+        "Le proxy n’arrive pas à obtenir une réponse valide de l’application amont",
+        "Le fichier HTML ne contient pas de titre"
+      ],
+      "answer": 2,
+      "explanation": "Un 502 indique généralement un problème entre le proxy et l’amont, par exemple un service arrêté, un port incorrect ou une réponse invalide."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour que Nginx puisse servir `/var/www/site/index.html`, quel point doit notamment être vérifié ?",
+      "choices": [
+        "Que le navigateur est membre du groupe root",
+        "Que tous les fichiers du serveur ont le mode `777`",
+        "Que le nom de domaine est enregistré chez le même fournisseur que le serveur",
+        "Que le compte du serveur Web peut traverser les répertoires parents et lire le fichier publié"
+      ],
+      "answer": 3,
+      "explanation": "Les permissions Unix sur le fichier et sur chaque répertoire parent doivent permettre l’accès au processus Web. Donner des droits globaux d’écriture n’est pas une solution sûre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal de HTTPS par rapport à HTTP ?",
+      "choices": [
+        "Chiffrer le transport avec TLS et authentifier le serveur via un certificat validé par le client",
+        "Garantir que le contenu du site est toujours honnête",
+        "Remplacer DNS et le routage IP",
+        "Empêcher tout type de vulnérabilité applicative"
+      ],
+      "answer": 0,
+      "explanation": "HTTPS protège la confidentialité et l’intégrité du transport et permet l’authentification du serveur si le certificat est correctement validé. Il ne garantit pas que l’application elle-même est sûre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel code HTTP indique généralement que le serveur a compris la requête mais refuse l’accès à la ressource ?",
+      "choices": [
+        "200",
+        "403",
+        "301",
+        "304"
+      ],
+      "answer": 1,
+      "explanation": "Le code 403 Forbidden indique que le serveur refuse l’accès. Un 404 indique que la ressource n’a pas été trouvée ou que le serveur choisit de ne pas révéler son existence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utilise-t-on couramment `systemctl reload nginx` après validation d’une modification lorsque le service le prend en charge ?",
+      "choices": [
+        "Pour réinstaller le système d’exploitation",
+        "Pour effacer les journaux du site",
+        "Pour demander au service de relire sa configuration, généralement sans interrompre brutalement toutes les connexions",
+        "Pour changer l’adresse IP de toutes les interfaces"
+      ],
+      "answer": 2,
+      "explanation": "Un rechargement adapté permet d’appliquer la configuration avec une transition plus douce qu’un arrêt/redémarrage. Il faut néanmoins vérifier les journaux et la santé du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre le journal d’accès et le journal d’erreurs d’un serveur Web ?",
+      "choices": [
+        "Le journal d’accès ne contient jamais de requêtes",
+        "Le journal d’erreurs stocke uniquement les mots de passe",
+        "Le journal d’accès sert exclusivement à gérer les certificats",
+        "Le journal d’accès décrit les requêtes traitées ; le journal d’erreurs aide à diagnostiquer les problèmes du serveur"
+      ],
+      "answer": 3,
+      "explanation": "Les journaux d’accès renseignent sur les requêtes et leurs statuts. Les journaux d’erreurs donnent des indications sur les problèmes de configuration, d’accès aux fichiers ou de communication avec l’amont."
     }
   ]
 }

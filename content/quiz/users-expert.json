@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Kerberos et PKI",
+      "prompt": "Que contient normalement un fichier Kerberos keytab utilisé par un service ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Les mots de passe de tous les utilisateurs en clair",
+        "Une copie complète de la base LDAP",
+        "Des clés secrètes associées à un ou plusieurs principaux Kerberos du service",
+        "Les certificats publics de tous les navigateurs"
+      ],
+      "answer": 2,
+      "explanation": "Un keytab contient des clés permettant à un service ou à un système de s’authentifier comme principal Kerberos. Son accès doit être restreint et sa rotation planifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un service Kerberos échoue sur un seul hôte alors que le compte semble correct. Quel ensemble de contrôles est particulièrement pertinent ?",
+      "choices": [
+        "L’état du disque système uniquement",
+        "L’heure synchronisée, le DNS, le principal/SPN attendu et le keytab réellement utilisé",
+        "Le nombre de VLAN configurés sur le switch d’accès uniquement",
+        "Le thème graphique du poste"
+      ],
+      "answer": 1,
+      "explanation": "Kerberos dépend notamment de l’horloge, de la résolution des noms, du principal demandé et des clés associées. Le diagnostic doit confirmer ces éléments sur l’hôte concerné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une relation d’approbation entre deux domaines ne donne-t-elle pas automatiquement à tout utilisateur accès à toutes les ressources ?",
+      "choices": [
+        "Parce que les trusts ne fonctionnent qu’avec des imprimantes",
+        "Parce qu’un trust désactive toujours les groupes",
+        "Parce qu’une approbation copie systématiquement tous les comptes dans chaque domaine",
+        "Parce que l’accès dépend encore des stratégies, des groupes, de la portée du trust et des ACL de la ressource"
+      ],
+      "answer": 3,
+      "explanation": "Une relation d’approbation permet certains échanges d’authentification, mais l’autorisation reste conditionnée par les groupes et les règles appliquées à la ressource."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la cohérence des UID/GID est-elle importante sur des volumes partagés entre plusieurs serveurs Linux ?",
+      "choices": [
+        "Les permissions POSIX s’appuient principalement sur les identifiants numériques, qui peuvent être interprétés différemment si leur correspondance varie",
+        "Le GID détermine la route par défaut",
+        "L’UID est un certificat de chiffrement réseau",
+        "Les UID/GID empêchent la réplication d’annuaire"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Les permissions de fichiers stockent des identifiants numériques. Des correspondances divergentes peuvent faire apparaître les fichiers comme appartenant à un autre utilisateur ou groupe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une modification d’annuaire, comment invalider de manière ciblée le cache SSSD d’un utilisateur lorsque c’est nécessaire et pris en charge ?",
+      "choices": [
+        "Désactiver tous les contrôles d’accès",
+        "Redémarrer tous les serveurs de l’annuaire en production",
+        "Utiliser un outil adapté comme `sss_cache -u alice`, puis vérifier le résultat et les journaux",
+        "Supprimer manuellement tous les fichiers de `/etc`"
+      ],
+      "answer": 2,
+      "explanation": "`sss_cache` permet d’invalider des entrées de cache SSSD. L’usage exact doit correspondre à la version et au périmètre recherchés ; confirme ensuite la résolution de l’identité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour fiabiliser un annuaire LDAP répliqué, quelle pratique est la plus robuste ?",
+      "choices": [
+        "Supposer que tous les réplicas sont toujours à jour",
+        "Définir le modèle de réplication et la source de vérité, surveiller le retard et traiter les conflits selon une procédure documentée",
+        "Faire pointer toutes les écritures vers des réplicas non coordonnés sans supervision",
+        "Supprimer les journaux de réplication"
+      ],
+      "answer": 1,
+      "explanation": "La réplication améliore la disponibilité mais exige une stratégie claire des rôles, de cohérence et de reprise. Le retard et les conflits doivent être observables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un client refuse un certificat de serveur LDAP. Que faut-il contrôler avant de contourner l’erreur ?",
+      "choices": [
+        "La chaîne de confiance, le nom/SAN, la période de validité et l’état du certificat selon la PKI utilisée",
+        "La taille du répertoire personnel de l’utilisateur uniquement",
+        "Le VLAN natif du switch sans autre preuve",
+        "La liste des paquets téléchargés par les navigateurs"
+      ],
+      "answer": 0,
+      "explanation": "Le certificat doit correspondre au serveur attendu et être validé par une autorité de confiance. Désactiver les contrôles TLS masque un risque d’interception."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble produit une piste d’audit utile sans exposer les secrets d’authentification ?",
+      "choices": [
+        "Le mot de passe saisi et la clé privée complète",
+        "Uniquement le nom de l’administrateur, sans horodatage",
+        "Un journal non protégé conservé indéfiniment",
+        "L’identité, la cible, l’horodatage, la décision, la source et le résultat, avec accès et rétention contrôlés"
+      ],
+      "answer": 3,
+      "explanation": "Les journaux doivent relier les tentatives et décisions d’accès aux événements utiles, tout en protégeant les secrets et en appliquant une politique de conservation."
     }
   ]
 }

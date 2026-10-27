@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Utilisateurs et groupes",
+      "prompt": "Dans Linux, quel fichier contient généralement le nom du compte, l’UID, le GID principal, le répertoire personnel et le shell ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`/etc/shadow`",
+        "`/etc/passwd`",
+        "`/etc/sudoers`",
+        "`/etc/hosts`"
+      ],
+      "answer": 1,
+      "explanation": "`/etc/passwd` décrit les comptes. Les empreintes de mots de passe sont normalement stockées dans `/etc/shadow`, dont l’accès est plus restreint."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal de `/etc/shadow` ?",
+      "choices": [
+        "Lister les interfaces réseau",
+        "Définir les groupes secondaires",
+        "Conserver les informations sensibles liées aux mots de passe et à leur expiration",
+        "Déclarer les dépôts de paquets"
+      ],
+      "answer": 2,
+      "explanation": "`/etc/shadow` contient notamment les empreintes de mots de passe et des paramètres d’expiration. Il doit être protégé contre la lecture non autorisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet de vérifier la commande `id alice` ?",
+      "choices": [
+        "L’UID, le GID et les groupes associés au compte",
+        "La liste des paquets installés",
+        "La date de dernière sauvegarde de tous les fichiers",
+        "La configuration DNS du serveur"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "`id` affiche les identifiants numériques et les appartenances aux groupes visibles pour le compte indiqué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ordre ajoute Alice au groupe `webadmins` sans retirer ses autres groupes secondaires ?",
+      "choices": [
+        "`groupadd -r alice webadmins`",
+        "`userdel -r alice`",
+        "`usermod -g webadmins alice`",
+        "`usermod -aG webadmins alice`"
+      ],
+      "answer": 3,
+      "explanation": "L’option `-aG` ajoute le groupe secondaire à la liste existante. Utiliser `-G` sans `-a` peut remplacer la liste des groupes secondaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter d’utiliser systématiquement le compte `root` pour les tâches quotidiennes ?",
+      "choices": [
+        "Parce que root ne peut pas lire les journaux",
+        "Pour limiter les conséquences d’une erreur et réserver les privilèges élevés aux opérations nécessaires",
+        "Parce que root ne peut pas installer de paquets",
+        "Pour rendre tous les fichiers accessibles sans permissions"
+      ],
+      "answer": 1,
+      "explanation": "Un compte ordinaire réduit la portée d’une erreur. Les opérations administratives doivent être élevées ponctuellement, par exemple avec `sudo`, selon une politique contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait habituellement `useradd -m alice` sur une distribution qui prend en charge cette option ?",
+      "choices": [
+        "Supprime le compte Alice",
+        "Ajoute Alice à tous les groupes administrateurs",
+        "Crée le compte et son répertoire personnel s’il n’existe pas",
+        "Désactive le compte Alice"
+      ],
+      "answer": 2,
+      "explanation": "L’option `-m` demande la création du répertoire personnel. Les valeurs par défaut peuvent varier selon la distribution et sa configuration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le GID principal d’un utilisateur ?",
+      "choices": [
+        "Il désigne le groupe principal associé au compte et intervient notamment dans les nouveaux fichiers créés selon le contexte",
+        "Il chiffre automatiquement le répertoire personnel",
+        "Il remplace le mot de passe",
+        "Il détermine l’adresse IP de la session"
+      ],
+      "answer": 0,
+      "explanation": "Le GID principal identifie le groupe principal du compte. Les permissions de fichiers dépendent aussi du groupe associé au fichier et des règles d’accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un compte de service ne doit pas ouvrir de session interactive. Quelle mesure est appropriée lorsque le service et la distribution le permettent ?",
+      "choices": [
+        "Lui donner le shell de root",
+        "Partager son mot de passe avec les opérateurs",
+        "Le placer dans tous les groupes locaux",
+        "Configurer un shell non interactif comme `nologin` et vérifier les besoins réels du service"
+      ],
+      "answer": 3,
+      "explanation": "Un shell non interactif réduit les possibilités de connexion humaine, mais il faut vérifier que le service fonctionne avec ce compte et que ses permissions restent minimales."
     }
   ]
 }
