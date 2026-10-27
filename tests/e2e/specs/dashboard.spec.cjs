@@ -361,7 +361,7 @@ test('un cours cybersécurité complet affiche son contenu dans le lecteur', asy
   await lessonResult.click();
 
   await expect(page.locator('#course-reader-title')).toHaveText('Analyse de malwares');
-  await expect(page.getByText('Contenu en préparation', { exact: true })).toBeHidden();
+  await expect(page.locator('#lesson-preparation-title')).toBeHidden();
   const article = page.locator('[x-ref="lessonArticle"]');
   await expect(article).toHaveCount(1);
   await expect(article).toContainText('Mise en contexte');
@@ -707,10 +707,10 @@ Poste de secours</code></pre>
   expect(narration).toContain('Tableau textuel.');
   expect(narration).toContain('Pour HTTP, le port utilisé est 80');
   expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
-  expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « API » en passant par HTTPS');
-  expect(narration).toContain('Une liaison va du bloc « API » vers le bloc « Base de données »');
-  expect(narration).toContain('Une liaison va du bloc « Poste de travail » vers le bloc « Routeur »');
-  expect(narration).toContain('Une liaison va du bloc « Poste de secours » vers le bloc « Routeur »');
+  expect(narration).toContain('Le schéma relie le bloc « Client » au bloc « API » en passant par HTTPS');
+  expect(narration).toContain('Le schéma relie le bloc « API » au bloc « Base de données »');
+  expect(narration).toContain('Le schéma relie le bloc « Poste de travail » au bloc « Routeur »');
+  expect(narration).toContain('Le schéma relie le bloc « Poste de secours » au bloc « Routeur »');
   expect(narration).toContain('Le schéma se lit ainsi : Client va vers Passerelle.');
   expect(narration).not.toContain('→');
   expect(narration).not.toContain('Copier');
