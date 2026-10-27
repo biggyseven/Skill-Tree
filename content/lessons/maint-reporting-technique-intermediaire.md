@@ -118,84 +118,60 @@ Une action n'est pas efficace simplement parce qu'elle est marquée terminée ; 
 
 ### 1. Résumé exécutif
 
-Le résumé explique le service touché, la durée connue, l'impact utilisateur, l'état actuel et les prochaines étapes. Commencer par les faits qui permettent de décider puis conserver les détails techniques dans les sections adaptées.
+Le résumé exécutif doit permettre à un responsable qui n'a pas participé à l'intervention de comprendre rapidement ce qui s'est passé, qui a été affecté, pendant combien de temps, quelle mesure a rétabli le service et ce qui reste à faire. Il ne doit pas tenter de remplacer l'analyse détaillée, ni transformer une hypothèse en certitude pour rendre le récit plus simple.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger un rapport d'incident, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Structurer le résumé en quelques éléments vérifiables : service concerné, impact utilisateur et métier, début et fin connus, gravité selon la classification interne, mode de détection, mitigation ou restauration principale, état actuel, incertitudes importantes et actions prioritaires. Lorsque la durée n'est pas précisément mesurable, indiquer la plage estimée et la raison de l'incertitude. Les chiffres doivent utiliser des définitions cohérentes avec la supervision et les données du support.
 
-**Preuves et interprétation.** Relier chaque affirmation importante à une mesure ou à une source consultable. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une cause non confirmée formulée comme certitude peut entraîner une décision incorrecte. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Une synthèse utile évite les formulations vagues comme « incident résolu après intervention technique ». Préférer une description factuelle du type : « Entre 09 h 12 et 09 h 38 UTC, une partie des utilisateurs du site B n'a pas pu accéder au partage de fichiers. Le contournement a restauré l'accès; l'analyse de la cause et la vérification de la prévention restent ouvertes. » Cet exemple est fictif. Le rapport doit différencier l'état actuel de la cause supposée et ne doit pas cacher les utilisateurs ou fonctions encore dégradés.
 ### 2. Périmètre et impact
 
-Le rapport identifie sites, utilisateurs, fonctions métier et services effectivement affectés. Quantifier les conséquences lorsque les sources le permettent et préciser les limites d'estimation.
+Décrire l'impact depuis le point de vue des utilisateurs et du service : sites, groupes, applications, fonctions métier, équipements, transactions ou données concernés. Préciser ce qui n'a pas été touché lorsque cette comparaison aide à comprendre le périmètre. Éviter d'écrire « tous les clients » si les preuves montrent seulement un sous-ensemble ou si la visibilité est incomplète. Quantifier les personnes ou actifs quand une source fiable le permet, et signaler les estimations.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger un rapport d'incident, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Séparer l'impact technique de la conséquence métier. Une perte de connectivité de quelques minutes peut avoir un effet élevé si elle interrompt des paiements ou un service essentiel; une alerte technique peut rester sans impact utilisateur visible. Documenter les contournements disponibles, les données qui auraient pu être perdues ou corrompues, les obligations de notification et les restrictions de sécurité. L'absence de plainte ne suffit pas à prouver l'absence d'impact.
 
-**Preuves et interprétation.** Conserver les tickets et sources de mesure qui permettent de retracer le périmètre. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Dire « tout le monde » sans vérification rend l'analyse peu fiable. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Indiquer comment la portée a été évaluée : tickets rattachés, métriques, sondes, journaux, inventaire, confirmation du propriétaire métier ou échantillon d'utilisateurs. Si certains sites ou périodes ne sont pas observés, le rapport doit le préciser. Une plage de confiance honnête est plus utile qu'un nombre exact en apparence mais reposant sur des données incomplètes.
 ### 3. Chronologie
 
-Les événements relient détection, escalade, changements, actions et validation du retour au service. Normaliser les fuseaux horaires sans effacer l'heure d'origine et distinguer l'heure de l'événement de celle de sa découverte.
+La chronologie doit permettre de reconstituer le déroulement de l'incident sans dépendre de la mémoire d'un participant. Inclure le dernier état connu comme sain, le premier symptôme, la détection, le début de la réponse, les escalades, les décisions, les changements d'état, la mitigation, les tests de rétablissement et la fin de l'impact. Chaque entrée doit avoir une heure, une source, un événement observé et, lorsque c'est utile, l'action ou la décision qui en a découlé.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger un rapport d'incident, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Normaliser les heures dans un fuseau explicite, souvent UTC pour coordonner des équipes réparties, tout en conservant l'horodatage d'origine si les systèmes ne sont pas synchronisés. Ne pas inventer une heure exacte à partir d'un souvenir approximatif; marquer une estimation comme telle. Une alerte reçue après le début de l'impact n'est pas l'heure de début de l'incident. Ces deux temps doivent rester distincts pour mesurer la détection.
 
-**Preuves et interprétation.** Comparer supervision, logs et messages afin de réduire les biais de mémoire. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Des horloges désynchronisées peuvent inverser l'ordre apparent des événements. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Les entrées de chronologie doivent provenir d'éléments observables : historique d'alerte, horodatage du ticket, journal d'application, journal de changement, commande exécutée ou confirmation d'un opérateur. Si deux sources se contredisent, conserver l'écart et rechercher l'origine du décalage plutôt que choisir silencieusement celle qui semble la plus plausible.
 ### 4. Preuves
 
-Une preuve doit soutenir une hypothèse, une décision ou une mesure, au lieu d'être jointe sans contexte. Enregistrer source, horodatage, contexte, empreinte si utile et niveau de sensibilité.
+Une preuve soutient une affirmation précise du rapport. Elle peut être une métrique, une ligne de journal, un événement de supervision, une sortie de commande, un état de configuration, une capture pertinente, un résultat de test ou un ticket horodaté. Préciser sa source, la période, le système concerné, le contexte de collecte et ce qu'elle permet réellement de conclure. Un ping réussi prouve une réponse ICMP depuis ce point, pas la disponibilité complète d'une application.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger un rapport d'incident, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Éviter d'insérer des centaines de lignes de logs sans expliquer leur pertinence. Garder le jeu de données original selon la politique de rétention, puis joindre un extrait contrôlé qui conserve assez de contexte pour être interprété. Indiquer les filtres, les unités, les versions, les fuseaux et les limites. Protéger les mots de passe, jetons, clés, données personnelles, adresses sensibles et éléments relevant d'une enquête sécurité. Utiliser un emplacement d'accès contrôlé pour les preuves volumineuses.
 
-**Preuves et interprétation.** Index des pièces jointes et références de ticket rendent le rapport vérifiable. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Secrets et données personnelles doivent être expurgés des copies distribuées. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Distinguer une preuve directe d'une inférence. La corrélation temporelle entre un changement et une panne mérite une investigation, mais ne démontre pas automatiquement la causalité. Si un journal manquant empêche une conclusion, mentionner cette limite et prévoir une amélioration de la collecte. Ne jamais modifier l'original silencieusement pour simplifier le récit; toute normalisation ou anonymisation d'une copie doit être décrite.
 ### 5. Cause et incertitude
 
-Les conclusions doivent indiquer le niveau de confiance et les hypothèses encore ouvertes. Relier la cause proposée aux observations et aux tests qui éliminent les alternatives.
+Le rapport doit séparer quatre choses : le symptôme observé, la cause confirmée, les facteurs contributifs et les inconnues persistantes. Le symptôme décrit ce que les utilisateurs ou les systèmes ont vécu. La cause doit s'appuyer sur un mécanisme compatible avec les preuves. Un facteur contributif peut avoir permis l'événement, accru son impact ou retardé sa détection. Une inconnue est un élément non démontré, pas un défaut que l'auteur doit combler par intuition.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger un rapport d'incident, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Quand l'analyse n'est pas terminée au moment de publier le rapport de situation, présenter les hypothèses principales, les éléments qui les soutiennent, les éléments contradictoires et le prochain test prévu. Ne pas attribuer automatiquement l'incident à la dernière personne ayant effectué une modification, au fournisseur ou à une « erreur humaine ». Examiner les contrôles, la procédure, la capacité, la supervision, les dépendances et les conditions de travail.
 
-**Preuves et interprétation.** Séparer les faits et les hypothèses permet d'actualiser le rapport sans réécrire l'historique. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une simple corrélation temporelle ne démontre pas la causalité. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Pour les incidents significatifs, relier le rapport à une analyse RCA distincte si nécessaire. Les outils tels que les cinq pourquoi ou Ishikawa structurent l'enquête, mais le rapport ne doit pas présenter une chaîne causale comme prouvée si chaque lien n'a pas été vérifié. Ajouter le niveau de confiance lorsque c'est utile et préciser qui validera la conclusion finale.
 ### 6. Rétablissement
 
-Il faut distinguer le contournement qui remet le service en route de la correction durable. Décrire les modifications, validations, effets secondaires observés et risques restant à traiter.
+Décrire les mesures de mitigation et de restauration dans l'ordre, avec leur motif, le propriétaire, l'heure, le résultat observé et les risques acceptés. Distinguer le contournement, qui réduit l'impact sans forcément supprimer la cause, de la correction définitive. Mentionner les options évaluées, si cette information aide à comprendre la décision, et pourquoi l'option retenue était adaptée au risque et au temps disponible.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger un rapport d'incident, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+La fin d'une action ne prouve pas que le service est rétabli. Énumérer les critères de rétablissement et les tests exécutés : fonctionnalité, accessibilité pour les profils concernés, métriques de performance, absence de nouvelle alerte, intégrité des données, non-régression et validation du propriétaire métier si nécessaire. Préciser la durée d'observation si un retour intermittent est possible. Les points qui n'ont pas été testés doivent être visibles.
 
-**Preuves et interprétation.** Les configurations avant/après et les tests applicatifs soutiennent la décision de reprise. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Un contournement temporaire doit avoir une échéance ou une condition de retrait. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Si un retour arrière a été réalisé, expliquer le déclencheur, les étapes de restauration et les vérifications après le retour. Indiquer les effets secondaires ou les limitations restant à traiter. Un incident peut être déclaré stabilisé tout en gardant une action de cause racine ouverte, à condition de nommer un propriétaire, une échéance et un risque résiduel qui a été accepté par la personne habilitée.
 ### 7. Communication
 
-Le rapport précise qui a été informé, quand, avec quel niveau d'information et quelles décisions ont été prises. Relier les messages aux faits disponibles au moment de leur envoi.
+La communication doit refléter l'état du service sans exagérer la certitude. Un message de situation indique le périmètre confirmé, les conséquences, les mesures en cours, le contournement autorisé s'il existe, la prochaine mise à jour et le canal de référence. Éviter de promettre une heure de résolution sans estimation étayée. Quand l'heure de restauration reste inconnue, expliquer ce qui est en cours et quand l'information sera actualisée.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger un rapport d'incident, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Le rapport technique peut contenir des détails destinés aux équipes de support, alors que la communication aux utilisateurs doit présenter les effets pratiques et les consignes. Une version destinée à la direction doit se concentrer sur l'impact, le risque, les décisions et les actions prioritaires. La cohérence entre ces vues est essentielle : conserver un ticket ou un canal de référence et un propriétaire de communication clairement désigné.
 
-**Preuves et interprétation.** Les traces horodatées expliquent le déroulé de l'incident. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Ne pas prêter d'intention personnelle sans preuve ; décrire actions et contexte. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Respecter les contraintes de sécurité, de confidentialité et de notification contractuelle. Un incident impliquant des données sensibles peut nécessiter des destinataires et un canal spécifiques. Ne pas ajouter des secrets ou données personnelles aux versions largement diffusées. Si de nouvelles preuves changent le périmètre ou la cause, publier une mise à jour datée qui explique ce qui a changé au lieu de réécrire le passé sans trace.
 ### 8. Actions correctives
 
-Chaque action doit adresser un mécanisme de risque et posséder un responsable, une échéance et une mesure de succès. Distinguer correction immédiate, prévention, détection, documentation et gouvernance.
+Les actions doivent traiter la cause établie, réduire la probabilité de récurrence, accélérer la détection ou limiter les conséquences. Une action telle que « faire attention » est trop vague pour être évaluée. Décrire la modification attendue, le mécanisme de risque ciblé, le responsable, l'échéance, les dépendances, le risque secondaire et la preuve de réalisation. Le rapport doit relier chaque action à l'affirmation ou à la lacune qui la justifie.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger un rapport d'incident, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Distinguer les actions immédiates, les corrections définitives, les améliorations de supervision, les mises à jour de procédure et les besoins de formation. Affecter les actions au bon backlog ou système de suivi, puis maintenir le lien vers le rapport d'incident. Pour les actions de production, appliquer le processus de changement adapté et définir des tests, des critères de réussite et un retour arrière lorsque nécessaire.
 
-**Preuves et interprétation.** Lier le rapport au suivi des actions empêche les engagements de disparaître après publication. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une action vague ne permet pas de vérifier sa réalisation ni son efficacité. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+La publication du rapport ne vaut pas clôture de toutes les actions. Un responsable doit vérifier les échéances et l'efficacité des mesures après leur mise en œuvre. Si une action est reportée, documenter la raison, le risque résiduel et la décision de l'autorité compétente. Les incidents récurrents ou les actions en retard doivent être présentés en revue de service pour empêcher que la même recommandation reste indéfiniment ouverte.
 ## Méthode transversale pour une opération maîtrisée
 
 ### 1. Gouvernance
@@ -320,6 +296,247 @@ git status --short && git diff --check
 ```
 
 Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+
+
+## Modèle professionnel de rapport d'incident
+
+Un bon modèle améliore la cohérence, mais ne doit pas imposer le même niveau de détail à tous les événements. Un incident limité peut être documenté avec une synthèse et des preuves concises; un incident majeur ou sensible exige souvent une chronologie plus riche, des responsables de décision, des éléments de contrôle et une revue post-incident. Le rapport doit être lisible indépendamment de la mémoire de ceux qui étaient présents.
+
+### Modèle prêt à copier
+
+~~~text
+RAPPORT D'INCIDENT — IDENTIFIANT :
+Statut du rapport : préliminaire / confirmé / final / révisé
+Date de publication et fuseau :
+Auteur / propriétaire / relecteur :
+Service et environnements :
+Niveau de sévérité selon la classification interne :
+
+1. RÉSUMÉ EXÉCUTIF
+- Que s'est-il passé ?
+- Qui et quoi ont été affectés ?
+- Quand l'impact a-t-il commencé et pris fin ?
+- Quelle mesure a rétabli le service ?
+- Quelles actions restent ouvertes ?
+
+2. IMPACT
+- Fonctions et utilisateurs affectés :
+- Périmètre confirmé et estimation :
+- Conséquences métier :
+- Données perdues, altérées ou non concernées :
+- Contournements et limites :
+
+3. DÉTECTION ET CHRONOLOGIE
+- Dernier état sain connu :
+- Première alerte :
+- Premier impact confirmé :
+- Actions, décisions, escalades :
+- Mitigation / retour arrière :
+- Tests et heure de rétablissement :
+- Période de surveillance :
+
+4. ANALYSE
+- Faits confirmés :
+- Cause confirmée ou hypothèses :
+- Facteurs contributifs :
+- Preuves et références :
+- Incertitudes et données manquantes :
+
+5. RESTAURATION ET VALIDATION
+- Action et motif :
+- Critères d'acceptation :
+- Tests réalisés et résultats :
+- Tests non réalisés et limites :
+- Risque résiduel :
+
+6. ACTIONS
+- Action / type / responsable / échéance :
+- Critère d'achèvement :
+- Mesure d'efficacité et date de contrôle :
+- Risque accepté si l'action est différée :
+
+7. COMMUNICATION ET CLÔTURE
+- Publics informés et horaires :
+- Prochaine mise à jour ou état final :
+- Liens vers incident, problème, changement et RCA :
+- Relecteur / approbateur si requis :
+- Historique des versions et corrections :
+~~~
+
+Ne pas laisser un champ critique vide sans explication. Lorsqu'une information n'est pas disponible, indiquer « inconnu à cette date », le motif et le moyen de la confirmer, plutôt que masquer la lacune. Le statut « préliminaire » convient lorsque le service est stabilisé mais que la cause ou certaines conséquences restent à établir.
+
+### Choisir le niveau de détail du rapport
+
+| Type de document | Lecteur principal | Contenu prioritaire | Limite à éviter |
+|---|---|---|---|
+| Mise à jour pendant incident | Utilisateurs, propriétaire de service, coordination | État, impact, action en cours, prochaine mise à jour | Affirmer une cause non confirmée |
+| Rapport technique initial | Support et équipes spécialisées | Chronologie, preuves, tests, décisions, état de restauration | Verser tous les logs sans interprétation |
+| Rapport exécutif | Direction et responsables métier | Impact, durée, niveau de confiance, risque et décisions | Noyer le lecteur dans des détails de commande |
+| Post-incident / RCA | Équipes techniques et responsables d'amélioration | Cause, facteurs contributifs, mesures, apprentissage et suivis | Chercher un coupable au lieu de comprendre le système |
+| Version client ou externe | Client et parties contractuelles | Conséquences, état, mesure de rétablissement et suites validées | Divulguer des informations internes ou sensibles |
+
+Les documents peuvent partager une même source de vérité mais ne doivent pas tous exposer les mêmes détails. Conserver une version maîtresse, gérer ses révisions et faire relire les versions externes lorsqu'une exigence contractuelle ou sécurité l'impose.
+
+## Concevoir une chronologie qui permet l'audit
+
+La chronologie doit distinguer au moins quatre instants : le premier événement technique connu, le premier impact utilisateur confirmé, la détection par l'organisation et la prise en charge effective. Selon le service, l'ordre réel peut être différent; c'est précisément pour cela que les notions doivent rester distinctes. Le délai entre l'impact et la détection éclaire la supervision; celui entre détection et prise en charge éclaire le routage; celui entre prise en charge et mitigation éclaire le diagnostic et la décision.
+
+~~~mermaid
+flowchart TD
+    A[Dernier état sain connu] --> B[Premier symptôme ou changement]
+    B --> C[Première détection]
+    C --> D[Prise en charge et qualification]
+    D --> E[Escalades et décisions]
+    E --> F[Mitigation ou retour arrière]
+    F --> G[Tests de rétablissement]
+    G --> H[Fin de l'impact confirmé]
+    H --> I[Surveillance et clôture du rapport]
+~~~
+
+Pour chaque événement, conserver une ligne structurée :
+
+~~~text
+Horodatage normalisé | source | événement observé | décision/action | résultat | auteur ou système
+~~~
+
+Les événements peuvent provenir d'un ticket, d'une alerte, d'un journal, d'un changement documenté, d'une conversation opérationnelle ou d'un relevé métier. Chaque source peut avoir une précision différente. Si la première plainte est horodatée à 09:18 mais que la métrique montre une dégradation dès 09:12, ne choisir pas l'heure de plainte comme début de l'impact sans expliquer cette distinction.
+
+### Exemple fictif de chronologie
+
+| Heure UTC | Source | Fait ou action | Interprétation permise |
+|---|---|---|---|
+| 08:45 | Supervision | Les tests synthétiques réussissent | Dernier état sain mesuré par cette sonde |
+| 09:00 | Outil de changement | Une modification est déclarée appliquée | Une modification a eu lieu; sa causalité reste à confirmer |
+| 09:07 | Métrique applicative | Le taux d'erreurs augmente | Première anomalie observée par cette source |
+| 09:10 | Support | Premier ticket utilisateur | Premier signalement enregistré, pas nécessairement le début de l'impact |
+| 09:18 | Ticket d'incident | L'équipe d'astreinte accepte le dossier | Début de la prise en charge documentée |
+| 09:26 | Journal d'action | Mitigation appliquée | Action exécutée; effet encore à vérifier |
+| 09:32 | Test de bout en bout | Le scénario métier réussit | Critère fonctionnel testé avec succès à cet instant |
+| 10:00 | Supervision et métier | État stable pendant la fenêtre convenue | Confirmation de stabilité selon les signaux retenus |
+
+Les données sont fictives et servent à montrer la structure. Dans un rapport réel, joindre les références vers les sources originales et indiquer les périodes non couvertes. La réussite d'un scénario de test ne démontre pas que toutes les transactions étaient correctes pendant tout l'incident.
+
+~~~mermaid
+sequenceDiagram
+    participant Mon as Supervision
+    participant SD as Centre de services
+    participant Ops as Équipe technique
+    participant Biz as Propriétaire métier
+    Mon->>SD: Signal et premier horodatage
+    SD->>Ops: Ticket qualifié et impact connu
+    Ops->>Ops: Diagnostiquer et appliquer une mitigation approuvée
+    Ops->>Mon: Contrôler métriques et erreurs
+    Ops->>Biz: Demander la validation fonctionnelle
+    Biz-->>Ops: Confirmer ou signaler les écarts
+    Ops->>SD: Résultat, limites et actions restantes
+~~~
+
+## Quantifier l'impact sans surpromettre la précision
+
+Les rapports sont plus crédibles lorsqu'ils indiquent la méthode de calcul et la qualité des données. Le nombre de tickets ne correspond pas nécessairement au nombre de personnes affectées : plusieurs demandes peuvent concerner une même personne, et certains utilisateurs peuvent ne pas contacter le support. Les métriques de supervision peuvent mesurer des requêtes ou des sondes, pas des personnes. Il faut nommer l'unité.
+
+Une formulation solide ressemble à « 24 actifs distincts ont été identifiés dans l'inventaire et 17 utilisateurs ont confirmé un blocage; la couverture des autres sites est incomplète ». Elle révèle à la fois les chiffres observés et la limite. Éviter de convertir une estimation en une certitude ou d'extrapoler à tout le parc sans méthode.
+
+~~~mermaid
+flowchart TD
+    A[Collecter tickets, métriques et retours métier] --> B[Définir l'unité : personnes, actifs, requêtes ou durée]
+    B --> C[Dédupliquer et vérifier le périmètre]
+    C --> D[Calculer le résultat et sa fenêtre]
+    D --> E[Qualifier les zones non observées]
+    E --> F[Publier le chiffre avec sa méthode]
+    F --> G[Associer la preuve à chaque conclusion]
+~~~
+
+Pour mesurer une durée d'impact, préciser le point de départ utilisé et le critère de fin. Le premier ticket n'est pas nécessairement le début de l'incident; la dernière commande exécutée n'est pas nécessairement le rétablissement. Si les métriques d'indisponibilité, les tickets et la confirmation métier se contredisent, écrire cette contradiction et lancer une vérification.
+
+## Gouverner les preuves et protéger les informations sensibles
+
+Le rapport peut devoir être relu par de nombreuses personnes; l'ensemble des preuves techniques n'a pas nécessairement à être accessible à tous. Séparer les informations qui peuvent être publiées dans le corps du rapport des annexes restreintes contenant des journaux, identifiants d'actifs sensibles, captures d'administration ou informations personnelles. Les liens doivent respecter les droits d'accès et la politique de conservation.
+
+~~~mermaid
+flowchart LR
+    A[Sources originales] --> B[Copie de travail contrôlée]
+    B --> C[Filtrer les secrets et données inutiles]
+    C --> D[Rapport lisible et synthèse]
+    C --> E[Annexe technique avec accès limité]
+    D --> F[Relecture selon le niveau du rapport]
+    E --> F
+    F --> G[Publication et rétention selon la politique]
+~~~
+
+Ne pas supprimer les éléments contraires à la conclusion retenue. Si une preuve n'est pas disponible, préciser si elle a expiré, n'a jamais été collectée, est inaccessible ou n'a pas encore été analysée. Ces explications conduisent à des actions différentes. Le rapport doit permettre de retrouver la preuve utilisée au moment de la décision, tout en évitant l'exposition de secrets ou l'ajout de copies incontrôlées.
+
+## Rédiger une analyse causale lisible
+
+Le rapport n'a pas besoin de reproduire toute la discussion du groupe d'intervention. Il doit présenter une chaîne causale compacte, montrer les preuves principales et expliquer pourquoi les autres hypothèses n'ont pas été retenues ou restent ouvertes. Distinguer cause immédiate, facteur contributif, défaut de détection et difficulté de récupération. Cette structure facilite le choix d'actions complémentaires.
+
+~~~mermaid
+flowchart TD
+    A[Symptôme et impact constatés] --> B[Preuve du mécanisme technique]
+    B --> C[Facteur contributif ou barrière manquante]
+    C --> D[Pourquoi l'impact n'a-t-il pas été détecté plus tôt ?]
+    D --> E[Pourquoi la récupération a-t-elle pris ce temps ?]
+    E --> F[Actions ciblées : prévention, détection, atténuation, récupération]
+~~~
+
+Exemple : une saturation a causé des délais élevés; l'impact a été amplifié parce que la file d'attente n'était pas surveillée; la mitigation a été retardée parce que l'alerte était attribuée à une équipe sans accès au composant. Les trois éléments peuvent appeler des actions distinctes. Écrire seulement « le serveur était saturé » explique le mécanisme proche mais ne suffit pas à réduire la récurrence ou le temps de rétablissement.
+
+## De la publication à la clôture des actions
+
+Un rapport publié doit conserver un statut : préliminaire, validé, final ou révisé selon les règles locales. La mise à jour après publication doit préserver un historique des modifications importantes, notamment si la cause, la durée, le périmètre ou les actions changent. Les lecteurs doivent pouvoir savoir quelles conclusions étaient disponibles à une date donnée.
+
+~~~mermaid
+flowchart TD
+    A[Rapport initial] --> B[Relecture technique et métier]
+    B --> C{Faits et preuves suffisants ?}
+    C -- Non --> D[Marquer les inconnues et planifier les vérifications]
+    D --> E[Mettre à jour avec les preuves nouvelles]
+    E --> B
+    C -- Oui --> F[Valider le rapport selon la gouvernance]
+    F --> G[Créer et assigner les actions]
+    G --> H[Suivre échéances et dépendances]
+    H --> I[Tester l'efficacité des actions]
+    I --> J{Effet démontré ?}
+    J -- Non --> G
+    J -- Oui --> K[Clôturer les actions et partager l'apprentissage]
+~~~
+
+Les actions ne doivent pas rester uniquement dans le rapport si l'organisation utilise un backlog, un outil de tickets ou un registre de risques. Créer un item traçable par action, lier son propriétaire et son échéance, puis revenir au rapport pour enregistrer le résultat de sa vérification. Une action en retard doit garder un risque associé et être portée au bon niveau de décision.
+
+## Deux exemples de rapports : factuel et incomplet
+
+### Exemple A — Rapport factuel et utile
+
+> Entre 09:07 et 09:32 UTC, le taux d'échec des transactions de consultation a dépassé le seuil d'alerte sur une partie des utilisateurs. Le centre de services a reçu le premier ticket à 09:10; l'équipe technique a accepté le dossier à 09:18. Une mitigation approuvée a été appliquée à 09:26. Le test de bout en bout a réussi à 09:32 et la supervision est restée stable durant la fenêtre d'observation convenue. La cause exacte est encore en cours de confirmation; le rapport relie les journaux et le changement récent comme pistes à examiner. Le propriétaire de l'analyse RCA et l'échéance sont enregistrés dans le dossier incident.
+
+Cet exemple fictif distingue les événements et les preuves des hypothèses. Il n'affirme ni que le ticket est le début de l'impact, ni que la mitigation est une correction permanente.
+
+### Exemple B — Ce qui manque dans un rapport insuffisant
+
+> « Le réseau était en panne à cause d'une mauvaise configuration. L'équipe a corrigé le problème. Tout fonctionne maintenant. »
+
+Ce rapport ne donne ni période ni périmètre, ne cite aucune source, ne nomme pas la configuration fautive, n'explique pas ce que signifie « fonctionne », ne présente aucun test de validation et n'indique pas si la cause est confirmée. Il faut le reprendre avec les faits disponibles, les résultats observés et les inconnues, plutôt que remplir les vides avec des suppositions.
+
+## Checklist de relecture avant publication
+
+- Le résumé tient-il compte de l'impact métier et de l'état actuel ?
+- Les dates et heures utilisent-elles un fuseau explicite et cohérent ?
+- Le dernier état sain, la première détection, la prise en charge et le rétablissement sont-ils distingués ?
+- Chaque chiffre est-il accompagné de son unité, de sa période et de sa source ?
+- Les faits, les hypothèses et les conclusions sont-ils séparés ?
+- Les tests de restauration prouvent-ils le fonctionnement du service, pas seulement l'exécution d'une action ?
+- Les limites, contradictions et données manquantes sont-elles visibles ?
+- Les secrets et informations personnelles inutiles ont-ils été retirés des versions diffusées ?
+- Chaque action a-t-elle un propriétaire, une échéance et un critère de réussite ?
+- Les lecteurs savent-ils où se trouvent le ticket de référence, les annexes et la prochaine mise à jour ?
+
+## Ressources pour approfondir
+
+- **Atlassian — Incident Postmortem: Process & Best Practices.** Décrit la structure d'un postmortem, l'impact, la chronologie, les causes, les mesures de mitigation et les actions de suivi. [Guide de pratique](https://www.atlassian.com/incident-management/postmortem).
+- **Atlassian — A Guide to the Incident Postmortem Process.** Propose un modèle de rapport avec résumé, chronologie, cause, rétablissement, apprentissages et actions correctives. [Modèles de postmortem](https://www.atlassian.com/incident-management/postmortem/templates).
+- **Google SRE — Incident Management Guide.** Présente les rôles, la coordination, la communication et la revue après incident pour les services techniques. [Guide officiel](https://sre.google/resources/practices-and-processes/incident-management-guide/).
+
+Ces ressources servent de repères pour structurer le rapport, mais les règles de confidentialité, d'escalade, de rétention, de notification et d'approbation restent celles de l'organisation. Le rapport doit rester factuel, proportionné au risque et relié à des actions dont l'effet peut être vérifié.
 
 ## Atelier pratique guidé
 
