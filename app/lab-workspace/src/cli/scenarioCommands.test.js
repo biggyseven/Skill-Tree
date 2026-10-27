@@ -101,7 +101,7 @@ const SCENARIO_IDS = [
   'cli-ospf-area', 'cli-bgp-neighbor', 'cli-eigrp-network', 'cli-acl-interface',
   'cli-dhcp-pool', 'cli-dns-host-records', 'cli-nat-overload', 'cli-ipv6-interface',
   'cli-stp-hardening', 'cli-hsrp-gateway', 'cli-port-security', 'cli-ntp-syslog',
-  'cli-qos-voice-policy'
+  'cli-qos-voice-policy', 'dhcp-nat'
 ];
 
 function valueAtPath(root, path) {
@@ -122,7 +122,7 @@ function ruleSatisfied(topology, rule) {
   return false;
 }
 
-test('les séquences CLI de chacun des 17 labs satisfont leurs assertions serveur après exécution réelle', () => {
+test('les séquences CLI des laboratoires couverts satisfont leurs assertions serveur après exécution réelle', () => {
   for (const scenarioId of SCENARIO_IDS) {
     const scenario = JSON.parse(readFileSync(new URL(`../../../../labs_v2/${scenarioId}.json`, import.meta.url), 'utf8'));
     const targetMatch = scenario.hints.find(item => /^Cible CLI\s*:/i.test(item))?.match(/^Cible CLI\s*:\s*([^.]+)\./i);
@@ -136,16 +136,17 @@ test('les séquences CLI de chacun des 17 labs satisfont leurs assertions serveu
     const topology = JSON.parse(JSON.stringify(scenario.initial_topology));
 
     for (const commandsHint of commandsHints) {
-      const body = commandsHint
-        .replace(/^(?:Séquence|Solution) de référence(?: \(à consulter en dernier\))?\s*:\s*/, '')
-        .replace(/\.$/, '');
+      const heading = commandsHint.match(/^(?:Séquence|Solution) de référence(?: sur ([A-Za-z0-9_-]+))?(?: \(à consulter en dernier\))?\s*:\s*/);
+      assert.ok(heading, 'Format de séquence CLI invalide.');
+      const body = commandsHint.replace(/^(?:Séquence|Solution) de référence(?: sur ([A-Za-z0-9_-]+))?(?: \(à consulter en dernier\))?\s*:\s*/, '').replace(/\.$/, '');
+      const headingTarget = heading[1] || defaultTarget;
       const sections = body.includes(' || ')
         ? body.split(' || ').map(section => {
             const match = section.match(/^([A-Za-z0-9_-]+)\s*=>\s*(.*)$/);
             assert.ok(match, `${scenarioId}: section multi-équipement invalide : ${section}`);
             return { target: match[1], commands: match[2] };
           })
-        : [{ target: defaultTarget, commands: body }];
+        : [{ target: headingTarget, commands: body }];
 
       for (const section of sections) {
         const device = topology.nodes.find(item =>
