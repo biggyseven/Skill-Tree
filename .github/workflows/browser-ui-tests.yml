@@ -6,6 +6,7 @@ on:
     paths:
       - "static/**"
       - "app/**"
+      - "labs_v2/**"
       - "tests/e2e/**"
       - "requirements.txt"
       - ".github/workflows/browser-ui-tests.yml"
@@ -14,6 +15,7 @@ on:
     paths:
       - "static/**"
       - "app/**"
+      - "labs_v2/**"
       - "content/**"
       - "tests/e2e/**"
       - "requirements.txt"
