@@ -1,0 +1,366 @@
+{
+  "schema_version": 2,
+  "id": "multicast-intermediaire",
+  "title": "Multicast — PIM sparse, RP et RPF",
+  "level": "intermédiaire",
+  "module": "Configurez la distribution multicast du groupe 239.1.1.1 entre le serveur source et le récepteur. Activez PIM sparse-mode, définissez le RP et utilisez IGMPv3 avec vérification RPF.",
+  "prompt": [
+    "Activer le multicast sur R1.",
+    "Configurer PIM sparse-mode sur le chemin.",
+    "Définir le rendez-vous point.",
+    "Activer IGMPv3 et vérifier le contrôle RPF."
+  ],
+  "objectives": [
+    "PIM sparse-mode s’appuie sur un RP pour construire l’arbre partagé.",
+    "Le RPF valide que le flux revient par l’interface qui mène à la source.",
+    "Le groupe multicast doit être identique sur le chemin source/récepteur."
+  ],
+  "hints": {
+    "schema_version": 2,
+    "topology_id": "topo-multicast-intermediaire",
+    "metadata": {
+      "name": "Multicast — PIM sparse-mode",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "SRC",
+        "type": "server",
+        "x": 80,
+        "y": 220,
+        "label": "SRC",
+        "model": "SRC",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SRC"
+        }
+      },
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 320,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.6.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "multicast",
+              "enabled": false,
+              "pim_mode": "dense",
+              "rp": "0.0.0.0",
+              "igmp_version": 2,
+              "group": "239.1.1.1",
+              "rpf_check": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 610,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.6.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.6.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "multicast",
+              "enabled": true,
+              "pim_mode": "sparse",
+              "rp": "10.255.0.1",
+              "igmp_version": 3,
+              "group": "239.1.1.1",
+              "rpf_check": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 900,
+        "y": 220,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.6.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "multicast",
+              "enabled": true,
+              "pim_mode": "sparse",
+              "rp": "10.255.0.1",
+              "igmp_version": 3,
+              "group": "239.1.1.1",
+              "rpf_check": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "RECEIVER",
+        "type": "pc",
+        "x": 1120,
+        "y": 220,
+        "label": "RECEIVER",
+        "model": "RECEIVER",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "RECEIVER"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "SOURCE",
+        "from": {
+          "node": "SRC",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "RECEIVER",
+        "from": {
+          "node": "R3",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "RECEIVER",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": [
+    {
+      "id": "multicast-enabled",
+      "description": "Le multicast est activé sur R1.",
+      "device": "R1",
+      "path": "config.routes[0].enabled",
+      "operator": "equals",
+      "expected": true
+    },
+    {
+      "id": "pim-mode",
+      "description": "PIM utilise le mode sparse.",
+      "device": "R1",
+      "path": "config.routes[0].pim_mode",
+      "operator": "equals",
+      "expected": "sparse"
+    },
+    {
+      "id": "rp",
+      "description": "Le rendez-vous point est configuré.",
+      "device": "R1",
+      "path": "config.routes[0].rp",
+      "operator": "equals",
+      "expected": "10.255.0.1"
+    },
+    {
+      "id": "igmp",
+      "description": "Le LAN récepteur utilise IGMPv3.",
+      "device": "R1",
+      "path": "config.routes[0].igmp_version",
+      "operator": "equals",
+      "expected": 3
+    },
+    {
+      "id": "group",
+      "description": "Le groupe multicast attendu est configuré.",
+      "device": "R1",
+      "path": "config.routes[0].group",
+      "operator": "equals",
+      "expected": "239.1.1.1"
+    },
+    {
+      "id": "rpf",
+      "description": "Le contrôle RPF est actif.",
+      "device": "R1",
+      "path": "config.routes[0].rpf_check",
+      "operator": "equals",
+      "expected": true
+    }
+  ],
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": 30,
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
