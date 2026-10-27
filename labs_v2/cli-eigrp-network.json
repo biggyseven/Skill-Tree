@@ -133,14 +133,14 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
+            "ip": "192.168.20.1",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Passerelle du LAN distant",
             "access_group_in": null,
             "access_group_out": null,
             "ipv6": null,
@@ -174,11 +174,68 @@
                 {
                   "network": "10.1.0.0",
                   "wildcard": "0.0.255.255"
+                },
+                {
+                  "network": "192.168.20.0",
+                  "wildcard": "0.0.0.255"
                 }
               ],
               "auto_summary": false
             }
           }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SERVEUR",
+        "type": "server",
+        "model": "generic-server",
+        "x": 930,
+        "y": 390,
+        "label": "SERVEUR",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.20.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Hôte du réseau 192.168.20.0/24",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SERVEUR",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
+          "protocols": {}
         },
         "runtime": {
           "arp_table": [],
@@ -199,6 +256,21 @@
           "port": "Gi0/0"
         },
         "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-R2-SERVEUR",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "SERVEUR",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
         "state": "up",
         "bandwidth": 1000,
         "latency_ms": 1
