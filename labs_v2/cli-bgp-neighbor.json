@@ -6,7 +6,7 @@
   "module": "Routage avancé",
   "duration_min": 25,
   "difficulty": "expert",
-  "prompt": "Configurez l’AS local 65001, le voisin 192.0.2.2 dans l’AS 65002 et l’annonce de 10.10.0.0/16. Le serveur vérifie la liste de voisins et les réseaux BGP structurés.",
+  "prompt": "Contexte : R1 appartient à l’AS 65001 et doit établir une relation eBGP avec le voisin 192.0.2.2, rattaché à l’AS 65002. Il doit également annoncer le préfixe d’entreprise 10.10.0.0/16. Configurez l’AS local, le voisin et le réseau annoncé. Le contrôle vérifie les paramètres BGP locaux ; l’établissement d’une session exige aussi que le routeur distant et la connectivité IP soient configurés.",
   "objectives": [
     "Exécuter puis vérifier : router bgp 65001",
     "Exécuter puis vérifier : neighbor 192.0.2.2 remote-as 65002",
@@ -14,8 +14,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; router bgp 65001 ; neighbor 192.0.2.2 remote-as 65002 ; network 10.10.0.0 mask 255.255.0.0 ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : démarrez le processus BGP avec le numéro de l’AS local, pas celui du voisin.",
+    "Indice 2 : l’AS distant se renseigne sur la commande neighbor. L’annonce de réseau utilise le masque correspondant à /16.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; router bgp 65001 ; neighbor 192.0.2.2 remote-as 65002 ; network 10.10.0.0 mask 255.255.0.0 ; end.",
+    "Les contrôles examinent l’AS local, le voisin avec son AS distant et le préfixe annoncé dans l’état structuré."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -38,7 +40,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -57,7 +59,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -108,7 +110,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -127,7 +129,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -178,7 +180,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -283,7 +285,7 @@
     "rules": [
       {
         "id": "bgp_asn",
-        "description": "Contrôle serveur : bgp asn doit être conforme.",
+        "description": "R1 utilise l’AS BGP local 65001.",
         "device": "R1",
         "path": "config.protocols.bgp.asn",
         "operator": "equals",
@@ -291,7 +293,7 @@
       },
       {
         "id": "bgp_neighbor",
-        "description": "Contrôle serveur : bgp neighbor doit être conforme.",
+        "description": "Le voisin 192.0.2.2 est configuré avec l’AS distant 65002.",
         "device": "R1",
         "path": "config.protocols.bgp.neighbors",
         "operator": "contains",
@@ -302,7 +304,7 @@
       },
       {
         "id": "bgp_network",
-        "description": "Contrôle serveur : bgp network doit être conforme.",
+        "description": "Le réseau 10.10.0.0/16 est déclaré à l’annonce BGP.",
         "device": "R1",
         "path": "config.protocols.bgp.networks",
         "operator": "contains",
