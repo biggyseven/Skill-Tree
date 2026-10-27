@@ -623,7 +623,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         set_module = DASHBOARD_HTML[start:end]
 
         self.assertIn("this.moduleFilter = id;", set_module)
-        self.assertIn("const firstCourse = id === 'all' ? null : this.nodesIn(id)[0];", set_module)
+        self.assertIn("const firstCourse = id === 'all' ? null : this.orderedModuleLessons(id)[0];", set_module)
         self.assertIn("this.moduleNextCourseId = firstCourse && firstCourse.id ? firstCourse.id : null;", set_module)
         self.assertNotIn("this.show(firstCourse.id)", set_module)
         self.assertIn("get moduleNextCourse()", DASHBOARD_HTML)
@@ -1048,23 +1048,28 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("readingWidth: this.readingWidth", DASHBOARD_HTML)
         self.assertIn("p.readingWidth === 'comfortable' || p.readingWidth === 'wide'", DASHBOARD_HTML)
 
-    def test_course_reader_navigation_uses_canonical_catalogue_order_and_module_context(self):
+    def test_course_reader_navigation_is_scoped_to_active_module(self):
         self.assertIn("def _configured_node_orders()", API_SOURCE)
-        self.assertIn('"order": configured_orders.get(n.id, n.sort_order)', API_SOURCE)
+        self.assertIn("def _configured_node_positions()", API_SOURCE)
+        self.assertIn('configured_orders.get(n.id, n.sort_order)', API_SOURCE)
+        self.assertIn('"catalog_index": configured_positions.get(n.id, fallback_index)', API_SOURCE)
         self.assertIn('"sort_order": n.sort_order', API_SOURCE)
-        start = DASHBOARD_HTML.index("        get lessonSequence()")
-        end = DASHBOARD_HTML.index("        async show(nodeId)", start)
+        start = DASHBOARD_HTML.index("        get lessonNavigationModule()")
+        end = DASHBOARD_HTML.index("        get lessonCurrentIndex()", start)
         navigation_logic = DASHBOARD_HTML[start:end]
+        self.assertIn("orderedModuleLessons(moduleId)", navigation_logic)
+        self.assertIn("const activeModule = this.lessonNavigationModule;", navigation_logic)
+        self.assertIn("this.moduleOf(node) === moduleId", navigation_logic)
         self.assertIn("const rawOrder = node.order ?? node.sort_order;", navigation_logic)
-        self.assertIn("get lessonCurrentIndex()", navigation_logic)
-        self.assertIn("get lessonNeighbors()", navigation_logic)
+        self.assertIn("const rawCatalogIndex = node.catalog_index;", navigation_logic)
+        self.assertIn("get lessonNeighbors()", DASHBOARD_HTML)
+        self.assertIn("const firstCourse = id === 'all' ? null : this.orderedModuleLessons(id)[0];", DASHBOARD_HTML)
         self.assertIn('aria-label="Navigation entre les leçons"', DASHBOARD_HTML)
         self.assertIn("moduleMeta(moduleOf(lessonNeighbors.prev)).label", DASHBOARD_HTML)
         self.assertIn("moduleMeta(moduleOf(lessonNeighbors.next)).label", DASHBOARD_HTML)
-        self.assertIn("Module précédent", DASHBOARD_HTML)
-        self.assertIn("Nouveau module", DASHBOARD_HTML)
-        self.assertIn("Début du parcours", DASHBOARD_HTML)
-        self.assertIn("Dernière étape du parcours", DASHBOARD_HTML)
+        self.assertIn("Suite du module", DASHBOARD_HTML)
+        self.assertIn("Début du module", DASHBOARD_HTML)
+        self.assertIn("Dernière leçon du module", DASHBOARD_HTML)
 
 
 if __name__ == "__main__":

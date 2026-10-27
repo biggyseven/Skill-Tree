@@ -268,7 +268,7 @@ test('la navigation du lecteur respecte l’ordre pédagogique et contextualise 
   await expect(page.locator('#course-reader-title')).toHaveText("Qu'est-ce qu'un réseau ? - Débutant");
   const navigation = page.getByRole('region', { name: 'Navigation entre les leçons' });
   await expect(navigation).toBeVisible();
-  await expect(navigation.getByText('Début du parcours', { exact: true })).toBeVisible();
+  await expect(navigation.getByText('Début du module', { exact: true })).toBeVisible();
   await expect(navigation.getByText('Étape 1 sur', { exact: false })).toBeVisible();
 
   const nextLesson = navigation.getByRole('button', {
@@ -285,7 +285,73 @@ test('la navigation du lecteur respecte l’ordre pédagogique et contextualise 
   await expect(navigation.getByText('Étape 2 sur', { exact: false })).toBeVisible();
 });
 
-test('un cours cybersécurité en attente affiche un état de préparation au lieu d’un lecteur vide', async ({ page }) => {
+test('la navigation du lecteur reste dans le module sélectionné, même quand les ordres se chevauchent entre modules', async ({ page }) => {
+  await openDashboard(page);
+
+  const firstCourseId = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    state.setModule('cybersecurite');
+    return state.moduleNextCourseId;
+  });
+  expect(firstCourseId).toBe('secu-cia-debutant');
+
+  const networkTieOrder = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return state.orderedModuleLessons('admin-reseaux').map(node => node.id);
+  });
+  expect(networkTieOrder.indexOf('wireshark-debutant')).toBe(
+    networkTieOrder.indexOf('incident-ospf') + 1,
+  );
+
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const searchResults = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill('La Triade CIA');
+  const firstCourseResult = searchResults.locator('button').filter({ hasText: 'La Triade CIA' }).first();
+  await expect(firstCourseResult).toBeVisible();
+  await firstCourseResult.click();
+
+  await expect(page.locator('#course-reader-title')).toHaveText('La Triade CIA');
+  const navigation = page.getByRole('region', { name: 'Navigation entre les leçons' });
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByText('Étape 1 sur 35 · Cybersécurité', { exact: true })).toBeVisible();
+
+  const nextLesson = navigation.getByRole('button', {
+    name: /Ouvrir la leçon suivante.*Panorama des menaces/,
+  });
+  await expect(nextLesson).toBeVisible();
+  await expect(nextLesson).not.toContainText(/Wireshark/);
+  await nextLesson.click();
+
+  await expect(page.locator('#course-reader-title')).toHaveText('Panorama des menaces');
+  await expect(navigation.getByRole('button', {
+    name: /Ouvrir la leçon précédente.*La Triade CIA/,
+  })).toBeVisible();
+  await expect(navigation.getByRole('button', {
+    name: /Ouvrir la leçon suivante.*Cryptographie/,
+  })).toBeVisible();
+
+  const navigationState = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return {
+      module: state.lessonNavigationModule,
+      previous: state.lessonNeighbors.prev?.id || null,
+      next: state.lessonNeighbors.next?.id || null,
+      sequenceLength: state.lessonSequence.length,
+      currentIndex: state.lessonCurrentIndex,
+      wiresharkIndex: state.lessonSequence.findIndex(node => node.id === 'wireshark-debutant'),
+    };
+  });
+  expect(navigationState).toEqual({
+    module: 'cybersecurite',
+    previous: 'secu-cia-debutant',
+    next: 'secu-crypto-debutant',
+    sequenceLength: 35,
+    currentIndex: 2,
+    wiresharkIndex: -1,
+  });
+});
+
+test('un cours cybersécurité complet affiche son contenu dans le lecteur', async ({ page }) => {
   await openDashboard(page);
 
   const searchInput = page.locator('input[x-ref="searchBox"]');
@@ -297,10 +363,12 @@ test('un cours cybersécurité en attente affiche un état de préparation au li
   await lessonResult.click();
 
   await expect(page.locator('#course-reader-title')).toHaveText('Analyse de malwares');
-  await expect(page.getByText('Contenu en préparation', { exact: true })).toBeVisible();
-  await expect(page.locator('[x-ref="lessonArticle"]')).toHaveCount(0);
+  await expect(page.locator('#lesson-preparation-title')).toBeHidden();
+  const article = page.locator('[x-ref="lessonArticle"]');
+  await expect(article).toHaveCount(1);
+  await expect(article).toContainText('Mise en contexte');
+  await expect(article).toContainText('préserver les preuves');
   await expect(page.getByText(/Contenu de 5000 mots à rédiger/i)).toHaveCount(0);
-  await expect(page.getByTitle('Réduire le texte')).toBeHidden();
 });
 
 test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans un nouvel onglet', async ({ page }) => {
@@ -648,15 +716,15 @@ Poste de secours</code></pre>
   expect(narration).toContain('l’usage indiqué est « Web chiffré »');
   expect(narration).toContain('Pour DNS, le port utilisé est 53');
   expect(narration).toContain('l’usage indiqué est « Résolution de noms »');
-  expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « Serveur »');
-  expect(narration).toContain('Une liaison va du bloc « Serveur » vers le bloc « Base de données »');
+  expect(narration).toContain('Le schéma relie le bloc « Client » au bloc « Serveur »');
+  expect(narration).toContain('Le schéma relie le bloc « Serveur » au bloc « Base de données »');
   expect(narration).toContain('Tableau textuel.');
   expect(narration).toContain('Pour HTTP, le port utilisé est 80');
   expect(narration).toContain('Pour HTTPS, le port utilisé est 443');
-  expect(narration).toContain('Une liaison va du bloc « Client » vers le bloc « API » en passant par HTTPS');
-  expect(narration).toContain('Une liaison va du bloc « API » vers le bloc « Base de données »');
-  expect(narration).toContain('Une liaison va du bloc « Poste de travail » vers le bloc « Routeur »');
-  expect(narration).toContain('Une liaison va du bloc « Poste de secours » vers le bloc « Routeur »');
+  expect(narration).toContain('Le schéma relie le bloc « Client » au bloc « API » en passant par HTTPS');
+  expect(narration).toContain('Le schéma relie le bloc « API » au bloc « Base de données »');
+  expect(narration).toContain('Le schéma relie le bloc « Poste de travail » au bloc « Routeur »');
+  expect(narration).toContain('Le schéma relie le bloc « Poste de secours » au bloc « Routeur »');
   expect(narration).toContain('Le schéma se lit ainsi : Client va vers Passerelle.');
   expect(narration).not.toContain('→');
   expect(narration).not.toContain('Copier');

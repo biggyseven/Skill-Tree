@@ -2053,11 +2053,11 @@
                   <section class="mt-12 border-t border-white/10 pt-7" aria-label="Navigation entre les leçons">
                     <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
                       <div class="min-w-0">
-                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">Suite du parcours</p>
-                        <h3 class="mt-1 text-lg font-semibold tracking-tight text-white">Continue ton apprentissage</h3>
-                        <p class="mt-1 text-xs leading-5 text-zinc-400">Retrouve l’étape précédente ou poursuis dans l’ordre pédagogique.</p>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">Suite du module</p>
+                        <h3 class="mt-1 text-lg font-semibold tracking-tight text-white">Continue dans ce module</h3>
+                        <p class="mt-1 text-xs leading-5 text-zinc-400">La navigation reste dans le module ouvert et respecte l’ordre pédagogique de ses cours.</p>
                       </div>
-                      <span x-show="lessonCurrentIndex > 0" class="shrink-0 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 text-[11px] font-medium text-zinc-300" x-text="'Étape ' + lessonCurrentIndex + ' sur ' + lessonSequence.length"></span>
+                      <span x-show="lessonCurrentIndex > 0" class="shrink-0 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 text-[11px] font-medium text-zinc-300" x-text="'Étape ' + lessonCurrentIndex + ' sur ' + lessonSequence.length + ' · ' + moduleMeta(lessonNavigationModule).short"></span>
                     </div>
 
                     <div class="grid min-w-0 gap-3 sm:grid-cols-2">
@@ -2072,7 +2072,7 @@
                             <span class="block text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Leçon précédente</span>
                             <span class="mt-1 block whitespace-normal break-words text-sm font-semibold leading-5 text-white" x-text="lessonNeighbors.prev.title"></span>
                             <span class="mt-2 block whitespace-normal break-words text-[11px] leading-4 text-zinc-400" x-text="moduleMeta(moduleOf(lessonNeighbors.prev)).label + ' · ' + levelLabel(lessonNeighbors.prev)"></span>
-                            <span x-show="moduleOf(lessonNeighbors.prev) !== moduleOf(detail)" class="mt-2 inline-flex rounded-full border border-amber-300/20 bg-amber-300/[0.07] px-2 py-1 text-[10px] font-semibold text-amber-200">Module précédent</span>
+                            
                           </span>
                         </button>
                       </template>
@@ -2080,8 +2080,8 @@
                         <div class="flex min-h-28 min-w-0 items-center gap-3 rounded-2xl border border-dashed border-white/10 bg-white/[0.015] p-4">
                           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 text-zinc-500" aria-hidden="true">↖</span>
                           <span class="min-w-0">
-                            <span class="block text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Début du parcours</span>
-                            <span class="mt-1 block text-xs leading-5 text-zinc-400">Cette leçon ouvre la séquence pédagogique.</span>
+                            <span class="block text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Début du module</span>
+                            <span class="mt-1 block text-xs leading-5 text-zinc-400" x-text="'Cette leçon ouvre le module ' + moduleMeta(lessonNavigationModule).label + '.'">Cette leçon ouvre le module courant.</span>
                           </span>
                         </div>
                       </template>
@@ -2093,7 +2093,7 @@
                           <span class="min-w-0 flex-1">
                             <span class="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-cyan-300">
                               <span>Leçon suivante</span>
-                              <span x-show="moduleOf(lessonNeighbors.next) !== moduleOf(detail)" class="rounded-full border border-cyan-300/25 bg-cyan-300/[0.08] px-2 py-1 text-[9px] tracking-normal text-cyan-100">Nouveau module</span>
+                              
                             </span>
                             <span class="mt-1 block whitespace-normal break-words text-sm font-semibold leading-5 text-white" x-text="lessonNeighbors.next.title"></span>
                             <span class="mt-2 block whitespace-normal break-words text-[11px] leading-4 text-zinc-300" x-text="moduleMeta(moduleOf(lessonNeighbors.next)).label + ' · ' + levelLabel(lessonNeighbors.next)"></span>
@@ -2107,8 +2107,8 @@
                         <div class="flex min-h-28 min-w-0 items-center gap-3 rounded-2xl border border-dashed border-emerald-300/20 bg-emerald-300/[0.025] p-4">
                           <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-300/20 text-emerald-200" aria-hidden="true">✓</span>
                           <span class="min-w-0">
-                            <span class="block text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-200">Dernière étape du parcours</span>
-                            <span class="mt-1 block text-xs leading-5 text-zinc-400">Tu as atteint la fin de la séquence actuellement publiée.</span>
+                            <span class="block text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-200">Dernière leçon du module</span>
+                            <span class="mt-1 block text-xs leading-5 text-zinc-400" x-text="'Tu as atteint la fin des leçons du module ' + moduleMeta(lessonNavigationModule).label + '. Choisis un autre module pour commencer son parcours.'">Tu as atteint la fin du module courant.</span>
                           </span>
                         </div>
                       </template>
@@ -3518,19 +3518,62 @@
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
 
-        get lessonSequence() {
+        // La séquence du lecteur est limitée au module du cours ouvert.
+        // Le champ order est local au module : plusieurs modules peuvent partager la même valeur.
+        get lessonNavigationModule() {
+          if (this.detail) return this.moduleOf(this.detail);
+          return this.moduleFilter && this.moduleFilter !== 'all' ? this.moduleFilter : null;
+        },
+        orderedModuleLessons(moduleId) {
           const nodes = Array.isArray(this.nodes) ? this.nodes : [];
+          if (!moduleId || moduleId === 'all') return [];
           return nodes
+            .filter(node => this.moduleOf(node) === moduleId)
             .map((node, index) => {
               const rawOrder = node.order ?? node.sort_order;
               const order = rawOrder === null || rawOrder === undefined || rawOrder === '' ? Number.NaN : Number(rawOrder);
-              return { node, index, order };
+              const rawCatalogIndex = node.catalog_index;
+              const catalogIndex = rawCatalogIndex === null || rawCatalogIndex === undefined || rawCatalogIndex === '' ? Number.NaN : Number(rawCatalogIndex);
+              return { node, index, order, catalogIndex };
             })
             .sort((a, b) => {
               const aHasOrder = Number.isFinite(a.order);
               const bHasOrder = Number.isFinite(b.order);
               if (aHasOrder && bHasOrder && a.order !== b.order) return a.order - b.order;
               if (aHasOrder !== bHasOrder) return aHasOrder ? -1 : 1;
+              const aHasCatalogIndex = Number.isFinite(a.catalogIndex);
+              const bHasCatalogIndex = Number.isFinite(b.catalogIndex);
+              if (aHasCatalogIndex && bHasCatalogIndex && a.catalogIndex !== b.catalogIndex) return a.catalogIndex - b.catalogIndex;
+              if (aHasCatalogIndex !== bHasCatalogIndex) return aHasCatalogIndex ? -1 : 1;
+              return a.index - b.index;
+            })
+            .map(item => item.node);
+        },
+        get lessonSequence() {
+          const nodes = Array.isArray(this.nodes) ? this.nodes : [];
+          const activeModule = this.lessonNavigationModule;
+          if (activeModule) return this.orderedModuleLessons(activeModule);
+
+          // Sans module sélectionné, regrouper les cours par ordre des modules, puis par ordre local.
+          return nodes
+            .map((node, index) => {
+              const rawOrder = node.order ?? node.sort_order;
+              const order = rawOrder === null || rawOrder === undefined || rawOrder === '' ? Number.NaN : Number(rawOrder);
+              const rawCatalogIndex = node.catalog_index;
+              const catalogIndex = rawCatalogIndex === null || rawCatalogIndex === undefined || rawCatalogIndex === '' ? Number.NaN : Number(rawCatalogIndex);
+              const modulePos = this.modules.findIndex(module => module.id === this.moduleOf(node));
+              return { node, index, order, catalogIndex, moduleIndex: modulePos >= 0 ? modulePos : this.modules.length };
+            })
+            .sort((a, b) => {
+              if (a.moduleIndex !== b.moduleIndex) return a.moduleIndex - b.moduleIndex;
+              const aHasOrder = Number.isFinite(a.order);
+              const bHasOrder = Number.isFinite(b.order);
+              if (aHasOrder && bHasOrder && a.order !== b.order) return a.order - b.order;
+              if (aHasOrder !== bHasOrder) return aHasOrder ? -1 : 1;
+              const aHasCatalogIndex = Number.isFinite(a.catalogIndex);
+              const bHasCatalogIndex = Number.isFinite(b.catalogIndex);
+              if (aHasCatalogIndex && bHasCatalogIndex && a.catalogIndex !== b.catalogIndex) return a.catalogIndex - b.catalogIndex;
+              if (aHasCatalogIndex !== bHasCatalogIndex) return aHasCatalogIndex ? -1 : 1;
               return a.index - b.index;
             })
             .map(item => item.node);
@@ -5381,7 +5424,7 @@
         },
         setModule(id) {
           this.moduleFilter = id;
-          const firstCourse = id === 'all' ? null : this.nodesIn(id)[0];
+          const firstCourse = id === 'all' ? null : this.orderedModuleLessons(id)[0];
           this.moduleNextCourseId = firstCourse && firstCourse.id ? firstCourse.id : null;
         },
         openLearningStep() {
