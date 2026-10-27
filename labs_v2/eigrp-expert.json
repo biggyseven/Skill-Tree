@@ -1,0 +1,304 @@
+{
+  "schema_version": 2,
+  "id": "eigrp-expert",
+  "title": "EIGRP expert — Stub, métrique et chemins alternatifs",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Optimisez un domaine EIGRP à trois routeurs. Activez l’authentification, préparez des chemins alternatifs de coût inégal avec la variance et configurez des routeurs de bordure stub.",
+  "objectives": [
+    "Conserver des valeurs K cohérentes.",
+    "Activer l’authentification EIGRP.",
+    "Configurer la variance pour les chemins admissibles.",
+    "Déclarer les routeurs de bordure en stub."
+  ],
+  "hints": [
+    "Des valeurs K incompatibles empêchent les voisinages.",
+    "La variance ne rend pas automatiquement tout chemin admissible.",
+    "Les liens d’adjacence vers le cœur ne doivent pas être rendus passifs."
+  ],
+  "duration_min": 35,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-eigrp-expert",
+    "metadata": {
+      "name": "EIGRP expert — Stub, authentification et variance",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 200,
+        "y": 230,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.13.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "eigrp",
+              "enabled": true,
+              "asn": 100,
+              "variance": 1,
+              "authentication": false,
+              "k_values": {
+                "k1": 1,
+                "k2": 0,
+                "k3": 1,
+                "k4": 0,
+                "k5": 0
+              },
+              "networks": [
+                "10.0.12.0/30",
+                "10.0.13.0/30"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 520,
+        "y": 130,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "eigrp",
+              "enabled": true,
+              "asn": 100,
+              "stub": false,
+              "passive_interfaces": [],
+              "authentication": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 520,
+        "y": 360,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.13.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "eigrp",
+              "enabled": true,
+              "asn": 100,
+              "stub": false,
+              "passive_interfaces": [],
+              "authentication": false
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R1-R3",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/1"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "variance",
+        "description": "R1 autorise certains chemins de coût inégal.",
+        "device": "R1",
+        "path": "config.routes[0].variance",
+        "operator": "equals",
+        "expected": 2
+      },
+      {
+        "id": "auth",
+        "description": "L’authentification EIGRP est activée.",
+        "device": "R1",
+        "path": "config.routes[0].authentication",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "k1",
+        "description": "K1 reste configuré à 1.",
+        "device": "R1",
+        "path": "config.routes[0].k_values.k1",
+        "operator": "equals",
+        "expected": 1
+      },
+      {
+        "id": "stub-r2",
+        "description": "R2 est configuré comme routeur stub.",
+        "device": "R2",
+        "path": "config.routes[0].stub",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "stub-r3",
+        "description": "R3 est configuré comme routeur stub.",
+        "device": "R3",
+        "path": "config.routes[0].stub",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "asn-r2",
+        "description": "R2 garde l’AS 100.",
+        "device": "R2",
+        "path": "config.routes[0].asn",
+        "operator": "equals",
+        "expected": 100
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
