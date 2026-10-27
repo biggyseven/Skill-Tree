@@ -7452,7 +7452,7 @@
     "title": "Gestion des vulnérabilités",
     "category": "Cybersécurité",
     "order": 931,
-    "description": "Squelette du cours de cybersécurité : Gestion des vulnérabilités.",
+    "description": "Cycle complet de gestion des vulnérabilités : inventaire, priorisation, remédiation vérifiée, patch management et pilotage du risque.",
     "prereqs": [
       "secu-routing-secu-expert"
     ],
