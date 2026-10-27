@@ -352,6 +352,36 @@ Chaque politique approuvée doit avoir un propriétaire, une justification, une 
 Les revues s'appuient sur l'historique des défaillances, le MTBF/MTTR définis, l'efficacité du préventif, les coûts, les ruptures de stock, les résultats de prédiction et les incidents post-maintenance. Une variation d'indicateur peut provenir d'une évolution des règles ou de la population : vérifier la comparabilité avant d'en tirer une conclusion. Si une politique est modifiée, définir une référence et une période d'observation pour vérifier qu'elle produit la valeur attendue.
 
 
+
+## Gouverner le portefeuille pluriannuel et les exceptions de risque
+
+Un portefeuille de maintenance réunit les actions courantes, les évolutions de politiques, le renouvellement d'actifs, la réduction d'obsolescence, les améliorations de fiabilité et les obligations de continuité. Les initiatives sont comparées selon criticité, risques, valeur, dépendances, échéance, coût de cycle de vie et capacité. Le score aide à discuter les priorités, mais une exigence obligatoire ou une action de sécurité peut nécessiter un traitement dédié plutôt qu'un classement purement financier.
+
+### Exemple de plan de portefeuille
+
+| Initiative | Risque ou objectif | Dépendance | Critère de décision |
+|---|---|---|---|
+| Remplacement d'un composant sans support | Risque d'indisponibilité et d'absence de correctif | Application, fournisseur, fenêtre | Migration testée, pièces et support confirmés |
+| Mise en place de surveillance conditionnelle | Détecter une dégradation avant la panne | Capteurs, données, workflow de maintenance | Qualité de mesure et action associée vérifiées |
+| Refonte d'un préventif inefficace | Réduire coûts inutiles sans augmenter les pannes | Modes de défaillance, historique | Résultat observé sur population comparable |
+| Constitution de stock critique | Réduire délai de réparation | Prévisions, fournisseur, conservation | Disponibilité de pièce et coût complet contrôlés |
+| Standardisation de configurations | Réduire variabilité et incidents de changement | Inventaire, automatisation, droits | Tests, déploiement pilote et preuve de conformité |
+
+Les initiatives doivent être séquencées pour éviter de mobiliser simultanément les mêmes experts et fenêtres. Un plan de renouvellement crédible montre les dépendances et les points de décision, pas seulement les montants par année. Les changements de coût, de délai fournisseur, de criticité ou de disponibilité des compétences peuvent modifier l'ordre ; le portefeuille doit être réévalué selon des règles transparentes.
+
+### Accepter et réexaminer un risque résiduel
+
+Lorsqu'une action ne peut pas être mise en œuvre immédiatement, la décision précise le risque, le propriétaire, la raison du délai, les mesures compensatoires, l'échéance et le déclencheur de réexamen. Une exception n'est pas une suppression du risque. Si la condition change — aggravation des pannes, perte d'une pièce, changement réglementaire ou incident majeur — le contrôle doit se déclencher avant la revue périodique prévue.
+
+Les stratégies doivent être liées aux budgets et aux compétences. Une politique qui exige des mesures mensuelles sans capteur, personne qualifiée ou budget de pièces n'est pas réellement mise en œuvre. De même, une stratégie prédictive exige du temps pour traiter les alertes, vérifier les prédictions et planifier les interventions. Le plan doit financer les capacités nécessaires et constater si les bénéfices compensent le coût.
+
+### Revue annuelle de la stratégie
+
+La revue confronte objectifs, actifs, risques, incidents, efficacité des politiques, dépenses, qualité de données, capacités et évolution technologique. Elle identifie les décisions qui restent valides, celles qui doivent être testées et les hypothèses à abandonner. Les modifications sont versionnées et communiquées aux planificateurs, achats, opérations, finance et propriétaires métier. Le rapport indique les risques acceptés, les actions financées, les actions reportées et les raisons.
+
+Une stratégie mature n'est pas un document figé à cinq ans. Elle fournit une direction stable et un processus d'adaptation aux signaux réels. La valeur apparaît lorsque les politiques sont cohérentes avec les fonctions, les investissements arrivent au bon moment, les exceptions sont maîtrisées et les résultats sont revus à partir de preuves.
+
+
 ## Ressources techniques et références
 
 - [ISO 55000:2024 — gestion d'actifs, principes et cycle de vie](https://www.iso.org/standard/83053.html)
