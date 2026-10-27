@@ -131,6 +131,16 @@ La présence d'une donnée dans un système ne garantit pas son exactitude. Test
 
 Il faut aussi distinguer une **cause racine**, un facteur contributif et une contrainte. Une indisponibilité récurrente peut résulter d'une mauvaise configuration, mais aussi d'une dette de capacité, d'une dépendance fournisseur ou d'un processus de changement inadéquat. Les causes peuvent être multiples.
 
+```mermaid
+flowchart TD
+    A["Sources : tickets, entretiens, journaux"] --> B["Vérifier couverture et qualité"]
+    B --> C["Séparer symptômes, causes et contraintes"]
+    C --> D["Évaluer les dimensions de maturité"]
+    D --> E["Documenter les preuves et les inconnues"]
+    E --> F["Prioriser les écarts qui bloquent les résultats"]
+    F --> G["Confirmer avec les équipes terrain"]
+```
+
 ### 3.3 Une grille de maturité utile, mais non universelle
 
 La grille suivante permet d'engager une discussion. Elle n'est ni une norme, ni une certification, ni une échelle officielle.
@@ -180,6 +190,16 @@ Un dossier d'initiative doit exposer :
 
 Les hypothèses doivent être explicites. « L'IA économisera 20 % du temps » est une affirmation sans base tant que l'activité, le temps de référence, les erreurs, la relecture, les cas exclus et la conversion de ce temps en valeur ne sont pas définis.
 
+```mermaid
+flowchart LR
+    A["Initiatives candidates"] --> B["Filtre : obligations et risques"]
+    B --> C["Évaluation valeur, coût, preuve"]
+    C --> D["Dépendances et capacité"]
+    D --> E["Arbitrage par les autorités"]
+    E --> F["Portefeuille et ordre de livraison"]
+    F --> G["Revue périodique des hypothèses"]
+```
+
 ### 4.2 Une grille indicative de priorisation
 
 Les équipes peuvent noter les initiatives sur une échelle commune, par exemple de 1 à 5, avec des ancrages descriptifs. Les pondérations doivent être approuvées et ajustées à la stratégie. Le score ne remplace pas le jugement ni les obligations de sécurité et de continuité.
@@ -224,6 +244,18 @@ Le schéma indique que plusieurs résultats dépendent de capacités transversal
 Un projet livre un résultat délimité ; un service doit rester disponible, sécurisé, supporté et pertinent après sa livraison. La transformation mature prévoit qui possède le service après le projet, qui finance ses évolutions, qui surveille sa qualité, qui accepte les risques, qui répond aux utilisateurs et qui peut retirer une fonction.
 
 Le propriétaire de service est responsable du résultat global et de l'arbitrage. Il n'est pas nécessairement l'autorité technique, l'approbateur financier ou le responsable de sécurité. Ces responsabilités doivent être nommées séparément.
+
+```mermaid
+flowchart TD
+    A["Propriétaire métier : résultat"] --> D["Décision documentée"]
+    B["Propriétaire service : exploitation"] --> D
+    C["Sécurité, données, architecture et finance"] --> D
+    D --> E{"Risque et preuves conformes ?"}
+    E -- "Oui" --> F["Autoriser l'étape"]
+    E -- "Non" --> G["Corriger, limiter ou refuser"]
+    F --> H["Suivi du résultat et revue"]
+    G --> H
+```
 
 ### 5.2 Clarifier les rôles et décisions
 
@@ -348,6 +380,16 @@ Pour chaque workload, examiner :
 
 Comparer le coût total de possession, pas seulement le prix de calcul affiché. Ajouter la préparation, la migration, le double fonctionnement, les compétences, les sauvegardes, l'observabilité, les contrôles, le réseau, le support, les engagements contractuels et le retrait de l'ancien système.
 
+```mermaid
+flowchart TD
+    A["Inventorier les workloads"] --> B["Évaluer criticité et dépendances"]
+    B --> C["Comparer conserver, migrer, remplacer, moderniser"]
+    C --> D["Évaluer coût complet et réversibilité"]
+    D --> E["Définir landing zone et garde-fous"]
+    E --> F["Piloter puis migrer par vagues"]
+    F --> G["Surveiller coût, sécurité et fiabilité"]
+```
+
 ### 7.2 Construire des garde-fous communs
 
 Une plateforme cloud maîtrisée doit rendre les choix conformes faciles et détecter les exceptions. La base commune peut définir comptes ou souscriptions, identité, segmentation, chiffrement, journalisation, sauvegarde, noms, tags, budget, alertes, inventaire, règles de déploiement et responsabilités.
@@ -386,6 +428,16 @@ Pour chaque donnée clé, déterminer quelle source fait foi, qui la maintient, 
 | Modèle ou automatisation | Quelle version, quelles entrées, quelles règles, quel résultat et quelles approbations ont été utilisés ? |
 
 Une donnée de mauvaise qualité peut dégrader une IA, une règle de routage, un rapport de service et une décision financière simultanément. Cartographier les consommateurs de données permet de prioriser les corrections selon leur effet, au lieu de viser une « qualité parfaite » abstraite.
+
+```mermaid
+flowchart LR
+    A["Collecte autorisée"] --> B["Validation et classification"]
+    B --> C["Stockage et accès par rôle"]
+    C --> D["Usage, partage ou analyse"]
+    D --> E["Journalisation et contrôle qualité"]
+    E --> F["Archivage ou suppression approuvée"]
+    F --> G["Vérifier preuve et obligations"]
+```
 
 ### 8.2 Contrôler le cycle de vie et les accès
 
@@ -534,6 +586,18 @@ Une annonce ne compense pas un parcours compliqué, une charge excessive ou une 
 
 Cartographier les groupes touchés : agents de support, techniciens, managers, équipes d'astreinte, utilisateurs, sécurité, finance, fournisseurs et administrateurs. Pour chaque groupe, identifier ce qui change, ce qui reste identique, ce qui devient plus simple, ce qui peut devenir plus difficile et où demander de l'aide.
 
+```mermaid
+flowchart TD
+    A["Comprendre les groupes touchés"] --> B["Identifier tâches et écarts de compétence"]
+    B --> C["Co-concevoir formation et support"]
+    C --> D["Tester en situation réelle"]
+    D --> E["Mesurer réussite, contournements et charge"]
+    E --> F{"Les équipes réussissent-elles ?"}
+    F -- "Oui" --> G["Étendre et suivre"]
+    F -- "Non" --> H["Corriger parcours ou capacité"]
+    H --> C
+```
+
 ### 11.2 Construire le plan d'adoption
 
 Le plan doit définir :
@@ -578,6 +642,18 @@ Chaque indicateur doit avoir :
 8. les limites de qualité et de comparabilité ;
 9. les effets secondaires possibles ;
 10. l'action décidée selon les résultats.
+
+```mermaid
+flowchart TD
+    A["Activités et livrables"] --> B["Usage réel"]
+    B --> C["Résultat opérationnel"]
+    C --> D["Résultat utilisateur"]
+    D --> E["Impact métier potentiel"]
+    F["Facteurs externes et changements de périmètre"] -.-> C
+    F -.-> D
+    F -.-> E
+    E --> G["Valider attribution et bénéfice"]
+```
 
 ### 12.2 Distinguer activité, livrable, résultat et impact
 
