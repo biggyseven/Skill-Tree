@@ -53,6 +53,8 @@ class SiteAuthenticationTests(unittest.TestCase):
         self.assertEqual(home.headers["location"], "/login.html")
         data = self.client.get("/api/tree")
         self.assertEqual(data.status_code, 401, data.text)
+        labs = self.client.get("/api/lab/v2")
+        self.assertEqual(labs.status_code, 401, labs.text)
 
         login_page = self.client.get("/login.html")
         self.assertEqual(login_page.status_code, 200, login_page.text)
@@ -84,6 +86,24 @@ class SiteAuthenticationTests(unittest.TestCase):
         logout = self.client.post("/api/auth/logout")
         self.assertEqual(logout.status_code, 204)
         self.assertEqual(self.client.get("/api/tree").status_code, 401)
+
+    def test_cross_origin_login_is_rejected(self) -> None:
+        response = self.client.post(
+            "/api/auth/login",
+            json={"password": _TEST_PASSWORD},
+            headers={"Origin": "https://attacker.example"},
+        )
+        self.assertEqual(response.status_code, 403, response.text)
+        self.assertNotIn("set-cookie", response.headers)
+        self.assertEqual(self.client.get("/api/tree").status_code, 401)
+
+    def test_render_session_cookie_is_marked_secure(self) -> None:
+        with patch.dict(os.environ, {"RENDER_SERVICE_ID": "srv-test"}):
+            response = self.client.post(
+                "/api/auth/login", json={"password": _TEST_PASSWORD}
+            )
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertIn("secure", response.headers.get("set-cookie", "").lower())
 
     def test_authenticated_mutations_reject_a_foreign_origin(self) -> None:
         self._login()
