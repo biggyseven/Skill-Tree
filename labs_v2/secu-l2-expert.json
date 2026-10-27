@@ -1,0 +1,463 @@
+{
+  "schema_version": 2,
+  "id": "secu-l2-expert",
+  "title": "Sécurité L2 expert — Port security et ACL de zone",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Renforcez les VLAN interne/invités : activez port security, limitez les MAC autorisées, choisissez une action restrictive en cas de violation et bloquez le passage des invités vers le LAN interne.",
+  "objectives": [
+    "Conserver VLAN 10 pour l’interne et VLAN 30 pour les invités.",
+    "Activer port security et limiter les MAC.",
+    "Fermer le port en cas de violation.",
+    "Appliquer une politique restrictive entre zones."
+  ],
+  "hints": [
+    "Un trunk doit transporter les VLAN attendus des deux côtés.",
+    "Port security ne remplace pas l’ACL de frontière.",
+    "Le réseau invité ne doit pas joindre directement le serveur interne."
+  ],
+  "duration_min": 35,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-secu-l2-expert",
+    "metadata": {
+      "name": "Sécurité L2 — Port security et segmentation",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 300,
+        "y": 220,
+        "label": "SW1",
+        "model": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 10,
+              "name": "INTERNE",
+              "security": {
+                "port_security": false,
+                "max_mac": 10,
+                "violation": "protect"
+              }
+            },
+            {
+              "id": 30,
+              "name": "INVITES",
+              "security": {
+                "port_security": false,
+                "max_mac": 10,
+                "violation": "protect"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "SW2",
+        "type": "switch",
+        "x": 620,
+        "y": 220,
+        "label": "SW2",
+        "model": "SW2",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 30,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 99,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW2",
+          "vlans": [
+            {
+              "id": 10,
+              "name": "INTERNE",
+              "security": {
+                "port_security": false,
+                "max_mac": 10,
+                "violation": "protect"
+              }
+            },
+            {
+              "id": 30,
+              "name": "INVITES",
+              "security": {
+                "port_security": false,
+                "max_mac": 10,
+                "violation": "protect"
+              }
+            },
+            {
+              "id": 99,
+              "name": "PARKING"
+            }
+          ]
+        }
+      },
+      {
+        "id": "PC-STAFF",
+        "type": "pc",
+        "x": 80,
+        "y": 90,
+        "label": "PC-STAFF",
+        "model": "PC-STAFF",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-STAFF"
+        }
+      },
+      {
+        "id": "PC-GUEST",
+        "type": "pc",
+        "x": 880,
+        "y": 80,
+        "label": "PC-GUEST",
+        "model": "PC-GUEST",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-GUEST"
+        }
+      },
+      {
+        "id": "SRV",
+        "type": "server",
+        "x": 880,
+        "y": 360,
+        "label": "SRV",
+        "model": "SRV",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.100",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SRV"
+        }
+      },
+      {
+        "id": "FW1",
+        "type": "firewall",
+        "x": 880,
+        "y": 520,
+        "label": "FW1",
+        "model": "FW1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.99.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "FW1",
+          "acls": [
+            {
+              "name": "L2-BOUNDARY",
+              "default_policy": "accept",
+              "rules": [
+                {
+                  "id": "guest-to-internal",
+                  "action": "accept",
+                  "source": "192.168.30.0/24",
+                  "destination": "192.168.10.0/24",
+                  "service": "any"
+                },
+                {
+                  "id": "allow-https",
+                  "action": "drop",
+                  "source": "192.168.10.0/24",
+                  "destination": "192.168.10.100",
+                  "service": "https"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "TRUNK",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "STAFF",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC-STAFF",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "GUEST",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC-GUEST",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "SERVER",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "SRV",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "BOUNDARY",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/24"
+        },
+        "to": {
+          "node": "FW1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "vlan-internal",
+        "description": "Le VLAN interne est le VLAN 10.",
+        "device": "SW1",
+        "path": "config.vlans[0].id",
+        "operator": "equals",
+        "expected": 10
+      },
+      {
+        "id": "vlan-guest",
+        "description": "Le VLAN invités est le VLAN 30.",
+        "device": "SW1",
+        "path": "config.vlans[1].id",
+        "operator": "equals",
+        "expected": 30
+      },
+      {
+        "id": "port-security",
+        "description": "Port security est actif pour les ports internes.",
+        "device": "SW1",
+        "path": "config.vlans[0].security.port_security",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "mac-limit",
+        "description": "Le nombre de MAC autorisé est limité à une.",
+        "device": "SW1",
+        "path": "config.vlans[0].security.max_mac",
+        "operator": "equals",
+        "expected": 1
+      },
+      {
+        "id": "violation-mode",
+        "description": "Une violation ferme le port.",
+        "device": "SW1",
+        "path": "config.vlans[0].security.violation",
+        "operator": "equals",
+        "expected": "shutdown"
+      },
+      {
+        "id": "guest-deny",
+        "description": "Le trafic invité vers le LAN interne est bloqué.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[0].action",
+        "operator": "equals",
+        "expected": "drop"
+      },
+      {
+        "id": "https-allow",
+        "description": "Le flux HTTPS nécessaire est explicitement accepté.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[1].action",
+        "operator": "equals",
+        "expected": "accept"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
