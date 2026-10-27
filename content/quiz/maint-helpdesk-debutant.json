@@ -1,0 +1,126 @@
+{
+  "node_id": "maint-helpdesk-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur dit seulement : « Internet ne marche pas ». Quelle est la meilleure première étape de diagnostic ?",
+      "choices": [
+        "Réinitialiser immédiatement le routeur de l'entreprise",
+        "Réinstaller le système de l'utilisateur",
+        "Faire préciser le symptôme, l'heure de début, les services touchés et les personnes concernées",
+        "Conclure que le fournisseur d'accès est en panne"
+      ],
+      "answer": 2,
+      "explanation": "Un symptôme vague peut avoir plusieurs causes. La collecte de faits permet de définir un problème vérifiable avant de choisir des tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Plusieurs utilisateurs signalent au même moment qu'un partage de fichiers est inaccessible. Quelle est la meilleure priorité de diagnostic ?",
+      "choices": [
+        "Vérifier l'étendue de l'incident et rechercher une dépendance commune, tout en suivant les règles d'escalade",
+        "Traiter chaque poste comme un incident isolé sans comparer les symptômes",
+        "Demander à tous les utilisateurs de changer leur mot de passe",
+        "Fermer les tickets en attendant qu'un utilisateur rappelle"
+      ],
+      "answer": 0,
+      "explanation": "Des symptômes simultanés sur un même service peuvent indiquer une cause commune. Il faut qualifier l'impact collectif et appliquer la procédure adaptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un diagnostic de premier niveau, quel ordre de travail est le plus approprié ?",
+      "choices": [
+        "Commencer par les actions les plus destructrices pour gagner du temps",
+        "Changer plusieurs paramètres à la fois pour augmenter les chances de réussite",
+        "Exécuter des commandes trouvées en ligne sans en comprendre l'effet",
+        "Commencer par des vérifications autorisées, peu risquées et réversibles, puis approfondir selon les résultats"
+      ],
+      "answer": 3,
+      "explanation": "Un diagnostic méthodique limite les effets secondaires et permet d'associer chaque résultat à une hypothèse précise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur demande ton mot de passe administrateur pour terminer une tâche plus rapidement. Que dois-tu faire ?",
+      "choices": [
+        "Le lui envoyer dans le ticket pour conserver une trace",
+        "Ne jamais partager le secret et utiliser le mécanisme d'accès autorisé prévu par l'organisation",
+        "Créer un compte administrateur commun à toute l'équipe",
+        "Utiliser le même mot de passe pour tous les utilisateurs"
+      ],
+      "answer": 1,
+      "explanation": "Les secrets ne doivent pas être partagés. Les accès privilégiés doivent suivre les mécanismes approuvés, être limités et rester traçables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de prendre le contrôle à distance du poste d'un utilisateur, quelle précaution est essentielle ?",
+      "choices": [
+        "Désactiver les protections du poste pour éviter les interruptions",
+        "Demander à l'utilisateur de publier ses identifiants dans le ticket",
+        "Obtenir le consentement requis, vérifier l'identité selon la procédure et utiliser un outil autorisé",
+        "Enregistrer la session sur un service personnel non approuvé"
+      ],
+      "answer": 2,
+      "explanation": "L'assistance à distance doit respecter le consentement, les règles d'identité et les outils approuvés, sans exposer des identifiants ni des données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le problème dépasse les procédures et les autorisations du support de premier niveau. Comment effectuer une bonne escalade ?",
+      "choices": [
+        "Transmettre le symptôme, l'impact, les tests exécutés, leurs résultats, les hypothèses et les éléments restant à vérifier",
+        "Envoyer uniquement « ça ne fonctionne pas »",
+        "Inventer une cause certaine pour accélérer la prise en charge",
+        "Clôturer le ticket puis demander oralement à un collègue de regarder"
+      ],
+      "answer": 0,
+      "explanation": "Une escalade utile donne à l'équipe suivante des faits reproductibles et permet de poursuivre l'investigation sans recommencer inutilement la collecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur insiste pour obtenir la priorité maximale, mais un seul poste est touché et un contournement fonctionne. Comment fixer la priorité ?",
+      "choices": [
+        "Toujours choisir la priorité maximale pour éviter un conflit",
+        "Choisir une priorité au hasard puis ne plus la changer",
+        "Donner la priorité la plus basse parce qu'un contournement existe",
+        "Appliquer la matrice d'impact et d'urgence de l'organisation, puis réévaluer si de nouveaux faits changent la situation"
+      ],
+      "answer": 3,
+      "explanation": "La priorité repose sur des critères communs d'impact et d'urgence, pas uniquement sur l'insistance d'une personne. Un changement d'impact peut justifier une réévaluation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Tu suspectes qu'un poste est compromis après l'ouverture d'une pièce jointe inhabituelle. Quelle conduite est la plus appropriée ?",
+      "choices": [
+        "Supprimer tous les fichiers suspects et effacer les journaux",
+        "Suivre la procédure de sécurité, alerter l'équipe compétente et préserver les éléments utiles",
+        "Envoyer la pièce jointe à tous les collègues pour vérifier si elle fonctionne",
+        "Désactiver toutes les protections et continuer le travail normal"
+      ],
+      "answer": 1,
+      "explanation": "Une suspicion de sécurité doit être traitée selon le processus d'incident. Les suppressions ou manipulations improvisées peuvent aggraver l'incident ou détruire des éléments d'analyse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un changement de configuration, quel élément permet de considérer la résolution comme validée ?",
+      "choices": [
+        "Le technicien a exécuté la commande sans message d'erreur",
+        "Le ticket a dépassé son délai cible",
+        "Le test initial qui échouait fonctionne à nouveau, le résultat est confirmé et les éléments utiles sont consignés",
+        "L'utilisateur n'a pas répondu immédiatement au dernier message"
+      ],
+      "answer": 2,
+      "explanation": "Une commande terminée ne garantit pas que le besoin est satisfait. Il faut retester le symptôme initial, confirmer le résultat et documenter la résolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu doit être évité dans un ticket partagé largement ?",
+      "choices": [
+        "Des mots de passe, jetons d'accès ou données personnelles non nécessaires au diagnostic",
+        "L'heure de début du problème",
+        "Le message d'erreur après masquage des informations sensibles",
+        "Les tests effectués et leurs résultats pertinents"
+      ],
+      "answer": 0,
+      "explanation": "Le ticket doit contenir les informations nécessaires au support, pas des secrets ou des données sensibles inutiles. Les éléments techniques doivent être assainis avant partage."
+    }
+  ]
+}
