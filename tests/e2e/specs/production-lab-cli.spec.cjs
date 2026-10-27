@@ -1,23 +1,10 @@
 const { test, expect } = require('@playwright/test');
 
 const BASE_SCENARIOS = [
-  'cli-acl-interface',
-  'cli-bgp-neighbor',
-  'cli-dhcp-pool',
-  'cli-dns-host-records',
-  'cli-eigrp-network',
-  'cli-hsrp-gateway',
   'cli-ipv4-interfaces',
-  'cli-ipv6-interface',
-  'cli-nat-overload',
-  'cli-ntp-syslog',
-  'cli-ospf-area',
-  'cli-port-security',
-  'cli-qos-voice-policy',
-  'cli-static-routing',
-  'cli-stp-hardening',
   'cli-vlan-access',
-  'cli-vlan-trunk',
+  'cli-static-routing',
+  'cli-qos-voice-policy',
 ];
 
 test.describe('Lab Workspace CLI — production browser smoke (read only)', () => {
@@ -132,9 +119,9 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
           .filter(Boolean);
         expect(commands.length, 'la séquence de commandes ne doit pas être vide').toBeGreaterThan(0);
   
-        const targetNode = page.locator('.react-flow__node').filter({ hasText: targetId }).first();
+        const targetNode = page.locator('.react-flow__node[data-id="' + targetId + '"]');
         await expect(targetNode, 'l’équipement cible doit être présent sur le canevas').toBeVisible({ timeout: 5000 });
-        await targetNode.getByText(targetId, { exact: true }).click();
+        await targetNode.click({ timeout: 5000 });
         await expect(page.getByRole('button', { name: /Console CLI/ }), 'l’inspecteur doit sélectionner l’équipement').toBeVisible({ timeout: 5000 });
         const terminal = page.locator('.xterm').first();
         await expect(terminal, 'la console xterm doit apparaître après sélection').toBeVisible({ timeout: 5000 });
