@@ -711,7 +711,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
             ("loadDailyPlan", "/api/daily-plan", "dailyPlan"),
             ("loadStats", "/api/stats", "stats"),
         ]:
-            start = DASHBOARD_HTML.index(f"async {method}() {{")
+            start = DASHBOARD_HTML.index(f"async {method}(")
             next_method = DASHBOARD_HTML.find("\n        async ", start + 1)
             end = next_method if next_method >= 0 else len(DASHBOARD_HTML)
             body = DASHBOARD_HTML[start:end]
@@ -719,6 +719,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
             self.assertIn("if (!r.ok) throw new Error", body)
             self.assertIn(f"this.dashboardDataErrors.{error_key} = null;", body)
             self.assertIn(f"this.dashboardDataErrors.{error_key} =", body)
+            if method == "loadStats":
+                self.assertIn("if (this.statsLoaded && !force && !this.dashboardDataErrors.stats)", body)
+                self.assertIn("this.statsLoaded = true;", body)
             self.assertIn("catch (e)", body)
 
         self.assertNotIn("this.streakDays = d.days || 0;", DASHBOARD_HTML)
@@ -729,7 +732,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         retry_start = DASHBOARD_HTML.index("async retryDashboardData()")
         retry_end = DASHBOARD_HTML.index("editProfile()", retry_start)
         self.assertIn("this.refreshAll()", DASHBOARD_HTML[retry_start:retry_end])
-        self.assertIn("this.loadStats()", DASHBOARD_HTML[retry_start:retry_end])
+        self.assertIn("this.loadStats(true)", DASHBOARD_HTML[retry_start:retry_end])
         self.assertNotIn("this.loadStats()", DASHBOARD_HTML[DASHBOARD_HTML.index("async refreshAll()"):retry_start])
 
     def test_tree_loading_finishes_and_api_failures_are_visible(self):
@@ -898,11 +901,15 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
 
     def test_flashcard_loading_distinguishes_api_errors_from_an_empty_deck(self):
-        start = DASHBOARD_HTML.rindex("        async loadFlashcards() {")
+        start = DASHBOARD_HTML.rindex("        async loadFlashcards(force = false) {")
         end = DASHBOARD_HTML.index("        buildDeck() {", start)
         method = DASHBOARD_HTML[start:end]
         self.assertIn("if (!r.ok) throw new Error", method)
         self.assertIn("Array.isArray(d.cards)", method)
+        self.assertIn("if (this.flashcardsLoaded && !force && !this.cardLoadError)", method)
+        self.assertIn("this.flashcardsLoaded = true;", method)
+        self.assertIn("this.flashcardDeckSignature !== this.cardDeckSignature()", method)
+        self.assertIn("this.flashcardDeckSignature = signature;", method)
         self.assertIn("this.cardLoadError =", method)
         self.assertIn("finally", method)
 
@@ -912,7 +919,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('x-show="flashcardsLoading"', memo)
         self.assertIn('x-show="cardLoadError"', memo)
         self.assertIn('role="alert" aria-live="polite"', memo)
-        self.assertIn('@click="loadFlashcards()"', memo)
+        self.assertIn('@click="loadFlashcards(true)"', memo)
         self.assertIn('x-if="!flashcardsLoading && !cardLoadError && currentFlashcard"', memo)
         self.assertIn('x-if="!flashcardsLoading && !cardLoadError && !currentFlashcard"', memo)
 
@@ -944,7 +951,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
         self.assertIn('x-show="dashboardDataErrors.stats"', stats_markup)
         self.assertIn("Cela ne signifie pas que ta progression est vide.", stats_markup)
-        self.assertIn('@click="loadStats()"', stats_markup)
+        self.assertIn('@click="loadStats(true)"', stats_markup)
         self.assertIn(
             'x-show="!statsLoading && !dashboardDataErrors.stats && !radarHasData()"',
             stats_markup,
