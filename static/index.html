@@ -1896,7 +1896,7 @@
                     <div class="mt-auto pt-3">
                       <button type="button" x-show="st && st.state === 'ready'" class="btn btn-primary w-full" @click="issueDiploma(m.id, l.id)">🎓 Obtenir mon diplôme</button>
                       <button type="button" x-show="st && st.state === 'issued'" class="btn w-full" @click="viewDiploma(m.id, l.id)">Voir / télécharger</button>
-                      <button type="button" x-show="st && st.state === 'exam'" class="btn btn-fuchsia w-full" @click="setTab('exam')">Passer l'examen du niveau</button>
+                      <button type="button" x-show="st && st.state === 'exam'" class="btn btn-fuchsia w-full" @click="startDiplomaExam(m.id, l.id)">Passer l'examen du niveau</button>
                       <p x-show="st && st.state === 'learning'" class="text-[11px] text-zinc-500">Termine les cours du niveau pour débloquer l'examen.</p>
                     </div>
                   </div>
@@ -2416,7 +2416,7 @@
   <div x-show="diplomaView" x-cloak class="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-md" @click.self="diplomaView = null" @keydown.escape.window="diplomaView = null">
     <div data-modal-content role="dialog" aria-modal="true" class="w-full max-w-4xl">
       <div class="mb-3 flex flex-wrap justify-end gap-2">
-        <button type="button" class="btn" @click="downloadDiploma()">⬇ Télécharger (PNG)</button>
+        <button type="button" class="btn" @click="downloadDiploma()">⬇ Télécharger le PDF officiel</button>
         <button type="button" class="btn" @click="printDiploma()">🖨 Imprimer / PDF</button>
         <button type="button" class="btn" @click="diplomaView = null">Fermer</button>
       </div>
@@ -2811,7 +2811,7 @@
           const resumeIdBeforeRefresh = String(this.lastOpenedNodeId || '');
           const resumeStatusBeforeRefresh = this.lastOpenedNodeStatus
             || (this.lastOpenedNodeId ? localStorage.getItem('skilltree-last-status') || '' : '');
-          await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats()]);
+          await Promise.all([this.loadTree(), this.loadDailyPlan(), this.loadStreak(), this.loadUserStats(), this.loadDiplomas()]);
 
           // Détecte aussi une validation faite dans un autre onglet, pendant que
           // le tableau de bord était fermé, ou par un mécanisme autre que le quiz.
@@ -6066,28 +6066,131 @@
         },
 
         // ---------- récompenses et diplômes ----------
-        issuedDiplomas: LS.get('diplomas', []), diplomaView: null, challengesDone: LS.get('challenges-done', []), diagDoneMap: LS.get('diag-done', {}),
+        issuedDiplomas: [], certificationExams: [], diplomaView: null, diplomasError: '', challengesDone: LS.get('challenges-done', []), diagDoneMap: LS.get('diag-done', {}),
+        async loadDiplomas() {
+          try {
+            const response = await fetch('/api/certificates', { headers: H });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            const payload = await response.json();
+            this.issuedDiplomas = Array.isArray(payload.items) ? payload.items : [];
+            this.certificationExams = Array.isArray(payload.exams) ? payload.exams : [];
+            this.diplomasError = '';
+          } catch (error) {
+            this.issuedDiplomas = [];
+            this.certificationExams = [];
+            this.diplomasError = 'Les diplômes ne peuvent pas être chargés depuis le serveur.';
+          }
+        },
         diplomaStatus(mod, lvl) {
-          const s = this.moduleLevelStats(mod, lvl); const issued = this.issuedDiplomas.find(d => d.module === mod && d.level === lvl);
-          if (issued) return { state: 'issued', ...s, issued, best: this.examBest(mod, [lvl]) };
+          const s = this.moduleLevelStats(mod, lvl);
+          const moduleLabel = (this.moduleMeta(mod) || { label: mod }).label;
+          const scopeIds = this.nodesIn(mod, lvl).map(node => String(node.id)).sort();
+          const issued = this.issuedDiplomas.find(d => d.module === mod && d.level === lvl);
+          if (issued) return { state: 'issued', ...s, issued, best: issued.score, examSessionId: issued.exam_session_id };
           if (!s.total) return { state: 'empty', ...s };
           if (s.validated < s.total) return { state: 'learning', ...s };
-          const best = this.examBest(mod, [lvl]);
-          if (best === null || best < PASS_SCORE) return { state: 'exam', ...s, best };
-          return { state: 'ready', ...s, best };
+          const matching = this.certificationExams.filter(exam => {
+            if (exam.module_label !== moduleLabel || exam.level !== lvl || !Array.isArray(exam.scope_node_ids)) return false;
+            const savedScope = exam.scope_node_ids.map(String).sort();
+            return savedScope.length === scopeIds.length && savedScope.every((id, index) => id === scopeIds[index]);
+          });
+          const best = matching.length ? Math.max(...matching.map(exam => Number(exam.score) || 0)) : null;
+          const passing = matching
+            .filter(exam => exam.passed && Number(exam.score) >= PASS_SCORE && exam.session_id)
+            .sort((a, b) => Number(b.submitted_at || 0) - Number(a.submitted_at || 0))[0];
+          if (!passing) return { state: 'exam', ...s, best };
+          return { state: 'ready', ...s, best: Number(passing.score), examSessionId: passing.session_id };
         },
-        issueDiploma(mod, lvl) {
-          const st = this.diplomaStatus(mod, lvl); if (st.state !== 'ready') return;
-          const id = 'SKT-' + (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).toUpperCase();
-          const d = { id, module: mod, level: lvl, name: this.userName, date: new Date().toISOString(), score: st.best, courses: st.total };
-          this.issuedDiplomas = [...this.issuedDiplomas, d]; LS.set('diplomas', this.issuedDiplomas); this.diplomaView = d; this.celebrate(); this.checkRewards();
+        async startDiplomaExam(mod, lvl) {
+          const state = this.diplomaStatus(mod, lvl);
+          if (state.state !== 'exam') return;
+          const moduleLabel = (this.moduleMeta(mod) || { label: mod }).label;
+          this.examBusy = true;
+          this.examErr = '';
+          try {
+            const response = await fetch('/api/certificate/exam/start', {
+              method: 'POST', headers: H,
+              body: JSON.stringify({ module: moduleLabel, module_id: mod, level: lvl })
+            });
+            const raw = await response.text();
+            let data;
+            try { data = raw ? JSON.parse(raw) : {}; } catch (_) { data = { detail: raw }; }
+            if (!response.ok) throw new Error(data.detail || ('HTTP ' + response.status));
+            const questions = Array.isArray(data.questions) ? data.questions : [];
+            if (!questions.length) throw new Error('Aucune question disponible pour cet examen de diplôme.');
+            this.exam = {
+              ...data,
+              questions,
+              cfg: { module: mod, levels: [lvl], count: questions.length, minutes: Math.ceil((Number(data.time_limit) || 1800) / 60) },
+              category: data.category || ('Diplôme · ' + moduleLabel)
+            };
+            this.examAnswers = questions.map(() => null);
+            this.examFlags = {};
+            this.examIdx = 0;
+            this.examResult = null;
+            this.examConfirm = false;
+            this.examLeft = Number(data.time_limit) || 1800;
+            this.examInitialTime = this.examLeft;
+            this.examStarted = Date.now();
+            this.examPaused = false;
+            this.tab = 'exam';
+            this.startExamTimer();
+          } catch (error) {
+            this.examErr = error.message || 'Impossible de démarrer l’examen officiel.';
+            this.notify(this.examErr);
+          } finally {
+            this.examBusy = false;
+          }
         },
-        viewDiploma(mod, lvl) { const d = this.issuedDiplomas.find(x => x.module === mod && x.level === lvl); if (d) this.diplomaView = d; },
+        async issueDiploma(mod, lvl) {
+          const st = this.diplomaStatus(mod, lvl);
+          if (st.state !== 'ready' || !st.examSessionId) return;
+          const moduleLabel = (this.moduleMeta(mod) || { label: mod }).label;
+          try {
+            const response = await fetch('/api/certificate/issue', {
+              method: 'POST', headers: H,
+              body: JSON.stringify({
+                module: moduleLabel,
+                module_id: mod,
+                level: lvl,
+                exam_session_id: st.examSessionId,
+                name: this.userName
+              })
+            });
+            const raw = await response.text();
+            let data;
+            try { data = raw ? JSON.parse(raw) : {}; } catch (_) { data = { detail: raw }; }
+            if (!response.ok || !data.certificate) throw new Error(data.detail || ('HTTP ' + response.status));
+            this.diplomaView = data.certificate;
+            await this.loadDiplomas();
+            this.celebrate();
+            this.checkRewards();
+          } catch (error) {
+            this.notify('Le diplôme n’a pas pu être délivré : ' + (error.message || 'erreur serveur'));
+          }
+        },
+        viewDiploma(mod, lvl) {
+          const d = this.issuedDiplomas.find(x => x.module === mod && x.level === lvl);
+          if (d) this.diplomaView = d;
+        },
         fmtDate(iso) { try { return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return iso; } },
         async downloadDiploma() {
-          const el = document.getElementById('diploma-sheet'); if (!el || !window.html2canvas) { this.notify('Export indisponible : utilise Imprimer / PDF'); return; }
-          const c = await window.html2canvas(el, { backgroundColor: null, scale: 2 });
-          c.toBlob(b => this.saveFile(`diplome-${this.diplomaView.id}.png`, b), 'image/png');
+          if (!this.diplomaView || !this.diplomaView.number) { this.notify('Ce diplôme ne possède pas de numéro serveur.'); return; }
+          try {
+            const response = await fetch('/api/certificate?number=' + encodeURIComponent(this.diplomaView.number), { headers: H });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'diplome-' + this.diplomaView.number + '.pdf';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+          } catch (error) {
+            this.notify('Téléchargement du PDF impossible : ' + (error.message || 'erreur serveur'));
+          }
         },
         printDiploma() { window.print(); },
         get badges() {
