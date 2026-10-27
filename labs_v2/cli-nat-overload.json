@@ -167,8 +167,8 @@
         "label": "R1",
         "ports": [
           {
-            "id": "Fa0/0",
-            "name": "Fa0/0",
+            "id": "Gi0/0",
+            "name": "Gi0/0",
             "state": "up",
             "speed": 1000,
             "mac": "",
@@ -187,8 +187,8 @@
             "service_policy_out": null
           },
           {
-            "id": "Fa0/1",
-            "name": "Fa0/1",
+            "id": "Gi0/1",
+            "name": "Gi0/1",
             "state": "up",
             "speed": 1000,
             "mac": "",
@@ -309,7 +309,7 @@
         },
         "to": {
           "node": "R1",
-          "port": "Fa0/0"
+          "port": "Gi0/0"
         },
         "cable_type": "copper_straight",
         "state": "up",
@@ -320,7 +320,7 @@
         "id": "L-R1-ISP",
         "from": {
           "node": "R1",
-          "port": "Fa0/1"
+          "port": "Gi0/1"
         },
         "to": {
           "node": "ISP",
