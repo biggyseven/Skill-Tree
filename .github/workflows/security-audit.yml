@@ -1,0 +1,27 @@
+name: Security dependency audit
+
+on:
+  push:
+    branches: ["feature/lab-workspace"]
+  pull_request:
+    branches: ["main", "feature/lab-workspace"]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-audit:
+    name: Audit Python dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependency auditor
+        run: python -m pip install --upgrade pip pip-audit
+      - name: Audit requirements and resolved dependencies
+        run: pip-audit -r requirements.txt
