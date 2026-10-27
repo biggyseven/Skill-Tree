@@ -6,7 +6,7 @@
   "module": "Routage avancé",
   "duration_min": 25,
   "difficulty": "expert",
-  "prompt": "Configurez EIGRP AS 100, annoncez 10.1.0.0 avec le wildcard 0.0.255.255 et désactivez l’auto-résumé. La validation porte sur l’état du protocole, pas sur le texte de la console.",
+  "prompt": "Contexte : un domaine de routage interne utilise EIGRP, AS 100, pour annoncer le réseau 10.1.0.0/16. Configurez le processus, ajoutez le réseau avec le wildcard 0.0.255.255 et désactivez l’auto-résumé afin de conserver le préfixe voulu. Le laboratoire valide la configuration locale ; les adjacences et les échanges de routes nécessitent des voisins compatibles et ne sont pas simulés ici.",
   "objectives": [
     "Exécuter puis vérifier : router eigrp 100",
     "Exécuter puis vérifier : network 10.1.0.0 0.0.255.255",
@@ -14,8 +14,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; router eigrp 100 ; network 10.1.0.0 0.0.255.255 ; no auto-summary ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : le numéro AS doit correspondre chez tous les voisins EIGRP concernés.",
+    "Indice 2 : le wildcard est l’inverse du masque. Pour /16, utilisez 0.0.255.255 ; désactivez ensuite l’auto-résumé dans le processus.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; router eigrp 100 ; network 10.1.0.0 0.0.255.255 ; no auto-summary ; end.",
+    "Les contrôles valident l’AS 100, le réseau/wildcard et l’état désactivé de l’auto-résumé."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -38,7 +40,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -57,7 +59,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -108,7 +110,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -127,7 +129,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -178,7 +180,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -283,7 +285,7 @@
     "rules": [
       {
         "id": "eigrp_asn",
-        "description": "Contrôle serveur : eigrp asn doit être conforme.",
+        "description": "Le processus EIGRP utilise l’AS 100.",
         "device": "R1",
         "path": "config.protocols.eigrp.asn",
         "operator": "equals",
@@ -291,7 +293,7 @@
       },
       {
         "id": "eigrp_network",
-        "description": "Contrôle serveur : eigrp network doit être conforme.",
+        "description": "EIGRP annonce 10.1.0.0 avec le wildcard 0.0.255.255.",
         "device": "R1",
         "path": "config.protocols.eigrp.networks",
         "operator": "contains",
@@ -302,7 +304,7 @@
       },
       {
         "id": "eigrp_no_auto_summary",
-        "description": "Contrôle serveur : eigrp no auto summary doit être conforme.",
+        "description": "L’auto-résumé EIGRP est désactivé.",
         "device": "R1",
         "path": "config.protocols.eigrp.auto_summary",
         "operator": "equals",
