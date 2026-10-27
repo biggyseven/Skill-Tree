@@ -473,6 +473,33 @@ test('la sidebar rétractée masque l’icône et propose le nouvel onglet au cl
   await newPage.close();
 });
 
+test('la sidebar conserve son état après rechargement et se déploie au clavier', async ({ page }) => {
+  await openDashboard(page);
+
+  const sidebar = page.locator('aside.skill-sidebar');
+  const collapseButton = sidebar.locator(':scope > div:first-child > button');
+  await collapseButton.click();
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).sidebarCollapsed)).toBe(true);
+  await expect.poll(() => page.evaluate(() =>
+    JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}').sidebarCollapsed
+  )).toBe(true);
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('button', { name: 'Ouvrir les paramètres' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).sidebarCollapsed), {
+    timeout: 30_000
+  }).toBe(true);
+
+  const expandControl = sidebar.getByRole('button', { name: 'Développer la barre latérale' });
+  await expect(expandControl).toBeVisible();
+  await expandControl.focus();
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).sidebarCollapsed)).toBe(false);
+  await expect.poll(() => page.evaluate(() =>
+    JSON.parse(localStorage.getItem('skilltree-settings-v1') || '{}').sidebarCollapsed
+  )).toBe(false);
+});
+
 test('changer de module propose le premier cours sans l’ouvrir automatiquement', async ({ page }) => {
   await openDashboard(page);
 
