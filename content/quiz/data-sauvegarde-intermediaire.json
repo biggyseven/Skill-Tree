@@ -1,0 +1,66 @@
+{
+  "node_id": "data-sauvegarde-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une sauvegarde quotidienne est réussie et l'organisation affirme un RPO de quinze minutes. Quelle information manque pour justifier cette affirmation ?",
+      "choices": [
+        "Le nombre de tables du schéma",
+        "Le nombre de développeurs sur le projet",
+        "La couleur de l'interface d'administration",
+        "La continuité des journaux, leur rétention et un test de restauration au point visé"
+      ],
+      "answer": 3,
+      "explanation": "La fréquence des sauvegardes seule ne démontre pas qu'on peut récupérer les transactions intermédiaires. Il faut valider la chaîne de journaux, la cohérence, les fichiers requis et la restauration jusqu'au point ciblé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une réplique n'est-elle pas une sauvegarde indépendante suffisante ?",
+      "choices": [
+        "Parce qu'elle peut répliquer une suppression ou une corruption logique commise sur la source",
+        "Parce qu'une réplique ne peut contenir aucune donnée",
+        "Parce que les répliques ne sont jamais disponibles",
+        "Parce qu'une sauvegarde ne peut être restaurée qu'une fois"
+      ],
+      "answer": 0,
+      "explanation": "La réplication propage normalement les changements. Elle peut améliorer disponibilité et distribution de lecture, mais elle ne préserve pas nécessairement un état historique antérieur à une erreur logique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une suppression accidentelle, pourquoi restaurer d'abord dans une instance isolée ?",
+      "choices": [
+        "Pour effacer automatiquement les modifications valides réalisées ensuite",
+        "Pour éviter toute comparaison métier",
+        "Pour examiner le point antérieur et extraire les données utiles sans écraser les écritures légitimes de production",
+        "Parce qu'une restauration isolée ne nécessite jamais de journaux"
+      ],
+      "answer": 2,
+      "explanation": "Un retour temporel complet peut annuler les modifications légitimes survenues après l'erreur. Une cible isolée permet de valider les données et de préparer une extraction ou une réconciliation contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon critère de fin pour mesurer le RTO d'un exercice de reprise ?",
+      "choices": [
+        "Le démarrage du processus serveur uniquement",
+        "Le rétablissement du service métier selon les critères convenus, y compris les contrôles fonctionnels et dépendances nécessaires",
+        "La fin de la copie des fichiers, même si les connexions échouent",
+        "Le moment où la première alerte est acquittée"
+      ],
+      "answer": 1,
+      "explanation": "Le RTO se rapporte au rétablissement utile du service convenu. Il doit inclure les étapes pertinentes de configuration, de validation et de reconnexion, plutôt que seulement la durée d'une commande technique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le chiffrement d'une sauvegarde ne suffit-il pas à démontrer sa récupérabilité ?",
+      "choices": [
+        "Parce que le chiffrement empêche toujours toute restauration",
+        "Parce qu'une sauvegarde chiffrée n'a pas besoin de contrôles d'intégrité",
+        "Parce que le chiffrement est incompatible avec tous les moteurs",
+        "Parce que la clé peut être inaccessible, et que l'intégrité du fichier ne prouve pas un état métier sain"
+      ],
+      "answer": 3,
+      "explanation": "La restauration requiert une clé récupérable par une procédure autorisée. Même déchiffrée sans erreur, la copie peut correspondre à un état déjà corrompu ; l'intégrité et la validation métier sont deux contrôles distincts."
+    }
+  ]
+}
