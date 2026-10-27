@@ -7552,7 +7552,7 @@
     "title": "Fondamentaux de maintenance : rôles et cycle d’intervention",
     "category": "Fondamentaux — méthode",
     "order": 4308,
-    "description": "Comprendre les missions de maintenance, les responsabilités, les familles d’intervention et le cycle de vie d’une opération.",
+    "description": "Comprendre le cycle de maintenance, les rôles, les priorités et la traçabilité d’une intervention informatique.",
     "prereqs": [],
     "requirements": [
       {
@@ -7567,9 +7567,9 @@
     "title": "Introduction à la maintenance préventive",
     "category": "Préventive — bases",
     "order": 4309,
-    "description": "Découvrir les inspections périodiques, les contrôles simples, les calendriers préventifs et les critères de sécurité avant intervention.",
+    "description": "Reconnaître les opérations préventives de base, choisir une périodicité, documenter l’exécution et appliquer les règles de sécurité.",
     "prereqs": [
-      "maint-bases-debutant"
+      "maint-fondamentaux-debutant"
     ],
     "requirements": [
       {
@@ -7652,7 +7652,7 @@
     "title": "Helpdesk : prise en charge et résolution des demandes",
     "category": "Helpdesk pratique",
     "order": 4312,
-    "description": "Qualifier une demande, recueillir les informations utiles, définir une priorité, suivre un ticket et communiquer sa résolution.",
+    "description": "Qualifier une demande, ouvrir un ticket exploitable, assurer le suivi et confirmer la résolution avec l’utilisateur.",
     "prereqs": [
       "maint-os-debutant"
     ],
@@ -7686,7 +7686,7 @@
     "title": "Communication technique avec les utilisateurs",
     "category": "Communication pratique",
     "order": 4313,
-    "description": "Expliquer un incident sans jargon inutile, poser les bonnes questions, reformuler un besoin et rédiger des messages d’intervention clairs.",
+    "description": "Communiquer clairement et avec empathie pendant une intervention, y compris lorsque l’utilisateur est stressé ou non technique.",
     "prereqs": [
       "maint-helpdesk-debutant"
     ],
@@ -7737,7 +7737,7 @@
     "title": "Sécurité opérationnelle lors des interventions",
     "category": "Sécurité opérationnelle",
     "order": 4315,
-    "description": "Appliquer les contrôles préalables, la prévention des risques électriques et matériels, la protection des données et les règles de remise en service.",
+    "description": "Appliquer les règles essentielles de confidentialité, de contrôle d’accès, de sauvegarde et de sécurité pendant le support.",
     "prereqs": [
       "maint-documentation-debutant"
     ],
@@ -7839,7 +7839,7 @@
     "title": "Construire et maintenir des procédures d’intervention",
     "category": "Procédures — pratique",
     "order": 4320,
-    "description": "Structurer une procédure reproductible, définir les préconditions, les points de contrôle, les conditions d’arrêt et la validation après intervention.",
+    "description": "Concevoir, tester, faire approuver et maintenir des procédures et checklists reproductibles.",
     "prereqs": [
       "maint-gestion-parc-intermediaire"
     ],
@@ -7941,7 +7941,7 @@
     "title": "Analyser et communiquer un incident technique",
     "category": "Reporting incident — pratique",
     "order": 4325,
-    "description": "Constituer une chronologie factuelle, distinguer symptômes et causes, documenter les impacts et formuler les actions correctives dans un rapport exploitable.",
+    "description": "Produire un reporting d’incident factuel reliant chronologie, impact, diagnostic, résolution et actions de suivi.",
     "prereqs": [
       "maint-sla-intermediaire"
     ],
@@ -8009,8 +8009,9 @@
     "title": "Maintenance prédictive : capteurs, données et modèles",
     "category": "Prédictive — approfondissement",
     "order": 4328,
-    "description": "Approfondir la collecte de télémétrie, la qualité des données, les indicateurs d’anomalie et l’évaluation des alertes prédictives.",
+    "description": "Structurer une démarche prédictive à partir des mesures, tendances, seuils, historiques de panne et limites des modèles.",
     "prereqs": [
+      "maint-monitoring-intermediaire",
       "maint-automatisation-intermediaire"
     ],
     "requirements": [
@@ -8043,9 +8044,10 @@
     "title": "Audit technique : préparation, preuves et plan d’action",
     "category": "Audit technique — pratique",
     "order": 4329,
-    "description": "Préparer un audit, collecter des preuves traçables, qualifier les écarts, prioriser les risques et suivre les actions correctives.",
+    "description": "Évaluer la conformité, l’efficacité des contrôles et la maîtrise des risques à partir de critères, d’échantillons et de preuves vérifiables.",
     "prereqs": [
-      "maint-maintenance-predictive-expert"
+      "maint-procedures-intermediaire",
+      "maint-securite-base-debutant"
     ],
     "requirements": [
       {
@@ -8145,7 +8147,7 @@
     "title": "Pilotage et évaluation des fournisseurs",
     "category": "Fournisseurs — pilotage",
     "order": 4334,
-    "description": "Évaluer les engagements contractuels, les SLA, les coûts, la qualité de service et les risques liés aux fournisseurs techniques.",
+    "description": "Évaluer la qualité d’une prestation, les engagements contractuels, les SLA, les risques tiers et les plans d’amélioration.",
     "prereqs": [
       "maint-appel-offre-expert"
     ],
@@ -8247,9 +8249,11 @@
     "title": "RETEX : capitalisation et amélioration continue",
     "category": "RETEX — pratique",
     "order": 4339,
-    "description": "Animer un retour d’expérience factuel, identifier les causes systémiques, transformer les enseignements en actions et vérifier leur efficacité.",
+    "description": "Animer un retour d’expérience sans recherche de blâme, puis convertir les enseignements en actions suivies et mesurables.",
     "prereqs": [
-      "maint-strategie-expert"
+      "maint-rca-intermediaire",
+      "maint-gestion-crise-expert",
+      "maint-kpi-expert"
     ],
     "requirements": [
       {
