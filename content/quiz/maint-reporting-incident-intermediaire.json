@@ -1,0 +1,102 @@
+{
+  "node_id": "maint-reporting-incident-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle information doit figurer au début d’un rapport d’incident ?",
+      "choices": [
+        "Une liste de toutes les commandes sans ordre",
+        "Le périmètre affecté, la période, l’impact utilisateur et l’état connu",
+        "La cause supposée uniquement",
+        "Le nom du premier technicien connecté"
+      ],
+      "answer": 1,
+      "explanation": "Le rapport commence par les faits utiles pour comprendre la portée et la situation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment construire une chronologie d’incident fiable ?",
+      "choices": [
+        "Réécrire les heures de mémoire à la fin",
+        "Ne conserver que les événements qui confirment la première hypothèse",
+        "Assembler des événements horodatés, leurs sources et les actions significatives",
+        "Supprimer les événements jugés sans importance sans justification"
+      ],
+      "answer": 2,
+      "explanation": "Une chronologie fondée sur des traces facilite l’analyse et les décisions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La cause racine reste inconnue à la fin du rétablissement. Que faire ?",
+      "choices": [
+        "Choisir une cause plausible pour remplir le rapport",
+        "Accuser l’équipe qui a changé le système",
+        "Clore l’analyse sans mentionner les limites",
+        "Distinguer cause confirmée, hypothèses, éléments manquants et investigations à poursuivre"
+      ],
+      "answer": 3,
+      "explanation": "Le rapport doit refléter les preuves disponibles sans transformer une hypothèse en certitude."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel message convient pendant un incident majeur ?",
+      "choices": [
+        "Un état concis de l’impact, des mesures en cours, des risques connus et de l’heure du prochain point",
+        "Une longue sortie de journal sans synthèse",
+        "Une promesse ferme de résolution sans estimation fiable",
+        "Un message qui attribue la faute avant l’enquête"
+      ],
+      "answer": 0,
+      "explanation": "Les communications doivent aider les destinataires à décider et à gérer l’impact."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi distinguer le rétablissement du service de la résolution définitive ?",
+      "choices": [
+        "Parce que le service ne doit jamais être rétabli avant l’analyse complète",
+        "Parce qu’une mesure de contournement peut rétablir le service alors que la cause doit encore être traitée",
+        "Parce que le ticket n’a pas besoin de suivi après le rétablissement",
+        "Parce que la supervision suffit à prouver la cause"
+      ],
+      "answer": 1,
+      "explanation": "Le rétablissement peut être temporaire ; l’analyse et l’action durable restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément rend une action corrective vérifiable ?",
+      "choices": [
+        "Une formulation vague comme « surveiller davantage »",
+        "L’absence de responsable pour garder de la flexibilité",
+        "Un responsable, une échéance, un résultat attendu et une preuve de clôture",
+        "Une priorité faible par défaut"
+      ],
+      "answer": 2,
+      "explanation": "Une action doit pouvoir être suivie jusqu’à sa réalisation et son effet mesuré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment adapter un rapport aux décideurs non techniques ?",
+      "choices": [
+        "Inclure toutes les commandes en premier",
+        "Masquer l’impact métier",
+        "Utiliser seulement les codes d’erreur",
+        "Présenter l’impact, la durée, les risques, les décisions requises et les actions de prévention"
+      ],
+      "answer": 3,
+      "explanation": "Les décideurs ont besoin de conséquences, d’options et de décisions, pas seulement de détails bas niveau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un retour d’expérience après un incident ?",
+      "choices": [
+        "Réduire la récurrence en identifiant les facteurs contributifs et les actions dont l’efficacité sera vérifiée",
+        "Trouver une personne à blâmer",
+        "Remplacer les contrôles par une réunion",
+        "Clôturer tous les tickets similaires sans analyse"
+      ],
+      "answer": 0,
+      "explanation": "Un retour d’expérience utile améliore les systèmes et les processus plutôt que de s’arrêter à l’attribution de faute."
+    }
+  ]
+}
