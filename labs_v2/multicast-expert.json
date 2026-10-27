@@ -1,0 +1,396 @@
+{
+  "schema_version": 2,
+  "id": "multicast-expert",
+  "title": "Multicast expert — SSM, RPF et redondance RP",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Finalisez un domaine multicast avancé. Activez SSM pour le groupe 232.1.1.1, utilisez IGMPv3, gardez un contrôle RPF strict et documentez le RP primaire et son secours sans activer PIM bidirectionnel.",
+  "objectives": [
+    "Activer SSM avec la plage 232.0.0.0/8.",
+    "Utiliser IGMPv3 sur le LAN récepteur.",
+    "Activer la vérification RPF.",
+    "Déclarer des adresses RP primaire et secondaire pour la conception.",
+    "Désactiver le mode bidirectionnel pour cette conception SSM."
+  ],
+  "hints": [
+    "La plage 232.0.0.0/8 est réservée à SSM en IPv4.",
+    "IGMPv3 permet les adhésions avec filtrage de source.",
+    "RPF protège contre les boucles et les chemins source incohérents."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-multicast-expert",
+    "metadata": {
+      "name": "Multicast expert — SSM, RPF et redondance RP",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "SRC",
+        "type": "server",
+        "x": 60,
+        "y": 220,
+        "label": "SRC",
+        "model": "SRC",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SRC"
+        }
+      },
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 300,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.7.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "multicast",
+              "enabled": true,
+              "pim_mode": "sparse",
+              "ssm_enabled": false,
+              "ssm_range": "224.0.0.0/4",
+              "bidir_enabled": true,
+              "rp_mapping": {
+                "mode": "static",
+                "address": "0.0.0.0",
+                "secondary": "0.0.0.0"
+              },
+              "igmp_version": 2,
+              "group": "232.1.1.1",
+              "rpf_check": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 580,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.7.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.7.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "multicast",
+              "enabled": true,
+              "pim_mode": "sparse",
+              "ssm_enabled": true,
+              "ssm_range": "232.0.0.0/8",
+              "bidir_enabled": false,
+              "rp_mapping": {
+                "mode": "static",
+                "address": "10.255.0.1",
+                "secondary": "10.255.0.2"
+              },
+              "igmp_version": 3,
+              "group": "232.1.1.1",
+              "rpf_check": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 860,
+        "y": 220,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.7.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "multicast",
+              "enabled": true,
+              "pim_mode": "sparse",
+              "ssm_enabled": true,
+              "ssm_range": "232.0.0.0/8",
+              "bidir_enabled": false,
+              "rp_mapping": {
+                "mode": "static",
+                "address": "10.255.0.1",
+                "secondary": "10.255.0.2"
+              },
+              "igmp_version": 3,
+              "group": "232.1.1.1",
+              "rpf_check": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "RX",
+        "type": "pc",
+        "x": 1120,
+        "y": 220,
+        "label": "RX",
+        "model": "RX",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "RX"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "SOURCE",
+        "from": {
+          "node": "SRC",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "RECEIVER",
+        "from": {
+          "node": "R3",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "RX",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "ssm",
+        "description": "SSM is enabled on R1.",
+        "device": "R1",
+        "path": "config.routes[0].ssm_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "ssm-range",
+        "description": "SSM uses the reserved 232/8 range.",
+        "device": "R1",
+        "path": "config.routes[0].ssm_range",
+        "operator": "equals",
+        "expected": "232.0.0.0/8"
+      },
+      {
+        "id": "bidir",
+        "description": "Bidirectional PIM is disabled for this SSM design.",
+        "device": "R1",
+        "path": "config.routes[0].bidir_enabled",
+        "operator": "equals",
+        "expected": false
+      },
+      {
+        "id": "rp-primary",
+        "description": "The primary RP address is configured.",
+        "device": "R1",
+        "path": "config.routes[0].rp_mapping.address",
+        "operator": "equals",
+        "expected": "10.255.0.1"
+      },
+      {
+        "id": "rp-secondary",
+        "description": "The secondary RP address is configured.",
+        "device": "R1",
+        "path": "config.routes[0].rp_mapping.secondary",
+        "operator": "equals",
+        "expected": "10.255.0.2"
+      },
+      {
+        "id": "igmp",
+        "description": "Receiver LAN uses IGMPv3.",
+        "device": "R1",
+        "path": "config.routes[0].igmp_version",
+        "operator": "equals",
+        "expected": 3
+      },
+      {
+        "id": "rpf",
+        "description": "Reverse-path forwarding validation is enabled.",
+        "device": "R1",
+        "path": "config.routes[0].rpf_check",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
