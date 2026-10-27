@@ -1,0 +1,108 @@
+name: Production lesson and quiz API smoke
+
+on:
+  push:
+    branches: ["feature/lab-workspace"]
+    paths:
+      - ".github/workflows/production-course-content-smoke.yml"
+      - "app/api.py"
+      - "app/loader.py"
+      - "content/nodes.json"
+      - "content/lessons/**"
+      - "content/quiz/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-production-courses:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout catalogue
+        uses: actions/checkout@v7
+
+      - name: Verify published lesson and quiz routes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          import urllib.request
+          from pathlib import Path
+
+          BASE = "https://skill-tree-vjon.onrender.com"
+          TARGETS = (
+              "maint-communication-debutant",
+              "maint-securite-base-debutant",
+              "maint-procedures-intermediaire",
+              "maint-reporting-incident-intermediaire",
+              "maint-predictive-expert",
+              "maint-audits-expert",
+              "maint-fournisseurs-expert",
+              "maint-retex-expert",
+          )
+          nodes = json.loads(Path("content/nodes.json").read_text(encoding="utf-8-sig"))
+          titles = {
+              item["id"]: item["title"]
+              for item in nodes
+              if isinstance(item, dict)
+              and isinstance(item.get("id"), str)
+              and isinstance(item.get("title"), str)
+          }
+          missing_catalogue = sorted(set(TARGETS) - set(titles))
+          if missing_catalogue:
+              raise SystemExit("Target ids absent from the checked-out catalogue: " + ", ".join(missing_catalogue))
+
+          def get_body(path, accept):
+              request = urllib.request.Request(
+                  BASE + path,
+                  headers={"Accept": accept, "User-Agent": "Skill-Tree-production-smoke"},
+              )
+              with urllib.request.urlopen(request, timeout=12) as response:
+                  return response.status, response.read().decode("utf-8", errors="replace")
+
+          def check_live_routes():
+              status, _ = get_body("/openapi.json", "application/json")
+              if status != 200:
+                  raise RuntimeError(f"OpenAPI returned HTTP {status}")
+
+              report = []
+              for lesson_id in TARGETS:
+                  status, body = get_body(f"/api/node/{lesson_id}/lesson", "text/markdown")
+                  body = body.strip()
+                  expected_title = "# " + titles[lesson_id]
+                  if status != 200 or len(body) < 8000 or not body.startswith(expected_title):
+                      raise RuntimeError(
+                          f"{lesson_id} lesson failed: HTTP {status}, bytes={len(body)}, "
+                          f"expected heading={expected_title!r}"
+                      )
+
+                  status, quiz_text = get_body(f"/api/node/{lesson_id}/quiz", "application/json")
+                  quiz = json.loads(quiz_text)
+                  questions = quiz.get("questions")
+                  if status != 200 or quiz.get("node_id") != lesson_id or not isinstance(questions, list) or not questions:
+                      raise RuntimeError(f"{lesson_id} quiz missing id/questions or returned HTTP {status}")
+                  if any("answer" in question or "answer_regex" in question for question in questions if isinstance(question, dict)):
+                      raise RuntimeError(f"{lesson_id} quiz leaks expected answers on the public read route")
+                  report.append((lesson_id, len(body.encode("utf-8")), len(questions)))
+              return report
+
+          last_error = "production did not respond"
+          # Render may be restarting or deploying. Retry the read-only check; never mutate data.
+          for attempt in range(1, 37):
+              try:
+                  report = check_live_routes()
+                  for lesson_id, lesson_bytes, questions in report:
+                      print(f"PRODUCTION_COURSE_OK id={lesson_id} lesson_bytes={lesson_bytes} quiz_questions={questions}")
+                  print(f"PRODUCTION_COURSE_API_SMOKE=passed courses={len(report)}")
+                  break
+              except Exception as error:
+                  last_error = f"{type(error).__name__}: {error}"
+                  print(f"Attempt {attempt}/36: {last_error}")
+                  if attempt < 36:
+                      time.sleep(10)
+          else:
+              raise SystemExit("Production lesson/quiz API smoke failed after retries: " + last_error)
+          PY
