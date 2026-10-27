@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger une fiche d'intervention » ?",
+      "prompt": "Quel est le rôle principal d'une fiche d'intervention ?",
       "choices": [
-        "Le sujet principal du cours : Rédiger une fiche d'intervention",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Remplacer tous les tickets et toutes les procédures",
+        "Enregistrer les actions réellement effectuées, les résultats et les vérifications afin de permettre le suivi et la reprise",
+        "Prouver que la cause est connue même sans diagnostic",
+        "Conserver systématiquement toutes les données recueillies"
+      ],
+      "answer": 1,
+      "explanation": "La fiche décrit le travail réalisé et les résultats observés. Elle assure la traçabilité et facilite la continuité entre techniciens."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment noter une cause qui n'est pas encore confirmée ?",
+      "choices": [
+        "La présenter comme certaine pour faciliter la clôture",
+        "Ne rien écrire du tout, même si une investigation est en cours",
+        "La marquer comme hypothèse ou cause à confirmer, avec les vérifications nécessaires",
+        "Choisir la cause la plus fréquente sans le signaler"
+      ],
+      "answer": 2,
+      "explanation": "Une fiche doit distinguer faits, hypothèses et conclusions. Une inconnue explicitement notée vaut mieux qu'une explication inventée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information rend le compte rendu d'une commande de diagnostic le plus utile ?",
+      "choices": [
+        "La commande exacte, la cible, l'heure pertinente, le résultat et les limites du test",
+        "La phrase « commande lancée » sans autre détail",
+        "Une copie de tous les journaux sans filtre",
+        "Une conclusion sans résultat"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Ces informations permettent de comprendre et parfois de reproduire le contrôle, tout en limitant les conclusions à ce que le test démontre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il consigner lorsqu'une tentative de correction échoue ?",
+      "choices": [
+        "Rien, car seul le résultat final compte",
+        "L'action tentée, son résultat et la décision prise ensuite",
+        "Un résultat positif pour simplifier le suivi",
+        "Seulement le nom du technicien"
+      ],
+      "answer": 1,
+      "explanation": "Les échecs font partie de l'historique utile et évitent à un collègue de répéter la même tentative sans comprendre son résultat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur critère de clôture après une intervention ?",
+      "choices": [
+        "Le technicien a passé beaucoup de temps sur le ticket",
+        "La machine a redémarré, quel que soit le problème initial",
+        "Le besoin initial a été testé selon les critères prévus et les résultats sont documentés",
+        "Le nombre de champs obligatoires est rempli, même si les résultats sont supposés"
+      ],
+      "answer": 2,
+      "explanation": "La clôture repose sur une vérification en rapport avec le symptôme initial. Un simple redémarrage ou un formulaire complet ne prouve pas nécessairement le rétablissement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information ne doit pas être copiée dans une fiche partagée ?",
+      "choices": [
+        "La référence du ticket fictif",
+        "Le résultat assaini d'un test",
+        "La date de l'intervention",
+        "Un mot de passe, un jeton d'accès ou une clé privée"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets d'authentification doivent rester hors des fiches et tickets. Les preuves doivent être minimales et stockées dans des espaces autorisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre une fiche d'intervention et une procédure ?",
+      "choices": [
+        "La fiche rapporte ce qui a été fait dans un cas donné ; la procédure décrit des étapes reproductibles",
+        "La fiche et la procédure sont toujours identiques",
+        "La procédure doit contenir le mot de passe utilisé",
+        "La fiche doit être rédigée avant de connaître le contexte et sans résultat"
+      ],
+      "answer": 0,
+      "explanation": "La fiche est un compte rendu du cas traité ; la procédure guide une opération reproductible et doit inclure les précautions pertinentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ticket doit être transmis à une autre équipe. Que faut-il inclure ?",
+      "choices": [
+        "Seulement « voir avec vous »",
+        "Le symptôme, l'impact, la chronologie, les actions et résultats, les inconnues et la prochaine action attendue",
+        "Tous les tests imaginables, y compris ceux qui n'ont pas été exécutés",
+        "Une capture complète non assainie par défaut"
+      ],
+      "answer": 1,
+      "explanation": "Une bonne transmission permet au destinataire de reprendre le dossier avec le contexte et de comprendre quelles actions sont réellement terminées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il indiquer l'heure des actions et observations lorsque c'est pertinent ?",
+      "choices": [
+        "Pour donner une apparence plus formelle à la fiche",
+        "Pour garantir que l'hypothèse est vraie",
+        "Pour reconstituer la chronologie et mettre les événements en relation avec prudence",
+        "Pour éviter d'avoir à décrire les résultats"
+      ],
+      "answer": 2,
+      "explanation": "La chronologie aide à relier les faits et les changements, sans prouver à elle seule la causalité. Les heures doivent être précises et le fuseau indiqué si nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider les pièces jointes à une fiche ?",
+      "choices": [
+        "Joindre chaque donnée disponible, par sécurité",
+        "Conserver tous les secrets dans le dossier technique",
+        "Partager le plus largement possible pour gagner du temps",
+        "Ne joindre que les preuves nécessaires, assainies et accessibles aux personnes autorisées"
+      ],
+      "answer": 3,
+      "explanation": "La minimisation et le contrôle d'accès réduisent les risques de divulgation. Les preuves doivent être utiles, pertinentes et partagées par les canaux approuvés."
     }
   ]
 }
