@@ -2938,9 +2938,15 @@
             this.tab = name;
           }
           this.notificationsOpen = false; this.settingsMenuOpen = false; this.profileMenuOpen = false;
-          this.$nextTick(() => { const m = this.$refs.mainScroll; if (m) m.scrollTop = 0; });
+          // Un clic sur l’onglet déjà actif ne doit pas faire perdre la position de lecture.
+          if (!tabChanged) return;
+          this.$nextTick(() => {
+            const m = this.$refs.mainScroll;
+            if (!m) return;
+            if (this.reduceMotion || typeof m.scrollTo !== 'function') m.scrollTop = 0;
+            else m.scrollTo({ top: 0, behavior: 'smooth' });
+          });
           try {
-            if (!tabChanged) return;
             if (name === 'stats') await this.loadStats();
             if (name === 'memo') await this.loadFlashcards();
             if (name === 'diagnostic') await this.loadDiagnostic();
