@@ -23,7 +23,7 @@
     "schema_version": 2,
     "topology_id": "topo-cli-static-routing",
     "metadata": {
-      "name": "CLI — Route statique IPv4",
+      "name": "Route statique",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -32,9 +32,9 @@
       {
         "id": "R1",
         "type": "router",
-        "model": "generic-router",
+        "model": "generic-1841",
         "x": 180,
-        "y": 300,
+        "y": 230,
         "label": "R1",
         "ports": [
           {
@@ -42,14 +42,15 @@
             "name": "Gi0/0",
             "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "10.0.0.1",
+            "mask": "255.255.255.252",
             "vlan": null,
-            "description": "",
+            "description": "Next-hop 10.0.0.2 vers réseau distant",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -59,16 +60,17 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "up",
+            "state": "down",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
             "description": "",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -91,6 +93,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -100,26 +103,27 @@
         }
       },
       {
-        "id": "SW1",
-        "type": "switch",
-        "model": "generic-2960",
+        "id": "R2",
+        "type": "router",
+        "model": "generic-1841",
         "x": 520,
-        "y": 300,
-        "label": "SW1",
+        "y": 230,
+        "label": "R2",
         "ports": [
           {
-            "id": "Fa0/1",
-            "name": "Fa0/1",
+            "id": "Gi0/0",
+            "name": "Gi0/0",
             "state": "up",
             "speed": 1000,
-            "mode": "down",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.0.2",
+            "mask": "255.255.255.252",
             "vlan": null,
-            "description": "",
+            "description": "Lien vers R1",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -127,18 +131,19 @@
             "service_policy_out": null
           },
           {
-            "id": "Fa0/24",
-            "name": "Fa0/24",
+            "id": "Gi0/1",
+            "name": "Gi0/1",
             "state": "up",
             "speed": 1000,
-            "mode": "down",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "mac": "",
+            "mode": "routed",
+            "ip": "172.16.20.1",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Passerelle du LAN distant",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -147,7 +152,7 @@
           }
         ],
         "config": {
-          "hostname": "SW1",
+          "hostname": "R2",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -161,6 +166,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -170,26 +176,27 @@
         }
       },
       {
-        "id": "PC1",
-        "type": "pc",
-        "model": "generic-pc",
+        "id": "SERVEUR",
+        "type": "server",
+        "model": "generic-server",
         "x": 850,
-        "y": 90,
-        "label": "PC1",
+        "y": 230,
+        "label": "SERVEUR",
         "ports": [
           {
             "id": "eth0",
             "name": "eth0",
             "state": "up",
             "speed": 1000,
-            "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "mac": "",
+            "mode": "routed",
+            "ip": "172.16.20.10",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Hôte du réseau 172.16.20.0/24",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -198,7 +205,7 @@
           }
         ],
         "config": {
-          "hostname": "PC1",
+          "hostname": "SERVEUR",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -212,6 +219,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -223,28 +231,28 @@
     ],
     "links": [
       {
-        "id": "L-R1-SW1",
+        "id": "L-R1-R2",
         "from": {
           "node": "R1",
           "port": "Gi0/0"
         },
         "to": {
-          "node": "SW1",
-          "port": "Fa0/24"
+          "node": "R2",
+          "port": "Gi0/0"
         },
-        "cable_type": "copper_straight",
+        "cable_type": "copper_crossover",
         "state": "up",
         "bandwidth": 1000,
         "latency_ms": 1
       },
       {
-        "id": "L-SW1-PC1",
+        "id": "L-R2-SERVEUR",
         "from": {
-          "node": "SW1",
-          "port": "Fa0/1"
+          "node": "R2",
+          "port": "Gi0/1"
         },
         "to": {
-          "node": "PC1",
+          "node": "SERVEUR",
           "port": "eth0"
         },
         "cable_type": "copper_straight",
