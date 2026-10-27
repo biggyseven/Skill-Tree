@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Management d'une équipe technique » ?",
+      "prompt": "Quel est l'objectif principal d'une délégation efficace ?",
       "choices": [
-        "Le sujet principal du cours : Management d'une équipe technique",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Transférer résultat, autorité, limites, ressources et modalités de suivi",
+        "Transférer la tâche sans donner de contexte",
+        "Conserver toutes les décisions au manager",
+        "Éviter d'évaluer le résultat"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La personne doit savoir ce qu'elle peut décider et quand escalader."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas planifier 100 % de la capacité nominale ?",
+      "choices": [
+        "Parce que les objectifs doivent être absents",
+        "Parce que les absences, urgences, astreintes et activités indirectes consomment de la capacité",
+        "Parce que le préventif n'a pas de valeur",
+        "Pour maintenir le backlog sans contrôle"
+      ],
+      "answer": 1,
+      "explanation": "Un plan réaliste doit réserver une capacité aux aléas et aux tâches non liées aux tickets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve montre le mieux qu'une compétence a été transférée ?",
+      "choices": [
+        "La personne a reçu un document",
+        "Elle a assisté à la réunion",
+        "Elle exécute un scénario représentatif de façon autonome selon les critères",
+        "L'expert dit que la formation est terminée"
+      ],
+      "answer": 2,
+      "explanation": "Une démonstration d'autonomie mesure la capacité à appliquer le savoir."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La sécurité psychologique signifie-t-elle l'absence de responsabilité ?",
+      "choices": [
+        "Oui, toute erreur est ignorée",
+        "Oui, les règles n'ont plus d'effet",
+        "Oui, les résultats ne sont pas mesurés",
+        "Non, elle permet de signaler et apprendre tout en maintenant une responsabilité équitable"
+      ],
+      "answer": 3,
+      "explanation": "L'apprentissage sans humiliation n'exclut pas l'examen de faits ni le traitement d'une violation volontaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment donner un feedback utile ?",
+      "choices": [
+        "Décrire comportement observable, impact, attente et prochaine action",
+        "Attribuer une étiquette personnelle",
+        "Comparer la personne à un collègue sans preuve",
+        "Faire un retour vague à la fin de l'année"
+      ],
+      "answer": 0,
+      "explanation": "Le feedback factuel permet de comprendre ce qui doit changer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque présente une astreinte sans relève ni récupération ?",
+      "choices": [
+        "Une réduction certaine du MTTR",
+        "Fatigue, erreurs, perte de jugement et dégradation de la continuité",
+        "Une meilleure qualité permanente",
+        "Une diminution des dépendances"
+      ],
+      "answer": 1,
+      "explanation": "Les rotations et la récupération font partie du dispositif de continuité opérationnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi équilibrer les indicateurs d'équipe ?",
+      "choices": [
+        "Pour avoir plus de chiffres que nécessaire",
+        "Pour rendre les comparaisons impossibles",
+        "Pour éviter qu'un objectif de volume pousse à fermer prématurément ou négliger la qualité",
+        "Pour supprimer les résultats individuels observables"
+      ],
+      "answer": 2,
+      "explanation": "Volume doit être mis en regard de qualité, réouvertures, sécurité et complexité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment arbitrer un désaccord technique important ?",
+      "choices": [
+        "Par ancienneté uniquement",
+        "En laissant le conflit sans décision",
+        "En suivant la personne qui parle le plus fort",
+        "En comparant objectifs, preuves, risques et options, puis en utilisant l'autorité de décision définie"
+      ],
+      "answer": 3,
+      "explanation": "Une décision traçable s'appuie sur le fond et le rôle habilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique réduit une dépendance à un seul expert ?",
+      "choices": [
+        "Binômage, documentation et exercice d'autonomie sur les compétences critiques",
+        "Demander à l'expert de faire plus d'heures",
+        "Garder les informations dans des messages privés",
+        "Supprimer les cas complexes des statistiques"
+      ],
+      "answer": 0,
+      "explanation": "Le transfert vérifié réduit le risque de perte de compétence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que révèle une hausse persistante du travail non planifié ?",
+      "choices": [
+        "Que l'équipe doit toujours travailler plus vite",
+        "Un besoin d'analyser fiabilité, qualité des changements, capacité ou qualification des demandes",
+        "Que les tâches préventives doivent être supprimées",
+        "Que le plan doit être rempli à 100 %"
+      ],
+      "answer": 1,
+      "explanation": "Le travail imprévu est un signal de système, pas seulement un problème de productivité personnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les revues d'équipe doivent-elles déboucher sur un registre de décisions ?",
+      "choices": [
+        "Pour remplacer les conversations",
+        "Pour produire plus de documents",
+        "Pour attribuer des propriétaires, échéances, dépendances et critères de résultat",
+        "Pour éviter les suivis"
+      ],
+      "answer": 2,
+      "explanation": "Les décisions suivies relient discussion et changement réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement est préférable après une erreur involontaire ?",
+      "choices": [
+        "Humilier publiquement la personne",
+        "Cacher l'incident",
+        "Supprimer les logs pour préserver la confiance",
+        "Stabiliser le risque, comprendre les facteurs et corriger les contrôles tout en traitant équitablement les responsabilités"
+      ],
+      "answer": 3,
+      "explanation": "L'analyse constructive permet de corriger les conditions systémiques et d'éviter la répétition."
     }
   ]
 }
