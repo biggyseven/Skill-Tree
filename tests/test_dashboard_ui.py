@@ -1030,7 +1030,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
     def test_course_reader_navigation_is_scoped_to_active_module(self):
         self.assertIn("def _configured_node_orders()", API_SOURCE)
-        self.assertIn('"sort_order": n.sort_order', API_SOURCE)
+        self.assertIn('configured_orders.get(n.id, n.sort_order)', API_SOURCE)
         self.assertIn('"sort_order": n.sort_order', API_SOURCE)
         start = DASHBOARD_HTML.index("        get lessonNavigationModule()")
         end = DASHBOARD_HTML.index("        get lessonCurrentIndex()", start)
