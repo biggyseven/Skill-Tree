@@ -838,6 +838,28 @@ test('la lecture vocale conserve la ponctuation, ignore un sommaire imbriqué et
   expect(narration).toContain('La ponctuation reste intacte : vraiment ?');
 });
 
+test('la locution prépare les titres, les acronymes, les adresses IP et les pourcentages', async ({ page }) => {
+  await openDashboard(page);
+  const result = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    const polished = state.prepareSpeechText(
+      'Titre du cours : Comprendre DNS et HTTPS.\n\nSection : Cycle de requête.\n\nLe client envoie une requête HTTPS à l’API. Une adresse est 192.168.1.1 et la disponibilité est de 75%.'
+    );
+    return {
+      polished,
+      adjacentParagraphs: state.splitSpeechText('Première phrase.\n\nDeuxième phrase.', 1800),
+      bullets: state.splitSpeechText('Premier élément\n\nDeuxième élément.', 1800),
+    };
+  });
+  expect(result.polished).toContain('Bienvenue dans ce cours consacré à « Comprendre D N S et H T T P S ».');
+  expect(result.polished).toContain('Commençons par la partie « Cycle de requête ».');
+  expect(result.polished).toContain('une requête H T T P S à l’A P I');
+  expect(result.polished).toContain('192 point 168 point 1 point 1');
+  expect(result.polished).toContain('75 pour cent');
+  expect(result.adjacentParagraphs).toEqual(['Première phrase. Deuxième phrase.']);
+  expect(result.bullets).toEqual(['Premier élément. Deuxième élément.']);
+});
+
 test('le menu contextuel démarre la lecture vocale depuis la section visée', async ({ page }) => {
   await openDashboard(page);
 
