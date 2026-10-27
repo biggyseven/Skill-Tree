@@ -1,0 +1,265 @@
+from __future__ import annotations
+
+import json
+import sqlite3
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from fastapi.testclient import TestClient
+
+from app import api
+
+
+class ExamApiTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.database_path = Path(self.temporary.name) / "skilltree.sqlite3"
+        self.db_patch = patch.object(api, "DB_PATH", self.database_path)
+        self.db_patch.start()
+        self.client = TestClient(api.app)
+        self.client.__enter__()
+
+        tree_response = self.client.get("/api/tree")
+        self.assertEqual(tree_response.status_code, 200, tree_response.text)
+        nodes = tree_response.json()["nodes"]
+        ipv6_node = next(node for node in nodes if node["id"] == "ipv6-expert")
+        self.category = ipv6_node["category"]
+
+    def tearDown(self) -> None:
+        self.client.__exit__(None, None, None)
+        self.db_patch.stop()
+        self.temporary.cleanup()
+
+    def _start_category_exam(self) -> dict:
+        response = self.client.post("/api/exam/start", json={"category": self.category})
+        self.assertEqual(response.status_code, 200, response.text)
+        return response.json()
+
+    def _answer_key(self, exam: dict) -> list[int | str | None]:
+        with sqlite3.connect(self.database_path) as connection:
+            connection.row_factory = sqlite3.Row
+            session = connection.execute(
+                "SELECT question_ids FROM exam_sessions WHERE session_id = ?",
+                (exam["id"],),
+            ).fetchone()
+            self.assertIsNotNone(session)
+            question_ids = json.loads(session["question_ids"])
+            answers: list[int | str | None] = []
+            for question_id in question_ids:
+                row = connection.execute(
+                    "SELECT question_type, answer, answer_text FROM questions WHERE id = ?",
+                    (question_id,),
+                ).fetchone()
+                self.assertIsNotNone(row, f"Question de session absente : {question_id}")
+                if row["question_type"] == "qcm":
+                    answers.append(int(row["answer"]))
+                else:
+                    answers.append(str(row["answer_text"] or ""))
+            return answers
+
+    def _unlock_ipv6_exam_prerequisite(self) -> None:
+        # Le cours IPv6 Expert dépend d'IPv6 Intermédiaire, lui-même validé par quiz + lab.
+        with sqlite3.connect(self.database_path) as connection:
+            for kind, score in (("quiz", 100), ("lab", 100)):
+                connection.execute(
+                    "INSERT INTO attempts (node_id, kind, score, passed, evidence, detail, created_at) "
+                    "VALUES (?, ?, ?, 1, '', 'test prerequisite', '2026-10-26 12:00:00')",
+                    ("ipv6-intermediaire", kind, score),
+                )
+            connection.commit()
+
+    def test_start_returns_questions_without_answer_key_leaks(self) -> None:
+        exam = self._start_category_exam()
+        self.assertTrue(exam["id"])
+        self.assertEqual(exam["exam_type"], "category")
+        self.assertEqual(exam["category"], self.category)
+        self.assertGreater(len(exam["questions"]), 0)
+        self.assertLessEqual(len(exam["questions"]), api.EXAM_QUESTION_COUNT)
+
+        for question in exam["questions"]:
+            self.assertEqual(question["type"], "qcm")
+            self.assertTrue(question["prompt"])
+            self.assertEqual(len(question["choices"]), 4)
+            for secret_key in ("answer", "answer_text", "answer_regex", "explanation", "correct"):
+                self.assertNotIn(secret_key, question)
+
+    def test_submit_is_server_scored_and_idempotent(self) -> None:
+        exam = self._start_category_exam()
+        answers = self._answer_key(exam)
+        response = self.client.post(
+            "/api/exam/submit",
+            json={"session_id": exam["id"], "answers": answers},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        result = response.json()
+        self.assertTrue(result["success"])
+        self.assertEqual(result["correct"], len(answers))
+        self.assertEqual(result["total"], len(answers))
+        self.assertEqual(result["score"], 100)
+        self.assertTrue(result["passed"])
+        self.assertEqual(len(result["details"]), len(answers))
+        self.assertTrue(all(detail["correct"] for detail in result["details"]))
+
+        replay = self.client.post(
+            "/api/exam/submit",
+            json={"session_id": exam["id"], "answers": [None] * len(answers)},
+        )
+        self.assertEqual(replay.status_code, 200, replay.text)
+        self.assertEqual(replay.json(), result)
+
+        profile = self.client.get("/api/profile")
+        self.assertEqual(profile.status_code, 200, profile.text)
+        self.assertEqual(profile.json()["exams_passed"], 1)
+
+    def test_expired_submission_after_grace_discards_late_answers(self) -> None:
+        exam = self._start_category_exam()
+        answers = self._answer_key(exam)
+        with sqlite3.connect(self.database_path) as connection:
+            connection.execute(
+                "UPDATE exam_sessions SET expires_at = 1000 WHERE session_id = ?",
+                (exam["id"],),
+            )
+            connection.commit()
+
+        with patch.object(api.time, "time", return_value=1000 + api.EXAM_SUBMIT_GRACE_SECONDS + 1):
+            response = self.client.post(
+                "/api/exam/submit",
+                json={"session_id": exam["id"], "answers": answers},
+            )
+        self.assertEqual(response.status_code, 200, response.text)
+        result = response.json()
+        self.assertTrue(result["time_expired"])
+        self.assertEqual(result["correct"], 0)
+        self.assertEqual(result["score"], 0)
+        self.assertFalse(result["passed"])
+        self.assertTrue(all(answer is None for answer in result["answers"]))
+
+    def test_pause_blocks_submission_and_resume_extends_expiry(self) -> None:
+        with patch.object(api.time, "time", return_value=10000):
+            exam_response = self.client.post("/api/exam/start", json={"category": self.category})
+        self.assertEqual(exam_response.status_code, 200, exam_response.text)
+        exam = exam_response.json()
+        with sqlite3.connect(self.database_path) as connection:
+            original_expiry = connection.execute(
+                "SELECT expires_at FROM exam_sessions WHERE session_id = ?",
+                (exam["id"],),
+            ).fetchone()[0]
+
+        with patch.object(api.time, "time", return_value=10010):
+            pause = self.client.post("/api/exam/pause", json={"session_id": exam["id"]})
+        self.assertEqual(pause.status_code, 200, pause.text)
+        self.assertTrue(pause.json()["paused"])
+
+        blocked_submit = self.client.post(
+            "/api/exam/submit",
+            json={"session_id": exam["id"], "answers": self._answer_key(exam)},
+        )
+        self.assertEqual(blocked_submit.status_code, 409, blocked_submit.text)
+
+        with patch.object(api.time, "time", return_value=10040):
+            resume = self.client.post("/api/exam/resume", json={"session_id": exam["id"]})
+        self.assertEqual(resume.status_code, 200, resume.text)
+        self.assertFalse(resume.json()["paused"])
+        self.assertEqual(resume.json()["resumed_seconds"], 30)
+
+        with sqlite3.connect(self.database_path) as connection:
+            row = connection.execute(
+                "SELECT expires_at, paused_seconds, paused_at FROM exam_sessions WHERE session_id = ?",
+                (exam["id"],),
+            ).fetchone()
+        self.assertEqual(row[0], original_expiry + 30)
+        self.assertEqual(row[1], 30)
+        self.assertIsNone(row[2])
+
+        with patch.object(api.time, "time", return_value=10041):
+            submitted = self.client.post(
+                "/api/exam/submit",
+                json={"session_id": exam["id"], "answers": self._answer_key(exam)},
+            )
+        self.assertEqual(submitted.status_code, 200, submitted.text)
+        self.assertTrue(submitted.json()["passed"])
+
+    def test_course_exam_uses_dedicated_bank_and_records_exam_proof(self) -> None:
+        self._unlock_ipv6_exam_prerequisite()
+        response = self.client.post("/api/exam/start", json={"node_id": "ipv6-expert"})
+        self.assertEqual(response.status_code, 200, response.text)
+        exam = response.json()
+        self.assertEqual(exam["exam_type"], "course")
+        self.assertEqual(exam["node_id"], "ipv6-expert")
+        self.assertEqual(exam["passing_score"], 85)
+        self.assertEqual(exam["category"], "IPv6 - Expert")
+        self.assertGreater(len(exam["questions"]), 0)
+        self.assertTrue(all(question["type"] == "qcm" for question in exam["questions"]))
+        self.assertTrue(all("answer" not in question for question in exam["questions"]))
+
+        with sqlite3.connect(self.database_path) as connection:
+            question_ids = json.loads(
+                connection.execute(
+                    "SELECT question_ids FROM exam_sessions WHERE session_id = ?",
+                    (exam["id"],),
+                ).fetchone()[0]
+            )
+            for question_id in question_ids:
+                question = connection.execute(
+                    "SELECT node_id, scope FROM questions WHERE id = ?",
+                    (question_id,),
+                ).fetchone()
+                self.assertEqual(question[0], "ipv6-expert")
+                self.assertEqual(question[1], "exam")
+
+        answers = self._answer_key(exam)
+        result_response = self.client.post(
+            "/api/exam/submit", json={"session_id": exam["id"], "answers": answers}
+        )
+        self.assertEqual(result_response.status_code, 200, result_response.text)
+        result = result_response.json()
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["score"], 100)
+        self.assertEqual(result["node_id"], "ipv6-expert")
+        self.assertFalse(result["validated"])
+
+        replay = self.client.post(
+            "/api/exam/submit",
+            json={"session_id": exam["id"], "answers": [None] * len(answers)},
+        )
+        self.assertEqual(replay.status_code, 200, replay.text)
+        self.assertEqual(replay.json(), result)
+
+        with sqlite3.connect(self.database_path) as connection:
+            attempts = connection.execute(
+                "SELECT COUNT(*) FROM attempts WHERE node_id = 'ipv6-expert' AND kind = 'exam' AND passed = 1"
+            ).fetchone()[0]
+        self.assertEqual(attempts, 1)
+
+        profile = self.client.get("/api/profile")
+        self.assertEqual(profile.status_code, 200, profile.text)
+        self.assertEqual(profile.json()["exams_passed"], 1)
+
+    def test_course_exam_rejects_missing_prerequisites_and_missing_requirement(self) -> None:
+        blocked = self.client.post("/api/exam/start", json={"node_id": "ipv6-expert"})
+        self.assertEqual(blocked.status_code, 409, blocked.text)
+
+        no_requirement = self.client.post(
+            "/api/exam/start", json={"node_id": "intro-reseau-debutant"}
+        )
+        self.assertEqual(no_requirement.status_code, 409, no_requirement.text)
+
+    def test_invalid_payloads_and_unknown_sessions_are_rejected(self) -> None:
+        invalid_category = self.client.post("/api/exam/start", json={"category": " "})
+        self.assertEqual(invalid_category.status_code, 422, invalid_category.text)
+
+        unknown_category = self.client.post(
+            "/api/exam/start", json={"category": "Catégorie inexistante"}
+        )
+        self.assertEqual(unknown_category.status_code, 404, unknown_category.text)
+
+        unknown_session = self.client.post(
+            "/api/exam/submit", json={"session_id": "absent", "answers": []}
+        )
+        self.assertEqual(unknown_session.status_code, 404, unknown_session.text)
+
+
+if __name__ == "__main__":
+    unittest.main()
