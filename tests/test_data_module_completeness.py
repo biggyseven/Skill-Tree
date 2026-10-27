@@ -48,5 +48,24 @@ class DataModuleResourceCompletenessTests(unittest.TestCase):
                     positions.add(answer)
                 self.assertGreaterEqual(len(positions), 3, f"{quiz.name}: positions de réponses trop prévisibles")
 
+    def test_relational_basics_track_has_three_cumulative_levels(self):
+        by_id = {node["id"]: node for node in self.data_nodes}
+        expected = {
+            "data-bases-debutant": [],
+            "data-bases-intermediaire": ["data-bases-debutant"],
+            "data-bases-expert": ["data-bases-intermediaire"],
+            "data-sql-1-debutant": ["data-bases-expert"],
+        }
+        for node_id, prereqs in expected.items():
+            with self.subTest(node_id=node_id):
+                self.assertIn(node_id, by_id)
+                self.assertEqual(by_id[node_id].get("prereqs", []), prereqs)
+        self.assertLess(by_id["data-bases-debutant"]["order"],
+                        by_id["data-bases-intermediaire"]["order"])
+        self.assertLess(by_id["data-bases-intermediaire"]["order"],
+                        by_id["data-bases-expert"]["order"])
+        self.assertLess(by_id["data-bases-expert"]["order"],
+                        by_id["data-sql-1-debutant"]["order"])
+
 if __name__ == "__main__":
     unittest.main()
