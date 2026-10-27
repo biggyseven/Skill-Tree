@@ -1,0 +1,66 @@
+{
+  "node_id": "data-bigdata-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une tâche Spark est beaucoup plus lente que les autres alors que les executors semblent disponibles. Quelle hypothèse faut-il prioritairement examiner ?",
+      "choices": [
+        "Un skew de clés qui concentre les lignes ou le calcul dans une partition dominante",
+        "La nécessité de doubler systématiquement le nombre d'executors",
+        "Une preuve que HDFS ne réplique pas les fichiers",
+        "Un problème corrigé automatiquement en désactivant les contrôles de qualité"
+      ],
+      "answer": 0,
+      "explanation": "Une distribution très inégale peut laisser une tâche dominante ralentir tout le stage. Examiner le nombre de lignes par clé, la taille des partitions, le shuffle et les tâches lentes avant de choisir une stratégie de rééquilibrage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une nouvelle tentative d'un job distribué peut-elle créer des doublons dans la sortie ?",
+      "choices": [
+        "Parce que tous les frameworks garantissent un seul essai par tâche",
+        "Parce qu'une panne peut survenir après une écriture mais avant l'acquittement, ce qui fait rejouer une opération non idempotente",
+        "Parce que les fichiers colonnaires interdisent les identifiants",
+        "Parce que le driver n'utilise jamais de plan de calcul"
+      ],
+      "answer": 1,
+      "explanation": "Si l'effet de sortie a été effectué mais que le système croit l'étape inachevée, une nouvelle tentative peut le répéter. La conception doit isoler les sorties, utiliser des identifiants, assurer l'idempotence et publier le lot après validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'effet probable d'un très grand nombre de petits fichiers dans un stockage HDFS ?",
+      "choices": [
+        "Une garantie de latence plus basse pour tous les jobs",
+        "La disparition du besoin de métadonnées",
+        "Une surcharge des métadonnées et de la planification, qui peut justifier un compactage contrôlé",
+        "L'impossibilité de reproduire les résultats"
+      ],
+      "answer": 2,
+      "explanation": "Chaque fichier ajoute des métadonnées et du travail de planification. Un compactage adapté peut aider les traitements de masse, mais doit lui-même être idempotent, surveillé et compatible avec les consommateurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est la plus appropriée pour comparer deux versions d'un pipeline Spark ?",
+      "choices": [
+        "Comparer uniquement la durée totale d'un lancement",
+        "Mesurer un seul cas minuscule et ignorer les résultats",
+        "Augmenter les ressources jusqu'à masquer tout écart",
+        "Utiliser des données et paramètres représentatifs, comparer exactitude, plans, temps, shuffle, ressources et effets de reprise"
+      ],
+      "answer": 3,
+      "explanation": "Une comparaison pertinente doit couvrir la sémantique et le coût réel. Le volume, la distribution, les paramètres, la concurrence et les conditions de cache peuvent changer le résultat ; une seule mesure ne permet pas de conclure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas collecter sans limite un DataFrame distribué sur le driver ?",
+      "choices": [
+        "Parce que le résultat peut dépasser la mémoire du driver et annuler l'avantage du calcul distribué",
+        "Parce que Spark ne peut jamais retourner une seule ligne",
+        "Parce que collect transforme automatiquement les données en sauvegarde",
+        "Parce que le driver ne participe pas à la planification"
+      ],
+      "answer": 0,
+      "explanation": "La collecte ramène les lignes vers un seul processus, qui peut être saturé en mémoire et en réseau. Garder le calcul distribué, écrire les résultats ou limiter l'extraction à un petit résultat connu est plus approprié."
+    }
+  ]
+}
