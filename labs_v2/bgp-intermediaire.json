@@ -1,0 +1,295 @@
+{
+  "schema_version": 2,
+  "id": "bgp-intermediaire",
+  "title": "BGP — eBGP entre trois AS",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Rétablissez l’échange de routes entre les AS 65001, 65002 et 65003. Configurez les voisins eBGP, les AS locaux/distants et les préfixes annoncés. Les liens de transit sont déjà adressés.",
+  "objectives": [
+    "Activer BGP sur chaque routeur de bordure.",
+    "Configurer les couples neighbor/remote-as.",
+    "Annoncer les préfixes LAN nécessaires.",
+    "Vérifier les voisins sur les deux liens de transit."
+  ],
+  "hints": [
+    "En eBGP, l’AS distant doit correspondre à l’AS réel du voisin.",
+    "Les deux extrémités doivent utiliser les adresses du lien de transit.",
+    "N’annoncez que les préfixes attendus."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-bgp-intermediaire",
+    "metadata": {
+      "name": "eBGP entre trois systèmes autonomes",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 200,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "bgp",
+              "enabled": false,
+              "local_as": 65001,
+              "neighbor": "10.0.12.2",
+              "remote_as": 65002,
+              "networks": [
+                "192.168.10.0/24"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 480,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "bgp",
+              "enabled": true,
+              "local_as": 65002,
+              "neighbor": "10.0.12.1",
+              "remote_as": 65001,
+              "networks": [
+                "10.0.12.0/30"
+              ]
+            },
+            {
+              "protocol": "bgp",
+              "enabled": true,
+              "local_as": 65002,
+              "neighbor": "10.0.23.2",
+              "remote_as": 65003,
+              "networks": [
+                "10.0.23.0/30"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 760,
+        "y": 220,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "bgp",
+              "enabled": true,
+              "local_as": 65003,
+              "neighbor": "10.0.23.1",
+              "remote_as": 65002,
+              "networks": [
+                "192.168.30.0/24"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "AS1-AS2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "AS2-AS3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "bgp-enabled",
+        "description": "eBGP est activé sur R1.",
+        "device": "R1",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "bgp-local-as",
+        "description": "R1 utilise l’AS local 65001.",
+        "device": "R1",
+        "path": "config.routes[0].local_as",
+        "operator": "equals",
+        "expected": 65001
+      },
+      {
+        "id": "bgp-neighbor",
+        "description": "R1 pointe vers son voisin R2.",
+        "device": "R1",
+        "path": "config.routes[0].neighbor",
+        "operator": "equals",
+        "expected": "10.0.12.2"
+      },
+      {
+        "id": "bgp-remote-as",
+        "description": "R1 utilise l’AS distant 65002.",
+        "device": "R1",
+        "path": "config.routes[0].remote_as",
+        "operator": "equals",
+        "expected": 65002
+      },
+      {
+        "id": "bgp-network",
+        "description": "R1 annonce le préfixe LAN attendu.",
+        "device": "R1",
+        "path": "config.routes[0].networks",
+        "operator": "contains",
+        "expected": "192.168.10.0/24"
+      },
+      {
+        "id": "bgp-r2-r3",
+        "description": "R2 utilise le bon voisin pour R3.",
+        "device": "R2",
+        "path": "config.routes[1].neighbor",
+        "operator": "equals",
+        "expected": "10.0.23.2"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
