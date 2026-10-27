@@ -1,0 +1,126 @@
+{
+  "node_id": "maint-preventive-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif principal de la maintenance préventive ?",
+      "choices": [
+        "Garantir qu'aucune panne ne surviendra jamais",
+        "Réduire les risques de défaillance et détecter les dérives avant qu'elles ne perturbent le service",
+        "Remplacer systématiquement tous les composants chaque mois",
+        "Traiter uniquement les incidents déjà déclarés par les utilisateurs"
+      ],
+      "answer": 1,
+      "explanation": "La maintenance préventive cherche à réduire la probabilité ou les conséquences des défaillances. Elle diminue le risque sans garantir l'absence totale de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle situation relève le plus clairement de la maintenance corrective ?",
+      "choices": [
+        "Vérifier chaque semaine l'état des sauvegardes selon une procédure",
+        "Contrôler une tendance de température avant dépassement du seuil",
+        "Réparer un équipement après une panne constatée",
+        "Planifier une inspection selon la documentation du fabricant"
+      ],
+      "answer": 2,
+      "explanation": "La maintenance corrective intervient pour traiter une défaillance ou un défaut déjà constaté, tandis que la maintenance préventive agit en amont."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment choisir une fréquence de contrôle préventif adaptée à un équipement ?",
+      "choices": [
+        "Utiliser la même fréquence pour tous les actifs",
+        "Choisir la fréquence la plus élevée possible, quel que soit le coût",
+        "Copier la fréquence d'un autre site sans vérifier les différences",
+        "Tenir compte des recommandations du fabricant, de la criticité, de l'environnement et des observations"
+      ],
+      "answer": 3,
+      "explanation": "Une fréquence doit être justifiée par des recommandations, le risque et les données d'exploitation. Elle peut être ajustée lorsque les résultats apportent de nouvelles informations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une intervention planifiée qui peut affecter un service de production, que faut-il faire ?",
+      "choices": [
+        "Confirmer le périmètre, les autorisations, les risques, la fenêtre de travail et le retour arrière prévu",
+        "Commencer immédiatement pour réduire la durée de préparation",
+        "Supposer que la dernière sauvegarde est exploitable sans la vérifier selon la procédure",
+        "Informer les utilisateurs seulement si l'intervention échoue"
+      ],
+      "answer": 0,
+      "explanation": "La préparation confirme que l'action est autorisée, que son impact est maîtrisé et qu'une méthode de vérification ou de retour arrière est définie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une tâche de sauvegarde apparaît comme réussie dans la console. Quelle vérification donne une preuve plus solide de la capacité de récupération ?",
+      "choices": [
+        "Renommer le fichier du journal",
+        "Vérifier uniquement que le voyant du serveur est vert",
+        "Réaliser un essai de restauration autorisé dans un environnement adapté",
+        "Supprimer l'ancien jeu de sauvegarde pour vérifier qu'il est nécessaire"
+      ],
+      "answer": 2,
+      "explanation": "Le statut d'une tâche ne prouve pas à lui seul que les données pourront être restaurées. Un essai de restauration contrôlé vérifie le processus de récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La supervision indique que l'espace disque d'un serveur diminue régulièrement, sans être encore saturé. Quelle est la meilleure réaction ?",
+      "choices": [
+        "Supprimer immédiatement les fichiers les plus volumineux sans identifier leur usage",
+        "Mesurer la tendance, vérifier les seuils et planifier une action approuvée avant la saturation",
+        "Ignorer l'indicateur tant qu'aucun utilisateur ne se plaint",
+        "Redémarrer le serveur tous les jours"
+      ],
+      "answer": 1,
+      "explanation": "La mesure de la tendance permet d'estimer le risque et de préparer une action documentée sans supprimer des données ni interrompre le service de manière improvisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pendant une inspection, tu repères une odeur de brûlé près d'un équipement électrique. Que dois-tu faire ?",
+      "choices": [
+        "Ouvrir le bloc d'alimentation pour localiser la panne",
+        "Toucher les composants pour trouver celui qui chauffe",
+        "Continuer l'inspection puis signaler le problème en fin de journée",
+        "Arrêter les manipulations, éviter tout contact dangereux et appliquer la procédure d'alerte du site"
+      ],
+      "answer": 3,
+      "explanation": "Un signe de danger électrique ou thermique exige de ne pas improviser. Il faut protéger les personnes et solliciter la personne compétente selon la procédure applicable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble d'informations rend une fiche de tâche préventive réellement exploitable ?",
+      "choices": [
+        "L'actif visé, l'objectif, la fréquence justifiée, le responsable, les prérequis, les risques et les critères de réussite",
+        "Le nom du technicien uniquement",
+        "Une date récurrente sans description ni critère de contrôle",
+        "Une liste de commandes copiée sans indiquer les conditions d'utilisation"
+      ],
+      "answer": 0,
+      "explanation": "Une fiche complète permet de préparer et d'exécuter la tâche de façon cohérente, d'identifier les conditions de sécurité et de juger le résultat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un indicateur montre que 100 % des tâches planifiées ont été réalisées ce mois-ci. Que peut-on conclure ?",
+      "choices": [
+        "Le service ne pourra plus connaître de panne",
+        "Toutes les tâches ont nécessairement réduit le risque attendu",
+        "Le taux d'exécution est bon, mais il faut aussi étudier les anomalies, les incidents, les indisponibilités et les tendances",
+        "Le programme peut être arrêté jusqu'au mois prochain"
+      ],
+      "answer": 2,
+      "explanation": "Le taux d'exécution mesure le respect du calendrier, pas à lui seul l'efficacité. Il doit être complété par des résultats opérationnels et une analyse des anomalies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une anomalie apparaît pendant une tâche préventive, et sa résolution dépasse ton autorisation ou tes compétences. Quelle est la meilleure conduite ?",
+      "choices": [
+        "Modifier d'autres paramètres jusqu'à disparition de l'alerte",
+        "Documenter les faits et les résultats, sécuriser la situation et escalader selon la procédure",
+        "Fermer la tâche comme réussie pour respecter le calendrier",
+        "Masquer l'alerte afin qu'elle ne réapparaisse plus"
+      ],
+      "answer": 1,
+      "explanation": "Il faut conserver des observations fiables, éviter les changements non autorisés et transmettre le dossier au bon interlocuteur. La tâche ne doit pas être déclarée réussie si ses critères ne sont pas remplis."
+    }
+  ]
+}
