@@ -326,6 +326,47 @@ Le comité de direction demande de démontrer que quatre services critiques peuv
 
 **Correction attendue.** Une solution experte ne se contente pas de choisir une option ; elle compare les scénarios, fixe les critères avant le résultat, documente les responsabilités et signale les informations manquantes. Elle prévoit les conditions d'arrêt, les mesures temporaires, la communication, les dépendances et la vérification de fin. Le plan d'action est réaliste, ses résultats sont mesurables et le risque résiduel est soumis à une personne habilitée.
 
+
+## Modèle approfondi — dossier de situation et runbook de reprise
+
+La documentation de crise doit être opérationnelle sous pression. Un premier document présente la situation courante ; un second décrit les gestes de reprise autorisés. Les deux documents sont liés, mais ils ne se remplacent pas. Le dossier de situation est mis à jour à mesure que les faits évoluent. Le runbook décrit une séquence testée ou à tester, avec les prérequis et les conditions d'arrêt.
+
+### Exemple de matrice de continuité
+
+| Service fictif | Fonction métier | Objectif RTO validé | Objectif RPO validé | Dépendances à confirmer | Preuve de retour au service |
+|---|---|---:|---:|---|---|
+| Portail de demandes | Enregistrer les demandes courantes | 4 h | 1 h | Identité, DNS, base de données | Création et consultation d'une demande de test |
+| Gestion de stock | Préparer les pièces | 8 h | 4 h | Réseau, catalogue, base de stock | Transaction de stock rapprochée |
+| Authentification | Accès aux outils internes | 2 h | 30 min | Réplication, clés, postes d'administration | Connexion d'un compte test et journaux attendus |
+| Supervision | Détecter les dégradations | 3 h | 1 h | Collecteurs, réseau d'administration, stockage | Événement synthétique reçu et routé |
+
+Ces chiffres sont illustratifs et ne doivent pas être adoptés sans BIA et validation. Les objectifs sont propres aux services ; ils ne sont pas des promesses garanties par le seul fait d'être inscrits dans le plan. La preuve de restauration doit utiliser des scénarios sûrs, des comptes de test et un environnement prévu à cet effet.
+
+### Fiche de situation commune
+
+Une fiche courte et horodatée comprend : identifiant de crise, heure d'activation, responsable de coordination, services touchés, impacts confirmés, impacts possibles, actions en cours, décisions prises, risques d'aggravation, dépendances indisponibles, options évaluées, ressources demandées, personnes à informer et heure du prochain point. Chaque action porte un responsable nominatif ou un rôle, une échéance et un critère de fin. Les champs inconnus sont indiqués comme inconnus ; ils ne sont pas remplis par intuition.
+
+Une décision peut être documentée sous la forme suivante : « À 10 h 25, la cellule autorise la restauration du service de stock dans l'environnement de secours, car la source de sauvegarde a passé le contrôle d'intégrité défini. L'exécution reste suspendue jusqu'à confirmation de la clé de déchiffrement et de la disponibilité du réseau d'administration. La décision sera revue si les mesures d'intégrité divergent. » Cette formulation explicite la condition de départ, la décision, les limites et le point de réexamen.
+
+### Choisir le type d'exercice
+
+| Type de test | Ce qu'il peut démontrer | Limite typique |
+|---|---|---|
+| Revue documentaire | Clarté, contacts, versions, décisions et couverture déclarée | Ne démontre pas que les actions fonctionnent |
+| Exercice sur table | Rôles, priorités, communication et arbitrages | Ne mesure pas le temps technique réel de restauration |
+| Test de composant isolé | Fonctionnement d'une étape, d'un export ou d'un accès de secours | Ne démontre pas la chaîne complète |
+| Restauration dans un environnement isolé | Cohérence des données et étapes techniques avec un scénario donné | Peut omettre la capacité et les dépendances de production |
+| Bascule contrôlée | Comportement opérationnel et temps dans le périmètre testé | Requiert une autorisation renforcée et une méthode de retour |
+
+Pour chaque exercice, annoncer les objectifs avant le scénario. Éviter de confondre les objectifs d'entraînement et une évaluation imprévue des personnes. Les observateurs relèvent les délais, les décisions, les ressources manquantes, les écarts de communication et le besoin d'une action. Les réussites sont aussi documentées : une procédure efficace doit être conservée et réutilisée.
+
+### Critères de passage d'un jalon de reprise
+
+Chaque jalon comporte quatre vérifications : l'étape technique est achevée, les données répondent aux critères d'intégrité, les dépendances sont disponibles et le propriétaire métier confirme le service attendu. Un système peut répondre à un test réseau alors que l'application ne permet pas d'effectuer une opération. Si un critère n'est pas atteint, la procédure prévoit d'arrêter le jalon, de préserver les preuves, d'informer la cellule et de choisir la mitigation approuvée.
+
+La sortie de crise doit également être formelle. Elle tient compte du rétablissement, des opérations encore en mode dégradé, des risques qui restent acceptés, des tâches de rapprochement des données et de la capacité d'exploitation. La cellule ne doit pas être dissoute simplement parce que les graphes sont revenus au vert ; les responsables métier et techniques vérifient que les conditions de retour sont respectées, puis les actions restantes sont attribuées.
+
+
 ## Ressources techniques et références
 
 - [ISO 22301 — systèmes de management de la continuité d'activité](https://www.iso.org/standard/75106.html)
