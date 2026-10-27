@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger des procédures et checklists » ?",
+      "prompt": "Quel élément rend une procédure réellement exécutable ?",
       "choices": [
-        "Le sujet principal du cours : Rédiger des procédures et checklists",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Une description très générale",
+        "Un long paragraphe sans résultat attendu",
+        "Des prérequis, des étapes, des points de contrôle et des résultats attendus",
+        "Un nom de fichier seul"
+      ],
+      "answer": 2,
+      "explanation": "Une procédure opérationnelle donne des étapes vérifiables et une conduite à tenir en cas d'écart."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un point d'arrêt ?",
+      "choices": [
+        "À empêcher la poursuite quand une condition de sécurité n'est pas satisfaite",
+        "À accélérer toute exécution sans contrôle",
+        "À remplacer l'autorisation",
+        "À supprimer la nécessité de preuve"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le point d'arrêt formalise la décision de ne pas continuer tant que le risque reste ouvert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi préciser le résultat attendu à chaque étape ?",
+      "choices": [
+        "Pour multiplier les pages",
+        "Pour éviter le recours aux commandes",
+        "Pour remplacer les journaux",
+        "Pour permettre de détecter un écart et reprendre le travail sans ambiguïté"
+      ],
+      "answer": 3,
+      "explanation": "Le résultat attendu guide la décision de poursuivre ou d'arrêter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'un retour arrière ?",
+      "choices": [
+        "Supprimer les preuves",
+        "Rétablir un état stable lorsque les critères de réussite ne sont pas atteints",
+        "Permettre d'agir sans autorisation",
+        "Faire disparaître les tickets"
+      ],
+      "answer": 1,
+      "explanation": "Le retour arrière doit être adapté, documenté et suffisamment testé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une procédure doit-elle être revue ?",
+      "choices": [
+        "Uniquement quand son auteur change de poste",
+        "Jamais si elle est en PDF",
+        "Après les changements d'outils, les incidents, les écarts et selon une revue planifiée",
+        "Seulement quand elle dépasse dix pages"
+      ],
+      "answer": 2,
+      "explanation": "Les procédures doivent refléter l'environnement réel et la version active des outils."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on consigner pour une exception ?",
+      "choices": [
+        "Le constat, le risque, la décision, l'approbation et le suivi",
+        "Rien, car elle est exceptionnelle",
+        "Le nom de la personne à blâmer",
+        "Un simple emoji"
+      ],
+      "answer": 0,
+      "explanation": "Une exception doit rester visible et traçable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment réduire les ambiguïtés d'une checklist ?",
+      "choices": [
+        "Ajouter des cases sans explication",
+        "Remplacer tous les verbes par des acronymes",
+        "Supprimer les critères de conformité",
+        "Formuler chaque contrôle avec une condition vérifiable et une action en cas d'échec"
+      ],
+      "answer": 3,
+      "explanation": "Le contrôle doit être interprété de la même manière par plusieurs techniciens."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi versionner les procédures dans Git ou un outil équivalent ?",
+      "choices": [
+        "Pour obliger à modifier la production à chaque changement",
+        "Pour tracer les modifications, leurs auteurs, leurs revues et les versions actives",
+        "Pour éliminer l'approbation",
+        "Pour rendre les fichiers secrets par défaut"
+      ],
+      "answer": 1,
+      "explanation": "Le versionnement permet audit, comparaison et retour à une version antérieure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'une preuve de validation ?",
+      "choices": [
+        "Un avis oral non daté",
+        "La fermeture automatique du ticket",
+        "Un résultat observé, daté et relié au critère d'acceptation",
+        "Le simple début de la commande"
+      ],
+      "answer": 2,
+      "explanation": "Une preuve doit montrer que le résultat requis a été vérifié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test améliore le mieux une procédure ?",
+      "choices": [
+        "Demander à un technicien non auteur de l'exécuter dans un environnement adapté",
+        "Lire uniquement le titre",
+        "Vérifier uniquement le nombre de pages",
+        "La publier sans revue"
+      ],
+      "answer": 0,
+      "explanation": "Un essai par un autre intervenant révèle les implicites et les étapes mal décrites."
     }
   ]
 }
