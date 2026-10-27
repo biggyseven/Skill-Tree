@@ -21,7 +21,10 @@ from .engine import BADGE_DEFINITIONS, DomainError, SkillTree
 from .lab_schema_v2 import (
     CheckDefinition,
     CheckRequest,
+    Device,
     LabDefinition,
+    Link,
+    Port,
     SubmitRequest,
     Topology,
     model_to_dict,
@@ -93,6 +96,219 @@ def _database_connection() -> sqlite3.Connection:
         raise HTTPException(status_code=503, detail=f"Base SQLite indisponible : {error}")
 
 
+
+def _ensure_extended_practice_topology(definition: LabDefinition) -> None:
+    """Ajoute une branche réseau riche sans remplacer le scénario évalué.
+
+    La branche comprend 8 postes, 4 serveurs, un switch, un pare-feu, un routeur
+    et un cloud, avec 16 liaisons. Les contrôles notés gardent leurs équipements
+    et leurs ports d'origine ; ces équipements supplémentaires servent à explorer
+    le câblage et la configuration dans le même atelier.
+    """
+    topology = definition.initial_topology
+    if not topology.nodes or any(node.id == "EXT-SW1" for node in topology.nodes):
+        return
+
+    root = next((node for node in topology.nodes if node.type == "switch"), None)
+    if root is None:
+        root = next((node for node in topology.nodes if node.type == "router"), None)
+    if root is None:
+        root = next((node for node in topology.nodes if node.type == "firewall"), None)
+    if root is None:
+        root = topology.nodes[0]
+
+    port_prefix = "Fa0/" if root.type in {"switch", "router"} else "eth"
+    used_ports = {
+        value
+        for port in root.ports
+        for value in (port.id, port.name)
+        if value
+    }
+    root_port = next(
+        (
+            f"{port_prefix}{index}"
+            for index in range(1, 257)
+            if f"{port_prefix}{index}" not in used_ports
+        ),
+        f"{port_prefix}ext",
+    )
+    root_mode = (
+        "trunk" if root.type == "switch"
+        else "routed" if root.type in {"router", "firewall", "cloud"}
+        else "access"
+    )
+    root.ports.append(
+        Port(
+            id=root_port,
+            name=root_port,
+            state="up",
+            speed=1000,
+            mode=root_mode,
+            description="Liaison vers la branche réseau complémentaire",
+        )
+    )
+
+    xs = [float(node.x) for node in topology.nodes]
+    ys = [float(node.y) for node in topology.nodes]
+    center_x = (min(xs) + max(xs)) / 2 if xs else 500.0
+    max_y = max(ys) if ys else 250.0
+    switch_y = max_y + 160
+    pc_y = max_y + 310
+    server_y = max_y + 450
+    edge_y = max_y + 600
+
+    def make_port(port_id: str, mode: str, description: str) -> Port:
+        return Port(
+            id=port_id,
+            name=port_id,
+            state="up",
+            speed=1000,
+            mode=mode,
+            description=description,
+        )
+
+    def make_device(
+        device_id: str,
+        device_type: str,
+        model: str,
+        x: float,
+        y: float,
+        ports: list[Port],
+    ) -> Device:
+        return Device(
+            id=device_id,
+            type=device_type,
+            model=model,
+            x=x,
+            y=y,
+            label=device_id,
+            ports=ports,
+            config={"hostname": device_id},
+        )
+
+    switch_ports = [
+        make_port("Fa0/1", "trunk", "Uplink vers la topologie du cours")
+    ]
+    for index in range(1, 9):
+        switch_ports.append(
+            make_port(f"Fa0/{index + 1}", "access", f"Poste EXT-PC{index:02d}")
+        )
+    for index in range(1, 5):
+        switch_ports.append(
+            make_port(f"Fa0/{index + 9}", "access", f"Serveur EXT-SRV{index:02d}")
+        )
+    switch_ports.append(make_port("Fa0/14", "access", "Pare-feu EXT-FW1"))
+
+    extension_devices: list[Device] = [
+        make_device(
+            "EXT-SW1", "switch", "generic-24-port-switch",
+            center_x, switch_y, switch_ports,
+        )
+    ]
+
+    for index in range(1, 9):
+        x = max(0.0, center_x + (index - 4.5) * 150)
+        extension_devices.append(
+            make_device(
+                f"EXT-PC{index:02d}", "pc", "generic-pc",
+                x, pc_y,
+                [make_port("eth0", "access", "Accès réseau utilisateur")],
+            )
+        )
+
+    for index in range(1, 5):
+        x = center_x + (index - 2.5) * 240
+        extension_devices.append(
+            make_device(
+                f"EXT-SRV{index:02d}", "server", "generic-server",
+                x, server_y,
+                [make_port("eth0", "access", "Interface serveur")],
+            )
+        )
+
+    extension_devices.extend([
+        make_device(
+            "EXT-FW1", "firewall", "generic-firewall",
+            center_x - 220, edge_y,
+            [
+                make_port("eth0", "access", "Vers le switch de distribution"),
+                make_port("eth1", "routed", "Vers le routeur de sortie"),
+            ],
+        ),
+        make_device(
+            "EXT-R1", "router", "generic-router",
+            center_x, edge_y,
+            [
+                make_port("Fa0/0", "routed", "Vers le pare-feu"),
+                make_port("Fa0/1", "routed", "Vers le cloud"),
+            ],
+        ),
+        make_device(
+            "EXT-CLOUD1", "cloud", "generic-cloud",
+            center_x + 220, edge_y,
+            [make_port("eth0", "routed", "Accès WAN simulé")],
+        ),
+    ])
+
+    def make_link(
+        link_id: str,
+        source_node: str,
+        source_port: str,
+        target_node: str,
+        target_port: str,
+        cable_type: str = "copper_straight",
+    ) -> Link:
+        return Link(
+            id=link_id,
+            from_endpoint={"node": source_node, "port": source_port},
+            to_endpoint={"node": target_node, "port": target_port},
+            cable_type=cable_type,
+            state="up",
+            bandwidth=1000,
+            latency_ms=1,
+        )
+
+    extension_links = [
+        make_link(
+            "EXT-LINK-CORE-SW", root.id, root_port,
+            "EXT-SW1", "Fa0/1",
+            "fiber" if root.type == "switch" else "copper_straight",
+        )
+    ]
+    for index in range(1, 9):
+        extension_links.append(
+            make_link(
+                f"EXT-LINK-PC{index:02d}",
+                "EXT-SW1", f"Fa0/{index + 1}",
+                f"EXT-PC{index:02d}", "eth0",
+            )
+        )
+    for index in range(1, 5):
+        extension_links.append(
+            make_link(
+                f"EXT-LINK-SRV{index:02d}",
+                "EXT-SW1", f"Fa0/{index + 9}",
+                f"EXT-SRV{index:02d}", "eth0",
+            )
+        )
+    extension_links.extend([
+        make_link("EXT-LINK-SW-FW", "EXT-SW1", "Fa0/14", "EXT-FW1", "eth0"),
+        make_link("EXT-LINK-FW-R", "EXT-FW1", "eth1", "EXT-R1", "Fa0/0"),
+        make_link("EXT-LINK-R-CLOUD", "EXT-R1", "Fa0/1", "EXT-CLOUD1", "eth0"),
+    ])
+
+    topology.nodes.extend(extension_devices)
+    topology.links.extend(extension_links)
+    hint = (
+        "La branche EXT-SW1 ajoute 16 équipements et 16 liaisons physiques "
+        "(8 postes, 4 serveurs, pare-feu, routeur et cloud). Elle sert à explorer "
+        "le câblage et le matériel ; les contrôles notés restent centrés sur les "
+        "équipements explicitement visés par la mission."
+    )
+    if not any("branche EXT-SW1" in item for item in definition.hints):
+        definition.hints.append(hint)
+
+
 def _lab_payload_from_definition(
     lab_id: str,
     definition: LabDefinition,
@@ -100,6 +316,7 @@ def _lab_payload_from_definition(
     schema_version: int = 2,
 ) -> dict[str, Any]:
     """Normalise la réponse du lab pour les clients du Lab Workspace."""
+    _ensure_extended_practice_topology(definition)
     return {
         "id": lab_id,
         "schema_version": schema_version,

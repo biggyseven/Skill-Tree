@@ -137,11 +137,16 @@ class LabWorkspaceHttpFlowTests(unittest.TestCase):
             self.assertFalse(payload.get("sandbox", False))
             self.assertEqual(payload["id"], "ipv4-debutant")
             topology = payload["initial_topology"]
+            node_ids = {node["id"] for node in topology["nodes"]}
+            self.assertTrue({"PC-A", "SW1", "PC-B"}.issubset(node_ids))
+            self.assertEqual(len(topology["nodes"]), 19)
+            self.assertEqual(len(topology["links"]), 18)
             self.assertEqual(
-                [node["id"] for node in topology["nodes"]],
-                ["PC-A", "SW1", "PC-B"],
+                sum(node_id.startswith("EXT-") for node_id in node_ids), 16
             )
-            self.assertEqual(len(topology["links"]), 2)
+            self.assertEqual(
+                sum(link["id"].startswith("EXT-LINK-") for link in topology["links"]), 16
+            )
 
             saved = client.post(
                 "/api/lab/v2/ipv4-debutant/save",

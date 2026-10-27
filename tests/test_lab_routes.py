@@ -267,8 +267,14 @@ class LabValidationTests(unittest.TestCase):
         nodes = {node["id"]: node for node in topology["nodes"]}
 
         self.assertEqual(definition.title, "Filtrage et NAT sous Linux — nftables / iptables")
-        self.assertEqual(len(topology["nodes"]), 5)
-        self.assertEqual(len(topology["links"]), 4)
+        self.assertGreaterEqual(len(topology["nodes"]), 21)
+        self.assertGreaterEqual(len(topology["links"]), 20)
+        self.assertEqual(
+            sum(node["id"].startswith("EXT-") for node in topology["nodes"]), 16
+        )
+        self.assertEqual(
+            sum(link["id"].startswith("EXT-LINK-") for link in topology["links"]), 16
+        )
         self.assertEqual(nodes["FW1"]["type"], "firewall")
         self.assertEqual(len(definition.check.rules), 9)
         self.assertFalse(definition.initial_topology.nodes == [])
@@ -280,6 +286,28 @@ class LabValidationTests(unittest.TestCase):
         self.assertFalse(nat["enabled"])
         self.assertFalse(nat["masquerade"])
         self.assertEqual(nat["port_forward"][0]["destination_port"], 8080)
+
+
+    def test_every_course_lab_has_a_large_connected_practice_branch(self) -> None:
+        scenario_paths = sorted(lab_routes.LABS_V2_DIR.glob("*.json"))
+        self.assertGreaterEqual(len(scenario_paths), 30)
+        for path in scenario_paths:
+            with self.subTest(lab=path.stem):
+                payload = lab_routes._load_lab_file(path.stem)
+                self.assertIsNotNone(payload)
+                topology = payload["definition"].initial_topology
+                extension_nodes = {
+                    node.id for node in topology.nodes if node.id.startswith("EXT-")
+                }
+                extension_links = [
+                    link for link in topology.links if link.id.startswith("EXT-LINK-")
+                ]
+                self.assertEqual(len(extension_nodes), 16)
+                self.assertEqual(len(extension_links), 16)
+                all_node_ids = {node.id for node in topology.nodes}
+                for link in extension_links:
+                    self.assertIn(link.from_endpoint.node, all_node_ids)
+                    self.assertIn(link.to_endpoint.node, all_node_ids)
 
     def test_bom_json_lab_definition_loads(self) -> None:
         labs_dir = Path(self.temp_dir.name) / "labs_v2"
@@ -326,8 +354,16 @@ class LabValidationTests(unittest.TestCase):
         self.assertIn("Soumettre", definition.prompt)
         self.assertEqual(definition.check.type, "config_assertions")
         self.assertEqual(len(definition.check.rules), 8)
-        self.assertEqual([node.id for node in definition.initial_topology.nodes], ["PC-A", "SW1", "PC-B"])
-        self.assertEqual(len(definition.initial_topology.links), 2)
+        node_ids = {node.id for node in definition.initial_topology.nodes}
+        self.assertTrue({"PC-A", "SW1", "PC-B"}.issubset(node_ids))
+        self.assertGreaterEqual(len(node_ids), 19)
+        self.assertGreaterEqual(len(definition.initial_topology.links), 18)
+        self.assertEqual(
+            sum(node.id.startswith("EXT-") for node in definition.initial_topology.nodes), 16
+        )
+        self.assertEqual(
+            sum(link.id.startswith("EXT-LINK-") for link in definition.initial_topology.links), 16
+        )
 
     def test_empty_legacy_v2_definition_is_treated_as_sandbox(self) -> None:
         db_path = Path(self.temp_dir.name) / "empty-legacy-v2.sqlite3"
