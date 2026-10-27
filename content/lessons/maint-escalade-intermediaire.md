@@ -225,3 +225,24 @@ L'utilisateur réclame une priorité maximale, mais les faits indiquent un seul 
 Une modification réseau a interrompu l'accès à trois applications dans deux sites. Propose une organisation avec responsable d'incident, experts, communication, critères de changement de priorité, transfert et validation finale.
 
 **Correction :** désigner un coordinateur, créer une chronologie commune, lier les symptômes à un incident principal, assigner des tâches techniques parallèles, communiquer des faits confirmés à intervalle prévu et réserver une seule personne pour les messages externes. La priorité dépend du périmètre, des opérations bloquées et des alternatives. Un changement correctif est autorisé selon la procédure, puis les applications sont testées depuis les deux sites. Le ticket est clôturé uniquement lorsque les critères fonctionnels sont satisfaits et les actions restantes affectées.
+
+
+## 14. Adapter la communication à la pression opérationnelle
+
+Pendant une interruption majeure, les équipes peuvent recevoir des informations contradictoires. Désigne une source de vérité pour l'état du service et garde une chronologie commune. Les messages aux utilisateurs doivent indiquer ce qui est confirmé, le périmètre connu, le contournement disponible, la prochaine mise à jour et le canal de suivi. Ne publie pas chaque hypothèse technique comme si elle était la cause.
+
+Le coordinateur doit protéger le temps des personnes qui diagnostiquent. Les mises à jour peuvent être rédigées par un responsable de communication pendant que les spécialistes travaillent, ce qui limite les interruptions et les messages contradictoires. Les détails nécessaires au diagnostic restent dans le canal technique et le ticket d'incident ; seuls les éléments pertinents sont partagés à chaque audience.
+
+~~~mermaid
+flowchart LR
+    A[Sources techniques] --> B[Coordination de l'incident]
+    B --> C[État confirmé et incertitudes]
+    C --> D[Message utilisateurs]
+    C --> E[Priorités pour experts]
+    D --> F[Prochaine mise à jour annoncée]
+    E --> G[Diagnostic documenté]
+~~~
+
+Après rétablissement, vérifie que le transfert ne s'arrête pas à la fermeture du canal d'urgence. Les problèmes structurels, la rédaction d'un rapport, la validation des actions et la revue post-incident doivent avoir des responsables. L'équipe de support conserve la responsabilité du ticket ou confirme explicitement que le suivi est transféré.
+
+Une escalade de qualité est évaluée par sa pertinence, son délai, la complétude des informations, l'acceptation par la bonne équipe et le résultat. Le nombre brut de transferts ne prouve pas que le N1 est inefficace : les tickets complexes nécessitent légitimement une expertise. Les revues doivent chercher les transferts évitables, les mauvais aiguillages et les informations répétées, non punir les escalades justifiées.
