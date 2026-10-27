@@ -1,0 +1,281 @@
+{
+  "schema_version": 2,
+  "id": "eigrp-intermediaire",
+  "title": "EIGRP — AS 100 et annonces de réseaux",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Réactivez EIGRP dans l’AS 100 sur trois routeurs. Les interfaces sont adressées, mais R1 possède un numéro d’AS et un état de protocole incorrects.",
+  "objectives": [
+    "Activer EIGRP sur chaque routeur.",
+    "Utiliser un numéro d’AS cohérent.",
+    "Annoncer les LAN et les transit nécessaires.",
+    "Vérifier les voisins et préfixes reçus."
+  ],
+  "hints": [
+    "Un AS différent empêche l’adjacence.",
+    "Annoncez les réseaux réellement connectés.",
+    "Contrôlez le voisinage avant le test de bout en bout."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-eigrp-intermediaire",
+    "metadata": {
+      "name": "EIGRP AS 100 sur trois routeurs",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 200,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "eigrp",
+              "enabled": false,
+              "asn": 10,
+              "networks": [
+                "192.168.10.0/24"
+              ],
+              "passive_interfaces": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 490,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "eigrp",
+              "enabled": true,
+              "asn": 100,
+              "networks": [
+                "10.0.12.0/30",
+                "10.0.23.0/30"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 780,
+        "y": 220,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.30.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "eigrp",
+              "enabled": true,
+              "asn": 100,
+              "networks": [
+                "192.168.30.0/24"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "eigrp-protocol",
+        "description": "R1 utilise EIGRP.",
+        "device": "R1",
+        "path": "config.routes[0].protocol",
+        "operator": "equals",
+        "expected": "eigrp"
+      },
+      {
+        "id": "eigrp-enabled",
+        "description": "EIGRP est activé sur R1.",
+        "device": "R1",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "eigrp-asn",
+        "description": "Les routeurs utilisent le même AS 100.",
+        "device": "R1",
+        "path": "config.routes[0].asn",
+        "operator": "equals",
+        "expected": 100
+      },
+      {
+        "id": "eigrp-network",
+        "description": "R1 annonce son LAN.",
+        "device": "R1",
+        "path": "config.routes[0].networks",
+        "operator": "contains",
+        "expected": "192.168.10.0/24"
+      },
+      {
+        "id": "eigrp-middle-asn",
+        "description": "R2 reste dans l’AS 100.",
+        "device": "R2",
+        "path": "config.routes[0].asn",
+        "operator": "equals",
+        "expected": 100
+      },
+      {
+        "id": "eigrp-edge-asn",
+        "description": "R3 reste dans l’AS 100.",
+        "device": "R3",
+        "path": "config.routes[0].asn",
+        "operator": "equals",
+        "expected": 100
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
