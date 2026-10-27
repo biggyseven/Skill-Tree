@@ -4,147 +4,279 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Par quoi une transformation numérique doit-elle commencer ?",
+      "prompt": "Quel est le point de départ le plus robuste d'une transformation numérique ?",
       "choices": [
-        "Un résultat métier et un problème vérifiables",
-        "L'achat immédiat d'une plateforme",
-        "Un slogan de modernisation",
-        "La migration de toutes les applications"
-      ],
-      "answer": 0,
-      "explanation": "La transformation doit être reliée à une valeur et une baseline mesurable."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi stabiliser les processus avant de les automatiser ?",
-      "choices": [
-        "Pour augmenter le nombre d'étapes",
-        "Pour éviter de reproduire à grande échelle des règles incohérentes et des exceptions mal comprises",
-        "Pour éliminer les utilisateurs",
-        "Pour supprimer les contrôles"
+        "Le choix de l'outil le plus récent",
+        "Un résultat utilisateur ou métier et un problème vérifiable",
+        "Le remplacement simultané de tous les systèmes",
+        "Une annonce de réduction des coûts sans baseline"
       ],
       "answer": 1,
-      "explanation": "L'automatisation accélère aussi les erreurs si le processus n'est pas compris."
+      "explanation": "Le problème et le résultat permettent de comparer des options et de définir des preuves. Un produit ou une annonce de gain ne démontre pas à lui seul qu'une transformation est nécessaire."
     },
     {
       "type": "qcm",
-      "prompt": "Quel garde-fou est adapté à une IA qui suggère une catégorie de ticket ?",
+      "prompt": "Quelle différence essentielle sépare un livrable d'un résultat ?",
       "choices": [
-        "Elle doit modifier tous les tickets sans trace",
-        "Elle doit masquer sa source",
-        "Présenter une suggestion vérifiable, permettre le rejet humain et mesurer les erreurs",
-        "La laisser attribuer des privilèges automatiquement"
+        "Le livrable est toujours financier",
+        "Le résultat se mesure uniquement par le nombre d'utilisateurs",
+        "Le livrable est une capacité produite ; le résultat est l'effet observé sur le service ou l'utilisateur",
+        "Les deux termes sont strictement équivalents"
       ],
       "answer": 2,
-      "explanation": "Le contrôle humain et la traçabilité sont adaptés au risque de la classification."
+      "explanation": "La mise en production d'un portail est un livrable. La diminution d'une friction utilisateur ou d'un délai, mesurée de manière comparable, constitue un résultat."
     },
     {
       "type": "qcm",
-      "prompt": "Que faut-il vérifier lors d'une migration ITSM ?",
+      "prompt": "Pourquoi documenter la méthode de calcul d'une baseline ?",
       "choices": [
-        "Seulement l'apparence des écrans",
-        "Uniquement le nom des utilisateurs",
-        "Que les anciennes données soient supprimées rapidement",
-        "Mapping des statuts, liens, identifiants, permissions, intégrations, recette et retour arrière"
-      ],
-      "answer": 3,
-      "explanation": "La migration doit préserver le sens et l'intégrité des données et maintenir la continuité."
-    },
-    {
-      "type": "qcm",
-      "prompt": "À quoi sert un pilote ?",
-      "choices": [
-        "Tester dans un périmètre limité la valeur, la qualité, les risques et l'adoption avant extension",
-        "Prouver que tous les environnements fonctionnent",
-        "Remplacer les tests de sécurité",
-        "Justifier les coûts déjà engagés"
+        "Pour rendre explicites la population, les définitions, la période et les limites de comparaison",
+        "Pour garantir que la mesure augmentera après le projet",
+        "Pour éviter d'interroger les utilisateurs",
+        "Pour permettre de modifier les définitions après coup sans trace"
       ],
       "answer": 0,
-      "explanation": "Un pilote réduit le risque et fournit des preuves pour décider de la suite."
+      "explanation": "Sans définition, source et période stables, une différence avant-après peut venir d'un changement de collecte ou de population plutôt que de l'intervention."
     },
     {
       "type": "qcm",
-      "prompt": "Qu'est-ce que la dette technique ?",
+      "prompt": "Un bon score de priorisation suffit-il à autoriser une initiative qui échoue à un contrôle de sécurité obligatoire ?",
       "choices": [
-        "Un prêt financier uniquement",
-        "Le coût et le risque futurs d'options techniques qui rendent l'évolution ou l'exploitation plus difficiles",
-        "Un indicateur de satisfaction",
-        "Un type d'incident uniquement"
-      ],
-      "answer": 1,
-      "explanation": "La dette technique se manifeste par des changements plus coûteux, des risques ou des limites de maintenabilité."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi un cas d'usage d'IA doit-il être gouverné sur tout son cycle de vie ?",
-      "choices": [
-        "Pour éviter la validation humaine",
-        "Pour faire confiance aux sorties plausibles",
-        "Pour contrôler données, usage, risque, tests, surveillance et retrait",
-        "Pour supprimer la traçabilité"
-      ],
-      "answer": 2,
-      "explanation": "Les risques évoluent entre expérimentation, déploiement, exploitation et retrait."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel résultat prouve l'adoption d'un nouvel outil ?",
-      "choices": [
-        "La licence est activée",
-        "Le webinaire a été organisé",
-        "La page d'accueil est consultable",
-        "Les utilisateurs accomplissent les tâches attendues avec qualité et autonomie mesurées"
+        "Oui, si le bénéfice financier est important",
+        "Oui, si le sponsor est pressé",
+        "Oui, après un pilote sans utilisateurs",
+        "Non ; le score aide à comparer mais ne remplace pas les exigences et contrôles obligatoires"
       ],
       "answer": 3,
-      "explanation": "L'accès et la participation à la formation ne prouvent pas l'usage utile."
+      "explanation": "Un score agrégé ne permet pas de compenser arbitrairement une exigence non satisfaite. Le risque doit être corrigé ou l'initiative bloquée selon les règles applicables."
     },
     {
       "type": "qcm",
-      "prompt": "Que doit montrer une baseline ?",
+      "prompt": "Que doit préciser une matrice de décision pour éviter une gouvernance inefficace ?",
       "choices": [
-        "La performance avant changement selon un périmètre, une formule et une période définis",
-        "La cible choisie après déploiement",
-        "Les seuls résultats positifs",
-        "Un chiffre sans source"
+        "Un responsable final, les avis nécessaires, les preuves et le délai d'arbitrage",
+        "Un grand nombre de personnes à consulter sans propriétaire",
+        "Uniquement le nom du comité mensuel",
+        "Une approbation implicite par l'outil"
       ],
       "answer": 0,
-      "explanation": "Une baseline rend l'évaluation du changement plus crédible."
+      "explanation": "La gouvernance doit rendre la responsabilité et le chemin de décision explicites. Multiplier les personnes consultées sans nommer la décision finale crée des blocages."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle est une bonne pratique pour les dépenses cloud ?",
+      "prompt": "Quel est le risque principal d'automatiser un processus mal compris ?",
       "choices": [
-        "Attendre la facture annuelle",
-        "Attribuer les coûts, mettre des budgets et alertes et revoir les usages",
-        "Supprimer tous les logs",
-        "Ne jamais évaluer les ressources"
-      ],
-      "answer": 1,
-      "explanation": "La gouvernance financière doit être prévue et suivie pendant l'exploitation."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quand faut-il arrêter ou reprendre un pilote ?",
-      "choices": [
-        "Jamais, parce que le projet a commencé",
-        "Uniquement si les concurrents le font",
-        "Si des critères de sécurité, qualité ou valeur ne sont pas atteints et qu'une correction est nécessaire",
-        "Après que tout le budget soit dépensé"
+        "L'obligation de réduire le budget",
+        "L'élimination certaine des erreurs",
+        "La reproduction et l'amplification rapide de règles incohérentes et d'exceptions mal gérées",
+        "La disparition de tout besoin de contrôle"
       ],
       "answer": 2,
-      "explanation": "La poursuite doit dépendre des preuves et critères, pas uniquement des coûts déjà engagés."
+      "explanation": "L'automatisation augmente la vitesse et l'échelle d'exécution, mais ne rend pas une règle correcte. Il faut comprendre les exceptions et préserver les contrôles pertinents."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi prévoir la réversibilité au design ?",
+      "prompt": "Quel est un élément indispensable d'une intégration de production fiable ?",
       "choices": [
-        "Pour rendre l'outil inutile",
-        "Pour empêcher toute évolution",
-        "Pour garder les accès fournisseurs à vie",
-        "Pour organiser la portabilité, le remplacement, les données et la fin des accès"
+        "Des reprises illimitées quelles que soient les erreurs",
+        "Des contrats de données, identifiants de corrélation, reprises contrôlées et mécanismes de réconciliation",
+        "La suppression de tous les journaux",
+        "La supposition qu'une réponse positive prouve l'effet métier"
+      ],
+      "answer": 1,
+      "explanation": "Les intégrations doivent traiter doublons, retards, erreurs et évolutions de schéma. Un accusé technique ne garantit pas toujours que le résultat métier attendu a eu lieu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment sélectionner une stratégie de modernisation cloud ?",
+      "choices": [
+        "Appliquer la même stratégie à chaque application",
+        "Migrer tout ce qui fonctionne encore",
+        "Choisir toujours l'option au coût de calcul affiché le plus bas",
+        "Évaluer chaque workload selon sa criticité, ses dépendances, ses coûts complets, ses risques et sa réversibilité"
       ],
       "answer": 3,
-      "explanation": "La réversibilité est plus facile à préparer avant de créer une dépendance."
+      "explanation": "Les charges ont des besoins et contraintes différents. Le coût complet et la capacité d'exploitation doivent être examinés avec la valeur et les dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas assimiler une baisse du coût de calcul à une baisse du coût total ?",
+      "choices": [
+        "Parce que le réseau, les licences, les transferts, le support, la migration et la sortie peuvent augmenter",
+        "Parce que les factures cloud ne sont jamais mesurables",
+        "Parce que le coût total n'inclut pas l'exploitation",
+        "Parce qu'une baisse de calcul prouve nécessairement une hausse des coûts"
+      ],
+      "answer": 0,
+      "explanation": "Le coût total inclut d'autres postes sur le cycle de vie. Une baisse locale peut être compensée par les données transférées, les licences ou le double fonctionnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information doit être définie pour chaque donnée de référence importante ?",
+      "choices": [
+        "Uniquement sa couleur dans le tableau de bord",
+        "La possibilité pour n'importe qui de la modifier",
+        "Le système faisant autorité, le propriétaire, les règles de qualité et les consommateurs dépendants",
+        "Uniquement la taille du fichier"
+      ],
+      "answer": 2,
+      "explanation": "La qualité des décisions dépend de la source de vérité et de la responsabilité de mise à jour. Il faut savoir qui peut corriger la donnée et quels services en dépendent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel cas une règle déterministe est-elle souvent préférable à une IA générative ?",
+      "choices": [
+        "Quand personne ne peut expliquer la décision attendue",
+        "Quand les critères sont stables, explicites et doivent être appliqués exactement",
+        "Quand la donnée est toujours contradictoire",
+        "Quand l'organisation veut masquer les décisions"
+      ],
+      "answer": 1,
+      "explanation": "Des règles testables sont souvent plus adaptées aux décisions à critères explicites. L'IA doit être évaluée seulement si elle apporte une capacité utile et maîtrisable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit inclure l'évaluation d'un assistant qui résume des tickets ?",
+      "choices": [
+        "Uniquement la fluidité du texte",
+        "Seulement le taux de satisfaction du sponsor",
+        "Un test sur trois exemples choisis après la démonstration",
+        "L'exactitude, les omissions, l'incertitude, les sources, les données sensibles et les erreurs critiques sur des cas représentatifs"
+      ],
+      "answer": 3,
+      "explanation": "La qualité rédactionnelle ne garantit pas la fidélité. Les tests doivent inclure les cas défavorables, l'incertitude, la protection des données et la gravité des erreurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui distingue une supervision humaine réelle d'une validation nominale ?",
+      "choices": [
+        "La personne a le temps, le contexte, les compétences et l'autorité pour contester le résultat",
+        "La personne clique toujours sur approuver",
+        "Une personne est listée dans la procédure sans accès aux sources",
+        "La validation se produit automatiquement après un délai"
+      ],
+      "answer": 0,
+      "explanation": "Le contrôle humain doit permettre de comprendre et de contester la proposition. Une approbation sans examen ni capacité d'action ne maîtrise pas le risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où devrait se situer l'application des autorisations pour une automatisation pilotée par IA ?",
+      "choices": [
+        "Uniquement dans les instructions du prompt",
+        "Dans la confiance accordée au modèle",
+        "Dans un mécanisme déterministe indépendant qui contrôle identité, droits, politique et préconditions",
+        "Dans le texte produit par le modèle"
+      ],
+      "answer": 2,
+      "explanation": "Le modèle peut proposer une action, mais une couche d'autorisation indépendante doit limiter ce qu'il peut réellement exécuter. Le modèle ne doit pas s'accorder de privilèges."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un plan de retour arrière doit-il considérer les systèmes externes ?",
+      "choices": [
+        "Parce qu'un rollback ne concerne que les couleurs de l'interface",
+        "Parce que les messages ou effets envoyés ailleurs peuvent être irréversibles et nécessiter une réconciliation",
+        "Parce que les sauvegardes sont inutiles",
+        "Parce qu'il faut toujours effacer tout l'historique"
+      ],
+      "answer": 1,
+      "explanation": "Restaurer une base ne retire pas les notifications, opérations ou événements déjà envoyés à d'autres systèmes. Le plan doit identifier les effets irréversibles et la réconciliation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le pourcentage d'utilisateurs activés ne suffit-il pas à mesurer l'adoption ?",
+      "choices": [
+        "Parce que l'activation est toujours erronée",
+        "Parce que les indicateurs d'utilisation sont inutiles",
+        "Parce qu'un taux d'activation élevé garantit la maîtrise",
+        "Parce que les personnes peuvent continuer à contourner le processus ou échouer dans la tâche réelle"
+      ],
+      "answer": 3,
+      "explanation": "Il faut mesurer la réussite de la tâche, la qualité, les contournements et les besoins d'assistance. L'activation et la participation à une formation sont des indicateurs incomplets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une hausse du délai de traitement accompagnée d'une baisse du taux de réouverture ?",
+      "choices": [
+        "Qu'il faut examiner ensemble vitesse, qualité et composition des dossiers avant de conclure",
+        "Que le projet doit être arrêté sans autre analyse",
+        "Que le délai moyen est toujours l'unique mesure pertinente",
+        "Que le taux de réouverture doit être ignoré"
+      ],
+      "answer": 0,
+      "explanation": "Les indicateurs peuvent évoluer en tension. Le résultat doit être interprété selon le périmètre, la définition des mesures et les effets secondaires possibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand peut-on convertir des heures libérées en économies financières ?",
+      "choices": [
+        "Dès qu'un outil automatise une étape",
+        "Quand le fournisseur annonce un gain moyen",
+        "Quand le mécanisme de réalisation et l'effet sur les dépenses sont documentés et validés selon la méthode convenue",
+        "Lorsque les heures théoriques dépassent 100"
+      ],
+      "answer": 2,
+      "explanation": "Une capacité libérée ne réduit pas automatiquement la trésorerie. Il faut préciser l'utilisation de cette capacité et vérifier l'économie ou la dépense effectivement évitée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi prévoir un test de réversibilité fournisseur ?",
+      "choices": [
+        "Pour garantir que tous les fournisseurs sont identiques",
+        "Pour prouver que les données, identifiants, historiques et pièces peuvent être exportés et réutilisés comme prévu",
+        "Pour éviter d'écrire des conditions de sortie",
+        "Pour mesurer seulement le temps de connexion"
+      ],
+      "answer": 1,
+      "explanation": "La promesse contractuelle d'export ne garantit pas que les données seront réutilisables. Le test doit examiner les formats, relations, pièces et étapes de reconstruction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un gate de décision dans la feuille de route ?",
+      "choices": [
+        "À rendre toute décision irrévocable",
+        "À ajouter des signatures sans preuves",
+        "À garantir que le calendrier ne changera jamais",
+        "À décider explicitement d'étendre, corriger, limiter ou arrêter à partir de critères et de risques documentés"
+      ],
+      "answer": 3,
+      "explanation": "Un gate est un point d'arbitrage fondé sur des preuves et l'acceptation explicite du risque résiduel. Il n'est pas une simple formalité documentaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus pertinente avant transfert à l'exploitation ?",
+      "choices": [
+        "Des runbooks, une supervision, des responsabilités, un mode dégradé et une reprise testée sur un environnement représentatif",
+        "Le fait que la présentation soit terminée",
+        "L'activation du compte du sponsor",
+        "Une démo réussie par le fournisseur seulement"
+      ],
+      "answer": 0,
+      "explanation": "Le service doit être supportable après le projet. L'exploitation doit disposer de procédures, d'accès, d'alertes, de responsabilités et de tests de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter un pilote dont les résultats sont bons sur les demandes simples mais inconnus sur les incidents critiques ?",
+      "choices": [
+        "Étendre immédiatement le pilote à tous les cas",
+        "Conclure que les résultats simples s'appliquent aux incidents critiques",
+        "Limiter l'extension au périmètre démontré et traiter séparément la preuve requise pour les incidents critiques",
+        "Supprimer les mesures de gravité"
+      ],
+      "answer": 2,
+      "explanation": "Une preuve n'est valable que pour les populations et conditions testées. Les cas à risque élevé nécessitent une évaluation et une autorisation spécifiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel tableau de bord est le plus utile à un comité de transformation ?",
+      "choices": [
+        "Uniquement le nombre de fonctionnalités livrées",
+        "Résultats de service, adoption réelle, coûts, risques, capacité, bénéfices et décisions associées",
+        "Uniquement le budget initial",
+        "Un pourcentage de progression sans définition"
+      ],
+      "answer": 1,
+      "explanation": "Le comité doit pouvoir arbitrer avec des mesures reliées aux résultats et aux risques, pas seulement constater l'activité de livraison."
     }
   ]
 }
