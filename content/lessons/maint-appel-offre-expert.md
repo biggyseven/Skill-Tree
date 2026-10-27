@@ -355,6 +355,35 @@ Le plan de recette fixe les environnements, les données de test, les participan
 Un dossier d'attribution bien préparé fournit une piste d'audit complète : besoin, stratégie, dossier publié, questions-réponses, offres, grilles d'évaluation, contrôles de recevabilité, analyse des risques, décision, contrat et critères de recette. Cette piste doit être conservée selon les règles applicables, avec accès limité aux documents commerciaux sensibles.
 
 
+
+## Contrôle de cohérence du dossier avant publication
+
+Une revue de cohérence examine le dossier comme un ensemble : les exigences, le prix, la notation, le contrat, la recette et la transition doivent se soutenir mutuellement. Si le cahier des charges exige un délai de résolution de quatre heures mais que le modèle de prix ne couvre pas la garde correspondante, l'offre risque d'être non comparable ou le contrat irréaliste. Si la recette demande une fonction qui ne figure ni parmi les exigences ni dans l'offre retenue, le refus à la livraison sera contestable.
+
+### Revue croisée des sections
+
+| Élément | Contrôle de cohérence | Erreur fréquente |
+|---|---|---|
+| Besoin | Les résultats attendus sont-ils reliés à un propriétaire et à un indicateur ? | Demander des fonctionnalités sans justifier leur valeur |
+| Périmètre | Les sites, horaires, volumes, actifs et interfaces sont-ils définis ? | Oublier les sites éloignés ou l'environnement de test |
+| Exigences | Chaque exigence importante possède-t-elle un test ou une preuve ? | Formulations vagues ou non mesurables |
+| Prix | Les volumes, options, indexations et exclusions sont-ils comparables ? | Comparer seulement un abonnement de base |
+| Évaluation | Chaque critère et chaque seuil sont-ils annoncés et notables ? | Critère ajouté durant l'évaluation |
+| Contrat | Les engagements, responsabilités, exclusions et recours sont-ils cohérents ? | SLA sans méthode de mesure |
+| Recette | Les tests correspondent-ils aux engagements retenus ? | Attendre d'un fournisseur une fonction non contractualisée |
+| Sortie | Les données, configurations et accès pourront-ils être transférés ? | Réversibilité sans calendrier ni coût convenu |
+
+Une équipe de relecture doit comprendre les personnes qui porteront le contrat et recevront la solution. Le rédacteur seul ne peut pas confirmer que les clauses de service sont exploitables, que la sécurité est acceptable ou que les critères financiers sont comparables. La revue ne doit pas servir à enrichir le dossier de demandes tardives sans analyse : toute nouvelle exigence doit être reliée au besoin et traitée selon la gouvernance de la consultation.
+
+### Gérer les risques liés aux hypothèses commerciales
+
+Chaque hypothèse majeure est documentée : nombre d'actifs, taux de croissance, nombre de demandes, horaires, volumétrie de données, durée de migration, disponibilité des équipes, performance attendue et nombre de sites. Indiquer si elle provient d'une mesure, d'une estimation, du fournisseur ou d'une décision interne. Le dossier de prix peut exiger que les offres distinguent base, options, unités supplémentaires et frais de changement de volume.
+
+Tester les scénarios qui affectent la comparabilité : croissance du parc, ajout d'un site, incident majeur, période de transition prolongée, changement de devise ou indexation des coûts. Les règles de comparaison doivent être équitables et fixées avant l'évaluation. Les hypothèses ne doivent pas être modifiées après réception dans le seul but de faire gagner une offre.
+
+Cette revue ne remplace pas l'approbation juridique et achat ; elle permet de repérer les incohérences tôt, puis de les faire arbitrer par les fonctions compétentes. Un bon dossier est suffisamment complet pour soutenir le contrat et suffisamment lisible pour permettre aux fournisseurs de comprendre ce qui sera accepté.
+
+
 ## Ressources techniques et références
 
 - [World Bank — Procurement Framework et documents types](https://www.worldbank.org/ext/en/what-we-do/project-procurement/framework)
