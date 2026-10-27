@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédaction d'appels d'offres » ?",
+      "prompt": "Pourquoi définir la méthode d'évaluation avant réception des offres ?",
       "choices": [
-        "Le sujet principal du cours : Rédaction d'appels d'offres",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Pour assurer une comparaison cohérente et auditable",
+        "Pour garantir la victoire du moins cher",
+        "Pour éviter toute question des fournisseurs",
+        "Pour changer les critères après lecture"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Critères et poids fixés d'avance réduisent le risque de biais et de contestation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle exigence est la plus testable ?",
+      "choices": [
+        "Le système doit être moderne",
+        "Le tableau de bord doit répondre en moins de deux secondes dans un scénario et une charge explicités",
+        "Le fournisseur doit fournir la meilleure qualité",
+        "La sécurité doit être maximale"
+      ],
+      "answer": 1,
+      "explanation": "Une exigence testable précise le résultat, les conditions de mesure et les critères d'acceptation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit couvrir le TCO ?",
+      "choices": [
+        "Uniquement le prix de licence",
+        "Uniquement la première année",
+        "Intégration, migration, exploitation, support, évolution et sortie sur l'horizon choisi",
+        "Uniquement les pénalités SLA"
+      ],
+      "answer": 2,
+      "explanation": "Le coût total inclut les coûts de cycle de vie et les hypothèses de comparaison."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une exigence obligatoire ?",
+      "choices": [
+        "L'évaluer après attribution sans règle",
+        "La convertir en préférence tacite",
+        "L'ignorer si le prix est faible",
+        "Définir son applicabilité, la preuve requise et la règle de recevabilité avant publication"
+      ],
+      "answer": 3,
+      "explanation": "Les obligations doivent être justifiées et évaluées conformément au dossier et aux règles applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit prouver une démonstration fournisseur ?",
+      "choices": [
+        "Le comportement sur des scénarios identiques et convenus",
+        "La capacité à présenter les meilleures diapositives",
+        "La compatibilité future non testée",
+        "La totalité du TCO sans données"
+      ],
+      "answer": 0,
+      "explanation": "Un script commun rend les démonstrations comparables et permet de noter des résultats observables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi prévoir la réversibilité dans le dossier initial ?",
+      "choices": [
+        "Parce que les fournisseurs garantissent toujours une sortie gratuite",
+        "Pour définir données, formats, assistance, coûts, délais et validation de la sortie avant la dépendance",
+        "Pour interdire les migrations",
+        "Pour supprimer tous les historiques"
+      ],
+      "answer": 1,
+      "explanation": "Les exigences de sortie sont beaucoup plus difficiles à négocier quand le contrat arrive à échéance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment doivent être traitées les clarifications ?",
+      "choices": [
+        "Dans des conversations privées non tracées",
+        "En modifiant silencieusement le prix évalué",
+        "Selon la procédure autorisée, avec traçabilité et partage équitable des informations pertinentes",
+        "Après signature seulement"
+      ],
+      "answer": 2,
+      "explanation": "La clarification doit préserver le cadre de la consultation et l'égalité des participants selon les règles applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément rend un SLA pilotable ?",
+      "choices": [
+        "Une promesse de haute qualité",
+        "Un pourcentage sans formule",
+        "Une pénalité sans définition",
+        "Une formule, une fenêtre, une source, des exclusions et un traitement des écarts"
+      ],
+      "answer": 3,
+      "explanation": "Une mesure sans règles ne peut pas être reproduite ni rapprochée du contrat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une marque particulière devrait-elle être imposée ?",
+      "choices": [
+        "Seulement si une contrainte réelle est justifiée, approuvée et compatible avec les règles d'achat",
+        "Toujours pour simplifier la rédaction",
+        "Parce que l'équipe préfère son interface",
+        "Pour limiter artificiellement la concurrence"
+      ],
+      "answer": 0,
+      "explanation": "Une spécification orientée résultats est généralement préférable aux prescriptions de marque non justifiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi évaluer un plan de transition ?",
+      "choices": [
+        "Pour le formaliser après la mise en service",
+        "Pour vérifier transfert, accès, données, tests, responsabilités et continuité",
+        "Pour laisser le fournisseur sortant choisir seul la date",
+        "Pour supprimer les tests de recette"
+      ],
+      "answer": 1,
+      "explanation": "La transition est un projet à risque et doit être démontrée avant passage en exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode limite les biais de pondération ?",
+      "choices": [
+        "Modifier les poids après l'ouverture",
+        "Attribuer tous les points au prix",
+        "Définir poids et échelles descriptives avant l'évaluation",
+        "Ne jamais tracer les scores"
+      ],
+      "answer": 2,
+      "explanation": "La grille doit permettre à plusieurs évaluateurs d'obtenir des notes cohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif de la recette ?",
+      "choices": [
+        "Valider seulement que la facture est reçue",
+        "Confirmer qu'un contrat est signé",
+        "Remplacer la formation des utilisateurs",
+        "Vérifier par des tests que les livrables répondent aux critères d'acceptation convenus"
+      ],
+      "answer": 3,
+      "explanation": "La recette fournit une preuve d'aptitude avant le passage ou l'acceptation correspondante."
     }
   ]
 }
