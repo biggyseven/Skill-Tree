@@ -1056,10 +1056,14 @@ test('le lecteur reprend la dernière section après fermeture et respecte le d�
 test('la lecture vocale annonce le nombre d’équipements et de liaisons des schémas ASCII et Mermaid', async ({ page }) => {
   await openDashboard(page);
 
-  await page.evaluate(async () => {
-    const state = window.Alpine.$data(document.body);
-    await state.show('intro-reseau-debutant');
-  });
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const results = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+  const lessonResult = results.locator('button').filter({
+    hasText: "Qu'est-ce qu'un réseau ? - Débutant",
+  }).first();
+  await expect(lessonResult).toBeVisible();
+  await lessonResult.click();
   await expect(page.locator('#course-reader-title')).toHaveText("Qu'est-ce qu'un réseau ? - Débutant");
   await expect(page.locator('[x-ref="lessonArticle"]')).toBeVisible();
 
