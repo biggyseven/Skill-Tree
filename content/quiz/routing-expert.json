@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Routage statique & tables - Expert. Avez-vous lu le cours ?",
+      "prompt": "Quelle description distingue correctement RIB, FIB et résolution d’adjacence dans le transfert IP ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La RIB contient uniquement les adresses MAC apprises et la FIB les mots de passe",
+        "La RIB participe à la décision de routage, la FIB contient les entrées utilisées pour transférer les paquets et l’adjacence résout les informations de couche 2 nécessaires au prochain saut selon l’architecture",
+        "La FIB ne sert qu’à stocker les routes de secours, et la RIB ne contient que des routes statiques",
+        "Ces termes sont trois noms différents pour la même table DNS"
+      ],
+      "answer": 1,
+      "explanation": "La RIB représente les routes connues et sélectionnées ; la FIB sert au transfert rapide des paquets. Sur les architectures concernées, des informations d’adjacence complètent le traitement en associant le prochain saut aux détails nécessaires de couche 2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route statique configurée avec un prochain saut reste absente des routes utilisables. Quelle cause est plausible ?",
+      "choices": [
+        "Le nom du réseau contient des chiffres",
+        "La route a été configurée manuellement plutôt qu’apprise par un protocole dynamique",
+        "Le routeur ne parvient pas à résoudre récursivement le prochain saut par une route utilisable",
+        "Le préfixe utilise une notation CIDR"
+      ],
+      "answer": 2,
+      "explanation": "Une route via un prochain saut doit pouvoir résoudre celui-ci à l’aide d’une route valide. Si la résolution récursive échoue, le routeur peut ne pas installer la route dans la table opérationnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre routage statique et routage par politique (PBR) est correcte ?",
+      "choices": [
+        "La route statique associe classiquement un préfixe à un chemin ; la PBR peut sélectionner un traitement selon des critères comme la source ou des politiques de trafic",
+        "La PBR ne concerne que les noms DNS",
+        "La route statique inspecte toujours le contenu applicatif, contrairement à la PBR",
+        "Les deux mécanismes sont des méthodes d’authentification Wi-Fi"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le routage classique sélectionne généralement un chemin selon la destination et la table de routage. La PBR permet, sur les équipements qui la prennent en charge, d’appliquer une politique tenant compte d’autres critères."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’une VRF dans une architecture IP ?",
+      "choices": [
+        "Augmenter obligatoirement la puissance d’émission Wi-Fi",
+        "Remplacer toutes les routes par une seule route par défaut",
+        "Distribuer automatiquement les paquets logiciels des routeurs",
+        "Maintenir des contextes de routage distincts, permettant notamment des espaces d’adressage séparés sur une même infrastructure"
+      ],
+      "answer": 3,
+      "explanation": "Une VRF fournit une table et un contexte de routage séparés. Les communications entre VRF ne sont possibles que par des mécanismes explicitement conçus et autorisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle une route de rejet associée à un agrégat peut-elle jouer dans un plan de routage ?",
+      "choices": [
+        "Garantir que tous les sous-réseaux inclus existent physiquement",
+        "Éviter que du trafic destiné à une partie inexistante de l’agrégat ne reboucle indéfiniment vers une route par défaut ou un autre chemin",
+        "Créer automatiquement des interfaces VLAN pour tous les préfixes",
+        "Remplacer la validation de connectivité après un changement"
+      ],
+      "answer": 1,
+      "explanation": "Une route de rejet peut absorber le trafic vers les destinations absentes comprises dans un agrégat et éviter certains scénarios de bouclage. Elle doit être conçue avec les routes plus spécifiques réellement présentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur une liaison dual-ISP, pourquoi l’état « interface up » ne suffit-il pas toujours à déclarer le chemin principal opérationnel ?",
+      "choices": [
+        "Parce qu’une interface active ne peut jamais transporter de trafic IP",
+        "Parce que l’adresse de passerelle est toujours désactivée lorsque le lien est actif",
+        "Parce que le chemin amont peut être défaillant alors que l’interface locale et le lien physique restent actifs",
+        "Parce que les routes statiques ne fonctionnent pas sur les interfaces Ethernet"
+      ],
+      "answer": 2,
+      "explanation": "Une panne peut se situer au-delà du lien directement connecté. Une sonde de reachabilité et un suivi configurés correctement peuvent aider à retirer le chemin principal quand sa destination de contrôle devient inaccessible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour une route IPv6 statique utilisant une adresse de prochain saut link-local, quelle précaution est couramment nécessaire sur de nombreux systèmes ?",
+      "choices": [
+        "Préciser l’interface de sortie afin de lever l’ambiguïté de portée de l’adresse link-local",
+        "Convertir l’adresse link-local en adresse MAC manuellement dans la route",
+        "Remplacer le préfixe IPv6 par `0.0.0.0/0`",
+        "Désactiver Neighbor Discovery sur tous les liens"
+      ],
+      "answer": 0,
+      "explanation": "Les adresses IPv6 link-local ne sont valides que sur leur lien. Plusieurs équipements exigent donc que l’interface de sortie soit précisée lorsqu’une telle adresse est utilisée comme prochain saut ; la syntaxe exacte dépend du système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un changement de routage critique, quel plan de validation apporte les meilleures garanties opérationnelles ?",
+      "choices": [
+        "Vérifier seulement qu’une commande de configuration n’a renvoyé aucune erreur",
+        "Supprimer les routes de secours pour simplifier la sortie",
+        "Tester seulement depuis le routeur sans vérifier les hôtes ni les chemins retour",
+        "Comparer les routes et la FIB à l’état attendu, tester des flux représentatifs dans les deux sens, surveiller la convergence et garder une procédure de retour"
+      ],
+      "answer": 3,
+      "explanation": "La validation doit couvrir la configuration, l’état opérationnel et le plan de données. Les tests bidirectionnels, les mesures de convergence et un rollback préparé rendent le changement vérifiable et réversible."
     }
   ]
 }

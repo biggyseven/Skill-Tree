@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour VTP et gestion des VLANs - Expert. Avez-vous lu le cours ?",
+      "prompt": "Lors d’un incident où la base VLAN change après l’ajout d’un commutateur, quelle preuve est particulièrement utile à recueillir avant de restaurer ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Le seul nombre d’utilisateurs connectés en Wi-Fi",
+        "La version et le mode VTP, le domaine, la révision, la base VLAN, les trunks et la chronologie des annonces/changements",
+        "La température du serveur DNS uniquement",
+        "Le score de performance du navigateur utilisé pour l’administration"
+      ],
+      "answer": 1,
+      "explanation": "La chronologie et l’état VTP permettent de corréler le changement observé avec le domaine, la révision et les annonces. La base VLAN et la configuration des trunks doivent être comparées à une référence approuvée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe de gouvernance est crucial avant d’autoriser les modifications de base VLAN via VTPv3 ?",
+      "choices": [
+        "Chaque commutateur doit pouvoir modifier la base simultanément",
+        "Le serveur primaire doit également héberger le serveur DHCP",
+        "Désigner et contrôler le rôle primaire selon la procédure VTPv3, en limitant les changements aux opérateurs et processus autorisés",
+        "Remplacer le journal des changements par une capture ponctuelle"
+      ],
+      "answer": 2,
+      "explanation": "Le rôle primaire VTPv3 constitue un contrôle du plan de gestion VLAN. La procédure doit préciser qui peut activer ce rôle, comment les changements sont validés et comment l’état précédent peut être restauré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un numéro de révision VTP élevé ne prouve-t-il pas à lui seul que la base VLAN est correcte ?",
+      "choices": [
+        "Parce qu’il renseigne sur l’état/version de la base dans le protocole, pas sur l’adéquation métier de chaque VLAN au plan validé",
+        "Parce qu’il représente toujours le nombre exact de VLAN autorisés",
+        "Parce qu’il prouve que toutes les interfaces sont en état forwarding",
+        "Parce qu’il garantit l’absence d’accès non autorisé"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Le numéro de révision n’est pas une validation fonctionnelle ou de sécurité. Il faut comparer les VLAN, trunks, politiques et changements à la référence prévue et à la chronologie de l’incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche est la plus appropriée avant une migration VTP entre versions ou plateformes ?",
+      "choices": [
+        "Modifier tous les équipements en une seule fois sans sauvegarde",
+        "Supposer que toutes les commandes et limites sont identiques entre constructeurs",
+        "Activer le pruning comme seule protection et ignorer le mode existant",
+        "Vérifier les versions et compatibilités, sauvegarder la base/configuration, définir un plan de transition et un retour arrière, puis tester sur un périmètre limité"
+      ],
+      "answer": 3,
+      "explanation": "Une migration VTP peut affecter la synchronisation de la base VLAN et les VLAN pris en charge. Il faut valider compatibilité, état initial, procédure et restauration avant d’étendre le changement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle empêche le mieux une base VLAN légitime d’être confondue avec une politique complète de sécurité du réseau ?",
+      "choices": [
+        "Considérer qu’un nom de VLAN secret suffit",
+        "Combiner une liste de VLAN et des trunks explicitement autorisés avec des contrôles de couche 2/3 et des tests de flux positifs et négatifs",
+        "Désactiver tous les journaux de configuration",
+        "S’appuyer uniquement sur la révision VTP la plus élevée"
+      ],
+      "answer": 1,
+      "explanation": "VTP gère des informations VLAN, pas les autorisations applicatives complètes. La sécurité exige de limiter les VLAN sur les liens, d’appliquer les contrôles nécessaires et de vérifier les flux autorisés et interdits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un environnement multi-constructeur, que faut-il vérifier avant de fonder la gestion des VLAN sur VTP ?",
+      "choices": [
+        "Que toutes les plateformes utilisent nécessairement la même implémentation propriétaire",
+        "Que VTP remplace la norme 802.1Q",
+        "La prise en charge réelle du protocole et des versions par les équipements ; sinon, choisir une méthode de gestion interopérable ou locale documentée",
+        "Que tous les équipements possèdent le même nom DNS"
+      ],
+      "answer": 2,
+      "explanation": "VTP est historiquement un protocole Cisco. L’interopérabilité ne doit pas être présumée ; les équipements et versions utilisés doivent être vérifiés, avec une autre méthode de gestion si nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après avoir restauré une base VLAN depuis une sauvegarde approuvée, quelle vérification confirme que le service est revenu ?",
+      "choices": [
+        "Vérifier uniquement que l’indicateur de température est normal",
+        "Ne tester que la présence d’un SSID",
+        "Considérer le problème résolu si le numéro de révision a augmenté",
+        "Comparer la base VLAN et les trunks à la référence puis tester les chemins attendus, la connectivité inter-VLAN et les flux qui doivent rester bloqués"
+      ],
+      "answer": 3,
+      "explanation": "Un retour d’état doit être validé fonctionnellement et du point de vue de la sécurité : base VLAN et trunks, chemins de couche 2/3, services dépendants et tests d’accès autorisés/interdits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il sauvegarder et versionner la configuration des commutateurs même si VTP distribue une partie de la base VLAN ?",
+      "choices": [
+        "Parce que VTP ne remplace pas une sauvegarde complète ni l’historique de configuration, et ne couvre pas tous les paramètres opérationnels",
+        "Parce que VTP sauvegarde automatiquement chaque ACL et chaque route",
+        "Parce que VTP chiffre tous les fichiers de configuration",
+        "Parce que VTP empêche les erreurs humaines"
+      ],
+      "answer": 0,
+      "explanation": "VTP ne sauvegarde pas l’ensemble de la configuration des équipements et ne remplace ni la gestion de changements ni un historique de retour arrière. Les données VLAN et les paramètres opérationnels doivent être conservés selon une procédure vérifiée."
     }
   ]
 }

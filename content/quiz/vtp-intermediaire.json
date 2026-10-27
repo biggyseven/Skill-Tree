@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour VTP et gestion des VLANs - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Les VLAN ne se synchronisent pas entre deux commutateurs VTP compatibles. Quel groupe de contrôles est le plus pertinent ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Remplacer immédiatement tous les câbles et augmenter la puissance Wi-Fi",
+        "Vérifier domaine, version, paramètres d’authentification, mode, trunks actifs et annonces reçues",
+        "Changer l’adresse DNS des clients",
+        "Désactiver le routage IP sur tous les équipements"
+      ],
+      "answer": 1,
+      "explanation": "La synchronisation dépend des paramètres VTP et du transport des annonces sur les trunks. Les contrôles doivent d’abord confirmer le domaine, la version, l’authentification, le mode et la connectivité de couche 2."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans VTPv3, à quoi sert le rôle de serveur primaire pour la base VLAN ?",
+      "choices": [
+        "À devenir automatiquement la passerelle par défaut de tous les VLAN",
+        "À remplacer le Root Bridge STP sur chaque trunk",
+        "À autoriser l’administration des changements de base VLAN selon les règles VTPv3, plutôt que de laisser chaque équipement modifier librement cette base",
+        "À distribuer des clés WPA3 aux clients sans fil"
+      ],
+      "answer": 2,
+      "explanation": "VTPv3 introduit un rôle de serveur primaire pour contrôler les modifications de la base VLAN. Les procédures et commandes exactes dépendent de la version et de la plateforme compatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble de commandes fournit d’abord des indices sur l’état VTP et les VLAN locaux d’un commutateur Cisco ?",
+      "choices": [
+        "`show vtp status` et `show vlan brief`",
+        "`show ip dhcp binding` et `show ntp associations` uniquement",
+        "`show crypto key mypubkey rsa` et `show users` uniquement",
+        "`show power inline` et `show license usage` uniquement"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "`show vtp status` renseigne l’état VTP ; `show vlan brief` permet de comparer la base VLAN présente localement. Les deux vues ne suffisent pas à elles seules, mais constituent un début de diagnostic ciblé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de raccorder un commutateur précédemment utilisé ailleurs, quelle approche est la plus sûre ?",
+      "choices": [
+        "Le connecter immédiatement et attendre de voir si des VLAN disparaissent",
+        "Effacer tous les paramètres réseau sans sauvegarde ni procédure",
+        "Changer uniquement son nom d’hôte",
+        "Sauvegarder son état, identifier la version/mode VTP et suivre une procédure de préparation et de vérification adaptée à la plateforme avant le raccordement"
+      ],
+      "answer": 3,
+      "explanation": "L’état précédent peut être incompatible avec le domaine cible. Une procédure contrôlée doit préserver les preuves et une sauvegarde, puis vérifier le domaine, la révision et la base VLAN avant la mise en service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une annonce VTP, la base VLAN semble correcte mais le trafic d’un VLAN ne passe pas sur un trunk particulier. Quelle distinction faut-il examiner ?",
+      "choices": [
+        "La synchronisation VTP prouve que la trame de données est chiffrée",
+        "La base VLAN peut être synchronisée alors que le VLAN n’est pas autorisé sur le trunk ou qu’un état STP bloque le chemin",
+        "Le DNS doit être désactivé pour transporter des trames 802.1Q",
+        "Le numéro de révision VTP indique à lui seul la capacité du lien"
+      ],
+      "answer": 1,
+      "explanation": "La gestion de la base VLAN par VTP et le transfert des trames par 802.1Q/STP sont distincts. Vérifier l’allow-list du trunk, l’état de couche 2 et le chemin réel est nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans les versions qui la prennent en charge, quelle distinction concernant la plage étendue de VLAN est généralement correcte ?",
+      "choices": [
+        "Les VLAN étendus sont toujours distribués par toutes les anciennes versions de VTP",
+        "La plage étendue n’est utilisable que par DHCP",
+        "Le support de la plage étendue dépend de la version VTP et de la plateforme ; VTPv3 est prévu pour prendre en charge ces informations dans les environnements compatibles",
+        "La plage étendue désactive 802.1Q et STP"
+      ],
+      "answer": 2,
+      "explanation": "La prise en charge des VLAN étendus dépend des versions de VTP et des équipements ; VTPv3 apporte le support correspondant sur les plateformes compatibles. Il faut vérifier les limites exactes dans la documentation de l’équipement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le VTP pruning ne doit-il pas être utilisé comme contrôle de sécurité d’un VLAN ?",
+      "choices": [
+        "Parce qu’il est un mécanisme d’optimisation du trafic de diffusion, pas une politique d’autorisation des accès",
+        "Parce qu’il donne à tout utilisateur des droits administrateur",
+        "Parce qu’il chiffre automatiquement le trafic de bout en bout",
+        "Parce qu’il désactive les tables MAC des commutateurs"
+      ],
+      "answer": 0,
+      "explanation": "Le pruning vise à éviter certains transports inutiles de trafic de diffusion. Une politique de sécurité repose plutôt sur la segmentation, les trunks configurés explicitement et les contrôles d’accès adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel choix de conception est souvent préférable si l’organisation veut éviter la propagation automatique d’une base VLAN centralisée entre commutateurs ?",
+      "choices": [
+        "Configurer tous les commutateurs comme serveurs dans un même domaine sans contrôle",
+        "S’appuyer uniquement sur le numéro de révision et ne jamais sauvegarder",
+        "Permettre à tous les trunks de transporter tous les VLAN par défaut",
+        "Utiliser un mode et une méthode de gestion locale approuvés, par exemple transparent ou désactivé selon la plateforme, puis documenter la gestion des VLAN"
+      ],
+      "answer": 3,
+      "explanation": "Une gestion locale/transparent ou la désactivation de VTP peut convenir selon la plateforme et la politique. L’important est d’assumer la source de vérité, de limiter les VLAN transportés et de contrôler les changements."
     }
   ]
 }

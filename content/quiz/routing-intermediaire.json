@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Routage statique & tables - Intermédiaire. Avez-vous lu le cours ?",
+      "prompt": "Un routeur connaît `10.0.0.0/8` par une route statique et `10.20.0.0/16` par OSPF. Quel chemin est normalement utilisé pour `10.20.1.5`, si les deux routes sont présentes et valides ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "La route statique /8 car une distance administrative plus faible l’emporte toujours, même sur un préfixe moins spécifique",
+        "La route OSPF /16 car la correspondance au préfixe le plus long est prioritaire pour cette destination",
+        "La route par défaut parce que les sources des routes diffèrent",
+        "Aucun chemin, car la destination correspond à deux routes"
+      ],
+      "answer": 1,
+      "explanation": "La recherche de transfert choisit le préfixe le plus spécifique pour la destination. La distance administrative sert notamment à départager des routes candidates vers un même préfixe, et ne fait pas gagner un /8 sur un /16 plus spécifique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert généralement une route statique flottante ?",
+      "choices": [
+        "À distribuer les adresses DHCP lorsque le serveur principal tombe",
+        "À remplacer tous les protocoles dynamiques par des routes statiques égales",
+        "À fournir un chemin de secours avec une préférence moins attractive que la route principale, afin de pouvoir prendre le relais si celle-ci disparaît",
+        "À faire transiter un paquet sur chaque interface simultanément"
+      ],
+      "answer": 2,
+      "explanation": "Une route statique flottante est configurée avec une distance administrative plus élevée que la route principale concurrente. Son activation dépend de l’état de la route principale et, pour détecter certaines pannes de chemin, d’un mécanisme de suivi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie la résolution récursive du prochain saut pour une route statique ?",
+      "choices": [
+        "Le routeur doit résoudre le prochain saut en recherchant une route utilisable vers l’adresse de ce prochain saut",
+        "Le routeur chiffre le prochain saut avant de l’utiliser",
+        "Le prochain saut doit toujours être un serveur DNS",
+        "Le routeur répète le paquet à l’infini jusqu’à ce qu’un hôte réponde"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "Pour installer et utiliser une route via un prochain saut, le routeur doit pouvoir déterminer un chemin vers ce prochain saut. Si cette résolution échoue, la route peut ne pas être utilisable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une configuration prise en charge, quel est l’objectif d’ECMP ?",
+      "choices": [
+        "Éliminer le besoin de routes de retour",
+        "Remplacer la RIB par la base ARP",
+        "Forcer tout le trafic à utiliser un seul chemin, indépendamment de la métrique",
+        "Utiliser plusieurs chemins dont le coût est considéré équivalent, selon les règles de l’équipement"
+      ],
+      "answer": 3,
+      "explanation": "ECMP permet de partager certains flux entre des chemins de coût égal. L’algorithme de hachage, le nombre de chemins et le comportement exact dépendent de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route apparaît dans la table de routage, mais les paquets échouent toujours. Quelle vérification complète l’inspection de la RIB ?",
+      "choices": [
+        "Vérifier seulement que le nom d’hôte du routeur est correct",
+        "Contrôler l’installation dans la FIB, la résolution du prochain saut, les interfaces et les politiques qui peuvent affecter le transfert",
+        "Modifier immédiatement toutes les distances administratives",
+        "Désactiver la collecte des journaux pour réduire la charge"
+      ],
+      "answer": 1,
+      "explanation": "Une route présente dans la RIB ne suffit pas à démontrer que les paquets seront transférés. Il faut examiner l’installation dans la FIB, la résolution de voisinage, l’état du lien et les filtres éventuels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi associer parfois une route statique de secours à IP SLA ou à un mécanisme de suivi ?",
+      "choices": [
+        "Pour convertir la route statique en protocole de chiffrement",
+        "Pour obliger la route à rester présente même lorsque la cible est inaccessible",
+        "Pour détecter une dégradation de chemin au-delà du simple état physique d’interface et adapter la présence de la route",
+        "Pour attribuer automatiquement des adresses MAC aux utilisateurs"
+      ],
+      "answer": 2,
+      "explanation": "Une interface peut rester opérationnelle alors que le chemin au-delà est coupé. Le suivi par sonde ou objet de tracking peut retirer une route lorsque le test de reachabilité échoue, selon la conception."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que désigne le routage asymétrique ?",
+      "choices": [
+        "Un chemin aller et un chemin retour qui peuvent emprunter des routes différentes",
+        "Un réseau où toutes les interfaces utilisent le même masque",
+        "Une route qui contient obligatoirement une adresse IPv6",
+        "Une route dans laquelle il n’existe aucun prochain saut"
+      ],
+      "answer": 0,
+      "explanation": "Le routage asymétrique existe lorsque les deux sens d’un flux empruntent des chemins distincts. Il peut être normal, mais certains pare-feu à état ou mécanismes d’inspection peuvent rendre ce cas problématique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une route de résumé doit-elle être accompagnée d’une analyse des préfixes inclus et des routes de rejet éventuelles ?",
+      "choices": [
+        "Parce qu’un résumé rend tous les paquets cryptographiquement sûrs",
+        "Parce que les résumés sont toujours ignorés par les routeurs",
+        "Parce qu’un résumé réduit les besoins en adresses MAC uniquement",
+        "Parce qu’un agrégat trop large peut attirer vers le routeur des destinations inexistantes et créer des trous noirs ou boucles sans traitement adapté"
+      ],
+      "answer": 3,
+      "explanation": "L’agrégation réduit le nombre d’entrées, mais un préfixe trop large peut attirer du trafic pour des sous-réseaux absents. Une route de rejet appropriée et une conception cohérente aident à éviter certains bouclages et trous noirs."
     }
   ]
 }
