@@ -388,6 +388,29 @@ Les connexions et clics indiquent une activité, mais pas que le processus est m
 Une revue à 30, 60 et 90 jours examine les objectifs, les écarts, les coûts, les incidents et la qualité des données. Les résultats déterminent si l'équipe généralise, corrige le design, ajoute un contrôle ou retire une fonction. Le changement numérique reste une activité continue avec propriétaire ; il ne s'achève pas à la date de lancement.
 
 
+
+## Modèle de gouvernance des données et de l'IA dans une équipe de maintenance
+
+Les données qui alimentent l'ITSM, l'automatisation et l'IA doivent avoir un propriétaire, une définition, une classification, une source de référence et une règle de conservation. Pour chaque champ critique, préciser si la valeur est maîtresse dans la CMDB, le système de supervision, l'outil RH, le contrat fournisseur ou l'ITSM. Les copies doivent indiquer la source et la date ; les conflits ne doivent pas être résolus par une règle implicite qui favorise toujours le dernier système à écrire.
+
+Pour un assistant IA, le processus doit contrôler l'accès aux données utilisées comme contexte, les références présentées à l'utilisateur, les erreurs, les sorties non justifiées et l'usage secondaire des informations. Un résumé de ticket peut conserver des données sensibles ou effacer une incertitude importante. La validation doit donc comparer le résumé à la source sur un échantillon représentatif, vérifier les cas difficiles et définir les situations où l'outil doit s'abstenir.
+
+### Registre de risques d'un cas d'usage
+
+| Risque | Question de contrôle | Mesure de réduction |
+|---|---|---|
+| Réponse incorrecte | Quelle est la conséquence d'une erreur et qui la détecte ? | Vérification par la personne autorisée et jeu de tests |
+| Donnée sensible exposée | Quelles informations quittent l'environnement approuvé ? | Minimisation, contrôle d'accès et règles de rétention |
+| Suggestion non traçable | Peut-on retrouver la source d'une recommandation ? | Lien vers les pièces et journal du résultat |
+| Dérive dans le temps | Qui suit la qualité lorsque les données changent ? | Mesure continue et revue périodique |
+| Action non autorisée | Le modèle peut-il exécuter directement une opération à risque ? | Limitation des droits, approbation et points d'arrêt |
+| Dépendance fournisseur | Peut-on exporter les données et changer de service ? | Contrat de portabilité et test de sortie |
+
+Le risque n'est pas géré par une bannière qui informe que l'IA peut se tromper. Il doit être traduit en permissions, interface, tests, supervision et procédures. Le propriétaire du service doit savoir interrompre la fonction, revenir à un workflow contrôlé et informer les utilisateurs si un défaut affecte la confiance ou la sécurité.
+
+La transformation peut être conçue pour préserver la continuité : maintenir une voie de traitement alternative, prévoir les exports, identifier les dépendances de l'ancien outil et tester la reprise de données. Le retrait d'un système est un changement à part entière ; il inclut la révocation des comptes, l'archivage requis, les contrats, les pièces jointes, la supervision et la suppression des données selon les règles approuvées.
+
+
 ## Ressources techniques et références
 
 - [Microsoft Learn — Azure Cloud Adoption Framework](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/overview)
