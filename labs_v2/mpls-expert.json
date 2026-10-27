@@ -1,0 +1,331 @@
+{
+  "schema_version": 2,
+  "id": "mpls-expert",
+  "title": "MPLS expert — L3VPN, VRF et MP-BGP",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Complétez le cœur MPLS et configurez la VPN de niveau 3 TENANT-A sur les PE. Activez MP-BGP VPNv4, les communities étendues, le RD et les route-targets import/export.",
+  "objectives": [
+    "Maintenir LDP entre les P/PE.",
+    "Activer MP-BGP VPNv4 entre les PE.",
+    "Définir le RD et les RT de la VRF.",
+    "Propager les communities étendues nécessaires à la VPN."
+  ],
+  "hints": [
+    "Les routeurs P transportent les labels sans héberger nécessairement la VRF client.",
+    "Les RT gouvernent l’import/export des routes VPN.",
+    "Sans communities étendues, les RT risquent de ne pas être propagés."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-mpls-expert",
+    "metadata": {
+      "name": "MPLS expert — L3VPN et MP-BGP",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "PE1",
+        "type": "router",
+        "x": 100,
+        "y": 220,
+        "label": "PE1",
+        "model": "PE1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.4.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE1",
+          "routes": [
+            {
+              "protocol": "mpls-vpn",
+              "ldp_enabled": true,
+              "mp_bgp_enabled": false,
+              "vpn": {
+                "enabled": false,
+                "vrf": "TENANT-A",
+                "rd": "",
+                "rt_import": [],
+                "rt_export": []
+              },
+              "vpnv4_neighbor": "0.0.0.0",
+              "send_community_extended": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "P1",
+        "type": "router",
+        "x": 350,
+        "y": 220,
+        "label": "P1",
+        "model": "P1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.4.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.4.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "P1",
+          "routes": [
+            {
+              "protocol": "mpls",
+              "ldp_enabled": true,
+              "lsr_id": "10.255.0.2"
+            }
+          ]
+        }
+      },
+      {
+        "id": "P2",
+        "type": "router",
+        "x": 620,
+        "y": 220,
+        "label": "P2",
+        "model": "P2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.4.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.4.34.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "P2",
+          "routes": [
+            {
+              "protocol": "mpls",
+              "ldp_enabled": true,
+              "lsr_id": "10.255.0.3"
+            }
+          ]
+        }
+      },
+      {
+        "id": "PE2",
+        "type": "router",
+        "x": 900,
+        "y": 220,
+        "label": "PE2",
+        "model": "PE2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.4.34.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE2",
+          "routes": [
+            {
+              "protocol": "mpls-vpn",
+              "ldp_enabled": true,
+              "mp_bgp_enabled": false,
+              "vpn": {
+                "enabled": false,
+                "vrf": "TENANT-A",
+                "rd": "",
+                "rt_import": [],
+                "rt_export": []
+              },
+              "vpnv4_neighbor": "0.0.0.0",
+              "send_community_extended": false
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "PE1-P1",
+        "from": {
+          "node": "PE1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "P1",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "P1-P2",
+        "from": {
+          "node": "P1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "P2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "P2-PE2",
+        "from": {
+          "node": "P2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "PE2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "mpbgp",
+        "description": "MP-BGP est activé sur PE1.",
+        "device": "PE1",
+        "path": "config.routes[0].mp_bgp_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "vpn-enabled",
+        "description": "La VRF de la VPN est active.",
+        "device": "PE1",
+        "path": "config.routes[0].vpn.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "vpn-rd",
+        "description": "Le RD du tenant est défini.",
+        "device": "PE1",
+        "path": "config.routes[0].vpn.rd",
+        "operator": "equals",
+        "expected": "65000:101"
+      },
+      {
+        "id": "rt-import",
+        "description": "Le RT import est défini.",
+        "device": "PE1",
+        "path": "config.routes[0].vpn.rt_import",
+        "operator": "contains",
+        "expected": "65000:101"
+      },
+      {
+        "id": "rt-export",
+        "description": "Le RT export est défini.",
+        "device": "PE1",
+        "path": "config.routes[0].vpn.rt_export",
+        "operator": "contains",
+        "expected": "65000:101"
+      },
+      {
+        "id": "vpnv4-peer",
+        "description": "Le voisin VPNv4 est stable.",
+        "device": "PE1",
+        "path": "config.routes[0].vpnv4_neighbor",
+        "operator": "equals",
+        "expected": "10.255.0.4"
+      },
+      {
+        "id": "community",
+        "description": "Les communities étendues sont propagées.",
+        "device": "PE1",
+        "path": "config.routes[0].send_community_extended",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
