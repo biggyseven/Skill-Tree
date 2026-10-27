@@ -1,0 +1,50 @@
+name: Production visual regression check
+
+on:
+  push:
+    branches:
+      - feature/lab-workspace
+    paths:
+      - "static/index.html"
+      - "static/lab/**"
+      - "app/lab-workspace/src/**"
+      - "tests/e2e/production-visual-check.cjs"
+      - ".github/workflows/production-visual-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-visual:
+    name: production-visual
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright runner
+        run: npm install --prefix tests/e2e --no-audit --no-fund
+
+      - name: Install Chromium
+        run: tests/e2e/node_modules/.bin/playwright install chromium
+
+      - name: Wait for the fixed production UI and capture screenshots
+        env:
+          TARGET_URL: https://skill-tree-vjon.onrender.com
+        run: node tests/e2e/production-visual-check.cjs
+
+      - name: Upload production visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-visual-evidence
+          path: tests/e2e/test-results/production-visual/
+          if-no-files-found: ignore
+          retention-days: 7
