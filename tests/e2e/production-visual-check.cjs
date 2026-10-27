@@ -14,6 +14,34 @@ const report = {
   screenshots: [],
 };
 
+async function authenticateProduction(context) {
+  const envName = 'SKILLTREE_PRODUCTION_SMOKE_PASSWORD';
+  const password = process.env[envName];
+  assert(
+    typeof password === 'string' && password.length > 0,
+    `Missing GitHub Actions secret ${envName}. Add it under repository Settings → Secrets and variables → Actions; do not bypass production authentication.`
+  );
+  const origin = new URL(BASE_URL).origin;
+  const response = await context.request.post(BASE_URL + '/api/auth/login', {
+    data: { password },
+    headers: {
+      Accept: 'application/json',
+      Origin: origin,
+      Referer: origin + '/login.html',
+    },
+    timeout: 30000,
+  });
+  if (!response.ok()) {
+    throw new Error(`Production smoke login failed with HTTP ${response.status()}.`);
+  }
+  const payload = await response.json().catch(() => ({}));
+  assert(
+    payload.authenticated === true,
+    'Production smoke login did not return an authenticated session.'
+  );
+  return { authenticated: true, status: response.status() };
+}
+
 async function main() {
   await fs.mkdir(OUT, { recursive: true });
   const browser = await chromium.launch({ headless: true });
@@ -21,6 +49,7 @@ async function main() {
     viewport: { width: 1600, height: 1000 },
     deviceScaleFactor: 1,
   });
+  report.checks.productionAuthentication = await authenticateProduction(context);
   const page = await context.newPage();
   // La page /lab.html peut être relue avant la fin d’un déploiement Render.
   // Désactiver le cache navigateur garantit qu’un sondage ultérieur recharge le nouveau /lab/main.js.

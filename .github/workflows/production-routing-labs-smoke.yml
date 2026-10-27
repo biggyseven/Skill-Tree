@@ -17,6 +17,8 @@ jobs:
   advanced-routing-labs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    env:
+      SKILLTREE_PRODUCTION_SMOKE_PASSWORD: ${{ secrets.SKILLTREE_PRODUCTION_SMOKE_PASSWORD }}
     steps:
       - name: Wait for the deployed API and scenario catalog
         shell: bash
@@ -25,8 +27,12 @@ jobs:
           import json
           import time
           import urllib.request
+          import sys
+          sys.path.insert(0, "tests")
+          from production_smoke_auth import authenticated_opener
 
           base = "https://skill-tree-vjon.onrender.com"
+          opener = authenticated_opener(base)
           expected = [
               "isis-intermediaire",
               "isis-expert",
@@ -45,10 +51,10 @@ jobs:
           last_error = "the latest scenario files are not in the live API yet"
           for _ in range(36):
               try:
-                  with urllib.request.urlopen(base + "/openapi.json", timeout=20) as response:
+                  with opener.open(base + "/openapi.json", timeout=20) as response:
                       if response.status != 200:
                           raise RuntimeError(f"OpenAPI returned HTTP {response.status}")
-                  with urllib.request.urlopen(base + "/api/lab/v2", timeout=25) as response:
+                  with opener.open(base + "/api/lab/v2", timeout=25) as response:
                       catalog = json.loads(response.read().decode("utf-8"))
                   available = {
                       item.get("id")
@@ -74,8 +80,12 @@ jobs:
           import json
           import urllib.error
           import urllib.request
+          import sys
+          sys.path.insert(0, "tests")
+          from production_smoke_auth import authenticated_opener
 
           base = "https://skill-tree-vjon.onrender.com"
+          opener = authenticated_opener(base)
           expected = [
               "isis-intermediaire",
               "isis-expert",
@@ -98,7 +108,7 @@ jobs:
                   headers={"Accept": "application/json"},
               )
               try:
-                  with urllib.request.urlopen(request, timeout=30) as response:
+                  with opener.open(request, timeout=30) as response:
                       payload = json.loads(response.read().decode("utf-8"))
               except urllib.error.HTTPError as error:
                   detail = error.read().decode("utf-8", errors="replace")
