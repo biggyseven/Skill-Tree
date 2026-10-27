@@ -1117,5 +1117,11 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("min-height: 4.5rem;", DASHBOARD_HTML)
 
 
+    def test_exam_center_uses_uniform_80_percent_threshold(self):
+        self.assertIn('Réussite à partir de <span class="text-white" x-text="80"></span> %.', DASHBOARD_HTML)
+        self.assertIn("Examen non validé (80 % requis)", DASHBOARD_HTML)
+        self.assertNotIn('Réussite à partir de <span class="text-white" x-text="70"></span> %.', DASHBOARD_HTML)
+
+
 if __name__ == "__main__":
     unittest.main()
