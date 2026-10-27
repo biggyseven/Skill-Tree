@@ -5,6 +5,7 @@ on:
     branches:
       - "feature/diagnostic-adaptive-feedback-20261026"
       - "feature/lab-workspace"
+      - "security/site-hardening-20261027"
     paths:
       - "static/**"
       - "content/diagnostics/**"
