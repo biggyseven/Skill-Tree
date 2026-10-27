@@ -4931,6 +4931,21 @@
     ]
   },
   {
+    "id": "data-bases-debutant",
+    "module": "Administration Système",
+    "title": "Concepts des bases de données relationnelles — Débutant",
+    "category": "Bases de données",
+    "order": 2025,
+    "description": "Comprendre les tables, relations, clés, contraintes et transactions d’une base relationnelle.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
     "id": "db-intermediaire",
     "module": "Administration Système",
     "title": "Administration de bases de données",
