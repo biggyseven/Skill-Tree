@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Gestion de parc (GLPI, OCS) » ?",
+      "prompt": "Quelle information aide le plus à identifier physiquement un actif ?",
       "choices": [
-        "Le sujet principal du cours : Gestion de parc (GLPI, OCS)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "La couleur du fond de l'écran",
+        "Le nombre d'onglets ouverts",
+        "Un nom d'utilisateur temporaire",
+        "Le numéro de série, associé à d'autres identifiants et à l'historique"
+      ],
+      "answer": 3,
+      "explanation": "Le numéro de série est utile, mais doit être croisé avec l'inventaire et les autres attributs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un outil d'inventaire comme OCS ?",
+      "choices": [
+        "À remplacer tous les contrôles de sécurité",
+        "À collecter des données matérielles et logicielles selon un périmètre défini",
+        "À garantir que chaque licence est juridiquement valide",
+        "À supprimer l'historique des actifs"
+      ],
+      "answer": 1,
+      "explanation": "L'inventaire collecte les données ; leur interprétation et le contrôle de conformité restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment éviter une fusion erronée de doublons ?",
+      "choices": [
+        "Fusionner sur le nom d'hôte seulement",
+        "Supprimer l'entrée la plus récente",
+        "Comparer série, identifiants d'agent, historique et autres attributs fiables",
+        "Changer le numéro de série dans l'outil"
+      ],
+      "answer": 2,
+      "explanation": "Une clé unique ou plusieurs attributs doivent soutenir le rapprochement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit inclure une sortie de parc ?",
+      "choices": [
+        "Restitution, vérification de propriété, retrait des accès et effacement conforme selon politique",
+        "Uniquement un statut 'archivé'",
+        "La suppression des traces historiques",
+        "Un message oral sans ticket"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La sortie de parc est un processus de sécurité et de traçabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une remontée d'inventaire est ancienne. Que faut-il conclure ?",
+      "choices": [
+        "Que la machine a été volée",
+        "Que le système est sain",
+        "Que l'agent n'existe plus obligatoirement",
+        "Qu'il faut vérifier agent, réseau, statut de l'actif et éventuelle migration"
+      ],
+      "answer": 3,
+      "explanation": "L'absence de télémétrie n'établit pas à elle seule la disparition d'un actif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'un référentiel de configuration ?",
+      "choices": [
+        "Stocker uniquement les mots de passe",
+        "Relier les actifs, leurs relations et leur historique utile au service",
+        "Remplacer les contrats et garanties par une note",
+        "Supprimer les tickets après fermeture"
+      ],
+      "answer": 1,
+      "explanation": "Le référentiel donne une vision structurée de l'état et des relations des actifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Peut-on considérer qu'un logiciel détecté est toujours licencié correctement ?",
+      "choices": [
+        "Oui, par définition",
+        "Oui si le poste répond au ping",
+        "Non, il faut rapprocher usage, édition, contrat et droits applicables",
+        "Non, l'inventaire logiciel est toujours inutile"
+      ],
+      "answer": 2,
+      "explanation": "La présence technique n'établit pas les droits de licence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter les droits du compte d'inventaire ?",
+      "choices": [
+        "Pour réduire l'impact d'une compromission et respecter le moindre privilège",
+        "Pour empêcher l'inventaire de fonctionner partout",
+        "Pour masquer les résultats à l'équipe support",
+        "Pour éviter les mises à jour"
+      ],
+      "answer": 0,
+      "explanation": "Les agents et comptes d'inventaire doivent être protégés comme composants d'administration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que mesure la fraîcheur d'un inventaire ?",
+      "choices": [
+        "Le nombre de catégories dans GLPI",
+        "Le nombre de contrats archivés",
+        "La valeur d'achat d'un ordinateur",
+        "L'ancienneté de la dernière mise à jour par rapport à l'attendu"
+      ],
+      "answer": 3,
+      "explanation": "La fraîcheur aide à repérer des actifs non vus récemment."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment améliorer la qualité des données de parc ?",
+      "choices": [
+        "En supprimant toutes les valeurs inconnues",
+        "En définissant les champs obligatoires, les sources, les règles de rapprochement et les contrôles physiques",
+        "En autorisant tous les agents à modifier tous les champs",
+        "En évitant les audits"
+      ],
+      "answer": 1,
+      "explanation": "La qualité résulte de règles stables, de contrôles et d'une correction des écarts."
     }
   ]
 }
