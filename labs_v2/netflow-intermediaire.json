@@ -3,19 +3,22 @@
   "id": "netflow-intermediaire",
   "title": "IP SLA & NetFlow — Exporter, moniteur et échantillonnage",
   "level": "intermédiaire",
-  "module": "Configurez l’export NetFlow de R1 vers le collecteur 192.168.90.10 en UDP/2055. Définissez un moniteur de flux, un cache dimensionné, un échantillonnage contrôlé et l’interface où collecter les flux.",
-  "prompt": [
+  "module": "Administration Réseaux",
+  "prompt": "Configurez l’export NetFlow de R1 vers le collecteur 192.168.90.10 en UDP/2055. Définissez un moniteur de flux, un cache dimensionné, un échantillonnage contrôlé et l’interface où collecter les flux.",
+  "objectives": [
     "Activer l’exporteur NetFlow.",
     "Configurer adresse, transport et port du collecteur.",
     "Définir un moniteur et un cache utilisable.",
     "Activer l’échantillonnage et l’appliquer à l’interface souhaitée."
   ],
-  "objectives": [
+  "hints": [
     "Le collecteur doit être joignable depuis le routeur.",
     "Utilisez le même protocole et le même port côté collecteur et exporteur.",
     "L’échantillonnage réduit le volume exporté mais doit rester adapté à l’objectif de supervision."
   ],
-  "hints": {
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-netflow-intermediaire",
     "metadata": {
@@ -121,6 +124,20 @@
             "mask": null,
             "vlan": 90,
             "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 90,
+            "description": "Vers PC client",
             "access_group_in": null,
             "access_group_out": null
           }
@@ -230,7 +247,7 @@
         "id": "CLIENT",
         "from": {
           "node": "SW1",
-          "port": "Fa0/2"
+          "port": "Fa0/3"
         },
         "to": {
           "node": "PC-A",
@@ -247,78 +264,75 @@
       "event_log": []
     }
   },
-  "duration_min": 30,
-  "difficulty": "intermédiaire",
-  "initial_topology": [
-    {
-      "id": "exporter-enabled",
-      "description": "The NetFlow exporter is enabled.",
-      "device": "R1",
-      "path": "config.routes[0].exporter.enabled",
-      "operator": "equals",
-      "expected": true
-    },
-    {
-      "id": "collector-address",
-      "description": "Flows are sent to the collector.",
-      "device": "R1",
-      "path": "config.routes[0].exporter.address",
-      "operator": "equals",
-      "expected": "192.168.90.10"
-    },
-    {
-      "id": "collector-port",
-      "description": "The collector uses UDP/2055.",
-      "device": "R1",
-      "path": "config.routes[0].exporter.port",
-      "operator": "equals",
-      "expected": 2055
-    },
-    {
-      "id": "transport",
-      "description": "The exporter uses UDP.",
-      "device": "R1",
-      "path": "config.routes[0].exporter.transport",
-      "operator": "equals",
-      "expected": "udp"
-    },
-    {
-      "id": "monitor-cache",
-      "description": "The monitor cache is sized for operational use.",
-      "device": "R1",
-      "path": "config.routes[0].monitor.cache_entries",
-      "operator": "equals",
-      "expected": 100000
-    },
-    {
-      "id": "sampler-enabled",
-      "description": "The sampler is enabled.",
-      "device": "R1",
-      "path": "config.routes[0].sampler.enabled",
-      "operator": "equals",
-      "expected": true
-    },
-    {
-      "id": "sampler-rate",
-      "description": "The sampling rate is configured at 1:100.",
-      "device": "R1",
-      "path": "config.routes[0].sampler.rate",
-      "operator": "equals",
-      "expected": 100
-    },
-    {
-      "id": "interface",
-      "description": "The monitor is applied to Gi0/1.",
-      "device": "R1",
-      "path": "config.routes[0].interface_binding",
-      "operator": "equals",
-      "expected": "Gi0/1"
-    }
-  ],
   "check": {
     "type": "config_assertions",
     "pass_threshold": 1,
-    "rules": 25,
+    "rules": [
+      {
+        "id": "exporter-enabled",
+        "description": "The NetFlow exporter is enabled.",
+        "device": "R1",
+        "path": "config.routes[0].exporter.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "collector-address",
+        "description": "Flows are sent to the collector.",
+        "device": "R1",
+        "path": "config.routes[0].exporter.address",
+        "operator": "equals",
+        "expected": "192.168.90.10"
+      },
+      {
+        "id": "collector-port",
+        "description": "The collector uses UDP/2055.",
+        "device": "R1",
+        "path": "config.routes[0].exporter.port",
+        "operator": "equals",
+        "expected": 2055
+      },
+      {
+        "id": "transport",
+        "description": "The exporter uses UDP.",
+        "device": "R1",
+        "path": "config.routes[0].exporter.transport",
+        "operator": "equals",
+        "expected": "udp"
+      },
+      {
+        "id": "monitor-cache",
+        "description": "The monitor cache is sized for operational use.",
+        "device": "R1",
+        "path": "config.routes[0].monitor.cache_entries",
+        "operator": "equals",
+        "expected": 100000
+      },
+      {
+        "id": "sampler-enabled",
+        "description": "The sampler is enabled.",
+        "device": "R1",
+        "path": "config.routes[0].sampler.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "sampler-rate",
+        "description": "The sampling rate is configured at 1:100.",
+        "device": "R1",
+        "path": "config.routes[0].sampler.rate",
+        "operator": "equals",
+        "expected": 100
+      },
+      {
+        "id": "interface",
+        "description": "The monitor is applied to Gi0/1.",
+        "device": "R1",
+        "path": "config.routes[0].interface_binding",
+        "operator": "equals",
+        "expected": "Gi0/1"
+      }
+    ],
     "time_bonus": {}
   },
   "xp_reward": 30,
