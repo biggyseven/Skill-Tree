@@ -7486,7 +7486,7 @@
     "title": "Architecture de sécurité sur les réseaux OT/ICS",
     "category": "Cybersécurité",
     "order": 933,
-    "description": "Squelette du cours de cybersécurité : Architecture de sécurité sur les réseaux OT/ICS.",
+    "description": "Architecture OT/ICS défensive : zones et conduits, IDMZ, accès distant, sûreté, surveillance et réponse à incident.",
     "prereqs": [
       "secu-supply-chain-expert"
     ],
