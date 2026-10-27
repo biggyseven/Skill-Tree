@@ -22,6 +22,12 @@ async function main() {
     deviceScaleFactor: 1,
   });
   const page = await context.newPage();
+  // La page /lab.html peut être relue avant la fin d’un déploiement Render.
+  // Désactiver le cache navigateur garantit qu’un sondage ultérieur recharge le nouveau /lab/main.js.
+  const cdp = await context.newCDPSession(page);
+  await cdp.send('Network.enable');
+  await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
+  await cdp.send('Network.setBypassServiceWorker', { bypass: true });
   const origin = new URL(BASE_URL).origin;
 
   page.on('pageerror', error => report.pageErrors.push(error.message));
@@ -56,6 +62,11 @@ async function main() {
         report.checks.lastReadinessProbeError = String(probeError.message || probeError).slice(0, 240);
       }
       await page.waitForTimeout(10000);
+    }
+    if (!ready) {
+      const readinessFailureShot = path.join(OUT, 'production-readiness-failure.png');
+      await page.screenshot({ path: readinessFailureShot, fullPage: true, animations: 'disabled' }).catch(() => {});
+      report.screenshots.push(readinessFailureShot);
     }
     assert(ready, 'Production did not expose the responsive header and expanded equipment/cable libraries within eight minutes.');
 
