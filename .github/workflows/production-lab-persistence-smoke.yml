@@ -41,6 +41,75 @@ jobs:
               raise SystemExit(f"Production API unavailable: {last_error}")
           PY
 
+      - name: Checkout catalogue for production lab coverage audit
+        uses: actions/checkout@v4
+
+      - name: Audit all catalogue courses that require a Lab Workspace scenario
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+
+          base = "https://skill-tree-vjon.onrender.com"
+          nodes = json.loads(Path("content/nodes.json").read_text(encoding="utf-8-sig"))
+          required = {
+              item["id"]: item
+              for item in nodes
+              if isinstance(item, dict)
+              and isinstance(item.get("id"), str)
+              and any(
+                  isinstance(requirement, dict) and requirement.get("kind") == "lab"
+                  for requirement in (item.get("requirements") or [])
+              )
+          }
+          last_error = "catalog endpoint did not become available"
+          for _ in range(24):
+              try:
+                  request = urllib.request.Request(base + "/api/lab/v2", headers={"Accept": "application/json"})
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      playable = json.loads(response.read().decode("utf-8"))
+                  if isinstance(playable, list):
+                      break
+                  last_error = "unexpected JSON shape from /api/lab/v2"
+              except Exception as error:
+                  last_error = str(error)
+                  time.sleep(5)
+          else:
+              raise SystemExit("Cannot audit production lab catalog: " + last_error)
+
+          available = {
+              item.get("id"): item
+              for item in playable
+              if isinstance(item, dict) and isinstance(item.get("id"), str)
+          }
+          missing = sorted(set(required) - set(available))
+          print("PRODUCTION_LAB_CATALOG_AUDIT_BEGIN")
+          print("COURSES_TOTAL=" + str(len(nodes)))
+          print("COURSES_REQUIRING_LAB=" + str(len(required)))
+          print("PLAYABLE_V2_LABS_API=" + str(len(available)))
+          print("REQUIRED_LABS_MISSING_FROM_PLAYABLE_CATALOG=" + str(len(missing)))
+          for lab_id in missing:
+              node = required[lab_id]
+              print(
+                  "MISSING_LAB="
+                  + json.dumps(
+                      {
+                          "id": lab_id,
+                          "title": node.get("title", ""),
+                          "module": node.get("module", ""),
+                          "category": node.get("category", ""),
+                      },
+                      ensure_ascii=False,
+                      separators=(",", ":"),
+                  )
+              )
+          print("PRODUCTION_LAB_CATALOG_AUDIT_END")
+          PY
+
       - name: Verify the Linux intermediate lab is exposed with a playable v2 topology
         shell: bash
         run: |
