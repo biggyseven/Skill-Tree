@@ -4,123 +4,375 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est l'objectif d'un retour d'expérience après un incident majeur ?",
+      "prompt": "Quel est l'objectif central d'un RETEX ?",
       "choices": [
-        "Désigner publiquement un responsable",
-        "Réécrire la chronologie pour rendre la réponse plus simple",
-        "Comprendre les facteurs contributifs et identifier des améliorations qui réduisent le risque de récurrence",
-        "Garantir qu'aucun incident similaire ne se produira"
-      ],
-      "answer": 2,
-      "explanation": "Un RETEX transforme l'expérience en apprentissages et actions vérifiables plutôt qu'en recherche de coupable."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel type de chronologie est le plus utile pour un RETEX ?",
-      "choices": [
-        "Une reconstruction basée uniquement sur les souvenirs du dernier intervenant",
-        "Une suite d'opinions sans horodatage",
-        "Une version où tous les événements sont supposés simultanés",
-        "Une séquence factuelle avec horodatages, décisions, changements, symptômes et incertitudes signalées"
-      ],
-      "answer": 3,
-      "explanation": "Une chronologie vérifiable permet de comprendre le déroulement et de repérer les délais ou dépendances importants."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment analyser un échec sans transformer le RETEX en recherche de coupable ?",
-      "choices": [
-        "Examiner les conditions, les contrôles, les décisions, les informations disponibles et les facteurs systémiques",
-        "Supprimer les erreurs humaines du compte rendu",
-        "Attribuer la cause à l'opérateur présent sans autre preuve",
-        "Éviter toute question sur la conception des processus"
-      ],
-      "answer": 0,
-      "explanation": "Une analyse constructive étudie les conditions qui ont rendu l'erreur ou la défaillance possible et cherche des mesures de prévention."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel énoncé distingue le mieux cause, facteur contributif et symptôme ?",
-      "choices": [
-        "Ce sont toujours des termes interchangeables",
-        "Le symptôme décrit ce qui est visible, tandis que les facteurs et causes aident à expliquer pourquoi cela s'est produit",
-        "Un symptôme suffit toujours à justifier une action de fond",
-        "Un facteur contributif ne peut pas être technique"
+        "Désigner une personne responsable de chaque incident",
+        "Transformer une expérience en leçons, décisions, actions et vérification d'efficacité",
+        "Remplacer les rapports d'incident par un résumé plus court",
+        "Prouver que la procédure était correcte"
       ],
       "answer": 1,
-      "explanation": "La distinction empêche de confondre ce qui a été observé avec l'explication et les conditions qui ont contribué à l'événement."
+      "explanation": "Un RETEX relie les faits à l'amélioration et vérifie les actions. Un récit ou une attribution de faute ne suffit pas à démontrer un apprentissage."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle action de suivi est la plus exploitable ?",
+      "prompt": "Quel critère doit peser fortement dans le choix du niveau d'investigation ?",
       "choices": [
-        "« Faire attention la prochaine fois »",
-        "« Améliorer le système dès que possible »",
-        "Une action concrète liée à un constat, avec responsable, échéance et preuve de réalisation attendue",
-        "Une réunion sans objectif ni compte rendu"
+        "Uniquement le dommage réellement constaté",
+        "Le rang hiérarchique de la personne impliquée",
+        "Les conséquences potentielles, la récurrence, les barrières et la valeur d'apprentissage",
+        "Le temps que l'équipe souhaite consacrer au rapport"
       ],
       "answer": 2,
-      "explanation": "Une action définie et vérifiable permet de contrôler son exécution et d'évaluer son efficacité."
+      "explanation": "Un événement sans dommage peut révéler un scénario grave. La profondeur doit dépendre du risque et de l'apprentissage potentiel, pas seulement de la conséquence immédiate."
     },
     {
       "type": "qcm",
-      "prompt": "Comment vérifier qu'une action de RETEX a été efficace ?",
+      "prompt": "Quelle priorité s'applique pendant un événement encore actif ?",
       "choices": [
-        "Dès qu'elle a été annoncée",
-        "Quand le responsable a confirmé verbalement qu'elle est faite",
-        "Lorsque l'action a été planifiée dans un calendrier",
-        "En définissant des critères, en observant les résultats et en vérifiant que le risque visé diminue"
-      ],
-      "answer": 3,
-      "explanation": "La clôture administrative ne suffit pas ; il faut évaluer le résultat et le risque restant."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que faire si le RETEX contient des données sensibles ou des identifiants ?",
-      "choices": [
-        "Les protéger, les minimiser ou les masquer dans la version diffusée selon les règles de conservation",
-        "Les publier pour assurer une transparence totale",
-        "Les envoyer sur un compte personnel pour faciliter la revue",
-        "Les conserver dans tous les documents sans contrôle d'accès"
+        "Sécuriser les personnes, maîtriser le danger et suivre les procédures d'urgence",
+        "Interroger tous les témoins avant toute action",
+        "Reproduire l'incident pour valider l'hypothèse",
+        "Rédiger la conclusion finale"
       ],
       "answer": 0,
-      "explanation": "Le partage doit être adapté au destinataire, à la confidentialité et aux besoins d'analyse tout en préservant les preuves nécessaires."
+      "explanation": "La sécurité et le contrôle de la situation priment. La collecte de preuves s'organise sans retarder les mesures urgentes et sûres."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi distinguer les actions immédiates des actions de fond ?",
+      "prompt": "Pourquoi faut-il préserver la provenance et l'horodatage d'une preuve ?",
       "choices": [
-        "Pour faire paraître le rapport plus long",
-        "Les actions immédiates rétablissent ou contiennent la situation, alors que les actions de fond visent les facteurs à l'origine de la récurrence",
-        "Parce que les actions de fond ne doivent jamais être suivies",
-        "Parce que l'action immédiate élimine toujours la cause"
-      ],
-      "answer": 1,
-      "explanation": "La réponse immédiate et la prévention à long terme ont des objectifs différents et doivent être suivies séparément."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel résultat indique qu'une leçon apprise est réellement capitalisée ?",
-      "choices": [
-        "Un rapport déposé dans un répertoire que personne ne consulte",
-        "Une liste de recommandations sans responsable",
-        "Des changements intégrés aux procédures, contrôles ou formations, puis vérifiés dans la durée",
-        "La suppression du ticket source"
-      ],
-      "answer": 2,
-      "explanation": "La capitalisation doit modifier les pratiques concernées et rendre le nouvel apprentissage accessible et vérifiable."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel comportement soutient un RETEX de qualité ?",
-      "choices": [
-        "Éviter les questions difficiles pour terminer rapidement",
-        "Modifier les conclusions pour correspondre aux premières impressions",
-        "Ne conserver que les faits qui confortent la solution choisie",
-        "Inviter les acteurs pertinents, distinguer faits et hypothèses et documenter les désaccords utiles"
+        "Pour pouvoir ignorer les données contradictoires",
+        "Pour remplacer tous les logs par des captures",
+        "Pour accélérer automatiquement la conclusion",
+        "Pour permettre de comprendre la source, la fiabilité, les transformations et l'ordre des événements"
       ],
       "answer": 3,
-      "explanation": "Une analyse structurée et ouverte améliore la compréhension collective, sans dissimuler les incertitudes ou les points de vue divergents."
+      "explanation": "Une preuve vérifiable doit conserver son origine et ses limites. Sans provenance, les conclusions et comparaisons temporelles peuvent être trompeuses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un journal ne contient pas l'alarme recherchée. Quelle conclusion est la plus rigoureuse ?",
+      "choices": [
+        "L'alarme n'a jamais existé",
+        "Aucune entrée correspondante n'a été retrouvée dans la source conservée ; la couverture doit être vérifiée",
+        "L'opérateur a ignoré l'alarme",
+        "Le système fonctionne correctement"
+      ],
+      "answer": 1,
+      "explanation": "L'absence d'entrée peut venir d'une alarme non générée, d'une collecte en panne, d'une rétention expirée ou d'un filtre. Il faut distinguer absence de trace et preuve d'absence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi normaliser les horodatages avant de bâtir une chronologie ?",
+      "choices": [
+        "Pour donner une heure exacte à chaque témoignage",
+        "Pour éviter de conserver les incertitudes",
+        "Parce que les sources peuvent avoir des horloges ou fuseaux différents et des timestamps de nature différente",
+        "Pour supprimer les journaux qui ne concordent pas"
+      ],
+      "answer": 2,
+      "explanation": "Les heures de l'équipement, d'ingestion et d'affichage peuvent diverger. La chronologie doit conserver les intervalles et les incertitudes lorsqu'un ordre exact n'est pas démontré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle formulation d'entretien limite le biais d'accusation ?",
+      "choices": [
+        "Qu'avez-vous remarqué et quelles options vous semblaient disponibles à ce moment-là ?",
+        "Pourquoi avez-vous ignoré la procédure ?",
+        "Qui a causé l'incident ?",
+        "Vous saviez que cette action était mauvaise, n'est-ce pas ?"
+      ],
+      "answer": 0,
+      "explanation": "Une question ouverte reconstitue le contexte et les informations disponibles. Une question qui contient déjà un jugement encourage la défensive et limite l'apprentissage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une approche de RETEX sans recherche de blâme ?",
+      "choices": [
+        "Personne ne peut jamais être tenu responsable",
+        "Les violations volontaires doivent être ignorées",
+        "Toutes les décisions prises pendant l'incident étaient correctes",
+        "L'analyse système favorise l'apprentissage, tandis que les questions de conduite relèvent d'un processus adapté et distinct"
+      ],
+      "answer": 3,
+      "explanation": "Le travail sans blâme examine les conditions et les barrières. Il n'abolit pas les obligations de sécurité ni les procédures distinctes qui peuvent s'appliquer à des actes délibérés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi examiner le travail réel et pas seulement la procédure ?",
+      "choices": [
+        "Parce que les procédures ne sont jamais utiles",
+        "Parce que les contraintes, interruptions, outils et conditions peuvent rendre le travail prescrit difficile ou impossible",
+        "Pour approuver toutes les adaptations locales",
+        "Pour éviter de vérifier les règles de sécurité"
+      ],
+      "answer": 1,
+      "explanation": "Les écarts entre prescrit et réel révèlent parfois des contraintes organisationnelles ou ergonomiques. Ils doivent être étudiés avant d'être interprétés comme une faute."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle limite a la méthode des cinq pourquoi ?",
+      "choices": [
+        "Elle ne sert jamais en maintenance",
+        "Elle permet toujours de trouver une cause unique",
+        "Elle peut créer une chaîne artificielle si l'analyste ignore les branches et les facteurs multiples",
+        "Elle supprime le besoin de preuves"
+      ],
+      "answer": 2,
+      "explanation": "Les pourquoi successifs aident à approfondir une question mais peuvent simplifier à tort des causes convergentes. Chaque hypothèse doit être confrontée aux preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert l'analyse des barrières ?",
+      "choices": [
+        "À identifier les contrôles qui préviennent, détectent, limitent ou soutiennent le rétablissement, puis vérifier leur efficacité réelle",
+        "À choisir une personne à blâmer",
+        "À remplacer la chronologie",
+        "À garantir que tous les risques sont éliminés"
+      ],
+      "answer": 0,
+      "explanation": "L'analyse examine quelles barrières étaient prévues, disponibles, capables de fonctionner et effectivement utilisées. Elle peut révéler les contrôles qui ont bien fonctionné aussi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'intérêt d'un arbre causal par rapport à une seule chaîne linéaire ?",
+      "choices": [
+        "Il permet d'éviter les entretiens",
+        "Il prouve automatiquement la responsabilité",
+        "Il transforme les hypothèses en faits",
+        "Il représente plusieurs facteurs nécessaires ou contributifs et les relations qui doivent être justifiées"
+      ],
+      "answer": 3,
+      "explanation": "Plusieurs conditions peuvent se combiner dans un incident. L'arbre causal rend ces branches visibles, mais chaque relation doit rester étayée par des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une action dit seulement « rappeler la procédure ». Quel est son défaut principal ?",
+      "choices": [
+        "Une action ne peut jamais inclure de communication",
+        "Elle ne précise ni le mécanisme visé, ni le livrable, ni le test d'efficacité",
+        "Elle est toujours trop chère",
+        "Elle doit être clôturée le jour même"
+      ],
+      "answer": 1,
+      "explanation": "Le rappel ne traite pas nécessairement une procédure inapplicable, une interface ambiguë ou une défaillance de barrière. L'action doit cibler une cause et être vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence distingue correction immédiate et action systémique ?",
+      "choices": [
+        "La correction immédiate est toujours inutile",
+        "L'action systémique concerne seulement les documents",
+        "La correction rétablit ou sécurise la situation présente ; l'action systémique réduit la possibilité de répétition dans d'autres cas",
+        "Elles sont équivalentes"
+      ],
+      "answer": 2,
+      "explanation": "Les mesures immédiates sont nécessaires au rétablissement, mais peuvent laisser des faiblesses ailleurs. Une action systémique cible un mécanisme commun confirmé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une action peut-elle être considérée comme efficace ?",
+      "choices": [
+        "Après livraison du fichier de procédure",
+        "Quand son propriétaire affirme qu'elle est terminée",
+        "Dès que le pourcentage de clôture atteint 100 %",
+        "Lorsque les critères de fonctionnement et d'efficacité convenus sont démontrés par des preuves pertinentes"
+      ],
+      "answer": 3,
+      "explanation": "La livraison prouve l'implémentation, pas le résultat. L'efficacité requiert un test pertinent et, selon le risque, une observation en exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi définir les critères d'efficacité avant l'exécution ?",
+      "choices": [
+        "Pour réduire le biais et éviter de modifier la définition du succès après avoir vu les résultats",
+        "Pour garantir que toutes les actions réussissent",
+        "Pour empêcher toute nouvelle preuve d'être examinée",
+        "Pour rendre la vérification purement administrative"
+      ],
+      "answer": 0,
+      "explanation": "Des critères préalables limitent l'ajustement opportuniste du seuil et rendent la décision vérifiable. Ils doivent correspondre au risque et au mécanisme traité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi compter les incidents avec un dénominateur pertinent ?",
+      "choices": [
+        "Pour faire augmenter le nombre de rapports",
+        "Parce que le nombre brut ne tient pas compte du volume d'exposition ou des changements de couverture",
+        "Pour exclure les événements difficiles",
+        "Parce qu'un taux brut est toujours faux"
+      ],
+      "answer": 1,
+      "explanation": "Le volume d'activité, le périmètre et la qualité de déclaration peuvent changer. Un dénominateur cohérent améliore la comparaison, sans remplacer l'analyse du contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une bonne pratique lorsqu'une explication reste incertaine ?",
+      "choices": [
+        "Choisir l'hypothèse la plus simple sans la signaler",
+        "Supprimer les éléments contradictoires",
+        "Documenter les faits, les hypothèses concurrentes, la confiance et les preuves manquantes",
+        "Inventer une cause définitive pour donner une conclusion nette"
+      ],
+      "answer": 2,
+      "explanation": "L'incertitude documentée protège la crédibilité du rapport et aide à prioriser les vérifications suivantes. Une conclusion limitée vaut mieux qu'une certitude non étayée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment mesurer utilement le portefeuille d'actions ?",
+      "choices": [
+        "Uniquement par le nombre de tickets fermés",
+        "En ignorant les actions en retard",
+        "Par la rapidité de clôture de tous les dossiers",
+        "En combinant risque, propriétaire, échéance, preuve de réalisation, test d'efficacité et récurrence"
+      ],
+      "answer": 3,
+      "explanation": "Les indicateurs de volume ou de délai peuvent inciter à la fermeture administrative. La gouvernance doit suivre le risque et la réduction effectivement démontrée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif d'une fiche de leçon réutilisable ?",
+      "choices": [
+        "Permettre de retrouver le contexte, les conditions d'application, les contrôles validés et le niveau de confiance",
+        "Réécrire tous les témoignages dans un document public",
+        "Remplacer le rapport source sans lien",
+        "Transformer une hypothèse en règle universelle"
+      ],
+      "answer": 0,
+      "explanation": "Une leçon utile est retrouvable, contextualisée, maintenue et liée à sa source. Elle précise quand elle s'applique et les limites à respecter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment interpréter une hausse des presque-accidents déclarés après amélioration du système de RETEX ?",
+      "choices": [
+        "Comme la preuve que la sécurité se dégrade nécessairement",
+        "En examinant aussi l'exposition, la qualité du signalement, la couverture et les conséquences",
+        "En supprimant l'indicateur",
+        "En cessant d'enregistrer les cas sans dommage"
+      ],
+      "answer": 1,
+      "explanation": "Une hausse peut refléter plus de risques, une meilleure détection ou une culture de déclaration plus saine. Les données doivent être croisées avec les autres signaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne posture envers une leçon externe ?",
+      "choices": [
+        "La reproduire immédiatement sans analyse",
+        "La rejeter si elle vient d'un autre secteur",
+        "Comparer mécanismes, conditions, technologies, barrières et conséquences avant de la transposer",
+        "La diffuser sans mentionner les limites"
+      ],
+      "answer": 2,
+      "explanation": "Une expérience externe est une source d'hypothèse utile, pas une prescription universelle. Son applicabilité doit être évaluée et justifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage de l'IA pour un RETEX est le plus responsable ?",
+      "choices": [
+        "Laisser le modèle déterminer seul la cause et la sanction",
+        "Publier automatiquement les traces sans vérifier les accès",
+        "Traiter toutes les données par un service public sans autorisation",
+        "Utiliser l'outil comme aide, garder les sources, vérifier les faits et empêcher les conclusions ou actions automatiques non approuvées"
+      ],
+      "answer": 3,
+      "explanation": "Les outils peuvent aider à synthétiser ou rechercher, mais ils peuvent inventer ou déformer les faits. Les données doivent être autorisées et les résultats validés par une personne compétente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il faire remonter un thème de RETEX à la direction ?",
+      "choices": [
+        "Quand plusieurs cas indiquent une cause commune, une décision de financement ou un risque dépassant l'autorité locale",
+        "Uniquement lorsque le rapport est long",
+        "Dès qu'un technicien le demande, sans analyse",
+        "Jamais : les actions doivent rester locales"
+      ],
+      "answer": 0,
+      "explanation": "Les causes transverses peuvent nécessiter une modification de portefeuille, de standard, de budget ou d'acceptation du risque. La gouvernance doit nommer l'autorité capable de décider."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui démontre le mieux un apprentissage organisationnel effectif ?",
+      "choices": [
+        "Le nombre de pages dans le rapport",
+        "L'intégration des enseignements dans les pratiques et la vérification que les risques ou récidives diminuent selon les critères définis",
+        "La tenue d'une réunion",
+        "La signature de tous les participants"
+      ],
+      "answer": 1,
+      "explanation": "L'apprentissage est actif quand les enseignements changent les pratiques et que l'efficacité est contrôlée. Une réunion ou un document seul reste une activité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une action qui ne produit pas l'effet prévu ?",
+      "choices": [
+        "La fermer parce qu'elle a été exécutée",
+        "Modifier le résultat attendu pour le déclarer atteint",
+        "Réouvrir l'analyse, examiner les hypothèses et corriger l'action ou la mesure",
+        "Supprimer le lien avec l'incident source"
+      ],
+      "answer": 2,
+      "explanation": "Une action inefficace fournit une nouvelle preuve. Il faut réexaminer le mécanisme, les conditions d'exploitation et les contrôles plutôt que clôturer artificiellement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère distingue une chronologie d'une simple narration ?",
+      "choices": [
+        "Une chronologie comporte toujours une cause racine",
+        "Elle contient uniquement les témoignages du responsable",
+        "Elle doit éviter les heures incertaines",
+        "Elle référence les sources, sépare événements, observations, décisions et actions, et conserve les contradictions"
+      ],
+      "answer": 3,
+      "explanation": "Une chronologie traçable permet de vérifier l'ordre et la confiance de chaque élément. Elle ne doit pas masquer les sources manquantes ni les différences entre perception et action."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi analyser les facteurs de réussite lors d'une intervention efficace ?",
+      "choices": [
+        "Pour rendre les bonnes pratiques reproductibles après avoir vérifié les conditions où elles sont sûres et applicables",
+        "Parce qu'une réussite ne nécessite aucune vérification",
+        "Pour remplacer toutes les procédures par l'intuition",
+        "Pour conclure qu'une personne est irremplaçable"
+      ],
+      "answer": 0,
+      "explanation": "Les événements positifs peuvent révéler des contrôles, compétences ou coopérations utiles. La pratique doit être comprise et validée avant d'être généralisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une décision d'acceptation d'un risque résiduel ?",
+      "choices": [
+        "Uniquement le nom de l'équipe",
+        "Un motif, des conséquences, des mesures temporaires, une autorité habilitée et une date de réexamen",
+        "Une phrase indiquant que le RETEX est fini",
+        "La promesse qu'aucune récidive n'aura lieu"
+      ],
+      "answer": 1,
+      "explanation": "L'acceptation du risque est une décision explicite et révisable, pas un moyen de cacher une action non financée. Les mesures temporaires et la responsabilité doivent rester visibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il distinguer le RETEX d'une enquête disciplinaire ou judiciaire ?",
+      "choices": [
+        "Parce qu'aucun fait ne peut être collecté",
+        "Parce que le RETEX ne traite jamais de sécurité",
+        "Parce que les objectifs, mandats, règles de preuve et décisions peuvent différer et doivent être gérés par les voies appropriées",
+        "Parce que l'enquête officielle remplace toujours l'amélioration"
+      ],
+      "answer": 2,
+      "explanation": "Les processus peuvent partager des informations sous règles appropriées, mais leurs finalités et responsabilités ne sont pas identiques. Le RETEX ne doit pas se transformer en enquête hors de son mandat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand peut-on considérer le RETEX terminé ?",
+      "choices": [
+        "Dès que la réunion de revue est finie",
+        "Lorsque le rapport est téléversé, quelles que soient les actions",
+        "Dès que toutes les actions ont été administrativement fermées",
+        "Quand les livrables sont validés, les actions suivies, les vérifications réalisées ou planifiées selon le risque, et les risques résiduels explicitement traités"
+      ],
+      "answer": 3,
+      "explanation": "La clôture doit respecter les critères convenus et maintenir visibles les risques encore ouverts. Le document n'est qu'une partie de la boucle d'apprentissage."
     }
   ]
 }
