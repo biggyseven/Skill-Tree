@@ -253,3 +253,26 @@ Toutes les cases sont cochées mais l'application échoue encore.
 Crée des procédures pour l'arrivée d'un poste, une mise à jour logicielle et une restauration de configuration. Chacune doit définir le propriétaire, le périmètre, les prérequis, les étapes, la sécurité, les tests, les preuves, les exceptions, la version et l'approbation.
 
 **Correction détaillée :** la structure est cohérente, mais les contrôles restent spécifiques à chaque tâche. La procédure d'arrivée vérifie l'autorisation, l'identité et les accès ; la mise à jour documente la cible et le retour arrière ; la restauration valide le point, la cohérence et le test de service. Teste chaque document avec un technicien différent de l'auteur et corrige les étapes qui nécessitent une explication orale.
+
+
+## 15. Mesurer la qualité des procédures
+
+Le nombre de pages ou de procédures publiées n'est pas une mesure de qualité. Pour évaluer un corpus, examine la couverture des tâches critiques, la proportion de documents revus dans les délais, les procédures sans propriétaire, les incidents liés à une instruction ambiguë, les écarts constatés lors des interventions et les résultats des essais effectués par des personnes différentes des auteurs.
+
+L'indicateur de couverture doit avoir un dénominateur défini : tâches critiques identifiées dans le registre de risques, processus récurrents, actifs couverts ou opérations à autorisation obligatoire. Si la liste des tâches n'est pas complète, un taux de couverture peut être trompeur. Le rapport doit donc nommer la source du dénominateur et les catégories qui restent hors périmètre.
+
+Un test de procédure se réalise en environnement adapté. Le testeur suit le document sans aide orale, note les ambiguïtés, les informations qu'il doit deviner, les liens morts, les prérequis indisponibles et les résultats impossibles à prouver. Pour les opérations risquées, la revue doit également vérifier que l'étape dangereuse est limitée, que le droit requis est identifié et que la procédure dispose d'un point d'arrêt.
+
+~~~mermaid
+flowchart TD
+    A[Procédure publiée] --> B[Choisir un testeur indépendant]
+    B --> C[Exécuter dans un cadre sûr]
+    C --> D[Noter écarts et ambiguïtés]
+    D --> E[Classer le risque]
+    E --> F[Corriger et faire approuver]
+    F --> G[Retester et archiver la preuve]
+~~~
+
+Un changement d'outil peut rendre une procédure obsolète sans modifier son titre. Lors d'une mise à niveau, identifie les documents liés à la version, teste les étapes concernées et marque les anciennes versions comme remplacées. Le responsable doit pouvoir retrouver la version en vigueur à une date donnée pour expliquer une intervention ou répondre à un audit.
+
+Le catalogue de procédures doit aussi offrir une navigation simple. Utilise des titres parlants, des catégories, des mots-clés et des liens depuis les tickets ou l'inventaire lorsque cela est utile. Les documents sensibles doivent être accessibles aux rôles prévus sans exposer des identifiants dans les fichiers. Une procédure facile à trouver est plus probable d'être appliquée ; une procédure non retrouvable agit comme une procédure inexistante.
