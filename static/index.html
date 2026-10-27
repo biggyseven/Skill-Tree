@@ -6139,7 +6139,9 @@
           try {
             const response = await fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`);
             const payload = await response.json().catch(() => ({}));
-            const topologyNodes = payload?.definition?.initial_topology?.nodes;
+            const topologyNodes = payload?.initial_topology?.nodes?.length
+              ? payload.initial_topology.nodes
+              : payload?.definition?.initial_topology?.nodes;
             if (
               !response.ok ||
               payload.sandbox === true ||
@@ -6189,7 +6191,9 @@
               const labPayload = await response.json();
               // Un bac à sable générique ne remplace pas une consigne legacy déjà disponible.
               // Le workspace v2 n'est prioritaire que lorsqu'une vraie définition de lab existe.
-              const topologyNodes = labPayload.definition?.initial_topology?.nodes;
+              const topologyNodes = labPayload.initial_topology?.nodes?.length
+                ? labPayload.initial_topology.nodes
+                : labPayload.definition?.initial_topology?.nodes;
               if (
                 !labPayload.sandbox &&
                 Array.isArray(topologyNodes) &&
