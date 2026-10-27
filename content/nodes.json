@@ -7996,7 +7996,7 @@
     "title": "Maintenance prédictive (IA, IoT)",
     "category": "Prédictive",
     "order": 4328,
-    "description": "Maintenance prédictive (IA, IoT)",
+    "description": "Maintenance prédictive : capteurs, données, modèles et décisions opérationnelles.",
     "prereqs": [
       "maint-automatisation-intermediaire"
     ],
@@ -8005,7 +8005,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-predictive-expert"
   },
   {
     "id": "maint-predictive-expert",
@@ -8013,8 +8014,9 @@
     "title": "Maintenance prédictive : capteurs, données et modèles",
     "category": "Prédictive — approfondissement",
     "order": 4328,
-    "description": "Approfondir la collecte de télémétrie, la qualité des données, les indicateurs d’anomalie et l’évaluation des alertes prédictives.",
+    "description": "Concevoir et évaluer un pilote de maintenance prédictive en maîtrisant les capteurs, la qualité temporelle, les métriques, les alertes et le repli opérationnel.",
     "prereqs": [
+      "maint-monitoring-intermediaire",
       "maint-automatisation-intermediaire"
     ],
     "requirements": [
@@ -8030,7 +8032,7 @@
     "title": "Audits techniques et rapports de conformité",
     "category": "Audits",
     "order": 4329,
-    "description": "Audits techniques et rapports de conformité",
+    "description": "Audits techniques : critères, preuves, constats et suivi des actions correctives.",
     "prereqs": [
       "maint-maintenance-predictive-expert"
     ],
@@ -8039,7 +8041,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-audits-expert"
   },
   {
     "id": "maint-audits-expert",
@@ -8133,7 +8136,7 @@
     "title": "Gestion des fournisseurs",
     "category": "Fournisseurs",
     "order": 4334,
-    "description": "Gestion des fournisseurs",
+    "description": "Pilotage expert des fournisseurs, contrats de service, risques tiers et réversibilité.",
     "prereqs": [
       "maint-appel-offre-expert"
     ],
@@ -8142,7 +8145,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-fournisseurs-expert"
   },
   {
     "id": "maint-fournisseurs-expert",
