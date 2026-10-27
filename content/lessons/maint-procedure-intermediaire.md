@@ -118,84 +118,60 @@ Les difficultés rencontrées doivent améliorer la procédure de manière versi
 
 ### 1. Public et périmètre
 
-Une procédure doit nommer le rôle visé, les systèmes concernés, les exclusions et le résultat attendu. Décrire les conditions d'application et les cas où le technicien doit arrêter et escalader évite d'appliquer une procédure hors contexte.
+**Définir le résultat avant de détailler les gestes.** « Traiter les postes lents » est trop large; « identifier les postes du lot pilote dont le démarrage dépasse le seuil approuvé, isoler la cause probable et consigner la décision » est vérifiable. Décrire les actifs concernés avec un identifiant d'inventaire ou un groupe maîtrisé, la population exclue, le service rendu et les dépendances. Une procédure de maintenance de parc ne doit pas être appliquée indistinctement à des postes utilisateurs, des serveurs critiques et des équipements réseau.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger des procédures et checklists, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Délimiter les responsabilités.** Nommer le rôle qui exécute, celui qui autorise les actions sensibles, la personne qui valide le service et le groupe à prévenir en cas d'impact. Une même personne peut cumuler des rôles dans une petite équipe, mais cette décision doit être explicite. Indiquer les limites de compétence et le canal d'escalade; ne pas transformer un guide en autorisation implicite de contourner une politique.
 
-**Preuves et interprétation.** La version, le propriétaire, la date de revue, l'approbateur et le lien du ticket de validation rendent le document gouvernable. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une checklist conçue pour un expert peut être dangereuse si elle est utilisée par un débutant sans préciser les permissions nécessaires. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+**Critère de sortie.** Un technicien qui découvre le document doit pouvoir répondre sans interprétation orale : « suis-je sur le bon actif, dans la bonne situation, avec la bonne autorisation, et quel résultat dois-je obtenir ? » Si la réponse reste ambiguë, le périmètre n'est pas prêt.
 ### 2. Prérequis vérifiables
 
-Un prérequis doit être testable avant le début, comme une sauvegarde vérifiée, une fenêtre approuvée ou un compte nominatif disponible. Exprimer chaque prérequis sous forme d'état attendu et fournir la commande, l'écran ou le lien permettant de le confirmer.
+**Transformer les prérequis en contrôles observables.** « Avoir une sauvegarde » ne suffit pas : préciser le périmètre sauvegardé, l'heure de la dernière exécution réussie, la rétention, l'emplacement et la preuve d'une restauration testée lorsque le risque l'exige. « Avoir les accès » doit signifier qu'un compte nominatif autorisé fonctionne, avec le niveau de privilège attendu, sans partager de mot de passe ni inclure de secret dans la procédure.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger des procédures et checklists, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Préparer les conditions de travail.** Confirmer la fenêtre de maintenance, la disponibilité d'un contact métier, les dépendances, les outils approuvés, la capacité de stockage ou d'alimentation nécessaire et le moyen de retour arrière. Pour un changement réseau, vérifier le chemin d'administration hors bande lorsqu'il est requis; pour un poste, vérifier que l'identifiant d'actif et le groupe de déploiement correspondent au ticket.
 
-**Preuves et interprétation.** La preuve de précontrôle donne au technicien un point de départ connu. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Écrire « s'assurer que tout est prêt » ne dit pas ce qui doit être vérifié ni ce qui bloque l'intervention. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+**Écrire la décision de blocage.** Pour chaque prérequis, documenter comment le contrôler et ce qui se passe s'il échoue. Une case cochée sans preuve n'est pas une validation. Si un élément obligatoire est inconnu, l'exécution doit rester en attente ou être escaladée; ne pas remplacer une information manquante par une hypothèse optimiste.
 ### 3. Étapes atomiques
 
-Chaque étape doit décrire une action principale, un résultat attendu et une conduite à tenir en cas d'écart. Séparer observation, décision et modification facilite les pauses, la relecture et la reprise après interruption.
+**Une étape, une intention principale.** Séparer la collecte d'état, la décision, la modification et la vérification. Une instruction comme « sauvegarder, modifier le service, redémarrer puis confirmer » rend difficile le diagnostic si un sous-état échoue. Préférer une séquence numérotée avec l'action, la cible, le résultat attendu et la consigne en cas d'écart.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger des procédures et checklists, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Utiliser un vocabulaire opératoire.** Choisir des verbes précis : relever, comparer, exporter, désactiver, redémarrer, tester, joindre, approuver. Éviter « vérifier que tout est normal » sans définir le signal et le seuil. Les commandes doivent préciser le contexte d'exécution, l'identité de la cible et, si nécessaire, la version de l'outil. Une commande exemple doit être étiquetée comme exemple si elle varie selon le constructeur ou l'environnement; un placeholder ne doit jamais ressembler à une valeur de production valide.
 
-**Preuves et interprétation.** Les captures ou sorties importantes doivent être datées et rattachées au ticket plutôt que laissées dans un terminal local. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Des étapes regroupant dix actions rendent difficile l'identification de l'étape responsable lorsqu'un résultat est incorrect. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+**Rendre la reprise possible.** Insérer des points de sauvegarde ou des checkpoints après les étapes qui modifient l'état. Si une exécution s'interrompt, la checklist doit permettre de déterminer la dernière étape réellement terminée et les vérifications déjà effectuées. Une case ne doit être cochée qu'après observation du résultat attendu, pas à la simple lecture de l'instruction.
 ### 4. Points d'arrêt
 
-Un point d'arrêt empêche la progression quand une condition de sécurité ou de cohérence n'est pas satisfaite. Associer chaque arrêt à un seuil explicite, une personne habilitée et une procédure d'escalade permet une décision rapide.
+**Associer chaque arrêt à une condition explicite.** Exemples : cible différente de celle du ticket, sauvegarde absente, fenêtre fermée, alerte critique apparue, perte du canal d'administration, échec d'un test pilote ou dépassement du délai de retour arrière. « Arrêter si nécessaire » laisse la décision au hasard; préciser le signal à observer et le rôle habilité à autoriser la reprise.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger des procédures et checklists, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Distinguer erreur récupérable et danger.** Une faute de saisie sans modification d'état peut autoriser une correction contrôlée. Une perte de connectivité, une corruption de données ou une dégradation sur plusieurs actifs exige un arrêt immédiat et une évaluation. L'opérateur ne doit pas multiplier les tentatives non documentées pour faire disparaître une alerte.
 
-**Preuves et interprétation.** Le journal du point d'arrêt et la validation de reprise documentent l'exception. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** La pression de temps ne doit pas transformer un point d'arrêt critique en case cochée sans vérification. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+**Tracer l'exception.** Consigner l'heure, la cible, l'étape, le constat exact, les preuves, le risque, la personne contactée et la décision prise. La reprise doit avoir son propre critère : par exemple, accès rétabli, cible revalidée et accord enregistré. Si aucune action sûre n'est définie, l'issue correcte est une escalade, pas une improvisation.
 ### 5. Validation mesurable
 
-La validation doit montrer que le résultat attendu est obtenu, pas seulement que les commandes se sont exécutées. Définir un test nominal, un test d'erreur acceptable et une vérification de non-régression lorsque le risque le justifie.
+**Comparer un état initial à un état final.** Un « succès » ne se limite pas à l'absence de message d'erreur. Avant l'action, relever les mesures qui seront comparées : disponibilité du service, version logicielle, état du lien, résultat d'un test fonctionnel, indicateurs de supervision, journaux pertinents ou retour du demandeur. Après l'action, refaire des tests équivalents dans un contexte comparable.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger des procédures et checklists, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Vérifier plusieurs dimensions.** Une intervention peut réussir techniquement et échouer pour l'utilisateur. Définir au moins le contrôle de fonctionnement, la non-régression des fonctions voisines et, selon le risque, la sécurité et la supervision. Préciser un seuil mesurable et une durée d'observation : un service qui répond une seule fois puis retombe n'est pas validé. Si une mesure dépend d'un cache, d'une réplication ou d'un délai de propagation, attendre la période prévue et expliquer cette limite.
 
-**Preuves et interprétation.** Les valeurs avant/après et l'acceptation métier rendent la fin de procédure objective. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une procédure qui s'arrête après le redémarrage ignore potentiellement une erreur de configuration ou un service dégradé. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+**Rendre la décision auditable.** L'enregistrement final doit relier chaque critère à la preuve observée et à la personne qui accepte le résultat. Séparer « conforme », « non conforme » et « non testé »; ne jamais convertir l'absence de mesure en réussite. Les critères non satisfaits déclenchent la correction, le retour arrière ou l'escalade décrite par la procédure.
 ### 6. Retour arrière
 
-Une procédure de changement doit prévoir un moyen de revenir à un état sûr si les conditions de réussite ne sont pas satisfaites. Décrire le déclencheur, la dernière heure de décision, les commandes ou étapes de retour et les vérifications qui suivent.
+**Préparer le retour avant la modification.** Définir l'état stable de référence, les données à préserver, les commandes ou étapes de restauration, les droits requis et le temps nécessaire. Une sauvegarde sans procédure de restauration ne garantit pas un retour maîtrisé. Le plan doit identifier ce qui sera restauré et ce qui ne doit surtout pas l'être, par exemple des données métier créées après le point de sauvegarde.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger des procédures et checklists, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Déclencher sur une règle connue.** Écrire les critères de décision avant l'intervention : perte d'un contrôle critique, échec du test fonctionnel, taux d'erreur supérieur au seuil, ou impossibilité de rétablir le service avant l'heure limite. Nommer qui prend la décision et qui coordonne la communication. Ne pas laisser un intervenant prolonger seul la fenêtre parce qu'il pense être proche de la résolution.
 
-**Preuves et interprétation.** Tester régulièrement le retour arrière est plus solide que conserver une procédure non exécutée depuis des années. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une sauvegarde ne constitue pas un plan de rollback si la durée de restauration dépasse la fenêtre autorisée. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+**Valider après retour.** Restaurer l'état antérieur ne clôt pas l'opération : vérifier l'accès, les fonctions essentielles, la supervision et l'absence d'effets secondaires. Enregistrer les différences qui subsistent, l'heure du retour, les tests réalisés et l'information transmise aux utilisateurs. Si le retour échoue, basculer vers le plan d'incident prévu au lieu de répéter des actions inconnues.
 ### 7. Version et revue
 
-La procédure évolue avec le logiciel, le matériel, la réglementation et les outils ; une vieille procédure peut être plus dangereuse que l'absence de procédure. Attribuer un propriétaire, une date de prochaine revue, une version applicable et un mécanisme de retrait de document obsolète.
+**Désigner une source faisant autorité.** Chaque procédure publiée possède un identifiant, un propriétaire, un numéro de version, un statut, une date d'effet et une date ou un déclencheur de revue. Les copies exportées ou jointes aux tickets doivent pointer vers cette version, et non devenir des documents concurrents. Une procédure retirée doit être clairement marquée comme obsolète et ne plus apparaître dans les résultats de recherche opérationnels.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger des procédures et checklists, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Relier la modification à un motif.** Un changement d'outil, d'architecture, de privilège, de constructeur, de seuil ou de dépendance peut invalider une étape. Enregistrer le motif, les sections affectées, le relecteur, les tests effectués et l'autorisation de publication. Pour un dépôt Git, examiner le diff et conserver l'historique; pour un outil documentaire, utiliser son mécanisme d'approbation et de versionnement.
 
-**Preuves et interprétation.** Les demandes de changement, diffs et approbations rendent les modifications traçables. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Les copies locales ou les PDF envoyés par courriel contournent le contrôle de version et favorisent les variantes incompatibles. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+**Planifier plusieurs niveaux de revue.** La revue périodique détecte les documents vieillissants; la revue événementielle est déclenchée par un incident, un écart, un changement d'infrastructure ou le retour d'un technicien. La date seule ne prouve pas que le contenu est toujours valide : la revue doit confirmer les actifs, captures, liens, commandes, permissions et critères de validation.
 ### 8. Ergonomie et lisibilité
 
-Le technicien doit trouver vite l'information utile, même en situation de stress ou avec un écran étroit. Utiliser des titres d'action, avertissements associés au risque, tableaux compacts, code copiable et diagrammes simples.
+**Écrire pour le moment où la procédure sera utilisée.** Un document consulté en pleine fenêtre de maintenance doit être scannable : titres orientés action, étapes courtes, avertissement juste avant l'action risquée, code copiable et résultat attendu immédiatement visible. Réserver les explications conceptuelles longues à une section séparée; conserver près de l'étape les informations nécessaires à la décision.
 
-**Mise en œuvre.** Pour appliquer ce principe dans rédiger des procédures et checklists, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Éviter la fatigue de checklist.** Regrouper les vérifications apparentées sans fusionner plusieurs décisions dans une case. Une liste trop longue de contrôles sans rapport augmente les coches automatiques; des cases « tout est bon » ne disent rien. Utiliser des contrôles proportionnés au risque, un ordre qui suit le déroulement réel et des points de pause clairement marqués.
 
-**Preuves et interprétation.** Le retour d'utilisateurs réels et les mesures de temps de recherche révèlent les défauts de forme. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Un document décoratif mais dense peut augmenter les erreurs malgré une information techniquement correcte. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+**Tester la lisibilité par une autre personne.** Demander à un technicien qui n'a pas écrit le document d'exécuter une simulation sur un environnement autorisé. Noter les questions posées, les termes ambigus, les endroits où il doit revenir en arrière et le temps requis pour trouver une consigne. Toute ambiguïté rencontrée doit produire une correction documentée, pas seulement une explication orale au testeur.
 ## Méthode transversale pour une opération maîtrisée
 
 ### 1. Gouvernance
@@ -320,6 +296,211 @@ python -c "import yaml; yaml.safe_load(open('procedure.yml', encoding='utf-8'))"
 ```
 
 Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+
+
+## Patrons opérationnels réutilisables
+
+Les modèles ci-dessous servent de point de départ, pas de substitut aux règles internes. Avant publication, adapter les rôles, outils, seuils, durées de rétention, obligations de notification et exigences de sécurité au contexte réel. Supprimer les options qui ne s'appliquent pas plutôt que de laisser des instructions ambiguës. Un modèle doit aider à produire une décision cohérente, pas forcer toutes les opérations à suivre exactement le même niveau de lourdeur.
+
+### Modèle de procédure prêt à adapter
+
+Une procédure exploitable peut être organisée selon ce squelette. Le document publié doit identifier une source de référence unique et être lié au ticket ou à la demande de changement qui a motivé l'intervention.
+
+~~~text
+TITRE :
+IDENTIFIANT / VERSION / STATUT :
+PROPRIÉTAIRE / RELECTEUR / APPROBATEUR :
+DATE D'EFFET / PROCHAINE REVUE :
+OBJECTIF ET RÉSULTAT ATTENDU :
+PÉRIMÈTRE / EXCLUSIONS :
+RISQUES PRINCIPAUX :
+AUTORISATION ET FENÊTRE :
+PRÉREQUIS ET PREUVES ATTENDUES :
+OUTILS / ACCÈS / DÉPENDANCES :
+ÉTAT INITIAL À COLLECTER :
+ÉTAPES (ACTION -> RÉSULTAT ATTENDU -> PREUVE) :
+POINTS D'ARRÊT ET ESCALADE :
+CRITÈRES D'ACCEPTATION :
+RETOUR ARRIÈRE / HEURE LIMITE :
+VÉRIFICATIONS APRÈS ACTION :
+COMMUNICATION ET CLÔTURE :
+INCIDENTS CONNUS / LIMITES :
+HISTORIQUE DES MODIFICATIONS :
+~~~
+
+**Comment l'utiliser.** Si une rubrique n'est pas pertinente, indiquer « sans objet » avec une justification courte lorsqu'elle aide la revue. Ne pas laisser vide un champ qui conditionne la sécurité, comme l'autorisation, la cible, le point d'arrêt ou le retour arrière. Un lien vers un ticket ne remplace pas la reproduction des instructions de sécurité indispensables dans le document d'exécution.
+
+### Modèle de checklist avec critères de preuve
+
+Une checklist se compose de contrôles individuels qui appellent une réponse déterminée. La colonne « preuve » évite les validations à l'intuition; la colonne « si échec » donne une conduite immédiate au lieu de laisser le technicien inventer une suite.
+
+| Phase | Contrôle | Critère observable | Preuve à associer | Si le contrôle échoue |
+|---|---|---|---|---|
+| Avant | Bonne cible | Identifiant égal à celui du ticket | Inventaire + ticket | Arrêter et faire confirmer la cible |
+| Avant | Autorisation valide | Approbation présente et fenêtre ouverte | Référence de changement | Reporter l'opération |
+| Avant | Retour possible | Sauvegarde restaurable et accès de secours testés si requis | Résultat de test ou état de préparation | Ne pas modifier l'état |
+| Pendant | Étape précédente terminée | Résultat attendu constaté | Sortie, valeur ou journal horodaté | Pause, diagnostic et escalade selon le risque |
+| Après | Service opérationnel | Tous les critères d'acceptation sont satisfaits | Résultats de tests avant/après | Corriger ou revenir à l'état stable |
+| Après | Documentation clôturée | Résultat, écarts et suite enregistrés | Ticket mis à jour | Garder la demande ouverte |
+
+**Règle de saisie.** La case indique que le contrôle a été exécuté, pas seulement lu. Lorsque le système utilisé prend en charge des champs structurés, conserver séparément l'opérateur, l'horodatage, la valeur mesurée et le statut. Éviter d'enregistrer des secrets, des données personnelles inutiles ou des captures contenant des informations hors périmètre.
+
+### Cas fil rouge — changement contrôlé d'un port d'accès réseau
+
+Une équipe doit modifier le VLAN d'un port d'accès utilisé par un poste d'administration. Le ticket mentionne le commutateur, le port et le VLAN cible, mais l'inventaire présente un nom d'hôte proche pour un autre équipement. La procédure doit empêcher une modification de la mauvaise cible avant même de proposer une commande.
+
+~~~mermaid
+flowchart TD
+    A[Demande approuvée] --> B{Identité commutateur et port confirmée ?}
+    B -- Non --> C[Arrêt et correction du ticket]
+    B -- Oui --> D[Collecter état initial et configuration]
+    D --> E{Sauvegarde et accès de secours disponibles ?}
+    E -- Non --> C
+    E -- Oui --> F[Appliquer la modification approuvée]
+    F --> G[Tester lien, adressage et service métier]
+    G --> H{Tous les critères sont satisfaits ?}
+    H -- Oui --> I[Enregistrer les preuves et clôturer]
+    H -- Non --> J{Retour arrière encore sûr et dans le délai ?}
+    J -- Oui --> K[Restaurer l'état initial puis recontrôler]
+    J -- Non --> L[Déclencher la procédure d'incident]
+~~~
+
+**Phase 1 — préparer.** Confirmer le ticket, l'interface réelle, la description du port, l'identifiant d'actif du terminal, la fonction métier et les dépendances. Relever l'état du port, le VLAN actuel, l'état du lien, la configuration pertinente et les résultats de tests de référence. Exporter la configuration selon la méthode validée par l'équipe; ne pas se contenter d'une capture d'écran incomplète.
+
+**Phase 2 — protéger.** Vérifier la fenêtre approuvée, prévenir le demandeur, confirmer le canal d'administration et définir l'heure limite de décision. Vérifier que l'ancien paramétrage peut être restauré et que l'opérateur sait comment procéder sur cette version du système. Si l'accès d'administration passe lui-même par le port modifié, utiliser un chemin de gestion approuvé ou arrêter l'opération : une procédure qui détruit son propre moyen de contrôle n'est pas acceptable.
+
+**Phase 3 — exécuter.** Ouvrir une étape pour la modification et une autre pour sa vérification. Les commandes ci-dessous sont des exemples de contrôles de type Cisco; leur syntaxe et leur disponibilité dépendent du modèle, de la version et des règles de l'entreprise. Elles ne constituent pas une configuration complète à copier sur un équipement de production.
+
+~~~text
+show interfaces Gi1/0/12 status
+show interfaces Gi1/0/12 switchport
+show running-config interface Gi1/0/12
+show vlan brief
+~~~
+
+Comparer les résultats à l'état attendu. Appliquer uniquement la modification explicitement approuvée via la procédure propre à la plateforme. Éviter les changements additionnels « tant qu'on y est » et ne jamais enregistrer durablement une configuration tant que la politique interne ne le permet pas.
+
+**Phase 4 — prouver.** Vérifier que l'interface a le bon mode, que le VLAN attendu est actif, que le terminal obtient un adressage adapté et que les services autorisés fonctionnent. Une interface « up » ne démontre pas à elle seule que le poste peut joindre sa passerelle ou l'application. Exécuter des tests limités et autorisés, comparer les résultats avant/après et prendre en compte les dépendances telles que DHCP, DNS, NAC, port-security ou filtrage.
+
+**Phase 5 — décider.** Si l'identité de la cible était douteuse, l'accès tombe, le test fonctionnel échoue ou l'impact dépasse le périmètre, arrêter et suivre la règle convenue. Si le retour arrière est engagé, restaurer le paramétrage sauvegardé et vérifier à nouveau l'état du lien ainsi que le service. Enregistrer le résultat réel même si l'opération échoue : une intervention arrêtée à temps est préférable à un succès déclaré sans preuve.
+
+### Préparation d'une maintenance de parc par vagues
+
+Sur un parc de plusieurs centaines de postes, exécuter une même action partout en une seule fois augmente le rayon d'impact. Préférer un lot pilote représentatif, puis des vagues proportionnées à la capacité de support et au niveau de risque. La procédure doit spécifier le nombre ou le pourcentage de machines par vague, la fenêtre de surveillance et les critères d'arrêt; ces valeurs doivent être calculées et approuvées dans le contexte réel, pas reprises aveuglément d'un exemple pédagogique.
+
+~~~mermaid
+flowchart LR
+    A[Inventaire et segmentation] --> B[Lot pilote représentatif]
+    B --> C{Taux de réussite et incidents acceptables ?}
+    C -- Non --> D[Arrêter, isoler la cause, corriger la procédure]
+    D --> B
+    C -- Oui --> E[Valider le passage à la vague suivante]
+    E --> F[Déploiement progressif]
+    F --> G[Surveillance et échantillonnage]
+    G --> H{Seuils toujours respectés ?}
+    H -- Non --> I[Pause des vagues et plan de retour]
+    H -- Oui --> J[Clôture et mise à jour du parc]
+~~~
+
+Avant chaque vague, comparer la liste cible à l'inventaire réel et exclure les appareils hors ligne, en prêt, en réparation ou affectés à une fonction critique non couverte. Mesurer le succès sur le nombre d'actifs réellement traités, pas sur le nombre de tâches envoyées par l'outil. Prévoir les machines qui échouent, les redémarrages différés, les utilisateurs absents et les postes qui reviennent en ligne après la fenêtre.
+
+Un lot pilote n'est pas un simple échantillon des postes les plus faciles. Il doit couvrir des profils représentatifs : modèles matériels, versions de système, groupes de sécurité, bureaux distants et applications métier différentes. Consigner les exceptions pour que les exclusions ne disparaissent pas du suivi. Si la première vague révèle une lacune documentaire, suspendre la progression, corriger la procédure, la faire relire et rejouer le scénario de validation avant de reprendre.
+
+~~~mermaid
+flowchart TD
+    A[Préparer la vague] --> B[Contrôler actifs et exclusions]
+    B --> C[Exécuter selon la procédure publiée]
+    C --> D[Comparer résultats observés aux seuils]
+    D --> E{Écart ou actif non maîtrisé ?}
+    E -- Oui --> F[Arrêter la vague et ouvrir une exception]
+    E -- Non --> G[Archiver les preuves]
+    F --> H[Revue et nouvelle version si besoin]
+    G --> I[Autoriser la vague suivante]
+    H --> I
+~~~
+
+### Gérer un écart sans dégrader la traçabilité
+
+Quand la réalité ne correspond pas à la procédure, ne pas corriger silencieusement le document pendant l'exécution. Séparer quatre objets : le fait observé, l'hypothèse qui peut l'expliquer, la décision temporaire et la correction définitive. Le technicien peut être autorisé à prendre une mesure de protection immédiate; il ne peut pas pour autant transformer cette action ponctuelle en nouvelle méthode de référence sans revue.
+
+Un enregistrement d'écart utile contient :
+- l'identifiant du document et sa version exacte;
+- l'étape et le contexte où l'écart a été découvert;
+- les valeurs observées, l'heure et la preuve;
+- l'effet sur le service, les actifs touchés et le risque résiduel;
+- la décision immédiate, son approbateur et les personnes informées;
+- la cause confirmée ou encore hypothétique;
+- l'action corrective, son responsable, son échéance et le test de non-régression.
+
+~~~mermaid
+flowchart LR
+    A[Écart constaté] --> B[Protéger le service]
+    B --> C[Enregistrer les faits]
+    C --> D[Analyser la cause]
+    D --> E[Proposer une correction]
+    E --> F[Revue et approbation]
+    F --> G[Test en environnement adapté]
+    G --> H{Résultat acceptable ?}
+    H -- Non --> D
+    H -- Oui --> I[Publier une version contrôlée]
+    I --> J[Informer les utilisateurs et retirer l'ancien document]
+~~~
+
+Le suivi d'un écart ne doit pas être confondu avec une analyse de cause racine complète. Une erreur isolée peut être corrigée par une clarification; des écarts récurrents peuvent indiquer une procédure mal conçue, un outil instable, une formation insuffisante, un contrôle impossible à réaliser ou une capacité de travail trop faible. Choisir la profondeur de l'analyse en fonction de la gravité, de la répétition et du risque, puis vérifier si la correction diminue réellement la récurrence.
+
+### Contrôle de publication : document-as-code et revue par les pairs
+
+Le versionnement d'une procédure dans un dépôt aide à comparer les changements et à retrouver une version connue. Il ne remplace ni l'approbation métier, ni les tests, ni la maîtrise des accès. Le dépôt doit éviter les secrets, limiter les droits d'écriture et désigner la branche ou le canal qui porte la version publiée.
+
+~~~mermaid
+flowchart TD
+    A[Ticket ou retour terrain] --> B[Créer une branche de travail]
+    B --> C[Modifier et documenter le motif]
+    C --> D[Relecture par une autre personne]
+    D --> E{Étapes et contrôles testés ?}
+    E -- Non --> C
+    E -- Oui --> F[Approbation selon le risque]
+    F --> G[Publication versionnée]
+    G --> H[Informer les équipes]
+    H --> I[Archiver ou marquer l'ancienne version obsolète]
+~~~
+
+Sur un poste de travail où Git est installé, les vérifications suivantes permettent d'identifier certaines erreurs documentaires avant la revue. Elles ne prouvent pas que la procédure est sûre; elles détectent des problèmes de forme et rendent le diff plus lisible.
+
+~~~bash
+git status --short
+git diff --check
+git diff -- docs/procedures/
+~~~
+
+Examiner le contenu du diff, pas seulement le code de retour de la commande. Vérifier les liens, les exemples, les sorties attendues, la cohérence des seuils et les instructions retirées. Pour une modification à risque, tester le déroulement dans un laboratoire ou un environnement pilote et joindre la preuve pertinente au ticket de changement. Après publication, confirmer que le lien du catalogue documentaire ouvre bien la version approuvée.
+
+### Revue périodique fondée sur le risque
+
+Une échéance uniforme ne suffit pas : une instruction de redémarrage d'un service critique mérite plus d'attention qu'une fiche de vocabulaire. Classer les procédures selon l'impact d'une erreur, la fréquence d'usage, la vitesse d'évolution de l'environnement, la difficulté du retour arrière et le nombre de personnes qui s'en servent. Une revue événementielle est immédiate lorsqu'un incident révèle une étape dangereuse, qu'une interface change ou qu'un outil retire une option utilisée par la procédure.
+
+~~~mermaid
+flowchart TD
+    A[Liste des procédures] --> B[Évaluer impact et fréquence]
+    B --> C[Classer les priorités de revue]
+    C --> D[Contrôler réalité technique et liens]
+    D --> E[Simulation par un non-auteur]
+    E --> F{Ambiguïté ou écart ?}
+    F -- Oui --> G[Corriger, versionner et retester]
+    F -- Non --> H[Enregistrer la revue]
+    G --> H
+    H --> I[Planifier la prochaine revue]
+~~~
+
+La preuve de revue peut être simple mais doit être réelle : date, personne, version examinée, résultats du contrôle, défauts découverts et décision. « Relu » sans critère ni résultat ne permet pas de savoir si les étapes ont été vérifiées. Un document peut être reconduit à l'identique si le système est stable et les essais restent valides; la reconduction doit néanmoins être justifiée.
+
+### Références et repères pour approfondir
+
+- **ISO 10013:2021 — Informations documentées.** Guide pour développer et maintenir l'information documentée adaptée au système de management de l'organisation. Il donne un repère pour penser le cycle de vie des documents, mais ne remplace pas les exigences spécifiques de l'entreprise. [Page officielle de l'ISO](https://www.iso.org/fr/standard/75736.html).
+- **NIST SP 800-128 — Security-Focused Configuration Management.** Guide de gestion de configuration avec un accent sur la sécurité. Les thèmes utiles au technicien comprennent l'analyse d'impact, les changements contrôlés, les tests, l'approbation, la mise en œuvre et la vérification après modification. [Publication du NIST](https://www.nist.gov/publications/guide-security-focused-configuration-management-information-systems-0).
+- **Consignes internes de changement et d'incident.** Elles définissent les rôles, les niveaux d'approbation, les fenêtres, les délais et les canaux d'escalade applicables dans l'organisation. En cas de différence, suivre la politique interne approuvée et faire corriger le support pédagogique pour qu'il reste cohérent.
+
+Ces références sont des points de départ. Ne pas prétendre qu'une procédure est « conforme à une norme » simplement parce qu'elle contient quelques rubriques : la conformité dépend du référentiel complet, du périmètre et de son application démontrable.
 
 ## Atelier pratique guidé
 
