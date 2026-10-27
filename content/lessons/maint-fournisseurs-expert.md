@@ -754,9 +754,15 @@ Le fournisseur affirme qu'un export de données « sera possible ». Quelles pre
 
 ## 24. Références et approfondissement
 
-- [NIST SP 800-161 Rev. 1, mise à jour 1 — Cybersecurity Supply Chain Risk Management Practices](https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final) — risques cyber de la chaîne d'approvisionnement et gestion des dépendances.
-- [NIST Cyber Supply Chain Risk Management](https://csrc.nist.gov/Projects/Cyber-Supply-Chain-Risk-Management) — ressources et pratiques de gestion du risque fournisseur.
-- Les clauses contractuelles doivent être validées par les équipes juridiques, sécurité, achats et responsables métier de l'organisation.
+Les ressources officielles ci-dessous permettent d'approfondir les pratiques de gestion des risques fournisseur. Elles constituent des guides ou des normes de référence, et ne deviennent pas automatiquement des obligations contractuelles ou légales pour chaque organisation. Choisis les exigences qui correspondent au périmètre, à la juridiction, au service acheté et au niveau de risque.
+
+- [NIST SP 800-161 Rev. 1, Update 1 — Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations](https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final) — guide de gestion des risques cyber tout au long de la chaîne d'approvisionnement, avec une approche intégrée aux pratiques de gestion des risques.
+- [NIST SP 1305 — Cybersecurity Framework 2.0: Quick-Start Guide for Cybersecurity Supply Chain Risk Management](https://csrc.nist.gov/pubs/sp/1305/final) — guide pratique pour établir une capacité C-SCRM et communiquer les exigences aux fournisseurs à l'aide du CSF 2.0, notamment sa catégorie GV.SC.
+- [NIST Cyber Supply Chain Risk Management](https://csrc.nist.gov/Projects/Cyber-Supply-Chain-Risk-Management) — ressources et pratiques relatives à la gestion des dépendances et des risques fournisseurs.
+- [ISO/IEC 27036-2:2022 — Cybersecurity: Supplier relationships, Part 2: Requirements](https://www.iso.org/standard/82060.html) — exigences relatives à la définition, l'exploitation, la surveillance, la revue et l'amélioration des relations entre fournisseur et acquéreur.
+- [ISO/IEC 27036-3:2023 — Guidelines for hardware, software, and services supply chain security](https://www.iso.org/standard/82890.html) — lignes directrices sur la visibilité et la sécurité des chaînes d'approvisionnement multicouches en matériel, logiciel et services.
+- [CISA — ICT Supply Chain Risk Management Essentials](https://www.cisa.gov/sites/default/files/2023-01/ict_scrm_essentials_508.pdf) — actions pratiques pour identifier, comprendre, évaluer, vérifier et suivre les fournisseurs, prestataires et composants.
+- Les clauses contractuelles définitives doivent être validées par les équipes juridiques, sécurité, achats et responsables métier de l'organisation.
 
 ## 25. Conclusion
 
