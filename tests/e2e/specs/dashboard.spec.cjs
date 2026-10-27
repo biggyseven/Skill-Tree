@@ -295,6 +295,14 @@ test('la navigation du lecteur reste dans le module sélectionné, même quand l
   });
   expect(firstCourseId).toBe('secu-cia-debutant');
 
+  const networkTieOrder = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    return state.orderedModuleLessons('admin-reseaux').map(node => node.id);
+  });
+  expect(networkTieOrder.indexOf('wireshark-debutant')).toBe(
+    networkTieOrder.indexOf('incident-ospf') + 1,
+  );
+
   await page.evaluate(async (nodeId) => {
     const state = window.Alpine.$data(document.body);
     await state.show(nodeId);
