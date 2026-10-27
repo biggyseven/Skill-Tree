@@ -58,13 +58,13 @@ Une opération n'est complète que lorsque l'équipement, les données, les prot
 
 ### Schéma 1 — Cycle d'une intervention sécurisée
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     A[Préparer et évaluer les risques] --> B[Autoriser et sécuriser]
     B --> C[Intervenir selon la procédure]
     C --> D[Vérifier système et données]
     D --> E[Documenter et clôturer]
-\`\`\`
+```
 
 ## 3. Évaluer les risques avant d'agir
 
@@ -268,7 +268,7 @@ Pour une modification qui présente un risque, le plan devrait comporter :
 
 ### Schéma 2 — Autorisation avant un changement risqué
 
-\`\`\`mermaid
+```mermaid
 flowchart TD
     A[Action proposée] --> B[Comprendre l'effet et le périmètre]
     B --> C[Vérifier autorisation et sauvegarde]
@@ -277,7 +277,7 @@ flowchart TD
     E -->|Oui| F[Exécuter selon la procédure]
     E -->|Non| G[Arrêter et demander validation]
     F --> H[Vérifier et documenter]
-\`\`\`
+```
 
 Le schéma est volontairement court. Si l'on ne peut pas vérifier les conditions essentielles, il faut différer l'action ou passer par une personne habilitée.
 
@@ -315,13 +315,13 @@ Si un mot de passe, un jeton ou une clé apparaît dans une capture ou un ticket
 
 ### Schéma 3 — Première réaction à une suspicion de sécurité
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     A[Signal suspect] --> B[Préserver les informations utiles]
     B --> C[Prévenir l'équipe responsable]
     C --> D[Appliquer les consignes autorisées]
     D --> E[Documenter et suivre le dossier]
-\`\`\`
+```
 
 L'objectif n'est pas d'effectuer une enquête complète sans compétence dédiée. Il est de ne pas aggraver l'incident, de conserver les éléments utiles et de déclencher la réponse appropriée.
 
@@ -414,7 +414,7 @@ Arrête et demande une validation lorsque :
 
 ### Schéma 4 — Décision de poursuivre ou d'arrêter
 
-\`\`\`mermaid
+```mermaid
 flowchart TD
     A[Avant l'action] --> B{Compétence, autorisation et procédure disponibles ?}
     B -->|Oui| C{Risques maîtrisés et données protégées ?}
@@ -422,7 +422,7 @@ flowchart TD
     C -->|Oui| E[Intervenir et vérifier]
     C -->|Non| D
     E --> F[Documenter le résultat]
-\`\`\`
+```
 
 La décision doit se baser sur des conditions réelles. Si une donnée essentielle est inconnue, il est plus sûr de clarifier ou d'escalader que de supposer que tout est acceptable.
 
