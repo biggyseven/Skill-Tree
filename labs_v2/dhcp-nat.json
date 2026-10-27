@@ -6,17 +6,22 @@
   "module": "admin-reseaux",
   "duration_min": 30,
   "difficulty": "Moyen",
-  "prompt": "Préparez le routeur R1 pour le LAN 192.168.1.0/24, en vérifiant le pool DHCP attendu et l'adressage de l'interface inside. L'interface outside représente une liaison WAN simulée.",
+  "prompt": "Contexte : l’agence possède un LAN 192.168.1.0/24 avec deux postes clients. R1 sert de passerelle en 192.168.1.1 et doit distribuer la configuration IP avec le pool LAN-CLIENTS. Réservez les adresses .1 à .20 pour la passerelle et les équipements fixes, distribuez le DNS 192.168.1.53 et fixez le bail à sept jours. Configurez aussi Fa0/1 et Fa0/2 de SW1 en ports d’accès pour les clients. Les commandes DHCP sont prises en charge par la console CLI ; les contrôles vérifient l’état structuré enregistré, pas la distribution réelle d’un bail.",
   "objectives": [
-    "Configurer l'adresse IP et le masque de l'interface LAN de R1",
-    "Définir un pool DHCP pour 192.168.1.0/24",
-    "Fournir la passerelle LAN 192.168.1.1 et un serveur DNS",
-    "Préparer le lien switch–routeur pour les deux postes clients"
+    "Configurer R1 Fa0/0 avec 192.168.1.1/24",
+    "Exclure 192.168.1.1 à 192.168.1.20 de la distribution DHCP",
+    "Créer le pool LAN-CLIENTS pour 192.168.1.0/24",
+    "Configurer la passerelle, le DNS 192.168.1.53 et un bail de sept jours",
+    "Placer SW1 Fa0/1 et Fa0/2 en mode access",
+    "Vérifier les données structurées avant de soumettre"
   ],
   "hints": [
-    "Le pool attendu est LAN-CLIENTS pour 192.168.1.0/24.",
-    "La passerelle distribuée aux clients doit être 192.168.1.1.",
-    "Limitation connue du parseur CLI actuel : les commandes `ip dhcp pool`, `network`, `default-router` et `dns-server` ne sont pas prises en charge ; les assertions DHCP nécessitent leur prise en charge ultérieure."
+    "Cible CLI pour l’adressage et le DHCP : R1. La passerelle du LAN est 192.168.1.1/24.",
+    "Indice 1 : configurez Fa0/0 avant le pool. Utilisez ip dhcp excluded-address pour réserver l’intervalle 192.168.1.1–192.168.1.20.",
+    "Indice 2 : après ip dhcp pool LAN-CLIENTS, les commandes network, default-router, dns-server et lease se saisissent dans le mode DHCP du pool.",
+    "Indice 3 : sur SW1, sélectionnez successivement Fa0/1 et Fa0/2 et configurez chaque port en mode access.",
+    "Solution de référence (à consulter en dernier) : sur R1, enable ; configure terminal ; interface Fa0/0 ; ip address 192.168.1.1 255.255.255.0 ; no shutdown ; exit ; ip dhcp excluded-address 192.168.1.1 192.168.1.20 ; ip dhcp pool LAN-CLIENTS ; network 192.168.1.0 255.255.255.0 ; default-router 192.168.1.1 ; dns-server 192.168.1.53 ; lease 7 ; end. Sur SW1, configurez Fa0/1 et Fa0/2 en switchport mode access.",
+    "La validation examine le pool, la plage exclue, l’adresse de Fa0/0 et les modes d’accès des ports clients. Elle ne simule pas le bail DHCP d’un poste."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -39,7 +44,7 @@
           {
             "id": "Fa0/0",
             "name": "Fa0/0",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:01",
             "mode": "down",
@@ -51,7 +56,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:02",
             "mode": "down",
@@ -94,7 +99,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:03",
             "mode": "down",
@@ -106,7 +111,7 @@
           {
             "id": "Fa0/2",
             "name": "Fa0/2",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:04",
             "mode": "down",
@@ -118,7 +123,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:05",
             "mode": "down",
@@ -161,7 +166,7 @@
           {
             "id": "Fa0",
             "name": "Fa0",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:06",
             "mode": "routed",
@@ -204,7 +209,7 @@
           {
             "id": "Fa0",
             "name": "Fa0",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:07",
             "mode": "routed",
@@ -322,40 +327,23 @@
     "type": "config_assertions",
     "rules": [
       {
-        "id": "r1_dhcp_network",
-        "description": "Le pool DHCP de R1 doit distribuer le réseau 192.168.1.0/24",
+        "id": "r1_dhcp_pool",
+        "description": "Le pool LAN-CLIENTS contient le réseau, le masque, la passerelle, le DNS et le bail attendus.",
         "device": "R1",
-        "path": "config.services.dhcp.network",
-        "operator": "equals",
-        "expected": "192.168.1.0/24"
-      },
-      {
-        "id": "r1_dhcp_pool_name",
-        "description": "Le pool DHCP doit être nommé LAN-CLIENTS",
-        "device": "R1",
-        "path": "config.services.dhcp.pool_name",
-        "operator": "equals",
-        "expected": "LAN-CLIENTS"
-      },
-      {
-        "id": "r1_dhcp_gateway",
-        "description": "Le pool DHCP doit annoncer la passerelle 192.168.1.1",
-        "device": "R1",
-        "path": "config.services.dhcp.default_router",
-        "operator": "equals",
-        "expected": "192.168.1.1"
-      },
-      {
-        "id": "r1_dhcp_dns",
-        "description": "Le pool DHCP doit annoncer un serveur DNS",
-        "device": "R1",
-        "path": "config.services.dhcp.dns_server",
-        "operator": "not_equals",
-        "expected": null
+        "path": "config.protocols.dhcp.pools",
+        "operator": "contains",
+        "expected": {
+          "name": "LAN-CLIENTS",
+          "network": "192.168.1.0",
+          "mask": "255.255.255.0",
+          "default_router": "192.168.1.1",
+          "dns_server": "192.168.1.53",
+          "lease_days": 7
+        }
       },
       {
         "id": "r1_inside_ip",
-        "description": "R1 Fa0/0 doit être adressée en 192.168.1.1",
+        "description": "R1 Fa0/0 utilise l’adresse IPv4 192.168.1.1.",
         "device": "R1",
         "path": "ports[0].ip",
         "operator": "equals",
@@ -363,7 +351,7 @@
       },
       {
         "id": "r1_inside_mask",
-        "description": "R1 Fa0/0 doit utiliser le masque 255.255.255.0",
+        "description": "R1 Fa0/0 utilise le masque 255.255.255.0.",
         "device": "R1",
         "path": "ports[0].mask",
         "operator": "equals",
@@ -371,7 +359,7 @@
       },
       {
         "id": "sw1_pc1_access",
-        "description": "SW1 Fa0/1 doit être en mode access",
+        "description": "SW1 Fa0/1 est configuré en mode access.",
         "device": "SW1",
         "path": "ports[0].mode",
         "operator": "equals",
@@ -379,11 +367,22 @@
       },
       {
         "id": "sw1_pc2_access",
-        "description": "SW1 Fa0/2 doit être en mode access",
+        "description": "SW1 Fa0/2 est configuré en mode access.",
         "device": "SW1",
         "path": "ports[1].mode",
         "operator": "equals",
         "expected": "access"
+      },
+      {
+        "id": "r1_dhcp_exclusion",
+        "description": "Les adresses 192.168.1.1 à 192.168.1.20 sont exclues du pool DHCP.",
+        "device": "R1",
+        "path": "config.protocols.dhcp.excluded_addresses",
+        "operator": "contains",
+        "expected": {
+          "start": "192.168.1.1",
+          "end": "192.168.1.20"
+        }
       }
     ],
     "pass_threshold": 1,
