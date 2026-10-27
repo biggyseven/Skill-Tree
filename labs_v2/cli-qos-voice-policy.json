@@ -6,7 +6,7 @@
   "module": "Qualité de service",
   "duration_min": 25,
   "difficulty": "expert",
-  "prompt": "Contexte : les appels voix identifiés par DSCP EF doivent être traités avec une priorité stricte sur la sortie Gi0/0. Créez la classe VOICE, puis la policy-map VOICE-POLICY avec priority percent 20 et appliquez-la en sortie de Gi0/0. Dans IOS, cette commande définit le pourcentage maximal associé à la file prioritaire sous congestion ; elle ne remplace pas la vérification du trafic réel.",
+  "prompt": "Contexte : le téléphone IP envoie des paquets vocaux marqués DSCP EF. Sur R1, créez la classe VOICE, puis la policy-map VOICE-POLICY avec priority percent 20 et appliquez-la en sortie de Gi0/0. Dans IOS, cette commande définit le pourcentage maximal associé à la file prioritaire sous congestion ; elle ne remplace pas la vérification d’un flux réel. La validation examine la policy et son application, pas la qualité d’un appel.",
   "objectives": [
     "Exécuter puis vérifier : class-map match-any VOICE",
     "Exécuter puis vérifier : match dscp ef",
@@ -27,7 +27,7 @@
     "schema_version": 2,
     "topology_id": "topo-cli-qos-voice-policy",
     "metadata": {
-      "name": "CLI — Classe et politique QoS pour la voix",
+      "name": "QoS : priorité de la voix sur Gi0/0",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -176,10 +176,10 @@
       {
         "id": "PC1",
         "type": "pc",
-        "model": "generic-pc",
+        "model": "generic-voip-phone",
         "x": 850,
         "y": 90,
-        "label": "PC1",
+        "label": "Téléphone IP",
         "ports": [
           {
             "id": "eth0",
@@ -191,7 +191,7 @@
             "mask": null,
             "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Source de trafic vocal marquée DSCP EF",
             "access_group_in": null,
             "access_group_out": null,
             "nat_role": null,
