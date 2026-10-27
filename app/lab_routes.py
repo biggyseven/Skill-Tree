@@ -1,6 +1,7 @@
 """Routes API du Lab Workspace v2."""
 from __future__ import annotations
 
+import copy
 import ipaddress
 import json
 import os
@@ -851,6 +852,114 @@ def _evaluate_lab_check(
 
 
 @router.get("/lab/v2/{lab_id}", response_class=UTF8JSONResponse)
+
+def _merge_saved_topology_extensions(
+    saved_topology: dict[str, Any],
+    current_topology: Topology | dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Préserve une topologie enregistrée tout en y ajoutant les équipements v2 manquants.
+
+    Les anciennes sauvegardes ne contiennent pas nécessairement la branche EXT-*.
+    On les complète uniquement avec les équipements, ports et liens de cette branche ;
+    les nœuds, câbles et configurations existants ne sont jamais remplacés.
+    """
+    if isinstance(current_topology, Topology):
+        current_data = model_to_dict(current_topology, by_alias=True)
+    elif isinstance(current_topology, dict):
+        current_data = current_topology
+    else:
+        return saved_topology
+
+    result = copy.deepcopy(saved_topology)
+    result_nodes = result.get("nodes")
+    result_links = result.get("links")
+    current_nodes = current_data.get("nodes")
+    current_links = current_data.get("links")
+    if not isinstance(result_nodes, list) or not isinstance(result_links, list):
+        return result
+    if not isinstance(current_nodes, list) or not isinstance(current_links, list):
+        return result
+
+    saved_nodes_by_id = {
+        str(node.get("id")): node
+        for node in result_nodes
+        if isinstance(node, dict) and node.get("id")
+    }
+    current_nodes_by_id = {
+        str(node.get("id")): node
+        for node in current_nodes
+        if isinstance(node, dict) and node.get("id")
+    }
+
+    # Ajouter le port d'uplink au switch/routeur historique sans modifier ses autres ports.
+    uplink_description = "Liaison vers la branche réseau complémentaire"
+    for node_id, current_node in current_nodes_by_id.items():
+        saved_node = saved_nodes_by_id.get(node_id)
+        if saved_node is None or node_id.startswith("EXT-"):
+            continue
+        saved_ports = saved_node.setdefault("ports", [])
+        if not isinstance(saved_ports, list):
+            saved_ports = []
+            saved_node["ports"] = saved_ports
+        existing_port_ids = {
+            str(port.get("id"))
+            for port in saved_ports
+            if isinstance(port, dict) and port.get("id")
+        }
+        for port in current_node.get("ports", []):
+            if (
+                isinstance(port, dict)
+                and port.get("description") == uplink_description
+                and str(port.get("id")) not in existing_port_ids
+            ):
+                saved_ports.append(copy.deepcopy(port))
+                existing_port_ids.add(str(port.get("id")))
+
+    # Ajoute ou complète les nœuds supplémentaires en préservant les réglages déjà faits.
+    for current_node in current_nodes:
+        if not isinstance(current_node, dict):
+            continue
+        node_id = str(current_node.get("id") or "")
+        if not node_id.startswith("EXT-"):
+            continue
+        saved_node = saved_nodes_by_id.get(node_id)
+        if saved_node is None:
+            copied_node = copy.deepcopy(current_node)
+            result_nodes.append(copied_node)
+            saved_nodes_by_id[node_id] = copied_node
+            continue
+
+        saved_ports = saved_node.setdefault("ports", [])
+        if not isinstance(saved_ports, list):
+            saved_ports = []
+            saved_node["ports"] = saved_ports
+        existing_port_ids = {
+            str(port.get("id"))
+            for port in saved_ports
+            if isinstance(port, dict) and port.get("id")
+        }
+        for port in current_node.get("ports", []):
+            if isinstance(port, dict) and str(port.get("id")) not in existing_port_ids:
+                saved_ports.append(copy.deepcopy(port))
+                existing_port_ids.add(str(port.get("id")))
+
+    # Ajoute les liaisons EXT-* manquantes, sans dupliquer celles déjà sauvegardées.
+    existing_link_ids = {
+        str(link.get("id"))
+        for link in result_links
+        if isinstance(link, dict) and link.get("id")
+    }
+    for current_link in current_links:
+        if not isinstance(current_link, dict):
+            continue
+        link_id = str(current_link.get("id") or "")
+        if link_id.startswith("EXT-LINK-") and link_id not in existing_link_ids:
+            result_links.append(copy.deepcopy(current_link))
+            existing_link_ids.add(link_id)
+
+    return result
+
+
 def get_lab_v2(lab_id: str) -> dict[str, Any]:
     payload = _fetch_lab(lab_id)
     if payload.get("sandbox"):
@@ -910,7 +1019,16 @@ def get_lab_v2(lab_id: str) -> dict[str, Any]:
                     status_code=500,
                     detail="La topologie sauvegardée pour ce laboratoire est invalide.",
                 ) from error
-            payload["initial_topology"] = saved_topology
+            # Les sauvegardes créées avant l'ajout de la branche EXT-* doivent
+            # conserver le travail de l'utilisateur tout en affichant le matériel ajouté
+            # au scénario depuis. La donnée stockée n'est pas modifiée par cette fusion.
+            merged_topology = _merge_saved_topology_extensions(
+                saved_topology,
+                payload.get("initial_topology"),
+            )
+            payload["initial_topology"] = model_to_dict(
+                Topology(**merged_topology), by_alias=True
+            )
             payload["saved_topology_at"] = str(saved_row["updated_at"])
     except HTTPException as error:
         # En local, le catalogue JSON reste utilisable sans SQLite. Sur Render, en revanche,

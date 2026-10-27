@@ -322,6 +322,100 @@ class LabValidationTests(unittest.TestCase):
                     self.assertIn(link.from_endpoint.node, all_node_ids)
                     self.assertIn(link.to_endpoint.node, all_node_ids)
 
+
+    def test_opening_old_saved_topology_merges_new_equipment_without_overwriting_work(self) -> None:
+        definition = self._definition()
+        definition.initial_topology.nodes = [
+            Device(
+                id="SW1", type="switch", label="SW1",
+                ports=[
+                    Port(id="Fa0/1", name="Fa0/1", state="up"),
+                    Port(id="Fa0/2", name="Fa0/2", state="up"),
+                ],
+                config=DeviceConfig(hostname="SW1"),
+            ),
+            Device(
+                id="PC1", type="pc", label="PC1",
+                ports=[Port(id="eth0", name="eth0", state="up")],
+                config=DeviceConfig(hostname="PC1"),
+            ),
+        ]
+        definition.initial_topology.links = [
+            Link(
+                id="L1",
+                from_endpoint={"node": "PC1", "port": "eth0"},
+                to_endpoint={"node": "SW1", "port": "Fa0/1"},
+                cable_type="copper_straight",
+            )
+        ]
+        # Simule une sauvegarde de l'ancienne topologie, avant les nouveaux équipements.
+        saved_topology = lab_routes.model_to_dict(
+            definition.initial_topology, by_alias=True
+        )
+        # Un réglage utilisateur doit survivre à la fusion.
+        saved_topology["nodes"][0]["config"]["hostname"] = "SW1-PERSONNALISE"
+        current_payload = lab_routes._lab_payload_from_definition("lab-1", definition)
+
+        conn = self._connect()
+        try:
+            conn.execute(
+                "CREATE TABLE topologies (id INTEGER PRIMARY KEY, name TEXT NOT NULL, data TEXT NOT NULL, updated_at TEXT NOT NULL)"
+            )
+            conn.execute(
+                "INSERT INTO topologies (name, data, updated_at) VALUES (?, ?, ?)",
+                ("lab_lab-1", json.dumps(saved_topology), "2026-10-27T00:00:00Z"),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+        with patch.object(lab_routes, "_fetch_lab", return_value=current_payload), patch.object(
+            lab_routes, "_database_connection", side_effect=self._connect
+        ), patch.object(lab_routes, "_course_lab_context", return_value=None):
+            opened = lab_routes.get_lab_v2("lab-1")
+
+        topology = opened["initial_topology"]
+        node_ids = {node["id"] for node in topology["nodes"]}
+        link_ids = {link["id"] for link in topology["links"]}
+        nodes_by_id = {node["id"]: node for node in topology["nodes"]}
+
+        self.assertTrue({"SW1", "PC1", "EXT-SW1", "EXT-PC01", "EXT-SRV01", "EXT-FW1", "EXT-R1", "EXT-CLOUD1"}.issubset(node_ids))
+        self.assertEqual(len([node_id for node_id in node_ids if node_id.startswith("EXT-")]), 16)
+        self.assertEqual(len([link_id for link_id in link_ids if link_id.startswith("EXT-LINK-")]), 16)
+        self.assertEqual(nodes_by_id["SW1"]["config"]["hostname"], "SW1-PERSONNALISE")
+        self.assertIn("Fa0/3", {port["id"] for port in nodes_by_id["SW1"]["ports"]})
+        self.assertTrue(opened["has_saved_topology"])
+
+        # La réponse est enrichie sans réécrire la sauvegarde existante en base.
+        conn = self._connect()
+        try:
+            stored = json.loads(conn.execute(
+                "SELECT data FROM topologies WHERE name = ?", ("lab_lab-1",)
+            ).fetchone()["data"])
+        finally:
+            conn.close()
+        self.assertEqual(len(stored["nodes"]), 2)
+        self.assertEqual(len(stored["links"]), 1)
+
+    def test_merging_the_same_saved_topology_twice_does_not_duplicate_extensions(self) -> None:
+        definition = self._definition()
+        definition.initial_topology.nodes = [
+            Device(id="SW1", type="switch", label="SW1", ports=[Port(id="Fa0/1", name="Fa0/1")])
+        ]
+        current_payload = lab_routes._lab_payload_from_definition("lab-1", definition)
+        baseline = lab_routes.model_to_dict(definition.initial_topology, by_alias=True)
+        first = lab_routes._merge_saved_topology_extensions(
+            {"schema_version": 2, "nodes": [{"id": "SW1", "type": "switch", "ports": [{"id": "Fa0/1", "name": "Fa0/1"}]}], "links": []},
+            baseline,
+        )
+        second = lab_routes._merge_saved_topology_extensions(first, baseline)
+        self.assertEqual(
+            sum(node["id"].startswith("EXT-") for node in second["nodes"]), 16
+        )
+        self.assertEqual(
+            sum(link["id"].startswith("EXT-LINK-") for link in second["links"]), 16
+        )
+
     def test_bom_json_lab_definition_loads(self) -> None:
         labs_dir = Path(self.temp_dir.name) / "labs_v2"
         labs_dir.mkdir()
