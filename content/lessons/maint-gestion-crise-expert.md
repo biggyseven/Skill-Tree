@@ -367,6 +367,26 @@ Chaque jalon comporte quatre vérifications : l'étape technique est achevée, l
 La sortie de crise doit également être formelle. Elle tient compte du rétablissement, des opérations encore en mode dégradé, des risques qui restent acceptés, des tâches de rapprochement des données et de la capacité d'exploitation. La cellule ne doit pas être dissoute simplement parce que les graphes sont revenus au vert ; les responsables métier et techniques vérifient que les conditions de retour sont respectées, puis les actions restantes sont attribuées.
 
 
+
+## Décisions de crise — exemples d'arbitrage et critères d'activation
+
+L'activation doit être fondée sur des signaux concrets. Un dispositif peut prévoir un déclenchement immédiat en cas de risque pour la sécurité des personnes, de perte d'un service critique au-delà d'un seuil, de suspicion de compromission étendue, de corruption potentielle des données ou d'impossibilité de respecter un objectif de continuité. Les seuils et la personne habilitée sont inscrits dans le plan local. Si plusieurs conditions sont incertaines mais que l'impact possible est élevé, l'activation provisoire permet de coordonner les investigations sans préjuger de la cause.
+
+Le coordinateur ne doit pas demander à tous les participants de résoudre le problème en même temps. Il répartit les responsabilités : un groupe établit la portée et les preuves, un autre prépare les options de rétablissement, une personne tient le journal et une personne gère les messages. Les actions risquées sont suspendues jusqu'à validation de leur portée et de leur autorité. Cela évite que deux équipes exécutent simultanément des changements incompatibles.
+
+### Mini-cas : reprise après suspicion de compromission
+
+L'organisation constate que plusieurs comptes privilégiés ont effectué des opérations inhabituelles et que l'intégrité de certaines données est incertaine. La restauration immédiate du dernier instantané peut remettre en ligne une configuration compromise ; poursuivre l'investigation sans contenir l'accès peut étendre l'incident. La cellule doit coordonner le confinement, la conservation des preuves, l'évaluation de l'état de sauvegarde, la disponibilité des identités de secours et la stratégie de restauration depuis une source approuvée.
+
+Le plan doit préciser qui peut autoriser la réinitialisation des identifiants, comment les secrets de récupération sont obtenus, comment vérifier que l'image de secours est fiable et comment confirmer l'intégrité métier après restauration. Les équipes ne doivent pas supprimer les traces pour accélérer la reprise. L'option la plus rapide n'est pas nécessairement celle qui réduit le plus le risque global ; cette décision doit être prise par les rôles habilités, avec les conséquences consignées.
+
+### Critères d'acceptation d'un exercice
+
+Un exercice est réussi lorsqu'il atteint les objectifs fixés, pas simplement lorsqu'il se termine. Exemples de critères : chaque rôle est identifié sans hésitation ; une procédure de secours est disponible hors du système principal ; les données de test sont restaurées dans le RPO défini ; le service est validé dans le RTO défini ; les messages sont envoyés au canal convenu ; les écarts sont attribués à un propriétaire. Certains objectifs peuvent échouer alors que d'autres réussissent : le rapport doit le montrer plutôt que réduire l'exercice à une note unique.
+
+En conclusion, la résilience doit être conçue comme une capacité entretenue. Les objectifs réalistes, les dépendances, les moyens de récupération, la coordination et les exercices sont des composants complémentaires. Une organisation ne peut pas déduire sa capacité de reprise de la seule présence d'un document ou d'une infrastructure redondante.
+
+
 ## Ressources techniques et références
 
 - [ISO 22301 — systèmes de management de la continuité d'activité](https://www.iso.org/standard/75106.html)
