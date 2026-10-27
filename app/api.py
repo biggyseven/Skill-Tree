@@ -60,7 +60,7 @@ from .engine import (
 from .labs_runner import (
     LabRunnerError, LabSessionError, exec_in_lab, start_interactive_lab, validate_lab,
 )
-from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons
+from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons, sync_content_additions
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if load_dotenv is not None:
@@ -127,6 +127,9 @@ async def lifespan(_app: FastAPI):
     conn = connect(DB_PATH)
     try:
         ensure_ready(conn)
+        catalog_sync = sync_content_additions(conn)
+        if any(catalog_sync.values()):
+            print(f"Synchronisation additive du catalogue pédagogique : {catalog_sync}")
     finally:
         conn.close()
     yield
