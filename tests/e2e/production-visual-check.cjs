@@ -107,25 +107,49 @@ async function main() {
     report.checks.mobileHeaderLayout = await page.evaluate(() => {
       const header = document.querySelector('header.app-main-header');
       const title = header?.querySelector('h2');
-      const divs = Array.from(header?.children || []).filter(element => element.tagName === 'DIV');
-      const actions = divs[divs.length - 1];
-      if (!header || !title || !actions) return { selectorFound: false, noOverlap: false };
+      const trigger = header?.querySelector('.mobile-header-menu-trigger');
+      if (!header || !title || !trigger) return { selectorFound: false, noOverlap: false, sameRow: false };
       const titleBox = title.getBoundingClientRect();
-      const actionsBox = actions.getBoundingClientRect();
+      const triggerBox = trigger.getBoundingClientRect();
       const headerBox = header.getBoundingClientRect();
+      const titleCenter = titleBox.top + titleBox.height / 2;
+      const triggerCenter = triggerBox.top + triggerBox.height / 2;
       return {
         selectorFound: true,
-        titleBottom: Math.round(titleBox.bottom),
-        actionsTop: Math.round(actionsBox.top),
-        noOverlap: titleBox.bottom <= actionsBox.top + 2,
-        headerContainsActions: actionsBox.bottom <= headerBox.bottom + 1,
+        titleRight: Math.round(titleBox.right),
+        actionsLeft: Math.round(triggerBox.left),
+        titleCenterY: Math.round(titleCenter),
+        actionsCenterY: Math.round(triggerCenter),
+        sameRow: Math.abs(titleCenter - triggerCenter) <= 14,
+        noOverlap: titleBox.right <= triggerBox.left,
+        headerContainsActions: triggerBox.bottom <= headerBox.bottom + 1,
       };
     });
-    assert(report.checks.mobileHeaderLayout.noOverlap, 'Mobile dashboard title overlaps the action buttons.');
-    assert(report.checks.mobileHeaderLayout.headerContainsActions, 'Mobile action buttons extend beyond the header.');
+    assert(report.checks.mobileHeaderLayout.noOverlap, 'Mobile dashboard title overlaps the actions dropdown button.');
+    assert(report.checks.mobileHeaderLayout.sameRow, 'Mobile dashboard title and actions button are not aligned on the same row.');
+    assert(report.checks.mobileHeaderLayout.headerContainsActions, 'Mobile actions dropdown button extends beyond the header.');
     const mobileShot = path.join(OUT, 'production-dashboard-mobile.png');
     await page.screenshot({ path: mobileShot, fullPage: true, animations: 'disabled' });
     report.screenshots.push(mobileShot);
+
+    const actionsTrigger = page.locator('.mobile-header-menu-trigger');
+    await actionsTrigger.click();
+    const mobileActions = page.locator('#mobile-header-action-items');
+    await mobileActions.waitFor({ state: 'visible', timeout: 5000 });
+    const actionLabels = await mobileActions.locator('.mobile-action-label').allTextContents();
+    for (const label of ['Rechercher un cours', 'Atelier libre', 'Thème', 'Notifications', 'Profil', 'Paramètres']) {
+      const visibleLabel = mobileActions.locator('.mobile-action-label').filter({ hasText: label }).last();
+      assert(actionLabels.some(item => item.trim() === label) && await visibleLabel.isVisible(), `Mobile actions dropdown is missing the visible "${label}" action.`);
+    }
+    report.checks.mobileActionsDropdown = {
+      visible: await mobileActions.isVisible(),
+      actionLabels: actionLabels.map(item => item.trim()),
+    };
+    const actionsShot = path.join(OUT, 'production-dashboard-mobile-actions.png');
+    await page.screenshot({ path: actionsShot, fullPage: true, animations: 'disabled' });
+    report.screenshots.push(actionsShot);
+    await actionsTrigger.click();
+    await mobileActions.waitFor({ state: 'hidden', timeout: 5000 });
 
     await page.setViewportSize({ width: 1600, height: 1000 });
     const nav = page.getByRole('navigation', { name: 'Navigation principale' });
