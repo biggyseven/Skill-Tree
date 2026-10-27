@@ -4,15 +4,435 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité de la supply chain » : à rédiger après le cours complet.",
+      "prompt": "Quel est l'objectif principal de la sécurité de la supply chain logicielle ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Se fier uniquement à la réputation du nom du paquet",
+        "Maîtriser les relations de confiance de la source au déploiement et vérifier la provenance des artefacts",
+        "Installer toutes les dépendances sans délai",
+        "Remplacer tous les fournisseurs chaque année"
+      ],
+      "answer": 1,
+      "explanation": "L'objectif est de connaître et réduire les chemins de compromission tout au long du cycle de vie, avec des preuves adaptées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur un SBOM est correcte ?",
+      "choices": [
+        "Il certifie que le logiciel ne contient aucune vulnérabilité",
+        "Il remplace les tests et l'analyse du code",
+        "Il décrit les composants logiciels associés à un produit ou artefact précis",
+        "Il prouve qui a signé l'artefact"
+      ],
+      "answer": 2,
+      "explanation": "Le SBOM décrit la composition ; il n'est ni une certification de sécurité ni une attestation de provenance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que vérifie principalement un digest cryptographique d'artefact ?",
+      "choices": [
+        "L'identité exacte du contenu selon la fonction de hachage utilisée",
+        "La légitimité commerciale du fournisseur",
+        "L'absence de vulnérabilité",
+        "La qualité de la revue de code"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le digest identifie le contenu précis, mais il faut une référence de confiance pour décider si ce contenu est attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que garantit une signature valide, à elle seule ?",
+      "choices": [
+        "Que le code est exempt de failles",
+        "Que l'auteur du code est bienveillant",
+        "Que le SBOM est complet",
+        "L'intégrité de l'objet signé et une relation avec l'identité de signature selon le modèle de confiance"
+      ],
+      "answer": 3,
+      "explanation": "Une signature ne prouve pas la sécurité du code ni la légitimité si l'identité signataire n'est pas celle attendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement la provenance d'un build ?",
+      "choices": [
+        "À remplacer l'inventaire des composants",
+        "À décrire la source et le processus de construction de l'artefact",
+        "À classer les licences sans examiner les composants",
+        "À assurer la disponibilité du registre"
+      ],
+      "answer": 1,
+      "explanation": "La provenance relie un artefact à son processus de production et permet de le comparer à des attentes définies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque présente une action CI référencée par une étiquette mouvante ?",
+      "choices": [
+        "Elle améliore toujours l'isolation des runners",
+        "Elle prouve que le contenu est identique entre tous les builds",
+        "La référence peut pointer vers du contenu différent sans changement de la référence apparente",
+        "Elle empêche l'accès aux secrets"
+      ],
+      "answer": 2,
+      "explanation": "L'épinglage à une référence vérifiée avec une procédure de mise à jour réduit les changements silencieux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le principe de moindre privilège pour un pipeline CI/CD ?",
+      "choices": [
+        "Chaque job obtient uniquement les permissions nécessaires à sa tâche",
+        "Tous les jobs partagent un token administrateur",
+        "Les secrets sont ajoutés à chaque environnement de build",
+        "Les runners disposent d'un accès réseau total"
+      ],
+      "answer": 0,
+      "explanation": "Les permissions limitées réduisent l'impact d'une compromission d'un job, d'une action ou d'une dépendance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les pull requests non fiables ne devraient-elles pas recevoir des secrets de publication ?",
+      "choices": [
+        "Parce que les tests ne fonctionnent pas avec des contributions externes",
+        "Parce que tous les secrets doivent être publics",
+        "Parce que les secrets de publication expirent à chaque commit",
+        "Le code non fiable pourrait accéder aux secrets ou influencer une release privilégiée"
+      ],
+      "answer": 3,
+      "explanation": "Les jobs non fiables doivent être isolés des tâches de publication qui ont accès à des secrets ou permissions sensibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce que le typosquatting de paquet ?",
+      "choices": [
+        "La compilation d'un logiciel avec des symboles de débogage",
+        "L'utilisation d'un nom ressemblant à celui d'un composant légitime pour créer une confusion",
+        "La signature d'un SBOM",
+        "La rotation des clés de build"
+      ],
+      "answer": 1,
+      "explanation": "Les noms similaires peuvent conduire les développeurs ou les outils à installer un paquet inattendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment réduire le risque de confusion de dépendances ?",
+      "choices": [
+        "Autoriser tous les registres publics et privés sans ordre explicite",
+        "Ne jamais utiliser de lockfile",
+        "Définir les sources et espaces de noms approuvés, verrouiller les versions et vérifier la provenance",
+        "Désactiver les scans des dépendances transitives"
+      ],
+      "answer": 2,
+      "explanation": "Une politique de registre et des versions verrouillées réduisent l'ambiguïté, mais les composants doivent encore être validés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que protège la séparation des responsabilités dans le processus de release ?",
+      "choices": [
+        "Elle rend la confiance moins concentrée en évitant qu'une seule identité modifie, valide et publie tout",
+        "Elle garantit que le code ne contient aucune faille",
+        "Elle rend le SBOM inutile",
+        "Elle remplace les contrôles d'accès"
+      ],
+      "answer": 0,
+      "explanation": "Des approbations et identités indépendantes réduisent le risque qu'une compromission unique contourne tous les contrôles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un runner persistant peut-il accroître le risque ?",
+      "choices": [
+        "Il rend les builds forcément reproductibles",
+        "Il signe automatiquement tous les artefacts",
+        "Il rend toutes les dépendances fiables",
+        "Il peut conserver des fichiers, caches, processus ou secrets entre les exécutions"
+      ],
+      "answer": 3,
+      "explanation": "Les runners isolés ou éphémères et la séparation des caches limitent la contamination entre jobs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est l'une des limites d'un miroir privé de paquets ?",
+      "choices": [
+        "Un miroir ne peut pas stocker de versions antérieures",
+        "Un paquet malveillant peut aussi être mis en miroir si aucune politique de validation ne l'empêche",
+        "Un miroir ne peut pas utiliser de contrôle d'accès",
+        "Les artefacts du miroir sont toujours non exécutables"
+      ],
+      "answer": 1,
+      "explanation": "Un registre privé améliore la gouvernance mais peut distribuer du contenu dangereux sans contrôles d'entrée, de provenance et de publication."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi verrouiller les versions de dépendances ?",
+      "choices": [
+        "Pour empêcher toutes les mises à jour de sécurité",
+        "Pour garantir l'absence de composants vulnérables",
+        "Pour rendre la résolution plus prévisible et réduire les changements involontaires",
+        "Pour remplacer l'analyse des dépendances"
+      ],
+      "answer": 2,
+      "explanation": "Le lockfile stabilise les entrées du build, mais doit être actualisé par un processus contrôlé de maintenance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie promouvoir le même digest entre recette et production ?",
+      "choices": [
+        "Déployer le même artefact vérifié sans le reconstruire silencieusement entre environnements",
+        "Réutiliser les mêmes mots de passe dans les deux environnements",
+        "Utiliser obligatoirement la même base de données",
+        "Désactiver la validation en production"
+      ],
+      "answer": 0,
+      "explanation": "La promotion du même artefact réduit les différences dues aux environnements de construction et lie les contrôles au contenu effectivement livré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de SLSA ?",
+      "choices": [
+        "Garantir qu'un logiciel ne comporte aucun défaut",
+        "Fournir seulement une liste de licences",
+        "Remplacer tous les mécanismes d'identité",
+        "Décrire des garanties progressives de confiance liées notamment à la provenance et à la sécurité du build"
+      ],
+      "answer": 3,
+      "explanation": "SLSA décrit des niveaux et exigences de garanties ; le niveau doit correspondre à l'implémentation et à la version de la spécification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il préciser la version et le track de SLSA utilisé ?",
+      "choices": [
+        "Parce que les niveaux n'ont jamais changé",
+        "Parce que la spécification évolue et que le track détermine les garanties auxquelles on se réfère",
+        "Parce que le track est le nom du registre",
+        "Parce qu'un niveau SLSA remplace les avis éditeurs"
+      ],
+      "answer": 1,
+      "explanation": "Préciser la version et le track évite de revendiquer des garanties en se basant sur une ancienne structure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel format est un standard ouvert de nomenclature logicielle, actuellement présenté en version 3.0 par son site officiel ?",
+      "choices": [
+        "YAML uniquement",
+        "TCP-AO",
+        "SPDX",
+        "BGP"
+      ],
+      "answer": 2,
+      "explanation": "SPDX est un standard ouvert pour représenter notamment des composants et informations de licence ; la version exacte doit être vérifiée à l'implémentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur CycloneDX est correcte ?",
+      "choices": [
+        "C'est une spécification de nomenclature pouvant représenter composants, services et dépendances",
+        "C'est un outil qui garantit la conformité juridique de tous les projets",
+        "C'est un protocole de routage",
+        "C'est une signature cryptographique"
+      ],
+      "answer": 0,
+      "explanation": "CycloneDX fournit un modèle et des formats pour décrire des composants et relations dans la supply chain."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi lier un SBOM à un digest final ?",
+      "choices": [
+        "Pour garantir que chaque composant est sûr",
+        "Pour supprimer le besoin d'inventaire",
+        "Pour prouver que le fournisseur n'a jamais été compromis",
+        "Pour savoir exactement quel artefact le document décrit et éviter l'ambiguïté entre builds"
+      ],
+      "answer": 3,
+      "explanation": "Le SBOM doit correspondre au produit déployé, pas seulement à une branche ou un manifeste qui ne reflète peut-être pas le build final."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une attestation est présente, mais elle peut être modifiée par le même job non fiable qui produit l'artefact. Quel est le problème ?",
+      "choices": [
+        "Elle prouve automatiquement la reproductibilité",
+        "Sa génération ou son intégrité peut être contrôlée par l'acteur qui doit être vérifié",
+        "Elle interdit les mises à jour",
+        "Elle remplace la provenance"
+      ],
+      "answer": 1,
+      "explanation": "La provenance et les attestations doivent être générées par un mécanisme dont l'intégrité est protégée par rapport aux étapes non fiables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi évaluer les fournisseurs selon leur criticité ?",
+      "choices": [
+        "Pour éviter d'examiner les sous-traitants",
+        "Pour choisir automatiquement un fournisseur selon son score marketing",
+        "Pour concentrer les preuves et contrôles sur ceux dont l'accès, la dépendance ou l'impact métier est le plus important",
+        "Pour remplacer le contrat par un formulaire"
+      ],
+      "answer": 2,
+      "explanation": "Le niveau de contrôle doit être proportionné à l'accès aux données et privilèges, à l'impact et à la dépendance au service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un fournisseur répond positivement à un questionnaire de sécurité. Quelle étape reste nécessaire ?",
+      "choices": [
+        "Vérifier la portée, les dates, les exclusions et les preuves quand le risque le justifie",
+        "Lui accorder automatiquement un accès administrateur",
+        "Supprimer toutes les exigences contractuelles",
+        "Déclarer tous ses produits sans vulnérabilité"
+      ],
+      "answer": 0,
+      "explanation": "Les réponses déclaratives ne sont pas une preuve suffisante ; il faut les apprécier selon la criticité et vérifier les éléments pertinents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le statut de sous-traitant doit-il être examiné ?",
+      "choices": [
+        "Parce que les sous-traitants ne peuvent jamais accéder aux données",
+        "Parce qu'un contrat direct rend tous les acteurs indirects sûrs",
+        "Parce que le SBOM ne contient pas de composants",
+        "Parce qu'une dépendance indirecte peut accéder aux données, aux systèmes ou devenir un point de défaillance"
+      ],
+      "answer": 3,
+      "explanation": "Les sous-traitants importants et dépendances partagées peuvent élargir le rayon d'impact d'un incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information nouvelle est mise en avant dans les éléments minimums SBOM 2026 cités dans ce cours ?",
+      "choices": [
+        "Le mot de passe de tous les développeurs",
+        "Des éléments comme le hash du composant, la licence, le nom de l'outil et le contexte de génération",
+        "Le score CVSS obligatoire de chaque utilisateur",
+        "Le nombre d'étoiles du dépôt"
+      ],
+      "answer": 1,
+      "explanation": "La guidance CISA et partenaires publiée en 2026 renforce les champs de données et les pratiques de partage, y compris ces éléments."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un bon score OpenSSF Scorecard suffit-il à prouver qu'une dépendance est sûre ?",
+      "choices": [
+        "Oui, car le score couvre tous les comportements possibles",
+        "Oui, si le paquet est populaire",
+        "Non, le score aide à examiner certaines pratiques mais ne garantit pas l'absence de compromission ou de vulnérabilités",
+        "Non, car Scorecard ne concerne que les routeurs"
+      ],
+      "answer": 2,
+      "explanation": "Scorecard est un signal automatisé sur certaines pratiques observables, pas une certification complète d'un artefact ou de son état actuel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un firmware est signé par le fabricant. Que reste-t-il à vérifier ?",
+      "choices": [
+        "Le modèle matériel, la source officielle, le mécanisme de vérification, les prérequis, les tests et le rollback",
+        "Uniquement la taille du fichier",
+        "Que la signature peut être ignorée",
+        "Que le fichier vient d'un forum"
+      ],
+      "answer": 0,
+      "explanation": "La signature contribue à l'intégrité et à l'origine, mais la mise à jour doit être applicable au matériel et déployée de façon contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la priorité initiale en cas de compromission présumée d'une dépendance diffusée ?",
+      "choices": [
+        "Reconstruire immédiatement sur le même runner suspect sans collecter d'éléments",
+        "Effacer les logs pour éviter le bruit",
+        "Notifier uniquement les développeurs et poursuivre les releases",
+        "Bloquer les promotions concernées, préserver les preuves et identifier les artefacts et consommateurs"
+      ],
+      "answer": 3,
+      "explanation": "Il faut contenir la propagation tout en préservant les preuves puis restaurer la confiance dans les sources, identités et environnements de build."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la rotation des secrets peut-elle être nécessaire après un incident de build ?",
+      "choices": [
+        "Parce qu'un artefact doit toujours avoir un mot de passe",
+        "Parce que les secrets accessibles à une exécution compromise peuvent avoir été exposés",
+        "Parce que la provenance rend les secrets inutiles",
+        "Parce que le hash du paquet change automatiquement"
+      ],
+      "answer": 1,
+      "explanation": "L'enquête doit identifier les secrets accessibles aux jobs concernés et les révoquer ou renouveler selon l'exposition."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire si un digest d'artefact ne correspond pas à la valeur approuvée ?",
+      "choices": [
+        "Déployer quand même si le nom est correct",
+        "Supprimer le contrôle pour cette release",
+        "Bloquer ou mettre en investigation l'artefact jusqu'à l'explication de l'écart",
+        "Modifier le digest attendu pour qu'il corresponde sans revue"
+      ],
+      "answer": 2,
+      "explanation": "Un digest différent signifie que le contenu ne correspond pas à l'objet attendu ; l'écart doit être investigué avant l'admission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la limite principale d'un SBOM généré uniquement à partir du dépôt source ?",
+      "choices": [
+        "Il peut ne pas représenter toutes les dépendances ou modifications présentes dans l'artefact final",
+        "Il ne peut pas être en format JSON",
+        "Il rend impossible le suivi des licences",
+        "Il contient obligatoirement des secrets"
+      ],
+      "answer": 0,
+      "explanation": "Le build peut inclure des composants ou produire un artefact différent du dépôt ; il faut relier la nomenclature au produit réellement livré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la provenance ne garantit-elle pas que le code soit sûr ?",
+      "choices": [
+        "Parce qu'elle ne peut jamais être signée",
+        "Parce que les artefacts n'ont pas de contenu",
+        "Parce que la provenance est une liste de licences",
+        "Elle décrit la production ; un build autorisé peut encore contenir des vulnérabilités ou des défauts"
+      ],
+      "answer": 3,
+      "explanation": "La provenance permet de vérifier le processus d'origine, mais l'évaluation du contenu exige d'autres contrôles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur est le plus pertinent pour savoir si les contrôles de release sont appliqués ?",
+      "choices": [
+        "Le nombre de fichiers de workflow dans le dépôt",
+        "La proportion de releases dont la provenance et l'identité sont effectivement vérifiées avant promotion",
+        "Le nombre de lignes du SBOM seulement",
+        "Le nombre de développeurs"
+      ],
+      "answer": 1,
+      "explanation": "Les métriques doivent mesurer la vérification réelle, les refus, les écarts et la capacité à relier l'artefact à sa source."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet de détecter la surveillance des actions et workflows du dépôt ?",
+      "choices": [
+        "Elle garantit que chaque dépendance est libre de licence",
+        "Elle remplace l'inventaire des versions",
+        "Des changements de confiance comme l'ajout d'une action, la modification de permissions ou la suppression d'un test",
+        "Elle empêche tout changement de code"
+      ],
+      "answer": 2,
+      "explanation": "Les fichiers de workflow peuvent influencer tous les builds futurs et doivent être traités comme du code d'infrastructure privilégié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un incident supply chain, quand peut-on recommencer à signer des artefacts ?",
+      "choices": [
+        "Après avoir restauré la confiance dans les sources, identités et environnement de build, puis revalidé l'artefact",
+        "Dès que l'attaquant présumé est bloqué, sans vérifier le runner",
+        "Après avoir modifié le nom du paquet",
+        "Quand la signature précédente est supprimée"
+      ],
+      "answer": 0,
+      "explanation": "Si le build lui-même est suspect, il faut le restaurer ou le reconstruire dans un environnement fiable avant de produire des preuves nouvelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur usage d'une exception d'admission en production ?",
+      "choices": [
+        "Elle doit être silencieuse et permanente",
+        "Elle sert à contourner le contrôle sans justification",
+        "Elle rend les règles de provenance inutiles",
+        "Elle est limitée, approuvée, traçable, assortie d'une échéance et réévaluée"
+      ],
+      "answer": 3,
+      "explanation": "Une exception doit rester visible et avoir un propriétaire, une justification et une stratégie de sortie."
     }
   ]
 }

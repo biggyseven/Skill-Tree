@@ -4,15 +4,243 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité Web de base » : à rédiger après le cours complet.",
+      "prompt": "Quelle différence essentielle sépare l’authentification de l’autorisation ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "L’authentification établit l’identité ; l’autorisation décide les actions permises",
+        "L’authentification chiffre la base ; l’autorisation chiffre HTTP",
+        "L’autorisation remplace une session",
+        "Les deux termes désignent la même opération"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Une session valide établit un contexte, mais chaque action doit encore être autorisée pour le rôle et la ressource concernés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle empêche principalement une injection SQL issue d’une valeur utilisateur ?",
+      "choices": [
+        "Masquer le formulaire",
+        "Supprimer tous les espaces",
+        "Utiliser des requêtes paramétrées",
+        "Activer CORS"
+      ],
+      "answer": 2,
+      "explanation": "Les paramètres séparent les valeurs de la structure SQL. La validation et les privilèges minimaux complètent cette défense."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur authentifié remplace l’identifiant d’un devoir dans l’URL et lit le devoir d’un autre. Quelle faiblesse est la plus directement illustrée ?",
+      "choices": [
+        "Mauvaise politique CSP uniquement",
+        "BOLA ou IDOR, défaut d’autorisation au niveau de l’objet",
+        "Défaut de disponibilité DNS",
+        "Certificat TLS expiré"
+      ],
+      "answer": 1,
+      "explanation": "Le serveur doit vérifier l’accès à l’objet précis, même si la session est valide et l’identifiant difficile à deviner."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal de l’attribut HttpOnly sur un cookie ?",
+      "choices": [
+        "Chiffrer le cookie sur le réseau",
+        "Empêcher l’envoi sur HTTPS",
+        "Bloquer toutes les requêtes CSRF",
+        "Empêcher l’accès direct au cookie via JavaScript"
+      ],
+      "answer": 3,
+      "explanation": "HttpOnly limite l’accès au cookie par JavaScript. Il ne supprime pas à lui seul le risque XSS ou CSRF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi CORS ne remplace-t-il pas l’autorisation côté serveur ?",
+      "choices": [
+        "CORS ne s’applique qu’à la lecture de certaines réponses par les navigateurs et ne prouve pas les droits du demandeur",
+        "CORS chiffre automatiquement toutes les données",
+        "CORS interdit aux scripts d’utiliser HTTP",
+        "CORS authentifie les utilisateurs par certificat"
+      ],
+      "answer": 0,
+      "explanation": "Un client non navigateur peut ne pas appliquer CORS. L’API doit toujours authentifier et autoriser ses opérations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle défense est la plus appropriée contre une XSS dans un commentaire affiché en HTML ?",
+      "choices": [
+        "Utiliser un port différent",
+        "Encoder le contenu selon le contexte de sortie et éviter l’interprétation HTML inutile",
+        "Augmenter la taille maximale du commentaire",
+        "Désactiver TLS"
+      ],
+      "answer": 1,
+      "explanation": "Le contenu doit être rendu comme donnée et encodé selon le contexte. Une CSP est utile en défense complémentaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel scénario correspond le mieux à un risque CSRF ?",
+      "choices": [
+        "Un serveur présente un certificat expiré",
+        "Une base de données manque d’espace",
+        "Une page externe tente de déclencher une action avec le cookie de session automatiquement envoyé",
+        "Une dépendance est non maintenue"
+      ],
+      "answer": 2,
+      "explanation": "Le navigateur peut joindre automatiquement un cookie ; les actions sensibles doivent exiger les protections CSRF appropriées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une fonctionnalité serveur récupère une URL fournie par l’utilisateur et suit toute redirection. Quel risque faut-il examiner en priorité ?",
+      "choices": [
+        "SSRF, accès serveur à des destinations inattendues",
+        "Clickjacking uniquement",
+        "Énumération de ports par le navigateur uniquement",
+        "Vol du presse-papiers"
+      ],
+      "answer": 0,
+      "explanation": "Les destinations, adresses, ports et redirections doivent être contrôlés ; une politique réseau sortant limite l’impact."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle combinaison est la plus adaptée pour sécuriser les fichiers téléversés ?",
+      "choices": [
+        "Accepter tout contenu avec une extension .pdf",
+        "Conserver le nom reçu et publier les fichiers directement",
+        "Se fier seulement au type MIME annoncé",
+        "Contrôler permission, taille et contenu, générer un nom interne et isoler le stockage"
+      ],
+      "answer": 3,
+      "explanation": "Le nom et le type annoncés sont contrôlés par le client. Le téléchargement doit également vérifier l’autorisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement une Content Security Policy ?",
+      "choices": [
+        "Remplacer toutes les vérifications d’autorisation",
+        "Limiter les sources de ressources du navigateur et réduire notamment l’impact de certaines XSS",
+        "Authentifier les comptes à la place du serveur",
+        "Empêcher toute requête depuis un programme externe"
+      ],
+      "answer": 1,
+      "explanation": "Une CSP réduit certaines possibilités d’exécution ou de chargement de contenu ; elle ne remplace pas la correction de la cause d’une faille."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une clé secrète incluse dans le JavaScript livré au navigateur n’est-elle pas secrète ?",
+      "choices": [
+        "Les navigateurs chiffrent automatiquement le code",
+        "Les utilisateurs ne peuvent jamais voir les fichiers réseau",
+        "Le code et ses données distribuées au client peuvent être inspectés",
+        "Les variables publiques sont protégées par SameSite"
+      ],
+      "answer": 2,
+      "explanation": "Tout secret envoyé au navigateur doit être considéré comme visible. L’opération qui nécessite le secret doit rester côté serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique de journalisation est la plus sûre ?",
+      "choices": [
+        "Enregistrer tous les cookies et en-têtes Authorization",
+        "Masquer les secrets et enregistrer un identifiant de corrélation et les événements utiles",
+        "Stocker les mots de passe en clair pour faciliter les audits",
+        "Désactiver les journaux lors des refus d’accès"
+      ],
+      "answer": 1,
+      "explanation": "Les journaux doivent aider à détecter et diagnostiquer sans devenir un dépôt de secrets ou de données confidentielles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé sur SameSite est exact ?",
+      "choices": [
+        "Il garantit à lui seul une protection CSRF complète pour toutes les applications",
+        "Il chiffre le contenu du cookie",
+        "Il remplace le contrôle d’accès aux objets",
+        "Il aide à limiter certains envois intersites, mais doit être évalué avec le modèle de session et d’autres contrôles"
+      ],
+      "answer": 3,
+      "explanation": "SameSite est une défense utile, mais la stratégie CSRF doit correspondre aux flux réels et être testée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route accepte un objet complet et copie tous les champs dans le modèle utilisateur, dont role. Quel risque ce comportement illustre-t-il ?",
+      "choices": [
+        "Mass assignment",
+        "Dépassement de TTL DNS",
+        "Clickjacking",
+        "Défaillance de certificat"
+      ],
+      "answer": 0,
+      "explanation": "Les champs modifiables doivent être explicitement autorisés. Les changements de rôle nécessitent une voie privilégiée et auditée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche convient le mieux pour les chemins de fichiers issus d’une entrée client ?",
+      "choices": [
+        "Concaténer le répertoire et le nom sans contrôle",
+        "Bloquer uniquement le caractère slash",
+        "Utiliser un identifiant interne ou vérifier le chemin final résolu dans un répertoire autorisé",
+        "Faire confiance à l’extension du fichier"
+      ],
+      "answer": 2,
+      "explanation": "Le chemin final doit être confiné de façon fiable, en tenant compte de la normalisation et des liens symboliques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que couvre le mieux un test négatif de contrôle d’accès ?",
+      "choices": [
+        "Uniquement la couleur du bouton dans l’interface",
+        "Un compte A tente d’accéder directement à une ressource de B et on vérifie le refus sans fuite ni mutation",
+        "Le site répond au ping",
+        "Le navigateur charge le logo"
+      ],
+      "answer": 1,
+      "explanation": "Les tests doivent contrôler les routes API directes, la réponse, l’absence de donnée exposée et l’absence de modification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement l’OWASP Top 10:2025 ?",
+      "choices": [
+        "Une preuve que toute application est sûre si elle cite le document",
+        "Un scanner automatique qui corrige les vulnérabilités",
+        "Un standard de chiffrement réseau",
+        "Un document de sensibilisation aux catégories de risques applicatifs importants, pas une liste exhaustive de contrôles"
+      ],
+      "answer": 3,
+      "explanation": "Le Top 10 aide à sensibiliser et classifier les risques ; une vérification plus détaillée peut s’appuyer sur l’ASVS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne réaction lorsqu’un secret de publication est commité puis supprimé dans un commit suivant ?",
+      "choices": [
+        "Considérer le secret comme exposé, le révoquer, le remplacer et examiner les usages",
+        "Ne rien faire si la branche est privée",
+        "Supprimer seulement le nom de variable",
+        "Ajouter le secret à la CSP"
+      ],
+      "answer": 0,
+      "explanation": "Le secret peut avoir été copié depuis l’historique. La suppression de la ligne ne le rend pas de nouveau confidentiel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe réduit l’impact d’une compromission du serveur applicatif sur la base ?",
+      "choices": [
+        "Un seul compte SQL administrateur utilisé partout",
+        "Des messages d’erreur plus détaillés",
+        "Le moindre privilège pour le compte de base de données",
+        "Un identifiant de ressource plus long"
+      ],
+      "answer": 2,
+      "explanation": "Accorder uniquement les permissions nécessaires limite les conséquences d’une erreur d’application ou d’une injection."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit accompagner une erreur client générique pour faciliter le diagnostic sans divulgation excessive ?",
+      "choices": [
+        "La pile complète et les secrets",
+        "Un identifiant de corrélation reliant la réponse aux journaux contrôlés",
+        "Le mot de passe du service",
+        "La requête SQL complète avec toutes ses valeurs"
+      ],
+      "answer": 1,
+      "explanation": "Un identifiant de corrélation permet à l’équipe de retrouver les détails techniques filtrés dans les journaux sécurisés."
     }
   ]
 }

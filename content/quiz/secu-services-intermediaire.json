@@ -4,15 +4,195 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité des services réseau » : à rédiger après le cours complet.",
+      "prompt": "Quelle distinction entre protocole, service et port est correcte ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Le port définit à lui seul la sécurité de l'application",
+        "Le protocole définit les échanges, le service fournit une fonction et le port identifie un point de transport",
+        "Le service est toujours un port UDP",
+        "Un port ouvert prouve que le serveur est correctement configuré"
+      ],
+      "answer": 1,
+      "explanation": "Le protocole décrit les messages, le service la fonction fournie et le port le point de transport utilisé. Un port ouvert ne prouve ni l'identité, ni la sécurité, ni l'autorisation du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement DNSSEC ?",
+      "choices": [
+        "À chiffrer toutes les requêtes DNS",
+        "À empêcher toute attaque par déni de service DNS",
+        "À fournir l'authenticité de l'origine et l'intégrité des données DNS signées",
+        "À attribuer une adresse IP à chaque client"
+      ],
+      "answer": 2,
+      "explanation": "DNSSEC ajoute une validation cryptographique d'origine et d'intégrité des données DNS. Il ne chiffre pas les noms demandés et ne remplace pas les autres contrôles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi DoH ou DoT ne remplace-t-il pas DNSSEC ?",
+      "choices": [
+        "DoH/DoT protègent le transport vers le résolveur, alors que DNSSEC valide les données DNS signées",
+        "DNSSEC chiffre les courriels alors que DoH authentifie les utilisateurs",
+        "DoH n'utilise jamais TLS",
+        "Les trois technologies remplissent exactement la même fonction"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "DoH et DoT protègent le canal client-résolveur. DNSSEC vérifie l'intégrité et l'origine des données DNS signées ; les mécanismes sont complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un poste reçoit une adresse DHCP, mais pas de DNS fonctionnel. Quelle explication est plausible ?",
+      "choices": [
+        "DHCP a réussi, donc DNS doit forcément être sain",
+        "Le certificat TLS est expiré dans tous les cas",
+        "Le service DNS doit obligatoirement utiliser TCP seul",
+        "Les options DHCP, le résolveur reçu ou la résolution DNS peuvent être incorrects indépendamment du bail IP"
+      ],
+      "answer": 3,
+      "explanation": "L'attribution d'une adresse ne garantit pas que les autres options soient correctes ni que le résolveur fonctionne. Vérifie adresse, passerelle, DNS et résolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que mesure Test-NetConnection avec le port 443 dans son usage simple ?",
+      "choices": [
+        "La validité de la chaîne de certificat",
+        "La possibilité d'établir une connexion TCP vers le port demandé",
+        "L'autorisation métier sur chaque API",
+        "La conformité de la configuration DNSSEC"
+      ],
+      "answer": 1,
+      "explanation": "Le test vérifie la connectivité TCP. Il ne valide ni le certificat, ni HTTP, ni l'authentification ou l'autorisation de l'application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon réflexe face à un avertissement inattendu de clé d'hôte SSH ?",
+      "choices": [
+        "Désactiver définitivement la vérification de clé",
+        "Ignorer le message si le serveur répond",
+        "Vérifier la clé par un canal indépendant avant de se connecter",
+        "Réinitialiser la clé de tous les serveurs"
+      ],
+      "answer": 2,
+      "explanation": "Une clé modifiée peut être liée à une reconstruction légitime ou indiquer que le client atteint un autre système. Valide indépendamment la nouvelle empreinte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve au maximum un login LDAP réussi ?",
+      "choices": [
+        "Que l'identité peut lire et modifier tout l'annuaire",
+        "Que le serveur est exempt de vulnérabilités",
+        "Que le transport n'a besoin d'aucune protection",
+        "Que l'opération d'authentification a été acceptée, sans garantir toutes les autorisations sur les objets"
+      ],
+      "answer": 3,
+      "explanation": "Authentification et autorisation sont différentes. Un bind réussi ne donne pas nécessairement le droit de rechercher ou modifier tous les objets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une dérive de l'horloge peut-elle perturber Kerberos et les investigations ?",
+      "choices": [
+        "Elle peut faire rejeter les tickets et dégrader l'ordre chronologique des événements",
+        "Elle change automatiquement le nom DNS de chaque serveur",
+        "Elle transforme UDP en TCP",
+        "Elle révoque tous les certificats à distance"
+      ],
+      "answer": 0,
+      "explanation": "Les tickets Kerberos dépendent de contraintes temporelles, et les logs doivent partager une chronologie fiable. Vérifie synchronisation et dérives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle description de RADIUS est la plus correcte ?",
+      "choices": [
+        "C'est un protocole de chiffrement des fichiers de sauvegarde",
+        "Il est employé pour des échanges d'authentification d'accès réseau et, selon la configuration, de comptabilité",
+        "Il remplace DNS et DHCP",
+        "Il fournit uniquement des mesures SNMP"
+      ],
+      "answer": 1,
+      "explanation": "RADIUS sert souvent pour VPN, Wi-Fi et accès réseau. La configuration des politiques, secrets et journaux détermine le comportement réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "SNMPv3 est activé. Que faut-il encore vérifier ?",
+      "choices": [
+        "Rien, le nom de version garantit toujours la confidentialité",
+        "Uniquement que UDP 161 répond",
+        "Le modèle de sécurité, l'authentification, la confidentialité, les clés, les vues et les ACL",
+        "Que l'équipement écoute sur toutes ses interfaces"
+      ],
+      "answer": 2,
+      "explanation": "La version seule ne garantit pas que les paramètres de sécurité sont correctement utilisés. Vérifie identité, niveaux, secrets et restrictions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un transport Syslog UDP peut-il être inadapté aux journaux les plus critiques ?",
+      "choices": [
+        "UDP ajoute toujours un chiffrement fort",
+        "UDP garantit une livraison exactement une fois",
+        "UDP authentifie automatiquement la source",
+        "UDP ne fournit pas à lui seul une livraison fiable ni un canal chiffré"
+      ],
+      "answer": 3,
+      "explanation": "UDP peut perdre des messages et ne chiffre pas le contenu à lui seul. Privilégie un transport fiable et protégé si la source le permet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un certificat TLS est signé par une autorité de confiance, mais le nom ne correspond pas au serveur contacté. Que faut-il conclure ?",
+      "choices": [
+        "La validation de nom échoue, même si l'autorité est approuvée",
+        "Le certificat est forcément valide pour tous les domaines",
+        "HTTP doit fonctionner quoi qu'il arrive",
+        "Le test DNS a été réussi automatiquement"
+      ],
+      "answer": 0,
+      "explanation": "La confiance dans l'autorité ne remplace pas la vérification du nom. Il faut configurer le bon certificat ou corriger l'identité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "SPF, DKIM et DMARC garantissent-ils qu'un message électronique n'est pas frauduleux ?",
+      "choices": [
+        "Oui, ils valident tout le contenu",
+        "Non, ils apportent des contrôles d'émission, de signature et d'alignement, sans certifier l'honnêteté du contenu",
+        "Oui, ils remplacent le filtrage",
+        "Non, car ils ne sont liés qu'à DHCP"
+      ],
+      "answer": 1,
+      "explanation": "Ces mécanismes aident à contrôler l'identité du domaine et certains aspects de la signature. Un message peut malgré tout être trompeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un processus serveur est actif mais le service ne répond pas à une opération métier. Que faut-il faire ?",
+      "choices": [
+        "Conclure immédiatement que l'application est saine",
+        "Ouvrir tous les ports du VLAN",
+        "Tester la fonction réelle et examiner dépendances, protocole, authentification et journaux",
+        "Désactiver la journalisation"
+      ],
+      "answer": 2,
+      "explanation": "Un processus présent ne prouve pas que la fonction est disponible. Teste le protocole et l'opération pertinente, puis examine les dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une modification du pare-feu, quelle solution est la plus sûre si un seul flux est nécessaire ?",
+      "choices": [
+        "Autoriser toutes les destinations sur tous les ports",
+        "Désactiver le pare-feu",
+        "Autoriser tous les flux entre VLAN",
+        "Identifier source, destination, port, protocole et sens, puis appliquer une règle minimale testée"
+      ],
+      "answer": 3,
+      "explanation": "Le moindre privilège limite la portée du changement. Justifie la règle, teste-la depuis la source appropriée et prépare le retour arrière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la journalisation d'un service doit-elle être testée après sa migration ?",
+      "choices": [
+        "Le service peut rester disponible alors que ses événements ne sont plus envoyés au collecteur",
+        "La migration garantit que toutes les données sont conservées",
+        "Les journaux n'ont aucune utilité après une migration",
+        "La connectivité du port garantit la réception Syslog"
+      ],
+      "answer": 0,
+      "explanation": "La destination, le transport, les certificats ou le format peuvent changer. La santé métier et la santé de collecte se vérifient séparément."
     }
   ]
 }

@@ -4,15 +4,375 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Red Team vs Blue Team vs Purple Team » : à rédiger après le cours complet.",
+      "prompt": "Quel est l’objectif principal d’une Red Team ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Prouver sa supériorité sur le SOC",
+        "Éprouver des hypothèses de défense dans un périmètre autorisé",
+        "Remplacer toutes les évaluations",
+        "Maximiser le volume d’alertes"
+      ],
+      "answer": 1,
+      "explanation": "La Red Team vérifie une hypothèse autorisée et documente des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle responsabilité correspond à la Blue Team ?",
+      "choices": [
+        "Étendre le périmètre",
+        "Exécuter toutes les actions offensives",
+        "Détecter, qualifier, répondre et apprendre",
+        "Modifier le rapport après coup"
+      ],
+      "answer": 2,
+      "explanation": "La Blue Team exploite la télémétrie et les procédures de réponse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que caractérise la Purple Team ?",
+      "choices": [
+        "La compétition entre équipes",
+        "Une collaboration basée sur les preuves, corrections et retests",
+        "Un outil propriétaire",
+        "Un test sans mandat"
+      ],
+      "answer": 1,
+      "explanation": "Le travail Purple relie comportement, détection et amélioration vérifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doivent préciser les règles d’engagement ?",
+      "choices": [
+        "Seulement le nom de l’outil",
+        "Les actifs, méthodes, limites, contacts et arrêts",
+        "Uniquement la date de restitution",
+        "Une permission générale implicite"
+      ],
+      "answer": 1,
+      "explanation": "Les RoE sont un document opérationnel pour rester dans les limites approuvées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un système hors périmètre est découvert. Que faire ?",
+      "choices": [
+        "Le tester par curiosité",
+        "Étendre le mandat de sa propre initiative",
+        "Arrêter l’action concernée et contacter le contrôleur",
+        "Supprimer ses logs"
+      ],
+      "answer": 2,
+      "explanation": "Une découverte ne constitue pas une autorisation de poursuivre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert MITRE ATT&CK ?",
+      "choices": [
+        "Certifier la sécurité d’un réseau",
+        "Fournir un langage commun de tactiques et techniques",
+        "Remplacer la gouvernance",
+        "Garantir qu’une règle fonctionne"
+      ],
+      "answer": 1,
+      "explanation": "ATT&CK structure les comportements mais ne prouve pas la couverture opérationnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une case ATT&CK cochée ne prouve-t-elle pas une capacité ?",
+      "choices": [
+        "Les techniques ne sont jamais observables",
+        "La collecte, l’alerte et le traitement doivent être testés séparément",
+        "ATT&CK est un outil de ticketing",
+        "Toutes les alertes sont fausses"
+      ],
+      "answer": 1,
+      "explanation": "La preuve de couverture doit être datée et indiquer ce qui a été réellement vérifié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle formulation constitue une hypothèse testable ?",
+      "choices": [
+        "Utiliser un outil sophistiqué",
+        "Améliorer la sécurité",
+        "Un changement de rôle de laboratoire doit produire un audit complet et une alerte contextualisée",
+        "Tester tous les systèmes"
+      ],
+      "answer": 2,
+      "explanation": "La formulation précise un comportement et les résultats observables attendus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier la source avant de tester une règle SIEM ?",
+      "choices": [
+        "Pour éviter de collecter des preuves",
+        "Une règle ne peut analyser un événement absent ou mal normalisé",
+        "Les sources sont toujours parfaites",
+        "Pour supprimer les tests négatifs"
+      ],
+      "answer": 1,
+      "explanation": "La chaîne complète de collecte doit être comprise avant de conclure sur la règle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un test négatif ?",
+      "choices": [
+        "À déclencher une alerte à tout prix",
+        "À vérifier qu’une activité légitime proche ne déclenche pas à tort",
+        "À remplacer le positif",
+        "À augmenter la matrice"
+      ],
+      "answer": 1,
+      "explanation": "Les tests négatifs contribuent à mesurer les faux positifs et les régressions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel constat est le plus utile ?",
+      "choices": [
+        "Le SOC est incompétent",
+        "Tout est cassé",
+        "L’alerte était dépourvue du contexte d’actif défini",
+        "Le produit ne marche jamais"
+      ],
+      "answer": 2,
+      "explanation": "Un constat doit décrire un fait vérifiable sans blâme personnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Si le journal source est absent, quelle conclusion est correcte ?",
+      "choices": [
+        "La règle a forcément échoué",
+        "Le contrôle est forcément réussi",
+        "Le test n’est pas concluant tant que la collecte n’est pas vérifiée",
+        "Il faut ignorer l’absence"
+      ],
+      "answer": 2,
+      "explanation": "Il faut identifier le maillon défaillant avant d’attribuer la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment définir le TTD ?",
+      "choices": [
+        "Par un nombre sans définition",
+        "Avec point de départ, détection de référence et timestamps",
+        "Toujours depuis le ticket",
+        "En le mélangeant au temps de récupération"
+      ],
+      "answer": 1,
+      "explanation": "Les mesures sont interprétables si la référence temporelle est explicitée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer détection, triage, confinement et récupération ?",
+      "choices": [
+        "Pour multiplier les documents",
+        "Ce sont des étapes et délais différents",
+        "Les événements n’ont pas d’heure",
+        "Pour éviter les responsabilités"
+      ],
+      "answer": 1,
+      "explanation": "Un seul délai masquerait la performance de chaque étape."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la fonction de la White Team ?",
+      "choices": [
+        "Exécuter les actions sans journal",
+        "Contrôler l’exercice, la chronologie et les règles de sûreté",
+        "Modifier les résultats",
+        "Garantir un succès offensif"
+      ],
+      "answer": 1,
+      "explanation": "La White Team coordonne et applique les règles d’arrêt."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve valide une correction de détection ?",
+      "choices": [
+        "La règle existe dans la console",
+        "Le ticket indique terminé",
+        "Le positif et les négatifs donnent les résultats attendus",
+        "L’opérateur pense que ça ira"
+      ],
+      "answer": 2,
+      "explanation": "La clôture s’appuie sur un retest et un contrôle de régression."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire d’une preuve contenant des données non nécessaires ?",
+      "choices": [
+        "La diffuser à tous",
+        "La publier dans le rapport public",
+        "La minimiser, la protéger et limiter l’accès",
+        "La conserver sans échéance"
+      ],
+      "answer": 2,
+      "explanation": "La minimisation réduit l’exposition des données sensibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi retester après la correction ?",
+      "choices": [
+        "Le retest remplace la documentation",
+        "Il vérifie la modification et révèle les effets secondaires possibles",
+        "Il garantit toutes les techniques",
+        "Il évite les tests négatifs"
+      ],
+      "answer": 1,
+      "explanation": "La correction doit être validée dans des conditions reproductibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier pour un exercice impliquant un fournisseur cloud ?",
+      "choices": [
+        "L’autorisation client s’applique à tous les services",
+        "Tester d’abord les services partagés",
+        "Les limites et autorisations du fournisseur",
+        "Omettre les contacts de secours"
+      ],
+      "answer": 2,
+      "explanation": "Le périmètre client ne couvre pas automatiquement les systèmes partagés du fournisseur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle précaution est fondamentale en OT/ICS ?",
+      "choices": [
+        "Provoquer une perturbation pour obtenir une preuve",
+        "Prioriser la sûreté, la disponibilité et les essais isolés approuvés",
+        "Appliquer toutes les techniques IT telles quelles",
+        "Désactiver les protections"
+      ],
+      "answer": 1,
+      "explanation": "Le contexte industriel impose une coordination renforcée avec exploitation et sûreté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand arrêter un exercice ?",
+      "choices": [
+        "Uniquement après le succès",
+        "Quand une condition d’arrêt est atteinte ou le périmètre incertain",
+        "Quand la Red Team le décide uniquement",
+        "Jamais pendant la fenêtre"
+      ],
+      "answer": 1,
+      "explanation": "Les critères d’arrêt sont des exigences opérationnelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure prouve le mieux une détection utile ?",
+      "choices": [
+        "Le nombre de règles installées",
+        "Le nombre de cases colorées",
+        "Une alerte contextualisée et correctement traitée",
+        "Le volume de logs uniquement"
+      ],
+      "answer": 2,
+      "explanation": "La qualité dépend de l’utilité du signal dans le processus opérationnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’une couverture théorique ?",
+      "choices": [
+        "Elle élimine tous les risques",
+        "Elle peut être prise à tort pour une preuve datée et validée",
+        "Elle supprime les faux positifs",
+        "Elle remplace les exercices"
+      ],
+      "answer": 1,
+      "explanation": "Il faut distinguer l’affirmation de couverture de la capacité réellement testée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que contient une action corrective exploitable ?",
+      "choices": [
+        "Une intention sans responsable",
+        "Une action, un propriétaire, une échéance et un critère d’acceptation",
+        "Uniquement un score de gravité",
+        "Une date choisie après le test"
+      ],
+      "answer": 1,
+      "explanation": "L’action doit être assignable et vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi enregistrer les versions de règle et de scénario ?",
+      "choices": [
+        "Pour compliquer la reproduction",
+        "Pour comparer les résultats et expliquer les différences",
+        "Pour cacher les limites",
+        "Pour éviter le contrôle de changement"
+      ],
+      "answer": 1,
+      "explanation": "Le versionnement rend les essais reproductibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un résultat non concluant ?",
+      "choices": [
+        "La défense est forcément faible",
+        "La défense a forcément réussi",
+        "Les conditions ou preuves ne permettent pas de trancher",
+        "Le rapport doit être supprimé"
+      ],
+      "answer": 2,
+      "explanation": "La conclusion doit rester proportionnée aux preuves obtenues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter les données collectées par la Red Team ?",
+      "choices": [
+        "Pour raccourcir le rapport",
+        "Pour limiter l’exposition secondaire et respecter la minimisation",
+        "Les données ne servent jamais",
+        "Pour éviter l’autorisation"
+      ],
+      "answer": 1,
+      "explanation": "Seules les preuves nécessaires à la question doivent être collectées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle a le propriétaire métier dans une réponse ?",
+      "choices": [
+        "Aucun",
+        "Évaluer l’impact et autoriser les actions affectant le service selon son rôle",
+        "Remplacer les journaux",
+        "Écrire seul les règles SIEM"
+      ],
+      "answer": 1,
+      "explanation": "Les décisions de confinement peuvent avoir des conséquences métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but d’un bon débriefing ?",
+      "choices": [
+        "Attribuer un blâme",
+        "Comparer les chronologies et créer des actions suivies",
+        "Supprimer les résultats négatifs",
+        "Parler uniquement des outils"
+      ],
+      "answer": 1,
+      "explanation": "Le débriefing doit s’appuyer sur les faits et conduire à des corrections."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signe indique un programme Purple Team mature ?",
+      "choices": [
+        "Le plus grand nombre d’outils",
+        "Un grand nombre d’actions offensives",
+        "Des améliorations défensives testées et documentées",
+        "Des réunions sans suivi"
+      ],
+      "answer": 2,
+      "explanation": "La maturité se démontre par des corrections et retests mesurables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle référence NIST décrit les tests et évaluations techniques ?",
+      "choices": [
+        "SP 800-115",
+        "SP 800-53 uniquement",
+        "Un registre ATT&CK",
+        "Un guide de vente"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "NIST SP 800-115 fournit des recommandations pour planifier et réaliser des évaluations techniques."
     }
   ]
 }

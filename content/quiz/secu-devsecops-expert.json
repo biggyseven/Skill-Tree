@@ -4,15 +4,267 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « DevSecOps » : à rédiger après le cours complet.",
+      "prompt": "Quel est l’objectif central de DevSecOps ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Remplacer les développeurs par des scanners",
+        "Intégrer des contrôles de sécurité continus au cycle logiciel",
+        "Bloquer chaque livraison sans analyse",
+        "N’examiner la sécurité qu’après la production"
+      ],
+      "answer": 1,
+      "explanation": "DevSecOps incorpore des contrôles et responsabilités à la conception, au code, au build, à la livraison et aux opérations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une pull request de fork est-elle non fiable ?",
+      "choices": [
+        "Tout fork est nécessairement malveillant",
+        "Le fournisseur CI ne peut jamais tester un fork",
+        "Le code et les champs d’événement peuvent être contrôlés par un contributeur",
+        "Un fork ne contient jamais de tests"
+      ],
+      "answer": 2,
+      "explanation": "Le code proposé peut tenter d’exploiter le runner ; ses permissions et secrets doivent être limités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider les permissions du jeton CI ?",
+      "choices": [
+        "Droits administrateur pour tous les jobs",
+        "Un jeton complet partagé partout",
+        "Aucune permission pour tous les jobs",
+        "Permissions minimales nécessaires à chaque tâche"
+      ],
+      "answer": 3,
+      "explanation": "Le moindre privilège limite les conséquences d’une étape compromise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi épingler une action externe à un SHA complet ?",
+      "choices": [
+        "Réduire le risque qu’une référence mutable pointe vers un autre code",
+        "Garantir l’absence de vulnérabilité dans l’action",
+        "Ne plus jamais mettre l’action à jour",
+        "Accorder automatiquement plus de droits"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le SHA rend la référence précise, mais il faut toujours auditer et mettre à jour le code."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’insérer un titre de pull request dans une commande shell ?",
+      "choices": [
+        "Le titre est automatiquement chiffré",
+        "Des caractères contrôlés peuvent être interprétés par le shell",
+        "Le shell ignore les données de Git",
+        "La commande devient forcément en lecture seule"
+      ],
+      "answer": 1,
+      "explanation": "Les champs d’événement doivent rester des données et ne pas être exécutés comme une commande."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire après la découverte d’un secret actif ?",
+      "choices": [
+        "Le garder jusqu’au prochain trimestre",
+        "Effacer uniquement le dernier commit",
+        "Révoquer ou remplacer le secret et enquêter sur ses usages",
+        "Publier la valeur dans les logs"
+      ],
+      "answer": 2,
+      "explanation": "La suppression du texte n’invalide pas les copies ; il faut neutraliser le secret."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’apporte OIDC au pipeline ?",
+      "choices": [
+        "La garantie que le code est sans vulnérabilité",
+        "Un accès administrateur sans politique",
+        "La suppression des journaux",
+        "La fédération d’identité et des accès temporaires selon des conditions"
+      ],
+      "answer": 3,
+      "explanation": "OIDC peut éviter une clé durable, mais l’émetteur, l’audience et les permissions doivent être restreints."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer les runners non fiables des runners privilégiés ?",
+      "choices": [
+        "Éviter le transfert de secrets, fichiers résiduels ou cache entre niveaux de confiance",
+        "Faire durer les tests plus longtemps",
+        "Supprimer les résultats des tests",
+        "Éliminer toute maintenance"
+      ],
+      "answer": 0,
+      "explanation": "Des pools séparés et environnements éphémères limitent persistance et escalade."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait principalement SAST ?",
+      "choices": [
+        "Vérifier uniquement les licences",
+        "Analyser statiquement le code pour trouver des constructions suspectes",
+        "Signer toutes les images",
+        "Garantir la sécurité de production"
+      ],
+      "answer": 1,
+      "explanation": "SAST détecte certaines faiblesses dans le code ; le contexte doit être évalué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi inclure les dépendances transitives dans l’inventaire ?",
+      "choices": [
+        "Elles sont toujours plus dangereuses",
+        "Elles n’ont jamais besoin d’être mises à jour",
+        "Elles peuvent contenir une vulnérabilité même sans import direct par le projet",
+        "Les scanners ne couvrent qu’elles"
+      ],
+      "answer": 2,
+      "explanation": "Un composant transitif fait partie du logiciel livré et peut être vulnérable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif de SCA ?",
+      "choices": [
+        "Tester uniquement une interface web",
+        "Certifier qu’aucune vulnérabilité n’existe",
+        "Remplacer les tests fonctionnels",
+        "Inventorier les composants et analyser les risques connus"
+      ],
+      "answer": 3,
+      "explanation": "SCA aide à suivre les versions et risques mais ne prouve pas seule la sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert DAST ?",
+      "choices": [
+        "Tester une application en fonctionnement dans un environnement autorisé",
+        "Remplacer la revue par des noms de fichiers",
+        "Signer les commits",
+        "Vérifier seulement les licences"
+      ],
+      "answer": 0,
+      "explanation": "DAST observe une application active et doit avoir une portée autorisée et limitée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que garantit une SBOM ?",
+      "choices": [
+        "L’absence de toute faille",
+        "Un inventaire des composants associé à un artefact",
+        "La validité de toutes les signatures",
+        "L’absence de dérive d’infrastructure"
+      ],
+      "answer": 1,
+      "explanation": "La SBOM rend les composants visibles ; ce n’est pas une certification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi déployer une image par digest ?",
+      "choices": [
+        "Le digest remplace toutes les politiques",
+        "Il indique automatiquement le propriétaire",
+        "Il identifie le contenu précis de l’image",
+        "Les tags sont toujours invalides"
+      ],
+      "answer": 2,
+      "explanation": "Le digest rend l’artefact précis et doit être lié à la provenance et à la validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’ajouter à la vérification cryptographique d’une signature ?",
+      "choices": [
+        "Vérifier uniquement le tag latest",
+        "Compter les fichiers source",
+        "Vérifier seulement qu’un développeur a construit localement",
+        "Vérifier l’identité autorisée, l’émetteur et le digest attendu"
+      ],
+      "answer": 3,
+      "explanation": "La validité technique ne suffit pas si le signataire ou l’artefact n’est pas approuvé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment choisir les règles de blocage ?",
+      "choices": [
+        "Selon le risque, l’exposition, l’exploitabilité et l’impact",
+        "Bloquer toute alerte sans distinction",
+        "Ne bloquer aucun résultat",
+        "Laisser chaque job choisir au hasard"
+      ],
+      "answer": 0,
+      "explanation": "Les seuils doivent être cohérents, documentés et adaptés au contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi analyser l’IaC avant application ?",
+      "choices": [
+        "Pour ne plus examiner le plan",
+        "Pour détecter certaines configurations risquées avant l’impact réel",
+        "Pour donner les droits administratifs au scanner",
+        "Pour supprimer tous les contrôles après déploiement"
+      ],
+      "answer": 1,
+      "explanation": "L’analyse pré-déploiement est utile mais le plan et l’état réel doivent aussi être contrôlés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment renforcer la vérification d’image dans Kubernetes ?",
+      "choices": [
+        "N’utiliser que latest",
+        "Désactiver l’admission",
+        "Vérifier l’image exacte et appliquer si possible une politique d’admission",
+        "Accepter toutes les images du registre"
+      ],
+      "answer": 2,
+      "explanation": "Il faut contrôler le contenu réellement déployé et éviter les chemins de contournement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle réponse convient à un runner privilégié compromis ?",
+      "choices": [
+        "Relancer sans vérifier",
+        "Supprimer tous les journaux",
+        "Continuer toutes les publications",
+        "Contenir, isoler, révoquer les identités exposées et préserver les preuves"
+      ],
+      "answer": 3,
+      "explanation": "L’équipe doit contenir l’incident, identifier les artefacts affectés et reconstruire depuis une source saine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le nombre brut de vulnérabilités ne suffit-il pas comme indicateur ?",
+      "choices": [
+        "Il peut augmenter si la couverture de détection s’améliore",
+        "Les vulnérabilités ne peuvent pas se compter",
+        "Les outils ne sont jamais reproductibles",
+        "Une baisse prouve toujours une meilleure sécurité"
+      ],
+      "answer": 0,
+      "explanation": "Il faut compléter le nombre par la couverture, le délai de correction et le suivi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une exception de sécurité ?",
+      "choices": [
+        "Seulement le mot approuvé",
+        "Risque, périmètre, compensations, propriétaire et échéance",
+        "Un droit permanent pour tous les projets",
+        "Uniquement le nom du scanner"
+      ],
+      "answer": 1,
+      "explanation": "Une exception doit être limitée, tracée et réévaluée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit la provenance logicielle ?",
+      "choices": [
+        "La liste des utilisateurs connectés",
+        "Un simple résultat de tests",
+        "Le lien entre artefact, source et processus de construction",
+        "Une règle de pare-feu"
+      ],
+      "answer": 2,
+      "explanation": "La provenance décrit comment l’artefact a été produit ; il faut vérifier la confiance dans l’émetteur."
     }
   ]
 }

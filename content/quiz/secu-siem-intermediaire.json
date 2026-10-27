@@ -4,15 +4,195 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Introduction aux SIEM » : à rédiger après le cours complet.",
+      "prompt": "Quel est le rôle principal d'un SIEM ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Empêcher automatiquement toutes les attaques",
+        "Collecter et corréler des événements puis produire des alertes à investiguer",
+        "Remplacer la sauvegarde et la gestion des identités",
+        "Désactiver les outils de journalisation locaux"
+      ],
+      "answer": 1,
+      "explanation": "Le SIEM centralise, normalise et analyse des événements de plusieurs sources. Il fournit des alertes et des recherches, mais ne remplace pas toutes les mesures préventives ni le jugement de l'analyste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi distinguer event_time et ingest_time ?",
+      "choices": [
+        "Pour mesurer retard de livraison et interpréter une chronologie",
+        "Pour supprimer tous les événements reçus en retard",
+        "Parce que les sources ont toutes la même horloge",
+        "Pour prouver qu'un événement est malveillant"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "event_time représente l'heure déclarée par la source et ingest_time l'arrivée dans le pipeline. L'écart aide à diagnostiquer les files, retards et fenêtres de corrélation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le sens habituel de l'événement Windows 4625 ?",
+      "choices": [
+        "Ouverture de session réussie",
+        "Création d'un compte",
+        "Échec d'ouverture de session",
+        "Effacement du journal Security"
+      ],
+      "answer": 2,
+      "explanation": "L'événement 4625 signale un échec d'ouverture de session. Il faut examiner l'identité, l'hôte, le type de connexion et les champs de source disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une règle cesse de détecter après un changement de format, alors que les événements arrivent. Que faut-il vérifier d'abord ?",
+      "choices": [
+        "Augmenter la sévérité",
+        "Exclure la source entière",
+        "Désactiver la collecte",
+        "Comparer le brut au parsing et valider les champs attendus"
+      ],
+      "answer": 3,
+      "explanation": "Un champ renommé ou déplacé peut rendre la règle silencieuse. Il faut diagnostiquer parsing, mapping et index avant de changer le seuil."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement Sysmon ?",
+      "choices": [
+        "Il bloque toujours les processus inconnus",
+        "Il journalise des activités Windows selon la configuration, sans donner seul un verdict de malveillance",
+        "Il remplace le SIEM et l'investigation",
+        "Il chiffre automatiquement tous les journaux"
+      ],
+      "answer": 1,
+      "explanation": "Sysmon fournit de la télémétrie détaillée comme création de processus et certaines activités réseau ou fichiers selon la configuration. L'analyste doit corréler ces événements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Plusieurs échecs suivis d'une réussite prouvent-ils une compromission ?",
+      "choices": [
+        "Oui, dans tous les cas",
+        "Oui, si le compte est humain",
+        "Non, il faut examiner le contexte et les événements voisins",
+        "Non, la réussite annule automatiquement les échecs"
+      ],
+      "answer": 2,
+      "explanation": "Cette séquence peut correspondre à une erreur corrigée ou à une activité suspecte. Elle nécessite une investigation de la source, de l'identité et de l'activité ultérieure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le mapping vers MITRE ATT&CK ?",
+      "choices": [
+        "À documenter le comportement visé et les limites de couverture",
+        "À garantir que toute technique sera détectée",
+        "À remplacer les tests de règle",
+        "À identifier automatiquement une personne comme attaquante"
+      ],
+      "answer": 0,
+      "explanation": "ATT&CK fournit un vocabulaire commun sur les tactiques et techniques. Le mapping n'est pas une garantie de couverture ; sources et conditions doivent être testées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal risque d'une exclusion permanente sur une IP bruyante ?",
+      "choices": [
+        "Elle rend les horloges exactes",
+        "Elle empêche toute authentification",
+        "Elle supprime le besoin de tester la règle",
+        "Elle peut masquer une activité malveillante future provenant de cette IP"
+      ],
+      "answer": 3,
+      "explanation": "Une exclusion large crée une zone aveugle. Toute exception doit être étroite, justifiée, auditée et révisable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les contrôles de santé doivent-ils inclure un signal indépendant de l'agent ?",
+      "choices": [
+        "Parce que l'agent ne peut jamais transmettre d'événement",
+        "Parce qu'un agent en panne peut faire disparaître à la fois les logs et son propre heartbeat",
+        "Parce qu'un heartbeat assure que toutes les catégories sont collectées",
+        "Parce que l'absence de logs est toujours normale"
+      ],
+      "answer": 1,
+      "explanation": "Une panne de l'agent peut rendre invisibles ses événements métier et sa santé. Les compteurs du collecteur, tests synthétiques et métriques indépendantes aident à localiser la panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une investigation reproductible ?",
+      "choices": [
+        "Seulement la couleur de l'alerte",
+        "Une hypothèse non vérifiée",
+        "Sources, requêtes, périodes, timestamps, preuves et limites constatées",
+        "Un export sans métadonnées"
+      ],
+      "answer": 2,
+      "explanation": "Une autre personne doit pouvoir reproduire la recherche et comprendre les transformations et limites. Les faits doivent être séparés des hypothèses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment estimer le volume brut journalier ?",
+      "choices": [
+        "EPS moyen × taille moyenne × 86 400 secondes",
+        "Nombre d'analystes multiplié par le nombre de règles",
+        "Rétention divisée par nombre de comptes",
+        "Sévérité multipliée par nombre de serveurs"
+      ],
+      "answer": 0,
+      "explanation": "EPS est le nombre d'événements par seconde, et la journée contient 86 400 secondes. L'indexation, la réplication et les pointes augmentent la capacité requise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une règle Sigma est valide en YAML. Que reste-t-il à vérifier ?",
+      "choices": [
+        "Rien, tous les SIEM partagent le même schéma",
+        "Le mapping, le backend, la conversion et les tests positifs et négatifs",
+        "Uniquement la couleur d'affichage",
+        "Seulement la technique ATT&CK associée"
+      ],
+      "answer": 1,
+      "explanation": "Une règle syntaxiquement valide peut employer des champs absents ou exiger une adaptation au backend. La conversion et les résultats doivent être testés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est la plus adaptée à la confidentialité des journaux ?",
+      "choices": [
+        "Donner accès brut à tous les employés",
+        "Conserver tous les secrets indéfiniment",
+        "Collecter uniquement les champs nécessaires, limiter les accès et fixer une rétention",
+        "Désactiver l'audit des comptes privilégiés"
+      ],
+      "answer": 2,
+      "explanation": "Les logs peuvent contenir des identifiants et informations personnelles. La collecte ciblée, le moindre privilège et une rétention maîtrisée réduisent le risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un hôte cesse d'envoyer ses logs et aucune alerte métier ne paraît. Quelle conclusion faut-il retenir ?",
+      "choices": [
+        "L'hôte est certainement sain",
+        "Toutes les activités se sont arrêtées",
+        "Le SIEM a prouvé l'absence d'attaque",
+        "La visibilité a diminué et il faut diagnostiquer la source et le pipeline"
+      ],
+      "answer": 3,
+      "explanation": "Les logs manquants peuvent provenir d'une panne, d'un filtre ou d'une désactivation. La période doit être considérée comme incertaine jusqu'au rétablissement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une alerte de volume réseau ne prouve-t-elle pas une exfiltration ?",
+      "choices": [
+        "Le volume doit être mis en contexte avec l'hôte, la destination, l'heure et l'usage métier",
+        "Un SIEM ne stocke jamais les octets",
+        "Un transfert réseau ne peut pas concerner des données",
+        "Le proxy est toujours une source non fiable"
+      ],
+      "answer": 0,
+      "explanation": "Les sauvegardes et synchronisations peuvent produire de grands volumes. Le volume est un indice qui doit être enrichi et corrélé, pas une conclusion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une commande de lecture ne retourne aucun journal SSH. Que faire ?",
+      "choices": [
+        "Conclure à une absence d'accès distant",
+        "Vérifier l'unité, la période, les permissions et le mécanisme de journalisation de la distribution",
+        "Supprimer les fichiers de logs",
+        "Désactiver sudo"
+      ],
+      "answer": 1,
+      "explanation": "Le service peut s'appeler différemment, les journaux peuvent être dans un autre fichier ou la période vide. Une sortie vide ne prouve pas l'absence d'activité."
     }
   ]
 }

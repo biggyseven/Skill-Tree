@@ -4,15 +4,471 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Architecture de sécurité sur les réseaux OT/ICS » : à rédiger après le cours complet.",
+      "prompt": "Quelle caractéristique fondamentale distingue souvent un environnement OT ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Il ne contient jamais de logiciels",
+        "Il surveille ou influence un procédé physique et doit préserver la disponibilité, l'intégrité de commande et la sûreté",
+        "Il n'utilise aucun réseau IP",
+        "Il ne peut pas être connecté à l'IT"
+      ],
+      "answer": 1,
+      "explanation": "L'OT pilote ou observe des équipements physiques. Les objectifs et contraintes dépendent du procédé, notamment la continuité et la sûreté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l'acronyme ICS ?",
+      "choices": [
+        "Internet Core Service",
+        "Internal Cloud System",
+        "Industrial Control Systems",
+        "Integrated Cryptographic Standard"
+      ],
+      "answer": 2,
+      "explanation": "ICS désigne les systèmes de contrôle industriels, qui comprennent notamment SCADA, DCS, PLC et RTU."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle description du SIS est correcte ?",
+      "choices": [
+        "Un système instrumenté de sécurité contribuant à amener ou maintenir un procédé dans un état sûr selon sa conception",
+        "Un simple réseau Wi-Fi de maintenance",
+        "Un serveur de messagerie industriel",
+        "Un outil de scan actif"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Le SIS joue une fonction de protection selon une conception de sûreté et ne remplace pas les autres contrôles cyber."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un changement de pare-feu OT doit-il être coordonné avec l'exploitant ?",
+      "choices": [
+        "Parce que les règles de pare-feu ne peuvent jamais filtrer les réseaux OT",
+        "Parce qu'un pare-feu doit laisser passer tout le trafic",
+        "Parce que l'exploitant ne s'occupe que des licences",
+        "Parce qu'un flux apparemment inutile peut être nécessaire au contrôle, à la supervision ou à la sûreté"
+      ],
+      "answer": 3,
+      "explanation": "Une règle doit être confrontée au procédé, aux dépendances et aux scénarios de panne avant sa mise en œuvre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal objectif d'une IDMZ industrielle ?",
+      "choices": [
+        "Permettre à chaque poste IT de se connecter directement aux PLC",
+        "Créer une zone intermédiaire contrôlée entre l'entreprise et les réseaux de contrôle",
+        "Remplacer l'inventaire industriel",
+        "Supprimer toutes les communications entre les zones"
+      ],
+      "answer": 1,
+      "explanation": "L'IDMZ héberge des relais ou services d'échange contrôlés et réduit les connexions directes de l'IT vers l'OT."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le modèle IEC 62443, à quoi sert une zone ?",
+      "choices": [
+        "À réunir tous les appareils utilisant la même marque",
+        "À définir une adresse IP publique",
+        "À regrouper des actifs avec une fonction et des exigences de sécurité communes",
+        "À supprimer la gestion des flux"
+      ],
+      "answer": 2,
+      "explanation": "Les zones sont établies en fonction de la fonction et du risque, pas seulement selon la marque ou le sous-réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente un conduit dans le modèle zones/conduits ?",
+      "choices": [
+        "Une voie de communication entre zones avec des exigences et contrôles définis",
+        "Une sauvegarde de programme PLC",
+        "Une procédure d'urgence uniquement",
+        "Une fonction mécanique du procédé"
+      ],
+      "answer": 0,
+      "explanation": "Un conduit définit les communications entre zones, leur justification et les exigences de protection."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un scan actif généralisé est-il risqué sur certains équipements industriels ?",
+      "choices": [
+        "Parce que les scanners ne savent lire aucune adresse IP",
+        "Parce que tout scan provoque nécessairement une panne",
+        "Parce que les équipements OT ne peuvent jamais être inventoriés",
+        "Des requêtes inattendues peuvent perturber des équipements fragiles ou sensibles au temps"
+      ],
+      "answer": 3,
+      "explanation": "Il faut privilégier les méthodes passives ou alternatives quand c'est adapté et n'effectuer un scan actif qu'après autorisation et analyse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une limite de la découverte passive ?",
+      "choices": [
+        "Elle met obligatoirement les automates à l'arrêt",
+        "Elle n'observe que les actifs et communications visibles pendant sa fenêtre et aux points de capture",
+        "Elle modifie automatiquement les programmes des PLC",
+        "Elle prouve l'absence de tout actif inconnu"
+      ],
+      "answer": 1,
+      "explanation": "La visibilité passive dépend des flux réellement observés, des emplacements des capteurs et de la durée de collecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble d'informations est particulièrement utile pour l'inventaire OT ?",
+      "choices": [
+        "Seulement l'adresse IP",
+        "Le nombre d'utilisateurs du bureau",
+        "Fonction, propriétaire, version, interfaces, dépendances, criticité et méthode de restauration",
+        "Uniquement le nom commercial du fournisseur"
+      ],
+      "answer": 2,
+      "explanation": "Un inventaire utile doit éclairer le rôle du dispositif, ses accès et son impact sur le procédé, ainsi que les moyens de le restaurer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les postes d'ingénierie doivent-ils être protégés davantage ?",
+      "choices": [
+        "Ils peuvent modifier les programmes, paramètres ou configurations de systèmes de contrôle",
+        "Ils sont utilisés uniquement pour lire des courriels",
+        "Ils ne nécessitent jamais de sauvegarde",
+        "Ils sont moins privilégiés qu'un poste bureautique en toutes circonstances"
+      ],
+      "answer": 0,
+      "explanation": "Une station d'ingénierie peut changer le comportement des contrôleurs et doit être dédiée, limitée et surveillée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est recommandée pour l'accès fournisseur ?",
+      "choices": [
+        "Un compte commun permanent sans ticket",
+        "Un accès réseau général sans expiration",
+        "Un tunnel persistant par défaut pour tous les fournisseurs",
+        "Un accès nominatif, approuvé, limité dans le temps et surveillé via un point contrôlé"
+      ],
+      "answer": 3,
+      "explanation": "L'accès temporaire réduit la fenêtre d'exposition et permet de relier la session à une personne, une cible et un motif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire une équipe à la fin d'une session de maintenance distante ?",
+      "choices": [
+        "Laisser le tunnel ouvert pour la prochaine intervention",
+        "Révoquer l'autorisation, documenter l'activité et vérifier les changements selon la procédure",
+        "Supprimer tous les journaux",
+        "Partager les identifiants avec le fournisseur suivant"
+      ],
+      "answer": 1,
+      "explanation": "La fin de session inclut la révocation des accès temporaires, le compte rendu et la revue des changements effectués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Si un PLC ne supporte pas la MFA nativement, quelle approche est raisonnable ?",
+      "choices": [
+        "L'exposer directement sur Internet",
+        "Ignorer tout contrôle d'accès",
+        "Appliquer la MFA à la frontière administrative ou au bastion et limiter les chemins vers le PLC",
+        "Désactiver sa logique de sécurité"
+      ],
+      "answer": 2,
+      "explanation": "La MFA peut être placée au point d'accès contrôlé, accompagnée de segmentation, de permissions minimales et d'une procédure de secours sûre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi des comptes individuels sont-ils préférables aux comptes partagés ?",
+      "choices": [
+        "Ils rendent les actions attribuables et facilitent la révocation et la revue",
+        "Ils suppriment le besoin de journaux",
+        "Ils garantissent qu'aucun compte ne sera compromis",
+        "Ils sont toujours supportés par tout contrôleur ancien"
+      ],
+      "answer": 0,
+      "explanation": "Les comptes nominatifs améliorent l'attribution des actions. Pour les équipements anciens, des compensations peuvent être nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon traitement d'une demande fournisseur d'accès à tout le réseau OT ?",
+      "choices": [
+        "L'accepter si le fournisseur est connu",
+        "Créer une règle illimitée en urgence",
+        "Remplacer toute segmentation par un VPN",
+        "Demander les cibles, fonctions et flux nécessaires puis limiter l'accès selon une justification et un contrôle approuvés"
+      ],
+      "answer": 3,
+      "explanation": "L'accès doit être minimal et défini par la fonction. Une demande trop large doit être redessinée, pas acceptée par commodité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but principal d'une matrice de flux OT ?",
+      "choices": [
+        "Remplacer tous les tests fonctionnels",
+        "Documenter les communications attendues, leur justification, direction, propriétaire et contrôles",
+        "Décrire uniquement les câbles d'alimentation",
+        "Lister les vulnérabilités CVE sans information réseau"
+      ],
+      "answer": 1,
+      "explanation": "La matrice sert de référence pour autoriser, surveiller et réviser les communications entre zones."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le modèle de niveaux fonctionnels ne doit-il pas être traité comme une garantie de sécurité ?",
+      "choices": [
+        "Parce qu'il ne comporte jamais de serveurs",
+        "Parce que tous les niveaux doivent partager un seul réseau",
+        "Parce que les installations réelles diffèrent et que les flux doivent être définis selon les fonctions et les risques",
+        "Parce qu'il interdit d'utiliser des pare-feu"
+      ],
+      "answer": 2,
+      "explanation": "Les niveaux sont un repère d'architecture ; la protection dépend de la séparation réelle et des communications autorisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on évaluer avant d'ajouter une passerelle d'inspection de protocole ?",
+      "choices": [
+        "Compatibilité, latence, comportement normal et modes de panne dans un environnement représentatif",
+        "Uniquement son prix",
+        "Seulement la couleur de son châssis",
+        "Le fait qu'elle possède un port Ethernet"
+      ],
+      "answer": 0,
+      "explanation": "Une passerelle peut ajouter latence ou modifier les communications ; son comportement doit être validé avant la production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le principe de défense en profondeur en OT ?",
+      "choices": [
+        "Un seul pare-feu suffit pour toutes les menaces",
+        "Tous les contrôles doivent être exclusivement physiques",
+        "Il faut copier les mêmes règles partout sans adaptation",
+        "Des contrôles complémentaires réduisent différents chemins d'attaque et limitent l'impact d'un contrôle défaillant"
+      ],
+      "answer": 3,
+      "explanation": "La segmentation, la gestion d'identité, la protection des postes, la sauvegarde, la surveillance et la réponse se complètent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les mises à jour doivent-elles être testées sur une maquette ou hors ligne quand c'est possible ?",
+      "choices": [
+        "Parce qu'aucun patch ne peut être installé en OT",
+        "Pour repérer les problèmes de compatibilité ou de fonctionnement avant de risquer le procédé réel",
+        "Pour supprimer le besoin de sauvegardes",
+        "Pour éviter de consulter la documentation du fabricant"
+      ],
+      "answer": 1,
+      "explanation": "Les essais réduisent le risque de régression et aident à définir les étapes, les critères d'arrêt et le retour arrière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une vulnérabilité critique touche un équipement OT mais aucun correctif n'est prêt. Que faire ?",
+      "choices": [
+        "Ignorer le problème jusqu'à la prochaine mise à niveau",
+        "Redémarrer tous les contrôleurs",
+        "Réduire les chemins d'accès par des mesures compensatoires approuvées, surveiller et planifier une correction ou un remplacement",
+        "Désactiver sans analyse le système de protection"
+      ],
+      "answer": 2,
+      "explanation": "Sans correctif, les mesures compensatoires doivent réduire l'exposition et rester attribuées, datées et réévaluées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une sauvegarde industrielle doit-elle être restaurée en test ?",
+      "choices": [
+        "Pour confirmer l'intégrité, la compatibilité et la capacité réelle à retrouver un état connu",
+        "Pour prouver que le réseau n'a aucune vulnérabilité",
+        "Pour remplacer le propriétaire du système",
+        "Pour forcer un redémarrage en production"
+      ],
+      "answer": 0,
+      "explanation": "Un job de sauvegarde réussi ne prouve pas que les fichiers sont complets ou restaurables sur la version et le matériel prévus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque existe si la sauvegarde est accessible avec les mêmes droits privilégiés que la production ?",
+      "choices": [
+        "Le programme du contrôleur devient public automatiquement",
+        "Le temps de réponse du procédé s'améliore toujours",
+        "L'inventaire devient plus exact",
+        "Une compromission des mêmes identifiants peut détruire ou altérer la production et ses sauvegardes"
+      ],
+      "answer": 3,
+      "explanation": "Les sauvegardes doivent être protégées par des contrôles d'accès et des copies séparées, immuables ou hors ligne selon le risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode de surveillance convient souvent aux équipements OT fragiles ?",
+      "choices": [
+        "Un scan agressif toutes les minutes",
+        "La surveillance passive des communications, complétée par des journaux et des sources d'inventaire",
+        "La désactivation de toute collecte",
+        "La réécriture régulière des programmes PLC pour vérifier leur état"
+      ],
+      "answer": 1,
+      "explanation": "La surveillance passive observe les flux existants sans interroger activement chaque appareil, mais ses limites de visibilité doivent être reconnues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il définir une ligne de base des communications OT ?",
+      "choices": [
+        "Pour garantir que tous les flux observés sont autorisés",
+        "Pour interdire la maintenance planifiée",
+        "Pour détecter les changements et écarts par rapport aux comportements attendus, en les comparant aux changements approuvés",
+        "Pour remplacer la matrice de flux"
+      ],
+      "answer": 2,
+      "explanation": "La baseline facilite la détection, mais les flux observés doivent encore être validés par rapport aux besoins métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert MITRE ATT&CK for ICS dans un programme défensif ?",
+      "choices": [
+        "À structurer les scénarios, techniques de menace et cas de détection et de réponse",
+        "À autoriser automatiquement les tests intrusifs en production",
+        "À remplacer la procédure de sûreté",
+        "À définir la topologie physique de toutes les usines"
+      ],
+      "answer": 0,
+      "explanation": "Le cadre aide à organiser les scénarios défensifs ; les essais doivent rester autorisés et adaptés à l'environnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lors d'un incident OT, pourquoi le confinement doit-il être coordonné avec l'exploitant ?",
+      "choices": [
+        "Parce que la cybersécurité ne peut jamais agir sur le réseau",
+        "Parce que l'exploitant doit approuver toutes les mises à jour de navigateur",
+        "Parce que tout confinement est toujours dangereux",
+        "Une coupure non ciblée peut supprimer la supervision ou un flux nécessaire au contrôle du procédé"
+      ],
+      "answer": 3,
+      "explanation": "Les actions doivent réduire la menace sans provoquer une perte non maîtrisée de visibilité, de contrôle ou de sûreté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un objectif important de la réponse à incident OT ?",
+      "choices": [
+        "Redémarrer tous les systèmes sans conserver les preuves",
+        "Préserver les preuves et rétablir un état sûr selon les procédures du site",
+        "Déconnecter le SIS sans analyse",
+        "Réinstaller les systèmes avant d'identifier leur fonction"
+      ],
+      "answer": 1,
+      "explanation": "L'enquête doit préserver les informations utiles tout en respectant la priorité opérationnelle et la sûreté des personnes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La connectivité réseau est rétablie après un incident. Le système peut-il immédiatement reprendre une exploitation normale ?",
+      "choices": [
+        "Oui, la connectivité prouve que tout est sain",
+        "Oui, si le ping répond",
+        "Non, il faut valider les programmes, états, alarmes, communications et comportement du procédé selon les procédures",
+        "Non, car un réseau OT ne peut pas être restauré"
+      ],
+      "answer": 2,
+      "explanation": "Le retour au service exige une vérification technique et opérationnelle, pas uniquement un test de connectivité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les changements d'urgence doivent-ils être revus après stabilisation ?",
+      "choices": [
+        "Pour compléter la trace, confirmer l'effet, documenter le risque résiduel et éviter une configuration improvisée durable",
+        "Pour supprimer tout ticket d'incident",
+        "Pour empêcher la restauration des sauvegardes",
+        "Pour permettre à un fournisseur de conserver l'accès"
+      ],
+      "answer": 0,
+      "explanation": "La revue post-changement vérifie les faits, complète les preuves et attribue les actions correctives restantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier avant de connecter un automate neuf au réseau de production ?",
+      "choices": [
+        "Uniquement qu'il répond à une requête réseau",
+        "Qu'il utilise le même fabricant que les anciens appareils",
+        "Que le vendeur a livré le colis",
+        "Identité, version, configuration, accès, provenance, sauvegarde, tests et approbation de l'exploitant"
+      ],
+      "answer": 3,
+      "explanation": "La mise en service doit suivre une procédure de sécurité et de configuration avant l'intégration au réseau de confiance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur la Rev. 4 de NIST SP 800-82 est correcte à la date du cours ?",
+      "choices": [
+        "C'est une norme industrielle finale publiée en 2023",
+        "Le premier projet public a été publié le 21 septembre 2026, avec des commentaires ouverts jusqu'au 30 novembre 2026",
+        "Elle remplace déjà automatiquement toutes les obligations de l'organisation",
+        "Elle concerne uniquement les réseaux bureautiques"
+      ],
+      "answer": 1,
+      "explanation": "NIST identifie la Rev. 4 comme un Initial Public Draft du 21 septembre 2026 ; elle doit être distinguée de la Rev. 3 finale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de la série ISA/IEC 62443 ?",
+      "choices": [
+        "Elle impose un seul modèle de pare-feu à chaque installation",
+        "Elle autorise tous les accès de maintenance",
+        "Elle fournit des cadres et exigences pour la gestion de sécurité IACS, l'évaluation des risques, les zones/conduits et les composants",
+        "Elle concerne uniquement la sécurité physique des bâtiments"
+      ],
+      "answer": 2,
+      "explanation": "La série fournit un ensemble de références couvrant le programme de sécurité, les architectures, les systèmes et le développement de composants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les systèmes de sécurité fonctionnelle doivent-ils être traités avec une attention particulière ?",
+      "choices": [
+        "Ils protègent certaines fonctions du procédé et une modification peut affecter la sûreté ; les changements doivent suivre les exigences de conception",
+        "Ils sont automatiquement exempts de cyberrisque",
+        "Ils peuvent être reliés librement à l'IT",
+        "Ils n'ont jamais de comptes ou de configuration"
+      ],
+      "answer": 0,
+      "explanation": "Leur protection et leurs changements doivent être coordonnés avec les responsables de sûreté, d'automatisme et d'exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une conséquence possible d'une connexion permanente de fournisseur compromise ?",
+      "choices": [
+        "Elle permet uniquement de consulter une documentation publique",
+        "Elle garantit une attribution parfaite des actions",
+        "Elle rend les logs inutiles",
+        "Elle peut fournir un chemin durable vers les systèmes industriels et accroître le rayon d'impact"
+      ],
+      "answer": 3,
+      "explanation": "Les accès persistants augmentent la fenêtre d'exposition et doivent être supprimés ou très strictement contrôlés lorsqu'ils sont indispensables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère démontre le mieux la maturité d'une architecture OT ?",
+      "choices": [
+        "Le nombre de pare-feu achetés",
+        "La capacité d'expliquer et tester les flux, les privilèges, les changements, la restauration et la validation de l'état sûr",
+        "Le fait que le réseau utilise uniquement des adresses privées",
+        "L'absence totale de mises à jour"
+      ],
+      "answer": 1,
+      "explanation": "La maturité repose sur des contrôles justifiés, testables, exploitables et réversibles, en cohérence avec le procédé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi documenter les limites d'un capteur réseau ?",
+      "choices": [
+        "Pour éviter de mettre à jour l'inventaire",
+        "Pour augmenter le volume d'alertes sans examen",
+        "Parce que les zones non couvertes ou les pertes de capture créent des périodes de visibilité réduite",
+        "Pour déclarer automatiquement les actifs inconnus sûrs"
+      ],
+      "answer": 2,
+      "explanation": "L'équipe doit connaître les angles morts et compléter la surveillance par d'autres sources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action est la plus sûre si un programme PLC semble avoir changé sans ticket ?",
+      "choices": [
+        "Préserver les informations, consulter l'automatisme/exploitant, évaluer l'effet sur le procédé et suivre le processus d'incident et de restauration approuvé",
+        "Téléverser immédiatement l'ancienne sauvegarde sans analyse",
+        "Redémarrer tous les automates",
+        "Supprimer les journaux pour éviter un faux positif"
+      ],
+      "answer": 0,
+      "explanation": "Une modification non autorisée exige une enquête coordonnée et une décision opérationnelle ; la restauration doit être approuvée et adaptée au procédé."
     }
   ]
 }

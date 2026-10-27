@@ -6923,7 +6923,7 @@
     "title": "La Triade CIA",
     "category": "Cybersécurité",
     "order": 900,
-    "description": "Squelette du cours de cybersécurité : La Triade CIA.",
+    "description": "Confidentialité, intégrité et disponibilité : principes, exemples et exercices corrigés.",
     "prereqs": [],
     "requirements": [
       {
@@ -7435,7 +7435,7 @@
     "title": "Sécurité des protocoles de routage",
     "category": "Cybersécurité",
     "order": 930,
-    "description": "Squelette du cours de cybersécurité : Sécurité des protocoles de routage.",
+    "description": "Sécurisation de BGP, validation RPKI, prévention des fuites et protection d'OSPF/IS-IS.",
     "prereqs": [
       "secu-gouvernance-expert"
     ],
@@ -7452,7 +7452,7 @@
     "title": "Gestion des vulnérabilités",
     "category": "Cybersécurité",
     "order": 931,
-    "description": "Squelette du cours de cybersécurité : Gestion des vulnérabilités.",
+    "description": "Cycle complet de gestion des vulnérabilités : inventaire, priorisation, remédiation vérifiée, patch management et pilotage du risque.",
     "prereqs": [
       "secu-routing-secu-expert"
     ],
@@ -7469,7 +7469,7 @@
     "title": "Sécurité de la supply chain",
     "category": "Cybersécurité",
     "order": 932,
-    "description": "Squelette du cours de cybersécurité : Sécurité de la supply chain.",
+    "description": "Sécurisation des dépendances et fournisseurs, SBOM, provenance, signatures, durcissement CI/CD et réponse aux incidents supply chain.",
     "prereqs": [
       "secu-vuln-expert"
     ],
@@ -7486,7 +7486,7 @@
     "title": "Architecture de sécurité sur les réseaux OT/ICS",
     "category": "Cybersécurité",
     "order": 933,
-    "description": "Squelette du cours de cybersécurité : Architecture de sécurité sur les réseaux OT/ICS.",
+    "description": "Architecture OT/ICS défensive : zones et conduits, IDMZ, accès distant, sûreté, surveillance et réponse à incident.",
     "prereqs": [
       "secu-supply-chain-expert"
     ],
@@ -7503,9 +7503,26 @@
     "title": "Red Team vs Blue Team vs Purple Team",
     "category": "Cybersécurité",
     "order": 934,
-    "description": "Squelette du cours de cybersécurité : Red Team vs Blue Team vs Purple Team.",
+    "description": "Méthode Red/Blue/Purple Team : règles d’engagement, émulation ATT&CK, détection, réponse, mesures et retests sécurisés.",
     "prereqs": [
       "secu-ot-ics-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "secu-threat-hunting-expert",
+    "module": "Cybersécurité",
+    "title": "Threat Hunting avancé",
+    "category": "Cybersécurité",
+    "order": 935,
+    "description": "Chasse proactive aux menaces : hypothèses, qualité des journaux, corrélation, analyse comportementale, ATT&CK et retests.",
+    "prereqs": [
+      "secu-redteam-expert"
     ],
     "requirements": [
       {

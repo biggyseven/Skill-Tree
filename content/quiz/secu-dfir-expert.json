@@ -4,15 +4,375 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Réponse à incident (DFIR) » : à rédiger après le cours complet.",
+      "prompt": "Quel est l'objectif principal de la réponse à incident ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Fermer toutes les alertes au plus vite",
+        "Réduire les dommages, coordonner les actions, investiguer et restaurer de façon vérifiée",
+        "Supprimer toute preuve avant le redémarrage",
+        "Remplacer les équipes métier"
       ],
-      "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "answer": 1,
+      "explanation": "La réponse traite le risque immédiat tout en organisant l'investigation, l'éradication et la récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une alerte constitue-t-elle automatiquement un incident confirmé ?",
+      "choices": [
+        "Oui, toutes les alertes sont exactes",
+        "Non, elle doit être triée et qualifiée selon les critères internes",
+        "Oui si elle est générée par un outil EDR",
+        "Non, il faut ignorer les alertes tant qu'il n'y a pas une preuve complète"
+      ],
+      "answer": 1,
+      "explanation": "Une alerte est un signal qui doit être contextualisé, sans pour autant retarder des protections préapprouvées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qui doit décider d'isoler un service métier critique ?",
+      "choices": [
+        "N'importe quel analyste sans procédure",
+        "L'autorité définie par la procédure, en coordination avec les responsables concernés",
+        "Uniquement l'utilisateur final",
+        "Le fournisseur de réseau dans tous les cas"
+      ],
+      "answer": 1,
+      "explanation": "Les décisions d'impact doivent respecter les délégations et les procédures d'urgence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle du responsable d'incident ?",
+      "choices": [
+        "Écrire seul toutes les requêtes techniques",
+        "Maintenir la coordination, la situation, les décisions et les priorités",
+        "Remplacer le propriétaire du service",
+        "Effacer les journaux"
+      ],
+      "answer": 1,
+      "explanation": "Le responsable coordonne les équipes et les décisions ; l'analyse technique reste menée par les spécialistes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi préparer des modèles et des exercices avant la crise ?",
+      "choices": [
+        "Pour garantir qu'aucun incident ne surviendra",
+        "Pour clarifier les rôles, améliorer les délais et identifier les blocages à l'avance",
+        "Pour éviter de conserver des preuves",
+        "Pour rendre la communication externe automatique"
+      ],
+      "answer": 1,
+      "explanation": "La préparation rend les procédures testables et met au jour les lacunes de contacts, d'accès et de collecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment attribuer la priorité d'un incident ?",
+      "choices": [
+        "En se fondant uniquement sur le nombre d'alertes",
+        "En combinant criticité, impact, étendue, privilèges, activité en cours et obligations",
+        "En se fondant uniquement sur le nom du malware",
+        "En utilisant la date du dernier patch uniquement"
+      ],
+      "answer": 1,
+      "explanation": "La priorité est multidimensionnelle et doit être réévaluée lorsque de nouveaux faits apparaissent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un journal de décision ?",
+      "choices": [
+        "Seulement la commande exécutée",
+        "La décision, l'heure, l'auteur, la justification, le risque et les suites attendues",
+        "Les mots de passe des comptes concernés",
+        "Uniquement les actions réussies"
+      ],
+      "answer": 1,
+      "explanation": "Le journal doit permettre de comprendre qui a décidé quoi, quand et pourquoi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l'existence d'une fenêtre de maintenance ne suffit-elle pas à fermer une alerte ?",
+      "choices": [
+        "La maintenance est toujours malveillante",
+        "Le ticket doit être corrélé aux comptes, processus, horaires et actions observées",
+        "Les tickets ne doivent jamais être consultés",
+        "Un outil EDR est toujours exact"
+      ],
+      "answer": 1,
+      "explanation": "Une maintenance est une explication possible, mais elle doit couvrir les événements précis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif du confinement ?",
+      "choices": [
+        "Attribuer une attaque à une personne",
+        "Empêcher l'incident de continuer ou de s'étendre",
+        "Restaurer sans validation",
+        "Supprimer tous les journaux"
+      ],
+      "answer": 1,
+      "explanation": "Le confinement réduit le risque et doit être vérifié après son application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque existe lorsqu'un compte de service est désactivé sans analyse de dépendances ?",
+      "choices": [
+        "Aucun service ne peut en dépendre",
+        "Une panne métier ou une rupture d'intégration peut survenir",
+        "Les preuves sont toujours améliorées",
+        "La persistance est automatiquement éliminée"
+      ],
+      "answer": 1,
+      "explanation": "Les comptes techniques peuvent être liés à des applications critiques et demandent une rotation ou révocation planifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La désactivation d'un compte garantit-elle que toutes ses sessions sont arrêtées ?",
+      "choices": [
+        "Oui dans tous les systèmes",
+        "Non, les sessions ou secrets peuvent nécessiter des révocations distinctes",
+        "Oui s'il s'agit d'un compte cloud",
+        "Non, car les comptes ne peuvent jamais être désactivés"
+      ],
+      "answer": 1,
+      "explanation": "Il faut vérifier les sessions actives, jetons et accès résiduels selon le système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire avant une action urgente si les preuves volatiles risquent de disparaître ?",
+      "choices": [
+        "Toujours retarder le confinement jusqu'à une collecte exhaustive",
+        "Évaluer le risque ; préserver ce qui est possible sans compromettre la sécurité, puis documenter le compromis",
+        "Redémarrer immédiatement le système",
+        "Ne jamais appliquer de confinement"
+      ],
+      "answer": 1,
+      "explanation": "Le choix dépend de l'urgence et de la valeur de la preuve ; les compromis doivent être notés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une tentative sortante bloquée démontre-t-elle une exfiltration réussie ?",
+      "choices": [
+        "Oui toujours",
+        "Non, elle indique une tentative bloquée dans la portée de la source",
+        "Oui si le poste est suspect",
+        "Non, elle prouve que le poste est propre"
+      ],
+      "answer": 1,
+      "explanation": "Le blocage ne prouve ni une connexion aboutie ni le transfert de données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert la chaîne de conservation ?",
+      "choices": [
+        "À automatiser le confinement",
+        "À tracer la provenance, les transferts, les accès et les manipulations des preuves",
+        "À attribuer une attaque",
+        "À remplacer les sauvegardes"
+      ],
+      "answer": 1,
+      "explanation": "La traçabilité rend les preuves retrouvables et les analyses reproductibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif de l'éradication ?",
+      "choices": [
+        "Supprimer le premier fichier visible et clore le dossier",
+        "Traiter les composants et conditions de compromission identifiés, y compris les accès persistants",
+        "Réduire le nombre de rapports",
+        "Restaurer les données avant l'investigation"
+      ],
+      "answer": 1,
+      "explanation": "L'éradication doit couvrir la cause et les moyens d'accès connus, pas seulement un artefact isolé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère est essentiel avant la reconnexion d'un système restauré ?",
+      "choices": [
+        "Le système démarre sans message d'erreur",
+        "Les contrôles de sécurité, l'intégrité, les tests métier et l'approbation du propriétaire ont été vérifiés",
+        "Le ticket est fermé",
+        "Le poste a redémarré deux fois"
+      ],
+      "answer": 1,
+      "explanation": "Le retour en service doit être validé techniquement et métier puis surveillé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce que le RTO ?",
+      "choices": [
+        "La perte de données acceptable mesurée dans le temps",
+        "L'objectif de délai de rétablissement d'un service après interruption",
+        "Un niveau de sévérité d'incident",
+        "Un indicateur de faux positif"
+      ],
+      "answer": 1,
+      "explanation": "RTO représente un objectif de délai de récupération ; RPO porte sur la perte de données acceptable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier une sauvegarde avant de la restaurer ?",
+      "choices": [
+        "Parce qu'une sauvegarde récente est toujours compromise",
+        "Pour valider son intégrité, sa couverture et le risque qu'elle contienne déjà la compromission",
+        "Pour s'assurer qu'elle contient des journaux publics",
+        "Pour empêcher les tests métier"
+      ],
+      "answer": 1,
+      "explanation": "La restauration doit partir d'une source fiable et s'accompagner de correction de la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon usage de l'automatisation de réponse ?",
+      "choices": [
+        "Déployer toute action impactante sans contrôle",
+        "Enrichir les alertes, ouvrir un dossier et exécuter des actions préapprouvées avec journalisation",
+        "Stocker les secrets en clair dans les logs",
+        "Ignorer les erreurs de dépendance"
+      ],
+      "answer": 1,
+      "explanation": "L'automatisation accélère les tâches répétitives mais doit être contrôlée, traçable et limitée en privilèges."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie idempotent dans un workflow automatisé ?",
+      "choices": [
+        "Il efface les traces à chaque exécution",
+        "Une répétition de l'action n'entraîne pas d'effet supplémentaire incohérent",
+        "Il est impossible à journaliser",
+        "Il nécessite un privilège administrateur global"
+      ],
+      "answer": 1,
+      "explanation": "L'idempotence évite que la répétition d'un événement crée des actions en double incohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon traitement d'une exposition potentielle de données ?",
+      "choices": [
+        "Déclarer automatiquement une exfiltration",
+        "Déterminer les données, systèmes, période et faits, puis coordonner les obligations avec les responsables concernés",
+        "Publier les données pour transparence",
+        "Supprimer les journaux d'accès"
+      ],
+      "answer": 1,
+      "explanation": "L'exposition doit être caractérisée par des preuves et les obligations évaluées selon le contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire l'équipe si une activité suspecte réapparaît après l'éradication ?",
+      "choices": [
+        "Maintenir la clôture pour respecter les métriques",
+        "Reprendre l'investigation, revoir l'étendue et contenir l'activité selon le risque",
+        "Ignorer la nouvelle alerte",
+        "Réinstaller uniquement le premier fichier détecté"
+      ],
+      "answer": 1,
+      "explanation": "La réapparition peut indiquer une cause ou une persistance non traitée ; la réponse doit être réévaluée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas assimiler plusieurs alertes copiées à plusieurs preuves indépendantes ?",
+      "choices": [
+        "Toutes les alertes sont fausses",
+        "Elles peuvent provenir du même événement source et ne constituent pas une corroboration indépendante",
+        "La corrélation est toujours impossible",
+        "Les journaux doivent rester séparés"
+      ],
+      "answer": 1,
+      "explanation": "Il faut examiner la provenance réelle pour estimer l'indépendance des sources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information doit figurer dans une mise à jour de situation ?",
+      "choices": [
+        "Une attribution non vérifiée",
+        "Les faits confirmés, l'impact connu et inconnu, les actions, les risques et la prochaine mise à jour",
+        "Les secrets des comptes",
+        "Uniquement les détails techniques bruts"
+      ],
+      "answer": 1,
+      "explanation": "Une situation utile donne l'état connu, les incertitudes, les actions et les décisions attendues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un compte rendu post-incident doit-il assigner un responsable et une échéance à chaque amélioration ?",
+      "choices": [
+        "Pour augmenter le nombre d'incidents",
+        "Pour rendre les actions mesurables, suivies et vérifiables",
+        "Pour supprimer les procédures",
+        "Pour éviter le contrôle de réalisation"
+      ],
+      "answer": 1,
+      "explanation": "Les recommandations non attribuées sont rarement suivies de façon vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un critère approprié de clôture ?",
+      "choices": [
+        "Le service redémarre, quel que soit l'état de sécurité",
+        "Les critères d'éradication, de récupération, de surveillance et de risque résiduel sont documentés et approuvés",
+        "L'équipe technique est fatiguée",
+        "Le nombre d'alertes est nul pendant une minute"
+      ],
+      "answer": 1,
+      "explanation": "La clôture doit reposer sur des critères définis et l'acceptation des risques résiduels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qui doit coordonner les communications clients ou réglementaires ?",
+      "choices": [
+        "N'importe quel intervenant technique",
+        "Les personnes désignées, avec les responsables juridiques et protection des données selon le besoin",
+        "Uniquement le fournisseur EDR",
+        "L'utilisateur à l'origine de l'alerte"
+      ],
+      "answer": 1,
+      "explanation": "Les communications externes nécessitent une autorité et des faits vérifiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une cause initiale inconnue à la fin de l'investigation ?",
+      "choices": [
+        "L'incident n'a pas existé",
+        "La limite doit être documentée, les risques évalués et les tâches restantes attribuées",
+        "Il faut inventer une cause plausible",
+        "L'incident doit toujours être marqué comme réussi"
+      ],
+      "answer": 1,
+      "explanation": "Une cause non déterminée doit rester une limite visible, avec un plan de suivi selon le risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il vérifier l'efficacité d'une mesure de confinement après son application ?",
+      "choices": [
+        "Pour augmenter le volume des logs",
+        "Pour confirmer que l'objectif a été atteint et rechercher les voies alternatives",
+        "Pour pouvoir supprimer toutes les preuves",
+        "Parce que les outils ne produisent jamais de résultat"
+      ],
+      "answer": 1,
+      "explanation": "La réussite d'une commande ne garantit pas à elle seule le confinement effectif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle description du NIST SP 800-61 Rev. 3 est correcte ?",
+      "choices": [
+        "Il s'agit d'un guide réseau obsolète qui précède la révision 2",
+        "Il présente des recommandations de réponse aux incidents intégrées à la gestion du risque et au CSF 2.0",
+        "Il traite uniquement de chiffrement",
+        "Il remplace toutes les lois locales"
+      ],
+      "answer": 1,
+      "explanation": "La révision 3 publiée en 2025 intègre la réponse aux incidents dans le cadre de gestion du risque cyber."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but du retour d'expérience ?",
+      "choices": [
+        "Trouver une personne à blâmer",
+        "Transformer les observations de l'incident en améliorations vérifiables des contrôles et de la préparation",
+        "Supprimer les actions restantes",
+        "Garantir l'absence de futurs incidents"
+      ],
+      "answer": 1,
+      "explanation": "Le retour d'expérience doit cibler les facteurs systémiques et vérifier la réalisation des améliorations."
     }
   ]
 }

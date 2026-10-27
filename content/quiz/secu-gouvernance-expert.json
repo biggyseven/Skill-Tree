@@ -4,15 +4,375 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Gouvernance et Conformité » : à rédiger après le cours complet.",
+      "prompt": "Quel est le rôle principal de la gouvernance de la cybersécurité ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Acheter le plus d'outils possible",
+        "Définir les orientations, responsabilités, tolérance au risque et surveillance",
+        "Remplacer les équipes opérationnelles",
+        "Garantir qu'aucun incident ne se produira"
       ],
-      "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "answer": 1,
+      "explanation": "La gouvernance établit la direction et les décisions reliant les risques aux objectifs métiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La conformité et la sécurité sont-elles synonymes ?",
+      "choices": [
+        "Oui, toute conformité garantit la sécurité",
+        "Non, la conformité traite les exigences applicables et ne garantit pas seule l'efficacité des contrôles",
+        "Oui, si une organisation a une certification",
+        "Non, car elles n'ont aucun lien"
+      ],
+      "answer": 1,
+      "explanation": "Les deux sont complémentaires, mais des documents conformes ne prouvent pas automatiquement que les risques sont maîtrisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la fonction Govern dans le NIST CSF 2.0 ?",
+      "choices": [
+        "Gérer uniquement les correctifs",
+        "Établir et surveiller la stratégie, les responsabilités, les politiques et les risques fournisseurs",
+        "Remplacer Identify et Protect",
+        "Effectuer uniquement les tests d'intrusion"
+      ],
+      "answer": 1,
+      "explanation": "Govern est une fonction transversale qui oriente les autres fonctions du CSF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le NIST CSF 2.0 est-il une certification générale délivrée par NIST ?",
+      "choices": [
+        "Oui, chaque profil reçoit une certification",
+        "Oui, si six fonctions sont documentées",
+        "Non, c'est un cadre de résultats et de gestion du risque, pas un programme général de certification",
+        "Non, il n'est utilisable que par les agences fédérales"
+      ],
+      "answer": 2,
+      "explanation": "NIST décrit le CSF comme un cadre flexible et n'offre pas de certification générale de conformité au CSF."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d'un SMSI ?",
+      "choices": [
+        "Stocker uniquement les politiques",
+        "Structurer, mettre en œuvre, maintenir et améliorer la sécurité de l'information",
+        "Remplacer la gestion des risques métiers",
+        "Générer automatiquement une certification"
+      ],
+      "answer": 1,
+      "explanation": "Un SMSI relie le contexte, les risques, les contrôles, la mesure et l'amélioration continue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve principalement la signature d'une politique ?",
+      "choices": [
+        "Que tous les contrôles fonctionnent",
+        "Que le document a été approuvé par les personnes concernées",
+        "Qu'aucun risque résiduel n'existe",
+        "Que les employés ont compris son contenu"
+      ],
+      "answer": 1,
+      "explanation": "L'approbation atteste la décision documentaire, mais l'exécution nécessite des preuves distinctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un registre des exigences ?",
+      "choices": [
+        "À recopier toutes les lois sans les analyser",
+        "À lier sources, applicabilité, propriétaires, contrôles, preuves et revues",
+        "À remplacer les contrats signés",
+        "À prouver la certification de chaque fournisseur"
+      ],
+      "answer": 1,
+      "explanation": "Un registre utile trace les exigences pertinentes jusqu'à leur mise en œuvre et leur vérification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une obligation contractuelle est incertaine. Quelle action est appropriée ?",
+      "choices": [
+        "Inventer un délai habituel",
+        "Consulter la version signée et demander une validation compétente de son interprétation",
+        "Appliquer le délai d'un autre client",
+        "Fermer le point comme non applicable"
+      ],
+      "answer": 1,
+      "explanation": "Les délais et obligations doivent être confirmés à partir de la source réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente un scénario de risque bien formulé ?",
+      "choices": [
+        "Un score numérique isolé",
+        "Un événement possible, les actifs ou objectifs concernés et les conséquences",
+        "Un nom de vulnérabilité sans contexte",
+        "Une liste de tous les contrôles disponibles"
+      ],
+      "answer": 1,
+      "explanation": "Un scénario explicite aide à choisir des contrôles et à expliquer la priorité métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre risque inhérent et risque résiduel ?",
+      "choices": [
+        "Aucune différence",
+        "Le risque inhérent est évalué avant prise en compte des contrôles, le résiduel subsiste après traitement selon la méthode choisie",
+        "Le risque inhérent est toujours faible",
+        "Le risque résiduel est toujours nul après un audit"
+      ],
+      "answer": 1,
+      "explanation": "La distinction permet de comprendre l'effet des mesures et le risque qui reste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un contrôle figure dans une politique mais n'a jamais été exécuté. Comment l'évaluer ?",
+      "choices": [
+        "Comme s'il était pleinement efficace",
+        "Ne pas lui attribuer une efficacité non démontrée ; collecter des preuves ou exécuter le contrôle",
+        "Le supprimer du registre sans commentaire",
+        "Accepter automatiquement le risque"
+      ],
+      "answer": 1,
+      "explanation": "La présence d'une règle ne prouve pas son exécution ni son efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qui doit accepter un risque majeur ?",
+      "choices": [
+        "Toute personne qui exécute le contrôle",
+        "L'autorité disposant de la délégation adaptée à la criticité et aux règles applicables",
+        "Uniquement l'auditeur",
+        "Le fournisseur technique dans tous les cas"
+      ],
+      "answer": 1,
+      "explanation": "L'acceptation doit être explicite et prise au niveau d'autorité approprié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le transfert contractuel ou l'assurance élimine-t-il toutes les responsabilités ?",
+      "choices": [
+        "Oui, le fournisseur assume toujours tous les impacts",
+        "Non, certaines responsabilités, impacts et obligations restent à l'organisation",
+        "Oui, si le contrat dépasse un an",
+        "Non, car aucun contrat ne peut partager un risque"
+      ],
+      "answer": 1,
+      "explanation": "Le transfert ou le partage réduit certains effets mais ne fait pas disparaître toutes les responsabilités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une déclaration d'applicabilité dans un SMSI ?",
+      "choices": [
+        "À lister des outils de sécurité sans justification",
+        "À documenter les contrôles pertinents, leur statut et les justifications requises",
+        "À remplacer l'évaluation des risques",
+        "À prouver que tous les risques sont éliminés"
+      ],
+      "answer": 1,
+      "explanation": "La SoA relie l'analyse du contexte et des risques aux décisions sur les contrôles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur mesure mieux l'efficacité d'une sauvegarde ?",
+      "choices": [
+        "Le nombre de licences achetées",
+        "Le nombre de tâches planifiées uniquement",
+        "Les résultats de sauvegarde et les tests de restauration réussis sur le périmètre critique",
+        "Le nombre de messages dans le canal de sauvegarde"
+      ],
+      "answer": 2,
+      "explanation": "La capacité de restauration et l'intégrité du résultat apportent une preuve plus utile que la seule présence d'un outil."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une bonne démarche face à une non-conformité ?",
+      "choices": [
+        "Fermer le ticket une fois le document modifié",
+        "Corriger l'écart, analyser les causes, attribuer une action corrective et vérifier son efficacité",
+        "Blâmer automatiquement le dernier opérateur",
+        "Masquer l'écart au prochain audit"
+      ],
+      "answer": 1,
+      "explanation": "L'action corrective traite la cause et doit être vérifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une exception bien gouvernée ?",
+      "choices": [
+        "Aucune échéance",
+        "Un motif, un risque, des compensations, une autorité, une durée et un plan de revue ou de retrait",
+        "Un accord oral non documenté",
+        "Une déclaration qu'elle ne présente aucun risque"
+      ],
+      "answer": 1,
+      "explanation": "Une dérogation interne doit être limitée, approuvée, compensée et réévaluée si le cadre le permet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une exception interne peut-elle annuler une obligation juridique impérative ?",
+      "choices": [
+        "Oui, si le responsable sécurité l'approuve",
+        "Oui, si une compensation est mise en place",
+        "Non, une décision interne ne neutralise pas une exigence contraignante",
+        "Oui, si le risque technique paraît faible"
+      ],
+      "answer": 2,
+      "explanation": "La gestion interne des exceptions ne peut pas écarter une obligation impérative."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment évaluer un fournisseur critique ?",
+      "choices": [
+        "Uniquement par son site commercial",
+        "Selon sa criticité, ses accès, les données, les dépendances, le contrat et des preuves adaptées",
+        "Seulement au moment de la signature",
+        "En supposant que son attestation couvre toute configuration client"
+      ],
+      "answer": 1,
+      "explanation": "L'évaluation doit être proportionnée à l'accès et aux conséquences, puis maintenue pendant le contrat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un fournisseur cloud est certifié. Peut-on considérer la configuration du client conforme ?",
+      "choices": [
+        "Oui, automatiquement",
+        "Non, il faut examiner la portée de l'assurance et les responsabilités conservées par le client",
+        "Oui, si le service est SaaS",
+        "Non, car les certifications n'apportent jamais d'assurance"
+      ],
+      "answer": 1,
+      "explanation": "Une attestation a une portée limitée et ne prouve pas que les identités et configurations du client sont correctes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre KPI et KRI ?",
+      "choices": [
+        "Aucune différence",
+        "Un KPI mesure la performance par rapport à un objectif ; un KRI surveille un indicateur de risque",
+        "Un KPI est toujours technique et le KRI toujours financier",
+        "Un KRI sert uniquement aux audits externes"
+      ],
+      "answer": 1,
+      "explanation": "Ces indicateurs répondent à des questions différentes et nécessitent des définitions précises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une diminution soudaine du nombre d'alertes peut-elle être trompeuse ?",
+      "choices": [
+        "Un nombre bas signifie toujours un risque bas",
+        "Elle peut venir d'une amélioration ou d'une panne de collecte ou de détection",
+        "Les alertes n'ont aucune valeur",
+        "Elle prouve que les politiques ont été suivies"
+      ],
+      "answer": 1,
+      "explanation": "Les métriques doivent être interprétées avec le contexte et l'état des sources."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but d'un audit interne ?",
+      "choices": [
+        "Créer des preuves rétroactives",
+        "Évaluer des critères à partir de preuves et aider à l'assurance et à l'amélioration",
+        "Prendre la place de la direction",
+        "Garantir l'absence totale de risque"
+      ],
+      "answer": 1,
+      "explanation": "L'audit se fonde sur des critères, un périmètre et des éléments probants vérifiables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un audit ne trouve pas de preuve pour un contrôle déclaré actif. Quelle conclusion convient ?",
+      "choices": [
+        "Le contrôle est forcément actif",
+        "L'efficacité n'est pas démontrée par les éléments disponibles ; l'écart doit être documenté et étudié",
+        "Il faut fabriquer un export rétroactif",
+        "Le contrôle est conforme par défaut"
+      ],
+      "answer": 1,
+      "explanation": "Un manque de preuve limite la conclusion et doit être traité de façon transparente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de la minimisation des données ?",
+      "choices": [
+        "Collecter davantage par précaution",
+        "Limiter la collecte, l'accès et le partage aux données nécessaires à la finalité et aux obligations",
+        "Conserver toutes les captures indéfiniment",
+        "Supprimer toute preuve sans analyse"
+      ],
+      "answer": 1,
+      "explanation": "La minimisation réduit les risques de confidentialité tout en préservant ce qui est nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi tester les RTO et RPO ?",
+      "choices": [
+        "Pour remplir un tableau de bord",
+        "Pour vérifier que le délai de récupération et la perte de données correspondent aux objectifs approuvés",
+        "Pour éviter les sauvegardes",
+        "Pour remplacer les tests fonctionnels"
+      ],
+      "answer": 1,
+      "explanation": "Les objectifs doivent être validés en situation représentative, avec les dépendances et écarts documentés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire un bon tableau de bord exécutif ?",
+      "choices": [
+        "Exposer tous les logs bruts",
+        "Montrer les risques, tendances, écarts, actions et décisions attendues",
+        "Réduire chaque risque à une note sans explication",
+        "Éviter de montrer les risques résiduels"
+      ],
+      "answer": 1,
+      "explanation": "Le tableau de bord doit soutenir les arbitrages et expliquer les changements et décisions requises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il attribuer un propriétaire à chaque risque ?",
+      "choices": [
+        "Pour transférer tout le risque à cette personne",
+        "Pour garantir une responsabilité de surveillance, de traitement et d'escalade",
+        "Pour éviter les revues de direction",
+        "Pour retirer la responsabilité de l'organisation"
+      ],
+      "answer": 1,
+      "explanation": "Un propriétaire rend le suivi et les décisions de risque explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un registre de conservation documentaire ?",
+      "choices": [
+        "À garder toutes les données sans limite",
+        "À définir ce qui est conservé, pourquoi, où, qui y accède, combien de temps et comment la suppression est gérée",
+        "À éviter le contrôle des accès",
+        "À remplacer les exigences légales"
+      ],
+      "answer": 1,
+      "explanation": "La rétention doit être justifiée et adaptée aux obligations et aux risques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement NIST SP 800-53 ?",
+      "choices": [
+        "Un logiciel antivirus certifié",
+        "Un catalogue de contrôles de sécurité et de vie privée adaptable au contexte",
+        "Une loi universelle pour toutes les entreprises",
+        "Une norme remplaçant toute analyse de risque"
+      ],
+      "answer": 1,
+      "explanation": "SP 800-53 propose des contrôles qui doivent être sélectionnés et adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le résultat attendu d'une bonne gouvernance ?",
+      "choices": [
+        "Un classeur de politiques sans preuve",
+        "Des décisions traçables reliant risques, exigences, contrôles, preuves et amélioration continue",
+        "La suppression de toute incertitude",
+        "Un taux de conformité sans périmètre"
+      ],
+      "answer": 1,
+      "explanation": "La gouvernance rend les décisions responsables, l'efficacité vérifiable et les écarts traitables."
     }
   ]
 }

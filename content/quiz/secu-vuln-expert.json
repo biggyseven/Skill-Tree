@@ -4,15 +4,375 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Gestion des vulnérabilités » : à rédiger après le cours complet.",
+      "prompt": "Quelle séquence décrit le mieux un cycle complet de gestion des vulnérabilités ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Scanner puis fermer les tickets même sans preuve",
+        "Inventorier, détecter, valider, contextualiser, traiter, vérifier et apprendre",
+        "Classer uniquement par CVSS puis supprimer les actifs non corrigés",
+        "Remplacer chaque système dès qu'un CVE est publié"
+      ],
+      "answer": 1,
+      "explanation": "Le processus commence par un périmètre et des actifs connus ; la remédiation doit ensuite être vérifiée, et les résultats améliorent la prochaine itération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi l'inventaire des actifs est-il indispensable ?",
+      "choices": [
+        "Parce qu'un scanner découvre automatiquement tous les systèmes inconnus",
+        "Parce que les adresses IP sont des identifiants éternels",
+        "Parce qu'une vulnérabilité ne peut être évaluée sans connaître les actifs et composants concernés",
+        "Parce qu'il remplace les avis éditeurs"
+      ],
+      "answer": 2,
+      "explanation": "Sans inventaire fiable, la couverture peut paraître bonne tout en laissant des actifs hors du périmètre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit principalement un identifiant CVE ?",
+      "choices": [
+        "Un identifiant commun associé à une vulnérabilité divulguée publiquement",
+        "Un score local de risque métier",
+        "Une preuve que l'actif a été compromis",
+        "Un correctif qui s'installe automatiquement"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "CVE sert à identifier et référencer une vulnérabilité de façon cohérente, mais ne constitue ni une note de risque ni une correction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre CWE et CVE est correcte ?",
+      "choices": [
+        "CWE identifie chaque machine et CVE identifie chaque utilisateur",
+        "CWE est une catégorie de faiblesse, alors qu'un CVE référence une vulnérabilité divulguée",
+        "CVE est un type de correctif et CWE un score",
+        "Les deux termes sont exactement synonymes"
+      ],
+      "answer": 1,
+      "explanation": "CWE décrit une classe de faiblesse technique ; CVE référence une vulnérabilité particulière publiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le score de base CVSS ?",
+      "choices": [
+        "La probabilité exacte que votre serveur soit compromis demain",
+        "Le temps garanti pour appliquer un correctif",
+        "Une mesure de gravité technique selon les caractéristiques de la vulnérabilité",
+        "La preuve qu'un exploit fonctionne contre chaque configuration"
+      ],
+      "answer": 2,
+      "explanation": "CVSS communique la gravité selon un cadre de métriques. Le risque local doit intégrer le contexte de l'actif et de l'organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que mesure EPSS selon sa définition ?",
+      "choices": [
+        "Le pourcentage exact des actifs locaux déjà compromis",
+        "La perte financière attendue de votre organisation",
+        "Le niveau de conformité à ISO 27001",
+        "La probabilité qu'une exploitation liée à un CVE soit observée dans la nature au cours des 30 prochains jours"
+      ],
+      "answer": 3,
+      "explanation": "EPSS est une estimation probabiliste à l'échelle des données du modèle, pas un score de risque contextualisé pour un actif individuel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une vulnérabilité présente dans CISA KEV a un score EPSS faible. Quelle approche est la plus appropriée ?",
+      "choices": [
+        "Traiter la présence dans KEV comme un signal fort, puis confirmer l'applicabilité et agir rapidement",
+        "Ignorer KEV et suivre seulement le score EPSS",
+        "Conclure que l'actif a forcément déjà été compromis",
+        "Supprimer le résultat du backlog"
+      ],
+      "answer": 0,
+      "explanation": "KEV répertorie des vulnérabilités connues comme exploitées ; un score EPSS faible ne doit pas neutraliser ce signal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un CVE figure dans KEV. Qu'est-ce que cela prouve concernant un serveur précis ?",
+      "choices": [
+        "Que le serveur est certainement compromis",
+        "Que cette vulnérabilité a une exploitation connue dans la nature, mais qu'il faut encore vérifier si le serveur est affecté et compromis",
+        "Que la vulnérabilité ne nécessite aucun test",
+        "Que le correctif est installé"
+      ],
+      "answer": 1,
+      "explanation": "KEV est un signal prioritaire, mais l'applicabilité à l'instance et les indices de compromission doivent être évalués séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente NotFound dans un inventaire ou un résultat de détection ?",
+      "choices": [
+        "La vulnérabilité n'existe pas",
+        "Le correctif est déployé",
+        "Une information nécessaire est absente ou non confirmée selon le contexte, et exige une investigation",
+        "Le système n'a aucune dette technique"
+      ],
+      "answer": 2,
+      "explanation": "L'absence de donnée ou de résultat ne doit pas être transformée automatiquement en statut sain."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème peut provoquer un scan non authentifié utilisé seul ?",
+      "choices": [
+        "Il identifie nécessairement tous les paquets et correctifs",
+        "Il permet de garantir la sécurité des composants internes",
+        "Il remplace le suivi d'inventaire",
+        "Il peut manquer des paquets, des réglages internes et des versions non visibles depuis le réseau"
+      ],
+      "answer": 3,
+      "explanation": "Le scan non authentifié observe surtout ce qui est visible depuis son point de vue ; les méthodes authentifiées ou alternatives complètent cette visibilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un avantage d'un scan authentifié ?",
+      "choices": [
+        "Il peut examiner plus précisément les paquets, versions et configurations internes",
+        "Il n'a besoin d'aucune protection de compte",
+        "Il peut prouver l'absence de toute vulnérabilité",
+        "Il remplace l'authentification multifacteur des administrateurs"
+      ],
+      "answer": 0,
+      "explanation": "Le scan authentifié approfondit l'observation, mais ses identifiants doivent être limités et protégés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle technique analyse surtout les dépendances logicielles et leurs vulnérabilités connues ?",
+      "choices": [
+        "DAST",
+        "SCA",
+        "GTSM",
+        "RPKI"
+      ],
+      "answer": 1,
+      "explanation": "SCA analyse la composition logicielle et compare les composants à des données de vulnérabilité ; les résultats doivent être reliés aux artefacts déployés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi générer un SBOM lors de la construction d'une image de production ?",
+      "choices": [
+        "Pour remplacer les scans et tests fonctionnels",
+        "Pour fournir une certification automatique de sécurité",
+        "Pour décrire les composants de l'artefact précis et faciliter l'analyse des vulnérabilités",
+        "Pour montrer uniquement le nombre de développeurs"
+      ],
+      "answer": 2,
+      "explanation": "Le SBOM décrit la composition ; il doit être associé à un artefact identifié et ne remplace pas les autres contrôles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une couverture de scan de 85 % ?",
+      "choices": [
+        "Que 85 % de tous les actifs existant dans le monde ont été scannés",
+        "Que les 15 % restants n'ont pas de vulnérabilités",
+        "Que chaque vulnérabilité du périmètre a été détectée",
+        "Que 85 % du dénominateur défini ont une mesure valide dans la fenêtre définie"
+      ],
+      "answer": 3,
+      "explanation": "Le taux dépend du dénominateur et de la fenêtre. Il ne prouve ni l'exhaustivité de l'inventaire ni la profondeur du scan."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi dédupliquer les résultats sans supprimer leurs preuves d'origine ?",
+      "choices": [
+        "Pour réduire les doublons tout en conservant la traçabilité, l'actif, la source et les observations spécifiques",
+        "Pour effacer les anciens résultats dès qu'un ticket existe",
+        "Pour rendre les vulnérabilités non détectables",
+        "Pour éviter d'attribuer un propriétaire"
+      ],
+      "answer": 0,
+      "explanation": "La déduplication doit réduire le bruit tout en maintenant les détails nécessaires à l'analyse et à la vérification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un actif inconnu apparaît dans l'EDR mais pas dans la CMDB. Quelle action est la meilleure ?",
+      "choices": [
+        "L'effacer immédiatement de tous les outils",
+        "Enquêter, l'identifier, déterminer son autorisation et l'attribuer à un propriétaire",
+        "Le classer comme non vulnérable",
+        "Désactiver l'EDR pour éviter les doublons"
+      ],
+      "answer": 1,
+      "explanation": "Les écarts d'inventaire doivent être examinés. Un actif absent de la CMDB peut être oublié ou non autorisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une exception de vulnérabilité est-elle correctement gérée ?",
+      "choices": [
+        "Quand elle n'a pas de date afin d'éviter les renouvellements",
+        "Quand le scanner ne remonte plus le résultat",
+        "Quand elle documente le risque, les contrôles compensatoires, l'approbateur, le propriétaire, l'échéance et le plan de sortie",
+        "Quand l'équipe qui exploite l'actif l'approuve seule sans trace"
+      ],
+      "answer": 2,
+      "explanation": "Une exception ne supprime pas le risque. Elle doit être approuvée, limitée dans le temps et réévaluée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un correctif doit-il être vérifié après déploiement ?",
+      "choices": [
+        "Parce que les scans ne mesurent jamais la version",
+        "Pour éviter de conserver une preuve",
+        "Parce que la déclaration d'installation est toujours fausse",
+        "Pour confirmer que la bonne version ou configuration est réellement active et que la vulnérabilité est traitée"
+      ],
+      "answer": 3,
+      "explanation": "La correction déclarée ne suffit pas : la revalidation doit contrôler l'état réel, le bon actif et les réplicas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un scanner ne détecte plus le CVE, mais la version installée reste vulnérable selon l'avis éditeur. Que faire ?",
+      "choices": [
+        "Investiguer la méthode de détection et vérifier l'état réel avant de clôturer",
+        "Fermer immédiatement le ticket",
+        "Effacer l'avis éditeur",
+        "Déduire que le scanner est toujours correct"
+      ],
+      "answer": 0,
+      "explanation": "Un changement de signature ou un scan sur le mauvais actif peut donner un faux sentiment de correction. La preuve doit être examinée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une vulnérabilité sur une application est suspectée d'avoir été exploitée. Installer le patch suffit-il ?",
+      "choices": [
+        "Oui, parce que le patch efface toutes les traces",
+        "Non, il faut aussi évaluer une éventuelle compromission et préserver les preuves appropriées",
+        "Oui, si CVSS est inférieur à 10",
+        "Non, il faut laisser la vulnérabilité active"
+      ],
+      "answer": 1,
+      "explanation": "Une correction empêche certaines exploitations futures, mais ne prouve pas que l'actif n'a pas été compromis auparavant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur indicateur principal de réussite d'un programme ?",
+      "choices": [
+        "Le nombre maximal de tickets ouverts",
+        "Le nombre de scans lancés sans regarder leur résultat",
+        "La réduction démontrable de l'exposition et le traitement vérifié des risques prioritaires",
+        "Le nombre de CVE présents dans la base"
+      ],
+      "answer": 2,
+      "explanation": "Les indicateurs d'activité doivent être associés à la couverture, aux preuves, aux délais et au risque résiduel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi mesurer les percentiles de temps de correction en plus de la moyenne ?",
+      "choices": [
+        "Pour masquer les cas les plus anciens",
+        "Parce que la moyenne est interdite",
+        "Pour supprimer les échéances",
+        "Pour comprendre la distribution et éviter que certains cas longs soient masqués par la moyenne"
+      ],
+      "answer": 3,
+      "explanation": "Les percentiles donnent une image de la distribution des délais et permettent d'identifier les cas qui dépassent les cibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé au sujet des actifs hors support est correct ?",
+      "choices": [
+        "Une solution durable exige souvent mise à niveau, remplacement ou autre plan de réduction d'exposition formalisé",
+        "Ils sont automatiquement sans risque s'ils sont isolés",
+        "On peut fermer tous leurs tickets sans action",
+        "Les scans ne sont plus utiles et le risque n'a plus besoin de propriétaire"
+      ],
+      "answer": 0,
+      "explanation": "Les systèmes hors support restent vulnérables ; les mesures temporaires doivent être documentées et un plan de sortie doit exister."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la mise à jour du fichier de dépendances ne clôt-elle pas seule une vulnérabilité dans un conteneur ?",
+      "choices": [
+        "Parce qu'une bibliothèque ne peut jamais être mise à jour",
+        "Parce qu'il faut reconstruire, tester et déployer l'artefact corrigé puis vérifier les instances actives",
+        "Parce que les conteneurs ne contiennent pas de logiciels",
+        "Parce que le SBOM suffit même sans nouveau build"
+      ],
+      "answer": 1,
+      "explanation": "L'ancienne image peut encore être utilisée dans le cluster ou un environnement secondaire jusqu'au redéploiement vérifié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque existe si le scanner fonctionne mais que la synchronisation du ticketing est en panne ?",
+      "choices": [
+        "Tous les actifs deviennent automatiquement non vulnérables",
+        "Les scores CVSS diminuent automatiquement",
+        "Les résultats peuvent rester sans propriétaire, échéance ni suivi",
+        "Les CVE sont supprimés du catalogue officiel"
+      ],
+      "answer": 2,
+      "explanation": "La chaîne de gestion comprend la transmission et l'attribution. Une intégration défaillante doit alerter et pouvoir reprendre les données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu doit figurer dans une demande d'exception ?",
+      "choices": [
+        "Seulement le nom du serveur",
+        "Uniquement le score CVSS",
+        "Le message 'patch impossible' sans date",
+        "Risque résiduel, justification, mesures compensatoires, approbateur, propriétaire, échéance et plan de sortie"
+      ],
+      "answer": 3,
+      "explanation": "Une exception exploitable pour la gouvernance doit permettre de décider, surveiller et réévaluer le risque résiduel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un score EPSS élevé ne suffit-il pas à établir le risque d'un actif local ?",
+      "choices": [
+        "EPSS n'est pas spécifique au déploiement et doit être combiné avec l'inventaire, l'exposition et l'impact",
+        "EPSS est toujours un nombre négatif",
+        "EPSS mesure uniquement les pertes de données de l'organisation",
+        "EPSS est identique à la gravité CVSS"
+      ],
+      "answer": 0,
+      "explanation": "EPSS estime la probabilité d'observation d'exploitation à l'échelle du modèle ; il ne connaît pas le contexte particulier de chaque organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un scan actif pourrait perturber un contrôleur industriel. Quelle est l'approche correcte ?",
+      "choices": [
+        "Le scanner doit quand même être exécuté sans prévenir l'exploitant",
+        "Choisir une méthode alternative ou une fenêtre approuvée avec l'exploitant et documenter les limites de visibilité",
+        "Retirer définitivement l'actif du périmètre",
+        "Supposer que le contrôleur n'est pas vulnérable"
+      ],
+      "answer": 1,
+      "explanation": "Le programme doit couvrir l'actif avec une méthode adaptée : collecte passive, preuve fournisseur, laboratoire ou scan contrôlé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle permet de prouver la correction d'une dépendance ?",
+      "choices": [
+        "Un ticket fermé sans détails",
+        "Une annonce orale du développeur",
+        "Relier version corrigée, artefact construit, digest déployé et scan/test de confirmation",
+        "La baisse du nombre total de tickets"
+      ],
+      "answer": 2,
+      "explanation": "Le flux de preuve doit relier la correction source à l'artefact réellement en production et à sa revalidation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche convient à la priorisation lorsqu'une vulnérabilité KEV affecte une passerelle Internet critique ?",
+      "choices": [
+        "Attendre le prochain scan annuel",
+        "Ignorer la vulnérabilité si aucune alerte SIEM n'est visible",
+        "Traiter uniquement si CVSS vaut exactement 10",
+        "Vérifier immédiatement l'applicabilité, accélérer la remédiation ou mitigation et rechercher les indices de compromission selon le contexte"
+      ],
+      "answer": 3,
+      "explanation": "La présence KEV et l'exposition critique imposent une réponse prioritaire, avec confirmation de l'applicabilité et recherche d'une exploitation possible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une récurrence de la même faiblesse doit-elle déclencher une analyse de cause racine ?",
+      "choices": [
+        "Parce qu'elle peut refléter une image de base, un modèle IaC ou un processus qui réintroduit le défaut",
+        "Parce que le nouveau ticket doit toujours être ignoré",
+        "Parce que le défaut est devenu acceptable automatiquement",
+        "Parce que les scans devraient être arrêtés"
+      ],
+      "answer": 0,
+      "explanation": "La correction d'une cause systémique empêche la réapparition de la même vulnérabilité à travers les builds et les déploiements."
     }
   ]
 }

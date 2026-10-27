@@ -4,15 +4,267 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité du Cloud (AWS/Azure/GCP) » : à rédiger après le cours complet.",
+      "prompt": "Quel principe décrit le mieux la responsabilité partagée dans le cloud ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Le fournisseur est responsable de tous les paramètres du client",
+        "La responsabilité dépend du service ; le fournisseur gère certaines couches et le client reste responsable des identités, données et configurations qui lui incombent",
+        "Le client doit gérer les bâtiments et le matériel physique",
+        "Une base managée n’exige aucun contrôle d’accès du client"
+      ],
+      "answer": 1,
+      "explanation": "Les responsabilités varient entre IaaS, PaaS et SaaS et selon le service exact. Il faut vérifier la matrice du fournisseur et la configuration cliente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal d’une landing zone cloud ?",
+      "choices": [
+        "Remplacer toutes les politiques IAM par un seul compte administrateur",
+        "Créer uniquement des sous-réseaux réseau",
+        "Fournir une fondation gouvernée et reproductible pour les identités, environnements, réseaux, journaux et garde-fous",
+        "Garantir à elle seule la conformité de chaque application"
+      ],
+      "answer": 2,
+      "explanation": "Une landing zone structure la gouvernance et les contrôles communs. Les workloads doivent encore être déployés et testés correctement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait une AWS Service Control Policy (SCP) ?",
+      "choices": [
+        "Elle définit une limite de permissions disponibles dans un périmètre d’organisation, sans accorder à elle seule ces permissions",
+        "Elle accorde automatiquement le rôle administrateur à tous les comptes membres",
+        "Elle remplace toute politique IAM de ressource",
+        "Elle chiffre automatiquement chaque objet S3"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "Une SCP agit comme garde-fou sur les permissions maximales possibles ; les autorisations effectives dépendent aussi des politiques applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale existe entre Azure RBAC et Azure Policy ?",
+      "choices": [
+        "Ils sont identiques et contrôlent uniquement les mots de passe",
+        "Azure Policy sert seulement aux journaux d’authentification",
+        "Azure RBAC ne s’applique qu’aux machines virtuelles",
+        "RBAC détermine les actions autorisées sur une portée ; Azure Policy audite ou impose des états de configuration"
+      ],
+      "answer": 3,
+      "explanation": "Les services se complètent mais remplissent des rôles différents. Il faut valider le comportement des définitions et des affectations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle général de la hiérarchie Organisation / dossiers / projets dans Google Cloud ?",
+      "choices": [
+        "Elle remplace l’authentification multifacteur",
+        "Elle structure les ressources et l’héritage des politiques et permissions",
+        "Elle chiffre automatiquement les bases de données",
+        "Elle désactive toutes les routes entre projets"
+      ],
+      "answer": 1,
+      "explanation": "La hiérarchie facilite la séparation et l’héritage. Les permissions effectives et les connexions entre projets doivent toujours être examinées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un bucket ou conteneur de stockage doit-il être vérifié même s’il ne semble pas avoir d’adresse publique ?",
+      "choices": [
+        "Une adresse privée garantit toujours la confidentialité",
+        "Le chiffrement au repos rend tout accès public impossible",
+        "Des politiques, liens partagés ou permissions héritées peuvent encore permettre la lecture",
+        "Le stockage cloud ne peut pas exposer de fichiers"
+      ],
+      "answer": 2,
+      "explanation": "L’accès effectif dépend des politiques de ressource, des identités, des liens et des paramètres d’exposition, pas uniquement d’une adresse réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage est le plus approprié pour un compte de service ou une identité de workload ?",
+      "choices": [
+        "Donner à une application une identité dédiée avec des permissions limitées pour sa tâche",
+        "Utiliser la même clé statique pour toutes les applications",
+        "Attribuer un rôle Owner à chaque pipeline",
+        "Stocker le secret dans le code source pour simplifier le déploiement"
+      ],
+      "answer": 0,
+      "explanation": "Une identité dédiée réduit le rayon d’impact et facilite l’attribution, la révocation et le moindre privilège."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire lorsqu’une clé cloud apparaît dans l’historique Git ?",
+      "choices": [
+        "Supprimer seulement la ligne du dernier commit",
+        "Renommer la variable sans modifier la clé",
+        "Attendre de constater une utilisation malveillante",
+        "Considérer la clé comme exposée, la révoquer ou la remplacer et examiner les usages potentiels"
+      ],
+      "answer": 3,
+      "explanation": "Les copies historiques peuvent persister. Le retrait du fichier ne suffit pas ; la clé doit être révoquée et le périmètre examiné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit correctement le chiffrement au repos ?",
+      "choices": [
+        "Il empêche toujours un administrateur autorisé de lire les données",
+        "Il réduit certains risques liés au stockage, mais ne remplace pas les contrôles d’identité et de permission",
+        "Il remplace le chiffrement en transit",
+        "Il rend les clés et leurs permissions sans importance"
+      ],
+      "answer": 1,
+      "explanation": "Une identité autorisée peut souvent demander au service de déchiffrer les données. Les permissions, les clés et l’audit restent essentiels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi centraliser les journaux dans un périmètre distinct peut-il aider ?",
+      "choices": [
+        "Cela rend inutile l’analyse des alertes",
+        "Cela garantit que toutes les catégories sont activées automatiquement",
+        "Cela peut limiter la capacité des identités surveillées à modifier ou supprimer les preuves",
+        "Cela empêche toutes les erreurs de configuration"
+      ],
+      "answer": 2,
+      "explanation": "La séparation réduit certains risques de suppression ou altération par un workload compromis, mais la couverture et la conservation doivent être testées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur moyen de prouver qu’une catégorie de journaux est bien collectée ?",
+      "choices": [
+        "Déclencher une action contrôlée et vérifier que l’événement attendu arrive dans la destination avec le bon contexte",
+        "Observer qu’un menu de logs existe dans la console",
+        "Lire la documentation sans vérifier l’environnement",
+        "Activer tous les logs et supposer qu’ils arriveront"
+      ],
+      "answer": 0,
+      "explanation": "Un test de bout en bout vérifie la configuration, l’acheminement, la conservation et la capacité de réponse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un service de Cloud Security Posture Management (CSPM) ?",
+      "choices": [
+        "Remplacer toutes les revues de code",
+        "Gérer exclusivement les comptes utilisateurs SaaS",
+        "Garantir automatiquement qu’aucune attaque ne peut réussir",
+        "Repérer ou évaluer des écarts de configuration selon le périmètre et les règles couverts"
+      ],
+      "answer": 3,
+      "explanation": "Le CSPM identifie des problèmes de posture mais ne remplace pas les autorisations métier, les tests ni la réponse aux incidents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles données doivent être prises en compte dans une stratégie de protection cloud ?",
+      "choices": [
+        "Uniquement la base primaire",
+        "Les exports, sauvegardes, caches, fichiers temporaires et copies de test aussi bien que la source",
+        "Uniquement les fichiers chiffrés",
+        "Les seules données qui ont un tag public"
+      ],
+      "answer": 1,
+      "explanation": "La protection doit suivre les copies et les chemins de partage. Un export ou une sauvegarde peut exposer la même information que la base principale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifient RPO et RTO dans un plan de reprise ?",
+      "choices": [
+        "RPO mesure le rôle IAM et RTO mesure la rétention des logs",
+        "RPO mesure le débit réseau et RTO la taille du compte cloud",
+        "RPO exprime la perte de données temporelle acceptable et RTO le délai cible de restauration",
+        "RPO et RTO sont des algorithmes de chiffrement"
+      ],
+      "answer": 2,
+      "explanation": "Ces objectifs sont des exigences métier qui orientent la sauvegarde, la réplication et les tests de restauration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer le compte ou périmètre de sauvegarde ?",
+      "choices": [
+        "Pour réduire le risque qu’un compte de production compromis supprime aussi toutes les sauvegardes",
+        "Pour que les sauvegardes soient accessibles à tous les développeurs",
+        "Pour supprimer le besoin de tests de restauration",
+        "Pour empêcher l’utilisation de clés de chiffrement"
+      ],
+      "answer": 0,
+      "explanation": "La séparation des identités et permissions limite le rayon d’impact ; les restaurations doivent toutefois être testées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il comparer AWS Config, Azure Policy et Google Cloud Organization Policy ?",
+      "choices": [
+        "En supposant qu’ils ont exactement les mêmes fonctions",
+        "En choisissant uniquement le nom le plus familier",
+        "En remplaçant tout test par une comparaison marketing",
+        "En définissant le besoin et en vérifiant portée, prévention, audit, remédiation et preuves pour chaque service"
+      ],
+      "answer": 3,
+      "explanation": "Les capacités se recoupent parfois mais ne sont pas identiques. La comparaison doit porter sur le résultat de sécurité attendu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est particulièrement important pour une règle réseau d’administration ?",
+      "choices": [
+        "Laisser tous les ports ouverts pour éviter les incidents",
+        "Limiter sources, destinations et ports, utiliser un chemin d’administration contrôlé et supprimer les exceptions expirées",
+        "Désactiver les journaux de flux",
+        "Utiliser seulement une adresse privée sans examiner le routage"
+      ],
+      "answer": 1,
+      "explanation": "Les routes et règles réseau doivent correspondre au besoin minimal. Une adresse privée ne garantit pas à elle seule l’absence de chemin indésirable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur ordre pour remédier à une règle réseau potentiellement dangereuse ?",
+      "choices": [
+        "Bloquer tout sans connaître les dépendances",
+        "Supprimer les ressources et attendre les plaintes",
+        "Inventorier, observer, qualifier les flux, piloter et appliquer progressivement avec retour arrière",
+        "Ignorer l’alerte tant qu’aucun incident n’est visible"
+      ],
+      "answer": 2,
+      "explanation": "L’observation et le pilote permettent d’identifier les dépendances et de corriger sans interruption non maîtrisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le rôle global de propriétaire ou administrateur ne doit-il pas être le rôle par défaut d’une application ?",
+      "choices": [
+        "Il augmente fortement le rayon d’impact d’une compromission et dépasse généralement le besoin métier",
+        "Il empêche toujours l’application de lire ses propres données",
+        "Il désactive automatiquement la journalisation",
+        "Il ne peut jamais être audité"
+      ],
+      "answer": 0,
+      "explanation": "Les workloads doivent obtenir uniquement les actions et ressources nécessaires à leur fonction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique protège le mieux la chaîne de déploiement cloud ?",
+      "choices": [
+        "Utiliser une seule clé statique pour tous les environnements",
+        "Laisser le pipeline modifier les politiques globales sans revue",
+        "Déployer directement des artefacts non versionnés",
+        "Employer une identité limitée, des artefacts versionnés, des contrôles et une séparation des permissions par environnement"
+      ],
+      "answer": 3,
+      "explanation": "Le pipeline est un principal privilégié. Il faut limiter ses droits, contrôler les artefacts et protéger les changements de production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé est exact concernant conformité et sécurité d’un workload ?",
+      "choices": [
+        "Une certification du fournisseur prouve que chaque ressource cliente est configurée correctement",
+        "La conformité fournisseur couvre une portée donnée ; le client doit toujours configurer et tester ses propres ressources",
+        "Le cloud n’exige jamais de preuve côté client",
+        "Les journaux remplacent les contrôles de configuration"
+      ],
+      "answer": 1,
+      "explanation": "Les attestations doivent être comprises dans leur périmètre ; les configurations et responsabilités du client doivent être vérifiées séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la première priorité pratique après la découverte d’une clé cloud possiblement compromise ?",
+      "choices": [
+        "Publier un rapport contenant la clé entière",
+        "Attendre le prochain audit trimestriel",
+        "Contenir ou révoquer la clé selon le plan, préserver les preuves utiles et examiner les usages",
+        "Supprimer tous les logs liés à la clé"
+      ],
+      "answer": 2,
+      "explanation": "La clé doit être traitée comme exposée. La réponse combine confinement, preuve, recherche d’activité suspecte et remplacement sûr."
     }
   ]
 }
