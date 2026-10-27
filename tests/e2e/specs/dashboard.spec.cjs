@@ -1189,16 +1189,16 @@ test('les bibliothèques affichent de nombreux modèles d’équipements et de c
   await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
 
   const equipmentTab = page.getByRole('tab', { name: /Équipements/ });
-  await expect(equipmentTab).toContainText('23 modèles');
+  await expect(equipmentTab).toContainText('46 modèles');
   const equipmentItems = page.locator('[data-testid^="equipment-model-"]');
-  await expect(equipmentItems).toHaveCount(23);
+  await expect(equipmentItems).toHaveCount(46);
   await expect(page.getByTestId('equipment-model-switch-l3-48')).toBeVisible();
 
   const cableTab = page.getByRole('tab', { name: /Câbles/ });
   await cableTab.click();
-  await expect(cableTab).toContainText('10 câbles');
+  await expect(cableTab).toContainText('19 câbles');
   const cableItems = page.locator('[data-testid^="cable-item-"]');
-  await expect(cableItems).toHaveCount(11);
+  await expect(cableItems).toHaveCount(20);
   await expect(page.getByTestId('cable-item-fiber_multimode')).toBeVisible();
   await expect(page.getByTestId('cable-item-fiber_singlemode')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Liaisons sans fil' })).toBeVisible();
