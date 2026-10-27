@@ -364,6 +364,45 @@ Le RETEX complet peut contenir des détails qui ne doivent pas être partagés l
 La boucle est achevée lorsque la leçon a été appliquée : le runbook a changé, la formation a été faite, le contrôle a été déployé, le risque est réévalué et l'efficacité mesurée. Le dépôt d'un PDF dans un répertoire ne prouve ni que les équipes l'ont trouvé ni qu'une pratique a évolué. Une revue transversale des RETEX recherche les thèmes répétés pour décider des investissements qui dépassent un seul incident ou une seule équipe.
 
 
+
+## Mesurer la maturité du RETEX et éviter les actions de façade
+
+Une organisation ne devient pas apprenante parce qu'elle produit un rapport après chaque incident. Le processus doit permettre d'examiner les événements pertinents, de conserver les faits, de tirer des leçons, d'attribuer des actions et d'en vérifier l'application. Le suivi est essentiel : sans propriétaire ni échéance, les recommandations se noient dans le backlog et les mêmes défaillances reviennent.
+
+### Indicateurs de qualité du RETEX
+
+| Indicateur | Définition possible | Précaution |
+|---|---|---|
+| Délai de rédaction | Temps entre rétablissement et version relue | Ne pas sacrifier la qualité des preuves à la vitesse |
+| Actions à échéance | Part des actions arrivées à échéance qui sont clôturées et prouvées | Un statut « terminé » seul ne suffit pas |
+| Actions dont l'efficacité est vérifiée | Part des actions ayant passé leur test d'efficacité | Le test doit être adapté à la fréquence du risque |
+| Récurrence | Nombre ou taux d'événements similaires selon une définition stable | Contrôler le changement de détection et de population |
+| Application des leçons | Part des leçons ayant modifié une procédure, un contrôle, une formation ou un design | La création d'un article n'est pas une application |
+| Réutilisation | Cas où un contenu issu du RETEX a aidé à la décision | Distinguer consultation et usage effectif |
+
+Les indicateurs doivent soutenir l'apprentissage, pas inciter les équipes à éviter de déclarer les événements. Une hausse initiale du nombre de RETEX peut signifier que les personnes signalent mieux les problèmes. Le nombre brut doit être lu avec l'impact, la couverture, la qualité du suivi et les tendances.
+
+### Exemple de formulation d'une action
+
+Action trop vague : « Former les techniciens à mieux vérifier les changements. »
+
+Action vérifiable : « Le propriétaire du processus de changement doit ajouter un test de conformité automatisé au pipeline de déploiement de la famille concernée, faire relire la règle par la sécurité, vérifier le comportement sur un lot pilote et produire un rapport qui montre les tentatives bloquées et les exceptions autorisées. Le test d'efficacité sera effectué sur les dix prochains changements éligibles ou sur une période définie par le propriétaire du risque. »
+
+Cette formulation définit un état attendu, un propriétaire, des preuves et une méthode de vérification. Si l'organisation n'a pas les ressources pour automatiser le contrôle, l'action peut prévoir une étape temporaire avec des critères et une échéance, mais le risque résiduel doit rester visible.
+
+### Gérer le désaccord sur les conclusions
+
+L'équipe auditée peut contester une cause ou une action. Documenter le désaccord, examiner les preuves supplémentaires, corriger les erreurs factuelles et séparer ce qui est établi de ce qui reste interprété. Le rapport ne doit pas imposer une cause non démontrée pour paraître conclusif. Il peut conserver plusieurs facteurs plausibles, avec des mesures qui réduisent le risque quelle que soit la cause exacte.
+
+Si une action est contestée parce que son coût est élevé, comparer le coût et le risque, puis laisser la décision à l'autorité qui peut accepter le risque. Le RETEX ne doit pas transformer une recommandation en ordre opérationnel non approuvé, mais l'organisation doit décider explicitement si elle reporte l'action, adopte une alternative ou accepte l'exposition.
+
+### Relier les enseignements à la stratégie
+
+Les thèmes récurrents doivent être agrégés. Si plusieurs RETEX révèlent une qualité insuffisante de l'inventaire, une difficulté de coordination fournisseurs ou un test de restauration absent, une action locale par incident est probablement insuffisante. Un propriétaire transverse doit être désigné pour revoir le contrôle, investir dans la cause commune et mesurer si le problème diminue dans plusieurs équipes.
+
+La chaîne de valeur devient : événement, preuve, analyse, leçon, action, changement du système, mesure d'efficacité et diffusion contrôlée. Le RETEX est achevé lorsque les décisions ont été prises et que la boucle de suivi fonctionne, pas simplement lorsque le document est signé.
+
+
 ## Ressources techniques et références
 
 - [Google SRE — Postmortem Culture: Learning from Failure](https://sre.google/sre-book/postmortem-culture/)
