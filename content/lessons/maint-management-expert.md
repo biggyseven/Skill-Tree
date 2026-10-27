@@ -112,6 +112,24 @@ Classer les décisions par impact et réversibilité. Une décision facile à an
 
 La décision n'est pas meilleure parce qu'elle est prise par le rang hiérarchique le plus élevé. Le rôle du manager est de rapprocher la décision de l'information et de la compétence, tout en conservant des limites proportionnées au risque.
 
+### Schéma — Rendre une responsabilité exécutable
+
+~~~mermaid
+flowchart TD
+  A[Résultat attendu] --> B[Nommer un responsable principal]
+  B --> C[Définir décisions et limites]
+  C --> D[Identifier interfaces et dépendances]
+  D --> E[Allouer accès, temps et ressources]
+  E --> F[Fixer preuve et points de contrôle]
+  F --> G{Obstacle hors délégation ?}
+  G -->|Oui| H[Escalader vers l'autorité prévue]
+  G -->|Non| I[Agir dans le périmètre]
+  H --> J[Consigner la décision]
+  I --> J
+~~~
+
+Ce schéma sert à détecter les responsabilités qui ne sont pas accompagnées de l'autorité ou des moyens correspondants. Si une tâche reste bloquée, vérifier d'abord le système de décision et ses dépendances avant d'attribuer le retard à une personne.
+
 ### 2.3 Réduire les zones grises
 
 Les conflits de responsabilité apparaissent lorsque deux personnes pensent être propriétaires du même résultat, ou lorsque chacune croit que l'autre prendra la décision. Les signes sont des tâches bloquées, des approbations répétées, des escalades tardives et des décisions prises à plusieurs endroits.
@@ -210,6 +228,26 @@ Les indicateurs de flux utiles comprennent :
 
 Ces mesures servent à rendre les blocages visibles. Elles ne doivent pas être utilisées comme classement simple des individus, car les tâches diffèrent par complexité, dépendances, risque et difficulté.
 
+### Schéma — Réconcilier charge, capacité et priorité
+
+~~~mermaid
+flowchart TD
+  A[Demande entrante] --> B[Qualifier valeur, urgence et risque]
+  B --> C[Mesurer capacité par compétence]
+  C --> D{Capacité disponible ?}
+  D -->|Oui| E[Accepter dans le flux]
+  D -->|Non| F[Comparer options et coût du retard]
+  F --> G{Décision dans la délégation ?}
+  G -->|Oui| H[Reporter, réduire ou séquencer]
+  G -->|Non| I[Demander arbitrage]
+  H --> J[Mettre à jour le plan]
+  I --> J
+  E --> K[Suivre WIP, âge et qualité]
+  J --> K
+~~~
+
+Le modèle rappelle que la priorité dépend à la fois de la valeur et de la capacité réelle. Une demande prioritaire n'engendre pas automatiquement des ressources supplémentaires ; elle peut imposer de déplacer un engagement existant et de rendre ce coût visible.
+
 ### 4.3 Limiter le travail en cours
 
 Lorsque trop de tâches sont commencées, le coût de changement de contexte augmente et les responsabilités se dispersent. Une politique de limite WIP encourage l'équipe à finir, à débloquer et à collaborer avant de démarrer toujours plus de travail.
@@ -264,6 +302,23 @@ Déléguer ne signifie pas abandonner la tâche, ni demander à quelqu'un d'exé
 - la manière de tirer les enseignements du résultat.
 
 Le responsable garde la responsabilité managériale de définir le cadre et de répondre de l'organisation, tandis que la personne reçoit une véritable marge d'action sur la tâche déléguée. La délégation doit évoluer avec les compétences et les résultats, pas rester figée dans un contrôle permanent.
+
+### Schéma — Faire progresser l'autonomie en fonction des preuves
+
+~~~mermaid
+flowchart TD
+  A[Définir le périmètre de délégation] --> B[Observer et pratiquer avec soutien]
+  B --> C[Proposer une décision motivée]
+  C --> D[Décider dans un cadre explicite]
+  D --> E[Coordonner les parties prenantes]
+  E --> F[Améliorer la méthode et former les autres]
+  F --> G[Revue selon risque et résultat]
+  G --> H{Compétence démontrée ?}
+  H -->|Non| B
+  H -->|Oui| I[Élargir l'autonomie quand le risque le permet]
+~~~
+
+La progression ne dépend pas simplement de l'ancienneté. Elle se base sur des preuves d'exécution, de raisonnement et de reconnaissance des limites. Les contrôles obligatoires restent en place même pour les experts lorsque le risque de l'action le justifie.
 
 ### 5.2 Niveaux d'autonomie
 
@@ -341,6 +396,23 @@ Les décisions, les changements de priorité et les risques importants doivent �
 Un feedback utile décrit un comportement ou un résultat observable, son contexte, son effet et ce qui est attendu ensuite. « Tu n'es pas fiable » est une étiquette globale ; « les deux dernières interventions ont commencé sans mise à jour du journal, ce qui a retardé la relève ; lors du prochain incident, consigne les étapes avant le transfert » décrit un fait, une conséquence et un changement attendu.
 
 Distinguer l'observation, l'interprétation et l'intention supposée. Il est possible de parler de l'effet d'un comportement sans prétendre connaître les intentions de la personne. Demander aussi le point de vue du collaborateur : des facteurs non visibles peuvent expliquer la situation ou révéler une procédure défaillante.
+
+### Schéma — Conduire une conversation de performance
+
+~~~mermaid
+flowchart TD
+  A[Préparer faits et objectif de l'entretien] --> B[Écouter le point de vue du collaborateur]
+  B --> C[Examiner résultat, contexte et obstacles]
+  C --> D{Attente claire et moyens suffisants ?}
+  D -->|Non| E[Clarifier le rôle ou fournir le soutien]
+  D -->|Oui| F[Définir l'écart et le changement attendu]
+  E --> G[Accord sur actions et échéances]
+  F --> G
+  G --> H[Suivi avec critères observables]
+  H --> I[Reconnaître progrès ou appliquer la procédure pertinente]
+~~~
+
+Une conversation utile n'est ni un monologue du manager ni une négociation sans conclusion. Elle établit des faits, donne la place au contexte, clarifie l'attente et aboutit à un engagement suivi.
 
 ### 7.2 Préparer un entretien individuel
 
@@ -477,6 +549,23 @@ La matrice permet d'identifier :
 - les compétences nécessaires aux changements futurs.
 
 Ne pas utiliser la matrice comme un classement simpliste des collaborateurs. Elle décrit une capacité de travail dans un périmètre précis, à une date donnée, avec des preuves. Les données individuelles doivent être protégées et partagées selon les règles internes.
+
+### Schéma — Prouver le transfert d'une compétence critique
+
+~~~mermaid
+flowchart TD
+  A[Définir compétence et scénario cible] --> B[Documentation et démonstration]
+  B --> C[Exécution guidée]
+  C --> D[Exécution par l'apprenant]
+  D --> E[Évaluer résultat, raisonnement et limites]
+  E --> F{Critères atteints ?}
+  F -->|Non| G[Identifier le manque et pratiquer]
+  G --> D
+  F -->|Oui| H[Confirmer autonomie dans le périmètre]
+  H --> I[Mettre à jour matrice et plan de relève]
+~~~
+
+Le transfert est démontré lorsque la personne peut réussir le scénario et reconnaître les cas qui doivent être escaladés. Le fait d'avoir partagé un document ou organisé une réunion constitue une activité de transfert, pas une preuve d'autonomie.
 
 ### 10.2 Transférer une compétence en démontrant l'autonomie
 
