@@ -1,0 +1,62 @@
+name: CLI checks and topology persistence (isolated)
+
+on:
+  push:
+    branches:
+      - "test/production-lab-cli-smoke-20261027"
+    paths:
+      - "tests/test_cli_lab_check_http.py"
+      - "tests/test_cli_lab_scenarios.py"
+      - "tests/test_lab_topology_persistence.py"
+      - "tests/test_lab_workspace_http_flow.py"
+      - "app/lab-workspace/src/cli/**"
+      - "app/lab-workspace/src/store/**"
+      - ".github/workflows/lab-cli-check-persistence-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-isolated-verification:
+    name: CLI parser, HTTP checks and persistence on disposable DB
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout isolated test branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: app/lab-workspace/package-lock.json
+
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Install Lab Workspace dependencies
+        run: npm ci --prefix app/lab-workspace --no-audit --no-fund
+
+      - name: Test CLI command parsing and structured configuration
+        run: npm test --prefix app/lab-workspace
+
+      - name: Test server rules over HTTP for all 17 CLI labs
+        run: python -m unittest discover -s tests -p 'test_cli_lab_check_http.py' -v
+
+      - name: Test CLI scenario definitions and server rule operators
+        run: python -m unittest discover -s tests -p 'test_cli_lab_scenarios.py' -v
+
+      - name: Test topology save/load and validation on temporary SQLite
+        run: python -m unittest discover -s tests -p 'test_lab_topology_persistence.py' -v
+
+      - name: Test HTTP open/save/reopen/check/submit flow on temporary SQLite
+        run: python -m unittest discover -s tests -p 'test_lab_workspace_http_flow.py' -v
