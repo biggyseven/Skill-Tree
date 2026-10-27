@@ -5,6 +5,7 @@ on:
     branches:
       - feature/lab-workspace
       - fix/lab-workspace-library-mobile-header-20261027
+      - feat/lab-workspace-expanded-catalog-20261027
     paths:
       - "app/lab-workspace/src/**"
       - "app/lab-workspace/index.html"
@@ -37,6 +38,9 @@ jobs:
 
       - name: Install locked Lab Workspace dependencies
         run: npm ci --prefix app/lab-workspace --no-audit --no-fund
+
+      - name: Run Lab Workspace unit tests
+        run: npm --prefix app/lab-workspace test
 
       - name: Build the production assets served from /lab/
         run: npm --prefix app/lab-workspace run build

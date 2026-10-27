@@ -19,6 +19,15 @@ export function CableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePositi
   if (cableType === 'dac') { strokeColor = '#06b6d4'; strokeDasharray = '2,2'; }
   if (cableType === 'coaxial') { strokeColor = '#f59e0b'; strokeDasharray = '8,3'; }
   if (cableType === 'telephone') { strokeColor = '#94a3b8'; strokeDasharray = '2,3'; }
+  if (cableType === 'ethernet_cat6a') { strokeColor = '#38bdf8'; strokeDasharray = 'none'; }
+  if (cableType === 'ethernet_cat8') { strokeColor = '#0284c7'; strokeDasharray = '5,2'; }
+  if (cableType === 'copper_poe') { strokeColor = '#84cc16'; strokeDasharray = '3,2'; }
+  if (cableType === 'fiber_gpon') { strokeColor = '#8b5cf6'; strokeDasharray = '4,2'; }
+  if (cableType === 'fiber_armored') { strokeColor = '#d946ef'; strokeDasharray = '9,3'; }
+  if (cableType === 'fiber_lc_patch') { strokeColor = '#c084fc'; strokeDasharray = '1,2'; }
+  if (cableType === 'console_usb_c') { strokeColor = '#fde047'; strokeDasharray = '1,2'; }
+  if (cableType === 'serial_rs232') { strokeColor = '#fb7185'; strokeDasharray = '2,3'; }
+  if (cableType === 'dac_qsfp') { strokeColor = '#14b8a6'; strokeDasharray = '2,2'; }
   if (cableType === 'wireless') { strokeColor = '#22c55e'; strokeDasharray = '2,5'; }
   if (data?.state === 'down') { strokeColor = '#ef4444'; strokeDasharray = '4,4'; }
   if (selected) { strokeColor = '#10b981'; }
