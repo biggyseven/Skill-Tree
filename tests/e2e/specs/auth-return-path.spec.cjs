@@ -33,10 +33,9 @@ test('la connexion reprend le lien Labs demandé au lieu du tableau de bord', as
 
   await submitLogin(page, '/?openTab=labs');
 
-  await expect.poll(() => page.evaluate(() => {
-    const state = window.Alpine && window.Alpine.$data(document.body);
-    return state?.tab || '';
-  })).toBe('labs');
+  // La connexion déclenche une navigation complète : attendre l'URL cible avant
+  // de lire le DOM, afin de ne pas interroger un ancien contexte JavaScript.
+  await page.waitForURL(url => url.pathname === '/', { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('heading', { name: 'Labs par niveau' })).toBeVisible();
   expect(getStatusCalls()).toBeGreaterThanOrEqual(2);
 });
@@ -48,7 +47,8 @@ test('une destination next externe est ignorée après connexion', async ({ page
   await page.getByLabel("Mot de passe de l'application").fill('mot-de-passe-de-test');
   await page.getByRole('button', { name: 'Se connecter' }).click();
 
-  await expect.poll(() => page.evaluate(() => window.location.origin)).toBe(origin);
+  // La destination externe doit retomber sur l'accueil du même site.
+  await page.waitForURL(url => url.origin === origin && url.pathname === '/', { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('button', { name: 'Ouvrir les paramètres' })).toBeVisible();
   expect(page.url()).not.toContain('attacker.example');
 });
