@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Sécurité de base pour les interventions » ?",
+      "prompt": "Avant une intervention qui peut affecter un système de production, quelle démarche est la plus sûre ?",
       "choices": [
-        "Le sujet principal du cours : Sécurité de base pour les interventions",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Exécuter rapidement la commande pour réduire le temps passé",
+        "Vérifier le périmètre, les autorisations, les risques, la sauvegarde si nécessaire et le retour arrière",
+        "Demander le mot de passe de l'utilisateur",
+        "Appliquer le même changement à tous les équipements"
+      ],
+      "answer": 1,
+      "explanation": "La préparation permet d'anticiper l'impact, de confirmer l'autorisation et de définir comment vérifier ou annuler l'action si nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si tu repères une odeur de brûlé ou un câble électrique endommagé près d'un équipement ?",
+      "choices": [
+        "Toucher le câble pour vérifier s'il est chaud",
+        "Continuer le diagnostic en ouvrant le matériel",
+        "Ne pas toucher, appliquer la procédure d'alerte du site et solliciter une personne compétente",
+        "Débrancher n'importe quel câble de la baie"
+      ],
+      "answer": 2,
+      "explanation": "Un signe de danger électrique ou thermique impose d'éviter les manipulations improvisées et de suivre la procédure de sécurité applicable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas ouvrir un bloc d'alimentation sans qualification appropriée ?",
+      "choices": [
+        "Parce qu'il ne contient jamais de composants remplaçables",
+        "Parce que le boîtier est simplement difficile à ouvrir",
+        "Parce que l'ouverture annule toujours toutes les garanties dans tous les pays",
+        "Parce que des tensions dangereuses peuvent subsister même après déconnexion"
+      ],
+      "answer": 3,
+      "explanation": "Des éléments peuvent conserver une énergie dangereuse après coupure. Il faut suivre les consignes du fabricant et ne pas effectuer de réparation électrique hors de ses compétences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique aide à prévenir les décharges électrostatiques lors d'une manipulation de composants ?",
+      "choices": [
+        "Utiliser un poste et des protections ESD adaptés, selon les consignes du fabricant",
+        "Poser la carte sur un tapis ou une surface quelconque",
+        "Toucher les contacts pour identifier la pièce",
+        "Garder le système sous tension pendant l'installation"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Les précautions ESD réduisent le risque de dommage invisible aux composants sensibles. Elles doivent être adaptées au poste et à la procédure du matériel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant un changement susceptible d'effacer ou de modifier des données, que faut-il vérifier ?",
+      "choices": [
+        "Que le ticket est déjà fermé",
+        "Que la sauvegarde et la possibilité de restauration sont suffisamment confirmées selon la procédure",
+        "Que le disque est rempli à moins de 100 % uniquement",
+        "Que l'utilisateur a transmis son mot de passe"
+      ],
+      "answer": 1,
+      "explanation": "Une sauvegarde doit être pertinente et restaurable selon les procédures. Si cette condition reste incertaine, il faut reporter l'action ou demander une validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principe du moindre privilège ?",
+      "choices": [
+        "Utiliser le compte administrateur pour chaque action",
+        "Partager un compte entre tous les techniciens",
+        "Accorder uniquement les droits nécessaires à la tâche, pour la durée requise",
+        "Conserver éternellement tous les accès temporaires"
+      ],
+      "answer": 2,
+      "explanation": "Limiter les droits à ce qui est nécessaire réduit l'impact d'une erreur ou d'une compromission et facilite la traçabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un technicien souhaite désactiver le pare-feu pour voir si une application fonctionne. Quelle conduite est préférable ?",
+      "choices": [
+        "Le désactiver sans prévenir car le test est court",
+        "Désactiver aussi l'antivirus pour éviter les conflits",
+        "Désactiver toutes les protections et oublier de les réactiver",
+        "Suivre un test approuvé et ciblé, avec autorisation, périmètre et remise en état contrôlée"
+      ],
+      "answer": 3,
+      "explanation": "La désactivation improvisée d'une protection peut exposer le système. Il faut utiliser une procédure autorisée et la méthode la moins risquée pour vérifier l'hypothèse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Tu découvres un câble non étiqueté dans une baie. Que dois-tu faire avant de le débrancher ?",
+      "choices": [
+        "Identifier les deux extrémités et confirmer le service, l'impact et l'autorisation",
+        "Le débrancher puis observer qui signale une panne",
+        "Le retirer si le câble semble ancien",
+        "Débrancher également les câbles voisins"
+      ],
+      "answer": 0,
+      "explanation": "Un câble peut alimenter un service critique même s'il n'est pas correctement étiqueté. L'identification et la validation de l'impact doivent précéder toute déconnexion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si tu suspectes un incident de sécurité informatique ?",
+      "choices": [
+        "Supprimer tous les fichiers inhabituels sans consigne",
+        "Suivre la procédure d'incident, préserver les éléments utiles et alerter l'équipe compétente",
+        "Partager les journaux complets sur une messagerie publique",
+        "Redémarrer plusieurs fois pour faire disparaître les alertes"
+      ],
+      "answer": 1,
+      "explanation": "Une réaction coordonnée limite les dégâts et préserve les éléments nécessaires à l'analyse. Les actions improvisées peuvent détruire des preuves ou aggraver la situation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une intervention a été arrêtée car une condition de sécurité n'était pas remplie. Faut-il documenter cet arrêt ?",
+      "choices": [
+        "Non, puisqu'aucune réparation n'a été terminée",
+        "Uniquement si un utilisateur se plaint",
+        "Oui : noter le risque, l'action non effectuée, l'équipe prévenue et les conditions avant reprise",
+        "Il vaut mieux marquer la tâche comme réussie pour ne pas pénaliser l'équipe"
+      ],
+      "answer": 2,
+      "explanation": "L'arrêt peut être la décision correcte. Sa documentation permet de comprendre le risque, d'éviter une reprise prématurée et de définir les conditions nécessaires."
     }
   ]
 }
