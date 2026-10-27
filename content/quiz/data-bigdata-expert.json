@@ -1,0 +1,102 @@
+{
+  "node_id": "data-bigdata-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle central de HDFS dans une architecture Hadoop classique ?",
+      "choices": [
+        "Exécuter les requêtes SQL métier à la place de tous les moteurs",
+        "Stocker des fichiers distribués en blocs et répliquer les blocs selon la politique configurée",
+        "Gérer exclusivement les identités utilisateurs",
+        "Fournir le registre des schémas Kafka"
+      ],
+      "answer": 1,
+      "explanation": "HDFS répartit les blocs sur plusieurs nœuds et utilise la réplication pour la tolérance aux pannes. Il n’est pas en soi le moteur de calcul."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans Hadoop YARN, quel composant est chargé de l’allocation et de l’ordonnancement global des ressources applicatives ?",
+      "choices": [
+        "Le ResourceManager",
+        "Le DataNode",
+        "Le NameNode secondaire uniquement",
+        "Le driver JDBC"
+      ],
+      "answer": 0,
+      "explanation": "Le ResourceManager gère les ressources du cluster et coordonne l’allocation, tandis que les composants de chaque application pilotent ses tâches."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit l’évaluation paresseuse (lazy evaluation) dans Apache Spark ?",
+      "choices": [
+        "Chaque transformation déclenche immédiatement une écriture complète sur disque",
+        "Le moteur exécute toutes les étapes même si aucune action n’est appelée",
+        "Les transformations construisent un plan qui est exécuté lorsqu’une action déclenche le calcul",
+        "La paresse empêche le partitionnement des données"
+      ],
+      "answer": 2,
+      "explanation": "Spark peut optimiser un graphe de transformations avant l’action. Cela facilite la fusion d’opérations, mais le volume et les étapes de shuffle restent importants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une étape de shuffle peut-elle être très coûteuse dans Spark ?",
+      "choices": [
+        "Elle garantit automatiquement zéro transfert réseau",
+        "Elle s’exécute uniquement sur une seule ligne",
+        "Elle supprime le besoin de sérialisation",
+        "Elle redistribue des données entre partitions, pouvant provoquer réseau, disque et forte pression mémoire"
+      ],
+      "answer": 3,
+      "explanation": "Les jointures, agrégations et tris distribués peuvent nécessiter des échanges réseau. Réduire le volume échangé et diagnostiquer skew et partitions est souvent déterminant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel symptôme suggère un data skew lors d’un traitement distribué ?",
+      "choices": [
+        "Toutes les partitions finissent exactement en même temps",
+        "Quelques tâches traitent disproportionnellement plus de données et terminent beaucoup plus tard",
+        "Le cluster n’a aucune donnée",
+        "La sortie du job est toujours vide"
+      ],
+      "answer": 1,
+      "explanation": "Une distribution déséquilibrée peut concentrer la charge sur quelques partitions. Le salting, le pré-agrégat ou le changement de stratégie peut aider selon la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel objectif vise le partitionnement de données par une clé bien choisie ?",
+      "choices": [
+        "Réduire les scans inutiles pour les filtres compatibles et structurer le traitement distribué",
+        "Garantir que les données soient toujours triées globalement",
+        "Supprimer les métadonnées",
+        "Forcer toutes les tâches à lire toutes les partitions"
+      ],
+      "answer": 0,
+      "explanation": "Le partitionnement peut éliminer des segments lors de filtres pertinents et améliorer la gestion des gros volumes, mais un trop grand nombre de partitions fragmente aussi les fichiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d’un très grand nombre de petits fichiers dans un data lake Hadoop ?",
+      "choices": [
+        "Ils augmentent toujours le débit de manière linéaire",
+        "Ils désactivent la réplication HDFS dans tous les cas",
+        "Ils accroissent le coût des métadonnées et la surcharge de planification des tâches",
+        "Ils éliminent le besoin de catalogue"
+      ],
+      "answer": 2,
+      "explanation": "Les petits fichiers alourdissent la gestion des métadonnées et peuvent sous-utiliser les tâches. Un compactage adapté améliore souvent l’efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il préférer un checkpoint à un simple cache dans un job Spark avec une longue chaîne de calcul ?",
+      "choices": [
+        "Quand le résultat peut toujours être recalculé gratuitement",
+        "Pour changer le format d’un fichier CSV en JSON sans lecture",
+        "Pour garantir qu’aucun job ne peut échouer",
+        "Pour matérialiser durablement un état intermédiaire et couper une lignée trop longue, notamment dans certains traitements stateful"
+      ],
+      "answer": 3,
+      "explanation": "Le cache aide à réutiliser des données en mémoire ou stockage local ; un checkpoint fiable peut tronquer la lignée et soutenir la reprise, selon le type de stockage."
+    }
+  ]
+}

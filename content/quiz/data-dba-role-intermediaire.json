@@ -1,0 +1,102 @@
+{
+  "node_id": "data-dba-role-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle responsabilité relève principalement du DBA en environnement de production ?",
+      "choices": [
+        "Écrire chaque requête métier à la place des développeurs",
+        "Garantir disponibilité, sécurité, performance et capacité de restauration du SGBD",
+        "Décider seul des règles fonctionnelles de l’entreprise",
+        "Remplacer la supervision de l’infrastructure"
+      ],
+      "answer": 1,
+      "explanation": "Le DBA exploite et sécurise la plateforme de données, pilote les sauvegardes, les performances, les accès et la disponibilité en coordination avec les équipes applicatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer les comptes d’administration des comptes utilisés par les applications ?",
+      "choices": [
+        "Pour contourner les journaux d’audit",
+        "Pour éviter toute rotation des secrets",
+        "Pour appliquer le moindre privilège et limiter l’impact d’une compromission",
+        "Pour donner les droits DBA à tous les services"
+      ],
+      "answer": 2,
+      "explanation": "Les comptes applicatifs ne devraient disposer que des permissions nécessaires. Les opérations privilégiées restent limitées, tracées et attribuées à des identités dédiées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que contient généralement le catalogue système d’un SGBD ?",
+      "choices": [
+        "Les métadonnées des objets : tables, colonnes, index, contraintes et privilèges",
+        "Uniquement les sauvegardes hors site",
+        "Les mots de passe en clair de tous les utilisateurs",
+        "Les seuls fichiers temporaires de l’application"
+      ],
+      "answer": 0,
+      "explanation": "Le catalogue décrit les objets et une partie de leur configuration. Il permet aux outils et au moteur de connaître le schéma, les dépendances et les droits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une réplication synchrone protège-t-elle à elle seule contre la perte logique de données supprimées par erreur ?",
+      "choices": [
+        "Oui, elle remplace toutes les sauvegardes",
+        "Oui, si les réplicas sont dans le même sous-réseau",
+        "Non, car elle copie généralement aussi les modifications indésirables ; une sauvegarde indépendante reste nécessaire",
+        "Non, car la réplication ne peut jamais transporter des écritures"
+      ],
+      "answer": 2,
+      "explanation": "La réplication favorise la disponibilité, mais une suppression ou corruption logique peut être propagée. Elle ne remplace pas les sauvegardes versionnées et testées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente le RPO d’un système de données ?",
+      "choices": [
+        "Le temps maximal souhaité pour rétablir le service",
+        "La perte maximale de données mesurée en durée acceptable",
+        "Le nombre maximal de connexions simultanées",
+        "La durée de conservation obligatoire de tous les journaux"
+      ],
+      "answer": 1,
+      "explanation": "Le RPO exprime le point de reprise visé et donc la quantité de données que l’organisation accepte de perdre, par exemple les cinq dernières minutes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi valider les changements de schéma dans un environnement de préproduction ?",
+      "choices": [
+        "Pour supprimer le besoin de tests automatisés",
+        "Pour éviter de conserver un historique des migrations",
+        "Pour appliquer les changements directement aux données de production",
+        "Pour détecter les incompatibilités, estimer les risques et préparer un retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "La préproduction permet de vérifier la migration sur un environnement représentatif, de mesurer son coût et de planifier la procédure de retour arrière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique améliore le diagnostic d’un ralentissement en base ?",
+      "choices": [
+        "Corréler métriques, requêtes lentes, verrous et changements récents avec des horodatages",
+        "Redémarrer systématiquement le serveur sans collecter de preuves",
+        "Augmenter tous les paramètres mémoire au maximum",
+        "Supprimer les journaux pour libérer de l’espace"
+      ],
+      "answer": 0,
+      "explanation": "Une investigation doit relier les symptômes à des éléments observables : latence, charge, plans de requête, contention, volumes et modifications récentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est essentiel avant de confier une sauvegarde à une procédure automatique ?",
+      "choices": [
+        "Vérifier uniquement que le fichier a été créé",
+        "Désactiver la vérification d’intégrité pour accélérer le traitement",
+        "Tester périodiquement une restauration et comparer le résultat aux objectifs RPO/RTO",
+        "Conserver la clé de chiffrement dans le même fichier non protégé"
+      ],
+      "answer": 2,
+      "explanation": "Une sauvegarde n’est utile que si elle peut être restaurée. Des essais réguliers valident l’intégrité, les accès, les étapes opérationnelles et le temps de récupération."
+    }
+  ]
+}

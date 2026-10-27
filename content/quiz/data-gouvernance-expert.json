@@ -1,0 +1,102 @@
+{
+  "node_id": "data-gouvernance-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle décrit le mieux un data owner ?",
+      "choices": [
+        "Personne qui exécute obligatoirement tous les traitements ETL",
+        "Responsable métier de la définition, de l’usage autorisé et des décisions sur un domaine de données",
+        "Compte technique de réplication",
+        "Moteur de requête analytique"
+      ],
+      "answer": 1,
+      "explanation": "Le propriétaire métier définit les objectifs et les règles. Les responsabilités techniques et opérationnelles sont souvent portées par des rôles complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le lignage des données (data lineage) ?",
+      "choices": [
+        "À augmenter artificiellement le nombre de lignes",
+        "À remplacer la sauvegarde",
+        "À suivre l’origine des données et les transformations qui produisent un jeu de données",
+        "À masquer tous les schémas aux utilisateurs"
+      ],
+      "answer": 2,
+      "explanation": "Le lignage permet d’évaluer l’impact d’un changement, d’expliquer un indicateur et d’investiguer une anomalie depuis les sources jusqu’aux consommateurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle dimension de qualité mesure si toutes les valeurs attendues sont présentes ?",
+      "choices": [
+        "La complétude",
+        "La latence réseau",
+        "La confidentialité",
+        "La compressibilité"
+      ],
+      "answer": 0,
+      "explanation": "La complétude évalue les valeurs ou enregistrements présents par rapport à ce qui est attendu. Elle doit être mesurée selon des règles métier explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi maintenir un catalogue avec des définitions métier partagées ?",
+      "choices": [
+        "Pour rendre la documentation facultative",
+        "Pour permettre aux équipes de choisir des définitions contradictoires",
+        "Pour remplacer tous les tests de données",
+        "Pour éviter les divergences de compréhension des termes, indicateurs, propriétaires et contraintes"
+      ],
+      "answer": 3,
+      "explanation": "Un catalogue documenté relie les termes métier aux sources, responsables, définitions et règles de qualité afin de rendre les analyses plus cohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche convient pour gérer une valeur de référence partagée, comme le code officiel d’un pays ?",
+      "choices": [
+        "Laisser chaque système inventer une valeur libre",
+        "Définir une source autoritaire et des règles contrôlées de distribution et de synchronisation",
+        "Désactiver les contraintes d’intégrité",
+        "Dupliquer les valeurs sans politique de rapprochement"
+      ],
+      "answer": 1,
+      "explanation": "La gestion des données de référence limite les variantes contradictoires et rend l’origine et les transformations des codes explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que devrait faire une organisation lorsqu’elle détecte une dégradation de qualité d’un indicateur métier ?",
+      "choices": [
+        "Masquer l’alerte pour préserver le tableau de bord",
+        "Modifier la définition sans historique",
+        "Identifier l’écart, son périmètre, le responsable et la source, puis documenter correction et contrôle de non-régression",
+        "Supprimer les données qui font apparaître l’écart"
+      ],
+      "answer": 2,
+      "explanation": "Une gouvernance utile associe seuils, responsabilité, workflow de résolution et mesures de prévention. Le changement reste traçable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi versionner les définitions d’indicateurs et de transformations ?",
+      "choices": [
+        "Pour savoir quelle définition a produit un résultat à une date donnée et analyser les changements d’impact",
+        "Pour empêcher toute comparaison historique",
+        "Pour remplacer les tests automatisés",
+        "Pour rendre les données incompréhensibles aux équipes"
+      ],
+      "answer": 0,
+      "explanation": "La version permet de reconstituer les calculs, comparer les résultats et comprendre les écarts après une modification de règle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément est le plus utile pour démontrer qu’une politique de gouvernance est réellement appliquée ?",
+      "choices": [
+        "Un document de principes sans responsables ni preuve",
+        "Une liste d’intentions jamais revue",
+        "Une capture isolée sans contexte",
+        "Des contrôles mesurables, des responsables identifiés, des traces d’exécution et un suivi des écarts"
+      ],
+      "answer": 3,
+      "explanation": "La gouvernance se vérifie par des pratiques observables et récurrentes, pas uniquement par la publication d’une politique."
+    }
+  ]
+}

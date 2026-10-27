@@ -1,0 +1,102 @@
+{
+  "node_id": "data-ingestion-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage apporte la capture des changements (CDC) par rapport à un balayage complet périodique ?",
+      "choices": [
+        "Elle supprime le besoin de surveiller les retards",
+        "Elle transmet les modifications détectées à partir d’un journal ou d’un mécanisme source, réduisant souvent la latence et le volume traité",
+        "Elle garantit que les systèmes sources ne peuvent jamais tomber en panne",
+        "Elle rend inutile la gestion de schéma"
+      ],
+      "answer": 1,
+      "explanation": "CDC peut rapprocher les données de la source avec une faible latence, mais demande une gestion correcte des positions, schémas, reprises et suppressions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle combinaison rend généralement un pipeline d’ingestion plus résilient aux erreurs temporaires ?",
+      "choices": [
+        "Boucle de retry sans limite ni délai",
+        "Suppression de tout événement en échec",
+        "Retries bornés avec backoff, idempotence et une file de quarantaine ou dead-letter pour les cas persistants",
+        "Ignorer les codes d’erreur"
+      ],
+      "answer": 2,
+      "explanation": "Un retry borné et temporisé limite la surcharge, l’idempotence évite les effets dupliqués et une dead-letter queue préserve les messages à examiner."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une opération d’ingestion doit-elle être idempotente ?",
+      "choices": [
+        "Pour pouvoir la rejouer sans multiplier les effets métier",
+        "Pour garantir l’ordre global de tous les producteurs",
+        "Pour empêcher toute mise à jour de schéma",
+        "Pour remplacer la surveillance de charge"
+      ],
+      "answer": 0,
+      "explanation": "Les interruptions peuvent entraîner une reprise partielle. L’idempotence, les clés métier et les mécanismes de déduplication assurent des replays maîtrisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème une évolution incompatible du schéma d’un événement peut-elle provoquer ?",
+      "choices": [
+        "Elle augmente forcément la qualité",
+        "Elle réduit toujours les coûts",
+        "Elle n’a aucun effet si la charge utile est en JSON",
+        "Elle peut faire échouer ou mal interpréter les consommateurs déployés avec l’ancien contrat"
+      ],
+      "answer": 3,
+      "explanation": "Les changements de types, champs obligatoires ou sémantiques doivent suivre une stratégie de compatibilité et des déploiements coordonnés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le backpressure dans un pipeline streaming ?",
+      "choices": [
+        "À accélérer un producteur sans limite",
+        "À réguler la production ou la lecture lorsque l’étape aval ne peut plus suivre",
+        "À supprimer les offsets validés",
+        "À désactiver les alertes de latence"
+      ],
+      "answer": 1,
+      "explanation": "La contre-pression évite que les files et buffers grossissent sans limite. Elle doit être associée à des limites, métriques et stratégies de surcharge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt d’un checkpoint dans un pipeline stateful ?",
+      "choices": [
+        "D’effacer toute mémoire d’état à chaque événement",
+        "De supprimer automatiquement les données dupliquées dans tous les systèmes",
+        "De conserver des positions et un état cohérents afin de reprendre après une panne",
+        "De remplacer le stockage durable des sorties"
+      ],
+      "answer": 2,
+      "explanation": "Le checkpoint permet une reprise cohérente de l’état et des offsets. La garantie finale dépend du connecteur et de l’atomicité des écritures de sortie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il gérer les événements arrivant en retard dans un pipeline d’événements ?",
+      "choices": [
+        "Pour appliquer une politique explicite de temps événement, fenêtre, watermark ou correction de résultat",
+        "Pour supposer qu’ils sont toujours invalides",
+        "Pour traiter uniquement l’heure de réception",
+        "Pour désactiver les agrégations temporelles"
+      ],
+      "answer": 0,
+      "explanation": "L’ordre d’arrivée n’est pas toujours l’ordre des événements. Les watermarks et politiques de retard déterminent quand fermer une fenêtre et comment accepter les données tardives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle métrique aide le mieux à détecter qu’une ingestion prend du retard ?",
+      "choices": [
+        "Le nombre de fichiers de documentation",
+        "La couleur du nom de la tâche",
+        "Le nombre de développeurs du projet uniquement",
+        "La latence de bout en bout, l’âge du dernier événement traité, le lag et le taux de rejet"
+      ],
+      "answer": 3,
+      "explanation": "Ces mesures distinguent backlog, hausse de latence, absence d’arrivée et problèmes de qualité. Elles doivent être reliées à des objectifs et alertes opérationnels."
+    }
+  ]
+}

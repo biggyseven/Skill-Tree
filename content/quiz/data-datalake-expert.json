@@ -1,0 +1,102 @@
+{
+  "node_id": "data-datalake-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage apporte une architecture lakehouse par rapport à un data lake de fichiers sans couche transactionnelle ?",
+      "choices": [
+        "Elle interdit le stockage objet",
+        "Elle ajoute des capacités de gestion de tables, transactions et cohérence sur les données du lac",
+        "Elle remplace nécessairement tous les systèmes opérationnels",
+        "Elle supprime le besoin de métadonnées"
+      ],
+      "answer": 1,
+      "explanation": "Une couche de tables transactionnelles peut apporter gestion de versions, transactions, évolution de schéma et contrôles au-dessus du stockage de fichiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente souvent la couche « Bronze » d’une architecture médaillon ?",
+      "choices": [
+        "Les données ingérées proches de la source, avec provenance et transformations limitées",
+        "Les seules tables agrégées pour les dirigeants",
+        "Les données supprimées après validation",
+        "Le code source des applications"
+      ],
+      "answer": 0,
+      "explanation": "Bronze conserve généralement une représentation traçable des données reçues. Les couches suivantes appliquent validation, standardisation et préparation métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le terme schema-on-read dans un lac de données ?",
+      "choices": [
+        "Les données sont supprimées lorsque le schéma change",
+        "Chaque fichier doit nécessairement être une table relationnelle",
+        "La structure est interprétée ou appliquée lors de la lecture par le consommateur ou le moteur",
+        "La lecture est impossible sans schéma écrit dans le fichier"
+      ],
+      "answer": 2,
+      "explanation": "Schema-on-read permet de retarder certaines décisions de schéma, mais nécessite des règles de validation et une gouvernance pour éviter des interprétations incohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser un format de table ouvert tel qu’Iceberg, Delta Lake ou Hudi selon l’environnement ?",
+      "choices": [
+        "Pour rendre les fichiers illisibles aux outils analytiques",
+        "Pour imposer un seul langage à tous les producteurs",
+        "Pour faire disparaître les journaux de transaction",
+        "Pour gérer des métadonnées de table, des versions et des opérations cohérentes sur des fichiers distribués"
+      ],
+      "answer": 3,
+      "explanation": "Les formats de table apportent une couche transactionnelle et des métadonnées au-dessus du stockage, avec des capacités précises qui diffèrent selon l’implémentation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue un catalogue de données dans un lakehouse ?",
+      "choices": [
+        "Remplacer toutes les politiques de sécurité par des noms de fichiers",
+        "Découvrir les jeux de données, leur schéma, leur propriétaire, leur provenance et leurs classifications",
+        "Compresser automatiquement tous les fichiers",
+        "Garantir seul la qualité des données"
+      ],
+      "answer": 1,
+      "explanation": "Le catalogue aide les utilisateurs à découvrir et comprendre les données. Les droits d’accès et les contrôles qualité exigent des mécanismes associés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque pose une prolifération de petits fichiers dans un lac ?",
+      "choices": [
+        "La surcharge des opérations de listing, des métadonnées et des tâches de lecture",
+        "Une amélioration toujours garantie du débit analytique",
+        "La disparition des coûts de calcul",
+        "L’impossibilité d’utiliser le stockage objet"
+      ],
+      "answer": 0,
+      "explanation": "Le compactage et une taille de fichier adaptée réduisent les frais fixes de lecture, de planification et de maintenance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure protège le mieux la reproductibilité d’une table reconstruite à partir de données sources ?",
+      "choices": [
+        "Remplacer toute provenance par une étiquette « final »",
+        "Garder uniquement la dernière sortie non versionnée",
+        "Versionner les règles, préserver la provenance et enregistrer les versions ou snapshots utilisés",
+        "Changer les données sources sans enregistrer l’heure"
+      ],
+      "answer": 2,
+      "explanation": "La reproductibilité nécessite de connaître les sources, la version du code, les paramètres et les snapshots utilisés pour produire une table."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment éviter qu’un lac de données devienne un « data swamp » difficile à utiliser ?",
+      "choices": [
+        "Autoriser tout utilisateur à déposer sans propriétaire ni métadonnées",
+        "Supprimer le catalogue central",
+        "Ignorer les règles de cycle de vie",
+        "Associer catalogue, propriétaires, conventions de schéma, contrôles de qualité, classification et règles de conservation"
+      ],
+      "answer": 3,
+      "explanation": "Un lac exploitable nécessite une gouvernance proportionnée : découvrabilité, responsabilités, qualité, traçabilité et accès adaptés à la sensibilité."
+    }
+  ]
+}

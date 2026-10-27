@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sql-avance-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quand une sous-requête corrélée est-elle dite corrélée ?",
+      "choices": [
+        "Lorsqu’elle ne contient aucune référence externe",
+        "Lorsqu’elle référence une valeur provenant de la ligne traitée par la requête externe",
+        "Lorsqu’elle remplace obligatoirement une jointure",
+        "Lorsqu’elle ne renvoie jamais de ligne"
+      ],
+      "answer": 1,
+      "explanation": "Une sous-requête corrélée utilise une colonne de la requête externe. Le moteur peut parfois la transformer en autre stratégie, mais son coût doit être vérifié sur le plan réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage principal offre une CTE (Common Table Expression) avec WITH ?",
+      "choices": [
+        "Elle stocke toujours les résultats de façon permanente",
+        "Elle désactive les contraintes pendant la requête",
+        "Elle rend une étape nommée réutilisable et clarifie une requête complexe",
+        "Elle garantit que toute requête sera plus rapide"
+      ],
+      "answer": 2,
+      "explanation": "Une CTE nomme une étape logique et améliore souvent la lisibilité. Son matérialisation et ses performances dépendent du SGBD et du plan choisi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel opérateur est généralement adapté pour tester l’existence d’au moins une ligne liée ?",
+      "choices": [
+        "EXISTS",
+        "UNION ALL",
+        "COALESCE",
+        "TRUNCATE"
+      ],
+      "answer": 0,
+      "explanation": "EXISTS exprime directement un test d’existence. Le moteur peut arrêter la recherche dès qu’une correspondance suffisante est trouvée, selon le plan."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que distingue une fonction de fenêtre d’une agrégation classique avec GROUP BY ?",
+      "choices": [
+        "Une fonction de fenêtre supprime obligatoirement les doublons",
+        "GROUP BY conserve toujours une ligne par enregistrement source",
+        "Une fonction de fenêtre ne peut pas utiliser ORDER BY",
+        "Une fonction de fenêtre peut calculer un rang ou une somme tout en conservant les lignes individuelles"
+      ],
+      "answer": 3,
+      "explanation": "Les fonctions OVER partitionnent et ordonnent les lignes pour produire un calcul analytique sans réduire nécessairement le nombre de lignes retournées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque principal d’une procédure stockée qui concatène directement une entrée utilisateur dans du SQL dynamique ?",
+      "choices": [
+        "Une baisse garantie de la latence",
+        "Une injection SQL si l’entrée n’est pas traitée de façon sûre",
+        "La suppression automatique des index",
+        "La conversion de toutes les transactions en lectures seules"
+      ],
+      "answer": 1,
+      "explanation": "Le SQL dynamique doit employer des paramètres lorsque c’est possible et contrôler les identifiants autorisés. La concaténation de données non fiables expose à l’injection."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi paramétrer les entrées d’une procédure stockée ?",
+      "choices": [
+        "Pour permettre au moteur de traiter les valeurs comme des données et réduire les risques d’injection",
+        "Pour permettre aux utilisateurs d’ignorer les privilèges",
+        "Pour désactiver la validation des types",
+        "Pour forcer une nouvelle base à chaque appel"
+      ],
+      "answer": 0,
+      "explanation": "Les paramètres séparent les valeurs du texte SQL et offrent des contrats de types plus clairs. Ils ne dispensent pas de contrôler les droits et les règles métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue une transaction autour de plusieurs mises à jour dépendantes ?",
+      "choices": [
+        "Elle empêche toute erreur de programmation",
+        "Elle rend les sauvegardes inutiles",
+        "Elle permet de traiter l’ensemble comme une unité atomique selon les propriétés du SGBD",
+        "Elle garantit qu’aucun verrou ne sera pris"
+      ],
+      "answer": 2,
+      "explanation": "La transaction regroupe les écritures pour qu’elles soient validées ensemble ou annulées ensemble, sous réserve du comportement transactionnel de l’opération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment confirmer qu’une sous-requête lente est responsable du coût d’une requête ?",
+      "choices": [
+        "En la réécrivant au hasard sans mesurer",
+        "En supprimant les filtres",
+        "En ajoutant un index à chaque colonne",
+        "En examinant le plan d’exécution, les cardinalités et des mesures sur un jeu représentatif"
+      ],
+      "answer": 3,
+      "explanation": "Le plan et les mesures permettent d’identifier scans, boucles coûteuses, estimations erronées et accès répétés avant de choisir une réécriture."
+    }
+  ]
+}
