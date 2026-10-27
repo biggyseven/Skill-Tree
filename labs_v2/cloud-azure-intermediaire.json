@@ -1,0 +1,447 @@
+{
+  "schema_version": 2,
+  "id": "cloud-azure-intermediaire",
+  "title": "Azure — Application Gateway, zones et base privée",
+  "level": "intermédiaire",
+  "module": "Cloud Computing",
+  "prompt": "Rendez l’application Azure résiliente et privée : utilisez Application Gateway/WAF, répartissez les instances sur plusieurs zones, désactivez l’accès public à la base managée et activez Private Endpoint, NSG, Managed Identity et les diagnostics.",
+  "objectives": [
+    "Activer Application Gateway et les health checks.",
+    "Déployer des instances dans plusieurs zones.",
+    "Désactiver l’accès public à la base et créer un Private Endpoint.",
+    "Limiter les flux avec les NSG.",
+    "Utiliser Managed Identity et envoyer les diagnostics."
+  ],
+  "hints": [
+    "Private Endpoint doit être résolu par DNS privé.",
+    "Les NSG limitent les flux nécessaires.",
+    "Managed Identity évite les secrets intégrés à l’application."
+  ],
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-cloud-azure-intermediaire",
+    "metadata": {
+      "name": "Azure — Application Gateway, zones et base privée",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "x": 60,
+        "y": 250,
+        "label": "INTERNET",
+        "model": "INTERNET",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "INTERNET"
+        }
+      },
+      {
+        "id": "APPGW",
+        "type": "cloud",
+        "x": 320,
+        "y": 130,
+        "label": "APPGW",
+        "model": "APPGW",
+        "ports": [
+          {
+            "id": "front",
+            "name": "front",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "back",
+            "name": "back",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APPGW",
+          "routes": [
+            {
+              "resource": "application-gateway",
+              "enabled": false,
+              "listener": "http",
+              "waf_enabled": false,
+              "backend_health_probe": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "VNET",
+        "type": "cloud",
+        "x": 560,
+        "y": 250,
+        "label": "VNET",
+        "model": "VNET",
+        "ports": [
+          {
+            "id": "gateway",
+            "name": "gateway",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "app-a",
+            "name": "app-a",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "app-b",
+            "name": "app-b",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "database",
+            "name": "database",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "VNET",
+          "routes": [
+            {
+              "protocol": "azure-architecture",
+              "application_gateway_enabled": false,
+              "availability_zones": false,
+              "managed_database": {
+                "enabled": true,
+                "public_network_access": true,
+                "backup_retention_days": 0,
+                "private_endpoint": false
+              },
+              "nsg_on_subnet": false,
+              "managed_identity": false,
+              "diagnostic_settings": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "APP-A",
+        "type": "server",
+        "x": 820,
+        "y": 180,
+        "label": "APP-A",
+        "model": "APP-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP-A"
+        }
+      },
+      {
+        "id": "APP-B",
+        "type": "server",
+        "x": 820,
+        "y": 340,
+        "label": "APP-B",
+        "model": "APP-B",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP-B"
+        }
+      },
+      {
+        "id": "DB",
+        "type": "server",
+        "x": 1080,
+        "y": 260,
+        "label": "DB",
+        "model": "DB",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DB",
+          "routes": [
+            {
+              "public_network_access": true,
+              "private_endpoint": false,
+              "encrypted": false,
+              "backup_retention_days": 0
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "INTERNET-GW",
+        "from": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "APPGW",
+          "port": "front"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "GW-VNET",
+        "from": {
+          "node": "APPGW",
+          "port": "back"
+        },
+        "to": {
+          "node": "VNET",
+          "port": "gateway"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VNET-A",
+        "from": {
+          "node": "VNET",
+          "port": "app-a"
+        },
+        "to": {
+          "node": "APP-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VNET-B",
+        "from": {
+          "node": "VNET",
+          "port": "app-b"
+        },
+        "to": {
+          "node": "APP-B",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VNET-DB",
+        "from": {
+          "node": "VNET",
+          "port": "database"
+        },
+        "to": {
+          "node": "DB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "appgw",
+        "description": "appgw",
+        "device": "VNET",
+        "path": "config.routes[0].application_gateway_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "zones",
+        "description": "zones",
+        "device": "VNET",
+        "path": "config.routes[0].availability_zones",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "db-private",
+        "description": "db-private",
+        "device": "VNET",
+        "path": "config.routes[0].managed_database.public_network_access",
+        "operator": "equals",
+        "expected": false
+      },
+      {
+        "id": "db-backup",
+        "description": "db-backup",
+        "device": "VNET",
+        "path": "config.routes[0].managed_database.backup_retention_days",
+        "operator": "equals",
+        "expected": 7
+      },
+      {
+        "id": "private-endpoint",
+        "description": "private-endpoint",
+        "device": "VNET",
+        "path": "config.routes[0].managed_database.private_endpoint",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "nsg",
+        "description": "nsg",
+        "device": "VNET",
+        "path": "config.routes[0].nsg_on_subnet",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "identity",
+        "description": "identity",
+        "device": "VNET",
+        "path": "config.routes[0].managed_identity",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "diagnostics",
+        "description": "diagnostics",
+        "device": "VNET",
+        "path": "config.routes[0].diagnostic_settings",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "waf",
+        "description": "waf",
+        "device": "APPGW",
+        "path": "config.routes[0].waf_enabled",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}

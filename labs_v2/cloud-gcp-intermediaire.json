@@ -1,0 +1,415 @@
+{
+  "schema_version": 2,
+  "id": "cloud-gcp-intermediaire",
+  "title": "GCP — VPC custom, Cloud NAT et Cloud SQL privé",
+  "level": "intermédiaire",
+  "module": "Cloud Computing",
+  "prompt": "Configurez un environnement GCP privé : VPC custom, Cloud NAT pour les sorties, règles firewall limitées à HTTPS, Private Google Access, Flow Logs et Cloud SQL accessible par adresse privée avec sauvegardes.",
+  "objectives": [
+    "Utiliser un VPC custom.",
+    "Activer Cloud NAT pour les ressources privées.",
+    "Fermer SSH public et autoriser HTTPS.",
+    "Activer Private Google Access et Flow Logs.",
+    "Rendre Cloud SQL privé et activer les sauvegardes.",
+    "Utiliser un compte de service à privilèges minimaux."
+  ],
+  "hints": [
+    "Cloud NAT permet les sorties sans IP publique.",
+    "Les règles firewall doivent rester limitées au besoin.",
+    "Cloud SQL privé doit être routable depuis le réseau applicatif."
+  ],
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-cloud-gcp-intermediaire",
+    "metadata": {
+      "name": "GCP — VPC custom, Cloud NAT et Cloud SQL privé",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "x": 60,
+        "y": 250,
+        "label": "INTERNET",
+        "model": "INTERNET",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "INTERNET"
+        }
+      },
+      {
+        "id": "VPC",
+        "type": "cloud",
+        "x": 330,
+        "y": 250,
+        "label": "VPC",
+        "model": "VPC",
+        "ports": [
+          {
+            "id": "gateway",
+            "name": "gateway",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "app",
+            "name": "app",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "data",
+            "name": "data",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "nat",
+            "name": "nat",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "VPC",
+          "routes": [
+            {
+              "protocol": "gcp-architecture",
+              "custom_vpc_enabled": false,
+              "cloud_nat_enabled": false,
+              "firewall_rules": {
+                "allow_https": false,
+                "allow_ssh_from_anywhere": true
+              },
+              "private_google_access": false,
+              "vpc_flow_logs": false,
+              "cloud_sql": {
+                "private_ip": false,
+                "public_ip": true,
+                "backup_enabled": false
+              },
+              "service_account_least_privilege": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "CLOUD-NAT",
+        "type": "cloud",
+        "x": 610,
+        "y": 120,
+        "label": "CLOUD-NAT",
+        "model": "CLOUD-NAT",
+        "ports": [
+          {
+            "id": "internet",
+            "name": "internet",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "vpc",
+            "name": "vpc",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "CLOUD-NAT"
+        }
+      },
+      {
+        "id": "APP",
+        "type": "server",
+        "x": 610,
+        "y": 360,
+        "label": "APP",
+        "model": "APP",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP",
+          "routes": [
+            {
+              "subnet": "app",
+              "public_ip": true,
+              "service_account_role": "owner"
+            }
+          ]
+        }
+      },
+      {
+        "id": "CLOUD-SQL",
+        "type": "server",
+        "x": 900,
+        "y": 360,
+        "label": "CLOUD-SQL",
+        "model": "CLOUD-SQL",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "CLOUD-SQL",
+          "routes": [
+            {
+              "public_ip": true,
+              "private_ip": false,
+              "backup_enabled": false,
+              "encrypted": false
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "INTERNET-NAT",
+        "from": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "CLOUD-NAT",
+          "port": "internet"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "NAT-VPC",
+        "from": {
+          "node": "CLOUD-NAT",
+          "port": "vpc"
+        },
+        "to": {
+          "node": "VPC",
+          "port": "nat"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VPC-APP",
+        "from": {
+          "node": "VPC",
+          "port": "app"
+        },
+        "to": {
+          "node": "APP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VPC-SQL",
+        "from": {
+          "node": "VPC",
+          "port": "data"
+        },
+        "to": {
+          "node": "CLOUD-SQL",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "custom-vpc",
+        "description": "custom-vpc",
+        "device": "VPC",
+        "path": "config.routes[0].custom_vpc_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "nat",
+        "description": "nat",
+        "device": "VPC",
+        "path": "config.routes[0].cloud_nat_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "allow-https",
+        "description": "allow-https",
+        "device": "VPC",
+        "path": "config.routes[0].firewall_rules.allow_https",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "no-open-ssh",
+        "description": "no-open-ssh",
+        "device": "VPC",
+        "path": "config.routes[0].firewall_rules.allow_ssh_from_anywhere",
+        "operator": "equals",
+        "expected": false
+      },
+      {
+        "id": "private-google",
+        "description": "private-google",
+        "device": "VPC",
+        "path": "config.routes[0].private_google_access",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "flowlogs",
+        "description": "flowlogs",
+        "device": "VPC",
+        "path": "config.routes[0].vpc_flow_logs",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "sql-private",
+        "description": "sql-private",
+        "device": "VPC",
+        "path": "config.routes[0].cloud_sql.private_ip",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "sql-no-public",
+        "description": "sql-no-public",
+        "device": "VPC",
+        "path": "config.routes[0].cloud_sql.public_ip",
+        "operator": "equals",
+        "expected": false
+      },
+      {
+        "id": "sql-backup",
+        "description": "sql-backup",
+        "device": "VPC",
+        "path": "config.routes[0].cloud_sql.backup_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "least-privilege",
+        "description": "least-privilege",
+        "device": "VPC",
+        "path": "config.routes[0].service_account_least_privilege",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}

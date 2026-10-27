@@ -1,0 +1,368 @@
+{
+  "schema_version": 2,
+  "id": "azure-vnet-intermediaire",
+  "title": "Azure VNet — Sous-réseaux, NSG et NAT Gateway",
+  "level": "intermédiaire",
+  "module": "Cloud Computing",
+  "prompt": "Segmentez un VNet Azure entre ressources exposées et applications privées. Attachez les NSG, activez NAT Gateway pour les sorties, configurez une table UDR, les journaux de flux et un Application Gateway HTTPS.",
+  "objectives": [
+    "Définir des CIDR non chevauchants.",
+    "Attacher les NSG aux sous-réseaux.",
+    "Activer le NAT Gateway pour les ressources privées.",
+    "Appliquer les UDR et activer les journaux.",
+    "Publier l’application via HTTPS."
+  ],
+  "hints": [
+    "Un NAT Gateway ne remplace pas les règles NSG.",
+    "Les sous-réseaux doivent refléter les besoins d’accès.",
+    "Application Gateway publie le backend sans exposer toutes les VM."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-azure-vnet-intermediaire",
+    "metadata": {
+      "name": "Azure VNet — NSG, UDR et NAT Gateway",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "x": 60,
+        "y": 250,
+        "label": "INTERNET",
+        "model": "INTERNET",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "INTERNET"
+        }
+      },
+      {
+        "id": "VNET",
+        "type": "cloud",
+        "x": 330,
+        "y": 250,
+        "label": "VNET",
+        "model": "VNET",
+        "ports": [
+          {
+            "id": "gateway",
+            "name": "gateway",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "public",
+            "name": "public",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "private",
+            "name": "private",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "nsg",
+            "name": "nsg",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "VNET",
+          "routes": [
+            {
+              "protocol": "azure-vnet",
+              "vnet_cidr": "10.20.0.0/16",
+              "public_subnet": "10.20.1.0/24",
+              "private_subnet": "10.20.2.0/24",
+              "nsg_enabled": false,
+              "nat_gateway_enabled": false,
+              "udr_enabled": false,
+              "flow_logs_enabled": false,
+              "private_endpoint_enabled": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "APPGW",
+        "type": "cloud",
+        "x": 610,
+        "y": 120,
+        "label": "APPGW",
+        "model": "APPGW",
+        "ports": [
+          {
+            "id": "front",
+            "name": "front",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "back",
+            "name": "back",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APPGW",
+          "routes": [
+            {
+              "resource": "application-gateway",
+              "enabled": false,
+              "listener": "https"
+            }
+          ]
+        }
+      },
+      {
+        "id": "VM-APP",
+        "type": "server",
+        "x": 610,
+        "y": 350,
+        "label": "VM-APP",
+        "model": "VM-APP",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "VM-APP"
+        }
+      },
+      {
+        "id": "VM-WEB",
+        "type": "server",
+        "x": 900,
+        "y": 350,
+        "label": "VM-WEB",
+        "model": "VM-WEB",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "VM-WEB"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "INTERNET-APPGW",
+        "from": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "APPGW",
+          "port": "front"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "APPGW-VNET",
+        "from": {
+          "node": "APPGW",
+          "port": "back"
+        },
+        "to": {
+          "node": "VNET",
+          "port": "gateway"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VNET-APP",
+        "from": {
+          "node": "VNET",
+          "port": "private"
+        },
+        "to": {
+          "node": "VM-APP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VNET-WEB",
+        "from": {
+          "node": "VNET",
+          "port": "public"
+        },
+        "to": {
+          "node": "VM-WEB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "nsg",
+        "description": "nsg",
+        "device": "VNET",
+        "path": "config.routes[0].nsg_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "nat",
+        "description": "nat",
+        "device": "VNET",
+        "path": "config.routes[0].nat_gateway_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "udr",
+        "description": "udr",
+        "device": "VNET",
+        "path": "config.routes[0].udr_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "flowlogs",
+        "description": "flowlogs",
+        "device": "VNET",
+        "path": "config.routes[0].flow_logs_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "private-endpoint",
+        "description": "private-endpoint",
+        "device": "VNET",
+        "path": "config.routes[0].private_endpoint_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "appgw",
+        "description": "appgw",
+        "device": "APPGW",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}

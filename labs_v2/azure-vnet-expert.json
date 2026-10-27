@@ -1,0 +1,484 @@
+{
+  "schema_version": 2,
+  "id": "azure-vnet-expert",
+  "title": "Azure VNet expert — Hub/spoke, Firewall et Private Link",
+  "level": "expert",
+  "module": "Cloud Computing",
+  "prompt": "Finalisez une architecture Azure hub/spoke. Forcez le trafic par Azure Firewall à l’aide des UDR, autorisez le trafic transféré au peering et publiez la base exclusivement via Private Link et DNS privé.",
+  "objectives": [
+    "Activer le peering hub/spoke.",
+    "Forcer le trafic nord-sud vers Azure Firewall.",
+    "Activer les journaux Network Watcher.",
+    "Créer un Private Endpoint pour la base.",
+    "Lier le DNS privé et supprimer l’exposition publique."
+  ],
+  "hints": [
+    "Le peering ne rend pas automatiquement le routage transitif.",
+    "Private Link réduit l’exposition publique du service.",
+    "Le DNS privé doit renvoyer l’adresse privée du service."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-azure-vnet-expert",
+    "metadata": {
+      "name": "Azure VNet expert — Hub/spoke et Private Link",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "HUB",
+        "type": "cloud",
+        "x": 80,
+        "y": 240,
+        "label": "HUB",
+        "model": "HUB",
+        "ports": [
+          {
+            "id": "spoke",
+            "name": "spoke",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "firewall",
+            "name": "firewall",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "gateway",
+            "name": "gateway",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "HUB",
+          "routes": [
+            {
+              "protocol": "azure-vnet",
+              "hub_spoke": false,
+              "firewall_enabled": false,
+              "peering_forwarded_traffic": false,
+              "route_table_default_next_hop": "Internet",
+              "network_watcher_flow_logs": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "FIREWALL",
+        "type": "firewall",
+        "x": 350,
+        "y": 120,
+        "label": "FIREWALL",
+        "model": "FIREWALL",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "eth1",
+            "name": "eth1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "FIREWALL"
+        }
+      },
+      {
+        "id": "SPOKE",
+        "type": "cloud",
+        "x": 610,
+        "y": 240,
+        "label": "SPOKE",
+        "model": "SPOKE",
+        "ports": [
+          {
+            "id": "hub",
+            "name": "hub",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "app",
+            "name": "app",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "private-endpoint",
+            "name": "private-endpoint",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SPOKE",
+          "routes": [
+            {
+              "protocol": "azure-vnet",
+              "hub_peering": false,
+              "private_endpoint_enabled": false,
+              "public_ip_on_db": true,
+              "private_dns_zone": "",
+              "nsg_enabled": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "APP",
+        "type": "server",
+        "x": 900,
+        "y": 120,
+        "label": "APP",
+        "model": "APP",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP"
+        }
+      },
+      {
+        "id": "DB",
+        "type": "server",
+        "x": 900,
+        "y": 360,
+        "label": "DB",
+        "model": "DB",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DB",
+          "routes": [
+            {
+              "public_ip": true,
+              "private_endpoint": false,
+              "encrypted": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "PE",
+        "type": "cloud",
+        "x": 1140,
+        "y": 360,
+        "label": "PE",
+        "model": "PE",
+        "ports": [
+          {
+            "id": "nic",
+            "name": "nic",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "service",
+            "name": "service",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE",
+          "routes": [
+            {
+              "resource": "private-endpoint",
+              "enabled": false,
+              "private_dns_zone_linked": false
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "HUB-FW",
+        "from": {
+          "node": "HUB",
+          "port": "firewall"
+        },
+        "to": {
+          "node": "FIREWALL",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "HUB-SPOKE",
+        "from": {
+          "node": "HUB",
+          "port": "spoke"
+        },
+        "to": {
+          "node": "SPOKE",
+          "port": "hub"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "SPOKE-APP",
+        "from": {
+          "node": "SPOKE",
+          "port": "app"
+        },
+        "to": {
+          "node": "APP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "SPOKE-PE",
+        "from": {
+          "node": "SPOKE",
+          "port": "private-endpoint"
+        },
+        "to": {
+          "node": "PE",
+          "port": "nic"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "PE-DB",
+        "from": {
+          "node": "PE",
+          "port": "service"
+        },
+        "to": {
+          "node": "DB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "hubspoke",
+        "description": "hubspoke",
+        "device": "HUB",
+        "path": "config.routes[0].hub_spoke",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "firewall",
+        "description": "firewall",
+        "device": "HUB",
+        "path": "config.routes[0].firewall_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "forwarded",
+        "description": "forwarded",
+        "device": "HUB",
+        "path": "config.routes[0].peering_forwarded_traffic",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "udr",
+        "description": "udr",
+        "device": "HUB",
+        "path": "config.routes[0].route_table_default_next_hop",
+        "operator": "equals",
+        "expected": "VirtualAppliance"
+      },
+      {
+        "id": "flowlogs",
+        "description": "flowlogs",
+        "device": "HUB",
+        "path": "config.routes[0].network_watcher_flow_logs",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "private-endpoint",
+        "description": "private-endpoint",
+        "device": "SPOKE",
+        "path": "config.routes[0].private_endpoint_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "public-db",
+        "description": "public-db",
+        "device": "SPOKE",
+        "path": "config.routes[0].public_ip_on_db",
+        "operator": "equals",
+        "expected": false
+      },
+      {
+        "id": "dns-zone",
+        "description": "dns-zone",
+        "device": "SPOKE",
+        "path": "config.routes[0].private_dns_zone",
+        "operator": "equals",
+        "expected": "privatelink.database.windows.net"
+      },
+      {
+        "id": "db-private",
+        "description": "db-private",
+        "device": "DB",
+        "path": "config.routes[0].private_endpoint",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dns-linked",
+        "description": "dns-linked",
+        "device": "PE",
+        "path": "config.routes[0].private_dns_zone_linked",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}

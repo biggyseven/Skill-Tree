@@ -1,0 +1,516 @@
+{
+  "schema_version": 2,
+  "id": "aws-vpc-expert",
+  "title": "AWS VPC expert — Multi-AZ, Transit Gateway et endpoints",
+  "level": "expert",
+  "module": "Cloud Computing",
+  "prompt": "Durcissez un VPC multi-AZ : attachez le Transit Gateway, activez Flow Logs et la propagation de routes, configurez un endpoint S3 et répartissez les NAT Gateways par zone. La base doit rester privée, chiffrée et sauvegardée.",
+  "objectives": [
+    "Déployer les workloads dans plusieurs AZ.",
+    "Attacher le Transit Gateway et propager les routes.",
+    "Créer un endpoint privé S3.",
+    "Désactiver les IP publiques sur les ressources privées.",
+    "Activer chiffrement et sauvegardes de la base."
+  ],
+  "hints": [
+    "Les endpoints réduisent les sorties Internet pour les services pris en charge.",
+    "Les tables de routage doivent être observables.",
+    "La haute disponibilité exige une répartition réelle par AZ."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-aws-vpc-expert",
+    "metadata": {
+      "name": "AWS VPC expert — Multi-AZ, endpoints et Transit Gateway",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "x": 60,
+        "y": 240,
+        "label": "INTERNET",
+        "model": "INTERNET",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "INTERNET"
+        }
+      },
+      {
+        "id": "VPC",
+        "type": "cloud",
+        "x": 320,
+        "y": 240,
+        "label": "VPC",
+        "model": "VPC",
+        "ports": [
+          {
+            "id": "igw",
+            "name": "igw",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "tgw",
+            "name": "tgw",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "az-a",
+            "name": "az-a",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "az-b",
+            "name": "az-b",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "data",
+            "name": "data",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "endpoint",
+            "name": "endpoint",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "VPC",
+          "routes": [
+            {
+              "protocol": "aws-vpc",
+              "vpc_cidr": "10.10.0.0/16",
+              "multi_az": false,
+              "transit_gateway_attached": false,
+              "flow_logs_enabled": false,
+              "vpc_endpoints": [],
+              "nat_gateway_per_az": false,
+              "public_ip_on_private_instances": true,
+              "route_propagation": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "TGW",
+        "type": "cloud",
+        "x": 610,
+        "y": 100,
+        "label": "TGW",
+        "model": "TGW",
+        "ports": [
+          {
+            "id": "vpc",
+            "name": "vpc",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "core",
+            "name": "core",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "TGW"
+        }
+      },
+      {
+        "id": "APP-A",
+        "type": "server",
+        "x": 610,
+        "y": 330,
+        "label": "APP-A",
+        "model": "APP-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP-A",
+          "routes": [
+            {
+              "availability_zone": "a",
+              "public_ip": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "APP-B",
+        "type": "server",
+        "x": 890,
+        "y": 330,
+        "label": "APP-B",
+        "model": "APP-B",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP-B",
+          "routes": [
+            {
+              "availability_zone": "b",
+              "public_ip": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "DB",
+        "type": "server",
+        "x": 890,
+        "y": 500,
+        "label": "DB",
+        "model": "DB",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DB",
+          "routes": [
+            {
+              "public_ip": true,
+              "encrypted": false,
+              "backup_enabled": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "S3-ENDPOINT",
+        "type": "cloud",
+        "x": 1140,
+        "y": 240,
+        "label": "S3-ENDPOINT",
+        "model": "S3-ENDPOINT",
+        "ports": [
+          {
+            "id": "eni",
+            "name": "eni",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "S3-ENDPOINT"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "VPC-IGW",
+        "from": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "VPC",
+          "port": "igw"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VPC-TGW",
+        "from": {
+          "node": "VPC",
+          "port": "tgw"
+        },
+        "to": {
+          "node": "TGW",
+          "port": "vpc"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "AZ-A",
+        "from": {
+          "node": "VPC",
+          "port": "az-a"
+        },
+        "to": {
+          "node": "APP-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "AZ-B",
+        "from": {
+          "node": "VPC",
+          "port": "az-b"
+        },
+        "to": {
+          "node": "APP-B",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "DATA",
+        "from": {
+          "node": "VPC",
+          "port": "data"
+        },
+        "to": {
+          "node": "DB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "S3",
+        "from": {
+          "node": "VPC",
+          "port": "endpoint"
+        },
+        "to": {
+          "node": "S3-ENDPOINT",
+          "port": "eni"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "multi-az",
+        "description": "multi-az",
+        "device": "VPC",
+        "path": "config.routes[0].multi_az",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "tgw",
+        "description": "tgw",
+        "device": "VPC",
+        "path": "config.routes[0].transit_gateway_attached",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "flowlogs",
+        "description": "flowlogs",
+        "device": "VPC",
+        "path": "config.routes[0].flow_logs_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "endpoint",
+        "description": "endpoint",
+        "device": "VPC",
+        "path": "config.routes[0].vpc_endpoints",
+        "operator": "contains",
+        "expected": "s3"
+      },
+      {
+        "id": "nat-az",
+        "description": "nat-az",
+        "device": "VPC",
+        "path": "config.routes[0].nat_gateway_per_az",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "private-ip",
+        "description": "private-ip",
+        "device": "VPC",
+        "path": "config.routes[0].public_ip_on_private_instances",
+        "operator": "equals",
+        "expected": false
+      },
+      {
+        "id": "propagation",
+        "description": "propagation",
+        "device": "VPC",
+        "path": "config.routes[0].route_propagation",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "db-encryption",
+        "description": "db-encryption",
+        "device": "DB",
+        "path": "config.routes[0].encrypted",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "db-backup",
+        "description": "db-backup",
+        "device": "DB",
+        "path": "config.routes[0].backup_enabled",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
