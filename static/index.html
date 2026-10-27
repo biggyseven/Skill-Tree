@@ -216,10 +216,30 @@
     }
     .lesson-prose .lesson-diagram-guide strong { color: rgb(var(--cyan-200)) !important; font-size: .82rem; }
     .lesson-prose .lesson-diagram-guide p { margin: .25rem 0 0; font-size: .86rem; line-height: 1.65; color: rgb(var(--z-200)) !important; }
-    .lesson-prose .lesson-mermaid { min-width: 0; max-width: 100%; overflow-x: auto; }
+    .lesson-prose .lesson-mermaid { min-width: 0; max-width: 100%; overflow: visible; }
     .lesson-prose .lesson-mermaid-source { white-space: pre !important; overflow-x: auto; }
-    .lesson-prose .lesson-mermaid .mermaid { min-width: 0; max-width: 100%; overflow-x: auto; }
-    .lesson-prose .lesson-mermaid .mermaid svg { min-width: 0; max-height: none; }
+    .lesson-prose .lesson-mermaid .mermaid { min-width: 0; max-width: 100%; overflow: visible; }
+    .lesson-prose .lesson-mermaid .mermaid svg { min-width: 0; max-width: none; max-height: none; display: block; }
+    .lesson-prose .lesson-mermaid-viewport {
+      position: relative; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box;
+      overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
+      border: 1px solid rgb(var(--w) / .12); border-radius: .9rem;
+      background: rgb(var(--w) / .025); padding: .55rem;
+    }
+    .lesson-prose .lesson-mermaid-viewport:focus-visible { outline: 2px solid rgb(var(--cyan-400)); outline-offset: 2px; }
+    .lesson-prose .lesson-mermaid-stage { position: relative; display: block; min-width: 1px; min-height: 1px; }
+    .lesson-prose .lesson-diagram-zoom-controls {
+      display: inline-flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .3rem;
+      margin-left: auto;
+    }
+    .lesson-prose .btn-diagram-zoom {
+      border: 1px solid rgb(var(--w) / .14); border-radius: .55rem; background: var(--s2);
+      color: rgb(var(--z-100)); padding: .35rem .55rem; min-width: 2rem; font-size: .75rem;
+      font-weight: 700; line-height: 1.25; cursor: pointer;
+    }
+    .lesson-prose .btn-diagram-zoom:hover { border-color: rgb(var(--cyan-400) / .55); background: rgb(var(--cyan-400) / .1); }
+    .lesson-prose .btn-diagram-zoom:focus-visible { outline: 2px solid rgb(var(--cyan-400)); outline-offset: 2px; }
+    .lesson-prose .lesson-diagram-zoom-level { min-width: 3.2rem; text-align: center; color: rgb(var(--z-200)); font-size: .72rem; font-variant-numeric: tabular-nums; }
     .lesson-prose .lesson-mermaid .mermaid-error { white-space: pre-wrap; overflow-wrap: anywhere; }
 
     /* --- Composants UI (v3) --- */
@@ -3294,6 +3314,98 @@
               node.replaceWith(fallback);
             });
           }
+
+          // Les diagrammes Mermaid peuvent être très grands. Chaque schéma dispose
+          // d'un cadre défilant et de commandes de zoom, sans modifier le contenu du SVG.
+          mermaidBlocks.forEach(block => {
+            if (block.dataset.zoomReady === 'true') return;
+            const visual = block.querySelector('.mermaid');
+            const svg = visual?.querySelector('svg');
+            const toolbar = block.querySelector('.lesson-diagram-toolbar');
+            if (!visual || !svg || !toolbar) return;
+
+            const viewBox = svg.viewBox?.baseVal;
+            const attrWidth = Number.parseFloat(svg.getAttribute('width'));
+            const attrHeight = Number.parseFloat(svg.getAttribute('height'));
+            let baseWidth = viewBox && viewBox.width > 0 ? viewBox.width : attrWidth;
+            let baseHeight = viewBox && viewBox.height > 0 ? viewBox.height : attrHeight;
+            if (!(baseWidth > 0) || !(baseHeight > 0)) {
+              try {
+                const box = svg.getBBox();
+                if (!(baseWidth > 0)) baseWidth = box.width;
+                if (!(baseHeight > 0)) baseHeight = box.height;
+              } catch (_) {}
+            }
+            if (!(baseWidth > 0) || !(baseHeight > 0)) return;
+
+            const viewport = document.createElement('div');
+            viewport.className = 'lesson-mermaid-viewport';
+            viewport.tabIndex = 0;
+            viewport.setAttribute('role', 'region');
+            viewport.setAttribute('aria-label', 'Zone de lecture du diagramme ; défilement possible après zoom');
+            const stage = document.createElement('div');
+            stage.className = 'lesson-mermaid-stage';
+            svg.parentNode.insertBefore(viewport, svg);
+            viewport.appendChild(stage);
+            stage.appendChild(svg);
+
+            const controls = document.createElement('div');
+            controls.className = 'lesson-diagram-zoom-controls';
+            const level = document.createElement('span');
+            level.className = 'lesson-diagram-zoom-level';
+            level.setAttribute('aria-live', 'polite');
+            level.textContent = '100 %';
+
+            const makeButton = (label, ariaLabel, action) => {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.className = 'btn-diagram-zoom';
+              button.textContent = label;
+              button.setAttribute('aria-label', ariaLabel);
+              button.title = ariaLabel;
+              button.addEventListener('click', action);
+              return button;
+            };
+
+            let scale = 1;
+            const maxFrameHeight = () => Math.max(240, Math.min(720, Math.round(window.innerHeight * 0.66)));
+            const applyScale = nextScale => {
+              scale = Math.max(0.1, Math.min(4, nextScale));
+              const width = Math.max(1, Math.round(baseWidth * scale));
+              const height = Math.max(1, Math.round(baseHeight * scale));
+              svg.style.setProperty('width', width + 'px', 'important');
+              svg.style.setProperty('height', height + 'px', 'important');
+              svg.style.setProperty('max-width', 'none', 'important');
+              svg.style.setProperty('max-height', 'none', 'important');
+              svg.style.setProperty('display', 'block', 'important');
+              stage.style.width = width + 'px';
+              stage.style.height = height + 'px';
+              viewport.style.height = Math.min(height + 18, maxFrameHeight()) + 'px';
+              level.textContent = Math.round(scale * 100) + ' %';
+              level.setAttribute('aria-label', 'Zoom ' + Math.round(scale * 100) + ' pour cent');
+            };
+
+            const fitToFrame = () => {
+              const availableWidth = Math.max(180, viewport.clientWidth - 24);
+              const scaleToFit = Math.min(1, availableWidth / baseWidth, maxFrameHeight() / baseHeight);
+              applyScale(scaleToFit);
+              viewport.scrollTop = 0;
+              viewport.scrollLeft = 0;
+            };
+
+            controls.appendChild(makeButton('−', 'Dézoomer le schéma', () => applyScale(scale / 1.2)));
+            controls.appendChild(level);
+            controls.appendChild(makeButton('+', 'Zoomer le schéma', () => applyScale(scale * 1.2)));
+            controls.appendChild(makeButton('Ajuster', 'Ajuster le schéma au cadre visible', fitToFrame));
+            controls.appendChild(makeButton('100 %', 'Afficher le schéma à sa taille de référence', () => {
+              applyScale(1);
+              viewport.scrollTop = 0;
+              viewport.scrollLeft = 0;
+            }));
+            toolbar.appendChild(controls);
+            block.dataset.zoomReady = 'true';
+            fitToFrame();
+          });
         },
 
         explainDiagramFromButton(button) {
