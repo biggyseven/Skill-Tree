@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Stratégies de sauvegarde (3-2-1) » ?",
+      "prompt": "Que signifie la règle 3-2-1 ?",
       "choices": [
-        "Le sujet principal du cours : Stratégies de sauvegarde (3-2-1)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Trois copies dans le même dossier",
+        "Trois administrateurs, deux mots de passe et un serveur",
+        "Trois copies, deux types de supports et une copie hors du domaine principal de panne",
+        "Trois sauvegardes uniquement chaque année"
+      ],
+      "answer": 2,
+      "explanation": "La diversité des supports et l'indépendance de la copie réduisent la perte simultanée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le RPO représente :",
+      "choices": [
+        "La durée maximale de perte de données acceptable",
+        "Le temps de redémarrage du serveur",
+        "La durée de conservation légale uniquement",
+        "Le nombre de copies disponibles"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le RPO exprime l'écart maximal acceptable entre le dernier point récupérable et l'incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le RTO mesure :",
+      "choices": [
+        "Le nombre de fichiers sauvegardés",
+        "La taille des médias",
+        "Le taux de chiffrement",
+        "Le délai cible pour rétablir le service à un niveau défini"
+      ],
+      "answer": 3,
+      "explanation": "Le RTO inclut préparation, restauration et validation, selon le périmètre retenu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi effectuer des restaurations de test ?",
+      "choices": [
+        "Pour augmenter le volume de fichiers",
+        "Pour vérifier que les données et procédures permettent réellement de retrouver un état utilisable",
+        "Pour remplacer la politique de rétention",
+        "Pour rendre les copies modifiables par tous"
+      ],
+      "answer": 1,
+      "explanation": "Un job vert ne prouve pas qu'une restauration sera possible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque vise une copie immuable ?",
+      "choices": [
+        "La hausse du débit réseau",
+        "Une erreur de frappe dans les rapports",
+        "La suppression ou modification des copies pendant une période protégée",
+        "Le besoin de documenter le RPO"
+      ],
+      "answer": 2,
+      "explanation": "L'immutabilité peut limiter l'effacement par un compte compromis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer les identifiants de sauvegarde de ceux de production ?",
+      "choices": [
+        "Pour limiter la propagation d'une compromission",
+        "Pour éviter de chiffrer les données",
+        "Pour supprimer la nécessité de journaliser",
+        "Pour faire échouer les restaurations"
+      ],
+      "answer": 0,
+      "explanation": "Une identité indépendante rend plus difficile la suppression de toutes les copies par le même attaquant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit vérifier une restauration de base de données ?",
+      "choices": [
+        "Uniquement la taille du fichier",
+        "Uniquement le code retour de la copie",
+        "Le nom du fichier seulement",
+        "La cohérence et le démarrage de l'application ainsi qu'une vérification fonctionnelle"
+      ],
+      "answer": 3,
+      "explanation": "La restauration doit inclure la cohérence applicative, pas seulement la copie octet par octet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une sauvegarde chiffrée sans accès aux clés est :",
+      "choices": [
+        "Plus fiable qu'une sauvegarde testée",
+        "Potentiellement inutilisable",
+        "Toujours restaurable automatiquement",
+        "Une preuve que le RTO est respecté"
+      ],
+      "answer": 1,
+      "explanation": "La récupération des clés fait partie de la capacité de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal d'exploitation est plus utile qu'un simple statut de job ?",
+      "choices": [
+        "Le nombre de fenêtres du terminal",
+        "La couleur de l'ordinateur",
+        "L'âge du dernier point restaurable et le résultat de vérification",
+        "Le nombre de comptes connectés sans contexte"
+      ],
+      "answer": 2,
+      "explanation": "L'âge et l'intégrité du dernier point permettent de vérifier le respect des objectifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action est appropriée en cas de ransomware suspecté ?",
+      "choices": [
+        "Isoler l'environnement compromis et protéger les copies indépendantes avant restauration contrôlée",
+        "Connecter toutes les sauvegardes au serveur infecté",
+        "Réutiliser immédiatement les mêmes identifiants",
+        "Écraser les journaux pour gagner de l'espace"
+      ],
+      "answer": 0,
+      "explanation": "Il faut limiter l'extension de l'incident et restaurer dans un environnement assaini."
     }
   ]
 }
