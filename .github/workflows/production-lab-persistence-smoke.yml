@@ -42,7 +42,7 @@ jobs:
           PY
 
       - name: Checkout catalogue for production lab coverage audit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Audit all catalogue courses that require a Lab Workspace scenario
         shell: bash
