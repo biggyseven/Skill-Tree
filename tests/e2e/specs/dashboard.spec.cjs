@@ -1286,3 +1286,78 @@ test('le guide explique les ports bleus et gris et affiche le nom du port physiq
   await expect(guide).toContainText('Maintiens le clic sur le point bleu');
 });
 
+test('la connexion restaure la destination demandée après validation du mot de passe', async ({ page }) => {
+  await page.route('**/api/auth/status', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ required: true, configured: true, authenticated: false }),
+  }));
+  await page.route('**/api/auth/login', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ success: true, required: true, authenticated: true }),
+  }));
+
+  await page.goto('/login.html?next=%2F%3FopenTab%3Dlabs');
+  await page.getByLabel("Mot de passe de l'application").fill('mot-de-passe-de-test');
+  await page.getByRole('button', { name: 'Se connecter' }).click();
+
+  await expect.poll(() => page.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.tab || '';
+  }), { timeout: 30_000 }).toBe('labs');
+});
+
+test('recliquer sur l’onglet actif conserve la position de défilement', async ({ page }) => {
+  await openDashboard(page);
+  const mainScroll = page.locator('[x-ref="mainScroll"]');
+  const activeTab = page
+    .getByRole('navigation', { name: 'Navigation principale' })
+    .locator('button[aria-current="page"]')
+    .first();
+
+  await mainScroll.evaluate(element => {
+    element.scrollTop = Math.min(420, element.scrollHeight - element.clientHeight);
+  });
+  const before = await mainScroll.evaluate(element => element.scrollTop);
+  expect(before).toBeGreaterThan(0);
+  await activeTab.click();
+  await page.waitForTimeout(150);
+  const after = await mainScroll.evaluate(element => element.scrollTop);
+  expect(after).toBe(before);
+});
+
+test('le retour au Radar et aux Révisions réutilise les données déjà chargées', async ({ page }) => {
+  await openDashboard(page);
+  const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
+  let statsRequests = 0;
+  let flashcardRequests = 0;
+  page.on('request', request => {
+    const pathname = new URL(request.url()).pathname;
+    if (pathname === '/api/stats') statsRequests += 1;
+    if (pathname === '/api/flashcards') flashcardRequests += 1;
+  });
+
+  const radar = navigation.getByRole('button', { name: 'Radar' });
+  const statsResponse = page.waitForResponse(response => new URL(response.url()).pathname === '/api/stats');
+  await radar.click();
+  await statsResponse;
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).statsLoading)).toBe(false);
+  expect(statsRequests).toBe(1);
+  await navigation.getByRole('button', { name: 'Défis' }).click();
+  await radar.click();
+  await page.waitForTimeout(150);
+  expect(statsRequests).toBe(1);
+
+  const revisions = navigation.getByRole('button', { name: 'Révisions' });
+  const cardsResponse = page.waitForResponse(response => new URL(response.url()).pathname === '/api/flashcards');
+  await revisions.click();
+  await cardsResponse;
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).flashcardsLoading)).toBe(false);
+  expect(flashcardRequests).toBe(1);
+  await navigation.getByRole('button', { name: 'Défis' }).click();
+  await revisions.click();
+  await page.waitForTimeout(150);
+  expect(flashcardRequests).toBe(1);
+});
+
