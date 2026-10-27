@@ -137,3 +137,125 @@ Correction : documenter les faits et les hypothèses, indiquer les limites de l'
 Une erreur applicative revient chaque lundi. Les journaux montrent des délais d'attente, la latence réseau ne change pas sensiblement et le redémarrage résout temporairement le problème. L'équipe soupçonne une saturation de la base de données.
 
 **Correction attendue :** enregistrer les faits et leurs sources, aligner les horloges, comparer les métriques de base de données et d'application autour des incidents, rechercher les changements et les tâches planifiées du lundi, puis tester la piste dans un environnement sûr ou avec l'équipe responsable. Si les preuves confirment une saturation, définir une correction mesurable et un contrôle préventif. Sinon, poursuivre l'analyse des hypothèses alternatives. Le rapport doit qualifier le niveau de confiance et la période de validation nécessaire.
+
+
+## 8. Définir un problème de manière testable
+
+Une analyse de cause racine commence par une description qui évite la conclusion prématurée. Indique le service, le symptôme, le périmètre, la fréquence, le début, les conséquences, la manière de reproduire le phénomène et les critères qui prouveraient la résolution. « Le réseau est mauvais » ne donne pas de question vérifiable. « Entre 9 h et 9 h 20, les requêtes DNS depuis deux sous-réseaux ont expiré ; les requêtes depuis le troisième ont réussi » permet de comparer les contextes.
+
+Conserve une chronologie et les preuves disponibles avant de modifier le système : journaux, compteurs, configuration connue, versions, alertes, tickets et changements récents. Respecte la rétention et la confidentialité. Une capture peut aider, mais note aussi son heure, le système d'origine, le filtre appliqué et la limite de l'observation. Les éléments incertains doivent rester signalés comme tels.
+
+~~~mermaid
+flowchart TD
+    A[Symptôme précisément décrit] --> B[Chronologie et impact]
+    B --> C[Hypothèses alternatives]
+    C --> D[Choisir un test discriminant]
+    D --> E[Résultat observé]
+    E --> F{Hypothèse soutenue ?}
+    F -->|Non| C
+    F -->|Oui| G[Confirmer la cause au niveau permis par les preuves]
+    G --> H[Action et mesure d'efficacité]
+~~~
+
+## 9. Bien utiliser les 5 Pourquoi
+
+Les 5 Pourquoi consistent à demander pourquoi une situation s'est produite, puis à examiner la réponse comme une hypothèse à tester. Il n'est pas obligatoire d'obtenir exactement cinq questions : parfois deux ou quatre suffisent ; parfois la chaîne mène à un problème plus large qui nécessite plusieurs branches. Le nombre ne garantit ni la profondeur ni l'exactitude.
+
+Exemple illustratif :
+- **Symptôme :** le système de fichiers est arrivé à saturation.
+- Pourquoi ? Des journaux ont occupé la majorité du volume.
+- Pourquoi ? La rotation attendue ne s'est pas produite.
+- Pourquoi ? Le service de rotation n'a pas exécuté la règle prévue.
+- Pourquoi ? La configuration modifiée lors d'une migration n'a pas été vérifiée par le contrôle de conformité.
+- Pourquoi ? Le plan de migration ne définissait pas de test pour la rotation des journaux.
+
+Cette chaîne suggère une cause de processus, mais elle n'est pas prouvée tant qu'on n'a pas vérifié les journaux, la configuration, la chronologie de migration et le fonctionnement réel de la règle. Il peut y avoir plusieurs facteurs : une croissance exceptionnelle, une alerte absente, une mauvaise estimation de capacité ou une rétention non adaptée. Ne transforme pas un récit plausible en vérité uniquement parce que les questions s'enchaînent.
+
+~~~mermaid
+flowchart TD
+    A[Saturation du disque] --> B[Pourquoi ? Journaux volumineux]
+    B --> C[Pourquoi ? Rotation absente]
+    C --> D[Pourquoi ? Règle non appliquée]
+    D --> E[Pourquoi ? Migration non vérifiée]
+    E --> F[Pourquoi ? Test absent du plan]
+    F --> G[Hypothèse à confronter aux preuves]
+~~~
+
+## 10. Utiliser Ishikawa sans transformer le diagramme en preuve
+
+Le diagramme d'Ishikawa organise les causes possibles par familles. En informatique, une version adaptée peut explorer les personnes et compétences, les méthodes et procédures, le matériel, les logiciels et configurations, les mesures et données, et l'environnement ou les dépendances. Les catégories sont un support de brainstorming structuré, pas une liste obligatoire.
+
+~~~mermaid
+flowchart LR
+    A[Personnes et compétences] --> Z[Incident observé]
+    B[Procédures et méthodes] --> Z
+    C[Matériel et capacité] --> Z
+    D[Logiciels et configuration] --> Z
+    E[Mesures et observabilité] --> Z
+    F[Environnement et dépendances] --> Z
+~~~
+
+Chaque branche génère des hypothèses à vérifier. Pour un problème de latence, les causes peuvent inclure congestion, retransmissions, résolution de noms, CPU, stockage, dépendances externes, changements récents ou mesures mal interprétées. Le diagramme aide à ne pas s'enfermer trop tôt dans une seule explication. Il faut ensuite choisir des tests qui distinguent les hypothèses et documenter les résultats.
+
+ASQ présente les outils de résolution de problème, dont les 5 Pourquoi et le diagramme causes-effets/Ishikawa : https://asq.org/quality-resources/problem-solving et https://asq.org/quality-resources/quality-tools. Utilise ces techniques avec des preuves, pas comme substitut à l'analyse technique.
+
+## 11. Tester les hypothèses et distinguer cause, déclencheur et facteur contributif
+
+Une cause directe est l'événement ou la condition qui déclenche immédiatement le symptôme. Un facteur contributif rend la panne plus probable ou plus grave. Un défaut latent peut exister depuis longtemps et n'avoir produit des effets qu'après un changement de charge. Un mécanisme de détection absent peut prolonger l'incident sans être la cause initiale de la panne.
+
+Conçois un test qui élimine ou soutient une hypothèse. Si une lenteur se produit seulement sur un site, compare les chemins, DNS, interfaces et mesures au même instant. Si toutes les applications d'un serveur sont lentes, examine les ressources et dépendances communes avant de modifier chaque application séparément. Si le phénomène a commencé après un changement, compare les versions et paramètres, mais n'en conclus pas que le changement est causal sans éléments supplémentaires.
+
+La corrélation temporelle ne suffit pas. Deux alertes peuvent être provoquées par une cause commune ; l'une peut être une conséquence et non l'origine ; une pointe de CPU peut être normale. Reproduis le phénomène dans un environnement autorisé lorsque c'est possible, compare avec un cas sain et conserve le résultat qui contredit ton hypothèse. Une bonne analyse est prête à abandonner l'explication initiale.
+
+~~~mermaid
+sequenceDiagram
+    participant A as Analyste
+    participant D as Données et journaux
+    participant S as Système de test
+    A->>D: Formule une question et période
+    D-->>A: Données et limites de preuve
+    A->>S: Test contrôlé ou comparaison
+    S-->>A: Résultat reproductible
+    A->>A: Confirme, rejette ou affine l'hypothèse
+~~~
+
+## 12. Transformer l'analyse en actions qui empêchent la récurrence
+
+Les actions doivent traiter la cause confirmée et les facteurs contributifs. Une réponse peut combiner correction technique, surveillance, capacité, procédure, formation, automatisation et gouvernance. « Sensibiliser l'équipe » est trop vague si aucune action observable n'est définie. Préfère « ajouter un contrôle automatique qui vérifie la présence de la tâche de rotation et crée une alerte si elle n'a pas exécuté pendant la période prévue », avec un responsable, une échéance et un test.
+
+Sépare les actions de confinement, de correction immédiate et de prévention durable. Le contournement limite l'impact maintenant, mais peut exiger une surveillance renforcée. Une correction technique peut nécessiter un changement approuvé. Une action durable doit avoir un critère de réussite et un délai de mesure. Les actions ne sont closes qu'après preuve, pas simplement lorsqu'une tâche est marquée terminée.
+
+| Catégorie | Exemple d'action | Preuve d'efficacité |
+|---|---|---|
+| Correction | Réparer la règle de rotation | Journaux et contrôles confirment la rotation |
+| Prévention | Ajouter un test dans la migration | Compte rendu de tests avant mise en production |
+| Détection | Alerter sur le taux de croissance | Alerte reçue et testée |
+| Procédure | Ajouter un contrôle de fin | Fiche d'intervention mise à jour et testée |
+| Capacité | Ajuster l'espace ou la rétention | Projection et historique revus |
+| Gouvernance | Nommer un propriétaire de la règle | Champ propriétaire et revue périodique renseignés |
+
+## 13. Travaux pratiques, exercices et défi final
+
+### TP 6 — Construire une chronologie
+
+Une application devient lente à 10 h 15. À 10 h 08, un changement de configuration a été appliqué ; à 10 h 18, le CPU dépasse son seuil ; à 10 h 20, la supervision de la base signale un nombre de connexions élevé. Construis une chronologie et trois hypothèses qui ne présument pas du lien causal.
+
+**Correction :** conserver l'ordre, les sources et les heures. Hypothèses possibles : la modification a provoqué une charge supplémentaire ; un facteur indépendant a fait augmenter la charge ; la hausse CPU est une conséquence d'une file d'attente en base. Il faut comparer les mesures avant/après, examiner les journaux de la base et comprendre la modification. Les événements doivent être corrélés au périmètre exact.
+
+### TP 7 — Contre-vérifier les 5 Pourquoi
+
+L'équipe conclut que l'erreur vient d'un manque de formation parce qu'un opérateur a oublié une étape. Quels tests ou preuves permettraient de vérifier cette conclusion ?
+
+**Correction :** examiner l'ergonomie de la procédure, les accès, les messages d'erreur, la pression opérationnelle, la version du document, les cas similaires, le contrôle automatisé et les consignes contradictoires. La formation peut être un facteur, mais ne doit pas être choisie par défaut au lieu de traiter une procédure ambiguë ou un système qui autorise une action dangereuse.
+
+### TP 8 — Choisir une action de prévention
+
+Un stockage sature tous les deux mois. L'équipe supprime manuellement des fichiers sans règles de rétention.
+
+**Correction :** identifier les consommateurs d'espace, les types de fichiers, les règles applicables et la croissance. Définir une rétention approuvée, un contrôle de capacité, un avertissement suffisamment anticipé et un test de suppression/restauration adapté. Ne supprime pas des données avant validation de leur propriétaire et des exigences de conservation.
+
+### Défi final — Analyse d'une panne répétitive
+
+Une application tombe en panne chaque fin de mois. Prépare un rapport RCA avec symptôme, impact, chronologie, hypothèses, éléments de preuve, cause confirmée ou limites, actions immédiates, actions permanentes et critères de validation.
+
+**Correction détaillée :** comparer plusieurs occurrences, pas seulement la dernière ; aligner les journaux et métriques sur la même fenêtre temporelle ; examiner la charge, les tâches planifiées et les dépendances ; tester les hypothèses ; préciser les facteurs contributifs ; affecter les actions à un propriétaire et définir une période d'observation. Si la cause n'est pas confirmée, écris « cause probable » ou « non déterminée », ne fabrique pas une certitude. La prévention est vérifiée sur plusieurs fins de mois et les incidents récurrents sont suivis jusqu'à ce que les critères convenus soient atteints.
