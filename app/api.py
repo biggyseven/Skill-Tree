@@ -1040,8 +1040,9 @@ def _exam_result_payload(row) -> dict:
     started_at = int(row["started_at"] or 0)
     expires_at = int(row["expires_at"] or started_at)
     submitted_at = int(row["submitted_at"] or started_at)
-    duration = max(0, submitted_at - started_at)
-    duration = min(duration, max(0, expires_at - started_at))
+    paused_seconds = int(row["paused_seconds"] or 0)
+    duration = max(0, submitted_at - started_at - paused_seconds)
+    duration = min(duration, max(0, expires_at - started_at - paused_seconds))
     return {
         "session_id": row["session_id"],
         "score": int(row["score"] or 0),
@@ -1083,6 +1084,8 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
         raise HTTPException(404, "Session d'examen introuvable.")
     if row["submitted"]:
         return _exam_result_payload(row)
+    if row["paused_at"] is not None:
+        raise HTTPException(409, "L'examen est en pause. Reprends-le avant de le terminer.")
 
     try:
         raw_ids = json.loads(row["question_ids"] or "[]")
@@ -1114,8 +1117,8 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
     stored_details = json.dumps(details, ensure_ascii=False)
     cursor = tree.conn.execute(
         "UPDATE exam_sessions SET submitted = 1, score = ?, passed = ?, correct = ?, total = ?, "
-        "submitted_at = ?, time_expired = ?, answers_json = ?, details_json = ? "
-        "WHERE session_id = ? AND submitted = 0",
+        "submitted_at = ?, time_expired = ?, answers_json = ?, details_json = ?, paused_at = NULL "
+        "WHERE session_id = ? AND submitted = 0 AND paused_at IS NULL",
         (score, int(passed), correct, total, submitted_at, int(timed_out), stored_answers, stored_details, session_id),
     )
     tree.conn.commit()
@@ -1124,6 +1127,64 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
         return _exam_result_payload(row)
     row = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
     return _exam_result_payload(row)
+
+
+@app.post("/api/exam/pause")
+def exam_pause(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    session_id = str(payload.get("session_id") or "").strip()
+    if not session_id or len(session_id) > 64:
+        raise HTTPException(422, "Identifiant de session manquant ou invalide.")
+    row = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
+    if row is None:
+        raise HTTPException(404, "Session d'examen introuvable.")
+    if row["submitted"]:
+        raise HTTPException(409, "Cet examen est déjà terminé.")
+    if row["paused_at"] is not None:
+        return {"session_id": session_id, "paused": True, "paused_at": int(row["paused_at"])}
+    now = int(time.time())
+    if now >= int(row["expires_at"]):
+        raise HTTPException(409, "Le temps est écoulé : l'examen ne peut plus être mis en pause.")
+    cursor = tree.conn.execute(
+        "UPDATE exam_sessions SET paused_at = ? WHERE session_id = ? AND submitted = 0 AND paused_at IS NULL",
+        (now, session_id),
+    )
+    tree.conn.commit()
+    if getattr(cursor, "rowcount", 1) == 0:
+        row = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if row is None or row["submitted"]:
+            raise HTTPException(409, "La session a été terminée avant la mise en pause.")
+        return {"session_id": session_id, "paused": row["paused_at"] is not None, "paused_at": row["paused_at"]}
+    return {"session_id": session_id, "paused": True, "paused_at": now}
+
+
+@app.post("/api/exam/resume")
+def exam_resume(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    session_id = str(payload.get("session_id") or "").strip()
+    if not session_id or len(session_id) > 64:
+        raise HTTPException(422, "Identifiant de session manquant ou invalide.")
+    row = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
+    if row is None:
+        raise HTTPException(404, "Session d'examen introuvable.")
+    if row["submitted"]:
+        raise HTTPException(409, "Cet examen est déjà terminé.")
+    if row["paused_at"] is None:
+        return {"session_id": session_id, "paused": False, "resumed_seconds": 0}
+    now = int(time.time())
+    paused_at = int(row["paused_at"])
+    paused_duration = max(0, now - paused_at)
+    new_expiry = int(row["expires_at"]) + paused_duration
+    cursor = tree.conn.execute(
+        "UPDATE exam_sessions SET expires_at = ?, paused_seconds = paused_seconds + ?, paused_at = NULL "
+        "WHERE session_id = ? AND submitted = 0 AND paused_at = ?",
+        (new_expiry, paused_duration, session_id, paused_at),
+    )
+    tree.conn.commit()
+    if getattr(cursor, "rowcount", 1) == 0:
+        row = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
+        if row is None or row["submitted"]:
+            raise HTTPException(409, "La session a été terminée avant la reprise.")
+        return {"session_id": session_id, "paused": row["paused_at"] is not None, "resumed_seconds": 0}
+    return {"session_id": session_id, "paused": False, "resumed_seconds": paused_duration, "expires_at": new_expiry}
 
 
 @app.post("/api/exam/start")
