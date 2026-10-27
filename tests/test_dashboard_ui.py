@@ -624,8 +624,18 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('target="_blank" rel="noopener noreferrer"', DASHBOARD_HTML)
         self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(action.node_id)\"", DASHBOARD_HTML)
         self.assertIn('@click="openVisualLab()"', DASHBOARD_HTML)
-        self.assertIn("Workspace visuel indisponible pour ce lab", DASHBOARD_HTML)
+        self.assertIn("🧪 Réessayer le Lab Workspace", DASHBOARD_HTML)
+        self.assertIn('x-if="hasVisualLab(detail.id)"', DASHBOARD_HTML)
+        self.assertIn('x-if="!hasVisualLab(detail.id)"', DASHBOARD_HTML)
+        self.assertIn("Ce laboratoire utilise actuellement le mode classique", DASHBOARD_HTML)
         self.assertNotIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", DASHBOARD_HTML)
+
+    def test_classic_labs_are_not_reported_as_visual_workspace_failures(self):
+        self.assertIn('x-if="hasVisualLab(detail.id)"', DASHBOARD_HTML)
+        self.assertIn('x-if="!hasVisualLab(detail.id)"', DASHBOARD_HTML)
+        self.assertIn("Ce laboratoire utilise actuellement le mode classique", DASHBOARD_HTML)
+        self.assertNotIn("Ce laboratoire n’a pas de scénario visuel v2 disponible", DASHBOARD_HTML)
+        self.assertNotIn(':disabled="labWorkspaceFallbackId === detail.id"', DASHBOARD_HTML)
 
     def test_switching_modules_sets_first_course_as_next_step_without_opening_reader(self):
         start = DASHBOARD_HTML.index("        setModule(id) {")
@@ -666,7 +676,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("if (response.status !== 404)", open_lab_method)
         self.assertIn("await this.show(nodeId);", open_lab_method)
         self.assertIn("this.modalTab = 'lab';", open_lab_method)
-        self.assertIn("this.labWorkspaceFallbackId = nodeId;", open_lab_method)
+        self.assertIn("this.labWorkspaceFallbackId = null;", open_lab_method)
+        self.assertNotIn("this.labWorkspaceFallbackId = nodeId;", open_lab_method)
 
         visual_start = DASHBOARD_HTML.index("async openVisualLab() {")
         visual_end = DASHBOARD_HTML.index("async openLab(id, openInNewTab = false) {", visual_start)

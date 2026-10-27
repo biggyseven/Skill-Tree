@@ -2216,16 +2216,23 @@
                 <div class="mt-3 flex flex-wrap gap-2"><span class="chip" x-show="detail.lab.duration" x-text="'⏱ ' + detail.lab.duration"></span><span class="chip" x-show="detail.lab.difficulty" x-text="detail.lab.difficulty"></span></div>
                 
                 <div class="mt-6">
-                  <button type="button" @click="openVisualLab()"
-                     :disabled="labWorkspaceFallbackId === detail.id"
-                     class="inline-flex rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
-                     x-text="labWorkspaceFallbackId === detail.id ? 'Workspace visuel indisponible pour ce lab' : '🧪 Ouvrir le Lab Workspace'">
-                  </button>
-                  <p x-show="labWorkspaceFallbackId === detail.id" role="status" class="mt-3 rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-100">
-                    Ce laboratoire n’a pas de scénario visuel v2 disponible (ou l’API ne l’a pas fourni). Il reste dans le mode classique ; le bouton est désactivé pour éviter une redirection en boucle.
-                  </p>
-                </div>
-              </div>
+                  <template x-if="hasVisualLab(detail.id)">
+                    <div>
+                      <button type="button" @click="openVisualLab()"
+                         class="inline-flex rounded-xl bg-gradient-to-r from-lime-400 to-cyan-400 px-5 py-3 text-sm font-bold text-black shadow-lg transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                         x-text="labWorkspaceFallbackId === detail.id ? '🧪 Réessayer le Lab Workspace' : '🧪 Ouvrir le Lab Workspace'">
+                      </button>
+                      <p x-show="labWorkspaceFallbackId === detail.id" role="status" class="mt-3 rounded-xl border border-amber-400/20 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-100">
+                        L’API n’a pas pu fournir ce scénario visuel. Tu peux réessayer ; le laboratoire classique reste disponible.
+                      </p>
+                    </div>
+                  </template>
+                  <template x-if="!hasVisualLab(detail.id)">
+                    <p class="rounded-xl border border-white/10 bg-[color:var(--s1)] p-3 text-xs leading-relaxed text-zinc-400">
+                      Ce laboratoire utilise actuellement le mode classique. Son scénario visuel n’a pas encore été migré ; ce n’est pas une erreur de chargement.
+                    </p>
+                  </template>
+                </div>              </div>
             </template>
           </div>
         </div> <!-- Fin x-show="!detailLoading" -->
@@ -5785,6 +5792,12 @@
           // Ne bloque pas l'ouverture de Labs sur toutes les requêtes de détail historiques.
           await catalogTask;
         },
+        hasVisualLab(id) {
+          const nodeId = String(id || '');
+          if (!nodeId) return false;
+          return this.labIndex[nodeId]?.kind === 'workspace-v2' ||
+            (Array.isArray(this.labCatalog) && this.labCatalog.some(lab => String(lab?.id || '') === nodeId));
+        },
         async openVisualLab() {
           const nodeId = String(this.detail?.id || '');
           if (!nodeId) return;
@@ -5875,7 +5888,8 @@
           }
           await this.show(nodeId);
           this.modalTab = 'lab';
-          this.labWorkspaceFallbackId = nodeId;
+          // Le repli classique est un choix de compatibilité, pas une panne v2.
+          this.labWorkspaceFallbackId = null;
         },
         isLabDone(id) { return this.labsDone.includes(id); },
         stepDone(i) { return !!(this.detail && this.labSteps[this.detail.id + ':' + i]); },

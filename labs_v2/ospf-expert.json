@@ -1,0 +1,298 @@
+{
+  "schema_version": 2,
+  "id": "ospf-expert",
+  "title": "OSPF multi-area — backbone et area 10",
+  "level": "expert",
+  "module": "Routage avancé",
+  "duration_min": 30,
+  "difficulty": "expert",
+  "prompt": "Configurez une architecture OSPF multi-area : R1 et R2 partagent le backbone area 0 ; R2 et R3 partagent l’area 10. R2 joue le rôle d’ABR.",
+  "objectives": [
+    "Définir un router-id unique sur chaque routeur.",
+    "Annoncer 10.0.12.0/30 dans l’area 0 sur R1 et R2.",
+    "Annoncer 10.0.23.0/30 dans l’area 10 sur R2 et R3.",
+    "Vérifier que R2 annonce des réseaux dans les deux areas."
+  ],
+  "hints": [
+    "Sur chaque routeur : router ospf 1 puis router-id X.X.X.X.",
+    "Backbone : network 10.0.12.0 0.0.0.3 area 0.",
+    "Area 10 : network 10.0.23.0 0.0.0.3 area 10."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-ospf-expert",
+    "metadata": {
+      "name": "OSPF multi-area",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 170,
+        "y": 260,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 500,
+        "y": 260,
+        "label": "R2",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 830,
+        "y": 260,
+        "label": "R3",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "R2",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "r1-router-id",
+        "description": "R1 possède un router-id unique",
+        "device": "R1",
+        "path": "config.ospf.router_id",
+        "operator": "equals",
+        "expected": "1.1.1.1"
+      },
+      {
+        "id": "r1-area0",
+        "description": "R1 annonce son lien dans l’area 0",
+        "device": "R1",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "10.0.12.0/30"
+        }
+      },
+      {
+        "id": "r2-router-id",
+        "description": "R2 possède un router-id unique",
+        "device": "R2",
+        "path": "config.ospf.router_id",
+        "operator": "equals",
+        "expected": "2.2.2.2"
+      },
+      {
+        "id": "r2-area0",
+        "description": "R2 rejoint le backbone",
+        "device": "R2",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 0,
+          "network": "10.0.12.0/30"
+        }
+      },
+      {
+        "id": "r2-area10",
+        "description": "R2 annonce le lien de l’area 10",
+        "device": "R2",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 10,
+          "network": "10.0.23.0/30"
+        }
+      },
+      {
+        "id": "r3-router-id",
+        "description": "R3 possède un router-id unique",
+        "device": "R3",
+        "path": "config.ospf.router_id",
+        "operator": "equals",
+        "expected": "3.3.3.3"
+      },
+      {
+        "id": "r3-area10",
+        "description": "R3 annonce le lien dans l’area 10",
+        "device": "R3",
+        "path": "config.ospf.areas",
+        "operator": "contains",
+        "expected": {
+          "area": 10,
+          "network": "10.0.23.0/30"
+        }
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 150,
+  "badges": [
+    "first_blood"
+  ]
+}

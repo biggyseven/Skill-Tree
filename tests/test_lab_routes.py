@@ -209,6 +209,29 @@ class LabValidationTests(unittest.TestCase):
         self.assertEqual(acl_lab["duration_min"], 20)
         self.assertEqual(acl_lab["schema_version"], 2)
 
+    def test_supported_network_scenarios_load_with_real_topology_and_rules(self) -> None:
+        scenario_ids = (
+            "routing-debutant",
+            "ospf-intermediaire",
+            "ospf-expert",
+            "vlan-expert",
+            "firewall-debutant",
+            "secu-l2-intermediaire",
+        )
+        for lab_id in scenario_ids:
+            with self.subTest(lab_id=lab_id):
+                payload = lab_routes._load_lab_file(lab_id)
+                self.assertIsNotNone(payload)
+                definition = payload["definition"]
+                self.assertGreaterEqual(len(definition.initial_topology.nodes), 2)
+                self.assertGreaterEqual(len(definition.initial_topology.links), 1)
+                self.assertEqual(definition.check.type, "config_assertions")
+                self.assertGreaterEqual(len(definition.check.rules), 3)
+                initial_result = lab_routes._evaluate_lab_check(
+                    definition, definition.initial_topology
+                )
+                self.assertFalse(initial_result["passed"])
+
     def test_bom_json_lab_definition_loads(self) -> None:
         labs_dir = Path(self.temp_dir.name) / "labs_v2"
         labs_dir.mkdir()

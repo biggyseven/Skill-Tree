@@ -1,0 +1,328 @@
+{
+  "schema_version": 2,
+  "id": "firewall-debutant",
+  "title": "Pare-feu — filtrer HTTPS vers un serveur",
+  "level": "débutant",
+  "module": "Cybersécurité",
+  "duration_min": 20,
+  "difficulty": "débutant",
+  "prompt": "Configurez une ACL étendue 101 sur R1 pour bloquer uniquement HTTPS depuis le poste Attaquant vers le serveur web 10.10.10.100. Autorisez le reste du trafic IP et appliquez l’ACL en entrée sur Fa0/0.",
+  "objectives": [
+    "Créer le deny TCP vers le port 443 avant toute règle générale.",
+    "Autoriser le reste du trafic IP avec permit ip any any.",
+    "Appliquer access-group 101 in sur Fa0/0.",
+    "Vérifier l’ordre de traitement de l’ACL."
+  ],
+  "hints": [
+    "En configuration globale : access-list 101 deny tcp host 192.168.10.10 host 10.10.10.100 eq 443.",
+    "Ajoutez ensuite access-list 101 permit ip any any.",
+    "Sur Fa0/0 : ip access-group 101 in."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-firewall-debutant",
+    "metadata": {
+      "name": "Filtrage HTTPS par ACL étendue",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 350,
+        "y": 180,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Réseau utilisateur",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Réseau serveur",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "Layer 2",
+        "x": 350,
+        "y": 360,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "attaquant",
+        "type": "pc",
+        "model": "PC",
+        "x": 120,
+        "y": 520,
+        "label": "attaquant",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "attaquant",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "serveur-web",
+        "type": "server",
+        "model": "Server",
+        "x": 610,
+        "y": 500,
+        "label": "serveur-web",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.100",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "serveur-web",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "attaquant",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "serveur-web",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "acl-deny-https",
+        "description": "Le deny HTTPS se trouve en première position",
+        "device": "R1",
+        "path": "config.acls[0]",
+        "operator": "equals",
+        "expected": "101 deny tcp host 192.168.10.10 host 10.10.10.100 eq 443"
+      },
+      {
+        "id": "acl-permit-rest",
+        "description": "Le reste du trafic IP est autorisé après la règle ciblée",
+        "device": "R1",
+        "path": "config.acls[1]",
+        "operator": "equals",
+        "expected": "101 permit ip any any"
+      },
+      {
+        "id": "acl-inbound",
+        "description": "L’ACL 101 est appliquée en entrée sur Fa0/0",
+        "device": "R1",
+        "path": "ports[0].access_group_in",
+        "operator": "equals",
+        "expected": 101
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 100,
+  "badges": [
+    "first_blood"
+  ]
+}

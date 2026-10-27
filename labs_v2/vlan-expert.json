@@ -1,0 +1,577 @@
+{
+  "schema_version": 2,
+  "id": "vlan-expert",
+  "title": "VLAN avancés — trunk transportant deux VLAN",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "duration_min": 30,
+  "difficulty": "expert",
+  "prompt": "Créez les VLAN 10 et 20 sur SW1 et SW2. Affectez les ports utilisateurs au bon VLAN et configurez le trunk Fa0/24 entre les deux switches pour transporter les deux VLAN.",
+  "objectives": [
+    "Créer VLAN 10 et VLAN 20 sur les deux switches.",
+    "Configurer Fa0/1 en access VLAN 10 sur SW1 et SW2.",
+    "Configurer Fa0/2 en access VLAN 20 sur SW1 et SW2.",
+    "Configurer Fa0/24 en trunk sur les deux extrémités.",
+    "Vérifier la cohérence des deux côtés du trunk."
+  ],
+  "hints": [
+    "Configuration globale : vlan 10 puis vlan 20.",
+    "Sur un port utilisateur : interface Fa0/1, switchport mode access, switchport access vlan 10.",
+    "Sur les deux switches : interface Fa0/24 puis switchport mode trunk."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-vlan-expert",
+    "metadata": {
+      "name": "VLAN 10/20 avec trunk inter-switch",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "Layer 2",
+        "x": 300,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "PC-A — VLAN 10",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "PC-B — VLAN 20",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Trunk vers SW2",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW2",
+        "type": "switch",
+        "model": "Layer 2",
+        "x": 780,
+        "y": 300,
+        "label": "SW2",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "PC-C — VLAN 10",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "PC-D — VLAN 20",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Trunk vers SW1",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "model": "PC",
+        "x": 120,
+        "y": 90,
+        "label": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC-B",
+        "type": "pc",
+        "model": "PC",
+        "x": 120,
+        "y": 520,
+        "label": "PC-B",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.20.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-B",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC-C",
+        "type": "pc",
+        "model": "PC",
+        "x": 960,
+        "y": 90,
+        "label": "PC-C",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.10.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-C",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC-D",
+        "type": "pc",
+        "model": "PC",
+        "x": 960,
+        "y": 520,
+        "label": "PC-D",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "192.168.20.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-D",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "PC-B",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC-C",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L5",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC-D",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "sw1-vlan10",
+        "description": "SW1 contient le VLAN 10",
+        "device": "SW1",
+        "path": "config.vlans",
+        "operator": "contains",
+        "expected": {
+          "id": 10,
+          "name": "VLAN10"
+        }
+      },
+      {
+        "id": "sw1-vlan20",
+        "description": "SW1 contient le VLAN 20",
+        "device": "SW1",
+        "path": "config.vlans",
+        "operator": "contains",
+        "expected": {
+          "id": 20,
+          "name": "VLAN20"
+        }
+      },
+      {
+        "id": "sw1-access10-mode",
+        "description": "SW1 Fa0/1 est en mode access",
+        "device": "SW1",
+        "path": "ports[0].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "sw1-access10-vlan",
+        "description": "SW1 Fa0/1 appartient au VLAN 10",
+        "device": "SW1",
+        "path": "ports[0].vlan",
+        "operator": "equals",
+        "expected": 10
+      },
+      {
+        "id": "sw1-access20-mode",
+        "description": "SW1 Fa0/2 est en mode access",
+        "device": "SW1",
+        "path": "ports[1].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "sw1-access20-vlan",
+        "description": "SW1 Fa0/2 appartient au VLAN 20",
+        "device": "SW1",
+        "path": "ports[1].vlan",
+        "operator": "equals",
+        "expected": 20
+      },
+      {
+        "id": "sw1-trunk",
+        "description": "SW1 Fa0/24 est en trunk",
+        "device": "SW1",
+        "path": "ports[2].mode",
+        "operator": "equals",
+        "expected": "trunk"
+      },
+      {
+        "id": "sw2-vlan10",
+        "description": "SW2 contient le VLAN 10",
+        "device": "SW2",
+        "path": "config.vlans",
+        "operator": "contains",
+        "expected": {
+          "id": 10,
+          "name": "VLAN10"
+        }
+      },
+      {
+        "id": "sw2-vlan20",
+        "description": "SW2 contient le VLAN 20",
+        "device": "SW2",
+        "path": "config.vlans",
+        "operator": "contains",
+        "expected": {
+          "id": 20,
+          "name": "VLAN20"
+        }
+      },
+      {
+        "id": "sw2-access10-mode",
+        "description": "SW2 Fa0/1 est en mode access",
+        "device": "SW2",
+        "path": "ports[0].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "sw2-access10-vlan",
+        "description": "SW2 Fa0/1 appartient au VLAN 10",
+        "device": "SW2",
+        "path": "ports[0].vlan",
+        "operator": "equals",
+        "expected": 10
+      },
+      {
+        "id": "sw2-access20-mode",
+        "description": "SW2 Fa0/2 est en mode access",
+        "device": "SW2",
+        "path": "ports[1].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "sw2-access20-vlan",
+        "description": "SW2 Fa0/2 appartient au VLAN 20",
+        "device": "SW2",
+        "path": "ports[1].vlan",
+        "operator": "equals",
+        "expected": 20
+      },
+      {
+        "id": "sw2-trunk",
+        "description": "SW2 Fa0/24 est en trunk",
+        "device": "SW2",
+        "path": "ports[2].mode",
+        "operator": "equals",
+        "expected": "trunk"
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 120,
+  "badges": [
+    "first_blood"
+  ]
+}
