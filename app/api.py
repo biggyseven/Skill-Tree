@@ -60,7 +60,7 @@ from .engine import (
 from .labs_runner import (
     LabRunnerError, LabSessionError, exec_in_lab, start_interactive_lab, validate_lab,
 )
-from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons
+from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons, sync_content_additions
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if load_dotenv is not None:
@@ -127,6 +127,9 @@ async def lifespan(_app: FastAPI):
     conn = connect(DB_PATH)
     try:
         ensure_ready(conn)
+        catalog_sync = sync_content_additions(conn)
+        if any(catalog_sync.values()):
+            print(f"Synchronisation additive du catalogue pédagogique : {catalog_sync}")
     finally:
         conn.close()
     yield
@@ -261,6 +264,27 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
         "terminal": terminal_spec,
         "challenge": {"prompt": node.description, "time_limit": challenge["time_limit"]} if challenge else None,
     }
+
+@app.get("/api/node/{node_id}/quiz")
+def read_quiz(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
+    """Expose uniquement l'énoncé et les choix ; jamais la réponse attendue."""
+    node = _get_node(tree, node_id)
+    questions = tree.questions(node.id, ProofKind.QUIZ)
+    if not questions:
+        raise HTTPException(status_code=404, detail="Quiz indisponible pour ce cours.")
+    return {
+        "node_id": node.id,
+        "questions": [
+            {
+                "id": question.id,
+                "type": question.question_type,
+                "prompt": question.prompt,
+                "choices": list(question.choices),
+            }
+            for question in questions
+        ],
+    }
+
 
 @app.post("/api/node/{node_id}/quiz")
 def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
