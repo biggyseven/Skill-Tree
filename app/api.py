@@ -792,7 +792,9 @@ def read_profile(tree: SkillTree = Depends(get_tree)) -> dict:
     days = streak_days(tree.conn)
     labs = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='lab' AND passed=1").fetchone()[0]
     legacy_exams = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='exam' AND passed=1").fetchone()[0]
-    saved_exams = tree.conn.execute("SELECT COUNT(*) FROM exam_sessions WHERE submitted=1 AND passed=1").fetchone()[0]
+    saved_exams = tree.conn.execute(
+        "SELECT COUNT(*) FROM exam_sessions WHERE submitted=1 AND passed=1 AND node_id IS NULL"
+    ).fetchone()[0]
     exams = int(legacy_exams or 0) + int(saved_exams or 0)
     return {
         "level": stats, "total_nodes": total_nodes, "validated_nodes": validated_nodes,
@@ -989,8 +991,12 @@ def _create_exam_session(
     count: int,
     time_limit: int,
     category: str,
+    question_pool: list[Question] | None = None,
+    node_id: str | None = None,
+    exam_type: str = "category",
+    passing_score: int | None = None,
 ) -> dict:
-    pool = _exam_question_pool(tree, nodes)
+    pool = question_pool if question_pool is not None else _exam_question_pool(tree, nodes)
     if not pool:
         raise HTTPException(
             422,
@@ -1000,21 +1006,36 @@ def _create_exam_session(
     now = int(time.time())
     session_id = uuid.uuid4().hex
     category = category.strip() or "Examen personnalisé"
+    effective_pass_score = EXAM_PASS_SCORE if passing_score is None else int(passing_score)
     tree.conn.execute(
         "INSERT INTO exam_sessions "
         "(session_id, category, question_ids, started_at, expires_at, submitted, "
-        "score, passed, correct, total, submitted_at, time_expired, answers_json, details_json) "
-        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]')",
-        (session_id, category, json.dumps([question.id for question in selected]), now, now + time_limit, len(selected)),
+        "score, passed, correct, total, submitted_at, time_expired, answers_json, details_json, "
+        "paused_at, paused_seconds, node_id, exam_type, passing_score, result_json) "
+        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]', NULL, 0, ?, ?, ?, '')",
+        (
+            session_id,
+            category,
+            json.dumps([question.id for question in selected]),
+            now,
+            now + time_limit,
+            len(selected),
+            node_id,
+            exam_type,
+            effective_pass_score,
+        ),
     )
     tree.conn.commit()
     nodes_by_id = {node.id: node for node in nodes}
     return {
         "id": session_id,
         "category": category,
+        "exam_type": exam_type,
+        "node_id": node_id,
         "time_limit": time_limit,
         "duration_seconds": time_limit,
-        "pass_score": EXAM_PASS_SCORE,
+        "pass_score": effective_pass_score,
+        "passing_score": effective_pass_score,
         "requested_count": count,
         "question_count": len(selected),
         "questions": [_exam_public_question(question, nodes_by_id) for question in selected],
@@ -1070,6 +1091,17 @@ def _grade_exam_question(question: Question, answer: int | str | None) -> dict:
 
 
 def _exam_result_payload(row) -> dict:
+    keys = row.keys() if hasattr(row, "keys") else ()
+    stored_json = row["result_json"] if "result_json" in keys else ""
+    if stored_json:
+        try:
+            stored_result = json.loads(stored_json)
+            if isinstance(stored_result, dict):
+                return stored_result
+        except (TypeError, ValueError, json.JSONDecodeError):
+            # Les anciennes sessions peuvent ne pas contenir de résultat sérialisé.
+            pass
+
     try:
         answers = json.loads(row["answers_json"] or "[]")
     except (TypeError, ValueError, json.JSONDecodeError):
@@ -1084,7 +1116,11 @@ def _exam_result_payload(row) -> dict:
     paused_seconds = int(row["paused_seconds"] or 0)
     duration = max(0, submitted_at - started_at - paused_seconds)
     duration = min(duration, max(0, expires_at - started_at - paused_seconds))
+    passing_score = int(row["passing_score"] if "passing_score" in keys and row["passing_score"] is not None else EXAM_PASS_SCORE)
+    node_id = row["node_id"] if "node_id" in keys else None
+    exam_type = row["exam_type"] if "exam_type" in keys else "category"
     return {
+        "success": bool(row["submitted"]),
         "session_id": row["session_id"],
         "score": int(row["score"] or 0),
         "passed": bool(row["passed"]),
@@ -1094,7 +1130,10 @@ def _exam_result_payload(row) -> dict:
         "time_expired": bool(row["time_expired"]),
         "answers": answers,
         "details": details,
-        "pass_score": EXAM_PASS_SCORE,
+        "pass_score": passing_score,
+        "passing_score": passing_score,
+        "node_id": node_id,
+        "exam_type": exam_type,
         "submitted": bool(row["submitted"]),
         "offline": False,
     }
