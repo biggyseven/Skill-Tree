@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Budgétisation et calcul du ROI » ?",
+      "prompt": "Quelle mesure inclut acquisition, mise en œuvre, exploitation et sortie sur un horizon défini ?",
       "choices": [
-        "Le sujet principal du cours : Budgétisation et calcul du ROI",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "TCO",
+        "MTTR",
+        "RPO",
+        "Backlog"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le coût total de possession couvre le cycle de vie défini, pas uniquement le prix initial."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème une analyse de sensibilité cherche-t-elle à comprendre ?",
+      "choices": [
+        "La date de signature uniquement",
+        "L'effet des hypothèses incertaines sur le résultat et la décision",
+        "Le nombre de personnes en réunion",
+        "La version d'un document"
+      ],
+      "answer": 1,
+      "explanation": "La sensibilité fait ressortir les hypothèses qui peuvent changer le classement ou la rentabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle formule simple du ROI net peut être utilisée si les définitions sont explicites ?",
+      "choices": [
+        "Investissement / bénéfices × 100",
+        "Bénéfices bruts + temps",
+        "(Bénéfices retenus − coûts retenus) / coûts retenus × 100",
+        "Coûts fixes uniquement"
+      ],
+      "answer": 2,
+      "explanation": "Le ROI dépend d'une définition explicite des coûts et bénéfices inclus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un ROI positif ne suffit-il pas à décider ?",
+      "choices": [
+        "Le ROI ne peut pas être calculé",
+        "Toute dépense est forcément acceptable",
+        "Le coût initial est toujours nul",
+        "Risque, délai, coût complet, obligations et options alternatives comptent aussi"
+      ],
+      "answer": 3,
+      "explanation": "Le ROI est une aide à la décision, pas une règle unique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe gagne 100 heures par mois. Est-ce automatiquement une économie de trésorerie ?",
+      "choices": [
+        "Non, c'est d'abord une capacité libérée à valoriser selon son usage ou les coûts réellement évités",
+        "Oui, toujours",
+        "Oui, si les heures sont documentées",
+        "Non, les heures ne peuvent jamais être valorisées"
+      ],
+      "answer": 0,
+      "explanation": "Un gain de capacité ne devient pas automatiquement une réduction de facture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait une VAN ?",
+      "choices": [
+        "Ignore les flux futurs",
+        "Actualise les flux nets futurs selon un taux et un horizon, puis retranche l'investissement initial",
+        "Compte seulement les heures",
+        "Remplace le TCO"
+      ],
+      "answer": 1,
+      "explanation": "La VAN tient compte du calendrier des flux selon les hypothèses retenues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il comparer entre deux options de maintenance ?",
+      "choices": [
+        "Seulement le prix catalogue",
+        "Le coût de première année uniquement",
+        "TCO, valeur, risques et horizon commun avec hypothèses explicites",
+        "Les noms des fournisseurs"
+      ],
+      "answer": 2,
+      "explanation": "La comparaison doit inclure les coûts de cycle de vie et les différences de risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un suivi budgétaire robuste ?",
+      "choices": [
+        "Uniquement le budget approuvé",
+        "Uniquement les dépenses payées",
+        "Le nombre de projets",
+        "Prévu, engagé, réel, reste à faire, prévision à terminaison et explication des écarts"
+      ],
+      "answer": 3,
+      "explanation": "Une prévision opérationnelle doit être mise à jour à partir de l'exécution réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment éviter un double comptage de bénéfices ?",
+      "choices": [
+        "Décomposer les flux et vérifier qu'une même économie n'est pas valorisée dans deux catégories",
+        "Augmenter le taux d'actualisation au hasard",
+        "Compter plusieurs fois les heures libérées",
+        "Supprimer les coûts de transition"
+      ],
+      "answer": 0,
+      "explanation": "Le business case doit montrer les catégories et supprimer les recouvrements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une mise à niveau est obligatoire pour traiter un risque grave mais son ROI direct est faible. Que faire ?",
+      "choices": [
+        "L'écarter automatiquement",
+        "Respecter le processus de risque et d'obligation, puis comparer les options de réalisation",
+        "Falsifier les bénéfices",
+        "Attendre l'incident"
+      ],
+      "answer": 1,
+      "explanation": "Les obligations ou risques majeurs ne sont pas décidés sur le seul ROI."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il définir le propriétaire des bénéfices ?",
+      "choices": [
+        "Après la clôture",
+        "Seulement si les bénéfices sont financiers",
+        "Avant l'approbation, avec baseline, formule et date de mesure",
+        "Le propriétaire n'est jamais nécessaire"
+      ],
+      "answer": 2,
+      "explanation": "L'attribution préalable permet de mesurer les résultats après livraison."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser des scénarios bas, central et haut ?",
+      "choices": [
+        "Pour masquer l'incertitude",
+        "Pour garantir que le scénario central sera réalisé",
+        "Pour éviter de documenter les hypothèses",
+        "Pour rendre explicite l'incertitude des coûts, délais et bénéfices"
+      ],
+      "answer": 3,
+      "explanation": "Les scénarios aident à comprendre la robustesse de la décision."
     }
   ]
 }
