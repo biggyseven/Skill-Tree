@@ -73,10 +73,17 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("speechTextFromMermaidDiagram(source, svg)", DASHBOARD_HTML)
         self.assertIn("readable.querySelectorAll('.lesson-diagram-block').forEach(root =>", DASHBOARD_HTML)
         self.assertIn("Les colonnes présentent un élément de référence", DASHBOARD_HTML)
-        self.assertIn("Une liaison va du bloc", DASHBOARD_HTML)
+        self.assertNotIn("Une liaison va du bloc", DASHBOARD_HTML)
+        self.assertIn("Le schéma relie le bloc « ' + from + ' » au bloc « ' + to + ' »", DASHBOARD_HTML)
+        self.assertIn("Les blocs « ' + from + ' » et « ' + to + ' » sont reliés dans les deux sens", DASHBOARD_HTML)
+        self.assertNotIn("Voici comment les blocs sont reliés.", DASHBOARD_HTML)
         self.assertIn("Le schéma se lit ainsi :", DASHBOARD_HTML)
         self.assertIn("Les flèches insérées dans les phrases ou schémas inline", DASHBOARD_HTML)
         self.assertIn("let group = '';", DASHBOARD_HTML)
+        self.assertIn("new Intl.Segmenter('fr', { granularity: 'sentence' })", DASHBOARD_HTML)
+        self.assertIn("quelle intonation adopter", DASHBOARD_HTML)
+        self.assertIn("pour une prosodie", DASHBOARD_HTML)
+        self.assertIn("appendSentence(group)", DASHBOARD_HTML)
         self.assertIn("Lecture naturelle des cours, schémas textuels et tableaux ligne par ligne", DASHBOARD_HTML)
 
     def test_course_reader_restores_position_per_course_and_allows_start_selection(self):

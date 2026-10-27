@@ -4183,9 +4183,9 @@
             addLabel(from);
             addLabel(to);
             const relation = pointsUp && !pointsDown
-              ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
+              ? 'Le schéma relie le bloc « ' + from + ' » au bloc « ' + to + ' »'
               : pointsDown && !pointsUp
-                ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
+                ? 'Le schéma relie le bloc « ' + from + ' » au bloc « ' + to + ' »'
                 : 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés verticalement';
             if (!relationships.includes(relation)) relationships.push(relation);
           }
@@ -4213,8 +4213,8 @@
               addLabel(from);
               addLabel(to);
               const relation = /^(?:<-->|<->|↔)$/u.test(arrow)
-                ? 'Les blocs « ' + from + ' » et « ' + to + ' » communiquent dans les deux sens'
-                : 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »';
+                ? 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés dans les deux sens'
+                : 'Le schéma relie le bloc « ' + from + ' » au bloc « ' + to + ' »';
               if (!relationships.includes(relation)) relationships.push(relation);
             }
           };
@@ -4231,7 +4231,7 @@
             }
           });
           const spoken = [];
-          if (relationships.length) spoken.push('Schéma textuel. ' + relationships.map(value => value + '.').join(' '));
+          if (relationships.length) spoken.push(relationships.map(value => value + '.').join(' '));
           const unmentioned = labels.filter(label => !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR'))));
           if (unmentioned.length) spoken.push('Autres éléments représentés : ' + unmentioned.join(', ') + '.');
           const connectorOnlyLines = lines.filter(isConnectorOnlyLine).length;
@@ -4300,8 +4300,8 @@
             let to = resolveNode(edge.to);
             if (/^(?:<--|<-|←)$/u.test(edge.arrow)) [from, to] = [to, from];
             const relation = /^(?:<-->|<->|↔)$/u.test(edge.arrow)
-              ? 'Les blocs « ' + from + ' » et « ' + to + ' » communiquent dans les deux sens'
-              : 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »';
+              ? 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés dans les deux sens'
+              : 'Le schéma relie le bloc « ' + from + ' » au bloc « ' + to + ' »';
             addRelation(relation + (edge.label ? ' en passant par ' + edge.label : '') + '.');
           }
 
@@ -4322,7 +4322,7 @@
             if (!allLabels.some(item => item.toLocaleLowerCase('fr-FR') === value.toLocaleLowerCase('fr-FR'))) allLabels.push(value);
           });
           const spoken = [];
-          if (relationships.length) spoken.push('Voici comment les blocs sont reliés. ' + relationships.join(' '));
+          if (relationships.length) spoken.push(relationships.join(' '));
           const otherLabels = allLabels.filter(label =>
             !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR')))
           );
