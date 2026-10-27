@@ -307,12 +307,14 @@ class ExamApiTests(unittest.TestCase):
         exam = response.json()
         self.assertEqual(exam["passing_score"], 80)
         correct_answers = self._answer_key(exam)
-        self.assertEqual(len(correct_answers), 10)
+        total_questions = len(correct_answers)
+        self.assertEqual(total_questions, 20)
 
-        # Huit bonnes réponses sur dix donnent exactement 80 %.
+        # Seize bonnes réponses sur vingt donnent exactement 80 %.
+        passing_answers = round(total_questions * 0.8)
         answers = [
-            correct_answers[index] if index < 8 else None
-            for index in range(len(correct_answers))
+            correct_answers[index] if index < passing_answers else None
+            for index in range(total_questions)
         ]
         submitted = self.client.post(
             "/api/exam/submit",
