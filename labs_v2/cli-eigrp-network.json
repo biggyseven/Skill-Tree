@@ -23,7 +23,7 @@
     "schema_version": 2,
     "topology_id": "topo-cli-eigrp-network",
     "metadata": {
-      "name": "EIGRP AS 100",
+      "name": "EIGRP AS 100 — réseau 10.1.0.0/16",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -45,7 +45,7 @@
             "mac": "",
             "mode": "routed",
             "ip": "10.1.0.1",
-            "mask": "255.255.255.0",
+            "mask": "255.255.0.0",
             "vlan": null,
             "description": "Lien EIGRP vers R2",
             "access_group_in": null,
@@ -118,7 +118,7 @@
             "mac": "",
             "mode": "routed",
             "ip": "10.1.0.2",
-            "mask": "255.255.255.0",
+            "mask": "255.255.0.0",
             "vlan": null,
             "description": "Voisin EIGRP AS 100",
             "access_group_in": null,
