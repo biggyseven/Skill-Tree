@@ -1,0 +1,45 @@
+name: Lab Workspace production bundle sync
+
+on:
+  push:
+    paths:
+      - 'app/lab-workspace/**'
+      - 'static/lab/**'
+      - '.github/workflows/lab-workspace-bundle-sync.yml'
+  pull_request:
+    paths:
+      - 'app/lab-workspace/**'
+      - 'static/lab/**'
+      - '.github/workflows/lab-workspace-bundle-sync.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/lab-workspace/package-lock.json
+      - name: Install JavaScript dependencies
+        working-directory: app/lab-workspace
+        run: npm ci
+      - name: Build production Lab Workspace assets
+        working-directory: app/lab-workspace
+        run: npm run build
+      - name: Export production bundle for verification
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lab-workspace-production-bundle
+          path: static/lab/
+          if-no-files-found: error
+          retention-days: 3
+      - name: Ensure generated assets are committed
+        run: git diff --exit-code -- static/lab/
