@@ -1,0 +1,434 @@
+{
+  "schema_version": 2,
+  "id": "aws-vpc-intermediaire",
+  "title": "AWS VPC — Subnets, Internet Gateway et NAT Gateway",
+  "level": "intermédiaire",
+  "module": "Cloud Computing",
+  "prompt": "Complétez un VPC AWS avec un sous-réseau public et un privé. Attachez l’Internet Gateway, configurez les routes par défaut appropriées, activez le NAT Gateway pour les sorties privées et les VPC Flow Logs.",
+  "objectives": [
+    "Définir un CIDR VPC cohérent.",
+    "Attacher l’Internet Gateway et configurer la route publique.",
+    "Activer le NAT Gateway et la route privée.",
+    "Désactiver l’attribution par défaut d’IP publique aux ressources privées.",
+    "Activer Flow Logs pour diagnostiquer le trafic."
+  ],
+  "hints": [
+    "Une route publique utilise l’Internet Gateway.",
+    "Une ressource privée sort par un NAT Gateway sans accepter de connexions entrantes directes.",
+    "Le NAT Gateway lui-même doit résider dans un sous-réseau public."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-aws-vpc-intermediaire",
+    "metadata": {
+      "name": "AWS VPC — Subnets publics/privés et NAT Gateway",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "x": 60,
+        "y": 240,
+        "label": "INTERNET",
+        "model": "INTERNET",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Internet",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "INTERNET"
+        }
+      },
+      {
+        "id": "IGW",
+        "type": "cloud",
+        "x": 300,
+        "y": 120,
+        "label": "IGW",
+        "model": "IGW",
+        "ports": [
+          {
+            "id": "outside",
+            "name": "outside",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "inside",
+            "name": "inside",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "IGW",
+          "routes": [
+            {
+              "resource": "internet-gateway",
+              "attached": false,
+              "route_table": "rtb-public"
+            }
+          ]
+        }
+      },
+      {
+        "id": "VPC",
+        "type": "cloud",
+        "x": 560,
+        "y": 240,
+        "label": "VPC",
+        "model": "VPC",
+        "ports": [
+          {
+            "id": "igw",
+            "name": "igw",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "public",
+            "name": "public",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "private",
+            "name": "private",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "nat",
+            "name": "nat",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "VPC",
+          "routes": [
+            {
+              "protocol": "aws-vpc",
+              "vpc_cidr": "10.0.0.0/16",
+              "public_subnet": "10.0.1.0/24",
+              "private_subnet": "10.0.2.0/24",
+              "igw_attached": false,
+              "nat_gateway_enabled": false,
+              "route_tables": {
+                "public_default": "",
+                "private_default": ""
+              },
+              "flow_logs_enabled": false,
+              "public_ip_on_private_instances": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "EC2-PUBLIC",
+        "type": "server",
+        "x": 850,
+        "y": 100,
+        "label": "EC2-PUBLIC",
+        "model": "EC2-PUBLIC",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.1.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "EC2-PUBLIC",
+          "routes": [
+            {
+              "subnet": "public",
+              "public_ip": true,
+              "security_group": "web"
+            }
+          ]
+        }
+      },
+      {
+        "id": "NATGW",
+        "type": "cloud",
+        "x": 850,
+        "y": 280,
+        "label": "NATGW",
+        "model": "NATGW",
+        "ports": [
+          {
+            "id": "eni",
+            "name": "eni",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "NATGW",
+          "routes": [
+            {
+              "resource": "nat-gateway",
+              "enabled": false,
+              "subnet": "public"
+            }
+          ]
+        }
+      },
+      {
+        "id": "APP-PRIVATE",
+        "type": "server",
+        "x": 1100,
+        "y": 380,
+        "label": "APP-PRIVATE",
+        "model": "APP-PRIVATE",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.2.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP-PRIVATE",
+          "routes": [
+            {
+              "subnet": "private",
+              "public_ip": true,
+              "default_route": "igw"
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "INTERNET-IGW",
+        "from": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "IGW",
+          "port": "outside"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "IGW-VPC",
+        "from": {
+          "node": "IGW",
+          "port": "inside"
+        },
+        "to": {
+          "node": "VPC",
+          "port": "igw"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VPC-EC2",
+        "from": {
+          "node": "VPC",
+          "port": "public"
+        },
+        "to": {
+          "node": "EC2-PUBLIC",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VPC-NAT",
+        "from": {
+          "node": "VPC",
+          "port": "nat"
+        },
+        "to": {
+          "node": "NATGW",
+          "port": "eni"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "VPC-APP",
+        "from": {
+          "node": "VPC",
+          "port": "private"
+        },
+        "to": {
+          "node": "APP-PRIVATE",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "igw-attached",
+        "description": "The VPC has an attached Internet Gateway.",
+        "device": "VPC",
+        "path": "config.routes[0].igw_attached",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "public-default",
+        "description": "The public route table points to the Internet Gateway.",
+        "device": "VPC",
+        "path": "config.routes[0].route_tables.public_default",
+        "operator": "equals",
+        "expected": "igw-001"
+      },
+      {
+        "id": "nat-enabled",
+        "description": "A NAT Gateway is enabled for private egress.",
+        "device": "VPC",
+        "path": "config.routes[0].nat_gateway_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "private-default",
+        "description": "The private route table points to the NAT Gateway.",
+        "device": "VPC",
+        "path": "config.routes[0].route_tables.private_default",
+        "operator": "equals",
+        "expected": "nat-001"
+      },
+      {
+        "id": "flow-logs",
+        "description": "VPC Flow Logs are enabled.",
+        "device": "VPC",
+        "path": "config.routes[0].flow_logs_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "private-no-public-ip",
+        "description": "Private instances do not have public IPs by default.",
+        "device": "VPC",
+        "path": "config.routes[0].public_ip_on_private_instances",
+        "operator": "equals",
+        "expected": false
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
