@@ -3,7 +3,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
 import { CLIParser } from './parser.js';
-import { useLabStore } from '../store/useLabStore.js';
+import { syncPhysicalLinkStates, useLabStore } from '../store/useLabStore.js';
 
 export function CLITab() {
   const selectedDeviceId = useLabStore(s => s.selectedDevice);
@@ -69,7 +69,7 @@ export function CLITab() {
           const stateAfter = useLabStore.getState();
           const topologyChanged = topologyBefore !== JSON.stringify(stateAfter.topology);
           useLabStore.setState(s => ({
-            ...(s.topology ? { topology: { ...s.topology } } : {}),
+            ...(s.topology ? { topology: { ...syncPhysicalLinkStates(s.topology) } } : {}),
             ...(topologyChanged ? { checkResult: null } : {}),
           }));
           

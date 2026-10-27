@@ -4,6 +4,31 @@ function normalisePortHandleId(handleId) {
   return String(handleId ?? '').replace(/::(?:source|target)$/, '');
 }
 
+/**
+ * Recalcule l'état opérationnel d'un câble à partir de ses deux interfaces.
+ * Un câble branché n'est pas forcément opérationnel si un port est administrativement OFF.
+ */
+export function syncPhysicalLinkStates(topology) {
+  if (!topology) return topology;
+  let changed = false;
+  const links = (topology.links || []).map(link => {
+    const fromNode = (topology.nodes || []).find(node => node.id === link.from?.node);
+    const toNode = (topology.nodes || []).find(node => node.id === link.to?.node);
+    const fromPort = (fromNode?.ports || []).find(port => port.id === link.from?.port);
+    const toPort = (toNode?.ports || []).find(port => port.id === link.to?.port);
+
+    // Conserve les anciens liens incomplets sans inventer leur état.
+    if (!fromPort || !toPort) return link;
+
+    const nextState = fromPort.state === 'up' && toPort.state === 'up' ? 'up' : 'down';
+    if (link.state === nextState) return link;
+    changed = true;
+    return { ...link, state: nextState };
+  });
+
+  return changed ? { ...topology, links } : topology;
+}
+
 const emptyTopology = () => ({
   schema_version: 2, topology_id: 'workspace-' + Date.now(),
   metadata: { name: 'Espace de travail libre', author: 'user', created_at: new Date().toISOString(), mode: 'lab' },
@@ -153,7 +178,14 @@ export const useLabStore = create((set, get) => ({
     if (!topo) return;
     const node = topo.nodes.find(n => n.id === nodeId);
     if (!node) return;
-    set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, ports: n.ports.map(p => p.id === portId ? { ...p, state: p.state === 'up' ? 'down' : 'up' } : p) } : n) }, checkResult: null });
+
+    const updatedTopology = {
+      ...topo,
+      nodes: topo.nodes.map(n => n.id === nodeId
+        ? { ...n, ports: (n.ports || []).map(p => p.id === portId ? { ...p, state: p.state === 'up' ? 'down' : 'up' } : p) }
+        : n),
+    };
+    set({ topology: syncPhysicalLinkStates(updatedTopology), checkResult: null });
   },
 
   updatePortAddress(nodeId, portId, ip, mask) {
@@ -183,8 +215,8 @@ export const useLabStore = create((set, get) => ({
     const target = topo.nodes.find(n => n.id === connection.target);
     const sourcePortId = normalisePortHandleId(connection.sourceHandle);
     const targetPortId = normalisePortHandleId(connection.targetHandle);
-    const sourcePort = (source?.ports || []).some(p => p.id === sourcePortId);
-    const targetPort = (target?.ports || []).some(p => p.id === targetPortId);
+    const sourcePort = (source?.ports || []).find(p => p.id === sourcePortId);
+    const targetPort = (target?.ports || []).find(p => p.id === targetPortId);
     if (!sourcePort || !targetPort) return;
     const newLink = {
       id: 'link-' + crypto.randomUUID(),
@@ -213,9 +245,11 @@ export const useLabStore = create((set, get) => ({
         dac_qsfp: 'dac_qsfp',
         wireless: 'wireless',
       })[type] || 'copper_straight',
-      state: 'up'
+      // Le câble est opérationnel uniquement si les deux interfaces sont ON.
+      state: sourcePort.state === 'up' && targetPort.state === 'up' ? 'up' : 'down'
     };
-    set({ topology: { ...topo, links: [...topo.links, newLink] }, activeTool: 'select', checkResult: null });
+    const updatedTopology = { ...topo, links: [...topo.links, newLink] };
+    set({ topology: syncPhysicalLinkStates(updatedTopology), activeTool: 'select', checkResult: null });
   },
 
   selectDevice(nodeId) { set({ selectedDevice: nodeId }); },
