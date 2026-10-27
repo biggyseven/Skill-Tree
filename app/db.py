@@ -141,7 +141,10 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
     node_id TEXT REFERENCES nodes(id) ON DELETE SET NULL,
     exam_type TEXT NOT NULL DEFAULT 'category',
     passing_score INTEGER NOT NULL DEFAULT 80,
-    result_json TEXT NOT NULL DEFAULT ''
+    result_json TEXT NOT NULL DEFAULT '',
+    module_scope TEXT NOT NULL DEFAULT '',
+    level_scope TEXT NOT NULL DEFAULT '',
+    scope_node_ids_json TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_expires ON exam_sessions(expires_at);
@@ -194,7 +197,13 @@ CREATE TABLE IF NOT EXISTS certificates (
     number    TEXT PRIMARY KEY,
     name      TEXT NOT NULL,
     level     INTEGER NOT NULL,
-    issued_at TEXT NOT NULL
+    issued_at TEXT NOT NULL,
+    module TEXT NOT NULL DEFAULT '',
+    module_id TEXT NOT NULL DEFAULT '',
+    level_slug TEXT NOT NULL DEFAULT '',
+    exam_session_id TEXT,
+    score INTEGER NOT NULL DEFAULT 0,
+    courses_count INTEGER NOT NULL DEFAULT 0
 );
 
 INSERT OR IGNORE INTO shop_items (id, nom, description, prix, type)
@@ -227,6 +236,15 @@ def initialize(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS exam_type TEXT NOT NULL DEFAULT 'category'")
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS passing_score INTEGER NOT NULL DEFAULT 80")
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS result_json TEXT NOT NULL DEFAULT ''")
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS module_scope TEXT NOT NULL DEFAULT ''")
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS level_scope TEXT NOT NULL DEFAULT ''")
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS scope_node_ids_json TEXT NOT NULL DEFAULT '[]'")
+        conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS module TEXT NOT NULL DEFAULT ''")
+        conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS module_id TEXT NOT NULL DEFAULT ''")
+        conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS level_slug TEXT NOT NULL DEFAULT ''")
+        conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS exam_session_id TEXT")
+        conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS score INTEGER NOT NULL DEFAULT 0")
+        conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS courses_count INTEGER NOT NULL DEFAULT 0")
     _ensure_user_stats(conn)
     conn.commit()
 
@@ -308,7 +326,31 @@ def _migrate(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN passing_score INTEGER NOT NULL DEFAULT 80")
     if "result_json" not in exam_columns:
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN result_json TEXT NOT NULL DEFAULT ''")
+    if "module_scope" not in exam_columns:
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN module_scope TEXT NOT NULL DEFAULT ''")
+    if "level_scope" not in exam_columns:
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN level_scope TEXT NOT NULL DEFAULT ''")
+    if "scope_node_ids_json" not in exam_columns:
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN scope_node_ids_json TEXT NOT NULL DEFAULT '[]'")
 
+    certificate_columns = {row["name"] for row in conn.execute("PRAGMA table_info(certificates)")}
+    if "module" not in certificate_columns:
+        conn.execute("ALTER TABLE certificates ADD COLUMN module TEXT NOT NULL DEFAULT ''")
+    if "module_id" not in certificate_columns:
+        conn.execute("ALTER TABLE certificates ADD COLUMN module_id TEXT NOT NULL DEFAULT ''")
+    if "level_slug" not in certificate_columns:
+        conn.execute("ALTER TABLE certificates ADD COLUMN level_slug TEXT NOT NULL DEFAULT ''")
+    if "exam_session_id" not in certificate_columns:
+        conn.execute("ALTER TABLE certificates ADD COLUMN exam_session_id TEXT")
+    if "score" not in certificate_columns:
+        conn.execute("ALTER TABLE certificates ADD COLUMN score INTEGER NOT NULL DEFAULT 0")
+    if "courses_count" not in certificate_columns:
+        conn.execute("ALTER TABLE certificates ADD COLUMN courses_count INTEGER NOT NULL DEFAULT 0")
+
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_certificates_module_level "
+        "ON certificates(module, level_slug) WHERE module <> '' AND level_slug <> ''"
+    )
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_attempts_node ON attempts(node_id, created_at)"
     )
