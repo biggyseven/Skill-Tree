@@ -23,7 +23,7 @@
     "schema_version": 2,
     "topology_id": "topo-cli-eigrp-network",
     "metadata": {
-      "name": "CLI — EIGRP sans auto-résumé",
+      "name": "EIGRP AS 100",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -32,9 +32,9 @@
       {
         "id": "R1",
         "type": "router",
-        "model": "generic-router",
-        "x": 180,
-        "y": 300,
+        "model": "generic-1841",
+        "x": 240,
+        "y": 220,
         "label": "R1",
         "ports": [
           {
@@ -42,14 +42,15 @@
             "name": "Gi0/0",
             "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "10.1.0.1",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Lien EIGRP vers R2",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -59,16 +60,17 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "up",
+            "state": "down",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
             "description": "",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -91,6 +93,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -100,26 +103,27 @@
         }
       },
       {
-        "id": "SW1",
-        "type": "switch",
-        "model": "generic-2960",
-        "x": 520,
-        "y": 300,
-        "label": "SW1",
+        "id": "R2",
+        "type": "router",
+        "model": "generic-1841",
+        "x": 690,
+        "y": 220,
+        "label": "R2",
         "ports": [
           {
-            "id": "Fa0/1",
-            "name": "Fa0/1",
+            "id": "Gi0/0",
+            "name": "Gi0/0",
             "state": "up",
             "speed": 1000,
-            "mode": "down",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.1.0.2",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Voisin EIGRP AS 100",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -127,18 +131,19 @@
             "service_policy_out": null
           },
           {
-            "id": "Fa0/24",
-            "name": "Fa0/24",
-            "state": "up",
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "down",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "routed",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
             "description": "",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -147,7 +152,7 @@
           }
         ],
         "config": {
-          "hostname": "SW1",
+          "hostname": "R2",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -161,58 +166,19 @@
             "dns": null,
             "nat": null
           },
-          "protocols": {}
-        },
-        "runtime": {
-          "arp_table": [],
-          "mac_table": [],
-          "routing_table": []
-        }
-      },
-      {
-        "id": "PC1",
-        "type": "pc",
-        "model": "generic-pc",
-        "x": 850,
-        "y": 90,
-        "label": "PC1",
-        "ports": [
-          {
-            "id": "eth0",
-            "name": "eth0",
-            "state": "up",
-            "speed": 1000,
-            "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
+          "workloads": {},
+          "protocols": {
+            "eigrp": {
+              "asn": 100,
+              "networks": [
+                {
+                  "network": "10.1.0.0",
+                  "wildcard": "0.0.255.255"
+                }
+              ],
+              "auto_summary": false
+            }
           }
-        ],
-        "config": {
-          "hostname": "PC1",
-          "vlans": [],
-          "routes": [],
-          "ospf": {
-            "enabled": false,
-            "router_id": "",
-            "areas": []
-          },
-          "acls": [],
-          "services": {
-            "dhcp": null,
-            "dns": null,
-            "nat": null
-          },
-          "protocols": {}
         },
         "runtime": {
           "arp_table": [],
@@ -223,31 +189,16 @@
     ],
     "links": [
       {
-        "id": "L-R1-SW1",
+        "id": "L-R1-R2",
         "from": {
           "node": "R1",
           "port": "Gi0/0"
         },
         "to": {
-          "node": "SW1",
-          "port": "Fa0/24"
+          "node": "R2",
+          "port": "Gi0/0"
         },
-        "cable_type": "copper_straight",
-        "state": "up",
-        "bandwidth": 1000,
-        "latency_ms": 1
-      },
-      {
-        "id": "L-SW1-PC1",
-        "from": {
-          "node": "SW1",
-          "port": "Fa0/1"
-        },
-        "to": {
-          "node": "PC1",
-          "port": "eth0"
-        },
-        "cable_type": "copper_straight",
+        "cable_type": "copper_crossover",
         "state": "up",
         "bandwidth": 1000,
         "latency_ms": 1
