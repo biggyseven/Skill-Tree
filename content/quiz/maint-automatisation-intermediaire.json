@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Automatiser les tâches (scripts, Ansible) » ?",
+      "prompt": "Quelle tâche est un bon candidat à l'automatisation ?",
       "choices": [
-        "Le sujet principal du cours : Automatiser les tâches (scripts, Ansible)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Une opération fréquente, stable, mesurable et dont le résultat attendu est connu",
+        "Une tâche mal comprise et changeante",
+        "Une opération destructive sans test",
+        "Une procédure sans règle de décision"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Il faut comprendre et stabiliser le processus avant d'automatiser."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l'idempotence ?",
+      "choices": [
+        "Que le script doit toujours changer chaque ligne",
+        "Qu'une répétition ne produit pas d'effets cumulatifs indésirables et maintient l'état cible",
+        "Qu'il faut utiliser uniquement Python",
+        "Que le script ne nécessite pas de permissions"
+      ],
+      "answer": 1,
+      "explanation": "L'idempotence permet une relance plus sûre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet souvent `ansible-playbook --syntax-check` ?",
+      "choices": [
+        "D'exécuter tout le changement en production",
+        "De remplacer une revue de sécurité",
+        "De vérifier la syntaxe du playbook sans appliquer ses tâches",
+        "De garantir que tous les hôtes sont joignables"
+      ],
+      "answer": 2,
+      "explanation": "Le contrôle de syntaxe ne remplace ni simulation ni tests d'exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser `--limit` ?",
+      "choices": [
+        "Pour ignorer l'inventaire",
+        "Pour supprimer les logs",
+        "Pour contourner les droits",
+        "Pour limiter explicitement le périmètre des hôtes ciblés"
+      ],
+      "answer": 3,
+      "explanation": "Un lot explicite réduit le rayon d'impact lors d'un premier déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Où stocker les secrets d'automatisation ?",
+      "choices": [
+        "Dans un mécanisme de secrets approuvé, avec accès minimal et rotation",
+        "En clair dans le dépôt Git",
+        "Dans les logs de sortie",
+        "Dans le nom du playbook"
+      ],
+      "answer": 0,
+      "explanation": "Les secrets doivent être séparés du code versionné et protégés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que garantit le mode check d'Ansible ?",
+      "choices": [
+        "Que toutes les tâches ont été testées en production",
+        "Une simulation indicative pour les modules qui le prennent en charge, pas une garantie absolue",
+        "Qu'aucune validation manuelle n'est nécessaire",
+        "Qu'un retour arrière existe automatiquement"
+      ],
+      "answer": 1,
+      "explanation": "Le comportement du mode check dépend du module et ne prouve pas tout."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi prévoir une exécution canari ?",
+      "choices": [
+        "Pour masquer les erreurs",
+        "Pour réduire les tests",
+        "Pour vérifier le comportement sur un petit lot avant généralisation",
+        "Pour exécuter plus vite toutes les machines"
+      ],
+      "answer": 2,
+      "explanation": "Le lot pilote limite l'impact d'une erreur systémique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un secret a été publié dans Git. Quelle est la première mesure importante ?",
+      "choices": [
+        "Supprimer seulement la ligne et continuer",
+        "Ajouter le secret à un autre fichier",
+        "Renommer la variable",
+        "Révoquer ou faire tourner le secret exposé, puis nettoyer et examiner les traces"
+      ],
+      "answer": 3,
+      "explanation": "L'historique peut conserver le secret ; la révocation est indispensable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement rend un script dangereux ?",
+      "choices": [
+        "Valider ses paramètres",
+        "Masquer les exceptions et signaler un succès malgré des hôtes en échec",
+        "Journaliser un code de sortie",
+        "Limiter les cibles autorisées"
+      ],
+      "answer": 1,
+      "explanation": "Les erreurs doivent être visibles et permettre une reprise contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle chaîne de mise en production est la plus sûre ?",
+      "choices": [
+        "Éditer directement en production puis documenter si possible",
+        "Exécuter sur tous les hôtes dès la première version",
+        "Versionner, revoir, tester, simuler, déployer par lot et vérifier les résultats",
+        "Désactiver la supervision pendant toute la journée"
+      ],
+      "answer": 2,
+      "explanation": "Les garde-fous successifs réduisent les risques et conservent la traçabilité."
     }
   ]
 }
