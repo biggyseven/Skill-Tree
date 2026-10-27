@@ -1,1 +1,102 @@
-{"node_id":"ha-intermediaire","scope":"quiz","questions":[{"type":"qcm","prompt":"Quelle est la différence de terminologie entre VRRP et HSRP ?","choices":["VRRP utilise Master/Backup, HSRP utilise Active/Standby","VRRP utilise Active/Standby, HSRP utilise Master/Backup","VRRP est Cisco, HSRP est un standard ouvert","Il n'y a aucune différence"],"answer":0,"explanation":"VRRP utilise Master/Backup et HSRP utilise Active/Standby."},{"type":"qcm","prompt":"La préemption est-elle activée par défaut sur HSRP ?","choices":["Non, elle est désactivée par défaut","Oui, elle est toujours activée","Oui, mais seulement sur les switchs","Non, elle n'existe pas sur HSRP"],"answer":0,"explanation":"Sur HSRP, la préemption est désactivée par défaut, contrairement à VRRP."},{"type":"qcm","prompt":"À quoi sert le 'Tracking' dans VRRP/HSRP ?","choices":["À baisser la priorité si une interface critique tombe","À suivre les paquets sur le réseau","À augmenter la vitesse du réseau","À créer une route par défaut"],"answer":0,"explanation":"Le tracking permet de réagir à la panne d'un lien (ex: le WAN) en modifiant la priorité."},{"type":"qcm","prompt":"Que se passe-t-il si les deux côtés d'un lien LACP sont configurés en mode 'Passive' ?","choices":["L'agrégation ne monte pas car personne n'initie la connexion","L'agrégation monte normalement","Le lien passe en mode routage","Les liens deviennent des ports d'accès"],"answer":0,"explanation":"Il faut au moins un côté en mode 'Active' pour initier la négociation LACP."}]}
+{
+  "node_id": "ha-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Selon la RFC 9568 qui décrit VRRPv3, quels termes sont employés pour les rôles du routeur virtuel ?",
+      "choices": [
+        "VRRP emploie toujours Active/Standby et HSRP Master/Backup",
+        "VRRP est réservé à Cisco et HSRP est le standard IETF",
+        "VRRP emploie Active Router et Backup Router ; HSRP utilise les états Active et Standby dans sa terminologie Cisco",
+        "Les deux protocoles n’ont pas de rôle de secours"
+      ],
+      "answer": 2,
+      "explanation": "La RFC 9568 utilise les termes Active Router et Backup Router pour VRRPv3. HSRP utilise classiquement Active et Standby dans la documentation Cisco. Des cours ou versions anciennes peuvent employer Master/Backup pour VRRP ; précise la référence utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur Cisco IOS/IOS XE dans le comportement HSRP classique, quelle affirmation concernant la préemption est généralement correcte ?",
+      "choices": [
+        "Elle est activée par défaut sur chaque groupe",
+        "Elle n’est généralement pas activée par défaut ; un routeur de priorité supérieure ne reprend donc pas forcément le rôle Active sans configuration de préemption",
+        "Elle désactive le suivi de route",
+        "Elle fait partie de LACP et ne concerne pas HSRP"
+      ],
+      "answer": 1,
+      "explanation": "La préemption HSRP classique est généralement désactivée par défaut sur Cisco IOS/IOS XE. Vérifie néanmoins le guide correspondant à la plateforme et à la version, car les options, états et délais peuvent varier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif de l’object tracking associé à HSRP ou à un mécanisme équivalent ?",
+      "choices": [
+        "Mesurer uniquement le trafic DNS des postes",
+        "Modifier la vitesse du lien Ethernet",
+        "Synchroniser le contenu des tables ARP des clients",
+        "Ajuster l’éligibilité ou la priorité de la passerelle selon l’état d’une dépendance critique, par exemple un chemin amont"
+      ],
+      "answer": 3,
+      "explanation": "Le suivi peut réduire la priorité ou déclencher une action quand la route ou l’interface suivie devient indisponible. Une sonde doit tester la dépendance que l’on veut réellement protéger."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que se passe-t-il si les deux côtés d’un EtherChannel LACP sont configurés en mode passive ?",
+      "choices": [
+        "La négociation ne démarre pas, car aucun côté n’initie l’envoi des paquets LACP",
+        "Le port-channel monte toujours avec LACP",
+        "Les ports basculent automatiquement en mode active",
+        "STP transforme les deux ports en interfaces routées"
+      ],
+      "answer": 0,
+      "explanation": "En mode passive, le port répond aux paquets LACP mais n’initie pas la négociation. Au moins un côté doit normalement être en active pour former l’agrégat par LACP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d’ajouter des interfaces physiques à un même EtherChannel, que faut-il surtout vérifier sur les deux côtés ?",
+      "choices": [
+        "Que les interfaces portent des descriptions différentes",
+        "Que chaque membre utilise un protocole d’agrégation différent",
+        "La compatibilité des vitesses/duplex et des paramètres de couche 2 ou 3, notamment VLAN/trunk sur un agrégat L2",
+        "Que STP soit désactivé globalement"
+      ],
+      "answer": 2,
+      "explanation": "Les membres doivent être compatibles et configurés de façon cohérente. Des différences de vitesse, de duplex, de mode, de VLAN autorisés ou d’autres paramètres peuvent empêcher la formation d’un agrégat fiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un routeur reste l’Active HSRP alors que son interface LAN fonctionne mais que son accès WAN est perdu. Quel mécanisme peut aider à déclencher un transfert de rôle ?",
+      "choices": [
+        "PortFast sur le switch du LAN",
+        "Le suivi d’une route ou d’une cible amont, associé à une politique de changement de priorité ou à une action équivalente",
+        "Le changement automatique du masque de sous-réseau des postes",
+        "Le passage de LACP en mode passive sur le routeur"
+      ],
+      "answer": 1,
+      "explanation": "Le protocole de passerelle ne connaît pas nécessairement la santé complète du service. Un suivi pertinent de l’amont peut déclencher une baisse de priorité ou une autre action, mais la cible et les seuils doivent éviter les faux positifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement l’interaction entre LACP et STP sur un agrégat de couche 2 ?",
+      "choices": [
+        "LACP et STP ne peuvent pas être utilisés simultanément",
+        "Chaque membre physique du port-channel doit toujours former une branche STP indépendante",
+        "LACP empêche toute boucle même si un autre chemin de couche 2 existe",
+        "Une fois agrégé et reconnu par l’équipement, le port-channel est traité comme un lien logique par STP ; d’autres chemins redondants restent soumis à STP"
+      ],
+      "answer": 3,
+      "explanation": "L’agrégat formé est généralement présenté à STP comme un port logique. La topologie autour du port-channel peut toujours contenir d’autres chemins redondants, que STP doit gérer selon la conception."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une bascule HSRP/VRRP, quelle validation est la plus pertinente avant de déclarer le service rétabli ?",
+      "choices": [
+        "Vérifier le rôle élu, les routes et chemins de retour, puis exécuter un test de connectivité ou de transaction depuis un client",
+        "Confirmer seulement que le routeur secondaire est sous tension",
+        "Vérifier uniquement la priorité configurée",
+        "Redémarrer les deux routeurs pour égaliser leur état"
+      ],
+      "answer": 0,
+      "explanation": "La prise du rôle de passerelle n’atteste pas que la route amont, le retour du trafic, le pare-feu ou l’application fonctionne. Corrèle l’état protocolaire avec un test de bout en bout."
+    }
+  ]
+}

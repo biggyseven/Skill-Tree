@@ -1,1 +1,102 @@
-{"node_id":"ha-expert","scope":"quiz","questions":[{"type":"qcm","prompt":"Qu'est-ce que le 'Split Brain' dans un réseau redondant ?","choices":["Deux routeurs se croient tous les deux actifs (Master)","Une panne de courant générale","Un câble coupé","Un virus informatique"],"answer":0,"explanation":"Le Split Brain arrive quand la communication entre les deux routeurs est coupée et qu'ils deviennent tous les deux actifs."},{"type":"qcm","prompt":"Quel protocole permet une détection de panne en quelques millisecondes ?","choices":["BFD","OSPF","STP","LACP"],"answer":0,"explanation":"BFD (Bidirectional Forwarding Detection) est un protocole de détection ultra-rapide."},{"type":"qcm","prompt":"À quoi sert le délai de préemption (preempt delay) ?","choices":["À laisser le routeur se stabiliser avant de reprendre son rôle actif","À retarder le démarrage du routeur","À allonger le câble réseau","À empêcher la préemption"],"answer":0,"explanation":"Il évite qu'un routeur qui vient de redémarrer reprenne le trafic alors que ses tables ne sont pas encore prêtes."},{"type":"qcm","prompt":"Quel est le principal avantage de MLAG ou vPC ?","choices":["Présenter un lien logique unique à travers deux switches physiques différents","Doubler la vitesse d'Internet","Bloquer les attaques DDoS","Créer des VLANs dynamiques"],"answer":0,"explanation":"MLAG/vPC permet une redondance de switch complète sans utiliser STP, vu comme un seul switch logique par le serveur."}]}
+{
+  "node_id": "ha-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit correctement BFD dans une architecture de haute disponibilité ?",
+      "choices": [
+        "BFD est un protocole de routage qui choisit toujours le chemin optimal",
+        "BFD garantit une détection en quelques millisecondes quelles que soient la charge et la configuration",
+        "BFD détecte certaines défaillances du chemin de forwarding ; les temps dépendent des intervalles, de la négociation et des capacités de la plateforme",
+        "BFD synchronise à lui seul toutes les sessions applicatives"
+      ],
+      "answer": 2,
+      "explanation": "BFD sert à détecter rapidement certaines défaillances du chemin, mais ne choisit pas les routes et ne prouve pas la santé d’une application. Les intervalles agressifs doivent être validés sur la plateforme et peuvent entraîner des faux positifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un système redondant qui exige un seul propriétaire actif à la fois, que désigne le split-brain ?",
+      "choices": [
+        "Une panne DNS qui touche uniquement les clients IPv6",
+        "Deux nœuds ou groupes séparés pensent chacun être autorisés à assurer la même fonction active",
+        "L’élection normale d’un routeur de secours",
+        "La répartition correcte de plusieurs flux entre deux nœuds actifs"
+      ],
+      "answer": 1,
+      "explanation": "Le split-brain est une situation de propriété ou de décision concurrente créée par une partition ou une défaillance de coordination. Selon le système, quorum, témoin ou fencing peuvent être nécessaires pour empêcher deux propriétaires incompatibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une architecture vPC ou MLAG à deux commutateurs, pourquoi documenter séparément la défaillance du peer-link et celle du canal keepalive ?",
+      "choices": [
+        "Parce que les deux liens servent uniquement à transporter du trafic utilisateur",
+        "Parce qu’un seul des deux liens suffit toujours à garantir une absence de split-brain quelle que soit la panne",
+        "Parce que ces mécanismes remplacent entièrement la couche 2 et le routage",
+        "Parce que leur combinaison de pannes peut changer le rôle opérationnel des pairs et provoquer un risque de double activité selon la conception"
+      ],
+      "answer": 3,
+      "explanation": "Le peer-link et le keepalive ont des fonctions distinctes dans l’architecture vPC. Les scénarios où l’un ou les deux tombent doivent être évalués selon le modèle exact, les priorités et les protections du constructeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation concernant MLAG/vPC et STP est la plus sûre ?",
+      "choices": [
+        "MLAG/vPC fournit un modèle de multi-attachement entre deux switches compatibles, mais ne signifie pas que STP peut être supprimé de toute la topologie",
+        "MLAG et vPC sont des noms normalisés d’un seul protocole IETF interchangeable",
+        "L’activation de vPC empêche les boucles sur tous les VLAN, quels que soient les liens externes",
+        "Un serveur connecté en MLAG ne peut jamais perdre de trafic lors d’une panne"
+      ],
+      "answer": 0,
+      "explanation": "MLAG, vPC et EVPN multihoming n’ont pas tous le même plan de contrôle. STP et les protections de couche 2 restent à concevoir selon la topologie ; un multi-attachement ne garantit pas une continuité sans interruption."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un délai de préemption (preempt delay) sur une passerelle redondante lorsqu’il est pris en charge ?",
+      "choices": [
+        "À retarder systématiquement toutes les annonces de routage de l’AS",
+        "À rendre les deux routeurs actifs simultanément",
+        "À laisser le nœud qui revient se stabiliser et valider ses dépendances avant de reprendre le rôle préféré",
+        "À empêcher définitivement toute reprise du rôle Active"
+      ],
+      "answer": 2,
+      "explanation": "Le délai retarde la reprise du rôle préféré après une remontée ou un redémarrage. Il réduit le risque d’une deuxième bascule alors que les interfaces, routes ou sondes ne sont pas encore stables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel test donne la preuve la plus complète qu’une bascule de passerelle ou de multichâssis a réellement protégé le service ?",
+      "choices": [
+        "Vérifier que le journal de configuration est vide",
+        "Contrôler seulement le rôle affiché par HSRP/VRRP",
+        "Compter les équipements visibles dans l’inventaire",
+        "Mesurer depuis un client la perte de paquets, le délai de convergence et le succès d’une transaction représentative, tout en corrélant les états réseau"
+      ],
+      "answer": 3,
+      "explanation": "Le rôle de contrôle ne suffit pas à prouver le rétablissement du service. Il faut mesurer depuis le point consommateur le comportement réel et corréler ces mesures à l’évolution des routes, des liens et des sessions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie vérifier la capacité N-1 dans une architecture réseau HA ?",
+      "choices": [
+        "S’assurer que le système peut encore fournir le service défini après la perte d’un élément prévu dans le scénario de dimensionnement",
+        "Désactiver tous les liens sauf un en production",
+        "Garantir que chaque routeur utilise exactement la même configuration",
+        "Confirmer que tous les liens sont en mode LACP passive"
+      ],
+      "answer": 0,
+      "explanation": "La capacité N-1 évalue si les ressources restantes peuvent absorber la charge après la perte d’un élément envisagé. Cela comprend la bande passante, la capacité des nœuds, les files d’attente et les dépendances communes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe est recommandé pour effectuer le failback après réparation d’un équipement ?",
+      "choices": [
+        "Rendre immédiatement l’équipement réparé actif sans vérifier ses routes",
+        "Redémarrer les nœuds actifs et de secours simultanément",
+        "Attendre la stabilité, contrôler l’état et les dépendances, puis utiliser une procédure de retour maîtrisée ou temporisée",
+        "Supprimer les sondes pour éviter les alarmes"
+      ],
+      "answer": 2,
+      "explanation": "Le retour vers la ressource préférée peut créer une seconde interruption si le nœud réparé ou son amont n’est pas stabilisé. Définis des critères de santé, une fenêtre d’observation et un plan de retour arrière."
+    }
+  ]
+}
