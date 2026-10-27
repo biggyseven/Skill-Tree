@@ -599,7 +599,7 @@ test('les panneaux latéraux et la bibliothèque matérielle se redimensionnent 
   await expect.poll(() => width(rightPanel)).toBeGreaterThan(rightBefore);
 
   const equipmentBefore = await height(equipmentPanel);
-  const equipmentSeparator = page.getByRole('separator', { name: "Redimensionner la bibliothèque d’équipements" });
+  const equipmentSeparator = page.getByRole('separator', { name: "Redimensionner les bibliothèques d’équipements et de câbles" });
   await equipmentSeparator.focus();
   await page.keyboard.press('ArrowUp');
   await expect.poll(() => height(equipmentPanel)).toBeGreaterThan(equipmentBefore);
