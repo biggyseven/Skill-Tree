@@ -53,6 +53,24 @@ Exemple utilisateur : « Votre poste ne parvient pas encore à établir la conne
 
 Les deux messages peuvent être exacts tout en utilisant des niveaux de détail différents.
 
+### Schéma — distinguer symptôme, incident, cause et résolution
+
+```mermaid
+flowchart TD
+    A["L'utilisateur décrit un symptôme"] --> B["Enregistrer l'incident ou la demande"]
+    B --> C["Recueillir les faits et le périmètre"]
+    C --> D["Formuler une ou plusieurs hypothèses"]
+    D --> E["Effectuer un contrôle autorisé"]
+    E --> F{"La cause est-elle étayée ?"}
+    F -- "Non" --> G["Collecter des indices ou escalader"]
+    G --> D
+    F -- "Oui" --> H["Choisir une action proportionnée"]
+    H --> I["Vérifier le résultat"]
+    I --> J["Documenter la résolution et ses limites"]
+```
+
+Le symptôme décrit ce que la personne observe ; l'incident décrit une interruption ou une dégradation ; la cause explique le phénomène ; la résolution désigne l'action qui rétablit le service. Ces termes ne sont pas interchangeables.
+
 ## 3. Vocabulaire de la maintenance et du support
 
 ### 3.1 Demande
@@ -129,6 +147,22 @@ Une procédure décrit une méthode approuvée pour effectuer une tâche ou gér
 
 La documentation rassemble les informations permettant de comprendre et de suivre le système, la demande ou l'intervention. Une bonne documentation distingue les faits, les hypothèses, les actions et les résultats.
 
+### Schéma — situer un problème entre matériel, système et application
+
+```mermaid
+flowchart TD
+    A["Utilisateur : une fonction ne marche pas"] --> B["Application et données"]
+    B --> C["Services et processus de l'OS"]
+    C --> D["Pilotes et firmware"]
+    D --> E["Composants matériels"]
+    A --> F["Collecter symptôme, heure et message"]
+    F --> G["Choisir un contrôle adapté à la couche suspectée"]
+    G --> H["Comparer résultat attendu et résultat observé"]
+    H --> I["Documenter ce qui est établi et ce qui reste inconnu"]
+```
+
+Une application indisponible ne prouve pas que le matériel est en panne. Les mots qui décrivent la couche affectée aident à sélectionner le bon outil et à éviter les remplacements ou réinstallations injustifiés.
+
 ## 4. Vocabulaire du système d'exploitation et du matériel
 
 ### 4.1 Système d'exploitation (OS)
@@ -186,6 +220,22 @@ Installation de nouveau d'un système ou d'une application. Elle peut effacer de
 ### 4.14 Restauration
 
 Retour à un état sauvegardé ou à une configuration antérieure. La restauration peut remplacer des données récentes ; elle ne doit pas être confondue avec une simple réparation.
+
+### Schéma — décrire un incident réseau avec les bons termes
+
+```mermaid
+flowchart TD
+    A["L'application ne répond pas"] --> B["Interface et adresse IP"]
+    B --> C["Passerelle et chemin réseau"]
+    C --> D["DNS : nom vers adresse"]
+    D --> E["Port et transport"]
+    E --> F["Pare-feu et règles d'accès"]
+    F --> G["Service et application"]
+    G --> H["Authentification et autorisation"]
+    H --> I["Fonction réellement utilisable"]
+```
+
+Cet enchaînement est une carte de vocabulaire, pas une obligation de tester chaque couche dans tous les cas. Décris toujours ce qui a été testé : « le port TCP 443 répond » est plus précis que « le réseau fonctionne ».
 
 ## 5. Vocabulaire réseau
 
@@ -258,6 +308,21 @@ flowchart LR
 
 Ce schéma est volontairement compact. Il montre quelques dépendances possibles, pas toutes les étapes du réseau réel. Un incident réseau doit être analysé avec des tests adaptés au symptôme.
 
+### Schéma — distinguer identité, autorisation et moindre privilège
+
+```mermaid
+flowchart LR
+    A["Identité et authentification"] --> B{"Identité vérifiée ?"}
+    B -- "Non" --> C["Accès refusé ou authentification à corriger"]
+    B -- "Oui" --> D["Évaluer l'autorisation demandée"]
+    D --> E{"Permission accordée ?"}
+    E -- "Non" --> F["Demander l'accès selon la procédure"]
+    E -- "Oui" --> G["Effectuer uniquement l'action autorisée"]
+    G --> H["Tracer l'opération si nécessaire"]
+```
+
+L'authentification répond à « qui se connecte ? » ; l'autorisation à « que cette identité peut-elle faire ? ». Une connexion réussie ne signifie donc pas que tous les accès sont permis.
+
 ## 6. Vocabulaire de sécurité et des accès
 
 ### 6.1 Authentification
@@ -307,6 +372,21 @@ Information d'accès à protéger, par exemple un mot de passe, un jeton, une cl
 ### 6.12 Données personnelles
 
 Informations liées à une personne identifiée ou identifiable selon la définition applicable. La collecte, le partage et la conservation doivent respecter les règles de l'organisation et les obligations pertinentes.
+
+### Schéma — relier service, engagement de délai et indicateurs
+
+```mermaid
+flowchart TD
+    A["SLA : engagement convenu avec le client"] --> B["Cibles de réponse et de résolution"]
+    C["OLA : engagement entre équipes internes"] --> D["Contributions nécessaires au service"]
+    B --> E["Suivi des tickets et horodatages"]
+    D --> E
+    E --> F["KPI : indicateurs définis et mesurés"]
+    F --> G["Analyse du respect des objectifs"]
+    G --> H["Actions d'amélioration documentées"]
+```
+
+Les SLA, OLA et KPI ont des rôles différents : un engagement décrit ce qui est attendu, un accord interne organise une contribution, et un indicateur mesure une dimension du service. Définis leur périmètre et leur mode de calcul avant de comparer des résultats.
 
 ## 7. Vocabulaire de gestion des services
 
@@ -358,6 +438,22 @@ Période planifiée pendant laquelle une opération est autorisée. Elle doit te
 
 Petit ensemble de systèmes ou d'utilisateurs représentatifs servant à tester une mise à jour ou un changement avant une extension plus large.
 
+### Schéma — construire un glossaire d'équipe facile à maintenir
+
+```mermaid
+flowchart TD
+    A["Terme technique rencontré"] --> B["Écrire une définition courte"]
+    B --> C["Ajouter un exemple concret et un contre-exemple"]
+    C --> D["Préciser les termes proches à ne pas confondre"]
+    D --> E["Faire relire par l'équipe concernée"]
+    E --> F{"Définition exacte et compréhensible ?"}
+    F -- "Non" --> B
+    F -- "Oui" --> G["Publier dans l'espace partagé approuvé"]
+    G --> H["Réviser si la technologie ou la procédure évolue"]
+```
+
+Un glossaire utile répond à une question réelle. Il donne le sens dans le contexte de l'équipe, développe les acronymes et indique les distinctions importantes. Il ne doit pas imposer une définition unique lorsqu'un terme varie selon le fournisseur ou le cadre de travail.
+
 ## 8. Glossaire complémentaire : autres termes utiles
 
 | Terme | Définition pratique |
@@ -384,6 +480,20 @@ Petit ensemble de systèmes ou d'utilisateurs représentatifs servant à tester 
 | Disponibilité | Capacité d'un système ou d'une donnée à être accessible selon les besoins définis |
 
 Ce glossaire n'épuise pas tous les termes informatiques. Il fournit une base commune que tu pourras compléter au fil des cours et des interventions.
+
+### Schéma — adapter une explication au destinataire
+
+```mermaid
+flowchart TD
+    A["Résultat ou diagnostic à communiquer"] --> B["Identifier ce que le destinataire doit savoir"]
+    B --> C["Choisir des mots adaptés à son niveau"]
+    C --> D["Décrire les faits et l'impact métier"]
+    D --> E["Expliquer la prochaine étape et le délai de mise à jour"]
+    E --> F["Inviter à poser une question ou à confirmer"]
+    F --> G["Vérifier que le message a été compris"]
+```
+
+Adapter les mots ne veut pas dire cacher l'incertitude. Une bonne explication dit ce qui fonctionne, ce qui ne fonctionne pas, les conséquences et ce qui va se passer ensuite.
 
 ## 9. Communiquer avec un utilisateur non technicien
 
@@ -434,6 +544,19 @@ L'utilisateur peut être stressé parce que son travail est bloqué. Le technici
 Exemple : « Je comprends que cette interruption bloque votre activité. Le ticket est enregistré et je vérifie maintenant les éléments qui permettront de déterminer la prochaine action. »
 
 Reste factuel, calme et respectueux. Évite les remarques personnelles, les reproches et les discussions sur la faute.
+
+### Schéma — structure d'un message de support professionnel
+
+```mermaid
+flowchart LR
+    A["Contexte et référence du ticket"] --> B["Faits et impact constatés"]
+    B --> C["Actions déjà réalisées"]
+    C --> D["Résultat ou blocage actuel"]
+    D --> E["Prochaine action et responsable"]
+    E --> F["Délai du prochain point d'information"]
+```
+
+Un message efficace doit pouvoir être compris hors du contexte immédiat de la conversation. Les heures, les statuts et les résultats doivent être exacts. Si le délai de résolution n'est pas connu, indique quand une nouvelle information sera communiquée plutôt que de faire une promesse infondée.
 
 ## 10. Communication écrite professionnelle
 
@@ -516,6 +639,21 @@ flowchart TD
 
 Le cycle peut être répété lorsqu'une nouvelle information apparaît. Une mise à jour doit apporter un élément utile, même si la cause n'est pas encore connue.
 
+### Schéma — transmettre un ticket pour que l'équipe suivante puisse agir
+
+```mermaid
+flowchart TD
+    A["Ticket à transférer"] --> B["Résumer le symptôme et l'impact"]
+    B --> C["Préciser équipement, utilisateur et période"]
+    C --> D["Lister les contrôles avec leurs résultats"]
+    D --> E["Séparer hypothèses et faits confirmés"]
+    E --> F["Ajouter les journaux ou captures assainis nécessaires"]
+    F --> G["Énoncer la question à résoudre par l'équipe suivante"]
+    G --> H["Confirmer le groupe cible et le suivi"]
+```
+
+Une transmission complète évite de répéter les mêmes tests. Elle doit indiquer la question encore ouverte et non seulement l'ensemble des opérations déjà exécutées.
+
 ## 12. Communication entre techniciens
 
 La communication interne vise la reproductibilité et la continuité. Une autre personne doit pouvoir comprendre le dossier sans interpréter des phrases vagues.
@@ -547,6 +685,23 @@ Exemple :
 « Le ping vers la destination n'a reçu aucune réponse. Ce test ne permet pas de conclure à une panne du serveur ; la connectivité TCP et l'état du service ne sont pas encore vérifiés. »
 
 Cette formulation prévient les interprétations excessives.
+
+### Schéma — corriger une formulation trop catégorique
+
+```mermaid
+flowchart TD
+    A["Message envisagé"] --> B{"Présente-t-il une hypothèse comme un fait ?"}
+    B -- "Oui" --> C["Reformuler : observation, hypothèse, prochaine vérification"]
+    B -- "Non" --> D{"Contient-il jargon ou promesse non confirmée ?"}
+    D -- "Oui" --> E["Expliquer le terme et préciser l'incertitude"]
+    D -- "Non" --> F["Vérifier destinataire et confidentialité"]
+    C --> F
+    E --> F
+    F --> G["Relire les faits, les dates et l'action attendue"]
+    G --> H["Envoyer par le canal approprié"]
+```
+
+Écrire « le service est indisponible depuis 10 h 20 selon les tests réalisés » est différent d'écrire « le serveur est défectueux ». Le premier énonce un constat circonscrit ; le second attribue une cause qui doit être démontrée.
 
 ## 13. Erreurs de communication fréquentes
 
@@ -585,6 +740,55 @@ Un mot de passe ou un jeton dans un ticket peut être conservé, diffusé ou ind
 « C'est bon » peut désigner un redémarrage, un test partiel ou une réelle résolution.
 
 **Bonne pratique :** nommer le test de validation et son résultat.
+
+### Schéma — déroulement d'une séance pratique de communication
+
+```mermaid
+flowchart TD
+    A["Lire un scénario fictif"] --> B["Extraire les faits et les inconnues"]
+    B --> C["Choisir les termes précis"]
+    C --> D["Rédiger un message pour l'utilisateur"]
+    D --> E["Rédiger une note technique pour l'équipe"]
+    E --> F["Vérifier cohérence et confidentialité"]
+    F --> G["Comparer aux critères de qualité"]
+    G --> H["Corriger et conserver le modèle réutilisable"]
+```
+
+Le même événement peut exiger deux messages : un résumé clair sur l'impact et les prochaines étapes pour l'utilisateur, et une transmission plus technique avec les contrôles précis. Les deux versions doivent rester cohérentes avec les faits.
+
+## Parcours pratique du débutant
+
+Prévois environ 45 à 60 minutes avec des scénarios fictifs. Le but est de passer d'un vocabulaire appris à une communication claire et exploitable. N'inclus jamais de vrais mots de passe, jetons d'accès, informations personnelles non nécessaires ou données internes dans les exercices.
+
+### Étape 1 — Repérer les faits
+
+Lis ce signalement fictif : « Depuis ce matin, je n'arrive plus à ouvrir le portail de l'entreprise. » Note ce qui est connu et ce qui manque. Le début du problème est indiqué approximativement, mais la cause, le message d'erreur et le périmètre restent inconnus. Ne transforme pas l'hypothèse « panne réseau » en fait.
+
+### Étape 2 — Poser trois questions utiles
+
+Demande le message exact, l'heure la plus précise possible et si le problème touche d'autres applications ou utilisateurs. Évite les questions suggestives comme « votre ordinateur est-il cassé ? ». Reformule ensuite le problème avec des mots simples pour vérifier que tu l'as bien compris.
+
+### Étape 3 — Associer les bons termes
+
+Explique, avec un exemple, la différence entre symptôme, incident, cause, contournement et résolution. Fais la même chose avec authentification et autorisation, service et application, latence et indisponibilité. Si le sens d'un terme dépend du contexte ou d'une technologie particulière, indique cette limite.
+
+### Étape 4 — Rédiger une mise à jour utilisateur
+
+Rédige un message court qui indique la réception, le symptôme reformulé, les informations encore nécessaires et la prochaine étape. Ne promets pas une heure de résolution si elle n'est pas connue. Donne plutôt une heure ou un délai pour la prochaine mise à jour si cette information peut être tenue.
+
+### Étape 5 — Rédiger une transmission technique
+
+Prépare une note destinée à l'équipe de niveau suivant avec le contexte, l'impact, les tests effectués et leurs résultats exacts. Distingue les faits des hypothèses et formule clairement la question à résoudre. Pour l'exercice, les résultats non fournis par le scénario doivent rester « à vérifier ».
+
+### Étape 6 — Contrôler la confidentialité
+
+Relis les deux messages : as-tu inclus un secret, des données personnelles non nécessaires, une capture non assainie ou des détails techniques qui ne doivent pas être communiqués au destinataire ? Supprime les éléments inutiles et utilise les canaux prévus par l'organisation fictive.
+
+### Étape 7 — Relire avec une grille simple
+
+Vérifie que le texte est compréhensible, factuel, précis sur les dates, honnête sur les incertitudes et explicite sur la prochaine action. Un collègue doit pouvoir reprendre le ticket à partir de la transmission technique sans devoir deviner les étapes déjà réalisées.
+
+**Critère de réussite :** tu sais écrire deux messages cohérents sur le même incident, l'un adapté à l'utilisateur, l'autre adapté à un technicien, sans exagérer les conclusions ni divulguer des informations sensibles.
 
 ## 14. Travaux pratiques
 
