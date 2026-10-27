@@ -1,12 +1,9 @@
 name: Lab Workspace production bundle sync
 
 on:
-  push:
-    paths:
-      - 'app/lab-workspace/**'
-      - 'static/lab/**'
-      - '.github/workflows/lab-workspace-bundle-sync.yml'
   pull_request:
+    branches:
+      - feature/lab-workspace
     paths:
       - 'app/lab-workspace/**'
       - 'static/lab/**'
@@ -22,8 +19,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -47,7 +44,7 @@ jobs:
           retention-days: 3
       - name: Commit generated production assets when needed
         env:
-          TARGET_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
