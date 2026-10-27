@@ -1,0 +1,266 @@
+{
+  "schema_version": 2,
+  "id": "isis-expert",
+  "title": "IS-IS expert — Domaine L2 sécurisé",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Durcissez le domaine IS-IS niveau 2 : passez aux métriques wide, activez l’authentification, corrigez l’intervalle hello et la durée de vie des LSP, tout en gardant un System ID unique.",
+  "objectives": [
+    "Uniformiser les métriques wide.",
+    "Sécuriser les adjacences IS-IS.",
+    "Ajuster les temporisations pour le domaine.",
+    "Vérifier le niveau et le processus sur les trois routeurs."
+  ],
+  "hints": [
+    "Un LSP trop court peut provoquer des recalculs fréquents.",
+    "Les voisins doivent partager une politique d’authentification compatible.",
+    "Ne réutilisez pas le même System ID sur deux routeurs."
+  ],
+  "duration_min": 35,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-isis-expert",
+    "metadata": {
+      "name": "IS-IS expert — Authentification et stabilité",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 180,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.1.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "isis",
+              "enabled": true,
+              "process_id": "FABRIC",
+              "level": "level-2",
+              "system_id": "0000.0000.0011",
+              "net": "49.0002.0000.0000.0011.00",
+              "metric_style": "narrow",
+              "authentication": false,
+              "hello_interval": 10,
+              "lsp_lifetime": 1200,
+              "overload": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 490,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.1.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.1.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "isis",
+              "enabled": true,
+              "process_id": "FABRIC",
+              "level": "level-2",
+              "system_id": "0000.0000.0012",
+              "net": "49.0002.0000.0000.0012.00",
+              "metric_style": "wide",
+              "authentication": true,
+              "hello_interval": 3,
+              "lsp_lifetime": 1800,
+              "overload": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 800,
+        "y": 220,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.1.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "isis",
+              "enabled": true,
+              "process_id": "FABRIC",
+              "level": "level-2",
+              "system_id": "0000.0000.0013",
+              "net": "49.0002.0000.0000.0013.00",
+              "metric_style": "wide",
+              "authentication": true,
+              "hello_interval": 3,
+              "lsp_lifetime": 1800,
+              "overload": false
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "wide-metric",
+        "description": "Le style de métrique est wide.",
+        "device": "R1",
+        "path": "config.routes[0].metric_style",
+        "operator": "equals",
+        "expected": "wide"
+      },
+      {
+        "id": "auth",
+        "description": "L’authentification IS-IS est activée.",
+        "device": "R1",
+        "path": "config.routes[0].authentication",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "hello",
+        "description": "L’intervalle hello est adapté au lien.",
+        "device": "R1",
+        "path": "config.routes[0].hello_interval",
+        "operator": "equals",
+        "expected": 3
+      },
+      {
+        "id": "lsp",
+        "description": "La durée LSP est configurée à 1800 secondes.",
+        "device": "R1",
+        "path": "config.routes[0].lsp_lifetime",
+        "operator": "equals",
+        "expected": 1800
+      },
+      {
+        "id": "level",
+        "description": "La zone utilise le niveau 2.",
+        "device": "R1",
+        "path": "config.routes[0].level",
+        "operator": "equals",
+        "expected": "level-2"
+      },
+      {
+        "id": "process",
+        "description": "Le processus correspond au domaine FABRIC.",
+        "device": "R1",
+        "path": "config.routes[0].process_id",
+        "operator": "equals",
+        "expected": "FABRIC"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
