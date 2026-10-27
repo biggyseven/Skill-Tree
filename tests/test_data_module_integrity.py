@@ -64,6 +64,44 @@ class DataModuleIntegrityTests(unittest.TestCase):
                 self.assertGreaterEqual(len(question.get("explanation", "").strip()), 10,
                                         f"{path.name}, Q{index}")
 
+
+    def test_existing_database_adds_data_module_without_losing_progress(self):
+        conn = connect(":memory:")
+        try:
+            ensure_ready(conn)
+            with conn:
+                conn.execute("DELETE FROM nodes WHERE id LIKE 'data-%'")
+                conn.execute(
+                    "INSERT INTO attempts "
+                    "(node_id, kind, score, passed, evidence, detail, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    ("intro-reseau-debutant", "quiz", 100, 1, "fixture", "keep", "2026-01-01T00:00:00Z"),
+                )
+
+            report = sync_content_additions(conn)
+            self.assertEqual(18, report["nodes_added"])
+            data_ids = {
+                row["id"] for row in conn.execute(
+                    "SELECT id FROM nodes WHERE id LIKE 'data-%'"
+                ).fetchall()
+            }
+            self.assertEqual(EXPECTED, data_ids)
+
+            for node_id in EXPECTED:
+                question_count = conn.execute(
+                    "SELECT COUNT(*) FROM questions WHERE node_id = ? AND scope = 'quiz'",
+                    (node_id,),
+                ).fetchone()[0]
+                self.assertGreaterEqual(question_count, 5, node_id)
+
+            preserved = conn.execute(
+                "SELECT detail FROM attempts WHERE node_id = 'intro-reseau-debutant'"
+            ).fetchone()
+            self.assertIsNotNone(preserved)
+            self.assertEqual("keep", preserved["detail"])
+        finally:
+            conn.close()
+
     def test_dashboard_exposes_and_routes_the_data_module(self):
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         self.assertIn("id: 'data'", html)
