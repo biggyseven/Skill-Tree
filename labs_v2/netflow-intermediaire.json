@@ -1,0 +1,326 @@
+{
+  "schema_version": 2,
+  "id": "netflow-intermediaire",
+  "title": "IP SLA & NetFlow — Exporter, moniteur et échantillonnage",
+  "level": "intermédiaire",
+  "module": "Configurez l’export NetFlow de R1 vers le collecteur 192.168.90.10 en UDP/2055. Définissez un moniteur de flux, un cache dimensionné, un échantillonnage contrôlé et l’interface où collecter les flux.",
+  "prompt": [
+    "Activer l’exporteur NetFlow.",
+    "Configurer adresse, transport et port du collecteur.",
+    "Définir un moniteur et un cache utilisable.",
+    "Activer l’échantillonnage et l’appliquer à l’interface souhaitée."
+  ],
+  "objectives": [
+    "Le collecteur doit être joignable depuis le routeur.",
+    "Utilisez le même protocole et le même port côté collecteur et exporteur.",
+    "L’échantillonnage réduit le volume exporté mais doit rester adapté à l’objectif de supervision."
+  ],
+  "hints": {
+    "schema_version": 2,
+    "topology_id": "topo-netflow-intermediaire",
+    "metadata": {
+      "name": "IP SLA & NetFlow — Exporter vers un collecteur",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 200,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.90.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "netflow",
+              "exporter": {
+                "enabled": false,
+                "address": "0.0.0.0",
+                "port": 0,
+                "transport": "tcp"
+              },
+              "monitor": {
+                "name": "MON-EDGE",
+                "record": "ipv4-original-input",
+                "cache_entries": 0
+              },
+              "sampler": {
+                "enabled": false,
+                "mode": "random",
+                "rate": 0
+              },
+              "interface_binding": ""
+            }
+          ]
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 500,
+        "y": 220,
+        "label": "SW1",
+        "model": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 90,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 90,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 90,
+              "name": "MONITORING"
+            }
+          ]
+        }
+      },
+      {
+        "id": "COLLECTOR",
+        "type": "server",
+        "x": 800,
+        "y": 100,
+        "label": "COLLECTOR",
+        "model": "COLLECTOR",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.90.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "COLLECTOR",
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 800,
+        "y": 350,
+        "label": "PC-A",
+        "model": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.90.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-SW1",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "COLLECTOR",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "COLLECTOR",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "CLIENT",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": [
+    {
+      "id": "exporter-enabled",
+      "description": "The NetFlow exporter is enabled.",
+      "device": "R1",
+      "path": "config.routes[0].exporter.enabled",
+      "operator": "equals",
+      "expected": true
+    },
+    {
+      "id": "collector-address",
+      "description": "Flows are sent to the collector.",
+      "device": "R1",
+      "path": "config.routes[0].exporter.address",
+      "operator": "equals",
+      "expected": "192.168.90.10"
+    },
+    {
+      "id": "collector-port",
+      "description": "The collector uses UDP/2055.",
+      "device": "R1",
+      "path": "config.routes[0].exporter.port",
+      "operator": "equals",
+      "expected": 2055
+    },
+    {
+      "id": "transport",
+      "description": "The exporter uses UDP.",
+      "device": "R1",
+      "path": "config.routes[0].exporter.transport",
+      "operator": "equals",
+      "expected": "udp"
+    },
+    {
+      "id": "monitor-cache",
+      "description": "The monitor cache is sized for operational use.",
+      "device": "R1",
+      "path": "config.routes[0].monitor.cache_entries",
+      "operator": "equals",
+      "expected": 100000
+    },
+    {
+      "id": "sampler-enabled",
+      "description": "The sampler is enabled.",
+      "device": "R1",
+      "path": "config.routes[0].sampler.enabled",
+      "operator": "equals",
+      "expected": true
+    },
+    {
+      "id": "sampler-rate",
+      "description": "The sampling rate is configured at 1:100.",
+      "device": "R1",
+      "path": "config.routes[0].sampler.rate",
+      "operator": "equals",
+      "expected": 100
+    },
+    {
+      "id": "interface",
+      "description": "The monitor is applied to Gi0/1.",
+      "device": "R1",
+      "path": "config.routes[0].interface_binding",
+      "operator": "equals",
+      "expected": "Gi0/1"
+    }
+  ],
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": 25,
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
