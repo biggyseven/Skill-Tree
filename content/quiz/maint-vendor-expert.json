@@ -4,147 +4,231 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Comment segmenter les fournisseurs ?",
+      "prompt": "Pourquoi un fournisseur représentant peu de dépenses peut-il être classé comme critique ?",
       "choices": [
-        "Selon criticité, substituabilité, dépendances, accès et conséquences d'une défaillance",
-        "Uniquement selon ordre alphabétique",
-        "Uniquement selon la taille de facture",
-        "Selon le nombre de réunions"
+        "Le montant dépensé suffit toujours à déterminer la criticité",
+        "Tout petit fournisseur est automatiquement critique",
+        "Il peut fournir une pièce ou une compétence sans substitution rapide dont l'absence arrête une activité essentielle",
+        "La criticité dépend seulement du nombre de factures"
       ],
-      "answer": 0,
-      "explanation": "La segmentation permet d'adapter le niveau de gouvernance et de diligence au risque."
+      "answer": 2,
+      "explanation": "La segmentation doit prendre en compte l'impact, la substituabilité, les dépendances et le délai de remplacement, pas uniquement la dépense."
     },
     {
       "type": "qcm",
-      "prompt": "Que prouve le respect d'un SLA de prise en charge ?",
+      "prompt": "Que prouve un indicateur de délai de prise en charge respecté ?",
       "choices": [
-        "Que le service est nécessairement rétabli",
-        "Que le délai défini pour la prise en charge a été respecté, pas forcément le résultat de bout en bout",
+        "Que le service est rétabli de bout en bout",
+        "Que l'étape de prise en charge définie a été réalisée à temps, pas nécessairement que le problème est résolu",
         "Que toutes les actions correctives sont efficaces",
-        "Que la qualité de données est complète"
+        "Que le fournisseur n'a aucun risque résiduel"
       ],
       "answer": 1,
-      "explanation": "Les étapes intermédiaires doivent être distinguées du rétablissement du service."
+      "explanation": "La prise en charge, le contournement, le rétablissement et la résolution définitive sont des étapes différentes qui doivent être mesurées séparément."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle preuve faut-il examiner dans un rapport de sécurité du fournisseur ?",
+      "prompt": "Comment interpréter un certificat ou un rapport de sécurité fournisseur ?",
       "choices": [
-        "La couverture marketing globale uniquement",
-        "Le logo d'une certification",
-        "L'entité, les services, la période, les exclusions et les sous-traitants couverts",
-        "Uniquement le nombre de pages"
-      ],
-      "answer": 2,
-      "explanation": "La portée et les limites de la preuve déterminent ce qui peut être conclu."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment clôturer une action d'amélioration ?",
-      "choices": [
-        "Dès qu'un rendez-vous a eu lieu",
-        "Quand le fournisseur affirme que tout va bien",
-        "Quand le statut est vert",
-        "Après preuve de réalisation et test de l'efficacité convenue"
-      ],
-      "answer": 3,
-      "explanation": "Il faut vérifier le résultat au regard de critères prédéfinis."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que révèle un risque de concentration ?",
-      "choices": [
-        "Une dépendance à un fournisseur, sous-traitant, technologie ou région commune",
-        "Une hausse automatique de la qualité",
-        "Une réduction certaine des coûts",
-        "La bonne qualité du SLA"
+        "Vérifier l'entité, les services, la période, les exclusions et les sous-traitants couverts",
+        "Supposer qu'il couvre toute l'entreprise et toute sa chaîne",
+        "Se fier uniquement au logo",
+        "Considérer qu'il remplace les tests du service acheté"
       ],
       "answer": 0,
-      "explanation": "Les dépendances communes peuvent provoquer des défaillances corrélées."
+      "explanation": "La portée, la validité et les exclusions déterminent la conclusion permise. Une attestation générale ne prouve pas automatiquement la sécurité de chaque service."
     },
     {
       "type": "qcm",
-      "prompt": "Que faire lorsqu'un sous-traitant sensible change de région ?",
+      "prompt": "Quel est le but principal d'une scorecard fournisseur ?",
       "choices": [
-        "Supposer que le contrat n'est pas affecté",
-        "Examiner les obligations, les données, les contrôles et le processus de notification",
-        "Supprimer le registre de risque",
-        "Renouveler automatiquement le contrat"
-      ],
-      "answer": 1,
-      "explanation": "Une modification de chaîne de service peut changer le risque et exiger une décision habilitée."
-    },
-    {
-      "type": "qcm",
-      "prompt": "À quoi sert la revue stratégique fournisseur ?",
-      "choices": [
-        "À reclasser tous les tickets",
-        "À discuter seulement la satisfaction",
-        "À examiner performance, coûts, risques, contrats, capacité et évolution du besoin",
-        "À remplacer la revue opérationnelle"
-      ],
-      "answer": 2,
-      "explanation": "La revue stratégique traite les décisions de moyen terme et les risques structurels."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que doit comporter une procédure d'escalade ?",
-      "choices": [
-        "Uniquement le nom du commercial",
-        "Uniquement une boîte générique",
-        "Un message non chronométré",
-        "Niveaux, déclencheurs, décideurs, délais, preuves et mesures de mitigation"
+        "Remplacer le contrat par une note unique",
+        "Prouver que le fournisseur doit toujours être renouvelé",
+        "Classer les fournisseurs uniquement selon le prix",
+        "Relier des résultats mesurables aux objectifs, aux risques et aux actions de gestion"
       ],
       "answer": 3,
-      "explanation": "Une escalade prédéfinie évite les retards et les décisions informelles."
+      "explanation": "Une scorecard utile soutient des décisions et fait apparaître les tendances, preuves, risques et actions ; elle ne remplace ni le contrat ni le jugement."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle est une bonne préparation de renouvellement ?",
+      "prompt": "Une moyenne annuelle de disponibilité est élevée, mais une panne a interrompu les commandes pendant une période critique. Que faut-il examiner ?",
       "choices": [
-        "Évaluer tôt performance, coût complet, marché, risques et sortie",
-        "Attendre la dernière semaine",
-        "Renouveler si aucun incident n'a été signalé",
-        "Comparer seulement les prix annuels"
+        "Uniquement la moyenne annuelle",
+        "L'impact métier, les cas extrêmes, la criticité temporelle et les engagements de rétablissement",
+        "Uniquement le nombre de réunions de suivi",
+        "La présentation commerciale du fournisseur"
+      ],
+      "answer": 1,
+      "explanation": "Une moyenne peut masquer des incidents à fort impact. Les mesures doivent refléter la criticité et les besoins métier, pas seulement l'agrégation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un plan correctif ne doit-il pas être clôturé à la seule modification d'une procédure ?",
+      "choices": [
+        "Parce que les procédures ne doivent jamais être modifiées",
+        "Parce que la clôture doit toujours être différée d'un an",
+        "Parce qu'il faut une preuve d'efficacité correspondant au défaut initial, par exemple un test par un autre opérateur",
+        "Parce que le fournisseur doit accepter une pénalité quel que soit le résultat"
+      ],
+      "answer": 2,
+      "explanation": "La preuve d'efficacité doit démontrer que la cause ou le défaut est maîtrisé. Une mise à jour documentaire ne prouve pas à elle seule le comportement opérationnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque peut exister si un fournisseur externalise une fonction critique à un sous-traitant non connu ?",
+      "choices": [
+        "La dépendance de rang deux peut affecter l'accès, les données, la sécurité et la continuité du service",
+        "Aucun risque puisque le fournisseur principal signe le contrat",
+        "Seulement un problème de format de facture",
+        "Une amélioration garantie de la résilience"
       ],
       "answer": 0,
-      "explanation": "La décision doit considérer le cycle de vie et les alternatives réalistes."
+      "explanation": "Le fournisseur principal peut dépendre d'autres entités. Il faut connaître les dépendances pertinentes et les contrôles de notification, de sécurité et de continuité."
     },
     {
       "type": "qcm",
-      "prompt": "Que doit prévoir une réversibilité ?",
+      "prompt": "Que faire lorsque les chiffres de performance du fournisseur et de l'acheteur divergent ?",
       "choices": [
-        "La suppression immédiate de toutes les données",
-        "Le transfert vérifiable des données, configurations, documentation, responsabilités et accès",
-        "Une simple lettre de fin de contrat",
-        "Le maintien permanent des accès fournisseur"
-      ],
-      "answer": 1,
-      "explanation": "La sortie doit permettre un transfert contrôlé et une clôture sûre des accès."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle source est la plus utile pour vérifier un KPI fournisseur contesté ?",
-      "choices": [
-        "Une présentation commerciale",
-        "Une promesse orale",
-        "La définition contractuelle et les données sources rapprochées de la méthode de calcul",
-        "Un classement non documenté"
-      ],
-      "answer": 2,
-      "explanation": "Un résultat doit être reproductible et relié au contrat ou au dictionnaire du KPI."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment traiter un écart dont les causes impliquent aussi une équipe interne ?",
-      "choices": [
-        "Attribuer automatiquement toute responsabilité au fournisseur",
-        "Cacher les délais internes",
-        "Ignorer l'incident dans le tableau de bord",
-        "Reconstituer la chronologie de bout en bout et distinguer les responsabilités vérifiées"
+        "Choisir automatiquement la valeur la plus favorable à l'acheteur",
+        "Changer la formule après coup",
+        "Conclure immédiatement à une fraude",
+        "Comparer le périmètre, la formule, les périodes, les exclusions et les sources avant d'établir l'écart"
       ],
       "answer": 3,
-      "explanation": "Le but est de réduire le risque opérationnel, non de déplacer arbitrairement le blâme."
+      "explanation": "Un résultat doit être reproductible. L'analyse de la définition et des données permet de déterminer si le problème porte sur la mesure, le périmètre ou un manquement réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il traiter un risque critique qui dépasse la délégation du gestionnaire fournisseur ?",
+      "choices": [
+        "Le garder dans un tableur sans date",
+        "Le transmettre à l'autorité habilitée avec preuves, options, risque résiduel et échéance de réexamen",
+        "L'accepter implicitement pour préserver la relation commerciale",
+        "Supprimer le risque du registre après la réunion"
+      ],
+      "answer": 1,
+      "explanation": "Le gestionnaire peut analyser et recommander, mais l'acceptation du risque doit relever de la bonne autorité et être documentée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la diversification fournisseur ne garantit-elle pas toujours une meilleure résilience ?",
+      "choices": [
+        "Parce que plusieurs fournisseurs sont toujours identiques",
+        "Parce que les contrats de service ne peuvent jamais coexister",
+        "Parce que des fournisseurs différents peuvent dépendre de la même plateforme, région ou sous-chaîne, et que la coordination augmente aussi la complexité",
+        "Parce que la dépendance n'a aucun rapport avec la continuité"
+      ],
+      "answer": 2,
+      "explanation": "Il faut analyser les causes communes et le coût de coordination. Plusieurs contrats peuvent partager une même dépendance cachée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information doit figurer dans une définition fiable de KPI ?",
+      "choices": [
+        "Nom, formule, périmètre, source, période, exclusions, propriétaire et décision attendue",
+        "Uniquement une cible en pourcentage",
+        "Une formule secrète modifiable chaque mois",
+        "Le nom du fournisseur uniquement"
+      ],
+      "answer": 0,
+      "explanation": "Une définition complète permet de reproduire le calcul, de comprendre les limites et de relier le résultat à une décision."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une relation collaborative avec un fournisseur critique implique quoi ?",
+      "choices": [
+        "Supprimer tous les contrôles contractuels",
+        "Laisser le fournisseur accepter les risques à la place de l'acheteur",
+        "Éviter de documenter les désaccords",
+        "Partager les informations utiles et résoudre les problèmes conjointement tout en conservant responsabilités, preuves et droits de décision"
+      ],
+      "answer": 3,
+      "explanation": "La collaboration améliore l'information et la résolution des problèmes, mais ne supprime ni les obligations ni la gouvernance des risques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quel moment faut-il commencer à préparer une décision de renouvellement ou de sortie ?",
+      "choices": [
+        "Le dernier jour du contrat",
+        "Assez tôt pour respecter préavis, budget, procédure, transition et tests de réversibilité",
+        "Uniquement après un incident majeur",
+        "Lorsque le fournisseur envoie sa facture"
+      ],
+      "answer": 1,
+      "explanation": "Le renouvellement et la sortie nécessitent des délais, validations, alternatives et transferts. Une préparation tardive réduit les options et fragilise la continuité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure preuve que la réversibilité est réaliste ?",
+      "choices": [
+        "Une clause disant seulement que le fournisseur coopérera",
+        "La promesse orale du responsable commercial",
+        "Un test documenté qui récupère les données et éléments nécessaires, vérifie leur intégrité et démontre qu'ils sont réutilisables",
+        "La présence d'un bouton d'export dans l'interface"
+      ],
+      "answer": 2,
+      "explanation": "La réversibilité doit être démontrée par un transfert contrôlé et une vérification de complétude, d'intégrité et d'exploitabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un fournisseur peut-il respecter les KPI sans créer la valeur attendue ?",
+      "choices": [
+        "Les KPI peuvent mesurer des étapes ou une moyenne qui ne reflètent pas le résultat métier et peuvent créer des effets pervers",
+        "Les KPI mesurent toujours tout parfaitement",
+        "Le respect des KPI remplace les retours utilisateurs et les mesures d'impact",
+        "Cela prouve toujours une erreur de calcul"
+      ],
+      "answer": 0,
+      "explanation": "Les indicateurs doivent être équilibrés et liés au besoin. Il faut vérifier les effets indésirables, les cas extrêmes et les résultats réels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une action corrective est arrivée à échéance mais n'est pas encore testée. Comment traiter le risque résiduel ?",
+      "choices": [
+        "Le considérer comme nul parce que le fournisseur a terminé la tâche",
+        "Le supprimer du registre",
+        "Clore automatiquement l'action",
+        "Conserver l'action ouverte ou faire accepter explicitement le risque par l'autorité compétente jusqu'à une preuve d'efficacité"
+      ],
+      "answer": 3,
+      "explanation": "Une action annoncée comme terminée ne doit pas être considérée efficace sans test. Le risque reste présent tant que le résultat n'est pas démontré ou accepté formellement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment comparer une économie annoncée par le fournisseur après automatisation ?",
+      "choices": [
+        "Retenir le pourcentage annoncé sans question",
+        "Définir la base de comparaison, inclure les coûts de mise en œuvre et vérifier la qualité du service après changement",
+        "Ignorer la licence et l'exploitation supplémentaires",
+        "Comparer seulement le nombre de réunions"
+      ],
+      "answer": 1,
+      "explanation": "Une économie nette doit être calculée sur une base comparable et inclure les coûts nécessaires ainsi que les effets sur le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle conclusion tirer d'un rapport de continuité sans périmètre, date ni résultats d'exercice ?",
+      "choices": [
+        "Le fournisseur est définitivement non conforme dans toutes les juridictions",
+        "Le plan est forcément efficace",
+        "La déclaration doit être complétée par une preuve dont la portée et les limites sont vérifiables",
+        "La continuité ne doit pas être évaluée"
+      ],
+      "answer": 2,
+      "explanation": "Une déclaration générique ne permet pas de conclure sur la capacité réelle. Il faut demander les éléments de preuve pertinents et décider selon le risque et le contrat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider la décision de renouvellement ?",
+      "choices": [
+        "La combinaison des résultats, risques, coûts, alternatives, délais de transition et règles contractuelles",
+        "La seule qualité de la relation personnelle",
+        "Le renouvellement automatique si le fournisseur connaît l'environnement",
+        "La résiliation immédiate dès le premier incident"
+      ],
+      "answer": 0,
+      "explanation": "Une décision défendable examine la valeur et les risques réels, la capacité de substitution et les règles applicables, plutôt qu'un seul facteur."
     }
   ]
 }
