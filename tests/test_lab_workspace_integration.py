@@ -239,7 +239,7 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         self.assertIn(":href=\"labIndex[n.id]?.kind === 'workspace-v2' ? '/lab.html?id=' + encodeURIComponent(n.id)", dashboard)
         self.assertIn(":data-lab-kind=\"labIndex[n.id]?.kind === 'workspace-v2' ? 'workspace-v2' : 'legacy'\"", dashboard)
-        self.assertIn("@click=\"openVisualLab() \"", dashboard.replace("@click=\"openVisualLab()\"", "@click=\"openVisualLab() \""))
+        self.assertIn('@click="openVisualLab()"', dashboard)
         self.assertIn("async openVisualLab()", dashboard)
         self.assertIn("payload.sandbox === true", dashboard)
         self.assertIn("!Array.isArray(topologyNodes)", dashboard)
