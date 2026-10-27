@@ -11,13 +11,14 @@
     "Créer le VLAN 10 sur SW1",
     "Activer le mode spanning-tree rapid-pvst",
     "Définir SW1 comme racine primaire du VLAN 10",
-    "Configurer Fa0/1 en port d’accès avec PortFast et BPDU Guard"
+    "Configurer Fa0/1 en access VLAN 10",
+    "Activer PortFast et BPDU Guard sur le seul port hôte Fa0/1"
   ],
   "hints": [
     "Cible CLI : SW1. Les deux liens SW1–SW2 sont redondants ; le port Fa0/1 est relié au poste utilisateur.",
     "Indice 1 : créez le VLAN 10 et activez Rapid-PVST avant de définir SW1 comme racine primaire.",
     "Indice 2 : PortFast et BPDU Guard s’appliquent au port hôte Fa0/1, pas aux trunks Fa0/23 et Fa0/24.",
-    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; vlan 10 ; spanning-tree mode rapid-pvst ; spanning-tree vlan 10 root primary ; interface Fa0/1 ; spanning-tree portfast ; spanning-tree bpduguard enable ; end.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; vlan 10 ; spanning-tree mode rapid-pvst ; spanning-tree vlan 10 root primary ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; spanning-tree portfast ; spanning-tree bpduguard enable ; end.",
     "La validation vérifie le VLAN, le mode Rapid-PVST, la configuration de racine primaire et les protections du port d’accès. Elle ne simule pas l’élection STP ni l’état forwarding/blocking des liens."
   ],
   "initial_topology": {
@@ -336,6 +337,22 @@
         "path": "ports[0].spanning_tree.bpduguard",
         "operator": "equals",
         "expected": true
+      },
+      {
+        "id": "stp_access_mode",
+        "description": "Fa0/1 est configuré en mode access.",
+        "device": "SW1",
+        "path": "ports[0].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "stp_access_vlan",
+        "description": "Fa0/1 appartient au VLAN 10.",
+        "device": "SW1",
+        "path": "ports[0].vlan",
+        "operator": "equals",
+        "expected": 10
       }
     ],
     "pass_threshold": 1,
