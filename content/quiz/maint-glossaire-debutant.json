@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Vocabulaire technique et communication » ?",
+      "prompt": "Quelle formulation décrit correctement un incident informatique ?",
       "choices": [
-        "Le sujet principal du cours : Vocabulaire technique et communication",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Une interruption ou une dégradation imprévue d'un service",
+        "La cause racine de tous les incidents d'une entreprise",
+        "Une prestation standard demandée par un utilisateur",
+        "Une modification planifiée et déjà autorisée"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Un incident décrit l'effet subi sur un service. La cause peut rester inconnue au début du traitement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre un symptôme et une cause ?",
+      "choices": [
+        "Un symptôme est toujours matériel, une cause toujours logicielle",
+        "Le symptôme est observable ; la cause explique pourquoi il apparaît",
+        "Le symptôme est une solution et la cause un ticket",
+        "Il n'existe aucune différence utile"
+      ],
+      "answer": 1,
+      "explanation": "Le symptôme correspond à ce que l'on observe. La cause est l'explication vérifiée ou l'hypothèse à examiner."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie l'authentification ?",
+      "choices": [
+        "Définir toutes les ressources auxquelles un compte accède",
+        "Attribuer une priorité à un ticket",
+        "Vérifier l'identité présentée par un utilisateur ou un système",
+        "Mesurer le débit d'une connexion"
+      ],
+      "answer": 2,
+      "explanation": "L'authentification vérifie l'identité. L'autorisation détermine les actions permises à cette identité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue correctement latence et débit ?",
+      "choices": [
+        "La latence mesure le délai ; le débit mesure la quantité transférée par unité de temps",
+        "La latence désigne la capacité du disque et le débit sa température",
+        "Les deux termes désignent la même mesure",
+        "La latence est toujours égale à la bande passante"
+      ],
+      "answer": 0,
+      "explanation": "La latence exprime un délai. Le débit décrit la quantité de données transférées pendant une durée donnée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un employé demande l'installation d'un logiciel approuvé qui n'est pas installé. Quelle catégorie convient généralement ?",
+      "choices": [
+        "Incident de sécurité confirmé",
+        "Problème racine",
+        "Panne matérielle",
+        "Demande de service"
+      ],
+      "answer": 3,
+      "explanation": "Une prestation standard prévue relève habituellement d'une demande de service, selon le catalogue interne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que mesure principalement le MTTR dans le suivi de maintenance ?",
+      "choices": [
+        "Le nombre total d'utilisateurs",
+        "Le temps moyen nécessaire pour réparer ou rétablir un service, selon la définition adoptée",
+        "La quantité de données sauvegardées",
+        "Le délai moyen entre deux pannes"
+      ],
+      "answer": 1,
+      "explanation": "Le MTTR est un indicateur de durée moyenne de réparation ou de rétablissement. Il faut préciser la définition retenue par l'organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel message est le plus professionnel lorsqu'une cause n'est pas confirmée ?",
+      "choices": [
+        "« Le serveur est forcément en panne, j'en suis sûr. »",
+        "« Votre demande n'a aucun sens. »",
+        "« L'accès échoue depuis 9 h 10 ; nous vérifions la résolution DNS et vous informerons du résultat. »",
+        "« Tout sera réglé dans cinq minutes », sans diagnostic"
+      ],
+      "answer": 2,
+      "explanation": "Le message cite un fait observable, indique l'investigation en cours et promet une mise à jour plutôt qu'un résultat non garanti."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information ne doit pas être copiée dans un ticket ordinaire ?",
+      "choices": [
+        "L'heure du test",
+        "Le nom du service concerné",
+        "Le code d'erreur non sensible",
+        "Le mot de passe ou le jeton d'accès de l'utilisateur"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets ne doivent pas être enregistrés dans le ticket. Le compte rendu doit décrire l'action sans révéler le moyen d'authentification."
     }
   ]
 }
