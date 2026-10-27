@@ -409,7 +409,7 @@ test('les cartes ouvrent directement le workspace v2 et identifient les labs his
   ).toBe(true);
 
   const originalUrl = page.url();
-  const workspaceLinks = links.filter('[data-lab-kind="workspace-v2"]');
+  const workspaceLinks = page.locator('a[data-lab-card="catalog"][data-lab-kind="workspace-v2"]');
   await expect(workspaceLinks.first()).toBeVisible();
   const workspaceLink = workspaceLinks.first();
   await expect(workspaceLink).toHaveAttribute('target', '_blank');
@@ -426,7 +426,7 @@ test('les cartes ouvrent directement le workspace v2 et identifient les labs his
   await expect(nav.getByRole('button', { name: 'Labs' })).toHaveAttribute('aria-current', 'page');
   await workspacePage.close();
 
-  const legacyLinks = links.filter('[data-lab-kind="legacy"]');
+  const legacyLinks = page.locator('a[data-lab-card="catalog"][data-lab-kind="legacy"]');
   if (await legacyLinks.count()) {
     const legacyLink = legacyLinks.first();
     await expect(legacyLink).toHaveAttribute('href', /\/\?openLab=/);
