@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Rédiger un rapport d'incident » ?",
+      "prompt": "Quel doit être le contenu du résumé exécutif ?",
       "choices": [
-        "Le sujet principal du cours : Rédiger un rapport d'incident",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Tous les logs bruts",
+        "Les commandes sans explication",
+        "Une cause supposée formulée comme certitude",
+        "Le service touché, l'impact, la durée connue, l'état et les suites principales"
+      ],
+      "answer": 3,
+      "explanation": "Le résumé doit permettre de comprendre la situation sans lire immédiatement tous les détails techniques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi standardiser les horaires de la chronologie ?",
+      "choices": [
+        "Pour comparer correctement les événements issus de sources et fuseaux différents",
+        "Pour retirer les preuves anciennes",
+        "Pour imposer que tous les incidents durent la même durée",
+        "Pour éviter de mentionner les changements"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Les horloges et fuseaux peuvent changer l'ordre apparent des événements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment présenter une cause non confirmée ?",
+      "choices": [
+        "La déclarer certaine pour être clair",
+        "La décrire comme hypothèse avec limites et tests complémentaires",
+        "La supprimer sans explication",
+        "L'attribuer à une personne"
+      ],
+      "answer": 1,
+      "explanation": "Le rapport doit distinguer faits et interprétations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit prouver la validation du rétablissement ?",
+      "choices": [
+        "Que le ticket possède un numéro",
+        "Que l'équipement a redémarré uniquement",
+        "Que le service satisfait les critères fonctionnels définis",
+        "Que l'équipe a fini sa réunion"
+      ],
+      "answer": 2,
+      "explanation": "Le service doit être testé selon un scénario représentatif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'un contournement ?",
+      "choices": [
+        "Une correction définitive nécessairement",
+        "Un KPI",
+        "Une pièce jointe",
+        "Une mesure temporaire qui réduit l'impact sans supprimer forcément la cause"
+      ],
+      "answer": 3,
+      "explanation": "Le rapport doit documenter le risque et le retrait du contournement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi limiter les données sensibles dans le rapport distribué ?",
+      "choices": [
+        "Pour réduire l'exposition de secrets et de données inutiles",
+        "Pour rendre le rapport incomplet à dessein",
+        "Pour supprimer toutes les preuves internes",
+        "Pour éviter l'horodatage"
+      ],
+      "answer": 0,
+      "explanation": "Il faut conserver les preuves dans le bon espace et diffuser une copie adaptée aux destinataires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une chronologie utile contient :",
+      "choices": [
+        "Uniquement l'heure de clôture",
+        "Détection, actions, escalades, changements, rétablissement et validation",
+        "Les opinions non vérifiées uniquement",
+        "Aucun fuseau horaire"
+      ],
+      "answer": 1,
+      "explanation": "La chronologie retrace comment l'incident a été traité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment améliorer une action corrective dans le rapport ?",
+      "choices": [
+        "Écrire 'faire mieux'",
+        "Ne pas lui donner de propriétaire",
+        "Définir responsable, échéance, mesure de succès et preuve attendue",
+        "La clôturer dès la publication du rapport"
+      ],
+      "answer": 2,
+      "explanation": "Une action doit être mesurable et suivie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une preuve dans un rapport ?",
+      "choices": [
+        "Une déclaration orale non datée",
+        "Un avis de l'auteur uniquement",
+        "Une hypothèse sans source",
+        "Un élément observable, traçable et relié à une affirmation"
+      ],
+      "answer": 3,
+      "explanation": "La preuve doit pouvoir être vérifiée par un autre intervenant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il mettre à jour le rapport après publication ?",
+      "choices": [
+        "Quand de nouvelles preuves modifient la conclusion ou les actions suivies",
+        "Jamais, même si une cause différente est prouvée",
+        "À chaque changement de police",
+        "Seulement si quelqu'un se plaint"
+      ],
+      "answer": 0,
+      "explanation": "Le rapport doit garder une trace des compléments ou corrections nécessaires."
     }
   ]
 }
