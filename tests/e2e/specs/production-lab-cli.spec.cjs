@@ -102,7 +102,68 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
       await expect(page.locator('section[aria-label="Serveurs"]')).toBeVisible();
       await expect(page.locator('section[aria-label="Sécurité & WAN"]')).toBeVisible();
 
-      expect(failedAppResponses, 'aucun script/style/API du lab ne doit échouer').toEqual([]);
+      // Exécuter la séquence de référence dans xterm, comme un apprenant.
+      // Le seul POST autorisé est /check : jamais /submit ni /save en production.
+      const writeRequests = [];
+      page.on('request', request => {
+        const requestUrl = new URL(request.url());
+        if (request.method() === 'POST' && /\/api\/lab\/v2\/[^/]+\/(submit|save)$/.test(requestUrl.pathname)) {
+          writeRequests.push({ method: request.method(), path: requestUrl.pathname });
+        }
+      });
+
+      const targetHint = (definition.hints || []).find(hint => hint.startsWith('Cible CLI'));
+      expect(targetHint, 'la cible CLI doit être documentée').toBeTruthy();
+      const targetMatch = targetHint.match(/^Cible CLI\s*:\s*([^.]+)\./);
+      expect(targetMatch, 'la cible CLI doit être exploitable').toBeTruthy();
+      const targetId = targetMatch[1].trim();
+      const sequenceHint = (definition.hints || []).find(hint => hint.startsWith('Séquence de référence'));
+      expect(sequenceHint, 'la séquence CLI de référence doit être documentée').toBeTruthy();
+      const commands = sequenceHint
+        .replace(/^Séquence de référence\s*:\s*/, '')
+        .replace(/\.$/, '')
+        .split(/\s;\s/)
+        .map(command => command.trim())
+        .filter(Boolean);
+      expect(commands.length, 'la séquence de commandes ne doit pas être vide').toBeGreaterThan(0);
+
+      const targetNode = page.locator('.react-flow__node[data-id="' + targetId + '"]');
+      await expect(targetNode, 'l’équipement cible doit être présent sur le canevas').toBeVisible();
+      await targetNode.click();
+      const terminal = page.locator('.xterm').first();
+      await expect(terminal, 'la console xterm doit apparaître après sélection').toBeVisible();
+      await terminal.click({ position: { x: 100, y: 60 } });
+      for (const command of commands) {
+        await page.keyboard.type(command);
+        await page.keyboard.press('Enter');
+      }
+
+      const checkResponsePromise = page.waitForResponse(response =>
+        response.url().includes('/api/lab/v2/' + labId + '/check') &&
+        response.request().method() === 'POST'
+      );
+      await page.getByRole('button', { name: /Vérifier/ }).click();
+      const checkResponse = await checkResponsePromise;
+      expect(checkResponse.status(), 'le contrôle serveur doit répondre HTTP 200').toBe(200);
+      const checkResult = await checkResponse.json();
+      expect(checkResult.passed, 'la séquence CLI doit satisfaire le scénario').toBe(true);
+      expect(checkResult.score, 'le serveur doit calculer un score complet').toBe(1);
+      expect(checkResult.results.length, 'le serveur doit renvoyer les détails des règles').toBeGreaterThan(0);
+      expect(checkResult.results.every(item => item.passed), 'toutes les règles serveur doivent réussir').toBe(true);
+      const visibleDetails = page.getByRole('region', { name: 'Détails des vérifications' });
+      await expect(visibleDetails, 'les résultats du serveur doivent être visibles dans l’interface').toBeVisible();
+      await expect(visibleDetails.locator('li')).toHaveCount(checkResult.results.length);
+      for (const item of await visibleDetails.locator('li').all()) {
+        await expect(item).toContainText('✓');
+      }
+      expect(writeRequests, 'aucune tentative ne doit être soumise et aucune topologie sauvegardée').toEqual([]);
+
+      console.log(
+        'PASS ' + labId + ': terminal xterm exécuté (' + commands.length + ' commandes), ' +
+        checkResult.results.length + ' règles serveur validées, aucun enregistrement effectué'
+      );
+
+            expect(failedAppResponses, 'aucun script/style/API du lab ne doit échouer').toEqual([]);
       expect(pageErrors, 'aucune exception JavaScript non interceptée').toEqual([]);
       console.log(
         `PASS ${labId}: ${expectedNodes.length} équipements, ${expectedLinks.length} liaisons, bibliothèques OK`
