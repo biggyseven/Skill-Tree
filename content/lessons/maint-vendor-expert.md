@@ -358,6 +358,36 @@ Un fournisseur respecte 98 % des délais d'accusé de réception, mais le temps 
 Le plan d'amélioration doit fixer une période de mesure, une population comparable, les sources, les actions de chaque partie et le critère d'efficacité. Les engagements de résultat qui ne figurent pas au contrat peuvent servir d'objectif de travail, mais les conséquences contractuelles s'appliquent uniquement selon les clauses et règles valides. Le but est d'améliorer le service et d'établir une décision défendable avant le renouvellement.
 
 
+
+## Gestion des situations difficiles et du renouvellement
+
+Une relation fournisseur critique peut traverser une dégradation progressive, un incident majeur, un changement de propriétaire, une crise financière, un conflit de mesure ou une transition accélérée. L'expert doit préparer ces scénarios en amont et différencier la mitigation immédiate, les obligations contractuelles, les négociations commerciales et la décision de dépendre ou non du partenaire à moyen terme.
+
+### Escalader sans perdre la maîtrise opérationnelle
+
+L'escalade est déclenchée par des conditions définies : violation d'un engagement, risque élevé, répétition d'un défaut, délai d'action dépassé, changement non notifié ou absence de preuve sur un contrôle critique. Le dossier d'escalade contient la chronologie, le service affecté, les données mesurées, le critère concerné, l'impact, les mesures déjà prises, la décision attendue et l'échéance. Éviter les messages accusatoires ou les qualificatifs non démontrés ; un dossier factuel est plus utile à la résolution comme à la gestion contractuelle.
+
+La mitigation doit être décidée avant que l'analyse commerciale soit terminée lorsque le service est en danger. Par exemple, une capacité de secours peut être activée selon le plan autorisé pendant que les parties reconstituent la cause. Les frais ou responsabilités peuvent être examinés ensuite conformément au contrat. Cela n'autorise pas l'équipe à ignorer les droits contractuels, mais évite qu'un débat sur la faute retarde une action nécessaire pour réduire l'impact.
+
+### Tableau de décision de renouvellement
+
+| Question | Preuve nécessaire | Option possible si la réponse est défavorable |
+|---|---|---|
+| Le service atteint-il les objectifs ? | KPI vérifiés, dossiers d'exception et retours métier | Plan de remédiation avec jalons |
+| Le coût reste-t-il justifié ? | TCO, consommation, prix futurs et coûts d'évolution | Renégociation ou nouvelle consultation |
+| La dépendance est-elle maîtrisée ? | Cartographie de sous-traitants, technologie et accès | Mesures de portabilité ou solution de repli |
+| La sécurité et la continuité sont-elles démontrées ? | Preuves et tests dans la portée pertinente | Réduction d'accès, contrôles compensatoires ou sortie planifiée |
+| Une sortie est-elle faisable ? | Formats, délais, ressources, tests et coûts | Préparer des étapes de réversibilité avant l'échéance |
+
+Le renouvellement n'est pas une simple validation de satisfaction. C'est une décision sur la future exposition au risque, le coût et la capacité du fournisseur à soutenir la feuille de route. Si la sortie immédiate n'est pas réaliste, la décision peut être un renouvellement conditionnel accompagné de jalons, de réduction de dépendance et d'un calendrier de reconsultation approuvé.
+
+### Planifier un test de réversibilité
+
+Définir les données à transférer, leurs formats, le volume, les pièces jointes, la configuration, la documentation, l'historique et les identifiants. Sélectionner un échantillon de bout en bout, exporter, importer dans un environnement contrôlé, vérifier le nombre d'objets, la cohérence des relations et la lisibilité. Vérifier aussi la passation des incidents ouverts, des accès, des contacts, des clés et des procédures. Le test ne doit pas exposer des secrets ni créer une duplication non maîtrisée des données.
+
+Une réversibilité réussie est une capacité démontrée, pas une clause seulement relue. Le risque de sortie doit être traité au début du contrat, réexaminé aux revues et testé avant le moment où une défaillance rendrait la transition urgente.
+
+
 ## Ressources techniques et références
 
 - [UK Government — The Sourcing Playbook](https://www.gov.uk/government/publications/the-sourcing-and-consultancy-playbooks)
