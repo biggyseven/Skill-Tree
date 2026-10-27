@@ -404,7 +404,7 @@ Pour les incidents rares mais graves, ne compte pas uniquement sur l'expérience
 Un exercice réussi doit produire des observations et des actions de suivi. Ne confonds pas le fait que les participants connaissent la procédure avec la capacité réelle à l'exécuter pendant un incident. Le RETEX d'un exercice suit le même principe que celui d'un événement réel : faits, écarts, décisions, action et preuve.
 
 
-## 17. TP guidé : RETEX d'une panne réseau
+## 15. TP guidé : RETEX d'une panne réseau
 
 **Scénario.** Après un changement d'ACL, des clients d'un service interne ne peuvent plus joindre une API. Le service est rétabli après retour arrière. Le ticket initial dit « ACL incorrecte ».
 
@@ -418,7 +418,7 @@ Un exercice réussi doit produire des observations et des actions de suivi. Ne c
 
 **Critère de réussite :** le rapport distingue faits et hypothèses, évite le blâme, explique le mécanisme soutenu par les preuves, relie chaque action à un risque et décrit comment vérifier le résultat.
 
-## 18. Exercices corrigés
+## 16. Exercices corrigés
 
 ### Exercice 1 — Cause unique trop rapide
 
@@ -438,13 +438,13 @@ Les participants hésitent à signaler les erreurs de décision parce que les ra
 
 **Correction.** Expliquer l'objectif d'apprentissage, distinguer l'analyse des conditions du système des processus formels de responsabilité, protéger les données selon les règles et recentrer la discussion sur les informations disponibles au moment de l'action. L'approche constructive n'autorise pas à dissimuler un acte intentionnel ou à ignorer les obligations réglementaires ; elle rend l'analyse des erreurs non intentionnelles plus utile.
 
-## 19. Défi final corrigé
+## 17. Défi final corrigé
 
 **Mission.** Un incident affectant un service critique s'est produit deux fois en trois mois. La première action avait consisté en une formation et une mise à jour de procédure, mais l'incident s'est reproduit.
 
 **Correction type.** Commence par reconstruire les deux chronologies et comparer les mécanismes. Détermine si l'action précédente a été exécutée, testée et vérifiée, ou simplement déclarée terminée. Examine les contrôles techniques, les signaux de détection, les points de décision, les dépendances et le rayon d'impact. Définis des actions qui modifient les barrières et donne à chacune une preuve de mise en œuvre ainsi qu'un test d'efficacité. Mets à jour la procédure et les systèmes concernés, puis programme une vérification indépendante. Si la cause exacte demeure incertaine, documente cette limite et adopte des mesures proportionnées qui réduisent l'impact des scénarios plausibles.
 
-## 20. Références et approfondissement
+## 18. Références et approfondissement
 
 - [Google SRE — Postmortem Culture](https://sre.google/workbook/postmortem-culture/) — retours d'expérience constructifs et actions de suivi mesurables.
 - [Google SRE — Incident Management Guide](https://sre.google/resources/practices-and-processes/incident-management-guide/) — gestion des incidents et apprentissage après les interruptions.
