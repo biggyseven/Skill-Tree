@@ -67,30 +67,36 @@ test.describe('Lab Workspace CLI — production browser smoke (read only)', () =
       await expect(equipmentTab).toBeVisible();
       await expect(equipmentTab).toHaveAttribute('aria-selected', 'true');
       await expect(page.locator('section[aria-label="Routeurs"]')).toBeVisible();
-      await expect(page.locator('section[aria-label="Switchs"]')).toBeVisible();
-      await expect(page.getByText('Routeur', { exact: true }).first()).toBeVisible();
-      await expect(page.getByText('Switch', { exact: true }).first()).toBeVisible();
+      await expect(page.locator('section[aria-label="Switchs & concentration"]')).toBeVisible();
+      await expect(page.getByRole('button', { name: /Glisser Routeur ISR sur le canevas/ })).toBeVisible();
+      await expect(page.getByRole('button', { name: /Glisser Switch L2 · 8 ports sur le canevas/ })).toBeVisible();
 
-      // Le panneau câbles doit lister ses cinq familles, sans effectuer de liaison.
+      // Vérifier la bibliothèque de câbles actuelle sans créer de liaison.
       await cablesTab.click();
       await expect(cablesTab).toHaveAttribute('aria-selected', 'true');
       for (const cableName of [
-        'Cuivre droit',
-        'Cuivre croisé',
-        'Fibre optique',
-        'Câble console',
-        'Liaison sans fil',
+        'Cuivre droit RJ45',
+        'Cuivre croisé RJ45',
+        'Fibre multimode',
+        'Fibre monomode',
+        'Console RJ45',
+        'Console USB',
+        'DAC / Twinax SFP+',
+        'Câble coaxial',
+        'Série DCE / DTE',
+        'Câble téléphonique RJ11',
+        'Liaison radio / Wi-Fi',
       ]) {
         await expect(page.getByText(cableName, { exact: true })).toBeVisible();
       }
 
-      // Revenir à la bibliothèque d'équipements vérifie également le changement d'onglet.
+      // Revenir à la bibliothèque d'équipements vérifie les groupes actuels.
       await equipmentTab.click();
       await expect(equipmentTab).toHaveAttribute('aria-selected', 'true');
-      await expect(page.locator('section[aria-label="Serveurs"]')).toBeVisible();
-      await expect(page.locator('section[aria-label="Sécurité & WAN"]')).toBeVisible();
+      await expect(page.locator('section[aria-label="Serveurs & stockage"]')).toBeVisible();
+      await expect(page.locator('section[aria-label="Sécurité & distribution"]')).toBeVisible();
 
-      // La vérification d’ouverture/canevas/bibliothèques couvre les 17 scénarios.
+      // Le test API en lecture seule couvre les 17 scénarios; ici on exerce quatre parcours UI représentatifs.
       // La saisie CLI réelle est jouée sur quatre représentants de familles différentes.
       if (['cli-ipv4-interfaces', 'cli-vlan-access', 'cli-static-routing', 'cli-qos-voice-policy'].includes(labId)) {
         console.log('Début interaction CLI xterm : ' + labId);
