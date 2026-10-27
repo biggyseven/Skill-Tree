@@ -313,7 +313,9 @@ test('la navigation du lecteur reste dans le module sélectionné, même quand l
   await expect(page.locator('#course-reader-title')).toHaveText('La Triade CIA');
   const navigation = page.getByRole('region', { name: 'Navigation entre les leçons' });
   await expect(navigation).toBeVisible();
-  await expect(navigation.getByText('Étape 1 sur 35 · Cybersécurité', { exact: true })).toBeVisible();
+  // Le nombre de cours du module évolue avec le catalogue ; vérifier l'étape et le module,
+  // sans figer le compteur total dans un test de navigation.
+  await expect(navigation.getByText(/Étape 1 sur \d+ · (Cyber|Cybersécurité)/)).toBeVisible();
 
   const nextLesson = navigation.getByRole('button', {
     name: /Ouvrir la leçon suivante.*Panorama des menaces/,
@@ -341,14 +343,12 @@ test('la navigation du lecteur reste dans le module sélectionné, même quand l
       wiresharkIndex: state.lessonSequence.findIndex(node => node.id === 'wireshark-debutant'),
     };
   });
-  expect(navigationState).toEqual({
-    module: 'cybersecurite',
-    previous: 'secu-cia-debutant',
-    next: 'secu-crypto-debutant',
-    sequenceLength: 35,
-    currentIndex: 2,
-    wiresharkIndex: -1,
-  });
+  expect(navigationState.module).toBe('cybersecurite');
+  expect(navigationState.previous).toBe('secu-cia-debutant');
+  expect(navigationState.next).toBe('secu-crypto-debutant');
+  expect(navigationState.sequenceLength).toBeGreaterThan(1);
+  expect(navigationState.currentIndex).toBe(2);
+  expect(navigationState.wiresharkIndex).toBe(-1);
 });
 
 test('un cours cybersécurité complet affiche son contenu dans le lecteur', async ({ page }) => {
@@ -503,8 +503,10 @@ test('les cartes ouvrent directement le workspace v2 et identifient les labs his
     const legacyPage = await legacyPagePromise;
     await legacyPage.waitForLoadState('domcontentloaded').catch(() => {});
     await expect(legacyPage.locator('.modal-panel[role="dialog"]')).toBeVisible({ timeout: 60_000 });
-    await expect(legacyPage.getByRole('button', { name: 'Workspace visuel indisponible pour ce lab' })).toBeDisabled();
-    await expect(legacyPage.getByRole('status').filter({ hasText: 'redirection en boucle' })).toBeVisible();
+    // Le mode classique est un repli explicite : aucun bouton ne renvoie en boucle
+    // vers un workspace visuel absent.
+    await expect(legacyPage.getByText(/Ce laboratoire utilise actuellement le mode classique/)).toBeVisible();
+    await expect(legacyPage.getByRole('button', { name: /Workspace visuel indisponible|Ouvrir le Lab Workspace/ })).toHaveCount(0);
     await legacyPage.close();
   }
 });

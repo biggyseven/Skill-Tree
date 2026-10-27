@@ -54,6 +54,12 @@ class Port(SchemaModel):
     description: str = ""
     access_group_in: int | None = None
     access_group_out: int | None = None
+    ipv6: str | None = None
+    nat_role: Literal["inside", "outside"] | None = None
+    hsrp: list[dict[str, Any]] = Field(default_factory=list)
+    spanning_tree: dict[str, Any] = Field(default_factory=dict)
+    port_security: dict[str, Any] = Field(default_factory=dict)
+    service_policy_out: str | None = None
 
 
 class OSPFConfig(SchemaModel):
@@ -75,6 +81,7 @@ class DeviceConfig(SchemaModel):
     ospf: OSPFConfig = Field(default_factory=OSPFConfig)
     acls: list[Any] = Field(default_factory=list)
     services: ServicesConfig = Field(default_factory=ServicesConfig)
+    protocols: dict[str, Any] = Field(default_factory=dict)
 
 
 class DeviceRuntime(SchemaModel):

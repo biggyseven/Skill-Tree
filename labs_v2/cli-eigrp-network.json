@@ -1,0 +1,320 @@
+{
+  "schema_version": 2,
+  "id": "cli-eigrp-network",
+  "title": "CLI — EIGRP sans auto-résumé",
+  "level": "expert",
+  "module": "Routage avancé",
+  "duration_min": 25,
+  "difficulty": "expert",
+  "prompt": "Configurez EIGRP AS 100, annoncez 10.1.0.0 avec le wildcard 0.0.255.255 et désactivez l’auto-résumé. La validation porte sur l’état du protocole, pas sur le texte de la console.",
+  "objectives": [
+    "Exécuter puis vérifier : router eigrp 100",
+    "Exécuter puis vérifier : network 10.1.0.0 0.0.255.255",
+    "Exécuter puis vérifier : no auto-summary"
+  ],
+  "hints": [
+    "Cible CLI : R1.",
+    "Séquence de référence : enable ; configure terminal ; router eigrp 100 ; network 10.1.0.0 0.0.255.255 ; no auto-summary ; end.",
+    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-cli-eigrp-network",
+    "metadata": {
+      "name": "CLI — EIGRP sans auto-résumé",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "generic-router",
+        "x": 180,
+        "y": 300,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "down",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "down",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "generic-2960",
+        "x": 520,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "down",
+            "speed": 1000,
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "down",
+            "speed": 1000,
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 850,
+        "y": 90,
+        "label": "PC1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "down",
+            "speed": 1000,
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L-R1-SW1",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-SW1-PC1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {
+    "R1": {
+      "interfaces": [
+        "Gi0/0",
+        "Gi0/1"
+      ],
+      "ports_fixed": true
+    },
+    "SW1": {
+      "interfaces": [
+        "Fa0/1",
+        "Fa0/24"
+      ],
+      "ports_fixed": true
+    },
+    "PC1": {
+      "interfaces": [
+        "eth0"
+      ],
+      "ports_fixed": true
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "eigrp_asn",
+        "description": "Contrôle serveur : eigrp asn doit être conforme.",
+        "device": "R1",
+        "path": "config.protocols.eigrp.asn",
+        "operator": "equals",
+        "expected": 100
+      },
+      {
+        "id": "eigrp_network",
+        "description": "Contrôle serveur : eigrp network doit être conforme.",
+        "device": "R1",
+        "path": "config.protocols.eigrp.networks",
+        "operator": "contains",
+        "expected": {
+          "network": "10.1.0.0",
+          "wildcard": "0.0.255.255"
+        }
+      },
+      {
+        "id": "eigrp_no_auto_summary",
+        "description": "Contrôle serveur : eigrp no auto summary doit être conforme.",
+        "device": "R1",
+        "path": "config.protocols.eigrp.auto_summary",
+        "operator": "equals",
+        "expected": false
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {
+      "under_15min": 10,
+      "under_30min": 5
+    }
+  },
+  "xp_reward": 35,
+  "badges": []
+}

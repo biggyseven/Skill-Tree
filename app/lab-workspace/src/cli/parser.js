@@ -16,6 +16,16 @@ function isIPv4Mask(value) {
   return /^1+0*$/.test(bits);
 }
 
+function isIPv6Prefix(value) {
+  const parts = String(value || '').trim().split('/');
+  if (parts.length > 2 || !parts[0].includes(':')) return false;
+  if (!/^[0-9a-f:]+$/i.test(parts[0]) || (parts[0].match(/:/g) || []).length < 2) return false;
+  if (parts.length === 1) return true;
+  if (!/^\d{1,3}$/.test(parts[1])) return false;
+  const prefix = Number(parts[1]);
+  return prefix >= 0 && prefix <= 128;
+}
+
 export class CLIParser {
   constructor(device, mode = 'user', context = {}) {
     this.device = device;
@@ -31,12 +41,41 @@ export class CLIParser {
       case 'config': return h + '(config)#';
       case 'interface': return h + '(config-if)#';
       case 'router': return h + '(config-router)#';
+      case 'dhcp': return h + '(dhcp-config)#';
+      case 'class-map': return h + '(config-cmap)#';
+      case 'policy': return h + '(config-pmap)#';
       default: return h + '>';
     }
   }
 
   findPort(name) {
     return (this.device.ports || []).find(p => p.id === name || p.name === name);
+  }
+
+  ensureProtocols() {
+    if (!this.device.config || typeof this.device.config !== 'object') this.device.config = {};
+    if (!this.device.config.protocols || typeof this.device.config.protocols !== 'object') {
+      this.device.config.protocols = {};
+    }
+    return this.device.config.protocols;
+  }
+
+  ensureProtocolState(name, initialState = {}) {
+    const protocols = this.ensureProtocols();
+    if (!protocols[name] || typeof protocols[name] !== 'object') protocols[name] = { ...initialState };
+    return protocols[name];
+  }
+
+  ensureDhcpPool(name) {
+    const dhcp = this.ensureProtocolState('dhcp', { excluded_addresses: [], pools: [] });
+    if (!Array.isArray(dhcp.excluded_addresses)) dhcp.excluded_addresses = [];
+    if (!Array.isArray(dhcp.pools)) dhcp.pools = [];
+    let pool = dhcp.pools.find(item => item.name === name);
+    if (!pool) {
+      pool = { name, network: null, mask: null, default_router: null, dns_server: null, lease_days: null };
+      dhcp.pools.push(pool);
+    }
+    return pool;
   }
 
   execute(line) {
@@ -51,7 +90,7 @@ export class CLIParser {
       return { output: `Type escape sequence to abort.\nSending 5, 100-byte ICMP Echos to ${tokens[1]}, timeout is 2 seconds:`, isAsync: true };
     }
     if (cmd === 'exit') {
-      if (this.mode === 'interface' || this.mode === 'router') this.mode = 'config';
+      if (['interface', 'router', 'dhcp', 'class-map', 'policy'].includes(this.mode)) this.mode = 'config';
       else if (this.mode === 'config') this.mode = 'privileged';
       else if (this.mode === 'privileged') this.mode = 'user';
       return { output: '' };
@@ -97,6 +136,111 @@ export class CLIParser {
         if (!this.device.config.acls.includes(rule)) this.device.config.acls.push(rule);
         return { output: '' };
       }
+      if (cmd === 'ip' && tokens[1] === 'dhcp' && tokens[2] === 'excluded-address' && tokens[3]) {
+        const dhcp = this.ensureProtocolState('dhcp', { excluded_addresses: [], pools: [] });
+        if (!Array.isArray(dhcp.excluded_addresses)) dhcp.excluded_addresses = [];
+        const range = { start: tokens[3], end: tokens[4] || tokens[3] };
+        if (!dhcp.excluded_addresses.some(item => item.start === range.start && item.end === range.end)) dhcp.excluded_addresses.push(range);
+        return { output: '' };
+      }
+      if (cmd === 'ip' && tokens[1] === 'dhcp' && tokens[2] === 'pool' && tokens[3]) {
+        this.ensureDhcpPool(tokens[3]);
+        this.context.dhcp_pool = tokens[3];
+        this.mode = 'dhcp';
+        return { output: '' };
+      }
+      if (cmd === 'ip' && tokens[1] === 'host' && tokens[2] && tokens[3]) {
+        const dns = this.ensureProtocolState('dns', { hosts: [] });
+        if (!Array.isArray(dns.hosts)) dns.hosts = [];
+        const record = { hostname: tokens[2], address: tokens[3] };
+        if (!dns.hosts.some(item => item.hostname === record.hostname && item.address === record.address)) dns.hosts.push(record);
+        return { output: '' };
+      }
+      if (cmd === 'ip' && tokens[1] === 'nat' && tokens[2] === 'inside' && tokens[3] === 'source') {
+        if (tokens[4] !== 'list' || !tokens[5] || tokens[6] !== 'interface' || !tokens[7] || tokens.length > 9) {
+          return { output: '% Invalid NAT syntax. Use ip nat inside source list <acl> interface <outside-interface> overload.' };
+        }
+        const nat = this.ensureProtocolState('nat', {});
+        nat.acl_number = Number(tokens[5]);
+        nat.outside_interface = tokens[7];
+        nat.overload = tokens[8] === 'overload';
+        return { output: '' };
+      }
+      if (cmd === 'ntp' && tokens[1] === 'server' && tokens[2]) {
+        const ntp = this.ensureProtocolState('ntp', { servers: [] });
+        if (!Array.isArray(ntp.servers)) ntp.servers = [];
+        if (!ntp.servers.includes(tokens[2])) ntp.servers.push(tokens[2]);
+        return { output: '' };
+      }
+      if (cmd === 'logging' && tokens[1] === 'host' && tokens[2]) {
+        const syslog = this.ensureProtocolState('syslog', { hosts: [], trap_severity: null });
+        if (!Array.isArray(syslog.hosts)) syslog.hosts = [];
+        if (!syslog.hosts.includes(tokens[2])) syslog.hosts.push(tokens[2]);
+        return { output: '' };
+      }
+      if (cmd === 'logging' && tokens[1] === 'trap' && tokens[2]) {
+        const syslog = this.ensureProtocolState('syslog', { hosts: [], trap_severity: null });
+        syslog.trap_severity = tokens[2].toLowerCase();
+        return { output: '' };
+      }
+      if (cmd === 'spanning-tree' && tokens[1] === 'mode' && tokens[2]) {
+        const stp = this.ensureProtocolState('stp', { mode: null, roots: [] });
+        stp.mode = tokens[2].toLowerCase();
+        return { output: '' };
+      }
+      if (cmd === 'spanning-tree' && tokens[1] === 'vlan' && tokens[2] && tokens[3] === 'root' && ['primary', 'secondary'].includes(tokens[4])) {
+        const stp = this.ensureProtocolState('stp', { mode: null, roots: [] });
+        if (!Array.isArray(stp.roots)) stp.roots = [];
+        const root = { vlan: Number(tokens[2]), role: tokens[4] };
+        const index = stp.roots.findIndex(item => item.vlan === root.vlan);
+        if (index >= 0) stp.roots[index] = root;
+        else stp.roots.push(root);
+        return { output: '' };
+      }
+      if (cmd === 'class-map' && tokens[1]) {
+        const matchType = ['match-any', 'match-all'].includes(tokens[1].toLowerCase()) ? tokens[1].toLowerCase() : 'match-all';
+        const name = ['match-any', 'match-all'].includes(tokens[1].toLowerCase()) ? tokens[2] : tokens[1];
+        if (!name) return { output: '% Invalid class-map syntax.' };
+        const qos = this.ensureProtocolState('qos', { class_maps: [], policy_maps: [] });
+        if (!Array.isArray(qos.class_maps)) qos.class_maps = [];
+        if (!Array.isArray(qos.policy_maps)) qos.policy_maps = [];
+        if (!qos.class_maps.some(item => item.name === name)) qos.class_maps.push({ name, match_type: matchType, matches: [] });
+        this.context.class_map_name = name;
+        this.context.class_map_match_type = matchType;
+        this.mode = 'class-map';
+        return { output: '' };
+      }
+      if (cmd === 'policy-map' && tokens[1]) {
+        const qos = this.ensureProtocolState('qos', { class_maps: [], policy_maps: [] });
+        if (!Array.isArray(qos.policy_maps)) qos.policy_maps = [];
+        if (!Array.isArray(qos.class_maps)) qos.class_maps = [];
+        if (!qos.policy_maps.some(item => item.name === tokens[1])) qos.policy_maps.push({ name: tokens[1], classes: [] });
+        this.context.policy_map_name = tokens[1];
+        this.context.policy_class_name = null;
+        this.mode = 'policy';
+        return { output: '' };
+      }
+      if (cmd === 'router' && ['bgp', 'eigrp'].includes(String(tokens[1] || '').toLowerCase()) && tokens[2]) {
+        const protocol = String(tokens[1]).toLowerCase();
+        const protocols = this.ensureProtocols();
+        if (protocol === 'bgp') {
+          const bgp = protocols.bgp && typeof protocols.bgp === 'object' ? protocols.bgp : {};
+          bgp.asn = Number(tokens[2]);
+          if (!Array.isArray(bgp.neighbors)) bgp.neighbors = [];
+          if (!Array.isArray(bgp.networks)) bgp.networks = [];
+          protocols.bgp = bgp;
+        } else {
+          const eigrp = protocols.eigrp && typeof protocols.eigrp === 'object' ? protocols.eigrp : {};
+          eigrp.asn = Number(tokens[2]);
+          if (!Array.isArray(eigrp.networks)) eigrp.networks = [];
+          if (typeof eigrp.auto_summary !== 'boolean') eigrp.auto_summary = true;
+          protocols.eigrp = eigrp;
+        }
+        this.context.router_protocol = protocol;
+        this.context.router_pid = tokens[2];
+        this.mode = 'router';
+        return { output: '' };
+      }
       if (cmd === 'interface' && tokens[1]) {
         const port = this.findPort(tokens[1]);
         if (!port) return { output: '% Interface not found.' };
@@ -116,8 +260,9 @@ export class CLIParser {
         }
         return { output: '' };
       }
-      if (cmd === 'router' && tokens[1] === 'ospf') {
+      if (cmd === 'router' && String(tokens[1] || '').toLowerCase() === 'ospf') {
         this.mode = 'router';
+        this.context.router_protocol = 'ospf';
         this.context.router_pid = tokens[2] || '1';
         if (!this.device.config.ospf) {
           this.device.config.ospf = { enabled: true, router_id: null, areas: [] };
@@ -129,11 +274,108 @@ export class CLIParser {
       }
     }
 
+    // --- MODE DHCP ---
+    if (this.mode === 'dhcp') {
+      const pool = this.ensureDhcpPool(this.context.dhcp_pool);
+      if (cmd === 'network' && tokens[1] && tokens[2]) { pool.network = tokens[1]; pool.mask = tokens[2]; return { output: '' }; }
+      if (cmd === 'default-router' && tokens[1]) { pool.default_router = tokens[1]; return { output: '' }; }
+      if (cmd === 'dns-server' && tokens[1]) { pool.dns_server = tokens[1]; return { output: '' }; }
+      if (cmd === 'lease' && tokens[1] && /^\d+$/.test(tokens[1]) && Number(tokens[1]) > 0) { pool.lease_days = Number(tokens[1]); return { output: '' }; }
+    }
+
+    // --- MODE CLASS MAP ---
+    if (this.mode === 'class-map' && cmd === 'match' && tokens[1] === 'dscp' && tokens[2]) {
+      const qos = this.ensureProtocolState('qos', { class_maps: [], policy_maps: [] });
+      if (!Array.isArray(qos.class_maps)) qos.class_maps = [];
+      let classMap = qos.class_maps.find(item => item.name === this.context.class_map_name);
+      if (!classMap) {
+        classMap = { name: this.context.class_map_name, match_type: this.context.class_map_match_type || 'match-all', matches: [] };
+        qos.class_maps.push(classMap);
+      }
+      if (!Array.isArray(classMap.matches)) classMap.matches = [];
+      const match = { type: 'dscp', value: tokens[2].toLowerCase() };
+      if (!classMap.matches.some(item => item.type === match.type && item.value === match.value)) classMap.matches.push(match);
+      return { output: '' };
+    }
+
+    // --- MODE POLICY MAP ---
+    if (this.mode === 'policy') {
+      const qos = this.ensureProtocolState('qos', { class_maps: [], policy_maps: [] });
+      if (!Array.isArray(qos.policy_maps)) qos.policy_maps = [];
+      let policy = qos.policy_maps.find(item => item.name === this.context.policy_map_name);
+      if (!policy) { policy = { name: this.context.policy_map_name, classes: [] }; qos.policy_maps.push(policy); }
+      if (cmd === 'class' && tokens[1]) {
+        if (!Array.isArray(policy.classes)) policy.classes = [];
+        if (!policy.classes.some(item => item.name === tokens[1])) policy.classes.push({ name: tokens[1] });
+        this.context.policy_class_name = tokens[1];
+        return { output: '' };
+      }
+      if (['priority', 'bandwidth'].includes(cmd) && tokens[1] === 'percent' && tokens[2] && /^\d+$/.test(tokens[2])) {
+        const value = Number(tokens[2]);
+        if (value < 1 || value > 100 || !this.context.policy_class_name) return { output: '% Invalid policy action. Enter a class and a percentage between 1 and 100.' };
+        const policyClass = (policy.classes || []).find(item => item.name === this.context.policy_class_name);
+        if (!policyClass) return { output: '% Class not found in policy map.' };
+        policyClass[cmd === 'priority' ? 'priority_percent' : 'bandwidth_percent'] = value;
+        return { output: '' };
+      }
+      if (cmd === 'set' && tokens[1] === 'dscp' && tokens[2] && this.context.policy_class_name) {
+        const policyClass = (policy.classes || []).find(item => item.name === this.context.policy_class_name);
+        if (!policyClass) return { output: '% Class not found in policy map.' };
+        policyClass.set_dscp = tokens[2].toLowerCase();
+        return { output: '' };
+      }
+    }
+
     // --- MODE INTERFACE ---
     if (this.mode === 'interface') {
       const port = this.findPort(this.context.interface);
       if (!port) { this.mode = 'config'; return { output: '% Interface not found.' }; }
       
+      if (cmd === 'ipv6' && tokens[1] === 'address' && tokens[2]) {
+        if (!isIPv6Prefix(tokens[2])) return { output: '% Invalid IPv6 address or prefix. Use ipv6 address <address>/<0-128>.' };
+        port.ipv6 = tokens[2];
+        return { output: '' };
+      }
+      if (cmd === 'ip' && tokens[1] === 'nat' && ['inside', 'outside'].includes(String(tokens[2] || '').toLowerCase()) && tokens.length === 3) {
+        port.nat_role = String(tokens[2]).toLowerCase();
+        return { output: '' };
+      }
+      if (cmd === 'standby' && tokens[1] && /^\d+$/.test(tokens[1])) {
+        const group = Number(tokens[1]);
+        if (!Array.isArray(port.hsrp)) port.hsrp = [];
+        let item = port.hsrp.find(entry => entry.group === group);
+        if (!item) { item = { group, virtual_ip: null, priority: 100, preempt: false }; port.hsrp.push(item); }
+        if (tokens[2] === 'ip' && tokens[3]) item.virtual_ip = tokens[3];
+        else if (tokens[2] === 'priority' && tokens[3] && /^\d+$/.test(tokens[3]) && Number(tokens[3]) >= 1 && Number(tokens[3]) <= 255) item.priority = Number(tokens[3]);
+        else if (tokens[2] === 'preempt' && tokens.length === 3) item.preempt = true;
+        else return { output: '% Invalid HSRP syntax.' };
+        return { output: '' };
+      }
+      if (cmd === 'spanning-tree' && tokens[1] === 'portfast') {
+        if (!port.spanning_tree || typeof port.spanning_tree !== 'object') port.spanning_tree = {};
+        port.spanning_tree.portfast = true;
+        return { output: '' };
+      }
+      if (cmd === 'spanning-tree' && tokens[1] === 'bpduguard' && tokens[2] === 'enable') {
+        if (!port.spanning_tree || typeof port.spanning_tree !== 'object') port.spanning_tree = {};
+        port.spanning_tree.bpduguard = true;
+        return { output: '' };
+      }
+      if (cmd === 'switchport' && tokens[1] === 'port-security') {
+        if (!port.port_security || typeof port.port_security !== 'object') port.port_security = {};
+        if (tokens.length === 2) { port.port_security.enabled = true; return { output: '' }; }
+        if (tokens[2] === 'maximum' && tokens[3] && /^\d+$/.test(tokens[3]) && Number(tokens[3]) >= 1 && Number(tokens[3]) <= 1024) {
+          port.port_security.maximum = Number(tokens[3]); return { output: '' };
+        }
+        if (tokens[2] === 'mac-address' && tokens[3] === 'sticky' && tokens.length === 4) {
+          port.port_security.sticky = true; return { output: '' };
+        }
+        return { output: '% Invalid port-security syntax.' };
+      }
+      if (cmd === 'service-policy' && tokens[1] === 'output' && tokens[2]) {
+        port.service_policy_out = tokens[2];
+        return { output: '' };
+      }
       if (cmd === 'ip' && String(tokens[1] || '').toLowerCase() === 'access-group') {
         const aclNumber = Number(tokens[2]);
         const direction = String(tokens[3] || '').toLowerCase();
@@ -166,17 +408,43 @@ export class CLIParser {
       if (cmd === 'description' && tokens.length > 1) { port.description = tokens.slice(1).join(' '); return { output: '' }; }
     }
 
-    // --- MODE ROUTER OSPF ---
+    // --- MODE ROUTER / ROUTING PROTOCOLS ---
     if (this.mode === 'router') {
-      if (cmd === 'network' && tokens.length >= 5 && tokens[3] === 'area') {
-        const prefixLength = this.wildcardMaskToCidr(tokens[2]);
-        this.device.config.ospf.areas.push({
-          area: Number.parseInt(tokens[4], 10),
-          network: tokens[1] + '/' + prefixLength,
-        });
-        return { output: '' };
+      const protocol = this.context.router_protocol || 'ospf';
+      if (protocol === 'ospf') {
+        if (cmd === 'network' && tokens.length >= 5 && tokens[3] === 'area') {
+          const prefixLength = this.wildcardMaskToCidr(tokens[2]);
+          this.device.config.ospf.areas.push({ area: Number.parseInt(tokens[4], 10), network: tokens[1] + '/' + prefixLength });
+          return { output: '' };
+        }
+        if (cmd === 'router-id' && tokens[1]) { this.device.config.ospf.router_id = tokens[1]; return { output: '' }; }
       }
-      if (cmd === 'router-id' && tokens[1]) { this.device.config.ospf.router_id = tokens[1]; return { output: '' }; }
+      if (protocol === 'bgp') {
+        const bgp = this.ensureProtocolState('bgp', { asn: Number(this.context.router_pid || 1), neighbors: [], networks: [] });
+        if (!Array.isArray(bgp.neighbors)) bgp.neighbors = [];
+        if (!Array.isArray(bgp.networks)) bgp.networks = [];
+        if (cmd === 'neighbor' && tokens[1] && tokens[2] === 'remote-as' && tokens[3] && /^\d+$/.test(tokens[3])) {
+          const entry = { ip: tokens[1], remote_as: Number(tokens[3]) };
+          const index = bgp.neighbors.findIndex(item => item.ip === entry.ip);
+          if (index >= 0) bgp.neighbors[index] = entry; else bgp.neighbors.push(entry);
+          return { output: '' };
+        }
+        if (cmd === 'network' && tokens[1] && tokens[2] === 'mask' && tokens[3]) {
+          const entry = { network: tokens[1], mask: tokens[3] };
+          if (!bgp.networks.some(item => item.network === entry.network && item.mask === entry.mask)) bgp.networks.push(entry);
+          return { output: '' };
+        }
+      }
+      if (protocol === 'eigrp') {
+        const eigrp = this.ensureProtocolState('eigrp', { asn: Number(this.context.router_pid || 1), networks: [], auto_summary: true });
+        if (!Array.isArray(eigrp.networks)) eigrp.networks = [];
+        if (cmd === 'network' && tokens[1]) {
+          const entry = { network: tokens[1], wildcard: tokens[2] || '0.0.0.0' };
+          if (!eigrp.networks.some(item => item.network === entry.network && item.wildcard === entry.wildcard)) eigrp.networks.push(entry);
+          return { output: '' };
+        }
+        if (cmd === 'no' && tokens[1] === 'auto-summary') { eigrp.auto_summary = false; return { output: '' }; }
+      }
     }
 
     return { output: `% Invalid input detected at '^' marker.` };

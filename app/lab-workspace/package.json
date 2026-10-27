@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "test": "node --test src/cli/parser.test.js src/store/useLabStore.test.js src/bridge/alpineBridge.test.js",
+    "test": "node --test src/cli/parser.test.js src/cli/scenarioCommands.test.js src/store/useLabStore.test.js src/bridge/alpineBridge.test.js",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {

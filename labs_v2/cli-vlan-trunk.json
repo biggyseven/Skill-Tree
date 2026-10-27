@@ -1,0 +1,312 @@
+{
+  "schema_version": 2,
+  "id": "cli-vlan-trunk",
+  "title": "CLI — Trunk entre commutateurs",
+  "level": "intermédiaire",
+  "module": "Commutation",
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "prompt": "Créez le VLAN 10 sur SW1 puis configurez Fa0/24 en trunk. Le contrôle serveur vérifie le mode du port et l’existence du VLAN.",
+  "objectives": [
+    "Exécuter puis vérifier : vlan 10",
+    "Exécuter puis vérifier : interface Fa0/24",
+    "Exécuter puis vérifier : switchport mode trunk"
+  ],
+  "hints": [
+    "Cible CLI : SW1.",
+    "Séquence de référence : enable ; configure terminal ; vlan 10 ; interface Fa0/24 ; switchport mode trunk ; end.",
+    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-cli-vlan-trunk",
+    "metadata": {
+      "name": "CLI — Trunk entre commutateurs",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "generic-router",
+        "x": 180,
+        "y": 300,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "down",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "down",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "generic-2960",
+        "x": 520,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "down",
+            "speed": 1000,
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "down",
+            "speed": 1000,
+            "mode": "down",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 850,
+        "y": 90,
+        "label": "PC1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "down",
+            "speed": 1000,
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "ipv6": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L-R1-SW1",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-SW1-PC1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {
+    "R1": {
+      "interfaces": [
+        "Gi0/0",
+        "Gi0/1"
+      ],
+      "ports_fixed": true
+    },
+    "SW1": {
+      "interfaces": [
+        "Fa0/1",
+        "Fa0/24"
+      ],
+      "ports_fixed": true
+    },
+    "PC1": {
+      "interfaces": [
+        "eth0"
+      ],
+      "ports_fixed": true
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "vlan10",
+        "description": "Contrôle serveur : vlan10 doit être conforme.",
+        "device": "SW1",
+        "path": "config.vlans",
+        "operator": "contains",
+        "expected": {
+          "id": 10,
+          "name": "VLAN10"
+        }
+      },
+      {
+        "id": "trunk_mode",
+        "description": "Contrôle serveur : trunk mode doit être conforme.",
+        "device": "SW1",
+        "path": "ports[1].mode",
+        "operator": "equals",
+        "expected": "trunk"
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {
+      "under_15min": 10,
+      "under_30min": 5
+    }
+  },
+  "xp_reward": 35,
+  "badges": []
+}
