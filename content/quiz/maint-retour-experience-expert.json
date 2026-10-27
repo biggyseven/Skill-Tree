@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Retour d'expérience (RETEX) » ?",
+      "prompt": "Quel est l'objectif d'un retour d'expérience après un incident majeur ?",
       "choices": [
-        "Le sujet principal du cours : Retour d'expérience (RETEX)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Désigner publiquement un responsable",
+        "Réécrire la chronologie pour rendre la réponse plus simple",
+        "Comprendre les facteurs contributifs et identifier des améliorations qui réduisent le risque de récurrence",
+        "Garantir qu'aucun incident similaire ne se produira"
+      ],
+      "answer": 2,
+      "explanation": "Un RETEX transforme l'expérience en apprentissages et actions vérifiables plutôt qu'en recherche de coupable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type de chronologie est le plus utile pour un RETEX ?",
+      "choices": [
+        "Une reconstruction basée uniquement sur les souvenirs du dernier intervenant",
+        "Une suite d'opinions sans horodatage",
+        "Une version où tous les événements sont supposés simultanés",
+        "Une séquence factuelle avec horodatages, décisions, changements, symptômes et incertitudes signalées"
+      ],
+      "answer": 3,
+      "explanation": "Une chronologie vérifiable permet de comprendre le déroulement et de repérer les délais ou dépendances importants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment analyser un échec sans transformer le RETEX en recherche de coupable ?",
+      "choices": [
+        "Examiner les conditions, les contrôles, les décisions, les informations disponibles et les facteurs systémiques",
+        "Supprimer les erreurs humaines du compte rendu",
+        "Attribuer la cause à l'opérateur présent sans autre preuve",
+        "Éviter toute question sur la conception des processus"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Une analyse constructive étudie les conditions qui ont rendu l'erreur ou la défaillance possible et cherche des mesures de prévention."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé distingue le mieux cause, facteur contributif et symptôme ?",
+      "choices": [
+        "Ce sont toujours des termes interchangeables",
+        "Le symptôme décrit ce qui est visible, tandis que les facteurs et causes aident à expliquer pourquoi cela s'est produit",
+        "Un symptôme suffit toujours à justifier une action de fond",
+        "Un facteur contributif ne peut pas être technique"
+      ],
+      "answer": 1,
+      "explanation": "La distinction empêche de confondre ce qui a été observé avec l'explication et les conditions qui ont contribué à l'événement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action de suivi est la plus exploitable ?",
+      "choices": [
+        "« Faire attention la prochaine fois »",
+        "« Améliorer le système dès que possible »",
+        "Une action concrète liée à un constat, avec responsable, échéance et preuve de réalisation attendue",
+        "Une réunion sans objectif ni compte rendu"
+      ],
+      "answer": 2,
+      "explanation": "Une action définie et vérifiable permet de contrôler son exécution et d'évaluer son efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment vérifier qu'une action de RETEX a été efficace ?",
+      "choices": [
+        "Dès qu'elle a été annoncée",
+        "Quand le responsable a confirmé verbalement qu'elle est faite",
+        "Lorsque l'action a été planifiée dans un calendrier",
+        "En définissant des critères, en observant les résultats et en vérifiant que le risque visé diminue"
+      ],
+      "answer": 3,
+      "explanation": "La clôture administrative ne suffit pas ; il faut évaluer le résultat et le risque restant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si le RETEX contient des données sensibles ou des identifiants ?",
+      "choices": [
+        "Les protéger, les minimiser ou les masquer dans la version diffusée selon les règles de conservation",
+        "Les publier pour assurer une transparence totale",
+        "Les envoyer sur un compte personnel pour faciliter la revue",
+        "Les conserver dans tous les documents sans contrôle d'accès"
+      ],
+      "answer": 0,
+      "explanation": "Le partage doit être adapté au destinataire, à la confidentialité et aux besoins d'analyse tout en préservant les preuves nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi distinguer les actions immédiates des actions de fond ?",
+      "choices": [
+        "Pour faire paraître le rapport plus long",
+        "Les actions immédiates rétablissent ou contiennent la situation, alors que les actions de fond visent les facteurs à l'origine de la récurrence",
+        "Parce que les actions de fond ne doivent jamais être suivies",
+        "Parce que l'action immédiate élimine toujours la cause"
+      ],
+      "answer": 1,
+      "explanation": "La réponse immédiate et la prévention à long terme ont des objectifs différents et doivent être suivies séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat indique qu'une leçon apprise est réellement capitalisée ?",
+      "choices": [
+        "Un rapport déposé dans un répertoire que personne ne consulte",
+        "Une liste de recommandations sans responsable",
+        "Des changements intégrés aux procédures, contrôles ou formations, puis vérifiés dans la durée",
+        "La suppression du ticket source"
+      ],
+      "answer": 2,
+      "explanation": "La capitalisation doit modifier les pratiques concernées et rendre le nouvel apprentissage accessible et vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement soutient un RETEX de qualité ?",
+      "choices": [
+        "Éviter les questions difficiles pour terminer rapidement",
+        "Modifier les conclusions pour correspondre aux premières impressions",
+        "Ne conserver que les faits qui confortent la solution choisie",
+        "Inviter les acteurs pertinents, distinguer faits et hypothèses et documenter les désaccords utiles"
+      ],
+      "answer": 3,
+      "explanation": "Une analyse structurée et ouverte améliore la compréhension collective, sans dissimuler les incertitudes ou les points de vue divergents."
     }
   ]
 }

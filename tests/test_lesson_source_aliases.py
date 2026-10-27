@@ -41,7 +41,6 @@ class LessonSourceAliasTests(unittest.TestCase):
             if isinstance(node.get("lesson_source_id"), str)
         }
         expected = {
-            "maint-communication-debutant": "maint-glossaire-debutant",
             "maint-securite-base-debutant": "maint-securite-bases-debutant",
             "maint-procedures-intermediaire": "maint-procedure-intermediaire",
             "maint-reporting-incident-intermediaire": "maint-reporting-technique-intermediaire",
@@ -51,6 +50,24 @@ class LessonSourceAliasTests(unittest.TestCase):
             source = lessons_dir / f"{source_id}.md"
             self.assertTrue(source.is_file(), f"Leçon canonique absente : {source_id}")
             self.assertGreater(len(source.read_text(encoding="utf-8").strip()), 1000, source_id)
+
+    def test_communication_course_uses_its_own_canonical_markdown(self) -> None:
+        import json
+        from pathlib import Path
+
+        nodes_file = Path(api.CONTENT_DIR) / "nodes.json"
+        lessons_dir = Path(api.CONTENT_DIR) / "lessons"
+        catalog = json.loads(nodes_file.read_text(encoding="utf-8-sig"))
+        node = next(n for n in catalog if n.get("id") == "maint-communication-debutant")
+
+        # The dedicated communication course must not be redirected to the old glossary.
+        self.assertNotIn("lesson_source_id", node)
+        canonical = lessons_dir / "maint-communication-debutant.md"
+        self.assertTrue(canonical.is_file(), f"Leçon canonique absente : {canonical}")
+        text = canonical.read_text(encoding="utf-8").strip()
+        self.assertGreater(len(text), 1000)
+        self.assertIn("Mise en contexte", text)
+        self.assertNotIn("[Contenu à rédiger]", text)
 
 
 if __name__ == "__main__":
