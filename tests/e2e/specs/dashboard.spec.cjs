@@ -643,7 +643,7 @@ Poste de secours</code></pre>
   });
   expect(eloquenceChecks.polished).toContain('Bienvenue dans ce cours consacré à « Comprendre D N S et H T T P S ».');
   expect(eloquenceChecks.polished).toContain('Commençons par la partie « Cycle de requête ».');
-  expect(eloquenceChecks.polished).toContain('la requête H T T P S à l’A P I');
+  expect(eloquenceChecks.polished).toContain('une requête H T T P S à l’A P I');
   expect(eloquenceChecks.polished).toContain('192 point 168 point 1 point 1');
   expect(eloquenceChecks.polished).toContain('75 pour cent');
   expect(eloquenceChecks.adjacentParagraphs).toEqual(['Première phrase. Deuxième phrase.']);
