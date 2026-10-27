@@ -136,7 +136,7 @@ jobs:
               "xp_gained=", submitted.get("xp_gained"),
           )
           PY
-- name: Save and reload a topology against Neon validation only
+      - name: Save and reload a topology against Neon validation only
         shell: bash
         env:
           SMOKE_RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
