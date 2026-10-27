@@ -102,6 +102,31 @@ export function LabCanvas() {
         />
       </ReactFlow>
 
+      <div
+        role="note"
+        aria-label="Guide de connexion des ports"
+        className="pointer-events-none absolute left-3 top-3 z-40 w-72 max-w-[calc(100%-24px)] rounded-xl border border-[#334155] bg-[#0d1117]/95 p-3 shadow-xl backdrop-blur-sm"
+      >
+        <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#e6edf3]">
+          Comprendre les ports
+        </div>
+        <div className="flex items-center gap-2 text-[10px] leading-relaxed text-[#c9d1d9]">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-sm border border-[#7dd3fc] bg-[#0ea5e9]" />
+          <span><strong className="text-[#7dd3fc]">Bleu</strong> : départ du câble.</span>
+        </div>
+        <div className="mt-1 flex items-center gap-2 text-[10px] leading-relaxed text-[#c9d1d9]">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-sm border border-[#cbd5e1] bg-[#64748b]" />
+          <span><strong className="text-[#cbd5e1]">Gris</strong> : arrivée du câble.</span>
+        </div>
+        <p className="mt-2 border-t border-[#30363d] pt-2 text-[10px] leading-relaxed text-[#8b949e]">
+          Les points bleu et gris représentent le même port physique, pas deux ports différents.
+          Choisis un câble, puis glisse du bleu d’un équipement vers le gris de l’autre.
+        </p>
+        <p className="mt-2 text-[10px] leading-relaxed text-[#fca5a5]">
+          Un câble rouge pointillé signale qu’au moins un port est OFF. Active les deux interfaces dans Inspecteur → Hardware, ou avec « no shutdown » dans la CLI.
+        </p>
+      </div>
+
       <Toolbar />
 
       <div className="pointer-events-none absolute z-50 flex h-6 w-6 items-center justify-center rounded-full bg-[#10b981] shadow-[0_0_15px_#10b981]" style={packetStyle}>
