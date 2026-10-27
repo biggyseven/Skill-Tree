@@ -7503,7 +7503,7 @@
     "title": "Red Team vs Blue Team vs Purple Team",
     "category": "Cybersécurité",
     "order": 934,
-    "description": "Squelette du cours de cybersécurité : Red Team vs Blue Team vs Purple Team.",
+    "description": "Méthode Red/Blue/Purple Team : règles d’engagement, émulation ATT&CK, détection, réponse, mesures et retests sécurisés.",
     "prereqs": [
       "secu-ot-ics-expert"
     ],
