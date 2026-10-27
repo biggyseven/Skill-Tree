@@ -7469,7 +7469,7 @@
     "title": "Sécurité de la supply chain",
     "category": "Cybersécurité",
     "order": 932,
-    "description": "Squelette du cours de cybersécurité : Sécurité de la supply chain.",
+    "description": "Sécurisation des dépendances et fournisseurs, SBOM, provenance, signatures, durcissement CI/CD et réponse aux incidents supply chain.",
     "prereqs": [
       "secu-vuln-expert"
     ],
