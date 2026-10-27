@@ -222,7 +222,8 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertGreater(workspace_route, topology_check)
         self.assertGreater(legacy_fallback, workspace_route)
         self.assertIn("labWindow.location.replace('/?openLab=' + encodeURIComponent(nodeId));", open_lab_method)
-        self.assertIn("this.labWorkspaceFallbackId = nodeId;", open_lab_method)
+        self.assertIn("this.labWorkspaceFallbackId = null;", open_lab_method)
+        self.assertNotIn("this.labWorkspaceFallbackId = nodeId;", open_lab_method)
         self.assertIn("if (openInNewTab && labWindow && !labWindow.closed)", open_lab_method)
 
 
@@ -244,7 +245,12 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("payload.sandbox === true", dashboard)
         self.assertIn("!Array.isArray(topologyNodes)", dashboard)
         self.assertIn("labWorkspaceFallbackId === detail.id", dashboard)
-        self.assertIn("redirection en boucle", dashboard)
+        self.assertIn('x-if="hasVisualLab(detail.id)"', dashboard)
+        self.assertIn('x-if="!hasVisualLab(detail.id)"', dashboard)
+        self.assertIn("Ce laboratoire utilise actuellement le mode classique", dashboard)
+        self.assertIn("🧪 Réessayer le Lab Workspace", dashboard)
+        self.assertNotIn("Ce laboratoire n’a pas de scénario visuel v2 disponible", dashboard)
+        self.assertNotIn(':disabled="labWorkspaceFallbackId === detail.id"', dashboard)
         self.assertNotIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", dashboard)
         self.assertNotIn("@click=\"window.open('/lab.html?id=' + (detail?.id || ''), '_blank')\"", dashboard)
         self.assertIn("Ouvrir l’atelier libre, sans scénario de cours", dashboard)
