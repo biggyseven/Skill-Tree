@@ -1,0 +1,747 @@
+{
+  "schema_version": 2,
+  "id": "cicd-intermediaire",
+  "title": "CI/CD — Pipeline testé et approuvé",
+  "level": "intermédiaire",
+  "module": "DevOps",
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "prompt": "Préparez un pipeline CI/CD sûr. Choisissez GitHub Actions, activez les tests et l’analyse de sécurité, imposez une approbation avant déploiement et fixez la rétention des artefacts.",
+  "objectives": [
+    "Choisir GitHub Actions comme fournisseur.",
+    "Activer l’étape de tests.",
+    "Activer l’analyse de sécurité.",
+    "Déployer vers staging.",
+    "Imposer une approbation avant déploiement.",
+    "Conserver les artefacts pendant 30 jours."
+  ],
+  "hints": [
+    "Sur la CLI de APP1, saisissez enable puis configure terminal.",
+    "Exécutez : workload pipeline provider github-actions.",
+    "Exécutez : workload pipeline test_stage enabled.",
+    "Exécutez : workload pipeline security_scan enabled.",
+    "Exécutez : workload pipeline deploy_stage staging.",
+    "Exécutez : workload pipeline approval_required enabled.",
+    "Exécutez : workload pipeline artifact_retention_days 30.",
+    "Utilisez show workloads pour relire l’état structuré avant de lancer « Vérifier »."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-cicd-intermediaire",
+    "metadata": {
+      "name": "CI/CD — Pipeline testé et approuvé",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "Cisco IOS",
+        "x": 320,
+        "y": 120,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.10.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "LAN interne",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Transit FW1",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "Layer 2",
+        "x": 300,
+        "y": 300,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "Uplink R1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Poste utilisateur 1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Poste utilisateur 2",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/4",
+            "name": "Fa0/4",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Web frontend A",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/5",
+            "name": "Fa0/5",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Web frontend B",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/6",
+            "name": "Fa0/6",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Base de données",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "model": "PC",
+        "x": 90,
+        "y": 450,
+        "label": "PC1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Poste utilisateur 1",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "model": "PC",
+        "x": 230,
+        "y": 490,
+        "label": "PC2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.11",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Poste utilisateur 2",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP1",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 500,
+        "y": 430,
+        "label": "APP1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur applicatif A",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {
+            "pipeline": {
+              "provider": "non-configure",
+              "test_stage": false,
+              "security_scan": false,
+              "deploy_stage": "non-configure",
+              "approval_required": false,
+              "artifact_retention_days": 0
+            }
+          }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "APP2",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 670,
+        "y": 490,
+        "label": "APP2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.21",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur applicatif B",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "DB1",
+        "type": "server",
+        "model": "Linux Server",
+        "x": 850,
+        "y": 430,
+        "label": "DB1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "down",
+            "ip": "10.10.10.30",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Base de données",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DB1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "FW1",
+        "type": "firewall",
+        "model": "Linux Firewall",
+        "x": 510,
+        "y": 170,
+        "label": "FW1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Inside R1",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "eth1",
+            "name": "eth1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Outside",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "FW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "model": "Cloud",
+        "x": 800,
+        "y": 160,
+        "label": "INTERNET",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "198.51.100.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Upstream Internet",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "INTERNET",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/4"
+        },
+        "to": {
+          "node": "APP1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L5",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/5"
+        },
+        "to": {
+          "node": "APP2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L6",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/6"
+        },
+        "to": {
+          "node": "DB1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L7",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "FW1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L8",
+        "from": {
+          "node": "FW1",
+          "port": "eth1"
+        },
+        "to": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 2
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "device_locks": {},
+  "check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "id": "pipeline-provider",
+        "description": "Choisir GitHub Actions comme fournisseur.",
+        "device": "APP1",
+        "path": "config.workloads.pipeline.provider",
+        "operator": "equals",
+        "expected": "github-actions"
+      },
+      {
+        "id": "pipeline-test_stage",
+        "description": "Activer l’étape de tests.",
+        "device": "APP1",
+        "path": "config.workloads.pipeline.test_stage",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "pipeline-security_scan",
+        "description": "Activer l’analyse de sécurité.",
+        "device": "APP1",
+        "path": "config.workloads.pipeline.security_scan",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "pipeline-deploy_stage",
+        "description": "Déployer vers staging.",
+        "device": "APP1",
+        "path": "config.workloads.pipeline.deploy_stage",
+        "operator": "equals",
+        "expected": "staging"
+      },
+      {
+        "id": "pipeline-approval_required",
+        "description": "Imposer une approbation avant déploiement.",
+        "device": "APP1",
+        "path": "config.workloads.pipeline.approval_required",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "pipeline-artifact_retention_days",
+        "description": "Conserver les artefacts pendant 30 jours.",
+        "device": "APP1",
+        "path": "config.workloads.pipeline.artifact_retention_days",
+        "operator": "equals",
+        "expected": 30
+      }
+    ],
+    "pass_threshold": 1,
+    "time_bonus": {}
+  },
+  "xp_reward": 120,
+  "badges": [
+    "first_blood"
+  ]
+}
