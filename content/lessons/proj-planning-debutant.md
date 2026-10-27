@@ -282,11 +282,11 @@ gantt
     section Construction
     Préparer infrastructure :b1, after a2, 5d
     Développer interfaces :b2, after a2, 5d
-    Intégration :b3, after b1 b2, 4d
+    Intégration :b3, after b1, b2, 4d
     section Validation
     Tests de sécurité :c1, after b3, 3d
     Recette métier :c2, after b3, 4d
-    Mise en service :milestone, after c1 c2, 0d
+    Mise en service :milestone, after c1, c2, 0d
     Transfert au support :d1, after c1 c2, 2d
 ```
 
