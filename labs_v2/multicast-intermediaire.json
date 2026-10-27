@@ -3,19 +3,22 @@
   "id": "multicast-intermediaire",
   "title": "Multicast — PIM sparse, RP et RPF",
   "level": "intermédiaire",
-  "module": "Configurez la distribution multicast du groupe 239.1.1.1 entre le serveur source et le récepteur. Activez PIM sparse-mode, définissez le RP et utilisez IGMPv3 avec vérification RPF.",
-  "prompt": [
+  "module": "Administration Réseaux",
+  "prompt": "Configurez la distribution multicast du groupe 239.1.1.1 entre le serveur source et le récepteur. Activez PIM sparse-mode, définissez le RP et utilisez IGMPv3 avec vérification RPF.",
+  "objectives": [
     "Activer le multicast sur R1.",
     "Configurer PIM sparse-mode sur le chemin.",
     "Définir le rendez-vous point.",
     "Activer IGMPv3 et vérifier le contrôle RPF."
   ],
-  "objectives": [
+  "hints": [
     "PIM sparse-mode s’appuie sur un RP pour construire l’arbre partagé.",
     "Le RPF valide que le flux revient par l’interface qui mène à la source.",
     "Le groupe multicast doit être identique sur le chemin source/récepteur."
   ],
-  "hints": {
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-multicast-intermediaire",
     "metadata": {
@@ -303,62 +306,59 @@
       "event_log": []
     }
   },
-  "duration_min": 30,
-  "difficulty": "intermédiaire",
-  "initial_topology": [
-    {
-      "id": "multicast-enabled",
-      "description": "Le multicast est activé sur R1.",
-      "device": "R1",
-      "path": "config.routes[0].enabled",
-      "operator": "equals",
-      "expected": true
-    },
-    {
-      "id": "pim-mode",
-      "description": "PIM utilise le mode sparse.",
-      "device": "R1",
-      "path": "config.routes[0].pim_mode",
-      "operator": "equals",
-      "expected": "sparse"
-    },
-    {
-      "id": "rp",
-      "description": "Le rendez-vous point est configuré.",
-      "device": "R1",
-      "path": "config.routes[0].rp",
-      "operator": "equals",
-      "expected": "10.255.0.1"
-    },
-    {
-      "id": "igmp",
-      "description": "Le LAN récepteur utilise IGMPv3.",
-      "device": "R1",
-      "path": "config.routes[0].igmp_version",
-      "operator": "equals",
-      "expected": 3
-    },
-    {
-      "id": "group",
-      "description": "Le groupe multicast attendu est configuré.",
-      "device": "R1",
-      "path": "config.routes[0].group",
-      "operator": "equals",
-      "expected": "239.1.1.1"
-    },
-    {
-      "id": "rpf",
-      "description": "Le contrôle RPF est actif.",
-      "device": "R1",
-      "path": "config.routes[0].rpf_check",
-      "operator": "equals",
-      "expected": true
-    }
-  ],
   "check": {
     "type": "config_assertions",
     "pass_threshold": 1,
-    "rules": 30,
+    "rules": [
+      {
+        "id": "multicast-enabled",
+        "description": "Le multicast est activé sur R1.",
+        "device": "R1",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "pim-mode",
+        "description": "PIM utilise le mode sparse.",
+        "device": "R1",
+        "path": "config.routes[0].pim_mode",
+        "operator": "equals",
+        "expected": "sparse"
+      },
+      {
+        "id": "rp",
+        "description": "Le rendez-vous point est configuré.",
+        "device": "R1",
+        "path": "config.routes[0].rp",
+        "operator": "equals",
+        "expected": "10.255.0.1"
+      },
+      {
+        "id": "igmp",
+        "description": "Le LAN récepteur utilise IGMPv3.",
+        "device": "R1",
+        "path": "config.routes[0].igmp_version",
+        "operator": "equals",
+        "expected": 3
+      },
+      {
+        "id": "group",
+        "description": "Le groupe multicast attendu est configuré.",
+        "device": "R1",
+        "path": "config.routes[0].group",
+        "operator": "equals",
+        "expected": "239.1.1.1"
+      },
+      {
+        "id": "rpf",
+        "description": "Le contrôle RPF est actif.",
+        "device": "R1",
+        "path": "config.routes[0].rpf_check",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
     "time_bonus": {}
   },
   "xp_reward": 30,
