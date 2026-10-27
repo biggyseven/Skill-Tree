@@ -1,0 +1,102 @@
+{
+  "node_id": "data-optimisation-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une lecture séquentielle peut-elle être le meilleur plan sur une petite table ?",
+      "choices": [
+        "Parce qu’un index est toujours ignoré dans une petite base",
+        "Parce que lire les quelques pages peut coûter moins cher que parcourir l’index et récupérer les lignes",
+        "Parce que les index ne fonctionnent que sur du texte",
+        "Parce que la lecture séquentielle ignore les filtres"
+      ],
+      "answer": 1,
+      "explanation": "Le planificateur compare les coûts attendus. Pour une petite table ou une condition peu sélective, le parcours séquentiel peut être plus efficace."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel écart du plan doit attirer l’attention en premier ?",
+      "choices": [
+        "Des lignes observées fortement supérieures aux lignes estimées",
+        "Un nom d’index plus long que le nom de table",
+        "La présence d’un SELECT",
+        "Un coût estimé exprimé dans les unités internes du moteur"
+      ],
+      "answer": 0,
+      "explanation": "Un grand écart peut révéler des statistiques inadaptées ou des hypothèses de distribution erronées et conduire à un choix de plan médiocre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal intérêt potentiel d’un index composite sur customer_id et order_date pour un filtre client trié par date ?",
+      "choices": [
+        "Il supprime toutes les contraintes relationnelles",
+        "Il garantit un résultat rapide dans tous les cas",
+        "Il peut aider à filtrer sur le client et fournir un ordre compatible avec la date",
+        "Il empêche les mises à jour de la table"
+      ],
+      "answer": 2,
+      "explanation": "L’ordre des clés peut correspondre au filtre et au tri. Le plan et les coûts secondaires doivent toutefois être mesurés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque faut-il considérer lorsqu’on ajoute plusieurs index ?",
+      "choices": [
+        "La table devient automatiquement en lecture seule",
+        "Les résultats SQL changent toujours",
+        "Les statistiques sont supprimées",
+        "Le stockage et le coût de maintenance des écritures peuvent augmenter"
+      ],
+      "answer": 3,
+      "explanation": "Chaque index doit être maintenu lors des écritures et occupe de l’espace. Le bénéfice doit être comparé à ces coûts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie EXPLAIN ANALYZE dans PostgreSQL ?",
+      "choices": [
+        "Il exécute la requête mesurée et fournit des observations réelles",
+        "Il ne fait qu’analyser la syntaxe sans exécution",
+        "Il garantit que la requête ne consommera aucune ressource",
+        "Il force l’utilisation de tous les index"
+      ],
+      "answer": 0,
+      "explanation": "La requête est exécutée. Les effets et coûts doivent être maîtrisés, particulièrement pour les instructions d’écriture et les grandes lectures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche est la plus fiable pour évaluer un index ?",
+      "choices": [
+        "Changer la requête, les paramètres et la mémoire simultanément",
+        "Mesurer une référence, changer une seule variable et comparer les mêmes résultats sous des conditions comparables",
+        "Garder l’index dès qu’il existe",
+        "Utiliser une seule exécution et ne pas conserver le plan"
+      ],
+      "answer": 1,
+      "explanation": "Une expérience contrôlée permet d’attribuer le gain ou la régression au changement mesuré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un filtre qui applique une fonction à une colonne peut-il compliquer l’utilisation d’un index ?",
+      "choices": [
+        "Parce que SQL interdit les fonctions dans WHERE",
+        "Parce qu’une fonction détruit toujours les données",
+        "Parce que le moteur peut ne pas exploiter directement l’ordre de l’index pour ce prédicat",
+        "Parce que les index n’acceptent que des nombres entiers"
+      ],
+      "answer": 2,
+      "explanation": "Certains prédicats transforment la valeur indexée et rendent l’accès par index plus difficile. Une plage équivalente peut parfois être plus exploitable, après vérification de la sémantique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur complète utilement une moyenne de latence ?",
+      "choices": [
+        "La taille du nom de la table",
+        "Le nombre de colonnes du schéma uniquement",
+        "Le nombre de développeurs dans l’équipe",
+        "Les percentiles élevés et la distribution des temps de réponse"
+      ],
+      "answer": 3,
+      "explanation": "La moyenne peut masquer une longue traîne. Les percentiles et l’analyse par type de requête décrivent mieux le risque pour les utilisateurs."
+    }
+  ]
+}
