@@ -10,6 +10,8 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from app import api, db as db_module
+from app.domain import Attempt, Node, ProofKind, Requirement
+from app.engine import requirement_met
 
 
 class ExamApiTests(unittest.TestCase):
@@ -188,7 +190,7 @@ class ExamApiTests(unittest.TestCase):
         exam = response.json()
         self.assertEqual(exam["exam_type"], "course")
         self.assertEqual(exam["node_id"], "ipv6-expert")
-        self.assertEqual(exam["passing_score"], 85)
+        self.assertEqual(exam["passing_score"], 80)
         self.assertEqual(exam["category"], "IPv6 - Expert")
         self.assertGreater(len(exam["questions"]), 0)
         self.assertTrue(all(question["type"] == "qcm" for question in exam["questions"]))
@@ -246,6 +248,77 @@ class ExamApiTests(unittest.TestCase):
         )
         self.assertEqual(no_requirement.status_code, 409, no_requirement.text)
 
+    def test_all_exam_types_share_the_80_percent_threshold(self) -> None:
+        for should_pass in (False, True):
+            exam = self._start_category_exam()
+            self.assertEqual(exam["pass_score"], 80)
+            self.assertEqual(exam["passing_score"], 80)
+
+            correct_answers = self._answer_key(exam)
+            total = len(correct_answers)
+            passing_count = next(
+                count for count in range(total + 1)
+                if round(100 * count / total) >= api.EXAM_PASS_SCORE
+            )
+            chosen_correct = passing_count if should_pass else passing_count - 1
+            answers = [
+                correct_answers[index] if index < chosen_correct else None
+                for index in range(total)
+            ]
+
+            response = self.client.post(
+                "/api/exam/submit",
+                json={"session_id": exam["id"], "answers": answers},
+            )
+            self.assertEqual(response.status_code, 200, response.text)
+            result = response.json()
+            self.assertEqual(result["passed"], should_pass)
+            self.assertEqual(result["passed"], result["score"] >= 80)
+            self.assertEqual(result["pass_score"], 80)
+
+    def test_exam_requirement_uses_80_even_if_legacy_data_says_85(self) -> None:
+        requirement = Requirement(kind=ProofKind.EXAM, min_score=85)
+        attempt = Attempt(
+            id=1,
+            node_id="ipv6-expert",
+            kind=ProofKind.EXAM,
+            score=80,
+            passed=True,
+            evidence="",
+            detail="test",
+            created_at="2026-10-27 10:00:00",
+        )
+        node = Node(
+            id="ipv6-expert",
+            title="IPv6 - Expert",
+            description="",
+            module="Administration Réseaux",
+            category="IPv6",
+            sort_order=1,
+            requirements=(requirement,),
+            attempts=(attempt,),
+        )
+
+        self.assertEqual(api.effective_requirement_score(ProofKind.EXAM, 85), 80)
+        self.assertEqual(api.effective_requirement_score(ProofKind.QUIZ, 85), 85)
+        self.assertTrue(requirement_met(requirement, node))
+
+    def test_exam_threshold_is_displayed_as_80_even_if_database_has_85(self) -> None:
+        with sqlite3.connect(self.database_path) as connection:
+            connection.execute(
+                "UPDATE requirements SET min_score = 85 WHERE node_id = 'ipv6-expert' AND kind = 'exam'"
+            )
+            connection.commit()
+
+        response = self.client.get("/api/tree")
+        self.assertEqual(response.status_code, 200, response.text)
+        node = next(item for item in response.json()["nodes"] if item["id"] == "ipv6-expert")
+        exam_requirement = next(
+            requirement for requirement in node["requirements_detail"]
+            if requirement["kind"] == "exam"
+        )
+        self.assertEqual(exam_requirement["min_score"], 80)
+
     def test_invalid_payloads_and_unknown_sessions_are_rejected(self) -> None:
         invalid_category = self.client.post("/api/exam/start", json={"category": " "})
         self.assertEqual(invalid_category.status_code, 422, invalid_category.text)
@@ -284,7 +357,7 @@ class ExamApiTests(unittest.TestCase):
         for column in (
             "node_id TEXT REFERENCES nodes(id) ON DELETE SET NULL",
             "exam_type TEXT NOT NULL DEFAULT 'category'",
-            "passing_score INTEGER NOT NULL DEFAULT 70",
+            "passing_score INTEGER NOT NULL DEFAULT 80",
             "result_json TEXT NOT NULL DEFAULT ''",
         ):
             self.assertIn(column, sql)
