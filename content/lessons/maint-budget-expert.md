@@ -352,6 +352,28 @@ Avant d'approuver, décider les conditions qui entraîneraient un report, une é
 Après mise en œuvre, suivre les flux réalisés et les bénéfices selon la même définition. Si les coûts sont au-dessus du budget ou les économies inférieures, expliquer les causes, prévoir les conséquences sur la VAN et choisir une action : corriger le périmètre, renégocier, suspendre une vague ou accepter un nouvel état de bénéfice. L'équipe ne doit pas réécrire le business case initial sans conserver son historique, car la direction doit pouvoir comprendre ce qui a changé.
 
 
+
+## Construire une prévision, gérer les incertitudes et défendre un arbitrage
+
+Un budget annuel doit évoluer avec les données. Le responsable conserve le budget approuvé comme référence, puis suit les dépenses engagées, les factures, les commandes, les coûts prévus et les changements de périmètre. La prévision à terminaison est l'estimation actuelle du coût total à la fin de la période ou du projet ; elle ne doit pas être assimilée au budget initial. Un écart peut venir d'un changement de quantité, d'un effet de prix, d'un glissement du calendrier ou d'une hypothèse incorrecte, et chacun appelle une réponse différente.
+
+### Exemple de variation budgétaire
+
+Un contrat de maintenance était prévu pour 120 actifs à un tarif unitaire annuel de 100 unités monétaires, soit 12 000. En cours d'année, l'inventaire confirme 135 actifs éligibles. À tarif constant, le coût attendu devient 13 500 : l'écart de 1 500 provient du volume. Si le tarif passe aussi de 100 à 105, le coût total est 14 175. Pour expliquer l'écart total de 2 175 par rapport à la base, séparer la variation de volume et la variation de prix en utilisant une méthode cohérente, puis documenter toute interaction si le modèle l'exige. Cette explication est plus actionnable que de dire simplement « dépassement de 18,1 % ».
+
+### Réserver les ressources et mettre à jour les hypothèses
+
+Les prévisions de maintenance doivent intégrer les risques d'arrêt, de pièces, d'obsolescence, de reprise, de capacité et de transition. Une dépense peut être faible en moyenne mais volatile ; les événements rares avec un impact élevé doivent être présentés comme des scénarios de risque et non dissimulés dans une moyenne. La réserve est liée à une justification, un propriétaire et des règles d'approbation. Utiliser une réserve pour couvrir un dépassement permanent signifie souvent que le budget de base n'est pas réaliste.
+
+Pour les investissements, prévoir les ressources internes en plus du financement. Une migration peut être techniquement financée mais impossible si l'équipe d'exploitation n'a pas le temps de valider les configurations, de former le support et de maintenir le service existant. La feuille de route financière doit donc inclure capacité, formation, environnement de test, sécurité, migration, support et transition.
+
+### Faire une revue de valeur après livraison
+
+À une date convenue, réunir finance, propriétaire de service et responsable du projet pour comparer la baseline, les coûts réels et les bénéfices. Si le projet réduit le temps de traitement mais n'entraîne aucune économie de trésorerie, le compte rendu peut reconnaître une amélioration de capacité, expliquer comment cette capacité sera utilisée et distinguer le résultat du business case financier initial. Ne pas reclasser rétroactivement une capacité libérée en économie réalisée sans une règle et une preuve correspondantes.
+
+Les écarts aux bénéfices attendus peuvent conduire à une action corrective : améliorer l'adoption, changer le processus, revoir le contrat ou arrêter une fonction qui ne crée pas de valeur. La revue doit préserver l'historique des hypothèses afin que les futurs investissements bénéficient de l'expérience. Cette discipline évite de bâtir les dossiers suivants sur des bénéfices théoriques jamais vérifiés.
+
+
 ## Ressources techniques et références
 
 - [HM Treasury — The Green Book (édition 2026)](https://www.gov.uk/government/publications/the-green-book--2)
