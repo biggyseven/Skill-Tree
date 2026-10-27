@@ -6,7 +6,7 @@
   "module": "Supervision",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Ajoutez le serveur NTP 192.0.2.123, le collecteur Syslog 192.0.2.50 et le niveau de gravité informational. Les trois éléments sont vérifiés dans l’état structuré.",
+  "prompt": "Contexte : pour corréler les journaux d’incidents, les équipements doivent utiliser une source de temps commune et transmettre leurs événements à un collecteur central. Sur R1, configurez le serveur NTP 192.0.2.123, le collecteur Syslog 192.0.2.50 et le niveau informational. Les adresses appartiennent à un bloc de documentation. L’exercice contrôle les paramètres locaux, pas la disponibilité de services distants.",
   "objectives": [
     "Exécuter puis vérifier : ntp server 192.0.2.123",
     "Exécuter puis vérifier : logging host 192.0.2.50",
@@ -14,14 +14,16 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; ntp server 192.0.2.123 ; logging host 192.0.2.50 ; logging trap informational ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : NTP et Syslog sont deux services distincts ; la configuration d’un serveur ne configure pas automatiquement l’autre.",
+    "Indice 2 : utilisez logging host pour le collecteur et logging trap informational pour le niveau des événements envoyés.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; ntp server 192.0.2.123 ; logging host 192.0.2.50 ; logging trap informational ; end.",
+    "La validation vérifie les serveurs NTP et Syslog ainsi que le niveau de gravité configuré."
   ],
   "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-cli-ntp-syslog",
     "metadata": {
-      "name": "CLI — Synchronisation NTP et collecte Syslog",
+      "name": "NTP et Syslog centralisés",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -30,24 +32,25 @@
       {
         "id": "R1",
         "type": "router",
-        "model": "generic-router",
-        "x": 180,
-        "y": 300,
+        "model": "generic-1841",
+        "x": 200,
+        "y": 260,
         "label": "R1",
         "ports": [
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "192.0.2.1",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Interface de gestion",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -59,14 +62,15 @@
             "name": "Gi0/1",
             "state": "down",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
             "description": "",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -89,6 +93,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -101,23 +106,44 @@
         "id": "SW1",
         "type": "switch",
         "model": "generic-2960",
-        "x": 520,
-        "y": 300,
+        "x": 510,
+        "y": 260,
         "label": "SW1",
         "ports": [
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Serveur NTP",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Collecteur Syslog",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -127,16 +153,17 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Vers R1",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -159,6 +186,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -168,26 +196,27 @@
         }
       },
       {
-        "id": "PC1",
-        "type": "pc",
-        "model": "generic-pc",
-        "x": 850,
-        "y": 90,
-        "label": "PC1",
+        "id": "NTP",
+        "type": "server",
+        "model": "generic-server",
+        "x": 820,
+        "y": 120,
+        "label": "Serveur NTP",
         "ports": [
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "192.0.2.123",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Source de temps de référence",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -196,7 +225,7 @@
           }
         ],
         "config": {
-          "hostname": "PC1",
+          "hostname": "NTP",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -210,6 +239,60 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SYSLOG",
+        "type": "server",
+        "model": "generic-server",
+        "x": 820,
+        "y": 400,
+        "label": "Collecteur Syslog",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": "192.0.2.50",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Collecteur central de journaux",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SYSLOG",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -236,13 +319,28 @@
         "latency_ms": 1
       },
       {
-        "id": "L-SW1-PC1",
+        "id": "L-SW1-NTP",
         "from": {
           "node": "SW1",
           "port": "Fa0/1"
         },
         "to": {
-          "node": "PC1",
+          "node": "NTP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-SW1-SYSLOG",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "SYSLOG",
           "port": "eth0"
         },
         "cable_type": "copper_straight",
@@ -283,7 +381,7 @@
     "rules": [
       {
         "id": "ntp_server",
-        "description": "Contrôle serveur : ntp server doit être conforme.",
+        "description": "R1 utilise 192.0.2.123 comme serveur NTP.",
         "device": "R1",
         "path": "config.protocols.ntp.servers",
         "operator": "contains",
@@ -291,7 +389,7 @@
       },
       {
         "id": "syslog_host",
-        "description": "Contrôle serveur : syslog host doit être conforme.",
+        "description": "R1 envoie ses journaux au collecteur 192.0.2.50.",
         "device": "R1",
         "path": "config.protocols.syslog.hosts",
         "operator": "contains",
@@ -299,7 +397,7 @@
       },
       {
         "id": "syslog_trap",
-        "description": "Contrôle serveur : syslog trap doit être conforme.",
+        "description": "Le niveau Syslog est configuré sur informational.",
         "device": "R1",
         "path": "config.protocols.syslog.trap_severity",
         "operator": "equals",

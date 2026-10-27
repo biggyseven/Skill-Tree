@@ -6,144 +6,74 @@
   "module": "Commutation et sécurité",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Activez rapid-PVST, définissez SW1 comme racine primaire du VLAN 10, puis activez PortFast et BPDU Guard sur Fa0/1.",
+  "prompt": "Contexte : les switches SW1 et SW2 sont reliés par deux liens, ce qui crée un chemin redondant pouvant former une boucle de niveau 2. SW1 doit être configuré comme racine primaire du VLAN 10. Sur le port d’accès Fa0/1 de SW1, activez PortFast et BPDU Guard pour protéger le poste utilisateur. Les ports de liaison entre switches restent des trunks et ne doivent pas recevoir PortFast/BPDU Guard dans ce scénario. La topologie illustre la redondance ; l’élection STP et le blocage d’un lien ne sont pas simulés par les assertions de configuration.",
   "objectives": [
-    "Exécuter puis vérifier : spanning-tree mode rapid-pvst",
-    "Exécuter puis vérifier : spanning-tree vlan 10 root primary",
-    "Exécuter puis vérifier : interface Fa0/1",
-    "Exécuter puis vérifier : spanning-tree portfast",
-    "Exécuter puis vérifier : spanning-tree bpduguard enable"
+    "Créer le VLAN 10 sur SW1",
+    "Activer le mode spanning-tree rapid-pvst",
+    "Définir SW1 comme racine primaire du VLAN 10",
+    "Configurer Fa0/1 en access VLAN 10",
+    "Activer PortFast et BPDU Guard sur le seul port hôte Fa0/1"
   ],
   "hints": [
-    "Cible CLI : SW1.",
-    "Séquence de référence : enable ; configure terminal ; spanning-tree mode rapid-pvst ; spanning-tree vlan 10 root primary ; interface Fa0/1 ; spanning-tree portfast ; spanning-tree bpduguard enable ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Cible CLI : SW1. Les deux liens SW1–SW2 sont redondants ; le port Fa0/1 est relié au poste utilisateur.",
+    "Indice 1 : créez le VLAN 10 et activez Rapid-PVST avant de définir SW1 comme racine primaire.",
+    "Indice 2 : PortFast et BPDU Guard s’appliquent au port hôte Fa0/1, pas aux trunks Fa0/23 et Fa0/24.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; vlan 10 ; spanning-tree mode rapid-pvst ; spanning-tree vlan 10 root primary ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; spanning-tree portfast ; spanning-tree bpduguard enable ; end.",
+    "La validation vérifie le VLAN, le mode Rapid-PVST, la configuration de racine primaire et les protections du port d’accès. Elle ne simule pas l’élection STP ni l’état forwarding/blocking des liens."
   ],
   "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-cli-stp-hardening",
     "metadata": {
-      "name": "CLI — Rapid-PVST et protection du port d’accès",
+      "name": "Rapid-PVST : racine primaire et liens redondants",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
     },
     "nodes": [
       {
-        "id": "R1",
-        "type": "router",
-        "model": "generic-router",
-        "x": 180,
-        "y": 300,
-        "label": "R1",
-        "ports": [
-          {
-            "id": "Gi0/0",
-            "name": "Gi0/0",
-            "state": "down",
-            "speed": 1000,
-            "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
-          },
-          {
-            "id": "Gi0/1",
-            "name": "Gi0/1",
-            "state": "down",
-            "speed": 1000,
-            "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
-          }
-        ],
-        "config": {
-          "hostname": "R1",
-          "vlans": [],
-          "routes": [],
-          "ospf": {
-            "enabled": false,
-            "router_id": "",
-            "areas": []
-          },
-          "acls": [],
-          "services": {
-            "dhcp": null,
-            "dns": null,
-            "nat": null
-          },
-          "protocols": {}
-        },
-        "runtime": {
-          "arp_table": [],
-          "mac_table": [],
-          "routing_table": []
-        }
-      },
-      {
         "id": "SW1",
         "type": "switch",
         "model": "generic-2960",
-        "x": 520,
+        "x": 300,
         "y": 300,
         "label": "SW1",
         "ports": [
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
+            "description": "Port d’accès du poste utilisateur"
+          },
+          {
+            "id": "Fa0/23",
+            "name": "Fa0/23",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Lien redondant vers SW2"
           },
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "trunk",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
+            "description": "Lien principal vers SW2"
           }
         ],
         "config": {
@@ -161,6 +91,76 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW2",
+        "type": "switch",
+        "model": "generic-2960",
+        "x": 720,
+        "y": 300,
+        "label": "SW2",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Port d’accès disponible"
+          },
+          {
+            "id": "Fa0/23",
+            "name": "Fa0/23",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Lien redondant vers SW1"
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Lien principal vers SW1"
+          }
+        ],
+        "config": {
+          "hostname": "SW2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -173,28 +173,21 @@
         "id": "PC1",
         "type": "pc",
         "model": "generic-pc",
-        "x": 850,
-        "y": 90,
+        "x": 300,
+        "y": 80,
         "label": "PC1",
         "ports": [
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": 10,
+            "description": "Poste relié au port Fa0/1 protégé"
           }
         ],
         "config": {
@@ -212,6 +205,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -223,14 +217,14 @@
     ],
     "links": [
       {
-        "id": "L-R1-SW1",
+        "id": "L-PC1-SW1",
         "from": {
-          "node": "R1",
-          "port": "Gi0/0"
+          "node": "PC1",
+          "port": "eth0"
         },
         "to": {
           "node": "SW1",
-          "port": "Fa0/24"
+          "port": "Fa0/1"
         },
         "cable_type": "copper_straight",
         "state": "up",
@@ -238,16 +232,31 @@
         "latency_ms": 1
       },
       {
-        "id": "L-SW1-PC1",
+        "id": "L-SW1-SW2-A",
         "from": {
           "node": "SW1",
-          "port": "Fa0/1"
+          "port": "Fa0/24"
         },
         "to": {
-          "node": "PC1",
-          "port": "eth0"
+          "node": "SW2",
+          "port": "Fa0/24"
         },
-        "cable_type": "copper_straight",
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-SW1-SW2-B",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/23"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/23"
+        },
+        "cable_type": "copper_crossover",
         "state": "up",
         "bandwidth": 1000,
         "latency_ms": 1
@@ -284,8 +293,19 @@
     "type": "config_assertions",
     "rules": [
       {
+        "id": "stp_vlan10",
+        "description": "Le VLAN 10 existe sur SW1.",
+        "device": "SW1",
+        "path": "config.vlans",
+        "operator": "contains",
+        "expected": {
+          "id": 10,
+          "name": "VLAN10"
+        }
+      },
+      {
         "id": "stp_mode",
-        "description": "Contrôle serveur : stp mode doit être conforme.",
+        "description": "SW1 utilise Rapid-PVST.",
         "device": "SW1",
         "path": "config.protocols.stp.mode",
         "operator": "equals",
@@ -293,7 +313,7 @@
       },
       {
         "id": "stp_root",
-        "description": "Contrôle serveur : stp root doit être conforme.",
+        "description": "SW1 est configuré comme racine primaire du VLAN 10.",
         "device": "SW1",
         "path": "config.protocols.stp.roots",
         "operator": "contains",
@@ -304,7 +324,7 @@
       },
       {
         "id": "stp_portfast",
-        "description": "Contrôle serveur : stp portfast doit être conforme.",
+        "description": "PortFast est activé sur Fa0/1.",
         "device": "SW1",
         "path": "ports[0].spanning_tree.portfast",
         "operator": "equals",
@@ -312,11 +332,27 @@
       },
       {
         "id": "stp_bpduguard",
-        "description": "Contrôle serveur : stp bpduguard doit être conforme.",
+        "description": "BPDU Guard est activé sur Fa0/1.",
         "device": "SW1",
         "path": "ports[0].spanning_tree.bpduguard",
         "operator": "equals",
         "expected": true
+      },
+      {
+        "id": "stp_access_mode",
+        "description": "Fa0/1 est configuré en mode access.",
+        "device": "SW1",
+        "path": "ports[0].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "stp_access_vlan",
+        "description": "Fa0/1 appartient au VLAN 10.",
+        "device": "SW1",
+        "path": "ports[0].vlan",
+        "operator": "equals",
+        "expected": 10
       }
     ],
     "pass_threshold": 1,

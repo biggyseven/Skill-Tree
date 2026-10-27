@@ -6,23 +6,30 @@
   "module": "admin-reseaux",
   "duration_min": 30,
   "difficulty": "Moyen",
-  "prompt": "Préparez le routeur R1 pour le LAN 192.168.1.0/24, en vérifiant le pool DHCP attendu et l'adressage de l'interface inside. L'interface outside représente une liaison WAN simulée.",
+  "prompt": "Contexte : le LAN 192.168.1.0/24 accueille deux postes utilisateurs. R1 doit fournir la passerelle 192.168.1.1, distribuer automatiquement l’adressage via le pool LAN-CLIENTS et traduire les adresses privées vers son interface WAN Fa0/1. Réservez les adresses .1 à .20 pour la passerelle et les équipements fixes, distribuez le DNS 192.168.1.53 et fixez le bail à sept jours. Préparez aussi l’ACL NAT et la surcharge PAT. La topologie montre le WAN simulé ; le laboratoire valide l’état de configuration, pas une véritable attribution de bail ou une session Internet.",
   "objectives": [
-    "Configurer l'adresse IP et le masque de l'interface LAN de R1",
-    "Définir un pool DHCP pour 192.168.1.0/24",
-    "Fournir la passerelle LAN 192.168.1.1 et un serveur DNS",
-    "Préparer le lien switch–routeur pour les deux postes clients"
+    "Configurer R1 Fa0/0 en 192.168.1.1/24",
+    "Exclure 192.168.1.1 à 192.168.1.20 de la distribution DHCP",
+    "Créer le pool LAN-CLIENTS pour 192.168.1.0/24",
+    "Distribuer la passerelle 192.168.1.1, le DNS 192.168.1.53 et un bail de sept jours",
+    "Créer une ACL qui sélectionne les sources privées 192.168.1.0/24 pour le NAT",
+    "Marquer Fa0/0 comme inside et Fa0/1 comme outside, puis activer NAT overload",
+    "Placer SW1 Fa0/1 et Fa0/2 en mode access et vérifier tous les paramètres"
   ],
   "hints": [
-    "Le pool attendu est LAN-CLIENTS pour 192.168.1.0/24.",
-    "La passerelle distribuée aux clients doit être 192.168.1.1.",
-    "Limitation connue du parseur CLI actuel : les commandes `ip dhcp pool`, `network`, `default-router` et `dns-server` ne sont pas prises en charge ; les assertions DHCP nécessitent leur prise en charge ultérieure."
+    "Cible CLI : R1. Fa0/0 est l’interface LAN ; Fa0/1 relie le routeur au WAN simulé.",
+    "Indice 1 : réservez d’abord les adresses 192.168.1.1 à 192.168.1.20, puis créez le pool LAN-CLIENTS avec le réseau, la passerelle, le DNS et le bail.",
+    "Indice 2 : une ACL standard sélectionne le réseau source pour la traduction. Le wildcard 0.0.0.255 correspond au réseau 192.168.1.0/24.",
+    "Indice 3 : configurez le rôle NAT inside sur Fa0/0 et outside sur Fa0/1. La commande overload doit référencer l’ACL 1 et l’interface extérieure Fa0/1.",
+    "Solution de référence sur R1 (à consulter en dernier) : enable ; configure terminal ; interface Fa0/0 ; ip address 192.168.1.1 255.255.255.0 ; no shutdown ; exit ; ip dhcp excluded-address 192.168.1.1 192.168.1.20 ; ip dhcp pool LAN-CLIENTS ; network 192.168.1.0 255.255.255.0 ; default-router 192.168.1.1 ; dns-server 192.168.1.53 ; lease 7 ; exit ; access-list 1 permit 192.168.1.0 0.0.0.255 ; interface Fa0/0 ; ip nat inside ; exit ; interface Fa0/1 ; ip nat outside ; exit ; ip nat inside source list 1 interface Fa0/1 overload ; end.",
+    "Solution de référence sur SW1 (à consulter en dernier) : enable ; configure terminal ; interface Fa0/1 ; switchport mode access ; exit ; interface Fa0/2 ; switchport mode access ; end.",
+    "La validation vérifie le pool DHCP, les exclusions, l’adressage LAN, l’ACL NAT, les rôles inside/outside et la surcharge. Le test ne simule pas un bail client ni une traduction de paquet réelle."
   ],
   "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-dhcp-nat-lan",
     "metadata": {
-      "name": "DHCP / NAT Preparation",
+      "name": "DHCP et NAT — LAN privé vers WAN",
       "author": "lab_system",
       "created_at": "2026-10-25T00:00:00Z",
       "mode": "lab"
@@ -39,26 +46,26 @@
           {
             "id": "Fa0/0",
             "name": "Fa0/0",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:01",
             "mode": "down",
-            "ip": null,
-            "mask": null,
+            "ip": "192.168.1.1",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "Inside - LAN 192.168.1.0/24"
+            "description": "Inside — passerelle et LAN DHCP"
           },
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:02",
             "mode": "down",
-            "ip": null,
-            "mask": null,
+            "ip": "203.0.113.2",
+            "mask": "255.255.255.252",
             "vlan": null,
-            "description": "Outside - uplink simulé"
+            "description": "Outside — WAN simulé"
           }
         ],
         "config": {
@@ -94,7 +101,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:03",
             "mode": "down",
@@ -106,7 +113,7 @@
           {
             "id": "Fa0/2",
             "name": "Fa0/2",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:04",
             "mode": "down",
@@ -118,7 +125,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:05",
             "mode": "down",
@@ -161,7 +168,7 @@
           {
             "id": "Fa0",
             "name": "Fa0",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:06",
             "mode": "routed",
@@ -204,7 +211,7 @@
           {
             "id": "Fa0",
             "name": "Fa0",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:12:00:07",
             "mode": "routed",
@@ -229,6 +236,51 @@
             "dns": null,
             "nat": null
           }
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "ISP",
+        "type": "router",
+        "model": "generic-router",
+        "x": 1060,
+        "y": 330,
+        "label": "Routeur WAN",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Prochain saut WAN"
+          }
+        ],
+        "config": {
+          "hostname": "ISP",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
+          "protocols": {}
         },
         "runtime": {
           "arp_table": [],
@@ -282,6 +334,21 @@
         "state": "up",
         "bandwidth": 100,
         "latency_ms": 1
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "ISP",
+          "port": "Fa0/0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 2
       }
     ],
     "simulation": {
@@ -322,40 +389,23 @@
     "type": "config_assertions",
     "rules": [
       {
-        "id": "r1_dhcp_network",
-        "description": "Le pool DHCP de R1 doit distribuer le réseau 192.168.1.0/24",
+        "id": "r1_dhcp_pool",
+        "description": "Le pool LAN-CLIENTS contient le réseau, le masque, la passerelle, le DNS et le bail attendus.",
         "device": "R1",
-        "path": "config.services.dhcp.network",
-        "operator": "equals",
-        "expected": "192.168.1.0/24"
-      },
-      {
-        "id": "r1_dhcp_pool_name",
-        "description": "Le pool DHCP doit être nommé LAN-CLIENTS",
-        "device": "R1",
-        "path": "config.services.dhcp.pool_name",
-        "operator": "equals",
-        "expected": "LAN-CLIENTS"
-      },
-      {
-        "id": "r1_dhcp_gateway",
-        "description": "Le pool DHCP doit annoncer la passerelle 192.168.1.1",
-        "device": "R1",
-        "path": "config.services.dhcp.default_router",
-        "operator": "equals",
-        "expected": "192.168.1.1"
-      },
-      {
-        "id": "r1_dhcp_dns",
-        "description": "Le pool DHCP doit annoncer un serveur DNS",
-        "device": "R1",
-        "path": "config.services.dhcp.dns_server",
-        "operator": "not_equals",
-        "expected": null
+        "path": "config.protocols.dhcp.pools",
+        "operator": "contains",
+        "expected": {
+          "name": "LAN-CLIENTS",
+          "network": "192.168.1.0",
+          "mask": "255.255.255.0",
+          "default_router": "192.168.1.1",
+          "dns_server": "192.168.1.53",
+          "lease_days": 7
+        }
       },
       {
         "id": "r1_inside_ip",
-        "description": "R1 Fa0/0 doit être adressée en 192.168.1.1",
+        "description": "R1 Fa0/0 utilise l’adresse IPv4 192.168.1.1.",
         "device": "R1",
         "path": "ports[0].ip",
         "operator": "equals",
@@ -363,7 +413,7 @@
       },
       {
         "id": "r1_inside_mask",
-        "description": "R1 Fa0/0 doit utiliser le masque 255.255.255.0",
+        "description": "R1 Fa0/0 utilise le masque 255.255.255.0.",
         "device": "R1",
         "path": "ports[0].mask",
         "operator": "equals",
@@ -371,7 +421,7 @@
       },
       {
         "id": "sw1_pc1_access",
-        "description": "SW1 Fa0/1 doit être en mode access",
+        "description": "SW1 Fa0/1 est configuré en mode access.",
         "device": "SW1",
         "path": "ports[0].mode",
         "operator": "equals",
@@ -379,11 +429,58 @@
       },
       {
         "id": "sw1_pc2_access",
-        "description": "SW1 Fa0/2 doit être en mode access",
+        "description": "SW1 Fa0/2 est configuré en mode access.",
         "device": "SW1",
         "path": "ports[1].mode",
         "operator": "equals",
         "expected": "access"
+      },
+      {
+        "id": "r1_dhcp_exclusion",
+        "description": "Les adresses 192.168.1.1 à 192.168.1.20 sont exclues du pool DHCP.",
+        "device": "R1",
+        "path": "config.protocols.dhcp.excluded_addresses",
+        "operator": "contains",
+        "expected": {
+          "start": "192.168.1.1",
+          "end": "192.168.1.20"
+        }
+      },
+      {
+        "id": "r1_nat_acl",
+        "description": "L’ACL 1 sélectionne les sources du réseau 192.168.1.0/24 pour le NAT.",
+        "device": "R1",
+        "path": "config.acls",
+        "operator": "contains",
+        "expected": "1 permit 192.168.1.0 0.0.0.255"
+      },
+      {
+        "id": "r1_nat_inside",
+        "description": "Fa0/0 est marquée NAT inside.",
+        "device": "R1",
+        "path": "ports[0].nat_role",
+        "operator": "equals",
+        "expected": "inside"
+      },
+      {
+        "id": "r1_nat_outside",
+        "description": "Fa0/1 est marquée NAT outside.",
+        "device": "R1",
+        "path": "ports[1].nat_role",
+        "operator": "equals",
+        "expected": "outside"
+      },
+      {
+        "id": "r1_nat_overload",
+        "description": "NAT overload utilise l’ACL 1 et l’interface extérieure Fa0/1.",
+        "device": "R1",
+        "path": "config.protocols.nat",
+        "operator": "equals",
+        "expected": {
+          "acl_number": 1,
+          "outside_interface": "Fa0/1",
+          "overload": true
+        }
       }
     ],
     "pass_threshold": 1,

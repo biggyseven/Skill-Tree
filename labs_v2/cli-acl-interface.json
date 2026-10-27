@@ -6,7 +6,7 @@
   "module": "Sécurité réseau",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Créez une ACL numérotée qui refuse l’hôte 192.168.1.10 vers 10.0.0.5 puis autorise le reste du trafic IP. Appliquez l’ACL 110 en entrée sur Gi0/0.",
+  "prompt": "Contexte : le LAN de l’agence utilise le poste 192.168.1.10 et un serveur métier 10.0.0.5. La politique de sécurité doit bloquer uniquement ce flux IPv4, tout en autorisant les autres communications. Sur R1, créez l’ACL étendue numérotée 110 avec les règles dans le bon ordre, puis appliquez-la en entrée sur Gi0/0, côté réseau source. Vérifiez la configuration avant de soumettre. Ce laboratoire contrôle la configuration enregistrée ; il ne simule pas l’échange réel de paquets.",
   "objectives": [
     "Exécuter puis vérifier : access-list 110 deny ip host 192.168.1.10 host 10.0.0.5",
     "Exécuter puis vérifier : access-list 110 permit ip any any",
@@ -15,59 +15,43 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; access-list 110 deny ip host 192.168.1.10 host 10.0.0.5 ; access-list 110 permit ip any any ; interface Gi0/0 ; ip access-group 110 in ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : une ACL est évaluée dans l’ordre. La règle précise qui bloque le couple source/destination doit précéder la règle générale d’autorisation.",
+    "Indice 2 : vérifiez les deux entrées de l’ACL, puis le sens d’application sur Gi0/0. « in » filtre les paquets qui entrent par cette interface.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; access-list 110 deny ip host 192.168.1.10 host 10.0.0.5 ; access-list 110 permit ip any any ; interface Gi0/0 ; ip access-group 110 in ; end.",
+    "La validation porte sur les règles ACL et leur application structurée à l’interface, pas seulement sur le texte affiché dans la console."
   ],
   "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-cli-acl-interface",
     "metadata": {
-      "name": "CLI — ACL IPv4 appliquée en entrée",
+      "name": "ACL étendue : poste invité et serveur",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
     },
     "nodes": [
       {
-        "id": "R1",
-        "type": "router",
-        "model": "generic-router",
-        "x": 180,
-        "y": 300,
-        "label": "R1",
+        "id": "INVITE",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 100,
+        "y": 250,
+        "label": "Poste invité",
         "ports": [
           {
-            "id": "Gi0/0",
-            "name": "Gi0/0",
-            "state": "down",
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
             "speed": 1000,
-            "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "mac": "",
+            "mode": "access",
+            "ip": "192.168.1.10",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Hôte bloqué par l’ACL",
             "access_group_in": null,
             "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
-          },
-          {
-            "id": "Gi0/1",
-            "name": "Gi0/1",
-            "state": "down",
-            "speed": 1000,
-            "mode": "routed",
-            "ip": null,
-            "mask": null,
             "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -76,7 +60,7 @@
           }
         ],
         "config": {
-          "hostname": "R1",
+          "hostname": "INVITE",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -90,6 +74,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -102,23 +87,24 @@
         "id": "SW1",
         "type": "switch",
         "model": "generic-2960",
-        "x": 520,
-        "y": 300,
+        "x": 360,
+        "y": 250,
         "label": "SW1",
         "ports": [
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Vers le poste invité",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -128,16 +114,17 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Vers R1",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -160,6 +147,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -169,26 +157,47 @@
         }
       },
       {
-        "id": "PC1",
-        "type": "pc",
-        "model": "generic-pc",
-        "x": 850,
-        "y": 90,
-        "label": "PC1",
+        "id": "R1",
+        "type": "router",
+        "model": "generic-1841",
+        "x": 640,
+        "y": 250,
+        "label": "R1",
         "ports": [
           {
-            "id": "eth0",
-            "name": "eth0",
-            "state": "down",
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
             "speed": 1000,
-            "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.1.1",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Entrée du LAN invité",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.0.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Vers le réseau serveur",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -197,7 +206,7 @@
           }
         ],
         "config": {
-          "hostname": "PC1",
+          "hostname": "R1",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -211,6 +220,60 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SERVEUR",
+        "type": "server",
+        "model": "generic-server",
+        "x": 910,
+        "y": 250,
+        "label": "Serveur métier",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.0.5",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "Serveur métier ciblé",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SERVEUR",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -222,14 +285,14 @@
     ],
     "links": [
       {
-        "id": "L-R1-SW1",
+        "id": "L-INVITE-SW1",
         "from": {
-          "node": "R1",
-          "port": "Gi0/0"
+          "node": "INVITE",
+          "port": "eth0"
         },
         "to": {
           "node": "SW1",
-          "port": "Fa0/24"
+          "port": "Fa0/1"
         },
         "cable_type": "copper_straight",
         "state": "up",
@@ -237,13 +300,28 @@
         "latency_ms": 1
       },
       {
-        "id": "L-SW1-PC1",
+        "id": "L-SW1-R1",
         "from": {
           "node": "SW1",
-          "port": "Fa0/1"
+          "port": "Fa0/24"
         },
         "to": {
-          "node": "PC1",
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-R1-SERVEUR",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "SERVEUR",
           "port": "eth0"
         },
         "cable_type": "copper_straight",
@@ -284,7 +362,7 @@
     "rules": [
       {
         "id": "acl_deny",
-        "description": "Contrôle serveur : acl deny doit être conforme.",
+        "description": "L’ACL 110 refuse le trafic de 192.168.1.10 vers 10.0.0.5.",
         "device": "R1",
         "path": "config.acls",
         "operator": "contains",
@@ -292,7 +370,7 @@
       },
       {
         "id": "acl_permit",
-        "description": "Contrôle serveur : acl permit doit être conforme.",
+        "description": "L’ACL 110 autorise les autres flux IPv4.",
         "device": "R1",
         "path": "config.acls",
         "operator": "contains",
@@ -300,7 +378,7 @@
       },
       {
         "id": "acl_applied_in",
-        "description": "Contrôle serveur : acl applied in doit être conforme.",
+        "description": "L’ACL 110 est appliquée en entrée sur Gi0/0.",
         "device": "R1",
         "path": "ports[0].access_group_in",
         "operator": "equals",

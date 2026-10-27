@@ -6,7 +6,7 @@
   "module": "Qualité de service",
   "duration_min": 25,
   "difficulty": "expert",
-  "prompt": "Créez la classe VOICE qui reconnaît DSCP EF, puis la politique VOICE-POLICY qui réserve 20 % de priorité à cette classe. Appliquez la politique en sortie de Gi0/0.",
+  "prompt": "Contexte : le téléphone IP envoie des paquets vocaux marqués DSCP EF. Sur R1, créez la classe VOICE, puis la policy-map VOICE-POLICY avec priority percent 20 et appliquez-la en sortie de Gi0/0. Dans IOS, cette commande définit le pourcentage maximal associé à la file prioritaire sous congestion ; elle ne remplace pas la vérification d’un flux réel. La validation examine la policy et son application, pas la qualité d’un appel.",
   "objectives": [
     "Exécuter puis vérifier : class-map match-any VOICE",
     "Exécuter puis vérifier : match dscp ef",
@@ -18,14 +18,16 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; class-map match-any VOICE ; match dscp ef ; exit ; policy-map VOICE-POLICY ; class VOICE ; priority percent 20 ; exit ; interface Gi0/0 ; service-policy output VOICE-POLICY ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : la class-map identifie le trafic avec match dscp ef ; la policy-map définit le traitement de cette classe.",
+    "Indice 2 : ouvrez la policy-map, entrez dans la classe VOICE, définissez la priorité à 20 %, puis appliquez la policy en sortie de Gi0/0.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; class-map match-any VOICE ; match dscp ef ; exit ; policy-map VOICE-POLICY ; class VOICE ; priority percent 20 ; exit ; interface Gi0/0 ; service-policy output VOICE-POLICY ; end.",
+    "La validation vérifie le nom de la policy, sa classe VOICE, le pourcentage de priorité et son application en sortie de Gi0/0."
   ],
   "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-cli-qos-voice-policy",
     "metadata": {
-      "name": "CLI — Classe et politique QoS pour la voix",
+      "name": "QoS : priorité de la voix sur Gi0/0",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -42,7 +44,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -61,7 +63,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -112,7 +114,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -131,7 +133,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -174,22 +176,22 @@
       {
         "id": "PC1",
         "type": "pc",
-        "model": "generic-pc",
+        "model": "generic-voip-phone",
         "x": 850,
         "y": 90,
-        "label": "PC1",
+        "label": "Téléphone IP",
         "ports": [
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
             "mask": null,
             "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Source de trafic vocal marquée DSCP EF",
             "access_group_in": null,
             "access_group_out": null,
             "nat_role": null,
@@ -287,7 +289,7 @@
     "rules": [
       {
         "id": "qos_policy",
-        "description": "Contrôle serveur : qos policy doit être conforme.",
+        "description": "La policy-map appliquée s’appelle VOICE-POLICY.",
         "device": "R1",
         "path": "config.protocols.qos.policy_maps[0].name",
         "operator": "equals",
@@ -295,7 +297,7 @@
       },
       {
         "id": "qos_voice_class",
-        "description": "Contrôle serveur : qos voice class doit être conforme.",
+        "description": "La policy-map contient la classe VOICE.",
         "device": "R1",
         "path": "config.protocols.qos.policy_maps[0].classes[0].name",
         "operator": "equals",
@@ -303,7 +305,7 @@
       },
       {
         "id": "qos_priority",
-        "description": "Contrôle serveur : qos priority doit être conforme.",
+        "description": "La classe VOICE utilise priority percent 20.",
         "device": "R1",
         "path": "config.protocols.qos.policy_maps[0].classes[0].priority_percent",
         "operator": "equals",
@@ -311,7 +313,7 @@
       },
       {
         "id": "qos_applied",
-        "description": "Contrôle serveur : qos applied doit être conforme.",
+        "description": "VOICE-POLICY est appliquée en sortie de Gi0/0.",
         "device": "R1",
         "path": "ports[0].service_policy_out",
         "operator": "equals",

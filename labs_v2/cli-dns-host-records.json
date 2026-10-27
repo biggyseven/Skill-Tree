@@ -6,15 +6,17 @@
   "module": "Services réseau",
   "duration_min": 25,
   "difficulty": "débutant",
-  "prompt": "Créez deux associations DNS statiques pour intranet.example.test et mail.example.test. La validation inspecte les enregistrements structurés côté serveur.",
+  "prompt": "Contexte : l’équipe d’exploitation veut des associations locales entre des noms de test et des adresses de service. Sur R1, créez les deux entrées statiques intranet.example.test → 10.10.30.10 et mail.example.test → 10.10.30.20. Utilisez exactement les noms et les adresses demandés. Ce laboratoire vérifie les entrées locales « ip host » sur le routeur ; il ne configure pas un serveur DNS faisant autorité.",
   "objectives": [
     "Exécuter puis vérifier : ip host intranet.example.test 10.10.30.10",
     "Exécuter puis vérifier : ip host mail.example.test 10.10.30.20"
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; ip host intranet.example.test 10.10.30.10 ; ip host mail.example.test 10.10.30.20 ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : la commande ip host prend d’abord le nom complet, puis l’adresse IPv4 associée.",
+    "Indice 2 : les noms sont distincts ; créez une entrée par service et évitez de permuter les deux adresses.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; ip host intranet.example.test 10.10.30.10 ; ip host mail.example.test 10.10.30.20 ; end.",
+    "La validation recherche les deux couples nom/adresse dans les données structurées locales de R1."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -37,7 +39,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -56,7 +58,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -107,7 +109,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -126,7 +128,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -177,7 +179,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -282,7 +284,7 @@
     "rules": [
       {
         "id": "dns_intranet",
-        "description": "Contrôle serveur : dns intranet doit être conforme.",
+        "description": "Le nom intranet.example.test est associé à 10.10.30.10.",
         "device": "R1",
         "path": "config.protocols.dns.hosts",
         "operator": "contains",
@@ -293,7 +295,7 @@
       },
       {
         "id": "dns_mail",
-        "description": "Contrôle serveur : dns mail doit être conforme.",
+        "description": "Le nom mail.example.test est associé à 10.10.30.20.",
         "device": "R1",
         "path": "config.protocols.dns.hosts",
         "operator": "contains",

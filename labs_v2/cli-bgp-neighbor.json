@@ -6,7 +6,7 @@
   "module": "Routage avancé",
   "duration_min": 25,
   "difficulty": "expert",
-  "prompt": "Configurez l’AS local 65001, le voisin 192.0.2.2 dans l’AS 65002 et l’annonce de 10.10.0.0/16. Le serveur vérifie la liste de voisins et les réseaux BGP structurés.",
+  "prompt": "Contexte : R1 appartient à l’AS 65001 et doit établir une relation eBGP avec R2, voisin 192.0.2.2 rattaché à l’AS 65002. Le réseau d’entreprise 10.10.0.0/16 est déjà présent derrière R1 ; configurez le voisin et annoncez exactement ce préfixe. Le laboratoire vérifie les paramètres BGP locaux. Il ne simule pas l’état réel de la session ni l’échange de routes avec le routeur distant.",
   "objectives": [
     "Exécuter puis vérifier : router bgp 65001",
     "Exécuter puis vérifier : neighbor 192.0.2.2 remote-as 65002",
@@ -14,14 +14,16 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; router bgp 65001 ; neighbor 192.0.2.2 remote-as 65002 ; network 10.10.0.0 mask 255.255.0.0 ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : démarrez le processus BGP avec le numéro de l’AS local, pas celui du voisin.",
+    "Indice 2 : l’AS distant se renseigne sur la commande neighbor. L’annonce de réseau utilise le masque correspondant à /16.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; router bgp 65001 ; neighbor 192.0.2.2 remote-as 65002 ; network 10.10.0.0 mask 255.255.0.0 ; end.",
+    "Les contrôles examinent l’AS local, le voisin avec son AS distant et le préfixe annoncé dans l’état structuré."
   ],
   "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-cli-bgp-neighbor",
     "metadata": {
-      "name": "CLI — Voisinage eBGP",
+      "name": "eBGP : voisin externe et LAN annoncé",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -30,24 +32,25 @@
       {
         "id": "R1",
         "type": "router",
-        "model": "generic-router",
-        "x": 180,
-        "y": 300,
+        "model": "generic-1841",
+        "x": 240,
+        "y": 220,
         "label": "R1",
         "ports": [
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "192.0.2.1",
+            "mask": "255.255.255.252",
             "vlan": null,
-            "description": "",
+            "description": "Lien eBGP vers R2",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -57,16 +60,17 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "10.10.0.1",
+            "mask": "255.255.0.0",
             "vlan": null,
-            "description": "",
+            "description": "LAN annoncé par BGP",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -89,7 +93,92 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "model": "generic-1841",
+        "x": 690,
+        "y": 220,
+        "label": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.0.2.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Voisin eBGP AS 65002",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "down",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
+          "protocols": {
+            "bgp": {
+              "asn": 65002,
+              "neighbors": [
+                {
+                  "ip": "192.0.2.1",
+                  "remote_as": 65001
+                }
+              ],
+              "networks": []
+            }
+          }
         },
         "runtime": {
           "arp_table": [],
@@ -101,23 +190,24 @@
         "id": "SW1",
         "type": "switch",
         "model": "generic-2960",
-        "x": 520,
-        "y": 300,
+        "x": 490,
+        "y": 360,
         "label": "SW1",
         "ports": [
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Vers le réseau d’entreprise",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -127,16 +217,17 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Vers R1",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -159,6 +250,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -168,26 +260,27 @@
         }
       },
       {
-        "id": "PC1",
-        "type": "pc",
-        "model": "generic-pc",
-        "x": 850,
-        "y": 90,
-        "label": "PC1",
+        "id": "APP1",
+        "type": "server",
+        "model": "generic-server",
+        "x": 800,
+        "y": 360,
+        "label": "Serveur LAN",
         "ports": [
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "10.10.0.10",
+            "mask": "255.255.0.0",
             "vlan": null,
-            "description": "",
+            "description": "Hôte du préfixe annoncé",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -196,7 +289,7 @@
           }
         ],
         "config": {
-          "hostname": "PC1",
+          "hostname": "APP1",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -210,6 +303,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -221,10 +315,25 @@
     ],
     "links": [
       {
-        "id": "L-R1-SW1",
+        "id": "L-R1-R2",
         "from": {
           "node": "R1",
           "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "copper_crossover",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-R1-SW1",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/1"
         },
         "to": {
           "node": "SW1",
@@ -236,13 +345,13 @@
         "latency_ms": 1
       },
       {
-        "id": "L-SW1-PC1",
+        "id": "L-SW1-APP1",
         "from": {
           "node": "SW1",
           "port": "Fa0/1"
         },
         "to": {
-          "node": "PC1",
+          "node": "APP1",
           "port": "eth0"
         },
         "cable_type": "copper_straight",
@@ -283,7 +392,7 @@
     "rules": [
       {
         "id": "bgp_asn",
-        "description": "Contrôle serveur : bgp asn doit être conforme.",
+        "description": "R1 utilise l’AS BGP local 65001.",
         "device": "R1",
         "path": "config.protocols.bgp.asn",
         "operator": "equals",
@@ -291,7 +400,7 @@
       },
       {
         "id": "bgp_neighbor",
-        "description": "Contrôle serveur : bgp neighbor doit être conforme.",
+        "description": "Le voisin 192.0.2.2 est configuré avec l’AS distant 65002.",
         "device": "R1",
         "path": "config.protocols.bgp.neighbors",
         "operator": "contains",
@@ -302,7 +411,7 @@
       },
       {
         "id": "bgp_network",
-        "description": "Contrôle serveur : bgp network doit être conforme.",
+        "description": "Le réseau 10.10.0.0/16 est déclaré à l’annonce BGP.",
         "device": "R1",
         "path": "config.protocols.bgp.networks",
         "operator": "contains",

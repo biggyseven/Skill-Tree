@@ -6,17 +6,18 @@
   "module": "admin-reseaux",
   "duration_min": 20,
   "difficulty": "Facile",
-  "prompt": "Créez le VLAN 10 nommé VLAN10 sur SW1 et SW2. Configurez Fa0/1 en access VLAN 10 et Fa0/24 en trunk sur les deux switches afin de relier PC1 et PC2 au même VLAN.",
+  "prompt": "Contexte : deux commutateurs relient PC1 et PC2, qui doivent appartenir au VLAN 10. Créez le VLAN 10 nommé VLAN10 sur SW1 et SW2, placez Fa0/1 en access VLAN 10 sur chacun des switches, puis configurez Fa0/24 en trunk des deux côtés. Vérifiez la cohérence des deux extrémités : une configuration sur un seul commutateur ne suffit pas pour transporter le VLAN sur tout le lien.",
   "objectives": [
-    "Créer VLAN 10 sur les deux switches",
-    "Affecter les ports PC au VLAN 10 en mode access",
-    "Configurer le lien inter-switch en mode trunk",
-    "Vérifier la cohérence des deux côtés du trunk"
+    "Créer le VLAN 10 nommé VLAN10 sur SW1 et SW2",
+    "Affecter les ports PC Fa0/1 au VLAN 10 en mode access",
+    "Configurer Fa0/24 en trunk sur SW1 et SW2",
+    "Vérifier les deux côtés du trunk et les affectations des postes"
   ],
   "hints": [
-    "Utilisez vlan 10 puis name VLAN10 en configuration globale.",
-    "Sur les ports PC : switchport mode access puis switchport access vlan 10.",
-    "Configurez Fa0/24 en switchport mode trunk aux deux extrémités."
+    "Sur chaque switch, commencez par créer le VLAN 10 et nommez-le VLAN10.",
+    "Les ports Fa0/1 relient les postes : configurez-les en mode access puis affectez-les au VLAN 10.",
+    "Le lien inter-switch utilise Fa0/24. Configurez switchport mode trunk sur SW1 et SW2.",
+    "La validation vérifie la présence du VLAN, les deux ports d’accès et le mode trunk de chaque extrémité."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -39,7 +40,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:10:00:01",
             "mode": "down",
@@ -51,7 +52,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:10:00:02",
             "mode": "down",
@@ -94,7 +95,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:10:00:03",
             "mode": "down",
@@ -106,7 +107,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:10:00:04",
             "mode": "down",
@@ -149,7 +150,7 @@
           {
             "id": "Fa0",
             "name": "Fa0",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:10:00:05",
             "mode": "routed",
@@ -192,7 +193,7 @@
           {
             "id": "Fa0",
             "name": "Fa0",
-            "state": "down",
+            "state": "up",
             "speed": 100,
             "mac": "00:00:0A:10:00:06",
             "mode": "routed",

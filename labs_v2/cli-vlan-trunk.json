@@ -6,46 +6,51 @@
   "module": "Commutation",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Créez le VLAN 10 sur SW1 puis configurez Fa0/24 en trunk. Le contrôle serveur vérifie le mode du port et l’existence du VLAN.",
+  "prompt": "Contexte : PC1 et PC2 doivent appartenir au VLAN 10 et communiquer à travers deux commutateurs. Créez le VLAN 10 sur SW1 et SW2, configurez Fa0/1 comme port d’accès VLAN 10 sur chacun, puis configurez Fa0/24 en trunk des deux côtés. Vérifiez les deux extrémités du trunk : une configuration sur un seul commutateur ne suffit pas pour transporter le VLAN sur l’ensemble du lien.",
   "objectives": [
-    "Exécuter puis vérifier : vlan 10",
-    "Exécuter puis vérifier : interface Fa0/24",
-    "Exécuter puis vérifier : switchport mode trunk"
+    "Créer le VLAN 10 nommé VLAN10 sur SW1 et SW2",
+    "Configurer Fa0/1 en mode access VLAN 10 sur SW1",
+    "Configurer Fa0/1 en mode access VLAN 10 sur SW2",
+    "Configurer Fa0/24 en trunk sur SW1 et SW2",
+    "Vérifier la cohérence du VLAN de chaque poste et des deux extrémités du trunk"
   ],
   "hints": [
-    "Cible CLI : SW1.",
-    "Séquence de référence : enable ; configure terminal ; vlan 10 ; interface Fa0/24 ; switchport mode trunk ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Cible CLI : SW1. Le scénario utilise deux commutateurs et deux postes ; chaque switch doit être configuré individuellement.",
+    "Indice 1 : sur chaque switch, créez le VLAN 10 nommé VLAN10 avant d’affecter les ports utilisateurs.",
+    "Indice 2 : Fa0/1 relie le poste local. Placez-le en mode access et affectez-le au VLAN 10.",
+    "Indice 3 : le lien inter-switch utilise Fa0/24. Configurez switchport mode trunk sur SW1 et SW2.",
+    "Solution de référence (à consulter en dernier) : SW1 => enable ; configure terminal ; vlan 10 ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; exit ; interface Fa0/24 ; switchport mode trunk ; end || SW2 => enable ; configure terminal ; vlan 10 ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; exit ; interface Fa0/24 ; switchport mode trunk ; end.",
+    "La validation vérifie le VLAN 10, l’affectation des deux ports d’accès et le mode trunk des deux côtés. Elle ne simule pas le trafic réel de niveau 2."
   ],
   "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-cli-vlan-trunk",
     "metadata": {
-      "name": "CLI — Trunk entre commutateurs",
+      "name": "VLAN 10 sur deux switches et deux postes",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
     },
     "nodes": [
       {
-        "id": "R1",
-        "type": "router",
-        "model": "generic-router",
+        "id": "SW2",
+        "type": "switch",
+        "model": "generic-switch",
         "x": 180,
         "y": 300,
-        "label": "R1",
+        "label": "SW2",
         "ports": [
           {
-            "id": "Gi0/0",
-            "name": "Gi0/0",
-            "state": "down",
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
             "speed": 1000,
-            "mode": "routed",
+            "mode": "down",
             "ip": null,
             "mask": null,
             "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Port d’accès disponible",
             "access_group_in": null,
             "access_group_out": null,
             "nat_role": null,
@@ -55,16 +60,16 @@
             "service_policy_out": null
           },
           {
-            "id": "Gi0/1",
-            "name": "Gi0/1",
-            "state": "down",
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
             "speed": 1000,
-            "mode": "routed",
+            "mode": "down",
             "ip": null,
             "mask": null,
             "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Lien trunk vers SW1",
             "access_group_in": null,
             "access_group_out": null,
             "nat_role": null,
@@ -75,7 +80,7 @@
           }
         ],
         "config": {
-          "hostname": "R1",
+          "hostname": "SW2",
           "vlans": [],
           "routes": [],
           "ospf": {
@@ -89,7 +94,8 @@
             "dns": null,
             "nat": null
           },
-          "protocols": {}
+          "protocols": {},
+          "workloads": {}
         },
         "runtime": {
           "arp_table": [],
@@ -108,7 +114,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -127,7 +133,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -178,14 +184,14 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
-            "ip": null,
-            "mask": null,
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
             "ipv6": null,
-            "vlan": null,
-            "description": "",
+            "vlan": 10,
+            "description": "Client in VLAN 10",
             "access_group_in": null,
             "access_group_out": null,
             "nat_role": null,
@@ -217,20 +223,65 @@
           "mac_table": [],
           "routing_table": []
         }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 850,
+        "y": 100,
+        "label": "PC2",
+        "ports": [
+          {
+            "id": "Fa0",
+            "name": "Fa0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": "192.168.10.20",
+            "mask": "255.255.255.0",
+            "vlan": 10,
+            "description": "Second client in VLAN 10"
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
       }
     ],
     "links": [
       {
-        "id": "L-R1-SW1",
+        "id": "L-SW2-SW1",
         "from": {
-          "node": "R1",
-          "port": "Gi0/0"
+          "node": "SW2",
+          "port": "Fa0/24"
         },
         "to": {
           "node": "SW1",
           "port": "Fa0/24"
         },
-        "cable_type": "copper_straight",
+        "cable_type": "copper_crossover",
         "state": "up",
         "bandwidth": 1000,
         "latency_ms": 1
@@ -244,6 +295,21 @@
         "to": {
           "node": "PC1",
           "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-PC2-SW2",
+        "from": {
+          "node": "PC2",
+          "port": "Fa0"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/1"
         },
         "cable_type": "copper_straight",
         "state": "up",
@@ -283,7 +349,7 @@
     "rules": [
       {
         "id": "vlan10",
-        "description": "Contrôle serveur : vlan10 doit être conforme.",
+        "description": "Le VLAN 10 est créé et nommé VLAN10 sur SW1.",
         "device": "SW1",
         "path": "config.vlans",
         "operator": "contains",
@@ -294,11 +360,62 @@
       },
       {
         "id": "trunk_mode",
-        "description": "Contrôle serveur : trunk mode doit être conforme.",
+        "description": "Fa0/24 de SW1 est configuré en mode trunk.",
         "device": "SW1",
         "path": "ports[1].mode",
         "operator": "equals",
         "expected": "trunk"
+      },
+      {
+        "id": "sw2_vlan10",
+        "description": "Le VLAN 10 est créé et nommé VLAN10 sur SW2.",
+        "device": "SW2",
+        "path": "config.vlans",
+        "operator": "contains",
+        "expected": {
+          "id": 10,
+          "name": "VLAN10"
+        }
+      },
+      {
+        "id": "sw2_trunk_mode",
+        "description": "Fa0/24 de SW2 est configuré en mode trunk.",
+        "device": "SW2",
+        "path": "ports[1].mode",
+        "operator": "equals",
+        "expected": "trunk"
+      },
+      {
+        "id": "sw1_access_mode",
+        "description": "Fa0/1 de SW1 est configuré en mode access.",
+        "device": "SW1",
+        "path": "ports[0].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "sw1_access_vlan",
+        "description": "Fa0/1 de SW1 appartient au VLAN 10.",
+        "device": "SW1",
+        "path": "ports[0].vlan",
+        "operator": "equals",
+        "expected": 10
+      },
+      {
+        "id": "sw2_access_mode",
+        "description": "Fa0/1 de SW2 est configuré en mode access.",
+        "device": "SW2",
+        "path": "ports[0].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "sw2_access_vlan",
+        "description": "Fa0/1 de SW2 appartient au VLAN 10.",
+        "device": "SW2",
+        "path": "ports[0].vlan",
+        "operator": "equals",
+        "expected": 10
       }
     ],
     "pass_threshold": 1,

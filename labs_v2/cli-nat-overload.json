@@ -6,7 +6,7 @@
   "module": "Routage et services",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Définissez l’ACL 1 pour 10.10.0.0/16, marquez Gi0/0 comme inside et Gi0/1 comme outside, puis configurez la surcharge NAT via Gi0/1.",
+  "prompt": "Contexte : les postes du réseau privé 10.10.0.0/16 doivent partager l’adresse de l’interface publique de R1 pour sortir vers l’amont. Sur R1, créez l’ACL 1 qui identifie le réseau privé, marquez Gi0/0 comme interface NAT inside et Gi0/1 comme NAT outside, puis activez la surcharge avec l’interface externe. Ce laboratoire vérifie la configuration NAT locale ; il ne simule pas une traduction de paquets ni la connectivité Internet.",
   "objectives": [
     "Exécuter puis vérifier : access-list 1 permit 10.10.0.0 0.0.255.255",
     "Exécuter puis vérifier : interface Gi0/0",
@@ -17,180 +17,43 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; access-list 1 permit 10.10.0.0 0.0.255.255 ; interface Gi0/0 ; ip nat inside ; exit ; interface Gi0/1 ; ip nat outside ; exit ; ip nat inside source list 1 interface Gi0/1 overload ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : l’ACL doit sélectionner le réseau source privé avec le wildcard 0.0.255.255.",
+    "Indice 2 : les rôles inside/outside se configurent dans le mode de chaque interface. La règle overload référence l’ACL et l’interface outside.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; access-list 1 permit 10.10.0.0 0.0.255.255 ; interface Gi0/0 ; ip nat inside ; exit ; interface Gi0/1 ; ip nat outside ; exit ; ip nat inside source list 1 interface Gi0/1 overload ; end.",
+    "La validation contrôle la sélection des sources, les deux rôles d’interface et l’objet NAT overload enregistré."
   ],
   "initial_topology": {
     "schema_version": 2,
     "topology_id": "topo-cli-nat-overload",
     "metadata": {
-      "name": "CLI — NAT overload avec ACL source",
+      "name": "NAT overload : LAN privé et sortie WAN",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
     },
     "nodes": [
       {
-        "id": "R1",
-        "type": "router",
-        "model": "generic-router",
-        "x": 180,
-        "y": 300,
-        "label": "R1",
-        "ports": [
-          {
-            "id": "Gi0/0",
-            "name": "Gi0/0",
-            "state": "down",
-            "speed": 1000,
-            "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
-          },
-          {
-            "id": "Gi0/1",
-            "name": "Gi0/1",
-            "state": "down",
-            "speed": 1000,
-            "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
-          }
-        ],
-        "config": {
-          "hostname": "R1",
-          "vlans": [],
-          "routes": [],
-          "ospf": {
-            "enabled": false,
-            "router_id": "",
-            "areas": []
-          },
-          "acls": [],
-          "services": {
-            "dhcp": null,
-            "dns": null,
-            "nat": null
-          },
-          "protocols": {}
-        },
-        "runtime": {
-          "arp_table": [],
-          "mac_table": [],
-          "routing_table": []
-        }
-      },
-      {
-        "id": "SW1",
-        "type": "switch",
-        "model": "generic-2960",
-        "x": 520,
-        "y": 300,
-        "label": "SW1",
-        "ports": [
-          {
-            "id": "Fa0/1",
-            "name": "Fa0/1",
-            "state": "down",
-            "speed": 1000,
-            "mode": "down",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
-          },
-          {
-            "id": "Fa0/24",
-            "name": "Fa0/24",
-            "state": "down",
-            "speed": 1000,
-            "mode": "down",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
-            "access_group_in": null,
-            "access_group_out": null,
-            "nat_role": null,
-            "hsrp": [],
-            "spanning_tree": {},
-            "port_security": {},
-            "service_policy_out": null
-          }
-        ],
-        "config": {
-          "hostname": "SW1",
-          "vlans": [],
-          "routes": [],
-          "ospf": {
-            "enabled": false,
-            "router_id": "",
-            "areas": []
-          },
-          "acls": [],
-          "services": {
-            "dhcp": null,
-            "dns": null,
-            "nat": null
-          },
-          "protocols": {}
-        },
-        "runtime": {
-          "arp_table": [],
-          "mac_table": [],
-          "routing_table": []
-        }
-      },
-      {
         "id": "PC1",
         "type": "pc",
         "model": "generic-pc",
-        "x": 850,
-        "y": 90,
+        "x": 100,
+        "y": 250,
         "label": "PC1",
         "ports": [
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "10.10.1.10",
+            "mask": "255.255.0.0",
             "vlan": null,
-            "description": "",
+            "description": "Client du réseau privé",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -213,6 +76,206 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "generic-2960",
+        "x": 350,
+        "y": 250,
+        "label": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Vers PC1",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "Vers l’interface inside de R1",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "R1",
+        "type": "router",
+        "model": "generic-1841",
+        "x": 620,
+        "y": 250,
+        "label": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.0.1",
+            "mask": "255.255.0.0",
+            "vlan": null,
+            "description": "Inside : LAN privé",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Outside : liaison WAN simulée",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "ISP",
+        "type": "router",
+        "model": "generic-1841",
+        "x": 910,
+        "y": 250,
+        "label": "Routeur amont",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "Prochain saut WAN",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "ISP",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -224,14 +287,14 @@
     ],
     "links": [
       {
-        "id": "L-R1-SW1",
+        "id": "L-PC1-SW1",
         "from": {
-          "node": "R1",
-          "port": "Gi0/0"
+          "node": "PC1",
+          "port": "eth0"
         },
         "to": {
           "node": "SW1",
-          "port": "Fa0/24"
+          "port": "Fa0/1"
         },
         "cable_type": "copper_straight",
         "state": "up",
@@ -239,14 +302,29 @@
         "latency_ms": 1
       },
       {
-        "id": "L-SW1-PC1",
+        "id": "L-SW1-R1",
         "from": {
           "node": "SW1",
-          "port": "Fa0/1"
+          "port": "Fa0/24"
         },
         "to": {
-          "node": "PC1",
-          "port": "eth0"
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-R1-ISP",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "ISP",
+          "port": "Fa0/0"
         },
         "cable_type": "copper_straight",
         "state": "up",
@@ -286,7 +364,7 @@
     "rules": [
       {
         "id": "nat_inside",
-        "description": "Contrôle serveur : nat inside doit être conforme.",
+        "description": "Gi0/0 est marqué NAT inside.",
         "device": "R1",
         "path": "ports[0].nat_role",
         "operator": "equals",
@@ -294,7 +372,7 @@
       },
       {
         "id": "nat_outside",
-        "description": "Contrôle serveur : nat outside doit être conforme.",
+        "description": "Gi0/1 est marqué NAT outside.",
         "device": "R1",
         "path": "ports[1].nat_role",
         "operator": "equals",
@@ -302,7 +380,7 @@
       },
       {
         "id": "nat_overload",
-        "description": "Contrôle serveur : nat overload doit être conforme.",
+        "description": "La surcharge NAT référence l’ACL 1 et l’interface outside Gi0/1.",
         "device": "R1",
         "path": "config.protocols.nat",
         "operator": "equals",
