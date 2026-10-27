@@ -4,7 +4,7 @@ on:
   push:
     branches: ["feature/lab-workspace"]
   pull_request:
-    branches: ["main", "feature/lab-workspace"]
+    branches: ["main", "feature/lab-workspace", "security/site-hardening-20261027"]
 
 permissions:
   contents: read

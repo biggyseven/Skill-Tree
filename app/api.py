@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request
-from fastapi.responses import PlainTextResponse, StreamingResponse, FileResponse, Response
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse, StreamingResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 
@@ -30,6 +30,18 @@ try:
 except ImportError:
     load_dotenv = None
 
+from .auth import (
+    AUTH_COOKIE_NAME,
+    AUTH_SESSION_TTL_SECONDS,
+    auth_configuration_ready,
+    auth_required,
+    clear_login_failures,
+    create_session_token,
+    login_is_limited,
+    record_failed_login,
+    verify_password,
+    verify_session_token,
+)
 from .db import (
     DEFAULT_DB, XP_REWARDS, add_xp, award_attempt_xp, connect, ensure_ready,
     get_user_stats, touch_daily_streak, streak_days,
@@ -81,6 +93,9 @@ DIAGNOSTIC_FAST_BONUS_XP = 50
 
 class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
+
+class AuthLoginRequest(BaseModel):
+    password: str = Field(min_length=1, max_length=1024)
 
 
 class SpeechRequest(BaseModel):
@@ -202,6 +217,180 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
+
+_AUTH_EXEMPT_PATHS = {
+    "/api/auth/status",
+    "/api/auth/login",
+    "/api/auth/logout",
+    "/openapi.json",
+    "/docs",
+    "/docs/oauth2-redirect",
+    "/redoc",
+}
+_AUTH_GATED_PAGES = {"/", "/index.html", "/lab.html"}
+
+
+def _same_origin_request(request: Request) -> bool:
+    """Reject browser state-changing requests whose Origin does not match this host."""
+    origin = request.headers.get("origin")
+    if not origin:
+        return True
+    try:
+        parsed = urlsplit(origin)
+    except ValueError:
+        return False
+    return (
+        parsed.scheme in {"http", "https"}
+        and bool(parsed.netloc)
+        and parsed.netloc.lower() == request.url.netloc.lower()
+        and parsed.path in {"", "/"}
+        and not parsed.query
+        and not parsed.fragment
+    )
+
+
+@app.middleware("http")
+async def enforce_site_authentication(request: Request, call_next):
+    """Protect the single-owner application's data API when auth is required."""
+    if not auth_required():
+        return await call_next(request)
+
+    path = request.url.path
+    if (
+        request.method in {"POST", "PUT", "PATCH", "DELETE"}
+        and path in {"/api/auth/login", "/api/auth/logout"}
+        and not _same_origin_request(request)
+    ):
+        return JSONResponse(
+            status_code=403,
+            content={"detail": "Origine de requête refusée."},
+            headers={"Cache-Control": "no-store"},
+        )
+    if path == "/login.html" or path in _AUTH_EXEMPT_PATHS:
+        return await call_next(request)
+
+    configured = auth_configuration_ready()
+    authenticated = configured and verify_session_token(
+        request.cookies.get(AUTH_COOKIE_NAME)
+    )
+
+    is_gated_page = (
+        path in _AUTH_GATED_PAGES
+        or (path.lower().endswith(".html") and path != "/login.html")
+    )
+    if is_gated_page and not authenticated:
+        return RedirectResponse(url="/login.html", status_code=303)
+
+    if path.startswith("/api/"):
+        if not configured:
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "detail": (
+                        "Authentification non configurée. Configure SKILLTREE_AUTH_PASSWORD_HASH "
+                        "et SKILLTREE_AUTH_SECRET avant d'ouvrir l'application."
+                    )
+                },
+                headers={"Cache-Control": "no-store"},
+            )
+        if not authenticated:
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Connexion requise."},
+                headers={"Cache-Control": "no-store"},
+            )
+        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+            if not _same_origin_request(request):
+                return JSONResponse(
+                    status_code=403,
+                    content={"detail": "Origine de requête refusée."},
+                    headers={"Cache-Control": "no-store"},
+                )
+
+    return await call_next(request)
+
+
+@app.get("/api/auth/status")
+def auth_status(request: Request, response: Response) -> dict[str, Any]:
+    """Expose only non-sensitive auth state so the login page can render correctly."""
+    required = auth_required()
+    configured = auth_configuration_ready()
+    response.headers["Cache-Control"] = "no-store, private, max-age=0"
+    return {
+        "required": required,
+        "configured": configured,
+        "authenticated": (
+            not required
+            or (
+                configured
+                and verify_session_token(request.cookies.get(AUTH_COOKIE_NAME))
+            )
+        ),
+    }
+
+
+@app.post("/api/auth/login")
+def auth_login(payload: AuthLoginRequest, request: Request) -> Response:
+    if not auth_required():
+        return JSONResponse(
+            {"success": True, "required": False, "authenticated": True},
+            headers={"Cache-Control": "no-store"},
+        )
+    if not auth_configuration_ready():
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Connexion indisponible : configure le hash de mot de passe et le secret "
+                "de session dans les variables d'environnement du serveur."
+            ),
+            headers={"Cache-Control": "no-store"},
+        )
+
+    client_key = request.client.host if request.client else "unknown"
+    if login_is_limited(client_key):
+        raise HTTPException(
+            status_code=429,
+            detail="Trop de tentatives de connexion. Réessaie dans 15 minutes.",
+            headers={"Retry-After": "900", "Cache-Control": "no-store"},
+        )
+    if not verify_password(payload.password):
+        record_failed_login(client_key)
+        raise HTTPException(
+            status_code=401,
+            detail="Mot de passe incorrect.",
+            headers={"Cache-Control": "no-store"},
+        )
+
+    clear_login_failures(client_key)
+    token = create_session_token()
+    response = JSONResponse(
+        {"success": True, "required": True, "authenticated": True},
+        headers={"Cache-Control": "no-store"},
+    )
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=token,
+        max_age=AUTH_SESSION_TTL_SECONDS,
+        httponly=True,
+        secure=bool(os.environ.get("RENDER_SERVICE_ID")) or request.url.scheme == "https",
+        samesite="strict",
+        path="/",
+    )
+    return response
+
+
+@app.post("/api/auth/logout")
+def auth_logout(request: Request) -> Response:
+    response = Response(status_code=204, headers={"Cache-Control": "no-store"})
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME,
+        path="/",
+        httponly=True,
+        secure=bool(os.environ.get("RENDER_SERVICE_ID")) or request.url.scheme == "https",
+        samesite="strict",
+    )
+    return response
 
 
 @app.middleware("http")
@@ -1904,6 +2093,29 @@ def buy_item(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
 
 @app.websocket("/api/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    if auth_required():
+        if not auth_configuration_ready():
+            await websocket.close(code=1013, reason="Authentification non configurée.")
+            return
+        origin = websocket.headers.get("origin")
+        if origin:
+            try:
+                parsed_origin = urlsplit(origin)
+            except ValueError:
+                parsed_origin = None
+            if (
+                parsed_origin is None
+                or parsed_origin.scheme not in {"http", "https"}
+                or parsed_origin.netloc.lower() != websocket.url.netloc.lower()
+                or parsed_origin.path not in {"", "/"}
+                or parsed_origin.query
+                or parsed_origin.fragment
+            ):
+                await websocket.close(code=4403, reason="Origine de connexion refusée.")
+                return
+        if not verify_session_token(websocket.cookies.get(AUTH_COOKIE_NAME)):
+            await websocket.close(code=4401, reason="Connexion requise.")
+            return
     await manager.connect(websocket)
     try:
         while True:

@@ -8120,6 +8120,60 @@
     <span class="text-sm font-semibold text-white">Nouveau contenu synchronisé !</span>
   </div>
 
+<!-- Session privée : redirige en cas de session expirée et expose une déconnexion explicite. -->
+<script id="skilltree-auth-session-ui">
+(() => {
+  const authEndpoints = new Set(['/api/auth/status', '/api/auth/login', '/api/auth/logout']);
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = async (...args) => {
+    const response = await nativeFetch(...args);
+    try {
+      const raw = args[0];
+      const requestUrl = new URL(typeof raw === 'string' ? raw : raw.url, window.location.href);
+      if (
+        response.status === 401 &&
+        requestUrl.origin === window.location.origin &&
+        requestUrl.pathname.startsWith('/api/') &&
+        !authEndpoints.has(requestUrl.pathname)
+      ) {
+        window.location.replace('/login.html');
+      }
+    } catch (_) {}
+    return response;
+  };
+
+  nativeFetch('/api/auth/status', { cache: 'no-store', credentials: 'same-origin' })
+    .then(response => response.ok ? response.json() : null)
+    .then(status => {
+      if (!status || !status.required) return;
+      if (!status.authenticated) {
+        window.location.replace('/login.html');
+        return;
+      }
+      const logout = document.createElement('button');
+      logout.type = 'button';
+      logout.textContent = 'Déconnexion';
+      logout.setAttribute('aria-label', 'Déconnexion de Skill-Tree');
+      logout.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:100000;padding:10px 14px;border:1px solid #64748b;border-radius:999px;background:#0f172a;color:#f8fafc;font:600 13px system-ui;box-shadow:0 8px 30px #0004;cursor:pointer';
+      logout.addEventListener('click', async () => {
+        logout.disabled = true;
+        try {
+          await nativeFetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+            cache: 'no-store'
+          });
+        } finally {
+          window.location.replace('/login.html');
+        }
+      });
+      document.body.appendChild(logout);
+    })
+    .catch(() => {});
+})();
+</script>
+
 <!-- Le bouton global ouvre le Lab Workspace autonome ; les cartes de labs peuvent ouvrir un scénario lié à un cours. -->
 </body>
 </html>

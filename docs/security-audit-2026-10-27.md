@@ -4,13 +4,14 @@
 
 Analyse statique du code de `feature/lab-workspace`, des workflows GitHub Actions et des métadonnées Render disponibles en lecture seule. Le service Render de production pointe sur cette branche et déploie automatiquement les commits qui y arrivent. Les tests HTTP externes directs n'ont pas pu être réalisés depuis l'environnement d'audit : ce document ne constitue donc pas un test d'intrusion ni une certification de sécurité.
 
-## Corrections incluses dans cette PR
+## Corrections incluses dans la PR de base
 
 - **CORS :** suppression de l'origine universelle et des identifiants CORS. La liste `SKILLTREE_CORS_ORIGINS` est vide par défaut (l'interface hébergée sur la même origine continue de fonctionner), n'accepte que des origines HTTP(S) explicites et ne prend pas en charge `*`. Les méthodes et en-têtes CORS sont limités.
 - **En-têtes HTTP :** ajout de `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` et `Permissions-Policy`. La CSP n'est pas imposée dans cette PR : l'interface actuelle repose sur des scripts inline et une politique trop stricte pourrait casser le site. Une CSP avec nonces ou hashes doit être planifiée séparément.
 - **GitHub Actions :** les vérifications Python et frontend des PR utilisent maintenant un jeton en lecture seule. La publication du bundle statique est déplacée dans un workflow distinct déclenché uniquement par un push sur `feature/lab-workspace`; le droit d'écriture est limité au job de publication.
 - **Ancien moteur Docker :** les trois endpoints legacy qui démarrent/exécutent/valident un shell de laboratoire renvoient désormais 503 tant que `SKILLTREE_ENABLE_LEGACY_DOCKER_LABS` n'est pas explicitement activé. L'option est documentée comme réservée aux environnements de confiance.
 - **Dépendances :** ajout d'un audit automatisé avec `pip-audit` et de mises à jour Dependabot hebdomadaires pour Python et GitHub Actions.
+- **Authentification propriétaire unique :** une PR empilée ajoute une page de connexion et un cookie de session signé qui verrouillent les pages et routes `/api/*` sur Render. Elle reste distincte de cette PR de base et doit être fusionnée après configuration des deux secrets Render. Cette mesure ne crée pas encore de comptes séparés ni d'isolation multi-utilisateur ; voir `docs/site-authentication.md`.
 - **Fichiers de base de données :** les copies SQLite de test/sauvegarde ne doivent pas faire partie du dépôt public. Cette PR les retire de l'arbre courant et renforce `.gitignore`. Cette suppression ne les efface pas des commits historiques.
 
 ## Constats nécessitant un chantier dédié
