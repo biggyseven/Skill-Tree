@@ -69,17 +69,6 @@
       "explanation": "FE80::/10 identifie les adresses link-local, utilisables sur le lien local et non routées comme des adresses globales."
     },
     {
-      "prompt": "Quel message permet notamment à un routeur IPv6 d'annoncer un préfixe et sa présence comme routeur par défaut ?",
-      "choices": [
-        "Router Advertisement (RA)",
-        "Neighbor Advertisement (NA) uniquement",
-        "ICMP Echo Reply",
-        "DHCPv6 Reply uniquement"
-      ],
-      "answer": 0,
-      "explanation": "Les Router Advertisements annoncent les paramètres du lien et permettent aux hôtes d'apprendre les routeurs par défaut."
-    },
-    {
       "prompt": "Dans un Router Advertisement, que signifie le drapeau M lorsqu'il vaut 1 ?",
       "choices": [
         "Le routeur impose le NAT66",
