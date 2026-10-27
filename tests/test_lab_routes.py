@@ -218,6 +218,19 @@ class LabValidationTests(unittest.TestCase):
             "firewall-debutant",
             "secu-l2-intermediaire",
             "reseau-linux-intermediaire",
+            "nat-debutant",
+            "ipv6-intermediaire",
+            "stp-intermediaire",
+            "stp-expert",
+            "bgp-intermediaire",
+            "bgp-expert",
+            "eigrp-intermediaire",
+            "eigrp-expert",
+            "dhcp-dns-intermediaire",
+            "dhcp-dns-expert",
+            "secu-l2-expert",
+            "zero-trust-intermediaire",
+            "zero-trust-expert",
         )
         for lab_id in scenario_ids:
             with self.subTest(lab_id=lab_id):
