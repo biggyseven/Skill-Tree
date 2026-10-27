@@ -1755,7 +1755,7 @@
         <template x-if="!exam">
           <div class="space-y-8">
             <div class="flex flex-wrap items-end justify-between gap-3">
-              <div><p class="eyebrow">Évaluation</p><h2 class="mt-1 text-2xl font-semibold text-white">Centre d'examens</h2><p class="mt-1 text-sm text-zinc-400">Examens construits à partir des cours de chaque module et de chaque niveau. Réussite à partir de <span class="text-white" x-text="70"></span> %.</p></div>
+              <div><p class="eyebrow">Évaluation</p><h2 class="mt-1 text-2xl font-semibold text-white">Centre d'examens</h2><p class="mt-1 text-sm text-zinc-400">Examens construits à partir des cours de chaque module et de chaque niveau. Réussite à partir de <span class="text-white" x-text="80"></span> %.</p></div>
             </div>
             <p x-show="examErr" class="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200" x-text="examErr"></p>
 
@@ -4764,26 +4764,48 @@
             table.replaceWith(fragment);
           });
 
-          readable.querySelectorAll('pre, code, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .lesson-diagram-toolbar, .lesson-diagram-guide, .code-header, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
+          // Préserver le code en ligne (commandes, options et protocoles), mais retirer les blocs de code.
+          readable.querySelectorAll('code').forEach(code => {
+            if (code.closest('pre')) return;
+            code.replaceWith(readable.ownerDocument.createTextNode(code.textContent || ''));
+          });
+          readable.querySelectorAll('pre, kbd, samp, svg, table, img, button, details, video, audio, script, style, nav, aside, .lesson-toc-panel, .lesson-diagram-toolbar, .lesson-diagram-guide, .code-header, .no-speech, [aria-label*="sommaire" i]').forEach(element => element.remove());
 
           // Certains cours contiennent leur propre sommaire Markdown. Ne pas le réciter comme un paragraphe :
           // on retire uniquement les listes composées exclusivement de liens internes vers des titres.
-          const courseHeadingIds = new Set(Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(heading => heading.id).filter(Boolean));
-          readable.querySelectorAll('ul, ol').forEach(list => {
-            const items = Array.from(list.children).filter(item => item.tagName === 'LI');
-            if (!items.length) return;
-            const isContentsList = items.every(item => {
-              const links = Array.from(item.querySelectorAll('a'));
+          const courseHeadings = Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+          const courseHeadingIds = new Set(courseHeadings.map(heading => heading.id).filter(Boolean));
+          // Reconnaître aussi les sommaires imbriqués : les liens d'une sous-liste
+          // ne doivent pas faire passer le sommaire complet pour une liste pédagogique.
+          const isContentsList = list => {
+            const items = Array.from(list.children);
+            if (!items.length || items.some(item => item.tagName !== 'LI')) return false;
+            return items.every(item => {
+              const children = Array.from(item.children);
+              const nestedLists = children.filter(child => child.tagName === 'UL' || child.tagName === 'OL');
+              const directLinks = children.filter(child => child.tagName === 'A');
+              const wrappedLinks = children
+                .filter(child => child.tagName === 'P')
+                .flatMap(paragraph => Array.from(paragraph.children).filter(child => child.tagName === 'A'));
+              const links = directLinks.length ? directLinks : wrappedLinks;
               if (links.length !== 1) return false;
-              const href = links[0].getAttribute('href') || '';
+              const link = links[0];
+              const href = link.getAttribute('href') || '';
               if (!href.startsWith('#')) return false;
-              const label = links[0].textContent.trim();
-              return courseHeadingIds.has(href.slice(1)) || Array.from(readable.querySelectorAll('h1, h2, h3, h4, h5, h6')).some(heading => heading.textContent.trim() === label);
+              const label = link.textContent.trim();
+              const pointsToHeading = courseHeadingIds.has(href.slice(1))
+                || courseHeadings.some(heading => heading.textContent.trim() === label);
+              if (!pointsToHeading || !nestedLists.every(isContentsList)) return false;
+              const remainder = item.cloneNode(true);
+              remainder.querySelectorAll('a, ul, ol').forEach(node => node.remove());
+              return !remainder.textContent.trim();
             });
-            if (!isContentsList) return;
+          };
+          readable.querySelectorAll('ul, ol').forEach(list => {
+            if (!isContentsList(list)) return;
             const heading = list.previousElementSibling;
             list.remove();
-            if (heading && /^H[1-6]$/.test(heading.tagName) && /^(sommaire|table des matières|table des matieres|plan du cours)$/iu.test(heading.textContent.trim())) heading.remove();
+            if (heading && /^H[1-6]$/.test(heading.tagName) && /^(?:sommaire(?: du (?:cours|module|chapitre))?|table des matières(?: du cours)?|table des matieres(?: du cours)?|plan du cours)$/iu.test(heading.textContent.trim())) heading.remove();
           });
 
           // Préserver les signes de ponctuation du cours et ne jamais inventer de ponctuation à la fin d'un bloc.
@@ -4817,7 +4839,8 @@
             if (!title) return;
             const label = depth === 1 ? 'Titre du cours' : (depth === 2 ? 'Section' : 'Sous-section');
             const spokenHeading = readable.ownerDocument.createElement('p');
-            spokenHeading.textContent = label + ' : ' + title.replace(/[.!?…:;]+$/u, '') + '.';
+            const spokenTitle = /[.!?…;:]$/u.test(title) ? title : title + '.';
+            spokenHeading.textContent = label + ' : ' + spokenTitle;
             heading.replaceWith(spokenHeading);
           });
 
@@ -4834,9 +4857,8 @@
 
             // À l'oral, les flèches d'un parcours expriment une progression, pas un symbole à lire.
             value = value.replace(/\s*→\s*/gu, ', puis ').replace(/[ \t]+/gu, ' ').trim();
-            value = value.replace(/[,:;]+\s*$/u, '').trim();
             value = value.replace(/^([a-zà-ÿ])/u, letter => letter.toLocaleUpperCase('fr-FR'));
-            if (!/[.!?…]$/u.test(value)) value += '.';
+            if (!/[.!?…,:;]$/u.test(value)) value += '.';
 
             const spokenLabel = readable.ownerDocument.createElement('p');
             spokenLabel.textContent = label + '.';
@@ -4861,6 +4883,100 @@
             .replace(/\n{3,}/g, '\n\n')
             .trim();
         },
+        prepareSpeechText(text, kind = 'lesson') {
+          let normalized = String(text || '')
+            .normalize('NFC')
+            .replace(/\u200B|\uFEFF/gu, '')
+            .replace(/\r\n?/gu, '\n')
+            .replace(/[ \t]+\n/gu, '\n')
+            .replace(/\n{3,}/gu, '\n\n')
+            .trim();
+          if (!normalized) return '';
+
+          if (kind === 'lesson') {
+            let sectionIndex = 0;
+            let subsectionIndex = 0;
+            const sectionOpeners = [
+              'Commençons par la partie ',
+              'Passons ensuite à la partie ',
+              'Voyons maintenant la partie ',
+              'Abordons à présent la partie ',
+              'Intéressons-nous maintenant à la partie ',
+            ];
+            const subsectionOpeners = [
+              'Regardons de plus près ',
+              'Voyons maintenant ',
+              'Précisons un peu mieux ',
+              'Pour aller plus loin, examinons ',
+            ];
+            normalized = normalized.split(/\n{2,}/gu).map(paragraph => {
+              const value = paragraph.trim();
+              const stripEnding = source => String(source || '').trim().replace(/[.:;]+$/gu, '').trim();
+              let match = value.match(/^Titre du cours\s*:\s*([\s\S]+)$/iu);
+              if (match) return 'Bienvenue dans ce cours consacré à « ' + stripEnding(match[1]) + ' ».';
+              match = value.match(/^Section\s*:\s*([\s\S]+)$/iu);
+              if (match) {
+                const opener = sectionOpeners[sectionIndex % sectionOpeners.length];
+                sectionIndex += 1;
+                return opener + '« ' + stripEnding(match[1]) + ' ».';
+              }
+              match = value.match(/^Sous-section\s*:\s*([\s\S]+)$/iu);
+              if (match) {
+                const opener = subsectionOpeners[subsectionIndex % subsectionOpeners.length];
+                subsectionIndex += 1;
+                return opener + '« ' + stripEnding(match[1]) + ' ».';
+              }
+              match = value.match(/^Tableau\s*:\s*([\s\S]+)$/iu);
+              if (match) return 'Voici un tableau intitulé « ' + stripEnding(match[1]) + ' ».';
+              if (/^Tableau textuel\.?$/iu.test(value)) return 'Voici le tableau présenté sous forme de texte.';
+              if (/^Schéma textuel\./iu.test(value)) return value.replace(/^Schéma textuel\./iu, 'Suivons le parcours représenté.');
+              if (/^Suivons le parcours représenté\./iu.test(value)) return value.replace(/^Suivons le parcours représenté\./iu, 'Suivons maintenant le parcours représenté.');
+              return value;
+            }).join('\n\n');
+          }
+
+          const pronunciationRules = [
+            [/\bIPv4\b/giu, 'I P version 4'],
+            [/\bIPv6\b/giu, 'I P version 6'],
+            [/\bIPsec\b/giu, 'I P sec'],
+            [/\bHTTPS\b/giu, 'H T T P S'],
+            [/\bHTTP\b/giu, 'H T T P'],
+            [/\bDHCP\b/giu, 'D H C P'],
+            [/\bDNS\b/giu, 'D N S'],
+            [/\bTCP\b/giu, 'T C P'],
+            [/\bUDP\b/giu, 'U D P'],
+            [/\bSSH\b/giu, 'S S H'],
+            [/\bSQL\b/giu, 'S Q L'],
+            [/\bAPI\b/giu, 'A P I'],
+            [/\bVPN\b/giu, 'V P N'],
+            [/\bBGP\b/giu, 'B G P'],
+            [/\bOSPF\b/giu, 'O S P F'],
+            [/\bMPLS\b/giu, 'M P L S'],
+            [/\bNAT\b/giu, 'N A T'],
+            [/\bACL\b/giu, 'A C L'],
+            [/\bURL\b/giu, 'U R L'],
+          ];
+          pronunciationRules.forEach(([pattern, spoken]) => {
+            normalized = normalized.replace(pattern, spoken);
+          });
+          normalized = normalized
+            .replace(/\b(?:p\.\s*ex\.?|par ex\.)\s*/giu, 'par exemple ')
+            .replace(/\bc\.\s*-?\s*à\s*-?\s*d\.\b/giu, 'c’est-à-dire')
+            .replace(/\betc\./giu, 'et cetera')
+            .replace(/(\d{1,3}\.){3}\d{1,3}\b/gu, address => address.split('.').join(' point '))
+            .replace(/\b(\d+(?:[,.]\d+)?)\s*%/gu, '$1 pour cent')
+            .replace(/\b(\d+)\s*ms\b/giu, (_, value) => value + (Number(value) > 1 ? ' millisecondes' : ' milliseconde'))
+            .replace(/\s*≥\s*/gu, ' est supérieur ou égal à ')
+            .replace(/\s*≤\s*/gu, ' est inférieur ou égal à ')
+            .replace(/\s*≠\s*/gu, ' est différent de ')
+            .replace(/\s*≈\s*/gu, ' est approximativement égal à ')
+            .replace(/\s*&\s*/gu, ' et ')
+            .replace(/[ \t]+/gu, ' ')
+            .replace(/\n[ \t]+/gu, '\n')
+            .replace(/\n{3,}/gu, '\n\n')
+            .trim();
+          return normalized;
+        },
         splitSpeechText(text, maxLength = 1800) {
           const normalized = String(text || '')
             .replace(/\r\n?/g, '\n')
@@ -4870,7 +4986,12 @@
             .trim();
           if (!normalized) return [];
 
-          const paragraphs = normalized.split(/\n{2,}/).map(part => part.replace(/\n+/g, ' ').trim()).filter(Boolean);
+          const paragraphs = normalized.split(/\n{2,}/).map(part => {
+            const paragraph = part.replace(/\n+/g, ' ').trim();
+            if (!paragraph) return '';
+            // Un bloc ou élément de liste sans ponctuation finale doit quand même produire une pause nette.
+            return /[.!?…;:]$/u.test(paragraph) ? paragraph : paragraph + '.';
+          }).filter(Boolean);
           const chunks = [];
           const appendSentence = sentence => {
             const clean = String(sentence || '').replace(/\s+/g, ' ').trim();
@@ -4896,6 +5017,9 @@
             if (part) chunks.push(part);
           };
 
+          // Le blanc entre paragraphes devient une pause grâce à la ponctuation, sans lancer
+          // un nouvel appel audio à chaque bloc. Le groupe ne se réinitialise qu'en cas de longueur.
+          let group = '';
           for (const paragraph of paragraphs) {
             let sentences;
             if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
@@ -4905,9 +5029,6 @@
               // Le fallback conserve les points, interrogations, exclamations, points-virgules et deux-points.
               sentences = paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
             }
-            // Garder plusieurs phrases voisines dans un même segment audio pour une prosodie
-            // plus continue ; ne couper qu’aux limites de paragraphe ou lorsqu’un segment devient long.
-            let group = '';
             sentences.forEach(sentence => {
               const candidate = group ? group + ' ' + sentence : sentence;
               if (group && candidate.length > maxLength) {
@@ -4917,8 +5038,8 @@
                 group = candidate;
               }
             });
-            if (group) appendSentence(group);
           }
+          if (group) appendSentence(group);
           return chunks;
         },
         async loadSpeechChunk(index, runId) {
@@ -5119,7 +5240,7 @@
             return;
           }
           this.stopSpeech();
-          this.speechQueue = this.splitSpeechText(text);
+          this.speechQueue = this.splitSpeechText(this.prepareSpeechText(text, kind));
           if (!this.speechQueue.length) {
             this.speechError = 'Aucun texte disponible à partir de ce point. Choisis une autre section ou « Début du cours ».';
             this.notify(this.speechError);
@@ -6023,7 +6144,9 @@
           try {
             const response = await fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`);
             const payload = await response.json().catch(() => ({}));
-            const topologyNodes = payload?.definition?.initial_topology?.nodes;
+            const topologyNodes = payload?.initial_topology?.nodes?.length
+              ? payload.initial_topology.nodes
+              : payload?.definition?.initial_topology?.nodes;
             if (
               !response.ok ||
               payload.sandbox === true ||
@@ -6073,7 +6196,9 @@
               const labPayload = await response.json();
               // Un bac à sable générique ne remplace pas une consigne legacy déjà disponible.
               // Le workspace v2 n'est prioritaire que lorsqu'une vraie définition de lab existe.
-              const topologyNodes = labPayload.definition?.initial_topology?.nodes;
+              const topologyNodes = labPayload.initial_topology?.nodes?.length
+                ? labPayload.initial_topology.nodes
+                : labPayload.definition?.initial_topology?.nodes;
               if (
                 !labPayload.sandbox &&
                 Array.isArray(topologyNodes) &&

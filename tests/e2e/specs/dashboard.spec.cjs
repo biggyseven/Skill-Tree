@@ -802,6 +802,64 @@ Poste de secours</code></pre>
   expect(audioSegments).toEqual(['Première phrase. Deuxième phrase.']);
 });
 
+test('la lecture vocale conserve la ponctuation, ignore un sommaire imbriqué et garde le code en ligne', async ({ page }) => {
+  await openDashboard(page);
+  const narration = await page.evaluate(async () => {
+    const state = window.Alpine.$data(document.body);
+    await state.show('linux-expert');
+    state.startSectionSelection = '__top__';
+    const article = state.$refs.lessonArticle;
+    article.innerHTML = `
+      <h1 id="voice-punctuation-title">Pourquoi la ponctuation compte ?</h1>
+      <h2 id="voice-toc">Sommaire du cours</h2>
+      <ul>
+        <li><a href="#voice-question">Pourquoi TCP ?</a>
+          <ul><li><a href="#voice-warning">Attention !</a></li></ul>
+        </li>
+      </ul>
+      <p>Le cours conserve le nom <code>next-hop</code>, puis explique la commande <code>show ip route</code>; cette ponctuation reste utile.</p>
+      <h2 id="voice-question">Pourquoi TCP ?</h2>
+      <p>TCP transporte les données de manière fiable !</p>
+      <h3 id="voice-warning">Attention !</h3>
+      <p>La ponctuation reste intacte : vraiment ?</p>
+    `;
+    return state.speechTextFromArticle();
+  });
+
+  expect(narration).not.toContain('Sommaire du cours');
+  expect(narration.split('Pourquoi TCP ?').length - 1).toBe(1);
+  expect(narration.split('Attention !').length - 1).toBe(1);
+  expect(narration).toContain('Titre du cours : Pourquoi la ponctuation compte ?');
+  expect(narration).toContain('Section : Pourquoi TCP ?');
+  expect(narration).toContain('Sous-section : Attention !');
+  expect(narration).toContain('next-hop');
+  expect(narration).toContain('show ip route');
+  expect(narration).toContain('show ip route; cette ponctuation reste utile.');
+  expect(narration).toContain('La ponctuation reste intacte : vraiment ?');
+});
+
+test('la locution prépare les titres, les acronymes, les adresses IP et les pourcentages', async ({ page }) => {
+  await openDashboard(page);
+  const result = await page.evaluate(() => {
+    const state = window.Alpine.$data(document.body);
+    const polished = state.prepareSpeechText(
+      'Titre du cours : Comprendre DNS et HTTPS.\n\nSection : Cycle de requête.\n\nLe client envoie une requête HTTPS à l’API. Une adresse est 192.168.1.1 et la disponibilité est de 75%.'
+    );
+    return {
+      polished,
+      adjacentParagraphs: state.splitSpeechText('Première phrase.\n\nDeuxième phrase.', 1800),
+      bullets: state.splitSpeechText('Premier élément\n\nDeuxième élément.', 1800),
+    };
+  });
+  expect(result.polished).toContain('Bienvenue dans ce cours consacré à « Comprendre D N S et H T T P S ».');
+  expect(result.polished).toContain('Commençons par la partie « Cycle de requête ».');
+  expect(result.polished).toContain('une requête H T T P S à l’A P I');
+  expect(result.polished).toContain('192 point 168 point 1 point 1');
+  expect(result.polished).toContain('75 pour cent');
+  expect(result.adjacentParagraphs).toEqual(['Première phrase. Deuxième phrase.']);
+  expect(result.bullets).toEqual(['Premier élément. Deuxième élément.']);
+});
+
 test('le menu contextuel démarre la lecture vocale depuis la section visée', async ({ page }) => {
   await openDashboard(page);
 
@@ -824,8 +882,9 @@ test('le menu contextuel démarre la lecture vocale depuis la section visée', a
   const headingText = (await heading.innerText()).replace(/\s+/g, ' ').trim();
   const normalizedHeadingText = headingText
     .replace(/^\s*\d+(?:\.\d+)*[.)]?\s+/u, '')
-    .replace(/[.!?…:;]+$/u, '')
+    .replace(/[ \t]+/gu, ' ')
     .trim();
+  const expectedHeadingTitle = normalizedHeadingText.replace(/[.:;]+$/u, '').trim();
 
   // Garde le test indépendant du fournisseur audio et ne lance aucun flux réseau TTS.
   await page.evaluate(() => {
@@ -852,7 +911,7 @@ test('le menu contextuel démarre la lecture vocale depuis la section visée', a
   expect(speech.start).toBe(headingId);
   expect(speech.kind).toBe('lesson');
   expect(speech.status).toBe('starting');
-  expect(speech.text.startsWith('Section : ' + normalizedHeadingText + '.')).toBe(true);
+  expect(speech.text.startsWith('Commençons par la partie « ' + expectedHeadingTitle + ' ».')).toBe(true);
   await expect(page.getByRole('group', { name: 'Commandes flottantes de lecture vocale' })).toBeVisible();
 });
 
@@ -995,7 +1054,7 @@ test('le sélecteur Démarrer à fait aussi commencer la lecture à la section c
   const targetId = await targetHeading.getAttribute('id');
   const targetText = (await targetHeading.innerText()).replace(/\s+/g, ' ').trim()
     .replace(/^\s*\d+(?:\.\d+)*[.)]?\s+/u, '')
-    .replace(/[.!?…:;]+$/u, '')
+    .replace(/[.:;]+$/u, '')
     .trim();
 
   await page.evaluate(() => {
@@ -1010,7 +1069,7 @@ test('le sélecteur Démarrer à fait aussi commencer la lecture à la section c
   await page.getByRole('button', { name: 'Écouter le cours' }).click();
 
   const speechText = await page.evaluate(() => window.Alpine.$data(document.body).speechQueue.join(' '));
-  expect(speechText.startsWith('Section : ' + targetText + '.')).toBe(true);
+  expect(speechText.startsWith('Commençons par la partie « ' + targetText + ' ».')).toBe(true);
 });
 
 
@@ -1284,5 +1343,59 @@ test('le guide explique les ports bleus et gris et affiche le nom du port physiq
   await page.getByTestId('cable-item-cable_straight').click();
   await expect(guide).toContainText('Cuivre droit RJ45');
   await expect(guide).toContainText('Maintiens le clic sur le point bleu');
+});
+
+test('un lien openLab ouvre le Workspace quand la topologie est exposée à la racine de la réponse API', async ({ page }) => {
+  const labId = 'fixture-topology-root';
+  const initialTopology = {
+    schema_version: 2,
+    topology_id: labId,
+    metadata: { name: 'Scénario de test', author: 'test', created_at: '2026-01-01T00:00:00Z', mode: 'lab' },
+    nodes: [{
+      id: 'R1',
+      type: 'router',
+      model: 'Routeur de test',
+      x: 120,
+      y: 100,
+      label: 'R1',
+      hostname: 'R1',
+      ports: [{ id: 'Gi0/0', name: 'Gi0/0', state: 'up' }],
+      config: { hostname: 'R1' },
+    }],
+    links: [],
+    simulation: { state: 'idle', event_log: [] },
+  };
+
+  await page.route('**/api/lab/v2/fixture-topology-root', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      id: labId,
+      schema_version: 2,
+      definition: {
+        id: labId,
+        title: 'Scénario de test depuis un lien',
+        level: 'debutant',
+        module: 'Réseaux',
+        duration_min: 15,
+        difficulty: 'débutant',
+        prompt: 'Vérifier qu’un lien ouvre le Workspace.',
+        objectives: [],
+        hints: [],
+        xp_reward: 0,
+        badges: [],
+        check: { rules: [] },
+      },
+      initial_topology: initialTopology,
+    }),
+  }));
+
+  await page.goto('/?openLab=fixture-topology-root', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => {
+    const url = new URL(page.url());
+    return url.pathname + url.search;
+  }, { timeout: 45_000 }).toBe('/lab.html?id=fixture-topology-root');
+  await expect(page.getByText('Lab actif', { exact: true })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('heading', { name: 'Scénario de test depuis un lien', exact: true })).toBeVisible();
 });
 

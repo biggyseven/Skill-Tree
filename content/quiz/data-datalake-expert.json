@@ -1,0 +1,102 @@
+{
+  "node_id": "data-datalake-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un Data Lake organise-t-il souvent les données en zones brutes et préparées ?",
+      "choices": [
+        "Pour empêcher toute évolution de schéma",
+        "Pour séparer les données reçues des données validées, nettoyées ou prêtes à l’analyse",
+        "Pour garantir que toutes les données sont déjà fiables à l’ingestion",
+        "Pour supprimer le besoin de métadonnées"
+      ],
+      "answer": 1,
+      "explanation": "La séparation des zones conserve la provenance tout en permettant des règles de validation, de nettoyage et de publication progressives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’apporte une couche de tables de type Lakehouse au-delà de fichiers Parquet isolés ?",
+      "choices": [
+        "La suppression automatique des erreurs métier",
+        "La garantie qu’aucune gouvernance n’est nécessaire",
+        "Des métadonnées transactionnelles et des mécanismes de gestion des versions ou modifications cohérentes, selon la technologie",
+        "L’interdiction des formats ouverts"
+      ],
+      "answer": 2,
+      "explanation": "Les formats de table Lakehouse ajoutent généralement journalisation, snapshots et garanties transactionnelles au-dessus des fichiers d’objets, selon le moteur utilisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le principe de schema-on-read ?",
+      "choices": [
+        "La structure est interprétée ou appliquée lors de la lecture, plutôt qu’imposée entièrement à l’écriture initiale",
+        "Aucune structure ne peut jamais être définie",
+        "Tous les fichiers doivent être XML",
+        "Le stockage refuse les données semi-structurées"
+      ],
+      "answer": 0,
+      "explanation": "Schema-on-read offre de la flexibilité, mais les lecteurs doivent gérer les évolutions, les types incohérents et les données invalides."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le partition pruning dans un lac de données ?",
+      "choices": [
+        "À compresser toutes les données sans exception",
+        "À réduire le nombre de colonnes dans le catalogue",
+        "À restaurer un fichier supprimé",
+        "À éviter de lire les partitions qui ne peuvent pas correspondre aux filtres de la requête"
+      ],
+      "answer": 3,
+      "explanation": "Quand les filtres correspondent à la clé de partition, le moteur peut ignorer les répertoires ou fichiers hors périmètre et réduire les lectures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi Parquet est-il souvent utilisé pour l’analytique ?",
+      "choices": [
+        "C’est un format exclusivement textuel sans métadonnées",
+        "Son stockage colonnaire et ses métadonnées facilitent la lecture sélective de colonnes et certaines compressions",
+        "Il garantit à lui seul les transactions ACID",
+        "Il ne permet pas d’utiliser des types numériques"
+      ],
+      "answer": 1,
+      "explanation": "Parquet est un format colonnaire conçu pour l’analytique. Les garanties transactionnelles et la gestion de table relèvent d’autres couches."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème les petits fichiers très nombreux peuvent-ils créer dans un Data Lake ?",
+      "choices": [
+        "Ils empêchent toute compression",
+        "Ils garantissent un ralentissement uniquement du réseau local",
+        "Ils augmentent les coûts de métadonnées, d’ouverture et de planification des tâches",
+        "Ils suppriment automatiquement le partitionnement"
+      ],
+      "answer": 2,
+      "explanation": "Une surabondance de petits fichiers surcharge les listings et la planification. Une compaction contrôlée peut réduire leur nombre sans compromettre les lecteurs concurrents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment gérer des données sensibles stockées dans un lac partagé ?",
+      "choices": [
+        "Appliquer classification, contrôle d’accès par identité, journalisation et règles de rétention adaptées",
+        "Rendre les zones brutes publiques pour faciliter le catalogage",
+        "Supprimer les métadonnées de provenance",
+        "Partager une seule clé et un seul compte d’accès pour tous"
+      ],
+      "answer": 0,
+      "explanation": "Un lac centralisé nécessite une gouvernance forte, avec accès minimum nécessaire, traces d’audit et traitement adapté à la sensibilité de chaque donnée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’est-ce qui rend un jeu de données réellement réutilisable dans un Lakehouse ?",
+      "choices": [
+        "Uniquement la présence d’un grand nombre de fichiers",
+        "Un nom de dossier qui semble explicite",
+        "La promesse que les données sont exactes",
+        "Un propriétaire, une description, un schéma, une provenance, une fraîcheur et des règles qualité documentés"
+      ],
+      "answer": 3,
+      "explanation": "Les métadonnées techniques et métier permettent de comprendre l’origine, l’actualité, la qualité et les limites d’utilisation d’un jeu de données."
+    }
+  ]
+}

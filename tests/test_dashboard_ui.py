@@ -66,6 +66,19 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this.setTab(target, { skipHistory: true })", DASHBOARD_HTML)
         self.assertNotIn("createTextNode('.\\n')", DASHBOARD_HTML)
 
+    def test_voice_reader_preserves_punctuation_nested_toc_and_inline_code(self):
+        self.assertIn("const spokenTitle = /[.!?…;:]$/u.test(title) ? title : title + '.';", DASHBOARD_HTML)
+        self.assertIn("if (!/[.!?…,:;]$/u.test(value)) value += '.';", DASHBOARD_HTML)
+        self.assertIn("readable.querySelectorAll('code').forEach(code =>", DASHBOARD_HTML)
+        self.assertIn("const isContentsList = list =>", DASHBOARD_HTML)
+        self.assertIn("nestedLists.every(isContentsList)", DASHBOARD_HTML)
+        self.assertIn("prepareSpeechText(text, kind = 'lesson')", DASHBOARD_HTML)
+        self.assertIn("const pronunciationRules = [", DASHBOARD_HTML)
+        self.assertIn("this.splitSpeechText(this.prepareSpeechText(text, kind))", DASHBOARD_HTML)
+        self.assertIn("address.split('.').join(' point ')", DASHBOARD_HTML)
+        self.assertNotIn("title.replace(/[.!?…:;]+$/u, '')", DASHBOARD_HTML)
+        self.assertNotIn("value.replace(/[,:;]+", DASHBOARD_HTML)
+
     def test_voice_reader_describes_tables_and_visual_schematics(self):
         self.assertIn("speechTextFromTable(table)", DASHBOARD_HTML)
         self.assertIn("Ligne ' + (rowIndex + 1)", DASHBOARD_HTML)
@@ -91,7 +104,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("let group = '';", DASHBOARD_HTML)
         self.assertIn("new Intl.Segmenter('fr', { granularity: 'sentence' })", DASHBOARD_HTML)
         self.assertIn("quelle intonation adopter", DASHBOARD_HTML)
-        self.assertIn("pour une prosodie", DASHBOARD_HTML)
+        self.assertIn("Le blanc entre paragraphes devient une pause", DASHBOARD_HTML)
+        self.assertIn("Le groupe ne se réinitialise qu'en cas de longueur", DASHBOARD_HTML)
         self.assertIn("appendSentence(group)", DASHBOARD_HTML)
         self.assertIn("Lecture naturelle des cours, schémas textuels et tableaux ligne par ligne", DASHBOARD_HTML)
 
@@ -680,7 +694,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         open_lab_method = DASHBOARD_HTML[start:end]
 
         self.assertIn("fetch(`/api/lab/v2/${encodeURIComponent(nodeId)}`)", open_lab_method)
-        self.assertIn("const topologyNodes = labPayload.definition?.initial_topology?.nodes;", open_lab_method)
+        self.assertIn("const topologyNodes = labPayload.initial_topology?.nodes?.length", open_lab_method)
+        self.assertIn("labPayload.definition?.initial_topology?.nodes", open_lab_method)
         self.assertIn("Array.isArray(topologyNodes)", open_lab_method)
         self.assertIn("topologyNodes.length > 0", open_lab_method)
         self.assertIn("navigate(`/lab.html?id=${encodeURIComponent(nodeId)}`)", open_lab_method)
@@ -1115,6 +1130,12 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("@media (max-width: 1023px)", DASHBOARD_HTML)
         self.assertIn("position: fixed !important;", DASHBOARD_HTML)
         self.assertIn("min-height: 4.5rem;", DASHBOARD_HTML)
+
+
+    def test_exam_center_uses_uniform_80_percent_threshold(self):
+        self.assertIn('Réussite à partir de <span class="text-white" x-text="80"></span> %.', DASHBOARD_HTML)
+        self.assertIn("Examen non validé (80 % requis)", DASHBOARD_HTML)
+        self.assertNotIn('Réussite à partir de <span class="text-white" x-text="70"></span> %.', DASHBOARD_HTML)
 
 
 if __name__ == "__main__":
