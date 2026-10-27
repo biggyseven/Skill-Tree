@@ -611,7 +611,7 @@
         <div id="tree-grid" class="flex flex-col gap-10">
           <template x-for="(category, categoryIndex) in categories" :key="category.name">
             <section>
-              <div class="mb-5 flex items-center gap-4"><h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white" x-text="category.name"></h2><span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-400"><span x-text="category.validated"></span>/<span x-text="category.items.length"></span></span><div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div></div>
+              <div class="mb-5 flex items-center gap-4"><h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white" x-text="category.name === 'Data &amp; Bases de données' ? '📊 ' + category.name : category.name"></h2><span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-400"><span x-text="category.validated"></span>/<span x-text="category.items.length"></span></span><div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div></div>
               <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <template x-for="(node, nodeIndex) in category.items" :key="node.id">
                   <div class="animate-rise" :style="`animation-delay: ${Math.min(categoryIndex * 60 + nodeIndex * 45, 500)}ms`">
