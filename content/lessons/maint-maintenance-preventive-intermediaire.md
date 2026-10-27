@@ -120,81 +120,189 @@ Le plan doit évoluer avec la réalité : une tâche répétée sans bénéfice 
 
 La fréquence d'entretien doit être déterminée par le risque et non par une règle uniforme appliquée à tout le parc. Classer les actifs selon impact métier, redondance, exposition, âge, facilité de remplacement, contraintes constructeur et conséquences d'une panne.
 
-**Mise en œuvre.** Pour appliquer ce principe dans planifier la maintenance préventive, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — classer les actifs.** Crée une matrice avec, au minimum, l'impact métier d'une panne, le nombre d'utilisateurs ou services dépendants, le niveau de redondance, l'exposition, les incidents historiques, la durée de réparation et les contraintes du fournisseur. Utilise une échelle définie par l'organisation, puis vérifie les cas particuliers : un actif rarement en panne peut rester critique si son indisponibilité bloque une fonction vitale. Documente qui valide la classe de criticité et à quelle date elle sera réexaminée.
 
-**Preuves et interprétation.** La matrice de criticité et la justification du calendrier permettent de réviser les fréquences de manière transparente. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Conserve la matrice, les sources de données et la justification de la fréquence retenue. Croise les historiques d'incidents avec les observations de supervision et le retour des équipes. Une note de risque n'est pas une prédiction exacte de panne ; elle sert à expliquer les priorités et à rendre les arbitrages cohérents.
 
-**Pièges et décision.** Une intervention fréquente sur un actif peu critique consomme des ressources qui peuvent manquer à un service essentiel. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — déterminer la criticité pour prioriser la maintenance
+
+```mermaid
+flowchart TD
+    A["Inventorier les actifs et leurs services"] --> B["Évaluer l'impact métier d'une panne"]
+    B --> C["Examiner redondance, exposition et dépendances"]
+    C --> D["Analyser incidents, âge et réparabilité"]
+    D --> E["Appliquer la matrice de criticité approuvée"]
+    E --> F{"Risque élevé ou protection insuffisante ?"}
+    F -- "Oui" --> G["Prioriser contrôle et plan de réduction du risque"]
+    F -- "Non" --> H["Planifier selon recommandations et historique"]
+    G --> I["Faire valider la classe et la fréquence"]
+    H --> I
+    I --> J["Réviser après incident ou changement majeur"]
+```
 
 ### 2. Calendrier et fenêtres
 
 Le plan doit tenir compte des heures de pointe, clôtures comptables, périodes d'examen, sauvegardes et dépendances techniques. Définir fenêtre, durée estimée, responsable, autorisations, prérequis, critères de report et plan de retour arrière.
 
-**Mise en œuvre.** Pour appliquer ce principe dans planifier la maintenance préventive, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — construire un calendrier réalisable.** Part des fenêtres autorisées, puis remonte le temps pour prévoir l'approbation, l'information des utilisateurs, la vérification des sauvegardes, la disponibilité des intervenants et des pièces. Place les opérations dépendantes dans un ordre explicite. Évite les périodes de clôture, les pics d'activité et les sauvegardes qui pourraient entrer en conflit avec la maintenance. Ajoute une marge réaliste et un critère de report : par exemple, redondance déjà dégradée ou équipe de reprise indisponible.
 
-**Preuves et interprétation.** L'approbation de fenêtre, l'avis aux utilisateurs et la trace d'exécution évitent les interventions improvisées. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** La fenêtre acceptée, les personnes averties, la durée réelle, les conflits identifiés et la décision de maintien ou de report doivent être traçables. Un créneau libre dans un agenda n'est pas une approbation opérationnelle. Après un report, recalcule les dépendances et confirme la nouvelle date au lieu de déplacer seulement le rendez-vous.
 
-**Pièges et décision.** Une fenêtre acceptée sans vérification des dépendances peut interrompre des services qui ne sont pas explicitement listés dans le ticket. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — planifier une fenêtre sans compromettre la production
+
+```mermaid
+flowchart TD
+    A["Lister les tâches et leurs dépendances"] --> B["Identifier périodes interdites et pics d'activité"]
+    B --> C["Estimer durée, équipe et marge de sécurité"]
+    C --> D["Réserver pièces, accès et sauvegardes"]
+    D --> E["Demander approbation et prévenir les parties concernées"]
+    E --> F{"Tous les prérequis sont-ils confirmés ?"}
+    F -- "Non" --> G["Reporter et recalculer la fenêtre"]
+    F -- "Oui" --> H["Confirmer le créneau et les critères d'arrêt"]
+    G --> B
+    H --> I["Réévaluer l'état avant le début de l'intervention"]
+```
 
 ### 3. Précontrôles
 
 Avant une maintenance, il faut connaître l'état initial, les alertes ouvertes, la sauvegarde disponible et l'état de redondance. Capturer santé matérielle, version logicielle, capacité, services, chemins réseau et résultat du dernier test de restauration pertinent.
 
-**Mise en œuvre.** Pour appliquer ce principe dans planifier la maintenance préventive, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — établir une référence avant l'opération.** Selon l'actif, relève l'état de santé, les alarmes actives, la version de firmware ou de logiciel, la capacité, les services, la connectivité, la redondance, les dépendances et la dernière restauration testée. Note l'heure, la source et les valeurs attendues. Si un contrôle important n'est pas disponible, indique-le et demande une décision plutôt que de considérer tacitement l'état comme sain.
 
-**Preuves et interprétation.** Les valeurs avant/après permettent d'attribuer une régression au changement au lieu de raisonner à partir d'une impression. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Les relevés avant intervention doivent être comparables aux mesures après intervention : mêmes unités, périmètre et conditions autant que possible. Une capture non horodatée ou un état de supervision ancien ne garantit pas que le système est sain au début de la fenêtre. Fixe des points d'arrêt clairs lorsque l'état initial est déjà dégradé.
 
-**Pièges et décision.** Ignorer un défaut préexistant peut entraîner une intervention risquée au mauvais moment, notamment sur un équipement déjà dégradé. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — vérifier les prérequis avant d'autoriser le démarrage
+
+```mermaid
+flowchart TD
+    A["Début de fenêtre prévu"] --> B["Relever état, versions et alertes"]
+    B --> C["Vérifier sauvegarde et restauration pertinente"]
+    C --> D["Contrôler redondance, capacité et dépendances"]
+    D --> E{"État de départ conforme aux critères ?"}
+    E -- "Non" --> F["Arrêter et informer le responsable du changement"]
+    E -- "Oui" --> G["Confirmer pièces, accès et personnel"]
+    G --> H{"Procédure et retour arrière disponibles ?"}
+    H -- "Non" --> F
+    H -- "Oui" --> I["Autoriser le début et conserver la référence"]
+    F --> J["Décision documentée : reporter, corriger ou escalader"]
+```
 
 ### 4. Procédures répétables
 
 La maintenance préventive doit être reproductible même lorsque le technicien habituel est absent. Décomposer l'intervention en prérequis, gestes contrôlés, valeurs attendues, points d'arrêt, validation et retour arrière.
 
-**Mise en œuvre.** Pour appliquer ce principe dans planifier la maintenance préventive, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — rendre la procédure exécutable.** Organise chaque tâche autour de prérequis, étapes numérotées, résultat attendu après chaque étape, points d'arrêt, critères de réussite et retour arrière. Fais référence à la version du document et identifie la personne habilitée à prendre une décision en cas d'écart. Une instruction telle que « vérifier que tout va bien » doit être remplacée par des contrôles observables adaptés au matériel ou au service.
 
-**Preuves et interprétation.** Une checklist horodatée, associée à la version de procédure, fournit une preuve d'exécution et aide à capitaliser les écarts. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Utilise une checklist horodatée et conserve la version de procédure appliquée, les écarts, les décisions et les résultats des contrôles. Lorsqu'un technicien découvre une étape manquante, il doit documenter l'écart et proposer une revue de la procédure plutôt que modifier silencieusement l'ordre des opérations pendant une intervention critique.
 
-**Pièges et décision.** Une consigne vague comme « vérifier le serveur » ne permet ni une exécution homogène ni un audit sérieux. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — structurer une procédure préventive reproductible
+
+```mermaid
+flowchart TD
+    A["Définir objectif et périmètre"] --> B["Énoncer prérequis et responsabilités"]
+    B --> C["Décrire les étapes et résultats attendus"]
+    C --> D["Ajouter points d'arrêt et conditions de report"]
+    D --> E["Définir retour arrière et validation finale"]
+    E --> F["Faire relire et approuver la procédure"]
+    F --> G["Versionner et utiliser une checklist horodatée"]
+    G --> H["Enregistrer les écarts rencontrés"]
+    H --> I["Réviser la procédure après analyse"]
+```
 
 ### 5. Pièces et compétences
 
 Une maintenance planifiée peut échouer si le bon module, le câble, le firmware, les accès ou les compétences ne sont pas disponibles. Réserver les pièces, confirmer la compatibilité, vérifier les droits d'accès et identifier une personne de remplacement avant la fenêtre.
 
-**Mise en œuvre.** Pour appliquer ce principe dans planifier la maintenance préventive, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — confirmer la capacité avant de réserver le créneau.** Vérifie les références exactes, la compatibilité, la disponibilité et le délai de livraison des pièces, les outils spécifiques, les licences ou accès, ainsi que les compétences nécessaires. Identifie un remplaçant si l'intervention dépend d'une seule personne. Pour un firmware ou une pièce critique, confirme la procédure constructeur, la version cible et la méthode de retour arrière.
 
-**Preuves et interprétation.** La liste de matériel et la confirmation des intervenants doivent être liées au ticket de changement. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Associe au ticket l'inventaire des pièces, les validations de compatibilité, les intervenants confirmés et les éléments manquants. Une pièce en stock n'est pas nécessairement adaptée à l'actif ; une compétence disponible en théorie n'est pas une couverture suffisante si personne n'est planifié pendant toute la fenêtre.
 
-**Pièges et décision.** L'indisponibilité d'une pièce critique peut transformer une tâche courte en interruption prolongée. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — valider les ressources et compétences avant la maintenance
+
+```mermaid
+flowchart TD
+    A["Tâche préventive sélectionnée"] --> B["Identifier pièce, outil, version et accès"]
+    B --> C["Vérifier compatibilité dans la documentation"]
+    C --> D["Confirmer disponibilité et délai de remplacement"]
+    D --> E["Affecter compétences et suppléant"]
+    E --> F{"Toutes les ressources critiques sont-elles confirmées ?"}
+    F -- "Non" --> G["Reporter ou prévoir une mesure compensatoire approuvée"]
+    F -- "Oui" --> H["Réserver les ressources à la fenêtre"]
+    G --> I["Actualiser le plan et informer les parties"]
+    H --> I
+```
 
 ### 6. Gestion des changements
 
 Une maintenance planifiée doit être évaluée comme un changement lorsqu'elle peut affecter la production. Évaluer impact, probabilité, approbation, communication, plan de tests et conditions d'annulation selon le niveau de risque.
 
-**Mise en œuvre.** Pour appliquer ce principe dans planifier la maintenance préventive, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — appliquer un contrôle de changement proportionné au risque.** Décris le but, les actifs touchés, la justification, l'impact, l'approbateur, la fenêtre, les tests, les communications et les conditions de retour arrière. Décompose les travaux importants en étapes vérifiables. Définis à l'avance qui a le pouvoir d'arrêter l'intervention et qui autorise la remise en service.
 
-**Preuves et interprétation.** Le ticket conserve décision, approbateurs, heures réelles, écarts et résultat des contrôles post-maintenance. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Le ticket de changement doit contenir l'approbation, les heures réelles, la version ou configuration avant/après, les résultats des tests et chaque écart au plan. Une maintenance dite « standard » ne doit pas être dispensée de contrôle si sa portée réelle a changé ou si les conditions observées rendent le risque plus élevé.
 
-**Pièges et décision.** Effectuer une opération techniquement correcte sans autorisation peut violer les exigences internes et compliquer une analyse ultérieure. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — gouverner un changement préventif à risque
+
+```mermaid
+flowchart TD
+    A["Proposition de maintenance"] --> B["Définir portée, impact et risque"]
+    B --> C["Préparer tests, communication et retour arrière"]
+    C --> D["Obtenir approbation du niveau requis"]
+    D --> E{"État de départ et fenêtre toujours valides ?"}
+    E -- "Non" --> F["Reporter et réévaluer"]
+    E -- "Oui" --> G["Exécuter les étapes autorisées"]
+    G --> H["Évaluer chaque point de contrôle"]
+    H --> I{"Écart critique ou résultat non conforme ?"}
+    I -- "Oui" --> J["Arrêter, escalader ou appliquer le plan de reprise"]
+    I -- "Non" --> K["Poursuivre vers les tests finaux"]
+    F --> L["Mettre à jour le ticket et le calendrier"]
+    J --> L
+```
 
 ### 7. Validation post-intervention
 
 La fin d'une opération matérielle ou logicielle ne signifie pas que le service métier est rétabli. Contrôler alarmes, redondance, journaux, performance, connectivité et transaction représentative ; faire confirmer le service par son propriétaire.
 
-**Mise en œuvre.** Pour appliquer ce principe dans planifier la maintenance préventive, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — tester de l'équipement jusqu'au service métier.** Rejoue les contrôles de référence : alertes, redondance, capacité, versions, connectivité et performance selon le type d'actif. Exécute une transaction représentative ou demande au propriétaire métier de confirmer le parcours utilisateur. Pour une tâche qui exige une période d'observation, planifie le contrôle différé et nomme son responsable.
 
-**Preuves et interprétation.** La comparaison des indicateurs pré/post et une trace de recette démontrent l'effet réel de l'intervention. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Compare les mesures avant/après dans les mêmes conditions et note les tests non exécutés. Un composant « en ligne » n'est pas une preuve suffisante si le service dépend aussi de son routage, de son authentification ou d'une application. La clôture doit refléter la stabilité observée ; les écarts persistants restent des actions assignées.
 
-**Pièges et décision.** Un redémarrage réussi ne suffit pas si le service n'a pas été testé de bout en bout. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — valider la maintenance au-delà du composant
+
+```mermaid
+flowchart TD
+    A["Intervention terminée"] --> B["Vérifier l'état et les alarmes du composant"]
+    B --> C["Comparer mesures et versions avant/après"]
+    C --> D["Tester redondance, connectivité et dépendances"]
+    D --> E["Exécuter une fonction métier représentative"]
+    E --> F["Obtenir la validation prévue du propriétaire"]
+    F --> G{"Tous les critères d'acceptation sont-ils atteints ?"}
+    G -- "Non" --> H["Maintenir le changement ouvert et traiter l'écart"]
+    G -- "Oui" --> I["Prévoir surveillance et clôture documentée"]
+    H --> J["Définir responsable, échéance et prochaine preuve"]
+    I --> J
+```
 
 ### 8. Amélioration du plan
 
 Le plan préventif doit évoluer à partir des pannes évitées, incidents répétés, coûts et retours des techniciens. Comparer les tâches planifiées aux incidents réels, supprimer les contrôles inutiles et renforcer ceux qui interceptent des modes de panne fréquents.
 
-**Mise en œuvre.** Pour appliquer ce principe dans planifier la maintenance préventive, commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+**Mise en œuvre — réviser le plan à partir des résultats mesurés.** Chaque revue doit rapprocher les tâches prévues, celles réellement réalisées, les pannes récurrentes, les arrêts causés par la maintenance, le coût des pièces et les observations terrain. Pour les incidents qui reviennent après une visite préventive, vérifie si la tâche contrôle réellement le mode de défaillance. Ajuste la fréquence ou le contenu avec l'accord du propriétaire de l'actif.
 
-**Preuves et interprétation.** La revue périodique doit enregistrer la décision, sa justification et la date de prochaine évaluation. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
+**Preuves et interprétation.** Enregistre la modification, les données qui la justifient, le responsable et la date de réévaluation. Une baisse des pannes sur une courte période ne prouve pas automatiquement que le plan est efficace ; tiens compte de la taille de l'échantillon, des changements de charge et des tâches reportées. Évalue aussi les faux positifs et le coût des interventions inutiles.
 
-**Pièges et décision.** Un calendrier jamais revu devient une contrainte administrative plutôt qu'un outil de maîtrise du risque. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
+### Schéma — améliorer le programme préventif en boucle fermée
+
+```mermaid
+flowchart TD
+    A["Tâches planifiées et réalisées"] --> B["Analyser pannes et écarts constatés"]
+    B --> C["Comparer incidents récurrents, coûts et indisponibilité"]
+    C --> D["Identifier les tâches efficaces ou inutiles"]
+    D --> E["Proposer une nouvelle fréquence ou un contrôle différent"]
+    E --> F["Valider le changement du plan"]
+    F --> G["Déployer la version révisée"]
+    G --> H["Mesurer les résultats sur une période définie"]
+    H --> I["Revoir à nouveau avec les données mises à jour"]
+```
 
 ## Méthode transversale pour une opération maîtrisée
 
@@ -262,6 +370,23 @@ Un bon tableau de bord met en évidence la tendance et les écarts significatifs
 
 Les indicateurs ne doivent pas devenir des objectifs isolés. Par exemple, réduire le délai moyen n'est pas une amélioration si les tickets sont fermés avant validation et immédiatement rouverts. De même, atteindre un taux de conformité en excluant les actifs inconnus peut donner une image artificiellement favorable. Associer un KPI à un contrôle de qualité et à un résultat métier permet de repérer ces effets indésirables.
 
+### Schéma — déclencher une action à partir des indicateurs préventifs
+
+```mermaid
+flowchart TD
+    A["Tableau de bord maintenance"] --> B["Vérifier source, période et périmètre"]
+    B --> C["Examiner tâches en retard et récurrence des pannes"]
+    C --> D["Comparer indisponibilité, coût et risque"]
+    D --> E{"Écart important ou tendance persistante ?"}
+    E -- "Non" --> F["Continuer la surveillance et la revue prévue"]
+    E -- "Oui" --> G["Rechercher les causes et les limites des données"]
+    G --> H["Définir une action, un responsable et une échéance"]
+    H --> I["Mesurer l'effet après la mise en œuvre"]
+    I --> J["Conserver la décision et réviser les seuils si nécessaire"]
+```
+
+Un indicateur n'est utile que s'il déclenche une décision ou une investigation. Il faut définir son mode de calcul, sa source, son périmètre, les exclusions et la fréquence de revue avant de comparer les tendances.
+
 ## Procédure opérationnelle recommandée
 
 1. **Préparer.** Confirmer la demande, le périmètre, le propriétaire, l'autorisation et la fenêtre. Vérifier les dépendances, les sauvegardes et les accès nécessaires.
@@ -272,6 +397,21 @@ Les indicateurs ne doivent pas devenir des objectifs isolés. Par exemple, rédu
 6. **Tracer.** Enregistrer les horaires, commandes ou actions, résultats, décisions et écarts dans le ticket ou le référentiel prévu.
 7. **Communiquer.** Annoncer le résultat en termes compréhensibles, préciser les limites et indiquer qui gère les actions ouvertes.
 8. **Améliorer.** Rechercher les étapes ambiguës ou les contrôles inefficaces et proposer une modification versionnée, testée et approuvée.
+
+### Schéma — exécuter une maintenance planifiée de façon contrôlée
+
+```mermaid
+flowchart LR
+    A["Ordre de travail approuvé"] --> B["Vérifier prérequis et état initial"]
+    B --> C["Confirmer fenêtre, ressources et sauvegarde"]
+    C --> D["Exécuter par étapes et consigner"]
+    D --> E["Contrôles intermédiaires et points d'arrêt"]
+    E --> F["Tests techniques et fonctionnels"]
+    F --> G["Décision : accepter, corriger ou revenir en arrière"]
+    G --> H["Compte rendu, actions restantes et prochaine échéance"]
+```
+
+L'outil de ticketing ou de gestion de parc ne remplace pas la décision technique. Il sert à relier l'actif, la procédure, l'autorisation, les valeurs avant/après et la preuve de clôture.
 
 ## Outils et contrôles pratiques
 
@@ -320,6 +460,54 @@ journalctl -k -p warning --since '30 minutes ago' --no-pager
 ```
 
 Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+
+## Parcours pratique intermédiaire — construire un plan préventif exploitable
+
+Cet atelier dure environ 60 à 90 minutes. Utilise un parc fictif ou un environnement de test. N'applique pas de changement sur un équipement de production sans autorisation, procédure de changement et coordination avec son propriétaire.
+
+### Scénario de départ
+
+Une petite entreprise possède un cluster de virtualisation, deux commutateurs cœur de réseau, un serveur de fichiers, un système de sauvegarde, des postes utilisateurs et un onduleur. L'équipe a enregistré deux alertes de disque, un incident de température et plusieurs tâches préventives reportées. La fenêtre principale disponible est le dimanche matin, mais la sauvegarde complète s'exécute habituellement à cette période.
+
+### Étape 1 — Inventorier et classer les actifs
+
+Construis un tableau avec identifiant, service hébergé, propriétaire, criticité, redondance, historique, recommandation constructeur et durée maximale d'interruption acceptable. Justifie les actifs qui exigent une surveillance ou une fréquence renforcée. Ne classe pas un équipement uniquement selon son prix ou son âge.
+
+### Étape 2 — Définir tâches, fréquences et preuves
+
+Pour chaque actif, sélectionne des tâches adaptées : revue d'alertes, capacité, état des disques, températures, versions, état des alimentations, tests de restauration ou inspection de câblage. Indique la fréquence, le responsable, le temps estimé, les outils, le résultat attendu et la preuve à conserver. Les mesures non disponibles doivent être marquées comme prérequis à obtenir.
+
+### Étape 3 — Construire le calendrier
+
+Repère la collision entre la sauvegarde complète et la fenêtre du dimanche. Propose une autre heure ou une séquence approuvée qui évite de dégrader la protection des données. Vérifie aussi les périodes critiques de l'entreprise, la disponibilité des pièces, les intervenants, les droits et l'équipe de secours. Prévois une marge et une condition de report explicite.
+
+### Étape 4 — Préparer les précontrôles
+
+Pour les deux alertes de disque, vérifie quelles données seront nécessaires pour décider : tendance des alertes, état de la redondance, sauvegarde pertinente, capacité de remplacement, pièce compatible et délai de livraison. Pour le serveur qui a connu une température élevée, prévois d'examiner la charge, les alertes, la circulation d'air et les mesures avant toute intervention. Ne considère pas une ancienne capture de supervision comme un état initial actuel.
+
+### Étape 5 — Préparer un ordre de travail
+
+Rédige les prérequis, les étapes, les points d'arrêt, les critères d'acceptation et le retour arrière. Identifie la personne qui peut autoriser le début, celle qui peut décider d'arrêter et le propriétaire qui validera le fonctionnement. Sépare les tâches d'observation des changements qui peuvent affecter la production.
+
+### Étape 6 — Définir les contrôles après maintenance
+
+Établis les valeurs ou comportements attendus après intervention : absence d'alertes nouvelles, état de redondance normal, température acceptable pour le modèle, fonctions réseau, accès aux fichiers, résultat de sauvegarde et validation du service. Pour chaque contrôle, précise la source et la preuve à conserver. Si la stabilité nécessite plusieurs heures ou un cycle de charge, affecte le suivi à un responsable.
+
+### Étape 7 — Réviser le programme après exécution
+
+Simule ou analyse un retour d'intervention : une tâche a été réalisée, une autre a été reportée faute de pièce, et une alerte persiste. Mets à jour le statut, nomme le responsable, fixe l'échéance et explique le risque résiduel. Lors de la prochaine revue, compare les incidents récurrents, les tâches en retard et les indisponibilités causées par la maintenance avant de changer la fréquence.
+
+### Livrables attendus
+
+- inventaire avec criticité et justification ;
+- calendrier de maintenance avec dépendances et fenêtre ;
+- checklist de précontrôle ;
+- ordre de travail avec points d'arrêt et retour arrière ;
+- matrice de validation après intervention ;
+- registre des tâches reportées et des risques résiduels ;
+- proposition d'amélioration fondée sur les résultats observés.
+
+**Critère de réussite :** une autre équipe doit pouvoir exécuter le plan, savoir quand ne pas commencer, vérifier la remise en service et comprendre pourquoi la fréquence de chaque tâche a été retenue.
 
 ## Atelier pratique guidé
 
