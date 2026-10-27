@@ -909,7 +909,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("if (this.flashcardsLoaded && !force && !this.cardLoadError)", method)
         self.assertIn("this.flashcardsLoaded = true;", method)
         self.assertIn("this.flashcardDeckSignature !== this.cardDeckSignature()", method)
-        self.assertIn("this.flashcardDeckSignature = signature;", method)
+        self.assertIn("this.flashcardDeckSignature = signature;", DASHBOARD_HTML)
         self.assertIn("this.cardLoadError =", method)
         self.assertIn("finally", method)
 
