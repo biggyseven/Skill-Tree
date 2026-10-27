@@ -374,6 +374,26 @@ Pour les investissements, prévoir les ressources internes en plus du financemen
 Les écarts aux bénéfices attendus peuvent conduire à une action corrective : améliorer l'adoption, changer le processus, revoir le contrat ou arrêter une fonction qui ne crée pas de valeur. La revue doit préserver l'historique des hypothèses afin que les futurs investissements bénéficient de l'expérience. Cette discipline évite de bâtir les dossiers suivants sur des bénéfices théoriques jamais vérifiés.
 
 
+
+## Modèle de budget par actif et cycle de vie
+
+Pour construire un budget défendable, relier chaque poste de coût à une population et à une stratégie. Une dépense de pièces doit pouvoir être rapprochée des actifs, des consommations, des stocks et des délais de fournisseur. Une dépense de contrat doit être reliée au périmètre couvert, à ses exclusions et aux unités facturées. Une dépense de formation doit correspondre à une compétence requise et à un résultat d'autonomie. Cette approche permet d'expliquer les variations et d'éviter des budgets basés uniquement sur l'historique.
+
+Une matrice de budgétisation peut comprendre les colonnes suivantes : ligne de coût, quantité, coût unitaire, période, source d'hypothèse, degré de confiance, propriétaire, engagement existant, risque associé, budget approuvé, réel, prévision à terminaison et justification de l'écart. Les éléments incertains sont présentés en scénarios ou en fourchettes, sans simuler une précision inexistante. La direction peut alors voir quelles hypothèses influencent le plus le besoin de financement.
+
+### Distinguer les économies de trésorerie des gains de capacité
+
+Supposons qu'un projet libère 400 heures de travail technique sur une année. Si aucun contrat externe, poste ou achat ne diminue, il n'est pas correct d'affirmer automatiquement que les 400 heures sont une économie de trésorerie. Elles peuvent représenter une capacité précieuse si l'équipe les consacre à la prévention, au renouvellement ou à la réduction du backlog ; il faut alors définir l'utilisation et mesurer le résultat. Si les heures remplacent réellement une prestation facturée, le propriétaire financier doit confirmer la réduction de coût et éviter de compter le même bénéfice deux fois.
+
+De même, une réduction d'incidents peut produire des bénéfices économiques indirects, comme une diminution de pertes de service ou de temps d'intervention. Il faut définir comment estimer ces coûts évités, quelle référence est utilisée, quelles hypothèses expliquent la causalité et comment on évite d'attribuer au projet une amélioration due à d'autres changements. Les bénéfices non financiers tels que sécurité, conformité, résilience ou expérience utilisateur doivent être décrits séparément plutôt qu'inventés en unités monétaires.
+
+### Gouverner les décisions d'investissement
+
+Le comité doit recevoir des options comparables et une recommandation qui expose les coûts, le calendrier, le risque, les incertitudes, les dépendances et les conditions de réussite. Prévoir des jalons de financement si la preuve de valeur doit être acquise pendant un pilote. Un investissement peut être décomposé en lots lorsque cela réduit l'exposition ; cependant, le découpage doit prendre en compte le coût supplémentaire de coexistence et ne pas créer une solution fragmentée difficile à exploiter.
+
+Après chaque jalon, réexaminer les hypothèses. Si les coûts augmentent, déterminer si la cause est le volume, le prix, le calendrier, la qualité de données ou une modification de périmètre. La décision peut consister à poursuivre, replanifier, négocier, réduire le scope ou arrêter. Conserver les versions du business case permet d'expliquer la décision et d'améliorer les estimations futures.
+
+
 ## Ressources techniques et références
 
 - [HM Treasury — The Green Book (édition 2026)](https://www.gov.uk/government/publications/the-green-book--2)
