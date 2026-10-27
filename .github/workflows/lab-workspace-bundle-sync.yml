@@ -1,0 +1,59 @@
+name: Lab Workspace production bundle sync
+
+on:
+  pull_request:
+    branches:
+      - feature/lab-workspace
+    paths:
+      - 'app/lab-workspace/**'
+      - 'static/lab/**'
+      - '.github/workflows/lab-workspace-bundle-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/lab-workspace/package-lock.json
+      - name: Install JavaScript dependencies
+        working-directory: app/lab-workspace
+        run: npm ci
+      - name: Build production Lab Workspace assets
+        working-directory: app/lab-workspace
+        run: npm run build
+      - name: Export production bundle for verification
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lab-workspace-production-bundle
+          path: static/lab/
+          if-no-files-found: error
+          retention-days: 3
+      - name: Commit generated production assets when needed
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add static/lab/
+          if git diff --cached --quiet; then
+            echo "Le bundle est déjà synchronisé."
+          else
+            git commit -m "build: synchroniser le bundle du Lab Workspace"
+            git push origin "HEAD:${TARGET_BRANCH}"
+          fi
+      - name: Ensure the generated assets are synchronized
+        run: git diff --exit-code -- static/lab/
