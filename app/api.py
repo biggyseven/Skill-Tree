@@ -231,6 +231,25 @@ _AUTH_EXEMPT_PATHS = {
 _AUTH_GATED_PAGES = {"/", "/index.html", "/lab.html"}
 
 
+def _same_origin_request(request: Request) -> bool:
+    """Reject browser state-changing requests whose Origin does not match this host."""
+    origin = request.headers.get("origin")
+    if not origin:
+        return True
+    try:
+        parsed = urlsplit(origin)
+    except ValueError:
+        return False
+    return (
+        parsed.scheme in {"http", "https"}
+        and bool(parsed.netloc)
+        and parsed.netloc.lower() == request.url.netloc.lower()
+        and parsed.path in {"", "/"}
+        and not parsed.query
+        and not parsed.fragment
+    )
+
+
 @app.middleware("http")
 async def enforce_site_authentication(request: Request, call_next):
     """Protect the single-owner application's data API when auth is required."""
@@ -238,6 +257,16 @@ async def enforce_site_authentication(request: Request, call_next):
         return await call_next(request)
 
     path = request.url.path
+    if (
+        request.method in {"POST", "PUT", "PATCH", "DELETE"}
+        and path in {"/api/auth/login", "/api/auth/logout"}
+        and not _same_origin_request(request)
+    ):
+        return JSONResponse(
+            status_code=403,
+            content={"detail": "Origine de requête refusée."},
+            headers={"Cache-Control": "no-store"},
+        )
     if path == "/login.html" or path in _AUTH_EXEMPT_PATHS:
         return await call_next(request)
 
@@ -268,25 +297,12 @@ async def enforce_site_authentication(request: Request, call_next):
                 headers={"Cache-Control": "no-store"},
             )
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
-            origin = request.headers.get("origin")
-            if origin:
-                try:
-                    parsed_origin = urlsplit(origin)
-                except ValueError:
-                    parsed_origin = None
-                if (
-                    parsed_origin is None
-                    or parsed_origin.scheme not in {"http", "https"}
-                    or parsed_origin.netloc.lower() != request.url.netloc.lower()
-                    or parsed_origin.path not in {"", "/"}
-                    or parsed_origin.query
-                    or parsed_origin.fragment
-                ):
-                    return JSONResponse(
-                        status_code=403,
-                        content={"detail": "Origine de requête refusée."},
-                        headers={"Cache-Control": "no-store"},
-                    )
+            if not _same_origin_request(request):
+                return JSONResponse(
+                    status_code=403,
+                    content={"detail": "Origine de requête refusée."},
+                    headers={"Cache-Control": "no-store"},
+                )
 
     return await call_next(request)
 
@@ -2050,6 +2066,22 @@ async def websocket_endpoint(websocket: WebSocket):
         if not auth_configuration_ready():
             await websocket.close(code=1013, reason="Authentification non configurée.")
             return
+        origin = websocket.headers.get("origin")
+        if origin:
+            try:
+                parsed_origin = urlsplit(origin)
+            except ValueError:
+                parsed_origin = None
+            if (
+                parsed_origin is None
+                or parsed_origin.scheme not in {"http", "https"}
+                or parsed_origin.netloc.lower() != websocket.url.netloc.lower()
+                or parsed_origin.path not in {"", "/"}
+                or parsed_origin.query
+                or parsed_origin.fragment
+            ):
+                await websocket.close(code=4403, reason="Origine de connexion refusée.")
+                return
         if not verify_session_token(websocket.cookies.get(AUTH_COOKIE_NAME)):
             await websocket.close(code=4401, reason="Connexion requise.")
             return
