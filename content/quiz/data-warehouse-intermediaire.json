@@ -1,0 +1,102 @@
+{
+  "node_id": "data-warehouse-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence décrit le mieux un entrepôt analytique et une base OLTP ?",
+      "choices": [
+        "L’entrepôt est uniquement destiné aux mises à jour ligne par ligne",
+        "OLTP sert aux opérations courantes, tandis que l’entrepôt est optimisé pour l’analyse historique et les agrégations",
+        "Un entrepôt ne contient jamais d’historique",
+        "Les deux modèles ont nécessairement le même schéma et le même profil de charge"
+      ],
+      "answer": 1,
+      "explanation": "Les systèmes OLTP privilégient les transactions opérationnelles. Un entrepôt structure souvent les données pour des lectures analytiques et des agrégations importantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un schéma en étoile, à quoi sert une table de faits ?",
+      "choices": [
+        "À conserver uniquement la définition des rôles utilisateurs",
+        "À stocker le code source des pipelines",
+        "À enregistrer des événements ou mesures avec des clés vers les dimensions",
+        "À contenir la configuration réseau"
+      ],
+      "answer": 2,
+      "explanation": "La table de faits porte les mesures et clés de dimensions, par exemple le montant de vente par produit, date et magasin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre ETL et ELT est correcte ?",
+      "choices": [
+        "ETL transforme avant le chargement dans la cible ; ELT charge d’abord puis transforme dans la plateforme cible",
+        "ELT interdit la validation des données",
+        "ETL signifie toujours un flux temps réel",
+        "Ces deux approches excluent les contrôles qualité"
+      ],
+      "answer": 0,
+      "explanation": "L’ordre de l’extraction, transformation et chargement différencie les approches. Le choix dépend du volume, de la plateforme, des compétences et des exigences de gouvernance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser un historique de dimension de type SCD 2 ?",
+      "choices": [
+        "Pour remplacer toutes les clés étrangères par du texte libre",
+        "Pour effacer les anciennes valeurs à chaque changement",
+        "Pour éviter tout stockage de dates",
+        "Pour conserver plusieurs versions datées d’une dimension et permettre l’analyse historique"
+      ],
+      "answer": 3,
+      "explanation": "SCD Type 2 insère généralement une nouvelle version avec période de validité ou indicateur courant, afin de préserver le contexte historique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter un événement source arrivé en retard dans un chargement incrémental ?",
+      "choices": [
+        "L’ignorer systématiquement sans trace",
+        "Prévoir une fenêtre de rattrapage ou une stratégie de correction fondée sur les dates métier et techniques",
+        "Réinitialiser tout l’entrepôt à chaque arrivée",
+        "Changer sa date de manière aléatoire"
+      ],
+      "answer": 1,
+      "explanation": "Les événements tardifs nécessitent une politique explicite de rattrapage et de mise à jour. Les dates de l’événement et d’ingestion n’expriment pas la même chose."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est utile après un pipeline ETL ?",
+      "choices": [
+        "Vérifier uniquement que le processus a renvoyé le code 0",
+        "Supprimer les lignes rejetées sans suivi",
+        "Comparer volumes, doublons, clés orphelines, valeurs nulles et règles métier attendues",
+        "Désactiver la traçabilité pour accélérer la tâche"
+      ],
+      "answer": 2,
+      "explanation": "Un pipeline techniquement terminé peut produire des données incorrectes. Des contrôles de complétude, unicité, intégrité et plausibilité détectent ces problèmes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert le Change Data Capture (CDC) dans une architecture analytique ?",
+      "choices": [
+        "À propager les changements source de manière incrémentale à partir d’événements ou journaux de modification",
+        "À remplacer le catalogue de données",
+        "À chiffrer les colonnes de toutes les tables sans configuration",
+        "À supprimer le besoin de gérer les doublons"
+      ],
+      "answer": 0,
+      "explanation": "Le CDC réduit le besoin de relire toute la source en capturant les insertions, mises à jour et suppressions, tout en nécessitant une gestion fiable des offsets et reprises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel intérêt présente le partitionnement d’une table de faits par date lorsqu’il est adapté aux requêtes ?",
+      "choices": [
+        "Il garantit une latence constante pour toute requête",
+        "Il supprime le besoin d’index et de statistiques",
+        "Il rend les agrégations toujours instantanées",
+        "Il peut éliminer les partitions hors période et simplifier certains chargements ou purges"
+      ],
+      "answer": 3,
+      "explanation": "L’élimination de partitions réduit les données à lire pour les requêtes compatibles et permet des opérations ciblées, mais le choix du partitionnement doit correspondre aux accès."
+    }
+  ]
+}
