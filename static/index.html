@@ -4883,6 +4883,100 @@
             .replace(/\n{3,}/g, '\n\n')
             .trim();
         },
+        prepareSpeechText(text, kind = 'lesson') {
+          let normalized = String(text || '')
+            .normalize('NFC')
+            .replace(/\u200B|\uFEFF/gu, '')
+            .replace(/\r\n?/gu, '\n')
+            .replace(/[ \t]+\n/gu, '\n')
+            .replace(/\n{3,}/gu, '\n\n')
+            .trim();
+          if (!normalized) return '';
+
+          if (kind === 'lesson') {
+            let sectionIndex = 0;
+            let subsectionIndex = 0;
+            const sectionOpeners = [
+              'Commençons par la partie ',
+              'Passons ensuite à la partie ',
+              'Voyons maintenant la partie ',
+              'Abordons à présent la partie ',
+              'Intéressons-nous maintenant à la partie ',
+            ];
+            const subsectionOpeners = [
+              'Regardons de plus près ',
+              'Voyons maintenant ',
+              'Précisons un peu mieux ',
+              'Pour aller plus loin, examinons ',
+            ];
+            normalized = normalized.split(/\n{2,}/gu).map(paragraph => {
+              const value = paragraph.trim();
+              const stripEnding = source => String(source || '').trim().replace(/[.:;]+$/gu, '').trim();
+              let match = value.match(/^Titre du cours\s*:\s*([\s\S]+)$/iu);
+              if (match) return 'Bienvenue dans ce cours consacré à « ' + stripEnding(match[1]) + ' ».';
+              match = value.match(/^Section\s*:\s*([\s\S]+)$/iu);
+              if (match) {
+                const opener = sectionOpeners[sectionIndex % sectionOpeners.length];
+                sectionIndex += 1;
+                return opener + '« ' + stripEnding(match[1]) + ' ».';
+              }
+              match = value.match(/^Sous-section\s*:\s*([\s\S]+)$/iu);
+              if (match) {
+                const opener = subsectionOpeners[subsectionIndex % subsectionOpeners.length];
+                subsectionIndex += 1;
+                return opener + '« ' + stripEnding(match[1]) + ' ».';
+              }
+              match = value.match(/^Tableau\s*:\s*([\s\S]+)$/iu);
+              if (match) return 'Voici un tableau intitulé « ' + stripEnding(match[1]) + ' ».';
+              if (/^Tableau textuel\.?$/iu.test(value)) return 'Voici le tableau présenté sous forme de texte.';
+              if (/^Schéma textuel\./iu.test(value)) return value.replace(/^Schéma textuel\./iu, 'Suivons le parcours représenté.');
+              if (/^Suivons le parcours représenté\./iu.test(value)) return value.replace(/^Suivons le parcours représenté\./iu, 'Suivons maintenant le parcours représenté.');
+              return value;
+            }).join('\n\n');
+          }
+
+          const pronunciationRules = [
+            [/\bIPv4\b/giu, 'I P version 4'],
+            [/\bIPv6\b/giu, 'I P version 6'],
+            [/\bIPsec\b/giu, 'I P sec'],
+            [/\bHTTPS\b/giu, 'H T T P S'],
+            [/\bHTTP\b/giu, 'H T T P'],
+            [/\bDHCP\b/giu, 'D H C P'],
+            [/\bDNS\b/giu, 'D N S'],
+            [/\bTCP\b/giu, 'T C P'],
+            [/\bUDP\b/giu, 'U D P'],
+            [/\bSSH\b/giu, 'S S H'],
+            [/\bSQL\b/giu, 'S Q L'],
+            [/\bAPI\b/giu, 'A P I'],
+            [/\bVPN\b/giu, 'V P N'],
+            [/\bBGP\b/giu, 'B G P'],
+            [/\bOSPF\b/giu, 'O S P F'],
+            [/\bMPLS\b/giu, 'M P L S'],
+            [/\bNAT\b/giu, 'N A T'],
+            [/\bACL\b/giu, 'A C L'],
+            [/\bURL\b/giu, 'U R L'],
+          ];
+          pronunciationRules.forEach(([pattern, spoken]) => {
+            normalized = normalized.replace(pattern, spoken);
+          });
+          normalized = normalized
+            .replace(/\b(?:p\.\s*ex\.?|par ex\.)\s*/giu, 'par exemple ')
+            .replace(/\bc\.\s*-?\s*à\s*-?\s*d\.\b/giu, 'c’est-à-dire')
+            .replace(/\betc\./giu, 'et cetera')
+            .replace(/(\d{1,3}\.){3}\d{1,3}\b/gu, address => address.split('.').join(' point '))
+            .replace(/\b(\d+(?:[,.]\d+)?)\s*%/gu, '$1 pour cent')
+            .replace(/\b(\d+)\s*ms\b/giu, (_, value) => value + (Number(value) > 1 ? ' millisecondes' : ' milliseconde'))
+            .replace(/\s*≥\s*/gu, ' est supérieur ou égal à ')
+            .replace(/\s*≤\s*/gu, ' est inférieur ou égal à ')
+            .replace(/\s*≠\s*/gu, ' est différent de ')
+            .replace(/\s*≈\s*/gu, ' est approximativement égal à ')
+            .replace(/\s*&\s*/gu, ' et ')
+            .replace(/[ \t]+/gu, ' ')
+            .replace(/\n[ \t]+/gu, '\n')
+            .replace(/\n{3,}/gu, '\n\n')
+            .trim();
+          return normalized;
+        },
         splitSpeechText(text, maxLength = 1800) {
           const normalized = String(text || '')
             .replace(/\r\n?/g, '\n')
@@ -5141,7 +5235,7 @@
             return;
           }
           this.stopSpeech();
-          this.speechQueue = this.splitSpeechText(text);
+          this.speechQueue = this.splitSpeechText(this.prepareSpeechText(text, kind));
           if (!this.speechQueue.length) {
             this.speechError = 'Aucun texte disponible à partir de ce point. Choisis une autre section ou « Début du cours ».';
             this.notify(this.speechError);
