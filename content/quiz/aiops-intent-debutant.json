@@ -1,0 +1,66 @@
+{
+  "node_id": "aiops-intent-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une politique refuse par défaut les flux entre zones, mais un serveur de paiement a besoin de DNS et NTP. Comment exprimer cette exception ?",
+      "choices": [
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Définir le résultat opérationnel, les sources autorisées, le contexte et les critères de succès avant de choisir une technique.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée."
+      ],
+      "answer": 1,
+      "explanation": "Dans Intent-Based Networking (IBN), le choix commence par un problème mesurable. Exprimer un objectif réseau et le traduire en état cible, politique, configuration et conformité. Une définition claire permet de comparer les alternatives et de refuser une solution qui n'améliore pas le service. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un équipement ne supporte pas une primitive requise par l'intention. Que doit faire le compilateur ?",
+      "choices": [
+        "Comparer à une baseline, examiner conformité vérifiée et analyser les erreurs selon la criticité plutôt que s'appuyer sur un seul score global.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance."
+      ],
+      "answer": 0,
+      "explanation": "La mesure conformité vérifiée n'a de sens qu'avec une baseline et des cas représentatifs. Examiner les erreurs par cohorte évite qu'une moyenne masque la dégradation d'un site critique. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un diff montre une dérive après un changement approuvé. Quel est le premier contrôle ?",
+      "choices": [
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Limiter privilèges et périmètre, vérifier les préconditions, obtenir les approbations nécessaires et préparer des postconditions et un rollback testables."
+      ],
+      "answer": 3,
+      "explanation": "La sécurité doit limiter l'impact avant l'action. Une opération est acceptée seulement si les droits, le périmètre, les préconditions et la manière de vérifier le résultat sont définis ; la commande seule ne prouve pas le succès. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve montre que l'intention est effectivement respectée après déploiement ?",
+      "choices": [
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Reconstituer la chronologie, garder les données manquantes visibles, confronter plusieurs hypothèses et utiliser un test qui les distingue.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière."
+      ],
+      "answer": 2,
+      "explanation": "Une chronologie et des hypothèses concurrentes diminuent le risque de conclure trop tôt. Les preuves et contre-indices doivent être conservés ; si elles sont insuffisantes, l'équipe doit s'abstenir ou escalader. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer modèle d'intention et génération de commandes fournisseur ?",
+      "choices": [
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Déployer progressivement, surveiller qualité et dérive, mesurer un résultat indépendant et conserver une voie de restauration.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires."
+      ],
+      "answer": 1,
+      "explanation": "Un déploiement progressif réduit l'impact d'une erreur. La surveillance doit inclure la qualité des données et le résultat opérationnel ; le rollback doit être disponible et testé. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    }
+  ]
+}
