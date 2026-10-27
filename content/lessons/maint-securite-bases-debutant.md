@@ -66,6 +66,25 @@ flowchart LR
     D --> E[Documenter et clôturer]
 ```
 
+### Schéma — décider si une intervention peut commencer
+
+```mermaid
+flowchart TD
+    A["Intervention envisagée"] --> B["Identifier personnes, données, matériel et services exposés"]
+    B --> C["Estimer la gravité et la probabilité"]
+    C --> D["Vérifier autorisation, compétences et procédure"]
+    D --> E{"Risque maîtrisé et intervention autorisée ?"}
+    E -- "Non" --> F["Arrêter la préparation et demander une validation"]
+    E -- "Oui" --> G["Définir protections et critères d'arrêt"]
+    G --> H["Commencer dans le périmètre prévu"]
+    H --> I["Surveiller et réévaluer si le contexte change"]
+    I --> J{"Risque nouveau ou inattendu ?"}
+    J -- "Oui" --> F
+    J -- "Non" --> K["Documenter le résultat"]
+```
+
+L'évaluation des risques n'est pas une formalité. Elle doit déboucher sur une décision : poursuivre avec des protections adaptées, modifier le plan, reporter l'action ou faire appel à une personne qualifiée.
+
 ## 3. Évaluer les risques avant d'agir
 
 ### 3.1 Qu'est-ce qu'un risque ?
@@ -110,6 +129,24 @@ Un technicien débutant ne doit pas poursuivre une action dangereuse pour évite
 
 S'arrêter n'est pas abandonner le ticket : il faut sécuriser la situation, documenter le risque et transmettre le dossier.
 
+### Schéma — sécuriser l'espace de travail avant de manipuler du matériel
+
+```mermaid
+flowchart TD
+    A["Arrivée sur le lieu d'intervention"] --> B["Repérer les risques visibles et l'accès"]
+    B --> C{"Fumée, odeur de brûlé, liquide, chaleur anormale ou câble endommagé ?"}
+    C -- "Oui" --> D["Ne pas toucher ; appliquer l'alerte et la procédure du site"]
+    C -- "Non" --> E["Dégager la zone et organiser les outils"]
+    E --> F["Vérifier éclairage, stabilité et accès"]
+    F --> G["Protéger les personnes et les équipements voisins"]
+    G --> H["Commencer uniquement les tâches autorisées"]
+    D --> I["Informer le responsable compétent"]
+    H --> J["Maintenir une zone ordonnée pendant l'intervention"]
+    I --> J
+```
+
+Si tu observes un danger immédiat, ne tente pas de diagnostiquer toi-même une installation électrique ou un équipement suspect. Éloigne-toi de la zone si nécessaire, alerte selon la procédure et attends une personne compétente.
+
 ## 4. Sécurité physique et environnement de travail
 
 ### 4.1 Organiser l'espace
@@ -136,6 +173,25 @@ Si un appareil dégage de la fumée, une odeur de brûlé ou une chaleur inhabit
 
 La priorité est la sécurité des personnes et la maîtrise du danger, pas la récupération immédiate du service.
 
+### Schéma — limite de sécurité avant une intervention électrique
+
+```mermaid
+flowchart TD
+    A["Une intervention interne est envisagée"] --> B["Lire les consignes du fabricant et du site"]
+    B --> C{"La tâche est-elle dans les compétences et autorisations ?"}
+    C -- "Non" --> D["Ne pas intervenir ; transmettre à une personne qualifiée"]
+    C -- "Oui" --> E["Suivre la procédure de mise hors tension prévue"]
+    E --> F["Tenir compte des sources d'énergie et batteries"]
+    F --> G{"L'absence de danger est-elle confirmée selon la procédure ?"}
+    G -- "Non ou incertain" --> D
+    G -- "Oui" --> H["Réaliser uniquement l'opération approuvée"]
+    H --> I["Contrôler et documenter avant remise en service"]
+    D --> J["Consigner le risque et l'escalade"]
+    I --> J
+```
+
+Ce schéma ne remplace pas une formation électrique ni la procédure constructeur. Un bloc d'alimentation peut conserver des tensions dangereuses après déconnexion : ne l'ouvre pas et n'interviens pas sur un circuit dangereux sans qualification adaptée.
+
 ## 5. Sécurité électrique et mise hors tension
 
 ### 5.1 Limites de compétence
@@ -157,6 +213,22 @@ Ne démonte pas un bloc d'alimentation pour une réparation improvisée. Des com
 ### 5.4 Vérifier avant de toucher
 
 Identifie le composant, la source d'alimentation, la procédure d'isolement et les risques. Si une étape n'est pas claire, ne tente pas de deviner. Les systèmes de production et les équipements redondants exigent une attention supplémentaire, car une coupure apparemment simple peut interrompre un service.
+
+### Schéma — protéger les composants contre les décharges électrostatiques
+
+```mermaid
+flowchart TD
+    A["Composant sensible à manipuler"] --> B["Préparer un poste et des protections ESD adaptés"]
+    B --> C["Arrêter le système et appliquer la procédure énergétique"]
+    C --> D["Lire les précautions du fabricant"]
+    D --> E["Manipuler le composant par les zones prévues"]
+    E --> F["Éviter les contacts et surfaces non adaptés"]
+    F --> G["Placer les pièces retirées dans un emballage adapté"]
+    G --> H["Documenter emplacement et référence"]
+    H --> I["Vérifier l'installation avant remise en service"]
+```
+
+Les précautions antistatiques doivent être adaptées au poste et à la documentation du matériel. Ne touche pas inutilement les contacts et ne pose pas une carte sur une surface improvisée.
 
 ## 6. Décharges électrostatiques et composants sensibles
 
@@ -180,6 +252,25 @@ Un bracelet antistatique ne remplace ni la mise hors tension ni les règles de s
 ### 6.3 Ranger les pièces retirées
 
 Étiquette les composants si plusieurs pièces sont manipulées. Sépare les vis et accessoires. Ne mélange pas des composants qui appartiennent à différents équipements. La traçabilité permet de savoir ce qui a été retiré, testé, remplacé ou envoyé en réparation.
+
+### Schéma — vérifier la protection des données avant un changement risqué
+
+```mermaid
+flowchart TD
+    A["Changement susceptible d'affecter des données"] --> B["Identifier les données et le service concernés"]
+    B --> C["Vérifier la sauvegarde, sa date et son résultat"]
+    C --> D{"Une restauration est-elle possible et autorisée ?"}
+    D -- "Non ou incertain" --> E["Reporter l'action et demander une validation"]
+    D -- "Oui" --> F["Définir la fenêtre, l'impact et le retour arrière"]
+    F --> G["Effectuer le changement autorisé"]
+    G --> H["Vérifier les données et les fonctions essentielles"]
+    H --> I["Documenter les résultats et écarts"]
+    E --> J["Ne pas écraser les données en l'absence de protection suffisante"]
+    I --> K["Clôturer selon la procédure"]
+    J --> K
+```
+
+La présence d'une sauvegarde dans un tableau de bord ne suffit pas toujours : vérifie les informations disponibles et les procédures de restauration. N'effectue pas une opération irréversible tant que la protection nécessaire demeure incertaine.
 
 ## 7. Protection des données et confidentialité
 
@@ -211,6 +302,24 @@ Lorsqu'un équipement ou un support quitte le parc, la procédure doit prévoir 
 
 Supprimer un fichier ou reformater rapidement un support ne garantit pas à lui seul que les données sont irrécupérables. Utilise la procédure officielle et conserve la preuve prévue lorsque la traçabilité est requise.
 
+### Schéma — gérer un accès sans demander ni exposer de secret
+
+```mermaid
+flowchart TD
+    A["Besoin d'accéder à un système"] --> B["Identifier la tâche et le propriétaire du système"]
+    B --> C["Utiliser le compte individuel et le canal approuvé"]
+    C --> D{"Privilèges supplémentaires nécessaires ?"}
+    D -- "Non" --> E["Travailler avec les droits existants"]
+    D -- "Oui" --> F["Demander une élévation autorisée et limitée"]
+    F --> G["Effectuer seulement l'action prévue"]
+    E --> H["Ne jamais demander ou partager un mot de passe en clair"]
+    G --> H
+    H --> I["Fermer la session et retirer l'accès temporaire selon la procédure"]
+    I --> J["Consigner les actions utiles sans enregistrer le secret"]
+```
+
+Un compte partagé ou un secret envoyé dans une conversation rend l'attribution des actions et la protection de l'accès plus difficiles. Utilise les mécanismes approuvés de gestion des identités et des secrets.
+
 ## 8. Identifiants, secrets et moindre privilège
 
 ### 8.1 Ne pas demander le mot de passe de l'utilisateur
@@ -236,6 +345,27 @@ Avant d'appliquer un droit, vérifie le besoin, l'identité concernée, l'approb
 Une session distante doit être initiée avec un outil approuvé et une autorisation adaptée. Vérifie l'identité de la personne, l'équipement ciblé et le périmètre de l'intervention.
 
 N'utilise pas un outil de contrôle à distance inconnu, ne laisse pas une session ouverte inutilement et ne contourne pas les règles d'accès. Termine la session selon les procédures et retire les droits temporaires lorsqu'ils ne sont plus nécessaires.
+
+### Schéma — contrôler un changement avant et après son exécution
+
+```mermaid
+flowchart TD
+    A["Changement ou commande envisagé"] --> B["Comprendre l'effet et la cible"]
+    B --> C["Vérifier autorisation et environnement"]
+    C --> D["Identifier les risques et dépendances"]
+    D --> E["Prévoir sauvegarde, retour arrière et critères de réussite"]
+    E --> F{"Revue et autorisation obtenues ?"}
+    F -- "Non" --> G["Ne pas exécuter ; demander validation"]
+    F -- "Oui" --> H["Exécuter à l'heure et dans le périmètre prévus"]
+    H --> I["Vérifier l'effet, les journaux et les services"]
+    I --> J{"Résultat conforme ?"}
+    J -- "Non" --> K["Stopper les actions supplémentaires et appliquer le plan prévu"]
+    J -- "Oui" --> L["Documenter et notifier les personnes concernées"]
+    G --> M["Mettre à jour le plan"]
+    K --> M
+```
+
+Une commande valide peut avoir un effet dangereux dans le mauvais environnement. Avant de l'exécuter, vérifie la cible réelle, les privilèges, les options et la possibilité de récupération.
 
 ## 9. Sécurité des changements et des commandes
 
@@ -287,6 +417,24 @@ Désactiver un antivirus, un pare-feu ou une protection du système ne doit pas 
 
 Il faut privilégier un contrôle ciblé, l'examen des journaux ou une modification limitée selon une procédure approuvée. Toute dérogation doit être autorisée, surveillée et annulée à la fin selon les règles.
 
+### Schéma — premières réactions à une suspicion de compromission
+
+```mermaid
+flowchart TD
+    A["Alerte ou comportement suspect"] --> B["Noter les faits sans altérer inutilement le système"]
+    B --> C["Consulter la procédure de sécurité applicable"]
+    C --> D{"Une consigne d'isolement ou un risque actif existe-t-il ?"}
+    D -- "Oui" --> E["Appliquer la mesure approuvée et alerter l'équipe compétente"]
+    D -- "Non ou inconnu" --> F["Limiter les manipulations et demander une instruction"]
+    E --> G["Préserver les éléments utiles selon la procédure"]
+    F --> G
+    G --> H["Ne pas supprimer des fichiers ou désactiver les protections au hasard"]
+    H --> I["Consigner heure, symptômes, actions et destinataires"]
+    I --> J["Attendre l'autorisation avant toute remise en service"]
+```
+
+En cas de suspicion de compromission, la priorité est une réponse coordonnée. Des nettoyages improvisés peuvent faire disparaître des preuves ou rendre l'analyse plus difficile.
+
 ## 10. Reconnaître un incident de sécurité
 
 ### 10.1 Signes possibles
@@ -325,6 +473,25 @@ flowchart LR
 
 L'objectif n'est pas d'effectuer une enquête complète sans compétence dédiée. Il est de ne pas aggraver l'incident, de conserver les éléments utiles et de déclencher la réponse appropriée.
 
+### Schéma — préparer une ouverture de boîtier sans brûler d'étapes
+
+```mermaid
+flowchart TD
+    A["Ouverture du matériel envisagée"] --> B["Confirmer tâche et autorisation"]
+    B --> C["Identifier modèle, garantie et procédure"]
+    C --> D["Arrêter le système et isoler les sources d'énergie prévues"]
+    D --> E["Préparer protection ESD et outils adaptés"]
+    E --> F{"Batterie gonflée, odeur, liquide ou dommage électrique ?"}
+    F -- "Oui" --> G["Ne pas manipuler ; arrêter et escalader"]
+    F -- "Non" --> H["Ouvrir uniquement selon la procédure constructeur"]
+    H --> I["Ne pas forcer les pièces ou connecteurs"]
+    I --> J["Contrôler l'assemblage avant remise en service"]
+    G --> K["Documenter et maintenir la zone sûre"]
+    J --> K
+```
+
+Les batteries gonflées ou endommagées ne doivent pas être comprimées, percées ou manipulées comme des pièces ordinaires. Suis la procédure du fabricant et les règles du site pour leur signalement et leur prise en charge.
+
 ## 11. Sécurité des interventions matérielles
 
 ### 11.1 Avant d'ouvrir
@@ -348,6 +515,24 @@ Suis les consignes du fabricant et du site, mets le matériel en sécurité et s
 ### 11.5 Pièces et outils
 
 Range les vis, outils et composants. Ne laisse pas un outil dans le boîtier. Étiquette les pièces retirées et protège les composants sensibles. Vérifie visuellement l'état de l'équipement avant la remise sous tension.
+
+### Schéma — éviter une déconnexion accidentelle en baie
+
+```mermaid
+flowchart TD
+    A["Intervention sur câble ou équipement en baie"] --> B["Consulter le plan et le ticket autorisé"]
+    B --> C["Identifier les deux extrémités et l'équipement"]
+    C --> D["Vérifier le service et l'impact possible"]
+    D --> E{"Câble identifié et interruption autorisée ?"}
+    E -- "Non" --> F["Ne rien débrancher ; confirmer avec le responsable"]
+    E -- "Oui" --> G["Préparer étiquetage et fenêtre convenus"]
+    G --> H["Réaliser l'action approuvée"]
+    H --> I["Vérifier les liens et services concernés"]
+    I --> J["Mettre à jour le plan et la fiche"]
+    F --> K["Documenter la limite"]
+```
+
+Une baie peut contenir les liaisons de plusieurs services critiques. Ne débranche jamais un câble uniquement parce qu'il semble encombrant ou inutile : vérifie son identification, ses deux extrémités et le plan de câblage.
 
 ## 12. Câbles, baies et salles informatiques
 
@@ -380,6 +565,26 @@ La fatigue, le stress et les interruptions augmentent le risque d'erreur. Avant 
 ### 13.3 Organisation des petites pièces
 
 Les vis, adaptateurs, câbles et modules doivent être identifiés et rangés. Utilise des étiquettes ou contenants distincts. Un détail d'organisation peut éviter une erreur coûteuse lors du remontage.
+
+### Schéma — préserver la continuité pendant une intervention
+
+```mermaid
+flowchart TD
+    A["Intervention planifiée"] --> B["Identifier les dépendances et utilisateurs touchés"]
+    B --> C["Choisir la fenêtre et prévenir les parties concernées"]
+    C --> D["Vérifier sauvegardes, redondance et retour arrière"]
+    D --> E{"Conditions de départ réunies ?"}
+    E -- "Non" --> F["Reporter ou escalader"]
+    E -- "Oui" --> G["Exécuter une seule série de changements contrôlés"]
+    G --> H["Tester les fonctions et surveiller les alertes"]
+    H --> I{"Service conforme et stable ?"}
+    I -- "Non" --> J["Appliquer le plan de retour arrière ou escalader"]
+    I -- "Oui" --> K["Informer les utilisateurs et mettre à jour la documentation"]
+    F --> L["Consigner la décision et le risque"]
+    J --> L
+```
+
+La redondance et une sauvegarde ne dispensent pas de planifier la maintenance. Si plusieurs changements non liés sont appliqués ensemble, il devient plus difficile d'identifier la cause d'un nouvel incident et de revenir à un état sûr.
 
 ## 14. Protection des services et continuité
 
@@ -426,6 +631,21 @@ flowchart TD
 
 La décision doit se baser sur des conditions réelles. Si une donnée essentielle est inconnue, il est plus sûr de clarifier ou d'escalader que de supposer que tout est acceptable.
 
+### Schéma — clôturer la fiche de sécurité sans omettre les écarts
+
+```mermaid
+flowchart TD
+    A["Intervention terminée ou arrêtée"] --> B["Enregistrer l'autorisation et le périmètre"]
+    B --> C["Décrire les risques identifiés et les protections appliquées"]
+    C --> D["Consigner les actions, tests et résultats"]
+    D --> E["Noter tout écart, incident ou action non effectuée"]
+    E --> F["Vérifier les secrets et données personnelles dans la fiche"]
+    F --> G["Préciser l'état du service et les actions restantes"]
+    G --> H["Transmettre selon les règles d'accès et de conservation"]
+```
+
+Une intervention arrêtée avant la tâche prévue doit aussi être documentée : l'arrêt peut être la bonne décision de sécurité. Décris le risque détecté, la personne ou l'équipe informée et les conditions requises avant de reprendre.
+
 ## 16. Documentation de sécurité
 
 Le compte rendu doit indiquer les précautions importantes prises, les autorisations obtenues lorsque cela est pertinent, les changements, les tests et les risques qui restent ouverts.
@@ -446,6 +666,40 @@ Exemple de formulation :
 « L'intervention a été arrêtée avant toute modification car le périmètre de l'accès n'était pas confirmé. Le responsable du service a été contacté pour valider la demande. Aucune permission n'a été changée. »
 
 Cette formulation décrit une décision prudente plutôt que de présenter une absence d'action comme un échec.
+
+## Parcours pratique du débutant
+
+Prévois 45 à 60 minutes dans un environnement de formation ou à partir d'un scénario fictif. Ce parcours consiste à repérer les risques et à préparer une intervention sûre ; il ne demande pas d'ouvrir un équipement sous tension, de manipuler un bloc d'alimentation ni d'exécuter un changement de production.
+
+### Étape 1 — Décrire l'intervention
+
+Scénario : un poste doit recevoir une mise à jour et un contrôle matériel est aussi envisagé. Note le but, l'équipement concerné, les utilisateurs impactés et les informations qu'il faut confirmer. Si la tâche ou le périmètre ne sont pas clairs, demande une précision avant de continuer.
+
+### Étape 2 — Lister les risques
+
+Sépare les risques pour les personnes, les données, le matériel, les accès et la continuité du service. Pour chaque risque, indique sa conséquence possible et une mesure de prévention. Ne donne pas une cote de risque artificiellement précise quand les informations ne suffisent pas.
+
+### Étape 3 — Vérifier les conditions de départ
+
+Fais une checklist : intervention autorisée, documentation du fabricant disponible, personne qualifiée désignée, sauvegarde vérifiée si nécessaire, fenêtre approuvée, moyens de protection appropriés et plan de retour arrière. Si une condition essentielle manque, consigne le blocage et reporte l'action.
+
+### Étape 4 — Protéger données et identifiants
+
+Explique comment vérifier la sauvegarde sans exposer des fichiers, comment utiliser un compte individuel et comment éviter d'écrire un mot de passe ou un jeton dans le ticket. Prévois un emplacement approuvé pour les journaux et les pièces jointes utiles.
+
+### Étape 5 — Préparer le contrôle après intervention
+
+Définis les critères permettant de vérifier la réussite : état du poste, démarrage normal, application concernée, alertes pertinentes et confirmation utilisateur selon la procédure. Décris aussi la condition qui déclencherait un arrêt ou un retour arrière.
+
+### Étape 6 — Simuler un risque inattendu
+
+Le scénario indique une odeur de brûlé près de l'équipement ou une batterie visiblement gonflée. Écris les actions sûres : ne pas continuer la manipulation, ne pas forcer ni démonter la pièce, appliquer l'alerte du site et demander une personne qualifiée. N'improvise pas une opération électrique.
+
+### Étape 7 — Rédiger une fiche de préparation
+
+Consigne le but, le périmètre, les risques, les protections, les autorisations attendues, les critères de réussite et le plan d'escalade. Marque les tâches comme « prévues » tant qu'elles n'ont pas réellement été exécutées.
+
+**Critère de réussite :** tu sais identifier les conditions qui autorisent à commencer, celles qui imposent une pause et les preuves à recueillir avant de déclarer le service remis en état.
 
 ## 17. Travaux pratiques
 
