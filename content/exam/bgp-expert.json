@@ -1,1 +1,246 @@
-{"node_id":"bgp-expert","scope":"exam","questions":[{"type":"qcm","prompt":"Que signifie l'acronyme BGP ?","choices":["Border Gateway Protocol","Broadband Global Protocol","Basic Gateway Path","Bridge Gateway Protocol"],"answer":0,"explanation":"BGP signifie Border Gateway Protocol."},{"type":"qcm","prompt":"Quel port TCP est utilisé par BGP pour établir ses sessions ?","choices":["179","89","110","443"],"answer":0,"explanation":"BGP utilise le port TCP 179."},{"type":"qcm","prompt":"Quelle est la différence principale entre eBGP et iBGP ?","choices":["eBGP est entre deux AS différents, iBGP est à l'intérieur du même AS","eBGP utilise TCP, iBGP utilise UDP","eBGP est pour IPv4, iBGP pour IPv6","Il n'y a aucune différence"],"answer":0,"explanation":"eBGP (External) relie des AS différents, iBGP (Internal) est au sein d'un même AS."},{"type":"qcm","prompt":"Quel état de session BGP indique que tout fonctionne normalement ?","choices":["Established","Active","Idle","OpenSent"],"answer":0,"explanation":"L'état 'Established' signifie que la session BGP est établie et que les routes peuvent être échangées."},{"type":"qcm","prompt":"Quel attribut BGP est le premier critère de sélection de route (et est local au routeur) ?","choices":["Weight","Local Preference","AS_PATH","MED"],"answer":0,"explanation":"Le Weight est prioritaire sur tous les autres attributs, mais il n'est pas transmis aux voisins."},{"type":"qcm","prompt":"Quel attribut est utilisé pour indiquer le chemin le plus court à travers les AS ?","choices":["AS_PATH","Next-Hop","Origin","Local Preference"],"answer":0,"explanation":"BGP préfère le chemin avec l'AS_PATH le plus court (le moins de numéros d'AS)."},{"type":"qcm","prompt":"Comment contourner la règle du Split Horizon dans iBGP ?","choices":["Utiliser un Route Reflector","Changer l'attribut Weight","Utiliser du eBGP","Désactiver le Next-Hop"],"answer":0,"explanation":"Un Route Reflector est autorisé à réfléchir (transmettre) les routes iBGP à d'autres clients iBGP."},{"type":"qcm","prompt":"À quoi sert la commande 'next-hop-self' ?","choices":["À modifier l'adresse Next-Hop annoncée à un voisin iBGP","À redémarrer BGP","À filtrer les routes","À changer son AS"],"answer":0,"explanation":"Elle force le routeur à s'annoncer lui-même comme prochain saut, ce qui est utile quand le Next-Hop eBGP n'est pas connu des routeurs internes."},{"type":"qcm","prompt":"Quelle technique permet de rendre un chemin BGP moins attractif en l'allongeant ?","choices":["AS_PATH Prepending","MED Setting","Weight Modification","Route Filtering"],"answer":0,"explanation":"Le 'AS_PATH Prepending' ajoute plusieurs fois le même numéro d'AS pour allonger le chemin."},{"type":"qcm","prompt":"Quelle commande permet de vérifier l'état de toutes les sessions BGP sur un routeur Cisco ?","choices":["show ip bgp summary","show ip route bgp","show ip protocols","show running-config"],"answer":0,"explanation":"La commande 'show ip bgp summary' affiche l'état des voisins et le nombre de routes apprises."}]}
+{
+  "node_id": "bgp-expert",
+  "scope": "exam",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence fondamentale distingue eBGP d’iBGP ?",
+      "choices": [
+        "eBGP échange des routes entre systèmes autonomes distincts ; iBGP distribue des routes BGP à l’intérieur d’un même AS.",
+        "eBGP utilise UDP tandis qu’iBGP utilise TCP.",
+        "eBGP est réservé à IPv4 et iBGP à IPv6.",
+        "eBGP transporte uniquement des routes par défaut."
+      ],
+      "answer": 0,
+      "explanation": "La distinction dépend de la relation entre AS des deux pairs, pas de la famille d’adresses ou du type de routes échangées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans la sélection BGP courante, comment faut-il interpréter LOCAL_PREF ?",
+      "choices": [
+        "Une valeur plus basse est toujours préférée et s’applique globalement à Internet.",
+        "Une valeur plus élevée est généralement préférée à l’intérieur de l’AS ; cet attribut n’est pas annoncé aux voisins eBGP comme préférence interne.",
+        "Il mesure le nombre de sauts physiques et est transmis tel quel à tous les AS.",
+        "Il authentifie à lui seul l’origine RPKI du préfixe."
+      ],
+      "answer": 1,
+      "explanation": "LOCAL_PREF sert à influencer le choix de sortie dans l’AS. Il ne commande pas les décisions de routage prises par les autres AS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel scénario correspond à une fuite de routes BGP ?",
+      "choices": [
+        "Un préfixe change de propriétaire dans une base DNS.",
+        "Un routeur apprend une route de son client et la garde seulement dans sa RIB.",
+        "Un réseau réannonce à un pair ou à un fournisseur une route apprise d’un autre fournisseur contrairement à la politique de propagation convenue.",
+        "Une session TCP s’établit sans échanger encore de préfixe."
+      ],
+      "answer": 2,
+      "explanation": "Une route leak est une propagation de préfixe incompatible avec la relation/topologie ou la politique attendue. L’origine du préfixe peut rester légitime."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif du comportement eBGP par défaut de RFC 8212 sur les équipements conformes ?",
+      "choices": [
+        "Accepter et exporter toutes les routes reçues tant que la session TCP est établie.",
+        "Remplacer les filtres de préfixes par une route par défaut.",
+        "Interdire toute session eBGP qui transporte IPv6.",
+        "Exiger des politiques d’import et d’export explicites avant d’utiliser ou d’annoncer des routes eBGP."
+      ],
+      "answer": 3,
+      "explanation": "RFC 8212 rend explicites les politiques d’import et d’export eBGP sur les implémentations conformes. Il faut vérifier le comportement et la configuration de la plate-forme utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une annonce est couverte par une VRP RPKI, mais son ASN d’origine ou sa longueur ne correspond pas à l’autorisation. Quel état ROV décrit ce cas ?",
+      "choices": [
+        "Invalid : une autorisation couvre le préfixe, mais l’annonce ne correspond à aucune VRP admissible.",
+        "Valid, parce que l’adresse du préfixe est présente dans le cache.",
+        "NotFound, car aucune VRP ne couvre ce préfixe.",
+        "Established, parce que la session BGP est établie."
+      ],
+      "answer": 0,
+      "explanation": "ROV compare le préfixe annoncé et l’ASN d’origine aux VRP. Invalid signifie que des VRP couvrent le préfixe, mais qu’aucune n’autorise l’annonce exacte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que valide la validation d’origine RPKI (ROV) ?",
+      "choices": [
+        "L’intégralité du chemin AS_PATH et chaque politique d’export des AS intermédiaires.",
+        "La cohérence entre le préfixe annoncé, la longueur maximale autorisée et l’ASN d’origine ; elle ne valide pas à elle seule tout AS_PATH.",
+        "La joignabilité applicative et le chemin retour.",
+        "La présence d’un certificat TLS valide sur chaque routeur traversé."
+      ],
+      "answer": 1,
+      "explanation": "ROV se concentre sur l’origine du préfixe par rapport aux ROA/VRP. Elle ne garantit ni la route complète ni le bon fonctionnement du plan de données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les rôles BGP et l’attribut OTC définis par RFC 9234 ?",
+      "choices": [
+        "À remplacer toutes les listes de préfixes et toutes les politiques locales.",
+        "À chiffrer automatiquement l’ensemble de la session TCP BGP.",
+        "À aider à prévenir ou détecter certains leaks en signalant la relation entre voisins et la propagation attendue des routes.",
+        "À garantir que toutes les implémentations appliquent la même politique commerciale sans configuration."
+      ],
+      "answer": 2,
+      "explanation": "Les rôles négociés et OTC complètent les politiques de filtrage et peuvent réduire certains scénarios de fuite. Une mauvaise configuration et les limites d’implémentation restent à prendre en compte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lors d’une maintenance planifiée, quel usage est typique de la communauté bien connue GRACEFUL_SHUTDOWN ?",
+      "choices": [
+        "Elle remplace le numéro d’AS par une adresse IPv6.",
+        "Elle garantit un basculement instantané sans mesure de trafic.",
+        "Elle force tous les réseaux distants à utiliser le chemin préparé, même s’ils ignorent la communauté.",
+        "L’annoncer selon la procédure prévue afin que les pairs qui la reconnaissent puissent réduire la préférence du chemin avant son retrait."
+      ],
+      "answer": 3,
+      "explanation": "La communauté Graceful Shutdown peut aider les pairs qui l’honorent à diminuer la préférence d’un chemin avant une maintenance. L’effet dépend de la politique et ne constitue pas une commande universelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque doit-on envisager lors d’un redémarrage avec BGP Graceful Restart ?",
+      "choices": [
+        "Des routes obsolètes peuvent être conservées pendant que le plan de transfert ou la connectivité est encore indisponible.",
+        "Le mécanisme supprime nécessairement toutes les routes apprises à l’avance.",
+        "Le redémarrage garantit une convergence instantanée dans tous les cas.",
+        "Il convertit une session eBGP en session iBGP."
+      ],
+      "answer": 0,
+      "explanation": "Graceful Restart cherche à préserver la continuité pendant certains redémarrages. Si le forwarding ne fonctionne plus, des routes stale peuvent prolonger la panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement une limite max-prefix sur une session BGP ?",
+      "choices": [
+        "À certifier que chaque route reçue est légitime et sûre.",
+        "À détecter ou limiter un volume inattendu de routes, avec une action/alerte prévue, en complément des filtres précis.",
+        "À remplacer toutes les politiques d’import et d’export.",
+        "À garantir la capacité du lien WAN et la performance des applications."
+      ],
+      "answer": 1,
+      "explanation": "max-prefix protège contre certains volumes d’annonces inattendus. Selon l’implémentation il peut avertir ou interrompre la session ; il ne remplace ni les filtres ni ROV."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel mécanisme aide un route reflector à limiter la réflexion en boucle et à éviter un maillage iBGP complet ?",
+      "choices": [
+        "Le remplacement de BGP par ARP sur chaque lien.",
+        "La modification automatique de tous les préfixes en /32.",
+        "L’utilisation d’attributs comme ORIGINATOR_ID et CLUSTER_LIST avec la conception en clients/non-clients.",
+        "L’attribut MED qui est utilisé comme identifiant de session."
+      ],
+      "answer": 2,
+      "explanation": "Les route reflectors évitent le full mesh iBGP avec une réflexion contrôlée. ORIGINATOR_ID et CLUSTER_LIST aident à détecter les boucles de réflexion ; la topologie et la redondance restent importantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu’apporte BGP ADD-PATH lorsqu’il est pris en charge et configuré des deux côtés ?",
+      "choices": [
+        "La garantie qu’un seul chemin sera conservé partout dans l’Internet.",
+        "Le chiffrement des annonces BGP sans mécanisme de sécurité complémentaire.",
+        "La suppression du besoin de politique de route et de filtrage.",
+        "La possibilité d’annoncer plusieurs chemins pour un même préfixe, plutôt qu’un unique chemin sélectionné dans les cas concernés."
+      ],
+      "answer": 3,
+      "explanation": "ADD-PATH permet d’échanger plusieurs chemins pour un préfixe dans les familles et conditions configurées. Les capacités négociées, les identifiants de chemin et les politiques restent pertinents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment le MED est-il généralement comparé dans le comportement BGP usuel ?",
+      "choices": [
+        "Une valeur plus faible peut être préférée entre routes éligibles provenant du même AS voisin ; la portée de comparaison dépend de la politique et de l’implémentation.",
+        "La valeur la plus élevée est toujours préférée sur tous les pairs Internet.",
+        "La comparaison suit toujours un classement mondial commun, sans exception.",
+        "MED indique le nombre de routeurs IP traversés et remplace AS_PATH."
+      ],
+      "answer": 0,
+      "explanation": "MED peut suggérer un point d’entrée vers un AS. La comparaison entre origines et l’ordre des attributs dépendent du comportement de l’équipement et de sa politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur AS_PATH prepending est correcte ?",
+      "choices": [
+        "Il impose le chemin retour à tous les AS sans dépendre de leurs politiques.",
+        "Il peut influencer certaines décisions distantes en allongeant l’AS_PATH, mais il ne garantit pas le chemin entrant choisi par les autres réseaux.",
+        "Il change l’ASN d’origine enregistré dans les ROA.",
+        "Il valide automatiquement les filtres d’export de tous les pairs."
+      ],
+      "answer": 1,
+      "explanation": "Le prepending n’est qu’un levier de politique. Les réseaux distants peuvent utiliser d’autres préférences, des routes plus spécifiques ou des communautés qui modifient la sélection."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation concernant le Weight d’un routeur Cisco est correcte ?",
+      "choices": [
+        "Il est obligatoire dans la norme BGP et doit être identique dans tous les AS.",
+        "Il remplace la validation RPKI et est échangé dans chaque UPDATE.",
+        "C’est un attribut local à la plate-forme Cisco qui n’est pas annoncé aux pairs BGP, contrairement aux attributs propagés selon leurs règles.",
+        "Il est un attribut de chemin standard annoncé à tous les voisins BGP."
+      ],
+      "answer": 2,
+      "explanation": "Weight est un critère propriétaire/local dans les implémentations Cisco. Il influence la décision locale et ne s’exporte pas comme préférence inter-AS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une session BGP est Established, mais le préfixe attendu n’apparaît pas dans la table utilisée. Quel contrôle doit venir ensuite ?",
+      "choices": [
+        "Conclure que le plan de données fonctionne nécessairement et ne rien changer.",
+        "Redémarrer tous les routeurs sans examiner les journaux.",
+        "Ajouter une route par défaut publique sans vérifier la politique.",
+        "Vérifier la famille d’adresses, les annonces reçues, les filtres et politiques d’import, l’éligibilité du chemin et la résolution NEXT_HOP."
+      ],
+      "answer": 3,
+      "explanation": "Established confirme l’établissement de la session, pas l’échange, l’acceptation ni l’installation de chaque préfixe. Les routes reçues, filtrées, sélectionnées et installées doivent être distinguées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle typique de BFD lorsqu’il est utilisé avec BGP ?",
+      "choices": [
+        "Accélérer la détection de certaines défaillances de chemin entre voisins, sans prouver que les annonces sont correctes ni que les applications fonctionnent.",
+        "Valider l’ASN d’origine des routes au moyen des ROA.",
+        "Remplacer BGP et calculer l’ensemble des routes Internet.",
+        "Garantir la joignabilité applicative de tous les préfixes annoncés."
+      ],
+      "answer": 0,
+      "explanation": "BFD peut réduire le délai de détection d’une défaillance de forwarding sur une session surveillée. Il ne valide pas le contenu des routes et doit être conçu avec les mécanismes de convergence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit le mieux un route server d’un point d’échange Internet dans l’architecture courante ?",
+      "choices": [
+        "Il doit transporter au niveau du plan de données chaque paquet échangé entre les membres.",
+        "Il distribue les annonces BGP entre participants selon la politique du service, tandis que le trafic passe normalement directement entre les réseaux via la fabric de l’IXP.",
+        "Il remplace la connexion Ethernet et l’adressage des membres de l’IXP.",
+        "Il agit nécessairement comme un fournisseur de transit qui annonce toutes les routes à tous."
+      ],
+      "answer": 1,
+      "explanation": "Un route server facilite les sessions et la distribution de routes sur l’IXP. Dans l’architecture habituelle, il n’est pas dans le chemin de données des paquets échangés par les membres."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe contrôle le transfert IP lorsqu’une table contient un préfixe plus spécifique et un agrégat moins spécifique ?",
+      "choices": [
+        "Les attributs BGP de la route la moins spécifique gagnent toujours.",
+        "Le routeur choisit toujours la route reçue en premier.",
+        "Le longest-prefix match choisit le préfixe correspondant le plus spécifique avant de considérer les métriques de routage qui ont installé ces routes.",
+        "Le MED s’applique à chaque paquet indépendamment de la table de forwarding."
+      ],
+      "answer": 2,
+      "explanation": "Les attributs BGP participent à la sélection des routes installées. Le forwarding IP choisit ensuite la correspondance de préfixe la plus longue parmi les entrées applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel plan est le plus solide avant un changement de politique BGP de production ?",
+      "choices": [
+        "Remplacer toutes les politiques simultanément puis vérifier uniquement l’état Established.",
+        "Désactiver les journaux afin de réduire le bruit pendant la maintenance.",
+        "Annoncer des préfixes de test sur l’Internet public pour vérifier la propagation.",
+        "Préparer des filtres et un retour arrière, capturer l’état des routes avant/après, vérifier RIB/FIB et joignabilité, puis surveiller les annonces et le trafic."
+      ],
+      "answer": 3,
+      "explanation": "Un changement BGP doit avoir un périmètre, des mesures initiales, des critères de réussite et une procédure de retour arrière. La validation syntaxique ne prouve ni la bonne propagation ni la continuité du forwarding."
+    }
+  ]
+}
