@@ -1596,6 +1596,22 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
     }
 
     if course_node is not None:
+        # Réserve la session avant tout effet de bord (tentative, XP, badges).
+        # L'UPDATE conditionnel sérialise deux soumissions concurrentes sur la même session.
+        reservation = tree.conn.execute(
+            "UPDATE exam_sessions SET passing_score = ? "
+            "WHERE session_id = ? AND submitted = 0 AND paused_at IS NULL",
+            (passing_score, session_id),
+        )
+        if getattr(reservation, "rowcount", 1) == 0:
+            tree.conn.rollback()
+            latest = tree.conn.execute(
+                "SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)
+            ).fetchone()
+            if latest is not None and latest["submitted"]:
+                return _exam_result_payload(latest)
+            raise HTTPException(409, "La session d’examen ne peut plus être corrigée.")
+
         try:
             _attempt, validated = tree.record(
                 course_node.id,
@@ -1607,9 +1623,14 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
                     ensure_ascii=False,
                 ),
                 detail=f"Examen : {correct}/{total} bonnes réponses",
+                commit=False,
             )
         except DomainError as error:
+            tree.conn.rollback()
             raise HTTPException(409, str(error)) from error
+        except Exception:
+            tree.conn.rollback()
+            raise
         result["validated"] = validated
         result["status"] = tree.status(course_node.id).value
         result["xp_gained"] = (tree.last_reward or {}).get("xp", 0)
@@ -1633,10 +1654,18 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
             session_id,
         ),
     )
-    tree.conn.commit()
     if getattr(cursor, "rowcount", 1) == 0:
-        latest = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
-        return _exam_result_payload(latest)
+        # Annule également la preuve et les récompenses si une autre requête a gagné.
+        tree.conn.rollback()
+        latest = tree.conn.execute(
+            "SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)
+        ).fetchone()
+        if latest is not None and latest["submitted"]:
+            return _exam_result_payload(latest)
+        raise HTTPException(409, "La session d’examen a changé pendant sa correction.")
+
+    # La tentative de cours, les récompenses et le résultat de session sont atomiques.
+    tree.conn.commit()
     return result
 
 
