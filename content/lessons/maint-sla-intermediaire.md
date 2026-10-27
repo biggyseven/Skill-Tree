@@ -129,3 +129,113 @@ Correction : parce que les réponses peuvent ne pas représenter tous les utilis
 Un rapport affiche une disponibilité mensuelle de 99,9 %. Pourtant, plusieurs équipes ont été bloquées par un incident de deux heures. Le support affirme que son SLA est respecté parce que tous les tickets ont reçu une réponse initiale rapide.
 
 **Correction attendue :** vérifier la définition contractuelle de disponibilité, le calendrier et les périodes incluses ; examiner les preuves et l'impact de l'incident ; distinguer disponibilité, première réponse et rétablissement ; calculer à nouveau avec la méthode approuvée ; vérifier si les engagements internes des équipes ont soutenu la cible globale ; communiquer les écarts selon le processus et attribuer des actions. Si le contrat ne couvre pas correctement l'expérience métier, proposer une révision formelle plutôt que modifier rétroactivement les règles.
+
+
+## 8. Définir précisément le périmètre et les heures de service
+
+Un engagement de disponibilité ne peut être mesuré correctement que si le service est défini. Précise le service rendu, les utilisateurs couverts, les régions ou sites concernés, les fonctions incluses, les périodes de service, les dépendances, le mode de mesure, les exclusions approuvées et le propriétaire du calcul. Une application peut fonctionner pour les utilisateurs du siège et être indisponible depuis une agence ; il faut décider si l'engagement s'applique au service global, à un site ou à une fonction critique.
+
+La fenêtre de service change l'interprétation d'une panne. Pour une application disponible 24 h/24, une interruption de nuit peut compter au même titre qu'une interruption de jour. Pour un service de bureau ouvert de 8 h à 18 h, le temps hors de cette fenêtre peut être traité différemment si l'accord le prévoit. N'invente pas les exclusions : elles doivent être explicitement acceptées par les parties. Une maintenance planifiée ne doit pas être exclue rétroactivement simplement pour améliorer le score.
+
+~~~mermaid
+flowchart TD
+    A[Accord de service] --> B[Définir service et utilisateurs]
+    B --> C[Fixer fenêtre et objectifs]
+    C --> D[Définir source et méthode de mesure]
+    D --> E[Documenter exclusions et responsabilités]
+    E --> F[Collecter résultats]
+    F --> G[Calculer et revoir les écarts]
+~~~
+
+Les engagements doivent être lisibles par le métier et techniquement vérifiables. « Le système sera rapide » n'est pas un objectif mesurable. « Le 95e percentile du temps de réponse du parcours de connexion doit rester inférieur à la cible convenue pendant la fenêtre définie » peut être mesuré, à condition que le parcours, le point de mesure, la fenêtre et la méthode d'exclusion soient précisés. Une valeur de temps ne remplace pas une expérience utilisateur satisfaisante si les tests ne couvrent pas les étapes réellement utilisées.
+
+## 9. Calculer disponibilité et budget d'indisponibilité
+
+La disponibilité est souvent exprimée comme la proportion de temps où le service respecte les critères convenus. Une formule courante est :
+
+Disponibilité (%) = (temps de service convenu − temps d'indisponibilité comptabilisé) / temps de service convenu × 100
+
+Le numérateur et le dénominateur dépendent de l'accord. Il faut définir la fenêtre, l'unité, les sources et les cas d'indisponibilité partielle. Certaines organisations utilisent le nombre de requêtes réussies plutôt que la durée ; la méthode doit être documentée et ne pas être modifiée d'un mois à l'autre sans explication.
+
+Exemple de calcul avec une fenêtre continue de 30 jours : 30 × 24 × 60 = 43 200 minutes. Pour un objectif de 99,9 %, le budget d'indisponibilité théorique est 0,001 × 43 200 = 43,2 minutes. Ce résultat suppose une couverture 24 h/24, 7 j/7, un mois conventionnel de 30 jours et aucune exclusion additionnelle. Le calcul réel doit appliquer les fenêtres et les règles du contrat.
+
+Un taux de 99,9 % n'explique pas à lui seul l'impact. Une interruption unique de quarante minutes, une multitude de microcoupures et une panne affectant seulement les paiements peuvent produire une mesure proche, mais des conséquences différentes. Complète la disponibilité par la durée et le nombre d'incidents, l'impact métier, l'expérience utilisateur, les erreurs, la période et le contexte.
+
+~~~mermaid
+flowchart LR
+    A[Définition contractuelle] --> B[Temps attendu]
+    A --> C[Événements de disponibilité]
+    B --> D[Appliquer fenêtre et exclusions]
+    C --> D
+    D --> E[Calcul reproductible]
+    E --> F[Contrôle des données]
+    F --> G[Résultat SLA et explication]
+~~~
+
+Un SLA peut fixer un objectif de service, mais la qualité du calcul dépend de la collecte. Vérifie les horloges, les fuseaux horaires, les changements d'heure, les trous de supervision, les doublons d'incidents, les maintenances et les changements de périmètre. Une absence de données ne doit pas être convertie arbitrairement en disponibilité ou indisponibilité : elle doit être traitée selon une règle convenue et signalée comme limite.
+
+## 10. Réponse, rétablissement et résolution : les horloges diffèrent
+
+Le temps de réponse peut mesurer le délai avant qu'un opérateur prenne le dossier en charge. Le temps de rétablissement indique le temps nécessaire pour restaurer le service. Le temps de résolution peut inclure l'analyse approfondie, la correction durable et le suivi. Ces horloges doivent avoir des événements de départ et de fin explicités dans l'accord. Une équipe ne doit pas présenter un accusé de réception rapide comme la preuve que le service a été restauré rapidement.
+
+Les indicateurs MTTA, MTTR et MTBF ont des usages différents. MTTA peut mesurer le temps moyen jusqu'à la prise en charge ; MTTR est ambigu s'il n'est pas défini (repair, restore, respond ou resolve selon les organisations) ; MTBF mesure la durée opérationnelle moyenne entre des défaillances réparables. Les définitions varient : indique toujours ce que la lettre R représente, quelle population est incluse et comment les incidents réouverts sont comptés. Atlassian décrit les métriques et leurs limites dans ses ressources de gestion d'incidents : https://www.atlassian.com/incident-management/kpis/common-metrics.
+
+Les moyennes doivent être complétées par une distribution ou des percentiles lorsque c'est utile. Une moyenne de 20 minutes peut masquer un petit nombre d'incidents qui durent plusieurs heures. Les cas extrêmes doivent être examinés au lieu de disparaître dans l'agrégat. Ne compare pas deux équipes si les périmètres, les heures d'ouverture, les niveaux de gravité ou les règles de pause des horloges diffèrent.
+
+## 11. Aligner les SLA, OLA et contrats fournisseurs
+
+Un SLA envers un utilisateur ou un métier dépend souvent d'engagements internes et de prestataires. Les OLA alignent les responsabilités entre équipes ; les accords fournisseurs décrivent les engagements externes. Si le service s'engage à rétablir une application en deux heures mais qu'une dépendance externe garantit seulement une réponse en huit heures, l'architecture et le plan d'escalade comportent une incohérence. Les parties doivent rendre visibles les dépendances et les marges de récupération.
+
+Un tableau d'alignement relie, pour chaque engagement, le service métier, les composants, le groupe responsable, la source de mesure, les dépendances, l'objectif, le délai d'escalade et le recours fournisseur. Les contacts et obligations de notification doivent être révisés quand le contrat, l'organisation ou l'architecture changent. L'engagement externe ne transfère pas automatiquement la responsabilité de communication envers les utilisateurs finaux.
+
+Les crédits de service ou pénalités éventuels ne constituent pas un objectif de fiabilité. Ils doivent être interprétés à partir du contrat approuvé, y compris les exclusions, les périodes, les limites et le processus de contestation. Le cours ne remplace pas une revue juridique ou commerciale. Les indicateurs doivent servir d'abord à comprendre le service et à corriger les risques.
+
+## 12. Satisfaction utilisateur : mesure qualitative et quantitative
+
+La satisfaction peut être mesurée via une question courte après le traitement, un échantillonnage, un retour du propriétaire métier ou l'analyse des réouvertures. Il faut éviter de conclure que la qualité est excellente sur la base d'une enquête à laquelle seule une petite fraction des utilisateurs répond. Précise le nombre de réponses, la période, le taux de participation, les populations concernées et les limites d'interprétation.
+
+Les mesures quantitatives comme la disponibilité ou le délai de résolution ne décrivent pas tout. Une solution peut rétablir le service mais être difficile à utiliser ; un ticket peut être fermé rapidement avec une communication insatisfaisante. Associe donc les métriques opérationnelles à des retours qualitatifs et à des exemples. Respecte la confidentialité : les commentaires individuels ne doivent pas être affichés largement si les résultats peuvent être présentés sous forme agrégée.
+
+~~~mermaid
+flowchart TD
+    A[Mesures techniques] --> D[Revue de qualité de service]
+    B[Délais et tickets] --> D
+    C[Retours utilisateurs] --> D
+    D --> E[Identifier causes et segments]
+    E --> F[Action responsable et échéance]
+    F --> G[Mesure après amélioration]
+~~~
+
+Évite les enquêtes qui demandent à l'utilisateur d'évaluer une équipe pour laquelle il n'a reçu aucun service clair. Le questionnaire doit porter sur des aspects observables, par exemple clarté des mises à jour, facilité de contact et confirmation de retour. Les réponses servent à repérer des tendances, pas à tirer des conclusions individuelles sans contexte.
+
+## 13. Travaux pratiques avancés
+
+### TP 6 — Définir un SLA pour une application interne
+
+Décris le service, les utilisateurs, la fenêtre, les critères de disponibilité, la réponse attendue, le délai de rétablissement, les exclusions, les dépendances, la source de mesure, les rôles et le reporting.
+
+**Correction attendue :** les critères doivent être mesurables, la fenêtre explicite et les exclusions approuvées. Les OLA des équipes techniques doivent soutenir l'objectif global avec un délai permettant le diagnostic et la reprise. Les métriques et le périmètre sont validés par le propriétaire métier avant de devenir un engagement.
+
+### TP 7 — Calculer un mois de disponibilité
+
+Une fenêtre 24/7 de 30 jours comporte 38 minutes d'indisponibilité comptabilisée. Calcule le pourcentage sous la méthode temps et compare-le à l'objectif de 99,9 %.
+
+**Correction :** temps attendu = 43 200 minutes. Disponibilité = (43 200 − 38) / 43 200 × 100 ≈ 99,912 %. Sous les hypothèses annoncées, le résultat dépasse 99,9 %. Si le contrat a une autre fenêtre, des exclusions ou une mesure par requêtes, le calcul doit être adapté.
+
+### TP 8 — Un SLA conforme, des utilisateurs mécontents
+
+Les indicateurs de disponibilité sont conformes, mais les utilisateurs trouvent le service lent.
+
+**Correction :** vérifier si la mesure couvre le parcours complet, le point de sonde, les percentiles, les erreurs et les périodes d'activité. Il est possible que l'application soit techniquement joignable tout en étant difficile à utiliser. Définir une mesure de performance complémentaire, analyser les retours et faire valider la modification de l'accord si elle modifie l'engagement.
+
+## 14. Défi final — Construire une revue de service crédible
+
+Prépare une revue trimestrielle avec disponibilité, délais de réponse et de rétablissement, satisfaction, incidents majeurs, écarts SLA, contributions des OLA, dépendances fournisseur et actions d'amélioration. Explique quelles données restent incertaines et quelles décisions sont attendues.
+
+**Correction détaillée :** présenter d'abord les services et impacts métier, puis la méthode de calcul et les limites, les résultats par période, les écarts documentés, la parole utilisateur agrégée et les actions avec propriétaire, échéance et preuve de réussite. Distinguer les délais d'accusé et de rétablissement, et définir les sigles MTTR utilisés. Une métrique non fiable doit être marquée comme telle ; il ne faut pas la remplacer par une estimation pour produire un graphique complet.
+
+## 15. Sources à consulter
+
+- PeopleCert, pratique Service Level Management : https://www.peoplecert.org/browse-certifications/it-governance-and-service-management/ITIL-1/itil-4-practitioner-service-level-management-3867
+- Zabbix, configuration des services et SLA : https://www.zabbix.com/documentation/current/en/manual/web_interface/frontend_sections/services/service
+- Atlassian, MTBF, MTTR, MTTA et limites d'interprétation : https://www.atlassian.com/incident-management/kpis/common-metrics
