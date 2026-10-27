@@ -6,7 +6,7 @@
   "module": "Réseaux",
   "duration_min": 25,
   "difficulty": "débutant",
-  "prompt": "Configurez Gi0/0 sur R1 avec l’adresse 10.10.10.1/24, puis activez l’interface. Le serveur contrôle l’adresse, le masque et l’état réellement enregistrés dans la topologie.",
+  "prompt": "Contexte : Gi0/0 de R1 doit servir d’interface IPv4 sur le réseau 10.10.10.0/24. Configurez l’adresse 10.10.10.1 avec le masque 255.255.255.0, puis activez administrativement l’interface. Dans ce scénario, le port commence désactivé : l’adresse correcte ne suffit pas si l’interface reste en shutdown.",
   "objectives": [
     "Exécuter puis vérifier : interface Gi0/0",
     "Exécuter puis vérifier : ip address 10.10.10.1 255.255.255.0",
@@ -14,8 +14,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; interface Gi0/0 ; ip address 10.10.10.1 255.255.255.0 ; no shutdown ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : sélectionnez Gi0/0 avant de saisir les commandes propres à l’interface.",
+    "Indice 2 : /24 équivaut au masque 255.255.255.0. La commande no shutdown se saisit dans le mode d’interface.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; interface Gi0/0 ; ip address 10.10.10.1 255.255.255.0 ; no shutdown ; end.",
+    "La validation exige l’adresse, le masque exact et l’état administratif up de Gi0/0."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -57,7 +59,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -108,7 +110,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -127,7 +129,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -178,7 +180,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -231,7 +233,7 @@
           "port": "Fa0/24"
         },
         "cable_type": "copper_straight",
-        "state": "up",
+        "state": "down",
         "bandwidth": 1000,
         "latency_ms": 1
       },
@@ -283,7 +285,7 @@
     "rules": [
       {
         "id": "ip_address",
-        "description": "Contrôle serveur : ip address doit être conforme.",
+        "description": "Gi0/0 utilise l’adresse IPv4 10.10.10.1.",
         "device": "R1",
         "path": "ports[0].ip",
         "operator": "equals",
@@ -291,7 +293,7 @@
       },
       {
         "id": "ip_mask",
-        "description": "Contrôle serveur : ip mask doit être conforme.",
+        "description": "Gi0/0 utilise le masque 255.255.255.0 (/24).",
         "device": "R1",
         "path": "ports[0].mask",
         "operator": "equals",
@@ -299,7 +301,7 @@
       },
       {
         "id": "ip_state",
-        "description": "Contrôle serveur : ip state doit être conforme.",
+        "description": "Gi0/0 est activée.",
         "device": "R1",
         "path": "ports[0].state",
         "operator": "equals",
