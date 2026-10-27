@@ -2273,7 +2273,18 @@ def issue_certificate(payload: dict = Body(...), tree: SkillTree = Depends(get_t
     if not isinstance(submitted_scope, list) or sorted(submitted_scope) != sorted(expected_scope):
         raise HTTPException(409, "Le périmètre des cours a changé depuis l’examen ; repasse l’examen du niveau.")
 
-    name = str(payload.get("name") or CERTIFICATE_NAME).strip()
+    submitted_name = str(payload.get("name") or "").strip()
+    configured_name = str(CERTIFICATE_NAME or "").strip()
+    placeholders = {"ton nom", "votre nom", "your name", "full name"}
+    if not submitted_name or submitted_name.casefold() in placeholders:
+        if not configured_name or configured_name.casefold() in placeholders:
+            raise HTTPException(
+                422,
+                "Renseigne ton nom dans les paramètres avant de délivrer le diplôme.",
+            )
+        name = configured_name
+    else:
+        name = submitted_name
     if not name:
         raise HTTPException(422, "Le nom à inscrire sur le diplôme est obligatoire.")
     if len(name) > 100:
