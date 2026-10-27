@@ -11,18 +11,18 @@
         "Lien-local"
       ],
       "answer": 1,
-      "explanation": "IPv6 n'a pas de broadcast : le multicast ff02::1 joue ce rôle."
+      "explanation": "IPv6 n'a pas de broadcast : les fonctions équivalentes utilisent notamment le multicast."
     },
     {
       "prompt": "Que fait SLAAC ?",
       "choices": [
         "Il configure l'adresse à partir du préfixe annoncé par le routeur",
-        "Il attribue une IP depuis un serveur central",
+        "Il attribue une IP depuis un serveur central obligatoire",
         "Il traduit les adresses",
         "Il signe les Router Advertisements"
       ],
       "answer": 0,
-      "explanation": "SLAAC combine le préfixe des RA et un identifiant d'interface."
+      "explanation": "SLAAC permet à l'hôte de construire une adresse à partir des informations de préfixe reçues dans les Router Advertisements."
     },
     {
       "prompt": "Quelle est la taille de l'en-tête IPv6 de base ?",
@@ -33,7 +33,95 @@
         "60 octets"
       ],
       "answer": 2,
-      "explanation": "L'en-tête IPv6 fixe fait 40 octets, extensible par en-têtes optionnels."
+      "explanation": "L'en-tête IPv6 de base a une taille fixe de 40 octets ; les en-têtes d'extension sont distincts."
+    },
+    {
+      "prompt": "Quel mécanisme IPv6 remplace la résolution ARP pour associer une adresse IP à une adresse de couche 2 sur le lien ?",
+      "choices": [
+        "DHCPv6",
+        "Neighbor Discovery Protocol (NDP), notamment Neighbor Solicitation et Neighbor Advertisement",
+        "OSPFv3",
+        "DNS récursif"
+      ],
+      "answer": 1,
+      "explanation": "NDP utilise des messages ICMPv6 pour découvrir les voisins et résoudre leurs adresses de couche 2."
+    },
+    {
+      "prompt": "Comment un hôte IPv6 vérifie-t-il qu'une adresse qu'il veut utiliser n'est pas déjà attribuée sur le lien ?",
+      "choices": [
+        "Il envoie une requête ARP en broadcast",
+        "Il émet un DHCP Discover sur UDP/67",
+        "Il utilise Duplicate Address Detection, avec un Neighbor Solicitation depuis l'adresse source non spécifiée",
+        "Il envoie un Router Advertisement à tous les routeurs"
+      ],
+      "answer": 2,
+      "explanation": "DAD utilise Neighbor Solicitation avec l'adresse source non spécifiée pour vérifier qu'aucun voisin n'utilise déjà l'adresse cible."
+    },
+    {
+      "prompt": "Quel préfixe est réservé aux adresses unicast link-local IPv6 ?",
+      "choices": [
+        "2000::/3",
+        "FE80::/10",
+        "FC00::/7",
+        "FF00::/8"
+      ],
+      "answer": 1,
+      "explanation": "FE80::/10 identifie les adresses link-local, utilisables sur le lien local et non routées comme des adresses globales."
+    },
+    {
+      "prompt": "Quel message permet notamment à un routeur IPv6 d'annoncer un préfixe et sa présence comme routeur par défaut ?",
+      "choices": [
+        "Router Advertisement (RA)",
+        "Neighbor Advertisement (NA) uniquement",
+        "ICMP Echo Reply",
+        "DHCPv6 Reply uniquement"
+      ],
+      "answer": 0,
+      "explanation": "Les Router Advertisements annoncent les paramètres du lien et permettent aux hôtes d'apprendre les routeurs par défaut."
+    },
+    {
+      "prompt": "Dans un Router Advertisement, que signifie le drapeau M lorsqu'il vaut 1 ?",
+      "choices": [
+        "Le routeur impose le NAT66",
+        "Les paquets IPv6 doivent être fragmentés par le routeur",
+        "La découverte de voisins est désactivée",
+        "Une configuration d'adresse gérée via DHCPv6 est indiquée"
+      ],
+      "answer": 3,
+      "explanation": "Le drapeau Managed (M) indique que l'hôte doit utiliser DHCPv6 pour obtenir une configuration d'adresse gérée."
+    },
+    {
+      "prompt": "Quel message ICMPv6 est essentiel à la découverte du MTU du chemin lorsqu'un paquet est trop volumineux ?",
+      "choices": [
+        "Redirect",
+        "Packet Too Big",
+        "Echo Request",
+        "Neighbor Advertisement"
+      ],
+      "answer": 1,
+      "explanation": "La découverte du Path MTU s'appuie sur ICMPv6 Packet Too Big ; filtrer ces messages peut provoquer des blocages de connexion."
+    },
+    {
+      "prompt": "Qui fragmente un paquet IPv6 lorsqu'il dépasse le MTU du chemin ?",
+      "choices": [
+        "Chaque routeur le fragmente automatiquement au passage",
+        "Le commutateur de couche 2 ajoute un en-tête Fragment",
+        "La source peut utiliser l'en-tête d'extension Fragment ; les routeurs intermédiaires ne fragmentent pas le paquet",
+        "Le serveur DNS décompose le paquet"
+      ],
+      "answer": 2,
+      "explanation": "En IPv6, la fragmentation est effectuée par la source à l'aide de l'en-tête Fragment ; les routeurs intermédiaires renvoient plutôt un message Packet Too Big."
+    },
+    {
+      "prompt": "Quel préfixe représente la route IPv6 par défaut dans une table de routage ?",
+      "choices": [
+        "::/0",
+        "0.0.0.0/0",
+        "FE80::/10",
+        "FF02::1/128"
+      ],
+      "answer": 0,
+      "explanation": "::/0 correspond à tous les préfixes IPv6 et sert à représenter la route par défaut."
     }
   ]
 }
