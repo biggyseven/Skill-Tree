@@ -3525,13 +3525,19 @@
             .map((node, index) => {
               const rawOrder = node.order ?? node.sort_order;
               const order = rawOrder === null || rawOrder === undefined || rawOrder === '' ? Number.NaN : Number(rawOrder);
-              return { node, index, order };
+              const rawCatalogIndex = node.catalog_index;
+              const catalogIndex = rawCatalogIndex === null || rawCatalogIndex === undefined || rawCatalogIndex === '' ? Number.NaN : Number(rawCatalogIndex);
+              return { node, index, order, catalogIndex };
             })
             .sort((a, b) => {
               const aHasOrder = Number.isFinite(a.order);
               const bHasOrder = Number.isFinite(b.order);
               if (aHasOrder && bHasOrder && a.order !== b.order) return a.order - b.order;
               if (aHasOrder !== bHasOrder) return aHasOrder ? -1 : 1;
+              const aHasCatalogIndex = Number.isFinite(a.catalogIndex);
+              const bHasCatalogIndex = Number.isFinite(b.catalogIndex);
+              if (aHasCatalogIndex && bHasCatalogIndex && a.catalogIndex !== b.catalogIndex) return a.catalogIndex - b.catalogIndex;
+              if (aHasCatalogIndex !== bHasCatalogIndex) return aHasCatalogIndex ? -1 : 1;
               return a.index - b.index;
             })
             .map(item => item.node);
@@ -3546,8 +3552,10 @@
             .map((node, index) => {
               const rawOrder = node.order ?? node.sort_order;
               const order = rawOrder === null || rawOrder === undefined || rawOrder === '' ? Number.NaN : Number(rawOrder);
+              const rawCatalogIndex = node.catalog_index;
+              const catalogIndex = rawCatalogIndex === null || rawCatalogIndex === undefined || rawCatalogIndex === '' ? Number.NaN : Number(rawCatalogIndex);
               const modulePos = this.modules.findIndex(module => module.id === this.moduleOf(node));
-              return { node, index, order, moduleIndex: modulePos >= 0 ? modulePos : this.modules.length };
+              return { node, index, order, catalogIndex, moduleIndex: modulePos >= 0 ? modulePos : this.modules.length };
             })
             .sort((a, b) => {
               if (a.moduleIndex !== b.moduleIndex) return a.moduleIndex - b.moduleIndex;
@@ -3555,6 +3563,10 @@
               const bHasOrder = Number.isFinite(b.order);
               if (aHasOrder && bHasOrder && a.order !== b.order) return a.order - b.order;
               if (aHasOrder !== bHasOrder) return aHasOrder ? -1 : 1;
+              const aHasCatalogIndex = Number.isFinite(a.catalogIndex);
+              const bHasCatalogIndex = Number.isFinite(b.catalogIndex);
+              if (aHasCatalogIndex && bHasCatalogIndex && a.catalogIndex !== b.catalogIndex) return a.catalogIndex - b.catalogIndex;
+              if (aHasCatalogIndex !== bHasCatalogIndex) return aHasCatalogIndex ? -1 : 1;
               return a.index - b.index;
             })
             .map(item => item.node);
