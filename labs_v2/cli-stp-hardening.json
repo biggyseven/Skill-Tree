@@ -6,18 +6,19 @@
   "module": "Commutation et sécurité",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Activez rapid-PVST, définissez SW1 comme racine primaire du VLAN 10, puis activez PortFast et BPDU Guard sur Fa0/1.",
+  "prompt": "Contexte : SW1 doit devenir la racine STP primaire du VLAN 10 et protéger le port d’accès Fa0/1 relié à un poste. Créez d’abord le VLAN 10, activez Rapid-PVST, définissez la racine primaire, puis activez PortFast et BPDU Guard sur Fa0/1. Ne placez jamais ces protections destinées aux ports hôtes sur un trunk entre commutateurs. La configuration de racine est vérifiée localement ; aucune élection STP multi-switch n’est simulée.",
   "objectives": [
-    "Exécuter puis vérifier : spanning-tree mode rapid-pvst",
-    "Exécuter puis vérifier : spanning-tree vlan 10 root primary",
-    "Exécuter puis vérifier : interface Fa0/1",
-    "Exécuter puis vérifier : spanning-tree portfast",
-    "Exécuter puis vérifier : spanning-tree bpduguard enable"
+    "Créer le VLAN 10 sur SW1",
+    "Activer le mode spanning-tree rapid-pvst",
+    "Définir SW1 comme racine primaire du VLAN 10",
+    "Configurer Fa0/1 en port d’accès avec PortFast et BPDU Guard"
   ],
   "hints": [
     "Cible CLI : SW1.",
-    "Séquence de référence : enable ; configure terminal ; spanning-tree mode rapid-pvst ; spanning-tree vlan 10 root primary ; interface Fa0/1 ; spanning-tree portfast ; spanning-tree bpduguard enable ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : le VLAN doit exister avant de choisir la racine pour ce VLAN.",
+    "Indice 2 : utilisez spanning-tree portfast et spanning-tree bpduguard enable uniquement sur Fa0/1, le port relié au poste.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; vlan 10 ; spanning-tree mode rapid-pvst ; spanning-tree vlan 10 root primary ; interface Fa0/1 ; spanning-tree portfast ; spanning-tree bpduguard enable ; end.",
+    "La validation vérifie l’existence du VLAN 10, Rapid-PVST, la racine primaire et les protections activées sur Fa0/1."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -40,7 +41,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -59,7 +60,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -110,7 +111,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -129,7 +130,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -180,7 +181,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -284,8 +285,19 @@
     "type": "config_assertions",
     "rules": [
       {
+        "id": "stp_vlan10",
+        "description": "Le VLAN 10 existe sur SW1.",
+        "device": "SW1",
+        "path": "config.vlans",
+        "operator": "contains",
+        "expected": {
+          "id": 10,
+          "name": "VLAN10"
+        }
+      },
+      {
         "id": "stp_mode",
-        "description": "Contrôle serveur : stp mode doit être conforme.",
+        "description": "SW1 utilise Rapid-PVST.",
         "device": "SW1",
         "path": "config.protocols.stp.mode",
         "operator": "equals",
@@ -293,7 +305,7 @@
       },
       {
         "id": "stp_root",
-        "description": "Contrôle serveur : stp root doit être conforme.",
+        "description": "SW1 est configuré comme racine primaire du VLAN 10.",
         "device": "SW1",
         "path": "config.protocols.stp.roots",
         "operator": "contains",
@@ -304,7 +316,7 @@
       },
       {
         "id": "stp_portfast",
-        "description": "Contrôle serveur : stp portfast doit être conforme.",
+        "description": "PortFast est activé sur Fa0/1.",
         "device": "SW1",
         "path": "ports[0].spanning_tree.portfast",
         "operator": "equals",
@@ -312,7 +324,7 @@
       },
       {
         "id": "stp_bpduguard",
-        "description": "Contrôle serveur : stp bpduguard doit être conforme.",
+        "description": "BPDU Guard est activé sur Fa0/1.",
         "device": "SW1",
         "path": "ports[0].spanning_tree.bpduguard",
         "operator": "equals",
