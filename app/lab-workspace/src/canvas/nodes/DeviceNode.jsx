@@ -10,43 +10,62 @@ export function DeviceNode({ data, selected }) {
   const leftPorts = ports.slice(0, half);
   const rightPorts = ports.slice(half);
 
-  // Chaque interface physique expose un point de départ et un point d'arrivée.
-  // Les deux handles sont légèrement décalés pour rester faciles à sélectionner.
+  // Une interface physique affiche deux poignées techniques : bleu (départ)
+  // et gris (arrivée). Le nom affiché à côté du duo est le nom du port réel.
+  const showPortLabels = data.showPortLabels === true && ports.length <= 16;
   const renderPorts = (portsList, position) => {
     if (portsList.length === 0) return null;
     return portsList.map((port, index) => {
       const topPercent = portsList.length === 1 ? 50 : 8 + (index * (84 / (portsList.length - 1)));
       const sideStyle = position === Position.Left ? { left: '-5px' } : { right: '-5px' };
+      const labelStyle = position === Position.Left
+        ? { right: 'calc(100% + 10px)' }
+        : { left: 'calc(100% + 10px)' };
       const name = port.name || port.id;
       return (
         <React.Fragment key={port.id}>
+          {showPortLabels && (
+            <span
+              data-port-label={name}
+              aria-hidden="true"
+              className="pointer-events-none absolute z-20 whitespace-nowrap rounded border border-[#30363d] bg-[#161b22] px-1 py-0.5 font-mono text-[9px] leading-none text-[#c9d1d9] shadow-lg"
+              style={{ ...labelStyle, top: `calc(${topPercent}% - 5px)` }}
+            >
+              {name}
+            </span>
+          )}
           <Handle
             type="source"
             position={position}
             id={`${port.id}::source`}
-            title={`Port ${name} — départ du câble`}
-            aria-label={`Port ${name}, départ du câble`}
-            className="!h-2 !w-2 !bg-[#0ea5e9] !border !border-[#7dd3fc] hover:!bg-[#38bdf8] hover:!scale-125 transition-all rounded-sm"
-            style={{ ...sideStyle, top: `calc(${topPercent}% - 4px)` }}
+            data-port-name={name}
+            data-port-role="départ"
+            title={`Port physique ${name} — point bleu : départ du câble`}
+            aria-label={`Port physique ${name}, point bleu, départ du câble`}
+            className="!h-2.5 !w-2.5 !bg-[#0ea5e9] !border !border-[#7dd3fc] hover:!bg-[#38bdf8] hover:!scale-125 transition-all rounded-sm"
+            style={{ ...sideStyle, top: `calc(${topPercent}% - 5px)` }}
           />
           <Handle
             type="target"
             position={position}
             id={`${port.id}::target`}
-            title={`Port ${name} — arrivée du câble`}
-            aria-label={`Port ${name}, arrivée du câble`}
-            className="!h-2 !w-2 !bg-[#64748b] !border !border-[#cbd5e1] hover:!bg-[#38bdf8] hover:!scale-125 transition-all rounded-sm"
-            style={{ ...sideStyle, top: `calc(${topPercent}% + 4px)` }}
+            data-port-name={name}
+            data-port-role="arrivée"
+            title={`Port physique ${name} — point gris : arrivée du câble`}
+            aria-label={`Port physique ${name}, point gris, arrivée du câble`}
+            className="!h-2.5 !w-2.5 !bg-[#64748b] !border !border-[#cbd5e1] hover:!bg-[#38bdf8] hover:!scale-125 transition-all rounded-sm"
+            style={{ ...sideStyle, top: `calc(${topPercent}% + 5px)` }}
           />
         </React.Fragment>
       );
     });
   };
 
-  const nodeMinHeight = ports.length > 16 ? `${Math.ceil(ports.length / 2) * 8 + 48}px` : undefined;
+  // Les grands switchs ont davantage de place entre chaque rangée de ports.
+  const nodeMinHeight = ports.length > 16 ? `${Math.ceil(ports.length / 2) * 14 + 56}px` : undefined;
 
   return (
-    <div style={nodeMinHeight ? { minHeight: nodeMinHeight } : undefined} className={`relative flex flex-col items-center justify-center p-2 transition-all ${selected ? 'rounded-xl bg-[#0ea5e9]/10 outline outline-2 outline-[#0ea5e9] outline-offset-4' : ''}`}>
+    <div data-testid={`lab-device-node-${data.nodeId || data.label}`} style={nodeMinHeight ? { minHeight: nodeMinHeight } : undefined} className={`relative flex flex-col items-center justify-center p-2 transition-all ${selected ? 'rounded-xl bg-[#0ea5e9]/10 outline outline-2 outline-[#0ea5e9] outline-offset-4' : ''}`}>
       
       <div className="relative flex h-16 w-16 items-center justify-center drop-shadow-xl">
         <DeviceIcon type={data.iconType || data.type} />
