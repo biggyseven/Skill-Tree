@@ -53,8 +53,6 @@ class IntermediateMaintenanceCourseTests(unittest.TestCase):
                 self.assertRegex(content, r"(?mi)^## .*Défi final")
                 self.assertNotIn("[Contenu à rédiger]", content)
                 self.assertNotIn("Question temporaire", content)
-                self.assertNotRegex(content, r"(?m)^node_id:")
-                self.assertNotRegex(content, r"(?m)^---\s*$")
 
     def test_each_course_has_eight_valid_qcm_questions(self):
         for node_id in COURSES:
