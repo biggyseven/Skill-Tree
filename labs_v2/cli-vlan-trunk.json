@@ -6,20 +6,21 @@
   "module": "Commutation",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Contexte : deux commutateurs d’accès SW1 et SW2 doivent transporter le VLAN 10 entre deux segments du même réseau local. Créez le VLAN 10 nommé VLAN10 sur les deux équipements puis configurez Fa0/24 en trunk des deux côtés. Un trunk opérationnel doit être cohérent à chaque extrémité ; la validation contrôle le VLAN et le mode de chaque port, sans simuler la négociation réelle du trunk.",
+  "prompt": "Contexte : PC1 et PC2 doivent appartenir au VLAN 10 et communiquer à travers deux commutateurs. Créez le VLAN 10 sur SW1 et SW2, configurez Fa0/1 comme port d’accès VLAN 10 sur chacun, puis configurez Fa0/24 en trunk des deux côtés. Vérifiez les deux extrémités du trunk : une configuration sur un seul commutateur ne suffit pas pour transporter le VLAN sur l’ensemble du lien.",
   "objectives": [
-    "Créer le VLAN 10 nommé VLAN10 sur SW1",
-    "Configurer le port Fa0/24 de SW1 en mode trunk",
-    "Créer le VLAN 10 nommé VLAN10 sur SW2",
-    "Configurer le port Fa0/24 de SW2 en mode trunk",
-    "Vérifier le VLAN et les deux extrémités du lien inter-switch"
+    "Créer le VLAN 10 nommé VLAN10 sur SW1 et SW2",
+    "Configurer Fa0/1 en mode access VLAN 10 sur SW1",
+    "Configurer Fa0/1 en mode access VLAN 10 sur SW2",
+    "Configurer Fa0/24 en trunk sur SW1 et SW2",
+    "Vérifier la cohérence du VLAN de chaque poste et des deux extrémités du trunk"
   ],
   "hints": [
-    "Cible CLI : SW1. Le scénario utilise deux commutateurs ; configurez les deux extrémités du trunk.",
-    "Indice 1 : le VLAN 10 doit exister sur les deux commutateurs. Un trunk peut transporter plusieurs VLAN, mais le VLAN doit être présent aux deux extrémités pour cet exercice.",
-    "Indice 2 : sélectionnez Fa0/24 sur chacun des commutateurs et passez-le en mode trunk. Ne configurez pas Fa0/1, le port d’accès relié au poste.",
-    "Solution de référence (à consulter en dernier) : SW1 => enable ; configure terminal ; vlan 10 ; interface Fa0/24 ; switchport mode trunk ; end || SW2 => enable ; configure terminal ; vlan 10 ; interface Fa0/24 ; switchport mode trunk ; end.",
-    "La validation vérifie le VLAN 10 et le mode trunk de Fa0/24 sur SW1 et SW2. Elle ne simule pas le trafic ni la négociation d’un trunk réel."
+    "Cible CLI : SW1. Le scénario utilise deux commutateurs et deux postes ; chaque switch doit être configuré individuellement.",
+    "Indice 1 : sur chaque switch, créez le VLAN 10 nommé VLAN10 avant d’affecter les ports utilisateurs.",
+    "Indice 2 : Fa0/1 relie le poste local. Placez-le en mode access et affectez-le au VLAN 10.",
+    "Indice 3 : le lien inter-switch utilise Fa0/24. Configurez switchport mode trunk sur SW1 et SW2.",
+    "Solution de référence (à consulter en dernier) : SW1 => enable ; configure terminal ; vlan 10 ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; exit ; interface Fa0/24 ; switchport mode trunk ; end || SW2 => enable ; configure terminal ; vlan 10 ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; exit ; interface Fa0/24 ; switchport mode trunk ; end.",
+    "La validation vérifie le VLAN 10, l’affectation des deux ports d’accès et le mode trunk des deux côtés. Elle ne simule pas le trafic réel de niveau 2."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -383,6 +384,38 @@
         "path": "ports[1].mode",
         "operator": "equals",
         "expected": "trunk"
+      },
+      {
+        "id": "sw1_access_mode",
+        "description": "Fa0/1 de SW1 est configuré en mode access.",
+        "device": "SW1",
+        "path": "ports[0].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "sw1_access_vlan",
+        "description": "Fa0/1 de SW1 appartient au VLAN 10.",
+        "device": "SW1",
+        "path": "ports[0].vlan",
+        "operator": "equals",
+        "expected": 10
+      },
+      {
+        "id": "sw2_access_mode",
+        "description": "Fa0/1 de SW2 est configuré en mode access.",
+        "device": "SW2",
+        "path": "ports[0].mode",
+        "operator": "equals",
+        "expected": "access"
+      },
+      {
+        "id": "sw2_access_vlan",
+        "description": "Fa0/1 de SW2 appartient au VLAN 10.",
+        "device": "SW2",
+        "path": "ports[0].vlan",
+        "operator": "equals",
+        "expected": 10
       }
     ],
     "pass_threshold": 1,
