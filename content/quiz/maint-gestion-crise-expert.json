@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Gestion de crise et Plan de Reprise » ?",
+      "prompt": "Quel est le rôle principal du RTO ?",
       "choices": [
-        "Le sujet principal du cours : Gestion de crise et Plan de Reprise",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Indiquer le délai cible de reprise d'un service",
+        "Définir la fréquence des sauvegardes uniquement",
+        "Mesurer le temps de détection",
+        "Désigner le coordinateur de crise"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le RTO est un objectif de délai de rétablissement validé par rapport au besoin métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente le RPO ?",
+      "choices": [
+        "La durée maximale d'un exercice",
+        "Le point de données jusqu'auquel la restauration doit être possible",
+        "Le délai d'accusé de réception d'un ticket",
+        "Le coût de la stratégie de secours"
+      ],
+      "answer": 1,
+      "explanation": "Le RPO exprime une perte de données maximale acceptable selon la définition approuvée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une sauvegarde a réussi. Quelle conclusion est justifiée ?",
+      "choices": [
+        "Le PRA est validé",
+        "La reprise complète respectera le RTO",
+        "La sauvegarde a produit un résultat déclaré positif, mais la restauration doit encore être testée",
+        "La communication de crise est terminée"
+      ],
+      "answer": 2,
+      "explanation": "Une exécution de sauvegarde ne prouve pas la restauration, l'intégrité ni la disponibilité des dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qui doit activer la cellule de crise ?",
+      "choices": [
+        "Toute personne sans règle de notification",
+        "Uniquement le fournisseur principal",
+        "Le technicien le plus ancien",
+        "Le rôle habilité par les critères et la chaîne d'escalade"
+      ],
+      "answer": 3,
+      "explanation": "L'autorité d'activation et ses suppléants sont définis dans le plan."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la BIA est-elle importante ?",
+      "choices": [
+        "Elle relie les interruptions à leurs conséquences et priorités métier",
+        "Elle fournit automatiquement les mots de passe",
+        "Elle remplace les tests de reprise",
+        "Elle garantit une absence de panne"
+      ],
+      "answer": 0,
+      "explanation": "La BIA sert à prioriser les activités, dépendances et objectifs de continuité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat prouve le mieux la reprise d'un service ?",
+      "choices": [
+        "Une machine virtuelle est démarrée",
+        "Les tests techniques et métier convenus réussissent dans les objectifs",
+        "Le fournisseur confirme que le serveur est prêt",
+        "Le ticket est marqué fermé"
+      ],
+      "answer": 1,
+      "explanation": "La reprise exige des critères de service et de cohérence des données, pas seulement un démarrage technique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un journal de crise ?",
+      "choices": [
+        "Seulement la liste des personnes présentes",
+        "Une conclusion sans chronologie",
+        "Faits, décisions, responsables, échéances et horodatages",
+        "Uniquement les communications externes"
+      ],
+      "answer": 2,
+      "explanation": "Un journal commun permet de suivre les décisions et la situation évolutive."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si le PRA dépasse le RTO ?",
+      "choices": [
+        "Modifier le RTO dans le rapport après le test",
+        "Cacher l'écart si le service revient",
+        "Fermer l'exercice puisque le système fonctionne",
+        "Documenter l'écart, informer les décideurs et convenir d'actions correctives"
+      ],
+      "answer": 3,
+      "explanation": "Un objectif ne doit pas être réécrit a posteriori pour faire apparaître une réussite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un mode dégradé doit-il être décrit ?",
+      "choices": [
+        "Pour préciser capacités, limites, contrôles compensatoires et retour au mode normal",
+        "Pour supprimer le besoin d'autorisation",
+        "Pour garantir que toutes les données seront synchronisées",
+        "Pour empêcher l'utilisateur d'être informé"
+      ],
+      "answer": 0,
+      "explanation": "Le mode dégradé doit être contrôlé et limité, avec des critères d'arrêt et de rapprochement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel exercice teste surtout la coordination et les décisions sans bascule technique réelle ?",
+      "choices": [
+        "Restauration complète en production",
+        "Exercice sur table",
+        "Effacement d'une base",
+        "Remplacement du fournisseur"
+      ],
+      "answer": 1,
+      "explanation": "Un exercice sur table permet de tester rôles, communications et décisions sans exécuter une reprise réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier pour les dépendances de reprise ?",
+      "choices": [
+        "Uniquement les serveurs applicatifs",
+        "Les licences uniquement",
+        "Identité, réseau, DNS, certificats, secrets, fournisseurs et données",
+        "Seulement l'interface utilisateur"
+      ],
+      "answer": 2,
+      "explanation": "La reprise peut échouer si une dépendance indispensable reste indisponible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand clôturer une action issue d'un exercice ?",
+      "choices": [
+        "Dès que le ticket est fermé",
+        "Quand l'équipe a assisté à la réunion",
+        "Après changement du statut documentaire",
+        "Après preuve de mise en œuvre et test d'efficacité adapté"
+      ],
+      "answer": 3,
+      "explanation": "La clôture requiert une vérification du résultat, pas seulement une déclaration."
     }
   ]
 }
