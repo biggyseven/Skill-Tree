@@ -1347,3 +1347,57 @@ test('le guide explique les ports bleus et gris et affiche le nom du port physiq
   await expect(guide).toContainText('Maintiens le clic sur le point bleu');
 });
 
+test('un lien openLab ouvre le Workspace quand la topologie est exposée à la racine de la réponse API', async ({ page }) => {
+  const labId = 'fixture-topology-root';
+  const initialTopology = {
+    schema_version: 2,
+    topology_id: labId,
+    metadata: { name: 'Scénario de test', author: 'test', created_at: '2026-01-01T00:00:00Z', mode: 'lab' },
+    nodes: [{
+      id: 'R1',
+      type: 'router',
+      model: 'Routeur de test',
+      x: 120,
+      y: 100,
+      label: 'R1',
+      hostname: 'R1',
+      ports: [{ id: 'Gi0/0', name: 'Gi0/0', state: 'up' }],
+      config: { hostname: 'R1' },
+    }],
+    links: [],
+    simulation: { state: 'idle', event_log: [] },
+  };
+
+  await page.route('**/api/lab/v2/fixture-topology-root', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      id: labId,
+      schema_version: 2,
+      definition: {
+        id: labId,
+        title: 'Scénario de test depuis un lien',
+        level: 'debutant',
+        module: 'Réseaux',
+        duration_min: 15,
+        difficulty: 'débutant',
+        prompt: 'Vérifier qu’un lien ouvre le Workspace.',
+        objectives: [],
+        hints: [],
+        xp_reward: 0,
+        badges: [],
+        check: { rules: [] },
+      },
+      initial_topology: initialTopology,
+    }),
+  }));
+
+  await page.goto('/?openLab=fixture-topology-root', { waitUntil: 'domcontentloaded' });
+  await expect.poll(() => {
+    const url = new URL(page.url());
+    return url.pathname + url.search;
+  }, { timeout: 45_000 }).toBe('/lab.html?id=fixture-topology-root');
+  await expect(page.getByText('Lab actif', { exact: true })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText('Scénario de test depuis un lien', { exact: true })).toBeVisible();
+});
+
