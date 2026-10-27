@@ -36,7 +36,6 @@ jobs:
     name: Test real Data course and quiz journey
     runs-on: ubuntu-latest
     env:
-      SKILLTREE_DB: ${{ runner.temp }}/skilltree-data-browser.db
       SKILLTREE_BASE_URL: http://127.0.0.1:8000
     steps:
       - name: Checkout source
@@ -52,6 +51,7 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Start the application with an isolated database
         run: |
+          export SKILLTREE_DB="$RUNNER_TEMP/skilltree-data-browser.db"
           python -m uvicorn app.api:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/skilltree-data-api.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/skilltree-data-api.pid"
           for attempt in $(seq 1 60); do
