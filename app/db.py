@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
     paused_seconds INTEGER NOT NULL DEFAULT 0,
     node_id TEXT REFERENCES nodes(id) ON DELETE SET NULL,
     exam_type TEXT NOT NULL DEFAULT 'category',
-    passing_score INTEGER NOT NULL DEFAULT 70,
+    passing_score INTEGER NOT NULL DEFAULT 80,
     result_json TEXT NOT NULL DEFAULT ''
 );
 
@@ -225,7 +225,7 @@ def initialize(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS paused_seconds INTEGER NOT NULL DEFAULT 0")
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS node_id TEXT REFERENCES nodes(id) ON DELETE SET NULL")
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS exam_type TEXT NOT NULL DEFAULT 'category'")
-        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS passing_score INTEGER NOT NULL DEFAULT 70")
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS passing_score INTEGER NOT NULL DEFAULT 80")
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS result_json TEXT NOT NULL DEFAULT ''")
     _ensure_user_stats(conn)
     conn.commit()
@@ -305,7 +305,7 @@ def _migrate(conn: sqlite3.Connection) -> None:
     if "exam_type" not in exam_columns:
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN exam_type TEXT NOT NULL DEFAULT 'category'")
     if "passing_score" not in exam_columns:
-        conn.execute("ALTER TABLE exam_sessions ADD COLUMN passing_score INTEGER NOT NULL DEFAULT 70")
+        conn.execute("ALTER TABLE exam_sessions ADD COLUMN passing_score INTEGER NOT NULL DEFAULT 80")
     if "result_json" not in exam_columns:
         conn.execute("ALTER TABLE exam_sessions ADD COLUMN result_json TEXT NOT NULL DEFAULT ''")
 

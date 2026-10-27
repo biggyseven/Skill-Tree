@@ -1850,7 +1850,7 @@
             <div class="card text-center" :class="examResult.passed ? '!border-emerald-400/30' : '!border-rose-400/30'">
               <p class="text-4xl" x-text="examResult.passed ? '🎉' : '💪'"></p>
               <p class="mt-2 font-mono text-6xl font-semibold text-white" x-text="examResult.score + ' %'"></p>
-              <p class="mt-2 text-lg font-bold" :class="examResult.passed ? 'text-emerald-400' : 'text-rose-400'" x-text="examResult.passed ? 'Examen réussi' : 'Examen non validé (70 % requis)'"></p>
+              <p class="mt-2 text-lg font-bold" :class="examResult.passed ? 'text-emerald-400' : 'text-rose-400'" x-text="examResult.passed ? 'Examen réussi' : 'Examen non validé (80 % requis)'"></p>
               <p class="mt-1 text-sm text-zinc-400" x-text="examResult.correct + ' / ' + examResult.total + ' bonnes réponses · ' + fmtClock(examResult.duration) + (examResult.auto ? ' · temps écoulé' : '')"></p>
               <div class="mt-5 flex flex-wrap justify-center gap-2"><button type="button" class="btn btn-primary" @click="launchExam(exam.cfg)">Refaire un examen</button><button type="button" class="btn" @click="resetExam()">Retour au centre d'examens</button><button type="button" class="btn" @click="resetExam(); setTab('rewards')">Voir mes diplômes</button></div>
             </div>
@@ -1875,7 +1875,7 @@
 
       <!-- ============ ONGLET RÉCOMPENSES ============ -->
       <section x-show="tab === 'rewards'" x-cloak>
-        <div class="mb-6"><p class="eyebrow">Progression</p><h2 class="mt-1 text-2xl font-semibold text-white">Récompenses et diplômes</h2><p class="mt-1 text-sm text-zinc-400">Un diplôme s'obtient quand tous les cours d'un niveau sont validés et que l'examen de ce niveau est réussi (70 % minimum).</p></div>
+        <div class="mb-6"><p class="eyebrow">Progression</p><h2 class="mt-1 text-2xl font-semibold text-white">Récompenses et diplômes</h2><p class="mt-1 text-sm text-zinc-400">Un diplôme s'obtient quand tous les cours d'un niveau sont validés et que l'examen de ce niveau est réussi (80 % minimum).</p></div>
         <div class="mb-8 grid gap-4 sm:grid-cols-4">
           <div class="card-sm text-center"><p class="eyebrow">Niveau</p><p class="mt-1 font-mono text-2xl text-emerald-400" x-text="userStatsLoaded ? userStats.current_level + ' · ' + userStats.level_name : '—'"></p></div>
           <div class="card-sm text-center"><p class="eyebrow">XP</p><p class="mt-1 font-mono text-2xl text-cyan-400" x-text="userStatsLoaded ? userStats.total_xp : '—'"></p></div>
@@ -5269,7 +5269,7 @@
 
   <script>
     /* ====================== Skill Tree v3 : modules, recherche, examens, labs, récompenses ====================== */
-    const PASS_SCORE = 70;
+    const PASS_SCORE = 80;
 
     const LEVELS = [
       { id: 'debutant', label: 'Débutant', icon: '🌱' },

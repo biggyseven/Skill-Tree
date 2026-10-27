@@ -47,6 +47,7 @@ from .db import (
     get_user_stats, touch_daily_streak, streak_days,
 )
 from .domain import Node, ProofKind, Question, Requirement, Status
+from .exam_rules import EXAM_PASS_SCORE, effective_requirement_score
 from .engine import (
     BADGE_DEFINITIONS, DomainError, SkillTree, get_daily_plan, is_validated, requirement_met,
 )
@@ -74,8 +75,7 @@ DIAGNOSTICS_DIR = CONTENT_DIR / "diagnostics"
 TTS_VOICES = {"fr-FR-DeniseNeural", "fr-FR-HenriNeural"}
 EXAM_QUESTION_COUNT = 20
 EXAM_DURATION_SECONDS = 30 * 60
-# Le seuil affiché partout dans le Centre d'examens et les diplômes est de 70 %.
-EXAM_PASS_SCORE = 70
+# Le seuil officiel est partagé par toutes les formes d’examen.
 EXAM_SUBMIT_GRACE_SECONDS = 15
 EXAM_MAX_QUESTION_COUNT = 500
 EXAM_MIN_DURATION_SECONDS = 60
@@ -680,7 +680,7 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
         "description": node.description,
         "status": status.value,
         "prereqs": [{"id": p, "title": tree.node(p).title, "status": tree.status(p).value} for p in node.prereqs],
-        "requirements": [{"kind": r.kind.value, "min_score": r.min_score, "met": requirement_met(r, node)} for r in node.requirements],
+        "requirements": [{"kind": r.kind.value, "min_score": effective_requirement_score(r.kind, r.min_score), "met": requirement_met(r, node)} for r in node.requirements],
         "lab": lab_payload,
         "terminal": terminal_spec,
         "challenge": challenge_payload,
@@ -1078,7 +1078,7 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
             "sort_order": n.sort_order,
             "status": statuses[n.id].value,
             "prereqs": list(n.prereqs),
-            "requirements_detail": [{"kind": r.kind.value, "min_score": r.min_score} for r in n.requirements],
+            "requirements_detail": [{"kind": r.kind.value, "min_score": effective_requirement_score(r.kind, r.min_score)} for r in n.requirements],
         } for fallback_index, n in enumerate(nodes)]
     }
 
@@ -1344,7 +1344,6 @@ def _create_exam_session(
     question_pool: list[Question] | None = None,
     node_id: str | None = None,
     exam_type: str = "category",
-    passing_score: int | None = None,
 ) -> dict:
     pool = question_pool if question_pool is not None else _exam_question_pool(tree, nodes)
     if not pool:
@@ -1356,7 +1355,7 @@ def _create_exam_session(
     now = int(time.time())
     session_id = uuid.uuid4().hex
     category = category.strip() or "Examen personnalisé"
-    effective_pass_score = EXAM_PASS_SCORE if passing_score is None else int(passing_score)
+    effective_pass_score = EXAM_PASS_SCORE
     tree.conn.execute(
         "INSERT INTO exam_sessions "
         "(session_id, category, question_ids, started_at, expires_at, submitted, "
@@ -1549,11 +1548,13 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
             raise HTTPException(409, "Le cours ne possède plus d’exigence d’examen.")
         if any(question.node_id != node_id or question.scope is not ProofKind.EXAM for question in questions):
             raise HTTPException(409, "Les questions ne correspondent pas à la banque d’examen de ce cours.")
-        passing_score = int(requirement.min_score)
+        passing_score = EXAM_PASS_SCORE
     else:
         if node_id:
             raise HTTPException(409, "Le périmètre de cette session d’examen est incohérent.")
-        passing_score = int(row["passing_score"] if row["passing_score"] is not None else EXAM_PASS_SCORE)
+        # Les sessions non terminées suivent la règle officielle courante, même si elles
+        # ont été créées avant le déploiement du seuil uniforme.
+        passing_score = EXAM_PASS_SCORE
 
     now = int(time.time())
     expires_at = int(row["expires_at"])
@@ -1737,7 +1738,6 @@ def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tr
             question_pool=question_pool,
             node_id=node.id,
             exam_type="course",
-            passing_score=requirement.min_score,
         )
 
     category = payload.get("category")
