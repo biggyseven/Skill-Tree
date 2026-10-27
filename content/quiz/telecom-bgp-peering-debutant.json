@@ -3,15 +3,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Lorsqu’un opérateur établit un peering BGP avec un autre AS, quel objectif décrit le mieux ce lien ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "Échanger des routes selon une politique convenue pour joindre leurs réseaux respectifs",
+        "Confier automatiquement tout son trafic Internet à l’autre opérateur",
+        "Remplacer le routage IP par un circuit de couche 2",
+        "Partager les clés privées de tous les routeurs des deux réseaux"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Le peering permet à deux réseaux autonomes d’échanger des informations de routage selon leur accord. Il ne signifie pas automatiquement que l’un fournit un transit Internet complet à l’autre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel protocole de transport et quel port sont normalement utilisés par une session BGP ?",
+      "choices": [
+        "UDP, port 179",
+        "TCP, port 179",
+        "TCP, port 443",
+        "UDP, port 53"
+      ],
+      "answer": 1,
+      "explanation": "BGP établit sa session entre pairs au-dessus de TCP, normalement sur le port 179. Le port 179 seul ne garantit pas qu’une session soit autorisée ou fonctionnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue correctement eBGP et iBGP ?",
+      "choices": [
+        "eBGP fonctionne uniquement sur IPv6, tandis qu’iBGP fonctionne uniquement sur IPv4",
+        "eBGP transporte uniquement des routes par défaut, tandis qu’iBGP transporte les routes spécifiques",
+        "eBGP échange des routes entre AS distincts, tandis qu’iBGP les échange au sein du même AS",
+        "eBGP utilise UDP alors qu’iBGP utilise TCP"
+      ],
+      "answer": 2,
+      "explanation": "La distinction fondamentale repose sur les AS des pairs : eBGP relie des AS distincts et iBGP distribue des informations BGP à l’intérieur d’un même AS."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit principalement une annonce BGP pour un préfixe IP ?",
+      "choices": [
+        "La totalité de la topologie physique de l’Internet, avec chaque interface traversée",
+        "Une réservation de bande passante garantie jusqu’à la destination",
+        "La preuve que toutes les applications du préfixe sont disponibles",
+        "Une information de joignabilité du préfixe accompagnée d’attributs de chemin et de politique"
+      ],
+      "answer": 3,
+      "explanation": "BGP échange des informations de joignabilité pour des préfixes et des attributs associés. Une annonce ne garantit ni la capacité du chemin ni la disponibilité de chaque application."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement le numéro d’AS (ASN) dans le routage BGP ?",
+      "choices": [
+        "À identifier un système autonome et à contribuer à la lecture du chemin AS_PATH",
+        "À chiffrer systématiquement tous les paquets IP du réseau",
+        "À identifier uniquement le modèle matériel du routeur",
+        "À remplacer les adresses IP des préfixes annoncés"
+      ],
+      "answer": 0,
+      "explanation": "L’ASN identifie un système autonome. L’attribut AS_PATH indique les AS traversés par une annonce, ce qui aide notamment à détecter certains bouclages et à appliquer des politiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d’activer un peering eBGP avec un opérateur, quelle vérification de politique est indispensable ?",
+      "choices": [
+        "Autoriser sans filtre toutes les routes reçues et annoncées",
+        "Définir les routes autorisées à l’import et à l’export conformément à l’accord",
+        "Désactiver la journalisation pour éviter de charger le routeur",
+        "Remplacer le plan d’adressage IP par celui du pair"
+      ],
+      "answer": 1,
+      "explanation": "Les politiques d’import et d’export limitent les annonces à ce qui est attendu. Une session TCP établie ne suffit pas : un filtre incorrect ou absent peut provoquer un détournement ou une fuite de routes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un opérateur rejoint un point d’échange Internet (IXP). Quelle affirmation est correcte ?",
+      "choices": [
+        "L’adhésion à l’IXP configure automatiquement une session BGP avec chaque membre",
+        "Le simple raccordement à l’IXP donne automatiquement accès à toutes les routes Internet",
+        "Le raccordement fournit une possibilité d’interconnexion, mais les sessions et politiques de peering doivent être établies séparément",
+        "Un IXP remplace les ASN par des adresses privées"
+      ],
+      "answer": 2,
+      "explanation": "Un IXP fournit une infrastructure d’interconnexion. Les pairs doivent toujours convenir des sessions et des routes échangées, directement ou via un route server selon le fonctionnement de l’IXP."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un pair annonce uniquement une route par défaut IPv4. Quelle conclusion est la plus prudente ?",
+      "choices": [
+        "Le pair annonce nécessairement tous les préfixes de l’Internet séparément",
+        "Le réseau local doit supprimer toutes ses routes plus spécifiques",
+        "La route par défaut prouve que le pair possède une capacité illimitée vers toute destination",
+        "Le pair propose un chemin de repli pour les destinations sans route plus spécifique, sous réserve de la politique et de la connectivité réelles"
+      ],
+      "answer": 3,
+      "explanation": "Une route 0.0.0.0/0 peut servir de route de repli IPv4. Son annonce ne prouve pas à elle seule que le pair fournisse un transit complet ou que chaque destination soit joignable."
     }
   ],
   "scope": "quiz"

@@ -1,18 +1,102 @@
 {
   "node_id": "telecom-bgp-peering-expert",
-  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour BGP Peering & Routage Internet",
+      "prompt": "Sur un routeur appliquant le comportement défini par RFC 8212, que se passe-t-il sur une session eBGP sans politique d’import ou d’export explicite applicable ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Les routes reçues ne sont pas éligibles au processus de décision et les routes ne sont pas annoncées sans politique d’export explicite",
+        "Toutes les routes sont acceptées et retransmises par défaut",
+        "La session devient automatiquement une session iBGP",
+        "Le routeur remplace automatiquement les annonces par une route par défaut"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "RFC 8212 définit un comportement eBGP par défaut plus sûr : les routes ne sont ni utilisées à l’import ni envoyées à l’export sans politiques explicites applicables. Le comportement dépend toutefois de la conformité et de la configuration de l’équipement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route est couverte par une VRP RPKI, mais son ASN d’origine ou sa longueur de préfixe ne correspond à aucune autorisation valide. Quel état de validation d’origine lui correspond ?",
+      "choices": [
+        "Valid : toutes les annonces du préfixe sont approuvées sans condition",
+        "Invalid : une autorisation couvre le préfixe, mais aucune VRP ne correspond à l’annonce",
+        "NotFound : une VRP correspond exactement à l’ASN et à la longueur",
+        "Established : la session TCP est en état établi"
+      ],
+      "answer": 1,
+      "explanation": "En validation d’origine RPKI, Invalid signifie qu’une VRP couvre le préfixe annoncé mais qu’aucune ne correspond à l’ASN d’origine et aux contraintes de longueur. La réaction (par exemple rejeter) est déterminée par la politique locale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal des rôles BGP et de l’attribut Only-to-Customer (OTC) introduits par RFC 9234 ?",
+      "choices": [
+        "Remplacer l’intégralité du filtrage de préfixes par une authentification par mot de passe",
+        "Garantir une latence fixe entre les AS",
+        "Aider à détecter ou à prévenir certains scénarios de fuite de routes en signalant les rôles de voisinage et la propagation vers les clients",
+        "Faire d’un route server IXP le propriétaire de tous les préfixes annoncés"
+      ],
+      "answer": 2,
+      "explanation": "Les rôles BGP et OTC permettent d’exprimer des relations de voisinage et de limiter certaines propagations incohérentes avec le rôle du pair. Ils complètent, sans remplacer, les politiques d’import/export et les autres contrôles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque opérationnel doit-on prendre en compte avant d’activer Graceful Restart sur des pairs BGP ?",
+      "choices": [
+        "Le mécanisme convertit toutes les sessions eBGP en sessions iBGP",
+        "Il supprime le besoin de surveiller le plan de transfert",
+        "Il garantit une convergence instantanée sans aucun état obsolète",
+        "Des routes conservées temporairement peuvent diriger le trafic vers un chemin qui n’est plus réellement opérationnel"
+      ],
+      "answer": 3,
+      "explanation": "Graceful Restart vise à maintenir certaines routes pendant le redémarrage d’un processus de routage. Si le plan de transfert ou la connectivité est réellement défaillant, des routes périmées peuvent prolonger une interruption."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un opérateur augmente fortement AS_PATH par prepending pour influencer le trafic entrant. Quelle limite doit-il comprendre ?",
+      "choices": [
+        "Les AS distants peuvent préférer d’autres attributs et politiques ; le prepending n’impose donc pas un chemin entrant",
+        "Le prepending change le propriétaire RPKI du préfixe",
+        "Le prepending garantit toujours que tous les AS choisiront l’autre fournisseur",
+        "Le prepending remplace les filtres d’export"
+      ],
+      "answer": 0,
+      "explanation": "Le prepending rend un chemin AS_PATH artificiellement plus long, mais les réseaux distants appliquent leurs propres politiques. La technique peut influencer certaines décisions, sans garantie globale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche réduit le mieux le risque de fuite de routes lorsqu’un opérateur connecte un client, un pair et un fournisseur de transit ?",
+      "choices": [
+        "Annoncer tous les préfixes appris à tous les voisins et compter sur AS_PATH seul",
+        "Définir des politiques d’export par relation, filtrer précisément les préfixes autorisés et surveiller les changements d’annonces",
+        "Désactiver les filtres pour accélérer la convergence",
+        "Accepter chaque route dès qu’une session atteint l’état Established"
+      ],
+      "answer": 1,
+      "explanation": "Les annonces permises diffèrent selon la relation commerciale et technique. Des listes explicites d’export, des filtres d’import, une validation et une surveillance réduisent le risque de propager des routes non autorisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle proposition distingue correctement deux mesures de protection d’une session BGP ?",
+      "choices": [
+        "GTSM valide l’origine RPKI d’un préfixe, tandis que ROV authentifie les segments TCP",
+        "Les deux mécanismes remplacent les politiques d’import/export",
+        "TCP-AO protège l’authenticité des segments TCP selon sa configuration, alors que GTSM/TTL Security limite les paquets reçus avec un TTL inattendu",
+        "Un ACL sur le port 179 suffit à valider chaque annonce de préfixe"
+      ],
+      "answer": 2,
+      "explanation": "TCP-AO contribue à l’authentification et à l’intégrité de la session TCP. GTSM/TTL Security réduit l’exposition aux paquets reçus avec des TTL incompatibles avec la proximité attendue ; aucun des deux ne remplace la validation et le filtrage des routes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le NOC veut influencer le trafic sortant de son AS et aussi garantir le chemin que choisiront tous les réseaux distants pour rejoindre ses préfixes. Quelle affirmation est exacte ?",
+      "choices": [
+        "LOCAL_PREF est diffusé à tous les AS et impose globalement le trafic entrant",
+        "Le MED a une priorité absolue dans tous les réseaux Internet",
+        "La community BGP garantit que chaque opérateur applique la même préférence",
+        "LOCAL_PREF gouverne une préférence locale pour la sortie ; le trafic entrant dépend aussi des politiques appliquées par les réseaux distants"
+      ],
+      "answer": 3,
+      "explanation": "LOCAL_PREF influence le choix de route à l’intérieur de l’AS qui l’applique. Aucun attribut de politique ne permet, à lui seul, de commander universellement les décisions d’acheminement des autres AS."
     }
-  ]
+  ],
+  "scope": "quiz"
 }
