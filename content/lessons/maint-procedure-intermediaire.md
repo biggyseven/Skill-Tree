@@ -276,3 +276,12 @@ flowchart TD
 Un changement d'outil peut rendre une procédure obsolète sans modifier son titre. Lors d'une mise à niveau, identifie les documents liés à la version, teste les étapes concernées et marque les anciennes versions comme remplacées. Le responsable doit pouvoir retrouver la version en vigueur à une date donnée pour expliquer une intervention ou répondre à un audit.
 
 Le catalogue de procédures doit aussi offrir une navigation simple. Utilise des titres parlants, des catégories, des mots-clés et des liens depuis les tickets ou l'inventaire lorsque cela est utile. Les documents sensibles doivent être accessibles aux rôles prévus sans exposer des identifiants dans les fichiers. Une procédure facile à trouver est plus probable d'être appliquée ; une procédure non retrouvable agit comme une procédure inexistante.
+
+
+## 16. Procédures d'urgence et communication
+
+Une procédure d'urgence doit prioriser la protection des personnes, des données et de la continuité. Elle nomme les critères de déclenchement, les personnes autorisées, le canal de communication, les actions de confinement possibles, le point où l'escalade devient obligatoire et les étapes de retour au fonctionnement normal. Elle ne doit pas être une simple copie de la procédure de maintenance planifiée : en situation dégradée, certaines étapes peuvent changer, mais les limites d'autorisation restent explicites.
+
+Après une urgence, organise une revue de l'application de la procédure. Le rapport doit indiquer les écarts, les informations qui manquaient, la décision prise, les actions non réalisées et l'état des risques. Les éléments non terminés passent dans le backlog avec un responsable et une échéance, au lieu de disparaître lors de la fermeture de l'incident.
+
+La communication doit correspondre à l'audience. L'équipe technique a besoin du détail des symptômes et des décisions ; les utilisateurs ont besoin de connaître le service touché, l'effet, le contournement disponible et la prochaine mise à jour. Ne communique pas de secrets ou de données personnelles dans un canal général.
