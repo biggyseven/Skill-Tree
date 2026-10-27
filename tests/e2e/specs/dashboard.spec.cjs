@@ -414,13 +414,13 @@ test('les cartes ouvrent directement le workspace v2 et identifient les labs his
   const workspaceLink = workspaceLinks.first();
   await expect(workspaceLink).toHaveAttribute('target', '_blank');
   await expect(workspaceLink).toHaveAttribute('rel', /noopener/);
-  await expect(workspaceLink).toHaveAttribute('href', /\\/lab\\.html\\?id=/);
+  await expect(workspaceLink).toHaveAttribute('href', /\/lab\.html\?id=/);
 
   const workspacePagePromise = page.context().waitForEvent('page');
   await workspaceLink.click();
   const workspacePage = await workspacePagePromise;
   await workspacePage.waitForLoadState('domcontentloaded').catch(() => {});
-  await expect(workspacePage).toHaveURL(/\\/lab\\.html\\?id=/);
+  await expect(workspacePage).toHaveURL(/\/lab\.html\?id=/);
   await expect(workspacePage.getByText('Lab actif', { exact: true })).toBeVisible({ timeout: 60_000 });
   expect(page.url()).toBe(originalUrl);
   await expect(nav.getByRole('button', { name: 'Labs' })).toHaveAttribute('aria-current', 'page');
@@ -429,7 +429,7 @@ test('les cartes ouvrent directement le workspace v2 et identifient les labs his
   const legacyLinks = links.filter('[data-lab-kind="legacy"]');
   if (await legacyLinks.count()) {
     const legacyLink = legacyLinks.first();
-    await expect(legacyLink).toHaveAttribute('href', /\\/?openLab=/);
+    await expect(legacyLink).toHaveAttribute('href', /\/\?openLab=/);
     const legacyPagePromise = page.context().waitForEvent('page');
     await legacyLink.click();
     const legacyPage = await legacyPagePromise;
