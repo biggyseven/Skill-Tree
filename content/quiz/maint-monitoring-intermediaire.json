@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Supervision réseau (Nagios, Zabbix) » ?",
+      "prompt": "Que prouve principalement une réponse ICMP positive ?",
       "choices": [
-        "Le sujet principal du cours : Supervision réseau (Nagios, Zabbix)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Que l'application fonctionne de bout en bout",
+        "Que le serveur a été sauvegardé",
+        "Que la cible répond au test réseau ICMP",
+        "Que toutes les interfaces sont sans erreur"
+      ],
+      "answer": 2,
+      "explanation": "ICMP vérifie une réponse réseau, mais pas les dépendances ou fonctions applicatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi préférer SNMPv3 lorsque l'environnement le permet ?",
+      "choices": [
+        "Il élimine le besoin de contrôler les accès",
+        "Il apporte des mécanismes d'authentification et, selon le mode, de confidentialité",
+        "Il remplace tous les journaux systèmes",
+        "Il garantit l'absence de perte de paquets"
+      ],
+      "answer": 1,
+      "explanation": "SNMPv3 permet une gestion plus sûre des identifiants et des données que les communautés en clair."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il définir pour rendre une alerte exploitable ?",
+      "choices": [
+        "Un titre générique uniquement",
+        "Une couleur uniquement",
+        "Un seuil identique pour chaque équipement",
+        "Une cible, un impact, un propriétaire et une action attendue"
+      ],
+      "answer": 3,
+      "explanation": "Une alerte doit être contextualisée et reliée à un traitement précis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire lors d'une rafale d'alertes après la perte d'une passerelle ?",
+      "choices": [
+        "Examiner les dépendances et corréler les événements pour trouver la cause commune",
+        "Fermer toutes les alertes sans investigation",
+        "Augmenter tous les seuils au maximum",
+        "Réinstaller les agents sur tous les serveurs"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La corrélation permet de distinguer un incident racine de ses symptômes en cascade."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi analyser les tendances et les percentiles ?",
+      "choices": [
+        "Pour éviter de conserver l'historique",
+        "Pour remplacer les contrôles de sécurité",
+        "Pour repérer les saturations lentes et les pics que la moyenne masque",
+        "Pour supprimer les mesures brutes"
+      ],
+      "answer": 2,
+      "explanation": "Les tendances et distributions donnent une lecture plus riche que la moyenne seule."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit comporter une fenêtre de maintenance supervisée ?",
+      "choices": [
+        "Aucune date de fin",
+        "Un périmètre et une fin explicite, puis une vérification à la sortie",
+        "La désactivation générale de toutes les notifications",
+        "Un compte partagé permanent"
+      ],
+      "answer": 1,
+      "explanation": "Une fenêtre bornée évite de masquer une panne après la fin de l'intervention."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un signe de faux positif récurrent ?",
+      "choices": [
+        "Une alerte qui entraîne systématiquement une action pertinente",
+        "Un test représentatif de l'usage métier",
+        "Un seuil justifié par la capacité",
+        "Une alerte fréquente qui ne correspond pas à une anomalie actionnable"
+      ],
+      "answer": 3,
+      "explanation": "Les faux positifs consomment l'attention et doivent faire l'objet d'une revue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une mesure qui n'a pas été reçue ?",
+      "choices": [
+        "La cible est forcément en panne",
+        "La cible fonctionne parfaitement",
+        "La collecte est indisponible ou les données manquent ; il faut distinguer cela d'une panne cible",
+        "Le seuil doit être effacé"
+      ],
+      "answer": 2,
+      "explanation": "L'absence de donnée est un état à diagnostiquer séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel réglage aide à éviter une alerte sur un pic d'une seconde ?",
+      "choices": [
+        "Une durée de confirmation ou une temporisation adaptée",
+        "Une notification à tous les employés",
+        "La suppression de l'historique",
+        "Un seuil aléatoire"
+      ],
+      "answer": 0,
+      "explanation": "La persistance de la condition réduit le bruit, selon le risque et la nature de la mesure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une ligne de base de capacité ?",
+      "choices": [
+        "À empêcher toute évolution",
+        "À comparer la situation actuelle à un profil normal documenté",
+        "À ignorer les saisons et les cycles d'activité",
+        "À définir toutes les alertes au même niveau"
+      ],
+      "answer": 1,
+      "explanation": "La ligne de base permet d'interpréter les variations dans leur contexte."
     }
   ]
 }
