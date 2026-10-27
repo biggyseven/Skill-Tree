@@ -17,7 +17,7 @@
     "Cible CLI : SW1.",
     "Indice 1 : créez le VLAN dans le mode de configuration global avant de modifier le port.",
     "Indice 2 : sélectionnez Fa0/1 puis appliquez switchport mode access et switchport access vlan 10.",
-    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; vlan 10 ; name VLAN10 ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; end.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; vlan 10 ; interface Fa0/1 ; switchport mode access ; switchport access vlan 10 ; end.",
     "La validation vérifie le VLAN 10, son nom, le mode access et l’affectation de Fa0/1."
   ],
   "initial_topology": {
