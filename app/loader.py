@@ -964,16 +964,57 @@ def sync_content_additions(
         "lab": labs,
         "terminal": terminals,
     }
+    # Les nouveaux nœuds incomplets ne doivent pas empêcher tout le service de démarrer.
+    # Seuls ces nouveaux nœuds sont différés : les cours déjà présents en base restent intacts.
+    deferred: dict[str, list[str]] = {}
+    lessons_dir = directory / "lessons"
     for node in new_nodes:
+        missing: list[str] = []
+        lesson_path = lessons_dir / f"{node.id}.md"
+        try:
+            lesson_text = lesson_path.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeError):
+            lesson_text = ""
+        if not lesson_text:
+            missing.append("leçon Markdown absente ou vide")
         for kind, _min_score in node.requirements:
             if kind in banks_by_kind and node.id not in banks_by_kind[kind]:
-                raise ContentError(
-                    f"Le nouveau nœud « {node.id} » exige « {kind} », "
-                    "mais sa ressource de contenu est absente."
-                )
+                missing.append(f"ressource « {kind} » absente")
+        if missing:
+            deferred[node.id] = missing
+
+    # Un nœud dépendant d'un nouveau cours différé reste lui aussi en attente.
+    changed = True
+    while changed:
+        changed = False
+        for node in new_nodes:
+            if node.id in deferred:
+                continue
+            blocked_prereqs = [prereq for prereq in node.prereqs if prereq in deferred]
+            if blocked_prereqs:
+                deferred[node.id] = [
+                    f"prérequis « {prereq} » en attente" for prereq in blocked_prereqs
+                ]
+                changed = True
+
+    if deferred:
+        details = "; ".join(
+            f"{node_id}: {', '.join(reasons)}"
+            for node_id, reasons in sorted(deferred.items())
+        )
+        print(
+            "Synchronisation du catalogue : nœuds incomplets différés "
+            f"({len(deferred)}), reprise automatique dès que les fichiers seront présents : "
+            f"{details}"
+        )
+
+    ready_nodes = [node for node in nodes if node.id not in deferred]
+    ready_node_ids = {node.id for node in ready_nodes}
+    ready_new_nodes = [node for node in ready_nodes if node.id not in existing_ids]
 
     report = {
-        "nodes_added": len(new_nodes),
+        "nodes_added": len(ready_new_nodes),
+        "nodes_deferred": len(deferred),
         "quiz_banks_added": 0,
         "quiz_banks_refreshed": 0,
         "exam_banks_added": 0,
@@ -1018,7 +1059,7 @@ def sync_content_additions(
     with conn:
         # Le JSON reste la source de vérité des métadonnées visibles du parcours.
         # Ces UPSERT ne touchent ni aux tentatives, ni aux statistiques, ni aux sessions.
-        for node in nodes:
+        for node in ready_nodes:
             conn.execute(
                 "INSERT INTO nodes (id, title, description, category, module, sort_order)"
                 " VALUES (?, ?, ?, ?, ?, ?)"
@@ -1045,9 +1086,9 @@ def sync_content_additions(
                 )
 
         # Ajoute les relations manquantes sans effacer des relations ou progrès existants.
-        for node in nodes:
+        for node in ready_nodes:
             for prereq in node.prereqs:
-                if prereq not in node_ids:
+                if prereq not in ready_node_ids:
                     continue
                 conn.execute(
                     "INSERT INTO edges (node_id, prereq_id) VALUES (?, ?)"
@@ -1057,7 +1098,7 @@ def sync_content_additions(
 
         for scope, bank in (("quiz", quizzes), ("exam", exams)):
             for node_id, questions in bank.items():
-                if not questions:
+                if node_id not in ready_node_ids or not questions:
                     continue
                 stored = conn.execute(
                     "SELECT prompt, choices, explanation FROM questions"
@@ -1107,6 +1148,8 @@ def sync_content_additions(
                     report["quiz_banks_refreshed"] += 1
 
         for lab in labs.values():
+            if lab.node_id not in ready_node_ids:
+                continue
             found = conn.execute(
                 "SELECT 1 FROM lab_specs WHERE node_id = ?", (lab.node_id,)
             ).fetchone()
@@ -1120,6 +1163,8 @@ def sync_content_additions(
                 report["lab_specs_added"] += 1
 
         for terminal in terminals.values():
+            if terminal.node_id not in ready_node_ids:
+                continue
             found = conn.execute(
                 "SELECT 1 FROM terminal_specs WHERE node_id = ?", (terminal.node_id,)
             ).fetchone()
@@ -1138,7 +1183,7 @@ def sync_content_additions(
                 )
                 report["terminal_specs_added"] += 1
 
-        for node in nodes:
+        for node in ready_nodes:
             if node.challenge is None:
                 continue
             found = conn.execute(

@@ -15,6 +15,7 @@ class IncrementalContentSyncTests(unittest.TestCase):
         (root / "exam").mkdir()
         (root / "labs").mkdir()
         (root / "terminal").mkdir()
+        (root / "lessons").mkdir()
         nodes = [
             {
                 "id": "existing-course",
@@ -50,6 +51,11 @@ class IncrementalContentSyncTests(unittest.TestCase):
         (root / "nodes.json").write_text(
             json.dumps(nodes, ensure_ascii=False), encoding="utf-8"
         )
+        for node in nodes:
+            (root / "lessons" / f"{node['id']}.md").write_text(
+                f"# {node['title']}\\n\\nContenu de laboratoire valide.\\n",
+                encoding="utf-8",
+            )
         questions = {
             "existing-course": {
                 "node_id": "existing-course",
@@ -253,6 +259,51 @@ class IncrementalContentSyncTests(unittest.TestCase):
             finally:
                 conn.close()
 
+
+    def test_incomplete_new_nodes_are_deferred_until_lesson_and_quiz_exist(self) -> None:
+        with TemporaryDirectory() as temporary:
+            content_root = Path(temporary) / "content"
+            content_root.mkdir()
+            self._write_content(content_root)
+
+            lesson_path = content_root / "lessons" / "new-course.md"
+            quiz_path = content_root / "quiz" / "new-course.json"
+            original_quiz = json.loads(quiz_path.read_text(encoding="utf-8"))
+            lesson_path.unlink()
+            quiz_path.unlink()
+
+            conn = connect(":memory:")
+            try:
+                initialize(conn)
+                report = sync_content_additions(conn, content_root)
+                stored_ids = {
+                    row["id"] for row in conn.execute("SELECT id FROM nodes").fetchall()
+                }
+                self.assertEqual(report["nodes_deferred"], 1)
+                self.assertNotIn("new-course", stored_ids)
+                self.assertIn("existing-course", stored_ids)
+                self.assertIn("course-with-placeholder", stored_ids)
+
+                lesson_path.write_text(
+                    "# Nouveau cours\\n\\nLe contenu est maintenant prêt.\\n",
+                    encoding="utf-8",
+                )
+                quiz_path.write_text(
+                    json.dumps(original_quiz, ensure_ascii=False), encoding="utf-8"
+                )
+                recovered = sync_content_additions(conn, content_root)
+                stored_ids = {
+                    row["id"] for row in conn.execute("SELECT id FROM nodes").fetchall()
+                }
+                self.assertEqual(recovered["nodes_added"], 1)
+                self.assertEqual(recovered["nodes_deferred"], 0)
+                self.assertIn("new-course", stored_ids)
+                question_count = conn.execute(
+                    "SELECT COUNT(*) FROM questions WHERE node_id = 'new-course' AND scope = 'quiz'"
+                ).fetchone()[0]
+                self.assertEqual(question_count, 1)
+            finally:
+                conn.close()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
