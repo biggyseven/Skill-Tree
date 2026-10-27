@@ -8280,6 +8280,12 @@
 (() => {
   const authEndpoints = new Set(['/api/auth/status', '/api/auth/login', '/api/auth/logout']);
   const nativeFetch = window.fetch.bind(window);
+  const redirectToLogin = () => {
+    const requested = window.location.pathname + window.location.search + window.location.hash;
+    const loginUrl = new URL('/login.html', window.location.origin);
+    if (requested && requested !== '/login.html') loginUrl.searchParams.set('next', requested);
+    window.location.replace(loginUrl.pathname + loginUrl.search);
+  };
 
   window.fetch = async (...args) => {
     const response = await nativeFetch(...args);
@@ -8292,7 +8298,7 @@
         requestUrl.pathname.startsWith('/api/') &&
         !authEndpoints.has(requestUrl.pathname)
       ) {
-        window.location.replace('/login.html');
+        redirectToLogin();
       }
     } catch (_) {}
     return response;
@@ -8303,7 +8309,7 @@
     .then(status => {
       if (!status || !status.required) return;
       if (!status.authenticated) {
-        window.location.replace('/login.html');
+        redirectToLogin();
         return;
       }
       const logout = document.createElement('button');

@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 from fastapi.testclient import TestClient
 
@@ -67,6 +68,20 @@ class SiteAuthenticationTests(unittest.TestCase):
         tree = self.client.get("/api/tree")
         self.assertEqual(tree.status_code, 200, tree.text)
         self.assertEqual(self.client.get("/", follow_redirects=False).status_code, 200)
+
+    def test_protected_lab_links_keep_their_destination_through_login(self) -> None:
+        cases = (
+            ("/?openTab=labs", "/?openTab=labs"),
+            ("/?openLab=acl-debutant", "/?openLab=acl-debutant"),
+            ("/lab.html?id=acl-debutant", "/lab.html?id=acl-debutant"),
+        )
+        for requested_url, expected_next in cases:
+            with self.subTest(requested_url=requested_url):
+                response = self.client.get(requested_url, follow_redirects=False)
+                self.assertEqual(response.status_code, 303, response.text)
+                login_url = urlsplit(response.headers["location"])
+                self.assertEqual(login_url.path, "/login.html")
+                self.assertEqual(parse_qs(login_url.query).get("next"), [expected_next])
 
     def test_login_rejects_wrong_password_and_uses_secure_cookie_attributes(self) -> None:
         failed = self.client.post("/api/auth/login", json={"password": "not the password"})
