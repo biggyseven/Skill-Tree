@@ -802,6 +802,42 @@ Poste de secours</code></pre>
   expect(audioSegments).toEqual(['Première phrase. Deuxième phrase.']);
 });
 
+test('la lecture vocale conserve la ponctuation, ignore un sommaire imbriqué et garde le code en ligne', async ({ page }) => {
+  await openDashboard(page);
+  const narration = await page.evaluate(async () => {
+    const state = window.Alpine.$data(document.body);
+    await state.show('linux-expert');
+    state.startSectionSelection = '__top__';
+    const article = state.$refs.lessonArticle;
+    article.innerHTML = `
+      <h1 id="voice-punctuation-title">Pourquoi la ponctuation compte ?</h1>
+      <h2 id="voice-toc">Sommaire du cours</h2>
+      <ul>
+        <li><a href="#voice-question">Pourquoi TCP ?</a>
+          <ul><li><a href="#voice-warning">Attention !</a></li></ul>
+        </li>
+      </ul>
+      <p>Le cours conserve le nom <code>next-hop</code>, puis explique la commande <code>show ip route</code>; cette ponctuation reste utile.</p>
+      <h2 id="voice-question">Pourquoi TCP ?</h2>
+      <p>TCP transporte les données de manière fiable !</p>
+      <h3 id="voice-warning">Attention !</h3>
+      <p>La ponctuation reste intacte : vraiment ?</p>
+    `;
+    return state.speechTextFromArticle();
+  });
+
+  expect(narration).not.toContain('Sommaire du cours');
+  expect(narration.split('Pourquoi TCP ?').length - 1).toBe(1);
+  expect(narration.split('Attention !').length - 1).toBe(1);
+  expect(narration).toContain('Titre du cours : Pourquoi la ponctuation compte ?');
+  expect(narration).toContain('Section : Pourquoi TCP ?');
+  expect(narration).toContain('Sous-section : Attention !');
+  expect(narration).toContain('next-hop');
+  expect(narration).toContain('show ip route');
+  expect(narration).toContain('show ip route; cette ponctuation reste utile.');
+  expect(narration).toContain('La ponctuation reste intacte : vraiment ?');
+});
+
 test('le menu contextuel démarre la lecture vocale depuis la section visée', async ({ page }) => {
   await openDashboard(page);
 
@@ -824,8 +860,11 @@ test('le menu contextuel démarre la lecture vocale depuis la section visée', a
   const headingText = (await heading.innerText()).replace(/\s+/g, ' ').trim();
   const normalizedHeadingText = headingText
     .replace(/^\s*\d+(?:\.\d+)*[.)]?\s+/u, '')
-    .replace(/[.!?…:;]+$/u, '')
+    .replace(/[ \t]+/gu, ' ')
     .trim();
+  const expectedHeadingSpeech = /[.!?…;:]$/u.test(normalizedHeadingText)
+    ? normalizedHeadingText
+    : normalizedHeadingText + '.';
 
   // Garde le test indépendant du fournisseur audio et ne lance aucun flux réseau TTS.
   await page.evaluate(() => {
@@ -852,7 +891,7 @@ test('le menu contextuel démarre la lecture vocale depuis la section visée', a
   expect(speech.start).toBe(headingId);
   expect(speech.kind).toBe('lesson');
   expect(speech.status).toBe('starting');
-  expect(speech.text.startsWith('Section : ' + normalizedHeadingText + '.')).toBe(true);
+  expect(speech.text.startsWith('Section : ' + expectedHeadingSpeech)).toBe(true);
   await expect(page.getByRole('group', { name: 'Commandes flottantes de lecture vocale' })).toBeVisible();
 });
 
