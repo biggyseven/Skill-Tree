@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Maintenance des systèmes d'exploitation » ?",
+      "prompt": "Avant de modifier un système d'exploitation sur un poste de travail, quel ensemble d'étapes est le plus approprié ?",
       "choices": [
-        "Le sujet principal du cours : Maintenance des systèmes d'exploitation",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Redémarrer puis faire les modifications au hasard",
+        "Identifier le système, relever l'état initial, évaluer les risques et protéger les données",
+        "Désactiver toutes les protections afin d'éviter les blocages",
+        "Appliquer le même changement à tous les postes immédiatement"
+      ],
+      "answer": 1,
+      "explanation": "L'inventaire, l'état initial, les autorisations, la protection des données et le plan de retour arrière préparent un changement maîtrisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sous Linux avec systemd, quelle commande permet de consulter l'état d'un service précis ?",
+      "choices": [
+        "df -h",
+        "ip route",
+        "systemctl status nom-du-service",
+        "free -h"
+      ],
+      "answer": 2,
+      "explanation": "systemctl status examine l'état d'une unité systemd. Le résultat doit être rapproché des journaux et de la fonction réellement attendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un service affiche l'état « actif ». Quelle conclusion est la plus rigoureuse ?",
+      "choices": [
+        "L'application est forcément entièrement fonctionnelle",
+        "Aucun incident ne peut exister",
+        "Tous les utilisateurs ont les accès nécessaires",
+        "Le service est indiqué comme actif, mais sa fonction et ses dépendances restent à vérifier"
+      ],
+      "answer": 3,
+      "explanation": "Un service actif peut rencontrer un problème de dépendance, de port, de configuration, de stockage ou d'autorisation. Il faut tester la fonction attendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi déployer une mise à jour d'abord sur un groupe pilote ?",
+      "choices": [
+        "Pour détecter les incompatibilités et les erreurs avant un déploiement plus large",
+        "Pour éviter toute sauvegarde",
+        "Pour ne jamais documenter le changement",
+        "Pour désactiver les mises à jour du reste du parc définitivement"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Un groupe pilote réduit l'impact d'une incompatibilité et permet de vérifier les critères d'acceptation avant les vagues suivantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une partition système est presque pleine. Que faut-il faire avant une suppression ?",
+      "choices": [
+        "Effacer tous les journaux immédiatement",
+        "Identifier ce qui occupe l'espace et vérifier les règles de conservation et les dépendances",
+        "Supprimer le plus gros répertoire sans l'examiner",
+        "Désinstaller toutes les applications récentes"
+      ],
+      "answer": 1,
+      "explanation": "Certains fichiers sont nécessaires au système ou soumis à une politique de rétention. Il faut comprendre la situation et utiliser une méthode autorisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne manière d'interpréter les journaux système lors d'un incident ?",
+      "choices": [
+        "Un événement à la même heure prouve toujours la cause",
+        "Les journaux ne sont jamais utiles pour la maintenance",
+        "Les événements sont des indices à situer dans une chronologie et à recouper",
+        "Il faut obligatoirement copier tous les journaux en entier dans un ticket"
+      ],
+      "answer": 2,
+      "explanation": "La proximité temporelle ne démontre pas la causalité. L'heure, la source, le contexte et les autres indices permettent d'interpréter les événements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire en cas de suspicion crédible de logiciel malveillant ?",
+      "choices": [
+        "Effacer immédiatement tous les fichiers signalés",
+        "Désactiver l'antivirus pour vérifier s'il bloque le système",
+        "Réinstaller le poste sans consulter personne",
+        "Suivre la procédure d'incident, préserver les éléments utiles et contacter l'équipe compétente"
+      ],
+      "answer": 3,
+      "explanation": "Des actions improvisées peuvent détruire des preuves ou aggraver l'incident. Il faut appliquer la procédure de sécurité et utiliser les outils approuvés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être confirmé avant de restaurer une machine à un état antérieur ?",
+      "choices": [
+        "L'impact sur les données et applications ainsi que la validité du point de restauration",
+        "Le fait qu'un redémarrage suffira nécessairement",
+        "L'absence de besoin de documenter l'opération",
+        "La possibilité d'effacer les journaux sans vérification"
+      ],
+      "answer": 0,
+      "explanation": "Une restauration peut affecter les applications, paramètres et données. La portée, la validité du point et le retour arrière doivent être évalués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Au démarrage, le micrologiciel ne détecte pas le disque système. Quelle approche convient ?",
+      "choices": [
+        "Réinstaller immédiatement le système d'exploitation",
+        "Relever les alertes et examiner la détection du support et la procédure du modèle avant une réparation logicielle",
+        "Modifier tous les paramètres du BIOS au hasard",
+        "Supprimer les partitions"
+      ],
+      "answer": 1,
+      "explanation": "Le problème se manifeste avant le chargement normal du système ; il faut d'abord examiner la détection du support et les indices disponibles, sans modifier la configuration au hasard."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une maintenance, comment vérifier que la machine peut être remise en service ?",
+      "choices": [
+        "Le boîtier est fermé, donc le travail est terminé",
+        "Le système a redémarré une fois, donc aucune autre vérification n'est nécessaire",
+        "Tester le symptôme initial, les applications et services nécessaires, la sécurité et les données, puis documenter",
+        "Supprimer le ticket avant de recevoir le résultat des tests"
+      ],
+      "answer": 2,
+      "explanation": "La réussite se mesure aux critères d'acceptation convenus. Il faut confirmer la fonction métier, les dépendances et les protections avant de clore l'intervention."
     }
   ]
 }
