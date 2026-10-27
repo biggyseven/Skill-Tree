@@ -130,3 +130,52 @@ jobs:
               "xp_gained=", submitted.get("xp_gained"),
           )
           PY
+
+      - name: Verify durable Lab Workspace topology save and reload
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import urllib.request
+
+          base = "https://skill-tree-neon-validation.onrender.com"
+          test_lab_id = "neon-validation-persistence-smoke-20261027"
+
+          def request_json(path, method="GET", body=None):
+              data = None if body is None else json.dumps(body).encode("utf-8")
+              headers = {} if data is None else {"Content-Type": "application/json"}
+              request = urllib.request.Request(
+                  base + path, data=data, headers=headers, method=method
+              )
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return json.loads(response.read().decode("utf-8"))
+
+          source_lab = request_json("/api/lab/v2/vlan-trunk")
+          topology = source_lab.get("initial_topology")
+          assert isinstance(topology, dict), "The source lab did not return a topology."
+          topology = dict(topology)
+          topology["topology_id"] = test_lab_id
+          metadata = dict(topology.get("metadata") or {})
+          metadata["name"] = test_lab_id
+          topology["metadata"] = metadata
+
+          saved = request_json(
+              f"/api/lab/v2/{test_lab_id}/save",
+              method="POST",
+              body={"topology": topology},
+          )
+          assert saved.get("success") is True, saved
+          assert saved.get("storage_backend") == "postgresql", (
+              "Render did not confirm PostgreSQL/Neon persistence.", saved
+          )
+
+          loaded = request_json(f"/api/lab/v2/{test_lab_id}/load")
+          assert loaded.get("topology") == topology, (
+              "The saved topology was not read back exactly.", loaded
+          )
+          print(
+              "Neon topology persistence verified:",
+              "storage_backend=", saved.get("storage_backend"),
+              "round_trip=exact",
+          )
+          PY
