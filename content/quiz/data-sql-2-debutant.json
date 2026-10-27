@@ -4,63 +4,207 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Dans le cadre de « Jointures et agrégations SQL », quelle démarche fournit la meilleure preuve de maîtrise ?",
+      "prompt": "Quelle jointure conserve uniquement les clients qui possèdent une commande correspondante ?",
       "choices": [
-        "Exécuter le seul cas normal et conclure si aucune erreur n'apparaît",
-        "Définir préconditions et postconditions, tester cas normal et limite puis vérifier l'état réellement obtenu",
-        "Augmenter les privilèges jusqu'à ce que tout passe",
-        "Conserver une capture sans noter version ni données"
+        "LEFT JOIN",
+        "INNER JOIN",
+        "FULL OUTER JOIN dans tous les cas",
+        "CROSS JOIN"
       ],
       "answer": 1,
-      "explanation": "La preuve doit relier une règle à un résultat observé et reproductible. Elle précise préconditions, cas limites et postcondition ; une capture ou une absence d'erreur ne démontre pas à elle seule l'intégrité."
+      "explanation": "INNER JOIN retourne les paires qui satisfont la condition de jointure. Les clients sans commande correspondante sont écartés."
     },
     {
       "type": "qcm",
-      "prompt": "Une opération liée à « Jointures et agrégations SQL » fonctionne sur un petit échantillon mais échoue ailleurs. Quelle première démarche est la plus rigoureuse ?",
+      "prompt": "Le rapport doit afficher tous les clients, y compris ceux qui n'ont encore passé aucune commande. Quelle approche convient ?",
       "choices": [
-        "Réécrire tout le composant sans recueillir d'indices",
-        "Désactiver les contraintes pour laisser passer les lignes",
-        "Réduire le cas, comparer données, versions et hypothèses puis isoler une cause",
-        "Tout réexécuter jusqu'au résultat souhaité"
+        "Partir de commandes avec INNER JOIN clients",
+        "Partir de clients et utiliser LEFT JOIN commandes",
+        "Partir de produits avec CROSS JOIN clients",
+        "Utiliser WHERE commande_id IS NOT NULL"
+      ],
+      "answer": 1,
+      "explanation": "LEFT JOIN conserve les lignes de la table de gauche. En partant de clients, le rapport inclut les clients sans commande."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un LEFT JOIN, que se passe-t-il pour les colonnes de la table de droite lorsqu'aucune ligne ne correspond ?",
+      "choices": [
+        "Elles sont remplacées par zéro dans tous les cas",
+        "La ligne de gauche est supprimée systématiquement",
+        "Elles sont NULL dans le résultat de jointure",
+        "Le SGBD crée automatiquement une ligne enfant"
       ],
       "answer": 2,
-      "explanation": "La reproduction et la réduction du cas distinguent problèmes de données, règles, configuration, droits et concurrence. La répétition aveugle peut aggraver l'état ; désactiver les contrôles masque le défaut."
+      "explanation": "Une jointure externe gauche conserve la ligne de gauche et complète la partie droite par NULL lorsqu'il n'existe aucune correspondance."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est le risque d'une règle importante présente uniquement dans l'interface ?",
+      "prompt": "Pourquoi un filtre co.statut = 'confirmee' dans WHERE peut-il exclure des clients sans commande après un LEFT JOIN ?",
       "choices": [
-        "Un autre chemin d'écriture peut la contourner et persister des données incohérentes",
-        "Les index sont automatiquement désactivés",
-        "La sauvegarde devient impossible",
-        "La clé primaire perd nécessairement son unicité"
-      ],
-      "answer": 0,
-      "explanation": "Une base peut recevoir des écritures d'une API, d'un import ou d'une tâche planifiée. Les invariants essentiels doivent être garantis par des contraintes ou mécanismes centraux adaptés, avec validation applicative complémentaire."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Le test principal passe, mais le nombre d'éléments touchés est le double de celui prévu. Quelle conclusion est correcte ?",
-      "choices": [
-        "La modification réussit puisque le code de retour est positif",
-        "Il suffit d'effacer des éléments sans rechercher la cause",
-        "Le volume n'a pas d'importance si l'affichage semble correct",
-        "La postcondition échoue : il faut expliquer le périmètre et la multiplication avant de poursuivre"
-      ],
-      "answer": 3,
-      "explanation": "Le volume touché fait partie du contrat et peut révéler filtre, jointure ou reprise incorrecte. La correction doit viser la cause et se vérifier par un test de non-régression, pas par un nettoyage manuel inexpliqué."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle combinaison améliore le plus la maintenabilité d'une opération récurrente ?",
-      "choices": [
-        "Dépendre de la mémoire de l'opérateur",
-        "Versionner la procédure, documenter prérequis, vérifier le résultat, journaliser sans secrets et tester la reprise",
-        "Supprimer les journaux",
-        "Laisser les paramètres implicites"
+        "WHERE transforme NULL en chaîne vide",
+        "La condition n'est pas vraie sur la ligne sans correspondance, donc la ligne est écartée",
+        "COUNT(*) crée un doublon",
+        "INNER JOIN devient obligatoire par syntaxe"
       ],
       "answer": 1,
-      "explanation": "Une procédure maintenable est reproductible, observable et récupérable. Versionnement, préconditions, journaux sans secrets et tests de reprise réduisent la dépendance aux connaissances individuelles."
+      "explanation": "Pour un client sans commande, co.statut vaut NULL dans le résultat. Le filtre WHERE ne conserve pas cette ligne. Si l'on veut garder tous les clients, le filtre de correspondance peut être placé dans ON."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un LEFT JOIN clients-commandes, comment compter correctement les commandes d'un client qui peut en avoir zéro ?",
+      "choices": [
+        "COUNT(*) dans tous les cas",
+        "COUNT(co.commande_id) si commande_id est une clé non NULL",
+        "SUM(c.nom)",
+        "COUNT(DISTINCT c.nom)"
+      ],
+      "answer": 1,
+      "explanation": "La ligne artificielle d'un client sans commande est comptée par COUNT(*), mais co.commande_id vaut NULL et n'est pas comptée par COUNT(co.commande_id)."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une jointure commandes-lignes_commande renvoie plusieurs lignes pour la même commande. Quelle explication est la plus probable ?",
+      "choices": [
+        "Une commande peut être répétée une fois par ligne de détail",
+        "La clé primaire cesse d'être unique",
+        "ORDER BY copie les lignes",
+        "SUM supprime les commandes"
+      ],
+      "answer": 0,
+      "explanation": "La granularité du résultat devient une ligne par combinaison commande-ligne. La répétition de l'identifiant de commande est attendue dans un rapport de détail."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que compte COUNT(*) ?",
+      "choices": [
+        "Uniquement les lignes où toutes les colonnes sont non NULL",
+        "Les lignes du jeu de résultats, y compris celles qui ont des colonnes NULL",
+        "Seulement les valeurs distinctes de la clé primaire",
+        "Uniquement les lignes modifiées aujourd'hui"
+      ],
+      "answer": 1,
+      "explanation": "COUNT(*) compte les lignes. Pour compter les valeurs non NULL d'une expression, on utilise COUNT(expression) ; pour les valeurs distinctes, COUNT(DISTINCT expression)."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle requête compte le nombre de clients distincts ayant passé au moins une commande ?",
+      "choices": [
+        "SELECT COUNT(*) FROM commandes",
+        "SELECT COUNT(DISTINCT client_id) FROM commandes",
+        "SELECT SUM(client_id) FROM commandes",
+        "SELECT AVG(client_id) FROM commandes"
+      ],
+      "answer": 1,
+      "explanation": "Un client peut passer plusieurs commandes. COUNT(DISTINCT client_id) compte chaque identifiant client une seule fois dans les commandes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle clause définit les groupes dans une agrégation par client ?",
+      "choices": [
+        "ORDER BY",
+        "GROUP BY",
+        "INSERT INTO",
+        "LIMIT"
+      ],
+      "answer": 1,
+      "explanation": "GROUP BY rassemble les lignes partageant les mêmes valeurs des expressions de regroupement ; les agrégats calculent ensuite une valeur par groupe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence principale entre WHERE et HAVING dans une requête d'agrégation ?",
+      "choices": [
+        "WHERE filtre les lignes avant le regroupement ; HAVING filtre les groupes après agrégation",
+        "WHERE trie les groupes et HAVING trie les colonnes",
+        "HAVING remplace toujours FROM",
+        "Ils ont toujours le même effet"
+      ],
+      "answer": 0,
+      "explanation": "WHERE agit sur les lignes candidates avant GROUP BY. HAVING permet notamment de filtrer les groupes selon un résultat agrégé comme COUNT(*)."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour sélectionner les clients ayant au moins trois commandes, quel filtre faut-il généralement appliquer au total calculé par COUNT(*) ?",
+      "choices": [
+        "WHERE COUNT(*) >= 3 avant GROUP BY",
+        "HAVING COUNT(*) >= 3 après GROUP BY",
+        "ORDER BY COUNT(*) >= 3",
+        "ON COUNT(*) >= 3"
+      ],
+      "answer": 1,
+      "explanation": "Le seuil porte sur le résultat agrégé par groupe, ce qui correspond à HAVING."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel total calcule SUM(quantite * prix_unitaire) GROUP BY commande_id sur lignes_commande ?",
+      "choices": [
+        "Le prix catalogue actuel moyen de tous les produits",
+        "Le total des lignes enregistrées pour chaque commande, selon quantité et prix appliqué",
+        "Le nombre de clients de chaque commande",
+        "Le montant de tous les paiements sans filtre"
+      ],
+      "answer": 1,
+      "explanation": "L'expression calcule le total des lignes de chaque commande. Elle ne comprend pas automatiquement les taxes, frais, remises ou remboursements absents du modèle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une commande possède deux lignes de produits et trois paiements. Une jointure directe des deux relations produit six combinaisons. Quel risque existe pour SUM(ligne_total) ?",
+      "choices": [
+        "Le total reste toujours inchangé",
+        "Chaque ligne de produit peut être répétée trois fois et additionnée plusieurs fois",
+        "Les paiements sont automatiquement annulés",
+        "Le SGBD supprime les lignes en double"
+      ],
+      "answer": 1,
+      "explanation": "Les deux relations enfant multiplient les combinaisons. Il faut agréger chaque relation à la granularité commande avant de réunir les totaux, ou employer une stratégie équivalente vérifiée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi SUM(DISTINCT montant) n'est-il pas une correction générale du double comptage ?",
+      "choices": [
+        "DISTINCT est interdit avec SUM dans tous les moteurs",
+        "Deux opérations légitimes peuvent avoir le même montant et seraient alors fusionnées dans la somme",
+        "SUM ne fonctionne qu'avec du texte",
+        "Le montant devient toujours NULL"
+      ],
+      "answer": 1,
+      "explanation": "DISTINCT élimine les valeurs numériques répétées, même lorsqu'elles représentent des faits différents. La vraie correction porte sur la granularité et la structure des jointures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle phrase décrit le mieux la granularité d'un résultat regroupé par client_id et statut ?",
+      "choices": [
+        "Une ligne par produit",
+        "Une ligne par couple client-statut présent dans les lignes candidates",
+        "Une seule ligne pour toute la base",
+        "Une ligne par colonne du schéma"
+      ],
+      "answer": 1,
+      "explanation": "Chaque combinaison des expressions GROUP BY définit un groupe. Un client peut donc apparaître plusieurs fois si plusieurs statuts existent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que retourne généralement COUNT(email) lorsque email vaut NULL pour une ligne ?",
+      "choices": [
+        "Il compte cette ligne comme une valeur connue",
+        "Il ignore cette valeur NULL",
+        "Il remplace la valeur par zéro",
+        "Il supprime définitivement l'enregistrement"
+      ],
+      "answer": 1,
+      "explanation": "COUNT(expression) ne compte que les valeurs non NULL de l'expression. La chaîne vide est différente de NULL et peut, elle, être comptée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le moyen le plus fiable de diagnostiquer une somme anormalement élevée après plusieurs jointures ?",
+      "choices": [
+        "Ajouter DISTINCT à toutes les expressions",
+        "Comparer la granularité et les lignes après chaque jointure sur un petit jeu de données calculable à la main",
+        "Supprimer les contraintes de la base",
+        "Augmenter LIMIT"
+      ],
+      "answer": 1,
+      "explanation": "Il faut localiser l'étape où les lignes se multiplient, identifier l'unité de chaque mesure et comparer les totaux à un exemple vérifiable."
     }
   ]
 }
