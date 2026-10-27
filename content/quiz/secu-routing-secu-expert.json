@@ -4,15 +4,363 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question placeholder pour « Sécurité des protocoles de routage » : à rédiger après le cours complet.",
+      "prompt": "Quel est le rôle principal d'une politique d'import BGP ?",
       "choices": [
-        "Option A (placeholder)",
-        "Option B (placeholder)",
-        "Option C (placeholder)",
-        "Option D (placeholder)"
+        "Limiter les routes acceptées d'un voisin",
+        "Définir le mot de passe de l'administrateur",
+        "Garantir le chiffrement du trafic applicatif",
+        "Remplacer les contrôles d'export"
       ],
       "answer": 0,
-      "explanation": "Question temporaire à remplacer par un QCM technique une fois le cours rédigé."
+      "explanation": "L'import contrôle les annonces reçues. Il ne remplace ni l'export, ni l'authentification, ni la sécurité applicative."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il définir une politique d'export distincte ?",
+      "choices": [
+        "Parce que les routes acceptées doivent toujours être exportées",
+        "Pour limiter les annonces envoyées à chaque voisin selon la relation",
+        "Pour éviter que BGP utilise TCP",
+        "Pour rendre toutes les routes prioritaires"
+      ],
+      "answer": 1,
+      "explanation": "L'export empêche notamment un routeur de devenir un transit involontaire et applique les règles prévues pour chaque voisin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle description correspond le mieux à une fuite de routes ?",
+      "choices": [
+        "Une route reste installée dans la FIB",
+        "Un routeur utilise un masque incorrect sur un poste",
+        "Une route est annoncée au-delà de la relation ou de la politique prévue",
+        "Un lien physique passe à 10 Gbit/s"
+      ],
+      "answer": 2,
+      "explanation": "Une fuite concerne une propagation qui viole les règles de relation ou les politiques de transit prévues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que vérifie essentiellement la validation d'origine RPKI ?",
+      "choices": [
+        "Chaque routeur intermédiaire du chemin complet",
+        "L'intégrité du fichier de configuration locale",
+        "Le chiffrement du trafic utilisateur",
+        "La relation entre le préfixe annoncé, sa longueur autorisée et l'ASN d'origine"
+      ],
+      "answer": 3,
+      "explanation": "La validation d'origine compare l'annonce avec les autorisations de préfixe et d'ASN, mais ne valide pas l'intégralité d'AS_PATH."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie généralement l'état RPKI NotFound ?",
+      "choices": [
+        "Aucune ROA correspondante n'est disponible dans les données consultées",
+        "L'annonce est forcément malveillante",
+        "L'ASN du voisin n'existe pas",
+        "Le routeur a rejeté la route dans tous les cas"
+      ],
+      "answer": 0,
+      "explanation": "NotFound signifie qu'aucune ROA correspondante ne permet d'établir Valid ou Invalid. La politique de traitement doit être documentée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie un état RPKI Invalid ?",
+      "choices": [
+        "La session TCP est chiffrée",
+        "Une ROA applicable contredit l'ASN d'origine ou la longueur annoncée",
+        "La route est nécessairement la meilleure route",
+        "Le cache RPKI n'existe pas"
+      ],
+      "answer": 1,
+      "explanation": "Une contradiction avec une ROA applicable, notamment l'origine ou maxLength, produit l'état Invalid."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi commencer souvent par observer les routes Invalid avant de les rejeter à grande échelle ?",
+      "choices": [
+        "Pour augmenter le nombre de routes acceptées",
+        "Pour supprimer les logs antérieurs",
+        "Pour repérer les erreurs de ROA et estimer les impacts avant d'imposer un rejet",
+        "Pour rendre inutile le filtrage par préfixe"
+      ],
+      "answer": 2,
+      "explanation": "La phase d'observation révèle les causes possibles d'invalidité et réduit les risques de coupure due à une ROA incorrecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que protège principalement une limite maximum-prefix ?",
+      "choices": [
+        "La confidentialité des mots de passe",
+        "La résolution DNS des clients",
+        "L'intégrité des applications HTTP",
+        "Les ressources du routeur face à un volume de routes anormal"
+      ],
+      "answer": 3,
+      "explanation": "Une limite adaptée aide à limiter la mémoire et le traitement consommés par une quantité inattendue d'annonces."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un seuil maximum-prefix universel est-il une mauvaise pratique ?",
+      "choices": [
+        "Les volumes attendus et les capacités varient selon le voisin et la plateforme",
+        "Le BGP ne permet pas de compter les préfixes",
+        "Le seuil chiffre les annonces",
+        "La limite n'agit qu'en IPv6"
+      ],
+      "answer": 0,
+      "explanation": "Le seuil doit être calculé selon le contrat, le volume normal, la marge de croissance et la capacité des équipements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve une session BGP authentifiée ?",
+      "choices": [
+        "Que toutes les routes annoncées sont autorisées",
+        "Qu'un contrôle d'identité/intégrité de session choisi est appliqué selon sa conception",
+        "Que l'AS_PATH entier est cryptographiquement validé",
+        "Que les serveurs finaux sont exempts de vulnérabilités"
+      ],
+      "answer": 1,
+      "explanation": "La protection de session complète les filtres de routes : un voisin authentifié peut être mal configuré ou compromis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de GTSM ?",
+      "choices": [
+        "Remplacer le calcul de la meilleure route",
+        "Créer des ROA automatiquement",
+        "Utiliser un TTL attendu pour réduire certaines attaques distantes contre le plan de contrôle",
+        "Chiffrer le contenu de tous les paquets"
+      ],
+      "answer": 2,
+      "explanation": "GTSM s'appuie sur le TTL pour rendre plus difficiles certaines attaques distantes sur des voisinages à distance attendue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi protéger le plan de contrôle du routeur ?",
+      "choices": [
+        "Pour empêcher toute route par défaut d'exister",
+        "Pour faire fonctionner le Wi-Fi client",
+        "Pour supprimer l'usage du processeur",
+        "Pour limiter l'impact de paquets non autorisés ou excessifs qui sollicitent le CPU"
+      ],
+      "answer": 3,
+      "explanation": "Le plan de contrôle traite les protocoles et peut être plus sensible à l'épuisement de ressources que le plan de transfert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque présente l'acceptation d'un préfixe uniquement parce qu'il vient du bon ASN ?",
+      "choices": [
+        "L'identité du voisin ne prouve pas que chaque préfixe est autorisé",
+        "Le préfixe devient automatiquement privé",
+        "Le routeur ne peut plus utiliser AS_PATH",
+        "La session devient nécessairement iBGP"
+      ],
+      "answer": 0,
+      "explanation": "L'identité de session et l'autorisation de chaque route sont deux contrôles distincts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle aide directement à empêcher un client d'annoncer des préfixes hors accord ?",
+      "choices": [
+        "Désactiver tous les journaux",
+        "Un filtre d'import précis associé à une source de vérité approuvée",
+        "Supprimer toutes les communautés",
+        "Mettre la route dans la FIB manuellement"
+      ],
+      "answer": 1,
+      "explanation": "Le filtre doit expliciter les préfixes autorisés pour ce client et rejeter le reste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent BGP Roles et l'attribut OTC selon RFC 9234 ?",
+      "choices": [
+        "À chiffrer toutes les communications entre AS",
+        "À améliorer la latence du plan de transfert",
+        "À aider à prévenir ou détecter certaines fuites en exprimant et contrôlant la relation de peering",
+        "À remplacer les registres d'adresses IP"
+      ],
+      "answer": 2,
+      "explanation": "Les rôles et OTC contribuent à faire respecter les règles de propagation liées aux relations, mais complètent les filtres classiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire si les rôles BGP configurés ne correspondent pas à l'accord réel ?",
+      "choices": [
+        "Ignorer l'écart si la session monte",
+        "Désactiver tous les filtres",
+        "Annoncer des préfixes plus spécifiques",
+        "Suspendre le déploiement et réconcilier les rôles avec le partenaire"
+      ],
+      "answer": 3,
+      "explanation": "Une incohérence de rôle peut casser la session ou modifier la propagation. Il faut rétablir une configuration cohérente et testée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les communautés BGP doivent-elles être traitées avec prudence ?",
+      "choices": [
+        "Elles expriment parfois des politiques de propagation et leur suppression peut changer la portée des routes",
+        "Elles contiennent toujours les clés privées",
+        "Elles sont uniquement utilisées par OSPF",
+        "Elles remplacent l'adresse IP du voisin"
+      ],
+      "answer": 0,
+      "explanation": "Les communautés ont un sens défini localement ou contractuellement; un nettoyage indifférencié peut casser une politique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le premier objectif lors d'une anomalie grave de routage, lorsque les circonstances le permettent ?",
+      "choices": [
+        "Relancer tous les routeurs en même temps",
+        "Qualifier l'impact et préserver l'état et les journaux avant une modification large",
+        "Supprimer les traces de changements",
+        "Augmenter tous les seuils de préfixes"
+      ],
+      "answer": 1,
+      "explanation": "Une collecte initiale permet de comprendre l'ampleur et la cause avant de choisir une action de confinement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route figure dans les informations BGP mais pas dans la FIB. Quelle conclusion est correcte ?",
+      "choices": [
+        "Le voisin a forcément attaqué le réseau",
+        "Le routeur est définitivement hors service",
+        "La route peut ne pas être sélectionnée ou installée; il faut examiner BGP, RIB et FIB",
+        "RPKI est nécessairement indisponible"
+      ],
+      "answer": 2,
+      "explanation": "La présence d'un chemin BGP ne garantit pas qu'il soit retenu dans la table active de transfert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une interface utilisateur peut-elle être configurée passive pour OSPF ?",
+      "choices": [
+        "Pour rendre le poste utilisateur routeur BGP",
+        "Pour forcer tous les paquets à passer en clair",
+        "Pour désactiver le routage sur toutes les interfaces",
+        "Pour empêcher une adjacence inutile sur le segment tout en conservant le comportement d'annonce voulu"
+      ],
+      "answer": 3,
+      "explanation": "Les interfaces qui n'ont pas à former de voisinage ne devraient pas participer à des adjacences. Le comportement exact dépend de la plateforme."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque découle d'une redistribution sans filtre ?",
+      "choices": [
+        "Propagation excessive, boucles et routes inattendues",
+        "Une amélioration garantie de la sécurité",
+        "La disparition de toutes les métriques",
+        "La transformation d'OSPF en TCP"
+      ],
+      "answer": 0,
+      "explanation": "La redistribution doit limiter les préfixes et définir métriques, tags et sens de propagation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une rotation de clé OSPF, l'adjacence tombe. Que vérifier en premier ?",
+      "choices": [
+        "La couleur du câble",
+        "La cohérence de clé, algorithme, Key ID et période de validité des deux côtés",
+        "Le certificat TLS du navigateur de l'administrateur",
+        "Le nombre de communautés BGP"
+      ],
+      "answer": 1,
+      "explanation": "Une divergence d'authentification empêche l'échange correct. Les journaux et la connectivité doivent être vérifiés avant un changement plus large."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les horloges des routeurs et systèmes de collecte doivent-elles être synchronisées ?",
+      "choices": [
+        "Pour modifier l'AS_PATH automatiquement",
+        "Pour que les routes restent secrètes",
+        "Pour relier les changements de session, de politique et de route dans une chronologie fiable",
+        "Pour éviter toutes les fuites de routes"
+      ],
+      "answer": 2,
+      "explanation": "La corrélation temporelle est essentielle à une enquête; les événements doivent être horodatés de manière cohérente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure approche pour une exception de politique nécessaire à une application métier ?",
+      "choices": [
+        "L'ajouter sans commentaire à un filtre partagé",
+        "Laisser la règle permanente sans propriétaire",
+        "Supprimer les tests pour réduire le risque de conflit",
+        "La limiter, la justifier, l'assigner à un propriétaire et la faire réviser"
+      ],
+      "answer": 3,
+      "explanation": "Les exceptions doivent être explicites, traçables, limitées et réexaminées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les changements de politique de routage doivent-ils être testés en laboratoire ?",
+      "choices": [
+        "Parce qu'une erreur peut retirer des routes ou propager des annonces à grande échelle",
+        "Parce que les préfixes ne sont pas des adresses IP",
+        "Pour supprimer le besoin de journalisation",
+        "Pour remplacer les fenêtres de maintenance"
+      ],
+      "answer": 0,
+      "explanation": "Le test permet de connaître les effets sur les annonces, la sélection de route et le rétablissement avant une modification de production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe s'applique à l'importation depuis un client qui n'annonce qu'un préfixe connu ?",
+      "choices": [
+        "Accepter toute table Internet si le voisin est joignable",
+        "N'autoriser que le préfixe convenu, avec les longueurs attendues et les autres contrôles appropriés",
+        "Laisser les autres routes être exportées par défaut",
+        "Ignorer le nombre de préfixes"
+      ],
+      "answer": 1,
+      "explanation": "Un filtre client doit refléter précisément le contrat et ne pas permettre d'autres préfixes sans autorisation explicite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une route Invalid peut-elle simplement provenir d'une erreur de ROA ?",
+      "choices": [
+        "Non, une ROA est toujours exacte",
+        "Non, l'état Invalid signifie toujours une attaque",
+        "Oui; il faut examiner les données et coordonner la correction avec le propriétaire autorisé",
+        "Oui, donc il faut accepter toutes les routes Invalid"
+      ],
+      "answer": 2,
+      "explanation": "Une invalidité n'identifie pas à elle seule l'intention. Il faut vérifier la ROA, la longueur et l'ASN avant de qualifier l'incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est essentiel après activation d'un filtre d'export ?",
+      "choices": [
+        "Uniquement vérifier que le routeur a redémarré",
+        "Vérifier seulement l'adresse de l'administrateur",
+        "Lire uniquement le fichier de configuration",
+        "Contrôler les routes réellement annoncées au voisin et la connectivité attendue"
+      ],
+      "answer": 3,
+      "explanation": "La configuration exprime l'intention; la table annoncée et les tests démontrent le résultat réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un cache RPKI indisponible doit-il produire une alerte ?",
+      "choices": [
+        "Parce que la fraîcheur et la disponibilité des informations de validation sont importantes pour une décision fiable",
+        "Parce que toutes les routes seront forcément invalides",
+        "Parce que BGP ne peut pas fonctionner sans DNS",
+        "Parce que le routeur doit annoncer toutes ses routes au monde"
+      ],
+      "answer": 0,
+      "explanation": "La perte du cache altère la capacité de mettre à jour les états. Une procédure de continuité doit être définie avant la panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus utile pour démontrer qu'une mesure de sécurité de routage fonctionne ?",
+      "choices": [
+        "Une capture du nom de la commande configurée uniquement",
+        "Des résultats de tests et d'observation montrant les routes acceptées/rejetées et exportées, horodatés",
+        "Une affirmation orale sans mesures",
+        "Un diagramme sans configuration ni résultat"
+      ],
+      "answer": 1,
+      "explanation": "La preuve combine l'intention, le test et l'état observable réel avec une source et un horodatage."
     }
   ]
 }

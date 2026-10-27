@@ -7435,7 +7435,7 @@
     "title": "Sécurité des protocoles de routage",
     "category": "Cybersécurité",
     "order": 930,
-    "description": "Squelette du cours de cybersécurité : Sécurité des protocoles de routage.",
+    "description": "Sécurisation de BGP, validation RPKI, prévention des fuites et protection d'OSPF/IS-IS.",
     "prereqs": [
       "secu-gouvernance-expert"
     ],
