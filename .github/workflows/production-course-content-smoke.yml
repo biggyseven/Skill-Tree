@@ -26,8 +26,8 @@ jobs:
       - name: Verify production authentication and optional authenticated content
         shell: bash
         env:
-          SKILLTREE_RUN_AUTHENTICATED_SMOKE: \${{ vars.SKILLTREE_RUN_AUTHENTICATED_SMOKE }}
-          SKILLTREE_PRODUCTION_TEST_PASSWORD: \${{ secrets.SKILLTREE_PRODUCTION_TEST_PASSWORD }}
+          SKILLTREE_RUN_AUTHENTICATED_SMOKE: ${{ vars.SKILLTREE_RUN_AUTHENTICATED_SMOKE }}
+          SKILLTREE_PRODUCTION_TEST_PASSWORD: ${{ secrets.SKILLTREE_PRODUCTION_TEST_PASSWORD }}
         run: |
           python - <<'PY'
           import http.cookiejar
