@@ -58,6 +58,34 @@ flowchart TD
 
 Chaque étape produit une preuve : note de besoin, analyse des options, stratégie d’achat, budget, validation du dossier, avis publié, registre des questions, procès-verbal de réception, rapport d’évaluation, autorisations, contrat signé, procès-verbal de recette, rapport de performance et plan de sortie. Une procédure de haute qualité peut être comprise par un réviseur indépendant qui n’a pas participé aux décisions.
 
+### Portes de décision : empêcher le dossier de partir trop tôt
+
+Les validations doivent être conçues comme des portes de décision, et non comme des signatures automatiques. Le dossier ne devrait pas être publié tant que l’on ne sait pas quelle procédure est autorisée, ce qui est acheté, comment les offres seront comparées, qui financera le contrat et comment le résultat sera accepté.
+
+~~~mermaid
+flowchart TD
+  A[Besoin identifié] --> B{Besoin et options documentés ?}
+  B -->|Non| C[Compléter la note de cadrage]
+  C --> B
+  B -->|Oui| D{Budget, régime et procédure validés ?}
+  D -->|Non| E[Arbitrage finance, achats et juridique]
+  E --> D
+  D -->|Oui| F{Exigences et critères vérifiables ?}
+  F -->|Non| G[Revoir le dossier et la matrice de preuves]
+  G --> F
+  F -->|Oui| H[Autorisation de publication]
+~~~
+
+Un dossier techniquement complet peut encore être immature si le budget n’est pas confirmé, si le fournisseur de données n’a pas été identifié ou si le délai de transition est irréaliste. La porte de décision fait apparaître ces obstacles avant qu’ils deviennent des avenants, des retards ou un litige.
+
+### 1.3 Gouvernance de l'achat et responsabilités
+
+Une matrice de responsabilités doit préciser qui est responsable de chaque livrable, qui approuve, qui contribue et qui doit être informé. Elle évite que la rédaction soit confiée exclusivement aux achats ou exclusivement à la technique. Les achats maîtrisent la procédure et la comparaison ; le métier décrit le résultat ; les spécialistes techniques définissent les contraintes et tests ; les finances valident le modèle budgétaire ; le juridique examine le risque contractuel ; la sécurité évalue les exigences liées aux données, aux accès et à la continuité.
+
+La séparation des tâches doit être proportionnée à la valeur et au risque. Une personne ne devrait pas pouvoir, sans contrôle, créer le besoin, choisir seule les candidats, noter les offres, approuver l'attribution et certifier la facture. Dans une petite organisation, la séparation complète n'est pas toujours possible ; il faut alors des contrôles compensatoires, comme une revue indépendante ou une approbation à deux niveaux.
+
+Un registre des décisions devrait indiquer le sujet, les options, la recommandation, l'autorité, la date, la justification et les conditions de réexamen. Un « accord oral » sans trace est fragile, surtout lorsque les personnes changent ou que le dossier est contesté.
+
 ### 1.1 Les questions à résoudre avant de rédiger
 
 Avant de lancer la rédaction, réunir le propriétaire métier, l’équipe technique, les achats, les finances, le juridique, la sécurité et, le cas échéant, les responsables environnementaux ou sociaux. Cette équipe doit clarifier :
@@ -127,6 +155,28 @@ Les appellations varient selon les régimes. Une procédure ouverte, une consult
 
 Le dossier de stratégie précise la méthode choisie, sa justification, les étapes, les délais, la façon dont les offres seront reçues, les critères de sélection, les possibilités de clarification ou de négociation et les voies de recours lorsqu’elles sont prévues. Les règles de négociation et de modification des offres sont particulièrement dépendantes du cadre juridique : ne pas présumer qu’une pratique autorisée en achat privé est permise en marché public.
 
+### 2.6 Stratégie de sourcing et continuité d'approvisionnement
+
+La stratégie de sourcing décide comment accéder au marché, quelles catégories de fournisseurs sont admissibles, comment la capacité sera vérifiée et comment le risque d'approvisionnement sera réduit. Pour des pièces critiques ou une prestation de maintenance, il ne suffit pas d'étudier le tarif : il faut identifier le délai de disponibilité, les stocks locaux ou régionaux, les composants de rang deux, les droits de distribution, la capacité de dépannage et la dépendance à une seule personne experte.
+
+Les points d'analyse comprennent le nombre de fournisseurs réellement indépendants, les substitutions autorisées, la disponibilité des pièces en fin de vie, les contraintes d'exportation ou de transport lorsqu'elles s'appliquent, la concentration géographique, les délais de douane, le support du constructeur et la dépendance à un distributeur unique. Les risques doivent être examinés sans transformer des hypothèses en certitudes : demander des preuves adaptées et définir des actions de réduction.
+
+Pour les catégories récurrentes, une stratégie de catégorie peut agréger les achats, harmoniser certaines exigences, négocier des conditions cohérentes et améliorer la visibilité des volumes. Cette agrégation doit toutefois être mise en balance avec le risque de concentration et les conséquences d'une défaillance commune. Un contrat unique peut réduire la charge administrative tout en augmentant le rayon d'impact d'un défaut fournisseur.
+
+~~~mermaid
+flowchart TD
+  A[Catégorie d'achat] --> B[Évaluer marché et concentration]
+  B --> C[Analyser criticité et substitutions]
+  C --> D{Source unique inévitable ?}
+  D -->|Oui| E[Plan de continuité et stock / compétences]
+  D -->|Non| F[Évaluer multi-sourcing ou lots]
+  E --> G[Mesures contractuelles et tests]
+  F --> G
+  G --> H[Surveiller dépendances et marché]
+~~~
+
+Le plan de continuité d'approvisionnement peut inclure une source alternative qualifiée, un stock raisonnable, une documentation transférable, un délai d'escalade, un mécanisme d'approbation d'équivalence et un inventaire des pièces en fin de vie. Il doit aussi tenir compte du coût d'obsolescence : maintenir un stock sans politique de rotation et sans vérifier la compatibilité peut créer de la perte plutôt que de la résilience.
+
 ## 3. Définir un besoin mesurable et rédiger le cahier des charges
 
 ### 3.1 Résultats, fonctions et solutions
@@ -190,6 +240,48 @@ Ne pas insérer un critère écologique ou social de façade qui ne peut être v
 
 Chaque exigence importante doit être reliée à une preuve avant attribution et à un moyen de contrôle après attribution. Cette continuité empêche qu’une promesse décisive disparaisse entre la notation et le contrat.
 
+### 3.8 Exigences non fonctionnelles et niveaux de preuve
+
+Les exigences fonctionnelles disent ce que l'utilisateur peut accomplir. Les exigences non fonctionnelles définissent dans quelles conditions le service doit fonctionner : performance, disponibilité, maintenabilité, sécurité, observabilité, accessibilité, évolutivité, portabilité et capacité de récupération. Elles sont souvent déterminantes pour les services critiques, mais fréquemment rédigées en termes trop génériques.
+
+Pour chaque exigence non fonctionnelle, choisir un moyen de preuve proportionné :
+- déclaration du candidat pour une information descriptive simple ;
+- documentation d'architecture lorsque le mécanisme doit être compris ;
+- certificat ou attestation lorsque la certification est pertinente pour le périmètre ;
+- rapport de test lorsque la performance ou le contrôle doit être démontré ;
+- démonstration encadrée lorsque l'interaction est centrale ;
+- essai de recette ou exercice lorsque le résultat doit être établi dans un environnement représentatif ;
+- engagement contractuel lorsque la capacité doit perdurer après attribution.
+
+Ces preuves ne sont pas équivalentes. Un certificat atteste seulement le périmètre et la période de validité qu'il couvre. Une architecture décrit une conception, sans démontrer nécessairement son exécution. Un essai isolé ne prouve pas le fonctionnement de bout en bout. La matrice de conformité doit donc préciser la preuve attendue au stade de l'offre et la vérification qui aura lieu après attribution.
+
+### Matrice de cohérence entre exigences
+
+Une revue croisée recherche les contradictions entre les annexes. Par exemple, une exigence de support 24 h/24 peut être incompatible avec un délai contractuel de mobilisation de trois jours. Une clause de restitution des données peut être contradictoire avec une licence qui interdit l'export. Un objectif de disponibilité peut être impossible si les maintenances programmées sont longues ou si le fournisseur n'a aucun accès aux composants indispensables.
+
+La revue peut examiner :
+- la cohérence des unités et des volumes entre les documents ;
+- les mêmes termes définis de façon différente ;
+- les frontières de responsabilité entre fournisseur, acheteur et sous-traitants ;
+- la compatibilité des délais de livraison, d'intégration, de test et de réception ;
+- les hypothèses d'environnement et de disponibilité des équipes ;
+- les liens entre la promesse, le critère de notation, la clause contractuelle et la preuve de recette ;
+- les options commerciales non chiffrées ou susceptibles de modifier le périmètre ;
+- les écarts entre la procédure formelle et les pratiques annoncées aux candidats.
+
+~~~mermaid
+flowchart LR
+  A[Besoin métier] --> B[Exigence rédigée]
+  B --> C[Preuve demandée à l'offre]
+  C --> D[Critère de comparaison]
+  D --> E[Clause contractuelle]
+  E --> F[Test de recette]
+  F --> G[Mesure durant le contrat]
+  G --> H[Action si écart]
+~~~
+
+Si une exigence critique n'a ni preuve d'offre ni recette ni obligation contractuelle, elle est probablement mal conçue. Si un critère noté ne correspond à aucun besoin ou si une obligation de contrat n'a jamais été présentée aux candidats dans un cadre qui exige cette transparence, il faut résoudre l'incohérence avant publication.
+
 ## 4. Structurer le dossier de consultation
 
 Un dossier doit donner la même information essentielle à tous les candidats autorisés. Les pièces typiques comprennent la lettre ou l’avis de consultation, le règlement de consultation, les instructions aux candidats, la description du besoin, les spécifications, le calendrier, les critères, les modalités de remise, les formulaires de prix, les conditions contractuelles, les annexes de sécurité, les exigences de transition, les clauses de confidentialité et les modèles de réponse. La structure varie selon le régime et le type d’achat.
@@ -219,6 +311,14 @@ Le calendrier prévoit les validations internes, la publication, les questions, 
 Les questions des candidats peuvent révéler une ambiguïté importante. Enregistrer chaque demande, la date, la personne chargée de la réponse, la validation nécessaire et la publication. Si une réponse modifie l’interprétation ou la portée du dossier, communiquer l’information de manière cohérente à tous les candidats concernés, selon les règles applicables. Si le changement est majeur, un délai supplémentaire ou une modification formelle peut être nécessaire.
 
 Éviter les réponses orales non consignées, les instructions différentes données à deux candidats ou les changements non publiés. Une clarification ne doit pas devenir une façon de changer discrètement les critères, de réécrire le besoin après avoir vu une offre ou de créer un avantage sélectif.
+
+### 4.4 Gestion des versions et contrôle de publication
+
+Le dossier doit être géré comme un ensemble contrôlé. Affecter un identifiant et une version aux pièces principales, conserver les versions approuvées, contrôler les liens entre annexes et limiter les accès aux brouillons. Au moment de la publication, vérifier que le dossier diffusé est exactement celui qui a reçu l'autorisation. Une annexe locale obsolète peut introduire des critères ou des prix différents du document principal.
+
+Pour chaque modification, enregistrer l'auteur, la raison, la pièce touchée, les validations nécessaires, la date de publication et l'effet sur le calendrier. Distinguer une correction typographique qui n'affecte pas l'interprétation d'un changement qui modifie le besoin, la méthode de prix ou le résultat attendu. L'acheteur ne doit pas supposer qu'une modification est mineure uniquement parce qu'elle porte sur une phrase.
+
+La gestion des versions doit s'appliquer aux fichiers tableurs, formules de score, modèles de prix, annexes et réponses aux questions. Une formule modifiée dans une copie locale peut changer le classement même si le rapport final semble cohérent. Protéger les formules sensibles, documenter les cellules d'entrée, tester le calcul sur un exemple et faire vérifier le résultat par une seconde personne.
 
 ## 5. Distinguer admissibilité, conformité et évaluation
 
@@ -314,6 +414,36 @@ Une démonstration peut révéler le fonctionnement réel, mais il faut annoncer
 
 Les affirmations de l’offre doivent être associées à une preuve adaptée : référence vérifiable, test, certification pertinente, documentation, engagement contractuel, démonstration ou rapport. Une certification générique ne prouve pas nécessairement l’exigence précise à évaluer. De la même manière, une présentation commerciale ne remplace pas un test d’acceptation.
 
+### 6.7 Contrôler la cohérence et les biais de notation
+
+Une grille pondérée peut produire une fausse impression de précision si les critères sont redondants ou les notes mal calibrées. Par exemple, la « qualité de la méthode », la « maturité de l'organisation » et la « confiance dans le fournisseur » peuvent mesurer presque la même chose. Les cumuler donne un poids excessif à un seul facteur. Il faut vérifier que chaque critère mesure une dimension distincte et que les preuves sont notées une seule fois, sauf justification.
+
+Les évaluateurs doivent distinguer la qualité de la rédaction de la qualité de la réponse. Une offre bien mise en page n'est pas nécessairement meilleure. De même, une réponse courte peut être complète si elle apporte la preuve requise ; une réponse longue peut cacher l'absence de détail utile. Les notes doivent citer les paragraphes, documents, mesures ou résultats qui les justifient.
+
+Le contrôle de notation vérifie :
+1. que chaque critère a une note et une justification ;
+2. que les ancres ont été appliquées de façon cohérente ;
+3. que les exigences obligatoires ont été traitées dans la phase appropriée ;
+4. que les pondérations et formules correspondent à la version approuvée ;
+5. que les clarifications ont été utilisées dans le cadre permis ;
+6. que les totaux ont été recalculés indépendamment ;
+7. que les différences de classement sont explicables par les critères annoncés ;
+8. que les conflits d'intérêts ou les accès non autorisés ont été traités.
+
+~~~mermaid
+flowchart TD
+  A[Grilles individuelles] --> B[Contrôle des preuves citées]
+  B --> C[Revue des écarts de notes]
+  C --> D{Écart explicable par le critère ?}
+  D -->|Non| E[Revue documentée et clarification interne]
+  D -->|Oui| F[Calcul indépendant]
+  E --> F
+  F --> G[Validation du rapport]
+  G --> H[Archivage des versions et justificatifs]
+~~~
+
+Une analyse de sensibilité peut être utile lorsque des différences minimes de notes ou des hypothèses financières font basculer le classement. Elle doit rester un contrôle de robustesse, pas une méthode cachée de reclassement. Si la procédure impose une règle précise, c'est cette règle qui gouverne la décision.
+
 ## 7. Évaluer le prix et le coût total sur le cycle de vie
 
 ### 7.1 Construire un modèle de coût comparable
@@ -344,6 +474,27 @@ Tester plusieurs scénarios : volume faible, attendu et élevé ; renouvellement
 
 Ne pas intégrer un coût hypothétique au score sans l’avoir défini et autorisé dans la méthode. Si l’incertitude est importante, la traiter en risque, en scénario ou en clarification permise, pas en ajoutant un facteur non publié au milieu de l’évaluation.
 
+### 7.4 Structures tarifaires et répartition du risque
+
+Le modèle de prix influence le comportement du fournisseur et la distribution des risques. Un prix forfaitaire peut offrir de la prévisibilité si le périmètre et les conditions sont bien définis. Il peut provoquer des réserves, des hypothèses restrictives ou des demandes de changement si le besoin est incertain. Une facturation à l'unité peut mieux refléter le volume, mais rend le coût total sensible à la consommation. Une tarification au temps passé peut être appropriée dans certains services spécialisés, à condition que les profils, plafonds, taux, autorisations et livrables soient contrôlés.
+
+| Modèle de prix | Atout possible | Risque à gérer |
+|---|---|---|
+| Forfait ferme | Prévisibilité dans un périmètre stable | Réserves ou litiges lorsque le périmètre est ambigu |
+| Prix unitaires | Comparaison par unité et adaptation au volume | Variation du coût final si les volumes changent |
+| Régie / temps passé | Adaptation à un besoin difficile à spécifier à l'avance | Contrôle de charge, productivité, autorisations et plafond |
+| Abonnement | Simplicité de facturation récurrente | Indexation, limites d'usage, renouvellement et coûts de sortie |
+| Paiement par jalon | Paiement lié à des résultats vérifiables | Jalon trop général, réception ambiguë ou dépendance externe |
+| Modèle incitatif | Peut aligner certains résultats | Indicateurs manipulables ou effets indésirables s'ils sont mal conçus |
+
+Choisir un modèle n'élimine pas l'incertitude ; il la distribue. Le dossier doit préciser les volumes de référence, le traitement des variations, les unités facturables, les frais inclus, les plafonds, les options, l'indexation, la monnaie, les taxes et les conditions de validation. Une comparaison équitable exige de calculer les offres sur les mêmes hypothèses.
+
+### 7.5 Indexation, devises et hypothèses financières
+
+Les contrats pluriannuels peuvent prévoir des révisions de prix, mais la formule doit être définie, autorisée et transparente. Spécifier l'indice, la date de référence, la périodicité, la part fixe, le plafond ou le plancher éventuel et le traitement d'un indice qui cesse d'être publié. Les devises peuvent exposer l'acheteur au risque de change ; il faut préciser la devise de l'offre, de la facture et du paiement ainsi que la manière dont les fluctuations sont traitées.
+
+Une analyse financière doit distinguer un coût contractuel ferme d'une hypothèse de consommation, d'un coût estimé ou d'une option. Les économies annoncées doivent indiquer la base de comparaison et les coûts de mise en œuvre. Une économie de licence qui nécessite davantage d'exploitation interne n'est pas une économie nette sans valoriser le travail supplémentaire.
+
 ## 8. Intégrité, impartialité et traçabilité
 
 ### 8.1 Conflits d’intérêts
@@ -364,6 +515,25 @@ Le dossier d’audit contient les versions des documents, les validations, les i
 
 La piste d’audit doit permettre de répondre à quatre questions : qu’a-t-on décidé, sur quelle base, par qui, et quelle preuve confirme l’exécution ? Si le rapport contient un score, les feuilles sources et la formule doivent permettre de refaire le calcul.
 
+### 8.4 Contrôles d'accès, confidentialité et conservation des preuves
+
+Les offres peuvent contenir des informations commerciales sensibles, des données personnelles, des secrets techniques et des informations de sécurité. Limiter les accès aux personnes autorisées, utiliser des canaux de réception conformes à la procédure, consigner les accès lorsque c'est nécessaire et définir une règle de conservation. La durée et les modalités de conservation dépendent du cadre juridique, du financement, des exigences d'audit et des règles internes.
+
+La confidentialité ne doit pas servir à supprimer la piste d'audit. Il faut distinguer les documents qui doivent être rendus accessibles, ceux qui peuvent être communiqués sous réserve de protection et ceux qui doivent rester restreints. Les demandes d'accès, d'information ou les recours doivent être traités conformément au régime applicable. Toute divulgation doit être autorisée, tracée et limitée à ce qui est permis.
+
+Une revue d'intégrité peut inclure les horodatages de réception, les comptes ayant accédé aux dossiers, la version des grilles utilisées, les conflits d'intérêts, le journal des clarifications et les preuves de validation. Un signal d'anomalie doit être transmis à l'autorité appropriée ; les membres de l'équipe ne doivent pas improviser une enquête ou détruire les éléments par inadvertance.
+
+~~~mermaid
+flowchart TD
+  A[Offres reçues] --> B[Enregistrer date et intégrité du dépôt]
+  B --> C[Limiter l'accès aux rôles autorisés]
+  C --> D[Déclarations d'intérêts et récusations]
+  D --> E[Grilles et clarifications tracées]
+  E --> F[Contrôle indépendant du calcul]
+  F --> G[Décision autorisée]
+  G --> H[Archivage et conservation selon les règles]
+~~~
+
 ## 9. Clarifications, négociation et attribution
 
 ### 9.1 Encadrer les échanges avec les candidats
@@ -383,6 +553,25 @@ Un négociateur compétent ne négocie pas uniquement le prix facial. Il étudie
 Avant de signer, confirmer les approbations requises, la disponibilité du budget, l’absence de conflit non traité, la validité de l’offre, les documents prévus, les vérifications autorisées, le traitement des éventuelles contestations et la cohérence entre l’offre retenue et le contrat final. Les étapes de publication, notification, attente ou recours varient selon la juridiction et la procédure.
 
 Le contrat ne doit pas contredire la proposition évaluée. Si une promesse a influencé le score, elle doit être traduite en obligation, jalon, indicateur, livrable ou critère de réception. Si elle n’est pas intégrée, l’organisation risque d’acheter un argument de vente qu’elle ne pourra pas faire respecter.
+
+### 9.4 Préparer un rapport d'évaluation défendable
+
+Un rapport d'évaluation synthétise la procédure sans remplacer les pièces sources. Il indique la composition de l'équipe, les déclarations d'intérêts, les offres reçues, les étapes réalisées, les contrôles de conformité, les clarifications permises, l'application des critères, les notes motivées, les calculs, les risques déterminants et la recommandation d'attribution. Il est rédigé pour permettre à un réviseur indépendant de reconstruire la logique de décision.
+
+Un bon rapport ne se contente pas d'écrire « offre excellente » ou « fournisseur peu convaincant ». Il décrit l'écart ou la preuve : délai de reprise annoncé, test fourni, réserve contractuelle, absence de format d'export ou hypothèse de prix. Les observations doivent être pertinentes pour les critères ; les opinions non étayées et les formulations désobligeantes sont inutiles.
+
+La recommandation indique les conditions à remplir avant signature et les risques résiduels. Si l'offre retenue comporte des réserves, elles doivent être traitées selon la procédure avant d'engager l'organisation. Une recommandation ne doit pas anticiper des concessions ou des changements majeurs que la procédure ne permet pas.
+
+~~~mermaid
+flowchart LR
+  A[Contrôles de conformité] --> B[Résultats par critère]
+  B --> C[Calcul vérifié]
+  C --> D[Risques et réserves]
+  D --> E[Recommandation motivée]
+  E --> F[Approbations prévues]
+  F --> G[Notification et formalités applicables]
+  G --> H[Contrat final cohérent avec l'offre retenue]
+~~~
 
 ## 10. Rédiger un contrat pilotable
 
@@ -437,6 +626,14 @@ flowchart LR
 
 Cette traçabilité est un contrôle central. Une exigence importante qui disparaît au moment du contrat crée un écart entre la décision d’achat et la valeur réellement obtenue.
 
+### 10.5 Gestion des incidents contractuels, des remèdes et du risque de résiliation
+
+Le contrat doit expliquer comment les parties réagissent lorsqu'un engagement n'est pas tenu : notification, qualification, délai de remédiation, plan correctif, escalade, mesure des impacts, recours contractuels et conditions de résiliation éventuelle. Les remèdes précis doivent être adaptés au droit et aux négociations autorisées. Les pénalités ou crédits de service doivent être mesurables et compatibles avec le contrat ; ils ne doivent pas remplacer la correction du défaut quand la continuité dépend d'une action technique.
+
+Une défaillance isolée et un défaut récurrent ne se gèrent pas toujours de la même manière. Une non-conformité ponctuelle peut faire l'objet d'une correction et d'une vérification. Des incidents similaires qui se répètent peuvent révéler une cause racine, une capacité insuffisante, une compétence absente ou une obligation mal rédigée. Le plan correctif indique la cause étayée, les actions, les délais, les mesures temporaires, la preuve de résolution et le test d'efficacité.
+
+La résiliation est un scénario de risque à préparer, pas une menace à improviser au premier désaccord. Le plan doit identifier l'autorité, les motifs contractuels, les obligations de transition, le paiement des travaux acceptés, la protection des données, les accès, les actifs à récupérer et la continuité pendant la substitution. Les conséquences peuvent inclure une période de service transitoire et le soutien au successeur ; les règles exactes doivent être validées juridiquement.
+
 ## 11. Réception, transition et entrée en exploitation
 
 ### 11.1 Définir la recette avant la mise en œuvre
@@ -457,6 +654,28 @@ Un tableau de bord utile associe chaque indicateur à une source, une formule, u
 
 Une revue fournisseur ne doit pas être une simple présentation marketing. Comparer les données aux engagements, examiner les incidents récurrents, demander les analyses de cause, vérifier l’avancement des actions et arbitrer les risques. Les tendances sont souvent plus utiles que la valeur d’un mois isolé. Une mesure en hausse ou en baisse doit être interprétée selon le volume, le périmètre et les changements du service.
 
+### 11.4 Plan de transition fournisseur par jalons
+
+Une transition de fournisseur est un mini-projet à risques. Le contrat doit attribuer clairement les tâches au fournisseur sortant, au fournisseur entrant et à l'acheteur. Prévoir les accès temporaires, les inventaires, la configuration, la documentation, les données, les licences, les contacts, la formation, les tests et la gestion des incidents pendant le chevauchement.
+
+~~~mermaid
+flowchart TD
+  A[Planifier la transition] --> B[Inventaire et responsabilités]
+  B --> C[Accès et documentation sécurisés]
+  C --> D[Transfert de connaissances]
+  D --> E[Migration / configuration]
+  E --> F[Test de bout en bout]
+  F --> G{Critères de reprise atteints ?}
+  G -->|Non| H[Corriger ou prolonger le chevauchement approuvé]
+  H --> F
+  G -->|Oui| I[Acceptation par l'acheteur]
+  I --> J[Révoquer les accès de sortie et vérifier les données]
+~~~
+
+La transition doit être planifiée assez tôt pour que les lacunes puissent être traitées avant l'échéance du contrat. Une dépendance découverte au moment de la sortie donne peu de marge pour négocier, migrer ou constituer une autre source. Le chevauchement peut avoir un coût, mais ce coût doit être comparé au risque d'une interruption ou d'un transfert incomplet.
+
+Un plan de transition doit préciser les critères de démarrage, les livrables par jalon, les ressources des deux fournisseurs, les droits d'accès, les environnements de test, les incidents possibles, les critères d'acceptation et les conditions de clôture. Une réunion de transfert ne suffit pas : les équipes destinataires doivent démontrer qu'elles savent exécuter les tâches prévues et retrouver les informations essentielles.
+
 ## 12. Risques d’achat et stratégies de réponse
 
 | Risque | Symptôme ou signal | Réponse de conception ou de pilotage |
@@ -475,6 +694,27 @@ Une revue fournisseur ne doit pas être une simple présentation marketing. Comp
 | Sortie impraticable | Export propriétaire ou compétences absentes | Plan de sortie chiffré, test d’export et transfert de connaissances |
 
 Le registre des risques précise le propriétaire, la probabilité, l’impact, les signaux d’alerte, les mesures préventives, les mesures de contingence et le risque résiduel. Une matrice rouge-orange-verte peut faciliter la communication, mais ne remplace pas le raisonnement ni l’escalade des risques critiques.
+
+### 12.1 Évaluer et quantifier le risque avant la consultation
+
+Le registre de risques ne doit pas seulement contenir des couleurs. Pour chaque risque, décrire l'événement, ses causes possibles, les conséquences, les contrôles existants, la probabilité ou la fréquence estimée, la gravité, les signaux d'alerte, les mesures de réduction, le propriétaire et le risque résiduel. La méthode de cotation doit être définie par l'organisation et rester suffisamment précise pour comparer les risques.
+
+Exemple : la perte de documentation de configuration peut rendre la transition longue, mais la gravité dépend des services concernés, de la possibilité de reconstruire et des personnes encore disponibles. Un contrôle préventif pourrait imposer la tenue d'un dépôt documentaire appartenant à l'acheteur ; un contrôle de détection pourrait vérifier régulièrement l'exhaustivité ; une mesure de contingence pourrait financer un transfert accéléré. La combinaison de ces mesures est plus robuste qu'une clause générale qui impose seulement au fournisseur de « collaborer ».
+
+Ne pas multiplier les risques à faible valeur informative. Regrouper les risques qui ont une cause commune tout en conservant les conséquences spécifiques. Un seul risque fournisseur peut affecter la maintenance, la cybersécurité et la continuité ; il doit être traité en gouvernance de manière cohérente plutôt que compté plusieurs fois sans analyse.
+
+~~~mermaid
+flowchart TD
+  A[Identifier l'événement de risque] --> B[Causes et conséquences]
+  B --> C[Contrôles déjà en place]
+  C --> D[Estimer probabilité et impact]
+  D --> E[Choisir prévention, détection et contingence]
+  E --> F[Nommer propriétaire et échéance]
+  F --> G[Évaluer risque résiduel]
+  G --> H{Dans la tolérance autorisée ?}
+  H -->|Non| I[Réduire ou faire arbitrer]
+  H -->|Oui| J[Surveiller les signaux d'alerte]
+~~~
 
 ## 13. Atelier pratique — lancer un appel d’offres de maintenance et de continuité
 
