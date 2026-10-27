@@ -26,7 +26,7 @@
     "schema_version": 2,
     "topology_id": "topo-cli-dhcp-pool",
     "metadata": {
-      "name": "CLI — Pool DHCP pour le VLAN utilisateur",
+      "name": "DHCP du VLAN utilisateurs",
       "author": "Skill-Tree",
       "created_at": "2026-10-27T00:00:00Z",
       "mode": "lab"
@@ -35,9 +35,9 @@
       {
         "id": "R1",
         "type": "router",
-        "model": "generic-router",
-        "x": 180,
-        "y": 300,
+        "model": "generic-1841",
+        "x": 220,
+        "y": 250,
         "label": "R1",
         "ports": [
           {
@@ -45,14 +45,15 @@
             "name": "Gi0/0",
             "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
+            "ip": "10.10.20.1",
+            "mask": "255.255.255.0",
             "vlan": null,
-            "description": "",
+            "description": "Passerelle et serveur DHCP",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -62,16 +63,17 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "up",
+            "state": "down",
             "speed": 1000,
+            "mac": "",
             "mode": "routed",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
             "description": "",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -94,6 +96,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -106,8 +109,8 @@
         "id": "SW1",
         "type": "switch",
         "model": "generic-2960",
-        "x": 520,
-        "y": 300,
+        "x": 500,
+        "y": 250,
         "label": "SW1",
         "ports": [
           {
@@ -115,14 +118,35 @@
             "name": "Fa0/1",
             "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
+            "vlan": 20,
+            "description": "Vers PC1",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "Vers PC2",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -134,14 +158,15 @@
             "name": "Fa0/24",
             "state": "up",
             "speed": 1000,
-            "mode": "down",
+            "mac": "",
+            "mode": "access",
             "ip": null,
             "mask": null,
-            "ipv6": null,
             "vlan": null,
-            "description": "",
+            "description": "Vers R1",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -164,6 +189,7 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -176,8 +202,8 @@
         "id": "PC1",
         "type": "pc",
         "model": "generic-pc",
-        "x": 850,
-        "y": 90,
+        "x": 800,
+        "y": 130,
         "label": "PC1",
         "ports": [
           {
@@ -185,14 +211,15 @@
             "name": "eth0",
             "state": "up",
             "speed": 1000,
+            "mac": "",
             "mode": "access",
-            "ip": null,
-            "mask": null,
-            "ipv6": null,
-            "vlan": null,
-            "description": "",
+            "ip": "10.10.20.101",
+            "mask": "255.255.255.0",
+            "vlan": 20,
+            "description": "Client utilisateur 1",
             "access_group_in": null,
             "access_group_out": null,
+            "ipv6": null,
             "nat_role": null,
             "hsrp": [],
             "spanning_tree": {},
@@ -215,6 +242,60 @@
             "dns": null,
             "nat": null
           },
+          "workloads": {},
+          "protocols": {}
+        },
+        "runtime": {
+          "arp_table": [],
+          "mac_table": [],
+          "routing_table": []
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "model": "generic-pc",
+        "x": 800,
+        "y": 370,
+        "label": "PC2",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": "10.10.20.102",
+            "mask": "255.255.255.0",
+            "vlan": 20,
+            "description": "Client utilisateur 2",
+            "access_group_in": null,
+            "access_group_out": null,
+            "ipv6": null,
+            "nat_role": null,
+            "hsrp": [],
+            "spanning_tree": {},
+            "port_security": {},
+            "service_policy_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "vlans": [],
+          "routes": [],
+          "ospf": {
+            "enabled": false,
+            "router_id": "",
+            "areas": []
+          },
+          "acls": [],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          },
+          "workloads": {},
           "protocols": {}
         },
         "runtime": {
@@ -248,6 +329,21 @@
         },
         "to": {
           "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "L-SW1-PC2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC2",
           "port": "eth0"
         },
         "cable_type": "copper_straight",
