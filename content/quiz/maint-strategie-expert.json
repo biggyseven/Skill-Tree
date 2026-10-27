@@ -145,6 +145,138 @@
       ],
       "answer": 3,
       "explanation": "La stratégie doit évoluer lorsque les hypothèses, l'état ou les objectifs changent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la relation la plus utile entre politique de gestion d'actifs et plan de maintenance ?",
+      "choices": [
+        "Le plan de maintenance est indépendant des objectifs de l'organisation",
+        "La politique et la stratégie définissent le cadre, puis le plan traduit les choix en tâches, ressources, pièces et preuves",
+        "Le plan remplace la gestion du cycle de vie",
+        "La politique définit uniquement les dates d'inspection"
+      ],
+      "answer": 1,
+      "explanation": "La stratégie doit relier objectifs et risques aux décisions opérationnelles. Le plan rend ces décisions exécutables et vérifiables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une note de criticité ne doit-elle pas être utilisée seule pour décider d'une politique ?",
+      "choices": [
+        "Parce que la criticité est toujours inutile",
+        "Parce que la criticité doit être calculée uniquement à partir du prix",
+        "Parce qu'un score agrégé peut masquer la nature d'un risque, une obligation ou une conséquence de sécurité",
+        "Parce que tous les actifs doivent avoir le même score"
+      ],
+      "answer": 2,
+      "explanation": "Une note aide à classer les sujets, mais les obligations et les conséquences de sécurité requièrent une analyse spécifique. Deux scores égaux peuvent correspondre à des mesures différentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit le mieux la formule simplifiée MTBF / (MTBF + MTTR) ?",
+      "choices": [
+        "Une approximation de disponibilité intrinsèque sous des hypothèses et définitions cohérentes",
+        "Le coût total d'un actif",
+        "Le taux de réussite de la maintenance préventive",
+        "La probabilité exacte d'absence de panne durant un an"
+      ],
+      "answer": 0,
+      "explanation": "Cette relation fournit une approximation dans un modèle simple. Les délais logistiques, les arrêts planifiés et les conventions de mesure peuvent modifier la disponibilité opérationnelle réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal risque de mesurer le MTTR sans inclure l'attente des pièces ?",
+      "choices": [
+        "Le MTTR devient nécessairement nul",
+        "Le délai de livraison des pièces ne change jamais le service",
+        "La formule de disponibilité devient une mesure de coût",
+        "Le temps de rétablissement opérationnel peut être sous-estimé si la convention exclut une attente qui affecte réellement le service"
+      ],
+      "answer": 3,
+      "explanation": "Il faut préciser si le MTTR couvre le temps technique, le temps de rétablissement ou d'autres délais. Une mesure excluant la logistique doit être complétée par une vue du temps d'indisponibilité total."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une analyse statistique de durée de vie comme Weibull est-elle pertinente ?",
+      "choices": [
+        "Dès qu'il existe deux incidents quelconques",
+        "Quand la qualité, l'exposition, l'homogénéité de population et les hypothèses permettent une analyse interprétable",
+        "Pour supprimer toute incertitude",
+        "Uniquement pour prouver une réduction d'inspection décidée à l'avance"
+      ],
+      "answer": 1,
+      "explanation": "Les modèles de fiabilité reposent sur des données et des hypothèses. Une population hétérogène, des événements manquants ou une exposition mal définie peuvent rendre l'interprétation trompeuse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment doit-on traiter une tâche qui est exécutée mais dont l'effet n'est pas démontré ?",
+      "choices": [
+        "La considérer automatiquement comme efficace",
+        "La supprimer sans analyse",
+        "Distinguer preuve d'implémentation et preuve d'efficacité, puis vérifier le résultat sur une période adaptée",
+        "La déclarer efficace si le ticket est fermé"
+      ],
+      "answer": 2,
+      "explanation": "L'exécution d'une action prouve seulement qu'elle a été effectuée. Il faut vérifier qu'elle réduit le mode de défaillance ou le risque visé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un stock de pièce rare ne doit-il pas être dimensionné uniquement par sa demande moyenne passée ?",
+      "choices": [
+        "Parce que la demande historique peut être faible alors que la conséquence de rupture et le délai d'approvisionnement sont élevés",
+        "Parce que les données de stock n'ont aucune utilité",
+        "Parce que toutes les pièces sont critiques",
+        "Parce que les pièces rares ne tombent jamais en panne"
+      ],
+      "answer": 0,
+      "explanation": "La politique de stock doit tenir compte des conséquences, des délais, de la variabilité, des substitutions et de l'obsolescence, pas seulement de la fréquence passée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle vérification est essentielle avant de réduire une fréquence préventive ?",
+      "choices": [
+        "Confirmer que la dépense sera plus faible et ignorer le risque",
+        "Se limiter à l'absence de panne enregistrée l'an dernier",
+        "Faire le changement sans informer l'exploitation",
+        "Vérifier le mode de défaillance, l'efficacité de la tâche, la qualité des données, les obligations et le risque résiduel"
+      ],
+      "answer": 3,
+      "explanation": "Une période sans panne peut refléter une faible exposition ou une mauvaise déclaration. Le changement doit être justifié par le mécanisme, des preuves et les autorisations requises."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur déclencheur de révision d'un plan d'obsolescence ?",
+      "choices": [
+        "Attendre qu'un actif critique tombe en panne",
+        "La fin de support annoncée, un changement de disponibilité de pièces ou une évolution du risque",
+        "Le seul âge de l'actif sans autre analyse",
+        "Une réunion budgétaire sans données"
+      ],
+      "answer": 1,
+      "explanation": "L'obsolescence doit être suivie à partir de signaux connus et d'une date de décision suffisamment précoce pour comparer prolongation, modernisation et remplacement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il démontrer avant d'étendre un modèle prédictif à une autre famille d'actifs ?",
+      "choices": [
+        "Que la présentation du fournisseur est convaincante",
+        "Que le modèle est plus complexe que l'ancien",
+        "Que les données et mécanismes sont comparables, que les erreurs et la charge d'alerte sont acceptables et que les résultats ont été testés sur cette population",
+        "Qu'il a produit beaucoup d'alertes"
+      ],
+      "answer": 2,
+      "explanation": "Les performances peuvent changer selon l'état, le régime et les capteurs. L'extension doit reposer sur une validation représentative et sur la capacité réelle à traiter les alertes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle vue du backlog de maintenance est la plus actionnable ?",
+      "choices": [
+        "Une seule somme des ordres ouverts",
+        "Le nombre d'ordres fermés sans preuve",
+        "Une liste sans statut de préparation",
+        "Une segmentation par criticité, préparation, cause de blocage, échéance et exposition au risque"
+      ],
+      "answer": 3,
+      "explanation": "Le backlog doit aider à organiser le travail et à gérer le risque. Les travaux prêts, bloqués et critiques nécessitent des décisions différentes."
     }
   ]
 }
