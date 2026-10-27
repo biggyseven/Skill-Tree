@@ -1,0 +1,102 @@
+{
+  "node_id": "maint-retex-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel objectif principal poursuit un retour d’expérience technique ?",
+      "choices": [
+        "Attribuer une faute à une personne",
+        "Comprendre les facteurs qui ont contribué à l’événement et réduire le risque de répétition",
+        "Réécrire l’historique pour qu’il paraisse plus simple",
+        "Remplacer l’analyse par une liste de symptômes"
+      ],
+      "answer": 1,
+      "explanation": "Un RETEX utile vise l’apprentissage organisationnel et l’amélioration des systèmes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment préparer une chronologie de retour d’expérience ?",
+      "choices": [
+        "Se limiter au souvenir du responsable",
+        "Ne retenir que les événements après la panne",
+        "Assembler les événements horodatés, décisions, signaux disponibles et effets observés",
+        "Supprimer les informations contradictoires"
+      ],
+      "answer": 2,
+      "explanation": "Une chronologie factuelle relie les décisions et les événements sans reconstruire artificiellement l’histoire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une approche sans blâme ?",
+      "choices": [
+        "Ne jamais désigner de responsabilité d’action",
+        "Ne pas documenter les erreurs humaines",
+        "Éviter toute recommandation difficile",
+        "Étudier les conditions, les barrières, la charge et les décisions sans réduire l’analyse à la recherche d’un coupable"
+      ],
+      "answer": 3,
+      "explanation": "L’approche sans blâme favorise l’analyse des facteurs système tout en conservant la responsabilité d’améliorer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action de RETEX est la plus vérifiable ?",
+      "choices": [
+        "Modifier la supervision avec un propriétaire, une échéance, un critère de réussite et une mesure d’efficacité",
+        "Dire simplement « être plus vigilant »",
+        "Organiser une réunion sans compte rendu",
+        "Ajouter un document sans indiquer qui l’utilisera"
+      ],
+      "answer": 0,
+      "explanation": "Les actions doivent être concrètes, suivies et associées à un résultat observable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment distinguer cause immédiate et facteurs contributifs ?",
+      "choices": [
+        "La cause immédiate explique nécessairement tout l’événement",
+        "La cause immédiate décrit le déclencheur proche ; les facteurs contributifs expliquent pourquoi les barrières n’ont pas empêché l’impact",
+        "Les facteurs contributifs sont toujours des fautes individuelles",
+        "Les deux ne doivent pas être analysés ensemble"
+      ],
+      "answer": 1,
+      "explanation": "Comprendre les facteurs de contexte aide à concevoir des actions plus robustes qu’un simple rappel de prudence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi suivre les actions issues de plusieurs RETEX dans un registre commun ?",
+      "choices": [
+        "Pour mélanger tous les événements sans responsable",
+        "Pour remplacer les enquêtes techniques",
+        "Pour repérer les thèmes récurrents, les dépendances, les retards et l’efficacité des corrections",
+        "Pour supprimer les actions anciennes quel que soit leur statut"
+      ],
+      "answer": 2,
+      "explanation": "La consolidation révèle les problèmes systémiques et permet de prioriser les améliorations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand peut-on considérer une action de RETEX comme réellement terminée ?",
+      "choices": [
+        "Dès qu’elle est attribuée",
+        "Dès qu’un courriel annonce qu’elle est faite",
+        "Après avoir fermé le ticket qui l’a générée",
+        "Lorsque la mise en œuvre est prouvée et que son efficacité a été vérifiée selon un critère défini"
+      ],
+      "answer": 3,
+      "explanation": "La mise en œuvre et l’efficacité sont deux contrôles distincts."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information partage-t-on dans un RETEX à destination d’autres équipes ?",
+      "choices": [
+        "Les faits utiles, l’impact, les facteurs contributifs, les limites de l’analyse et les actions transférables",
+        "Des données personnelles sans nécessité",
+        "Uniquement les détails techniques sans contexte",
+        "Une cause non confirmée présentée comme certaine"
+      ],
+      "answer": 0,
+      "explanation": "Le RETEX doit être réutilisable par les autres équipes tout en respectant la confidentialité et le degré de certitude."
+    }
+  ]
+}
