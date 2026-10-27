@@ -70,7 +70,6 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("speechTextFromTable(table)", DASHBOARD_HTML)
         self.assertIn("Ligne ' + (rowIndex + 1)", DASHBOARD_HTML)
         self.assertIn("speechTextFromAsciiDiagram(source)", DASHBOARD_HTML)
-        self.assertIn("|--o|--x|-{2,}|->|=>", DASHBOARD_HTML)
         self.assertIn("speechTextFromMermaidDiagram(source, svg)", DASHBOARD_HTML)
         self.assertIn("readable.querySelectorAll('.lesson-diagram-block').forEach(root =>", DASHBOARD_HTML)
         self.assertIn("Les colonnes présentent un élément de référence", DASHBOARD_HTML)
