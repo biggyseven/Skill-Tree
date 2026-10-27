@@ -104,6 +104,19 @@ def _make_one_rule_fail(topology: dict, rule: dict) -> dict:
             wrong = not expected
         elif isinstance(expected, (int, float)):
             wrong = expected + 1
+        elif isinstance(expected, str) and rule["path"].endswith(".state"):
+            # Reste dans l'énumération Pydantic : le contrôle doit échouer sur la règle,
+            # pas sur la validation structurelle du corps HTTP.
+            wrong = "down" if expected == "up" else "up"
+        elif isinstance(expected, str) and rule["path"].endswith(".mode"):
+            valid_modes = ("routed", "access", "trunk", "down")
+            wrong = next(mode for mode in valid_modes if mode != expected)
+        elif isinstance(expected, str) and len(expected.split(".")) == 4 and all(
+            part.isdigit() and 0 <= int(part) <= 255 for part in expected.split(".")
+        ):
+            octets = expected.split(".")
+            octets[-1] = str((int(octets[-1]) + 1) % 256)
+            wrong = ".".join(octets)
         elif isinstance(expected, str):
             wrong = expected + "-incorrect"
         else:
