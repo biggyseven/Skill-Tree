@@ -1,0 +1,66 @@
+{
+  "node_id": "data-nosql-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Comment décider s'il faut embarquer des données dans un document MongoDB ou les référencer ?",
+      "choices": [
+        "Toujours embarquer toutes les relations",
+        "Toujours référencer même les petits sous-objets",
+        "Choisir selon les accès, la croissance, la taille, le partage des données et le cycle de mise à jour",
+        "Choisir uniquement selon le nombre de champs du document"
+      ],
+      "answer": 2,
+      "explanation": "L'embarquement facilite certaines lectures mais peut dupliquer des données, agrandir le document et concentrer les écritures. La référence facilite les mises à jour indépendantes mais ajoute des accès ; la décision découle du parcours et du cycle de vie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une clé Redis de cache expire et des centaines de requêtes recalculent la même valeur simultanément. Quel problème et quelles pistes sont appropriés ?",
+      "choices": [
+        "Un cache stampede ; coordonner la reconstruction ou étaler les expirations selon le besoin",
+        "Une erreur de normalisation SQL ; supprimer tous les index",
+        "Une preuve que Redis n'est pas compatible avec les TTL",
+        "Un deadlock nécessairement provoqué par MongoDB"
+      ],
+      "answer": 0,
+      "explanation": "L'expiration simultanée d'une clé populaire peut provoquer un pic sur la source de vérité. Des stratégies comme une reconstruction coordonnée, des TTL avec variation ou un rafraîchissement en arrière-plan peuvent réduire la pression selon les exigences de fraîcheur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un TTL Redis ne doit-il pas être considéré comme un mécanisme de révocation d'accès suffisant ?",
+      "choices": [
+        "Parce que les valeurs TTL ne peuvent jamais expirer",
+        "Parce que la présence d'une clé ne prouve pas l'autorisation, et l'expiration n'est pas une règle de contrôle d'accès",
+        "Parce qu'il désactive toujours le chiffrement",
+        "Parce que TTL garantit une cohérence transactionnelle entre moteurs"
+      ],
+      "answer": 1,
+      "explanation": "Les permissions doivent être vérifiées par un mécanisme d'autorisation fiable. Une clé peut exister jusqu'à son expiration et une révocation exige un comportement explicite ; le cache ne doit pas contourner les contrôles de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un index MongoDB est créé pour accélérer une recherche très fréquente. Quel test complémentaire est indispensable ?",
+      "choices": [
+        "Vérifier uniquement que le nom de l'index apparaît dans le schéma",
+        "Mesurer la requête avec un document seulement",
+        "Désactiver les permissions pour simplifier le benchmark",
+        "Mesurer le plan et la lecture réelle, puis vérifier l'impact sur les écritures, l'espace et les valeurs représentatives"
+      ],
+      "answer": 3,
+      "explanation": "Un index doit être évalué sur les requêtes et distributions réelles. Il consomme du stockage et augmente les coûts d'écriture ; sa seule présence ne prouve pas qu'il est utilisé ni qu'il améliore globalement le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une mise à jour SQL réussit mais l'invalidation Redis échoue. Quelle propriété de conception est importante ?",
+      "choices": [
+        "Considérer le cache comme autorité sans autre contrôle",
+        "Répéter l'écriture SQL jusqu'à ce qu'elle échoue",
+        "Définir la source de vérité, un mécanisme de reprise ou de réconciliation et une fraîcheur maximale acceptable",
+        "Désactiver les transactions dans les deux moteurs"
+      ],
+      "answer": 2,
+      "explanation": "Les deux systèmes ne partagent pas automatiquement une transaction atomique. L'application doit définir la source maître, détecter les invalidations manquées et disposer d'une reprise, d'une expiration de secours ou d'un événement fiable adapté au risque."
+    }
+  ]
+}
