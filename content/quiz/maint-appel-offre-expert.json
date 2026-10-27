@@ -4,147 +4,219 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Pourquoi définir la méthode d'évaluation avant réception des offres ?",
+      "prompt": "Pourquoi un dossier d'appel d'offres doit-il commencer par le résultat métier recherché plutôt que par une solution déjà choisie ?",
       "choices": [
-        "Pour assurer une comparaison cohérente et auditable",
-        "Pour garantir la victoire du moins cher",
-        "Pour éviter toute question des fournisseurs",
-        "Pour changer les critères après lecture"
-      ],
-      "answer": 0,
-      "explanation": "Critères et poids fixés d'avance réduisent le risque de biais et de contestation."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle exigence est la plus testable ?",
-      "choices": [
-        "Le système doit être moderne",
-        "Le tableau de bord doit répondre en moins de deux secondes dans un scénario et une charge explicités",
-        "Le fournisseur doit fournir la meilleure qualité",
-        "La sécurité doit être maximale"
+        "Pour éliminer systématiquement toutes les contraintes techniques",
+        "Pour comparer des options pertinentes sans restreindre prématurément la concurrence",
+        "Pour éviter de consulter les équipes techniques",
+        "Pour garantir que le fournisseur actuel sera reconduit"
       ],
       "answer": 1,
-      "explanation": "Une exigence testable précise le résultat, les conditions de mesure et les critères d'acceptation."
+      "explanation": "Le cadrage part du problème et des résultats attendus ; l'analyse des options justifie ensuite la solution et évite les prescriptions prématurées."
     },
     {
       "type": "qcm",
-      "prompt": "Que doit couvrir le TCO ?",
+      "prompt": "Quelle formulation constitue le mieux une exigence vérifiable ?",
       "choices": [
-        "Uniquement le prix de licence",
-        "Uniquement la première année",
-        "Intégration, migration, exploitation, support, évolution et sortie sur l'horizon choisi",
-        "Uniquement les pénalités SLA"
-      ],
-      "answer": 2,
-      "explanation": "Le coût total inclut les coûts de cycle de vie et les hypothèses de comparaison."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment traiter une exigence obligatoire ?",
-      "choices": [
-        "L'évaluer après attribution sans règle",
-        "La convertir en préférence tacite",
-        "L'ignorer si le prix est faible",
-        "Définir son applicabilité, la preuve requise et la règle de recevabilité avant publication"
+        "La solution doit être excellente",
+        "Le fournisseur doit utiliser la technologie la plus moderne",
+        "Le système doit être simple et rapide",
+        "Dans un scénario de charge défini, le 95e percentile de réponse doit respecter un seuil mesuré selon une méthode précisée"
       ],
       "answer": 3,
-      "explanation": "Les obligations doivent être justifiées et évaluées conformément au dossier et aux règles applicables."
+      "explanation": "Une exigence mesurable définit un résultat, ses conditions de mesure, son seuil et la preuve attendue. Les seuils doivent être adaptés et validés pour le besoin réel."
     },
     {
       "type": "qcm",
-      "prompt": "Que doit prouver une démonstration fournisseur ?",
+      "prompt": "Quel est l'objectif principal d'une analyse de marché avant consultation ?",
       "choices": [
-        "Le comportement sur des scénarios identiques et convenus",
-        "La capacité à présenter les meilleures diapositives",
-        "La compatibilité future non testée",
-        "La totalité du TCO sans données"
+        "Identifier les options, capacités, coûts et risques du marché sans favoriser indûment un fournisseur",
+        "Choisir officieusement le gagnant avant la consultation",
+        "Réserver les informations utiles au seul fournisseur déjà connu",
+        "Éviter de justifier la stratégie d'achat"
       ],
       "answer": 0,
-      "explanation": "Un script commun rend les démonstrations comparables et permet de noter des résultats observables."
+      "explanation": "L'analyse de marché informe la stratégie et les spécifications. Elle doit être menée avec une gouvernance évitant un avantage indu et préservant l'équité."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi prévoir la réversibilité dans le dossier initial ?",
+      "prompt": "Quel est le principal arbitrage d'un allotissement ?",
       "choices": [
-        "Parce que les fournisseurs garantissent toujours une sortie gratuite",
-        "Pour définir données, formats, assistance, coûts, délais et validation de la sortie avant la dépendance",
-        "Pour interdire les migrations",
-        "Pour supprimer tous les historiques"
-      ],
-      "answer": 1,
-      "explanation": "Les exigences de sortie sont beaucoup plus difficiles à négocier quand le contrat arrive à échéance."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment doivent être traitées les clarifications ?",
-      "choices": [
-        "Dans des conversations privées non tracées",
-        "En modifiant silencieusement le prix évalué",
-        "Selon la procédure autorisée, avec traçabilité et partage équitable des informations pertinentes",
-        "Après signature seulement"
+        "Il supprime toujours les risques d'intégration",
+        "Il garantit automatiquement le meilleur prix",
+        "Il peut accroître la spécialisation et la concurrence, mais augmente les interfaces et la coordination",
+        "Il rend inutile la définition des responsabilités"
       ],
       "answer": 2,
-      "explanation": "La clarification doit préserver le cadre de la consultation et l'égalité des participants selon les règles applicables."
+      "explanation": "L'allotissement peut ouvrir l'accès à des spécialistes, mais les interfaces, la coordination et les responsabilités entre titulaires doivent être maîtrisées."
     },
     {
       "type": "qcm",
-      "prompt": "Quel élément rend un SLA pilotable ?",
+      "prompt": "Pourquoi faut-il distinguer les conditions de participation, les exigences éliminatoires et les critères notés ?",
       "choices": [
-        "Une promesse de haute qualité",
-        "Un pourcentage sans formule",
-        "Une pénalité sans définition",
-        "Une formule, une fenêtre, une source, des exclusions et un traitement des écarts"
+        "Pour permettre de modifier les règles après lecture des offres",
+        "Parce qu'ils n'ont pas le même rôle et doivent être appliqués selon le dossier et la procédure",
+        "Pour éviter toute preuve technique",
+        "Parce que tous les critères doivent être confidentiels"
       ],
-      "answer": 3,
-      "explanation": "Une mesure sans règles ne peut pas être reproduite ni rapprochée du contrat."
+      "answer": 1,
+      "explanation": "La séparation évite qu'une condition soit inventée a posteriori ou qu'un critère annoncé comme noté devienne une exigence éliminatoire implicite."
     },
     {
       "type": "qcm",
-      "prompt": "Quand une marque particulière devrait-elle être imposée ?",
+      "prompt": "Une offre obtient un score global élevé mais ne satisfait pas une exigence éliminatoire annoncée. Quelle conduite est correcte ?",
       "choices": [
-        "Seulement si une contrainte réelle est justifiée, approuvée et compatible avec les règles d'achat",
-        "Toujours pour simplifier la rédaction",
-        "Parce que l'équipe préfère son interface",
-        "Pour limiter artificiellement la concurrence"
+        "Appliquer les règles publiées et documenter le traitement de la non-conformité",
+        "Ignorer l'exigence parce que le score est élevé",
+        "Changer la pondération pour maintenir l'offre",
+        "Demander oralement au candidat de modifier librement son offre"
       ],
       "answer": 0,
-      "explanation": "Une spécification orientée résultats est généralement préférable aux prescriptions de marque non justifiées."
+      "explanation": "Un score global ne neutralise pas une exigence éliminatoire. Le traitement doit suivre les règles de la procédure, y compris les limites de clarification."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi évaluer un plan de transition ?",
+      "prompt": "Comment doit-on définir les ancres d'une grille de notation ?",
       "choices": [
-        "Pour le formaliser après la mise en service",
-        "Pour vérifier transfert, accès, données, tests, responsabilités et continuité",
-        "Pour laisser le fournisseur sortant choisir seul la date",
-        "Pour supprimer les tests de recette"
-      ],
-      "answer": 1,
-      "explanation": "La transition est un projet à risque et doit être démontrée avant passage en exploitation."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle méthode limite les biais de pondération ?",
-      "choices": [
-        "Modifier les poids après l'ouverture",
-        "Attribuer tous les points au prix",
-        "Définir poids et échelles descriptives avant l'évaluation",
-        "Ne jamais tracer les scores"
+        "Les rédiger après avoir vu les offres pour mieux les départager",
+        "Les laisser à l'intuition de chaque évaluateur",
+        "Les fixer avant l'évaluation avec des descriptions observables du niveau de preuve attendu",
+        "Les remplacer par le nombre de pages de chaque réponse"
       ],
       "answer": 2,
-      "explanation": "La grille doit permettre à plusieurs évaluateurs d'obtenir des notes cohérentes."
+      "explanation": "Des ancres définies avant la notation rendent les notes plus cohérentes, motivées et auditables."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est l'objectif de la recette ?",
+      "prompt": "Que signifie un score pondéré de 75 sur 100 dans une grille d'évaluation ?",
       "choices": [
-        "Valider seulement que la facture est reçue",
-        "Confirmer qu'un contrat est signé",
-        "Remplacer la formation des utilisateurs",
-        "Vérifier par des tests que les livrables répondent aux critères d'acceptation convenus"
+        "Que le fournisseur sera automatiquement attributaire dans tout régime juridique",
+        "Que toutes les exigences obligatoires sont nécessairement satisfaites",
+        "Que les risques et les preuves peuvent être ignorés",
+        "Que le résultat de la méthode publiée doit être interprété avec la conformité, les preuves et les règles d'attribution"
       ],
       "answer": 3,
-      "explanation": "La recette fournit une preuve d'aptitude avant le passage ou l'acceptation correspondante."
+      "explanation": "Le score n'est valide que dans le cadre de la méthode annoncée et ne remplace ni les exigences obligatoires ni les contrôles de procédure."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels coûts un modèle de coût total de possession peut-il devoir inclure ?",
+      "choices": [
+        "Uniquement le prix initial affiché",
+        "Les coûts pertinents sur l'horizon : intégration, exploitation, support, formation, migration et sortie",
+        "Uniquement les pénalités contractuelles",
+        "Les dépenses d'un autre achat sans rapport"
+      ],
+      "answer": 1,
+      "explanation": "Le TCO compare le coût sur un périmètre et un horizon définis, selon des hypothèses cohérentes et des postes pertinents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un critère de notation favorise un candidat connu mais n'est pas lié au besoin. Quel problème pose-t-il ?",
+      "choices": [
+        "Il peut introduire un biais et nuire à l'équité, à l'objectivité et à l'auditabilité",
+        "Il renforce toujours la qualité technique",
+        "Il améliore automatiquement la concurrence",
+        "Il garantit le respect des obligations contractuelles"
+      ],
+      "answer": 0,
+      "explanation": "Les critères doivent être pertinents pour l'achat et être appliqués comme annoncés ; un critère sans lien avec le besoin peut favoriser indûment un candidat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une question d'un candidat qui révèle une ambiguïté importante du dossier ?",
+      "choices": [
+        "Répondre uniquement oralement au candidat",
+        "Modifier la grille sans garder de trace",
+        "Enregistrer la question, vérifier son effet et diffuser une clarification ou un addendum de manière équitable selon la procédure",
+        "Ignorer la question même si tous les candidats risquent de mal comprendre"
+      ],
+      "answer": 2,
+      "explanation": "Les questions et réponses doivent être tracées. Si l'information affecte la compréhension commune, elle doit être traitée selon les règles d'équité et de modification du dossier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement un registre de conflits d'intérêts ?",
+      "choices": [
+        "À prouver que tous les membres sont coupables",
+        "À remplacer les critères d'évaluation",
+        "À rendre publics tous les intérêts personnels sans restriction",
+        "À déclarer, examiner et gérer les liens susceptibles d'affecter l'impartialité"
+      ],
+      "answer": 3,
+      "explanation": "Un mécanisme de déclaration et de gestion permet de décider des mesures nécessaires, dont la récusation lorsque le cadre applicable le requiert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas toujours attribuer le marché à l'offre au prix initial le plus bas ?",
+      "choices": [
+        "Parce que le prix ne doit jamais être pris en compte",
+        "Parce que le coût total, les hypothèses, les risques et les critères publiés peuvent modifier la comparaison",
+        "Parce que le fournisseur le plus cher est toujours meilleur",
+        "Parce que le TCO doit être inventé après attribution"
+      ],
+      "answer": 1,
+      "explanation": "Le prix initial peut omettre des coûts importants. La comparaison doit suivre le modèle financier défini avant réception et les critères annoncés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il négocier avec un candidat ?",
+      "choices": [
+        "Toujours, quel que soit le régime",
+        "Uniquement lorsque le candidat le demande",
+        "Lorsque la procédure l'autorise, avec une stratégie, un périmètre et une trace conformes aux règles applicables",
+        "Après la signature uniquement pour changer le classement"
+      ],
+      "answer": 2,
+      "explanation": "Les possibilités et limites de négociation dépendent du cadre de l'achat. Elles doivent être vérifiées et encadrées avant les échanges."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi traduire dans le contrat les promesses qui ont influencé l'évaluation ?",
+      "choices": [
+        "Pour rendre ces engagements opposables ou pilotables via des livrables, indicateurs et critères d'acceptation",
+        "Pour remplacer le dossier d'appel d'offres par une présentation commerciale",
+        "Pour permettre au fournisseur de les retirer sans procédure",
+        "Pour éviter la recette"
+      ],
+      "answer": 0,
+      "explanation": "Si une promesse améliore le score, elle doit être transformée en obligation, livrable ou critère contrôlable pour que l'organisation puisse en vérifier la réalisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément est nécessaire à une clause de SLA exploitable ?",
+      "choices": [
+        "Uniquement le mot « disponible »",
+        "Un objectif sans périmètre ni période",
+        "Une promesse commerciale sans méthode de mesure",
+        "Un périmètre, une formule, une période, des exclusions définies et une preuve de mesure"
+      ],
+      "answer": 3,
+      "explanation": "Sans définition du service, de la période et de la mesure, les parties ne peuvent ni comparer les résultats ni déterminer de façon cohérente les remèdes prévus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi doit servir le plan de réversibilité ?",
+      "choices": [
+        "À autoriser le fournisseur à conserver les données sans limite",
+        "À organiser la restitution des données, des configurations, de la documentation et des compétences dans des conditions testables",
+        "À retarder la transition jusqu'à ce que le contrat expire sans préparation",
+        "À remplacer l'inventaire du service"
+      ],
+      "answer": 1,
+      "explanation": "La réversibilité doit préciser les livrables, formats, délais, responsabilités, coûts, validations et mesures de sécurité afin que le service puisse être transféré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand la réception peut-elle être considérée comme satisfaisante ?",
+      "choices": [
+        "Dès que le fournisseur a terminé sa présentation",
+        "Lorsque la facture a été émise, quelle que soit la prestation",
+        "Lorsque les critères d'acceptation prévus ont été vérifiés avec les preuves convenues et les défauts traités selon le contrat",
+        "Lorsque l'équipe projet a quitté la réunion de clôture"
+      ],
+      "answer": 2,
+      "explanation": "La réception s'appuie sur des critères et des preuves convenus. La mise en service ou la fin d'une présentation ne suffit pas à démontrer l'acceptation."
     }
   ]
 }
