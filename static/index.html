@@ -1850,7 +1850,7 @@
             <div class="card text-center" :class="examResult.passed ? '!border-emerald-400/30' : '!border-rose-400/30'">
               <p class="text-4xl" x-text="examResult.passed ? '🎉' : '💪'"></p>
               <p class="mt-2 font-mono text-6xl font-semibold text-white" x-text="examResult.score + ' %'"></p>
-              <p class="mt-2 text-lg font-bold" :class="examResult.passed ? 'text-emerald-400' : 'text-rose-400'" x-text="examResult.passed ? 'Examen réussi' : 'Examen non validé (80 % requis)'"></p>
+              <p class="mt-2 text-lg font-bold" :class="examResult.passed ? 'text-emerald-400' : 'text-rose-400'" x-text="examResult.passed ? 'Examen réussi' : 'Examen non validé (' + (examResult.passing_score || examResult.pass_score || exam?.passing_score || exam?.pass_score || PASS_SCORE) + ' % requis)'"></p>
               <p class="mt-1 text-sm text-zinc-400" x-text="examResult.correct + ' / ' + examResult.total + ' bonnes réponses · ' + fmtClock(examResult.duration) + (examResult.auto ? ' · temps écoulé' : '')"></p>
               <div class="mt-5 flex flex-wrap justify-center gap-2"><button type="button" class="btn btn-primary" @click="launchExam(exam.cfg)">Refaire un examen</button><button type="button" class="btn" @click="resetExam()">Retour au centre d'examens</button><button type="button" class="btn" @click="resetExam(); setTab('rewards')">Voir mes diplômes</button></div>
             </div>
@@ -8126,7 +8126,18 @@
             });
             const text = await r.text();
             try { res = JSON.parse(text); } catch (_) { res = { detail: text }; }
-            if (!r.ok || res.score === undefined) throw new Error(res.detail || text || ('HTTP ' + r.status));
+            if (!r.ok) throw new Error(res.detail || text || ('HTTP ' + r.status));
+            if (
+              !res
+              || res.success !== true
+              || typeof res.score !== 'number'
+              || !Number.isFinite(res.score)
+              || res.score < 0
+              || res.score > 100
+              || typeof res.passed !== 'boolean'
+            ) {
+              throw new Error('Le serveur n’a pas renvoyé un résultat de correction valide.');
+            }
           } catch (error) {
             this.examErr = 'L’examen n’a pas été enregistré : ' + (error.message || 'erreur réseau') + '. Tes réponses sont conservées à l’écran ; réessaie de terminer.';
             this.notify(this.examErr);
