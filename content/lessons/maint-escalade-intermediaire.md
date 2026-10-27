@@ -246,3 +246,23 @@ flowchart LR
 Après rétablissement, vérifie que le transfert ne s'arrête pas à la fermeture du canal d'urgence. Les problèmes structurels, la rédaction d'un rapport, la validation des actions et la revue post-incident doivent avoir des responsables. L'équipe de support conserve la responsabilité du ticket ou confirme explicitement que le suivi est transféré.
 
 Une escalade de qualité est évaluée par sa pertinence, son délai, la complétude des informations, l'acceptation par la bonne équipe et le résultat. Le nombre brut de transferts ne prouve pas que le N1 est inefficace : les tickets complexes nécessitent légitimement une expertise. Les revues doivent chercher les transferts évitables, les mauvais aiguillages et les informations répétées, non punir les escalades justifiées.
+
+
+## 15. Relève, astreinte et continuité de responsabilité
+
+Un incident qui traverse un changement d'équipe ou la nuit ne doit pas perdre sa responsabilité. Le message de relève indique l'état actuel, l'impact, les dernières actions, les résultats, les hypothèses ouvertes, les risques immédiats, les interlocuteurs déjà informés, la prochaine action et la prochaine échéance. Le destinataire doit accuser réception selon la procédure, et la personne qui transfère vérifie que le relais est réellement pris.
+
+~~~mermaid
+sequenceDiagram
+    participant J as Équipe de jour
+    participant A as Astreinte
+    participant T as Ticket commun
+    J->>T: Consigne chronologie et risques ouverts
+    J->>A: Transmet contexte et action attendue
+    A->>T: Accuse réception et confirme le périmètre
+    A->>A: Poursuit diagnostic et contrôle l'impact
+    A->>T: Enregistre résultats et décision
+    T-->>J: Contexte disponible pour la relève suivante
+~~~
+
+La relève doit aussi inclure les décisions déjà prises et leur justification. Sans cette information, l'équipe suivante peut annuler un contournement utile ou répéter une action risquée. Si la situation a évolué, la nouvelle équipe actualise la priorité et informe le coordinateur. L'historique du ticket reste la source de vérité plutôt qu'une conversation privée isolée.
