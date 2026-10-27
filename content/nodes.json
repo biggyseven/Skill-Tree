@@ -7686,7 +7686,7 @@
     "title": "Communication technique avec les utilisateurs",
     "category": "Communication pratique",
     "order": 4313,
-    "description": "Expliquer un incident sans jargon inutile, poser les bonnes questions, reformuler un besoin et rédiger des messages d’intervention clairs.",
+    "description": "Écouter et reformuler le besoin, communiquer sans jargon inutile, annoncer des mises à jour fiables et protéger les informations pendant une intervention.",
     "prereqs": [
       "maint-helpdesk-debutant"
     ],
@@ -7695,8 +7695,7 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ],
-    "lesson_source_id": "maint-glossaire-debutant"
+    ]
   },
   {
     "id": "maint-documentation-debutant",
