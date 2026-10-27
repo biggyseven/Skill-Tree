@@ -1204,3 +1204,28 @@ test('les bibliothèques affichent de nombreux modèles d’équipements et de c
   await expect(page.getByRole('region', { name: 'Liaisons sans fil' })).toBeVisible();
   await expect(page.getByTestId('cable-item-wireless')).toBeVisible();
 });
+
+test('le guide explique les ports bleus et gris et affiche le nom du port physique', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
+
+  const guide = page.getByTestId('port-connection-guide');
+  await expect(guide).toBeVisible();
+  await expect(guide).toContainText('Un seul port physique, deux points de connexion');
+  await expect(guide).toContainText('Bleu = départ');
+  await expect(guide).toContainText('Gris = arrivée');
+  await expect(guide).toContainText('Sans choix de câble, le système utilise Ethernet droit par défaut.');
+
+  const router = page.getByTestId('lab-device-node-R1');
+  await expect(router).toBeVisible();
+  await router.click();
+  await expect(router.locator('[data-port-label="Fa0/0"]')).toBeVisible();
+  await expect(router.locator('[data-port-label="Fa0/1"]')).toBeVisible();
+
+  await page.getByRole('tab', { name: /Câbles/ }).click();
+  await page.getByTestId('cable-item-cable_straight').click();
+  await expect(guide).toContainText('Cuivre droit RJ45');
+  await expect(guide).toContainText('Maintiens le clic sur le point bleu');
+});
+
