@@ -265,10 +265,14 @@ test('la navigation du lecteur respecte l’ordre pédagogique et contextualise 
     'intro-reseau-expert',
   ]);
 
-  await page.evaluate(async () => {
-    const state = window.Alpine.$data(document.body);
-    await state.show('intro-reseau-debutant');
-  });
+  const searchInput = page.locator('input[x-ref="searchBox"]');
+  const searchResults = page.locator('div[x-show="searchOpen && searchQuery.trim().length >= 2"]');
+  await searchInput.fill("Qu'est-ce qu'un réseau");
+  const firstLessonResult = searchResults.locator('button').filter({
+    hasText: "Qu'est-ce qu'un réseau ? - Débutant",
+  }).first();
+  await expect(firstLessonResult).toBeVisible();
+  await firstLessonResult.click();
 
   await expect(page.locator('#course-reader-title')).toHaveText("Qu'est-ce qu'un réseau ? - Débutant");
   const navigation = page.getByRole('region', { name: 'Navigation entre les leçons' });
