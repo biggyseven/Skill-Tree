@@ -10,5 +10,75 @@
   </head>
   <body>
     <div id="lab-root"></div>
+    <script>
+      (() => {
+        if (document.getElementById("lab-connection-help")) return;
+        const style = document.createElement("style");
+        style.textContent = `
+          #lab-help-toggle{position:fixed;right:18px;bottom:18px;z-index:100000;border:1px solid #38bdf8;background:#082f49;color:#e0f2fe;border-radius:999px;padding:11px 15px;font:600 13px/1.2 system-ui,sans-serif;box-shadow:0 8px 28px #0008;cursor:pointer}
+          #lab-help-toggle:focus-visible,#lab-connection-help button:focus-visible{outline:3px solid #facc15;outline-offset:3px}
+          #lab-connection-help{position:fixed;right:18px;bottom:70px;z-index:100000;width:min(390px,calc(100vw - 28px));max-height:min(76vh,720px);overflow:auto;box-sizing:border-box;background:#0d1117;color:#e6edf3;border:1px solid #475569;border-radius:14px;padding:17px;box-shadow:0 16px 48px #000b;font:13px/1.5 system-ui,sans-serif}
+          #lab-connection-help[hidden]{display:none}
+          #lab-connection-help h2{font-size:16px;line-height:1.3;margin:0 34px 8px 0;color:#f8fafc}
+          #lab-connection-help h3{font-size:12px;margin:15px 0 6px;color:#7dd3fc;text-transform:uppercase;letter-spacing:.06em}
+          #lab-connection-help p{margin:6px 0;color:#cbd5e1}
+          #lab-connection-help ol{padding-left:20px;margin:7px 0;color:#e2e8f0}
+          #lab-connection-help li{margin:5px 0;padding-left:2px}
+          #lab-connection-help .lab-help-close{position:absolute;right:12px;top:10px;background:#1e293b;color:#e2e8f0;border:1px solid #475569;border-radius:8px;padding:4px 9px;cursor:pointer}
+          #lab-connection-help .lab-help-note{border-left:3px solid #38bdf8;background:#111c2b;padding:9px 10px;border-radius:0 7px 7px 0}
+          #lab-connection-help .lab-cable-row{display:flex;align-items:flex-start;gap:9px;margin:8px 0}
+          #lab-connection-help .lab-cable-line{width:28px;height:0;border-top:3px solid;flex:none;margin-top:8px}
+          #lab-connection-help .lab-cable-line.dashed{border-top-style:dashed}
+          #lab-connection-help .lab-small{font-size:11px;color:#94a3b8}
+          @media(max-width:520px){#lab-help-toggle{right:10px;bottom:10px}#lab-connection-help{right:10px;bottom:62px}}
+        `;
+        document.head.appendChild(style);
+        const toggle = document.createElement("button");
+        toggle.id = "lab-help-toggle";
+        toggle.type = "button";
+        toggle.textContent = "ⓘ Aide aux connexions";
+        toggle.setAttribute("aria-controls", "lab-connection-help");
+        toggle.setAttribute("aria-expanded", "false");
+        const panel = document.createElement("section");
+        panel.id = "lab-connection-help";
+        panel.hidden = true;
+        panel.setAttribute("aria-labelledby", "lab-connection-help-title");
+        panel.innerHTML = `
+          <button type="button" class="lab-help-close" aria-label="Fermer l'aide">Fermer ✕</button>
+          <h2 id="lab-connection-help-title">Comprendre les ports et les câbles</h2>
+          <p>Un port est une prise d'un équipement. Une liaison relie deux ports compatibles, pas simplement deux appareils.</p>
+          <h3>Créer une liaison</h3>
+          <ol>
+            <li>Ajoute deux équipements dans la zone de topologie.</li>
+            <li>Choisis d’abord le type de câble dans la bibliothèque à gauche.</li>
+            <li>Repère le port physique voulu sur le premier équipement.</li>
+            <li>Fais glisser du point <strong>bleu</strong> (départ) vers le point <strong>gris</strong> (arrivée) de l’autre équipement, puis relâche.</li>
+            <li>Si la liaison ne fonctionne pas, vérifie le type de port, le câble et l'état de l'interface.</li>
+          </ol>
+          <div class="lab-help-note"><strong>Bleu et gris : deux rôles, un seul port physique</strong><p>Le <strong>bleu</strong> est le point de départ du câble ; le <strong>gris</strong> est le point d’arrivée. Ils représentent la même interface physique, pas deux ports différents. Pour vérifier le type réel de prise, sélectionne l’équipement et lis le nom du port dans <strong>Interfaces physiques</strong> / l’inspecteur.</p></div>
+          <h3>Repères des câbles</h3>
+          <div class="lab-cable-row"><span class="lab-cable-line" style="border-color:#0ea5e9"></span><div><strong>Cuivre droit RJ45</strong><br><span class="lab-small">Connexion Ethernet courante : PC, serveur, switch, routeur.</span></div></div>
+          <div class="lab-cable-row"><span class="lab-cable-line dashed" style="border-color:#f97316"></span><div><strong>Cuivre croisé RJ45</strong><br><span class="lab-small">Liaison cuivre entre équipements de même rôle dans les scénarios qui la requièrent.</span></div></div>
+          <div class="lab-cable-row"><span class="lab-cable-line" style="border-color:#a855f7"></span><div><strong>Fibre multimode</strong><br><span class="lab-small">Liaisons optiques courtes, souvent en datacenter.</span></div></div>
+          <div class="lab-cable-row"><span class="lab-cable-line dashed" style="border-color:#ec4899"></span><div><strong>Fibre monomode</strong><br><span class="lab-small">Liaisons optiques plus longues / backbone.</span></div></div>
+          <div class="lab-cable-row"><span class="lab-cable-line dashed" style="border-color:#eab308"></span><div><strong>Câble console</strong><br><span class="lab-small">Accès d'administration vers un port console, pas une liaison Ethernet de données.</span></div></div>
+          <h3>Avant de conclure</h3>
+          <p>Une ligne visible confirme qu'une liaison graphique existe, mais pas forcément que la communication réseau fonctionne. Vérifie aussi que les interfaces sont activées et que la configuration est correcte.</p>
+        `;
+        document.body.append(toggle, panel);
+        const close = panel.querySelector(".lab-help-close");
+        const setOpen = (open) => {
+          panel.hidden = !open;
+          toggle.setAttribute("aria-expanded", String(open));
+          if (open) close.focus();
+          else toggle.focus();
+        };
+        toggle.addEventListener("click", () => setOpen(panel.hidden));
+        close.addEventListener("click", () => setOpen(false));
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && !panel.hidden) setOpen(false);
+        });
+      })();
+    </script>
   </body>
 </html>
