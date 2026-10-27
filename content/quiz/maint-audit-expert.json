@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Audits techniques et rapports de conformité » ?",
+      "prompt": "Quel élément est indispensable pour soutenir une non-conformité d'audit ?",
       "choices": [
-        "Le sujet principal du cours : Audits techniques et rapports de conformité",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Une impression générale partagée par plusieurs personnes",
+        "Un critère applicable, une condition observée et une preuve vérifiable",
+        "Une recommandation technique préférée par l'auditeur",
+        "Un indicateur global sans période définie"
+      ],
+      "answer": 1,
+      "explanation": "La non-conformité doit relier une exigence applicable à une situation observée et étayée par des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que démontre généralement un échantillon ciblé sur les actifs les plus critiques ?",
+      "choices": [
+        "Le taux exact de non-conformité de toute la population",
+        "Que tous les contrôles non testés sont efficaces",
+        "Des informations sur les risques élevés examinés, dans les limites de la sélection",
+        "Qu'il n'existe aucun risque sur les actifs non sélectionnés"
+      ],
+      "answer": 2,
+      "explanation": "Un échantillon ciblé peut détecter des faiblesses importantes mais ne permet pas automatiquement d'estimer un taux pour toute la population."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un responsable affirme qu'une restauration est réussie, mais aucun résultat de test n'est disponible. Quelle conclusion est la plus juste ?",
+      "choices": [
+        "La restauration est nécessairement impossible",
+        "La restauration est conforme puisque le responsable l'affirme",
+        "Toute sauvegarde doit être déclarée non conforme",
+        "L'efficacité de la restauration n'est pas démontrée par les preuves actuellement disponibles"
+      ],
+      "answer": 3,
+      "explanation": "L'absence de preuve suffisante limite la conclusion, sans prouver nécessairement que la restauration échouerait."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une exigence légale dont l'applicabilité au service n'est pas confirmée ?",
+      "choices": [
+        "La déclarer automatiquement non applicable",
+        "Faire confirmer l'applicabilité par le propriétaire compétent et documenter la décision",
+        "La transformer en recommandation informelle",
+        "Utiliser l'interprétation de l'auditeur sans vérification"
+      ],
+      "answer": 1,
+      "explanation": "L'audit doit tracer la source et l'applicabilité des obligations, et obtenir une validation qualifiée lorsqu'une interprétation est incertaine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction est correcte entre correction et action corrective ?",
+      "choices": [
+        "La correction traite le cas immédiat ; l'action corrective vise à supprimer la cause et éviter la récurrence",
+        "La correction exige toujours une modification logicielle ; l'action corrective est toujours une formation",
+        "Les deux termes désignent uniquement la fermeture d'un ticket",
+        "Une action corrective n'a pas besoin d'être vérifiée"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La correction rétablit la situation observée ; l'action corrective traite la cause sous-jacente et doit être évaluée pour son efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus adaptée pour évaluer si une maintenance préventive a réellement été réalisée et contrôlée ?",
+      "choices": [
+        "Un courriel générique indiquant que l'équipe a bien travaillé",
+        "Le seul statut « terminé » dans l'outil de tickets",
+        "Un dossier d'intervention rapproché à la procédure, aux mesures pertinentes et au contrôle après action",
+        "Une politique de maintenance sans dossier d'exécution"
+      ],
+      "answer": 2,
+      "explanation": "Il faut rapprocher la trace d'exécution des critères et du résultat attendu, plutôt que s'appuyer sur un statut ou une déclaration unique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi documenter les limites et exclusions dans un rapport ?",
+      "choices": [
+        "Pour éviter de préciser les résultats des tests",
+        "Pour augmenter la gravité de tous les constats",
+        "Pour remplacer les preuves par des réserves",
+        "Pour montrer quelles conclusions sont réellement soutenues par le périmètre et les preuves recueillies"
+      ],
+      "answer": 3,
+      "explanation": "Les limites de périmètre ou de preuve déterminent la portée de l'assurance ; elles doivent être visibles et liées aux conclusions concernées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel usage d'un script d'analyse d'audit est approprié ?",
+      "choices": [
+        "Détecter les champs manquants et les doublons, puis faire vérifier les anomalies par l'auditeur",
+        "Déclarer automatiquement l'organisation conforme dès qu'aucune erreur de syntaxe n'apparaît",
+        "Supprimer les éléments qui contredisent l'hypothèse initiale",
+        "Remplacer la confirmation de l'applicabilité des exigences légales"
+      ],
+      "answer": 0,
+      "explanation": "L'automatisation améliore la répétabilité de contrôles bornés mais ne remplace ni l'appréciation de la preuve ni le jugement professionnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire si un test d'audit risque de perturber un service de production ?",
+      "choices": [
+        "Le lancer rapidement puisque l'audit est prioritaire",
+        "Utiliser le compte administrateur sans en informer le propriétaire",
+        "Arrêter la préparation du test, obtenir une autorisation spécifique et définir les conditions d'arrêt",
+        "Ne pas tracer le test afin d'éviter de perturber l'équipe"
+      ],
+      "answer": 2,
+      "explanation": "Les tests intrusifs nécessitent une autorisation précise, des conditions opérationnelles, une fenêtre et une méthode d'interruption."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu doit figurer dans un constat défendable ?",
+      "choices": [
+        "Le nom de la personne à blâmer, même si la cause est inconnue",
+        "Le critère, la condition observée, la preuve, le risque et une recommandation pertinente",
+        "Un jugement global sans période ni échantillon",
+        "Une solution unique présentée comme une obligation non écrite"
+      ],
+      "answer": 1,
+      "explanation": "Un constat solide expose l'écart et ses éléments probants, sans confondre preuve, hypothèse de cause et recommandation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une action corrective peut-elle être considérée comme efficace ?",
+      "choices": [
+        "Dès que son propriétaire la déclare terminée",
+        "Dès qu'un ticket d'action est fermé",
+        "Dès qu'un document est modifié, quelle que soit la pratique",
+        "Lorsque les critères prédéfinis sont testés et que les preuves montrent que l'écart est traité et ne se reproduit pas dans le périmètre vérifié"
+      ],
+      "answer": 3,
+      "explanation": "La clôture exige une vérification d'efficacité adaptée au risque, et non uniquement une mise à jour administrative."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une empreinte cryptographique calculée sur un fichier de preuve ?",
+      "choices": [
+        "Elle aide à détecter une modification du fichier, mais ne prouve pas à elle seule son origine ou sa véracité",
+        "Elle garantit que la collecte était autorisée",
+        "Elle prouve que le contenu satisfait toutes les exigences de conformité",
+        "Elle remplace les métadonnées de collecte et le contrôle des accès"
+      ],
+      "answer": 0,
+      "explanation": "L'empreinte est un mécanisme d'intégrité utile, à compléter par la provenance, l'autorisation, l'horodatage et la gestion des accès."
     }
   ]
 }
