@@ -1,0 +1,384 @@
+{
+  "schema_version": 2,
+  "id": "reseau-linux-intermediaire",
+  "title": "Filtrage et NAT sous Linux — nftables / iptables",
+  "level": "intermédiaire",
+  "module": "Administration Système",
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "prompt": "Configurez le pare-feu Linux pour autoriser le trafic Web attendu, bloquer le reste du trafic transféré, activer le NAT sortant par masquerade et rediriger le port TCP 8080 de l’interface WAN vers le serveur Web interne 192.168.10.100:80. Le scénario commence volontairement avec des règles incorrectes.",
+  "objectives": [
+    "Conserver le principe du moindre privilège : autoriser uniquement le trafic Web demandé et refuser le reste du trafic transféré.",
+    "Corriger l’ordre et les actions des règles de filtrage de la chaîne FORWARD.",
+    "Activer le NAT sortant par masquerade pour le réseau interne 192.168.10.0/24.",
+    "Configurer une redirection DNAT TCP 8080 vers 192.168.10.100 port 80.",
+    "Vérifier le nombre d’équipements et de liaisons ainsi que la cohérence entre WAN, LAN et serveur."
+  ],
+  "hints": [
+    "Avec nftables, séparez le filtrage de la translation d’adresses : la chaîne FORWARD décide si le trafic transite, tandis que les chaînes NAT réalisent masquerade et DNAT.",
+    "Le trafic Web demandé vise 192.168.10.100:80 ; la règle d’autorisation doit précéder la règle de refus général.",
+    "Pour le NAT sortant, utilisez masquerade sur l’interface WAN pour les sources du réseau 192.168.10.0/24.",
+    "Pour publier le serveur, redirigez TCP/8080 reçu sur le WAN vers 192.168.10.100:80, puis autorisez le trafic correspondant dans FORWARD.",
+    "Après chaque modification, contrôlez les règles actives avec nft list ruleset ou iptables -S et iptables -t nat -S."
+  ],
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-reseau-linux-intermediaire",
+    "metadata": {
+      "name": "Pare-feu Linux, filtrage Web et NAT",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "INTERNET",
+        "type": "cloud",
+        "model": "Réseau externe",
+        "x": 100,
+        "y": 260,
+        "label": "Internet",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "203.0.113.1",
+            "mask": "255.255.255.0",
+            "description": "Réseau WAN de documentation"
+          }
+        ],
+        "config": {
+          "hostname": "internet"
+        }
+      },
+      {
+        "id": "FW1",
+        "type": "firewall",
+        "model": "Linux nftables / iptables",
+        "x": 390,
+        "y": 260,
+        "label": "FW1 · Linux",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "203.0.113.2",
+            "mask": "255.255.255.0",
+            "description": "WAN"
+          },
+          {
+            "id": "eth1",
+            "name": "eth1",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0",
+            "description": "LAN"
+          }
+        ],
+        "config": {
+          "hostname": "fw-linux",
+          "acls": [
+            {
+              "name": "FORWARD_WEB",
+              "default_policy": "drop",
+              "rules": [
+                {
+                  "id": "allow-web",
+                  "action": "drop",
+                  "protocol": "tcp",
+                  "source": "192.168.10.0/24",
+                  "destination": "192.168.10.100",
+                  "destination_port": 443
+                },
+                {
+                  "id": "deny-rest",
+                  "action": "accept",
+                  "protocol": "ip",
+                  "source": "any",
+                  "destination": "any",
+                  "destination_port": 0
+                }
+              ]
+            }
+          ],
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": {
+              "enabled": false,
+              "masquerade": false,
+              "port_forward": [
+                {
+                  "protocol": "tcp",
+                  "external_port": 8080,
+                  "destination": "192.168.10.100",
+                  "destination_port": 8080
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "model": "Switch d’accès",
+        "x": 680,
+        "y": 260,
+        "label": "SW1 · LAN",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mode": "access",
+            "vlan": 10,
+            "description": "Vers FW1"
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mode": "access",
+            "vlan": 10,
+            "description": "Poste client"
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mode": "access",
+            "vlan": 10,
+            "description": "Serveur Web"
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 10,
+              "name": "LAN"
+            }
+          ]
+        }
+      },
+      {
+        "id": "CLIENT",
+        "type": "pc",
+        "model": "Linux client",
+        "x": 940,
+        "y": 130,
+        "label": "Client LAN",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "192.168.10.20",
+            "mask": "255.255.255.0",
+            "description": "Client de test"
+          }
+        ],
+        "config": {
+          "hostname": "client-linux",
+          "routes": [
+            {
+              "destination": "0.0.0.0/0",
+              "next_hop": "192.168.10.1"
+            }
+          ]
+        }
+      },
+      {
+        "id": "WEB",
+        "type": "server",
+        "model": "Serveur HTTP Linux",
+        "x": 940,
+        "y": 390,
+        "label": "WEB · 192.168.10.100",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mode": "routed",
+            "ip": "192.168.10.100",
+            "mask": "255.255.255.0",
+            "description": "HTTP TCP/80"
+          }
+        ],
+        "config": {
+          "hostname": "web-linux",
+          "services": {
+            "dhcp": null,
+            "dns": null,
+            "nat": null
+          }
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "WAN-01",
+        "from": {
+          "node": "INTERNET",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "FW1",
+          "port": "eth0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 2
+      },
+      {
+        "id": "LAN-01",
+        "from": {
+          "node": "FW1",
+          "port": "eth1"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "LAN-02",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "CLIENT",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "LAN-03",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "WEB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "allow-web-action",
+        "description": "La règle Web autorise le trafic demandé.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[0].action",
+        "operator": "equals",
+        "expected": "accept"
+      },
+      {
+        "id": "allow-web-port",
+        "description": "La règle Web cible le port TCP 80 du serveur.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[0].destination_port",
+        "operator": "equals",
+        "expected": 80
+      },
+      {
+        "id": "allow-web-protocol",
+        "description": "Le protocole de la règle Web est TCP.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[0].protocol",
+        "operator": "equals",
+        "expected": "tcp"
+      },
+      {
+        "id": "allow-web-destination",
+        "description": "La règle Web cible le bon serveur interne.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[0].destination",
+        "operator": "equals",
+        "expected": "192.168.10.100"
+      },
+      {
+        "id": "deny-rest-action",
+        "description": "La règle générale refuse le reste du trafic transféré.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[1].action",
+        "operator": "equals",
+        "expected": "drop"
+      },
+      {
+        "id": "nat-enabled",
+        "description": "Le NAT est activé.",
+        "device": "FW1",
+        "path": "config.services.nat.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "masquerade-enabled",
+        "description": "Le masquerade est activé pour le trafic sortant.",
+        "device": "FW1",
+        "path": "config.services.nat.masquerade",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "dnat-address",
+        "description": "La redirection DNAT cible le serveur Web interne.",
+        "device": "FW1",
+        "path": "config.services.nat.port_forward[0].destination",
+        "operator": "equals",
+        "expected": "192.168.10.100"
+      },
+      {
+        "id": "dnat-port",
+        "description": "La redirection DNAT cible le port HTTP TCP/80.",
+        "device": "FW1",
+        "path": "config.services.nat.port_forward[0].destination_port",
+        "operator": "equals",
+        "expected": 80
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 35,
+  "badges": [
+    "war-machine"
+  ]
+}
