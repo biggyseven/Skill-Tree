@@ -662,6 +662,18 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Ouvrir le cours ", DASHBOARD_HTML)
         self.assertIn('target="_blank" rel="noopener noreferrer"', DASHBOARD_HTML)
 
+    def test_collapsed_sidebar_uses_context_menu_for_new_tabs(self):
+        sidebar_start = DASHBOARD_HTML.index('<!-- ================= SIDEBAR ================= -->')
+        sidebar_end = DASHBOARD_HTML.index('<!-- ================= MAIN CONTENU ================= -->', sidebar_start)
+        sidebar = DASHBOARD_HTML[sidebar_start:sidebar_end]
+
+        self.assertIn('@contextmenu.prevent="openSidebarContextMenu($event, item.id, item.label)"', sidebar)
+        self.assertIn("x-show=\"!sidebarCollapsed\" :href=\"newTabUrl('tab', item.id)\"", sidebar)
+        self.assertIn('data-sidebar-context-menu', DASHBOARD_HTML)
+        self.assertIn('role="menuitem"', DASHBOARD_HTML)
+        self.assertIn('closeSidebarContextMenuOnOutside($event)', DASHBOARD_HTML)
+        self.assertIn('closeSidebarContextMenu()', DASHBOARD_HTML)
+
     def test_v2_lab_opens_react_flow_workspace_and_keeps_legacy_fallback(self):
         start = DASHBOARD_HTML.rindex("async openLab(id, openInNewTab = false) {")
         end = DASHBOARD_HTML.index("        isLabDone(id)", start)
