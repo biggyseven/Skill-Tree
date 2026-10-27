@@ -370,7 +370,10 @@
         "device": "LEAF1",
         "path": "config.routes[0].vlan_to_vni",
         "operator": "contains",
-        "expected": "{vlan:10,vni:10010}"
+        "expected": {
+          "vlan": 10,
+          "vni": 10010
+        }
       },
       {
         "id": "underlay",
