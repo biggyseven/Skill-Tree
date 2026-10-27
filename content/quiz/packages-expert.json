@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Durcissement CIS et audit",
+      "prompt": "Quelle commande aide à détecter des états incohérents ou des paquets partiellement installés dans la base `dpkg` ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`apt search --repair`",
+        "`systemctl list-units --failed`",
+        "`dpkg --audit`",
+        "`lsblk --audit`"
+      ],
+      "answer": 2,
+      "explanation": "`dpkg --audit` signale des états de paquets incomplets ou incohérents à examiner avant de poursuivre des opérations de maintenance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "APT semble bloqué par un verrou. Quelle démarche est la plus sûre ?",
+      "choices": [
+        "Supprimer immédiatement tous les fichiers `lock`",
+        "Identifier le processus de gestion des paquets, lire son état et ses journaux, puis attendre ou résoudre proprement le blocage",
+        "Lancer un second `dpkg` avec forçage",
+        "Redémarrer systématiquement le serveur sans inspection"
+      ],
+      "answer": 1,
+      "explanation": "Le verrou protège une base partagée contre des transactions concurrentes ; le supprimer sans comprendre l’opération active peut corrompre l’état du système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les scripts de maintenance d’un paquet doivent-ils être traités comme du code sensible ?",
+      "choices": [
+        "Ils s’exécutent toujours sans privilèges et ne changent rien",
+        "Ils sont ignorés à l’installation",
+        "Ils ne peuvent accéder qu’aux fichiers de documentation",
+        "Ils peuvent s’exécuter avec des privilèges élevés et modifier l’état du système pendant les transactions"
+      ],
+      "answer": 3,
+      "explanation": "Les scripts de maintenance peuvent exécuter des actions privilégiées lors de l’installation, de la mise à niveau ou de la suppression ; la confiance dans la provenance des paquets est donc essentielle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel objectif justifie généralement un dépôt interne de paquets dans une grande organisation ?",
+      "choices": [
+        "Maîtriser la provenance, les versions approuvées, la disponibilité et la diffusion progressive des paquets",
+        "Éviter toute vérification de signature",
+        "Remplacer tous les tests de mise à niveau par une installation en production",
+        "Autoriser chaque serveur à publier ses propres paquets sans revue"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Un dépôt interne permet de publier des versions contrôlées et reproductibles, tout en conservant l’authentification des dépôts et les processus de revue."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une version Debian, que représente généralement la structure `epoch:version-amont-révision` ?",
+      "choices": [
+        "Une date de création du compte administrateur",
+        "Une convention de classement lexical à ignorer par APT",
+        "Des composantes interprétées par les règles de comparaison de versions Debian",
+        "Un numéro de port du démon de paquets"
+      ],
+      "answer": 2,
+      "explanation": "La comparaison Debian tient compte de l’époque si elle existe, de la version amont et de la révision Debian ; une comparaison lexicale simple peut donner un ordre erroné."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre les dépendances `Depends` et `Recommends` est la plus juste dans Debian ?",
+      "choices": [
+        "`Recommends` signifie toujours que le paquet est interdit sans cette dépendance",
+        "`Depends` exprime une dépendance nécessaire au fonctionnement déclaré, tandis que `Recommends` décrit un complément recommandé selon la politique de l’outil",
+        "`Depends` ne concerne que les paquets de documentation",
+        "Les deux champs sont ignorés par APT"
+      ],
+      "answer": 1,
+      "explanation": "`Depends` fait partie des dépendances requises ; `Recommends` exprime un complément conseillé, généralement installé par défaut par APT sauf configuration contraire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester les règles de priorité APT avant de les déployer à grande échelle ?",
+      "choices": [
+        "Elles n’influencent jamais la version choisie",
+        "Elles protègent automatiquement chaque paquet contre toute régression",
+        "Elles peuvent modifier la version candidate, voire provoquer une sélection ou un déclassement inattendu selon les priorités",
+        "Elles ne s’appliquent qu’aux fichiers de documentation"
+      ],
+      "answer": 2,
+      "explanation": "Les priorités configurées influencent les candidats et certains réglages peuvent autoriser des choix non intuitifs ; vérifiez le résultat avec `apt-cache policy` et une simulation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche convient à une campagne de mises à jour de sécurité sur un parc critique ?",
+      "choices": [
+        "Désactiver définitivement les mises à jour pour préserver les versions",
+        "Appliquer toutes les mises à jour simultanément sans journal",
+        "Supprimer les sauvegardes avant la maintenance",
+        "Évaluer les correctifs, tester sur un lot pilote, surveiller les résultats et définir une procédure de retour proportionnée au risque"
+      ],
+      "answer": 3,
+      "explanation": "Un déploiement contrôlé combine triage des avis, test, progression par lots, observabilité et préparation de la récupération."
     }
   ]
 }

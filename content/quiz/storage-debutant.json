@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Système de fichiers et permissions",
+      "prompt": "Que signifie monter un système de fichiers sous Linux ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Créer obligatoirement un nouveau disque physique",
+        "Convertir toutes les données en archive",
+        "Attribuer une adresse IP au périphérique",
+        "Rendre le système de fichiers accessible à un point de montage dans l’arborescence"
+      ],
+      "answer": 3,
+      "explanation": "Le montage relie un système de fichiers à un répertoire afin que son contenu soit accessible depuis ce point de l’arborescence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre `df -h` et `du -sh repertoire` est correcte ?",
+      "choices": [
+        "Les deux affichent uniquement le modèle du disque",
+        "`df -h` résume l’espace des systèmes de fichiers montés ; `du` estime l’espace utilisé par les fichiers d’un chemin",
+        "`du` affiche les adresses IP des disques",
+        "`df` modifie les permissions et `du` les propriétaires"
+      ],
+      "answer": 1,
+      "explanation": "`df` interroge l’usage des systèmes de fichiers, tandis que `du` parcourt les fichiers accessibles sous un chemin pour estimer leur occupation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après avoir ajouté un volume qui doit être monté durablement, quelle méthode réduit le risque de dépendre d’un nom de périphérique changeant ?",
+      "choices": [
+        "Identifier son UUID avec `lsblk -f`, configurer `/etc/fstab` avec cette identité puis tester prudemment le montage",
+        "Utiliser systématiquement `/dev/sdb` sans vérifier le matériel",
+        "Inscrire le mot de passe root dans `/etc/fstab`",
+        "Formater le disque à chaque démarrage"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Un UUID identifie le système de fichiers de façon plus stable qu’un nom `/dev/sdX` susceptible de changer ; il faut sauvegarder puis valider la configuration de montage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie généralement le mode `750` sur un fichier ou un répertoire ?",
+      "choices": [
+        "Tout le monde peut lire, écrire et exécuter",
+        "Le propriétaire ne peut que lire, le groupe peut écrire et les autres exécutent",
+        "Le propriétaire a lecture/écriture/exécution, le groupe lecture/exécution, les autres aucun droit",
+        "Le groupe et les autres ont tous les droits"
+      ],
+      "answer": 2,
+      "explanation": "En octal, `7` correspond à lecture/écriture/exécution, `5` à lecture/exécution et `0` à aucun droit."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le droit `x` sur un répertoire est-il important ?",
+      "choices": [
+        "Il chiffre les noms des fichiers",
+        "Il permet de traverser/rechercher les entrées du répertoire, sous réserve des autres permissions",
+        "Il autorise toujours la modification de tous les fichiers enfants",
+        "Il donne automatiquement le rôle root"
+      ],
+      "answer": 1,
+      "explanation": "Sur un répertoire, le droit d’exécution correspond à la possibilité de traverser ou rechercher les entrées, ce qui affecte l’accès aux chemins."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence générale entre `chmod` et `chown` ?",
+      "choices": [
+        "`chmod` change l’adresse du système de fichiers ; `chown` change le point de montage",
+        "`chmod` crée des groupes ; `chown` installe des paquets",
+        "`chmod` chiffre les données ; `chown` les déchiffre",
+        "`chmod` modifie les permissions ; `chown` modifie le propriétaire et/ou le groupe propriétaire"
+      ],
+      "answer": 3,
+      "explanation": "`chmod` agit sur les bits de permission, tandis que `chown` change la propriété du fichier ou répertoire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avec les valeurs de création usuelles, quel résultat donne souvent `umask 022` pour un fichier ordinaire et un répertoire ?",
+      "choices": [
+        "Fichiers `600`, répertoires `700`",
+        "Fichiers `777`, répertoires `777`",
+        "Fichiers `644`, répertoires `755`",
+        "Fichiers `000`, répertoires `000`"
+      ],
+      "answer": 2,
+      "explanation": "Dans le cas courant, les modes de base sont 666 pour les fichiers et 777 pour les répertoires ; le masque 022 retire l’écriture au groupe et aux autres."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant d’exécuter `mkfs` sur un périphérique, quelle précaution est essentielle ?",
+      "choices": [
+        "Identifier précisément le périphérique, vérifier qu’il s’agit bien de la cible voulue et confirmer que les données peuvent être détruites",
+        "Choisir le premier périphérique listé sans inspection",
+        "Arrêter les journaux pour éviter les messages",
+        "Changer seulement le nom du périphérique"
+      ],
+      "answer": 0,
+      "explanation": "`mkfs` crée un système de fichiers et peut rendre les données existantes inaccessibles ; la cible doit être vérifiée avec des outils comme `lsblk -f` avant toute action destructive."
     }
   ]
 }

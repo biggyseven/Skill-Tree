@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Optimisation des performances",
+      "prompt": "Quelle distinction entre `fork()` et `execve()` est correcte ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`execve()` crée toujours un nouveau processus enfant",
+        "`fork()` remplace l’image du processus courant par le programme cible",
+        "`fork()` crée un processus enfant ; `execve()` remplace l’image du processus appelant par un nouveau programme",
+        "Les deux commandes ne concernent que les services systemd"
+      ],
+      "answer": 2,
+      "explanation": "`fork()` crée un enfant à partir du processus appelant ; un appel réussi à `execve()` charge un autre programme dans le processus courant et ne crée pas à lui seul un enfant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’intérêt du mécanisme copy-on-write après un `fork()` ?",
+      "choices": [
+        "Les pages mémoire peuvent rester partagées jusqu’à ce qu’un des processus les modifie",
+        "Toute la mémoire est immédiatement copiée deux fois, même si rien ne change",
+        "L’enfant hérite des mêmes identifiants de processus que le parent",
+        "Les écritures du processus enfant sont toujours interdites"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Le copy-on-write évite des copies immédiates inutiles : les pages sont partagées tant qu’une écriture ne nécessite pas une copie privée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle situation décrit un processus zombie ?",
+      "choices": [
+        "Un processus qui consomme obligatoirement toute la mémoire disponible",
+        "Un processus qui attend un verrou réseau en état `D`",
+        "Un processus suspendu et reprenable avec `SIGCONT`",
+        "Un enfant terminé dont le statut de fin n’a pas encore été récupéré par son parent"
+      ],
+      "answer": 3,
+      "explanation": "Un zombie n’exécute plus de code ; le noyau conserve son entrée jusqu’à la récupération du statut par le parent ou à la prise en charge ultérieure par un autre parent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil permet d’observer les appels système effectués par un processus lors d’un diagnostic ?",
+      "choices": [
+        "`lsblk`",
+        "`strace -f -p PID`",
+        "`ip addr`",
+        "`du -sh /proc`"
+      ],
+      "answer": 1,
+      "explanation": "`strace` observe les appels système et leurs résultats ; `-f` permet aussi de suivre les processus enfants créés pendant le suivi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans cgroups v2, à quoi sert le fichier de contrôle `pids.max` ?",
+      "choices": [
+        "À fixer la priorité d’affichage dans `top`",
+        "À définir le délai d’attente d’un signal",
+        "À limiter le nombre de tâches/processus dans le cgroup et sa hiérarchie concernée",
+        "À augmenter automatiquement la mémoire physique"
+      ],
+      "answer": 2,
+      "explanation": "`pids.max` limite le nombre de tâches autorisées dans le cgroup ; une limite atteinte peut faire échouer la création de nouveaux processus ou threads."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que mesurent les fichiers PSI comme `/proc/pressure/memory` ?",
+      "choices": [
+        "Le nombre de comptes utilisateurs connectés",
+        "Le temps pendant lequel des tâches subissent une pression ou des retards liés à une ressource",
+        "Le débit exact de chaque interface réseau",
+        "La taille des fichiers ouverts par un seul processus"
+      ],
+      "answer": 1,
+      "explanation": "Pressure Stall Information renseigne sur le temps durant lequel des tâches sont bloquées ou retardées par la pression CPU, mémoire ou E/S selon le fichier consulté."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage apporte un descripteur `pidfd` pour le suivi d’un processus ?",
+      "choices": [
+        "Référencer un processus via un descripteur réduit les ambiguïtés liées à la réutilisation d’un PID",
+        "Il garantit que le processus ne pourra jamais tomber en panne",
+        "Il convertit automatiquement un processus en service système",
+        "Il donne des droits root au processus appelant"
+      ],
+      "answer": 0,
+      "explanation": "Un `pidfd` est une référence au processus qui évite plusieurs risques de course liés à la réutilisation d’un numéro PID dans les opérations qui le prennent en charge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un processus a été tué par l’OOM killer. Quelle source est pertinente pour confirmer l’événement ?",
+      "choices": [
+        "Le fichier `/etc/hosts`",
+        "La liste des paquets installés uniquement",
+        "Le fichier `/proc/cpuinfo` uniquement",
+        "Les journaux du noyau, par exemple via `journalctl -k`, en corrélant l’heure de l’incident"
+      ],
+      "answer": 3,
+      "explanation": "Les messages du noyau peuvent indiquer la pression mémoire et la sélection de la victime par l’OOM killer ; il faut corréler ces éléments aux métriques et aux journaux de service."
     }
   ]
 }

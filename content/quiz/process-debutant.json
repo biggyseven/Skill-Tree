@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Processus et services (systemd)",
+      "prompt": "Quelle commande affiche le PID et le nom des processus dans un format simple ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "`ps -eo pid,comm`",
+        "`pwd -P`",
+        "`free -h`",
+        "`whoami -p`"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "L’option `-e` sélectionne tous les processus et `-o` choisit les colonnes, ici l’identifiant PID et le nom de commande."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que fait normalement `commande &` dans un shell interactif ?",
+      "choices": [
+        "Elle arrête immédiatement la commande",
+        "Elle exécute la commande avec les privilèges root",
+        "Elle lance la commande en arrière-plan et rend le prompt au shell",
+        "Elle transforme la commande en service systemd"
+      ],
+      "answer": 2,
+      "explanation": "Le `&` demande au shell de lancer le travail en arrière-plan ; son état et sa sortie restent à surveiller."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal essaie généralement d’arrêter un processus proprement avant d’envisager une interruption forcée ?",
+      "choices": [
+        "`SIGSTOP`",
+        "`SIGTERM`",
+        "`SIGKILL`",
+        "`SIGCONT`"
+      ],
+      "answer": 1,
+      "explanation": "`SIGTERM` demande au processus de terminer et lui laisse la possibilité d’effectuer un nettoyage s’il gère ce signal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans la sortie de `ps`, que signifie souvent l’état `Z` ?",
+      "choices": [
+        "Le processus consomme forcément 100 % du CPU",
+        "Le processus est suspendu par `SIGSTOP`",
+        "Le processus attend des données réseau",
+        "Le processus enfant a terminé mais son parent n’a pas encore récupéré son statut"
+      ],
+      "answer": 3,
+      "explanation": "Un zombie a terminé son exécution, mais son entrée reste présente jusqu’à ce que le parent récupère son statut de fin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet de rechercher des processus correspondant à `sshd` en affichant aussi leur ligne de commande ?",
+      "choices": [
+        "`df -h sshd`",
+        "`chmod -R sshd`",
+        "`pgrep -a sshd`",
+        "`mount -a sshd`"
+      ],
+      "answer": 2,
+      "explanation": "`pgrep -a` recherche les processus correspondants et affiche leur PID avec la ligne de commande."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement `nice -n 10 commande` ?",
+      "choices": [
+        "À ajuster la priorité de planification demandée pour cette commande",
+        "À garantir que la commande utilise dix cœurs",
+        "À la lancer automatiquement après un redémarrage",
+        "À lui donner les droits administrateur"
+      ],
+      "answer": 0,
+      "explanation": "La valeur de niceness influence la priorité relative de planification CPU ; elle ne garantit ni un nombre de cœurs ni des privilèges élevés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel fichier expose des informations d’état et d’identification pour le processus de PID 1234 ?",
+      "choices": [
+        "`/etc/processes/1234`",
+        "`/var/log/1234.conf`",
+        "`/home/1234/status`",
+        "`/proc/1234/status`"
+      ],
+      "answer": 3,
+      "explanation": "Le système de fichiers virtuel `/proc` expose des informations du noyau ; `status` contient notamment l’état et plusieurs identifiants du processus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle action envoie généralement `SIGINT` au travail au premier plan dans un terminal ?",
+      "choices": [
+        "Fermer l’onglet sans autre effet garanti",
+        "Appuyer sur `Ctrl+C`",
+        "Exécuter `pwd`",
+        "Appuyer sur `Tab`"
+      ],
+      "answer": 1,
+      "explanation": "Dans un terminal interactif courant, `Ctrl+C` demande au terminal d’envoyer `SIGINT` au groupe de processus au premier plan."
     }
   ]
 }

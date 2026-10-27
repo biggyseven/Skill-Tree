@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Windows Server : bases et Active Directory",
+      "prompt": "Quel rôle Windows Server fournit le service d’annuaire utilisé pour gérer centralement les identités et le domaine ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Active Directory Domain Services (AD DS)",
+        "Windows Defender Firewall uniquement",
+        "Print Management",
+        "Disk Management"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "AD DS conserve les objets du domaine et fournit des fonctions d’authentification et d’administration centralisées lorsqu’il est correctement déployé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour qu’un client localise normalement un contrôleur de domaine Active Directory, quel paramétrage réseau est crucial ?",
+      "choices": [
+        "Utiliser uniquement un DNS public sans enregistrement du domaine",
+        "Désactiver l’horloge du client",
+        "Affecter l’adresse de boucle locale comme passerelle",
+        "Configurer le client pour interroger le DNS interne qui connaît la zone Active Directory"
+      ],
+      "answer": 3,
+      "explanation": "Les enregistrements DNS du domaine permettent notamment de découvrir les services et contrôleurs de domaine ; un DNS public seul ne connaît généralement pas la zone interne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande PowerShell affiche les services Windows et leur état ?",
+      "choices": [
+        "`Get-NetIPConfiguration`",
+        "`Get-Service`",
+        "`Get-LocalGroup`",
+        "`Get-Disk`"
+      ],
+      "answer": 1,
+      "explanation": "`Get-Service` liste les services et leurs états ; d’autres cmdlets permettent ensuite d’inspecter ou d’administrer un service précis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage caractérise généralement l’installation Server Core par rapport à Desktop Experience ?",
+      "choices": [
+        "Elle ne peut pas héberger de rôles serveur",
+        "Elle remplace Active Directory par un service Linux",
+        "Elle réduit les composants graphiques installés et peut diminuer la surface de maintenance, avec davantage de gestion en ligne de commande ou à distance",
+        "Elle désactive toujours Windows Update"
+      ],
+      "answer": 2,
+      "explanation": "Server Core fournit une installation plus minimale ; l’administrateur doit maîtriser les outils locaux en ligne de commande et les outils d’administration à distance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble facilite généralement l’intégration d’un poste au domaine ?",
+      "choices": [
+        "Une connexion Internet publique uniquement, sans DNS interne",
+        "La désactivation du pare-feu et l’emploi du compte Invité",
+        "Le changement manuel de nom DNS sans joindre le domaine",
+        "Une connectivité vers l’infrastructure du domaine, un DNS interne correct et un compte autorisé"
+      ],
+      "answer": 3,
+      "explanation": "L’adhésion au domaine nécessite la résolution des services Active Directory, une connectivité appropriée et des identifiants disposant des droits nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre un groupe de travail et un domaine Active Directory est correcte ?",
+      "choices": [
+        "Le domaine centralise les identités et une partie des politiques, alors qu’un groupe de travail s’appuie principalement sur des comptes locaux séparés",
+        "Le groupe de travail exige obligatoirement un contrôleur de domaine",
+        "Le domaine ne permet pas de gérer des utilisateurs",
+        "Les deux fournissent automatiquement les mêmes stratégies centralisées"
+      ],
+      "answer": 0,
+      "explanation": "Un domaine offre une gestion centralisée des identités et politiques ; dans un groupe de travail, les comptes et la configuration sont davantage administrés localement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vérifier les paramètres DNS avec `ipconfig /all` pendant un diagnostic de domaine ?",
+      "choices": [
+        "Pour modifier directement les objets Active Directory",
+        "Pour afficher les journaux de chaque service",
+        "Pour confirmer les serveurs DNS réellement configurés sur l’interface du client",
+        "Pour installer le rôle AD DS sur le client"
+      ],
+      "answer": 2,
+      "explanation": "`ipconfig /all` affiche notamment les paramètres IP et les serveurs DNS utilisés par l’interface, ce qui permet de vérifier la configuration effective."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est recommandée pour le pare-feu Windows d’un serveur ?",
+      "choices": [
+        "Désactiver le pare-feu dès que le service est accessible",
+        "Conserver le pare-feu actif et n’autoriser que les flux requis avec une portée adaptée",
+        "Créer une règle entrante autorisant tous les ports depuis Internet",
+        "Remplacer toutes les règles par une règle any-any"
+      ],
+      "answer": 1,
+      "explanation": "Des règles ciblées réduisent les accès inutiles et limitent l’exposition sans empêcher les communications nécessaires au service."
     }
   ]
 }

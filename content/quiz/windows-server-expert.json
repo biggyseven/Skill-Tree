@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Windows Server Expert (Failover, Hyper-V)",
+      "prompt": "Quel rôle joue un témoin de quorum dans un cluster de basculement Windows Server ?",
       "choices": [
-        "Réponse A",
-        "Réponse B",
-        "Réponse C",
-        "Réponse D"
+        "Il remplace la sauvegarde des données applicatives",
+        "Il contribue au vote/quorum afin de réduire le risque de décisions concurrentes lors d’une partition du cluster",
+        "Il garantit que chaque application répond correctement aux utilisateurs",
+        "Il assure à lui seul la réplication de chaque volume"
+      ],
+      "answer": 1,
+      "explanation": "Le témoin peut contribuer à la majorité de votes selon la configuration, aidant le cluster à décider quel ensemble de nœuds peut poursuivre son fonctionnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique doit précéder la mise en production d’un cluster Windows Server ?",
+      "choices": [
+        "Désactiver la validation pour accélérer l’installation",
+        "Créer les rôles avant de contrôler la compatibilité",
+        "Exécuter la validation du cluster sur la configuration prévue et traiter les avertissements pertinents",
+        "Activer le basculement sans tester le réseau ni le stockage"
+      ],
+      "answer": 2,
+      "explanation": "La validation vérifie plusieurs dimensions de la configuration cluster ; les résultats doivent être interprétés et les problèmes pertinents corrigés avant la mise en production."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels éléments doivent être vérifiés avant de planifier une migration à chaud de VM Hyper-V ?",
+      "choices": [
+        "Uniquement le nom de la machine virtuelle",
+        "Uniquement la version du navigateur de l’administrateur",
+        "La couleur des interfaces dans la console",
+        "La compatibilité des hôtes, les réseaux, l’authentification et l’accès ou la migration du stockage selon l’architecture"
+      ],
+      "answer": 3,
+      "explanation": "Une migration à chaud dépend de la compatibilité des hôtes, des paramètres de migration et du réseau, ainsi que de la manière dont les disques et identités sont accessibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un checkpoint Hyper-V ne doit-il pas être considéré automatiquement comme une sauvegarde indépendante ?",
+      "choices": [
+        "Il peut dépendre des disques virtuels parents et ne fournit pas à lui seul une copie indépendante et testée de reprise",
+        "Il est toujours stocké dans un autre site et chiffré",
+        "Il vérifie systématiquement la cohérence métier de chaque application",
+        "Il remplace la documentation et les procédures de restauration"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement."
+      "explanation": "Un checkpoint fait partie de la chaîne de disques virtuels et n’est pas, à lui seul, une copie de sauvegarde indépendante ni la preuve qu’une restauration métier fonctionne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel couple de définitions est correct pour un service critique ?",
+      "choices": [
+        "RPO = délai de reprise ; RTO = perte de données maximale",
+        "RPO = nombre de serveurs ; RTO = volume de stockage",
+        "RTO = durée cible de rétablissement ; RPO = fenêtre maximale de perte de données acceptable",
+        "RTO = temps d’authentification ; RPO = durée de conservation des journaux"
+      ],
+      "answer": 2,
+      "explanation": "Le RTO concerne le délai de rétablissement visé, tandis que le RPO exprime la quantité de données temporelles dont la perte est acceptable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un rôle de cluster est en ligne, mais les utilisateurs signalent encore une panne applicative. Quelle conclusion est la plus juste ?",
+      "choices": [
+        "L’état en ligne prouve toujours que tous les parcours métier sont fonctionnels",
+        "Le cluster doit désactiver le quorum",
+        "L’application n’a pas besoin d’être surveillée une fois le cluster configuré",
+        "L’état du rôle cluster ne remplace pas des contrôles de santé applicatifs et des tests du parcours utilisateur"
+      ],
+      "answer": 3,
+      "explanation": "Le cluster surveille les ressources configurées, mais les dépendances et fonctions métier nécessitent des contrôles appropriés au niveau applicatif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique convient à la maintenance d’un cluster lorsque la charge le permet ?",
+      "choices": [
+        "Mettre tous les nœuds hors ligne simultanément sans plan de retour",
+        "Mettre en maintenance un nœud à la fois après évacuation/validation des rôles, puis contrôler la santé avant de continuer",
+        "Supprimer les disques partagés avant d’installer les correctifs",
+        "Ignorer le quorum tant qu’un seul nœud répond"
+      ],
+      "answer": 1,
+      "explanation": "Une maintenance progressive préserve la capacité disponible et fournit un point de contrôle avant de traiter le nœud suivant, sous réserve de respecter les limites de capacité et le quorum."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant un failback vers le site principal après sinistre, quel contrôle est essentiel ?",
+      "choices": [
+        "Vérifier la synchronisation des données, la capacité, les dépendances et la fenêtre de bascule, puis suivre une procédure testée",
+        "Basculer immédiatement dès que le site principal est joignable",
+        "Supprimer le site de secours avant d’examiner les données",
+        "Ignorer la réplication parce que le service est déjà revenu"
+      ],
+      "answer": 0,
+      "explanation": "Le failback est une opération distincte : il faut vérifier la cohérence et la synchronisation des données, la santé du site cible et les conditions de retour avant de déplacer le service."
     }
   ]
 }
