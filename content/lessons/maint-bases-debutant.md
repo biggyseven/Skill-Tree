@@ -339,6 +339,17 @@ Le contournement doit être évalué : il doit rester sûr, conforme aux règles
 
 ### 4.8. La résolution
 
+~~~mermaid
+flowchart LR
+  A[Demande] --> B[Symptômes observés]
+  B --> C[Hypothèses]
+  C --> D[Test vérifiable]
+  D --> E[Cause confirmée ou nouvelle hypothèse]
+  E --> F[Résolution validée]
+~~~
+
+**Lecture du schéma :** le technicien sépare les faits des hypothèses et utilise les tests pour orienter la suite. Un symptôme n'est pas automatiquement une cause ; si un test contredit l'hypothèse, il faut la réviser.
+
 Une résolution est l'ensemble des actions qui rétablissent le fonctionnement attendu ou qui répondent aux critères définis pour traiter l'incident.
 
 La résolution doit être vérifiée. Le simple fait d'avoir exécuté une commande ne constitue pas une preuve de réussite.
@@ -561,6 +572,18 @@ Ces possibilités ne sont pas toutes également probables. Les premiers résulta
 
 ### 7.4. Choisir des tests utiles
 
+~~~mermaid
+flowchart TD
+  A[Décrire le symptôme] --> B[Choisir un test peu risqué]
+  B --> C[Noter le résultat]
+  C --> D{Hypothèse confirmée ?}
+  D -->|Oui| E[Planifier correction autorisée]
+  D -->|Non| F[Réviser les hypothèses]
+  F --> B
+~~~
+
+**Lecture du schéma :** une investigation progresse par tests discriminants. On ne doit pas lancer plusieurs modifications à la fois, sinon il devient difficile d'établir celle qui a réellement changé le résultat.
+
 Un test est intéressant lorsqu'il permet de distinguer plusieurs hypothèses, ou de confirmer une condition nécessaire au fonctionnement.
 
 Exemple : vérifier si un autre utilisateur autorisé accède à la même ressource aide à savoir si le problème est limité à un compte.
@@ -733,6 +756,17 @@ Ne redémarre pas un service de production sans évaluer son impact et sans l'au
 
 ### 8.5. Comprendre les limites d'un outil
 
+~~~mermaid
+flowchart TD
+  A[Problème signalé] --> B[Couche physique et lien]
+  B --> C[Adresse IP et routage]
+  C --> D[DNS et ports]
+  D --> E[Service applicatif]
+  E --> F[Validation utilisateur]
+~~~
+
+**Lecture du schéma :** cet ordre constitue un point de départ, pas une règle absolue. Les indices initiaux peuvent conduire à vérifier une autre couche plus tôt. Chaque outil ne prouve que ce qu'il mesure.
+
 Une commande fournit une information limitée à ce qu'elle mesure.
 
 Un ping qui échoue peut indiquer une difficulté de connectivité, mais aussi un filtrage ICMP. Il ne prouve pas à lui seul qu'un serveur est définitivement indisponible.
@@ -829,6 +863,17 @@ Pour une opération simple et réversible, une procédure légère peut être su
 
 ### 9.6. Quand faut-il s'arrêter ?
 
+~~~mermaid
+flowchart TD
+  A[Action envisagée] --> B{Autorisation et prérequis présents ?}
+  B -->|Oui| C[Exécuter le contrôle prévu]
+  B -->|Non| D[Ne pas modifier le système]
+  D --> E[Documenter et escalader]
+  C --> F[Vérifier le résultat]
+~~~
+
+**Lecture du schéma :** l'absence d'autorisation, de sauvegarde nécessaire ou de compétence suffisante est un point d'arrêt. La bonne réaction est de sécuriser la situation et de transmettre le dossier, pas de contourner la procédure.
+
 Le technicien doit interrompre une opération et demander de l'aide lorsqu'un risque important apparaît ou que les limites de son autorisation sont atteintes.
 
 Par exemple :
@@ -874,6 +919,17 @@ La restauration doit être préparée, notamment lorsqu'elle concerne un systèm
 Il faut savoir exactement ce qui sera remplacé, quelles validations sont requises et comment vérifier le résultat.
 
 ### 10.4. Continuité de service
+
+~~~mermaid
+flowchart LR
+  A[Données de production] --> B[Sauvegarde planifiée]
+  B --> C[Copie protégée]
+  C --> D[Test de restauration]
+  D --> E[Validation métier]
+  E --> F[Procédure de reprise prête]
+~~~
+
+**Lecture du schéma :** une sauvegarde n'a de valeur opérationnelle que si son intégrité et la capacité à restaurer sont vérifiées. La continuité inclut aussi les accès, les dépendances et la validation du service après reprise.
 
 La continuité de service désigne la capacité à maintenir ou à rétablir une activité dans des conditions acceptables.
 
@@ -937,6 +993,16 @@ On peut dire :
 Dans le ticket technique, le vocabulaire peut être plus précis. La communication doit s'adapter à son destinataire.
 
 ### 11.4. Informer sans faire de promesses non vérifiées
+
+~~~mermaid
+flowchart TD
+  A[État connu] --> B[Expliquer l'impact constaté]
+  B --> C[Indiquer les vérifications en cours]
+  C --> D[Préciser la prochaine mise à jour]
+  D --> E[Actualiser avec des faits]
+~~~
+
+**Lecture du schéma :** il vaut mieux annoncer une prochaine heure de communication qu'une heure de résolution non démontrée. Si le diagnostic change, l'équipe doit corriger rapidement le message et distinguer les faits des hypothèses.
 
 Il faut éviter les annonces telles que « ce sera réparé dans cinq minutes » lorsque le diagnostic n'est pas suffisamment avancé.
 
@@ -1011,6 +1077,16 @@ Cet exemple est un modèle pédagogique, pas le compte rendu d'une intervention 
 
 ### 12.4. Une conclusion utile
 
+~~~mermaid
+flowchart LR
+  A[Signalement] --> B[Diagnostic consigné]
+  B --> C[Actions et résultats]
+  C --> D[Validation du besoin]
+  D --> E[Clôture ou suivi ouvert]
+~~~
+
+**Lecture du schéma :** une clôture exploitable contient la description du problème, les contrôles réalisés, les actions, les résultats observés et les éventuelles suites. Un dossier ne doit pas être clos simplement parce que la personne a fini ses manipulations.
+
 Une bonne conclusion résume le résultat et les limites restantes.
 
 Exemple :
@@ -1052,6 +1128,19 @@ Après une modification, vérifier les fonctions directement concernées et les 
 Une modification d'accès peut rétablir le service pour un utilisateur tout en supprimant par erreur les droits d'un autre groupe. La réussite individuelle ne suffit alors pas à confirmer la conformité du changement.
 
 ### 13.4. Distinguer rétablissement et résolution durable
+
+~~~mermaid
+flowchart TD
+  A[Service de nouveau disponible] --> B[Tester le besoin initial]
+  B --> C{Critères de réussite atteints ?}
+  C -->|Non| D[Reprendre le diagnostic]
+  C -->|Oui| E[Documenter le rétablissement]
+  E --> F{Cause durablement traitée ?}
+  F -->|Oui| G[Clôturer selon procédure]
+  F -->|Non| H[Créer une action de suivi]
+~~~
+
+**Lecture du schéma :** le rétablissement indique que le service fonctionne à nouveau. Il ne prouve pas toujours que la cause récurrente a disparu. Le suivi doit rester visible tant que le risque résiduel n'est pas traité ou accepté.
 
 Un service peut redevenir disponible temporairement après un redémarrage, alors que la cause profonde n'est pas encore identifiée.
 
@@ -1098,6 +1187,17 @@ Un transfert de qualité contient :
 L'équipe suivante doit pouvoir comprendre ce qui a été observé et savoir ce qui reste à vérifier.
 
 ### 14.3. Ne pas transmettre un dossier vide
+
+~~~mermaid
+flowchart LR
+  A[Incident qualifié] --> B[Impact et urgence]
+  B --> C[Tests et preuves]
+  C --> D[Actions déjà réalisées]
+  D --> E[Hypothèses restantes]
+  E --> F[Équipe destinataire et prochaine étape]
+~~~
+
+**Lecture du schéma :** une escalade utile évite au niveau suivant de recommencer des contrôles déjà réalisés. Le dossier contient suffisamment de contexte pour agir, sans présenter une hypothèse comme une cause certaine.
 
 Écrire simplement « problème compliqué, voir avec le niveau supérieur » est rarement suffisant.
 
@@ -1236,6 +1336,16 @@ La priorité finale dépend du contexte. Le troisième incident peut être criti
 
 ### Atelier 5 : distinguer observation et interprétation
 
+~~~mermaid
+flowchart TD
+  A[Observation mesurable] --> B[Contexte et horodatage]
+  B --> C[Hypothèse explicite]
+  C --> D[Test qui peut la réfuter]
+  D --> E[Conclusion avec niveau de confiance]
+~~~
+
+**Lecture du schéma :** « le voyant est éteint à 10 h 15 » est une observation ; « l'alimentation est défectueuse » est une hypothèse. Le diagnostic rigoureux conserve cette différence jusqu'à ce que les preuves permettent une conclusion.
+
 Lis les phrases suivantes et sépare les faits observables des conclusions possibles :
 
 - « Le serveur est mort. »
@@ -1249,6 +1359,17 @@ Une bonne démarche conserve les faits, puis utilise les interprétations comme 
 ## 17. Travaux pratiques guidés
 
 ### TP 1 — Diagnostic d'un problème réseau
+
+~~~mermaid
+flowchart TD
+  A[Tester le lien et la couche physique] --> B[Tester IP et passerelle]
+  B --> C[Tester la résolution DNS]
+  C --> D[Tester port ou protocole]
+  D --> E[Tester le service métier]
+  E --> F[Comparer avec le besoin utilisateur]
+~~~
+
+**Lecture du schéma :** cette progression réduit les hypothèses, mais ne remplace pas l'analyse des indices. Si plusieurs utilisateurs d'un site sont touchés alors que l'IP reste joignable, examiner rapidement la passerelle partagée, les routes et les services communs.
 
 **Contexte**
 
@@ -1691,6 +1812,17 @@ Cet indicateur mesure la part des demandes résolues dès le premier échange, s
 Il peut aider à évaluer le support, mais ne doit pas inciter à clôturer trop vite les tickets. Une résolution doit rester correcte, vérifiée et documentée.
 
 ### 20.5. Qualité des données
+
+~~~mermaid
+flowchart LR
+  A[Rapports de tickets] --> B[Vérifier champs et dates]
+  B --> C[Calculer les indicateurs]
+  C --> D[Examiner les tendances]
+  D --> E[Identifier une amélioration]
+  E --> F[Mesurer son effet]
+~~~
+
+**Lecture du schéma :** un indicateur calculé à partir de dossiers incomplets peut raconter une histoire trompeuse. Avant de comparer les mois, vérifier les définitions, le périmètre, les dossiers manquants et les changements dans la manière de mesurer.
 
 Les indicateurs sont utiles seulement si les données sont suffisamment fiables.
 
