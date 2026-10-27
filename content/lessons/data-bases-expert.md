@@ -1,6 +1,6 @@
 # Concepts des bases de données relationnelles — Expert
 
-> **Mise en contexte.** Le niveau expert vous place face aux compromis d'architecture, à la haute disponibilité, à la capacité, aux migrations risquées, à la sécurité des données sensibles et aux incidents multi-composants. Vous devez être capable de défendre une décision, de montrer les preuves qui la soutiennent, d'anticiper ses modes de panne et de prévoir un mécanisme de retour à un état connu. Les exemples partent des bases relationnelles et approfondissent les conséquences opérationnelles. Les détails de syntaxe, de réplication et de récupération doivent être confirmés sur la version du moteur réellement exploité.
+> **Mise en contexte.** Le niveau expert vous place face aux compromis d'architecture, à la haute disponibilité, à la capacité, aux migrations risquées, à la sécurité des données sensibles et aux incidents multi-composants. Vous devez pouvoir défendre une décision, montrer les preuves qui la soutiennent, anticiper les modes de panne et prévoir un mécanisme de retour à un état connu. Les exemples approfondissent les bases relationnelles et leurs conséquences opérationnelles. Les détails de syntaxe, de réplication et de récupération doivent être confirmés sur la version du moteur réellement exploité.
 
 ## Introduction et objectifs pédagogiques
 
