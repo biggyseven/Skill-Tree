@@ -674,6 +674,16 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('closeSidebarContextMenuOnOutside($event)', DASHBOARD_HTML)
         self.assertIn('closeSidebarContextMenu()', DASHBOARD_HTML)
 
+    def test_sidebar_state_persists_and_collapsed_logo_is_keyboard_accessible(self):
+        self.assertIn("this.sidebarCollapsed = p.sidebarCollapsed === true;", DASHBOARD_HTML)
+        self.assertIn("sidebarCollapsed: !!this.sidebarCollapsed,", DASHBOARD_HTML)
+        self.assertIn("setSidebarCollapsed(collapsed)", DASHBOARD_HTML)
+        self.assertIn("toggleSidebarCollapsed()", DASHBOARD_HTML)
+        self.assertIn(":role=" + '"sidebarCollapsed ? \'button\' : null"', DASHBOARD_HTML)
+        self.assertIn("@keydown.enter.prevent=" + '"sidebarCollapsed && setSidebarCollapsed(false)"', DASHBOARD_HTML)
+        self.assertIn("@keydown.space.prevent=" + '"sidebarCollapsed && setSidebarCollapsed(false)"', DASHBOARD_HTML)
+        self.assertIn("Développer la barre latérale", DASHBOARD_HTML)
+
     def test_v2_lab_opens_react_flow_workspace_and_keeps_legacy_fallback(self):
         start = DASHBOARD_HTML.rindex("async openLab(id, openInNewTab = false) {")
         end = DASHBOARD_HTML.index("        isLabDone(id)", start)
