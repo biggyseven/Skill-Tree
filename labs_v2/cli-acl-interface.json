@@ -6,7 +6,7 @@
   "module": "Sécurité réseau",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Créez une ACL numérotée qui refuse l’hôte 192.168.1.10 vers 10.0.0.5 puis autorise le reste du trafic IP. Appliquez l’ACL 110 en entrée sur Gi0/0.",
+  "prompt": "Contexte : le LAN de l’agence utilise le poste 192.168.1.10 et un serveur métier 10.0.0.5. La politique de sécurité doit bloquer uniquement ce flux IPv4, tout en autorisant les autres communications. Sur R1, créez l’ACL étendue numérotée 110 avec les règles dans le bon ordre, puis appliquez-la en entrée sur Gi0/0, côté réseau source. Vérifiez la configuration avant de soumettre. Ce laboratoire contrôle la configuration enregistrée ; il ne simule pas l’échange réel de paquets.",
   "objectives": [
     "Exécuter puis vérifier : access-list 110 deny ip host 192.168.1.10 host 10.0.0.5",
     "Exécuter puis vérifier : access-list 110 permit ip any any",
@@ -15,8 +15,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; access-list 110 deny ip host 192.168.1.10 host 10.0.0.5 ; access-list 110 permit ip any any ; interface Gi0/0 ; ip access-group 110 in ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : une ACL est évaluée dans l’ordre. La règle précise qui bloque le couple source/destination doit précéder la règle générale d’autorisation.",
+    "Indice 2 : vérifiez les deux entrées de l’ACL, puis le sens d’application sur Gi0/0. « in » filtre les paquets qui entrent par cette interface.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; access-list 110 deny ip host 192.168.1.10 host 10.0.0.5 ; access-list 110 permit ip any any ; interface Gi0/0 ; ip access-group 110 in ; end.",
+    "La validation porte sur les règles ACL et leur application structurée à l’interface, pas seulement sur le texte affiché dans la console."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -39,7 +41,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -58,7 +60,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -109,7 +111,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -128,7 +130,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -179,7 +181,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -284,7 +286,7 @@
     "rules": [
       {
         "id": "acl_deny",
-        "description": "Contrôle serveur : acl deny doit être conforme.",
+        "description": "L’ACL 110 refuse le trafic de 192.168.1.10 vers 10.0.0.5.",
         "device": "R1",
         "path": "config.acls",
         "operator": "contains",
@@ -292,7 +294,7 @@
       },
       {
         "id": "acl_permit",
-        "description": "Contrôle serveur : acl permit doit être conforme.",
+        "description": "L’ACL 110 autorise les autres flux IPv4.",
         "device": "R1",
         "path": "config.acls",
         "operator": "contains",
@@ -300,7 +302,7 @@
       },
       {
         "id": "acl_applied_in",
-        "description": "Contrôle serveur : acl applied in doit être conforme.",
+        "description": "L’ACL 110 est appliquée en entrée sur Gi0/0.",
         "device": "R1",
         "path": "ports[0].access_group_in",
         "operator": "equals",
