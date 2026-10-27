@@ -535,16 +535,21 @@ def load_lessons(
         node_id = path.stem
         if not NODE_ID_RE.fullmatch(node_id):
             raise ContentError(f"{path} : identifiant de nœud invalide dans le nom de fichier.")
-        if node_id not in node_ids:
-            raise ContentError(f"{path} : nœud « {node_id} » absent de nodes.json.")
-        if node_id in lessons:
-            raise ContentError(f"{path} : plusieurs leçons pour le nœud « {node_id} ».")
         try:
             content = path.read_text(encoding="utf-8").strip()
         except OSError as error:
             raise ContentError(f"Lecture impossible de {path} : {error}")
+
+        # Les fichiers vides non encore référencés sont des brouillons de catalogue.
+        # Dès qu'une leçon contient du texte, son identifiant doit exister dans nodes.json.
         if not content:
+            if node_id not in node_ids:
+                continue
             raise ContentError(f"{path} : la leçon ne peut pas être vide.")
+        if node_id not in node_ids:
+            raise ContentError(f"{path} : nœud « {node_id} » absent de nodes.json.")
+        if node_id in lessons:
+            raise ContentError(f"{path} : plusieurs leçons pour le nœud « {node_id} ».")
         lessons[node_id] = content
 
     return lessons
