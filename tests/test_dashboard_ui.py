@@ -1092,5 +1092,18 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Dernière leçon du module", DASHBOARD_HTML)
 
 
+    def test_mobile_header_keeps_title_and_actions_on_one_row(self):
+        self.assertIn('class="mobile-header-menu-trigger', DASHBOARD_HTML)
+        self.assertIn('aria-controls="mobile-header-action-items"', DASHBOARD_HTML)
+        self.assertIn(":class=\"{ 'is-open': mobileActionsOpen }\"", DASHBOARD_HTML)
+        self.assertIn("mobileActionsOpen: false", DASHBOARD_HTML)
+        self.assertIn("mobile-header-summary", DASHBOARD_HTML)
+        self.assertIn('class="mobile-action-label">Atelier libre</span>', DASHBOARD_HTML)
+        self.assertIn('class="mobile-action-label">Notifications</span>', DASHBOARD_HTML)
+        self.assertIn("@media (max-width: 1023px)", DASHBOARD_HTML)
+        self.assertIn("position: fixed !important;", DASHBOARD_HTML)
+        self.assertIn("min-height: 4.5rem;", DASHBOARD_HTML)
+
+
 if __name__ == "__main__":
     unittest.main()
