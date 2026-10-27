@@ -852,7 +852,9 @@ def read_profile(tree: SkillTree = Depends(get_tree)) -> dict:
     days = streak_days(tree.conn)
     labs = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='lab' AND passed=1").fetchone()[0]
     legacy_exams = tree.conn.execute("SELECT COUNT(*) FROM attempts WHERE kind='exam' AND passed=1").fetchone()[0]
-    saved_exams = tree.conn.execute("SELECT COUNT(*) FROM exam_sessions WHERE submitted=1 AND passed=1").fetchone()[0]
+    saved_exams = tree.conn.execute(
+        "SELECT COUNT(*) FROM exam_sessions WHERE submitted=1 AND passed=1 AND node_id IS NULL"
+    ).fetchone()[0]
     exams = int(legacy_exams or 0) + int(saved_exams or 0)
     return {
         "level": stats, "total_nodes": total_nodes, "validated_nodes": validated_nodes,
@@ -1049,8 +1051,12 @@ def _create_exam_session(
     count: int,
     time_limit: int,
     category: str,
+    question_pool: list[Question] | None = None,
+    node_id: str | None = None,
+    exam_type: str = "category",
+    passing_score: int | None = None,
 ) -> dict:
-    pool = _exam_question_pool(tree, nodes)
+    pool = question_pool if question_pool is not None else _exam_question_pool(tree, nodes)
     if not pool:
         raise HTTPException(
             422,
@@ -1060,25 +1066,41 @@ def _create_exam_session(
     now = int(time.time())
     session_id = uuid.uuid4().hex
     category = category.strip() or "Examen personnalisé"
+    effective_pass_score = EXAM_PASS_SCORE if passing_score is None else int(passing_score)
     tree.conn.execute(
         "INSERT INTO exam_sessions "
         "(session_id, category, question_ids, started_at, expires_at, submitted, "
-        "score, passed, correct, total, submitted_at, time_expired, answers_json, details_json) "
-        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]')",
-        (session_id, category, json.dumps([question.id for question in selected]), now, now + time_limit, len(selected)),
+        "score, passed, correct, total, submitted_at, time_expired, answers_json, details_json, "
+        "paused_at, paused_seconds, node_id, exam_type, passing_score, result_json) "
+        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]', NULL, 0, ?, ?, ?, '')",
+        (
+            session_id,
+            category,
+            json.dumps([question.id for question in selected]),
+            now,
+            now + time_limit,
+            len(selected),
+            node_id,
+            exam_type,
+            effective_pass_score,
+        ),
     )
     tree.conn.commit()
     nodes_by_id = {node.id: node for node in nodes}
     return {
         "id": session_id,
         "category": category,
+        "exam_type": exam_type,
+        "node_id": node_id,
         "time_limit": time_limit,
         "duration_seconds": time_limit,
-        "pass_score": EXAM_PASS_SCORE,
+        "pass_score": effective_pass_score,
+        "passing_score": effective_pass_score,
         "requested_count": count,
         "question_count": len(selected),
         "questions": [_exam_public_question(question, nodes_by_id) for question in selected],
     }
+
 
 
 def _bounded_exam_integer(value, name: str, default: int, minimum: int, maximum: int) -> int:
@@ -1130,6 +1152,17 @@ def _grade_exam_question(question: Question, answer: int | str | None) -> dict:
 
 
 def _exam_result_payload(row) -> dict:
+    keys = row.keys() if hasattr(row, "keys") else ()
+    stored_json = row["result_json"] if "result_json" in keys else ""
+    if stored_json:
+        try:
+            stored_result = json.loads(stored_json)
+            if isinstance(stored_result, dict):
+                return stored_result
+        except (TypeError, ValueError, json.JSONDecodeError):
+            # Les anciennes sessions peuvent ne pas contenir de résultat sérialisé.
+            pass
+
     try:
         answers = json.loads(row["answers_json"] or "[]")
     except (TypeError, ValueError, json.JSONDecodeError):
@@ -1144,7 +1177,11 @@ def _exam_result_payload(row) -> dict:
     paused_seconds = int(row["paused_seconds"] or 0)
     duration = max(0, submitted_at - started_at - paused_seconds)
     duration = min(duration, max(0, expires_at - started_at - paused_seconds))
+    passing_score = int(row["passing_score"] if "passing_score" in keys and row["passing_score"] is not None else EXAM_PASS_SCORE)
+    node_id = row["node_id"] if "node_id" in keys else None
+    exam_type = row["exam_type"] if "exam_type" in keys else "category"
     return {
+        "success": bool(row["submitted"]),
         "session_id": row["session_id"],
         "score": int(row["score"] or 0),
         "passed": bool(row["passed"]),
@@ -1154,10 +1191,14 @@ def _exam_result_payload(row) -> dict:
         "time_expired": bool(row["time_expired"]),
         "answers": answers,
         "details": details,
-        "pass_score": EXAM_PASS_SCORE,
+        "pass_score": passing_score,
+        "passing_score": passing_score,
+        "node_id": node_id,
+        "exam_type": exam_type,
         "submitted": bool(row["submitted"]),
         "offline": False,
     }
+
 
 
 @app.post("/api/exam/build")
@@ -1182,11 +1223,11 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
         raise HTTPException(422, "Identifiant de session manquant ou invalide.")
     row = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
     if row is None:
-        raise HTTPException(404, "Session d'examen introuvable.")
+        raise HTTPException(404, "Session d’examen introuvable.")
     if row["submitted"]:
         return _exam_result_payload(row)
     if row["paused_at"] is not None:
-        raise HTTPException(409, "L'examen est en pause. Reprends-le avant de le terminer.")
+        raise HTTPException(409, "L’examen est en pause. Reprends-le avant de le terminer.")
 
     try:
         raw_ids = json.loads(row["question_ids"] or "[]")
@@ -1198,36 +1239,114 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
         raise HTTPException(422, "Les réponses doivent être envoyées sous forme de liste.")
     if len(raw_answers) > len(questions):
         raise HTTPException(422, "Le nombre de réponses dépasse le nombre de questions.")
-    answers = [_sanitize_exam_answer(q, raw_answers[i] if i < len(raw_answers) else None) for i, q in enumerate(questions)]
+    answers = [
+        _sanitize_exam_answer(question, raw_answers[index] if index < len(raw_answers) else None)
+        for index, question in enumerate(questions)
+    ]
+
+    node_id = row["node_id"]
+    exam_type = str(row["exam_type"] or "category")
+    course_node: Node | None = None
+    if exam_type == "course":
+        if not isinstance(node_id, str) or not node_id:
+            raise HTTPException(409, "La session d’examen de cours ne contient pas de cours associé.")
+        try:
+            course_node = tree.node(node_id)
+        except DomainError as error:
+            raise HTTPException(409, "Le cours associé à cette session n’existe plus.") from error
+        requirement = course_node.requirement(ProofKind.EXAM)
+        if requirement is None:
+            raise HTTPException(409, "Le cours ne possède plus d’exigence d’examen.")
+        if any(question.node_id != node_id or question.scope is not ProofKind.EXAM for question in questions):
+            raise HTTPException(409, "Les questions ne correspondent pas à la banque d’examen de ce cours.")
+        passing_score = int(requirement.min_score)
+    else:
+        if node_id:
+            raise HTTPException(409, "Le périmètre de cette session d’examen est incohérent.")
+        passing_score = int(row["passing_score"] if row["passing_score"] is not None else EXAM_PASS_SCORE)
 
     now = int(time.time())
     expires_at = int(row["expires_at"])
     too_late = now > expires_at + EXAM_SUBMIT_GRACE_SECONDS
     timed_out = now >= expires_at or too_late
     if too_late:
-        # Après le délai réseau de grâce, aucune réponse reçue tardivement n'est retenue.
+        # Après le délai réseau de grâce, aucune réponse reçue tardivement n’est retenue.
         answers = [None] * len(questions)
 
     details = [_grade_exam_question(question, answers[index]) for index, question in enumerate(questions)]
     correct = sum(1 for item in details if item["correct"])
     total = len(questions)
     score = round(100 * correct / total) if total else 0
-    passed = score >= EXAM_PASS_SCORE
+    passed = score >= passing_score
     submitted_at = min(now, expires_at) if timed_out else now
-    stored_answers = json.dumps(answers, ensure_ascii=False)
-    stored_details = json.dumps(details, ensure_ascii=False)
+    started_at = int(row["started_at"] or submitted_at)
+    paused_seconds = int(row["paused_seconds"] or 0)
+    duration = max(0, submitted_at - started_at - paused_seconds)
+    duration = min(duration, max(0, expires_at - started_at - paused_seconds))
+
+    result = {
+        "success": True,
+        "session_id": session_id,
+        "score": score,
+        "passed": passed,
+        "correct": correct,
+        "total": total,
+        "duration": duration,
+        "time_expired": bool(timed_out),
+        "answers": answers,
+        "details": details,
+        "pass_score": passing_score,
+        "passing_score": passing_score,
+        "node_id": node_id,
+        "exam_type": exam_type,
+        "submitted": True,
+        "offline": False,
+        "submitted_at": submitted_at,
+    }
+
+    if course_node is not None:
+        try:
+            _attempt, validated = tree.record(
+                course_node.id,
+                ProofKind.EXAM,
+                score,
+                passed,
+                evidence=json.dumps(
+                    {"session_id": session_id, "question_ids": [question.id for question in questions]},
+                    ensure_ascii=False,
+                ),
+                detail=f"Examen : {correct}/{total} bonnes réponses",
+            )
+        except DomainError as error:
+            raise HTTPException(409, str(error)) from error
+        result["validated"] = validated
+        result["status"] = tree.status(course_node.id).value
+        result["xp_gained"] = (tree.last_reward or {}).get("xp", 0)
+        result["badges_unlocked"] = tree.last_badges
+
     cursor = tree.conn.execute(
         "UPDATE exam_sessions SET submitted = 1, score = ?, passed = ?, correct = ?, total = ?, "
-        "submitted_at = ?, time_expired = ?, answers_json = ?, details_json = ?, paused_at = NULL "
-        "WHERE session_id = ? AND submitted = 0 AND paused_at IS NULL",
-        (score, int(passed), correct, total, submitted_at, int(timed_out), stored_answers, stored_details, session_id),
+        "submitted_at = ?, time_expired = ?, answers_json = ?, details_json = ?, passing_score = ?, "
+        "result_json = ?, paused_at = NULL WHERE session_id = ? AND submitted = 0 AND paused_at IS NULL",
+        (
+            score,
+            int(passed),
+            correct,
+            total,
+            submitted_at,
+            int(timed_out),
+            json.dumps(answers, ensure_ascii=False),
+            json.dumps(details, ensure_ascii=False),
+            passing_score,
+            json.dumps(result, ensure_ascii=False),
+            session_id,
+        ),
     )
     tree.conn.commit()
     if getattr(cursor, "rowcount", 1) == 0:
-        row = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
-        return _exam_result_payload(row)
-    row = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
-    return _exam_result_payload(row)
+        latest = tree.conn.execute("SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)).fetchone()
+        return _exam_result_payload(latest)
+    return result
 
 
 @app.post("/api/exam/pause")
@@ -1290,20 +1409,70 @@ def exam_resume(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
 
 @app.post("/api/exam/start")
 def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
-    """Alias de compatibilité : démarre un examen sur une catégorie, sans dévoiler le corrigé."""
-    category = str(payload.get("category") or "").strip()
-    if not category:
-        raise HTTPException(422, "Catégorie d'examen manquante.")
+    """Démarre un examen blanc par catégorie ou l’examen dédié à un cours."""
+    if not isinstance(payload, dict):
+        raise HTTPException(422, "Un objet JSON est attendu.")
+
+    requested_node_id = payload.get("node_id")
+    if requested_node_id is not None:
+        if not isinstance(requested_node_id, str) or not requested_node_id.strip():
+            raise HTTPException(422, "node_id manquant ou invalide.")
+        try:
+            node = tree.node(requested_node_id.strip())
+        except DomainError as error:
+            raise HTTPException(404, str(error)) from error
+        requirement = node.requirement(ProofKind.EXAM)
+        if requirement is None:
+            raise HTTPException(409, "Ce cours ne possède pas d’exigence d’examen dédiée.")
+        try:
+            tree.playable(node.id)
+        except DomainError as error:
+            raise HTTPException(409, str(error)) from error
+
+        # Cet examen utilise exclusivement la banque dédiée du cours demandé.
+        # Le lecteur actuel rend les QCM ; les questions texte/terminal restent dans le centre avancé.
+        question_pool = [
+            question
+            for question in tree.questions(node.id, ProofKind.EXAM)
+            if question.question_type == "qcm"
+        ]
+        if not question_pool:
+            raise HTTPException(422, "Aucune question QCM d’examen dédiée n’est disponible pour ce cours.")
+        return _create_exam_session(
+            tree,
+            [node],
+            count=EXAM_QUESTION_COUNT,
+            time_limit=EXAM_DURATION_SECONDS,
+            category=node.title,
+            question_pool=question_pool,
+            node_id=node.id,
+            exam_type="course",
+            passing_score=requirement.min_score,
+        )
+
+    category = payload.get("category")
+    if not isinstance(category, str) or not category.strip():
+        raise HTTPException(422, "Catégorie d’examen manquante ou invalide.")
+    category = category.strip()
     nodes = [node for node in tree.nodes() if node.category == category]
     if not nodes:
-        raise HTTPException(422, "Aucun cours disponible pour cette catégorie.")
+        raise HTTPException(404, "Catégorie d’examen introuvable.")
+
+    # L’onglet Mode examen présente les questions sous forme de QCM.
+    question_pool = [
+        question
+        for question in _exam_question_pool(tree, nodes)
+        if question.question_type == "qcm"
+    ]
     return _create_exam_session(
         tree,
         nodes,
         count=EXAM_QUESTION_COUNT,
         time_limit=EXAM_DURATION_SECONDS,
         category=category,
+        question_pool=question_pool,
     )
+
 
 @app.post("/api/tutor")
 def tutor_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
