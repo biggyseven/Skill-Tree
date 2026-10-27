@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Gestion des fournisseurs » ?",
+      "prompt": "Comment segmenter les fournisseurs ?",
       "choices": [
-        "Le sujet principal du cours : Gestion des fournisseurs",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Selon criticité, substituabilité, dépendances, accès et conséquences d'une défaillance",
+        "Uniquement selon ordre alphabétique",
+        "Uniquement selon la taille de facture",
+        "Selon le nombre de réunions"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La segmentation permet d'adapter le niveau de gouvernance et de diligence au risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que prouve le respect d'un SLA de prise en charge ?",
+      "choices": [
+        "Que le service est nécessairement rétabli",
+        "Que le délai défini pour la prise en charge a été respecté, pas forcément le résultat de bout en bout",
+        "Que toutes les actions correctives sont efficaces",
+        "Que la qualité de données est complète"
+      ],
+      "answer": 1,
+      "explanation": "Les étapes intermédiaires doivent être distinguées du rétablissement du service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve faut-il examiner dans un rapport de sécurité du fournisseur ?",
+      "choices": [
+        "La couverture marketing globale uniquement",
+        "Le logo d'une certification",
+        "L'entité, les services, la période, les exclusions et les sous-traitants couverts",
+        "Uniquement le nombre de pages"
+      ],
+      "answer": 2,
+      "explanation": "La portée et les limites de la preuve déterminent ce qui peut être conclu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment clôturer une action d'amélioration ?",
+      "choices": [
+        "Dès qu'un rendez-vous a eu lieu",
+        "Quand le fournisseur affirme que tout va bien",
+        "Quand le statut est vert",
+        "Après preuve de réalisation et test de l'efficacité convenue"
+      ],
+      "answer": 3,
+      "explanation": "Il faut vérifier le résultat au regard de critères prédéfinis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que révèle un risque de concentration ?",
+      "choices": [
+        "Une dépendance à un fournisseur, sous-traitant, technologie ou région commune",
+        "Une hausse automatique de la qualité",
+        "Une réduction certaine des coûts",
+        "La bonne qualité du SLA"
+      ],
+      "answer": 0,
+      "explanation": "Les dépendances communes peuvent provoquer des défaillances corrélées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire lorsqu'un sous-traitant sensible change de région ?",
+      "choices": [
+        "Supposer que le contrat n'est pas affecté",
+        "Examiner les obligations, les données, les contrôles et le processus de notification",
+        "Supprimer le registre de risque",
+        "Renouveler automatiquement le contrat"
+      ],
+      "answer": 1,
+      "explanation": "Une modification de chaîne de service peut changer le risque et exiger une décision habilitée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert la revue stratégique fournisseur ?",
+      "choices": [
+        "À reclasser tous les tickets",
+        "À discuter seulement la satisfaction",
+        "À examiner performance, coûts, risques, contrats, capacité et évolution du besoin",
+        "À remplacer la revue opérationnelle"
+      ],
+      "answer": 2,
+      "explanation": "La revue stratégique traite les décisions de moyen terme et les risques structurels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit comporter une procédure d'escalade ?",
+      "choices": [
+        "Uniquement le nom du commercial",
+        "Uniquement une boîte générique",
+        "Un message non chronométré",
+        "Niveaux, déclencheurs, décideurs, délais, preuves et mesures de mitigation"
+      ],
+      "answer": 3,
+      "explanation": "Une escalade prédéfinie évite les retards et les décisions informelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une bonne préparation de renouvellement ?",
+      "choices": [
+        "Évaluer tôt performance, coût complet, marché, risques et sortie",
+        "Attendre la dernière semaine",
+        "Renouveler si aucun incident n'a été signalé",
+        "Comparer seulement les prix annuels"
+      ],
+      "answer": 0,
+      "explanation": "La décision doit considérer le cycle de vie et les alternatives réalistes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit prévoir une réversibilité ?",
+      "choices": [
+        "La suppression immédiate de toutes les données",
+        "Le transfert vérifiable des données, configurations, documentation, responsabilités et accès",
+        "Une simple lettre de fin de contrat",
+        "Le maintien permanent des accès fournisseur"
+      ],
+      "answer": 1,
+      "explanation": "La sortie doit permettre un transfert contrôlé et une clôture sûre des accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle source est la plus utile pour vérifier un KPI fournisseur contesté ?",
+      "choices": [
+        "Une présentation commerciale",
+        "Une promesse orale",
+        "La définition contractuelle et les données sources rapprochées de la méthode de calcul",
+        "Un classement non documenté"
+      ],
+      "answer": 2,
+      "explanation": "Un résultat doit être reproductible et relié au contrat ou au dictionnaire du KPI."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter un écart dont les causes impliquent aussi une équipe interne ?",
+      "choices": [
+        "Attribuer automatiquement toute responsabilité au fournisseur",
+        "Cacher les délais internes",
+        "Ignorer l'incident dans le tableau de bord",
+        "Reconstituer la chronologie de bout en bout et distinguer les responsabilités vérifiées"
+      ],
+      "answer": 3,
+      "explanation": "Le but est de réduire le risque opérationnel, non de déplacer arbitrairement le blâme."
     }
   ]
 }
