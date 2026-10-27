@@ -1,18 +1,102 @@
 {
   "node_id": "ot-scada-expert",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Comment hiérarchiser une menace cyber dans un environnement OT ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "En se fondant uniquement sur le score CVSS, sans contexte",
+        "En donnant toujours la priorité à l’actif le plus récent",
+        "En prenant en compte l’accès plausible, les conséquences sur le procédé et les personnes, la sûreté, l’environnement, la production et les contrôles existants",
+        "En classant les incidents uniquement selon le volume de paquets"
+      ],
+      "answer": 2,
+      "explanation": "Les critères informatiques constituent un signal, mais la priorité OT doit intégrer les conséquences cyberphysiques, l’exposition, les conditions du procédé et les mesures compensatoires. Les propriétaires opérationnels doivent participer à la décision."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi servent les conduits dans une architecture OT fondée sur zones et conduits ?",
+      "choices": [
+        "À convertir automatiquement Modbus en PROFINET",
+        "À définir et contrôler les communications entre zones, avec des règles qui correspondent aux besoins du procédé",
+        "À stocker les sauvegardes des automates",
+        "À désactiver toutes les fonctions de maintenance"
+      ],
+      "answer": 1,
+      "explanation": "Les conduits formalisent les échanges nécessaires entre zones et les contrôles qui les limitent. Ils doivent inclure les flux de commande, de supervision, d’administration, de maintenance et les dépendances de temps selon l’architecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un automate reçoit une écriture de commande anormale. Quelle première démarche d’investigation est la plus appropriée ?",
+      "choices": [
+        "Envoyer des écritures de test vers l’automate pour voir ce qui se passe",
+        "Redémarrer tout le réseau de contrôle sans coordination",
+        "Effacer les journaux du poste d’ingénierie",
+        "Préserver les journaux et captures disponibles, réduire le risque selon le plan d’intervention approuvé et coordonner l’analyse avec les responsables du procédé"
+      ],
+      "answer": 3,
+      "explanation": "Une écriture de commande peut avoir un effet physique. L’investigation doit préserver les preuves et privilégier des actions autorisées, avec une évaluation opérationnelle avant d’isoler ou d’arrêter les composants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe devrait guider l’ordre de restauration après un incident OT majeur ?",
+      "choices": [
+        "Restaurer d’abord les dépendances essentielles et les fonctions selon un plan validé, en vérifiant l’intégrité et l’état sûr avant de réintroduire les connexions",
+        "Reconnecter tous les réseaux simultanément pour gagner du temps",
+        "Restaurer uniquement le serveur SCADA sans vérifier les contrôleurs",
+        "Réactiver tous les accès distants avant d’examiner les sauvegardes"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "La reprise doit suivre les dépendances et les priorités de sécurité définies : sauvegardes fiables, contrôles et services de base, puis fonctions selon l’ordre approuvé. Les tests de sécurité et de fonctionnement sont requis avant le retour à la normale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la détection OT devrait-elle corréler l’inventaire, le comportement réseau, les journaux et les événements du procédé ?",
+      "choices": [
+        "Pour multiplier les alertes sans les hiérarchiser",
+        "Pour remplacer les opérateurs par des règles automatiques",
+        "Parce qu’un seul signal réseau prouve toujours qu’une attaque a eu lieu",
+        "Parce qu’une variation de trafic peut être une maintenance légitime ou un événement de procédé ; la corrélation apporte du contexte pour juger l’écart"
+      ],
+      "answer": 3,
+      "explanation": "Un flux nouveau n’est pas nécessairement malveillant et un incident peut ne produire qu’un faible signal réseau. La corrélation des sources et le contexte de maintenance/procédé aident à distinguer les événements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche est la plus adaptée pour gérer une vulnérabilité OT lorsque le correctif pourrait interrompre une opération critique ?",
+      "choices": [
+        "Reporter indéfiniment sans évaluer l’exposition",
+        "Évaluer le risque, tester la correction dans un environnement représentatif, convenir d’une fenêtre approuvée et mettre en place des mesures compensatoires entre-temps",
+        "Appliquer le correctif directement sans sauvegarde ni plan de retour",
+        "Désactiver tous les contrôles de sécurité pour maintenir la production"
+      ],
+      "answer": 1,
+      "explanation": "Les mises à jour doivent prendre en compte la disponibilité et les conséquences sur le procédé. La validation, la coordination du changement, les mesures temporaires et un plan de retour arrière sont essentiels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus solide qu’un système OT est réellement récupérable après un incident ?",
+      "choices": [
+        "L’existence d’un fichier de sauvegarde dont personne n’a vérifié le contenu",
+        "Une capture d’écran montrant la sauvegarde terminée",
+        "Une restauration testée dans un cadre autorisé, avec versions et dépendances vérifiées et validation opérationnelle du comportement attendu",
+        "Le fait qu’un serveur de supervision réponde au ping"
+      ],
+      "answer": 2,
+      "explanation": "Une sauvegarde n’est utile que si elle peut être restaurée et correspond à une version cohérente. Il faut valider la procédure et les dépendances sans exposer le procédé de production à un test non autorisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le succès d’un scan de vulnérabilité IT ne prouve-t-il pas que l’évaluation OT est complète ?",
+      "choices": [
+        "Les protocoles, appareils, contraintes de disponibilité et effets des sondes diffèrent ; la méthode doit être adaptée et approuvée par les responsables OT",
+        "Tous les appareils OT sont systématiquement invisibles aux réseaux",
+        "Un scan IT vérifie automatiquement la sûreté physique des machines",
+        "Les systèmes OT n’ont aucune vulnérabilité logicielle"
+      ],
+      "answer": 0,
+      "explanation": "Les tests actifs peuvent affecter des équipements sensibles, et les protocoles ou firmwares industriels peuvent nécessiter des méthodes spécialisées. L’évaluation doit combiner inventaire, exposition, validation prudente et connaissances du procédé."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

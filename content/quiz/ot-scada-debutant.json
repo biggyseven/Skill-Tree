@@ -4,63 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Que fait généralement un PLC ?",
+      "prompt": "Quel est le rôle général d’un PLC/API dans un système industriel ?",
       "choices": [
-        "Exécute une logique de contrôle industriel",
-        "Héberge toujours un site public",
-        "Remplace la DMZ",
-        "Fournit des certificats publics"
+        "Servir uniquement de serveur DNS pour le réseau OT",
+        "Exécuter une logique de commande et interagir avec des entrées/sorties du procédé",
+        "Remplacer le système de sécurité incendie sans conception spécifique",
+        "Stocker uniquement les courriels des opérateurs"
       ],
-      "answer": 0,
-      "explanation": "Le PLC pilote le procédé à partir des entrées et de sa logique."
+      "answer": 1,
+      "explanation": "Le PLC/API exécute un programme de commande qui traite des entrées et pilote des sorties selon la conception. Ses actions peuvent influencer des équipements physiques, d’où la nécessité d’évaluer les changements avec l’exploitation."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle d'une HMI/IHM ?",
+      "prompt": "Quelle fonction décrit le mieux une HMI/IHM ?",
       "choices": [
-        "Interface opérateur",
-        "Câble fibre",
-        "Protocole de routage",
-        "Pare-feu périmétrique"
+        "Chiffrer automatiquement tous les protocoles industriels",
+        "Piloter seule tous les mécanismes de sûreté fonctionnelle",
+        "Remplacer tous les automates de terrain",
+        "Présenter à l’opérateur des états, mesures, alarmes et commandes autorisées"
       ],
-      "answer": 0,
-      "explanation": "L'HMI permet de surveiller le système et d'interagir avec lui."
+      "answer": 3,
+      "explanation": "L’IHM donne une interface opérateur pour visualiser le procédé et lancer des actions permises. Elle ne remplace ni la logique de contrôle des automates ni les fonctions de sécurité conçues indépendamment."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi isoler IT et OT ?",
+      "prompt": "Que désigne généralement SCADA ?",
       "choices": [
-        "Réduire les chemins d'accès et limiter l'impact d'un incident",
-        "Augmenter la puissance radio",
-        "Remplacer les sauvegardes",
-        "Chiffrer tous les protocoles"
+        "Supervisory Control and Data Acquisition : supervision, acquisition de données et commandes autorisées, souvent pour des installations distribuées",
+        "Un format de fichier de configuration Ethernet",
+        "Un système utilisé uniquement pour le chiffrement des disques",
+        "Un protocole de résolution d’adresses IP"
       ],
       "answer": 0,
-      "explanation": "La segmentation réduit les communications non nécessaires."
+      "explanation": "Un système SCADA collecte des données, présente les états et alarmes, et permet certaines commandes supervisées. Il s’intègre avec des équipements de contrôle et de terrain."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi éviter les scans agressifs sur des équipements OT en production ?",
+      "prompt": "Pourquoi la sûreté fonctionnelle et la cybersécurité OT doivent-elles être examinées ensemble ?",
       "choices": [
-        "Ils peuvent perturber des équipements sensibles",
-        "Ils changent toujours les IP",
-        "Ils améliorent les interférences radio",
-        "Ils désactivent toujours les PLC"
+        "Parce qu’elles désignent exactement la même chose",
+        "Parce que la sûreté concerne seulement les mots de passe",
+        "Une action informatique peut modifier le comportement du procédé ; les mesures doivent réduire le risque cyber sans créer un danger opérationnel",
+        "Parce qu’un pare-feu peut garantir à lui seul l’arrêt sûr d’une machine"
       ],
-      "answer": 0,
-      "explanation": "Certains équipements tolèrent mal les requêtes imprévues."
+      "answer": 2,
+      "explanation": "La sûreté traite des conséquences dangereuses pour les personnes, l’environnement et le procédé. Les modifications de configuration, scans ou isolements réseau doivent tenir compte des comportements physiques et des procédures approuvées."
     },
     {
       "type": "qcm",
-      "prompt": "Quel actif conserve typiquement l'historique des mesures ?",
+      "prompt": "Pourquoi séparer les réseaux IT et OT par des zones et des conduits contrôlés ?",
       "choices": [
-        "Historian",
-        "Dial peer",
-        "gNodeB",
-        "Route list"
+        "Pour rendre tous les systèmes OT directement accessibles depuis Internet",
+        "Pour limiter les communications à des flux justifiés et réduire la propagation d’un incident entre environnements",
+        "Pour augmenter automatiquement la vitesse des automates",
+        "Pour supprimer le besoin d’inventaire d’actifs"
+      ],
+      "answer": 1,
+      "explanation": "La segmentation réduit la portée des accès et des incidents. Elle doit être fondée sur les flux nécessaires et validée avec les ingénieurs OT ; un VLAN seul n’est pas une politique de sécurité complète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel actif collecte couramment des mesures et des alarmes de plusieurs systèmes de contrôle sur la durée ?",
+      "choices": [
+        "Un câble fibre optique passif",
+        "Un répartiteur d’alimentation sans fonctions réseau",
+        "Un simple convertisseur cuivre/fibre sans journalisation",
+        "Un serveur historian ou d’historisation"
+      ],
+      "answer": 3,
+      "explanation": "Un historian conserve des séries temporelles de mesures ou d’événements. Les systèmes précis varient selon l’installation ; les fonctions de commande restent normalement dans les contrôleurs et systèmes dédiés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est préférable pour découvrir le comportement d’un réseau OT en production ?",
+      "choices": [
+        "Commencer par un inventaire autorisé et une observation passive adaptée, puis faire approuver tout test actif par les responsables opérationnels",
+        "Lancer un scan agressif de tous les ports sur chaque automate",
+        "Redémarrer chaque équipement pour repérer ses dépendances",
+        "Modifier le programme PLC pour forcer un test"
       ],
       "answer": 0,
-      "explanation": "L'Historian conserve les séries temporelles et événements."
+      "explanation": "L’observation passive et les sources d’inventaire réduisent le risque de perturber des appareils sensibles. Tout test actif doit faire l’objet d’une autorisation, d’une analyse de risque et d’une procédure de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il conserver les sauvegardes des configurations OT et tester leur restauration ?",
+      "choices": [
+        "Pour garantir qu’une panne électrique n’aura jamais de conséquence",
+        "Pour remplacer la nécessité de documenter la logique de contrôle",
+        "Pour accélérer une récupération maîtrisée et vérifier que les fichiers de sauvegarde sont exploitables après un incident",
+        "Pour fournir un accès administrateur permanent au fournisseur"
+      ],
+      "answer": 2,
+      "explanation": "Une sauvegarde non vérifiée peut être incomplète ou inutilisable. Les restaurations doivent être testées dans un cadre approuvé et alignées sur les versions, les dépendances et les procédures propres au procédé."
     }
   ]
 }

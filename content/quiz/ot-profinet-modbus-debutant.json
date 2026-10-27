@@ -1,18 +1,102 @@
 {
   "node_id": "ot-profinet-modbus-debutant",
+  "scope": "quiz",
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avez-vous bien lu ce cours ?",
+      "prompt": "Quel port TCP est couramment utilisé par Modbus TCP traditionnel ?",
       "choices": [
-        "La première proposition",
-        "La deuxième proposition",
-        "Information insuffisante",
-        "Aucune des propositions précédentes"
+        "TCP 443",
+        "TCP 502",
+        "UDP 502",
+        "TCP 802 dans toutes les variantes"
+      ],
+      "answer": 1,
+      "explanation": "Modbus TCP traditionnel utilise habituellement TCP/502. Modbus Security est une variante distincte basée sur TLS qui utilise le port 802 selon les spécifications de Modbus Organization."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une architecture PROFINET IO, quel rôle joue généralement l’IO Controller ?",
+      "choices": [
+        "C’est nécessairement un commutateur passif sans projet d’ingénierie",
+        "Il remplace le programme de chaque capteur",
+        "Il sert uniquement à attribuer des adresses MAC",
+        "Il établit et pilote les relations d’E/S prévues avec les IO Devices configurés"
+      ],
+      "answer": 3,
+      "explanation": "L’IO Controller, souvent un automate, gère les échanges d’E/S avec les périphériques selon le projet d’ingénierie. Les périphériques sont les IO Devices ; l’architecture réelle dépend du système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence entre données cycliques et acycliques PROFINET est correcte ?",
+      "choices": [
+        "Les données cycliques sont échangées à intervalles définis pour les E/S, tandis que les échanges acycliques servent notamment à des paramètres et diagnostics à la demande",
+        "Les données cycliques ne transportent jamais d’E/S",
+        "Les données acycliques sont toujours envoyées toutes les millisecondes",
+        "Les deux termes désignent les trames Modbus RTU"
       ],
       "answer": 0,
-      "explanation": "Question placeholder générée automatiquement."
+      "explanation": "Les données cycliques suivent un cycle configuré pour l’échange d’E/S. Les services acycliques servent notamment à la configuration, aux paramètres et aux diagnostics sans le même rythme cyclique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans Modbus, quelle famille désigne généralement des registres de maintien de 16 bits pouvant être lus et, si autorisé, écrits ?",
+      "choices": [
+        "Discrete Inputs",
+        "Input Registers",
+        "Holding Registers",
+        "Coils uniquement"
+      ],
+      "answer": 2,
+      "explanation": "Les Holding Registers sont généralement des valeurs de 16 bits accessibles à la lecture et à l’écriture par des fonctions adaptées, sous réserve des droits et capacités du serveur. Le mapping réel reste propre à l’équipement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un manuel indique un registre 40001, mais le client doit envoyer un offset 0. Quelle explication est la plus probable ?",
+      "choices": [
+        "Le numéro 40001 est une adresse IP du serveur",
+        "La notation de référence peut être une convention documentaire ; la transaction Modbus transporte souvent une adresse d’offset à base zéro",
+        "Le registre doit être remplacé par le port TCP 40001",
+        "Le client doit modifier l’adresse MAC du contrôleur"
+      ],
+      "answer": 1,
+      "explanation": "Les numéros de référence historiques et l’offset envoyé dans le protocole ne sont pas toujours identiques. Il faut suivre la documentation exacte du fabricant et du logiciel client pour éviter un décalage d’une unité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel fichier aide souvent un outil d’ingénierie à décrire un périphérique PROFINET, ses modules et ses sous-modules ?",
+      "choices": [
+        "Un fichier hosts Windows",
+        "Un journal DNS",
+        "Un certificat TLS du serveur Web",
+        "Un fichier GSDML"
+      ],
+      "answer": 3,
+      "explanation": "Le fichier GSDML décrit les capacités et l’organisation du périphérique pour l’outil d’ingénierie. La version du fichier doit correspondre au périphérique et à l’environnement d’ingénierie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la limite du ping lorsque l’on diagnostique un équipement Modbus ou PROFINET ?",
+      "choices": [
+        "Il vérifie la connectivité IP de base, mais ne prouve pas que le service applicatif ou les relations d’E/S sont opérationnels",
+        "Il prouve toujours que les registres Modbus ont les bonnes valeurs",
+        "Il prouve que l’IO Controller a établi toutes ses relations",
+        "Il identifie automatiquement la cause d’une valeur de registre incorrecte"
+      ],
+      "answer": 0,
+      "explanation": "Une réponse ICMP n’atteste pas que Modbus répond aux codes de fonction attendus, que les données sont bien décodées ou que les relations PROFINET sont établies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas lancer sans autorisation des scans de ports sur des automates en production ?",
+      "choices": [
+        "Parce qu’ils ne disposent jamais d’adresse IP",
+        "Parce que le scan modifie systématiquement tous les registres",
+        "Parce que certaines sondes peuvent perturber ou surcharger des équipements sensibles ; la méthode doit être évaluée et approuvée",
+        "Parce que les scans sont le seul moyen d’assurer la redondance"
+      ],
+      "answer": 2,
+      "explanation": "La charge et le comportement des équipements industriels varient. En production, utilise d’abord les sources d’inventaire et l’observation passive, puis des tests actifs seulement après une évaluation et une autorisation appropriées."
     }
-  ],
-  "scope": "quiz"
+  ]
 }

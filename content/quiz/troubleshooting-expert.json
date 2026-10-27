@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire pour Méthodologie de dépannage - Expert. Avez-vous lu le cours ?",
+      "prompt": "Qu’est-ce qui distingue une hypothèse de dépannage experte d’une simple supposition ?",
       "choices": [
-        "Oui",
-        "Non",
-        "Peut-être",
-        "Je ne sais pas"
+        "Elle explique tous les symptômes sans nécessiter de mesure",
+        "Elle prédit des observations vérifiables et un résultat qui pourrait la réfuter",
+        "Elle accuse immédiatement le dernier équipement modifié",
+        "Elle repose seulement sur l’intuition de l’opérateur"
+      ],
+      "answer": 1,
+      "explanation": "Une hypothèse utile prédit un signal observable et un test discriminant. Les résultats doivent pouvoir augmenter ou réduire sa plausibilité, et non servir seulement à confirmer une intuition."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu’une application est intermittente, que signifie localiser le « premier écart » ?",
+      "choices": [
+        "Trouver le premier appareil affichant un voyant orange",
+        "Redémarrer le composant le plus proche de l’utilisateur",
+        "Comparer des observations corrélées aux points successifs du chemin pour identifier où le trafic ou l’état cesse de correspondre au comportement attendu",
+        "Choisir l’équipement avec le plus grand nombre de compteurs"
+      ],
+      "answer": 2,
+      "explanation": "La capture synchronisée ou les mesures à des points successifs peuvent révéler le premier endroit où les paquets, délais ou états divergent. Il faut contrôler les horloges et éviter de confondre absence de visibilité et perte réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Des retransmissions TCP sont visibles dans une capture. Quelle interprétation est la plus rigoureuse ?",
+      "choices": [
+        "Elles prouvent que le serveur est victime d’une attaque par déni de service",
+        "Elles signifient toujours que la MTU est incorrecte",
+        "Elles indiquent que le DNS renvoie une mauvaise adresse",
+        "Elles signalent qu’un segment ou son acquittement n’a pas été observé dans les délais attendus, mais il faut corréler les deux côtés et les conditions de capture pour localiser la cause"
+      ],
+      "answer": 3,
+      "explanation": "Les retransmissions peuvent être liées à la perte, au délai, à la réorganisation, à l’asymétrie ou au point de capture. Elles constituent un indice, pas une preuve suffisante d’une cause réseau particulière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une application fonctionne par IPv4 mais échoue parfois avec IPv6. Quelle investigation est la plus adaptée ?",
+      "choices": [
+        "Comparer séparément les réponses DNS A/AAAA, les routes, pare-feu, PMTUD et le comportement des clients pour chaque famille d’adresses",
+        "Désactiver IPv6 à l’échelle de toute l’organisation sans mesure",
+        "Modifier le MTU de chaque interface sans vérifier le trajet",
+        "Considérer que les deux familles utilisent nécessairement le même chemin et les mêmes politiques"
       ],
       "answer": 0,
-      "explanation": "Ceci est un quiz généré automatiquement pour éviter les erreurs."
+      "explanation": "IPv4 et IPv6 peuvent emprunter des chemins différents et rencontrer des politiques, DNS ou problèmes de MTU différents. Compare les chemins et observations par famille avant de décider d’un contournement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour distinguer une cause racine d’un déclencheur dans un incident intermittent, quel raisonnement est le plus utile ?",
+      "choices": [
+        "Le déclencheur est toujours la cause racine",
+        "La cause racine est simplement le premier journal apparu",
+        "Le déclencheur est l’événement qui rend le défaut visible ; la cause racine explique la condition sous-jacente qui a permis la défaillance",
+        "Une cause racine ne peut jamais être vérifiée par une reproduction"
+      ],
+      "answer": 2,
+      "explanation": "Une modification ou une hausse de charge peut déclencher une panne qui dépendait déjà d’une faiblesse latente. La cause racine doit expliquer le mécanisme et être confortée par des preuves, idéalement par une reproduction contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque peut créer la modification aveugle des paramètres d’offload d’une carte réseau pendant une capture ?",
+      "choices": [
+        "Un changement de DNS automatique pour toutes les applications",
+        "La capture peut refléter différemment les segments, sommes de contrôle ou tailles de paquets que ceux effectivement vus sur le fil ; il faut connaître le point et les effets de l’offload",
+        "L’arrêt obligatoire de BGP dans le réseau",
+        "La suppression automatique des journaux du pare-feu"
+      ],
+      "answer": 1,
+      "explanation": "Les mécanismes d’offload peuvent influencer ce que voit une capture effectuée sur l’hôte. Compare, si autorisé, une capture à un point externe et documente l’état des offloads plutôt que d’interpréter tout checksum incorrect comme une erreur sur le réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les percentiles comme p95/p99 sont-ils utiles en complément de la latence moyenne ?",
+      "choices": [
+        "Ils remplacent la nécessité d’horodater les mesures",
+        "Ils garantissent qu’aucun utilisateur n’aura de dégradation",
+        "Ils mesurent toujours le délai unidirectionnel sans synchronisation",
+        "Ils révèlent des queues de distribution et des pointes qui peuvent être masquées par la moyenne"
+      ],
+      "answer": 3,
+      "explanation": "Une moyenne peut rester stable alors que les requêtes les plus lentes se dégradent fortement. Les percentiles doivent être associés à une population, une période, une méthode et un trajet de mesure clairement définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel dossier aide le mieux à valider la résolution d’un incident complexe ?",
+      "choices": [
+        "Un dossier horodaté contenant symptôme, périmètre, preuves avant/après, changements réalisés, tests de non-régression, limites et cause validée ou incertitudes restantes",
+        "Une note « c’est réparé » sans preuve",
+        "Un screenshot d’une seule commande, sans contexte",
+        "La suppression des traces qui contredisent l’hypothèse retenue"
+      ],
+      "answer": 0,
+      "explanation": "Le compte rendu doit permettre à un autre opérateur de comprendre ce qui a été observé, pourquoi la cause est retenue, quels changements ont été effectués et comment le service a été validé."
     }
   ]
 }
