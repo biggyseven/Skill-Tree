@@ -41,11 +41,11 @@ class SecurityBaselineTests(unittest.TestCase):
         quality = (root / ".github" / "workflows" / "quality-checks.yml").read_text(encoding="utf-8")
         publisher = (root / ".github" / "workflows" / "publish-lab-bundle.yml").read_text(encoding="utf-8")
 
-        self.assertIn("permissions:\\n  contents: read", quality)
+        self.assertIn("permissions:\n  contents: read", quality)
         self.assertNotIn("contents: write", quality)
         self.assertNotIn("Publish generated static bundle", quality)
         self.assertIn('branches: ["feature/lab-workspace"]', publisher)
-        self.assertIn("pull_request:", publisher) is False
+        self.assertNotIn("pull_request:", publisher)
         self.assertIn("contents: write", publisher)
 
     def test_unapproved_origin_receives_no_cors_grant_and_security_headers_are_present(self) -> None:
