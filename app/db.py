@@ -560,7 +560,7 @@ def get_user_stats(conn: sqlite3.Connection) -> dict:
     return {"total_xp": total_xp, "coins": coins, **info}
 
 
-def add_xp(conn: sqlite3.Connection, amount: int, coins: int = 0) -> dict:
+def add_xp(conn: sqlite3.Connection, amount: int, coins: int = 0, *, commit: bool = True) -> dict:
     amount = max(0, int(amount))
     coins = max(0, int(coins))
     # Ne pas interrompre une transaction englobante (ex. soumission d'un lab).
@@ -573,11 +573,12 @@ def add_xp(conn: sqlite3.Connection, amount: int, coins: int = 0) -> dict:
         "UPDATE user_stats SET total_xp = ?, current_level = ?, coins = ? WHERE id = 1",
         (total_xp, info["current_level"], total_coins),
     )
-    conn.commit()
+    if commit:
+        conn.commit()
     return get_user_stats(conn)
 
 
-def award_attempt_xp(conn: sqlite3.Connection, kind: object, passed: bool = True) -> dict | None:
+def award_attempt_xp(conn: sqlite3.Connection, kind: object, passed: bool = True, *, commit: bool = True) -> dict | None:
     if not passed:
         return None
     kind_value = str(getattr(kind, "value", kind))
@@ -593,7 +594,7 @@ def award_attempt_xp(conn: sqlite3.Connection, kind: object, passed: bool = True
     coins = int(round(base_coins * multiplier))
     
     before = get_user_stats(conn)
-    stats = add_xp(conn, xp, coins)
+    stats = add_xp(conn, xp, coins, commit=commit)
     
     return {
         "xp": xp,
