@@ -1139,23 +1139,43 @@ Routeur1 ---- Serveur1</code></pre>
 });
 
 
-test('le titre et les actions du tableau de bord ne se chevauchent pas sur mobile', async ({ page }) => {
+test('le titre et le menu Actions sont alignés, et le menu contient les commandes mobiles', async ({ page }) => {
   await openDashboard(page);
   await page.setViewportSize({ width: 390, height: 844 });
 
-  await expect(page.locator('header.app-main-header')).toBeVisible();
+  const header = page.locator('header.app-main-header');
+  const title = header.locator('h2');
+  const trigger = header.locator('.mobile-header-menu-trigger');
+  await expect(header).toBeVisible();
+  await expect(title).toBeVisible();
+  await expect(trigger).toBeVisible();
+
   await expect.poll(async () => page.evaluate(() => {
-    const header = document.querySelector('header.app-main-header');
-    const title = header?.querySelector('h2');
-    const directDivs = Array.from(header?.children || []).filter(element => element.tagName === 'DIV');
-    const actions = directDivs[directDivs.length - 1];
-    if (!header || !title || !actions) return false;
-    const titleBox = title.getBoundingClientRect();
-    const actionsBox = actions.getBoundingClientRect();
-    return titleBox.bottom <= actionsBox.top + 2
-      && titleBox.left >= header.getBoundingClientRect().left
-      && titleBox.right <= header.getBoundingClientRect().right + 1;
+    const headerEl = document.querySelector('header.app-main-header');
+    const titleEl = headerEl?.querySelector('h2');
+    const triggerEl = headerEl?.querySelector('.mobile-header-menu-trigger');
+    if (!headerEl || !titleEl || !triggerEl) return false;
+    const titleBox = titleEl.getBoundingClientRect();
+    const triggerBox = triggerEl.getBoundingClientRect();
+    const titleCenter = titleBox.top + titleBox.height / 2;
+    const triggerCenter = triggerBox.top + triggerBox.height / 2;
+    return Math.abs(titleCenter - triggerCenter) <= 14
+      && titleBox.right <= triggerBox.left
+      && titleBox.left >= headerEl.getBoundingClientRect().left
+      && triggerBox.right <= headerEl.getBoundingClientRect().right + 1;
   }), { timeout: 10_000 }).toBe(true);
+
+  const menu = page.locator('#mobile-header-action-items');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await trigger.click();
+  await expect(menu).toBeVisible();
+
+  for (const label of ['Rechercher un cours', 'Atelier libre', 'Thème', 'Notifications', 'Profil', 'Paramètres']) {
+    await expect(menu.locator('.mobile-action-label').filter({ hasText: label }).last()).toBeVisible();
+  }
+  await expect(menu.locator('.mobile-header-summary')).toBeVisible();
+  await trigger.click();
+  await expect(menu).toBeHidden();
 });
 
 test('les bibliothèques affichent de nombreux modèles d’équipements et de câbles distincts', async ({ page }) => {
