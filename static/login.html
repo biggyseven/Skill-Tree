@@ -45,6 +45,21 @@
       const button = document.getElementById('submit');
       const message = document.getElementById('message');
       const setup = document.getElementById('setup');
+      const requestedDestination = new URLSearchParams(window.location.search).get('next') || '/';
+      const destination = (() => {
+        try {
+          const candidate = new URL(requestedDestination, window.location.origin);
+          if (
+            candidate.origin !== window.location.origin ||
+            candidate.pathname === '/login.html' ||
+            candidate.pathname.startsWith('/api/auth/')
+          ) return '/';
+          return candidate.pathname + candidate.search + candidate.hash;
+        } catch (_) {
+          return '/';
+        }
+      })();
+      const goToDestination = () => window.location.replace(destination);
       const showSetup = text => {
         setup.textContent = text;
         setup.style.display = 'block';
@@ -57,7 +72,7 @@
         })
         .then(status => {
           if (!status.required || status.authenticated) {
-            window.location.replace('/');
+            goToDestination();
             return;
           }
           if (!status.configured) {
@@ -88,7 +103,7 @@
           button.textContent = 'Ouverture du tableau de bord…';
           message.style.color = '#86efac';
           message.textContent = 'Connexion réussie. Ouverture de ton parcours…';
-          window.location.replace('/');
+          goToDestination();
         } catch (error) {
           message.textContent = error.message || 'Échec de la connexion.';
           input.select();
