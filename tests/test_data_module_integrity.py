@@ -1,9 +1,13 @@
 import json
 import re
 import unittest
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from app.db import connect, ensure_ready
 EXPECTED = {
     "data-bases-debutant", "data-sql-1-debutant", "data-modelisation-debutant",
     "data-sql-2-debutant", "data-normalisation-debutant", "data-sql-pratique-debutant",
@@ -63,6 +67,19 @@ class DataModuleIntegrityTests(unittest.TestCase):
                 self.assertLess(question["answer"], len(choices), f"{path.name}, Q{index}")
                 self.assertGreaterEqual(len(question.get("explanation", "").strip()), 10,
                                         f"{path.name}, Q{index}")
+
+    def test_fresh_sqlite_database_loads_forward_prerequisites(self):
+        conn = connect(":memory:")
+        try:
+            ensure_ready(conn)
+            loaded_ids = {row["id"] for row in conn.execute("SELECT id FROM nodes")}
+            self.assertEqual(set(self.by_id), loaded_ids)
+            self.assertEqual(18, sum(node_id.startswith("data-") for node_id in loaded_ids))
+            for node in self.data_nodes.values():
+                for prerequisite in node.get("prereqs", []):
+                    self.assertIn(prerequisite, loaded_ids)
+        finally:
+            conn.close()
 
     def test_dashboard_exposes_and_routes_the_data_module(self):
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")

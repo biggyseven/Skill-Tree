@@ -280,7 +280,7 @@ class SkillTree:
         self.conn.commit()
         touch_daily_streak(self.conn)
         self.last_reward = award_attempt_xp(self.conn, kind) if passed else None
-        self.last_badges = check_badges(self)
+        self.last_badges = self.check_badges(node_id, kind, passed, score)
         attempt = Attempt(
             id=cursor.lastrowid,
             node_id=node_id,

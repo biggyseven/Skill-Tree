@@ -1,18 +1,21 @@
-name: Data module integrity
+name: Data module integrity and browser journey
 
 on:
   push:
     branches:
-      - feat/data-db-module-main-integration-20261027
+      - main
+      - fix/data-module-browser-journey-20261027
   pull_request:
     branches:
       - main
     paths:
+      - "app/api.py"
       - "content/nodes.json"
       - "content/lessons/**"
       - "content/quiz/**"
       - "static/index.html"
       - "tests/test_data_module_integrity.py"
+      - "tests/test_data_module_browser.py"
       - ".github/workflows/data-module-integrity.yml"
 
 jobs:
@@ -28,3 +31,40 @@ jobs:
           python-version: "3.12"
       - name: Run data module integrity tests
         run: python tests/test_data_module_integrity.py
+
+  browser:
+    name: Test real Data course and quiz journey
+    runs-on: ubuntu-latest
+    env:
+      SKILLTREE_BASE_URL: http://127.0.0.1:8000
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install application and browser dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt playwright
+          python -m playwright install --with-deps chromium
+      - name: Start the application with an isolated database
+        run: |
+          export SKILLTREE_DB="$RUNNER_TEMP/skilltree-data-browser.db"
+          python -m uvicorn app.api:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/skilltree-data-api.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/skilltree-data-api.pid"
+          for attempt in $(seq 1 60); do
+            if curl --silent --fail "$SKILLTREE_BASE_URL/api/tree" > /dev/null; then
+              echo "Skill Tree API is ready."
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/skilltree-data-api.log"
+          exit 1
+      - name: Run full Data module browser journey
+        run: python tests/test_data_module_browser.py
+      - name: Show application logs on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP/skilltree-data-api.log"

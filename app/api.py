@@ -262,6 +262,31 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
         "challenge": {"prompt": node.description, "time_limit": challenge["time_limit"]} if challenge else None,
     }
 
+@app.get("/api/node/{node_id}/quiz")
+def read_quiz(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
+    """Expose les questions d'un quiz sans publier les réponses attendues."""
+    node = _get_node(tree, node_id)
+    if not any(requirement.kind == ProofKind.QUIZ for requirement in node.requirements):
+        raise HTTPException(404, "Aucun quiz n'est associé à ce cours.")
+
+    questions = tree.questions(node_id, ProofKind.QUIZ)
+    if not questions:
+        raise HTTPException(404, "Quiz indisponible pour ce cours.")
+
+    return {
+        "node_id": node.id,
+        "questions": [
+            {
+                "id": question.id,
+                "prompt": question.prompt,
+                "choices": list(question.choices),
+                "type": question.question_type,
+            }
+            for question in questions
+        ],
+    }
+
+
 @app.post("/api/node/{node_id}/quiz")
 def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
     node = tree.playable(node_id)
