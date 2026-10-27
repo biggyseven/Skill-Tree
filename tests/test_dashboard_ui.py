@@ -1092,5 +1092,15 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Dernière leçon du module", DASHBOARD_HTML)
 
 
+    def test_exam_submission_uses_server_result_and_displays_server_threshold(self):
+        start = DASHBOARD_HTML.index("        async submitExam(auto)")
+        end = DASHBOARD_HTML.index("        resetExam() { this.stopExamTimer()", start)
+        submit_method = DASHBOARD_HTML[start:end]
+        self.assertIn("Impossible de corriger l’examen côté serveur", submit_method)
+        self.assertIn("Les réponses sont conservées", submit_method)
+        self.assertNotIn("gradeLocally", DASHBOARD_HTML)
+        self.assertIn("examResult.passing_score || examResult.pass_score", DASHBOARD_HTML)
+        self.assertNotIn("Examen non validé (70 % requis)", DASHBOARD_HTML)
+
 if __name__ == "__main__":
     unittest.main()

@@ -1792,7 +1792,7 @@
             <div class="card text-center" :class="examResult.passed ? '!border-emerald-400/30' : '!border-rose-400/30'">
               <p class="text-4xl" x-text="examResult.passed ? '🎉' : '💪'"></p>
               <p class="mt-2 font-mono text-6xl font-semibold text-white" x-text="examResult.score + ' %'"></p>
-              <p class="mt-2 text-lg font-bold" :class="examResult.passed ? 'text-emerald-400' : 'text-rose-400'" x-text="examResult.passed ? 'Examen réussi' : 'Examen non validé (70 % requis)'"></p>
+              <p class="mt-2 text-lg font-bold" :class="examResult.passed ? 'text-emerald-400' : 'text-rose-400'" x-text="examResult.passed ? 'Examen réussi' : 'Examen non validé (' + (examResult.passing_score || examResult.pass_score || exam?.passing_score || exam?.pass_score || 70) + ' % requis)'"></p>
               <p class="mt-1 text-sm text-zinc-400" x-text="examResult.correct + ' / ' + examResult.total + ' bonnes réponses · ' + fmtClock(examResult.duration) + (examResult.auto ? ' · temps écoulé' : '')"></p>
               <div class="mt-5 flex flex-wrap justify-center gap-2"><button type="button" class="btn btn-primary" @click="launchExam(exam.cfg)">Refaire un examen</button><button type="button" class="btn" @click="resetExam()">Retour au centre d'examens</button><button type="button" class="btn" @click="resetExam(); setTab('rewards')">Voir mes diplômes</button></div>
             </div>
@@ -5660,26 +5660,63 @@
         },
         startExamTimer() { this.stopExamTimer(); this.examTimerId = setInterval(() => { this.examLeft--; if (this.examLeft <= 0) this.submitExam(true); }, 1000); },
         stopExamTimer() { if (this.examTimerId) { clearInterval(this.examTimerId); this.examTimerId = null; } },
-        gradeLocally() {
-          const qs = this.exam.questions; if (!qs.every(q => typeof q.answer === 'number')) return null;
-          const details = qs.map((q, i) => ({ correct: this.examAnswers[i] === q.answer, answer: q.answer, explanation: q.explanation || '' }));
-          const correct = details.filter(d => d.correct).length;
-          return { score: Math.round(100 * correct / qs.length), correct, total: qs.length, details };
-        },
         async submitExam(auto) {
           if (!this.exam || this.examResult || this.examBusy) return;
-          this.examBusy = true; this.stopExamTimer(); this.examConfirm = false;
-          const duration = Math.round((Date.now() - this.examStarted) / 1000); let res = null;
-          try { const r = await fetch('/api/exam/submit', { method: 'POST', headers: H, body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers }) }); if (r.ok) res = await r.json(); } catch (e) { }
-          const local = this.gradeLocally();
-          if (!res || res.score === undefined) res = local || { score: 0, correct: 0, total: this.exam.questions.length, offline: true };
-          else if (local && !res.details) res.details = local.details;
-          const score = Math.round(Number(res.score) || 0); const passed = res.passed !== undefined ? !!res.passed : score >= PASS_SCORE;
-          this.examResult = { ...res, score, passed, auto: !!auto, duration };
-          this.examHistory = [{ id: Date.now(), date: new Date().toISOString(), module: this.exam.cfg.module, levels: this.exam.cfg.levels, score, passed, correct: res.correct, total: res.total, duration }, ...this.examHistory].slice(0, 50);
-          LS.set('exam-history', this.examHistory);
-          this.examBusy = false; if (passed) this.celebrate();
-          await this.refreshAll();
+          this.examBusy = true;
+          this.stopExamTimer();
+          this.examConfirm = false;
+          this.examErr = '';
+          const clientDuration = Math.max(0, Math.round((Date.now() - this.examStarted) / 1000));
+
+          try {
+            const response = await fetch('/api/exam/submit', {
+              method: 'POST',
+              headers: H,
+              body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers })
+            });
+            const raw = await response.text();
+            let result;
+            try {
+              result = raw ? JSON.parse(raw) : {};
+            } catch (_) {
+              throw new Error('Le serveur a renvoyé une réponse illisible.');
+            }
+            if (!response.ok) {
+              throw new Error(result.detail || result.message || ('Erreur HTTP ' + response.status));
+            }
+            if (!result || !Number.isFinite(Number(result.score)) || typeof result.passed !== 'boolean') {
+              throw new Error('Le serveur n’a pas renvoyé un résultat de correction valide.');
+            }
+
+            const score = Math.max(0, Math.min(100, Math.round(Number(result.score))));
+            const duration = Number.isFinite(Number(result.duration))
+              ? Math.max(0, Math.round(Number(result.duration)))
+              : clientDuration;
+            const passed = result.passed;
+            this.examResult = { ...result, score, passed, auto: !!auto, duration };
+            this.examHistory = [{
+              id: Date.now(),
+              date: new Date().toISOString(),
+              module: this.exam.cfg.module,
+              levels: this.exam.cfg.levels,
+              score,
+              passed,
+              correct: result.correct,
+              total: result.total,
+              duration
+            }, ...this.examHistory].slice(0, 50);
+            LS.set('exam-history', this.examHistory);
+            if (passed) this.celebrate();
+            await this.refreshAll();
+          } catch (error) {
+            this.examErr = 'Impossible de corriger l’examen côté serveur : '
+              + (error.message || 'erreur réseau')
+              + '. Les réponses sont conservées ; réessaie sans quitter cet écran.';
+            // En cas d’erreur temporaire, l’apprenant peut corriger de nouveau sans perdre ses réponses.
+            if (!auto && this.examLeft > 0 && !this.examResult) this.startExamTimer();
+          } finally {
+            this.examBusy = false;
+          }
         },
         resetExam() { this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false; },
 
