@@ -3962,14 +3962,34 @@
             return 'Les blocs « ' + source + ' » et « ' + destination + ' » échangent des informations dans les deux sens.';
           }
           if (!meaning) {
-            return 'Le flux d’information va du bloc « ' + source + ' » au bloc « ' + destination + ' ».';
+            return 'Le flux d’information va de « ' + source + ' » vers « ' + destination + ' ».';
           }
           if (/^(?:https?|ssh|dns|dhcp|snmp|ntp|icmp|ipsec|wireguard|tls|tcp|udp|sftp|ftp|smtp|imap|pop3|radius|tacacs\+?)(?:\s|$)/u.test(normalizedMeaning)) {
             return 'Le bloc « ' + source + ' » communique avec le bloc « ' + destination + ' » en utilisant ' + meaning + '.';
           }
-          if (/^(?:requete|demande|commande|message|reponse|donnees|donnee|paquet|trame|fichier|jeton|token|evenement|alerte|signal|flux|transaction|configuration|resultat)(?:\s|$)/u.test(normalizedMeaning)) {
-            const verb = /^(?:requete|demande|commande)(?:\s|$)/u.test(normalizedMeaning) ? 'envoie' : 'transmet';
-            return 'Le bloc « ' + source + ' » ' + verb + ' « ' + meaning + ' » au bloc « ' + destination + ' ».';
+          const nouns = [
+            { pattern: /^requete(?:\s|$)/u, article: 'la requête', verb: 'envoie' },
+            { pattern: /^demande(?:\s|$)/u, article: 'la demande', verb: 'envoie' },
+            { pattern: /^commande(?:\s|$)/u, article: 'la commande', verb: 'envoie' },
+            { pattern: /^reponse(?:\s|$)/u, article: 'la réponse', verb: 'transmet' },
+            { pattern: /^donnees?(?:\s|$)/u, article: 'les données', verb: 'transmet' },
+            { pattern: /^paquet(?:\s|$)/u, article: 'le paquet', verb: 'transmet' },
+            { pattern: /^trame(?:\s|$)/u, article: 'la trame', verb: 'transmet' },
+            { pattern: /^fichier(?:\s|$)/u, article: 'le fichier', verb: 'transmet' },
+            { pattern: /^(?:jeton|token)(?:\s|$)/u, article: 'le jeton', verb: 'transmet' },
+            { pattern: /^evenement(?:\s|$)/u, article: 'l’événement', verb: 'transmet' },
+            { pattern: /^alerte(?:\s|$)/u, article: 'l’alerte', verb: 'transmet' },
+            { pattern: /^signal(?:\s|$)/u, article: 'le signal', verb: 'transmet' },
+            { pattern: /^flux(?:\s|$)/u, article: 'le flux', verb: 'transmet' },
+            { pattern: /^transaction(?:\s|$)/u, article: 'la transaction', verb: 'transmet' },
+            { pattern: /^configuration(?:\s|$)/u, article: 'la configuration', verb: 'transmet' },
+            { pattern: /^resultat(?:\s|$)/u, article: 'le résultat', verb: 'transmet' },
+          ];
+          const noun = nouns.find(item => item.pattern.test(normalizedMeaning));
+          if (noun) {
+            const tail = meaning.replace(/^[^\s]+\s*/u, '').trim();
+            return 'Le bloc « ' + source + ' » ' + noun.verb + ' ' + noun.article
+              + (tail ? ' ' + tail : '') + ' au bloc « ' + destination + ' ».';
           }
           return 'Le bloc « ' + source + ' » transmet l’information « ' + meaning + ' » au bloc « ' + destination + ' ».';
         },
@@ -3992,8 +4012,8 @@
           });
           const convergence = Array.from(incoming.entries()).find(([, sources]) => sources.length > 1);
           if (convergence) {
-            return 'Les flux issus des blocs ' + convergence[1].map(value => '« ' + value + ' »').join(' et ')
-              + ' convergent vers le bloc « ' + convergence[0] + ' ».';
+            return 'Les flux provenant des blocs ' + convergence[1].map(value => '« ' + value + ' »').join(' et ')
+              + ' se rejoignent au niveau du bloc « ' + convergence[0] + ' ».';
           }
           const roots = Array.from(outgoing.keys()).filter(node => !(incoming.get(node) || []).length);
           if (roots.length !== 1) return '';
@@ -4009,9 +4029,9 @@
             if (path.length > uniqueEdges.length + 1) break;
           }
           if (path.length < 3) return '';
-          return 'Le parcours principal commence au bloc « ' + path[0] + ' », passe ensuite par '
-            + path.slice(1, -1).map(value => '« ' + value + ' »').join(', puis ')
-            + ', puis arrive au bloc « ' + path[path.length - 1] + ' ».';
+          return 'En résumé, le flux suit ce parcours : '
+            + path.map(value => '« ' + value + ' »').join(', puis ')
+            + '.';
         },
         speechTextFromTabularRows(headers, dataRows, title = 'Tableau de données.') {
           const spoken = [title];
@@ -4080,6 +4100,25 @@
             const subject = String(values[0] || '').trim();
             const details = values.slice(1).map((value, index) => fieldPhrase(headers[index + 1] || '', value));
 
+            if (protocolIndex >= 0 && portIndex >= 0 && usageIndex >= 0) {
+              const protocol = String(values[protocolIndex] || '').trim();
+              const port = String(values[portIndex] || '').trim();
+              const usage = String(values[usageIndex] || '').trim();
+              const usageKey = headerKey(usage);
+              if (protocol && port && usage) {
+                if (/web non chiffre/u.test(usageKey)) {
+                  spoken.push('Le protocole ' + protocol + ' utilise le port ' + port + ' pour la navigation Web non chiffrée.');
+                } else if (/web chiffre/u.test(usageKey)) {
+                  spoken.push('Le protocole ' + protocol + ' utilise le port ' + port + ' pour la navigation Web chiffrée.');
+                } else if (/resolution de noms/u.test(usageKey)) {
+                  spoken.push('Le protocole ' + protocol + ' utilise le port ' + port + '. Il sert à la résolution de noms.');
+                } else {
+                  spoken.push('Le protocole ' + protocol + ' utilise le port ' + port + '. Son usage est ' + quoted(usage) + '.');
+                }
+                return;
+              }
+            }
+
             if (causeIndex >= 0 && resultIndex >= 0 && causeIndex !== resultIndex) {
               const cause = String(values[causeIndex] || '').trim();
               const effect = String(values[resultIndex] || '').trim();
@@ -4123,12 +4162,16 @@
 
           if (protocolIndex >= 0 && portIndex >= 0 && usageIndex >= 0) {
             const valuesOf = row => Array.isArray(row) ? row : (row && Array.isArray(row.values) ? row.values : []);
-            const http = dataRows.map(valuesOf).find(values => headerKey(values[protocolIndex]) === 'http');
-            const https = dataRows.map(valuesOf).find(values => headerKey(values[protocolIndex]) === 'https');
-            if (http && https) {
-              spoken.push('À retenir : le tableau associe HTTP au port ' + String(http[portIndex] || 'non renseigné')
-                + ' et HTTPS au port ' + String(https[portIndex] || 'non renseigné')
-                + '. Il distingue ainsi les deux protocoles par le port utilisé et par l’usage indiqué pour chacun.');
+            const rows = dataRows.map(valuesOf);
+            const findProtocol = name => rows.find(values => headerKey(values[protocolIndex]) === name);
+            const http = findProtocol('http');
+            const https = findProtocol('https');
+            const httpUsage = headerKey(http?.[usageIndex] || '');
+            const httpsUsage = headerKey(https?.[usageIndex] || '');
+            if (http && https && /web non chiffre/u.test(httpUsage) && /web chiffre/u.test(httpsUsage)) {
+              spoken.push('La différence importante est que HTTP sert à la navigation Web non chiffrée, tandis que HTTPS protège les échanges. Les ports associés sont respectivement ' + String(http[portIndex] || 'non renseigné') + ' et ' + String(https[portIndex] || 'non renseigné') + '.');
+            } else if (http && https) {
+              spoken.push('À retenir : HTTP utilise le port ' + String(http[portIndex] || 'non renseigné') + ', tandis que HTTPS utilise le port ' + String(https[portIndex] || 'non renseigné') + '.');
             }
           }
           return spoken;
@@ -4228,16 +4271,13 @@
             if (pointsUp && !pointsDown) [from, to] = [lower.label, upper.label];
             addLabel(from);
             addLabel(to);
-            const relation = pointsUp && !pointsDown
-              ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
-              : pointsDown && !pointsUp
-                ? 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »'
-                : 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés verticalement';
-            if (!relationships.includes(relation)) relationships.push(relation);
             if (pointsUp !== pointsDown) {
-              edges.push({ from, to, label: '' });
               const explanation = this.speechInterpretEdge(from, to, '');
               if (!relationships.includes(explanation)) relationships.push(explanation);
+              edges.push({ from, to, label: '' });
+            } else {
+              const relation = 'Les blocs « ' + from + ' » et « ' + to + ' » sont reliés verticalement';
+              if (!relationships.includes(relation)) relationships.push(relation);
             }
           }
 
@@ -4264,13 +4304,9 @@
               addLabel(from);
               addLabel(to);
               const bidirectional = /^(?:<-->|<->|↔)$/u.test(arrow);
-              const relation = bidirectional
-                ? 'Les blocs « ' + from + ' » et « ' + to + ' » communiquent dans les deux sens'
-                : 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »';
-              if (!relationships.includes(relation)) relationships.push(relation);
-              edges.push({ from, to, label: '', bidirectional });
               const explanation = this.speechInterpretEdge(from, to, '', bidirectional);
               if (!relationships.includes(explanation)) relationships.push(explanation);
+              edges.push({ from, to, label: '', bidirectional });
             }
           };
           lines.forEach(line => {
@@ -4283,8 +4319,6 @@
               if (from && label && to) {
                 addLabel(from);
                 addLabel(to);
-                const relation = 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' » en précisant « ' + label + ' »';
-                if (!relationships.includes(relation)) relationships.push(relation);
                 const explanation = this.speechInterpretEdge(from, to, label);
                 if (!relationships.includes(explanation)) relationships.push(explanation);
                 edges.push({ from, to, label });
@@ -4302,7 +4336,7 @@
             }
           });
           const spoken = [];
-          if (relationships.length) spoken.push('Schéma textuel. ' + relationships.map(value => value.endsWith('.') ? value : value + '.').join(' '));
+          if (relationships.length) spoken.push('Suivons le parcours représenté. ' + relationships.map(value => value.endsWith('.') ? value : value + '.').join(' '));
           const flowSummary = this.speechSummarizeFlowEdges(edges);
           if (flowSummary) spoken.push(flowSummary);
           const unmentioned = labels.filter(label => !relationships.some(relation => relation.toLocaleLowerCase('fr-FR').includes(label.toLocaleLowerCase('fr-FR'))));
@@ -4374,10 +4408,6 @@
             let to = resolveNode(edge.to);
             if (/^(?:<--|<-|←)$/u.test(edge.arrow)) [from, to] = [to, from];
             const bidirectional = /^(?:<-->|<->|↔)$/u.test(edge.arrow);
-            const relation = bidirectional
-              ? 'Les blocs « ' + from + ' » et « ' + to + ' » communiquent dans les deux sens'
-              : 'Une liaison va du bloc « ' + from + ' » vers le bloc « ' + to + ' »';
-            addRelation(relation + (edge.label ? ' en passant par ' + edge.label : '') + '.');
             addRelation(this.speechInterpretEdge(from, to, edge.label, bidirectional));
             edges.push({ from, to, label: edge.label, bidirectional });
           }
@@ -4399,7 +4429,7 @@
             if (!allLabels.some(item => item.toLocaleLowerCase('fr-FR') === value.toLocaleLowerCase('fr-FR'))) allLabels.push(value);
           });
           const spoken = [];
-          if (relationships.length) spoken.push('Voici ce qui se passe dans le schéma. ' + relationships.join(' '));
+          if (relationships.length) spoken.push('Suivons le parcours représenté. ' + relationships.join(' '));
           const flowSummary = this.speechSummarizeFlowEdges(edges);
           if (flowSummary) spoken.push(flowSummary);
           const otherLabels = allLabels.filter(label =>
@@ -4468,10 +4498,11 @@
             visualCopy.querySelectorAll('.lesson-diagram-toolbar, .lesson-diagram-guide, .code-header, .lesson-diagram-kind, figcaption, button, script, style, [aria-hidden="true"]').forEach(node => node.remove());
             const visualText = this.cleanSpeechVisualText(visualCopy.innerText || visualCopy.textContent || '');
             if (visualText) {
-              spoken.push('Le schéma se lit ainsi : ' + visualText + '.');
               const route = visualText.split(/\s+va vers\s+/u).map(value => value.trim()).filter(Boolean);
               if (route.length >= 2) {
-                spoken.push('Le parcours représenté part de « ' + route[0] + ' » et se poursuit vers « ' + route[route.length - 1] + ' ». Le premier élément transmet donc le flux au bloc suivant.');
+                spoken.push('Le flux part du bloc « ' + route[0] + ' » et arrive au bloc « ' + route[route.length - 1] + ' ».');
+              } else {
+                spoken.push('Le schéma présente les éléments suivants : ' + visualText + '.');
               }
             }
           }
@@ -4649,6 +4680,100 @@
             .replace(/\n{3,}/g, '\n\n')
             .trim();
         },
+        prepareSpeechText(text, kind = 'lesson') {
+          let normalized = String(text || '')
+            .normalize('NFC')
+            .replace(/\u200B|\uFEFF/gu, '')
+            .replace(/\r\n?/gu, '\n')
+            .replace(/[ \t]+\n/gu, '\n')
+            .replace(/\n{3,}/gu, '\n\n')
+            .trim();
+          if (!normalized) return '';
+
+          if (kind === 'lesson') {
+            let sectionIndex = 0;
+            let subsectionIndex = 0;
+            const sectionOpeners = [
+              'Commençons par ',
+              'Passons maintenant à ',
+              'Voyons ensuite ',
+              'Abordons à présent ',
+              'Intéressons-nous maintenant à ',
+            ];
+            const subsectionOpeners = [
+              'Regardons de plus près ',
+              'Voyons comment fonctionne ',
+              'Précisons maintenant ',
+              'Pour aller un peu plus loin, examinons ',
+            ];
+            normalized = normalized.split(/\n{2,}/gu).map(paragraph => {
+              const value = paragraph.trim();
+              const stripEnding = source => String(source || '').trim().replace(/[.!?…:;]+$/gu, '').trim();
+              let match = value.match(/^Titre du cours\s*:\s*([\s\S]+)$/iu);
+              if (match) return 'Dans ce cours, nous allons découvrir ' + stripEnding(match[1]) + '.';
+              match = value.match(/^Section\s*:\s*([\s\S]+)$/iu);
+              if (match) {
+                const opener = sectionOpeners[sectionIndex % sectionOpeners.length];
+                sectionIndex += 1;
+                return opener + stripEnding(match[1]).replace(/^[a-zà-ÿ]/u, letter => letter.toLocaleUpperCase('fr-FR')) + '.';
+              }
+              match = value.match(/^Sous-section\s*:\s*([\s\S]+)$/iu);
+              if (match) {
+                const opener = subsectionOpeners[subsectionIndex % subsectionOpeners.length];
+                subsectionIndex += 1;
+                return opener + stripEnding(match[1]).replace(/^[a-zà-ÿ]/u, letter => letter.toLocaleLowerCase('fr-FR')) + '.';
+              }
+              match = value.match(/^Tableau\s*:\s*([\s\S]+)$/iu);
+              if (match) return 'Observons le tableau consacré à ' + stripEnding(match[1]).replace(/^[a-zà-ÿ]/u, letter => letter.toLocaleLowerCase('fr-FR')) + '.';
+              if (/^Tableau textuel\.?$/iu.test(value)) return 'Voici le tableau présenté sous forme de texte.';
+              if (/^Schéma textuel\./iu.test(value)) return value.replace(/^Schéma textuel\./iu, 'Suivons le parcours représenté.');
+              if (/^Suivons le parcours représenté\./iu.test(value)) return value.replace(/^Suivons le parcours représenté\./iu, 'Suivons maintenant le parcours représenté.');
+              return value;
+            }).join('\n\n');
+          }
+
+          const pronunciationRules = [
+            [/\bIPv4\b/giu, 'I P version 4'],
+            [/\bIPv6\b/giu, 'I P version 6'],
+            [/\bIPsec\b/giu, 'I P sec'],
+            [/\bHTTPS\b/giu, 'H T T P S'],
+            [/\bHTTP\b/giu, 'H T T P'],
+            [/\bDHCP\b/giu, 'D H C P'],
+            [/\bDNS\b/giu, 'D N S'],
+            [/\bTCP\b/giu, 'T C P'],
+            [/\bUDP\b/giu, 'U D P'],
+            [/\bSSH\b/giu, 'S S H'],
+            [/\bSQL\b/giu, 'S Q L'],
+            [/\bAPI\b/giu, 'A P I'],
+            [/\bVPN\b/giu, 'V P N'],
+            [/\bBGP\b/giu, 'B G P'],
+            [/\bOSPF\b/giu, 'O S P F'],
+            [/\bMPLS\b/giu, 'M P L S'],
+            [/\bNAT\b/giu, 'N A T'],
+            [/\bACL\b/giu, 'A C L'],
+            [/\bURL\b/giu, 'U R L'],
+          ];
+          pronunciationRules.forEach(([pattern, spoken]) => {
+            normalized = normalized.replace(pattern, spoken);
+          });
+          normalized = normalized
+            .replace(/\b(?:p\.\s*ex\.?|par ex\.)\s*/giu, 'par exemple ')
+            .replace(/\bc\.\s*-?\s*à\s*-?\s*d\.\b/giu, 'c’est-à-dire')
+            .replace(/\betc\./giu, 'et cetera')
+            .replace(/(\d{1,3}\.){3}\d{1,3}\b/gu, address => address.split('.').join(' point '))
+            .replace(/\b(\d+(?:[,.]\d+)?)\s*%/gu, '$1 pour cent')
+            .replace(/\b(\d+)\s*ms\b/giu, (_, value) => value + (Number(value) > 1 ? ' millisecondes' : ' milliseconde'))
+            .replace(/\s*≥\s*/gu, ' est supérieur ou égal à ')
+            .replace(/\s*≤\s*/gu, ' est inférieur ou égal à ')
+            .replace(/\s*≠\s*/gu, ' est différent de ')
+            .replace(/\s*≈\s*/gu, ' est approximativement égal à ')
+            .replace(/\s*&\s*/gu, ' et ')
+            .replace(/[ \t]+/gu, ' ')
+            .replace(/\n[ \t]+/gu, '\n')
+            .replace(/\n{3,}/gu, '\n\n')
+            .trim();
+          return normalized;
+        },
         splitSpeechText(text, maxLength = 1800) {
           const normalized = String(text || '')
             .replace(/\r\n?/g, '\n')
@@ -4660,6 +4785,7 @@
 
           const paragraphs = normalized.split(/\n{2,}/).map(part => part.replace(/\n+/g, ' ').trim()).filter(Boolean);
           const chunks = [];
+          let group = '';
           const appendSentence = sentence => {
             const clean = String(sentence || '').replace(/\s+/g, ' ').trim();
             if (!clean) return;
@@ -4684,18 +4810,19 @@
             if (part) chunks.push(part);
           };
 
-          for (const paragraph of paragraphs) {
-            let sentences;
-            if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
-              const segmenter = new Intl.Segmenter('fr', { granularity: 'sentence' });
-              sentences = Array.from(segmenter.segment(paragraph), item => item.segment.trim()).filter(Boolean);
-            } else {
-              // Le fallback conserve les points, interrogations, exclamations, points-virgules et deux-points.
-              sentences = paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
+          const segmenter = typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function'
+            ? new Intl.Segmenter('fr', { granularity: 'sentence' })
+            : null;
+          paragraphs.forEach((paragraph, paragraphIndex) => {
+            let sentences = segmenter
+              ? Array.from(segmenter.segment(paragraph), item => item.segment.trim()).filter(Boolean)
+              : paragraph.split(/(?<=[.!?…;:])\s+/u).map(item => item.trim()).filter(Boolean);
+            if (!sentences.length) return;
+            const last = sentences.length - 1;
+            // Une puce ou un libellé sans point final doit rester une unité orale claire.
+            if (paragraphIndex < paragraphs.length - 1 && !/[.!?…][”’"'»)]*$/u.test(sentences[last])) {
+              sentences[last] += '.';
             }
-            // Garder plusieurs phrases voisines dans un même segment audio pour une prosodie
-            // plus continue ; ne couper qu’aux limites de paragraphe ou lorsqu’un segment devient long.
-            let group = '';
             sentences.forEach(sentence => {
               const candidate = group ? group + ' ' + sentence : sentence;
               if (group && candidate.length > maxLength) {
@@ -4705,8 +4832,8 @@
                 group = candidate;
               }
             });
-            if (group) appendSentence(group);
-          }
+          });
+          if (group) appendSentence(group);
           return chunks;
         },
         async loadSpeechChunk(index, runId) {
@@ -4907,7 +5034,7 @@
             return;
           }
           this.stopSpeech();
-          this.speechQueue = this.splitSpeechText(text);
+          this.speechQueue = this.splitSpeechText(this.prepareSpeechText(text, kind));
           if (!this.speechQueue.length) {
             this.speechError = 'Aucun texte disponible à partir de ce point. Choisis une autre section ou « Début du cours ».';
             this.notify(this.speechError);
