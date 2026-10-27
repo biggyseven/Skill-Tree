@@ -217,6 +217,7 @@ class LabValidationTests(unittest.TestCase):
             "vlan-expert",
             "firewall-debutant",
             "secu-l2-intermediaire",
+            "reseau-linux-intermediaire",
         )
         for lab_id in scenario_ids:
             with self.subTest(lab_id=lab_id):
@@ -231,6 +232,28 @@ class LabValidationTests(unittest.TestCase):
                     definition, definition.initial_topology
                 )
                 self.assertFalse(initial_result["passed"])
+
+    def test_linux_firewall_nat_intermediate_scenario_has_topology_and_real_checks(self) -> None:
+        payload = lab_routes._load_lab_file("reseau-linux-intermediaire")
+        self.assertIsNotNone(payload)
+        definition = payload["definition"]
+        topology = lab_routes.model_to_dict(definition.initial_topology, by_alias=True)
+        nodes = {node["id"]: node for node in topology["nodes"]}
+
+        self.assertEqual(definition.title, "Filtrage et NAT sous Linux — nftables / iptables")
+        self.assertEqual(len(topology["nodes"]), 5)
+        self.assertEqual(len(topology["links"]), 4)
+        self.assertEqual(nodes["FW1"]["type"], "firewall")
+        self.assertEqual(len(definition.check.rules), 9)
+        self.assertFalse(definition.initial_topology.nodes == [])
+        self.assertFalse(lab_routes._evaluate_lab_check(
+            definition, definition.initial_topology
+        )["passed"])
+
+        nat = nodes["FW1"]["config"]["services"]["nat"]
+        self.assertFalse(nat["enabled"])
+        self.assertFalse(nat["masquerade"])
+        self.assertEqual(nat["port_forward"][0]["destination_port"], 8080)
 
     def test_bom_json_lab_definition_loads(self) -> None:
         labs_dir = Path(self.temp_dir.name) / "labs_v2"
