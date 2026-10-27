@@ -7547,6 +7547,38 @@
     ]
   },
   {
+    "id": "maint-fondamentaux-debutant",
+    "module": "Maintenance & Reporting",
+    "title": "Fondamentaux de maintenance : rôles et cycle d’intervention",
+    "category": "Fondamentaux — méthode",
+    "order": 4308,
+    "description": "Comprendre les missions de maintenance, les responsabilités, les familles d’intervention et le cycle de vie d’une opération.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "maint-preventive-debutant",
+    "module": "Maintenance & Reporting",
+    "title": "Introduction à la maintenance préventive",
+    "category": "Préventive — bases",
+    "order": 4309,
+    "description": "Découvrir les inspections périodiques, les contrôles simples, les calendriers préventifs et les critères de sécurité avant intervention.",
+    "prereqs": [
+      "maint-bases-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
     "id": "maint-outils-diagnostic-debutant",
     "module": "Maintenance & Reporting",
     "title": "Boîte à outils du technicien",
@@ -7615,6 +7647,23 @@
     ]
   },
   {
+    "id": "maint-helpdesk-debutant",
+    "module": "Maintenance & Reporting",
+    "title": "Helpdesk : prise en charge et résolution des demandes",
+    "category": "Helpdesk pratique",
+    "order": 4312,
+    "description": "Qualifier une demande, recueillir les informations utiles, définir une priorité, suivre un ticket et communiquer sa résolution.",
+    "prereqs": [
+      "maint-os-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
     "id": "maint-glossaire-debutant",
     "module": "Maintenance & Reporting",
     "title": "Vocabulaire technique et communication",
@@ -7623,6 +7672,23 @@
     "description": "Vocabulaire technique et communication",
     "prereqs": [
       "maint-tickets-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "maint-communication-debutant",
+    "module": "Maintenance & Reporting",
+    "title": "Communication technique avec les utilisateurs",
+    "category": "Communication pratique",
+    "order": 4313,
+    "description": "Expliquer un incident sans jargon inutile, poser les bonnes questions, reformuler un besoin et rédiger des messages d’intervention clairs.",
+    "prereqs": [
+      "maint-helpdesk-debutant"
     ],
     "requirements": [
       {
@@ -7655,6 +7721,23 @@
     "category": "Sécurité base",
     "order": 4315,
     "description": "Sécurité de base pour les interventions",
+    "prereqs": [
+      "maint-documentation-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "maint-securite-base-debutant",
+    "module": "Maintenance & Reporting",
+    "title": "Sécurité opérationnelle lors des interventions",
+    "category": "Sécurité opérationnelle",
+    "order": 4315,
+    "description": "Appliquer les contrôles préalables, la prévention des risques électriques et matériels, la protection des données et les règles de remise en service.",
     "prereqs": [
       "maint-documentation-debutant"
     ],
@@ -7751,6 +7834,23 @@
     ]
   },
   {
+    "id": "maint-procedures-intermediaire",
+    "module": "Maintenance & Reporting",
+    "title": "Construire et maintenir des procédures d’intervention",
+    "category": "Procédures — pratique",
+    "order": 4320,
+    "description": "Structurer une procédure reproductible, définir les préconditions, les points de contrôle, les conditions d’arrêt et la validation après intervention.",
+    "prereqs": [
+      "maint-gestion-parc-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
     "id": "maint-escalade-intermediaire",
     "module": "Maintenance & Reporting",
     "title": "Gestion de l'escalade (N1/N2/N3)",
@@ -7836,6 +7936,23 @@
     ]
   },
   {
+    "id": "maint-reporting-incident-intermediaire",
+    "module": "Maintenance & Reporting",
+    "title": "Analyser et communiquer un incident technique",
+    "category": "Reporting incident — pratique",
+    "order": 4325,
+    "description": "Constituer une chronologie factuelle, distinguer symptômes et causes, documenter les impacts et formuler les actions correctives dans un rapport exploitable.",
+    "prereqs": [
+      "maint-sla-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
     "id": "maint-reporting-mensuel-intermediaire",
     "module": "Maintenance & Reporting",
     "title": "Rédiger un reporting mensuel",
@@ -7887,12 +8004,46 @@
     ]
   },
   {
+    "id": "maint-predictive-expert",
+    "module": "Maintenance & Reporting",
+    "title": "Maintenance prédictive : capteurs, données et modèles",
+    "category": "Prédictive — approfondissement",
+    "order": 4328,
+    "description": "Approfondir la collecte de télémétrie, la qualité des données, les indicateurs d’anomalie et l’évaluation des alertes prédictives.",
+    "prereqs": [
+      "maint-automatisation-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
     "id": "maint-audit-expert",
     "module": "Maintenance & Reporting",
     "title": "Audits techniques et rapports de conformité",
     "category": "Audits",
     "order": 4329,
     "description": "Audits techniques et rapports de conformité",
+    "prereqs": [
+      "maint-maintenance-predictive-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "maint-audits-expert",
+    "module": "Maintenance & Reporting",
+    "title": "Audit technique : préparation, preuves et plan d’action",
+    "category": "Audit technique — pratique",
+    "order": 4329,
+    "description": "Préparer un audit, collecter des preuves traçables, qualifier les écarts, prioriser les risques et suivre les actions correctives.",
     "prereqs": [
       "maint-maintenance-predictive-expert"
     ],
@@ -7989,6 +8140,23 @@
     ]
   },
   {
+    "id": "maint-fournisseurs-expert",
+    "module": "Maintenance & Reporting",
+    "title": "Pilotage et évaluation des fournisseurs",
+    "category": "Fournisseurs — pilotage",
+    "order": 4334,
+    "description": "Évaluer les engagements contractuels, les SLA, les coûts, la qualité de service et les risques liés aux fournisseurs techniques.",
+    "prereqs": [
+      "maint-appel-offre-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
     "id": "maint-management-expert",
     "module": "Maintenance & Reporting",
     "title": "Management d'une équipe technique",
@@ -8063,6 +8231,23 @@
     "category": "RETEX",
     "order": 4339,
     "description": "Retour d'expérience (RETEX)",
+    "prereqs": [
+      "maint-strategie-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "maint-retex-expert",
+    "module": "Maintenance & Reporting",
+    "title": "RETEX : capitalisation et amélioration continue",
+    "category": "RETEX — pratique",
+    "order": 4339,
+    "description": "Animer un retour d’expérience factuel, identifier les causes systémiques, transformer les enseignements en actions et vérifier leur efficacité.",
     "prereqs": [
       "maint-strategie-expert"
     ],
