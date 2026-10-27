@@ -440,6 +440,35 @@ test('les sections de sidebar, les modules et les cours peuvent s’ouvrir dans 
   await coursePage.close();
 });
 
+test('la sidebar rétractée masque l’icône et propose le nouvel onglet au clic droit', async ({ page }) => {
+  await openDashboard(page);
+
+  const sidebar = page.locator('aside.skill-sidebar');
+  await sidebar.locator(':scope > div:first-child > button').click();
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).sidebarCollapsed)).toBe(true);
+
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  const newTabIcon = nav.locator('a[aria-label="Ouvrir Défis dans un nouvel onglet"]');
+  await expect(newTabIcon).toBeHidden();
+
+  await nav.getByRole('button', { name: 'Défis' }).click({ button: 'right' });
+  const menuItem = page.getByRole('menuitem', { name: 'Ouvrir Défis dans un nouvel onglet' });
+  await expect(menuItem).toBeVisible();
+  await expect(menuItem).toHaveAttribute('href', /openTab=challenges/);
+  await expect(menuItem).toHaveAttribute('target', '_blank');
+
+  const newPagePromise = page.context().waitForEvent('page');
+  await menuItem.click();
+  const newPage = await newPagePromise;
+  await newPage.waitForLoadState('domcontentloaded');
+  await expect(newPage.getByRole('button', { name: 'Ouvrir les paramètres' })).toBeVisible();
+  await expect.poll(() => newPage.evaluate(() => {
+    const state = window.Alpine && window.Alpine.$data(document.body);
+    return state?.tab || null;
+  }), { timeout: 30_000 }).toBe('challenges');
+  await newPage.close();
+});
+
 test('changer de module propose le premier cours sans l’ouvrir automatiquement', async ({ page }) => {
   await openDashboard(page);
 
