@@ -1,0 +1,270 @@
+{
+  "schema_version": 2,
+  "id": "vrf-expert",
+  "title": "VRF expert — Import/export et fuite de routes",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Durcissez TENANT-A : définissez les RT import/export, autorisez uniquement une fuite de préfixe explicitement approuvée, refusez la route par défaut et appliquez une limite de préfixes.",
+  "objectives": [
+    "Vérifier la cohérence des RT sur les deux PE.",
+    "Activer uniquement les fuites de routes autorisées.",
+    "Exclure 0.0.0.0/0 des fuites.",
+    "Définir un seuil de préfixes contre les erreurs de redistribution."
+  ],
+  "hints": [
+    "Une fuite de routes entre VRF doit rester explicite et minimale.",
+    "Un RT trop large peut exposer les routes d’un autre tenant.",
+    "Une limite de préfixes constitue une protection contre une mauvaise redistribution."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-vrf-expert",
+    "metadata": {
+      "name": "VRF expert — RT, fuite de routes contrôlée",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "PE1",
+        "type": "router",
+        "x": 160,
+        "y": 220,
+        "label": "PE1",
+        "model": "PE1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.2.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE1",
+          "routes": [
+            {
+              "protocol": "vrf",
+              "enabled": true,
+              "vrf": "TENANT-A",
+              "rd": "65000:101",
+              "rt_import": [
+                "65000:101"
+              ],
+              "rt_export": [
+                "65000:101"
+              ],
+              "route_leak": {
+                "enabled": false,
+                "permit": [
+                  "10.10.0.0/16"
+                ],
+                "deny_default": false
+              },
+              "max_prefix": 0
+            }
+          ]
+        }
+      },
+      {
+        "id": "P1",
+        "type": "router",
+        "x": 460,
+        "y": 220,
+        "label": "P1",
+        "model": "P1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.2.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.2.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "P1",
+          "routes": [
+            {
+              "protocol": "mpls",
+              "ldp_enabled": true,
+              "lsr_id": "10.255.0.1"
+            }
+          ]
+        }
+      },
+      {
+        "id": "PE2",
+        "type": "router",
+        "x": 760,
+        "y": 220,
+        "label": "PE2",
+        "model": "PE2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.2.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PE2",
+          "routes": [
+            {
+              "protocol": "vrf",
+              "enabled": true,
+              "vrf": "TENANT-A",
+              "rd": "65000:102",
+              "rt_import": [
+                "65000:101"
+              ],
+              "rt_export": [
+                "65000:101"
+              ],
+              "route_leak": {
+                "enabled": false,
+                "permit": [],
+                "deny_default": false
+              },
+              "max_prefix": 0
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "PE1-P1",
+        "from": {
+          "node": "PE1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "P1",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "P1-PE2",
+        "from": {
+          "node": "P1",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "PE2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "leak-enabled",
+        "description": "La fuite de routes contrôlée est activée.",
+        "device": "PE1",
+        "path": "config.routes[0].route_leak.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "leak-prefix",
+        "description": "Seul le préfixe approuvé est listé.",
+        "device": "PE1",
+        "path": "config.routes[0].route_leak.permit",
+        "operator": "contains",
+        "expected": "10.10.0.0/16"
+      },
+      {
+        "id": "deny-default",
+        "description": "La route par défaut est exclue de la fuite.",
+        "device": "PE1",
+        "path": "config.routes[0].route_leak.deny_default",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "prefix-limit",
+        "description": "Un seuil de préfixes limite les erreurs de redistribution.",
+        "device": "PE1",
+        "path": "config.routes[0].max_prefix",
+        "operator": "equals",
+        "expected": 100
+      },
+      {
+        "id": "vrf-import",
+        "description": "Le RT import suit le contrat de tenant.",
+        "device": "PE1",
+        "path": "config.routes[0].rt_import",
+        "operator": "contains",
+        "expected": "65000:101"
+      },
+      {
+        "id": "vrf-export",
+        "description": "Le RT export suit le contrat de tenant.",
+        "device": "PE1",
+        "path": "config.routes[0].rt_export",
+        "operator": "contains",
+        "expected": "65000:101"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
