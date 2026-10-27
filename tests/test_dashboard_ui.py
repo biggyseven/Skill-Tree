@@ -614,7 +614,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         set_module = DASHBOARD_HTML[start:end]
 
         self.assertIn("this.moduleFilter = id;", set_module)
-        self.assertIn("const firstCourse = id === 'all' ? null : this.nodesIn(id)[0];", set_module)
+        self.assertIn("const firstCourse = id === 'all' ? null : this.orderedModuleLessons(id)[0];", set_module)
         self.assertIn("this.moduleNextCourseId = firstCourse && firstCourse.id ? firstCourse.id : null;", set_module)
         self.assertNotIn("this.show(firstCourse.id)", set_module)
         self.assertIn("get moduleNextCourse()", DASHBOARD_HTML)
