@@ -1,0 +1,643 @@
+{
+  "schema_version": 2,
+  "id": "zero-trust-expert",
+  "title": "Zero Trust expert — Microsegmentation et SIEM",
+  "level": "expert",
+  "module": "Architecture Zero Trust",
+  "prompt": "Mettez en place une politique Zero Trust entre les couches utilisateur, application, API et base. Exigez identité, MFA et conformité du terminal, refusez les flux non prévus et envoyez les décisions au SIEM.",
+  "objectives": [
+    "Appliquer le refus par défaut.",
+    "Autoriser uniquement les flux nécessaires entre couches.",
+    "Bloquer l’accès utilisateur direct à la base.",
+    "Exiger identité, MFA et posture terminal.",
+    "Exporter les événements de sécurité vers le SIEM."
+  ],
+  "hints": [
+    "La microsegmentation décrit les flux par application et par service.",
+    "Le serveur de base doit recevoir les connexions uniquement depuis l’API.",
+    "La télémétrie doit être activée pour permettre l’investigation."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-zero-trust-expert",
+    "metadata": {
+      "name": "Zero Trust expert — Microsegmentation et SIEM",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "EDGE",
+        "type": "cloud",
+        "x": 40,
+        "y": 270,
+        "label": "EDGE",
+        "model": "EDGE",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "EDGE"
+        }
+      },
+      {
+        "id": "FW1",
+        "type": "firewall",
+        "x": 280,
+        "y": 270,
+        "label": "FW1",
+        "model": "FW1",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "203.0.113.2",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "eth1",
+            "name": "eth1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.0.1",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "FW1",
+          "acls": [
+            {
+              "name": "MICROSEGMENTATION",
+              "default_policy": "accept",
+              "identity_required": false,
+              "mfa_required": false,
+              "device_posture_required": false,
+              "telemetry": {
+                "enabled": false,
+                "ship_to": ""
+              },
+              "rules": [
+                {
+                  "id": "client-app",
+                  "action": "accept",
+                  "source": "10.10.0.0/24",
+                  "destination": "10.20.0.10",
+                  "service": "https"
+                },
+                {
+                  "id": "app-api",
+                  "action": "drop",
+                  "source": "10.20.0.10",
+                  "destination": "10.20.0.20",
+                  "service": "https"
+                },
+                {
+                  "id": "api-db",
+                  "action": "drop",
+                  "source": "10.20.0.20",
+                  "destination": "10.20.0.30",
+                  "service": "postgres"
+                },
+                {
+                  "id": "client-db-direct",
+                  "action": "accept",
+                  "source": "10.10.0.0/24",
+                  "destination": "10.20.0.30",
+                  "service": "postgres"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 520,
+        "y": 270,
+        "label": "SW1",
+        "model": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 20,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/4",
+            "name": "Fa0/4",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 30,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/5",
+            "name": "Fa0/5",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 40,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/6",
+            "name": "Fa0/6",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 40,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 10,
+              "name": "USERS"
+            },
+            {
+              "id": 20,
+              "name": "APPLICATIONS"
+            },
+            {
+              "id": 30,
+              "name": "DATA"
+            },
+            {
+              "id": 40,
+              "name": "IDENTITY-OPS"
+            }
+          ]
+        }
+      },
+      {
+        "id": "CLIENT",
+        "type": "pc",
+        "x": 790,
+        "y": 80,
+        "label": "CLIENT",
+        "model": "CLIENT",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.10.0.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "CLIENT"
+        }
+      },
+      {
+        "id": "APP",
+        "type": "server",
+        "x": 790,
+        "y": 210,
+        "label": "APP",
+        "model": "APP",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.20.0.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "APP"
+        }
+      },
+      {
+        "id": "API",
+        "type": "server",
+        "x": 790,
+        "y": 340,
+        "label": "API",
+        "model": "API",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.20.0.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "API"
+        }
+      },
+      {
+        "id": "DB",
+        "type": "server",
+        "x": 1060,
+        "y": 340,
+        "label": "DB",
+        "model": "DB",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.20.0.30",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "DB"
+        }
+      },
+      {
+        "id": "IDP",
+        "type": "server",
+        "x": 790,
+        "y": 480,
+        "label": "IDP",
+        "model": "IDP",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.40.0.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "IDP"
+        }
+      },
+      {
+        "id": "SIEM",
+        "type": "server",
+        "x": 1060,
+        "y": 480,
+        "label": "SIEM",
+        "model": "SIEM",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.40.0.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SIEM"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "WAN",
+        "from": {
+          "node": "EDGE",
+          "port": "eth0"
+        },
+        "to": {
+          "node": "FW1",
+          "port": "eth0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "LAN",
+        "from": {
+          "node": "FW1",
+          "port": "eth1"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "USER",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "CLIENT",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "APP",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "APP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "API",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "API",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "DB",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/4"
+        },
+        "to": {
+          "node": "DB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "IDP",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/5"
+        },
+        "to": {
+          "node": "IDP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "SIEM",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/6"
+        },
+        "to": {
+          "node": "SIEM",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "default-drop",
+        "description": "La microsegmentation applique le refus par défaut.",
+        "device": "FW1",
+        "path": "config.acls[0].default_policy",
+        "operator": "equals",
+        "expected": "drop"
+      },
+      {
+        "id": "identity",
+        "description": "L’identité est vérifiée pour les accès sensibles.",
+        "device": "FW1",
+        "path": "config.acls[0].identity_required",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "mfa",
+        "description": "MFA est exigé.",
+        "device": "FW1",
+        "path": "config.acls[0].mfa_required",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "posture",
+        "description": "La conformité du terminal est évaluée.",
+        "device": "FW1",
+        "path": "config.acls[0].device_posture_required",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "telemetry",
+        "description": "La télémétrie est active.",
+        "device": "FW1",
+        "path": "config.acls[0].telemetry.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "telemetry-siem",
+        "description": "Les événements sont envoyés au SIEM.",
+        "device": "FW1",
+        "path": "config.acls[0].telemetry.ship_to",
+        "operator": "equals",
+        "expected": "10.40.0.20"
+      },
+      {
+        "id": "app-api",
+        "description": "Le flux APP vers API est autorisé explicitement.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[1].action",
+        "operator": "equals",
+        "expected": "accept"
+      },
+      {
+        "id": "api-db",
+        "description": "Le flux API vers la base est autorisé explicitement.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[2].action",
+        "operator": "equals",
+        "expected": "accept"
+      },
+      {
+        "id": "direct-db",
+        "description": "Le poste utilisateur ne joint pas directement la base.",
+        "device": "FW1",
+        "path": "config.acls[0].rules[3].action",
+        "operator": "equals",
+        "expected": "drop"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
