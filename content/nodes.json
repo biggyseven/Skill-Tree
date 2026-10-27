@@ -7544,7 +7544,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-fondamentaux-debutant"
   },
   {
     "id": "maint-fondamentaux-debutant",
@@ -7644,7 +7645,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-helpdesk-debutant"
   },
   {
     "id": "maint-helpdesk-debutant",
@@ -7678,7 +7680,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-communication-debutant"
   },
   {
     "id": "maint-communication-debutant",
@@ -7729,7 +7732,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-securite-base-debutant"
   },
   {
     "id": "maint-securite-base-debutant",
@@ -7746,8 +7750,7 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ],
-    "lesson_source_id": "maint-securite-bases-debutant"
+    ]
   },
   {
     "id": "maint-monitoring-intermediaire",
@@ -7832,7 +7835,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-procedures-intermediaire"
   },
   {
     "id": "maint-procedures-intermediaire",
@@ -7849,8 +7853,7 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ],
-    "lesson_source_id": "maint-procedure-intermediaire"
+    ]
   },
   {
     "id": "maint-escalade-intermediaire",
@@ -7935,7 +7938,8 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ]
+    ],
+    "lesson_source_id": "maint-reporting-incident-intermediaire"
   },
   {
     "id": "maint-reporting-incident-intermediaire",
@@ -7952,8 +7956,7 @@
         "kind": "quiz",
         "min_score": 80
       }
-    ],
-    "lesson_source_id": "maint-reporting-technique-intermediaire"
+    ]
   },
   {
     "id": "maint-reporting-mensuel-intermediaire",
@@ -8004,7 +8007,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-predictive-expert"
   },
   {
     "id": "maint-predictive-expert",
@@ -8039,7 +8043,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-audits-expert"
   },
   {
     "id": "maint-audits-expert",
@@ -8142,7 +8147,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-fournisseurs-expert"
   },
   {
     "id": "maint-fournisseurs-expert",
@@ -8244,7 +8250,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-retex-expert"
   },
   {
     "id": "maint-retex-expert",
