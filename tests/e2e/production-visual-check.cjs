@@ -136,12 +136,14 @@ async function main() {
     await actionsTrigger.click();
     const mobileActions = page.locator('#mobile-header-action-items');
     await mobileActions.waitFor({ state: 'visible', timeout: 5000 });
+    const actionLabels = await mobileActions.locator('.mobile-action-label').allTextContents();
     for (const label of ['Rechercher un cours', 'Atelier libre', 'Thème', 'Notifications', 'Profil', 'Paramètres']) {
-      assert(await mobileActions.getByText(label, { exact: true }).first().isVisible(), `Mobile actions dropdown is missing the visible "${label}" action.`);
+      const visibleLabel = mobileActions.locator('.mobile-action-label').filter({ hasText: label }).last();
+      assert(actionLabels.some(item => item.trim() === label) && await visibleLabel.isVisible(), `Mobile actions dropdown is missing the visible "${label}" action.`);
     }
     report.checks.mobileActionsDropdown = {
       visible: await mobileActions.isVisible(),
-      actionLabels: await mobileActions.locator('.mobile-action-label').allTextContents(),
+      actionLabels: actionLabels.map(item => item.trim()),
     };
     const actionsShot = path.join(OUT, 'production-dashboard-mobile-actions.png');
     await page.screenshot({ path: actionsShot, fullPage: true, animations: 'disabled' });
