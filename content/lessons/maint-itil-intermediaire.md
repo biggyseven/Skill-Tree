@@ -118,3 +118,104 @@ Correction : pas nécessairement. Une demande standard peut suivre un flux préa
 Une équipe redémarre chaque semaine le même service en production. Après le redémarrage, les utilisateurs peuvent travailler. Un ingénieur propose une modification de configuration pour éviter la répétition.
 
 **Correction attendue :** traiter chaque occurrence comme un incident, préserver les preuves et valider le service après le contournement ; ouvrir ou relier un problème pour analyser la répétition ; documenter l'hypothèse technique et la confirmer par des éléments ; préparer la modification comme un changement avec portée, risque, approbation, tests, fenêtre, retour arrière et contrôle post-changement ; puis mesurer si les incidents reviennent. Le redémarrage rétablit le service mais ne démontre pas la cause racine.
+
+
+## 9. Standard, normal et urgence : décider du chemin du changement
+
+La gestion des changements vise à maximiser les changements réussis en évaluant les risques, en obtenant les autorisations nécessaires et en organisant la mise en œuvre. Un changement **standard** est de faible risque, répétitif et préautorisé dans un cadre défini. Un changement **normal** requiert une évaluation et une autorisation selon la politique. Un changement **d'urgence** répond à une nécessité immédiate et suit un chemin accéléré prévu par l'organisation, avec une revue et une trace après l'action.
+
+N'utilise pas le terme « urgence » uniquement parce qu'une équipe a pris du retard. Un changement d'urgence peut accélérer les décisions, mais ne supprime pas la sécurité, les tests possibles, la responsabilité ni la documentation. La méthode doit préciser quels rôles peuvent autoriser, comment les parties prenantes sont informées, quels tests peuvent être réduits sans risque disproportionné et comment la revue a posteriori sera effectuée.
+
+~~~mermaid
+flowchart TD
+    A[Demande de changement] --> B[Évaluer le risque et la répétabilité]
+    B --> C{Type de changement}
+    C -->|Standard préautorisé| D[Contrôles et plan standard]
+    C -->|Normal| E[Évaluation et approbation]
+    C -->|Urgence justifiée| F[Chemin d'urgence documenté]
+    D --> G[Planifier et exécuter]
+    E --> G
+    F --> G
+    G --> H[Tests et revue du résultat]
+    H --> I[Clôture et mise à jour des connaissances]
+~~~
+
+Une demande de changement utile décrit la raison, le périmètre, les actifs et services affectés, l'impact prévu, les risques, les prérequis, la fenêtre, les tests, le plan de retour, les responsables et les communications. Le but n'est pas de créer une paperasse disproportionnée : c'est de permettre une décision éclairée. Un changement faible peut utiliser un modèle court ; une modification de cœur de réseau ou de schéma de base de données nécessite plus d'analyse.
+
+## 10. Relier incidents, problèmes, changements et connaissances
+
+Un incident décrit une interruption ou une dégradation du service. La gestion des problèmes cherche à réduire la probabilité et l'impact des incidents en identifiant les causes, les solutions de contournement et les erreurs connues. Un changement est une modification d'un service ou d'un composant, souvent nécessaire pour éliminer une cause ou mettre en œuvre une amélioration. Ces enregistrements sont liés, mais ne doivent pas être confondus.
+
+~~~mermaid
+flowchart LR
+    A[Incidents similaires] --> B[Analyse de problème]
+    B --> C[Hypothèse et cause étayée]
+    C --> D[Contournement documenté]
+    C --> E[Changement proposé]
+    E --> F[Évaluation et approbation]
+    F --> G[Mise en œuvre et vérification]
+    G --> H[Mettre à jour erreur connue et procédure]
+    H --> I[Réduire les incidents récurrents]
+~~~
+
+Le lien doit permettre d'expliquer pourquoi un changement est nécessaire et quels incidents il cherche à prévenir. Le changement ne doit pas être considéré comme réussi uniquement parce qu'il a été exécuté ; il faut vérifier le résultat attendu, surveiller les effets secondaires et enregistrer les écarts. Si la correction est temporaire, conserve la relation avec le problème ouvert.
+
+La base de connaissances aide le support à appliquer un contournement connu et à éviter des diagnostics redondants. L'article doit préciser les symptômes auxquels il s'applique, les versions concernées, le risque, les limites, la procédure autorisée, les conditions d'arrêt et la date de revue. Une solution copiée d'un ancien ticket ne doit pas être transformée en procédure sans validation.
+
+## 11. Changement et communication des parties prenantes
+
+La communication n'est pas seulement un courriel de début. Elle prépare les utilisateurs, identifie les services potentiellement touchés, décrit la fenêtre, les symptômes possibles et le contact en cas d'écart. Pendant l'intervention, elle signale les étapes majeures et les écarts pertinents. Après, elle confirme les résultats et les limites. La cible du message détermine son niveau de détail.
+
+Le planning des changements sert à repérer les collisions : plusieurs changements peuvent toucher le même service ou la même équipe durant la même fenêtre. Les changements indépendants peuvent être coordonnés pour limiter le coût de mobilisation, mais le regroupement ne doit pas rendre le diagnostic impossible. Si une panne survient, l'historique doit permettre de savoir quelle modification a touché quel actif.
+
+~~~mermaid
+sequenceDiagram
+    participant P as Propriétaire du service
+    participant C as Responsable du changement
+    participant O as Opérateur
+    participant U as Utilisateurs
+    C->>P: Périmètre, risques et fenêtre
+    P-->>C: Approbation ou demandes de correction
+    C->>U: Avis de maintenance
+    C->>O: Autorisation et plan
+    O->>O: Exécuter étapes et tests
+    O-->>C: Résultat et écarts
+    C->>U: État du service et prochaines étapes
+~~~
+
+Les incidents survenus après un changement doivent être associés à la chronologie sans présumer automatiquement d'un lien causal. Les données de supervision, les journaux, la version et les résultats des tests aident à évaluer si le changement a contribué au problème. Une revue après mise en œuvre doit examiner les résultats et la qualité de la décision.
+
+## 12. Mesurer la pratique et éviter les indicateurs trompeurs
+
+Les indicateurs peuvent suivre le taux de succès des changements, les changements d'urgence, les incidents associés à un changement, les retours arrière, les erreurs de planification, la qualité des preuves et la durée d'approbation. Chaque indicateur doit définir son numérateur, son dénominateur, la période, la source et les exclusions. Un taux élevé de changements réussis peut cacher une définition du succès trop faible.
+
+Ne cherche pas à réduire artificiellement le nombre de changements d'urgence en reclassant les demandes. Étudie les causes : préparation insuffisante, défaut de planification, vulnérabilité imprévue, dépendance fournisseur ou besoin métier réel. Les indicateurs doivent soutenir l'amélioration, pas punir une équipe au point de la pousser à masquer des événements.
+
+Sources officielles pour approfondir :
+- PeopleCert, pratique de gestion des incidents ITIL 4 : https://www.peoplecert.org/browse-certifications/it-governance-and-service-management/ITIL-1/itil4-practices-incident-management-3684
+- PeopleCert, pratique Change Enablement : https://www.peoplecert.org/browse-certifications/it-service-management/ITIL-1
+- Référentiel des pratiques ITIL 4 : https://www.peoplecert.org/ITIL4-practices
+
+### TP 6 — Qualifier une demande de changement
+
+Un administrateur veut modifier la configuration DNS pour corriger un incident. Le service est partiellement disponible et le contournement est fragile. Prépare la demande, les vérifications, l'autorisation et la communication.
+
+**Correction :** le changement décrit les noms et zones concernés, les observations, les risques, les vérifications de configuration, la fenêtre, le retour arrière, les tests depuis plusieurs clients et les responsables. La gravité de l'incident justifie une priorité, mais le chemin standard, normal ou urgence dépend des règles de l'organisation. Après le changement, vérifie la résolution des noms, les services métier et les alarmes.
+
+### TP 7 — Définir une erreur connue
+
+Plusieurs tickets ont la même erreur, et un contournement fonctionne mais ne supprime pas la cause.
+
+**Correction :** créer ou compléter un enregistrement de problème avec les symptômes, le périmètre, les causes suspectées ou confirmées, le contournement et les limites. Lier les tickets et prévoir la revue. L'article doit indiquer la version et les conditions où le contournement est acceptable.
+
+### TP 8 — Revue après mise en œuvre
+
+Un changement est techniquement déployé, mais les utilisateurs signalent toujours une lenteur.
+
+**Correction :** le succès n'est pas démontré. Comparer les mesures avant/après, tester le parcours métier, ouvrir ou lier un incident, consigner les effets secondaires et décider si un retour ou une investigation complémentaire est nécessaire. La clôture doit correspondre aux critères définis.
+
+## 13. Défi final — Améliorer le traitement des changements
+
+À partir de dix tickets récurrents, propose une façon d'identifier un problème commun, d'évaluer une solution, de créer un changement et d'en vérifier le résultat.
+
+**Correction détaillée :** regrouper les incidents par symptômes et période, établir les preuves, ouvrir ou compléter un problème, définir le risque et les options, obtenir une autorisation adaptée, planifier les tests et le retour, communiquer, exécuter, vérifier et mettre à jour la base de connaissances. Le tableau de bord doit suivre les incidents associés et les retours arrière. Une baisse d'incidents n'est attribuée au changement que si les observations la soutiennent.
