@@ -1,0 +1,102 @@
+{
+  "node_id": "data-gouvernance-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal bénéfice du lignage des données ?",
+      "choices": [
+        "Augmenter automatiquement la capacité CPU",
+        "Retracer les sources, transformations et usages afin d’analyser l’impact d’un changement ou d’une anomalie",
+        "Remplacer les contrôles de qualité",
+        "Garantir que toutes les données sont exactes"
+      ],
+      "answer": 1,
+      "explanation": "Le lignage relie sources, étapes de transformation et consommateurs. Il aide à analyser l’impact, diagnostiquer les erreurs et démontrer la provenance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue un catalogue de données bien maintenu ?",
+      "choices": [
+        "Exécuter seul toutes les transformations",
+        "Remplacer les ACL et politiques de sécurité",
+        "Documenter jeux de données, schémas, propriétaires, définitions métier et métadonnées utiles",
+        "Garantir la conformité sans contrôles supplémentaires"
+      ],
+      "answer": 2,
+      "explanation": "Le catalogue aide les utilisateurs à découvrir et comprendre les données. Il ne dispense pas des contrôles d’accès ni de la validation des usages."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Laquelle est une dimension classique de qualité des données ?",
+      "choices": [
+        "Complétude, validité, cohérence, unicité ou fraîcheur selon le besoin métier",
+        "Le nombre d’emojis dans le nom d’une table",
+        "La couleur du graphique de reporting",
+        "La taille de l’écran de l’analyste"
+      ],
+      "answer": 0,
+      "explanation": "Les dimensions qualité doivent être adaptées à la finalité : complétude, exactitude, cohérence, unicité et actualité, mesurées avec des règles explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un data steward dans une gouvernance ?",
+      "choices": [
+        "À administrer seul le système d’exploitation",
+        "À garantir que les analystes ne posent aucune question",
+        "À remplacer le propriétaire de chaque processus métier",
+        "À coordonner les définitions, règles qualité et responsabilités métier des données"
+      ],
+      "answer": 3,
+      "explanation": "Le data steward accompagne les règles et métadonnées métier. La responsabilité doit être partagée avec des propriétaires clairement désignés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi classifier les données avant de définir leur rétention ?",
+      "choices": [
+        "La classification rend toute donnée publique",
+        "La sensibilité et les obligations de conservation influencent les accès, protections et délais de suppression",
+        "La classification supprime toutes les erreurs de saisie",
+        "La rétention doit être identique pour tous les jeux de données"
+      ],
+      "answer": 1,
+      "explanation": "La classification permet d’associer des exigences de sécurité et de conservation cohérentes avec la sensibilité, la finalité et les obligations applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème la gestion des données de référence (MDM) cherche-t-elle à réduire ?",
+      "choices": [
+        "La nécessité de faire des sauvegardes",
+        "Le stockage des logs techniques",
+        "Les divergences d’entités communes comme clients, produits ou fournisseurs entre plusieurs systèmes",
+        "La présence de clés primaires"
+      ],
+      "answer": 2,
+      "explanation": "La gestion des données de référence cherche à harmoniser les identifiants, attributs et règles d’entités partagées afin de limiter les divergences entre systèmes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que définit un contrat de données entre un producteur et ses consommateurs ?",
+      "choices": [
+        "Le schéma attendu, la sémantique, les garanties de qualité/fraîcheur et la gestion des évolutions",
+        "Uniquement le mot de passe de l’outil d’ETL",
+        "La possibilité de changer les colonnes sans préavis",
+        "Un engagement à ne jamais monitorer les données"
+      ],
+      "answer": 0,
+      "explanation": "Un contrat explicite les attentes et les modes de changement. Des contrôles automatisés peuvent détecter les incompatibilités avant qu’elles ne cassent les consommateurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une source cesse d’envoyer des données depuis deux heures mais le pipeline reste vert. Quelle mesure de gouvernance opérationnelle manque probablement ?",
+      "choices": [
+        "Un thème sombre dans l’outil d’analyse",
+        "Un index supplémentaire sur chaque colonne",
+        "Un nom de table plus court",
+        "Un contrôle de fraîcheur assorti d’un seuil d’alerte et d’un responsable"
+      ],
+      "answer": 3,
+      "explanation": "Un pipeline peut réussir à traiter zéro enregistrement. La fraîcheur doit être mesurée par rapport aux attentes métier, avec alertes et procédures de résolution."
+    }
+  ]
+}
