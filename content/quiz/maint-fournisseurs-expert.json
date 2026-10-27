@@ -1,0 +1,126 @@
+{
+  "node_id": "maint-fournisseurs-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quels critères doivent guider l'évaluation d'un fournisseur de service critique ?",
+      "choices": [
+        "La qualité réelle, les engagements contractuels, la sécurité, la continuité, les résultats et le risque",
+        "Le coût uniquement",
+        "La qualité de la présentation commerciale",
+        "Le nombre de réunions organisées"
+      ],
+      "answer": 0,
+      "explanation": "L'évaluation doit couvrir les résultats et les risques réels, pas seulement le prix ou la qualité commerciale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment vérifier qu'un fournisseur respecte un SLA ?",
+      "choices": [
+        "Se fier à sa déclaration annuelle sans mesure",
+        "Comparer les données mesurées aux définitions, périodes et exclusions contractuelles",
+        "Modifier la définition du SLA après chaque incident",
+        "Compter uniquement les incidents visibles sur les réseaux sociaux"
+      ],
+      "answer": 1,
+      "explanation": "La mesure doit employer les définitions et règles de calcul prévues afin que les résultats soient comparables et auditables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de transmettre au fournisseur des journaux contenant des données potentiellement sensibles, que faut-il vérifier ?",
+      "choices": [
+        "Que le fichier est compressé",
+        "Que le fournisseur a déjà répondu à un autre ticket",
+        "Que le partage est autorisé, limité au besoin et que les secrets ou données inutiles sont masqués",
+        "Que le message est envoyé en copie à toute l'entreprise"
+      ],
+      "answer": 2,
+      "explanation": "Les échanges doivent respecter les autorisations et minimiser les données transmises, en particulier les secrets et informations personnelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un fournisseur annonce qu'il ne pourra pas respecter une fenêtre d'intervention. Quelle est la meilleure conduite ?",
+      "choices": [
+        "Accepter le report sans examiner l'impact",
+        "Lui demander de faire l'intervention sans autorisation",
+        "Annuler tous les contrôles de changement",
+        "Évaluer l'impact, activer la voie d'escalade contractuelle et convenir d'un plan validé avec les parties concernées"
+      ],
+      "answer": 3,
+      "explanation": "Les écarts doivent être évalués et gérés par une décision traçable qui protège le service et respecte les engagements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi conserver des critères d'évaluation définis avant la revue d'un fournisseur ?",
+      "choices": [
+        "Pour limiter les décisions arbitraires et comparer les résultats de manière cohérente",
+        "Pour garantir que le fournisseur actuel sera toujours choisi",
+        "Pour éviter de collecter des données",
+        "Pour supprimer la nécessité d'examiner les risques"
+      ],
+      "answer": 0,
+      "explanation": "Des critères établis à l'avance soutiennent une évaluation comparable, explicable et plus équitable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier lors de la due diligence d'un fournisseur ayant accès à des systèmes sensibles ?",
+      "choices": [
+        "Uniquement son logo et son ancienneté",
+        "Ses contrôles de sécurité, ses accès, ses sous-traitants, la gestion des incidents et les preuves pertinentes",
+        "Que ses employés utilisent le même mot de passe",
+        "Que les journaux ne soient pas accessibles au client"
+      ],
+      "answer": 1,
+      "explanation": "L'accès d'un fournisseur introduit des risques de sécurité et de dépendance qui doivent être évalués et suivis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'intérêt d'un scorecard fournisseur régulier ?",
+      "choices": [
+        "Remplacer les termes contractuels",
+        "Mesurer uniquement le volume de courriels échangés",
+        "Suivre de façon homogène la qualité, les incidents, les délais et les actions d'amélioration",
+        "Éviter les échanges sur les écarts constatés"
+      ],
+      "answer": 2,
+      "explanation": "Un tableau de bord régulier rend visibles les tendances, les écarts et les décisions d'amélioration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit prévoir un plan de continuité concernant un fournisseur important ?",
+      "choices": [
+        "Que le fournisseur ne connaîtra jamais d'incident",
+        "Que le service pourra être remplacé instantanément sans préparation",
+        "Que les accès et dépendances restent inconnus",
+        "Des scénarios de défaillance, des contacts, des responsabilités et des solutions de repli réalistes"
+      ],
+      "answer": 3,
+      "explanation": "La continuité exige de préparer les dépendances, les contacts et des scénarios de repli compatibles avec les besoins de service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une série d'incidents imputés à un fournisseur ?",
+      "choices": [
+        "Documenter les faits, analyser les tendances et convenir d'actions correctives avec responsables et échéances",
+        "Négocier une réduction avant de collecter les éléments",
+        "Supprimer les tickets anciens",
+        "Attribuer tous les incidents au fournisseur sans vérifier les causes"
+      ],
+      "answer": 0,
+      "explanation": "Les données et l'analyse partagée permettent d'établir les responsabilités et d'obtenir des actions correctives suivies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels éléments sont utiles avant de renouveler un contrat fournisseur ?",
+      "choices": [
+        "La dernière facture uniquement",
+        "Les résultats sur la durée, les risques résiduels, les évolutions de besoin, le coût total et les options de sortie",
+        "Le seul avis du commercial",
+        "L'absence de plainte durant une semaine"
+      ],
+      "answer": 1,
+      "explanation": "Le renouvellement doit tenir compte des résultats, des risques, des besoins futurs et de la possibilité de changer de fournisseur."
+    }
+  ]
+}

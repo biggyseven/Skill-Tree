@@ -1,0 +1,126 @@
+{
+  "node_id": "maint-procedures-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel élément est indispensable à une procédure d'intervention maintenable ?",
+      "choices": [
+        "Un titre sans autre information",
+        "Une liste de commandes sans conditions d'utilisation",
+        "Le périmètre, les prérequis, les étapes, les critères de validation et le retour arrière",
+        "La mémoire orale d'un seul technicien"
+      ],
+      "answer": 2,
+      "explanation": "Une procédure doit pouvoir être exécutée de manière reproductible et évaluée à partir de critères explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment gérer une modification d'une procédure utilisée en production ?",
+      "choices": [
+        "Écraser l'ancienne version sans historique",
+        "Modifier directement la procédure pendant une intervention",
+        "Laisser chaque technicien garder sa propre copie",
+        "Appliquer une revue, une approbation et une gestion de version selon les règles de l'organisation"
+      ],
+      "answer": 3,
+      "explanation": "La maîtrise des versions permet de savoir quelle procédure est approuvée, applicable et utilisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on définir avant de tester une nouvelle procédure ?",
+      "choices": [
+        "Les conditions de test, les risques acceptables, les résultats attendus et la méthode d'arrêt ou de retour arrière",
+        "Le nombre de pages du document uniquement",
+        "Le nom du premier utilisateur qui l'essaiera",
+        "Une date de mise en production, même sans critères d'acceptation"
+      ],
+      "answer": 0,
+      "explanation": "Le test doit être cadré pour pouvoir détecter un résultat incorrect et arrêter l'opération sans aggraver la situation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une procédure prévoit une action à risque mais ne précise pas les autorisations nécessaires. Quelle est la bonne réaction ?",
+      "choices": [
+        "L'appliquer puisque le document est publié",
+        "Suspendre l'action concernée et faire compléter ou valider les autorisations requises",
+        "Demander à un collègue de prendre la responsabilité à ta place",
+        "Retirer l'avertissement pour ne pas ralentir l'équipe"
+      ],
+      "answer": 1,
+      "explanation": "Une procédure incomplète ne remplace pas les autorisations. Le risque doit être clarifié avant l'intervention."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi indiquer les prérequis et contrôles avant exécution ?",
+      "choices": [
+        "Pour rallonger le document",
+        "Pour éviter tout besoin de formation",
+        "Pour vérifier que les conditions de départ rendent l'action sûre et pertinente",
+        "Pour que les étapes puissent varier sans trace"
+      ],
+      "answer": 2,
+      "explanation": "Les prérequis évitent d'exécuter une étape dans un état système incompatible avec son fonctionnement prévu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère décrit le mieux une étape de validation ?",
+      "choices": [
+        "« Tout semble normal »",
+        "« Le technicien pense que c'est bon »",
+        "« Aucun collègue n'a appelé »",
+        "Une mesure ou un test observable avec une condition de réussite définie"
+      ],
+      "answer": 3,
+      "explanation": "Des critères observables rendent le résultat reproductible et facilitent le diagnostic en cas d'échec."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il réviser une procédure ?",
+      "choices": [
+        "Après un changement significatif, un incident révélateur ou une revue périodique prévue",
+        "Uniquement lorsqu'un nouveau responsable arrive",
+        "Seulement si le document dépasse dix pages",
+        "Jamais si une ancienne version a été approuvée"
+      ],
+      "answer": 0,
+      "explanation": "Les procédures doivent rester alignées sur les systèmes, les risques, les incidents et les contrôles actuels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une étape échoue pendant une intervention. Que prévoit une bonne procédure ?",
+      "choices": [
+        "La répétition illimitée de la commande jusqu'à réussite",
+        "Des critères d'arrêt, des actions de sécurisation et une voie d'escalade",
+        "La suppression du journal technique",
+        "La poursuite automatique vers l'étape suivante"
+      ],
+      "answer": 1,
+      "explanation": "La procédure doit expliquer comment s'arrêter et réagir sans aggraver l'état du système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'intérêt de préciser un propriétaire de procédure ?",
+      "choices": [
+        "Cela signifie que cette personne doit faire toutes les interventions elle-même",
+        "Cela dispense les autres de consulter la procédure",
+        "Cela identifie qui maintient le document et coordonne sa revue",
+        "Cela rend inutile l'historique de version"
+      ],
+      "answer": 2,
+      "explanation": "Un propriétaire clairement identifié favorise la mise à jour, la revue et la résolution des incohérences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir le compte rendu après une modification de procédure ?",
+      "choices": [
+        "Uniquement la durée de réunion",
+        "Uniquement la liste des personnes présentes",
+        "La mention vague « document mis à jour »",
+        "La version modifiée, la raison, les validations, les tests effectués et la date d'entrée en vigueur"
+      ],
+      "answer": 3,
+      "explanation": "La traçabilité relie le changement aux raisons, aux validations et aux preuves qui justifient son utilisation."
+    }
+  ]
+}

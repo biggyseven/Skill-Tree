@@ -1,0 +1,126 @@
+{
+  "node_id": "maint-securite-base-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Avant une intervention qui peut modifier un service, quelle vérification est prioritaire ?",
+      "choices": [
+        "Confirmer le périmètre, l'autorisation, le risque et la procédure de retour arrière",
+        "Utiliser le compte le plus privilégié disponible",
+        "Désactiver les protections pour éviter les alertes",
+        "Modifier plusieurs éléments à la fois"
+      ],
+      "answer": 0,
+      "explanation": "Une préparation contrôlée vérifie que l'intervention est autorisée et que ses effets peuvent être évalués ou annulés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Tu découvres un câble électrique abîmé ou une odeur de brûlé. Que fais-tu ?",
+      "choices": [
+        "Ouvrir l'équipement pour inspecter l'alimentation",
+        "Ne pas manipuler l'élément dangereux et suivre la procédure d'alerte du site",
+        "Déplacer le câble sous tension",
+        "Continuer l'intervention et signaler le fait en fin de journée"
+      ],
+      "answer": 1,
+      "explanation": "Un danger électrique ou thermique doit être traité selon les consignes de sécurité, sans manipulation improvisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider l'attribution des droits d'accès ?",
+      "choices": [
+        "Tous les techniciens utilisent un compte administrateur partagé",
+        "Les droits restent actifs même après la fin de la mission",
+        "Accorder uniquement les droits nécessaires, pour la durée nécessaire",
+        "Les droits sont attribués selon l'ancienneté plutôt que le besoin"
+      ],
+      "answer": 2,
+      "explanation": "Le moindre privilège réduit l'impact d'une erreur ou d'une compromission et améliore la traçabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Tu soupçonnes un incident de sécurité sur un poste. Quelle est la meilleure action ?",
+      "choices": [
+        "Effacer les journaux pour protéger la confidentialité",
+        "Redémarrer plusieurs fois jusqu'à disparition de l'alerte",
+        "Envoyer les fichiers suspects à tous les collègues",
+        "Appliquer la procédure d'incident, alerter l'équipe compétente et préserver les éléments utiles"
+      ],
+      "answer": 3,
+      "explanation": "La procédure d'incident limite les dégâts et préserve les éléments nécessaires à l'analyse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas partager un mot de passe dans un ticket ?",
+      "choices": [
+        "Le ticket peut être visible au-delà du cercle nécessaire et le secret devient difficile à contrôler",
+        "Le ticket ne peut contenir aucun texte technique",
+        "Un mot de passe partagé est automatiquement changé par le système",
+        "Le partage empêche tout journal d'accès"
+      ],
+      "answer": 0,
+      "explanation": "Les secrets doivent rester dans les mécanismes autorisés de gestion d'identifiants, pas dans les commentaires de support."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une opération susceptible d'altérer des données, que faut-il confirmer ?",
+      "choices": [
+        "Que le ticket porte la mention urgente",
+        "Que la sauvegarde est pertinente et que la restauration peut être vérifiée selon la procédure",
+        "Que l'utilisateur a fourni son mot de passe",
+        "Que le contrôle de changement n'est plus nécessaire"
+      ],
+      "answer": 1,
+      "explanation": "Il faut suivre le processus de sauvegarde et de restauration applicable au risque et à l'action envisagée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique réduit le risque de dommage électrostatique lors de la manipulation d'un composant sensible ?",
+      "choices": [
+        "Poser la carte sur une surface quelconque",
+        "Toucher les contacts pour vérifier le modèle",
+        "Utiliser un poste et des protections ESD adaptés aux consignes du fabricant",
+        "Maintenir le système sous tension pendant la manipulation"
+      ],
+      "answer": 2,
+      "explanation": "Les précautions contre les décharges électrostatiques doivent être adaptées au matériel et au poste de travail."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une personne demande de désactiver temporairement une protection pour tester une application. Quelle réponse convient ?",
+      "choices": [
+        "Le faire sans autorisation si le test dure moins d'une minute",
+        "Désactiver aussi les autres protections pour éviter les interférences",
+        "Oublier la remise en état si l'application démarre",
+        "Utiliser un test autorisé et ciblé, avec périmètre, durée et remise en état contrôlés"
+      ],
+      "answer": 3,
+      "explanation": "La désactivation improvisée d'une protection expose le système ; le test doit être approuvé et limité au strict nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel câble faut-il débrancher dans une baie lorsqu'une étiquette manque ?",
+      "choices": [
+        "Aucun avant d'avoir identifié les extrémités, le service concerné et l'impact de la déconnexion",
+        "Le plus ancien visuellement",
+        "Celui qui gêne l'accès aux autres câbles",
+        "Tous les câbles voisins pour faciliter l'inspection"
+      ],
+      "answer": 0,
+      "explanation": "Un câble non étiqueté peut supporter un service critique ; l'identifier et vérifier l'impact précède toute manipulation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon réflexe lorsqu'une action dépasse tes compétences ou ton autorisation ?",
+      "choices": [
+        "Continuer en masquant l'avertissement",
+        "Sécuriser la situation, consigner les faits et solliciter l'interlocuteur compétent",
+        "Emprunter les identifiants d'un collègue",
+        "Marquer la tâche comme réussie sans vérification"
+      ],
+      "answer": 1,
+      "explanation": "L'escalade est une pratique normale de sécurité et de qualité, pas un échec."
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "node_id": "maint-reporting-incident-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but principal d'un rapport d'incident technique ?",
+      "choices": [
+        "Présenter les faits, l'impact, la chronologie, les actions et les suites à donner de manière vérifiable",
+        "Identifier rapidement une personne à blâmer",
+        "Remplacer les journaux techniques par une conclusion courte",
+        "Garantir qu'une panne identique ne se produira jamais"
+      ],
+      "answer": 0,
+      "explanation": "Un rapport utile facilite la décision, la coordination et l'amélioration en distinguant les faits des hypothèses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment noter une cause qui n'a pas encore été confirmée ?",
+      "choices": [
+        "La présenter comme certaine pour simplifier la lecture",
+        "La décrire comme une hypothèse et préciser ce qui permettrait de la confirmer",
+        "L'omettre même si elle guide les investigations",
+        "La remplacer par le premier avis reçu"
+      ],
+      "answer": 1,
+      "explanation": "Le rapport doit conserver un niveau de certitude explicite pour éviter de transformer une hypothèse en fait."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il privilégier dans la chronologie d'un incident ?",
+      "choices": [
+        "Les impressions personnelles du rédacteur",
+        "Uniquement l'heure de résolution",
+        "Les horodatages pertinents, les symptômes observés, les changements et les décisions importantes",
+        "Les détails sans lien avec l'incident"
+      ],
+      "answer": 2,
+      "explanation": "Une chronologie factuelle aide à reconstruire les événements et à corréler les éléments techniques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur est particulièrement utile pour décrire l'effet opérationnel d'un incident ?",
+      "choices": [
+        "La longueur du rapport",
+        "Le nombre de personnes présentes à la réunion de suivi",
+        "Le nombre de captures d'écran jointes",
+        "La durée d'indisponibilité, les services touchés et les utilisateurs affectés"
+      ],
+      "answer": 3,
+      "explanation": "Le rapport doit décrire l'impact réel sur les services et les utilisateurs, avec des mesures adaptées au contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment communiquer pendant un incident encore en cours ?",
+      "choices": [
+        "Donner des mises à jour régulières selon le processus, même si toutes les causes ne sont pas connues",
+        "Attendre de connaître la cause racine avant tout message",
+        "Envoyer chaque hypothèse technique à tous les utilisateurs",
+        "Changer l'heure de résolution estimée sans en expliquer la raison"
+      ],
+      "answer": 0,
+      "explanation": "Les mises à jour doivent informer sur l'impact, l'état et les prochaines étapes, sans spéculation présentée comme certitude."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une liste d'actions de suivi ?",
+      "choices": [
+        "À remplacer l'analyse technique",
+        "À attribuer les actions à des responsables, avec échéances et critères de fermeture",
+        "À éviter de documenter les décisions",
+        "À garantir que toutes les actions sont terminées dès leur création"
+      ],
+      "answer": 1,
+      "explanation": "Un suivi explicite transforme les constats en actions traçables et permet de vérifier leur réalisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu convient à une synthèse destinée à la direction ?",
+      "choices": [
+        "Une transcription exhaustive de toutes les commandes",
+        "Les seules hypothèses les plus complexes",
+        "L'impact métier, la durée, les mesures prises, le risque résiduel et les décisions nécessaires",
+        "Les identifiants et secrets de tous les systèmes affectés"
+      ],
+      "answer": 2,
+      "explanation": "La synthèse doit être adaptée au destinataire, mettre en évidence l'impact et indiquer les décisions ou actions attendues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi éviter d'attribuer l'incident à une personne sans preuve ?",
+      "choices": [
+        "Cela améliore automatiquement la prévention",
+        "Cela simplifie tous les rapports",
+        "Cela élimine le besoin de revoir les contrôles",
+        "Cela biaise l'analyse et peut empêcher d'identifier les facteurs techniques ou organisationnels"
+      ],
+      "answer": 3,
+      "explanation": "Une analyse orientée vers les faits et les facteurs contributifs aide à concevoir des mesures préventives efficaces."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel document sert le mieux à appuyer les conclusions techniques ?",
+      "choices": [
+        "Des journaux, métriques, résultats de tests et changements horodatés, protégés et pertinents",
+        "Une capture non datée sans contexte",
+        "Une conversation non vérifiable rapportée de mémoire",
+        "Une conclusion qui ne cite aucune observation"
+      ],
+      "answer": 0,
+      "explanation": "Les conclusions doivent être reliées à des éléments pertinents et conservés de manière appropriée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quel moment peut-on clôturer le suivi d'un incident ?",
+      "choices": [
+        "Dès que le service répond une fois, quels que soient les critères",
+        "Lorsque les critères de résolution sont vérifiés et que les actions de suivi sont attribuées ou clôturées selon le processus",
+        "Quand le rapport atteint une longueur prédéfinie",
+        "Lorsque le ticket a été transféré à une autre équipe"
+      ],
+      "answer": 1,
+      "explanation": "La clôture doit refléter l'état réel de la résolution et le statut explicite des suites à mener."
+    }
+  ]
+}
