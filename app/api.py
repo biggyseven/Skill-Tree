@@ -1346,19 +1346,68 @@ def exam_resume(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
 
 @app.post("/api/exam/start")
 def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
-    """Alias de compatibilité : démarre un examen sur une catégorie, sans dévoiler le corrigé."""
-    category = str(payload.get("category") or "").strip()
-    if not category:
-        raise HTTPException(422, "Catégorie d'examen manquante.")
+    """Démarre un examen blanc par catégorie ou l’examen dédié à un cours."""
+    if not isinstance(payload, dict):
+        raise HTTPException(422, "Un objet JSON est attendu.")
+
+    requested_node_id = payload.get("node_id")
+    if requested_node_id is not None:
+        if not isinstance(requested_node_id, str) or not requested_node_id.strip():
+            raise HTTPException(422, "node_id manquant ou invalide.")
+        try:
+            node = tree.node(requested_node_id.strip())
+        except DomainError as error:
+            raise HTTPException(404, str(error)) from error
+        requirement = node.requirement(ProofKind.EXAM)
+        if requirement is None:
+            raise HTTPException(409, "Ce cours ne possède pas d’exigence d’examen dédiée.")
+        try:
+            tree.playable(node.id)
+        except DomainError as error:
+            raise HTTPException(409, str(error)) from error
+
+        # Cet examen utilise exclusivement la banque dédiée du cours demandé.
+        # Le lecteur actuel rend les QCM ; les questions texte/terminal restent dans le centre avancé.
+        question_pool = [
+            question
+            for question in tree.questions(node.id, ProofKind.EXAM)
+            if question.question_type == "qcm"
+        ]
+        if not question_pool:
+            raise HTTPException(422, "Aucune question QCM d’examen dédiée n’est disponible pour ce cours.")
+        return _create_exam_session(
+            tree,
+            [node],
+            count=EXAM_QUESTION_COUNT,
+            time_limit=EXAM_DURATION_SECONDS,
+            category=node.title,
+            question_pool=question_pool,
+            node_id=node.id,
+            exam_type="course",
+            passing_score=requirement.min_score,
+        )
+
+    category = payload.get("category")
+    if not isinstance(category, str) or not category.strip():
+        raise HTTPException(422, "Catégorie d’examen manquante ou invalide.")
+    category = category.strip()
     nodes = [node for node in tree.nodes() if node.category == category]
     if not nodes:
-        raise HTTPException(422, "Aucun cours disponible pour cette catégorie.")
+        raise HTTPException(404, "Catégorie d’examen introuvable.")
+
+    # L’onglet Mode examen présente les questions sous forme de QCM.
+    question_pool = [
+        question
+        for question in _exam_question_pool(tree, nodes)
+        if question.question_type == "qcm"
+    ]
     return _create_exam_session(
         tree,
         nodes,
         count=EXAM_QUESTION_COUNT,
         time_limit=EXAM_DURATION_SECONDS,
         category=category,
+        question_pool=question_pool,
     )
 
 @app.post("/api/tutor")
