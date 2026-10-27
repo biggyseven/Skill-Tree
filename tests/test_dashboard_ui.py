@@ -1030,7 +1030,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
     def test_course_reader_navigation_is_scoped_to_active_module(self):
         self.assertIn("def _configured_node_orders()", API_SOURCE)
+        self.assertIn("def _configured_node_positions()", API_SOURCE)
         self.assertIn('configured_orders.get(n.id, n.sort_order)', API_SOURCE)
+        self.assertIn('"catalog_index": configured_positions.get(n.id, fallback_index)', API_SOURCE)
         self.assertIn('"sort_order": n.sort_order', API_SOURCE)
         start = DASHBOARD_HTML.index("        get lessonNavigationModule()")
         end = DASHBOARD_HTML.index("        get lessonCurrentIndex()", start)
@@ -1039,6 +1041,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("const activeModule = this.lessonNavigationModule;", navigation_logic)
         self.assertIn("this.moduleOf(node) === moduleId", navigation_logic)
         self.assertIn("const rawOrder = node.order ?? node.sort_order;", navigation_logic)
+        self.assertIn("const rawCatalogIndex = node.catalog_index;", navigation_logic)
         self.assertIn("get lessonNeighbors()", DASHBOARD_HTML)
         self.assertIn("const firstCourse = id === 'all' ? null : this.orderedModuleLessons(id)[0];", DASHBOARD_HTML)
         self.assertIn('aria-label="Navigation entre les leçons"', DASHBOARD_HTML)
