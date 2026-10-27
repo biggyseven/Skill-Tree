@@ -146,6 +146,25 @@ flowchart TD
 
 Ce diagramme fournit une première orientation. Le ticket peut être lié à un problème ou à un changement sans que l'incident initial disparaisse du suivi.
 
+### Schéma — qualifier une demande sans tirer de conclusion trop tôt
+
+```mermaid
+flowchart TD
+    A["Demande reçue"] --> B["Reformuler le symptôme ou le besoin"]
+    B --> C["Vérifier utilisateur, équipement et périmètre"]
+    C --> D{"Panne ou interruption non prévue ?"}
+    D -- "Oui" --> E["Classer comme incident"]
+    D -- "Non" --> F{"Besoin standard ou accès à fournir ?"}
+    F -- "Oui" --> G["Classer comme demande de service"]
+    F -- "Non" --> H["Chercher s'il s'agit d'un problème ou changement"]
+    E --> I["Définir impact et urgence"]
+    G --> I
+    H --> I
+    I --> J["Documenter la catégorie et les incertitudes"]
+```
+
+La catégorie dépend de la nature du besoin et des règles de l'organisation, pas seulement du vocabulaire employé par la personne. Une demande mal classée peut être affectée à la mauvaise équipe ou soumise à des délais inadaptés.
+
 ## 4. Le cycle de vie d'un ticket
 
 Les statuts exacts dépendent du logiciel et de l'organisation. Le principe reste le même : chaque ticket doit avoir un état compréhensible et une prochaine action identifiable.
@@ -201,6 +220,24 @@ flowchart LR
 ```
 
 Un ticket peut revenir au diagnostic si le problème réapparaît ou si la validation révèle qu'un critère n'est pas satisfait.
+
+### Schéma — transformer un signalement en ticket exploitable
+
+```mermaid
+flowchart TD
+    A["Signalement initial"] --> B["Titre précis et neutre"]
+    B --> C["Symptôme, heure et étapes de reproduction"]
+    C --> D["Utilisateur, équipement et service touché"]
+    D --> E["Impact et nombre de personnes concernées"]
+    E --> F["Résultats déjà observés et pièces jointes utiles"]
+    F --> G["Vérifier les données sensibles"]
+    G --> H{"Informations essentielles suffisantes ?"}
+    H -- "Non" --> I["Demander les éléments manquants"]
+    H -- "Oui" --> J["Enregistrer et affecter selon la procédure"]
+    I --> C
+```
+
+Un ticket de qualité doit permettre à un autre technicien de reprendre l'incident sans recommencer toute la collecte. N'invente pas des détails manquants : note explicitement ce qui reste à confirmer.
 
 ## 5. Construire un ticket de qualité
 
@@ -273,6 +310,25 @@ Il vaut mieux conserver un extrait ciblé et contextualisé qu'un fichier comple
 
 Cet exemple ne décrit pas un incident réel. Il illustre la manière de séparer les faits connus des éléments à vérifier.
 
+### Schéma — estimer la priorité à partir de l'impact et de l'urgence
+
+```mermaid
+flowchart TD
+    A["Incident qualifié"] --> B["Évaluer le nombre d'utilisateurs ou services touchés"]
+    A --> C["Évaluer la criticité et l'existence d'un contournement"]
+    B --> D["Évaluer l'impact"]
+    C --> E["Évaluer l'urgence"]
+    D --> F["Appliquer la matrice de priorité interne"]
+    E --> F
+    F --> G["Consigner la justification"]
+    G --> H{"Impact ou urgence a changé ?"}
+    H -- "Oui" --> I["Réévaluer et informer les personnes concernées"]
+    H -- "Non" --> J["Suivre la file et le délai cible"]
+    I --> J
+```
+
+La priorité ne doit pas être choisie seulement en fonction de l'insistance d'une personne. Elle doit être cohérente avec l'impact, l'urgence et la matrice de l'organisation ; si une règle spécifique s'applique à un incident critique, suis cette règle et documente la décision.
+
 ## 6. Impact, urgence et priorité
 
 ### 6.1 Impact
@@ -310,6 +366,25 @@ Cette matrice est illustrative. Les niveaux, délais de réaction et règles de 
 La priorité doit évoluer si de nouvelles informations changent l'impact ou l'urgence. Par exemple, un incident initialement limité à un poste peut se révéler affecter un service partagé.
 
 Documente la raison d'une modification importante de priorité. Cela facilite les transmissions et évite les changements arbitraires.
+
+### Schéma — surveiller un ticket par rapport aux délais convenus
+
+```mermaid
+flowchart TD
+    A["Ticket enregistré"] --> B["Identifier le SLA et le calendrier applicables"]
+    B --> C["Confirmer la réception et le prochain point d'information"]
+    C --> D["Suivre l'âge, le statut et les blocages"]
+    D --> E{"Le délai cible risque-t-il d'être dépassé ?"}
+    E -- "Non" --> F["Poursuivre le traitement et les mises à jour"]
+    E -- "Oui" --> G["Alerter le responsable selon la procédure"]
+    G --> H["Réviser l'affectation ou l'escalade"]
+    H --> I["Informer le demandeur sans promettre l'impossible"]
+    F --> J["Résoudre et vérifier"]
+    I --> D
+    J --> K["Consigner les temps et le résultat"]
+```
+
+Un délai de réponse et un délai de résolution sont deux notions différentes. Un ticket bloqué par une information attendue ou une intervention externe doit garder un statut exact ; il ne faut pas le fermer ou le masquer pour embellir les indicateurs.
 
 ## 7. Délais, SLA et attentes
 
@@ -375,6 +450,23 @@ Une fois le test terminé, indique ce qui a été fait et ce qui a été vérifi
 
 Une demande peut dépasser les droits de l'utilisateur, les règles de sécurité ou le périmètre du support. Dans ce cas, explique la règle de manière neutre et indique la procédure alternative autorisée. N'expose pas de détails qui faciliteraient le contournement des contrôles.
 
+### Schéma — communiquer à chaque étape du ticket
+
+```mermaid
+flowchart TD
+    A["Réception du ticket"] --> B["Accuser réception et reformuler"]
+    B --> C["Expliquer les informations manquantes"]
+    C --> D["Annoncer l'étape suivante et le délai de prochain point"]
+    D --> E["Envoyer une mise à jour si le statut évolue"]
+    E --> F{"Solution vérifiée ?"}
+    F -- "Non" --> G["Expliquer le blocage et la prochaine action"]
+    G --> E
+    F -- "Oui" --> H["Présenter la solution et demander une confirmation si nécessaire"]
+    H --> I["Clôturer selon la procédure et noter le résultat"]
+```
+
+La communication doit rester factuelle, compréhensible et proportionnée. Indique ce qui est connu, ce qui est en cours et quand une nouvelle information sera fournie ; évite les promesses de résolution qui dépendent d'une autre équipe.
+
 ## 9. Affectation et escalade
 
 ### 9.1 Pourquoi transférer ?
@@ -420,6 +512,22 @@ flowchart TD
 
 La transmission ne signifie pas abandonner le ticket. Le responsable du suivi doit rester clair selon les règles de l'organisation.
 
+### Schéma — préparer une escalade qui ne fait pas perdre le travail déjà réalisé
+
+```mermaid
+flowchart TD
+    A["Ticket dépasse le périmètre du premier niveau"] --> B["Vérifier le groupe de support cible"]
+    B --> C["Résumer le symptôme, l'impact et le début"]
+    C --> D["Lister les vérifications et leurs résultats"]
+    D --> E["Ajouter les codes d'erreur et journaux strictement utiles"]
+    E --> F["Indiquer les hypothèses et les questions non résolues"]
+    F --> G["Protéger les secrets et données personnelles"]
+    G --> H["Transférer avec le niveau d'urgence justifié"]
+    H --> I["Vérifier la prise en charge et rester responsable du suivi"]
+```
+
+Une escalade est un transfert de responsabilité technique, pas un abandon du ticket. Le premier niveau doit transmettre les faits, rester disponible pour clarifier le contexte et surveiller la bonne prise en charge.
+
 ## 10. Base de connaissances et récurrences
 
 ### 10.1 Pourquoi capitaliser ?
@@ -440,6 +548,23 @@ Lorsque des tickets similaires reviennent, associe-les si l'outil le permet et s
 
 Le helpdesk contribue ainsi à l'amélioration du service, et pas seulement à la résolution individuelle des demandes.
 
+### Schéma — transformer une résolution en connaissance réutilisable
+
+```mermaid
+flowchart TD
+    A["Incident résolu et vérifié"] --> B["Identifier s'il est récurrent ou utile à documenter"]
+    B --> C["Rassembler cause confirmée, portée et solution"]
+    C --> D["Faire relire la procédure par une personne compétente"]
+    D --> E{"Étapes sûres et reproductibles ?"}
+    E -- "Non" --> F["Corriger ou garder la note en brouillon"]
+    E -- "Oui" --> G["Publier dans la base approuvée"]
+    G --> H["Retirer les secrets et données propres au demandeur"]
+    H --> I["Réviser après changement ou nouvelle preuve"]
+    F --> D
+```
+
+Une base de connaissances n'est pas une collection de suppositions. Elle doit distinguer les symptômes, les conditions d'application, les prérequis, les risques, les étapes et la vérification finale. Les solutions improvisées ne doivent pas être publiées comme des procédures générales.
+
 ## 11. Confidentialité et sécurité des tickets
 
 Les tickets peuvent contenir des informations sensibles : identité des utilisateurs, noms de serveurs, adresses IP, journaux, captures, noms d'applications et détails d'incidents de sécurité.
@@ -449,6 +574,22 @@ Respecte le principe de minimisation : enregistre uniquement ce qui est nécessa
 Ne mets jamais de mot de passe, de jeton d'accès, de clé privée ou de secret dans la description d'un ticket. Utilise le mécanisme approuvé pour les secrets et la réinitialisation des accès.
 
 Un ticket qui concerne un incident de sécurité doit suivre les règles spécifiques de l'organisation. Il peut nécessiter une visibilité restreinte, une conservation particulière ou une transmission directe à l'équipe de sécurité.
+
+### Schéma — appliquer la confidentialité tout au long du ticket
+
+```mermaid
+flowchart TD
+    A["Collecter une information pour le diagnostic"] --> B["Vérifier qu'elle est nécessaire"]
+    B --> C{"Contient-elle un secret ou une donnée sensible ?"}
+    C -- "Oui" --> D["Éviter la collecte ou utiliser le canal approuvé"]
+    C -- "Non" --> E["Limiter l'accès aux personnes autorisées"]
+    D --> F["Masquer les éléments inutiles avant partage"]
+    E --> G["Joindre au ticket avec une description utile"]
+    F --> G
+    G --> H["Respecter conservation et suppression prévues"]
+```
+
+Ne demande jamais un mot de passe en clair et n'insère pas de jeton, clé privée ou donnée confidentielle dans une note partagée. Pour reproduire une erreur, privilégie les messages utiles et des captures assainies.
 
 ## 12. Indicateurs simples du helpdesk
 
@@ -469,6 +610,58 @@ Les indicateurs aident à comprendre la charge et la qualité du service. Ils do
 **Satisfaction utilisateur :** apporte un signal sur l'expérience, mais doit être interprétée avec prudence et combinée à d'autres mesures.
 
 Les indicateurs ne doivent pas inciter les techniciens à fermer rapidement des tickets au détriment de la qualité. Une mesure n'a de valeur que si les règles sont claires et les données fiables.
+
+### Schéma — lire les indicateurs du helpdesk sans les détourner
+
+```mermaid
+flowchart TD
+    A["Données de la file de tickets"] --> B["Vérifier la qualité et les statuts"]
+    B --> C["Mesurer volume, âge et délais"]
+    B --> D["Mesurer réouvertures et satisfaction selon la méthode"]
+    B --> E["Repérer les tickets bloqués et récurrences"]
+    C --> F["Comparer la période à périmètre équivalent"]
+    D --> F
+    E --> F
+    F --> G["Identifier les limites et les causes possibles"]
+    G --> H["Proposer une amélioration mesurable"]
+    H --> I["Suivre l'effet et partager le bilan"]
+```
+
+Les indicateurs doivent aider à améliorer le service, pas pousser à clôturer trop tôt ou à éviter les tickets difficiles. Un délai moyen ne raconte pas, à lui seul, la satisfaction, la qualité de résolution ni la répartition des impacts.
+
+## Parcours pratique du débutant
+
+Prévois 45 à 60 minutes dans un outil de ticketing de formation ou sur des fiches fictives. N'utilise pas de vraies données personnelles, de mot de passe ou d'informations confidentielles. L'objectif est de pratiquer la méthode du helpdesk, pas de simuler une intervention qui n'a pas été réalisée.
+
+### Étape 1 — Transformer une demande vague en description observable
+
+Demande fictive : « Mon ordinateur ne marche pas ». Prépare trois questions qui aident à décrire le problème sans suggérer la réponse : que se passe-t-il précisément, depuis quand, et quelles fonctions sont encore disponibles ? Rédige ensuite un titre court, par exemple « Impossible d'ouvrir la session Windows depuis 09 h 10 », uniquement si le scénario fournit réellement ces faits.
+
+### Étape 2 — Choisir la catégorie
+
+Pour chaque scénario, décide s'il s'agit d'un incident, d'une demande de service, d'un problème récurrent à investiguer ou d'un changement. Explique pourquoi. Si les informations ne suffisent pas, écris ce qu'il faut demander au lieu de deviner.
+
+### Étape 3 — Évaluer impact, urgence et priorité
+
+Imagine que le même service est indisponible pour un seul utilisateur, puis pour toute une équipe qui ne peut plus travailler. Compare l'impact et l'urgence, puis applique la matrice de priorité fournie par l'organisation fictive. N'utilise pas automatiquement la priorité la plus haute pour une personne qui insiste le plus.
+
+### Étape 4 — Affecter et documenter
+
+Choisis le groupe responsable selon le domaine : poste de travail, comptes, réseau, application ou sécurité. Rédige un résumé qui contient le symptôme, l'impact, l'heure, les tests déjà réalisés, les résultats exacts et les éléments restant à vérifier.
+
+### Étape 5 — Communiquer sans promettre l'impossible
+
+Écris un accusé de réception, puis une mise à jour si l'analyse est bloquée. Indique le prochain point de contact et ce qui attend une autre équipe ou le demandeur. Ne confonds pas une réponse rapide avec une résolution technique.
+
+### Étape 6 — Faire une escalade exploitable
+
+Prépare une courte note d'escalade pour un incident que le premier niveau ne peut pas résoudre. Inclue les faits, les vérifications effectuées, l'urgence justifiée, les pièces jointes nécessaires et les questions restantes. Exclue les secrets, mots de passe et données non pertinentes.
+
+### Étape 7 — Clôturer avec une preuve
+
+Dans un scénario fictif, définis le test qui démontrerait que la solution fonctionne et le moment où une confirmation utilisateur serait utile. Note ce qui a réellement été vérifié et distingue-le de ce qui est seulement supposé.
+
+**Critère de réussite :** une autre personne doit pouvoir comprendre le problème, reprendre le ticket, savoir ce qui a déjà été tenté et connaître la prochaine action sans redemander toutes les informations de départ.
 
 ## 13. Travaux pratiques
 
@@ -523,6 +716,21 @@ Prépare le transfert en décrivant les symptômes, les utilisateurs affectés, 
 Crée une checklist de clôture pour un ticket d'imprimante partagée. Elle doit inclure le test fonctionnel, le contrôle du périmètre, la vérification des éventuelles conséquences, la documentation et l'information de l'utilisateur.
 
 Précise également le cas où le service est rétabli temporairement mais où la cause reste inconnue.
+
+### Schéma — routine d'un technicien helpdesk débutant
+
+```mermaid
+flowchart LR
+    A["Lire et comprendre le signalement"] --> B["Créer ou retrouver le ticket"]
+    B --> C["Clarifier et catégoriser"]
+    C --> D["Évaluer l'impact et l'urgence"]
+    D --> E["Résoudre dans son périmètre ou escalader"]
+    E --> F["Communiquer et suivre le statut"]
+    F --> G["Vérifier le résultat auprès du test ou de l'utilisateur"]
+    G --> H["Documenter et clôturer selon la procédure"]
+```
+
+Cette routine n'oblige pas à suivre chaque étape mécaniquement : applique les procédures spéciales des incidents critiques ou de sécurité. Elle sert surtout à éviter les oublis et à laisser une trace exploitable.
 
 ## 14. Exercices avec corrections
 
