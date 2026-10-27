@@ -1,0 +1,86 @@
+export const DEVICE_GROUPS = [
+  {
+    title: 'Routeurs',
+    caption: 'Routage L3',
+    devices: [
+      { id: 'router-isr', type: 'router', label: 'Routeur ISR', model: 'Cisco ISR 4331', canvasLabel: 'ISR', idPrefix: 'RTR-ISR', portCount: 3 },
+      { id: 'router-wan', type: 'router', label: 'Routeur WAN', model: 'Routeur WAN compact', canvasLabel: 'WAN', idPrefix: 'RTR-WAN', portCount: 4 },
+      { id: 'router-core', type: 'router', label: 'Routeur cœur', model: 'Routeur cœur L3', canvasLabel: 'CORE', idPrefix: 'RTR-CORE', portCount: 6 },
+      { id: 'router-branch', type: 'router', label: 'Routeur d’agence', model: 'Routeur d’agence multi-WAN', canvasLabel: 'BRANCH', idPrefix: 'RTR-BR', portCount: 4 },
+      { id: 'router-isp-pe', type: 'router', label: 'Routeur opérateur PE', model: 'Routeur Provider Edge MPLS', canvasLabel: 'PE', idPrefix: 'RTR-PE', portCount: 6 },
+      { id: 'router-sdwan', type: 'router', label: 'Passerelle SD-WAN', model: 'Edge SD-WAN multi-liens', canvasLabel: 'SDWAN', idPrefix: 'SDWAN', portCount: 5 },
+    ],
+  },
+  {
+    title: 'Switchs & concentration',
+    caption: 'Commutation L2/L3',
+    devices: [
+      { id: 'switch-l2-8', type: 'switch', label: 'Switch L2 · 8 ports', model: 'Switch administrable L2 · 8 ports', canvasLabel: 'SW8', idPrefix: 'SW8', portCount: 8 },
+      { id: 'switch-l2-24', type: 'switch', label: 'Switch L2 · 24 ports', model: 'Switch administrable L2 · 24 ports', canvasLabel: 'SW24', idPrefix: 'SW24', portCount: 24 },
+      { id: 'switch-l3-48', type: 'switch', label: 'Switch L3 · 48 ports', model: 'Switch multilayer L3 · 48 ports', canvasLabel: 'SW48', idPrefix: 'SW48', portCount: 48 },
+      { id: 'switch-poe-24', type: 'switch', label: 'Switch PoE · 24 ports', model: 'Switch PoE+ · 24 ports', canvasLabel: 'POE24', idPrefix: 'POE24', portCount: 24 },
+      { id: 'ethernet-hub', type: 'switch', label: 'Hub Ethernet', model: 'Concentrateur Ethernet · 4 ports', canvasLabel: 'HUB', idPrefix: 'HUB', iconType: 'hub', portCount: 4 },
+      { id: 'switch-l2-48', type: 'switch', label: 'Switch L2 · 48 ports', model: 'Switch administrable L2 · 48 ports', canvasLabel: 'SW48', idPrefix: 'SW-L2-48', portCount: 48 },
+      { id: 'switch-poe-48', type: 'switch', label: 'Switch PoE+ · 48 ports', model: 'Switch PoE+ administrable · 48 ports', canvasLabel: 'POE48', idPrefix: 'POE48', portCount: 48 },
+      { id: 'switch-core-48', type: 'switch', label: 'Switch cœur 10G', model: 'Switch cœur de réseau 48 ports 10G', canvasLabel: 'CORE-SW', idPrefix: 'CORE-SW', portCount: 48 },
+      { id: 'olt-gpon', type: 'switch', label: 'OLT GPON', model: 'Terminal de ligne optique GPON · 16 ports', canvasLabel: 'OLT', idPrefix: 'OLT', portCount: 16 },
+      { id: 'media-converter', type: 'switch', label: 'Convertisseur média', model: 'Convertisseur Ethernet cuivre / fibre', canvasLabel: 'MEDIA', idPrefix: 'MEDIA', iconType: 'hub', portCount: 2 },
+    ],
+  },
+  {
+    title: 'Terminaux & périphériques',
+    caption: 'Postes et accès',
+    devices: [
+      { id: 'desktop-pc', type: 'pc', label: 'PC fixe', model: 'Poste de travail Ethernet', canvasLabel: 'PC', idPrefix: 'PC', portCount: 1 },
+      { id: 'laptop', type: 'pc', label: 'Ordinateur portable', model: 'Ordinateur portable Wi-Fi/Ethernet', canvasLabel: 'LAPTOP', idPrefix: 'LAP', iconType: 'laptop', portCount: 1 },
+      { id: 'network-printer', type: 'pc', label: 'Imprimante réseau', model: 'Imprimante réseau Ethernet', canvasLabel: 'PRN', idPrefix: 'PRN', iconType: 'printer', portCount: 1 },
+      { id: 'ip-phone', type: 'pc', label: 'Téléphone IP', model: 'Téléphone VoIP', canvasLabel: 'IP-PHONE', idPrefix: 'PHONE', iconType: 'phone', portCount: 1 },
+      { id: 'thin-client', type: 'pc', label: 'Client léger', model: 'Terminal utilisateur VDI', canvasLabel: 'THIN', idPrefix: 'THIN', portCount: 1 },
+      { id: 'ip-camera', type: 'pc', label: 'Caméra IP', model: 'Caméra de vidéosurveillance IP / PoE', canvasLabel: 'CAM', idPrefix: 'CAM', iconType: 'access_point', portCount: 1 },
+      { id: 'iot-sensor', type: 'pc', label: 'Capteur IoT', model: 'Capteur connecté Ethernet / IoT', canvasLabel: 'IOT', idPrefix: 'IOT', portCount: 1 },
+      { id: 'wifi-tablet', type: 'pc', label: 'Tablette Wi-Fi', model: 'Terminal mobile Wi-Fi', canvasLabel: 'TAB', idPrefix: 'TAB', iconType: 'laptop', portCount: 1 },
+    ],
+  },
+  {
+    title: 'Serveurs & stockage',
+    caption: 'Services et données',
+    devices: [
+      { id: 'app-server', type: 'server', label: 'Serveur applicatif', model: 'Serveur applicatif', canvasLabel: 'APP', idPrefix: 'SRV-APP', portCount: 2 },
+      { id: 'dns-server', type: 'server', label: 'Serveur DNS/DHCP', model: 'Serveur DNS et DHCP', canvasLabel: 'DNS', idPrefix: 'SRV-DNS', portCount: 2 },
+      { id: 'database-server', type: 'server', label: 'Serveur de base de données', model: 'Serveur SQL / base de données', canvasLabel: 'DB', idPrefix: 'SRV-DB', iconType: 'database', portCount: 2 },
+      { id: 'nas-storage', type: 'server', label: 'Stockage NAS/SAN', model: 'Baie de stockage NAS/SAN', canvasLabel: 'NAS', idPrefix: 'NAS', iconType: 'storage', portCount: 2 },
+      { id: 'virtualization-host', type: 'server', label: 'Hôte de virtualisation', model: 'Serveur hyperviseur multi-interfaces', canvasLabel: 'HYP', idPrefix: 'HYP', portCount: 4 },
+      { id: 'backup-server', type: 'server', label: 'Serveur de sauvegarde', model: 'Serveur de sauvegarde et réplication', canvasLabel: 'BACKUP', idPrefix: 'BKP', iconType: 'storage', portCount: 2 },
+      { id: 'voip-pbx', type: 'server', label: 'IP-PBX / téléphonie', model: 'Serveur de téléphonie IP', canvasLabel: 'PBX', idPrefix: 'PBX', portCount: 2 },
+      { id: 'radius-nac', type: 'server', label: 'Serveur RADIUS / NAC', model: 'Authentification réseau 802.1X', canvasLabel: 'NAC', idPrefix: 'NAC', portCount: 2 },
+    ],
+  },
+  {
+    title: 'Sécurité & distribution',
+    caption: 'Périmètre et services',
+    devices: [
+      { id: 'firewall-ngfw', type: 'firewall', label: 'Pare-feu NGFW', model: 'Pare-feu nouvelle génération', canvasLabel: 'FW', idPrefix: 'FW', portCount: 4 },
+      { id: 'vpn-gateway', type: 'firewall', label: 'Passerelle VPN', model: 'Passerelle VPN site-à-site', canvasLabel: 'VPN', idPrefix: 'VPN', iconType: 'vpn_gateway', portCount: 3 },
+      { id: 'load-balancer', type: 'server', label: 'Répartiteur de charge', model: 'Load balancer L4/L7', canvasLabel: 'LB', idPrefix: 'LB', iconType: 'load_balancer', portCount: 4 },
+      { id: 'wifi-controller', type: 'server', label: 'Contrôleur Wi-Fi', model: 'Contrôleur de points d’accès', canvasLabel: 'WLC', idPrefix: 'WLC', iconType: 'wireless_controller', portCount: 2 },
+      { id: 'waf', type: 'firewall', label: 'Pare-feu applicatif WAF', model: 'Protection applicative Web L7', canvasLabel: 'WAF', idPrefix: 'WAF', portCount: 4 },
+      { id: 'ids-ips', type: 'firewall', label: 'Sonde IDS / IPS', model: 'Détection et prévention d’intrusion', canvasLabel: 'IDS', idPrefix: 'IDS', portCount: 4 },
+      { id: 'ddos-appliance', type: 'firewall', label: 'Protection anti-DDoS', model: 'Appliance de mitigation DDoS', canvasLabel: 'DDOS', idPrefix: 'DDOS', portCount: 4 },
+      { id: 'vpn-concentrator', type: 'firewall', label: 'Concentrateur VPN', model: 'Concentrateur VPN d’accès distant', canvasLabel: 'VPN-CONC', idPrefix: 'VPNC', iconType: 'vpn_gateway', portCount: 4 },
+    ],
+  },
+  {
+    title: 'Accès & WAN',
+    caption: 'Accès opérateur et sans fil',
+    devices: [
+      { id: 'wifi-access-point', type: 'switch', label: 'Point d’accès Wi-Fi', model: 'Point d’accès Wi-Fi 6', canvasLabel: 'AP', idPrefix: 'AP', iconType: 'access_point', portCount: 1 },
+      { id: 'modem-ont', type: 'router', label: 'Modem / ONT', model: 'Modem fibre / ONT opérateur', canvasLabel: 'ONT', idPrefix: 'ONT', iconType: 'modem', portCount: 2 },
+      { id: 'cloud-wan', type: 'cloud', label: 'Cloud / WAN', model: 'Réseau opérateur / WAN', canvasLabel: 'WAN-CLOUD', idPrefix: 'WAN', portCount: 2 },
+      { id: 'router-4g5g', type: 'router', label: 'Routeur 4G / 5G', model: 'Routeur cellulaire multi-WAN', canvasLabel: 'CELL', idPrefix: 'CELL', iconType: 'modem', portCount: 4 },
+      { id: 'wireless-bridge', type: 'switch', label: 'Pont radio point à point', model: 'Pont Ethernet sans fil extérieur', canvasLabel: 'P2P', idPrefix: 'P2P', iconType: 'access_point', portCount: 2 },
+      { id: 'satellite-gateway', type: 'router', label: 'Passerelle satellite', model: 'Routeur d’accès satellite', canvasLabel: 'SAT', idPrefix: 'SAT', iconType: 'modem', portCount: 2 },
+    ],
+  },
+];
+
+export const EQUIPMENT_MODEL_COUNT = DEVICE_GROUPS.reduce((total, group) => total + group.devices.length, 0);
