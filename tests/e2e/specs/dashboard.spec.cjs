@@ -1334,7 +1334,10 @@ test('un lien openLab ouvre le Workspace quand la topologie est exposée à la r
   }));
 
   await page.goto('/?openLab=fixture-topology-root', { waitUntil: 'domcontentloaded' });
-  await expect(page).toHaveURL(/\\/lab\\.html\\?id=fixture-topology-root$/, { timeout: 45_000 });
+  await expect.poll(() => {
+    const url = new URL(page.url());
+    return url.pathname + url.search;
+  }, { timeout: 45_000 }).toBe('/lab.html?id=fixture-topology-root');
   await expect(page.getByText('Lab actif', { exact: true })).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText('Scénario de test depuis un lien', { exact: true })).toBeVisible();
 });
