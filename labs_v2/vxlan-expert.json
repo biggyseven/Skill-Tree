@@ -1,0 +1,409 @@
+{
+  "schema_version": 2,
+  "id": "vxlan-expert",
+  "title": "VXLAN expert — EVPN, anycast gateway et routes",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Finalisez un fabric VXLAN EVPN. Activez le plan de contrôle MP-BGP EVPN, les annonces de routes MAC/IP et de préfixes, l’IRB et une passerelle anycast commune ; renseignez un ESI pour la conception multi-homing.",
+  "objectives": [
+    "Activer l2vpn evpn et MP-BGP.",
+    "Activer les annonces route type 2 et type 5.",
+    "Mapper VNI 10100 et VLAN 100.",
+    "Configurer IRB et l’adresse de passerelle anycast.",
+    "Renseigner un ESI unique."
+  ],
+  "hints": [
+    "EVPN échange les informations MAC/IP via MP-BGP.",
+    "La route type 2 porte les informations MAC/IP ; la type 5 porte les préfixes IP.",
+    "La passerelle anycast doit être cohérente sur les leafs d’un même segment."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-vxlan-expert",
+    "metadata": {
+      "name": "VXLAN/EVPN — Route types et anycast gateway",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "LEAF1",
+        "type": "switch",
+        "x": 250,
+        "y": 220,
+        "label": "LEAF1",
+        "model": "LEAF1",
+        "ports": [
+          {
+            "id": "Eth1/1",
+            "name": "Eth1/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Eth1/2",
+            "name": "Eth1/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 100,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "LEAF1",
+          "routes": [
+            {
+              "protocol": "evpn",
+              "enabled": false,
+              "l2vpn_evpn": false,
+              "mp_bgp": false,
+              "vni": 10100,
+              "local_vtep": "10.255.1.1",
+              "remote_vteps": [
+                "10.255.1.2"
+              ],
+              "route_type2": false,
+              "route_type5": false,
+              "anycast_gateway": {
+                "enabled": false,
+                "ip": "0.0.0.0"
+              },
+              "esi": "",
+              "irb_enabled": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "SPINE",
+        "type": "router",
+        "x": 560,
+        "y": 220,
+        "label": "SPINE",
+        "model": "SPINE",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.1.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.1.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SPINE",
+          "routes": [
+            {
+              "protocol": "bgp-evpn",
+              "enabled": false,
+              "local_as": 65000,
+              "neighbor": "10.255.1.1",
+              "address_family": "ipv4-evpn"
+            }
+          ]
+        }
+      },
+      {
+        "id": "LEAF2",
+        "type": "switch",
+        "x": 870,
+        "y": 220,
+        "label": "LEAF2",
+        "model": "LEAF2",
+        "ports": [
+          {
+            "id": "Eth1/1",
+            "name": "Eth1/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Eth1/2",
+            "name": "Eth1/2",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 100,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "LEAF2",
+          "routes": [
+            {
+              "protocol": "evpn",
+              "enabled": false,
+              "l2vpn_evpn": false,
+              "mp_bgp": false,
+              "vni": 10100,
+              "local_vtep": "10.255.1.2",
+              "remote_vteps": [
+                "10.255.1.1"
+              ],
+              "route_type2": false,
+              "route_type5": false,
+              "anycast_gateway": {
+                "enabled": false,
+                "ip": "0.0.0.0"
+              },
+              "esi": "",
+              "irb_enabled": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "HOST-A",
+        "type": "pc",
+        "x": 80,
+        "y": 430,
+        "label": "HOST-A",
+        "model": "HOST-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.100.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "HOST-A"
+        }
+      },
+      {
+        "id": "HOST-B",
+        "type": "pc",
+        "x": 1040,
+        "y": 430,
+        "label": "HOST-B",
+        "model": "HOST-B",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.100.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "HOST-B"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1-SPINE",
+        "from": {
+          "node": "LEAF1",
+          "port": "Eth1/1"
+        },
+        "to": {
+          "node": "SPINE",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "SPINE-L2",
+        "from": {
+          "node": "SPINE",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "LEAF2",
+          "port": "Eth1/1"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "HOST-A",
+        "from": {
+          "node": "LEAF1",
+          "port": "Eth1/2"
+        },
+        "to": {
+          "node": "HOST-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "HOST-B",
+        "from": {
+          "node": "LEAF2",
+          "port": "Eth1/2"
+        },
+        "to": {
+          "node": "HOST-B",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "evpn",
+        "description": "L2VPN EVPN is enabled.",
+        "device": "LEAF1",
+        "path": "config.routes[0].l2vpn_evpn",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "mpbgp",
+        "description": "MP-BGP EVPN control plane is enabled.",
+        "device": "LEAF1",
+        "path": "config.routes[0].mp_bgp",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "vni",
+        "description": "VNI 10100 is assigned.",
+        "device": "LEAF1",
+        "path": "config.routes[0].vni",
+        "operator": "equals",
+        "expected": 10100
+      },
+      {
+        "id": "type2",
+        "description": "MAC/IP advertisement route type 2 is enabled.",
+        "device": "LEAF1",
+        "path": "config.routes[0].route_type2",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "type5",
+        "description": "IP prefix route type 5 is enabled.",
+        "device": "LEAF1",
+        "path": "config.routes[0].route_type5",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "anycast",
+        "description": "Anycast gateway is enabled.",
+        "device": "LEAF1",
+        "path": "config.routes[0].anycast_gateway.enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "gateway-ip",
+        "description": "The anycast gateway address is shared.",
+        "device": "LEAF1",
+        "path": "config.routes[0].anycast_gateway.ip",
+        "operator": "equals",
+        "expected": "192.168.100.1"
+      },
+      {
+        "id": "irb",
+        "description": "Integrated routing and bridging is enabled.",
+        "device": "LEAF1",
+        "path": "config.routes[0].irb_enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "esi",
+        "description": "An explicit Ethernet Segment Identifier is assigned.",
+        "device": "LEAF1",
+        "path": "config.routes[0].esi",
+        "operator": "equals",
+        "expected": "0000:0000:0000:0001:0101"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
