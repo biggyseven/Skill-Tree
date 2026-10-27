@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Boîte à outils du technicien » ?",
+      "prompt": "Avant de choisir un outil de diagnostic, quel est le meilleur premier réflexe ?",
       "choices": [
-        "Le sujet principal du cours : Boîte à outils du technicien",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Formuler une question précise à laquelle le contrôle doit répondre",
+        "Lancer toutes les commandes disponibles pour collecter un maximum de données",
+        "Modifier la configuration afin de voir si le symptôme disparaît",
+        "Redémarrer immédiatement le poste"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Le symptôme doit être traduit en question vérifiable. Le choix du test et l'interprétation de son résultat en découlent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande Windows affiche notamment les adresses IP, les passerelles et les serveurs DNS configurés ?",
+      "choices": [
+        "Get-Service",
+        "ipconfig /all",
+        "route delete",
+        "Get-Process"
+      ],
+      "answer": 1,
+      "explanation": "ipconfig /all présente les paramètres des interfaces. Il permet de les observer sans les modifier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ping vers un serveur ne reçoit aucune réponse. Quelle conclusion est la plus rigoureuse ?",
+      "choices": [
+        "Le serveur est nécessairement éteint",
+        "Le câble réseau est certainement coupé",
+        "Le test ICMP n'a pas reçu de réponse ; d'autres causes restent possibles",
+        "L'application fonctionne forcément normalement"
+      ],
+      "answer": 2,
+      "explanation": "ICMP peut être filtré ou la destination peut être indisponible. Il faut examiner le périmètre et choisir d'autres tests autorisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet principalement de tester la commande Test-NetConnection hote -Port 443 ?",
+      "choices": [
+        "La validité complète de l'application Web",
+        "La présence d'un antivirus à jour",
+        "La capacité du disque système",
+        "Une tentative de connexion TCP vers le port indiqué"
+      ],
+      "answer": 3,
+      "explanation": "Le test renseigne sur la connexion TCP vers un port donné, mais ne valide pas à lui seul l'authentification ou toutes les fonctions applicatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sous Linux, quelle commande indique l'utilisation et l'espace disponible des systèmes de fichiers montés, dans un format lisible ?",
+      "choices": [
+        "df -h",
+        "ip route",
+        "journalctl -u",
+        "nslookup"
+      ],
+      "answer": 0,
+      "explanation": "df -h affiche l'occupation et la disponibilité des systèmes de fichiers. Il ne justifie pas de supprimer automatiquement des fichiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avec systemd, comment consulter les journaux d'un service précis sur une période récente ?",
+      "choices": [
+        "ip address",
+        "journalctl -u nom-du-service --since \"30 minutes ago\"",
+        "Get-Process",
+        "route print"
+      ],
+      "answer": 1,
+      "explanation": "journalctl peut filtrer les journaux par unité de service et par période. Le nom de l'unité doit être adapté à l'environnement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de débrancher un câble réseau pour le tester, quelle précaution est prioritaire ?",
+      "choices": [
+        "Le débrancher rapidement pour limiter le temps de coupure",
+        "Changer simultanément le câble et le port du switch",
+        "Identifier ses extrémités et vérifier l'impact sur le service",
+        "Désactiver tous les ports voisins"
+      ],
+      "answer": 2,
+      "explanation": "L'identification et la vérification de l'impact évitent d'interrompre un service critique ou de perdre le lien entre la panne et le test."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La commande Get-Service indique qu'un service est arrêté. Que faut-il faire en premier ?",
+      "choices": [
+        "Le redémarrer sans prévenir personne",
+        "Supprimer sa configuration",
+        "Désactiver le pare-feu",
+        "Vérifier son rôle, l'impact, les procédures et les autorisations"
+      ],
+      "answer": 3,
+      "explanation": "L'observation d'un état n'autorise pas automatiquement une modification. Il faut comprendre le rôle du service et suivre la procédure applicable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une partition est presque pleine. Quelle est la meilleure prochaine action ?",
+      "choices": [
+        "Identifier ce qui occupe l'espace et vérifier les règles de conservation avant toute suppression",
+        "Supprimer immédiatement les plus gros fichiers",
+        "Effacer les journaux les plus anciens sans les examiner",
+        "Redémarrer plusieurs fois la machine"
+      ],
+      "answer": 0,
+      "explanation": "Certains fichiers volumineux peuvent être nécessaires au système ou à l'activité. L'investigation et l'action doivent être autorisées et documentées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une escalade technique exploitable lorsque les premiers contrôles n'expliquent pas l'incident ?",
+      "choices": [
+        "Uniquement la phrase « le réseau ne marche pas »",
+        "Le symptôme, l'impact, l'heure, les tests, les résultats, les limites et les inconnues",
+        "Tous les journaux complets sans contexte",
+        "Une cause définitive même si elle n'a pas été démontrée"
+      ],
+      "answer": 1,
+      "explanation": "Une escalade utile transmet les faits, les contrôles déjà effectués et les questions encore ouvertes, tout en évitant de divulguer des données non nécessaires."
     }
   ]
 }
