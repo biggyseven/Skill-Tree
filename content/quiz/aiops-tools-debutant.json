@@ -1,0 +1,66 @@
+{
+  "node_id": "aiops-tools-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur premier périmètre pour un nouveau playbook destiné à cent équipements ?",
+      "choices": [
+        "Définir le résultat opérationnel, les sources autorisées, le contexte et les critères de succès avant de choisir une technique.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée."
+      ],
+      "answer": 0,
+      "explanation": "Dans Outils (Ansible, Nornir), le choix commence par un problème mesurable. Structurer un dépôt de gestion de réseau avec Ansible, Nornir, inventaires et tests. Une définition claire permet de comparer les alternatives et de refuser une solution qui n'améliore pas le service. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne pas choisir Ansible ou Nornir uniquement sur la vitesse ?",
+      "choices": [
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Comparer à une baseline, examiner taux de réussite par plateforme et analyser les erreurs selon la criticité plutôt que s'appuyer sur un seul score global."
+      ],
+      "answer": 3,
+      "explanation": "La mesure taux de réussite par plateforme n'a de sens qu'avec une baseline et des cas représentatifs. Examiner les erreurs par cohorte évite qu'une moyenne masque la dégradation d'un site critique. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une commande retourne « OK » mais ne prouve pas l'état configuré. Que manque-t-il ?",
+      "choices": [
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Limiter privilèges et périmètre, vérifier les préconditions, obtenir les approbations nécessaires et préparer des postconditions et un rollback testables.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements."
+      ],
+      "answer": 2,
+      "explanation": "La sécurité doit limiter l'impact avant l'action. Une opération est acceptée seulement si les droits, le périmètre, les préconditions et la manière de vérifier le résultat sont définis ; la commande seule ne prouve pas le succès. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un playbook fonctionne sur un modèle mais échoue sur un autre. Quelle approche est utile ?",
+      "choices": [
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires.",
+        "Reconstituer la chronologie, garder les données manquantes visibles, confronter plusieurs hypothèses et utiliser un test qui les distingue.",
+        "Déclencher immédiatement l'action après le premier signal, sans contrôler fraîcheur ni provenance.",
+        "Accorder des privilèges permanents au composant d'analyse et retirer approbation et retour arrière."
+      ],
+      "answer": 1,
+      "explanation": "Une chronologie et des hypothèses concurrentes diminuent le risque de conclure trop tôt. Les preuves et contre-indices doivent être conservés ; si elles sont insuffisantes, l'équipe doit s'abstenir ou escalader. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une pipeline affiche un jeton d'accès dans ses logs. Quelle correction est prioritaire ?",
+      "choices": [
+        "Déployer progressivement, surveiller qualité et dérive, mesurer un résultat indépendant et conserver une voie de restauration.",
+        "Interpréter la télémétrie absente comme un état normal et déclarer la mission terminée.",
+        "Choisir un seul score moyen et ignorer faux négatifs, criticité et catégories d'équipements.",
+        "Conclure à une cause certaine à partir d'une corrélation et écarter les éléments contradictoires."
+      ],
+      "answer": 0,
+      "explanation": "Un déploiement progressif réduit l'impact d'une erreur. La surveillance doit inclure la qualité des données et le résultat opérationnel ; le rollback doit être disponible et testé. Les autres options échouent car elles omettent une étape indispensable : preuve, contexte, limite d'action, traitement des contradictions ou vérification indépendante. Elles peuvent conduire à un faux diagnostic, à une intervention disproportionnée ou à une conclusion non vérifiable."
+    }
+  ]
+}
