@@ -245,6 +245,10 @@ def initialize(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS exam_session_id TEXT")
         conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS score INTEGER NOT NULL DEFAULT 0")
         conn.execute("ALTER TABLE certificates ADD COLUMN IF NOT EXISTS courses_count INTEGER NOT NULL DEFAULT 0")
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_certificates_module_level "
+        "ON certificates(module, level_slug) WHERE module <> '' AND level_slug <> ''"
+    )
     _ensure_user_stats(conn)
     conn.commit()
 
