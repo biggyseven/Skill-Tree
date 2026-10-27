@@ -1,0 +1,291 @@
+{
+  "schema_version": 2,
+  "id": "stp-intermediaire",
+  "title": "STP — Rapid-PVST et racine primaire/secondaire",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Stabilisez l’arbre couvrant entre SW1 et SW2. Passez le VLAN 10 en Rapid-PVST, élisez SW1 comme racine primaire et SW2 comme secours. Les priorités actuelles sont identiques.",
+  "objectives": [
+    "Activer Rapid-PVST.",
+    "Définir une priorité basse sur la racine primaire.",
+    "Préparer une racine secondaire explicite.",
+    "Conserver le lien inter-switch en trunk."
+  ],
+  "hints": [
+    "La priorité STP la plus basse gagne l’élection.",
+    "La racine secondaire doit être configurée avant une panne.",
+    "Vérifiez le mode trunk aux deux extrémités."
+  ],
+  "duration_min": 25,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-stp-intermediaire",
+    "metadata": {
+      "name": "STP Rapid-PVST — Racine et secours",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 300,
+        "y": 230,
+        "label": "SW1",
+        "model": "SW1",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            {
+              "id": 10,
+              "name": "USERS",
+              "stp": {
+                "mode": "pvst",
+                "priority": 32768,
+                "root": "secondary"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "SW2",
+        "type": "switch",
+        "x": 650,
+        "y": 230,
+        "label": "SW2",
+        "model": "SW2",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "access",
+            "ip": null,
+            "mask": null,
+            "vlan": 10,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Fa0/24",
+            "name": "Fa0/24",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "trunk",
+            "ip": null,
+            "mask": null,
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "SW2",
+          "vlans": [
+            {
+              "id": 10,
+              "name": "USERS",
+              "stp": {
+                "mode": "pvst",
+                "priority": 32768,
+                "root": "secondary"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "PC-A",
+        "type": "pc",
+        "x": 80,
+        "y": 80,
+        "label": "PC-A",
+        "model": "PC-A",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-A"
+        }
+      },
+      {
+        "id": "PC-B",
+        "type": "pc",
+        "x": 890,
+        "y": 80,
+        "label": "PC-B",
+        "model": "PC-B",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "192.168.10.20",
+            "mask": "255.255.255.0",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "PC-B"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "TRUNK",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/24"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/24"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "A-ACCESS",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC-A",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "B-ACCESS",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC-B",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "rapid-mode",
+        "description": "Le VLAN utilise Rapid-PVST.",
+        "device": "SW1",
+        "path": "config.vlans[0].stp.mode",
+        "operator": "equals",
+        "expected": "rapid-pvst"
+      },
+      {
+        "id": "primary-priority",
+        "description": "SW1 est racine primaire du VLAN 10.",
+        "device": "SW1",
+        "path": "config.vlans[0].stp.priority",
+        "operator": "equals",
+        "expected": 4096
+      },
+      {
+        "id": "primary-role",
+        "description": "Le rôle racine de SW1 est primary.",
+        "device": "SW1",
+        "path": "config.vlans[0].stp.root",
+        "operator": "equals",
+        "expected": "primary"
+      },
+      {
+        "id": "secondary-priority",
+        "description": "SW2 est racine secondaire du VLAN 10.",
+        "device": "SW2",
+        "path": "config.vlans[0].stp.priority",
+        "operator": "equals",
+        "expected": 8192
+      },
+      {
+        "id": "secondary-role",
+        "description": "Le rôle de SW2 est secondary.",
+        "device": "SW2",
+        "path": "config.vlans[0].stp.root",
+        "operator": "equals",
+        "expected": "secondary"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
