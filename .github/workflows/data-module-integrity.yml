@@ -36,7 +36,7 @@ jobs:
     name: Test real Data course and quiz journey
     runs-on: ubuntu-latest
     env:
-      SKILLTREE_DB: \${{ runner.temp }}/skilltree-data-browser.db
+      SKILLTREE_DB: ${{ runner.temp }}/skilltree-data-browser.db
       SKILLTREE_BASE_URL: http://127.0.0.1:8000
     steps:
       - name: Checkout source
