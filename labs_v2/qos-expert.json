@@ -1,0 +1,277 @@
+{
+  "schema_version": 2,
+  "id": "qos-expert",
+  "title": "QoS expert — Shaping hiérarchique, WRED et policing",
+  "level": "expert",
+  "module": "Configurez une policy QoS hiérarchique : shaping parent à 50 Mbit/s, priorité bornée pour le trafic temps réel, bande passante garantie pour la classe business, WRED et policing restrictif pour le trafic scavenger.",
+  "prompt": [
+    "Activer le shaping parent.",
+    "Réserver des ressources à la voix et au trafic business.",
+    "Activer WRED pour gérer la congestion.",
+    "Abandonner le trafic scavenger excédentaire."
+  ],
+  "objectives": [
+    "La somme des garanties de bande passante doit rester compatible avec le débit disponible.",
+    "La priorité stricte doit être limitée.",
+    "WRED réduit les effets de congestion avant la file pleine."
+  ],
+  "hints": {
+    "schema_version": 2,
+    "topology_id": "topo-qos-expert",
+    "metadata": {
+      "name": "QoS expert — Hiérarchie, WRED et policing",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 160,
+        "y": 230,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.5.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "qos",
+              "parent_shaper": {
+                "enabled": false,
+                "rate_kbps": 0
+              },
+              "classes": [
+                {
+                  "name": "REALTIME",
+                  "dscp": "ef",
+                  "priority_percent": 0
+                },
+                {
+                  "name": "BUSINESS",
+                  "dscp": "af31",
+                  "bandwidth_percent": 0,
+                  "wred": false
+                },
+                {
+                  "name": "SCAVENGER",
+                  "dscp": "cs1",
+                  "police_action": "transmit"
+                }
+              ],
+              "policy_map": "CORE-HIERARCHICAL"
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 480,
+        "y": 230,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.5.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.5.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "qos",
+              "parent_shaper": {
+                "enabled": true,
+                "rate_kbps": 50000
+              },
+              "policy_map": "CORE-HIERARCHICAL"
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 800,
+        "y": 230,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.5.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "qos",
+              "parent_shaper": {
+                "enabled": true,
+                "rate_kbps": 50000
+              },
+              "policy_map": "CORE-HIERARCHICAL"
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "duration_min": 30,
+  "difficulty": "expert",
+  "initial_topology": [
+    {
+      "id": "parent-shaper",
+      "description": "Le shaping parent est activé.",
+      "device": "R1",
+      "path": "config.routes[0].parent_shaper.enabled",
+      "operator": "equals",
+      "expected": true
+    },
+    {
+      "id": "shape-rate",
+      "description": "Le shaping parent est fixé à 50 Mbit/s.",
+      "device": "R1",
+      "path": "config.routes[0].parent_shaper.rate_kbps",
+      "operator": "equals",
+      "expected": 50000
+    },
+    {
+      "id": "realtime",
+      "description": "La classe temps réel réserve 20 % de priorité.",
+      "device": "R1",
+      "path": "config.routes[0].classes[0].priority_percent",
+      "operator": "equals",
+      "expected": 20
+    },
+    {
+      "id": "business-bandwidth",
+      "description": "La classe business réserve 40 % de bande passante.",
+      "device": "R1",
+      "path": "config.routes[0].classes[1].bandwidth_percent",
+      "operator": "equals",
+      "expected": 40
+    },
+    {
+      "id": "wred",
+      "description": "WRED est activé sur la classe business.",
+      "device": "R1",
+      "path": "config.routes[0].classes[1].wred",
+      "operator": "equals",
+      "expected": true
+    },
+    {
+      "id": "scavenger-police",
+      "description": "Le trafic scavenger excédentaire est abandonné.",
+      "device": "R1",
+      "path": "config.routes[0].classes[2].police_action",
+      "operator": "equals",
+      "expected": "drop"
+    },
+    {
+      "id": "policy",
+      "description": "La policy hiérarchique correcte est utilisée.",
+      "device": "R1",
+      "path": "config.routes[0].policy_map",
+      "operator": "equals",
+      "expected": "CORE-HIERARCHICAL"
+    }
+  ],
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": 40,
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
