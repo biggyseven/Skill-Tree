@@ -1010,15 +1010,212 @@ La gouvernance relie les preuves à des autorités et à des dates de décision.
 Une proposition ne peut pas être considérée comme maîtrisée si elle ignore une obligation, n'identifie pas de responsable pour un risque critique, confond réalisation et efficacité ou ne prévoit aucune preuve de retour au service.
 
 
+## 21. Construire le plan stratégique de gestion d'actifs (PSGA / SAMP)
+
+### 21.1 Relier la stratégie d'entreprise à la politique de maintenance
+
+Un plan stratégique de gestion d'actifs (PSGA, souvent appelé *Strategic Asset Management Plan* ou SAMP dans la littérature) décrit comment la gestion des actifs contribue aux objectifs organisationnels, dans le périmètre retenu. Il ne doit pas être confondu avec le plan de maintenance annuel. Le PSGA présente le cadre de décision, les résultats recherchés, les capacités nécessaires, les horizons d'investissement et les mécanismes de gouvernance. La stratégie de maintenance explique ensuite comment les fonctions et modes de défaillance seront maîtrisés ; le plan de maintenance traduit les décisions en tâches, ressources, pièces, calendriers et preuves.
+
+La terminologie exacte et les documents requis varient selon les organisations. L'important est la cohérence de la chaîne de décisions : objectifs, obligations et attentes des parties prenantes, niveaux de service, stratégie de portefeuille, politique de maintenance, plan de travail, résultats observés et révision. Le PSGA ne doit pas devenir un document parallèle qui n'influence ni les budgets, ni les plans, ni les décisions de terrain.
+
+### 21.2 Contenu minimum exploitable
+
+Un plan utile contient au moins :
+
+- **Périmètre et contexte** : types d'actifs, services concernés, frontières, dépendances et interfaces ;
+- **Résultats d'organisation** : capacité, disponibilité, sécurité, qualité, environnement, coût et résilience attendus ;
+- **Besoins de service** : niveau de service visé, variabilité acceptable, contraintes et conséquences d'une indisponibilité ;
+- **Décisions de cycle de vie** : acquérir, conserver, entretenir, moderniser, prolonger, remplacer ou retirer ;
+- **Risques et obligations** : scénarios de défaillance, exigences impératives, tolérance au risque et autorités compétentes ;
+- **Capacités et données** : compétences, contrats, inventaire, maintenance, pièces, outils, qualité de mesure et responsabilités ;
+- **Ressources et financement** : dépenses opérationnelles et d'investissement, charge, capacité interne et contraintes de portefeuille ;
+- **Gouvernance** : qui propose, évalue, accepte, finance, exécute et vérifie les décisions ;
+- **Mesures et revues** : baseline, indicateurs, calendrier de revue, seuils d'alerte et conditions de révision ;
+- **Évolution et sortie** : changements de contexte, obsolescence, exigences futures et plans de retrait.
+
+Ne pas remplir ces rubriques avec des déclarations vagues comme « améliorer la fiabilité ». Traduire chaque ambition en résultats observables, en décisions et en preuves. Si la donnée initiale est insuffisante, noter l'incertitude, le responsable du diagnostic et la date de décision attendue.
+
+### 21.3 Définir les horizons de planification
+
+Un plan stratégique fait coexister plusieurs horizons, parce que les actifs ont des temps de réaction très différents.
+
+| Horizon | Décisions typiques | Précautions |
+|---|---|---|
+| Immédiat / opérationnel | Risque imminent, réparation, pièces, fenêtre d'intervention, restriction d'usage | Les risques urgents et obligations ne doivent pas attendre la revue annuelle |
+| Annuel | Programme de maintenance, capacité, achats, contrat, arrêt planifié, budget d'exploitation | Distinguer travaux prêts, travaux bloqués et travaux reportés |
+| Pluriannuel | Renouvellement, obsolescence, grands arrêts, formation, modernisation et contrats stratégiques | Documenter l'incertitude, les dépendances, l'inflation et les options de report |
+| Cycle de vie | Acquisition, conception, exploitation, prolongation, déclassement et sortie | Préserver les données et les raisons des décisions d'origine |
+
+La précision diminue généralement lorsque l'horizon s'allonge. Il faut éviter une fausse précision budgétaire à cinq ou dix ans. Utiliser des scénarios, des fourchettes, des hypothèses et des dates auxquelles le plan devra être réestimé. Le plan pluriannuel est un instrument d'arbitrage, pas une promesse que les coûts futurs sont connus exactement.
+
+```mermaid
+flowchart TD
+  A["Objectifs de l'organisation"] --> B["PSGA : valeur, périmètre et horizon"]
+  B --> C["Politique et stratégie par famille d'actifs"]
+  C --> D["Plan annuel : tâches, capacité, pièces et fenêtres"]
+  C --> E["Portefeuille pluriannuel : modernisation et renouvellement"]
+  D --> F["Exécution et données de résultat"]
+  E --> F
+  F --> G["Revue : valeur, risques, coûts et hypothèses"]
+  G --> H{"Le contexte a-t-il changé ?"}
+  H -- "Oui" --> B
+  H -- "Non" --> C
+```
+
+### 21.4 Gouverner l'alignement entre technique et finance
+
+Une décision technique peut sembler raisonnable dans un budget local et détruire de la valeur pour l'organisation. Une réduction de stock peut économiser une ligne comptable mais augmenter le risque d'arrêt. Une réparation répétée peut préserver le budget d'investissement cette année mais immobiliser des heures de production et retarder une modernisation. Une baisse du préventif peut réduire une charge immédiate tout en augmentant une exposition à un mode de défaillance.
+
+L'alignement entre fonctions financières et non financières exige un langage commun : périmètre, horizon, niveau de service, coût complet, conséquence, incertitude, risques et bénéfices attendus. Pour chaque option, distinguer les dépenses, les engagements futurs, les pertes d'exploitation possibles, le coût d'indisponibilité, les bénéfices qualitatifs et le niveau de confiance des hypothèses. Le gestionnaire d'actifs ne doit pas inventer une valorisation financière pour chaque risque ; il doit rendre explicites les conséquences et travailler avec les personnes habilitées à les évaluer.
+
+Quand plusieurs options ne peuvent pas être comparées honnêtement par un seul montant, présenter les dimensions séparément plutôt que de dissimuler un arbitrage sous un score artificiellement précis. Les critères impératifs, les risques de sécurité et les limites réglementaires restent des contraintes. Un bon dossier révèle où la décision exige un choix explicite de l'autorité compétente.
+
+### 21.5 Définir les déclencheurs de revue du PSGA
+
+Le plan ne doit pas attendre la date annuelle si une hypothèse importante devient fausse. Déclencheurs possibles :
+
+- modification du niveau de service ou de la demande ;
+- incident significatif ou répétition d'un mode de défaillance ;
+- changement réglementaire, contractuel ou de politique de sécurité ;
+- fin de support, perte d'un fournisseur ou délai de pièces fortement allongé ;
+- changement de conditions d'exploitation, de site ou d'environnement ;
+- données d'état, coût ou performance qui invalident la prévision ;
+- acquisition, cession ou modernisation qui modifie les dépendances ;
+- variation notable des compétences ou de la capacité d'exécution.
+
+Toute révision importante doit conserver l'ancien état, le motif, les preuves, l'approbation, les risques résiduels et les impacts sur les plans opérationnels et financiers. L'historique protège la capacité à comprendre pourquoi une décision a été prise et pourquoi elle a ensuite changé.
+
+## 22. Arbitrer les décisions de renouvellement avec le coût de cycle de vie
+
+### 22.1 Ne pas confondre vieillissement et décision de remplacement
+
+L'âge est un facteur d'information, pas une politique de renouvellement en soi. Un actif peut être ancien mais maintenable, documenté et adapté au service ; un actif relativement récent peut être obsolète, exposé à des défaillances coûteuses ou inadapté aux besoins actuels. Comparer l'état, les modes de défaillance, la maintenabilité, le support, les pièces, les compétences, la consommation, les performances et la criticité.
+
+Trois options sont souvent à examiner, sans les considérer comme exhaustives :
+
+- **Réparer ou prolonger** : approprié si la fonction peut être maintenue à un risque acceptable, avec des pièces et des compétences disponibles ;
+- **Moderniser** : pertinent si une partie de la fonction ou de la commande peut être améliorée et si les interfaces restent maîtrisables ;
+- **Remplacer** : utile si la continuité, la sécurité, l'obsolescence ou le coût complet favorisent la sortie de l'actif actuel.
+
+Le choix doit aussi inclure le scénario « différer avec mesures compensatoires », lorsqu'il est légitime. Le report n'est pas gratuit : il peut créer un risque, une consommation de pièces, une dépendance à un fournisseur ou une fenêtre future plus coûteuse. Documenter ce que le report achète réellement et quand il cesse d'être acceptable.
+
+### 22.2 Exemple chiffré de comparaison sur cinq ans
+
+L'exemple suivant est **purement pédagogique**. Les montants sont en milliers d'euros, le taux d'actualisation hypothétique est de 8 % par an et l'horizon est de cinq ans. On suppose, pour comparer les coûts seulement, que les deux options satisfont le même niveau de service. Les risques de défaillance, les effets de sécurité, les valeurs résiduelles, la fiscalité et les différences de performance ne sont pas chiffrés dans ce modèle ; ils doivent être examinés séparément avant toute décision réelle.
+
+- **Option A — prolonger puis remplacer en année 3** : remise en état immédiate de 70 ; maintenance de 60 à la fin de chacune des années 1, 2 et 3 ; remplacement de 300 en année 3 ; maintenance de 20 à la fin des années 4 et 5.
+- **Option B — remplacer immédiatement** : investissement initial de 340 et maintenance de 18 à la fin de chacune des cinq années.
+
+La valeur actualisée des coûts est calculée par :
+
+\[
+CVA = C_0 + \sum_{t=1}^{n}\frac{C_t}{(1+r)^t}
+\]
+
+où \(C_0\) est le coût initial, \(C_t\) le coût à la fin de l'année \(t\), \(r\) le taux d'actualisation annuel et \(n\) l'horizon retenu.
+
+| Année | Option A — flux nominal | Option B — flux nominal |
+|---:|---:|---:|
+| 0 | 70 | 340 |
+| 1 | 60 | 18 |
+| 2 | 60 | 18 |
+| 3 | 360 (60 + 300) | 18 |
+| 4 | 20 | 18 |
+| 5 | 20 | 18 |
+
+Avec les hypothèses ci-dessus, les valeurs actualisées sont d'environ **491,09 k€ pour l'option A** et **411,87 k€ pour l'option B**. La différence actualisée des seuls coûts est donc d'environ 79,22 k€ en faveur de l'option B dans ce scénario. Cette différence n'est pas un bénéfice garanti : elle dépend du coût de remise en état, du calendrier réel de remplacement, des coûts annuels et du taux d'actualisation.
+
+L'exercice n'autorise pas à conclure automatiquement au remplacement. Si l'option A présente un risque de sécurité non acceptable, cette contrainte doit être traitée indépendamment du coût. Si l'option B implique une interruption de migration élevée, des pièces non disponibles ou un changement de processus impossible à absorber, inclure ces facteurs. Si les options ne délivrent pas le même service, il faut comparer explicitement leur niveau de service et leurs conséquences au lieu de supposer l'équivalence.
+
+### 22.3 Intégrer les conséquences et l'incertitude
+
+Un calcul de coût de cycle de vie doit être présenté avec ses hypothèses les plus sensibles. Pour les décisions importantes, effectuer au moins des scénarios bas, central et haut pour les coûts de réparation, le délai de disponibilité des pièces, la fréquence de défaillance, le coût d'arrêt et le délai de livraison de la solution de remplacement. Une analyse de sensibilité aide à voir à partir de quelle valeur la décision change.
+
+Ne pas monétiser un risque de sécurité uniquement pour qu'il puisse entrer dans un calcul. Les obligations et critères de sécurité peuvent constituer des contraintes indépendantes. Pour les autres conséquences, utiliser des estimations approuvées et préciser leurs limites. Une fourchette honnête est plus utile qu'un montant unique bâti sur des données incertaines.
+
+### 22.4 Évaluer la valeur du report
+
+Le report d'un investissement peut conserver de la flexibilité, mais l'option n'a de valeur que si l'organisation a défini ce qu'elle apprendra ou ce qu'elle économisera en attendant. Un report contrôlé doit être associé à :
+
+- une échéance de décision et un propriétaire ;
+- des mesures provisoires et une limite de risque ;
+- des indicateurs précoces, par exemple délais de pièces et tendance de défaillance ;
+- une vérification de l'accès aux composants, logiciels, compétences et contrats ;
+- une date de révision avant que le délai d'approvisionnement compromette la continuité ;
+- un scénario de sortie si les hypothèses s'aggravent.
+
+Le report indéfini n'est pas une option de portefeuille : il dissimule une décision non prise. Un actif critique sans financement disponible doit être visible comme un risque de service, porté à la bonne autorité et assorti d'une décision documentée.
+
+### 22.5 Préparer le dossier d'investissement et la sortie
+
+Le dossier de renouvellement doit préciser l'actif, la fonction, le service dépendant, les modes de défaillance, les scénarios d'option, les coûts, les contraintes, le plan de transition, les ressources, la mise en service, la formation, la gestion des pièces et la disposition de l'ancien actif. La mise en service n'est pas le seul jalon : vérifier la compatibilité de l'environnement, la performance, la documentation, la disponibilité de pièces et le transfert à l'exploitation.
+
+Le retrait doit inclure la suppression ou l'archivage des données selon les règles approuvées, la révocation des comptes, la fermeture des flux, l'élimination des risques environnementaux et la conservation de la traçabilité nécessaire. La stratégie de cycle de vie se termine quand la responsabilité de sortie est assumée et vérifiée, pas seulement quand l'actif est débranché.
+
+```mermaid
+flowchart TD
+  A["Signal : coût, état, obsolescence ou risque"] --> B["Confirmer la fonction et la criticité"]
+  B --> C["Comparer réparer, moderniser, remplacer, différer"]
+  C --> D["Coût de cycle de vie et scénarios"]
+  D --> E["Évaluer risques et niveau de service"]
+  E --> F{"Contraintes et preuves acceptables ?"}
+  F -- "Non" --> G["Réduire le risque ou revoir les options"]
+  F -- "Oui" --> H["Autorisation et financement"]
+  H --> I["Transition, mise en service et formation"]
+  I --> J["Vérifier le service et retirer l'ancien actif"]
+  J --> K["Mesurer les résultats et réviser les hypothèses"]
+```
+
+## 23. Intégrer résilience, environnement et dépendances systémiques
+
+### 23.1 Examiner les conditions d'exploitation qui peuvent évoluer
+
+Une stratégie durable doit considérer non seulement l'état actuel de l'actif, mais aussi le contexte dans lequel il devra fonctionner. Selon le site et l'activité, les conditions pertinentes peuvent inclure température, humidité, poussière, corrosion, vibration, accès, qualité de l'énergie, contraintes d'eau, disponibilité des pièces, événements météorologiques, évolution de la charge ou exposition à un environnement industriel différent.
+
+Il ne faut pas supposer qu'un phénomène s'applique à tous les actifs. Identifier les expositions qui concernent réellement le site, recueillir des données localisées et travailler avec les spécialistes concernés. Le bon niveau d'analyse dépend de la criticité et de la nature de l'actif.
+
+### 23.2 Passer de l'actif individuel au système
+
+Une pièce peut avoir un faible coût d'achat et être critique en raison de sa position dans la chaîne. Les défaillances en cascade, les dépendances communes, les utilités partagées, les systèmes de contrôle, l'accès à un site ou une seule source de pièces peuvent dominer le risque d'un portefeuille. Une analyse qui se limite au classement de chaque actif individuellement peut manquer ces dépendances.
+
+Cartographier les fonctions et les services dépendants, les points uniques de défaillance, les redondances réellement indépendantes, les besoins de restauration et les ressources communes. Une redondance n'offre pas la protection attendue si les composants ne partagent pas les mêmes causes de panne, l'alimentation, le réseau, le refroidissement, la commande ou une autre dépendance vulnérable. Une redondance n'offre pas la protection attendue si les deux voies partagent l'alimentation, le refroidissement, le réseau, la commande ou un mode commun de panne.
+
+### 23.3 Construire des scénarios de résilience
+
+Pour une famille d'actifs critique, examiner au moins plusieurs scénarios pertinents : perte d'une pièce longue à obtenir, indisponibilité d'un fournisseur, défaillance en période de pointe, perte d'une utilité commune, indisponibilité des données de diagnostic ou succession de défaillances sur des actifs liés.
+
+Pour chaque scénario :
+1. définir le service touché et la conséquence opérationnelle ;
+2. estimer la durée de récupération plausible et les limites de l'estimation ;
+3. identifier les moyens de détection, de secours et les décisions nécessaires ;
+4. évaluer les pièces, contrats, personnes et outils nécessaires ;
+5. vérifier si les moyens de secours sont réellement testés et indépendants ;
+6. définir les actions, leur propriétaire et la date de revue.
+
+La résilience ne se mesure pas seulement à l'existence d'un plan. Elle dépend de la capacité démontrée à détecter, contenir, rétablir et apprendre. Les tests doivent être proportionnés au risque et réalisés dans des conditions sûres ; une simulation de table n'est pas équivalente à un exercice complet de récupération.
+
+### 23.4 Intégrer les impacts environnementaux au cycle de vie
+
+Selon l'actif et le cadre applicable, les décisions peuvent devoir considérer consommation d'énergie, consommables, déchets, substances dangereuses, réparabilité, durée de vie, possibilité de réemploi et modalités de fin de vie. Ces dimensions doivent s'ajouter aux critères de service et de risque, et non être traitées comme une simple note décorative.
+
+Éviter le raisonnement simpliste « neuf = plus durable » ou « prolonger = toujours préférable ». Un remplacement peut améliorer l'efficacité d'usage mais entraîner une fabrication, une migration ou un déchet important. Une prolongation peut éviter un investissement immédiat mais accroître la consommation, les risques de panne ou l'usage de pièces difficiles à obtenir. Comparer des périmètres cohérents, documenter les données disponibles et expliciter les limites de l'analyse.
+
+### 23.5 Revoir la stratégie lorsque le contexte change
+
+La revue doit préciser les signaux de changement, pas seulement la date du comité. Définir des seuils internes adaptés au site et au type d'actif, sans les présenter comme des limites universelles. Quand une hypothèse critique est invalidée, reconsidérer la stratégie : fréquence d'inspection, stock, politique d'intervention, architecture de secours, contrat, prolongation ou renouvellement.
+
+Le registre de risques doit relier chaque scénario à une mesure vérifiable et une décision. Si l'organisation ne peut pas réduire le risque à un niveau acceptable dans le budget existant, elle doit rendre visible le conflit entre financement, niveau de service et risque, puis obtenir une décision explicite. Le report silencieux n'est pas une stratégie de résilience.
+
 ## Ressources techniques et références
 
 - [ISO 55000:2024 — gestion d'actifs, vocabulaire, vue d'ensemble et principes](https://www.iso.org/standard/83053.html) : principes généraux et gestion de la valeur sur le cycle de vie.
 - [ISO 55001:2024 — système de gestion d'actifs, exigences](https://www.iso.org/standard/83054.html) : exigences de système de management et d'amélioration de la gestion d'actifs.
-- [ISO 55002:2018 — lignes directrices d'application de l'ISO 55001](https://www.iso.org/fr/standard/70402.html) : guide publié dont une édition révisée est en cours d'élaboration en 2026 ; vérifier son statut avant de s'y référer.
+- [ISO 55002:2018 — lignes directrices d'application de l'ISO 55001](https://www.iso.org/fr/standard/70402.html) : édition publiée antérieure, à distinguer du [projet ISO/DIS 55002](https://www.iso.org/fr/standard/88958.html), enregistré au stade DIS en octobre 2026. Le projet est en enquête/vote et ne doit pas être présenté comme une norme publiée ou déjà applicable.
 - [ISO/TS 55010:2024 — alignement des fonctions financières et non financières](https://www.iso.org/standard/84051.html) : coordination des décisions financières et techniques.
 - [ISO 17359:2018 — surveillance et diagnostic d'état des machines](https://www.iso.org/fr/standard/71194.html) : lignes directrices de programme de surveillance conditionnelle ; la page ISO indique que l'édition a été confirmée en 2023.
 - [ISO 14224:2016 — collecte et échange de données de fiabilité et de maintenance](https://www.iso.org/standard/64076.html) : référentiel sectoriel pour les industries du pétrole, du gaz naturel et de la pétrochimie. Ne pas l'étendre sans discernement à tous les secteurs ; sa portée exclut notamment les coûts directs.
 - [ISO 55012:2024 — implication du personnel et compétences](https://www.iso.org/standard/82454.html) : consulter la fiche ISO pour connaître la portée et l'état de publication.
+- [ISO 55013:2024 — gestion des données en tant qu'actifs](https://www.iso.org/fr/standard/82455.html) : recommandations de gestion des données qui soutiennent les objectifs de gestion d'actifs, sans fournir de méthode universelle de valorisation financière de ces données.
 - [ISO/TC 251 — informations sur les normes de gestion d'actifs](https://committee.iso.org/sites/tc251/home/projects/published/iso-55000.html).
 
 Ces documents fournissent des principes et des méthodes ; ils ne remplacent pas les exigences sectorielles, les lois, les contrats, les procédures de sécurité ni les décisions des autorités compétentes. Vérifier le statut, la version, le périmètre d'application et les éventuelles mises à jour avant d'utiliser une référence comme critère formel.
