@@ -1,11 +1,13 @@
 import json
 import re
 import unittest
+import sys
 from pathlib import Path
 
-from app.db import connect, ensure_ready
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from app.db import connect, ensure_ready
 EXPECTED = {
     "data-bases-debutant", "data-sql-1-debutant", "data-modelisation-debutant",
     "data-sql-2-debutant", "data-normalisation-debutant", "data-sql-pratique-debutant",
