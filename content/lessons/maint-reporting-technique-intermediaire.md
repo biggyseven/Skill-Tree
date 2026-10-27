@@ -40,61 +40,79 @@ Les principes directeurs sont les suivants : intervention autorisée, moindre pr
 | Retour arrière | Séquence permettant de retrouver un état stable si les critères de réussite ne sont pas satisfaits. |
 | Récurrence | Réapparition d'un problème similaire après un traitement précédent. |
 
-## Cartographie des processus
+## Schémas adaptés au sujet
 
-### Schéma 1 — chaîne opérationnelle
-
-```mermaid
-flowchart LR
-  A[Signal] --> B[Collecte] --> C[Seuil] --> D[Décision] --> E[Action]
-```
-
-Ce schéma résume la chaîne à observer pour rédiger un rapport d'incident. Chaque étape possède une entrée, une sortie et une responsabilité. Si une transition n'est pas visible, la procédure doit prévoir une vérification plutôt que supposer que l'étape précédente a réussi.
-
-### Schéma 2 — cycle de traitement
+### Schéma 1 — Structure du rapport
 
 ```mermaid
 flowchart LR
-  A[Préparer] --> B[Exécuter] --> C[Contrôler] --> D[Valider] --> E[Tracer]
+  A[Impact] --> B[Chronologie]
+  B --> C[Preuves]
+  C --> D[Conclusion prudente]
+  D --> E[Actions suivies]
 ```
 
-Le cycle doit être parcouru du début à la fin, sans supprimer la validation ni la trace. Une intervention peut être techniquement terminée alors que son résultat n'est pas encore accepté par le service concerné.
+Le lecteur comprend d'abord l'effet sur le service, puis les faits, les preuves, le niveau de confiance et les actions.
 
-### Schéma 3 — maîtrise du risque
+### Schéma 2 — Chronologie incident
 
 ```mermaid
 flowchart LR
-  A[Actif] --> B[Risque] --> C[Contrôle] --> D[Preuve] --> E[Revue]
+  A[Détection] --> B[Qualification]
+  B --> C[Escalade et tests]
+  C --> D[Rétablissement]
+  D --> E[Validation]
 ```
 
-La décision finale doit tenir compte du risque et des preuves. Une alerte, une action ou un changement de statut n'est utile que si l'information est assez fiable pour permettre la suite du travail.
+Normaliser les heures et conserver les sources rend possible la reconstruction du déroulé.
 
-### Schéma 4 — parcours d'une demande
+### Schéma 3 — Confiance des conclusions
+
+```mermaid
+flowchart TD
+  A[Observation] --> B[Sources croisées]
+  B --> C{Test causal concluant ?}
+  C -->|Oui| D[Cause étayée]
+  C -->|Non| E[Hypothèse et suivi]
+```
+
+Le rapport doit montrer ce qui est confirmé et ce qui reste à démontrer, sans transformer la proximité temporelle en causalité.
+
+### Schéma 4 — Gestion des preuves
 
 ```mermaid
 flowchart LR
-  A[Demande] --> B[Qualification] --> C[Traitement] --> D[Validation] --> E[Clôture]
+  A[Source] --> B[Horodatage]
+  B --> C[Contexte et intégrité]
+  C --> D[Référence de ticket]
+  D --> E[Diffusion maîtrisée]
 ```
 
-Le parcours doit laisser au technicien un état explicite à chaque étape : en attente, en cours, bloqué, validé ou escaladé. Des états ambigus rendent les indicateurs de délai et le pilotage peu fiables.
+Chaque pièce doit être utile et traçable, tandis que les copies distribuées limitent l'exposition des informations sensibles.
 
-### Schéma 5 — démarche d'analyse
+### Schéma 5 — Contournement et correction
+
+```mermaid
+flowchart TD
+  A[Incident] --> B[Contournement]
+  B --> C[Service rétabli]
+  C --> D[Analyse cause]
+  D --> E[Correction durable]
+```
+
+Le contournement permet de retrouver le service mais peut laisser un risque ; le rapport doit le rendre visible.
+
+### Schéma 6 — Suivi des actions
 
 ```mermaid
 flowchart LR
-  A[Mesure] --> B[Analyse] --> C[Hypothèse] --> D[Test] --> E[Conclusion]
+  A[Action définie] --> B[Propriétaire]
+  B --> C[Échéance]
+  C --> D[Preuve d'exécution]
+  D --> E[Effet mesuré]
 ```
 
-L'analyse gagne à séparer constat, hypothèse et conclusion. Les preuves qui ne soutiennent pas l'hypothèse doivent rester disponibles afin d'expliquer pourquoi une piste a été écartée.
-
-### Schéma 6 — boucle d'amélioration
-
-```mermaid
-flowchart LR
-  A[Détection] --> B[Escalade] --> C[Diagnostic] --> D[Rétablissement] --> E[Retour]
-```
-
-La boucle se ferme lorsque les retours et incidents servent à changer le dispositif, puis qu'un contrôle démontre l'effet de cette amélioration. Une action documentaire sans vérification de terrain reste incomplète.
+Une action n'est pas efficace simplement parce qu'elle est marquée terminée ; le suivi doit vérifier l'effet sur le risque.
 
 ## Fondements techniques du domaine
 
