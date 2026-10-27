@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sql-avance-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’avantage principal d’EXISTS dans la recherche des clients ayant au moins une commande ?",
+      "choices": [
+        "Il garantit toujours un plan plus rapide que toute jointure",
+        "Il transforme automatiquement toutes les valeurs NULL en zéro",
+        "Il exprime un test d’existence sans multiplier les clients par le nombre de commandes correspondantes",
+        "Il force le moteur à matérialiser chaque commande"
+      ],
+      "answer": 2,
+      "explanation": "EXISTS traduit directement la règle d’existence et évite de produire plusieurs lignes client lorsque plusieurs commandes correspondent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi NOT IN peut-il produire un résultat inattendu lorsque la sous-requête contient NULL ?",
+      "choices": [
+        "Parce que SQL interdit les sous-requêtes dans WHERE",
+        "Parce que la logique SQL à trois valeurs peut rendre la comparaison inconnue",
+        "Parce que NULL est toujours égal à zéro",
+        "Parce que NOT IN ignore automatiquement les index"
+      ],
+      "answer": 1,
+      "explanation": "Une comparaison affectée par NULL peut devenir inconnue, et WHERE ne retient pas les lignes pour lesquelles la condition n’est pas vraie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle fonction de fenêtre convient pour attribuer un numéro différent à chaque ligne d’un client ?",
+      "choices": [
+        "ROW_NUMBER() avec un ordre déterministe",
+        "SUM() sans OVER",
+        "COUNT(DISTINCT) sur toute la table",
+        "GROUP BY sans partition"
+      ],
+      "answer": 0,
+      "explanation": "ROW_NUMBER attribue un numéro unique dans l’ordre de fenêtre. Une clé secondaire est utile pour rendre l’ordre stable en présence d’égalités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une jointure aux articles multiplie artificiellement le total des commandes. Quelle correction est la plus pertinente ?",
+      "choices": [
+        "Ajouter DISTINCT partout sans autre analyse",
+        "Augmenter la taille de l’index",
+        "Remplacer toutes les valeurs NULL par zéro",
+        "Calculer au bon niveau de détail avant la jointure, ou sommer les montants de lignes selon le contrat métier"
+      ],
+      "answer": 3,
+      "explanation": "La somme est fausse parce que le montant commande est répété sur chaque ligne article. La correction doit respecter la granularité de chaque montant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel cas une CTE matérialisée peut-elle être utile ?",
+      "choices": [
+        "Elle est toujours nécessaire pour toute CTE",
+        "Lorsque les mesures montrent qu’un résultat intermédiaire réutilisé évite du travail répété, sans coût excessif de stockage",
+        "Pour rendre une requête plus lente volontairement",
+        "Pour éviter de tester les plans"
+      ],
+      "answer": 1,
+      "explanation": "La matérialisation est une option d’optimisation dépendante du moteur et du cas. Elle se décide à partir du plan et de mesures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire avant d’utiliser EXPLAIN ANALYZE sur une instruction d’écriture ?",
+      "choices": [
+        "L’exécuter directement sur la production car elle est toujours en lecture seule",
+        "Supprimer les contraintes de la table",
+        "Comprendre qu’elle exécute réellement l’instruction et choisir un contexte de test ou un cadre sûr",
+        "Réduire le niveau d’isolation à zéro"
+      ],
+      "answer": 2,
+      "explanation": "EXPLAIN ANALYZE exécute l’instruction. Une écriture peut modifier les données ; le test doit être isolé et les effets maîtrisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un bon moyen d’éviter les injections SQL dans une routine ?",
+      "choices": [
+        "Concaténer les chaînes puis remplacer quelques quotes",
+        "Accepter directement toute valeur utilisateur",
+        "Utiliser un compte superutilisateur pour tous les appels",
+        "Paramétrer les valeurs et vérifier les noms d’objets dynamiques par une liste blanche"
+      ],
+      "answer": 3,
+      "explanation": "Les valeurs doivent être paramétrées. Les identifiants SQL dynamiques nécessitent une stratégie spécifique, notamment une liste blanche et des droits limités."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une requête qui renvoie le même ordre apparent ne garantit-elle pas une pagination stable ?",
+      "choices": [
+        "Parce que l’ordre peut être incomplet et ne pas départager des lignes ayant la même valeur de tri",
+        "Parce que ORDER BY ne fonctionne jamais avec LIMIT",
+        "Parce que les clés primaires sont toujours ignorées",
+        "Parce que le résultat doit être trié par ordre aléatoire"
+      ],
+      "answer": 0,
+      "explanation": "Un ordre partiel laisse les égalités sans règle déterministe. Ajouter un critère secondaire unique permet de stabiliser les pages."
+    }
+  ]
+}
