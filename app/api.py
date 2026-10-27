@@ -42,7 +42,7 @@ from .labs_runner import (
     LabRunnerError, LabSessionError, exec_in_lab, start_interactive_lab, validate_lab,
 )
 from .loader import CONTENT_DIR, ContentError, find_lab_dir, load_content, load_lessons
-from .lab_routes import router as lab_v2_router, seed_lab_v2_catalog
+from .lab_routes import _fetch_lab, router as lab_v2_router, seed_lab_v2_catalog
 from .lab_schema_v2 import Topology
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -308,6 +308,43 @@ def read_node(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
                 "prompt": str(configured_lab.get("prompt") or ""),
                 "hint": str(configured_lab.get("hint") or ""),
             }
+
+    # Les nouveaux scénarios React Flow peuvent exister sans ancienne entrée
+    # lab_specs ni métadonnée « lab » dans nodes.json. Exposer alors leur consigne
+    # au lecteur du cours pour qu'il affiche le bouton vers le vrai workspace.
+    has_lab_requirement = any(
+        requirement.kind is ProofKind.LAB for requirement in node.requirements
+    )
+    if lab_payload is None and has_lab_requirement:
+        try:
+            v2_lab_payload = _fetch_lab(node.id)
+        except HTTPException:
+            # Le détail du cours doit rester disponible même si le scénario manque
+            # ou si sa définition ne peut pas être chargée.
+            v2_lab_payload = None
+
+        if v2_lab_payload and not v2_lab_payload.get("sandbox"):
+            definition = v2_lab_payload.get("definition")
+            topology = getattr(definition, "initial_topology", None)
+            topology_nodes = getattr(topology, "nodes", None)
+            if isinstance(topology_nodes, list) and topology_nodes:
+                duration_min = getattr(definition, "duration_min", None)
+                hints = getattr(definition, "hints", None) or []
+                lab_payload = {
+                    "kind": "workspace-v2",
+                    "prompt": str(
+                        getattr(definition, "prompt", "") or node.description or node.title
+                    ),
+                    "hint": "\\n".join(str(hint) for hint in hints if str(hint).strip()),
+                    "duration": f"{duration_min} min" if duration_min else "",
+                    "difficulty": str(
+                        getattr(definition, "difficulty", "")
+                        or getattr(definition, "level", "")
+                        or ""
+                    ),
+                    "workspace_v2": True,
+                }
+
     challenge = _challenge_row(tree, node.id)
     terminal = tree.conn.execute("SELECT prompt, explanation FROM terminal_specs WHERE node_id = ?", (node.id,)).fetchone()
     terminal_spec = tree.terminal_spec(node.id)
