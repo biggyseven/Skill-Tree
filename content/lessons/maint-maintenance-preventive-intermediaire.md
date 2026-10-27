@@ -252,3 +252,12 @@ La direction demande un objectif de 100 % de tâches clôturées à la date pré
 À partir du plan fictif du cours, prépare une revue trimestrielle avec les actifs en retard, les pannes récurrentes, les mesures de supervision, les fenêtres manquées et les tâches qui ont dépassé leur durée. Présente les trois risques prioritaires, les décisions à obtenir, les tâches proposées et les preuves qui permettront de confirmer l'amélioration.
 
 **Correction :** le rapport commence par l'impact métier et l'état des risques. Il présente ensuite la couverture de la maintenance, les exceptions et leur justification, les écarts détectés, les actions avec responsables et échéances, puis la date de revue suivante. Toute donnée non disponible est indiquée comme non disponible au lieu d'être inventée. Le responsable accepte explicitement les risques résiduels.
+
+
+## 19. Distinguer contrôle de routine et vérification approfondie
+
+Une checklist régulière n'a pas toujours vocation à démonter ou modifier un équipement. Les contrôles de routine peuvent lire des états, examiner les alertes, confirmer la sauvegarde d'une configuration et vérifier les tendances. Les inspections approfondies peuvent nécessiter une fenêtre, un technicien habilité, des outils de mesure, une pièce de rechange et une validation métier. Le calendrier doit faire apparaître cette différence pour ne pas transformer un contrôle de routine en intervention invasive non planifiée.
+
+Pour chaque contrôle physique, indique ce qui peut être observé sans débrancher ni ouvrir l'équipement. Toute manipulation à risque doit suivre les consignes du fabricant, les habilitations et les règles du site. Une alarme de ventilateur ne justifie pas à elle seule de retirer une alimentation redondante ; l'action doit tenir compte du modèle, du risque et de la procédure validée.
+
+Le plan de maintenance peut prévoir une étape de triage : collecter d'abord les mesures et documents, puis classer le résultat comme normal, à suivre, à corriger ou dangereux. Si la situation sort du périmètre, l'opérateur doit pouvoir s'arrêter et escalader au lieu d'improviser.
