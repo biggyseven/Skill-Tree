@@ -356,6 +356,38 @@ Définir un indicateur pour le résultat métier, un pour la qualité, un pour l
 Documenter aussi le plan d'arrêt : export des données, retrait des intégrations, maintien d'un workflow de secours, révocation des accès, conservation des preuves, résiliation des services et communication. La sortie doit être testée à partir d'un périmètre représentatif, car la portabilité annoncée n'est pas toujours égale à une exportation réellement exploitable.
 
 
+
+## Contrôle de transformation — données, sécurité et dette de changement
+
+Avant chaque vague, examiner les dépendances qui peuvent compromettre le déploiement : qualité du référentiel d'actifs, intégration de l'identité, synchronisation des tickets, gestion des secrets, journalisation, capacité du support et conditions de retour. Une équipe peut disposer de tests réussis dans un environnement de développement mais ne pas avoir de preuve sur les permissions, la charge ou les dépendances de production. Le passage en exploitation doit reposer sur les tests appropriés et une approbation explicite.
+
+### Gate de préparation avant déploiement
+
+| Domaine | Question de vérification | Preuve attendue |
+|---|---|---|
+| Processus | Les règles et exceptions sont-elles comprises ? | Modèle d'états approuvé et cas de test |
+| Données | Les identifiants, relations et migrations sont-ils cohérents ? | Rapprochement sur échantillon et rapport d'écarts |
+| Sécurité | Les rôles, secrets et journaux sont-ils contrôlés ? | Revue d'accès et tests autorisés |
+| Exploitation | Existe-t-il un propriétaire, un support et un monitoring ? | Runbook, contacts et test d'alerte |
+| Adoption | Les utilisateurs peuvent-ils exécuter les scénarios critiques ? | Évaluation pratique et retour utilisateur |
+| Continuité | Peut-on revenir à un état stable ou continuer en mode dégradé ? | Plan testé et conditions d'arrêt |
+| Valeur | Les résultats mesurables ont-ils atteint les seuils ? | Rapport de pilote comparé à la baseline |
+
+Les critères de passage doivent être définis avant le test. Si des contrôles non essentiels restent en échec, la décision peut accepter une mitigation selon une autorité et une date ; pour un défaut critique, la mise en production peut être refusée. Le tableau de suivi doit distinguer défaut bloquant, défaut accepté sous réserve et amélioration future.
+
+### Réduire la dette de changement
+
+Un programme peut accumuler des workflows dupliqués, des intégrations ponctuelles, des comptes de service inconnus et des décisions codées dans des scripts sans propriétaire. Tenir une carte des interfaces et des composants, versionner les règles, automatiser les contrôles reproductibles et retirer les étapes obsolètes. Chaque exception d'architecture doit avoir une justification, un owner, une durée et une stratégie de remplacement.
+
+La dette de changement devient coûteuse lorsque l'équipe ne peut plus faire évoluer une règle sans casser un autre processus. Prévoir des tests de contrat pour les APIs, des environnements représentatifs, des versions explicites et des outils de monitoring. Les transformations doivent aussi réduire la complexité accumulée, pas seulement ajouter une nouvelle couche au système précédent.
+
+### Mesurer l'adoption sans confondre activité et valeur
+
+Les connexions et clics indiquent une activité, mais pas que le processus est mieux exécuté. Mesurer l'achèvement correct des tâches, la baisse de ressaisie, le taux d'erreur, le délai de traitement, la satisfaction et les appels au support. Interroger les utilisateurs qui abandonnent le workflow ou reviennent au canal informel : leurs raisons peuvent révéler une étape lente, une donnée manquante ou un contrôle mal compris.
+
+Une revue à 30, 60 et 90 jours examine les objectifs, les écarts, les coûts, les incidents et la qualité des données. Les résultats déterminent si l'équipe généralise, corrige le design, ajoute un contrôle ou retire une fonction. Le changement numérique reste une activité continue avec propriétaire ; il ne s'achève pas à la date de lancement.
+
+
 ## Ressources techniques et références
 
 - [Microsoft Learn — Azure Cloud Adoption Framework](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/overview)
