@@ -297,6 +297,217 @@ printf '%s\n' 'Vérifier service, période, interruptions, exclusions et source 
 
 Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
 
+
+## Concevoir des indicateurs de niveau de service exploitables
+
+Un SLA robuste commence par le besoin métier : quel résultat le client doit-il réellement pouvoir obtenir ? La réponse guide le choix des indicateurs et des seuils. Mesurer uniquement ce que l'outil sait produire conduit souvent à des objectifs faciles à mesurer, mais sans rapport avec l'expérience utilisateur. Pour une application de gestion, les signaux pertinents peuvent être la capacité à ouvrir une session, charger les données nécessaires et enregistrer une transaction, complétés par la disponibilité des composants, la latence et les erreurs.
+
+### Définitions SLI, SLO, SLA, OLA et KPI
+
+| Terme | Définition opérationnelle | Usage principal |
+|---|---|---|
+| SLI — Service Level Indicator | Mesure quantitative définie d'un aspect du service, avec unité, périmètre et méthode de collecte | Observer la qualité réellement obtenue |
+| SLO — Service Level Objective | Cible interne attribuée à un SLI sur une période et selon des conditions définies | Piloter la fiabilité et les décisions d'exploitation |
+| SLA — Service Level Agreement | Engagement convenu avec le client, décrivant objectifs, responsabilités et conditions | Clarifier l'engagement contractuel et ses conséquences |
+| OLA — Operational Level Agreement | Engagement entre équipes internes qui contribuent au service | Organiser la capacité nécessaire pour tenir le SLA |
+| KPI — Key Performance Indicator | Indicateur d'un résultat ou d'une activité importante | Gérer une performance opérationnelle plus large |
+
+Les termes doivent être définis dans le contexte local, car les organisations ne les utilisent pas toujours de façon identique. Une métrique de ticket n'est pas automatiquement un SLI fiable : sa définition, sa couverture et sa source doivent être cohérentes. Un SLO est une cible de pilotage et ne remplace pas l'engagement écrit du SLA. L'OLA doit être construit de façon à laisser suffisamment de marge pour la qualification, les escalades, la validation et la communication.
+
+~~~mermaid
+flowchart TD
+    A[Besoin métier] --> B[Choisir un indicateur SLI]
+    B --> C[Définir collecte et périmètre]
+    C --> D[Fixer la cible SLO interne]
+    D --> E[Formaliser l'engagement SLA]
+    E --> F[Décliner les contributions dans les OLA]
+    F --> G[Surveiller et communiquer]
+    G --> H[Revue de service et amélioration]
+~~~
+
+### Fiche d'un indicateur : modèle prêt à l'emploi
+
+Chaque métrique doit posséder une fiche de définition versionnée. Sans cette fiche, le même nom peut représenter plusieurs calculs et la discussion devient un débat sur les chiffres plutôt qu'une analyse de la qualité du service.
+
+~~~text
+Nom de l'indicateur :
+Question métier à laquelle il répond :
+Service / population / composants couverts :
+Définition d'un succès et d'un échec :
+Numérateur :
+Dénominateur :
+Unité et fenêtre de calcul :
+Fréquence et source de collecte :
+Méthode d'agrégation :
+Seuil cible / seuil d'alerte :
+Périodes et exclusions autorisées :
+Responsable de la donnée :
+Limites connues / qualité de mesure :
+Règle de vérification et de contestation :
+Version de la définition / date d'effet :
+~~~
+
+Pour l'indicateur « transactions métier réussies », par exemple, définir ce qui constitue une transaction valide, comment traiter les abandons utilisateur, les retries, les timeouts, les données de test et les opérations interrompues avant l'arrivée au service. Si certaines catégories sont exclues, cette règle doit être écrite et stable. Une modification de définition doit être annotée dans le rapport afin que les tendances restent interprétables.
+
+### Disponibilité, latence et succès fonctionnel
+
+La disponibilité seule ne suffit pas à décrire un service. Ajouter un indicateur de latence (par exemple un percentile de réponse), un taux d'erreur et, lorsque la fonction métier l'exige, un indicateur de justesse. Les moyennes peuvent cacher les longues latences vécues par une minorité d'utilisateurs. Choisir les percentiles selon le profil de trafic et les besoins métier, puis documenter la fenêtre d'agrégation et les requêtes incluses.
+
+~~~mermaid
+flowchart LR
+    A[Test de bout en bout] --> B[Le service répond-il ?]
+    A --> C[Le délai est-il acceptable ?]
+    A --> D[Le résultat est-il correct ?]
+    B --> E[SLI disponibilité]
+    C --> F[SLI latence]
+    D --> G[SLI qualité fonctionnelle]
+    E --> H[Vue consolidée du service]
+    F --> H
+    G --> H
+~~~
+
+Un ping peut rester positif pendant que l'authentification ou la transaction échoue. À l'inverse, un test synthétique peut échouer pour une cause isolée dans son environnement. Associer les sondes réseau, les mesures applicatives, les journaux et les signaux côté client donne une image plus robuste. Les tests automatisés doivent avoir des comptes et données adaptés, des limites de fréquence et une supervision de leur propre fonctionnement.
+
+### Calculs illustratifs et pièges d'interprétation
+
+Supposons un service prévu pour fonctionner 30 jours sans exclusion contractuelle : la période théorique contient 43 200 minutes. Si la définition du SLA mesure la disponibilité en minutes et que le service a été indisponible 43 minutes, alors :
+
+~~~text
+Disponibilité = (temps prévu - temps indisponible) / temps prévu × 100
+              = (43 200 - 43) / 43 200 × 100
+              ≈ 99,9005 %
+~~~
+
+Cet exemple explique le calcul, mais ne dit pas si le SLA est respecté : il faut connaître la cible, la définition de l'indisponibilité et les exclusions contractuelles. Une mesure par requêtes peut produire un pourcentage différent si les erreurs ne sont pas uniformes dans le temps. Ne pas utiliser la disponibilité de deux composants pour multiplier leurs pourcentages et prétendre obtenir la disponibilité réelle du service composite; les défaillances peuvent être corrélées, et chaque engagement peut avoir ses propres conditions.
+
+Pour un service qui mesure la fraction de requêtes valides réussies, le SLI peut être défini ainsi :
+
+~~~text
+Taux de succès = requêtes valides réussies / total des requêtes valides × 100
+~~~
+
+Avant de comparer les périodes, figer le périmètre, les critères de requêtes valides, le mode d'agrégation, les retries, les environnements et les fenêtres. Si une version modifie la méthode de collecte ou le nombre de transactions, la tendance peut être trompeuse sans annotation.
+
+### Budget d'erreur et arbitrage entre fiabilité et évolution
+
+Un SLO de disponibilité ne prétend pas à une perfection permanente. Dans une approche SRE, le budget d'erreur représente la marge entre la fiabilité idéale et l'objectif défini. Pour un SLO de 99,9 % sur une période donnée, la marge théorique est de 0,1 % des unités couvertes par cet objectif. Les unités exactes — temps, requêtes ou autres mesures — doivent suivre la définition du SLI.
+
+Le budget permet aux équipes de discuter d'un choix fondé sur les données : poursuivre les changements prévus, réduire le rythme des déploiements, investir dans la stabilité, améliorer les tests ou traiter une source de défaillance répétée. Il ne constitue pas une autorisation de provoquer des incidents et ne remplace pas les exigences de sécurité ni les obligations contractuelles. Une politique de budget doit préciser ce qui se passe quand la marge se rapproche de l'épuisement et qui décide des actions.
+
+~~~mermaid
+flowchart TD
+    A[Mesurer le SLI sur la période] --> B[Comparer à la cible SLO]
+    B --> C[Calculer la marge restante]
+    C --> D{Budget d'erreur sous le seuil d'alerte ?}
+    D -- Oui --> E[Poursuivre les évolutions avec les contrôles normaux]
+    D -- Non --> F[Prioriser fiabilité et correction]
+    F --> G[Limiter les changements risqués selon la politique]
+    E --> H[Surveiller erreurs et impact utilisateur]
+    G --> H
+    H --> I[Revoir tendance et actions]
+~~~
+
+## Faire tenir les OLA et le SLA sur la même chaîne opérationnelle
+
+Le SLA est un engagement sur le service présenté au client, pas une addition automatique des engagements de chaque équipe. Pour construire des OLA utilisables, cartographier le flux réel : détection, qualification, assignation, diagnostic, approbation, intervention, validation et communication. Pour chaque étape, définir un propriétaire, un délai ou objectif, une preuve de début et de fin, un canal de secours et une règle d'escalade.
+
+~~~mermaid
+flowchart LR
+    A[Centre de services] --> B[Équipe applicative]
+    B --> C[Équipe infrastructure]
+    C --> D[Fournisseur externe si nécessaire]
+    D --> E[Test de restauration]
+    E --> F[Confirmation au métier]
+~~~
+
+Cette séquence est illustrative et doit être adaptée au service réel. Certains diagnostics se font en parallèle; d'autres exigent une approbation ou une dépendance séquentielle. Les délais internes ne doivent pas consommer toute la marge contractuelle : réserver du temps pour la validation, la communication et les imprévus. Un OLA plus lent que la marge disponible constitue un risque structurel à traiter avant l'incident.
+
+Exemple fictif pour un objectif de rétablissement de quatre heures : 15 minutes de qualification, 20 minutes d'assignation et de prise en charge, 90 minutes de diagnostic, 75 minutes de mise en œuvre d'une mitigation, 30 minutes de validation et communication, avec une réserve explicite pour l'escalade ou l'incertitude. Ces valeurs ne sont pas universelles; il faut les établir à partir de données historiques, du risque et de la couverture des équipes.
+
+### Matrice de dépendances et responsabilités
+
+| Étape | Responsable principal | Preuve de fin | Risque si le délai dérive |
+|---|---|---|---|
+| Qualification | Centre de services | Impact, priorité et périmètre confirmés | Mauvaise priorité ou mauvais routage |
+| Diagnostic | Équipe technique concernée | Hypothèse étayée et prochaine action | Attente non visible ou investigations répétées |
+| Approbation | Autorité définie par le service | Décision horodatée | Modification bloquée ou risque non accepté |
+| Intervention | Équipe autorisée | Résultat de l'action et état observé | Dépassement de fenêtre |
+| Validation | Équipe technique et représentant métier selon le service | Tests et acceptation | Clôture prématurée |
+| Communication | Propriétaire de l'incident | Mise à jour datée et prochain jalon | Insatisfaction et perte de confiance |
+
+Les responsables doivent être désignés pour chaque service et chaque plage de couverture. Une adresse de groupe ou une file d'attente ne constitue pas à elle seule un propriétaire effectif. L'accord interne doit préciser les horaires, l'astreinte, la remplaçabilité, les critères de priorité, la qualité des preuves à transférer et la manière de demander une décision.
+
+## Satisfaction utilisateur : concevoir une mesure exploitable
+
+Un questionnaire de satisfaction ne doit pas seulement demander « êtes-vous satisfait ? ». Des questions séparées peuvent couvrir la résolution du besoin, le délai perçu, la qualité des explications et la facilité de contacter le support. Garder le questionnaire suffisamment court pour encourager les réponses, tout en définissant une méthode constante entre les périodes. Les scores numériques gagnent à être accompagnés de commentaires qualitatifs codés par thème.
+
+~~~mermaid
+flowchart TD
+    A[Ticket ou interaction terminée] --> B[Envoyer le questionnaire selon la règle]
+    B --> C[Collecter réponses et taux de réponse]
+    C --> D[Analyser scores et commentaires]
+    D --> E[Regrouper les motifs récurrents]
+    E --> F[Choisir une action et un responsable]
+    F --> G[Mesurer l'effet à la prochaine période]
+    G --> H{Expérience améliorée ?}
+    H -- Non --> E
+    H -- Oui --> I[Conserver la pratique efficace]
+~~~
+
+Lire un score de satisfaction sans le taux de réponse est risqué. Une population mécontente peut répondre davantage qu'une population satisfaite, et les tickets clos peuvent ne pas représenter les incidents qui restent ouverts. Afficher la période, le volume de réponses, les biais possibles et les changements de méthode. Protéger les identifiants et limiter l'accès aux commentaires individuels. Utiliser le retour utilisateur pour améliorer le service, et non comme unique indicateur de performance d'un agent.
+
+### De l'insatisfaction à une action concrète
+
+Un retour tel que « le support est lent » n'indique pas encore si la cause est un long délai de première réponse, une attente fournisseur, une absence de nouvelles ou une résolution récurrente. Codifier les motifs, regarder des dossiers représentatifs et confronter les commentaires aux horodatages réels. Éviter de supposer que la perception est erronée lorsqu'elle ne correspond pas à la mesure actuelle : cela peut montrer que l'indicateur ne reflète pas le besoin réel.
+
+Exemple : le SLA de première réponse est respecté, mais les commentaires indiquent que le demandeur n'a aucune information pendant les six heures d'investigation. L'action appropriée pourrait être d'introduire une cadence de mise à jour définie par priorité, un propriétaire de communication et un champ de prochain jalon. La vérification pourrait examiner un échantillon de tickets et mesurer si les mises à jour sont envoyées à temps, puis comparer les commentaires à la période précédente. Une bonne action doit préciser ce qu'elle change et comment son effet sera observé.
+
+## Gestion de l'âge des tickets et prévention du dépassement
+
+Pour chaque ticket ouvert, afficher le temps écoulé selon le calendrier applicable, l'objectif associé, le propriétaire actuel, l'étape, le blocage, le prochain jalon et le temps restant avant le seuil. Le but est de prévenir un dépassement évitable. Des files d'attente et des dépendances mal visibles peuvent consommer la marge même quand chaque équipe respecte son propre OLA.
+
+~~~mermaid
+flowchart TD
+    A[Ticket ouvert] --> B[Calculer le temps selon le calendrier]
+    B --> C[Comparer au seuil et au délai restant]
+    C --> D{Risque de dépassement ?}
+    D -- Non --> E[Suivi normal et prochaine action]
+    D -- Oui --> F[Identifier le blocage et son propriétaire]
+    F --> G[Escalader ou demander les ressources nécessaires]
+    G --> H[Informer le demandeur selon la cadence]
+    H --> I[Documenter la décision et suivre le résultat]
+~~~
+
+Une notification automatique doit être actionnable : ticket, responsable, objectif concerné, délai restant, blocage observé et prochaine décision nécessaire. Une avalanche d'alertes sans priorité explicite favorise l'ignorance des alertes. Tester les règles avec des scénarios réels et vérifier que les changements de priorité, les tickets liés, les pauses autorisées et les heures ouvrées sont pris en compte correctement.
+
+## Rapport de revue SLA/OLA : ordre du jour type
+
+~~~text
+1. Périmètre, sources et changements de définition
+2. Résultats SLA par service et priorité
+3. Indicateurs de qualité : latence, erreurs et disponibilité
+4. Respect des OLA et points d'attente internes
+5. Tickets ouverts à risque de dépassement
+6. Incidents majeurs, récurrence et causes connues
+7. Satisfaction, commentaires et taux de réponse
+8. Exclusions et contestations, avec preuves
+9. Risques, capacité et dépendances fournisseurs
+10. Actions précédentes : état, résultats et retards
+11. Décisions, responsables, échéances et mesures de suivi
+12. Prochain point de revue
+~~~
+
+La revue doit se conclure par une liste courte de décisions et d'actions, pas par un long compte rendu de chiffres. Chaque action doit avoir un propriétaire, une échéance, un critère de fin et, lorsque cela s'applique, une mesure d'efficacité. Les désaccords sur la définition ou le calcul doivent rester visibles et être dirigés vers l'autorité appropriée; on ne doit pas modifier la méthode silencieusement pour obtenir un résultat conforme.
+
+## Ressources officielles pour approfondir
+
+- **Microsoft Learn — How to Read a Service-Level Agreement (SLA).** Explique les engagements conditionnels, les méthodes de mesure, les prérequis, les exclusions et les limites des pourcentages de disponibilité. [Documentation officielle](https://learn.microsoft.com/en-us/azure/reliability/concept-service-level-agreements).
+- **Google SRE Book — Service Level Objectives.** Définit les SLI, SLO et notions liées; insiste sur le choix des mesures selon l'expérience utilisateur plutôt que sur ce qui est simplement facile à mesurer. [Chapitre officiel](https://sre.google/sre-book/service-level-objectives/).
+- **Google SRE — Error Budget Policy.** Présente les budgets d'erreur comme un mécanisme de décision entre évolution et fiabilité. [Guide officiel](https://sre.google/workbook/error-budget-policy/).
+- **Microsoft Licensing — Service Level Agreements for Online Services.** Donne accès aux versions en vigueur des SLA de services Microsoft en ligne lorsque le contrat concerné dépend de ces services. [Catalogue officiel](https://www.microsoft.com/licensing/docs/view/Service-Level-Agreements-SLA-for-Online-Services).
+
+Ces ressources complètent le cours; elles ne remplacent pas le contrat applicable. Les périodes, exclusions, règles de réclamation, cibles et responsabilités doivent être déterminées à partir du SLA et de la gouvernance interne réels.
+
 ## Atelier pratique guidé
 
 ### Situation de départ
