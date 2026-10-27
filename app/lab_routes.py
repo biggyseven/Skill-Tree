@@ -637,16 +637,70 @@ def get_lab_v2(lab_id: str) -> dict[str, Any]:
     conn: sqlite3.Connection | None = None
     try:
         conn = _database_connection()
+        if os.environ.get("RENDER_SERVICE_ID") and not getattr(conn, "is_postgres", False):
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Stockage durable indisponible : ce service Render n'utilise pas "
+                    "PostgreSQL/Neon. La topologie sauvegardée ne peut pas être restaurée."
+                ),
+            )
+
         course_context = _course_lab_context(conn, lab_id)
-    except HTTPException:
-        # La définition JSON reste consultable si SQLite est temporairement indisponible.
+
+        # Restaure la dernière topologie sauvegardée au moment même où le laboratoire
+        # s'ouvre. Sans cela, le bouton « Charger » fonctionne, mais un simple rechargement
+        # réaffiche la topologie de départ et donne l'impression que rien n'a été sauvegardé.
+        topology_columns = {
+            row["name"] for row in conn.execute('PRAGMA table_info("topologies")')
+        }
+        required_columns = {"id", "name", "data", "updated_at"}
+        if not required_columns.issubset(topology_columns):
+            if os.environ.get("RENDER_SERVICE_ID"):
+                raise HTTPException(
+                    status_code=503,
+                    detail="La table de sauvegarde des topologies est absente ou incompatible.",
+                )
+            saved_row = None
+        else:
+            saved_row = conn.execute(
+                "SELECT data, updated_at FROM topologies WHERE name = ? "
+                "ORDER BY updated_at DESC, id DESC LIMIT 1",
+                (f"lab_{lab_id}",),
+            ).fetchone()
+
+        payload = dict(payload)
+        payload["has_saved_topology"] = saved_row is not None
+        if saved_row is not None:
+            try:
+                saved_topology = json.loads(saved_row["data"])
+                if (
+                    not isinstance(saved_topology, dict)
+                    or saved_topology.get("schema_version") != 2
+                    or not isinstance(saved_topology.get("nodes"), list)
+                    or not isinstance(saved_topology.get("links"), list)
+                ):
+                    raise ValueError("structure de topologie v2 invalide")
+                # Applique les mêmes contrôles de structure que lors de l'enregistrement.
+                Topology(**saved_topology)
+            except (json.JSONDecodeError, TypeError, ValueError) as error:
+                raise HTTPException(
+                    status_code=500,
+                    detail="La topologie sauvegardée pour ce laboratoire est invalide.",
+                ) from error
+            payload["initial_topology"] = saved_topology
+            payload["saved_topology_at"] = str(saved_row["updated_at"])
+    except HTTPException as error:
+        # En local, le catalogue JSON reste utilisable sans SQLite. Sur Render, en revanche,
+        # ne masquons jamais une panne du stockage durable en affichant une fausse topologie.
+        if os.environ.get("RENDER_SERVICE_ID"):
+            raise error
         return payload
     finally:
         if conn is not None:
             conn.close()
 
     if course_context is not None:
-        payload = dict(payload)
         payload["course_locked"] = not course_context["unlocked"]
         if not course_context["unlocked"]:
             payload["course_lock_message"] = _course_lock_message(course_context)

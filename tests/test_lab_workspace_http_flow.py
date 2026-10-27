@@ -53,6 +53,16 @@ class LabWorkspaceHttpFlowTests(unittest.TestCase):
                 )
                 """
             )
+            conn.execute(
+                """
+                CREATE TABLE topologies (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    data TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
         self.db_path_patch = patch.object(api, "DB_PATH", self.db_path)
         self.db_path_patch.start()
         self.addCleanup(self.db_path_patch.stop)
@@ -95,6 +105,13 @@ class LabWorkspaceHttpFlowTests(unittest.TestCase):
             )
             self.assertEqual(saved.status_code, 200, saved.text)
             self.assertTrue(saved.json()["success"])
+
+            # Une simple réouverture doit reprendre la sauvegarde sans action manuelle
+            # sur le bouton « Charger ».
+            reopened = client.get("/api/lab/v2/ipv4-debutant")
+            self.assertEqual(reopened.status_code, 200, reopened.text)
+            self.assertTrue(reopened.json()["has_saved_topology"])
+            self.assertEqual(reopened.json()["initial_topology"], topology)
 
             reloaded = client.get("/api/lab/v2/ipv4-debutant/load")
             self.assertEqual(reloaded.status_code, 200, reloaded.text)
