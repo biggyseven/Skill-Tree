@@ -349,6 +349,25 @@ La politique de conservation dépend de l'organisation et des obligations applic
 
 Si une information importante est incorrecte, corrige-la de façon traçable selon le fonctionnement de l'outil. Ne modifie pas l'historique de manière à effacer la réalité d'une décision ou d'une action.
 
+### 10.5 Décrire les incertitudes, les dépendances et les limites
+
+Une fiche d'intervention sérieuse indique aussi ce qui n'a pas pu être vérifié. Le silence sur une étape bloquée peut donner à la personne suivante l'impression que le contrôle a été effectué. Il faut donc distinguer clairement un résultat confirmé, une hypothèse et une action qui reste à mener.
+
+Exemples de formulation :
+
+| Formulation imprécise | Formulation exploitable |
+|---|---|
+| « Le réseau est réparé. » | « Le poste accède de nouveau à l'application interne ; le test depuis les autres sous-réseaux n'a pas été réalisé. » |
+| « Le disque est mort. » | « Le diagnostic signale des erreurs de lecture ; la défaillance matérielle est suspectée et doit être confirmée selon la procédure. » |
+| « Rien à faire, attente. » | « L'intervention est suspendue en attente de l'autorisation du responsable ; le ticket reste affecté à l'équipe support. » |
+| « Tests OK. » | « Après la modification, une ouverture de session et l'accès au dossier partagé ont réussi à 10 h 42 ; aucun test de charge n'a été effectué. » |
+
+Quand une intervention dépend d'un tiers, note l'équipe attendue, la question posée, la date de transmission et la prochaine étape. Si une autorisation, une fenêtre de maintenance, un accès distant ou la présence de l'utilisateur manque, consigne ce blocage sans inventer une échéance. Une date prévisionnelle ne devient pas une promesse tant que la personne responsable ne l'a pas confirmée.
+
+Pour les systèmes sensibles, précise le périmètre exact du contrôle : poste testé, compte de test non secret, service concerné, environnement et heure. Évite toutefois d'ajouter des données personnelles ou des identifiants qui ne sont pas nécessaires. Lorsqu'une valeur confidentielle a été exposée, utilise le processus de signalement adapté au lieu de la recopier dans la fiche.
+
+Avant de transmettre, relis les verbes employés. « Observé », « testé », « modifié », « confirmé », « suspecté » et « non vérifié » communiquent des niveaux de certitude différents. Cette précision permet au technicien suivant de choisir une action sûre plutôt que de répéter un contrôle ou de considérer une hypothèse comme un fait.
+
 ## 11. Modèles de fiches
 
 ### 11.1 Fiche de dépannage simple
