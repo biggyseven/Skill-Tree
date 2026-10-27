@@ -4,15 +4,147 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Transformation numérique (ITSM, IA) » ?",
+      "prompt": "Par quoi une transformation numérique doit-elle commencer ?",
       "choices": [
-        "Le sujet principal du cours : Transformation numérique (ITSM, IA)",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Un résultat métier et un problème vérifiables",
+        "L'achat immédiat d'une plateforme",
+        "Un slogan de modernisation",
+        "La migration de toutes les applications"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "La transformation doit être reliée à une valeur et une baseline mesurable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi stabiliser les processus avant de les automatiser ?",
+      "choices": [
+        "Pour augmenter le nombre d'étapes",
+        "Pour éviter de reproduire à grande échelle des règles incohérentes et des exceptions mal comprises",
+        "Pour éliminer les utilisateurs",
+        "Pour supprimer les contrôles"
+      ],
+      "answer": 1,
+      "explanation": "L'automatisation accélère aussi les erreurs si le processus n'est pas compris."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel garde-fou est adapté à une IA qui suggère une catégorie de ticket ?",
+      "choices": [
+        "Elle doit modifier tous les tickets sans trace",
+        "Elle doit masquer sa source",
+        "Présenter une suggestion vérifiable, permettre le rejet humain et mesurer les erreurs",
+        "La laisser attribuer des privilèges automatiquement"
+      ],
+      "answer": 2,
+      "explanation": "Le contrôle humain et la traçabilité sont adaptés au risque de la classification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il vérifier lors d'une migration ITSM ?",
+      "choices": [
+        "Seulement l'apparence des écrans",
+        "Uniquement le nom des utilisateurs",
+        "Que les anciennes données soient supprimées rapidement",
+        "Mapping des statuts, liens, identifiants, permissions, intégrations, recette et retour arrière"
+      ],
+      "answer": 3,
+      "explanation": "La migration doit préserver le sens et l'intégrité des données et maintenir la continuité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un pilote ?",
+      "choices": [
+        "Tester dans un périmètre limité la valeur, la qualité, les risques et l'adoption avant extension",
+        "Prouver que tous les environnements fonctionnent",
+        "Remplacer les tests de sécurité",
+        "Justifier les coûts déjà engagés"
+      ],
+      "answer": 0,
+      "explanation": "Un pilote réduit le risque et fournit des preuves pour décider de la suite."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce que la dette technique ?",
+      "choices": [
+        "Un prêt financier uniquement",
+        "Le coût et le risque futurs d'options techniques qui rendent l'évolution ou l'exploitation plus difficiles",
+        "Un indicateur de satisfaction",
+        "Un type d'incident uniquement"
+      ],
+      "answer": 1,
+      "explanation": "La dette technique se manifeste par des changements plus coûteux, des risques ou des limites de maintenabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un cas d'usage d'IA doit-il être gouverné sur tout son cycle de vie ?",
+      "choices": [
+        "Pour éviter la validation humaine",
+        "Pour faire confiance aux sorties plausibles",
+        "Pour contrôler données, usage, risque, tests, surveillance et retrait",
+        "Pour supprimer la traçabilité"
+      ],
+      "answer": 2,
+      "explanation": "Les risques évoluent entre expérimentation, déploiement, exploitation et retrait."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat prouve l'adoption d'un nouvel outil ?",
+      "choices": [
+        "La licence est activée",
+        "Le webinaire a été organisé",
+        "La page d'accueil est consultable",
+        "Les utilisateurs accomplissent les tâches attendues avec qualité et autonomie mesurées"
+      ],
+      "answer": 3,
+      "explanation": "L'accès et la participation à la formation ne prouvent pas l'usage utile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit montrer une baseline ?",
+      "choices": [
+        "La performance avant changement selon un périmètre, une formule et une période définis",
+        "La cible choisie après déploiement",
+        "Les seuls résultats positifs",
+        "Un chiffre sans source"
+      ],
+      "answer": 0,
+      "explanation": "Une baseline rend l'évaluation du changement plus crédible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une bonne pratique pour les dépenses cloud ?",
+      "choices": [
+        "Attendre la facture annuelle",
+        "Attribuer les coûts, mettre des budgets et alertes et revoir les usages",
+        "Supprimer tous les logs",
+        "Ne jamais évaluer les ressources"
+      ],
+      "answer": 1,
+      "explanation": "La gouvernance financière doit être prévue et suivie pendant l'exploitation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il arrêter ou reprendre un pilote ?",
+      "choices": [
+        "Jamais, parce que le projet a commencé",
+        "Uniquement si les concurrents le font",
+        "Si des critères de sécurité, qualité ou valeur ne sont pas atteints et qu'une correction est nécessaire",
+        "Après que tout le budget soit dépensé"
+      ],
+      "answer": 2,
+      "explanation": "La poursuite doit dépendre des preuves et critères, pas uniquement des coûts déjà engagés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi prévoir la réversibilité au design ?",
+      "choices": [
+        "Pour rendre l'outil inutile",
+        "Pour empêcher toute évolution",
+        "Pour garder les accès fournisseurs à vie",
+        "Pour organiser la portabilité, le remplacement, les données et la fin des accès"
+      ],
+      "answer": 3,
+      "explanation": "La réversibilité est plus facile à préparer avant de créer une dépendance."
     }
   ]
 }
