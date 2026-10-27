@@ -105,7 +105,7 @@ export function LabCanvas() {
       <div
         role="note"
         aria-label="Guide de connexion des ports"
-        className="pointer-events-none absolute left-3 top-3 z-40 w-72 max-w-[calc(100%-24px)] rounded-xl border border-[#334155] bg-[#0d1117]/95 p-3 shadow-xl backdrop-blur-sm"
+        className="pointer-events-none absolute left-3 top-3 z-40 w-72 max-w-[90%] rounded-xl border border-[#334155] bg-[#0d1117]/95 p-3 shadow-xl backdrop-blur-sm"
       >
         <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#e6edf3]">
           Comprendre les ports
