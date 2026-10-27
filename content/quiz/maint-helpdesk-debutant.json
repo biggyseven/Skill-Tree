@@ -4,123 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quelle est la première étape utile lorsqu’une demande arrive au helpdesk ?",
+      "prompt": "Un utilisateur dit seulement : « Internet ne marche pas ». Quelle est la meilleure première étape de diagnostic ?",
       "choices": [
-        "Fermer le ticket s’il semble simple",
-        "Qualifier la demande et recueillir des informations factuelles sur le besoin et le symptôme",
-        "Réinstaller immédiatement le poste",
-        "Transmettre la demande sans la lire"
-      ],
-      "answer": 1,
-      "explanation": "La qualification identifie le besoin, le symptôme, le périmètre et les informations nécessaires avant de choisir une action."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelles informations sont particulièrement utiles dans un ticket de support ?",
-      "choices": [
-        "Le mot de passe complet de l’utilisateur",
-        "Une supposition sans date ni contexte",
-        "L’utilisateur ou service concerné, l’actif, l’heure, le symptôme, l’impact et les tests déjà réalisés",
-        "Uniquement le prénom du technicien"
+        "Réinitialiser immédiatement le routeur de l'entreprise",
+        "Réinstaller le système de l'utilisateur",
+        "Faire préciser le symptôme, l'heure de début, les services touchés et les personnes concernées",
+        "Conclure que le fournisseur d'accès est en panne"
       ],
       "answer": 2,
-      "explanation": "Un ticket doit contenir des informations pertinentes et vérifiables, sans secrets ni données sensibles inutiles."
+      "explanation": "Un symptôme vague peut avoir plusieurs causes. La collecte de faits permet de définir un problème vérifiable avant de choisir des tests."
     },
     {
       "type": "qcm",
-      "prompt": "Comment différencier priorité et urgence dans le traitement d’un ticket ?",
+      "prompt": "Plusieurs utilisateurs signalent au même moment qu'un partage de fichiers est inaccessible. Quelle est la meilleure priorité de diagnostic ?",
       "choices": [
-        "La priorité combine impact et urgence selon les règles de service ; elle ne dépend pas uniquement de l’insistance de l’utilisateur",
-        "La priorité doit toujours suivre l’ordre d’arrivée, sans exception",
-        "L’urgence signifie que l’utilisateur a envoyé plusieurs messages",
-        "Toutes les demandes doivent avoir la même priorité"
+        "Vérifier l'étendue de l'incident et rechercher une dépendance commune, tout en suivant les règles d'escalade",
+        "Traiter chaque poste comme un incident isolé sans comparer les symptômes",
+        "Demander à tous les utilisateurs de changer leur mot de passe",
+        "Fermer les tickets en attendant qu'un utilisateur rappelle"
       ],
       "answer": 0,
-      "explanation": "Les critères de priorité doivent être définis et cohérents, en tenant compte de l’impact métier et du délai acceptable."
+      "explanation": "Des symptômes simultanés sur un même service peuvent indiquer une cause commune. Il faut qualifier l'impact collectif et appliquer la procédure adaptée."
     },
     {
       "type": "qcm",
-      "prompt": "Un utilisateur indique qu’Internet ne fonctionne plus sur son poste. Quel premier contrôle est raisonnable ?",
+      "prompt": "Dans un diagnostic de premier niveau, quel ordre de travail est le plus approprié ?",
       "choices": [
-        "Changer immédiatement la configuration IP",
-        "Redémarrer tous les routeurs de l’entreprise",
-        "Réinitialiser le poste sans recueillir d’information",
-        "Vérifier le périmètre de la panne, l’état de la connexion et les messages d’erreur avant de modifier quoi que ce soit"
+        "Commencer par les actions les plus destructrices pour gagner du temps",
+        "Changer plusieurs paramètres à la fois pour augmenter les chances de réussite",
+        "Exécuter des commandes trouvées en ligne sans en comprendre l'effet",
+        "Commencer par des vérifications autorisées, peu risquées et réversibles, puis approfondir selon les résultats"
       ],
       "answer": 3,
-      "explanation": "Un diagnostic commence par des observations simples et proportionnées qui permettent de délimiter le problème."
+      "explanation": "Un diagnostic méthodique limite les effets secondaires et permet d'associer chaque résultat à une hypothèse précise."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi faut-il tracer les actions et résultats dans le ticket ?",
+      "prompt": "Un utilisateur demande ton mot de passe administrateur pour terminer une tâche plus rapidement. Que dois-tu faire ?",
       "choices": [
-        "Pour rendre le ticket plus long",
-        "Pour assurer la continuité du traitement, éviter les répétitions et justifier la résolution",
-        "Pour remplacer la communication avec l’utilisateur",
-        "Pour éviter de vérifier le résultat final"
+        "Le lui envoyer dans le ticket pour conserver une trace",
+        "Ne jamais partager le secret et utiliser le mécanisme d'accès autorisé prévu par l'organisation",
+        "Créer un compte administrateur commun à toute l'équipe",
+        "Utiliser le même mot de passe pour tous les utilisateurs"
       ],
       "answer": 1,
-      "explanation": "La traçabilité facilite le transfert entre techniciens et conserve les éléments qui expliquent la décision prise."
+      "explanation": "Les secrets ne doivent pas être partagés. Les accès privilégiés doivent suivre les mécanismes approuvés, être limités et rester traçables."
     },
     {
       "type": "qcm",
-      "prompt": "Quand faut-il escalader une demande à une équipe de niveau supérieur ?",
+      "prompt": "Avant de prendre le contrôle à distance du poste d'un utilisateur, quelle précaution est essentielle ?",
       "choices": [
-        "Dès qu’une demande contient plus d’une phrase",
-        "Uniquement après plusieurs jours, quelle que soit la criticité",
-        "Lorsque les limites de compétence, d’accès, de délai ou de risque sont atteintes, en transmettant les éléments déjà recueillis",
-        "Chaque fois qu’une solution n’est pas immédiatement évidente, sans diagnostic"
+        "Désactiver les protections du poste pour éviter les interruptions",
+        "Demander à l'utilisateur de publier ses identifiants dans le ticket",
+        "Obtenir le consentement requis, vérifier l'identité selon la procédure et utiliser un outil autorisé",
+        "Enregistrer la session sur un service personnel non approuvé"
       ],
       "answer": 2,
-      "explanation": "L’escalade doit être déclenchée au bon moment et accompagnée du contexte, des preuves, de l’impact et des actions effectuées."
+      "explanation": "L'assistance à distance doit respecter le consentement, les règles d'identité et les outils approuvés, sans exposer des identifiants ni des données."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle pratique de communication est la plus adaptée pendant la résolution ?",
+      "prompt": "Le problème dépasse les procédures et les autorisations du support de premier niveau. Comment effectuer une bonne escalade ?",
       "choices": [
-        "Informer l’utilisateur du suivi et des prochaines étapes dans un langage clair, sans promettre un délai non confirmé",
-        "Ne donner aucune information jusqu’à la fermeture",
-        "Utiliser uniquement des acronymes techniques",
-        "Confirmer que le problème est résolu avant les tests"
+        "Transmettre le symptôme, l'impact, les tests exécutés, leurs résultats, les hypothèses et les éléments restant à vérifier",
+        "Envoyer uniquement « ça ne fonctionne pas »",
+        "Inventer une cause certaine pour accélérer la prise en charge",
+        "Clôturer le ticket puis demander oralement à un collègue de regarder"
       ],
       "answer": 0,
-      "explanation": "Une communication régulière et réaliste réduit l’incertitude et permet de gérer les attentes."
+      "explanation": "Une escalade utile donne à l'équipe suivante des faits reproductibles et permet de poursuivre l'investigation sans recommencer inutilement la collecte."
     },
     {
       "type": "qcm",
-      "prompt": "Un ticket semble résolu après une modification. Que faire avant de le clôturer ?",
+      "prompt": "Un utilisateur insiste pour obtenir la priorité maximale, mais un seul poste est touché et un contournement fonctionne. Comment fixer la priorité ?",
       "choices": [
-        "Le fermer immédiatement, sans tester",
-        "Supprimer les notes de diagnostic",
-        "Demander à un autre utilisateur de supposer que cela fonctionne",
-        "Vérifier le critère de rétablissement et, lorsque c’est possible, faire confirmer le résultat par l’utilisateur"
+        "Toujours choisir la priorité maximale pour éviter un conflit",
+        "Choisir une priorité au hasard puis ne plus la changer",
+        "Donner la priorité la plus basse parce qu'un contournement existe",
+        "Appliquer la matrice d'impact et d'urgence de l'organisation, puis réévaluer si de nouveaux faits changent la situation"
       ],
       "answer": 3,
-      "explanation": "La clôture doit reposer sur un résultat vérifiable et sur une communication adaptée au demandeur."
+      "explanation": "La priorité repose sur des critères communs d'impact et d'urgence, pas uniquement sur l'insistance d'une personne. Un changement d'impact peut justifier une réévaluation."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi éviter de demander le mot de passe d’un utilisateur dans un ticket ?",
+      "prompt": "Tu suspectes qu'un poste est compromis après l'ouverture d'une pièce jointe inhabituelle. Quelle conduite est la plus appropriée ?",
       "choices": [
-        "Parce que le ticket doit rester vide",
-        "Parce qu’un secret ne doit pas être collecté ou stocké dans un système de suivi ; utiliser une procédure d’assistance sécurisée",
-        "Parce qu’un mot de passe n’est jamais associé à un compte",
-        "Parce que les techniciens n’ont jamais besoin d’authentification"
+        "Supprimer tous les fichiers suspects et effacer les journaux",
+        "Suivre la procédure de sécurité, alerter l'équipe compétente et préserver les éléments utiles",
+        "Envoyer la pièce jointe à tous les collègues pour vérifier si elle fonctionne",
+        "Désactiver toutes les protections et continuer le travail normal"
       ],
       "answer": 1,
-      "explanation": "Les tickets peuvent être visibles par plusieurs personnes et conservés longtemps ; ils ne doivent pas contenir de secrets d’authentification."
+      "explanation": "Une suspicion de sécurité doit être traitée selon le processus d'incident. Les suppressions ou manipulations improvisées peuvent aggraver l'incident ou détruire des éléments d'analyse."
     },
     {
       "type": "qcm",
-      "prompt": "Deux demandes arrivent en même temps : une panne qui bloque un service partagé et une question individuelle non bloquante. Quelle règle appliquer ?",
+      "prompt": "Après un changement de configuration, quel élément permet de considérer la résolution comme validée ?",
       "choices": [
-        "Traiter d’abord la question la plus facile",
-        "Traiter la demande de la personne qui relance le plus",
-        "Appliquer les critères d’impact et d’urgence définis, en informant les demandeurs si le délai change",
-        "Laisser les deux tickets sans priorité"
+        "Le technicien a exécuté la commande sans message d'erreur",
+        "Le ticket a dépassé son délai cible",
+        "Le test initial qui échouait fonctionne à nouveau, le résultat est confirmé et les éléments utiles sont consignés",
+        "L'utilisateur n'a pas répondu immédiatement au dernier message"
       ],
       "answer": 2,
-      "explanation": "Une priorisation cohérente doit refléter l’impact de service et l’urgence, et rester transparente pour les utilisateurs."
+      "explanation": "Une commande terminée ne garantit pas que le besoin est satisfait. Il faut retester le symptôme initial, confirmer le résultat et documenter la résolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu doit être évité dans un ticket partagé largement ?",
+      "choices": [
+        "Des mots de passe, jetons d'accès ou données personnelles non nécessaires au diagnostic",
+        "L'heure de début du problème",
+        "Le message d'erreur après masquage des informations sensibles",
+        "Les tests effectués et leurs résultats pertinents"
+      ],
+      "answer": 0,
+      "explanation": "Le ticket doit contenir les informations nécessaires au support, pas des secrets ou des données sensibles inutiles. Les éléments techniques doivent être assainis avant partage."
     }
   ]
 }

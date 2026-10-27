@@ -4,123 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est l’objectif principal de la maintenance préventive ?",
+      "prompt": "Quel est l'objectif principal de la maintenance préventive ?",
       "choices": [
-        "Attendre une panne avant d’intervenir",
-        "Réduire la probabilité de panne et repérer les signes de dégradation avant une interruption",
-        "Remplacer tous les équipements à date fixe, quel que soit leur état",
-        "Supprimer les contrôles pour limiter le temps d’intervention"
+        "Garantir qu'aucune panne ne surviendra jamais",
+        "Réduire les risques de défaillance et détecter les dérives avant qu'elles ne perturbent le service",
+        "Remplacer systématiquement tous les composants chaque mois",
+        "Traiter uniquement les incidents déjà déclarés par les utilisateurs"
       ],
       "answer": 1,
-      "explanation": "La maintenance préventive organise des contrôles et des actions en amont pour limiter les défaillances et leurs conséquences."
+      "explanation": "La maintenance préventive cherche à réduire la probabilité ou les conséquences des défaillances. Elle diminue le risque sans garantir l'absence totale de panne."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle situation correspond à une opération corrective plutôt que préventive ?",
+      "prompt": "Quelle situation relève le plus clairement de la maintenance corrective ?",
       "choices": [
-        "Contrôler chaque mois l’état des ventilateurs",
-        "Vérifier périodiquement la capacité d’une batterie",
-        "Remplacer un ventilateur après la constatation de sa panne",
-        "Planifier un nettoyage selon les recommandations du fabricant"
+        "Vérifier chaque semaine l'état des sauvegardes selon une procédure",
+        "Contrôler une tendance de température avant dépassement du seuil",
+        "Réparer un équipement après une panne constatée",
+        "Planifier une inspection selon la documentation du fabricant"
       ],
       "answer": 2,
-      "explanation": "La maintenance corrective répond à une défaillance constatée ; la préventive intervient avant la panne ou la dégradation critique."
+      "explanation": "La maintenance corrective intervient pour traiter une défaillance ou un défaut déjà constaté, tandis que la maintenance préventive agit en amont."
     },
     {
       "type": "qcm",
-      "prompt": "Comment choisir la fréquence des inspections d’un équipement ?",
+      "prompt": "Comment choisir une fréquence de contrôle préventif adaptée à un équipement ?",
       "choices": [
         "Utiliser la même fréquence pour tous les actifs",
-        "Choisir uniquement le jour où le technicien est libre",
-        "Éviter de modifier le calendrier même si les pannes se répètent",
-        "Tenir compte de la criticité, du risque, de l’usage, des recommandations et de l’historique"
+        "Choisir la fréquence la plus élevée possible, quel que soit le coût",
+        "Copier la fréquence d'un autre site sans vérifier les différences",
+        "Tenir compte des recommandations du fabricant, de la criticité, de l'environnement et des observations"
       ],
       "answer": 3,
-      "explanation": "Le calendrier doit être adapté au risque et révisé avec les données d’exploitation, plutôt qu’appliqué mécaniquement."
+      "explanation": "Une fréquence doit être justifiée par des recommandations, le risque et les données d'exploitation. Elle peut être ajustée lorsque les résultats apportent de nouvelles informations."
     },
     {
       "type": "qcm",
-      "prompt": "Avant une intervention pouvant interrompre un service, quelle préparation est la plus complète ?",
+      "prompt": "Avant une intervention planifiée qui peut affecter un service de production, que faut-il faire ?",
       "choices": [
-        "Vérifier l’autorisation, l’impact, les dépendances, la fenêtre, les sauvegardes et le retour arrière",
-        "Commencer immédiatement si la tâche est déjà connue",
-        "Prévenir uniquement les autres techniciens après l’intervention",
-        "Désactiver la supervision pour éviter les alertes"
+        "Confirmer le périmètre, les autorisations, les risques, la fenêtre de travail et le retour arrière prévu",
+        "Commencer immédiatement pour réduire la durée de préparation",
+        "Supposer que la dernière sauvegarde est exploitable sans la vérifier selon la procédure",
+        "Informer les utilisateurs seulement si l'intervention échoue"
       ],
       "answer": 0,
-      "explanation": "Une intervention planifiée doit avoir un périmètre autorisé, une fenêtre, des contrôles préalables et une solution de reprise adaptée."
+      "explanation": "La préparation confirme que l'action est autorisée, que son impact est maîtrisé et qu'une méthode de vérification ou de retour arrière est définie."
     },
     {
       "type": "qcm",
-      "prompt": "Que faut-il consigner dans le compte rendu d’une inspection préventive ?",
+      "prompt": "Une tâche de sauvegarde apparaît comme réussie dans la console. Quelle vérification donne une preuve plus solide de la capacité de récupération ?",
       "choices": [
-        "Seulement le nom du technicien",
-        "La date, l’actif, les contrôles effectués, les mesures, les écarts et la décision prise",
-        "Uniquement les tâches qui ont échoué",
-        "Une mention générale indiquant que tout semble normal, sans preuve"
-      ],
-      "answer": 1,
-      "explanation": "Une trace exploitable permet à un autre intervenant de comprendre ce qui a été vérifié, les résultats et les actions à suivre."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pendant le contrôle d’un serveur, tu détectes une odeur de brûlé et une alimentation anormalement chaude. Que faire ?",
-      "choices": [
-        "Continuer jusqu’à la fin de la checklist",
-        "Redémarrer le serveur sans prévenir personne",
-        "Appliquer la procédure de sécurité, arrêter l’intervention dangereuse et alerter la personne responsable",
-        "Ignorer le signe si le serveur répond encore au réseau"
+        "Renommer le fichier du journal",
+        "Vérifier uniquement que le voyant du serveur est vert",
+        "Réaliser un essai de restauration autorisé dans un environnement adapté",
+        "Supprimer l'ancien jeu de sauvegarde pour vérifier qu'il est nécessaire"
       ],
       "answer": 2,
-      "explanation": "Un indice pouvant signaler un danger matériel impose un point d’arrêt et une escalade selon les procédures de sécurité du site."
+      "explanation": "Le statut d'une tâche ne prouve pas à lui seul que les données pourront être restaurées. Un essai de restauration contrôlé vérifie le processus de récupération."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi mesurer ou vérifier l’état du système avant et après une intervention ?",
+      "prompt": "La supervision indique que l'espace disque d'un serveur diminue régulièrement, sans être encore saturé. Quelle est la meilleure réaction ?",
       "choices": [
-        "Pour éviter d’écrire un compte rendu",
-        "Pour remplacer la validation par le seul ressenti du technicien",
-        "Pour prouver que la maintenance a été planifiée",
-        "Pour comparer les résultats, détecter une régression et confirmer les critères de service"
+        "Supprimer immédiatement les fichiers les plus volumineux sans identifier leur usage",
+        "Mesurer la tendance, vérifier les seuils et planifier une action approuvée avant la saturation",
+        "Ignorer l'indicateur tant qu'aucun utilisateur ne se plaint",
+        "Redémarrer le serveur tous les jours"
+      ],
+      "answer": 1,
+      "explanation": "La mesure de la tendance permet d'estimer le risque et de préparer une action documentée sans supprimer des données ni interrompre le service de manière improvisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pendant une inspection, tu repères une odeur de brûlé près d'un équipement électrique. Que dois-tu faire ?",
+      "choices": [
+        "Ouvrir le bloc d'alimentation pour localiser la panne",
+        "Toucher les composants pour trouver celui qui chauffe",
+        "Continuer l'inspection puis signaler le problème en fin de journée",
+        "Arrêter les manipulations, éviter tout contact dangereux et appliquer la procédure d'alerte du site"
       ],
       "answer": 3,
-      "explanation": "Les contrôles avant/après fournissent des éléments comparables et rendent la validation plus objective."
+      "explanation": "Un signe de danger électrique ou thermique exige de ne pas improviser. Il faut protéger les personnes et solliciter la personne compétente selon la procédure applicable."
     },
     {
       "type": "qcm",
-      "prompt": "Une mise à jour de firmware est prévue dans le cadre de la maintenance. Quelle démarche est la plus sûre ?",
+      "prompt": "Quel ensemble d'informations rend une fiche de tâche préventive réellement exploitable ?",
       "choices": [
-        "Vérifier la compatibilité, les notes de version, les sauvegardes, le test préalable et le retour arrière",
-        "Installer la version la plus récente sur tous les équipements en même temps, sans test",
-        "Ne pas vérifier le fonctionnement après la mise à jour",
-        "Supprimer la configuration actuelle avant de confirmer que la sauvegarde est exploitable"
+        "L'actif visé, l'objectif, la fréquence justifiée, le responsable, les prérequis, les risques et les critères de réussite",
+        "Le nom du technicien uniquement",
+        "Une date récurrente sans description ni critère de contrôle",
+        "Une liste de commandes copiée sans indiquer les conditions d'utilisation"
       ],
       "answer": 0,
-      "explanation": "Une mise à jour peut modifier le comportement d’un équipement ; elle doit être préparée, testée et assortie de critères de validation et de reprise."
+      "explanation": "Une fiche complète permet de préparer et d'exécuter la tâche de façon cohérente, d'identifier les conditions de sécurité et de juger le résultat."
     },
     {
       "type": "qcm",
-      "prompt": "Plusieurs tâches préventives sont en retard et l’équipe ne peut pas tout réaliser aujourd’hui. Comment prioriser ?",
+      "prompt": "Un indicateur montre que 100 % des tâches planifiées ont été réalisées ce mois-ci. Que peut-on conclure ?",
       "choices": [
-        "Traiter d’abord les tâches les plus faciles, quel que soit le risque",
-        "Évaluer la criticité, le risque de défaillance, l’impact, les tendances et les contraintes opérationnelles",
-        "Repousser toutes les tâches jusqu’au prochain mois",
-        "Choisir les équipements les plus récents en premier"
-      ],
-      "answer": 1,
-      "explanation": "La priorisation doit réduire le risque global et être justifiée ; les reports importants doivent être tracés et acceptés."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une inspection échoue à un critère défini dans la procédure. Quelle est la meilleure réaction ?",
-      "choices": [
-        "Clôturer la tâche puisque l’inspection a été réalisée",
-        "Modifier le seuil d’acceptation pour faire disparaître l’écart",
-        "Documenter l’écart, évaluer le risque, appliquer le point d’arrêt ou l’escalade et prévoir une action",
-        "Effacer les mesures et recommencer jusqu’à obtenir un résultat favorable"
+        "Le service ne pourra plus connaître de panne",
+        "Toutes les tâches ont nécessairement réduit le risque attendu",
+        "Le taux d'exécution est bon, mais il faut aussi étudier les anomalies, les incidents, les indisponibilités et les tendances",
+        "Le programme peut être arrêté jusqu'au mois prochain"
       ],
       "answer": 2,
-      "explanation": "Un résultat non conforme doit être traité explicitement. Les critères ne doivent pas être modifiés pour masquer un défaut."
+      "explanation": "Le taux d'exécution mesure le respect du calendrier, pas à lui seul l'efficacité. Il doit être complété par des résultats opérationnels et une analyse des anomalies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une anomalie apparaît pendant une tâche préventive, et sa résolution dépasse ton autorisation ou tes compétences. Quelle est la meilleure conduite ?",
+      "choices": [
+        "Modifier d'autres paramètres jusqu'à disparition de l'alerte",
+        "Documenter les faits et les résultats, sécuriser la situation et escalader selon la procédure",
+        "Fermer la tâche comme réussie pour respecter le calendrier",
+        "Masquer l'alerte afin qu'elle ne réapparaisse plus"
+      ],
+      "answer": 1,
+      "explanation": "Il faut conserver des observations fiables, éviter les changements non autorisés et transmettre le dossier au bon interlocuteur. La tâche ne doit pas être déclarée réussie si ses critères ne sont pas remplis."
     }
   ]
 }

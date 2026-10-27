@@ -4,99 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quelle différence essentielle existe entre maintenance préventive périodique et maintenance prédictive ?",
+      "prompt": "Quelle différence fondamentale distingue la maintenance prédictive d'une maintenance préventive strictement calendaire ?",
       "choices": [
-        "La maintenance prédictive ne nécessite aucune donnée",
-        "La maintenance prédictive estime le risque ou l’état futur à partir de mesures, tendances et modèles",
-        "La maintenance périodique attend toujours une panne",
-        "Les deux approches sont identiques dans tous les contextes"
-      ],
-      "answer": 1,
-      "explanation": "La prédiction exploite les données pour adapter le moment ou la nature d’une intervention."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Avant d’entraîner un modèle de détection de défaillance, quel contrôle est prioritaire ?",
-      "choices": [
-        "Choisir immédiatement l’algorithme le plus complexe",
-        "Supprimer les valeurs qui semblent inhabituelles sans les examiner",
-        "Contrôler la qualité, la provenance, l’horodatage, les valeurs manquantes et la représentativité des données",
-        "Mélanger aléatoirement des données futures dans l’entraînement"
+        "Elle n'utilise jamais de mesures",
+        "Elle supprime le besoin de techniciens qualifiés",
+        "Elle utilise des états observés, des tendances ou des modèles pour estimer le risque ou le moment opportun d'une action",
+        "Elle impose de remplacer tous les composants à intervalles fixes"
       ],
       "answer": 2,
-      "explanation": "La qualité des données et l’absence de fuite entre passé et futur déterminent la crédibilité de l’évaluation."
+      "explanation": "La maintenance prédictive exploite des données d'état et des tendances pour mieux estimer le besoin d'intervention, sans supprimer la validation humaine."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi les séries temporelles demandent-elles une séparation chronologique des jeux de données ?",
+      "prompt": "Avant d'entraîner un modèle à partir de capteurs, quelle vérification est essentielle ?",
       "choices": [
-        "Pour garantir que les capteurs ont tous la même marque",
-        "Pour rendre l’échantillon d’entraînement plus grand artificiellement",
-        "Pour rendre les tests plus faciles",
-        "Pour éviter qu’informations futures et événements corrélés contaminent l’évaluation du passé"
-      ],
-      "answer": 3,
-      "explanation": "Une séparation temporelle reproduit mieux le scénario réel de prédiction sur des données futures."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel risque pose un nombre élevé de faux négatifs dans un modèle de maintenance ?",
-      "choices": [
-        "Des défaillances réelles risquent de ne pas être signalées à temps",
-        "Le modèle déclenche trop d’alertes inutiles",
-        "Les données deviennent automatiquement plus propres",
-        "Les coûts d’intervention disparaissent"
+        "Vérifier la qualité, la couverture temporelle, les unités, les valeurs manquantes et la représentativité des données",
+        "Choisir le modèle le plus complexe disponible",
+        "Supprimer tous les résultats qui ne confirment pas l'hypothèse",
+        "Ignorer les changements de capteur entre périodes"
       ],
       "answer": 0,
-      "explanation": "Un faux négatif peut laisser passer un signe précurseur important ; son coût doit être évalué selon la criticité."
+      "explanation": "La qualité des données conditionne la fiabilité des alertes et évite d'apprendre des artefacts ou des défauts de collecte."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi comparer un modèle à une règle de référence simple ?",
+      "prompt": "Comment limiter le risque de fausses alertes d'un modèle prédictif ?",
       "choices": [
-        "Pour empêcher toute évolution du modèle",
-        "Pour vérifier qu’il apporte une amélioration mesurable par rapport à une méthode simple et compréhensible",
-        "Pour éviter une évaluation indépendante",
-        "Pour garantir que chaque prédiction est vraie"
+        "Abaisser tous les seuils sans mesure",
+        "Évaluer les alertes sur des données représentatives, comparer les faux positifs et faux négatifs et ajuster les seuils selon le risque",
+        "Désactiver les alertes qui gênent les équipes",
+        "Évaluer le modèle uniquement sur les données ayant servi à l'entraîner"
       ],
       "answer": 1,
-      "explanation": "Une baseline révèle si la complexité apporte réellement de la valeur opérationnelle."
+      "explanation": "L'évaluation doit mesurer les erreurs pertinentes sur des données distinctes et tenir compte du coût opérationnel de chaque type d'erreur."
     },
     {
       "type": "qcm",
-      "prompt": "Un capteur est déplacé et produit des valeurs différentes. Que doit faire l’équipe ?",
+      "prompt": "Que peut signaler une dérive des données d'exploitation ?",
       "choices": [
-        "Conserver le même seuil sans réévaluation",
-        "Supprimer toutes les alertes liées au capteur",
-        "Vérifier l’étalonnage, documenter le changement et réévaluer la comparabilité des mesures",
-        "Modifier les étiquettes historiques pour améliorer le score"
-      ],
-      "answer": 2,
-      "explanation": "Les modifications du capteur ou de son contexte peuvent changer la distribution et invalider certains seuils."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment mesurer l’utilité opérationnelle d’un système prédictif ?",
-      "choices": [
-        "Seulement avec l’exactitude globale, même si les pannes sont rares",
-        "En comptant le nombre de graphiques produits",
-        "En vérifiant uniquement que le modèle s’exécute",
-        "Avec des métriques adaptées aux coûts d’erreur, le délai d’alerte, les faux positifs et l’effet sur les pannes ou interventions"
+        "Que le modèle est forcément devenu plus précis",
+        "Qu'il faut ignorer la prochaine alerte",
+        "Que tous les capteurs sont nécessairement en panne",
+        "Que les conditions ou distributions évoluent et que les performances du modèle doivent être réévaluées"
       ],
       "answer": 3,
-      "explanation": "Les métriques doivent refléter le risque métier et la capacité réelle à agir sur l’alerte."
+      "explanation": "Une dérive peut réduire la pertinence d'un modèle ; elle justifie des contrôles et une réévaluation avant de s'appuyer sur ses prédictions."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle gouvernance convient à une alerte prédictive critique ?",
+      "prompt": "Comment utiliser une prédiction de défaillance sur un équipement critique ?",
       "choices": [
-        "Définir un seuil d’escalade, un responsable, une vérification humaine et une trace de la décision",
-        "Laisser le modèle arrêter automatiquement toute infrastructure sans garde-fou",
-        "Traiter les alertes comme des certitudes de panne",
-        "Ne jamais réviser le modèle après déploiement"
+        "Comme un signal d'aide à la décision à valider avec les mesures, le contexte et la procédure d'intervention",
+        "Comme une autorisation automatique de changer le système en production",
+        "Comme une preuve que la défaillance arrivera à l'heure exacte",
+        "Comme un motif pour arrêter la supervision classique"
       ],
       "answer": 0,
-      "explanation": "Une alerte est une aide à la décision ; la criticité impose des garde-fous, une responsabilité et un suivi."
+      "explanation": "Une prédiction comporte une incertitude ; les actions doivent rester liées au risque, à des preuves complémentaires et aux procédures approuvées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel problème apparaît si les données d'entraînement excluent presque toutes les pannes réelles ?",
+      "choices": [
+        "Le modèle sera nécessairement plus sûr",
+        "Le modèle peut ne pas apprendre les signaux associés aux défaillances rares",
+        "La qualité des capteurs devient sans importance",
+        "Le besoin de validation disparaît"
+      ],
+      "answer": 1,
+      "explanation": "Les événements rares et les données représentatives sont importants pour évaluer la capacité à détecter les défaillances pertinentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue la connaissance métier dans l'analyse prédictive ?",
+      "choices": [
+        "Elle doit être exclue pour conserver une approche purement mathématique",
+        "Elle ne sert qu'après la panne",
+        "Elle aide à interpréter les signaux, les conditions d'exploitation et le coût des décisions",
+        "Elle remplace toute validation statistique"
+      ],
+      "answer": 2,
+      "explanation": "Le contexte métier permet de relier les signaux à des mécanismes plausibles et de fixer des seuils compatibles avec le risque réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi surveiller les résultats après le déploiement d'un modèle ?",
+      "choices": [
+        "Parce qu'un modèle ne doit jamais être modifié",
+        "Uniquement pour compter les alertes émises",
+        "Pour rendre inutile la maintenance des capteurs",
+        "Pour mesurer les performances réelles, détecter les dérives et décider d'un recalibrage ou d'un retrait"
+      ],
+      "answer": 3,
+      "explanation": "La performance en production peut évoluer ; une surveillance continue est nécessaire pour détecter les dérives et corriger le système."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure rend une alerte prédictive exploitable par les opérations ?",
+      "choices": [
+        "Associer l'alerte à l'actif, aux observations, au niveau de confiance, à l'impact potentiel et aux actions approuvées",
+        "Envoyer seulement un score sans contexte",
+        "Masquer les mesures brutes pour simplifier l'écran",
+        "Créer une tâche urgente pour chaque variation minime"
+      ],
+      "answer": 0,
+      "explanation": "Une alerte doit expliquer ce qui est observé et aider l'équipe à prioriser une vérification proportionnée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe permet de comparer correctement plusieurs modèles prédictifs ?",
+      "choices": [
+        "Choisir celui dont la démonstration semble la plus convaincante",
+        "Définir des données d'évaluation, des mesures adaptées et des critères de décision avant la comparaison",
+        "Comparer des résultats mesurés sur des périodes différentes sans contrôle",
+        "Utiliser uniquement la précision globale même si les pannes sont rares"
+      ],
+      "answer": 1,
+      "explanation": "Une comparaison rigoureuse exige des conditions et des mesures définies, pertinentes pour les coûts d'erreur et les objectifs opérationnels."
     }
   ]
 }

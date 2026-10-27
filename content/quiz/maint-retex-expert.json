@@ -4,99 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel objectif principal poursuit un retour d’expérience technique ?",
+      "prompt": "Quel est l'objectif d'un retour d'expérience après un incident majeur ?",
       "choices": [
-        "Attribuer une faute à une personne",
-        "Comprendre les facteurs qui ont contribué à l’événement et réduire le risque de répétition",
-        "Réécrire l’historique pour qu’il paraisse plus simple",
-        "Remplacer l’analyse par une liste de symptômes"
-      ],
-      "answer": 1,
-      "explanation": "Un RETEX utile vise l’apprentissage organisationnel et l’amélioration des systèmes."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment préparer une chronologie de retour d’expérience ?",
-      "choices": [
-        "Se limiter au souvenir du responsable",
-        "Ne retenir que les événements après la panne",
-        "Assembler les événements horodatés, décisions, signaux disponibles et effets observés",
-        "Supprimer les informations contradictoires"
+        "Désigner publiquement un responsable",
+        "Réécrire la chronologie pour rendre la réponse plus simple",
+        "Comprendre les facteurs contributifs et identifier des améliorations qui réduisent le risque de récurrence",
+        "Garantir qu'aucun incident similaire ne se produira"
       ],
       "answer": 2,
-      "explanation": "Une chronologie factuelle relie les décisions et les événements sans reconstruire artificiellement l’histoire."
+      "explanation": "Un RETEX transforme l'expérience en apprentissages et actions vérifiables plutôt qu'en recherche de coupable."
     },
     {
       "type": "qcm",
-      "prompt": "Que signifie une approche sans blâme ?",
+      "prompt": "Quel type de chronologie est le plus utile pour un RETEX ?",
       "choices": [
-        "Ne jamais désigner de responsabilité d’action",
-        "Ne pas documenter les erreurs humaines",
-        "Éviter toute recommandation difficile",
-        "Étudier les conditions, les barrières, la charge et les décisions sans réduire l’analyse à la recherche d’un coupable"
+        "Une reconstruction basée uniquement sur les souvenirs du dernier intervenant",
+        "Une suite d'opinions sans horodatage",
+        "Une version où tous les événements sont supposés simultanés",
+        "Une séquence factuelle avec horodatages, décisions, changements, symptômes et incertitudes signalées"
       ],
       "answer": 3,
-      "explanation": "L’approche sans blâme favorise l’analyse des facteurs système tout en conservant la responsabilité d’améliorer."
+      "explanation": "Une chronologie vérifiable permet de comprendre le déroulement et de repérer les délais ou dépendances importants."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle action de RETEX est la plus vérifiable ?",
+      "prompt": "Comment analyser un échec sans transformer le RETEX en recherche de coupable ?",
       "choices": [
-        "Modifier la supervision avec un propriétaire, une échéance, un critère de réussite et une mesure d’efficacité",
-        "Dire simplement « être plus vigilant »",
-        "Organiser une réunion sans compte rendu",
-        "Ajouter un document sans indiquer qui l’utilisera"
+        "Examiner les conditions, les contrôles, les décisions, les informations disponibles et les facteurs systémiques",
+        "Supprimer les erreurs humaines du compte rendu",
+        "Attribuer la cause à l'opérateur présent sans autre preuve",
+        "Éviter toute question sur la conception des processus"
       ],
       "answer": 0,
-      "explanation": "Les actions doivent être concrètes, suivies et associées à un résultat observable."
+      "explanation": "Une analyse constructive étudie les conditions qui ont rendu l'erreur ou la défaillance possible et cherche des mesures de prévention."
     },
     {
       "type": "qcm",
-      "prompt": "Comment distinguer cause immédiate et facteurs contributifs ?",
+      "prompt": "Quel énoncé distingue le mieux cause, facteur contributif et symptôme ?",
       "choices": [
-        "La cause immédiate explique nécessairement tout l’événement",
-        "La cause immédiate décrit le déclencheur proche ; les facteurs contributifs expliquent pourquoi les barrières n’ont pas empêché l’impact",
-        "Les facteurs contributifs sont toujours des fautes individuelles",
-        "Les deux ne doivent pas être analysés ensemble"
+        "Ce sont toujours des termes interchangeables",
+        "Le symptôme décrit ce qui est visible, tandis que les facteurs et causes aident à expliquer pourquoi cela s'est produit",
+        "Un symptôme suffit toujours à justifier une action de fond",
+        "Un facteur contributif ne peut pas être technique"
       ],
       "answer": 1,
-      "explanation": "Comprendre les facteurs de contexte aide à concevoir des actions plus robustes qu’un simple rappel de prudence."
+      "explanation": "La distinction empêche de confondre ce qui a été observé avec l'explication et les conditions qui ont contribué à l'événement."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi suivre les actions issues de plusieurs RETEX dans un registre commun ?",
+      "prompt": "Quelle action de suivi est la plus exploitable ?",
       "choices": [
-        "Pour mélanger tous les événements sans responsable",
-        "Pour remplacer les enquêtes techniques",
-        "Pour repérer les thèmes récurrents, les dépendances, les retards et l’efficacité des corrections",
-        "Pour supprimer les actions anciennes quel que soit leur statut"
+        "« Faire attention la prochaine fois »",
+        "« Améliorer le système dès que possible »",
+        "Une action concrète liée à un constat, avec responsable, échéance et preuve de réalisation attendue",
+        "Une réunion sans objectif ni compte rendu"
       ],
       "answer": 2,
-      "explanation": "La consolidation révèle les problèmes systémiques et permet de prioriser les améliorations."
+      "explanation": "Une action définie et vérifiable permet de contrôler son exécution et d'évaluer son efficacité."
     },
     {
       "type": "qcm",
-      "prompt": "Quand peut-on considérer une action de RETEX comme réellement terminée ?",
+      "prompt": "Comment vérifier qu'une action de RETEX a été efficace ?",
       "choices": [
-        "Dès qu’elle est attribuée",
-        "Dès qu’un courriel annonce qu’elle est faite",
-        "Après avoir fermé le ticket qui l’a générée",
-        "Lorsque la mise en œuvre est prouvée et que son efficacité a été vérifiée selon un critère défini"
+        "Dès qu'elle a été annoncée",
+        "Quand le responsable a confirmé verbalement qu'elle est faite",
+        "Lorsque l'action a été planifiée dans un calendrier",
+        "En définissant des critères, en observant les résultats et en vérifiant que le risque visé diminue"
       ],
       "answer": 3,
-      "explanation": "La mise en œuvre et l’efficacité sont deux contrôles distincts."
+      "explanation": "La clôture administrative ne suffit pas ; il faut évaluer le résultat et le risque restant."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle information partage-t-on dans un RETEX à destination d’autres équipes ?",
+      "prompt": "Que faire si le RETEX contient des données sensibles ou des identifiants ?",
       "choices": [
-        "Les faits utiles, l’impact, les facteurs contributifs, les limites de l’analyse et les actions transférables",
-        "Des données personnelles sans nécessité",
-        "Uniquement les détails techniques sans contexte",
-        "Une cause non confirmée présentée comme certaine"
+        "Les protéger, les minimiser ou les masquer dans la version diffusée selon les règles de conservation",
+        "Les publier pour assurer une transparence totale",
+        "Les envoyer sur un compte personnel pour faciliter la revue",
+        "Les conserver dans tous les documents sans contrôle d'accès"
       ],
       "answer": 0,
-      "explanation": "Le RETEX doit être réutilisable par les autres équipes tout en respectant la confidentialité et le degré de certitude."
+      "explanation": "Le partage doit être adapté au destinataire, à la confidentialité et aux besoins d'analyse tout en préservant les preuves nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi distinguer les actions immédiates des actions de fond ?",
+      "choices": [
+        "Pour faire paraître le rapport plus long",
+        "Les actions immédiates rétablissent ou contiennent la situation, alors que les actions de fond visent les facteurs à l'origine de la récurrence",
+        "Parce que les actions de fond ne doivent jamais être suivies",
+        "Parce que l'action immédiate élimine toujours la cause"
+      ],
+      "answer": 1,
+      "explanation": "La réponse immédiate et la prévention à long terme ont des objectifs différents et doivent être suivies séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel résultat indique qu'une leçon apprise est réellement capitalisée ?",
+      "choices": [
+        "Un rapport déposé dans un répertoire que personne ne consulte",
+        "Une liste de recommandations sans responsable",
+        "Des changements intégrés aux procédures, contrôles ou formations, puis vérifiés dans la durée",
+        "La suppression du ticket source"
+      ],
+      "answer": 2,
+      "explanation": "La capitalisation doit modifier les pratiques concernées et rendre le nouvel apprentissage accessible et vérifiable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement soutient un RETEX de qualité ?",
+      "choices": [
+        "Éviter les questions difficiles pour terminer rapidement",
+        "Modifier les conclusions pour correspondre aux premières impressions",
+        "Ne conserver que les faits qui confortent la solution choisie",
+        "Inviter les acteurs pertinents, distinguer faits et hypothèses et documenter les désaccords utiles"
+      ],
+      "answer": 3,
+      "explanation": "Une analyse structurée et ouverte améliore la compréhension collective, sans dissimuler les incertitudes ou les points de vue divergents."
     }
   ]
 }

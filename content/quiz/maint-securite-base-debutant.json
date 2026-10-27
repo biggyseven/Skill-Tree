@@ -4,99 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Avant une intervention sur un équipement électrique, quel réflexe est prioritaire ?",
+      "prompt": "Avant une intervention qui peut modifier un service, quelle vérification est prioritaire ?",
       "choices": [
-        "Se fier uniquement à l’absence de bruit",
-        "Appliquer les règles de sécurité du site, vérifier les risques et l’autorisation, et mettre en sécurité si nécessaire",
-        "Ouvrir immédiatement le boîtier",
-        "Demander à un collègue de toucher l’équipement pour vérifier"
-      ],
-      "answer": 1,
-      "explanation": "Le travail doit respecter les procédures et les protections applicables avant toute manipulation."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Tu constates une odeur de brûlé sur une alimentation. Que faire ?",
-      "choices": [
-        "Continuer la checklist pour finir plus vite",
-        "Débrancher au hasard sans évaluer le danger",
-        "Arrêter l’action dangereuse, sécuriser selon la procédure et alerter le responsable",
-        "Ignorer l’odeur si le voyant est vert"
-      ],
-      "answer": 2,
-      "explanation": "Un signe de risque matériel impose un point d’arrêt et une escalade adaptée."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment appliquer le principe du moindre privilège ?",
-      "choices": [
-        "Utiliser un compte administrateur partagé pour toutes les tâches",
-        "Conserver les droits élevés en permanence",
-        "Réutiliser le compte d’un collègue",
-        "Utiliser uniquement les droits nécessaires, pour la durée nécessaire, avec un compte attribué"
-      ],
-      "answer": 3,
-      "explanation": "La limitation des droits réduit l’impact d’une erreur ou d’une compromission."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une intervention peut entraîner une perte de données. Quelle préparation est indispensable ?",
-      "choices": [
-        "Vérifier qu’une sauvegarde exploitable ou un retour arrière adapté existe et que l’intervention est autorisée",
-        "Supposer que la sauvegarde est automatique",
-        "Copier les données sur un support personnel",
-        "Commencer avant d’identifier le périmètre"
+        "Confirmer le périmètre, l'autorisation, le risque et la procédure de retour arrière",
+        "Utiliser le compte le plus privilégié disponible",
+        "Désactiver les protections pour éviter les alertes",
+        "Modifier plusieurs éléments à la fois"
       ],
       "answer": 0,
-      "explanation": "Une sauvegarde doit être adaptée au risque et sa restauration doit être crédible."
+      "explanation": "Une préparation contrôlée vérifie que l'intervention est autorisée et que ses effets peuvent être évalués ou annulés."
     },
     {
       "type": "qcm",
-      "prompt": "Comment traiter un support contenant des données sensibles ?",
+      "prompt": "Tu découvres un câble électrique abîmé ou une odeur de brûlé. Que fais-tu ?",
       "choices": [
-        "Le prêter librement à l’équipe",
-        "Respecter les règles d’accès, de stockage, de transport et d’effacement sécurisé",
-        "Envoyer une copie vers une adresse privée",
-        "Laisser le support sans surveillance"
+        "Ouvrir l'équipement pour inspecter l'alimentation",
+        "Ne pas manipuler l'élément dangereux et suivre la procédure d'alerte du site",
+        "Déplacer le câble sous tension",
+        "Continuer l'intervention et signaler le fait en fin de journée"
       ],
       "answer": 1,
-      "explanation": "Les données sensibles doivent être protégées pendant tout leur cycle de vie."
+      "explanation": "Un danger électrique ou thermique doit être traité selon les consignes de sécurité, sans manipulation improvisée."
     },
     {
       "type": "qcm",
-      "prompt": "Quand faut-il suspendre une procédure standard et demander une aide ?",
+      "prompt": "Quel principe doit guider l'attribution des droits d'accès ?",
       "choices": [
-        "Quand une étape prend quelques secondes de plus",
-        "Chaque fois qu’un voyant change de couleur, sans autre contrôle",
-        "Quand une condition de sécurité ou un prérequis critique n’est pas satisfait",
-        "Uniquement après la fin de l’intervention"
+        "Tous les techniciens utilisent un compte administrateur partagé",
+        "Les droits restent actifs même après la fin de la mission",
+        "Accorder uniquement les droits nécessaires, pour la durée nécessaire",
+        "Les droits sont attribués selon l'ancienneté plutôt que le besoin"
       ],
       "answer": 2,
-      "explanation": "Une procédure sûre comprend des points d’arrêt explicites lorsque les conditions ne sont pas réunies."
+      "explanation": "Le moindre privilège réduit l'impact d'une erreur ou d'une compromission et améliore la traçabilité."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi identifier les câbles et équipements avant de les déconnecter ?",
+      "prompt": "Tu soupçonnes un incident de sécurité sur un poste. Quelle est la meilleure action ?",
       "choices": [
-        "Pour rendre le schéma plus décoratif",
-        "Pour éviter de rédiger un compte rendu",
-        "Pour éviter de vérifier les dépendances",
-        "Pour limiter les erreurs de manipulation et conserver la traçabilité des connexions"
+        "Effacer les journaux pour protéger la confidentialité",
+        "Redémarrer plusieurs fois jusqu'à disparition de l'alerte",
+        "Envoyer les fichiers suspects à tous les collègues",
+        "Appliquer la procédure d'incident, alerter l'équipe compétente et préserver les éléments utiles"
       ],
       "answer": 3,
-      "explanation": "L’identification réduit le risque de couper le mauvais service et facilite la remise en état."
+      "explanation": "La procédure d'incident limite les dégâts et préserve les éléments nécessaires à l'analyse."
     },
     {
       "type": "qcm",
-      "prompt": "Que faire si tu découvres un accès non autorisé pendant une maintenance ?",
+      "prompt": "Pourquoi ne faut-il pas partager un mot de passe dans un ticket ?",
       "choices": [
-        "Conserver les preuves utiles et signaler l’événement selon la procédure de sécurité",
-        "Effacer les journaux pour repartir proprement",
-        "Partager l’information sur un canal public",
-        "Désactiver les contrôles de sécurité pour terminer la tâche"
+        "Le ticket peut être visible au-delà du cercle nécessaire et le secret devient difficile à contrôler",
+        "Le ticket ne peut contenir aucun texte technique",
+        "Un mot de passe partagé est automatiquement changé par le système",
+        "Le partage empêche tout journal d'accès"
       ],
       "answer": 0,
-      "explanation": "Il faut préserver les éléments d’investigation et suivre le processus de signalement officiel."
+      "explanation": "Les secrets doivent rester dans les mécanismes autorisés de gestion d'identifiants, pas dans les commentaires de support."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant une opération susceptible d'altérer des données, que faut-il confirmer ?",
+      "choices": [
+        "Que le ticket porte la mention urgente",
+        "Que la sauvegarde est pertinente et que la restauration peut être vérifiée selon la procédure",
+        "Que l'utilisateur a fourni son mot de passe",
+        "Que le contrôle de changement n'est plus nécessaire"
+      ],
+      "answer": 1,
+      "explanation": "Il faut suivre le processus de sauvegarde et de restauration applicable au risque et à l'action envisagée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique réduit le risque de dommage électrostatique lors de la manipulation d'un composant sensible ?",
+      "choices": [
+        "Poser la carte sur une surface quelconque",
+        "Toucher les contacts pour vérifier le modèle",
+        "Utiliser un poste et des protections ESD adaptés aux consignes du fabricant",
+        "Maintenir le système sous tension pendant la manipulation"
+      ],
+      "answer": 2,
+      "explanation": "Les précautions contre les décharges électrostatiques doivent être adaptées au matériel et au poste de travail."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une personne demande de désactiver temporairement une protection pour tester une application. Quelle réponse convient ?",
+      "choices": [
+        "Le faire sans autorisation si le test dure moins d'une minute",
+        "Désactiver aussi les autres protections pour éviter les interférences",
+        "Oublier la remise en état si l'application démarre",
+        "Utiliser un test autorisé et ciblé, avec périmètre, durée et remise en état contrôlés"
+      ],
+      "answer": 3,
+      "explanation": "La désactivation improvisée d'une protection expose le système ; le test doit être approuvé et limité au strict nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel câble faut-il débrancher dans une baie lorsqu'une étiquette manque ?",
+      "choices": [
+        "Aucun avant d'avoir identifié les extrémités, le service concerné et l'impact de la déconnexion",
+        "Le plus ancien visuellement",
+        "Celui qui gêne l'accès aux autres câbles",
+        "Tous les câbles voisins pour faciliter l'inspection"
+      ],
+      "answer": 0,
+      "explanation": "Un câble non étiqueté peut supporter un service critique ; l'identifier et vérifier l'impact précède toute manipulation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon réflexe lorsqu'une action dépasse tes compétences ou ton autorisation ?",
+      "choices": [
+        "Continuer en masquant l'avertissement",
+        "Sécuriser la situation, consigner les faits et solliciter l'interlocuteur compétent",
+        "Emprunter les identifiants d'un collègue",
+        "Marquer la tâche comme réussie sans vérification"
+      ],
+      "answer": 1,
+      "explanation": "L'escalade est une pratique normale de sécurité et de qualité, pas un échec."
     }
   ]
 }

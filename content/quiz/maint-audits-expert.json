@@ -4,99 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Comment définir correctement le périmètre d’un audit technique ?",
+      "prompt": "Quel élément doit être fixé dès le début d'un audit technique ?",
       "choices": [
-        "En auditant tout sans limite de temps ni objectif",
-        "En précisant objectifs, actifs, période, critères, exclusions et responsabilités",
-        "En laissant chaque audité choisir les critères après coup",
-        "En se limitant aux systèmes les plus faciles d’accès"
-      ],
-      "answer": 1,
-      "explanation": "Un périmètre explicite rend l’audit proportionné, compréhensible et reproductible."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle différence faut-il faire entre une preuve et une opinion ?",
-      "choices": [
-        "Une opinion est toujours plus importante",
-        "Une preuve est un avis du responsable",
-        "Une preuve est un élément traçable et vérifiable relié à un critère ; une opinion doit être corroborée",
-        "Les deux sont interchangeables dans le rapport"
+        "La conclusion à laquelle l'auditeur veut arriver",
+        "Le nom de la personne qui sera tenue responsable",
+        "Le périmètre, les critères, les objectifs et les exclusions de l'audit",
+        "Le plan de correction avant toute collecte de preuves"
       ],
       "answer": 2,
-      "explanation": "Les constats doivent s’appuyer sur des éléments vérifiables et des critères définis."
+      "explanation": "Un périmètre et des critères définis permettent d'organiser l'audit et de relier les conclusions à des attentes explicites."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi conserver la provenance et la date des éléments collectés ?",
+      "prompt": "Quelle preuve est la plus solide pour appuyer un constat technique ?",
       "choices": [
-        "Pour donner une apparence de précision",
-        "Pour pouvoir modifier les éléments sans trace",
-        "Pour éviter que d’autres auditeurs les examinent",
-        "Pour assurer la traçabilité et comprendre dans quel contexte la preuve a été recueillie"
+        "Une impression personnelle non recoupée",
+        "Une déclaration générale sans date",
+        "Une capture dont l'origine est inconnue",
+        "Un élément pertinent, daté, traçable et vérifiable, recueilli dans le respect du périmètre"
       ],
       "answer": 3,
-      "explanation": "La provenance et l’horodatage aident à évaluer l’intégrité et la pertinence des preuves."
+      "explanation": "Les constats doivent reposer sur des preuves suffisantes et traçables plutôt que sur des impressions ou des informations invérifiables."
     },
     {
       "type": "qcm",
-      "prompt": "Comment formuler un constat d’audit solide ?",
+      "prompt": "Comment consigner une non-conformité ?",
       "choices": [
-        "Relier un critère à la condition observée, à la preuve et au risque ou à l’impact",
-        "Se limiter à dire que le système est mauvais",
-        "Attribuer une intention à une personne sans élément",
-        "Présenter une recommandation comme si elle était déjà réalisée"
+        "Décrire le critère attendu, la preuve observée, l'écart et le risque associé",
+        "Écrire uniquement « mauvaise pratique »",
+        "Attribuer immédiatement une intention à l'équipe concernée",
+        "Omettre les faits pour préserver la concision"
       ],
       "answer": 0,
-      "explanation": "Un constat utile explique l’écart et pourquoi il importe, avec des faits à l’appui."
+      "explanation": "Un constat exploitable explique l'exigence, la situation observée et ses conséquences possibles."
     },
     {
       "type": "qcm",
-      "prompt": "Que faire si l’échantillon audité est trop limité pour conclure ?",
+      "prompt": "Quel est le rôle d'un échantillonnage dans un audit ?",
       "choices": [
-        "Généraliser immédiatement à toute l’organisation",
-        "Indiquer la limite, compléter l’échantillon si possible ou restreindre la conclusion",
-        "Ignorer les résultats contradictoires",
-        "Remplacer la preuve par une déclaration orale"
+        "Prouver que tous les éléments sont conformes sans autre analyse",
+        "Examiner une sélection justifiée et expliciter les limites des conclusions",
+        "Éviter de documenter la méthode de sélection",
+        "Choisir uniquement les éléments les plus faciles à contrôler"
       ],
       "answer": 1,
-      "explanation": "Les conclusions doivent être proportionnées à la couverture et à la qualité des preuves."
+      "explanation": "L'échantillonnage permet de concentrer l'effort, mais sa méthode et ses limites doivent être connues pour ne pas généraliser abusivement."
     },
     {
       "type": "qcm",
-      "prompt": "Quel plan d’action répond le mieux à une non-conformité majeure ?",
+      "prompt": "Comment classer la priorité d'un constat ?",
       "choices": [
-        "Une recommandation sans date ni responsable",
-        "Une réunion sans suivi",
-        "Une mesure corrective avec propriétaire, délai, priorité, preuve attendue et vérification d’efficacité",
-        "Une modification immédiate sans analyse de risque"
+        "Selon l'ordre dans lequel il a été découvert uniquement",
+        "Selon la facilité de sa correction",
+        "Selon des critères cohérents de risque, d'impact, d'exposition et d'urgence",
+        "Selon la préférence de la personne auditée"
       ],
       "answer": 2,
-      "explanation": "Un plan d’action devient exécutable lorsque la responsabilité, l’échéance et la preuve sont définies."
+      "explanation": "Une classification reproductible aide à concentrer les ressources sur les risques les plus importants."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi examiner l’efficacité des actions après leur clôture ?",
+      "prompt": "Que doit contenir un plan d'action correctif ?",
       "choices": [
-        "Pour rouvrir tous les audits automatiquement",
-        "Pour augmenter le nombre d’indicateurs",
-        "Pour confirmer que le propriétaire a envoyé un message",
-        "Pour vérifier que le risque ou l’écart a réellement diminué et que le problème ne persiste pas"
+        "Une date approximative sans responsable",
+        "Une intention générale de faire mieux",
+        "Uniquement le nom du service concerné",
+        "Une action définie, un responsable, une échéance, une preuve attendue et un critère de clôture"
       ],
       "answer": 3,
-      "explanation": "La clôture administrative ne prouve pas à elle seule l’efficacité de la correction."
+      "explanation": "Des actions précises et vérifiables permettent de suivre la correction et d'évaluer si le risque a réellement été réduit."
     },
     {
       "type": "qcm",
-      "prompt": "Comment préserver l’indépendance de l’audit ?",
+      "prompt": "Pendant l'audit, une vérification risque d'interrompre un service critique. Que convient-il de faire ?",
       "choices": [
-        "Déclarer les conflits d’intérêts, appliquer des critères convenus et distinguer constats et préférences personnelles",
-        "Laisser l’équipe auditée choisir seule les résultats",
-        "Modifier les critères après avoir vu les preuves",
-        "Éviter toute revue contradictoire"
+        "Respecter les autorisations et limites de test, puis proposer un environnement ou une fenêtre contrôlée si nécessaire",
+        "Réaliser le test puisque l'audit est prioritaire",
+        "Tester en production sans prévenir pour obtenir un résultat réel",
+        "Désactiver les contrôles de sécurité le temps de l'essai"
       ],
       "answer": 0,
-      "explanation": "L’indépendance repose sur la transparence, des critères stables et des conclusions étayées."
+      "explanation": "Un audit ne donne pas une autorisation générale de provoquer des changements risqués. Les tests doivent être encadrés et proportionnés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi distinguer une preuve, un constat et une recommandation ?",
+      "choices": [
+        "Pour augmenter le nombre de pages du rapport",
+        "Pour séparer les éléments observés, l'écart évalué et l'action proposée",
+        "Pour permettre plusieurs conclusions contradictoires",
+        "Pour éviter de donner la source des informations"
+      ],
+      "answer": 1,
+      "explanation": "La séparation rend le raisonnement transparent : la preuve soutient le constat, qui justifie ensuite une recommandation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire avant de déclarer un audit terminé ?",
+      "choices": [
+        "Supprimer les éléments de travail sans politique de conservation",
+        "Considérer toutes les actions comme closes dès le rapport diffusé",
+        "Vérifier la cohérence du rapport, la traçabilité des preuves, les validations requises et le suivi des actions",
+        "Changer la portée après coup sans le documenter"
+      ],
+      "answer": 2,
+      "explanation": "La clôture vérifie la qualité du rapport et organise explicitement le suivi des actions ou réserves restantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe améliore l'acceptation d'un audit sans diminuer son exigence ?",
+      "choices": [
+        "Éviter toute discussion avec les équipes",
+        "Supprimer les constats difficiles",
+        "Réécrire les preuves pour simplifier la conclusion",
+        "Rester factuel, expliquer les critères et permettre la contradiction sur les faits avant finalisation"
+      ],
+      "answer": 3,
+      "explanation": "Une démarche factuelle favorise la correction d'erreurs et la coopération sans renoncer aux critères ni à l'indépendance."
     }
   ]
 }

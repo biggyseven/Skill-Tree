@@ -4,99 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quelle est la meilleure façon de commencer un échange avec un utilisateur qui signale une panne ?",
+      "prompt": "Un utilisateur décrit un problème de manière confuse et semble stressé. Quelle est la meilleure réaction ?",
       "choices": [
-        "Interrompre l’utilisateur pour proposer tout de suite une solution",
-        "Écouter, reformuler le besoin et poser des questions factuelles sur le symptôme",
-        "Promettre une résolution immédiate",
-        "Demander à l’utilisateur de trouver lui-même la cause"
-      ],
-      "answer": 1,
-      "explanation": "L’écoute et la reformulation clarifient le problème avant d’engager un diagnostic."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment expliquer une panne réseau à une personne non technique ?",
-      "choices": [
-        "Utiliser uniquement les acronymes du métier",
-        "Donner une longue liste de commandes sans contexte",
-        "Décrire l’impact, ce qui est vérifié et la prochaine étape avec des mots compréhensibles",
-        "Éviter toute information jusqu’à la résolution"
-      ],
-      "answer": 2,
-      "explanation": "Une communication utile présente l’impact et les actions dans un langage adapté au destinataire."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une cause n’est pas encore confirmée. Que dire à l’utilisateur ?",
-      "choices": [
-        "Présenter l’hypothèse comme un fait établi",
-        "Cacher toutes les observations",
-        "Accuser immédiatement le fournisseur",
-        "Séparer les faits des hypothèses et annoncer le prochain contrôle"
-      ],
-      "answer": 3,
-      "explanation": "Présenter honnêtement le niveau de certitude évite les conclusions hâtives."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel message d’avancement est le plus professionnel ?",
-      "choices": [
-        "La panne touche les connexions du service X ; le diagnostic continue et un nouveau point sera communiqué à l’heure convenue",
-        "Tout est bientôt réparé, sans confirmation technique",
-        "Ce n’est pas notre problème",
-        "Merci de ne plus signaler la panne"
+        "L'écouter, poser des questions ouvertes puis reformuler le besoin pour confirmer ta compréhension",
+        "L'interrompre pour lui expliquer immédiatement la cause probable",
+        "Lui demander de revenir quand il saura décrire une panne technique",
+        "Promettre une résolution immédiate avant le diagnostic"
       ],
       "answer": 0,
-      "explanation": "Un bon point de situation contient l’impact connu, l’action en cours et la prochaine mise à jour."
+      "explanation": "L'écoute active et la reformulation permettent de recueillir des faits sans invalider l'expérience de l'utilisateur ni annoncer une cause non vérifiée."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi reformuler la demande avant de la traiter ?",
+      "prompt": "Quelle formulation est la plus professionnelle pendant un diagnostic ?",
       "choices": [
-        "Pour ajouter du délai au ticket",
-        "Pour confirmer que le technicien et l’utilisateur parlent du même problème",
-        "Pour éviter de collecter des faits",
-        "Pour transférer systématiquement le ticket"
+        "« Vous avez forcément fait une mauvaise manipulation »",
+        "« D'après les premiers éléments, voici ce que nous savons et ce que je vais vérifier ensuite »",
+        "« C'est certainement le réseau, je ferme le ticket »",
+        "« Ce n'est pas mon problème »"
       ],
       "answer": 1,
-      "explanation": "La reformulation révèle les malentendus et permet de définir le résultat attendu."
+      "explanation": "Une communication factuelle distingue les observations des hypothèses et explique la prochaine étape."
     },
     {
       "type": "qcm",
-      "prompt": "Un utilisateur est mécontent et parle sur un ton agressif. Quelle réaction convient ?",
+      "prompt": "Tu ne peux pas résoudre immédiatement une panne. Que dois-tu communiquer ?",
       "choices": [
-        "Répondre sur le même ton",
-        "Clôturer le ticket immédiatement",
-        "Rester calme, reconnaître l’impact et recentrer l’échange sur les faits et les prochaines étapes",
-        "Garantir une résolution avant tout diagnostic"
+        "Que le problème est réglé pour calmer l'utilisateur",
+        "Une estimation précise même si tu n'as aucune base fiable",
+        "L'état connu, l'impact compris, l'action en cours et la prochaine mise à jour prévue",
+        "Que l'utilisateur doit trouver seul un contournement"
       ],
       "answer": 2,
-      "explanation": "Rester factuel et calme aide à maintenir une collaboration sans faire de promesse irréaliste."
+      "explanation": "Il faut communiquer ce qui est vérifié, éviter les promesses infondées et donner un prochain point de suivi."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle information ne doit pas être publiée dans un compte rendu partagé largement ?",
+      "prompt": "Quel est le meilleur moyen de vérifier que les deux parties ont la même compréhension d'une demande ?",
       "choices": [
-        "L’heure du début de la panne",
-        "L’impact sur le service",
-        "Les contrôles déjà réalisés",
-        "Un mot de passe ou un secret d’authentification"
+        "Clore le dossier dès que l'utilisateur cesse de parler",
+        "Demander uniquement si tout va bien",
+        "Envoyer un long jargon technique sans demander de retour",
+        "Reformuler le besoin, les conséquences et le résultat attendu, puis demander confirmation"
       ],
       "answer": 3,
-      "explanation": "Les tickets et comptes rendus ne doivent jamais exposer des secrets."
+      "explanation": "La reformulation explicite le périmètre et le résultat attendu avant d'engager une action technique."
     },
     {
       "type": "qcm",
-      "prompt": "Quand peut-on annoncer qu’un incident est résolu ?",
+      "prompt": "Un utilisateur est mécontent et hausse le ton. Quelle conduite est la plus utile ?",
       "choices": [
-        "Lorsque les contrôles prévus sont réussis et que le rétablissement attendu est confirmé",
-        "Dès qu’une commande ne retourne plus d’erreur",
-        "Dès qu’un redémarrage est terminé",
-        "Lorsque l’utilisateur cesse d’envoyer des messages"
+        "Répondre sur le même ton pour imposer le respect",
+        "Rester calme, reconnaître l'impact et recentrer l'échange sur les faits et les prochaines actions",
+        "Lui reprocher son manque de compétence",
+        "Ignorer tous ses messages jusqu'à la résolution"
+      ],
+      "answer": 1,
+      "explanation": "Une réponse calme et structurée réduit l'escalade et permet de poursuivre le diagnostic sans personnaliser le désaccord."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel détail faut-il éviter dans un compte rendu envoyé à un large groupe ?",
+      "choices": [
+        "L'heure à laquelle le service a été affecté",
+        "Le test de validation effectué",
+        "Un mot de passe ou une donnée personnelle non nécessaire",
+        "Le statut actuel de l'incident"
+      ],
+      "answer": 2,
+      "explanation": "Le compte rendu doit donner les informations utiles tout en excluant les secrets et les données personnelles non nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une intervention doit durer plus longtemps que prévu. Quelle communication convient le mieux ?",
+      "choices": [
+        "Informer les personnes concernées de l'écart, de l'impact et du prochain point de situation selon le processus prévu",
+        "Attendre la fin sans communiquer, même si le service est affecté",
+        "Annoncer une nouvelle heure arbitraire comme une certitude",
+        "Supprimer l'avis initial pour éviter les questions"
       ],
       "answer": 0,
-      "explanation": "La résolution se fonde sur des critères observables et, si possible, sur la confirmation du service rendu."
+      "explanation": "Une mise à jour proactive permet aux utilisateurs et aux responsables de planifier leurs activités sans diffuser d'informations spéculatives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel message de clôture est le plus utile ?",
+      "choices": [
+        "« Fini »",
+        "« Ça doit marcher maintenant »",
+        "« Le ticket est fermé car le délai est dépassé »",
+        "Décrire le symptôme initial, la solution appliquée, le test de validation et les éventuelles précautions restantes"
+      ],
+      "answer": 3,
+      "explanation": "Un message de clôture utile conserve une trace du résultat réellement vérifié et aide à traiter une éventuelle récurrence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur demande une modification qui dépasse ton autorisation. Comment répondre ?",
+      "choices": [
+        "Accepter immédiatement pour montrer de la disponibilité",
+        "Expliquer la limite sans jugement et orienter vers le circuit d'approbation adapté",
+        "Prêter un compte privilégié en attendant",
+        "Faire la modification sans la tracer"
+      ],
+      "answer": 1,
+      "explanation": "La communication doit rester coopérative tout en respectant les responsabilités, les autorisations et la traçabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi adapter le niveau de détail au destinataire ?",
+      "choices": [
+        "Pour cacher systématiquement les informations importantes",
+        "Pour éviter de documenter les actions techniques",
+        "Pour rendre l'information compréhensible et exploitable selon les besoins du lecteur",
+        "Pour donner des versions contradictoires du même incident"
+      ],
+      "answer": 2,
+      "explanation": "Un utilisateur a besoin de connaître l'impact et les actions attendues, tandis qu'une équipe technique peut avoir besoin des commandes, mesures et résultats détaillés."
     }
   ]
 }
