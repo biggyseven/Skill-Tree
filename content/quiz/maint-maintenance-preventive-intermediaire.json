@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Planifier la maintenance préventive » ?",
+      "prompt": "Comment déterminer la fréquence de maintenance ?",
       "choices": [
-        "Le sujet principal du cours : Planifier la maintenance préventive",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Appliquer la même fréquence à tous les actifs",
+        "Choisir le jour le plus libre uniquement",
+        "Classer selon le risque, la criticité, les recommandations et les données d'exploitation",
+        "Reporter indéfiniment les tâches peu visibles"
+      ],
+      "answer": 2,
+      "explanation": "La fréquence doit découler du risque et du contexte de l'actif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que vérifier avant une maintenance à impact ?",
+      "choices": [
+        "L'état initial, les dépendances, l'autorisation, la fenêtre et le retour arrière",
+        "Uniquement le nom de l'intervenant",
+        "La couleur du voyant du bureau",
+        "Rien si l'opération est habituelle"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Les précontrôles évitent de démarrer sur un système déjà dégradé ou sans moyen de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi enregistrer les valeurs avant et après ?",
+      "choices": [
+        "Pour raccourcir le rapport en supprimant les détails",
+        "Pour prouver l'effet de l'intervention et repérer une régression",
+        "Pour éviter de communiquer avec le propriétaire",
+        "Pour remplacer les tests applicatifs"
+      ],
+      "answer": 1,
+      "explanation": "La comparaison pré/post aide à attribuer les changements et vérifier le résultat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un plan de maintenance ?",
+      "choices": [
+        "Uniquement une liste d'équipements",
+        "Une estimation sans responsable",
+        "Un rappel sans date de fin",
+        "Des tâches, fréquence, propriétaire, fenêtre, prérequis, contrôles et critères de report"
+      ],
+      "answer": 3,
+      "explanation": "Le plan doit être exécutable et suivi."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un serveur est redondant, mais un disque montre des erreurs. Quelle priorité ?",
+      "choices": [
+        "Ignorer l'alerte parce que la redondance existe",
+        "Désactiver la supervision",
+        "Vérifier la santé de la redondance, les sauvegardes et planifier l'action adaptée à la criticité",
+        "Remplacer tous les disques immédiatement sans diagnostic"
+      ],
+      "answer": 2,
+      "explanation": "La redondance réduit un risque, mais ne justifie pas l'absence d'intervention contrôlée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui caractérise un bon point d'arrêt ?",
+      "choices": [
+        "Une condition explicite qui bloque la suite tant qu'un risque critique n'est pas levé",
+        "Une étape facultative sans propriétaire",
+        "Une note uniquement esthétique",
+        "Une commande dont le résultat est ignoré"
+      ],
+      "answer": 0,
+      "explanation": "Le point d'arrêt protège contre une poursuite dangereuse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi revoir périodiquement le calendrier préventif ?",
+      "choices": [
+        "Pour augmenter le nombre de tâches automatiquement",
+        "Pour éviter de mesurer les incidents",
+        "Pour supprimer les tâches sans analyse",
+        "Pour intégrer les pannes, coûts, risques et retours d'expérience récents"
+      ],
+      "answer": 3,
+      "explanation": "Le programme doit évoluer selon l'efficacité observée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une mise à jour firmware, que faut-il valider ?",
+      "choices": [
+        "Uniquement que l'équipement redémarre",
+        "La version, les interfaces, la redondance, les alertes et le service de bout en bout",
+        "Uniquement le ticket fermé",
+        "Rien si l'écran d'administration s'ouvre"
+      ],
+      "answer": 1,
+      "explanation": "La santé du composant et celle du service doivent être contrôlées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur peut révéler une maintenance peu efficace ?",
+      "choices": [
+        "Le nombre de titres dans un document",
+        "La couleur du calendrier",
+        "Les incidents récurrents après les interventions préventives",
+        "Le nombre de sessions du navigateur"
+      ],
+      "answer": 2,
+      "explanation": "Une récidive peut indiquer que les contrôles ou tâches préventives ne ciblent pas le mode de panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si une pièce nécessaire n'est pas disponible ?",
+      "choices": [
+        "Évaluer le risque et reporter ou proposer une mesure compensatoire validée",
+        "Commencer la maintenance puis improviser",
+        "Fermer le ticket comme terminé",
+        "Supprimer la tâche du calendrier sans trace"
+      ],
+      "answer": 0,
+      "explanation": "L'opération doit rester compatible avec les prérequis et les moyens de rétablissement."
     }
   ]
 }
