@@ -110,7 +110,7 @@ jobs:
           print("PRODUCTION_LAB_CATALOG_AUDIT_END")
           PY
 
-      - name: Verify the Linux intermediate lab is exposed with a playable v2 topology
+      - name: Verify new network and security labs are playable after deployment
         shell: bash
         run: |
           python - <<'PY'
@@ -120,39 +120,78 @@ jobs:
           import urllib.request
 
           base = "https://skill-tree-vjon.onrender.com"
-          path = "/api/lab/v2/reseau-linux-intermediaire"
-          last_error = "scenario not yet deployed"
+          expected = [
+              "nat-debutant",
+              "ipv6-intermediaire",
+              "stp-intermediaire",
+              "stp-expert",
+              "bgp-intermediaire",
+              "bgp-expert",
+              "eigrp-intermediaire",
+              "eigrp-expert",
+              "dhcp-dns-intermediaire",
+              "dhcp-dns-expert",
+              "secu-l2-expert",
+              "zero-trust-intermediaire",
+              "zero-trust-expert",
+          ]
+
+          def get_json(path):
+              request = urllib.request.Request(base + path, headers={"Accept": "application/json"})
+              with urllib.request.urlopen(request, timeout=25) as response:
+                  return json.loads(response.read().decode("utf-8"))
+
+          last_error = "the latest scenario files are not in the live API yet"
           for _ in range(36):
               try:
-                  with urllib.request.urlopen(base + path, timeout=25) as response:
-                      payload = json.loads(response.read().decode("utf-8"))
-                  topology = payload.get("initial_topology") or {}
-                  definition = payload.get("definition") or {}
-                  rules = (definition.get("check") or {}).get("rules") or []
-                  if (
-                      payload.get("id") == "reseau-linux-intermediaire"
-                      and payload.get("sandbox") is not True
-                      and len(topology.get("nodes") or []) >= 5
-                      and len(topology.get("links") or []) >= 4
-                      and len(rules) >= 9
-                  ):
-                      print("PRODUCTION_LINUX_LAB=available")
-                      print("EQUIPMENT_COUNT=" + str(len(topology["nodes"])))
-                      print("CABLE_COUNT=" + str(len(topology["links"])))
-                      print("AUTOMATED_RULE_COUNT=" + str(len(rules)))
+                  catalog = get_json("/api/lab/v2")
+                  available = {
+                      item.get("id"): item
+                      for item in catalog
+                      if isinstance(item, dict) and isinstance(item.get("id"), str)
+                  }
+                  missing = sorted(set(expected) - set(available))
+                  if not missing:
                       break
-                  last_error = "API response lacks the expected playable v2 topology"
-              except urllib.error.HTTPError as error:
-                  detail = error.read().decode("utf-8", errors="replace")
-                  last_error = f"HTTP {error.code}: {detail[:400]}"
+                  last_error = "labs not yet exposed: " + ", ".join(missing)
               except Exception as error:
                   last_error = str(error)
               time.sleep(5)
           else:
-              raise SystemExit(
-                  "Production Linux scenario did not become available after deployment: "
-                  + last_error
+              raise SystemExit("Lab Workspace catalog has not caught up with deployment: " + last_error)
+
+          for lab_id in expected:
+              try:
+                  payload = get_json("/api/lab/v2/" + lab_id)
+              except Exception as error:
+                  raise SystemExit(f"{lab_id}: GET failed: {error}") from error
+              topology = payload.get("initial_topology") or {}
+              definition = payload.get("definition") or {}
+              check = definition.get("check") or {}
+              rules = check.get("rules") or []
+              nodes = topology.get("nodes") or []
+              links = topology.get("links") or []
+              if (
+                  payload.get("id") != lab_id
+                  or payload.get("sandbox") is True
+                  or len(nodes) < 2
+                  or len(links) < 1
+                  or check.get("type") != "config_assertions"
+                  or len(rules) < 3
+              ):
+                  raise SystemExit(
+                      f"{lab_id}: not a playable, gradeable lab; "
+                      + json.dumps(
+                          {"sandbox": payload.get("sandbox"), "nodes": len(nodes),
+                           "links": len(links), "check_type": check.get("type"),
+                           "rules": len(rules)}, ensure_ascii=False
+                      )
+                  )
+              print(
+                  f"PLAYABLE_LAB={lab_id} EQUIPMENT={len(nodes)} "
+                  f"CABLES={len(links)} RULES={len(rules)}"
               )
+          print("NEW_LAB_BATCH_PRODUCTION_CHECK=passed")
           PY
 
       - name: Save and reload a uniquely named production smoke topology
