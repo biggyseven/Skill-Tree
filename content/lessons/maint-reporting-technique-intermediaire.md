@@ -143,3 +143,108 @@ Correction : pour vérifier les faits, l'impact, les références, la confidenti
 Un rapport annonce que « la panne est corrigée définitivement » parce qu'un redémarrage a rétabli l'application. Aucune cause n'a été testée et aucune mesure de suivi n'est prévue.
 
 **Correction attendue :** remplacer la conclusion définitive par une déclaration de rétablissement observé, préciser l'heure et le test qui a réussi, décrire le redémarrage comme action de rétablissement et noter que la cause reste non confirmée. Ouvrir ou relier une analyse de problème si le risque le justifie, attribuer des actions vérifiables et définir une période d'observation pertinente. Le rapport ne doit pas confondre retour du service et élimination durable de la cause.
+
+
+## 9. Définir l'audience et l'usage du rapport
+
+Le rapport technique s'adresse aux équipes qui doivent comprendre les faits, reproduire l'analyse et agir. Un résumé exécutif s'adresse aux responsables qui ont besoin de savoir ce qui a été affecté, pendant combien de temps, quelle décision reste nécessaire et comment éviter une récidive. Le détail peut être placé dans des annexes, mais le résumé ne doit pas simplifier au point de transformer une hypothèse en cause confirmée.
+
+Avant de rédiger, demande-toi quelles décisions le document doit soutenir : autoriser une dépense, choisir une action corrective, informer un client, accepter un risque, réviser un contrat ou clôturer un incident majeur. Le niveau de détail dépend de ces décisions. Un rapport sans lecteur cible devient une collection d'informations qui ne répond à aucune question.
+
+~~~mermaid
+flowchart TD
+    A[Événements et preuves] --> B[Rapport technique détaillé]
+    A --> C[Résumé exécutif]
+    B --> D[Diagnostic et actions]
+    C --> E[Impact, risque et décisions]
+    D --> F[Plan d'amélioration]
+    E --> F
+    F --> G[Validation et suivi]
+~~~
+
+Le rapport doit indiquer son périmètre, sa période, son auteur ou son rôle, sa date de production, les sources utilisées et son statut de validation. Les destinataires externes ou non techniques ne doivent pas recevoir d'informations sensibles qui ne sont pas nécessaires, comme des secrets, des adresses internes complètes ou des détails d'exploitation qui augmentent le risque.
+
+## 10. Construire une chronologie fiable
+
+Une chronologie doit enregistrer les événements importants avec leur heure, leur fuseau ou leur convention, leur source et leur degré de certitude. Distingue l'heure de détection, l'heure présumée du début, la prise en charge, les changements, les actions de diagnostic, le début de la correction, le rétablissement technique, la validation utilisateur et la clôture. Ces instants ne sont pas nécessairement identiques.
+
+Si plusieurs systèmes utilisent des horloges différentes, explique la normalisation effectuée. Ne fabrique pas une précision à la seconde lorsque les sources ne fournissent que l'heure à la minute. Les éléments contradictoires doivent être signalés et, si possible, rapprochés par une source de référence. Le but de la chronologie est de permettre à un autre analyste de comprendre la séquence.
+
+~~~mermaid
+flowchart LR
+    A[Détection] --> B[Prise en charge]
+    B --> C[Diagnostic et hypothèses]
+    C --> D[Action corrective ou contournement]
+    D --> E[Rétablissement technique]
+    E --> F[Test fonctionnel]
+    F --> G[Communication et clôture]
+~~~
+
+Une chronologie courte peut être présentée dans le corps du rapport avec une annexe détaillée. Évite les captures sans titre ni heure. Si une entrée provient d'un utilisateur, marque-la comme un signalement ; si elle est confirmée par les journaux ou les tests, indique la preuve. Cette distinction réduit la confusion entre la perception, l'observation et la conclusion.
+
+## 11. Présenter l'impact de manière vérifiable
+
+Décris le service affecté, les fonctions indisponibles ou dégradées, les utilisateurs ou sites concernés, le début et la fin selon la méthode retenue, les solutions de contournement, les transactions potentiellement perdues et les obligations qui pourraient être touchées. Distingue la portée confirmée de celle qui reste à déterminer.
+
+Évite de quantifier sans preuve. « Tous les clients ont été affectés » est une affirmation forte ; « les journaux disponibles montrent 120 échecs de connexion sur deux sites pendant 24 minutes » est plus exploitable, avec une note sur les limites de ces journaux. Si l'impact financier ou le volume d'utilisateurs est estimé, indique les hypothèses et l'incertitude.
+
+Le rapport doit aussi expliquer l'impact évité ou limité lorsqu'un contournement a fonctionné, mais éviter d'attribuer ce résultat à une action si la preuve manque. Les incidents techniques et les incidents métier ne se recouvrent pas toujours parfaitement ; le propriétaire du service doit valider la traduction de symptômes techniques en conséquences métier.
+
+## 12. Séparer faits, hypothèses, causes et actions
+
+Le lecteur doit savoir ce qui est confirmé, ce qui est probable et ce qui reste inconnu. Un rapport peut comporter quatre rubriques distinctes : observations et preuves, hypothèses testées, cause confirmée ou niveau de certitude, actions immédiates et préventives. Une analyse post-incident n'a pas besoin d'inventer une cause unique si les preuves ne le permettent pas.
+
+~~~mermaid
+flowchart TD
+    A[Observation] --> B[Preuve et source]
+    B --> C[Hypothèse]
+    C --> D[Test discriminant]
+    D --> E{Conclusion soutenue ?}
+    E -->|Non| F[Revoir l'hypothèse]
+    F --> C
+    E -->|Oui| G[Cause au niveau de preuve disponible]
+    G --> H[Action et critère d'efficacité]
+~~~
+
+Une action doit être SMART de façon pragmatique : une description concrète, un responsable, une date cible, une dépendance, une priorité et une preuve de clôture. « Améliorer la supervision » est insuffisant. « Ajouter un contrôle de fraîcheur pour la métrique X, tester sa notification dans le laboratoire, puis vérifier pendant deux semaines qu'aucun trou de collecte n'est silencieux » est vérifiable.
+
+Les actions de confinement ne sont pas nécessairement des corrections permanentes. Un contournement peut restaurer le service mais laisser une cause ouverte. Le rapport doit le dire, attribuer le suivi et préciser les conditions qui imposeraient une nouvelle escalade.
+
+## 13. Préserver la confidentialité et la qualité éditoriale
+
+Ne recopie pas de mots de passe, clés, jetons, données personnelles inutiles ou informations contractuelles non nécessaires. Pour illustrer une commande, masque les paramètres sensibles tout en conservant l'élément nécessaire à la compréhension. Les annexes techniques peuvent être restreintes séparément du résumé destiné à un public plus large.
+
+Les captures et journaux doivent être prélevés dans les systèmes autorisés et conservés selon les règles de l'organisation. Le rapport doit préciser si des données ont été expurgées, comment les heures ont été alignées et si une partie des journaux manque. Il vaut mieux exposer une limite que présenter une conclusion apparemment complète sur des données partielles.
+
+L'analyse doit être orientée vers l'apprentissage. Décrire le rôle d'une équipe ou la décision prise peut être nécessaire pour comprendre le processus ; accuser une personne sans preuves ne l'est pas. Les rapports de qualité évitent les formulations culpabilisantes et recherchent les causes systémiques : procédure ambiguë, signal trop tardif, dépendance non documentée, changement mal contrôlé ou accès inadapté.
+
+## 14. Travaux pratiques avancés
+
+### TP 6 — Écrire un résumé exécutif
+
+Un service de facturation a été inaccessible pendant 26 minutes. Le service a été rétabli par un contournement. La cause racine n'est pas encore confirmée et deux actions restent ouvertes.
+
+**Correction attendue :** le résumé indique le service affecté, la durée selon la mesure définie, les conséquences confirmées, le rétablissement via contournement, l'état de la cause et les actions ouvertes avec responsables et échéances. Il ne prétend pas que l'incident est définitivement résolu si une cause reste à étudier.
+
+### TP 7 — Corriger une chronologie ambiguë
+
+Un brouillon contient « 9 h : panne, 9 h 10 : réparé, 9 h 20 : tout va bien » sans source ni test final.
+
+**Correction attendue :** identifier l'origine de chaque heure, distinguer détection et début présumé, préciser l'action appliquée et décrire le test de rétablissement. Si la preuve manque, écrire que l'heure ou le résultat reste à confirmer.
+
+### TP 8 — Associer des actions à des preuves
+
+Un rapport propose de « former les équipes », « améliorer l'alerte » et « prévenir le problème ».
+
+**Correction attendue :** définir un livrable et une mesure pour chaque action : procédure de formation et vérification de compréhension ; règle d'alerte testée et notification reçue ; contrôle automatisé ou changement avec critères de réussite. Chaque action possède un responsable, une date et un statut.
+
+## 15. Défi final — Rapport post-incident réutilisable
+
+Rédige un rapport sur un incident fictif affectant deux sites, avec une chronologie, l'impact, les preuves, les hypothèses, les causes établies ou encore ouvertes, les actions, le résumé exécutif, les limites et l'annexe technique.
+
+**Correction détaillée :** l'exécutif peut comprendre la situation en moins d'une minute et sait quelles décisions sont nécessaires. Le technicien retrouve les contrôles, les valeurs, les heures, les versions et les limites. Les faits sont séparés des hypothèses ; les actions sont mesurables et assignées. Le rapport ne contient aucun secret, ne confond pas rétablissement et correction définitive et précise les données manquantes.
+
+## 16. Sources utiles
+
+- Atlassian, Incident Management Handbook : https://wac-cdn.atlassian.com/dam/jcr%3Af79066c7-2877-4b1d-8779-bb0af946b59a/Atlassian-incident-management-handbook-.pdf?cdnVersion=2756
+- Atlassian, métriques de gestion des incidents et définitions de MTTR/MTTA/MTBF : https://www.atlassian.com/incident-management/kpis/common-metrics
