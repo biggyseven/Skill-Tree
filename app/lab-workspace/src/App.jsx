@@ -357,7 +357,7 @@ export default function App() {
               >
                 <span aria-hidden="true">▦</span>
                 Équipements
-                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">6 types</span>
+                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">23 modèles</span>
               </button>
               <button
                 id="lab-cables-tab"
@@ -373,7 +373,7 @@ export default function App() {
               >
                 <span aria-hidden="true">⟷</span>
                 Câbles
-                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">5 types</span>
+                <span className="rounded border border-current/20 px-1 py-0.5 text-[9px]">10 câbles</span>
               </button>
             </div>
             <div id="lab-library-panel" role="tabpanel" aria-labelledby={libraryTab === 'equipment' ? 'lab-equipment-tab' : 'lab-cables-tab'} className="min-h-0 flex-1 overflow-hidden">

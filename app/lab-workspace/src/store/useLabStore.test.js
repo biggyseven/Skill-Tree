@@ -117,3 +117,36 @@ test('les actions matérielles restent sûres avant le chargement d’un lab', (
   assert.doesNotThrow(() => useLabStore.getState().togglePortState('R1', 'Fa0/0'));
   assert.equal(useLabStore.getState().topology, null);
 });
+
+test('un modèle de la bibliothèque conserve son modèle, son icône et son nombre de ports', () => {
+  useLabStore.getState().loadFreeWorkspace();
+  useLabStore.getState().addNode('switch', 240, 180, {
+    model: 'Switch multilayer L3 · 48 ports',
+    iconType: 'switch',
+    idPrefix: 'SW48',
+    canvasLabel: 'SW48',
+    portCount: 48,
+  });
+
+  const node = useLabStore.getState().topology.nodes[0];
+  assert.match(node.id, /^SW48-/);
+  assert.match(node.label, /^SW48-/);
+  assert.equal(node.type, 'switch');
+  assert.equal(node.model, 'Switch multilayer L3 · 48 ports');
+  assert.equal(node.iconType, 'switch');
+  assert.equal(node.ports.length, 48);
+  assert.equal(node.ports[0].id, 'Fa0/1');
+  assert.equal(node.ports[47].id, 'Fa0/48');
+});
+
+test('les nouveaux types de câbles gardent leur identité dans la topologie', () => {
+  useLabStore.getState().loadLab('lab-test', { title: 'Lab de test' }, makeTopology());
+  useLabStore.getState().addLink({
+    source: 'R1', target: 'R2',
+    sourceHandle: 'Fa0/0::source', targetHandle: 'Fa0/0::target',
+  }, 'fiber_singlemode');
+
+  const topology = useLabStore.getState().topology;
+  assert.equal(topology.links.length, 1);
+  assert.equal(topology.links[0].cable_type, 'fiber_singlemode');
+});

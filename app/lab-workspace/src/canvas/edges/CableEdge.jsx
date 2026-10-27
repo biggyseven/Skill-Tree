@@ -5,14 +5,22 @@ export function CableEdge({ id, sourceX, sourceY, targetX, targetY, sourcePositi
     sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition,
   });
 
-  let strokeColor = '#0ea5e9'; // Bleu
+  let strokeColor = '#0ea5e9'; // Cuivre droit
   let strokeDasharray = 'none';
+  const cableType = data?.cable_type;
 
-  if (data?.cable_type === 'copper_crossover') { strokeColor = '#f97316'; strokeDasharray = '6,4'; } // Orange
-  if (data?.cable_type === 'fiber') { strokeColor = '#a855f7'; } // Violet
-  if (data?.cable_type === 'console') { strokeColor = '#eab308'; strokeDasharray = '3,3'; }
-  if (data?.cable_type === 'wireless') { strokeColor = '#22c55e'; strokeDasharray = '2,5'; }
-  if (data?.state === 'down') { strokeColor = '#ef4444'; strokeDasharray = '4,4'; } // Rouge
+  if (cableType === 'copper_crossover' || cableType === 'serial_dce') {
+    strokeColor = '#f97316'; strokeDasharray = '6,4';
+  }
+  if (cableType === 'fiber' || cableType === 'fiber_multimode') strokeColor = '#a855f7';
+  if (cableType === 'fiber_singlemode') { strokeColor = '#ec4899'; strokeDasharray = '7,3'; }
+  if (cableType === 'console') { strokeColor = '#eab308'; strokeDasharray = '3,3'; }
+  if (cableType === 'console_usb') { strokeColor = '#facc15'; strokeDasharray = '1,3'; }
+  if (cableType === 'dac') { strokeColor = '#06b6d4'; strokeDasharray = '2,2'; }
+  if (cableType === 'coaxial') { strokeColor = '#f59e0b'; strokeDasharray = '8,3'; }
+  if (cableType === 'telephone') { strokeColor = '#94a3b8'; strokeDasharray = '2,3'; }
+  if (cableType === 'wireless') { strokeColor = '#22c55e'; strokeDasharray = '2,5'; }
+  if (data?.state === 'down') { strokeColor = '#ef4444'; strokeDasharray = '4,4'; }
   if (selected) { strokeColor = '#10b981'; }
 
   return (

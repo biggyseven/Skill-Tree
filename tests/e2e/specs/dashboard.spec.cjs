@@ -599,7 +599,7 @@ test('les panneaux latéraux et la bibliothèque matérielle se redimensionnent 
   await expect.poll(() => width(rightPanel)).toBeGreaterThan(rightBefore);
 
   const equipmentBefore = await height(equipmentPanel);
-  const equipmentSeparator = page.getByRole('separator', { name: "Redimensionner la bibliothèque d’équipements" });
+  const equipmentSeparator = page.getByRole('separator', { name: "Redimensionner les bibliothèques d’équipements et de câbles" });
   await equipmentSeparator.focus();
   await page.keyboard.press('ArrowUp');
   await expect.poll(() => height(equipmentPanel)).toBeGreaterThan(equipmentBefore);
@@ -1136,4 +1136,46 @@ Routeur1 ---- Serveur1</code></pre>
   expect(spokenRequest.text).toContain('3 câbles physiques');
 
   await page.evaluate(() => window.Alpine.$data(document.body).stopSpeech());
+});
+
+
+test('le titre et les actions du tableau de bord ne se chevauchent pas sur mobile', async ({ page }) => {
+  await openDashboard(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  await expect(page.locator('header.app-main-header')).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => {
+    const header = document.querySelector('header.app-main-header');
+    const title = header?.querySelector('h2');
+    const directDivs = Array.from(header?.children || []).filter(element => element.tagName === 'DIV');
+    const actions = directDivs[directDivs.length - 1];
+    if (!header || !title || !actions) return false;
+    const titleBox = title.getBoundingClientRect();
+    const actionsBox = actions.getBoundingClientRect();
+    return titleBox.bottom <= actionsBox.top + 2
+      && titleBox.left >= header.getBoundingClientRect().left
+      && titleBox.right <= header.getBoundingClientRect().right + 1;
+  }), { timeout: 10_000 }).toBe(true);
+});
+
+test('les bibliothèques affichent de nombreux modèles d’équipements et de câbles distincts', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
+  await expect(page.getByText('Démo', { exact: true }).first()).toBeVisible();
+
+  const equipmentTab = page.getByRole('tab', { name: /Équipements/ });
+  await expect(equipmentTab).toContainText('23 modèles');
+  const equipmentItems = page.locator('[data-testid^="equipment-model-"]');
+  await expect(equipmentItems).toHaveCount(23);
+  await expect(page.getByTestId('equipment-model-switch-l3-48')).toBeVisible();
+
+  const cableTab = page.getByRole('tab', { name: /Câbles/ });
+  await cableTab.click();
+  await expect(cableTab).toContainText('10 câbles');
+  const cableItems = page.locator('[data-testid^="cable-item-"]');
+  await expect(cableItems).toHaveCount(11);
+  await expect(page.getByTestId('cable-item-fiber_multimode')).toBeVisible();
+  await expect(page.getByTestId('cable-item-fiber_singlemode')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Liaisons sans fil' })).toBeVisible();
+  await expect(page.getByTestId('cable-item-wireless')).toBeVisible();
 });

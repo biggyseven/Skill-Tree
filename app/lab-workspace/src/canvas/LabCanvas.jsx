@@ -22,7 +22,7 @@ export function LabCanvas() {
       const anyUp = (n.ports || []).some(p => p.state === 'up');
       return {
         id: n.id, type: n.type, position: { x: n.x || 100, y: n.y || 100 },
-        data: { label: n.label || n.id, hostname: (n.config && n.config.hostname) || n.id, state: anyUp ? 'up' : 'down', ports: n.ports },
+        data: { type: n.type, iconType: n.iconType || n.type, model: n.model || 'Modèle non renseigné', label: n.label || n.id, hostname: (n.config && n.config.hostname) || n.id, state: anyUp ? 'up' : 'down', ports: n.ports },
       };
     });
   }, [topology]);
@@ -51,10 +51,18 @@ export function LabCanvas() {
 
   const onDrop = useCallback((event) => {
     event.preventDefault();
-    const type = event.dataTransfer.getData('application/reactflow');
-    if (!type) return;
+    const rawPayload = event.dataTransfer.getData('application/reactflow');
+    if (!rawPayload) return;
+    let device = null;
+    try {
+      const parsed = JSON.parse(rawPayload);
+      device = parsed && typeof parsed.type === 'string' ? parsed : null;
+    } catch {
+      // Compatibilité avec les anciennes cartes qui ne transfèrent que le type.
+    }
+    if (!device) device = { type: rawPayload };
     const position = screenToFlowPosition({ x: event.clientX, y: event.clientY });
-    addNode(type, position.x, position.y);
+    addNode(device.type, position.x, position.y, device);
   }, [screenToFlowPosition, addNode]);
 
   const onConnect = useCallback((params) => {

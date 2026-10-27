@@ -1,0 +1,55 @@
+name: Build Lab Workspace static assets
+
+on:
+  push:
+    branches:
+      - feature/lab-workspace
+      - fix/lab-workspace-library-mobile-header-20261027
+    paths:
+      - "app/lab-workspace/src/**"
+      - "app/lab-workspace/index.html"
+      - "app/lab-workspace/package.json"
+      - "app/lab-workspace/package-lock.json"
+      - "app/lab-workspace/vite.config.js"
+      - ".github/workflows/build-lab-workspace-static.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build-static-workspace:
+    name: build-static-workspace
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: app/lab-workspace/package-lock.json
+
+      - name: Install locked Lab Workspace dependencies
+        run: npm ci --prefix app/lab-workspace --no-audit --no-fund
+
+      - name: Build the production assets served from /lab/
+        run: npm --prefix app/lab-workspace run build
+
+      - name: Commit rebuilt static assets when they changed
+        shell: bash
+        run: |
+          git add -A static/lab
+          if git diff --cached --quiet -- static/lab; then
+            echo "STATIC_LAB_ASSETS=unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build(lab-workspace): refresh static bundle"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

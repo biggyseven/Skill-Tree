@@ -15,7 +15,7 @@ export function DeviceNode({ data, selected }) {
   const renderPorts = (portsList, position) => {
     if (portsList.length === 0) return null;
     return portsList.map((port, index) => {
-      const topPercent = portsList.length === 1 ? 50 : 20 + (index * (60 / (portsList.length - 1)));
+      const topPercent = portsList.length === 1 ? 50 : 8 + (index * (84 / (portsList.length - 1)));
       const sideStyle = position === Position.Left ? { left: '-5px' } : { right: '-5px' };
       const name = port.name || port.id;
       return (
@@ -43,11 +43,13 @@ export function DeviceNode({ data, selected }) {
     });
   };
 
+  const nodeMinHeight = ports.length > 16 ? `${Math.ceil(ports.length / 2) * 8 + 48}px` : undefined;
+
   return (
-    <div className={`relative flex flex-col items-center justify-center p-2 transition-all ${selected ? 'rounded-xl bg-[#0ea5e9]/10 outline outline-2 outline-[#0ea5e9] outline-offset-4' : ''}`}>
+    <div style={nodeMinHeight ? { minHeight: nodeMinHeight } : undefined} className={`relative flex flex-col items-center justify-center p-2 transition-all ${selected ? 'rounded-xl bg-[#0ea5e9]/10 outline outline-2 outline-[#0ea5e9] outline-offset-4' : ''}`}>
       
       <div className="relative flex h-16 w-16 items-center justify-center drop-shadow-xl">
-        <DeviceIcon type={data.type} />
+        <DeviceIcon type={data.iconType || data.type} />
         <div className={`absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-[#0d1117] ${isUp ? 'bg-[#10b981]' : 'bg-[#ef4444]'}`} />
       </div>
 

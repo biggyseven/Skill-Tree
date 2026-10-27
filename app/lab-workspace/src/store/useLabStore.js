@@ -74,17 +74,36 @@ export const useLabStore = create((set, get) => ({
     set({ topology: { ...topo, nodes: topo.nodes.map(n => n.id === nodeId ? { ...n, x, y } : n) } });
   },
   
-  addNode(type, x, y) {
-    const prefix = type.charAt(0).toUpperCase() + type.slice(1);
+  addNode(type, x, y, options = {}) {
+    const prefix = String(options.idPrefix || type.charAt(0).toUpperCase() + type.slice(1)).replace(/[^a-zA-Z0-9-]/g, '-');
     const existing = new Set((get().topology?.nodes || []).map(n => n.id));
-    let id;
-    do { id = prefix + '-' + crypto.randomUUID().slice(0, 8); } while (existing.has(id));
-    let defaultPorts = [];
-    if (type === 'router') defaultPorts = [{ id: 'Fa0/0', name: 'Fa0/0', state: 'down' }, { id: 'Fa0/1', name: 'Fa0/1', state: 'down' }];
-    else if (type === 'switch') defaultPorts = Array.from({ length: 8 }).map((_, i) => ({ id: `Fa0/${i+1}`, name: `Fa0/${i+1}`, state: 'down' }));
-    else defaultPorts = [{ id: 'eth0', name: 'eth0', state: 'down' }];
+    const token = crypto.randomUUID().slice(0, 8).toUpperCase();
+    let id = prefix + '-' + token;
+    while (existing.has(id)) id = prefix + '-' + crypto.randomUUID().slice(0, 8).toUpperCase();
 
-    const newNode = { id, type, x, y, label: id, ports: defaultPorts, config: { hostname: id } };
+    const defaultCount = type === 'router' ? 2 : type === 'switch' ? 8 : 1;
+    const requestedCount = Number(options.portCount);
+    const portCount = Number.isInteger(requestedCount) ? Math.max(1, Math.min(48, requestedCount)) : defaultCount;
+    const portPrefix = options.portPrefix || (['router', 'switch'].includes(type) ? 'Fa0/' : 'eth');
+    const startIndex = type === 'switch' ? 1 : 0;
+    const defaultPorts = Array.from({ length: portCount }, (_, i) => {
+      const name = ['router', 'switch'].includes(type)
+        ? portPrefix + (i + startIndex)
+        : portPrefix + i;
+      return { id: name, name, state: 'down' };
+    });
+
+    const newNode = {
+      id,
+      type,
+      x,
+      y,
+      label: options.canvasLabel ? `${options.canvasLabel}-${token.slice(0, 3)}` : id,
+      model: options.model || 'Modèle générique',
+      iconType: options.iconType || type,
+      ports: defaultPorts,
+      config: { hostname: options.canvasLabel ? `${options.canvasLabel}-${token.slice(0, 3)}` : id },
+    };
     set(s => ({ topology: { ...s.topology, nodes: [...s.topology.nodes, newNode] }, checkResult: null }));
   },
 
@@ -175,7 +194,14 @@ export const useLabStore = create((set, get) => ({
         cable_straight: 'copper_straight',
         cable_cross: 'copper_crossover',
         fiber: 'fiber',
+        fiber_multimode: 'fiber_multimode',
+        fiber_singlemode: 'fiber_singlemode',
         console: 'console',
+        console_usb: 'console_usb',
+        dac: 'dac',
+        coaxial: 'coaxial',
+        serial_dce: 'serial_dce',
+        telephone: 'telephone',
         wireless: 'wireless',
       })[type] || 'copper_straight',
       state: 'up'
