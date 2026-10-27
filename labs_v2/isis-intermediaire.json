@@ -1,0 +1,257 @@
+{
+  "schema_version": 2,
+  "id": "isis-intermediaire",
+  "title": "IS-IS — Adjacences et métriques étendues",
+  "level": "intermédiaire",
+  "module": "Administration Réseaux",
+  "prompt": "Activez IS-IS dans le processus CORE sur R1, R2 et R3. Corrigez le NET de R1, utilisez les métriques étendues et appliquez une authentification cohérente.",
+  "objectives": [
+    "Activer le processus IS-IS.",
+    "Définir un NET unique et valide pour chaque routeur.",
+    "Activer les métriques wide.",
+    "Configurer l’authentification sur les adjacences."
+  ],
+  "hints": [
+    "Le System ID doit être unique dans le domaine IS-IS.",
+    "Les métriques wide sont nécessaires pour les topologies modernes.",
+    "Une clé identique doit être configurée sur les voisins, sans l’inscrire en clair dans le scénario."
+  ],
+  "duration_min": 30,
+  "difficulty": "intermédiaire",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-isis-intermediaire",
+    "metadata": {
+      "name": "IS-IS — Adjacence et annonces L2",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 180,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "isis",
+              "enabled": false,
+              "process_id": "CORE",
+              "level": "level-1-2",
+              "system_id": "0000.0000.0001",
+              "net": "49.0001.0000.0000.0001.00",
+              "metric_style": "narrow",
+              "authentication": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 480,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "isis",
+              "enabled": true,
+              "process_id": "CORE",
+              "level": "level-1-2",
+              "system_id": "0000.0000.0002",
+              "net": "49.0001.0000.0000.0002.00",
+              "metric_style": "wide",
+              "authentication": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 780,
+        "y": 220,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.0.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "isis",
+              "enabled": true,
+              "process_id": "CORE",
+              "level": "level-1-2",
+              "system_id": "0000.0000.0003",
+              "net": "49.0001.0000.0000.0003.00",
+              "metric_style": "wide",
+              "authentication": true
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "isis-enabled",
+        "description": "IS-IS est activé sur R1.",
+        "device": "R1",
+        "path": "config.routes[0].enabled",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "isis-level",
+        "description": "R1 participe au niveau L1/L2.",
+        "device": "R1",
+        "path": "config.routes[0].level",
+        "operator": "equals",
+        "expected": "level-1-2"
+      },
+      {
+        "id": "isis-net",
+        "description": "Le NET utilise le System ID de R1.",
+        "device": "R1",
+        "path": "config.routes[0].net",
+        "operator": "equals",
+        "expected": "49.0001.0000.0000.0001.00"
+      },
+      {
+        "id": "isis-wide",
+        "description": "La métrique étendue est activée.",
+        "device": "R1",
+        "path": "config.routes[0].metric_style",
+        "operator": "equals",
+        "expected": "wide"
+      },
+      {
+        "id": "isis-auth",
+        "description": "L’authentification IS-IS est activée.",
+        "device": "R1",
+        "path": "config.routes[0].authentication",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "isis-process",
+        "description": "Le processus est cohérent avec R2.",
+        "device": "R1",
+        "path": "config.routes[0].process_id",
+        "operator": "equals",
+        "expected": "CORE"
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 30,
+  "badges": []
+}
