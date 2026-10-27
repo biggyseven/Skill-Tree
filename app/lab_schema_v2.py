@@ -81,6 +81,8 @@ class DeviceConfig(SchemaModel):
     ospf: OSPFConfig = Field(default_factory=OSPFConfig)
     acls: list[Any] = Field(default_factory=list)
     services: ServicesConfig = Field(default_factory=ServicesConfig)
+    # Structured settings for course-specific system/application workloads.
+    workloads: dict[str, Any] = Field(default_factory=dict)
     protocols: dict[str, Any] = Field(default_factory=dict)
 
 
