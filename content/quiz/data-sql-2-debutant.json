@@ -1,0 +1,66 @@
+{
+  "node_id": "data-sql-2-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans le cadre de « Jointures et agrégations SQL », quelle démarche fournit la meilleure preuve de maîtrise ?",
+      "choices": [
+        "Exécuter le seul cas normal et conclure si aucune erreur n'apparaît",
+        "Définir préconditions et postconditions, tester cas normal et limite puis vérifier l'état réellement obtenu",
+        "Augmenter les privilèges jusqu'à ce que tout passe",
+        "Conserver une capture sans noter version ni données"
+      ],
+      "answer": 1,
+      "explanation": "La preuve doit relier une règle à un résultat observé et reproductible. Elle précise préconditions, cas limites et postcondition ; une capture ou une absence d'erreur ne démontre pas à elle seule l'intégrité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une opération liée à « Jointures et agrégations SQL » fonctionne sur un petit échantillon mais échoue ailleurs. Quelle première démarche est la plus rigoureuse ?",
+      "choices": [
+        "Réécrire tout le composant sans recueillir d'indices",
+        "Désactiver les contraintes pour laisser passer les lignes",
+        "Réduire le cas, comparer données, versions et hypothèses puis isoler une cause",
+        "Tout réexécuter jusqu'au résultat souhaité"
+      ],
+      "answer": 2,
+      "explanation": "La reproduction et la réduction du cas distinguent problèmes de données, règles, configuration, droits et concurrence. La répétition aveugle peut aggraver l'état ; désactiver les contrôles masque le défaut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d'une règle importante présente uniquement dans l'interface ?",
+      "choices": [
+        "Un autre chemin d'écriture peut la contourner et persister des données incohérentes",
+        "Les index sont automatiquement désactivés",
+        "La sauvegarde devient impossible",
+        "La clé primaire perd nécessairement son unicité"
+      ],
+      "answer": 0,
+      "explanation": "Une base peut recevoir des écritures d'une API, d'un import ou d'une tâche planifiée. Les invariants essentiels doivent être garantis par des contraintes ou mécanismes centraux adaptés, avec validation applicative complémentaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le test principal passe, mais le nombre d'éléments touchés est le double de celui prévu. Quelle conclusion est correcte ?",
+      "choices": [
+        "La modification réussit puisque le code de retour est positif",
+        "Il suffit d'effacer des éléments sans rechercher la cause",
+        "Le volume n'a pas d'importance si l'affichage semble correct",
+        "La postcondition échoue : il faut expliquer le périmètre et la multiplication avant de poursuivre"
+      ],
+      "answer": 3,
+      "explanation": "Le volume touché fait partie du contrat et peut révéler filtre, jointure ou reprise incorrecte. La correction doit viser la cause et se vérifier par un test de non-régression, pas par un nettoyage manuel inexpliqué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle combinaison améliore le plus la maintenabilité d'une opération récurrente ?",
+      "choices": [
+        "Dépendre de la mémoire de l'opérateur",
+        "Versionner la procédure, documenter prérequis, vérifier le résultat, journaliser sans secrets et tester la reprise",
+        "Supprimer les journaux",
+        "Laisser les paramètres implicites"
+      ],
+      "answer": 1,
+      "explanation": "Une procédure maintenable est reproductible, observable et récupérable. Versionnement, préconditions, journaux sans secrets et tests de reprise réduisent la dépendance aux connaissances individuelles."
+    }
+  ]
+}
