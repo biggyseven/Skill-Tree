@@ -6,7 +6,7 @@
   "module": "Services réseau",
   "duration_min": 25,
   "difficulty": "intermédiaire",
-  "prompt": "Excluez 10.10.20.1 à 10.10.20.10, puis créez le pool USERS pour 10.10.20.0/24 avec passerelle, DNS et bail de sept jours.",
+  "prompt": "Contexte : le réseau utilisateurs 10.10.20.0/24 doit recevoir ses paramètres IPv4 automatiquement. R1 distribue les adresses, 10.10.20.1 est la passerelle et 10.10.20.53 le DNS. Réservez les dix premières adresses (.1 à .10) pour les équipements fixes, puis créez le pool USERS avec un bail de sept jours. Vérifiez que le réseau, la passerelle, le DNS et la plage exclue correspondent au plan d’adressage.",
   "objectives": [
     "Exécuter puis vérifier : ip dhcp excluded-address 10.10.20.1 10.10.20.10",
     "Exécuter puis vérifier : ip dhcp pool USERS",
@@ -17,8 +17,10 @@
   ],
   "hints": [
     "Cible CLI : R1.",
-    "Séquence de référence : enable ; configure terminal ; ip dhcp excluded-address 10.10.20.1 10.10.20.10 ; ip dhcp pool USERS ; network 10.10.20.0 255.255.255.0 ; default-router 10.10.20.1 ; dns-server 10.10.20.53 ; lease 7 ; end.",
-    "La validation examine la configuration structurée envoyée au serveur, pas seulement le texte affiché dans la console."
+    "Indice 1 : configurez la plage exclue avant d’activer l’attribution dynamique, pour éviter de louer les adresses réservées.",
+    "Indice 2 : après ip dhcp pool USERS, les commandes network, default-router, dns-server et lease s’appliquent au mode de configuration du pool.",
+    "Solution de référence (à consulter en dernier) : enable ; configure terminal ; ip dhcp excluded-address 10.10.20.1 10.10.20.10 ; ip dhcp pool USERS ; network 10.10.20.0 255.255.255.0 ; default-router 10.10.20.1 ; dns-server 10.10.20.53 ; lease 7 ; end.",
+    "La validation vérifie les paramètres structurés du pool USERS et la plage exclue. Elle ne simule pas l’attribution d’un bail à un client."
   ],
   "initial_topology": {
     "schema_version": 2,
@@ -41,7 +43,7 @@
           {
             "id": "Gi0/0",
             "name": "Gi0/0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -60,7 +62,7 @@
           {
             "id": "Gi0/1",
             "name": "Gi0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "routed",
             "ip": null,
@@ -111,7 +113,7 @@
           {
             "id": "Fa0/1",
             "name": "Fa0/1",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -130,7 +132,7 @@
           {
             "id": "Fa0/24",
             "name": "Fa0/24",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "down",
             "ip": null,
@@ -181,7 +183,7 @@
           {
             "id": "eth0",
             "name": "eth0",
-            "state": "down",
+            "state": "up",
             "speed": 1000,
             "mode": "access",
             "ip": null,
@@ -286,7 +288,7 @@
     "rules": [
       {
         "id": "dhcp_pool",
-        "description": "Contrôle serveur : dhcp pool doit être conforme.",
+        "description": "Le pool USERS contient le réseau, la passerelle, le DNS et le bail attendus.",
         "device": "R1",
         "path": "config.protocols.dhcp.pools",
         "operator": "contains",
@@ -301,7 +303,7 @@
       },
       {
         "id": "dhcp_exclusion",
-        "description": "Contrôle serveur : dhcp exclusion doit être conforme.",
+        "description": "Les adresses 10.10.20.1 à 10.10.20.10 sont exclues de la distribution DHCP.",
         "device": "R1",
         "path": "config.protocols.dhcp.excluded_addresses",
         "operator": "contains",
