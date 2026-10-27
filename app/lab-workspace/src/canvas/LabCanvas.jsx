@@ -1,6 +1,7 @@
-﻿import { useCallback, useMemo } from 'react';
+﻿import { useCallback, useMemo, useState } from 'react';
 import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, useReactFlow } from '@xyflow/react';
 import { useLabStore } from '../store/useLabStore.js';
+import { validateConnection } from './connectionValidation.js';
 import { nodeTypes, edgeTypes } from './nodeTypes.js';
 import { Toolbar } from './Toolbar.jsx';
 import { CABLES, WIRELESS_LINK } from './cableCatalog.js';
@@ -17,6 +18,7 @@ export function LabCanvas() {
   const activePacket = useLabStore(s => s.activePacket);
   const activeTool = useLabStore(s => s.activeTool);
   const { screenToFlowPosition } = useReactFlow();
+  const [connectionMessage, setConnectionMessage] = useState('');
 
   const flowNodes = useMemo(() => {
     if (!topology) return [];
@@ -78,8 +80,14 @@ export function LabCanvas() {
   }, [screenToFlowPosition, addNode]);
 
   const onConnect = useCallback((params) => {
+    const result = validateConnection({ connection: params, topology, cableType: activeTool });
+    if (!result.valid) {
+      setConnectionMessage(result.message);
+      return;
+    }
+    setConnectionMessage('');
     addLink(params, activeTool);
-  }, [addLink, activeTool]);
+  }, [addLink, activeTool, topology]);
 
   if (!topology) return null;
 
@@ -156,6 +164,15 @@ export function LabCanvas() {
           Liaison rouge pointillée = au moins un port est éteint (OFF). Sélectionne l’équipement, ouvre Inspecteur → Hardware et active l’interface, ou utilise « no shutdown » dans la CLI.
         </p>
       </div>
+
+      {connectionMessage && (
+        <div role="alert" className="absolute bottom-16 left-1/2 z-[100] w-[min(420px,calc(100%-24px))] -translate-x-1/2 rounded-lg border border-[#f87171]/60 bg-[#450a0a] px-4 py-3 text-xs leading-relaxed text-[#fee2e2] shadow-xl">
+          <div className="flex items-start justify-between gap-3">
+            <span>{connectionMessage}</span>
+            <button type="button" aria-label="Fermer le message" className="shrink-0 rounded px-1 text-base leading-none hover:bg-white/10" onClick={() => setConnectionMessage('')}>×</button>
+          </div>
+        </div>
+      )}
 
       <Toolbar />
 
