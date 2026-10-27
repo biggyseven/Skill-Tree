@@ -1094,6 +1094,7 @@ Routeur1 ---- Serveur1</code></pre>
       </figure>
     `;
 
+    state.startSectionSelection = '__top__';
     state.prepareLessonDiagrams(article);
     const spokenText = state.speechTextFromArticle();
     const chunks = state.splitSpeechText(spokenText);
