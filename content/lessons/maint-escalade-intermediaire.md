@@ -118,84 +118,60 @@ L'absence d'un expert doit déclencher une chaîne de remplacement prévue, sans
 
 ### 1. Frontière de niveau
 
-Le N1 qualifie, traite les procédures connues et sécurise les premières informations ; le N2 investigue les problèmes techniques plus complexes ; le N3 intervient sur l'ingénierie, les défauts produit ou les changements spécialisés. Les critères de passage doivent être basés sur impact, risque, droits requis, complexité et durée maximale d'investigation.
+Les niveaux décrivent une distribution des capacités, non une hiérarchie universelle de mérite. Le N1 qualifie, traite les demandes connues et exécute les procédures standard autorisées. Le N2 approfondit un problème qui exige une analyse des dépendances, une connaissance du service ou un test non couvert par la procédure de base. Le N3 apporte une expertise produit ou architecture, étudie les défauts complexes et propose des corrections avancées. Les limites réelles dépendent des droits, de l'organisation et du risque; un niveau ne doit jamais dépasser son autorité simplement parce que le niveau supérieur ne répond pas.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de l'escalade (n1/n2/n3), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Séparer trois responsabilités : propriétaire du ticket, personne chargée de la prochaine action technique et rôle autorisé à accepter le risque ou à approuver un changement. Elles peuvent appartenir à des personnes différentes. Le transfert ne doit donc pas laisser le ticket sans propriétaire. Définir, pour chaque catégorie, les actions permises, les critères de blocage, les tests minimaux et le remplaçant en cas d'absence.
 
-**Preuves et interprétation.** La matrice de responsabilités et les exemples de tickets permettent d'appliquer les seuils de manière cohérente. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Escalader uniquement parce que le technicien est pressé surcharge les niveaux avancés ; retenir trop longtemps un incident grave est tout aussi risqué. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Un incident critique peut nécessiter une mobilisation directe du N2 ou du N3 sans traverser artificiellement chaque palier. À l'inverse, un cas connu doit rester au N1 lorsqu'il peut être résolu selon la procédure et que les critères de réussite sont démontrés.
 ### 2. Qualification initiale
 
-Un dossier exploitable décrit symptôme, périmètre, heure de début, changements récents, tests exécutés et impact métier. Demander les données qui orientent réellement le diagnostic plutôt qu'une longue liste d'informations non liées au problème.
+Qualifier l'expérience de l'utilisateur avant d'affirmer une cause. Noter le service touché, les utilisateurs ou sites concernés, le début estimé, les symptômes observables, les erreurs exactes, les changements récents et l'existence d'un contournement. « Depuis 10 h 20, le site B ne peut plus ouvrir l'application RH » est plus utile que « le réseau est en panne ». Séparer les déclarations du demandeur des observations de supervision.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de l'escalade (n1/n2/n3), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Rechercher les tickets similaires sur la même fenêtre et relier les dossiers qui semblent partager un incident, sans effacer l'impact individuel de chaque demandeur. Le ticket parent conserve la chronologie et les décisions; les tickets liés permettent de vérifier le rétablissement par site ou groupe. Réaliser uniquement les contrôles autorisés et consigner leur cible, l'heure, la méthode et le résultat. Une vérification réussie vers la passerelle ne démontre pas que l'application est disponible.
 
-**Preuves et interprétation.** Les horodatages, sorties de commandes et étapes déjà tentées évitent la répétition des manipulations. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Un ticket comme « réseau en panne » ne permet pas au niveau suivant de prioriser ou de reproduire la panne. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Si une donnée manque, signaler cette lacune et son importance au lieu de la remplacer par une supposition. Une suspicion de compromission, une perte de données ou un risque de sécurité doit activer immédiatement la procédure spécialisée, sans attendre une qualification complète. Le résultat du N1 est un dossier qui distingue les faits confirmés, les hypothèses, les inconnues, l'impact et la prochaine décision attendue.
 ### 3. Escalade fonctionnelle
 
-L'escalade fonctionnelle transmet un problème à une équipe plus spécialisée sans nécessairement changer la priorité métier. Associer compétence requise, file de destination, propriétaire et condition de retour au niveau précédent.
+Diriger l'incident vers l'équipe qui possède la compétence ou le service, en utilisant la matrice de responsabilités et les dépendances documentées. Un échec d'ouverture de session peut provenir du DNS, de l'identité, du réseau ou de l'application; envoyer tout incident à une file générique favorise les transferts répétés. Le propriétaire actuel suit le ticket jusqu'à ce que le destinataire confirme la prise en charge.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de l'escalade (n1/n2/n3), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Éviter les transferts en aveugle. Joindre les faits, les tests et leurs résultats, le changement récent éventuel, les contraintes d'accès, les limites de l'analyse et la question précise posée au destinataire. « DNS en échec » doit nommer le résolveur, le nom interrogé, l'heure et l'erreur; « réseau OK » doit préciser quels chemins et services ont été testés. Signaler aussi les tests non effectués et pourquoi.
 
-**Preuves et interprétation.** Le ticket conserve la chaîne de prise en charge et le motif de réaffectation. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Réaffecter plusieurs fois sans propriétaire augmente le délai et nuit à la confiance de l'utilisateur. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Une demande d'escalade utile sollicite une action identifiable : corréler les journaux d'authentification, confirmer le périmètre d'un défaut, examiner une trace, autoriser un test contrôlé ou prendre une décision sur le retour arrière. Si le mauvais groupe a été choisi, corriger l'orientation sans supprimer la chronologie ni masquer les temps d'attente.
 ### 4. Escalade hiérarchique
 
-L'escalade hiérarchique intervient lorsqu'un risque, une priorité, une ressource ou une décision dépasse l'autorité du technicien. Définir quand prévenir le responsable, le gestionnaire de service ou la cellule de crise, et quelle décision leur est demandée.
+Escalader l'autorité lorsqu'une décision dépasse le mandat technique : accepter une interruption, prolonger une fenêtre, mobiliser un fournisseur, engager une autre équipe ou communiquer sur un incident majeur. La demande au responsable expose le risque, les conséquences, les options, la recommandation et l'heure limite de décision. Informer un responsable n'est pas la même chose qu'obtenir son approbation.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de l'escalade (n1/n2/n3), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Définir des seuils organisationnels : service critique indisponible, périmètre qui augmente, objectif de restauration menacé, données potentiellement exposées, astreinte indisponible ou mesure de mitigation nécessitant une autorisation supplémentaire. Les seuils exacts doivent provenir des règles locales et des engagements de service, pas d'un chiffre universel inventé pour le cours.
 
-**Preuves et interprétation.** La décision, l'heure et la personne responsable doivent être consignées sans exposer des informations non nécessaires. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Utiliser la hiérarchie pour contourner le processus normal de qualification génère du bruit et brouille les responsabilités. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Tracer qui a été contacté, à quel moment, par quel canal, quelle décision a été demandée, la réponse reçue et ses conditions. Une absence de réponse ne vaut jamais approbation. À l'échéance prévue, utiliser la chaîne de remplacement ou les mesures conservatoires approuvées. L'escalade hiérarchique ne doit pas servir à contourner les vérifications techniques ni les règles de sécurité.
 ### 5. Priorité et impact
 
-La sévérité technique n'est pas identique à l'impact métier ; une panne limitée peut être critique si elle bloque un processus essentiel. Appliquer une matrice impact/urgence, l'ajuster au contexte et expliquer les dérogations plutôt que se fier au volume de plaintes.
+Distinguer impact, urgence et gravité technique. L'impact concerne les utilisateurs, les sites, les transactions ou les fonctions métier affectées. L'urgence décrit le délai avant que la situation ne devienne inacceptable. La gravité technique ou sécurité qualifie la nature du risque. Une erreur visible par une seule personne peut être critique si elle touche une fonction vitale; une alerte technique élevée peut être maîtrisée si le service reste disponible et que les protections sont en place.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de l'escalade (n1/n2/n3), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Utiliser une matrice de priorité approuvée plutôt que la pression du demandeur ou l'intitulé de l'alerte. Réévaluer la priorité lorsque le périmètre s'élargit, qu'un contournement échoue, que la fenêtre de restauration se réduit ou qu'une donnée sensible est impliquée. Toute baisse de priorité doit avoir une justification vérifiable et ne doit pas servir à améliorer artificiellement les indicateurs.
 
-**Preuves et interprétation.** Le périmètre touché, les fonctions métier affectées et la durée tolérée soutiennent une priorité défendable. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Une priorité incorrecte produit une mauvaise allocation de ressources et peut retarder un incident réellement majeur. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Distinguer les délais d'accusé de réception, d'acceptation du ticket, de mise à jour et de restauration. Un système peut avoir envoyé une notification sans qu'une personne se soit engagée. Le dossier doit exposer les horodatages, le propriétaire actuel, le délai restant et l'heure du prochain point. Les délais applicables sont ceux du contrat et des procédures locales.
 ### 6. Transfert de contexte
 
-La qualité de l'escalade dépend de la continuité de l'information et de la disponibilité de la personne qui connaît le cas. Fournir un résumé, les hypothèses testées, les observations, les accès requis, le risque et la prochaine action suggérée.
+Transmettre une histoire exploitable plutôt qu'un amas de journaux. Le résumé indique le symptôme, la portée, le début estimé, l'état actuel, l'impact et la décision attendue. La chronologie sépare les faits horodatés des hypothèses. Les tests précisent la cible, la méthode, le résultat et la limite de la mesure. Un test impossible à reproduire apporte peu de valeur au prochain niveau.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de l'escalade (n1/n2/n3), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Inclure les identifiants d'actifs et tickets liés, la version des composants, le site, les dépendances, les changements récents, les restrictions d'accès et les étapes déjà effectuées. Fournir les extraits utiles et l'emplacement autorisé des journaux; ne pas diffuser des secrets, des jetons, des données personnelles non nécessaires ou des captures excessives.
 
-**Preuves et interprétation.** Un transfert est achevé lorsque le destinataire accepte la prise en charge et que le demandeur sait qui suit le dossier. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Envoyer un ticket dans une file sans accusé de réception ne constitue pas une prise en charge effective. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Le changement d'assignation dans l'outil ne signifie pas qu'une personne a accepté le dossier. Obtenir un accusé de prise en charge selon la priorité. Jusqu'à cette confirmation, le propriétaire actuel surveille le délai, reste joignable et applique la chaîne de secours si nécessaire. À une passation entre rotations, préciser l'action en cours, le prochain jalon, les risques, les contacts mobilisés et l'heure de mise à jour suivante.
 ### 7. Communication avec l'utilisateur
 
-Le message doit expliquer ce qui est connu, ce qui reste incertain, la prochaine mise à jour et les précautions à prendre. Nommer un responsable de communication pendant un incident majeur et harmoniser les mises à jour avec le dossier technique.
+Une mise à jour utile décrit ce qui est connu, ce qui est en cours, les conséquences pratiques, le contournement vérifié s'il existe, l'heure du prochain point et le canal à utiliser. Éviter d'affirmer une cause avant confirmation ou de promettre une heure de rétablissement qui ne repose sur aucune estimation crédible.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de l'escalade (n1/n2/n3), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Adapter le niveau de détail au public. L'utilisateur a besoin des effets sur son travail; l'équipe métier peut devoir choisir entre plusieurs options; le support technique requiert les résultats précis; le responsable de service doit comprendre l'impact, les risques et les décisions attendues. Les informations doivent rester cohérentes et s'appuyer sur un journal de référence. Lors d'un incident majeur, désigner la personne qui publie les mises à jour et centraliser les messages.
 
-**Preuves et interprétation.** Les heures de communication et les engagements annoncés rendent le suivi mesurable. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Promettre une heure de résolution sans preuve crée une attente irréaliste ; annoncer un délai de prochaine mise à jour est souvent plus fiable. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Respecter la cadence définie même si l'analyse n'a pas changé. Une communication peut signaler qu'un expert a accepté l'incident, que le périmètre reste identique et qu'une prochaine mise à jour est planifiée. Pour une suspicion de fuite, un incident de sécurité ou des données sensibles, utiliser le canal autorisé et coordonner le message avec les responsables concernés.
 ### 8. Boucle d'apprentissage
 
-Les escalades récurrentes indiquent souvent un défaut de procédure, d'habilitation, de documentation ou de formation au premier niveau. Analyser les tickets retournés, les étapes qui manquent et les motifs d'escalade afin d'améliorer la connaissance du N1.
+La rapidité d'escalade ne suffit pas à mesurer la qualité. Un ticket transféré rapidement mais renvoyé trois fois, incomplet ou sans responsable actif constitue un coût pour le service. Mesurer le temps avant accusé de réception, l'acceptation effective, les transferts successifs, les demandes d'informations évitables, les décisions bloquées et le délai de restauration. Segmenter les résultats par priorité, catégorie, complexité et période de couverture.
 
-**Mise en œuvre.** Pour appliquer ce principe dans gestion de l'escalade (n1/n2/n3), commencer par fixer le périmètre et l'état attendu. Identifier ensuite la donnée qui permet d'observer le résultat, la personne autorisée à prendre la décision et le moment où le contrôle doit être réalisé. Le test doit être assez précis pour qu'un second technicien puisse le reproduire sans demander une explication orale complémentaire. Si plusieurs méthodes sont possibles, noter pourquoi la méthode retenue est la plus proportionnée au risque et au temps disponible.
+Après un incident significatif, reconstruire la chronologie à partir des preuves, puis examiner la détection, les contrôles réalisés, les temps d'attente, la qualité de la passation et les communications. Distinguer la correction immédiate des actions structurelles telles que l'amélioration d'une alerte, la mise à jour d'une procédure, l'ajout d'un accès de diagnostic ou la clarification de la matrice de routage.
 
-**Preuves et interprétation.** Une base de connaissances versionnée, des sessions de retour d'expérience et des mesures de récurrence prouvent l'amélioration. L'intervenant doit garder la source, l'heure, le résultat, le contexte et la limite éventuelle de l'observation. Une preuve isolée n'a parfois qu'une valeur indicative ; elle doit alors être croisée avec un autre signal indépendant. Les données manquantes ne doivent pas être remplacées par une supposition. Lorsqu'une mesure est indirecte, préciser ce qu'elle démontre réellement et ce qu'elle ne démontre pas.
-
-**Pièges et décision.** Mesurer uniquement le nombre d'escalades peut pousser à retenir abusivement les incidents au mauvais niveau. En cas d'écart, classer le résultat comme confirmé, probable ou inconnu et déterminer la prochaine action. Ne pas masquer un résultat défavorable par une moyenne, une fermeture de ticket ou un changement de catégorie. Si le risque dépasse l'autorité de l'intervenant, conserver les preuves et escalader plutôt que poursuivre sur la base d'une hypothèse fragile.
-
+Chaque action d'amélioration doit avoir un responsable, une échéance, un critère de fin et, si possible, une mesure de résultat. Chercher les conditions qui ont favorisé l'erreur plutôt que de réduire la revue à une faute individuelle. Une nouvelle procédure n'est fiable qu'après relecture, test adapté et publication contrôlée; la connaissance utile doit ensuite être intégrée à la base de solutions et à la formation des équipes.
 ## Méthode transversale pour une opération maîtrisée
 
 ### 1. Gouvernance
@@ -320,6 +296,185 @@ date -u '+%Y-%m-%dT%H:%M:%SZ'
 ```
 
 Interpréter la sortie avec le contexte de l'intervention. Un retour nul ne démontre pas toujours que la fonction métier est opérationnelle. Relever les erreurs, vérifier l'heure des journaux et comparer les observations avec une seconde source lorsque l'impact le justifie. Ne pas intégrer un résultat de terminal dans un rapport sans préciser la machine, la période et la commande effectivement exécutée.
+
+
+## Outils concrets pour organiser une escalade
+
+### Matrice de responsabilités N1/N2/N3
+
+Les niveaux décrivent une distribution des capacités, non une hiérarchie universelle de mérite. Chaque organisation doit préciser qui diagnostique, qui peut modifier la production, qui approuve le risque et qui assure la communication. Ce tableau est un modèle à adapter avec les équipes de support, les propriétaires de services et les responsables sécurité.
+
+| Activité | N1 — support initial | N2 — expertise de service | N3 — expertise avancée |
+|---|---|---|---|
+| Prise en charge | Enregistrer, qualifier, traiter les cas connus | Reprendre et approfondir le diagnostic | Accepter les problèmes spécialisés |
+| Collecte | Symptômes, heure, portée, contrôles standards | Journaux ciblés, corrélations, dépendances | Traces avancées, défauts complexes |
+| Actions | Procédures documentées et autorisées | Actions de service prévues par les règles locales | Corrections spécialisées selon gouvernance |
+| Décisions risquées | Suspendre et transmettre | Recommander et demander l'autorisation | Fournir l'expertise; l'approbation dépend toujours du mandat |
+| Sortie | Résolution vérifiée ou transfert accepté | Diagnostic documenté, résolution ou escalade | Correction, mitigation, explication et retour d'expérience |
+
+Un incident critique peut mobiliser immédiatement le N2 ou le N3 sans traverser chaque niveau artificiellement. À l'inverse, un incident standard connu doit pouvoir être résolu par le N1 si les critères de réussite sont démontrés. Les autorisations, les risques et les règles de sécurité priment sur cette matrice simplifiée.
+
+### Arbre de décision selon impact, risque et compétence
+
+~~~mermaid
+flowchart TD
+    A[Incident signalé] --> B[Évaluer impact et urgence]
+    B --> C{Risque critique ou périmètre majeur ?}
+    C -- Oui --> D[Activer réponse prioritaire et notifier]
+    C -- Non --> E[Contrôles standards autorisés]
+    E --> F{Cas connu et résultat validé ?}
+    F -- Oui --> G[Résoudre, prouver et informer]
+    F -- Non --> H{Compétence et autorité disponibles ?}
+    H -- Oui --> I[Continuer le diagnostic autorisé]
+    H -- Non --> J[Escalade fonctionnelle]
+    D --> K[Nommer le responsable d'incident]
+    J --> L{Prise en charge acceptée ?}
+    L -- Non --> M[Relance et chaîne de secours]
+    L -- Oui --> N[Transmettre le contexte]
+    I --> O{Seuil de blocage atteint ?}
+    O -- Oui --> J
+    O -- Non --> F
+~~~
+
+### Fiche de transfert prête à copier
+
+Le transfert doit rester compréhensible même quand le destinataire n'a pas accès à la conversation initiale. Utiliser le ticket comme source de référence et ne pas copier de mot de passe, jeton, clé privée, donnée personnelle inutile ou information confidentielle dans un canal non maîtrisé.
+
+~~~text
+IDENTIFIANT DU TICKET / INCIDENT :
+SERVICE, SITE ET ACTIFS TOUCHÉS :
+PRIORITÉ ET JUSTIFICATION :
+SYMPTÔME OBSERVABLE :
+DÉBUT ESTIMÉ / PREMIÈRE DÉTECTION :
+IMPACT MÉTIER ET PÉRIMÈTRE CONFIRMÉ :
+ÉTAT ACTUEL ET CONTOURNEMENT :
+CHRONOLOGIE DES ÉVÉNEMENTS :
+FAITS CONFIRMÉS :
+HYPOTHÈSES (NON CONFIRMÉES) :
+TESTS RÉALISÉS / CIBLE / RÉSULTAT :
+TESTS NON RÉALISÉS ET RAISON :
+CHANGEMENTS RÉCENTS CONNUS :
+PREUVES ET EMPLACEMENTS CONTRÔLÉS :
+RISQUES / ACTIONS À NE PAS EFFECTUER :
+DÉCISION OU EXPERTISE DEMANDÉE :
+PROCHAINE ACTION ET HEURE LIMITE :
+PROPRIÉTAIRE ACTUEL / DESTINATAIRE :
+ACCEPTATION DU TRANSFERT / HEURE :
+PROCHAIN POINT DE COMMUNICATION :
+~~~
+
+**Exemple rédigé.** « Depuis 10 h 20, environ 30 utilisateurs du bâtiment B ne peuvent plus ouvrir l'application RH. La résolution du nom fonctionne depuis deux postes de test; l'établissement de la session échoue ensuite avec le message joint au ticket. Aucun changement applicatif n'est confirmé à ce stade. Le N1 a reproduit le défaut depuis deux postes du même site et vérifié que les utilisateurs du site A accèdent encore au service. Les utilisateurs du bâtiment B sont bloqués; aucune donnée perdue n'est confirmée. Le N2 identité est sollicité pour corréler l'authentification et examiner les journaux entre 10 h 15 et 10 h 30. Ne pas réinitialiser massivement les comptes sans validation. Merci de confirmer la prise en charge et le prochain point de situation avant 10 h 45. » Les heures sont fictives et illustrent seulement la structure d'un transfert.
+
+### Routage, accusé de réception et escalade automatique
+
+Le routage choisit un destinataire; l'acceptation confirme qu'une personne prend effectivement le dossier. Une règle d'assignation correcte n'aide pas si l'équipe est indisponible, si l'alerte a été noyée ou si le système ne connaît aucun remplaçant. Pour chaque file critique, documenter le canal principal, le contact d'astreinte, les conditions de relance, le délai d'attente et la solution de secours.
+
+~~~mermaid
+sequenceDiagram
+    participant N1
+    participant ITSM as Outil de tickets
+    participant N2
+    participant Backup as Astreinte de secours
+    N1->>ITSM: Transfert avec preuves et question
+    ITSM->>N2: Notification et horodatage
+    alt Prise en charge dans le délai
+        N2-->>ITSM: Acceptation et prochaine action
+        ITSM-->>N1: Propriétaire confirmé
+    else Pas d'accusé
+        ITSM->>N2: Relance selon la règle
+        ITSM->>Backup: Activation de la chaîne de secours
+        Backup-->>ITSM: Acceptation ou escalade suivante
+        ITSM-->>N1: État de la prise en charge
+    end
+~~~
+
+Les délais de relance doivent être définis selon la priorité, les heures de couverture et les engagements du service. Ne pas inventer une règle générale telle que « toujours attendre quinze minutes » : certains événements exigent une notification immédiate, d'autres peuvent attendre la file standard. Tester les automatismes et s'assurer qu'ils n'envoient pas d'informations sensibles dans des canaux non autorisés.
+
+### Escalade pendant un incident majeur
+
+Lorsque plusieurs équipes travaillent en parallèle, un simple échange N1/N2/N3 ne suffit plus. Désigner un responsable de coordination, un pilote technique, une personne chargée des communications et, si nécessaire, un rédacteur de chronologie. Lors d'un incident limité, une personne peut cumuler certains rôles; lors d'un incident majeur, les séparer permet à l'expert de se concentrer sur l'analyse au lieu de traiter toutes les demandes de statut.
+
+~~~mermaid
+flowchart LR
+    A[Qualification et confirmation d'impact] --> B[Responsable de coordination]
+    B --> C[Plan d'actions et ordre de priorité]
+    C --> D[Équipes techniques en parallèle]
+    D --> E[Journal commun des décisions]
+    E --> F[Communications vers les publics concernés]
+    D --> G[Contrôles de restauration]
+    G --> H{Service stable selon les critères ?}
+    H -- Non --> C
+    H -- Oui --> I[Confirmer la reprise et surveiller]
+    I --> J[Revue et actions suivies]
+~~~
+
+Chaque action parallèle doit avoir un objectif, un propriétaire, un délai, un risque et un résultat observé. Coordonner les modifications qui peuvent se contredire. Une restauration ne doit pas être annoncée après un seul test positif si la supervision reste dégradée ou si un groupe d'utilisateurs est encore affecté.
+
+### Arbre de secours si le N2 ou le N3 ne répond pas
+
+Une absence de réponse peut venir d'une panne de canal, d'un mauvais routage, d'une surcharge ou d'une indisponibilité réelle. Vérifier le canal et le destinataire prévus, effectuer la relance autorisée, puis suivre la chaîne de remplacement correspondant à la priorité.
+
+~~~mermaid
+flowchart TD
+    A[Escalade envoyée] --> B{Accusé reçu dans le délai ?}
+    B -- Oui --> C[Transfert accepté]
+    B -- Non --> D[Confirmer le canal et le contact]
+    D --> E[Relance prévue]
+    E --> F{Réponse après relance ?}
+    F -- Oui --> C
+    F -- Non --> G[Contacter l'astreinte de remplacement]
+    G --> H{Expert disponible ?}
+    H -- Oui --> I[Transmettre le dossier et le risque]
+    H -- Non --> J[Appliquer les mesures conservatoires autorisées]
+    J --> K[Notifier le responsable d'incident]
+    I --> L[Enregistrer l'acceptation et le prochain jalon]
+    K --> L
+~~~
+
+Les mesures conservatoires ne sont pas des diagnostics improvisés. Elles peuvent être la suspension d'un déploiement, l'isolation d'un actif selon la procédure sécurité, la préservation des journaux ou la communication d'un contournement approuvé. L'action exacte doit être documentée pour le service. Si aucune mesure n'est autorisée, maintenir l'arrêt, protéger les preuves et signaler l'absence d'expertise au responsable prévu.
+
+### Mesures de performance de l'escalade
+
+Définir les métriques avant de les comparer. Le temps avant accusé de réception, le délai jusqu'à acceptation effective et le délai de résolution ne mesurent pas la même chose. Le temps de résolution ne doit pas être attribué exclusivement au niveau qui ferme le ticket lorsque plusieurs équipes sont intervenues.
+
+| Indicateur | Ce qu'il révèle | Piège à éviter |
+|---|---|---|
+| Temps avant prise en charge | Disponibilité réelle du niveau cible | Confondre assignation automatique et acceptation |
+| Taux de retour au niveau précédent | Qualité du contexte et adéquation du routage | Blâmer le N1 si la matrice est obsolète |
+| Nombre de transferts | Friction ou diagnostic incertain | Assimiler tout transfert à un échec |
+| Tickets incomplets | Besoin de formation ou de formulaires mieux conçus | Ajouter des champs sans améliorer leur utilité |
+| Délai entre mises à jour | Qualité de communication pendant l'attente | Compter un message vide comme une information utile |
+| Récurrence | Besoin d'une correction structurelle | Clore l'action sans mesurer son effet |
+
+Analyser les résultats par priorité, catégorie, complexité et période de couverture. Une équipe qui reçoit des incidents complexes peut avoir un délai moyen plus long tout en fournissant des transferts de meilleure qualité. Examiner les distributions, les cas extrêmes et les dépendances fournisseurs. Les métriques servent à améliorer le processus, pas à décourager une escalade justifiée ou à pousser une équipe à accepter un ticket qu'elle ne peut pas traiter.
+
+### Du ticket à l'amélioration vérifiable
+
+La clôture du ticket ne clôt pas nécessairement le travail de prévention. Pour les incidents significatifs ou récurrents, décider si une revue est nécessaire, rassembler la chronologie, distinguer les causes confirmées des hypothèses et créer des actions qui ont un responsable. Le compte rendu doit porter sur les événements, les décisions, les contraintes et les possibilités d'amélioration, non sur la recherche d'un coupable.
+
+~~~mermaid
+flowchart TD
+    A[Incident stabilisé] --> B[Réunir chronologie et preuves]
+    B --> C[Identifier retards et décisions utiles]
+    C --> D[Choisir les améliorations prioritaires]
+    D --> E[Attribuer responsable et échéance]
+    E --> F[Mettre à jour procédure, alerte ou formation]
+    F --> G[Test de l'amélioration]
+    G --> H{Effet mesurable ?}
+    H -- Non --> C
+    H -- Oui --> I[Partager le retour d'expérience]
+~~~
+
+Une action telle que « mieux communiquer » n'est pas assez précise. Une action plus utile pourrait être « ajouter au modèle de ticket un champ de prochaine mise à jour et vérifier sa présence pendant l'audit mensuel ». Le critère de fin permet de confirmer que la correction a été publiée et utilisée. Les incidents similaires doivent ensuite être comparés pour voir si les retards ou les transferts évitables diminuent.
+
+### Références de pratique et approfondissement
+
+- **Google SRE — Incident Management Guide.** Présente une organisation autour de la coordination, de la communication et du contrôle, avec des rôles explicites et une revue qui cherche à améliorer les systèmes et processus. [Guide officiel](https://sre.google/resources/practices-and-processes/incident-management-guide/).
+- **Google SRE — Being On-Call.** Souligne l'utilité de chemins d'escalade clairs, de procédures connues et d'une revue après incident centrée sur les événements et les conditions de travail. [Chapitre officiel](https://sre.google/sre-book/being-on-call/).
+- **Microsoft Learn — Incident management practice.** Décrit la préparation, les rôles, la sévérité, les voies d'escalade et l'amélioration après incident. [Documentation officielle](https://learn.microsoft.com/en-us/azure/well-architected/design-guides/incident-management).
+- **ITIL 4 — Incident Management.** Présente la pratique de gestion des incidents et sa place dans le management des services. [PeopleCert](https://www.peoplecert.org/browse-certifications/it-governance-and-service-management/ITIL-1/itil4-practices-incident-management-3684).
+
+Ces références ne fixent pas automatiquement les délais ou les rôles de votre service. Il faut les adapter à la taille de l'équipe, aux heures de couverture, aux contrats, aux exigences de sécurité et aux contraintes opérationnelles.
 
 ## Atelier pratique guidé
 
