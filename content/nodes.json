@@ -8239,7 +8239,7 @@
     "title": "Retour d'expérience (RETEX)",
     "category": "RETEX",
     "order": 4339,
-    "description": "Retour d'expérience (RETEX)",
+    "description": "RETEX : capitalisation et amélioration continue, avec analyse causale, actions mesurables et suivi de leur efficacité.",
     "prereqs": [
       "maint-strategie-expert"
     ],
@@ -8248,7 +8248,8 @@
         "kind": "quiz",
         "min_score": 85
       }
-    ]
+    ],
+    "lesson_source_id": "maint-retex-expert"
   },
   {
     "id": "maint-retex-expert",
