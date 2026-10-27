@@ -1234,6 +1234,8 @@ Un dossier ne peut être considéré comme maîtrisé s'il efface une incertitud
 
 ## 19. Ressources techniques et références
 
+- [IEC 62740:2015 — Root cause analysis (RCA)](https://webstore.iec.ch/en/publication/21810) : décrit les principes et les étapes d'une analyse des causes racines ainsi que les forces et limites des techniques disponibles. L'IEC précise que ces techniques ne sont pas conçues pour attribuer une responsabilité ou une faute ; elles soutiennent l'analyse des facteurs contributifs sans remplacer les procédures d'enquête ou les obligations sectorielles applicables.
+
 Ces ressources proposent des méthodes de RETEX et d'apprentissage après incident. Elles n'ont pas toutes la même portée. Vérifier l'édition, le secteur, les obligations locales et les conditions d'application avant de les utiliser comme critères formels.
 
 - [Google SRE Workbook — Postmortem Practices for Incident Management](https://sre.google/workbook/postmortem-culture/) : structure de compte rendu, culture d'apprentissage, éléments quantifiables, actions concrètes, diffusion et suivi.
