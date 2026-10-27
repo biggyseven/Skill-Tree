@@ -245,3 +245,25 @@ Une PME possède 220 postes, 18 serveurs, 35 équipements réseau et plusieurs i
 6. Mesurer les écarts restants et assigner un responsable à chaque correction.
 
 Le résultat n'est pas simplement un inventaire rempli. Il doit permettre au support d'identifier le bon appareil, à la sécurité de comprendre le périmètre, aux achats de planifier les renouvellements et à la maintenance de relier chaque intervention à un actif réel.
+
+
+## 15. Mettre en place une gouvernance d'inventaire
+
+L'inventaire doit avoir un propriétaire, des règles et une fréquence de revue. Sans gouvernance, les équipes ajoutent des champs et des statuts différents, les rapports deviennent incomparables et les intégrations se contredisent. Une courte politique d'inventaire doit définir la source de vérité selon le champ, la validation des changements sensibles, les statuts possibles, les champs obligatoires, les conventions de nommage, les droits d'export et les délais de correction des écarts.
+
+Une source unique ne signifie pas nécessairement un seul outil. Le registre d'achat peut être la source d'autorité pour le coût et la date d'acquisition, l'outil d'inventaire pour la configuration technique, le helpdesk pour les interventions, et un référentiel d'identité pour le propriétaire ou l'affectation. Le processus de rapprochement explique comment ces systèmes contribuent à la même fiche et quelle valeur gagne en cas de conflit.
+
+~~~mermaid
+flowchart LR
+    A[Achats et contrats] --> D[Rapprochement contrôlé]
+    B[Agents et découverte] --> D
+    C[Helpdesk et affectation] --> D
+    D --> E[Inventaire validé]
+    E --> F[Rapports et décisions]
+    F --> G[Correction des écarts]
+    G --> D
+~~~
+
+Définis des règles de contrôle simples : toute fiche d'actif en production doit avoir un propriétaire ou une file de régularisation, un statut valide et une date de dernière revue ; tout équipement critique sans remontée depuis une durée définie doit être examiné ; toute modification de propriétaire ou de statut doit être traçable. Les seuils sont adaptés au cycle de vie du matériel, à la fréquence de remontée et à l'architecture.
+
+La mesure de qualité doit expliquer la limite. Un taux de complétude de 98 % peut masquer les deux pour cent d'actifs les plus critiques. Complète les taux globaux par les exceptions critiques, les conflits d'identifiants et les actifs sans propriétaire. Pour chaque écart, précise la personne chargée de le corriger et la date de décision.
