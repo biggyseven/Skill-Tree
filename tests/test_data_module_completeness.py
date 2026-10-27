@@ -14,7 +14,7 @@ class DataModuleResourceCompletenessTests(unittest.TestCase):
         cls.data_nodes = [node for node in cls.nodes if node.get("module") == "Data & Bases de données"]
 
     def test_all_data_module_courses_have_complete_lesson_and_quiz_resources(self):
-        self.assertEqual(len(self.data_nodes), 18, "Le module Data doit conserver ses 18 nœuds catalogués.")
+        self.assertEqual(len(self.data_nodes), 20, "Le lot Data courant doit conserver les 20 nœuds catalogués.")
         for node in self.data_nodes:
             node_id = node["id"]
             lesson = CONTENT / "lessons" / f"{node_id}.md"
