@@ -52,6 +52,8 @@ async function main() {
         await page.goto(BASE_URL + '/lab.html?demo=1&visual_probe=' + Date.now(), { waitUntil: 'domcontentloaded', timeout: 45000 });
         await page.getByText('Démo', { exact: true }).first().waitFor({ state: 'visible', timeout: 30000 });
         const equipmentCount = await page.locator('[data-testid^="equipment-model-"]').count();
+        // The cable palette is mounted lazily only after its tab is selected.
+        await page.getByRole('tab', { name: /Câbles/ }).click();
         const cableCount = await page.locator('[data-testid^="cable-item-"]').count();
         if (hasResponsiveHeader && equipmentCount >= 20 && cableCount >= 11) {
           report.checks.liveFixReady = { responsiveHeader: true, equipmentModels: equipmentCount, cableItems: cableCount };
