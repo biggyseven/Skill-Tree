@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 import tempfile
 import unittest
@@ -132,6 +133,24 @@ class LabTopologyPersistenceTests(unittest.TestCase):
         with self.assertRaises(HTTPException) as raised:
             self._load("lab-without-save")
         self.assertEqual(raised.exception.status_code, 404)
+
+    def test_render_refuses_to_claim_success_when_only_sqlite_is_available(self) -> None:
+        # Une base SQLite locale ne doit pas être présentée comme un stockage durable sur Render.
+        with patch.dict(
+            os.environ,
+            {
+                "RENDER_SERVICE_ID": "srv-test",
+                "DATABASE_URL": "",
+                "SKILLTREE_DATABASE_URL": "",
+            },
+        ):
+            with self.assertRaises(HTTPException) as raised:
+                self._save("lab-render-no-postgres", self._topology())
+
+        self.assertEqual(raised.exception.status_code, 503)
+        self.assertIn("PostgreSQL/Neon", raised.exception.detail)
+        with sqlite3.connect(self.db_path) as conn:
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM topologies").fetchone()[0], 0)
 
     def test_corrupt_or_invalid_saved_snapshot_returns_server_error(self) -> None:
         valid_json_but_invalid_topology = json.dumps(

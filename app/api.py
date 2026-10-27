@@ -1020,6 +1020,16 @@ def save_lab_topology_v2(lab_id: str, payload: dict[str, Any] = Body(...)) -> di
     updated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     conn = connect(DB_PATH)
     try:
+        # Render ne doit jamais annoncer une sauvegarde dans le disque SQLite éphémère.
+        if os.environ.get("RENDER_SERVICE_ID") and not getattr(conn, "is_postgres", False):
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Stockage durable indisponible : ce service Render n'utilise pas "
+                    "PostgreSQL/Neon. La sauvegarde n'a pas été enregistrée."
+                ),
+            )
+
         columns = {row["name"] for row in conn.execute('PRAGMA table_info("topologies")')}
         if not {"id", "name", "data", "updated_at"}.issubset(columns):
             raise HTTPException(status_code=503, detail="La table topologies est absente ou incompatible.")
@@ -1040,6 +1050,20 @@ def save_lab_topology_v2(lab_id: str, payload: dict[str, Any] = Body(...)) -> di
                 (name, serialized, updated_at),
             )
         conn.commit()
+
+        # Ne confirmer le succès qu'après avoir relu la valeur persistée.
+        persisted = conn.execute(
+            "SELECT data, updated_at FROM topologies WHERE name = ? "
+            "ORDER BY updated_at DESC, id DESC LIMIT 1",
+            (name,),
+        ).fetchone()
+        if persisted is None or persisted["data"] != serialized:
+            raise HTTPException(
+                status_code=500,
+                detail="La base n'a pas confirmé la topologie après l'enregistrement.",
+            )
+        updated_at = str(persisted["updated_at"])
+        storage_backend = "postgresql" if getattr(conn, "is_postgres", False) else "sqlite"
     except HTTPException:
         conn.rollback()
         raise
@@ -1049,7 +1073,13 @@ def save_lab_topology_v2(lab_id: str, payload: dict[str, Any] = Body(...)) -> di
     finally:
         conn.close()
 
-    return {"success": True, "lab_id": lab_id, "name": name, "updated_at": updated_at}
+    return {
+        "success": True,
+        "lab_id": lab_id,
+        "name": name,
+        "updated_at": updated_at,
+        "storage_backend": storage_backend,
+    }
 
 
 @app.get("/api/lab/v2/{lab_id}/load")
@@ -1058,6 +1088,15 @@ def load_lab_topology_v2(lab_id: str) -> dict[str, Any]:
     name = f"lab_{lab_id}"
     conn = connect(DB_PATH)
     try:
+        if os.environ.get("RENDER_SERVICE_ID") and not getattr(conn, "is_postgres", False):
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Stockage durable indisponible : ce service Render n'utilise pas "
+                    "PostgreSQL/Neon. La topologie sauvegardée ne peut pas être chargée."
+                ),
+            )
+
         columns = {row["name"] for row in conn.execute('PRAGMA table_info("topologies")')}
         if not {"id", "name", "data", "updated_at"}.issubset(columns):
             raise HTTPException(status_code=503, detail="La table topologies est absente ou incompatible.")
