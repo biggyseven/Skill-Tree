@@ -3511,15 +3511,46 @@
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
 
-        get lessonSequence() {
+        // La séquence du lecteur est limitée au module du cours ouvert.
+        // Le champ order est local au module : plusieurs modules peuvent partager la même valeur.
+        get lessonNavigationModule() {
+          if (this.detail) return this.moduleOf(this.detail);
+          return this.moduleFilter && this.moduleFilter !== 'all' ? this.moduleFilter : null;
+        },
+        orderedModuleLessons(moduleId) {
           const nodes = Array.isArray(this.nodes) ? this.nodes : [];
+          if (!moduleId || moduleId === 'all') return [];
           return nodes
+            .filter(node => this.moduleOf(node) === moduleId)
             .map((node, index) => {
               const rawOrder = node.order ?? node.sort_order;
               const order = rawOrder === null || rawOrder === undefined || rawOrder === '' ? Number.NaN : Number(rawOrder);
               return { node, index, order };
             })
             .sort((a, b) => {
+              const aHasOrder = Number.isFinite(a.order);
+              const bHasOrder = Number.isFinite(b.order);
+              if (aHasOrder && bHasOrder && a.order !== b.order) return a.order - b.order;
+              if (aHasOrder !== bHasOrder) return aHasOrder ? -1 : 1;
+              return a.index - b.index;
+            })
+            .map(item => item.node);
+        },
+        get lessonSequence() {
+          const nodes = Array.isArray(this.nodes) ? this.nodes : [];
+          const activeModule = this.lessonNavigationModule;
+          if (activeModule) return this.orderedModuleLessons(activeModule);
+
+          // Sans module sélectionné, regrouper les cours par ordre des modules, puis par ordre local.
+          return nodes
+            .map((node, index) => {
+              const rawOrder = node.order ?? node.sort_order;
+              const order = rawOrder === null || rawOrder === undefined || rawOrder === '' ? Number.NaN : Number(rawOrder);
+              const modulePos = this.modules.findIndex(module => module.id === this.moduleOf(node));
+              return { node, index, order, moduleIndex: modulePos >= 0 ? modulePos : this.modules.length };
+            })
+            .sort((a, b) => {
+              if (a.moduleIndex !== b.moduleIndex) return a.moduleIndex - b.moduleIndex;
               const aHasOrder = Number.isFinite(a.order);
               const bHasOrder = Number.isFinite(b.order);
               if (aHasOrder && bHasOrder && a.order !== b.order) return a.order - b.order;
@@ -5373,7 +5404,7 @@
         },
         setModule(id) {
           this.moduleFilter = id;
-          const firstCourse = id === 'all' ? null : this.nodesIn(id)[0];
+          const firstCourse = id === 'all' ? null : this.orderedModuleLessons(id)[0];
           this.moduleNextCourseId = firstCourse && firstCourse.id ? firstCourse.id : null;
         },
         openLearningStep() {
