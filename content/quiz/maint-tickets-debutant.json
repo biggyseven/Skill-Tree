@@ -4,15 +4,123 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire : quel thème central devra être traité dans le cours « Gestion des tickets et du helpdesk » ?",
+      "prompt": "Un employé demande l'installation d'un logiciel approuvé qui n'est pas encore présent sur son poste. Quelle catégorie est généralement la plus adaptée ?",
       "choices": [
-        "Le sujet principal du cours : Gestion des tickets et du helpdesk",
-        "Un sujet sans rapport avec la maintenance",
-        "Une réponse non vérifiée",
-        "Aucune vérification n'est nécessaire"
+        "Problème",
+        "Incident critique",
+        "Demande de service",
+        "Changement d'urgence automatique"
+      ],
+      "answer": 2,
+      "explanation": "Une demande standard de service correspond à la fourniture d'un accès ou d'une prestation prévue. La classification exacte doit suivre les règles de l'organisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information rend le titre d'un ticket le plus utile ?",
+      "choices": [
+        "Un symptôme précis et compréhensible, sans supposer la cause",
+        "« Urgent !!! » quel que soit le cas",
+        "Le nom complet de toutes les personnes concernées",
+        "Une conclusion technique non vérifiée"
       ],
       "answer": 0,
-      "explanation": "Question provisoire à remplacer par une question pédagogique vérifiée lors de la rédaction du cours."
+      "explanation": "Un titre factuel facilite le tri et la recherche. La cause doit rester une hypothèse tant qu'elle n'est pas étayée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment déterminer la priorité d'un ticket ?",
+      "choices": [
+        "Selon l'ordre dans lequel les personnes se plaignent",
+        "En évaluant impact et urgence selon la matrice de l'organisation",
+        "Toujours choisir la priorité la plus élevée",
+        "Selon la facilité avec laquelle le technicien peut le fermer"
+      ],
+      "answer": 1,
+      "explanation": "La priorité suit la règle commune d'impact et d'urgence, en tenant compte des procédures particulières applicables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre un incident et un problème dans une démarche inspirée d'ITSM ?",
+      "choices": [
+        "Ce sont deux mots toujours parfaitement interchangeables",
+        "Un problème est toujours plus urgent qu'un incident",
+        "Un incident concerne uniquement le matériel",
+        "L'incident est une interruption ou dégradation ; le problème cherche la cause d'un ou plusieurs incidents"
+      ],
+      "answer": 3,
+      "explanation": "L'incident porte sur le rétablissement du service. Le problème vise à comprendre les causes réelles ou potentielles pour réduire les récurrences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ticket est en attente d'une réponse de l'utilisateur. Que faut-il faire ?",
+      "choices": [
+        "Le clôturer immédiatement pour respecter le SLA",
+        "Utiliser un statut exact, expliquer l'information attendue et suivre la procédure de relance",
+        "Effacer le ticket de la file",
+        "Modifier les heures pour raccourcir le délai"
+      ],
+      "answer": 1,
+      "explanation": "Le statut doit refléter la réalité et l'attente. La procédure doit préciser les relances et l'effet sur le calcul des délais."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une escalade technique de bonne qualité ?",
+      "choices": [
+        "Seulement le message « ça ne marche pas »",
+        "Une capture d'écran non masquée contenant toutes les données disponibles",
+        "Le symptôme, l'impact, les tests et résultats, les hypothèses et les points restant à vérifier",
+        "Une cause définitive même si elle n'a pas été confirmée"
+      ],
+      "answer": 2,
+      "explanation": "L'équipe suivante doit pouvoir reprendre les vérifications sans recommencer toute la collecte ni être induite en erreur par une conclusion non prouvée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un utilisateur exige la priorité maximale, mais seule sa propre machine est touchée et un contournement existe. Quelle est la bonne conduite ?",
+      "choices": [
+        "Appliquer les critères d'impact et d'urgence, puis expliquer la priorité retenue",
+        "Accorder automatiquement la priorité maximale",
+        "Ignorer la demande sans créer de ticket",
+        "Fermer le ticket car l'utilisateur insiste"
+      ],
+      "answer": 0,
+      "explanation": "La priorité doit rester cohérente et équitable. Si un fait nouveau modifie l'impact, elle peut être réévaluée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information ne doit pas être publiée en clair dans un ticket partagé ?",
+      "choices": [
+        "L'heure de début de l'incident",
+        "Le message d'erreur après assainissement",
+        "Le résultat d'un test non sensible",
+        "Un mot de passe ou un jeton d'accès"
+      ],
+      "answer": 3,
+      "explanation": "Les secrets d'authentification ne doivent pas être consignés dans un ticket. Il faut utiliser les canaux et méthodes approuvés pour les informations sensibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert une base de connaissances du helpdesk ?",
+      "choices": [
+        "À publier toutes les hypothèses avant vérification",
+        "À partager des procédures vérifiées, compréhensibles, sûres et maintenues",
+        "À remplacer tous les tickets",
+        "À empêcher l'escalade même quand elle est nécessaire"
+      ],
+      "answer": 1,
+      "explanation": "Les articles fiables capitalisent des solutions reproductibles avec leurs conditions d'application, leurs risques et la vérification du résultat."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas utiliser uniquement le temps moyen de résolution pour juger le helpdesk ?",
+      "choices": [
+        "Parce qu'aucun indicateur de délai n'est jamais utile",
+        "Parce que le temps moyen mesure directement toute la satisfaction",
+        "Parce qu'il ne renseigne pas seul sur la qualité, les réouvertures, l'impact ni l'expérience utilisateur",
+        "Parce qu'il doit toujours être remplacé par le nombre de tickets fermés"
+      ],
+      "answer": 2,
+      "explanation": "Il faut croiser plusieurs indicateurs et vérifier la qualité des données. Une moyenne ne décrit pas la distribution des délais ni la qualité de la résolution."
     }
   ]
 }
