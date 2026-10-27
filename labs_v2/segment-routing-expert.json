@@ -1,0 +1,302 @@
+{
+  "schema_version": 2,
+  "id": "segment-routing-expert",
+  "title": "Segment Routing expert — SR Policy et chemins candidats",
+  "level": "expert",
+  "module": "Administration Réseaux",
+  "prompt": "Créez une SR Policy pour le trafic de couleur 100 vers R3. Définissez son endpoint, une Binding SID, un chemin explicite avec des segments précis, TI-LFA et Flexible Algorithm pour la sélection de chemins.",
+  "objectives": [
+    "Définir le mode SR Policy et le color.",
+    "Renseigner l’endpoint de destination.",
+    "Créer une Binding SID unique.",
+    "Définir les SID du chemin candidat explicite.",
+    "Activer TI-LFA, Flex-Algo et l’évitement de microboucles."
+  ],
+  "hints": [
+    "Le Binding SID sert de point d’entrée stable vers une policy.",
+    "Les SID imposent un chemin déterministe si le candidat explicite est sélectionné.",
+    "TI-LFA et l’évitement de microboucles améliorent la convergence après panne."
+  ],
+  "duration_min": 40,
+  "difficulty": "expert",
+  "initial_topology": {
+    "schema_version": 2,
+    "topology_id": "topo-segment-routing-expert",
+    "metadata": {
+      "name": "Segment Routing expert — SR Policy, Binding SID et TI-LFA",
+      "author": "Skill-Tree",
+      "created_at": "2026-10-27T00:00:00Z",
+      "mode": "lab"
+    },
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 180,
+        "y": 220,
+        "label": "R1",
+        "model": "R1",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.31.12.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "routes": [
+            {
+              "protocol": "segment-routing",
+              "enabled": true,
+              "mode": "sr-policy",
+              "color": 100,
+              "endpoint": "10.31.0.3",
+              "binding_sid": 0,
+              "candidate_paths": [
+                {
+                  "type": "explicit",
+                  "preference": 100,
+                  "segments": []
+                }
+              ],
+              "ti_lfa": false,
+              "flex_algo": 0,
+              "microloop_avoidance": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 490,
+        "y": 220,
+        "label": "R2",
+        "model": "R2",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.31.12.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          },
+          {
+            "id": "Gi0/1",
+            "name": "Gi0/1",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.31.23.1",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "routes": [
+            {
+              "protocol": "segment-routing",
+              "enabled": true,
+              "mode": "sr-policy",
+              "color": 100,
+              "endpoint": "10.31.0.3",
+              "binding_sid": 16002,
+              "candidate_paths": [
+                {
+                  "type": "dynamic",
+                  "preference": 200,
+                  "segments": [
+                    16001,
+                    16003
+                  ]
+                }
+              ],
+              "ti_lfa": true,
+              "flex_algo": 128,
+              "microloop_avoidance": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "R3",
+        "type": "router",
+        "x": 800,
+        "y": 220,
+        "label": "R3",
+        "model": "R3",
+        "ports": [
+          {
+            "id": "Gi0/0",
+            "name": "Gi0/0",
+            "state": "up",
+            "speed": 1000,
+            "mac": "",
+            "mode": "routed",
+            "ip": "10.31.23.2",
+            "mask": "255.255.255.252",
+            "vlan": null,
+            "description": "",
+            "access_group_in": null,
+            "access_group_out": null
+          }
+        ],
+        "config": {
+          "hostname": "R3",
+          "routes": [
+            {
+              "protocol": "segment-routing",
+              "enabled": true,
+              "mode": "sr-policy",
+              "color": 100,
+              "endpoint": "10.31.0.3",
+              "binding_sid": 16003,
+              "ti_lfa": true,
+              "flex_algo": 128,
+              "microloop_avoidance": true
+            }
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "R1-R2",
+        "from": {
+          "node": "R1",
+          "port": "Gi0/0"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      },
+      {
+        "id": "R2-R3",
+        "from": {
+          "node": "R2",
+          "port": "Gi0/1"
+        },
+        "to": {
+          "node": "R3",
+          "port": "Gi0/0"
+        },
+        "cable_type": "fiber",
+        "state": "up",
+        "bandwidth": 1000,
+        "latency_ms": 1
+      }
+    ],
+    "simulation": {
+      "state": "idle",
+      "event_log": []
+    }
+  },
+  "check": {
+    "type": "config_assertions",
+    "pass_threshold": 1,
+    "rules": [
+      {
+        "id": "policy-mode",
+        "description": "R1 uses SR Policy mode.",
+        "device": "R1",
+        "path": "config.routes[0].mode",
+        "operator": "equals",
+        "expected": "sr-policy"
+      },
+      {
+        "id": "color",
+        "description": "The policy color matches the intended service.",
+        "device": "R1",
+        "path": "config.routes[0].color",
+        "operator": "equals",
+        "expected": 100
+      },
+      {
+        "id": "endpoint",
+        "description": "The policy endpoint is R3.",
+        "device": "R1",
+        "path": "config.routes[0].endpoint",
+        "operator": "equals",
+        "expected": "10.31.0.3"
+      },
+      {
+        "id": "binding-sid",
+        "description": "The policy has a Binding SID.",
+        "device": "R1",
+        "path": "config.routes[0].binding_sid",
+        "operator": "equals",
+        "expected": 16001
+      },
+      {
+        "id": "segment1",
+        "description": "The explicit candidate path starts with SID 16001.",
+        "device": "R1",
+        "path": "config.routes[0].candidate_paths[0].segments[0]",
+        "operator": "equals",
+        "expected": 16001
+      },
+      {
+        "id": "segment2",
+        "description": "The explicit candidate path includes SID 16002.",
+        "device": "R1",
+        "path": "config.routes[0].candidate_paths[0].segments[1]",
+        "operator": "equals",
+        "expected": 16002
+      },
+      {
+        "id": "ti-lfa",
+        "description": "TI-LFA protects against local link failures.",
+        "device": "R1",
+        "path": "config.routes[0].ti_lfa",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "id": "flex-algo",
+        "description": "Flexible Algorithm 128 is enabled.",
+        "device": "R1",
+        "path": "config.routes[0].flex_algo",
+        "operator": "equals",
+        "expected": 128
+      },
+      {
+        "id": "microloop",
+        "description": "Microloop avoidance is enabled.",
+        "device": "R1",
+        "path": "config.routes[0].microloop_avoidance",
+        "operator": "equals",
+        "expected": true
+      }
+    ],
+    "time_bonus": {}
+  },
+  "xp_reward": 45,
+  "badges": []
+}
