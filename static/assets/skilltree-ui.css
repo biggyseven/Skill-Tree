@@ -142,3 +142,60 @@ select:focus-visible, textarea:focus-visible, [role="button"]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .war-ticket-card, .lab-catalog-card { transition-duration: .01ms !important; }
 }
+
+
+/* Phase 4 — écrans d’apprentissage : examens, révisions, diagnostic et récompenses. */
+.learning-section-header { display:flex; flex-direction:column; gap:.35rem; }
+.learning-panel { border-color:var(--st-border, rgb(var(--w) / .10)); border-radius:var(--st-radius-xl, 1.15rem); box-shadow:var(--st-surface-shadow, 0 10px 28px -22px rgb(0 0 0 / .72)); }
+.learning-panel-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem; }
+.learning-stat-card {
+  display:flex; align-items:center; gap:.85rem; min-width:0; min-height:82px; padding:1rem;
+  border:1px solid var(--st-border, rgb(var(--w) / .10)); border-radius:var(--st-radius-lg, .95rem);
+  background:color-mix(in srgb, var(--s1) 94%, transparent); box-shadow:var(--st-surface-shadow, 0 10px 28px -22px rgb(0 0 0 / .72));
+}
+.learning-stat-icon { display:flex; width:2.5rem; height:2.5rem; flex:0 0 auto; align-items:center; justify-content:center; border:1px solid rgb(var(--cyan-400) / .16); border-radius:.85rem; background:rgb(var(--cyan-400) / .07); font-size:1.15rem; }
+.learning-stat-label { color:rgb(var(--z-500)); font-size:.66rem; font-weight:700; letter-spacing:.11em; line-height:1.3; text-transform:uppercase; }
+.learning-stat-value { margin-top:.3rem; color:rgb(var(--z-50)); font-size:1.55rem; font-weight:750; line-height:1.1; font-variant-numeric:tabular-nums; }
+.learning-stat-unit { margin-left:.15rem; color:rgb(var(--z-400)); font-size:.9rem; font-weight:600; }
+.learning-alert { overflow-wrap:anywhere; }
+.exam-option-card { min-height:8.5rem; }
+#exam-center .learning-panel-heading { margin-bottom:.5rem; }
+#exam-center .learning-table th { color:rgb(var(--z-400)); font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+#exam-center .learning-table tbody tr:hover { background:rgb(var(--w) / .025); }
+.review-stat-card { min-width:0; padding:1rem; }
+.review-session-summary { gap:1rem; flex-wrap:wrap; }
+.review-session-actions .btn { min-height:3.1rem; }
+.review-empty-state { border-style:dashed; border-color:var(--st-border-strong, rgb(var(--w) / .16)); padding:2rem; }
+.diagnostic-overview .learning-stat-icon { border-color:rgb(var(--emerald-400) / .18); background:rgb(var(--emerald-400) / .07); }
+.diagnostic-scenario-card { min-height:10.5rem; display:flex; flex-direction:column; gap:.3rem; }
+.diagnostic-session-header { padding-bottom:.85rem; border-bottom:1px solid rgb(var(--w) / .08); }
+.reward-summary-card { min-width:0; padding:1rem .75rem; }
+.reward-summary-card .eyebrow { line-height:1.35; }
+.reward-module-panel { overflow:hidden; }
+.reward-module-title { display:flex; align-items:center; gap:.5rem; padding-bottom:.8rem; border-bottom:1px solid rgb(var(--w) / .08); }
+.reward-level-card { min-height:10rem; padding:1rem; }
+.reward-level-issued { border-color:rgb(var(--emerald-400) / .28); background:rgb(var(--emerald-400) / .045); }
+.reward-level-ready { border-color:rgb(var(--cyan-400) / .30); background:rgb(var(--cyan-400) / .045); }
+.reward-level-progress { border-color:rgb(var(--w) / .10); }
+.reward-level-empty { border-style:dashed; opacity:.8; }
+.reward-badges-grid { align-items:stretch; }
+.reward-badge-card { min-width:0; min-height:7.5rem; padding:.9rem; position:relative; }
+.reward-badge-earned { border-color:rgb(var(--emerald-400) / .26); background:linear-gradient(135deg, rgb(var(--emerald-400) / .07), rgb(var(--cyan-400) / .025)); }
+.reward-badge-locked { border-color:rgb(var(--w) / .08); background:rgb(var(--w) / .015); }
+.reward-badge-earned .reward-badge-icon { border-color:rgb(var(--emerald-400) / .24); background:rgb(var(--emerald-400) / .08); }
+.reward-badge-locked .reward-badge-icon { opacity:.7; }
+.reward-badge-status { align-self:flex-start; white-space:nowrap; border:1px solid rgb(var(--w) / .10); border-radius:999px; padding:.25rem .45rem; color:rgb(var(--z-500)); font-size:.58rem; font-weight:750; }
+.reward-badge-status.is-earned { border-color:rgb(var(--emerald-400) / .24); background:rgb(var(--emerald-400) / .08); color:rgb(var(--emerald-300)); }
+@media (min-width: 768px) { .learning-section-header { flex-direction:row; align-items:flex-end; justify-content:space-between; } }
+@media (max-width: 640px) {
+  .learning-stat-card { min-height:72px; padding:.8rem; gap:.7rem; }
+  .learning-stat-value { font-size:1.35rem; }
+  .review-filters { width:100%; display:grid; grid-template-columns:1fr 1fr; }
+  .review-filters select:first-child { grid-column:1/-1; width:100%; }
+  .review-filters select:not(:first-child) { width:100%; }
+  .reward-badge-card { min-height:6.5rem; padding:.75rem; }
+  .reward-badge-status { font-size:.55rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .learning-panel, .learning-stat-card, .exam-option-card, .diagnostic-scenario-card, .reward-badge-card { transition-duration:.01ms !important; }
+}
