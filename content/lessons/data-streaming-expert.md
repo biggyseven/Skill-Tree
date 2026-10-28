@@ -608,7 +608,154 @@ SkillMarket souhaite alimenter en quasi temps réel un tableau de progression, e
 
 **Validation.** Le test de charge reproduit le débit de pointe et les tailles de records réalistes. Les tests de panne interrompent le producteur après l'envoi, le consommateur après écriture métier et avant commit, la base cible pendant une pointe et une partition pendant l'exploitation. Le résultat attendu comprend absence de perte dans le contrat retenu, effets métier idempotents, lag rattrapé, DLQ traitée et audit reconstitué.
 
-## 17. Checklist de révision
+## 17. Atelier avancé : tester un consommateur Kafka face aux rejeux
+
+Un consommateur fiable ne doit pas seulement traiter le chemin nominal. Il doit survivre au crash survenu après l'écriture de la sortie mais avant le commit de l'offset, au même événement reçu deux fois, et à une collision où un identifiant est réutilisé avec un contenu différent. Cet atelier illustre l'ordre des opérations avec Kafka et SQLite. SQLite est ici un stockage local de démonstration, pas un substitut à une base distribuée en production.
+
+### Frontière de cohérence
+
+```mermaid
+sequenceDiagram
+    participant K as Kafka
+    participant C as Consommateur
+    participant D as Stockage durable
+    K->>C: Record avec event_id
+    C->>D: Transaction et contrainte unique
+    D-->>C: Commit durable
+    C->>K: Commit offset
+    Note over C,K: Si le processus tombe avant le commit offset, Kafka peut relivrer le record
+    K->>C: Record répété
+    C->>D: Requête par event_id et comparaison du hash
+    D-->>C: Déjà traité ou conflit mis en quarantaine
+    C->>K: Commit offset après décision durable
+```
+
+La règle clé est la suivante : ne commitez pas l'offset avant que l'effet métier, ou sa mise en quarantaine durable, soit confirmé. Comme le stockage SQL et Kafka ne partagent pas nécessairement une même transaction, une livraison répétée reste possible. La contrainte unique et la comparaison de contenu rendent alors le rejeu sûr.
+
+### Consommateur pédagogique avec déduplication durable
+
+Prérequis : `pip install confluent-kafka`, un topic déjà créé, et la variable `KAFKA_BOOTSTRAP` définie. Le compte du consommateur doit avoir uniquement les droits nécessaires au topic et au groupe.
+
+```python
+import hashlib
+import json
+import os
+import sqlite3
+
+from confluent_kafka import Consumer, KafkaError, KafkaException
+
+bootstrap = os.environ["KAFKA_BOOTSTRAP"]
+consumer = Consumer({
+    "bootstrap.servers": bootstrap,
+    "group.id": "skillmarket-progress-lab",
+    "enable.auto.commit": False,
+    "auto.offset.reset": "earliest",
+})
+
+db = sqlite3.connect("progress-lab.sqlite")
+db.execute("""
+    CREATE TABLE IF NOT EXISTS processed_events (
+        event_id TEXT PRIMARY KEY,
+        payload_hash TEXT NOT NULL,
+        payload TEXT NOT NULL
+    )
+""")
+db.execute("""
+    CREATE TABLE IF NOT EXISTS quarantined_events (
+        quarantine_id INTEGER PRIMARY KEY,
+        event_id TEXT,
+        payload TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+""")
+db.commit()
+
+consumer.subscribe(["skillmarket.progress"])
+
+try:
+    while True:
+        msg = consumer.poll(1.0)
+        if msg is None:
+            continue
+        if msg.error():
+            if msg.error().code() == KafkaError._PARTITION_EOF:
+                continue
+            raise KafkaException(msg.error())
+
+        raw = (msg.value() or b"").decode("utf-8", errors="replace")
+        try:
+            event = json.loads(raw)
+            if not isinstance(event, dict):
+                raise ValueError("Le record JSON doit être un objet")
+            event_id = event.get("event_id")
+            if not isinstance(event_id, str) or not event_id.strip():
+                raise ValueError("event_id absent ou vide")
+            canonical = json.dumps(
+                event, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            )
+            digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+        except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
+            # Persister la quarantaine avant de confirmer l'offset.
+            db.execute(
+                "INSERT INTO quarantined_events (event_id, payload, reason) VALUES (?, ?, ?)",
+                (None, raw, str(exc)),
+            )
+            db.commit()
+            consumer.commit(message=msg, asynchronous=False)
+            continue
+
+        previous = db.execute(
+            "SELECT payload_hash FROM processed_events WHERE event_id = ?",
+            (event_id,),
+        ).fetchone()
+
+        if previous is not None and previous[0] != digest:
+            db.execute(
+                "INSERT INTO quarantined_events (event_id, payload, reason) VALUES (?, ?, ?)",
+                (event_id, canonical, "event_id réutilisé avec un contenu différent"),
+            )
+            db.commit()
+            consumer.commit(message=msg, asynchronous=False)
+            continue
+
+        if previous is None:
+            db.execute(
+                "INSERT INTO processed_events (event_id, payload_hash, payload) VALUES (?, ?, ?)",
+                (event_id, digest, canonical),
+            )
+            db.commit()
+
+        # La sortie est durable : le commit offset peut maintenant être envoyé.
+        # Si ce commit échoue, le rejeu sera neutralisé par event_id et payload_hash.
+        consumer.commit(message=msg, asynchronous=False)
+finally:
+    consumer.close()
+    db.close()
+```
+
+Ce programme sert à comprendre et tester la frontière d'écriture/offset. En production, utilisez un stockage partagé et sauvegardé, un traitement explicite des erreurs transitoires, une DLQ avec contrôle d'accès, et un mécanisme d'arrêt gracieux. Si le commit d'offset échoue après le commit SQL, ne supprimez pas l'événement traité : laissez la livraison répétée être neutralisée. Les appels externes, comme envoyer un e-mail ou déclencher un paiement, nécessitent en plus une clé d'idempotence fournisseur, une outbox ou une réconciliation.
+
+### Matrice de tests de panne
+
+| Injection | Résultat exigé | Preuve à collecter |
+|---|---|---|
+| Arrêt juste après le commit SQL | Le record peut revenir mais ne crée pas de seconde ligne | Une seule ligne par event_id |
+| Deux records identiques | Le second devient un no-op métier | Compteur de doublons et cardinalité stable |
+| Même event_id, contenu différent | Le conflit est isolé, pas écrasé silencieusement | Ligne en quarantaine avec motif |
+| JSON invalide | Le record est durablement mis en quarantaine avant l'offset | Quarantaine retrouvable et offset progressant |
+| Base indisponible | L'offset n'avance pas tant que la sortie n'est pas durable | Lag visible, puis reprise après rétablissement |
+| Redémarrage avec lag | Le consommateur rattrape sans effet métier en double | Lag décroissant et rapprochement final conforme |
+
+### Vérifications opérationnelles
+
+Mesurez le débit entrant et sortant, le lag par partition, l'âge du record le plus ancien, le nombre et l'âge des quarantaines, le taux de redelivery et la durée des transactions. Ne déclenchez pas une alerte uniquement sur le nombre de messages en attente : reliez le lag au débit de rattrapage et à la fraîcheur demandée par le métier.
+
+Avant une relecture de masse, vérifiez que la destination supporte le débit de rattrapage, identifiez la plage d'offset concernée, conservez une trace de l'opération et comparez les agrégats avant/après. Un replay ne doit pas changer l'identité d'origine des événements ; ajoutez plutôt un identifiant de campagne de replay dans les métadonnées d'observabilité.
+
+L'atelier est réussi lorsque les scénarios d'arrêt et de doublon sont reproduits, que le résultat métier reste stable, et que chaque erreur est soit retentée de manière bornée, soit placée dans une quarantaine contrôlée.
+
+## 18. Checklist de révision
 
 - [ ] Je peux expliquer topic, partition, record, offset, leader, réplique et ISR.
 - [ ] Je choisis une clé de partitionnement qui respecte les invariants d'ordre.
@@ -623,7 +770,7 @@ SkillMarket souhaite alimenter en quasi temps réel un tableau de progression, e
 - [ ] Je surveille débit, erreurs, réplicas, disque, lag et fraîcheur métier.
 - [ ] Je peux exécuter un plan de panne et prouver que le résultat métier reste correct.
 
-## 18. Documentation officielle
+## 19. Documentation officielle
 
 Les paramètres et garanties peuvent changer avec la version et le client. Vérifiez les pages correspondant à la version déployée et les contrats exacts des connecteurs.
 
