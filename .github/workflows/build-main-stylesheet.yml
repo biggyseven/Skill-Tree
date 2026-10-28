@@ -5,6 +5,7 @@ on:
     branches:
       - feature/lab-workspace
       - perf/compiled-tailwind-main-20261028
+      - perf/main-assets-cache-20261028
     paths:
       - "static/index.html"
       - "static/tailwind.config.cjs"
