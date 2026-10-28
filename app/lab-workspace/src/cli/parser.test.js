@@ -149,6 +149,58 @@ test('ip access-group refuse une direction ou un numéro invalide', () => {
   assert.equal(device.ports[0].access_group_in, undefined);
 });
 
+
+test('les commandes War Room réparent shutdown, VLAN, trunk, passerelle, DHCP et OSPF', () => {
+  const device = {
+    id: 'SW1', type: 'switch',
+    config: {
+      hostname: 'SW1',
+      interfaces: { 'Fa0/7': { mode: 'access', vlan: 1 }, 'Fa0/1': { mode: 'access', vlan: 1 } },
+      dhcp_enabled: false,
+    },
+    ports: [
+      { id: 'Fa0/7', name: 'Fa0/7', state: 'down', mode: 'access', vlan: 1 },
+      { id: 'Fa0/1', name: 'Fa0/1', state: 'up', mode: 'access', vlan: 1 },
+    ],
+  };
+  const parser = new CLIParser(device);
+  parser.execute('enable');
+  parser.execute('configure terminal');
+  parser.execute('interface Fa0/7');
+  assert.equal(parser.execute('no shutdown').output, '');
+  assert.equal(device.ports[0].state, 'up');
+
+  assert.equal(parser.execute('switchport access vlan 20').output, '');
+  assert.equal(device.ports[0].vlan, 20);
+  assert.equal(device.config.interfaces['Fa0/7'].vlan, 20);
+  assert.equal(parser.execute('switchport mode trunk').output, '');
+  assert.equal(device.ports[0].mode, 'trunk');
+  assert.equal(device.config.interfaces['Fa0/7'].mode, 'trunk');
+
+  parser.execute('end');
+  assert.equal(parser.execute('ip default-gateway 10.20.0.1').output, '');
+  assert.equal(device.config.gateway, '10.20.0.1');
+  assert.equal(parser.execute('no ip default-gateway').output, '');
+  assert.equal(device.config.gateway, undefined);
+  assert.equal(parser.execute('no service dhcp').output, '');
+  assert.equal(device.config.dhcp_enabled, false);
+  assert.equal(parser.execute('service dhcp').output, '');
+  assert.equal(device.config.dhcp_enabled, true);
+
+  const router = {
+    id: 'R1', type: 'router',
+    config: { hostname: 'R1', interfaces: { 'Fa0/0': { ospf_enabled: false } } },
+    ports: [{ id: 'Fa0/0', name: 'Fa0/0', state: 'up', ip: '10.0.0.1', mask: '255.255.255.0' }],
+  };
+  const ospf = new CLIParser(router);
+  enterInterfaceConfig(ospf);
+  assert.equal(ospf.execute('ip ospf 1 area 0').output, '');
+  assert.equal(router.config.interfaces['Fa0/0'].ospf_enabled, true);
+  assert.equal(router.ports[0].ospf_enabled, true);
+  assert.equal(ospf.execute('no ip ospf 1 area 0').output, '');
+  assert.equal(router.config.interfaces['Fa0/0'].ospf_enabled, false);
+});
+
 test('workload CLI enregistre un état structuré typé et l’affiche dans running-config', () => {
   const device = makeDevice();
   const parser = new CLIParser(device);
