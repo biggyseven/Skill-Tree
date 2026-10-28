@@ -456,6 +456,64 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — concevoir une commande ChatOps approuvée
+
+### Énoncé
+
+Un opérateur reçoit dans le canal d'incident une recommandation de redémarrer un service de collecte. La même intégration doit pouvoir consulter l'état du service, créer un ticket et demander un redémarrage, mais elle ne doit jamais exécuter une commande arbitraire saisie dans le chat. Définis le flux, les permissions et la trace d'audit.
+
+### Séquence de référence
+
+```mermaid
+sequenceDiagram
+  participant U as Opérateur
+  participant C as ChatOps
+  participant P as Politique RBAC
+  participant T as Ticketing
+  participant R as Exécuteur
+  U->>C: Demande structurée
+  C->>P: Vérifier identité, rôle et cible
+  P-->>C: Lecture autorisée, redémarrage soumis à approbation
+  C->>T: Créer un ticket avec preuves
+  C-->>U: Afficher aperçu et impact
+  U->>C: Approuver la demande
+  C->>P: Revalider rôle, cible et expiration
+  P-->>C: Autorisation temporaire
+  C->>R: Exécuter action autorisée
+  R-->>C: Résultat et identifiant d'exécution
+  C->>T: Ajouter résultat et trace d'audit
+  C-->>U: Confirmer ou escalader
+```
+
+### Proposition de correction
+
+Le chat ne doit transmettre qu'une commande structurée, par exemple une action choisie dans une liste, un identifiant de service et un ticket associé. Le backend mappe cette action vers une fonction connue. Il n'interpole jamais du texte utilisateur dans une commande shell. Les droits de lecture, de création de ticket et de modification sont séparés, et l'approbation doit confirmer le périmètre exact présenté à l'opérateur.
+
+Exemple de payload interne qui doit ensuite être validé côté serveur :
+
+```json
+{
+  "action": "restart_collector",
+  "target": "collector-eu-02",
+  "incident_id": "INC-1042",
+  "requested_by": "operator-17",
+  "approval_required": true,
+  "reason": "Collecte bloquée après vérification des métriques"
+}
+```
+
+Ce JSON n'est pas une autorisation en soi. Le service doit authentifier l'appel, contrôler le rôle, valider la cible dans un inventaire autorisé, vérifier que le ticket est actif et imposer une durée de validité à l'approbation. Une demande expirée ou modifiée après approbation doit repasser par le contrôle.
+
+Après l'action, vérifie l'état du service et la reprise des métriques. Si le processus redémarre mais que les signaux ne reviennent pas, ne déclare pas l'incident résolu. Enregistre l'identité, l'action normalisée, le motif, l'approbateur, l'heure, le résultat et les identifiants de preuve. Évite de publier des secrets, des données personnelles ou des sorties de commande volumineuses dans le canal.
+
+### Barème d'autoévaluation
+
+- Les actions sont une liste autorisée et non des commandes libres.
+- Les droits de lecture et d'écriture sont séparés.
+- L'approbation est liée à une cible et une action précises.
+- Le résultat est vérifié après exécution.
+- La trace d'audit relie demande, approbation, exécution et ticket.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
