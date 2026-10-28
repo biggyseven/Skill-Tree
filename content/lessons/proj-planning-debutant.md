@@ -22,6 +22,21 @@ Le cas « La mise en service d’une plateforme » sert de fil rouge. Il permet 
 
 **Valeur.** La valeur décrit le bénéfice recherché pour un utilisateur ou l’organisation. Elle doit être reliée à une situation initiale, à un changement attendu et à une mesure raisonnable. Sans cette relation, l’équipe risque d’optimiser l’outil ou le processus sans résoudre le problème métier.
 
+```mermaid
+flowchart TD
+    A["Objectif et livrables"] --> B["Décomposer le travail"]
+    B --> C["Définir les dépendances"]
+    C --> D["Estimer durées et ressources"]
+    D --> E["Construire le réseau PERT"]
+    E --> F["Calculer le chemin critique"]
+    F --> G["Positionner les tâches dans le Gantt"]
+    G --> H["Valider la référence planning"]
+    H --> I["Mettre à jour selon le réel"]
+    I -. "prévision révisée" .-> F
+```
+
+Le Gantt et le PERT ne sont pas deux façons interchangeables de dessiner la même chose. Le réseau PERT expose d’abord l’enchaînement logique des activités ; le Gantt aide ensuite à communiquer leur positionnement temporel, leur durée, leur avancement et leurs jalons. Les deux gagnent à partager la même structure de tâches et les mêmes hypothèses d’estimation.
+
 **Périmètre et qualité.** Le périmètre fixe les limites du travail ; la qualité précise les caractéristiques et critères qui permettront d’accepter les livrables. Les ajouts doivent être analysés au lieu d’être acceptés implicitement. Une date ou un budget ne justifie jamais de prétendre qu’un critère obligatoire est satisfait sans preuve.
 
 **Prévision et référence.** La référence approuvée permet d’étudier les écarts, tandis que la prévision décrit l’issue la plus probable à partir des données actuelles. On peut réviser une prévision et conserver une référence historique. La distinction préserve la transparence et aide à décider sans maquiller les évolutions.
@@ -62,6 +77,20 @@ H --> I[Transfert au support]
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », définir l’unité de travail constitue une pratique qui doit répondre à une intention précise. Une tâche de planning doit produire un résultat identifiable, avoir une durée estimable et présenter des conditions de démarrage et de fin. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Résultat attendu"] --> B["Livrables vérifiables"]
+    B --> C["Lots cohérents"]
+    C --> D["Tâches planifiables"]
+    D --> E["Responsable et critères de fin"]
+    E --> F["Durée, effort et dépendances"]
+    F --> G{"Estimation compréhensible ?"}
+    G -->|"Oui"| H["Intégrer au planning"]
+    G -->|"Non"| D
+```
+
+Une tâche planifiable doit avoir un résultat observable, une personne ou une équipe responsable, des critères de fin et une durée estimable. Une activité trop large comme « réaliser le portail » masque les risques et rend la prévision peu utile ; la décomposer en conception, intégration, tests et acceptation permet d’identifier les dépendances et les preuves attendues.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** « Réaliser l’intégration » est décomposé en configuration, connexion des systèmes, tests de contrats et correction des écarts. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -77,6 +106,24 @@ H --> I[Transfert au support]
 ### 2. Diagramme de Gantt
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », diagramme de gantt constitue une pratique qui doit répondre à une intention précise. Le Gantt positionne les activités dans le temps, montre leur durée, leurs chevauchements et les jalons importants. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+gantt
+    title Exemple simplifié de déploiement
+    dateFormat YYYY-MM-DD
+    axisFormat %d/%m
+    section Préparation
+    Cadrage et conception :a1, 2026-11-02, 4d
+    Préparer environnement :a2, after a1, 3d
+    section Réalisation
+    Configurer solution :b1, after a2, 5d
+    Tester la solution :b2, after b1, 3d
+    section Livraison
+    Recette métier :c1, after b2, 2d
+    Mise en production :milestone, c2, after c1, 0d
+```
+
+Dans un diagramme de Gantt, les barres représentent des activités positionnées dans le temps et les jalons signalent des événements de décision ou de validation. Cet exemple est une maquette illustrative, pas une date d’engagement : dans un vrai projet, le calendrier dépend des jours ouvrés, de la disponibilité des personnes, des congés, des contraintes de changement et des résultats de l’analyse des dépendances.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -94,6 +141,20 @@ H --> I[Transfert au support]
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », réseau pert constitue une pratique qui doit répondre à une intention précise. Le réseau PERT représente la logique des dépendances et aide à comprendre quelles activités alimentent la date de fin. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart LR
+    S(["Début"]) --> A["A : cadrage<br/>2 j"]
+    A --> B["B : environnement<br/>3 j"]
+    A --> C["C : interfaces<br/>4 j"]
+    B --> D["D : migration pilote<br/>3 j"]
+    C --> E["E : intégration<br/>2 j"]
+    D --> F["F : validation<br/>2 j"]
+    E --> F
+    F --> G(["Fin"])
+```
+
+Un réseau PERT représente les précédences entre les activités. Plusieurs branches peuvent se dérouler en parallèle, mais un jalon qui attend deux branches ne peut être atteint tant que la plus lente n’est pas terminée. Le réseau oblige donc à expliciter les liens logiques que des barres placées côte à côte sur un calendrier pourraient masquer.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** La formation peut commencer sur un environnement de test pendant que la documentation de production est finalisée. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -109,6 +170,16 @@ H --> I[Transfert au support]
 ### 4. Dépendances logiques
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », dépendances logiques constitue une pratique qui doit répondre à une intention précise. Les relations de fin-début, début-début et autres liaisons décrivent la logique réelle du travail ; elles ne doivent pas servir à maquiller un planning. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Fin A"] -->|"Fin-début : après A"| B["Début B"]
+    C["Début C"] -. "Début-début : C peut démarrer avec A" .-> D["Début D"]
+    E["Fin E"] -. "Fin-fin : fins à coordonner" .-> F["Fin F"]
+    G["Fin G"] -. "Début-fin : cas particulier" .-> H["Fin H"]
+```
+
+La relation fin-début est la plus fréquente : le successeur commence après la fin du prédécesseur. Les relations début-début, fin-fin et début-fin existent, mais doivent être utilisées avec discernement et documentées, car elles peuvent rendre la planification plus difficile à expliquer. Un lien représente une contrainte logique réelle, pas simplement une manière de forcer une date.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -126,6 +197,18 @@ H --> I[Transfert au support]
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », durée et effort constitue une pratique qui doit répondre à une intention précise. L’effort mesure le travail humain ; la durée dépend aussi de la capacité, des calendriers, des approbations et des files d’attente. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Évaluer le travail à produire"] --> B["Estimer l'effort humain"]
+    B --> C["Évaluer les compétences disponibles"]
+    C --> D["Tenir compte du calendrier et des interruptions"]
+    D --> E["Estimer la durée écoulée"]
+    E --> F["Ajouter les dépendances et temps d'attente"]
+    F --> G["Documenter hypothèses et fourchette"]
+```
+
+L’effort correspond à une quantité de travail humain, tandis que la durée exprime le temps écoulé entre le début et la fin. Un travail estimé à quatre jours-personnes ne se termine pas nécessairement en une journée avec quatre personnes : coordination, apprentissage, séquentialité, disponibilité et limites de parallélisation peuvent empêcher cette réduction. Les estimations doivent rester liées à des hypothèses explicites.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Deux jours d’effort répartis entre deux spécialistes non disponibles avant la semaine suivante ne donnent pas nécessairement une tâche de deux jours calendaires. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -141,6 +224,19 @@ H --> I[Transfert au support]
 ### 6. Chemin critique
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », chemin critique constitue une pratique qui doit répondre à une intention précise. Le chemin critique est la chaîne d’activités qui détermine la durée minimale du projet selon le réseau et les calendriers retenus. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart LR
+    S(["Début"]) --> A["A : 2 j"]
+    S --> B["B : 3 j"]
+    A --> C["C : 4 j"]
+    B --> D["D : 2 j"]
+    C --> E["E : 2 j"]
+    D --> E
+    E --> F(["Fin"])
+```
+
+Dans cet exemple, la branche A–C–E dure 2 + 4 + 2 = 8 jours et la branche B–D–E dure 3 + 2 + 2 = 7 jours. Sous ces hypothèses, la durée minimale du projet est donc de 8 jours et A–C–E constitue le chemin critique. Retarder une activité critique retarde la fin du projet si aucune mesure ne compense ce retard ; les durées réelles doivent être recalculées lorsque le réseau change.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -158,6 +254,18 @@ H --> I[Transfert au support]
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », marge totale et libre constitue une pratique qui doit répondre à une intention précise. La marge totale indique le retard possible sans déplacer la fin du projet ; la marge libre indique le retard sans retarder le successeur immédiat. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Tâche non critique"] --> B["Comparer dates au plus tôt et au plus tard"]
+    B --> C["Marge totale : retard possible sans retarder la fin du projet"]
+    B --> D["Marge libre : retard possible sans retarder le successeur immédiat"]
+    C --> E{"Marge consommée ?"}
+    E -->|"Non"| F["Surveiller selon le risque"]
+    E -->|"Oui"| G["Réévaluer le chemin critique"]
+```
+
+La marge totale et la marge libre répondent à deux questions différentes. Une tâche peut avoir de la marge totale tout en retardant son successeur si elle consomme sa marge libre. Lorsque la marge se réduit, il faut mettre à jour le réseau, vérifier les hypothèses et examiner si un autre chemin devient critique plutôt que se fier à la couleur initiale de la barre.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une tâche de documentation peut absorber deux jours de glissement sans déplacer la date finale, si sa marge est réelle et à jour. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -173,6 +281,18 @@ H --> I[Transfert au support]
 ### 8. Jalons
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », jalons constitue une pratique qui doit répondre à une intention précise. Un jalon est un événement sans durée qui signale un point de décision, une livraison ou une validation importante. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart LR
+    A["Cadrage terminé"] --> B{"Budget et périmètre approuvés"}
+    B --> C["Environnement prêt"]
+    C --> D{"Tests techniques acceptés"}
+    D --> E["Recette métier terminée"]
+    E --> F{"Décision de mise en production"}
+    F --> G["Mise en service"]
+```
+
+Un jalon représente un événement ou une décision, pas une tâche longue à laquelle on attribue arbitrairement une journée de travail. Il doit avoir des critères de passage, une personne ou instance décisionnaire et les preuves attendues. Les jalons permettent de rendre visibles les points de contrôle qui conditionnent l’autorisation de continuer.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -190,6 +310,17 @@ H --> I[Transfert au support]
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », estimation à trois points constitue une pratique qui doit répondre à une intention précise. Une estimation optimiste, probable et pessimiste représente mieux l’incertitude qu’une valeur unique présentée comme certaine. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Scénario optimiste O"] --> D["Estimation pondérée"]
+    B["Scénario le plus probable M"] --> D
+    C["Scénario pessimiste P"] --> D
+    D --> E["PERT : E = (O + 4M + P) / 6"]
+    E --> F["Documenter les risques et la fourchette"]
+```
+
+L’estimation PERT classique pondère davantage le scénario le plus probable : E = (O + 4M + P) / 6. Par exemple, avec O = 2 jours, M = 4 jours et P = 8 jours, l’espérance vaut (2 + 16 + 8) / 6, soit environ 4,33 jours. Cette valeur est un outil de prévision sous hypothèses, pas une promesse de précision ni une garantie que les scénarios couvrent toutes les causes d’incertitude.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** L’équipe estime l’intégration à 3, 5 et 9 jours selon les difficultés des interfaces et utilise la fourchette pour évaluer le risque. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -205,6 +336,20 @@ H --> I[Transfert au support]
 ### 10. Calendriers et ressources
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », calendriers et ressources constitue une pratique qui doit répondre à une intention précise. Un calendrier fiable tient compte de la disponibilité réelle des personnes, des fenêtres de changement, des congés et des compétences rares. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Tâches et dépendances"] --> D["Planning faisable"]
+    B["Calendriers ouvrés et jours fériés"] --> D
+    C["Disponibilité et compétences"] --> D
+    D --> E["Détecter surallocation et conflits"]
+    E --> F{"Capacité suffisante ?"}
+    F -->|"Oui"| G["Valider les dates prévisionnelles"]
+    F -->|"Non"| H["Réaffecter, séquencer ou revoir l'échéance"]
+    H --> D
+```
+
+Un calendrier qui ignore les congés, les horaires, les fenêtres de changement et les responsabilités partagées peut afficher des dates impossibles à tenir. Ajouter des personnes n’accélère pas toutes les activités : certaines tâches doivent être séquentielles ou exigent une expertise rare. Tout arbitrage de capacité doit exposer ses conséquences sur le périmètre, le coût, la qualité et la date.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -222,6 +367,23 @@ H --> I[Transfert au support]
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », compression du planning constitue une pratique qui doit répondre à une intention précise. Le chevauchement et le renforcement des moyens peuvent accélérer certaines activités, mais augmentent souvent les risques et les besoins de coordination. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Échéance menacée"] --> B["Identifier la cause et le chemin critique actuel"]
+    B --> C["Comparer les options de réduction"]
+    C --> D["Chevauchement maîtrisé"]
+    C --> E["Ressources supplémentaires"]
+    C --> F["Réduction de périmètre ou livraison par lots"]
+    D --> G["Évaluer coût, risque et reprises"]
+    E --> G
+    F --> G
+    G --> H{"Option acceptable ?"}
+    H -->|"Oui"| I["Décision autorisée et planning révisé"]
+    H -->|"Non"| J["Revoir l'échéance ou le besoin"]
+```
+
+Le chevauchement d’activités (fast tracking) peut accroître le risque de reprise si l’activité amont change. Le renfort de moyens (crashing) augmente souvent le coût et peut générer de la coordination supplémentaire. Une livraison par étapes ou une réduction de périmètre peut préserver l’essentiel de la valeur, à condition que les critères d’acceptation restent clairs et que l’arbitrage soit autorisé.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Faire démarrer les tests avant stabilisation du build peut produire des résultats invalides et créer des retests. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -237,6 +399,18 @@ H --> I[Transfert au support]
 ### 12. Mise à jour et prévision
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », mise à jour et prévision constitue une pratique qui doit répondre à une intention précise. Une mise à jour doit comparer dates réelles, travail restant, dépendances et capacité future pour recalculer une fin probable. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Collecter avancement réel et blocages"] --> B["Vérifier les résultats, pas seulement le pourcentage"]
+    B --> C["Réestimer le travail restant"]
+    C --> D["Mettre à jour les dépendances et ressources"]
+    D --> E["Recalculer dates, marges et chemin critique"]
+    E --> F["Comparer à la référence approuvée"]
+    F --> G["Communiquer écarts, options et décisions"]
+```
+
+Mettre à jour un planning ne consiste pas à déplacer les barres pour faire disparaître les écarts. Il faut conserver une référence approuvée permettant de comparer l’évolution, saisir les dates réelles, réestimer le travail restant et expliquer les changements d’hypothèses. Une prévision est une meilleure estimation actuelle ; elle ne doit pas être confondue avec la date cible initialement promise.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -254,6 +428,18 @@ H --> I[Transfert au support]
 
 **Comprendre le concept.** Dans « Notions de Gantt et PERT », incertitude et réserves constitue une pratique qui doit répondre à une intention précise. Les réserves couvrent des incertitudes identifiées ; elles ne remplacent pas l’analyse des dépendances ni la résolution des risques connus. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Lister les incertitudes"] --> B["Estimer probabilité et impact"]
+    B --> C["Prévoir réponses aux risques"]
+    C --> D["Distinguer durée de base et réserve"]
+    D --> E["Définir qui peut utiliser la réserve"]
+    E --> F["Suivre l'utilisation et le risque résiduel"]
+    F --> G["Réviser les prévisions selon les faits"]
+```
+
+Une réserve doit être reliée à une incertitude identifiée et soumise à une règle d’utilisation connue. Elle ne doit pas servir à cacher des estimations peu travaillées ni à absorber discrètement l’ajout de périmètre. Il est utile de distinguer la durée planifiée des activités, les réponses planifiées aux risques et la réserve de management éventuellement contrôlée par une autorité différente.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le planning conserve une marge de bascule liée à l’incertitude fournisseur et définit la condition qui autorise son utilisation. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -270,6 +456,25 @@ H --> I[Transfert au support]
 ### Exemple de diagramme de Gantt
 
 Le diagramme de Gantt ci-dessous illustre des tâches datées, les activités qui peuvent se dérouler en parallèle et les validations qui déterminent la mise en service. Les dates sont fictives et servent uniquement à l’exercice. Les durées correspondent à des jours de travail simplifiés ; un vrai calendrier doit tenir compte des jours non ouvrés, des ressources disponibles et des fenêtres techniques.
+
+```mermaid
+gantt
+    title Lecture des chevauchements et validations
+    dateFormat YYYY-MM-DD
+    axisFormat %d/%m
+    section Analyse
+    Ateliers métier :a1, 2026-11-02, 3d
+    Architecture :a2, after a1, 2d
+    section Construction
+    Infrastructure :b1, after a2, 3d
+    Interfaces :b2, after a2, 5d
+    section Contrôle
+    Tests intégrés :c1, after b1, 2d
+    Recette :c2, after b2, 3d
+    Mise en service :milestone, c3, after c2, 0d
+```
+
+Un Gantt doit être lu avec sa logique de dépendances, pas uniquement à partir de l’alignement visuel des barres. Cet exemple illustre des séquences et un possible travail en parallèle ; il faut toujours vérifier si les activités représentées peuvent effectivement être exécutées en parallèle et si les dates tiennent compte des calendriers applicables.
 
 ```mermaid
 gantt
@@ -293,6 +498,20 @@ gantt
 ### Réseau PERT : logique et chemin critique
 
 Le réseau PERT représente les dépendances plutôt que les dates. Dans cet exemple, l’infrastructure et les interfaces peuvent être préparées en parallèle après l’architecture. L’intégration attend les deux branches. La recette métier est la branche de validation la plus longue : elle constitue donc, avec les hypothèses de durée retenues, le chemin critique avant la mise en service et le transfert.
+
+```mermaid
+flowchart LR
+    S(["Début"]) --> A["Cadrage"]
+    A --> B["Environnement"]
+    A --> C["Interfaces"]
+    B --> D["Migration pilote"]
+    C --> E["Tests d'intégration"]
+    D --> F["Recette globale"]
+    E --> F
+    F --> G(["Fin"])
+```
+
+Ce réseau permet de discuter une question essentielle : quelles activités peuvent avancer indépendamment, et lesquelles doivent attendre un résultat précis ? Avant de calculer les marges, vérifier que tous les prédécesseurs indispensables sont présents, que le réseau n’a pas de boucle logique et que les hypothèses de durée sont cohérentes avec les ressources disponibles.
 
 ```mermaid
 flowchart LR
@@ -329,9 +548,37 @@ L’équipe compare au moins deux options réalistes, dont une option limitée o
 
 Le plan est découpé en livrables que l’on peut vérifier. Les travaux critiques sont associés à des critères de sortie, des responsables et des preuves. Les prévisions sont actualisées en fonction du travail restant, pas uniquement par décalage des dates précédentes. Les changements sont analysés pour leurs impacts croisés. Lorsqu’un indicateur devient rouge, l’équipe expose la cause et propose une action plutôt que de modifier la définition de l’indicateur. La communication est adaptée à chaque public et les décisions qui dépassent les délégations remontent à la gouvernance.
 
+```mermaid
+flowchart TD
+    A["Établir la référence du planning"] --> B["Attribuer les responsables"]
+    B --> C["Collecter le réel à une fréquence définie"]
+    C --> D["Analyser écarts, marges et blocages"]
+    D --> E["Proposer des options avec impacts"]
+    E --> F{"Changement dans les tolérances ?"}
+    F -->|"Oui"| G["Décision selon délégation"]
+    F -->|"Non"| H["Escalade et arbitrage"]
+    G --> I["Consigner, communiquer et suivre"]
+    H --> I
+    I --> C
+```
+
+La cadence de mise à jour dépend de la vitesse du projet et du coût d’une surprise. Chaque écart important doit avoir une cause identifiée, un impact sur les jalons, une action, un responsable et une date de revue. Les changements approuvés doivent être intégrés à une référence cohérente plutôt qu’aux seuls éléments qui arrangent le rapport de statut.
+
 ### Acceptation et apprentissage
 
 Avant la clôture, les livrables sont comparés aux critères convenus, les défauts et risques résiduels sont documentés, les responsabilités d’exploitation sont transférées et le support est préparé. Les mesures de bénéfices ont un propriétaire et une échéance de suivi. La rétrospective décrit les faits, la cause des écarts, les adaptations utiles et les pratiques à conserver. Elle ne doit pas désigner des coupables : elle cherche à rendre le système de travail plus fiable et l’organisation plus apte à apprendre.
+
+```mermaid
+flowchart TD
+    A["Vérifier les livrables et critères"] --> B["Confirmer les réserves restantes"]
+    B --> C["Obtenir l'acceptation autorisée"]
+    C --> D["Transférer vers l'exploitation"]
+    D --> E["Comparer prévisions et durées réelles"]
+    E --> F["Analyser les causes d'écart"]
+    F --> G["Améliorer les estimations futures"]
+```
+
+La clôture du planning doit confirmer que les jalons importants ont été atteints ou que leurs écarts ont été acceptés par l’autorité compétente. Comparer les estimations initiales au réel permet d’améliorer les hypothèses futures, sans blâmer les personnes pour chaque écart : l’objectif est de comprendre la variabilité, les dépendances sous-estimées et les décisions tardives.
 
 ## Atelier pratique
 
