@@ -382,9 +382,33 @@ def build_scenario(
         "severity": severity,
         "sla_minutes": int(sla_minutes),
         "reward_xp": max(0, int(reward_xp)),
-        "story": f"{str(title).strip()} — {fault['label']} détecté sur {target_device} {target_port}. Identifiez la cause, corrigez la configuration via la CLI et vérifiez le rétablissement.",
-        "impact": f"Le service réseau associé à {target_device} {target_port} est dégradé tant que la faute « {fault['label']} » n'est pas corrigée.",
+        "story": (
+            f"{str(title).strip()} — Le NOC constate une dégradation de connectivité autour de "
+            f"{target_device} {target_port}. Qualifiez l'impact, diagnostiquez la configuration, "
+            "appliquez une correction ciblée via la CLI et validez le rétablissement."
+        ),
+        "impact": (
+            f"La connectivité des équipements dépendant de {target_device} {target_port} est dégradée. "
+            "Des utilisateurs signalent une perte d'accès ou une perturbation d'un service métier."
+        ),
         "reported_by": "Centre des opérations réseau (NOC)",
+        "diagnostic_steps": [
+            {
+                "title": "Qualifier l'impact",
+                "instructions": f"Identifiez les équipements et services touchés autour de {target_device} {target_port}. Comparez les symptômes avant de modifier la configuration.",
+                "hint": "Vérifiez si le problème touche un seul poste, un segment ou plusieurs équipements.",
+            },
+            {
+                "title": "Examiner la configuration",
+                "instructions": f"Inspectez {target_device} et son interface {target_port}. Utilisez les commandes show adaptées pour observer l'état opérationnel et la configuration active.",
+                "hint": "Suivez les indices de couche 1, couche 2 et couche 3 sans modifier les autres interfaces.",
+            },
+            {
+                "title": "Corriger et vérifier",
+                "instructions": f"Appliquez une correction minimale sur {target_device} {target_port}, puis relancez la vérification du ticket.",
+                "hint": "Contrôlez à nouveau l'état de l'interface et les paramètres après la commande de correction.",
+            },
+        ],
         "initial_topology": topology,
         "resolution_check": {"type": "config_assertions", "rules": [rule]},
         "hidden_faults": [{
@@ -394,6 +418,7 @@ def build_scenario(
             "fault_id": fault_id,
             "detail": fault["label"],
         }],
+        "post_mortem_template": {"root_cause": "", "impact": "", "corrective_action": ""},
         "fault_id": fault_id,
         "target_device": target_device,
         "target_port": target_port,
@@ -418,7 +443,7 @@ def generate_random_scenario() -> dict[str, Any]:
     fault = SCENARIO_FAULTS[fault_id]
     return build_scenario(
         scenario_id=scenario_id,
-        title=f"Ticket surprise — {fault['label']}",
+        title=f"Ticket surprise — anomalie réseau sur {target['id']} {port['id']}",
         scenario_type=random.choice(sorted(SCENARIO_TYPES)),
         severity=random.choice(["normal", "high", "critical"]),
         topology_id=topology_id,
