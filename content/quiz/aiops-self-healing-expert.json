@@ -1,0 +1,126 @@
+{
+  "node_id": "aiops-self-healing-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel élément distingue le mieux une boucle auto-cicatrisante d'un script déclenché sur alarme ?",
+      "choices": [
+        "Le nombre de commandes exécutées chaque minute.",
+        "La vérification du résultat réel après action et la gestion des échecs ou états inconnus.",
+        "L'utilisation obligatoire d'un grand modèle de langage.",
+        "La suppression des alertes après toute commande."
+      ],
+      "answer": 1,
+      "explanation": "Une boucle fermée vérifie les postconditions, conserve les preuves et prévoit l'abstention, l'escalade et la récupération. Une commande exécutée ne démontre pas le rétablissement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La télémétrie a 4 minutes alors que la politique autorise seulement des mesures de moins de 30 secondes. Quelle décision est la plus sûre ?",
+      "choices": [
+        "Appliquer la remédiation car les données anciennes sont probablement encore valables.",
+        "Remplacer la mesure absente par zéro et continuer.",
+        "S'abstenir, expliquer la donnée trop ancienne et demander une observation fraîche.",
+        "Augmenter les privilèges de l'exécuteur."
+      ],
+      "answer": 2,
+      "explanation": "La fraîcheur est une précondition. Une donnée trop ancienne peut décrire un état dépassé ; elle ne doit pas être interprétée comme un état normal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle protection réduit le mieux le risque qu'un LLM propose une commande réseau dangereuse ?",
+      "choices": [
+        "Laisser le modèle générer librement la commande complète.",
+        "Exécuter uniquement les commandes qui semblent techniquement cohérentes.",
+        "Remplacer toutes les règles par un score de confiance.",
+        "Limiter la sortie à des actions typées et autorisées, puis valider la cible et les paramètres dans une politique déterministe."
+      ],
+      "answer": 3,
+      "explanation": "Le LLM peut proposer une hypothèse, mais il ne doit pas contrôler les permissions. Une liste d'actions autorisées et la validation indépendante séparent génération et exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un appel d'orchestration expire, mais le changement a peut-être été appliqué. Que faire d'abord ?",
+      "choices": [
+        "Déclarer le résultat inconnu, relire l'état réel et vérifier les postconditions avant toute nouvelle tentative.",
+        "Répéter immédiatement la commande trois fois.",
+        "Marquer l'incident comme résolu puisque la requête est partie.",
+        "Restaurer aveuglément toute la configuration antérieure."
+      ],
+      "answer": 0,
+      "explanation": "Un timeout ne prouve pas que rien n'a été appliqué. Il faut vérifier l'état courant avant de réessayer ou de revenir en arrière."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel exemple décrit une postcondition adéquate pour une remédiation réseau ?",
+      "choices": [
+        "Le modèle a renvoyé un score supérieur à 0,9.",
+        "L'API a répondu HTTP 200.",
+        "Un test indépendant confirme le service rétabli et stable pendant une fenêtre définie.",
+        "La commande apparaît dans les journaux de l'exécuteur."
+      ],
+      "answer": 2,
+      "explanation": "La postcondition doit prouver le résultat opérationnel par une mesure indépendante. L'accusé de réception ou l'exécution d'une commande ne suffit pas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les actions doivent-elles être idempotentes ou protégées contre les doublons ?",
+      "choices": [
+        "Pour éviter de documenter chaque exécution.",
+        "Pour empêcher une répétition après timeout de multiplier les effets ou de déclencher plusieurs bascules.",
+        "Pour garantir que toute action réussira.",
+        "Pour rendre les journaux d'audit inutiles."
+      ],
+      "answer": 1,
+      "explanation": "Après un timeout, l'exécuteur peut ignorer si la première tentative a eu un effet. L'idempotence ou une vérification d'état prévient les répétitions dangereuses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle situation doit généralement imposer une validation humaine ?",
+      "choices": [
+        "Une collecte de lecture seule sur un actif de test approuvé.",
+        "Une vérification de syntaxe locale.",
+        "Un calcul d'indicateur sur des données synthétiques.",
+        "Une modification disruptive sur un équipement qui porte un service critique."
+      ],
+      "answer": 3,
+      "explanation": "La criticité et le rayon d'impact sont des garde-fous indépendants du score du modèle. Les changements disruptifs demandent une revue adaptée au risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un mode fantôme ?",
+      "choices": [
+        "À calculer et journaliser les recommandations sans les exécuter, pour les comparer au travail réel des opérateurs.",
+        "À cacher les erreurs du modèle aux utilisateurs.",
+        "À augmenter automatiquement les privilèges du modèle.",
+        "À sauter les tests avant production."
+      ],
+      "answer": 0,
+      "explanation": "Le mode fantôme permet d'évaluer recommandations et volumes sans exposer le réseau à des actions automatiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire le système si la vérification après action est impossible ?",
+      "choices": [
+        "Conclure au succès si aucune alarme n'est apparue.",
+        "Continuer à appliquer d'autres changements pour obtenir un état différent.",
+        "Marquer le résultat comme inconnu, arrêter les actions risquées et escalader.",
+        "Supprimer le dossier afin d'éviter un faux échec."
+      ],
+      "answer": 2,
+      "explanation": "L'impossibilité de vérifier n'est ni un succès ni nécessairement un échec. Le statut inconnu doit déclencher une reprise de visibilité ou une intervention humaine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur permet le mieux d'évaluer la valeur opérationnelle d'une boucle auto-cicatrisante ?",
+      "choices": [
+        "Le nombre brut de commandes lancées.",
+        "Le temps de restauration vérifiée, les actions incorrectes et les effets secondaires, en comparaison à une baseline.",
+        "Le nombre de paramètres du modèle.",
+        "Le nombre total de lignes de logs."
+      ],
+      "answer": 1,
+      "explanation": "Les mesures doivent refléter le résultat métier et le risque. Le volume d'actions n'est pas une mesure de qualité et peut augmenter même quand le système se comporte mal."
+    }
+  ]
+}
