@@ -565,7 +565,13 @@
             <h1 class="text-3xl font-bold tracking-tight text-white">🚨 War Room</h1>
             <p class="mt-2 text-sm text-zinc-400">File d’attente NOC · incidents, changements et problèmes de production.</p>
           </div>
-          <button type="button" @click="loadTickets()" :disabled="warLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-zinc-200 transition hover:bg-white/[0.08] disabled:opacity-50"><span x-show="!warLoading">↻ Actualiser</span><span x-show="warLoading">Chargement…</span></button>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" @click="createRandomWarTicket()" :disabled="warRandomBusy" class="rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-xs font-bold text-amber-100 transition hover:bg-amber-500/20 disabled:opacity-50" x-text="warRandomBusy ? 'Création…' : '🎲 Ticket surprise'"></button>
+            <button type="button" @click="openScenarioCreator()" class="rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-100 transition hover:bg-cyan-500/20">🛠 Créer un scénario</button>
+            <button type="button" @click="$refs.warScenarioImportFile.click()" class="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3.5 py-2.5 text-xs font-bold text-violet-100 transition hover:bg-violet-500/20">📥 Importer un scénario</button>
+            <input x-ref="warScenarioImportFile" type="file" accept=".json,application/json" class="hidden" @change="importWarScenario($event)">
+            <button type="button" @click="loadTickets()" :disabled="warLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-zinc-200 transition hover:bg-white/[0.08] disabled:opacity-50"><span x-show="!warLoading">↻ Actualiser</span><span x-show="warLoading">Chargement…</span></button>
+          </div>
         </header>
         <nav class="flex flex-wrap gap-2 border-b border-white/[0.08] pb-3" role="tablist" aria-label="Vues War Room">
           <button type="button" role="tab" @click="warTab='inbox'; loadTickets()" :aria-selected="warTab==='inbox'" :class="warTab==='inbox' ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">📥 Inbox</button>
@@ -587,12 +593,12 @@
         <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           <template x-for="ticket in filteredWarTickets" :key="ticket.id">
             <article class="flex min-w-0 flex-col rounded-2xl border bg-[color:var(--s1)] p-5 shadow-lg transition hover:-translate-y-0.5 hover:border-white/20"
-              :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/25' : ticket.severity==='medium' ? 'border-amber-400/20' : 'border-white/10'">
+              :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/25' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/20' : 'border-white/10'">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="font-mono text-xs font-bold tracking-wide text-zinc-200" x-text="ticket.id"></span>
                 <span class="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                  :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/30 bg-rose-500/10 text-rose-200' : ticket.severity==='medium' ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-sky-400/30 bg-sky-500/10 text-sky-200'"
-                  x-text="ticket.severity==='high' ? 'Haute' : ticket.severity==='critical' ? 'Critique' : ticket.severity==='medium' ? 'Moyenne' : 'Basse'"></span>
+                  :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/30 bg-rose-500/10 text-rose-200' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-sky-400/30 bg-sky-500/10 text-sky-200'"
+                  x-text="ticket.severity==='high' ? 'Haute' : ticket.severity==='critical' ? 'Critique' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'Moyenne' : 'Basse'"></span>
               </div>
               <div class="mt-4 flex items-center justify-between gap-3">
                 <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500" x-text="ticket.type==='incident' ? 'Incident' : ticket.type==='change' ? 'Change' : 'Problem'"></span>
@@ -656,6 +662,32 @@
         <div x-show="warTab === 'archive'" x-cloak class="space-y-4">
           <div class="flex items-center justify-between gap-3"><div><h2 class="text-lg font-bold text-white">Archive des tickets</h2><p class="mt-1 text-xs text-zinc-500">Tickets résolus et échoués, du plus récent au plus ancien.</p></div><button type="button" @click="loadWarArchive()" :disabled="warArchiveLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] disabled:opacity-50">↻ Actualiser</button></div>
           <div x-show="warArchiveError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="warArchiveError"></div>
+          <div class="rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 sm:p-5">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div><h3 class="text-sm font-bold text-white">Bibliothèque des scénarios</h3><p class="mt-1 text-xs text-zinc-500">Scénarios pilotes et scénarios personnels prêts à être lancés ou exportés.</p></div>
+              <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrer les scénarios">
+                <button type="button" @click="warScenarioFilter='all'" :aria-pressed="warScenarioFilter==='all'" :class="warScenarioFilter==='all' ? 'border-violet-400/30 bg-violet-500/10 text-violet-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-3 py-2 text-[11px] font-semibold">Tous</button>
+                <button type="button" @click="warScenarioFilter='pilots'" :aria-pressed="warScenarioFilter==='pilots'" :class="warScenarioFilter==='pilots' ? 'border-violet-400/30 bg-violet-500/10 text-violet-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-3 py-2 text-[11px] font-semibold">Pilotes</button>
+                <button type="button" @click="warScenarioFilter='user'" :aria-pressed="warScenarioFilter==='user'" :class="warScenarioFilter==='user' ? 'border-violet-400/30 bg-violet-500/10 text-violet-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-3 py-2 text-[11px] font-semibold">Mes scénarios</button>
+              </div>
+            </div>
+            <div x-show="warScenarioError" x-cloak role="alert" class="mt-3 rounded-xl border border-rose-400/25 bg-rose-500/10 p-3 text-xs text-rose-200" x-text="warScenarioError"></div>
+            <div x-show="warScenariosLoading && !warScenarios.length" class="py-6 text-center text-xs text-zinc-500">Chargement de la bibliothèque…</div>
+            <div x-show="!warScenariosLoading && !filteredWarScenarios().length" class="py-6 text-center text-xs text-zinc-500">Aucun scénario dans ce filtre.</div>
+            <div class="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+              <template x-for="scenario in filteredWarScenarios()" :key="scenario.id">
+                <article class="flex min-w-0 flex-col rounded-xl border border-white/[0.08] bg-black/10 p-4">
+                  <div class="flex flex-wrap items-center gap-2"><span class="font-mono text-[10px] font-bold text-zinc-400" x-text="scenario.id"></span><span class="rounded-full border px-2 py-1 text-[9px] font-bold uppercase" :class="scenario.is_user_created ? 'border-cyan-400/25 bg-cyan-500/10 text-cyan-200' : 'border-white/10 bg-white/[0.04] text-zinc-400'" x-text="scenario.is_user_created ? 'Utilisateur' : 'Pilote'"></span></div>
+                  <h4 class="mt-2 text-sm font-bold text-white" x-text="scenario.title"></h4>
+                  <p class="mt-1 flex-1 text-[11px] text-zinc-500" x-text="scenario.type === 'incident' ? 'Incident' : scenario.type === 'change' ? 'Change' : 'Problem'"></p>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button type="button" @click="launchWarScenario(scenario)" class="rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-3 py-2 text-[11px] font-bold text-slate-950 transition hover:brightness-110">▶ Lancer</button>
+                    <button type="button" @click="exportWarScenario(scenario.id)" class="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[11px] font-semibold text-zinc-200 transition hover:bg-white/[0.08]">📤 Exporter .json</button>
+                  </div>
+                </article>
+              </template>
+            </div>
+          </div>
           <div x-show="warArchiveLoading && !warArchive.length" class="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-zinc-400">Chargement des archives…</div>
           <div x-show="!warArchiveLoading && !warArchiveError && warArchive.length === 0" class="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center"><div class="text-3xl">📁</div><h3 class="mt-3 text-base font-bold text-white">Aucun ticket archivé</h3><p class="mt-1 text-sm text-zinc-500">Les tickets résolus ou échoués apparaîtront ici.</p></div>
           <div class="space-y-3">
@@ -675,6 +707,37 @@
           </div>
         </div></section>
 </main>
+  </div>
+
+  <!-- ================= MODALE DE CRÉATION WAR ROOM ================= -->
+  <div x-show="createScenarioOpen" x-cloak class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/75 p-4 backdrop-blur-sm sm:p-8" @keydown.escape.window="createScenarioOpen = false">
+    <div class="my-4 w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-[color:var(--s1)] shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="createScenarioTitle">
+      <div class="flex items-start justify-between gap-4 border-b border-white/[0.08] px-5 py-5 sm:px-7">
+        <div><div class="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">War Room · Studio de scénarios</div><h2 id="createScenarioTitle" class="mt-2 text-xl font-bold text-white">Créer un scénario</h2><p class="mt-1 text-xs text-zinc-500">Choisissez une topologie, injectez une seule faute contrôlable et définissez le SLA.</p></div>
+        <button type="button" @click="createScenarioOpen = false" aria-label="Fermer la fenêtre" class="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-zinc-300 hover:bg-white/[0.08]">✕</button>
+      </div>
+      <form @submit.prevent="saveWarScenario()" class="space-y-5 px-5 py-5 sm:px-7 sm:py-6">
+        <div x-show="createScenarioError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-3 text-xs text-rose-200" x-text="createScenarioError"></div>
+        <div x-show="createScenarioSuccess" x-cloak role="status" class="rounded-xl border border-emerald-400/25 bg-emerald-500/10 p-3 text-xs text-emerald-200" x-text="createScenarioSuccess"></div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block sm:col-span-2"><span class="mb-1.5 block text-xs font-semibold text-zinc-300">Titre du scénario</span><input x-model="createScenario.name" required minlength="3" maxlength="160" placeholder="Ex. Port d'accès désactivé après maintenance" class="w-full rounded-xl border border-white/10 bg-black/20 px-3.5 py-3 text-sm text-white outline-none transition focus:border-cyan-400/40"></label>
+          <label class="block"><span class="mb-1.5 block text-xs font-semibold text-zinc-300">Type</span><select x-model="createScenario.type" required class="w-full rounded-xl border border-white/10 bg-black/20 px-3.5 py-3 text-sm text-white outline-none focus:border-cyan-400/40"><option value="incident">Incident</option><option value="change">Change</option><option value="problem">Problem</option></select></label>
+          <label class="block"><span class="mb-1.5 block text-xs font-semibold text-zinc-300">Sévérité</span><select x-model="createScenario.severity" required class="w-full rounded-xl border border-white/10 bg-black/20 px-3.5 py-3 text-sm text-white outline-none focus:border-cyan-400/40"><option value="low">Basse</option><option value="normal">Normale</option><option value="high">Haute</option><option value="critical">Critique</option></select></label>
+          <label class="block"><span class="mb-1.5 block text-xs font-semibold text-zinc-300">Topologie de base</span><select x-model="createScenario.topology" @change="updateScenarioTopology()" required class="w-full rounded-xl border border-white/10 bg-black/20 px-3.5 py-3 text-sm text-white outline-none focus:border-cyan-400/40"><template x-for="topology in (warScenarioOptions?.topologies || [])" :key="topology.id"><option :value="topology.id" x-text="topology.label"></option></template></select></label>
+          <label class="block"><span class="mb-1.5 block text-xs font-semibold text-zinc-300">Faute à injecter</span><select x-model="createScenario.fault_id" @change="updateScenarioFault()" required class="w-full rounded-xl border border-white/10 bg-black/20 px-3.5 py-3 text-sm text-white outline-none focus:border-cyan-400/40"><template x-for="fault in scenarioFaultOptions()" :key="fault.id"><option :value="fault.id" x-text="fault.label"></option></template></select></label>
+          <label class="block"><span class="mb-1.5 block text-xs font-semibold text-zinc-300">Équipement cible</span><select x-model="createScenario.target_device" @change="updateScenarioDevice()" required class="w-full rounded-xl border border-white/10 bg-black/20 px-3.5 py-3 text-sm text-white outline-none focus:border-cyan-400/40"><template x-for="device in scenarioTargetOptions()" :key="device.id"><option :value="device.id" x-text="device.label + ' · ' + device.type"></option></template></select></label>
+          <label class="block"><span class="mb-1.5 block text-xs font-semibold text-zinc-300">Port cible</span><select x-model="createScenario.target_port" @change="createScenarioSavedId = ''; createScenarioSuccess = ''" required class="w-full rounded-xl border border-white/10 bg-black/20 px-3.5 py-3 text-sm text-white outline-none focus:border-cyan-400/40"><template x-for="port in scenarioPortOptions()" :key="port.id"><option :value="port.id" x-text="port.label"></option></template></select></label>
+          <label class="block"><span class="mb-1.5 block text-xs font-semibold text-zinc-300">SLA (minutes)</span><input x-model.number="createScenario.sla_minutes" type="number" min="5" max="240" step="1" required class="w-full rounded-xl border border-white/10 bg-black/20 px-3.5 py-3 text-sm text-white outline-none focus:border-cyan-400/40"></label>
+        </div>
+        <div class="flex flex-col-reverse gap-2 border-t border-white/[0.08] pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <button type="button" @click="createScenarioOpen = false" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-zinc-300 hover:bg-white/[0.08]">Fermer</button>
+          <div class="flex flex-wrap gap-2 sm:justify-end">
+            <button x-show="createScenarioSavedId" type="button" @click="exportWarScenario(createScenarioSavedId)" class="rounded-xl border border-violet-400/25 bg-violet-500/10 px-4 py-2.5 text-xs font-bold text-violet-100 hover:bg-violet-500/20">📤 Exporter ce scénario</button>
+            <button type="submit" :disabled="createScenarioBusy || !warScenarioOptions" class="rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:brightness-110 disabled:opacity-50" x-text="createScenarioBusy ? 'Enregistrement…' : '💾 Enregistrer le scénario'"></button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- ================= MODALE DÉTAIL (LEÇON) ================= -->
@@ -998,6 +1061,10 @@
         warTickets: [], warFilter: 'all', warTab: 'inbox', warLoading: false, warError: '', _warTicketTimer: null,
         warStats: { mttr_minutes: 0, sla_compliance_pct: 0, total_resolved: 0, total_failed: 0, incidents_today: 0, recent_resolved: [] }, warLiveLoading: false, warStatsError: '',
         warArchive: [], warArchiveLoading: false, warArchiveError: '', warReplayBusy: null,
+        warScenarios: [], warScenariosLoading: false, warScenarioError: '', warScenarioFilter: 'all',
+        warRandomBusy: false, warScenarioOptions: null, createScenarioOpen: false, createScenarioBusy: false,
+        createScenarioError: '', createScenarioSuccess: '', createScenarioSavedId: '',
+        createScenario: { name: '', type: 'incident', severity: 'normal', topology: 'lan_simple', fault_id: 'port_shutdown', target_device: 'SW1', target_port: 'Fa0/7', sla_minutes: 30 },
         exam: null, examAnswers: [], examResult: null, examBusy: false, examCategory: '',
         examMode: 'category', examNodeId: '', examError: '',
 
@@ -1145,6 +1212,7 @@
             this.warArchive = Array.isArray(payload) ? payload : [];
           } catch (error) { this.warArchiveError = 'Impossible de charger les archives : ' + error.message; }
           finally { this.warArchiveLoading = false; }
+          await this.loadWarScenarios();
         },
         async replayWarTicket(ticket) {
           if (!ticket || !ticket.id || this.warReplayBusy) return;
@@ -1160,6 +1228,178 @@
             this.warError = 'Ticket rejoué : ' + payload.new_ticket_id + ' · nouveau délai SLA démarré.';
           } catch (error) { this.warArchiveError = 'Impossible de rejouer le ticket : ' + error.message; }
           finally { this.warReplayBusy = null; }
+        },
+        async createRandomWarTicket() {
+          if (this.warRandomBusy) return;
+          // Ouvre la fenêtre dans le geste utilisateur, avant les appels réseau, pour éviter le blocage des pop-ups.
+          const target = window.open('about:blank', '_blank');
+          this.warRandomBusy = true; this.warError = '';
+          try {
+            const response = await fetch('/api/tickets/random', {
+              method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}'
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warTab = 'inbox'; this.warFilter = 'all';
+            await this.loadTickets();
+            const ticketId = payload.ticket_id;
+            this.warError = 'Ticket surprise créé : ' + ticketId + ' · ' + (payload.scenario?.title || 'scénario aléatoire');
+            const url = '/lab.html?ticket=' + encodeURIComponent(ticketId);
+            if (target) target.location.href = url;
+            else window.location.assign(url);
+          } catch (error) {
+            this.warError = 'Impossible de créer le ticket surprise : ' + error.message;
+            try { if (target) target.close(); } catch (_) {}
+          } finally { this.warRandomBusy = false; }
+        },
+        async loadWarScenarios() {
+          this.warScenariosLoading = true; this.warScenarioError = '';
+          try {
+            const response = await fetch('/api/scenarios/list', { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => []);
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warScenarios = Array.isArray(payload) ? payload : [];
+          } catch (error) { this.warScenarioError = 'Impossible de charger les scénarios : ' + error.message; }
+          finally { this.warScenariosLoading = false; }
+        },
+        filteredWarScenarios() {
+          return (this.warScenarios || []).filter(scenario =>
+            this.warScenarioFilter === 'all' ||
+            (this.warScenarioFilter === 'pilots' && !scenario.is_user_created) ||
+            (this.warScenarioFilter === 'user' && scenario.is_user_created)
+          );
+        },
+        async loadScenarioOptions() {
+          const response = await fetch('/api/scenarios/options', { credentials: 'same-origin', cache: 'no-store' });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+          this.warScenarioOptions = payload;
+          this.updateScenarioTopology();
+        },
+        scenarioFaultOptions() {
+          const options = this.warScenarioOptions;
+          const topology = this.createScenario.topology;
+          return (options?.faults || []).filter(fault => (fault.topologies || []).includes(topology));
+        },
+        scenarioTargetOptions() {
+          return this.warScenarioOptions?.targets?.[this.createScenario.topology]?.[this.createScenario.fault_id] || [];
+        },
+        scenarioPortOptions() {
+          const target = this.scenarioTargetOptions().find(item => item.id === this.createScenario.target_device);
+          return target?.ports || [];
+        },
+        updateScenarioTopology() {
+          const faults = this.scenarioFaultOptions();
+          if (!faults.some(fault => fault.id === this.createScenario.fault_id)) this.createScenario.fault_id = faults[0]?.id || '';
+          this.updateScenarioFault();
+        },
+        updateScenarioFault() {
+          const targets = this.scenarioTargetOptions();
+          if (!targets.some(item => item.id === this.createScenario.target_device)) this.createScenario.target_device = targets[0]?.id || '';
+          this.updateScenarioDevice();
+        },
+        updateScenarioDevice() {
+          const ports = this.scenarioPortOptions();
+          if (!ports.some(item => item.id === this.createScenario.target_port)) this.createScenario.target_port = ports[0]?.id || '';
+          this.createScenarioSavedId = '';
+          this.createScenarioSuccess = '';
+        },
+        async openScenarioCreator() {
+          this.createScenarioOpen = true;
+          this.createScenarioError = ''; this.createScenarioSuccess = ''; this.createScenarioSavedId = '';
+          this.createScenario.name = '';
+          try {
+            if (!this.warScenarioOptions) await this.loadScenarioOptions();
+            else this.updateScenarioTopology();
+          } catch (error) { this.createScenarioError = 'Impossible de charger les options : ' + error.message; }
+        },
+        async saveWarScenario() {
+          if (this.createScenarioBusy) return;
+          this.createScenarioBusy = true; this.createScenarioError = ''; this.createScenarioSuccess = '';
+          try {
+            const body = {
+              name: this.createScenario.name.trim(), type: this.createScenario.type,
+              severity: this.createScenario.severity, topology: this.createScenario.topology,
+              fault_id: this.createScenario.fault_id, target_device: this.createScenario.target_device,
+              target_port: this.createScenario.target_port, sla_minutes: Number(this.createScenario.sla_minutes)
+            };
+            const response = await fetch('/api/scenarios/save', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.createScenarioSavedId = payload.scenario_id;
+            this.createScenarioSuccess = 'Scénario enregistré : ' + payload.scenario_id;
+            this.warTab = 'archive'; this.warScenarioFilter = 'user';
+            await this.loadWarScenarios();
+            await this.loadTickets();
+          } catch (error) { this.createScenarioError = 'Impossible d’enregistrer le scénario : ' + error.message; }
+          finally { this.createScenarioBusy = false; }
+        },
+        async exportWarScenario(scenarioId) {
+          try {
+            const response = await fetch('/api/scenarios/' + encodeURIComponent(scenarioId) + '/export', {
+              credentials: 'same-origin', cache: 'no-store'
+            });
+            const body = await response.text();
+            let payload = {};
+            try { payload = JSON.parse(body); } catch (_) {}
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            const blob = new Blob([JSON.stringify(payload, null, 2) + '\n'], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url; link.download = scenarioId + '.json'; document.body.appendChild(link); link.click(); link.remove();
+            URL.revokeObjectURL(url);
+            this.createScenarioSuccess = 'Export téléchargé : ' + scenarioId + '.json';
+          } catch (error) {
+            const message = 'Impossible d’exporter le scénario : ' + error.message;
+            if (this.createScenarioOpen) this.createScenarioError = message; else this.warScenarioError = message;
+          }
+        },
+        async importWarScenario(event) {
+          const input = event?.target;
+          const file = input?.files?.[0];
+          if (!file) return;
+          this.warScenarioError = '';
+          try {
+            const imported = JSON.parse(await file.text());
+            if (!imported || !imported.id || !imported.type || !imported.initial_topology ||
+                !Array.isArray(imported.initial_topology.nodes) || !imported.resolution_check ||
+                !Array.isArray(imported.resolution_check.rules) || !imported.resolution_check.rules.length) {
+              throw new Error('Le JSON doit contenir id, type, initial_topology.nodes et resolution_check.rules.');
+            }
+            const response = await fetch('/api/scenarios/import', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(imported)
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warTab = 'archive'; this.warScenarioFilter = 'user';
+            await this.loadWarScenarios(); await this.loadTickets(); await this.loadWarArchive();
+            this.warScenarioError = 'Scénario importé sous ' + payload.scenario_id + '.';
+          } catch (error) { this.warScenarioError = 'Import impossible : ' + error.message; }
+          finally { if (input) input.value = ''; }
+        },
+        async launchWarScenario(scenario) {
+          if (!scenario?.id) return;
+          const target = window.open('about:blank', '_blank');
+          try {
+            const response = await fetch('/api/tickets/' + encodeURIComponent(scenario.id) + '/open', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' }, body: '{}'
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            const ticketId = payload.ticket?.id;
+            if (!ticketId) throw new Error('Le serveur n’a pas retourné de ticket.');
+            this.warTab = 'inbox'; await this.loadTickets();
+            const url = '/lab.html?ticket=' + encodeURIComponent(ticketId);
+            if (target) target.location.href = url; else window.location.assign(url);
+          } catch (error) {
+            this.warScenarioError = 'Impossible de lancer ce scénario : ' + error.message;
+            try { if (target) target.close(); } catch (_) {}
+          }
         },
         formatWarDuration(seconds) {
           if (seconds === null || seconds === undefined || !Number.isFinite(Number(seconds))) return '—';
