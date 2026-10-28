@@ -156,6 +156,17 @@ Une clé primaire ou une contrainte UNIQUE est généralement soutenue par une s
 
 Ne créez pas un doublon d'index sans examiner ceux déjà produits par les clés primaires et les contraintes UNIQUE. Un index additionnel qui couvre exactement la même clé et le même ordre peut apporter peu de bénéfice et augmenter le coût d'écriture et le stockage.
 
+~~~mermaid
+flowchart TD
+    A["Prédicat WHERE"] --> B["Estimer les lignes candidates"]
+    B --> C{"Proportion de lignes retenues"}
+    C -- "Très faible" --> D["Index potentiellement utile"]
+    C -- "Très élevée" --> E["Parcours large parfois moins coûteux"]
+    D --> F["Vérifier les accès aux lignes"]
+    E --> F
+    F --> G["Confirmer avec EXPLAIN et mesures"]
+~~~
+
 ## 5. Sélectivité et cardinalité
 
 La sélectivité exprime dans quelle mesure un prédicat réduit l'ensemble de lignes candidates. Un filtre qui conserve une seule ligne sur un million est très sélectif. Un filtre qui conserve presque toutes les lignes est peu sélectif. Le terme cardinalité peut avoir plusieurs usages dans les discussions sur les bases ; pour le plan d'exécution, il désigne notamment l'estimation du nombre de lignes à une étape donnée. Il faut être précis dans son contexte.
@@ -279,6 +290,8 @@ WHERE apprenant_id = 10
 La clé primaire (apprenant_id, cours_id) identifie déjà la ligne. Selon le moteur et l'organisation du stockage, la requête peut lire les valeurs nécessaires par le chemin d'accès fourni par la clé primaire. Ajouter un index identique serait redondant. Il faut examiner les index existants avant de créer une structure supplémentaire.
 
 Si un écran lit fréquemment date_inscription et score par apprenant, un index composite peut éventuellement couvrir ces colonnes, mais il faut évaluer la taille accrue et le coût des mises à jour de score. Un index trop large peut consommer beaucoup d'espace et amplifier les écritures. Un index couvrant répond à un motif de requête précis ; ce n'est pas une raison pour copier toute la ligne dans un index.
+
+La clé primaire (apprenant_id, cours_id) permet de retrouver l'inscription, mais elle ne contient pas score. PostgreSQL devra normalement accéder à la ligne de table pour lire score si cette colonne n'est pas incluse dans l'index ; InnoDB organise la table selon sa clé primaire, ce qui donne un comportement différent pour l'accès aux autres colonnes. Ce contraste illustre pourquoi le plan et les propriétés du moteur doivent être vérifiés plutôt que transposés mécaniquement d'un SGBD à l'autre.
 
 Exemple propre à PostgreSQL :
 
@@ -462,6 +475,16 @@ Il n'existe pas de stratégie de jointure qui soit toujours la meilleure. Si le 
 ### 12.2 Préserver la sémantique pendant l'optimisation
 
 La réécriture d'une requête doit conserver son résultat, y compris les cas limites. Remplacer un LEFT JOIN par un INNER JOIN peut exclure les cours sans inscription. Déplacer un prédicat de WHERE vers ON peut modifier la conservation des lignes. Remplacer COUNT(*) par COUNT(colonne) peut changer le comptage des valeurs NULL. Avant de comparer la performance, construisez des tests qui détectent ces différences.
+
+~~~mermaid
+flowchart LR
+    A["Ajouter un index"] --> B["Peut accélérer certaines lectures"]
+    A --> C["Consomme du stockage"]
+    A --> D["Augmente la maintenance des écritures"]
+    B --> E["Comparer le gain et le coût global"]
+    C --> E
+    D --> E
+~~~
 
 ## 13. Index et coût des écritures
 
