@@ -2195,7 +2195,7 @@ def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTr
     ).fetchone()
     source_id = _configured_lesson_sources().get(node.id, node.id)
     target_seconds = _lesson_reading_target_seconds(source_id)
-    if target_seconds > 0 and not (
+    if not is_validated(node) and target_seconds > 0 and not (
         progress_row
         and int(progress_row["progress_percent"] or 0) >= 90
         and int(progress_row["active_seconds"] or 0) >= target_seconds
