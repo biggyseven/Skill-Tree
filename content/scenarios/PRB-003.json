@@ -30,7 +30,8 @@
         ],
         "config": {
           "hostname": "R1",
-          "interfaces": {}
+          "interfaces": {},
+          "cpu_utilization": 100
         }
       },
       {
@@ -77,7 +78,6 @@
             1
           ],
           "interfaces": {},
-          "cpu_utilization": 100,
           "logs": [
             "CPU utilization 100%",
             "Broadcast storm detected on Fa0/2 and Fa0/3"
@@ -161,10 +161,12 @@
   "hidden_faults": [
     {
       "id": "F1",
-      "device": "SW1",
-      "area": "layer2",
+      "device": "R1",
+      "area": "cpu",
       "interface": "Fa0/2-Fa0/3",
-      "detail": "Un cordon relie deux ports du même commutateur, créant une boucle L2."
+      "detail": "La boucle L2 sur SW1 déclenche une tempête de broadcast qui sature le CPU du routeur R1.",
+      "expected": "charge CPU élevée due à la boucle L2",
+      "actual": "100%"
     },
     {
       "id": "F2",
@@ -177,14 +179,14 @@
   ],
   "diagnostic_steps": [
     {
-      "title": "Lire le CPU",
-      "instructions": "Sur SW1, exécutez show processes cpu puis inspectez les journaux dans show running-config.",
-      "hint": "Une charge CPU très élevée associée à une tempête de broadcast est un indice de boucle L2."
+      "title": "Lire l'indicateur CPU",
+      "instructions": "Sur R1, exécutez show processes cpu pour relever la charge CPU. Inspectez ensuite SW1 et les logs de broadcast signalés sur Fa0/2 et Fa0/3.",
+      "hint": "La charge CPU du routeur est le symptôme ; la boucle de commutation sur SW1 est la cause à isoler."
     },
     {
       "title": "Identifier la boucle",
-      "instructions": "Repérez la liaison SW1 Fa0/2–Fa0/3 et vérifiez le mode STP.",
-      "hint": "La boucle doit être neutralisée sans couper le port utilisateur."
+      "instructions": "Repérez la liaison SW1 Fa0/2–Fa0/3 et vérifiez que le spanning-tree est désactivé sur SW1.",
+      "hint": "Une boucle de couche 2 sans STP peut inonder le segment de broadcasts et perturber les équipements connectés."
     },
     {
       "title": "Rétablir la protection L2",
