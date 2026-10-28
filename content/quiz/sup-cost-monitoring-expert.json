@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « FinOps et monitoring des coûts ».",
+      "prompt": "Pourquoi le suivi de la dépense absolue doit-il être complété par un coût unitaire ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Parce que la dépense absolue ne peut jamais être comparée d’un mois à l’autre.",
+        "Parce qu’un coût unitaire remplace toutes les données de facturation.",
+        "Parce qu’une facture plus élevée peut correspondre à davantage d’activité et de valeur, tandis que le coût par opération permet d’évaluer l’efficacité.",
+        "Parce qu’il faut toujours réduire la facture totale, quelle que soit l’évolution du service."
+      ],
+      "answer": 2,
+      "explanation": "Un montant agrégé ne distingue pas une croissance normale de la demande d’une baisse d’efficacité. Le coût par unité pertinente, associé au volume et à la qualité du service, aide à comprendre si les ressources produisent davantage de valeur ou si la dépense augmente plus vite que l’activité. Le montant absolu reste essentiel au contrôle budgétaire, mais il ne suffit pas à mesurer l’efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode est la plus défendable pour attribuer le coût d’une plateforme partagée entre plusieurs équipes ?",
+      "choices": [
+        "Choisir une clé documentée qui reflète le principal moteur de coût, comme le volume consommé, et signaler les estimations ou limites.",
+        "Répartir toujours la dépense exactement à parts égales, quel que soit l’usage.",
+        "Attribuer tous les coûts à l’équipe finance afin d’éviter les discussions.",
+        "Répartir arbitrairement les dépenses non attribuées pour afficher 100 % d’allocation."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "La clé d’allocation doit refléter aussi raisonnablement que possible la consommation ou le service fourni. Une répartition égale peut être acceptable dans certains cas, mais elle doit être justifiée. Les dépenses non attribuées doivent rester visibles et être corrigées, plutôt que redistribuées arbitrairement pour obtenir un taux d’allocation artificiellement élevé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une alerte fondée sur la prévision de fin de mois peut-elle être plus utile qu’une alerte déclenchée uniquement à 100 % du budget ?",
+      "choices": [
+        "Parce que la prévision connaît toujours exactement la facture finale.",
+        "Parce qu’elle permet de repérer plus tôt un dépassement probable et de donner du temps aux équipes pour investiguer, sous réserve de la qualité des données et du modèle.",
+        "Parce qu’elle permet de supprimer automatiquement toutes les ressources du service.",
+        "Parce que les données de facturation sont toujours disponibles en temps réel."
+      ],
+      "answer": 1,
+      "explanation": "Une alerte déclenchée uniquement lorsque le budget est entièrement consommé peut arriver trop tard pour agir. Une prévision signale une trajectoire de dépassement probable plus tôt, mais elle dépend des données historiques, des hypothèses de croissance et du délai d’ingestion. Son incertitude doit être visible et son résultat confirmé par le contexte opérationnel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une optimisation réduit la facture de 10 %, mais le nombre d’opérations réussies baisse de 25 % et le taux d’erreur augmente. Quelle conclusion est la plus juste ?",
+      "choices": [
+        "L’optimisation est réussie car le coût total a diminué.",
+        "Il faut poursuivre immédiatement la réduction de capacité jusqu’à atteindre le budget.",
+        "Le taux d’erreur ne doit pas être considéré lorsque l’on mesure des économies.",
+        "La baisse de dépense peut venir d’une dégradation du service ; il faut comparer le coût unitaire et les SLO avant de déclarer un succès."
+      ],
+      "answer": 3,
+      "explanation": "La facture totale peut diminuer parce que le système traite moins de demandes. Si les opérations réussies baissent plus fortement que les coûts et que les erreurs augmentent, l’efficacité se détériore probablement. Une optimisation doit être vérifiée avec le coût unitaire, le volume, les SLO, la capacité et la sécurité, pas uniquement avec le montant de la facture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est le plus important avant d’automatiser la suppression de ressources considérées comme inactives ?",
+      "choices": [
+        "Vérifier uniquement que la ressource coûte plus qu’un montant fixe.",
+        "Supprimer tout ce qui n’a pas produit de métrique pendant une heure.",
+        "Vérifier le propriétaire, l’usage, les dépendances, la rétention, les besoins de reprise et prévoir un mode simulation ou une validation adaptée au risque.",
+        "Arrêter d’enregistrer les coûts avant de lancer le nettoyage."
+      ],
+      "answer": 2,
+      "explanation": "Une ressource apparemment inactive peut être utilisée pour une reprise après sinistre, une tâche programmée ou une obligation de conservation. Le nettoyage doit vérifier le propriétaire, les dépendances et la politique de rétention. Un mode simulation et des garde-fous réduisent le risque de supprimer des données ou capacités nécessaires au service."
     }
   ]
 }
