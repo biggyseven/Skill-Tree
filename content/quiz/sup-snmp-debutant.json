@@ -4,63 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Un manager reçoit « noSuchObject » après une requête à un OID issu d'une MIB constructeur installée localement. Quelle démarche est la plus rigoureuse ?",
+      "prompt": "Un poller relève ifHCInOctets à deux instants et obtient une variation négative. Quelle procédure évite le mieux de publier un débit aberrant ?",
       "choices": [
-        "Augmenter immédiatement la fréquence de polling jusqu'à ce que la valeur apparaisse.",
-        "Vérifier le modèle et le firmware, l'OID exact et son instance, puis les vues d'accès et les objets réellement implémentés par l'agent.",
-        "Considérer que l'installation de la MIB prouve que l'objet existe sur tous les appareils du constructeur.",
-        "Activer les droits SET sur l'agent pour rendre l'OID disponible."
+        "Convertir immédiatement la variation en valeur absolue, puis la multiplier par huit.",
+        "Vérifier le type de compteur, les horodatages, une éventuelle discontinuité ou réinitialisation, l'identité de l'interface et la possibilité d'un wrap ; invalider l'intervalle s'il reste ambigu.",
+        "Remplacer la variation négative par zéro et considérer la mesure comme fiable.",
+        "Interpréter la variation négative comme une preuve certaine que le routeur a redémarré."
       ],
       "answer": 1,
-      "explanation": "Le fichier MIB définit la structure et la sémantique d'un objet, mais ne force pas l'agent à implémenter cet objet. Une extension peut dépendre du modèle ou du firmware, et une vue de contrôle d'accès peut masquer des branches. Il faut vérifier la documentation du matériel, l'instance demandée et les droits du compte. Une erreur explicite de type noSuchObject n'est pas la même chose qu'un délai d'attente réseau ; augmenter la fréquence ne corrige donc pas la cause."
+      "explanation": "Un compteur cumulatif peut revenir à zéro après un wrap ou une discontinuité, et l'index d'interface peut changer. Une simple valeur absolue ne correspond pas à une variation physique plausible. Il faut contrôler le type Counter32/Counter64, l'intervalle réel, l'uptime ou les objets de discontinuité et l'identité logique de l'interface. Si la cause n'est pas déterminée, marquer l'intervalle non calculable est plus rigoureux que fabriquer un débit."
     },
     {
       "type": "qcm",
-      "prompt": "Un compteur d'octets de 32 bits semble repartir près de zéro sur une interface haut débit, alors que le trafic utilisateur continue. Quelle explication et quelle mesure sont les plus adaptées ?",
+      "prompt": "Un SNMPv3 authPriv fonctionnait hier. Aujourd'hui, le routage et UDP/161 sont confirmés, mais le client signale un problème de synchronisation du moteur après une opération de remplacement ou de restauration de l'agent. Quelle approche est la plus appropriée ?",
       "choices": [
-        "Le trafic a forcément cessé puis repris ; déclencher une panne critique de l'interface.",
-        "Le compteur mesure une jauge instantanée, donc la valeur doit être utilisée directement comme débit.",
-        "Un débordement ou une discontinuité a pu se produire ; vérifier le redémarrage et l'intervalle, puis préférer un compteur 64 bits si l'agent le fournit et traiter les discontinuités.",
-        "Additionner les deux valeurs brutes sans vérifier l'intervalle entre les lectures."
+        "Remplacer définitivement SNMPv3 par une communauté SNMPv2c partagée.",
+        "Accorder les permissions SET pour forcer la découverte du moteur.",
+        "Examiner l'identité du moteur et les indicateurs de temps USM, vérifier les journaux et la configuration de l'agent, puis refaire un échange contrôlé avec les paramètres sécurisés attendus.",
+        "Augmenter le timeout ICMP, car SNMPv3 s'appuie sur ICMP pour l'authentification."
       ],
       "answer": 2,
-      "explanation": "Un compteur cumulatif augmente au fil du temps ; il ne représente pas directement un débit instantané. Les compteurs de 32 bits peuvent revenir à zéro à leur limite, et une réinitialisation peut aussi interrompre la continuité. Le collecteur doit calculer la différence sur un intervalle connu, vérifier les éventuelles discontinuités et convertir les octets en bits par seconde. Les compteurs 64 bits sont généralement préférables sur les interfaces rapides lorsqu'ils sont disponibles."
+      "explanation": "USM utilise l'identité du moteur et des informations de temps pour protéger les échanges authentifiés contre certaines formes de rejeu. Une restauration ou modification d'agent peut affecter l'état appris par le gestionnaire. Le problème doit être isolé dans la couche sécurité SNMPv3 après confirmation du transport. Le mécanisme ne dépend pas d'ICMP et ne justifie ni un downgrade durable vers v2c ni des droits d'écriture inutiles."
     },
     {
       "type": "qcm",
-      "prompt": "Une entreprise doit conserver temporairement un équipement qui ne prend en charge que SNMPv2c. Quelle mesure réduit le risque sans surestimer les propriétés de sécurité de la version ?",
+      "prompt": "Un GETBULK échoue seulement lorsqu'il est utilisé sur une table très volumineuse ; un GET sur un OID connu fonctionne. Quelle démarche de diagnostic est la plus solide ?",
       "choices": [
-        "Restreindre le chemin de gestion aux managers connus, utiliser une communauté dédiée, limiter les objets et privilèges, désactiver l'écriture inutile et documenter une migration.",
-        "Exposer UDP/161 à tous les réseaux, car v2c chiffre déjà les requêtes.",
-        "Réutiliser la communauté par défaut si le polling est limité à une fois par heure.",
-        "Activer une communauté en lecture-écriture afin que le manager puisse corriger la configuration sans autorisation."
+        "Conclure que l'agent entier est indisponible, car toute erreur SNMP a la même signification.",
+        "Augmenter immédiatement le nombre de répétitions pour réduire le nombre de paquets.",
+        "Vérifier les limites de taille et la capacité de l'agent, réduire le parcours à une petite sous-arborescence, ajuster progressivement le volume de réponse et examiner erreurs et pertes.",
+        "Accorder un accès en écriture à l'utilisateur afin de corriger la table."
       ],
-      "answer": 0,
-      "explanation": "SNMPv2c repose sur le modèle communautaire et ne fournit pas la confidentialité cryptographique de SNMPv3 authPriv. Un secret plus complexe ne transforme pas ce modèle en chiffrement. Si la compatibilité impose temporairement v2c, l'exposition peut être réduite en isolant le réseau de gestion, en limitant les sources autorisées, en utilisant une communauté dédiée avec des droits minimaux et en désactivant l'écriture inutile. L'exception doit être documentée et assortie d'un plan d'évolution."
+      "answer": 2,
+      "explanation": "Le succès d'un GET ciblé montre que certaines opérations et le chemin de gestion fonctionnent. Le problème peut être lié à la taille ou au nombre d'objets de la réponse GETBULK, à la capacité de l'agent, à la fragmentation ou à une limite réseau. Réduire le parcours et ajuster progressivement les répétitions donne des informations discriminantes. Un accès SET n'a pas de rapport avec la taille de la réponse."
     },
     {
       "type": "qcm",
-      "prompt": "Un trap « interface down » arrive, mais lorsque le technicien consulte l'équipement, l'interface est déjà revenue à l'état up. Quelle conception permet de traiter ce cas proprement ?",
+      "prompt": "Une interface réseau est recréée après un changement matériel et l'agent réutilise un ifIndex auparavant associé à une autre interface. Pourquoi le graphique historique peut-il devenir trompeur ?",
       "choices": [
-        "Considérer que le trap décrit toujours l'état courant et redémarrer le commutateur.",
-        "Supprimer le polling, car les notifications rendent les mesures historiques inutiles.",
-        "Ignorer tous les traps et ne faire qu'un relevé quotidien des interfaces.",
-        "Conserver la notification comme événement, relire l'état courant via polling, examiner l'historique et corréler les transitions avant de conclure."
+        "Un ifIndex est un identifiant global permanent qui ne peut jamais être réutilisé.",
+        "Le compteur SNMP inclut automatiquement le nom humain et empêche tout mélange d'historique.",
+        "Le collecteur peut rattacher une nouvelle interface à l'ancienne série si l'index seul sert d'identité ; il faut comparer des attributs d'identité et marquer la transition.",
+        "Un changement d'index invalide seulement les traps, pas les mesures de polling."
       ],
-      "answer": 3,
-      "explanation": "Un trap informe d'un événement au moment où l'agent l'a détecté ; il peut arriver après un rétablissement et ne garantit pas, à lui seul, l'état actuel. Le polling construit un historique et permet de relire la valeur courante. Un inform peut demander une confirmation de réception, mais cette confirmation n'implique pas que l'équipe a traité l'incident. La meilleure conception combine notifications, historique, déduplication et vérification de l'état actuel."
+      "answer": 2,
+      "explanation": "L'index de ligne sert à identifier une instance dans la table, mais il ne doit pas être traité comme une identité métier éternelle. Après un changement matériel ou de configuration, l'index peut être réattribué. Une série construite uniquement avec ifIndex risque alors de relier les compteurs de deux interfaces différentes. L'inventaire, ifName, ifDescr, ifAlias et les annotations de changement aident à préserver l'interprétation historique."
     },
     {
       "type": "qcm",
-      "prompt": "Un manager SNMPv3 configuré en authPriv ne reçoit aucune réponse. Quelle séquence de dépannage évite le mieux d'affaiblir la sécurité par tâtonnements ?",
+      "prompt": "Un trap « linkDown » arrive dans la console, mais l'historique de l'interface montre une réponse de polling positive quelques secondes plus tard. Quelle interprétation est la plus rigoureuse ?",
       "choices": [
-        "Passer définitivement en noAuthNoPriv et autoriser toutes les sources avant d'examiner les logs.",
-        "Vérifier d'abord l'adresse, le routage, les ACL et les ports, puis confirmer la version, l'utilisateur, le niveau de sécurité, les paramètres d'authentification/confidentialité, le contexte et l'état de l'agent.",
-        "Essayer des opérations SET sur plusieurs OID jusqu'à provoquer une réponse.",
-        "Conclure à une panne matérielle sans examiner le chemin de gestion."
+        "Le trap prouve que le lien est encore hors service et le polling doit être ignoré.",
+        "Le polling prouve que le trap est faux et doit être supprimé automatiquement.",
+        "Les deux signaux peuvent représenter un changement transitoire, des temps d'observation différents ou un événement retardé ; conserver l'heure, corréler les données et vérifier les états successifs.",
+        "Il faut désactiver tous les traps, car ils contredisent toujours le polling."
       ],
-      "answer": 1,
-      "explanation": "Une absence de réponse peut provenir du réseau, d'un filtrage, d'un agent saturé ou d'une incohérence de configuration SNMPv3. Le dépannage doit séparer le transport des paramètres de sécurité : adresse et chemin, ACL et ports, puis utilisateur, niveau authPriv, secrets et algorithmes pris en charge, contexte et indications de l'agent. Il ne faut pas désactiver la sécurité à l'aveugle ni donner des droits d'écriture pour tester la connectivité. Une fois la cause isolée, corrigez une hypothèse à la fois et retestez depuis le manager autorisé."
+      "answer": 2,
+      "explanation": "Les notifications et le polling n'ont pas le même modèle temporel. Un trap rapporte un événement signalé par l'agent, tandis qu'un poll décrit l'état observé à l'instant de la requête. Une récupération rapide, un délai de transport ou une différence d'horodatage peut expliquer l'écart. Conserver les deux sources et vérifier les événements successifs est plus solide que privilégier automatiquement l'une ou l'autre."
     }
   ]
 }
