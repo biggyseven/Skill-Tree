@@ -97,6 +97,126 @@
       ],
       "answer": 3,
       "explanation": "L’élimination de partitions réduit les données à lire pour les requêtes compatibles et permet des opérations ciblées, mais le choix du partitionnement doit correspondre aux accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un schéma dimensionnel, que doit préciser le grain d'une table de faits ?",
+      "choices": [
+        "Le moteur de base de données utilisé",
+        "La taille du stockage en octets",
+        "Ce que représente exactement une ligne de la table de faits",
+        "La fréquence des réunions de l'équipe BI"
+      ],
+      "answer": 2,
+      "explanation": "Le grain définit l'événement ou l'état représenté par une ligne. Il conditionne les clés, les mesures et la possibilité de faire des agrégations sans double comptage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer souvent le fait d'inscription du fait de paiement ?",
+      "choices": [
+        "Parce qu'une inscription peut avoir plusieurs paiements et qu'une jointure naïve multiplierait les montants ou les comptes",
+        "Parce qu'une table de faits ne peut contenir aucune mesure numérique",
+        "Parce que le modèle en étoile interdit plusieurs tables de faits",
+        "Parce qu'un entrepôt ne peut pas conserver les remboursements"
+      ],
+      "answer": 0,
+      "explanation": "Les deux faits peuvent avoir des grains différents. Garder un fait par inscription et un fait par paiement évite de dupliquer les mesures lors des jointures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence décrit le mieux ETL par rapport à ELT ?",
+      "choices": [
+        "ETL supprime les données brutes, alors qu'ELT interdit la transformation",
+        "Dans ETL, on transforme avant le chargement final ; dans ELT, on charge d'abord puis on transforme dans la plateforme cible",
+        "ETL s'applique uniquement aux fichiers CSV et ELT uniquement aux API",
+        "ELT est toujours plus sécurisé et moins cher qu'ETL"
+      ],
+      "answer": 1,
+      "explanation": "ETL transforme avant le chargement final, tandis qu'ELT exploite la cible analytique pour exécuter les transformations après l'atterrissage. Des architectures hybrides sont fréquentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une dimension à évolution lente de type 2 crée-t-elle une nouvelle clé de substitution ?",
+      "choices": [
+        "Pour supprimer l'historique devenu inutile",
+        "Pour convertir une dimension en table de faits",
+        "Pour forcer tous les attributs à être nuls",
+        "Pour conserver une version historique distincte et permettre aux faits d'utiliser le contexte valable à leur date"
+      ],
+      "answer": 3,
+      "explanation": "La nouvelle clé identifie une nouvelle version temporelle. Les faits historiques peuvent ainsi continuer à référencer la version qui était valide lors de l'événement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il avancer le watermark d'un pipeline incrémental ?",
+      "choices": [
+        "Avant de lancer l'extraction, afin de verrouiller la source",
+        "Après chargement, transformation, contrôles et publication réussis",
+        "Dès que la première ligne a été extraite",
+        "À une heure fixe, indépendamment de l'état du lot"
+      ],
+      "answer": 1,
+      "explanation": "Si le watermark est avancé trop tôt puis que le chargement échoue, la prochaine exécution peut sauter des lignes. Il doit avancer selon le contrat du pipeline, après réussite complète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque présente une extraction incrémentale fondée uniquement sur updated_at ?",
+      "choices": [
+        "Elle détecte toujours les suppressions physiques sans mécanisme supplémentaire",
+        "Elle garantit l'ordre global des événements de toutes les sources",
+        "Elle peut manquer les suppressions physiques, car les lignes supprimées n'ont plus de timestamp à lire",
+        "Elle empêche automatiquement les doublons"
+      ],
+      "answer": 2,
+      "explanation": "Les suppressions ne sont pas forcément visibles dans une extraction de lignes présentes. Il faut un marqueur, du CDC, des tombstones ou une comparaison de snapshots selon la source."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qu'un pipeline idempotent ?",
+      "choices": [
+        "Un pipeline dont la relance contrôlée ne crée pas de doublons ni d'effets différents non attendus pour le même lot",
+        "Un pipeline qui n'a jamais besoin de surveillance",
+        "Un pipeline qui transforme toutes les valeurs en texte",
+        "Un pipeline qui ne peut pas échouer"
+      ],
+      "answer": 0,
+      "explanation": "L'idempotence est essentielle, car une tâche peut échouer après avoir modifié la cible mais avant de confirmer sa réussite. La relance ne doit pas doubler les effets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le nombre total de lignes n'est-il pas un contrôle de qualité suffisant ?",
+      "choices": [
+        "Parce que les entrepôts ne doivent pas compter de lignes",
+        "Parce que les volumes ne peuvent jamais être mesurés",
+        "Parce que seul un contrôle visuel peut détecter un problème",
+        "Parce que des doublons et des données manquantes peuvent se compenser ; il faut aussi contrôler les clés, répartitions et mesures métier"
+      ],
+      "answer": 3,
+      "explanation": "Un total identique ne prouve pas l'égalité des ensembles. Les contrôles doivent inclure unicité, orphelins, montants, dates, catégories et quarantaines."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit représenter une quarantaine de données ?",
+      "choices": [
+        "Un emplacement où les erreurs sont conservées sans propriétaire ni suivi",
+        "Des lignes invalides conservées avec leur provenance et la raison du rejet pour correction ou rejeu",
+        "Une copie publique du jeu de données complet",
+        "Un mécanisme qui confirme automatiquement la validité de toutes les lignes"
+      ],
+      "answer": 1,
+      "explanation": "La quarantaine rend les rejets traçables et réparables. Elle doit avoir des responsables, une rétention, des alertes et une procédure de rejeu ou de suppression sécurisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi distinguer la date métier de la date de chargement ?",
+      "choices": [
+        "Pour affecter chaque événement à la date où l'orchestrateur l'a reçu, quelle que soit la réalité",
+        "Pour interdire les événements arrivés en retard",
+        "Pour rattacher l'événement à la période où il s'est produit tout en gardant sa date de réception pour la traçabilité",
+        "Pour éviter d'utiliser une dimension Date"
+      ],
+      "answer": 2,
+      "explanation": "Un événement tardif appartient généralement à sa période métier, tandis que la date de chargement explique quand il est arrivé et permet de diagnostiquer le retard."
     }
   ]
 }
