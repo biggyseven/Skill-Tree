@@ -17,6 +17,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://esm.sh" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -52,15 +55,66 @@
     }
   </script>
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
+
+  <script>
+    // Les bibliothèques spécialisées sont téléchargées uniquement à leur premier usage.
+    window.__skillTreeScriptPromises = window.__skillTreeScriptPromises || new Map();
+    window.skillTreeLoadScript = function (src, globalName) {
+      if (globalName && window[globalName]) return Promise.resolve(window[globalName]);
+      const cache = window.__skillTreeScriptPromises;
+      if (cache.has(src)) return cache.get(src);
+      const promise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        script.addEventListener('load', () => {
+          const library = globalName ? window[globalName] : true;
+          if (globalName && !library) {
+            cache.delete(src);
+            reject(new Error('La bibliothèque ' + globalName + ' ne s’est pas initialisée.'));
+            return;
+          }
+          resolve(library);
+        }, { once: true });
+        script.addEventListener('error', () => {
+          cache.delete(src);
+          reject(new Error('Impossible de charger la bibliothèque : ' + src));
+        }, { once: true });
+        document.head.appendChild(script);
+      });
+      cache.set(src, promise);
+      return promise;
+    };
+    window.__skillTreeStylePromises = window.__skillTreeStylePromises || new Map();
+    window.skillTreeLoadStyle = function (href) {
+      const cache = window.__skillTreeStylePromises;
+      if (cache.has(href)) return cache.get(href);
+      const promise = new Promise((resolve, reject) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.crossOrigin = 'anonymous';
+        link.addEventListener('load', () => resolve(link), { once: true });
+        link.addEventListener('error', () => {
+          cache.delete(href);
+          reject(new Error('Impossible de charger la feuille de style : ' + href));
+        }, { once: true });
+        document.head.appendChild(link);
+      });
+      cache.set(href, promise);
+      return promise;
+    };
+  </script>
+
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
+
+
+
 
   <style>
     [x-cloak] { display: none !important; }
@@ -3629,7 +3683,7 @@
         // Markdown -> HTML : ids de titres + sommaire, callouts, blocs de code, boîte "À retenir"
         formatMarkdown(mdText) {
           const wrap = document.createElement('div');
-          wrap.innerHTML = marked.parse(this.normalizeHtmlBlocks(this.stripLessonHeader(mdText)));
+          wrap.innerHTML = window.marked.parse(this.normalizeHtmlBlocks(this.stripLessonHeader(mdText)));
 
           // 1. Titres h2 : id + sommaire
           const toc = [];
@@ -3876,7 +3930,14 @@
           const root = this.$refs.lessonArticle;
           if (!root) return;
           const mermaidBlocks = Array.from(root.querySelectorAll('.lesson-mermaid'));
-          if (!mermaidBlocks.length || !window.mermaid) return;
+          if (!mermaidBlocks.length) return;
+          try {
+            await window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js', 'mermaid');
+          } catch (error) {
+            console.warn('Mermaid indisponible ; les diagrammes restent sous forme source.', error);
+            return;
+          }
+          if (!window.mermaid) return;
 
           if (!this._mermaidInitialized) {
             window.mermaid.initialize({
@@ -4387,8 +4448,12 @@
                 this.readingMinutes = 0;
               } else {
                 this.lessonIsPlaceholder = false;
+                await Promise.all([
+                  window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js', 'marked'),
+                  window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js', 'DOMPurify'),
+                ]);
                 const rawHtml = this.formatMarkdown(md);
-                this.lessonHtml = DOMPurify.sanitize(rawHtml);
+                this.lessonHtml = window.DOMPurify.sanitize(rawHtml);
                 this.lessonMissing = false;
               }
             }
@@ -4720,10 +4785,15 @@
           }
         },
 
-        renderSpiderChart() {
+        async renderSpiderChart() {
           const canvas = document.getElementById('spiderChart'); if (!canvas || !this.stats || !this.stats.categories) return;
+          if (!window.Chart) {
+            try { await window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/chart.js', 'Chart'); }
+            catch (error) { console.warn('Chart.js indisponible.', error); return; }
+          }
+          if (!canvas.isConnected || !window.Chart) return;
           if (window.spider) window.spider.destroy();
-          window.spider = new Chart(canvas, { type: 'radar', data: { labels: this.stats.categories.map(c => c.name), datasets: [{ data: this.stats.categories.map(c => c.success_rate || 0), backgroundColor: `rgba(${rgbOf('--fuchsia-500')}, 0.2)`, borderColor: `rgb(${rgbOf('--fuchsia-500')})`, borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { ticks: { display: false }, pointLabels: { color: '#e2e8f0' } } } } });
+          window.spider = new window.Chart(canvas, { type: 'radar', data: { labels: this.stats.categories.map(c => c.name), datasets: [{ data: this.stats.categories.map(c => c.success_rate || 0), backgroundColor: `rgba(${rgbOf('--fuchsia-500')}, 0.2)`, borderColor: `rgb(${rgbOf('--fuchsia-500')})`, borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { ticks: { display: false }, pointLabels: { color: '#e2e8f0' } } } } });
         },
 
         async startExam() {
@@ -4739,8 +4809,23 @@
         resetExam() { this.exam = null; this.examResult = null; },
 
         async initTopology() {
-          if (this.topologyReady) return; const el = this.$refs.canvas; if (!el) return;
-          this.topologyEditor = new Drawflow(el); this.topologyEditor.start(); this.topologyReady = true;
+          if (this.topologyReady) return;
+          if (!this.$refs.canvas) return;
+          try {
+            await Promise.all([
+              window.skillTreeLoadScript('https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js', 'Drawflow'),
+              window.skillTreeLoadStyle('https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css'),
+            ]);
+          } catch (error) {
+            console.warn('Drawflow indisponible.', error);
+            this.notify('Impossible de charger l’éditeur de topologie. Réessaie.');
+            return;
+          }
+          const el = this.$refs.canvas;
+          if (!el || this.topologyReady || typeof window.Drawflow !== 'function') return;
+          this.topologyEditor = new window.Drawflow(el);
+          this.topologyEditor.start();
+          this.topologyReady = true;
         },
         addDevice(type) {
           if (!this.topologyEditor) return;
@@ -6229,7 +6314,11 @@
 
         norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); },
         notify(text) { this.toast = { show: true, text }; clearTimeout(this._toastT); this._toastT = setTimeout(() => { this.toast.show = false; }, 4200); },
-        celebrate() { try { if (window.confetti) window.confetti({ particleCount: 140, spread: 75, origin: { y: 0.65 } }); } catch (e) { } },
+        celebrate() {
+          window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js', 'confetti')
+            .then(() => { if (typeof window.confetti === 'function') window.confetti({ particleCount: 140, spread: 75, origin: { y: 0.65 } }); })
+            .catch(error => console.debug('Confettis indisponibles.', error));
+        },
         saveFile(name, blob) {
           if (!(blob instanceof Blob)) throw new TypeError('Le fichier à télécharger doit être un Blob.');
           const url = URL.createObjectURL(blob);
@@ -7009,8 +7098,21 @@
           return `${nodes || 'Topologie à construire'} — ${connectionCount} liens`;
         },
         async initTopology() {
-          if (this.topologyReady) return; const el = this.$refs.canvas; if (!el || typeof Drawflow === 'undefined') return;
-          const ed = new Drawflow(el); ed.reroute = true; ed.start();
+          if (this.topologyReady) return;
+          if (!this.$refs.canvas) return;
+          try {
+            await Promise.all([
+              window.skillTreeLoadScript('https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js', 'Drawflow'),
+              window.skillTreeLoadStyle('https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css'),
+            ]);
+          } catch (error) {
+            console.warn('Drawflow indisponible.', error);
+            this.notify('Impossible de charger l’éditeur de topologie. Réessaie.');
+            return;
+          }
+          const el = this.$refs.canvas;
+          if (!el || this.topologyReady || typeof window.Drawflow !== 'function') return;
+          const ed = new window.Drawflow(el); ed.reroute = true; ed.start();
           ['nodeCreated', 'nodeRemoved', 'connectionCreated', 'connectionRemoved', 'nodeMoved'].forEach(ev => ed.on(ev, () => this.refreshTopo()));
           this.topologyEditor = ed; this.topologyReady = true;
           // Les topologies libres ne sont plus restaurées : ce canevas est réservé aux défis,
@@ -7039,7 +7141,15 @@
         async loadTopology() {
           try { const r = await fetch('/api/topology'); const d = await r.json(); if (d && d.drawflow) { this.topologyEditor.import(d); this.refreshTopo(); this.notify('Topologie chargée'); } else this.notify('Aucune topologie sur le serveur'); } catch (e) { this.notify('Chargement impossible'); }
         },
-        async exportTopologyPng() { const el = document.getElementById('drawflow'); if (!el || !window.html2canvas) return; const c = await window.html2canvas(el, { backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--s0').trim() }); c.toBlob(b => this.saveFile('topologie.png', b), 'image/png'); },
+        async exportTopologyPng() {
+          const el = document.getElementById('drawflow');
+          if (!el) return;
+          try { await window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', 'html2canvas'); }
+          catch (error) { console.warn('html2canvas indisponible.', error); this.notify('L’export PNG est indisponible pour le moment.'); return; }
+          if (typeof window.html2canvas !== 'function') return;
+          const canvas = await window.html2canvas(el, { backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--s0').trim() });
+          canvas.toBlob(blob => this.saveFile('topologie.png', blob), 'image/png');
+        },
         topoSnapshot() {
           const d = this.topoData(); const nodes = {}, links = {};
           Object.values(d).forEach(n => { nodes[n.name] = (nodes[n.name] || 0) + 1; Object.values(n.outputs || {}).forEach(o => (o.connections || []).forEach(c => { const t = d[c.node]; if (!t) return; const k = [n.name, t.name].sort().join('|'); links[k] = (links[k] || 0) + 1; })); });
@@ -8454,9 +8564,14 @@
         };
 
         // Radar : un seul graphique actif, axes lisibles et infobulle limitée au point survolé.
-        app.renderSpiderChart = function () {
+        app.renderSpiderChart = async function () {
           const canvas = document.getElementById('spiderChart');
-          if (!canvas || !window.Chart) return;
+          if (!canvas) return;
+          if (!window.Chart) {
+            try { await window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/chart.js', 'Chart'); }
+            catch (error) { console.warn('Chart.js indisponible.', error); return; }
+          }
+          if (!canvas.isConnected || !window.Chart) return;
           const existing = window.Chart.getChart ? window.Chart.getChart(canvas) : window.spider;
           if (existing) existing.destroy();
           window.spider = null;
