@@ -496,7 +496,169 @@ Les métriques incluent débit entrant et sortant, lag, âge du plus vieux messa
 
 La CI valide les contrats, les transformations et les politiques de compatibilité. Les tests d’intégration simulent des crashes aux frontières entre écriture et offset, des doublons, des messages invalides, des retards et une indisponibilité. Une revue post-incident examine pourquoi la déduplication n’a pas empêché le double comptage et ajoute des tests ciblés. Les payloads sensibles sont minimisés dans les logs et protégés dans la DLQ, avec permissions, rétention et processus d’effacement.
 
-## 19. Checklist opérationnelle avant production
+## 19. Atelier avancé : rendre l'ingestion idempotente et distinguer doublon et conflit
+
+La déduplication fiable ne se résume pas à ignorer toute insertion dont la clé existe déjà. Deux messages portant le même identifiant peuvent être une répétition légitime du même événement ou un défaut grave où un identifiant est réutilisé pour un contenu différent. Ce laboratoire distingue ces cas, utilise une contrainte unique et écrit les conflits dans une quarantaine. SQLite sert ici à démontrer la frontière transactionnelle ; une plateforme distribuée devra employer un stockage durable partagé et dimensionné pour sa charge.
+
+### Chaîne de décision
+
+```mermaid
+flowchart TD
+    A["Recevoir un événement"] --> B["Valider enveloppe et event_id"]
+    B --> C{"Identité valide ?"}
+    C -->|Non| D["Quarantaine durable"]
+    C -->|Oui| E["Calculer hash canonique"]
+    E --> F{"event_id déjà connu ?"}
+    F -->|Non| G["Insérer dans la table cible"]
+    F -->|Oui| H{"Hash identique ?"}
+    H -->|Oui| I["Ignorer le doublon"]
+    H -->|Non| D
+    G --> J["Commit durable"]
+    I --> J
+    D --> J
+    J --> K["Confirmer la progression source"]
+```
+
+L'ordre est essentiel : il faut d'abord rendre durable le résultat ou la décision de mise en quarantaine, puis confirmer la progression de la source. Si le processus tombe entre ces étapes, un rejeu est possible et doit rester sans effet métier supplémentaire. Si l'offset avance avant l'écriture durable, une panne peut perdre l'événement.
+
+### Schéma local et fonction de traitement
+
+Le hash est calculé à partir d'une représentation JSON canonique pour que l'ordre des clés ne change pas le résultat. Le contrat doit définir les champs qui constituent le contenu métier : dans certains systèmes, une métadonnée de transport varie au rejeu et doit être exclue du hash.
+
+```python
+import hashlib
+import json
+import sqlite3
+
+db = sqlite3.connect("ingestion-lab.sqlite")
+db.execute("""
+    CREATE TABLE IF NOT EXISTS accepted_events (
+        event_id TEXT PRIMARY KEY,
+        payload_hash TEXT NOT NULL,
+        payload TEXT NOT NULL,
+        stored_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+""")
+db.execute("""
+    CREATE TABLE IF NOT EXISTS ingestion_quarantine (
+        quarantine_id INTEGER PRIMARY KEY,
+        event_id TEXT,
+        payload TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+""")
+db.commit()
+
+
+def process_event(conn, event):
+    payload = json.dumps(
+        event, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
+    event_id = event.get("event_id") if isinstance(event, dict) else None
+
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        if not isinstance(event_id, str) or not event_id.strip():
+            conn.execute(
+                "INSERT INTO ingestion_quarantine (event_id, payload, reason) "
+                "VALUES (?, ?, ?)",
+                (None, payload, "event_id absent ou invalide"),
+            )
+            conn.commit()
+            return "quarantined-invalid"
+
+        payload_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+        existing = conn.execute(
+            "SELECT payload_hash FROM accepted_events WHERE event_id = ?",
+            (event_id,),
+        ).fetchone()
+
+        if existing is not None and existing[0] == payload_hash:
+            conn.commit()
+            return "duplicate-ignored"
+
+        if existing is not None:
+            conn.execute(
+                "INSERT INTO ingestion_quarantine (event_id, payload, reason) "
+                "VALUES (?, ?, ?)",
+                (event_id, payload, "event_id réutilisé avec un contenu différent"),
+            )
+            conn.commit()
+            return "quarantined-conflict"
+
+        conn.execute(
+            "INSERT INTO accepted_events (event_id, payload_hash, payload) "
+            "VALUES (?, ?, ?)",
+            (event_id, payload_hash, payload),
+        )
+        conn.commit()
+        return "inserted"
+    except Exception:
+        conn.rollback()
+        raise
+
+
+event = {
+    "event_id": "evt-1001",
+    "learner_id": "learner-42",
+    "course_id": "data-ingestion-expert",
+    "event_time": "2026-10-28T08:00:00Z",
+    "progress_pct": 35.0,
+}
+
+assert process_event(db, event) == "inserted"
+assert process_event(db, event) == "duplicate-ignored"
+
+# Même ID, contenu différent : ne pas écraser silencieusement l'original.
+conflict = dict(event, progress_pct=90.0)
+assert process_event(db, conflict) == "quarantined-conflict"
+
+# Un ID manquant va en quarantaine sans entrer dans la table acceptée.
+assert process_event(db, {"learner_id": "learner-77"}) == "quarantined-invalid"
+
+accepted_count = db.execute(
+    "SELECT COUNT(*) FROM accepted_events WHERE event_id = ?",
+    ("evt-1001",),
+).fetchone()[0]
+quarantine_count = db.execute(
+    "SELECT COUNT(*) FROM ingestion_quarantine"
+).fetchone()[0]
+assert accepted_count == 1
+assert quarantine_count == 2
+
+print("Atelier idempotence réussi")
+db.close()
+```
+
+Les requêtes utilisent des paramètres SQL plutôt qu'une concaténation de valeurs, et la clé primaire impose une unicité au niveau de la destination. L'instruction `BEGIN IMMEDIATE` sérialise les écritures concurrentes dans ce laboratoire SQLite ; une base et un moteur de production disposent d'autres mécanismes de verrouillage et de contrôle de concurrence qu'il faut tester explicitement.
+
+### Ce que le laboratoire prouve — et ne prouve pas
+
+Il prouve qu'un rejeu identique ne crée pas une seconde ligne, qu'un contenu contradictoire partageant le même identifiant est isolé et qu'une enveloppe invalide peut être dirigée vers une quarantaine. Il ne prouve pas que toutes les étapes du système global sont atomiques : une écriture dans une API externe, un e-mail, un broker et une base relationnelle n'appartiennent pas automatiquement à la même transaction.
+
+Dans un consommateur Kafka ou un moteur de streaming, confirmez l'offset après le commit SQL. Si la confirmation de l'offset échoue, laissez le record être relivré et laissez la clé unique neutraliser le rejeu. Si la destination ne répond pas, ne marquez pas le message comme traité. Pour une erreur permanente, ne l'ignorez que lorsque le payload, le motif, l'identité source, le propriétaire et les obligations de conservation ont été enregistrés durablement dans une DLQ ou un mécanisme équivalent.
+
+### Tests de résilience à ajouter en CI
+
+| Scénario | Assertion attendue |
+|---|---|
+| Livraison unique | Une ligne acceptée |
+| Deux livraisons strictement identiques | Une ligne acceptée, résultat métier inchangé |
+| Même ID avec payload différent | Ligne originale préservée et conflit isolé |
+| Identifiant vide ou absent | Aucun événement accepté, quarantaine renseignée |
+| Exception simulée avant commit | Transaction annulée et source non confirmée |
+| Crash après commit destination | Rejeu neutre grâce à l'identité durable |
+| Rejeu de plage après correction | Les comptes source/destination se réconcilient |
+| Échec répété d'un message | Politique de retry bornée, puis quarantaine contrôlée |
+
+### Procédure de rejeu contrôlé
+
+Avant de relancer une plage, identifiez les offsets ou checkpoints, la fenêtre temporelle, la cause initiale et les consommateurs affectés. Conservez un identifiant d'opération de replay, appliquez une limite de concurrence pour protéger la destination et comparez le volume, les clés uniques, les agrégats et les erreurs après reprise. Ne videz jamais une DLQ à l'aveugle : les événements doivent être corrigés, rejetés avec une justification, ou retransformés avec un chemin de migration documenté.
+
+L'ingestion est prête pour la production lorsque l'équipe peut prouver ce qui a été accepté, ce qui a été rejeté, comment un rejeu reste sûr, combien de temps prend le rattrapage et comment elle détecte un résultat faux même si le job se termine avec un statut de succès.
+
+## 20. Checklist opérationnelle avant production
 
 - [ ] Chaque flux possède un propriétaire, une finalité, un contrat et un niveau de criticité.
 - [ ] Les identifiants d’événement sont stables pendant les retries et les rejeux.
@@ -516,7 +678,7 @@ La CI valide les contrats, les transformations et les politiques de compatibilit
 - [ ] Les runbooks, contacts et preuves post-incident sont maintenus.
 - [ ] Les tests de résilience démontrent le comportement face aux pannes et rejeux.
 
-## 20. Glossaire
+## 21. Glossaire
 
 **Batch :** traitement d’un ensemble de données regroupées dans une exécution.  
 **Micro-batch :** traitement fréquent de petites fenêtres de données.  
@@ -541,7 +703,7 @@ La CI valide les contrats, les transformations et les politiques de compatibilit
 **Event time :** heure à laquelle l’événement s’est produit dans le domaine métier.  
 **Processing time :** heure à laquelle le moteur traite l’événement.
 
-## 21. Références techniques officielles
+## 22. Références techniques officielles
 
 - **Apache Kafka — Documentation.** Concepts des consommateurs, sémantique de livraison, transactions, partitions et configuration : https://kafka.apache.org/documentation/
 - **Apache Flink — Documentation.** Traitement d’état, checkpoints, temps événementiel et gestion des retards : https://nightlies.apache.org/flink/flink-docs-stable/
