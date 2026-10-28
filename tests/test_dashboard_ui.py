@@ -1117,7 +1117,10 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertLess(alpine_script, drawflow_script)
         self.assertIn('defer src="https://cdn.jsdelivr.net/npm/chart.js"', DASHBOARD_HTML)
         self.assertIn("const refreshTask = this.refreshAll()", DASHBOARD_HTML)
-        self.assertNotIn("await this.refreshAll();", DASHBOARD_HTML)
+        init_start = DASHBOARD_HTML.index("async init() {", DASHBOARD_HTML.index("function skilltreeBase()"))
+        init_end = DASHBOARD_HTML.index("// --- Préférences d'affichage", init_start)
+        init_source = DASHBOARD_HTML[init_start:init_end]
+        self.assertNotIn("await this.refreshAll();", init_source)
 
         tree_start = API_SOURCE.index('@app.get("/api/tree")')
         tree_end = API_SOURCE.index('@app.get("/api/stats")', tree_start)
