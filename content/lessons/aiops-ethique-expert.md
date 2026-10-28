@@ -337,6 +337,74 @@ Ne pas « corriger » un problème en supprimant les enregistrements qui le rév
 
 Le système peut devoir être retiré si les données ne sont plus fiables, si l'usage évolue vers une finalité non évaluée, si un risque ne peut pas être réduit ou si les mesures de contrôle ne fonctionnent pas. Prévoyez une alternative opérationnelle afin que le retrait ne supprime pas brutalement une fonction critique. Le retrait doit également arrêter les traitements inutiles et traiter les copies de données selon les obligations applicables.
 
+## Architecture de gouvernance, schémas et mesures pratiques
+
+L'éthique de l'IA en infrastructure est une discipline de conception et d'exploitation. Elle concerne la vie privée, la sécurité, la répartition des erreurs, la capacité de contestation, la transparence, les effets sur les équipes et les conséquences d'une décision automatisée sur la disponibilité d'un service. La gouvernance doit fonctionner avant, pendant et après la mise en production.
+
+### Cycle de responsabilité
+
+```mermaid
+flowchart TD
+  A["Décrire usage, personnes et services affectés"] --> B["Cartographier données et décisions"]
+  B --> C["Évaluer risques, biais et menaces"]
+  C --> D["Choisir des mesures de réduction"]
+  D --> E["Tests de performance par groupe et contexte"]
+  E --> F{"Risque résiduel acceptable et approuvé ?"}
+  F -- "Non" --> G["Modifier, limiter ou interdire l'usage"]
+  F -- "Oui" --> H["Déploiement contrôlé"]
+  H --> I["Surveiller erreurs, contestations et dérives"]
+  I --> J{"Nouveau risque ou dépassement ?"}
+  J -- "Oui" --> K["Suspendre, corriger et notifier"]
+  J -- "Non" --> L["Réévaluer périodiquement"]
+  K --> C
+```
+
+### Chaîne de traitement des données sensibles
+
+```mermaid
+sequenceDiagram
+  participant S as Source opérationnelle
+  participant P as Filtre de données
+  participant M as Modèle
+  participant V as Validateur
+  participant H as Humain responsable
+  S->>P: Logs et signaux autorisés
+  P->>P: Minimisation, pseudonymisation, contrôle d'accès
+  P->>M: Variables strictement nécessaires
+  M-->>V: Score et justification
+  V->>V: Contrôles de qualité et de politique
+  V-->>H: Recommandation, limites et preuves
+  H-->>S: Décision ou demande de correction tracée
+```
+
+### Mesurer un écart de traitement sans surinterpréter
+
+```python
+def group_rates(rows, group_field, outcome_field):
+    report = {}
+    groups = sorted({row[group_field] for row in rows})
+    for group in groups:
+        selected = [row for row in rows if row[group_field] == group]
+        positives = sum(bool(row[outcome_field]) for row in selected)
+        report[group] = {
+            "n": len(selected),
+            "positive_rate": positives / len(selected) if selected else None,
+        }
+    return report
+```
+
+Cette fonction calcule un taux descriptif par groupe ; elle ne prouve pas, à elle seule, l'existence ou l'absence d'un biais. Il faut préciser ce que signifie une issue positive, étudier la qualité des étiquettes, les différences de contexte et les intervalles d'incertitude. Les caractéristiques de groupe sont sensibles : leur collecte et leur analyse nécessitent un cadre juridique, une finalité légitime, un accès restreint et une durée de conservation adaptée.
+
+### Travaux pratiques — audit d'un score de priorité d'incident
+
+Prends un échantillon de décisions historiques et définis ce que le modèle prédit réellement : sévérité, probabilité d'escalade ou temps estimé de résolution. Vérifie la qualité des données et les variables qui pourraient être des substituts indirects de facteurs non pertinents. Compare le taux de faux négatifs, le temps de résolution, les escalades injustifiées et la calibration par site, type d'équipement et criticité de service.
+
+Organise une revue contradictoire avec des opérateurs et propriétaires de service. Documente les cas où le score a recommandé une mauvaise priorité, les groupes ou types de sites moins bien servis et les mécanismes de contestation. Décide à l'avance quels résultats déclenchent une restriction, un retrait ou une nouvelle validation. Les seuils sont des décisions de gouvernance qui doivent avoir un propriétaire et un historique.
+
+### Critères d'acceptation
+
+Chaque usage dispose d'un responsable, d'une finalité définie, d'un inventaire des données, d'une analyse de risque, de tests documentés, d'un canal de contestation et d'un mécanisme de suspension. Les statistiques sont interprétées selon leur contexte, et les décisions de lancement ou d'arrêt sont justifiées et traçables.
+
 ## 14. Exercices corrigés
 
 ### Exercice 1 — Une bonne moyenne cache une disparité
