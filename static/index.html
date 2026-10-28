@@ -1804,7 +1804,7 @@
         <template x-if="!exam">
           <div class="space-y-8">
             <div class="flex flex-wrap items-end justify-between gap-3">
-              <div><p class="eyebrow">Évaluation</p><h2 class="mt-1 text-2xl font-semibold text-white">Centre d'examens</h2><p class="mt-1 text-sm text-zinc-400">Examens construits à partir des cours de chaque module et de chaque niveau. Réussite à partir de <span class="text-white" x-text="70"></span> %.</p></div>
+              <div><p class="eyebrow">Évaluation</p><h2 class="mt-1 text-2xl font-semibold text-white">Centre d'examens</h2><p class="mt-1 text-sm text-zinc-400">Examens construits à partir des cours de chaque module et de chaque niveau. Réussite à partir de <span class="text-white" x-text="80"></span> %.</p></div>
             </div>
             <p x-show="examErr" class="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200" x-text="examErr"></p>
 
@@ -8522,40 +8522,85 @@
             this.notify(this.examErr);
           } finally { this.examBusy = false; }
         };
+        // Cette surcharge est celle réellement appelée par l'interface : garder le même contrat strict
+        // que submitExam(auto) plus haut évite qu'une ancienne implémentation accepte une note incomplète.
         app.submitExam = async function (auto) {
           if (!this.exam || !this.exam.id || this.examResult || this.examBusy) return;
-          this.examBusy = true; this.stopExamTimer(); this.examConfirm = false;
+          this.examBusy = true;
+          this.stopExamTimer();
+          this.examConfirm = false;
+          this.examErr = '';
           const clientDuration = Math.max(0, (Number(this.examInitialTime) || Number(this.examLeft) || 0) - Number(this.examLeft || 0));
           let res;
+
           try {
-            const r = await fetch('/api/exam/submit', {
+            const response = await fetch('/api/exam/submit', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers })
             });
-            const text = await r.text();
-            try { res = JSON.parse(text); } catch (_) { res = { detail: text }; }
-            if (!r.ok || res.score === undefined) throw new Error(res.detail || text || ('HTTP ' + r.status));
+            const raw = await response.text();
+            try {
+              res = raw ? JSON.parse(raw) : {};
+            } catch (_) {
+              throw new Error('Le serveur a renvoyé une réponse illisible.');
+            }
+            if (!response.ok) {
+              throw new Error(res.detail || res.message || raw || ('HTTP ' + response.status));
+            }
+            if (
+              !res
+              || res.success !== true
+              || typeof res.score !== 'number'
+              || !Number.isFinite(res.score)
+              || res.score < 0
+              || res.score > 100
+              || typeof res.passed !== 'boolean'
+            ) {
+              throw new Error('Le serveur n’a pas renvoyé un résultat de correction valide.');
+            }
           } catch (error) {
-            this.examErr = 'L’examen n’a pas été enregistré : ' + (error.message || 'erreur réseau') + '. Tes réponses sont conservées à l’écran ; réessaie de terminer.';
+            this.examErr = 'L’examen n’a pas été enregistré : '
+              + (error.message || 'erreur réseau')
+              + '. Tes réponses sont conservées à l’écran ; réessaie de terminer.';
             this.notify(this.examErr);
             this.examBusy = false;
             if (!auto && Number(this.examLeft) > 0 && !this.examPaused) this.startExamTimer();
             return;
           }
-          const score = Math.round(Number(res.score) || 0);
-          const passed = !!res.passed;
+
+          const score = Math.round(res.score);
+          const passed = res.passed;
           const correct = Number(res.correct) || 0;
           const total = Number(res.total) || this.exam.questions.length;
-          const duration = res.duration !== undefined ? Math.max(0, Number(res.duration) || 0) : clientDuration;
+          const duration = res.duration !== undefined
+            ? Math.max(0, Number(res.duration) || 0)
+            : clientDuration;
           const timedOut = !!auto || !!res.time_expired;
+
           this.examErr = '';
           this.examResult = { ...res, score, passed, auto: timedOut, duration, correct, total };
-          this.examHistory = [{ id: Date.now(), date: new Date().toISOString(), module: this.exam.cfg.module, levels: this.exam.cfg.levels, score, passed, correct, total, duration }, ...this.examHistory].slice(0, 50);
+          this.examHistory = [{
+            id: Date.now(),
+            date: new Date().toISOString(),
+            module: this.exam.cfg.module,
+            levels: this.exam.cfg.levels,
+            score,
+            passed,
+            correct,
+            total,
+            duration
+          }, ...this.examHistory].slice(0, 50);
           LS.set('exam-history', this.examHistory);
           this.examBusy = false;
           if (passed) this.celebrate();
-          await this.refreshAll();
+
+          try {
+            await this.refreshAll();
+          } catch (_) {
+            // La correction est déjà enregistrée ; une erreur secondaire de rafraîchissement ne l'annule pas.
+            this.notify('Examen enregistré ; certaines données du tableau de bord n’ont pas pu être actualisées.');
+          }
         };
         app.resetExam = function () {
           this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false;
