@@ -730,6 +730,14 @@ def replay_ticket(scenario_id: str) -> dict[str, Any]:
     try:
         _expire_war_room_tickets(conn)
         old = conn.execute("SELECT * FROM tickets WHERE id = ?", (scenario_id,)).fetchone()
+        # L'API accepte à la fois l'ID du ticket archivé (utilisé par l'UI)
+        # et l'ID du scénario (contrat public de cette route).
+        if not old:
+            old = conn.execute(
+                "SELECT * FROM tickets WHERE scenario_id = ? AND status IN ('resolved', 'failed') "
+                "ORDER BY COALESCE(resolved_at, opened_at) DESC LIMIT 1",
+                (scenario_id,),
+            ).fetchone()
         target_scenario_id = str(old["scenario_id"]) if old else scenario_id
         try:
             scenario = load_scenario(target_scenario_id)
