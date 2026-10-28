@@ -59,6 +59,24 @@
     ::selection { background: rgba(255, 255, 255, 0.25); color: #fff; }
     body { background: #050505; }
 
+    /* --- Parcours modules / sous-modules : couleurs pilotées par le thème --- */
+    :root {
+      --st-browser-card: #0c0c0c;
+      --st-browser-border: rgba(255, 255, 255, 0.09);
+      --st-browser-text: #f4f4f5;
+      --st-browser-muted: #a1a1aa;
+      --st-browser-track: rgba(255, 255, 255, 0.08);
+      --st-browser-accent: #34d399;
+    }
+    html.light {
+      --st-browser-card: #ffffff;
+      --st-browser-border: rgba(24, 24, 27, 0.14);
+      --st-browser-text: #18181b;
+      --st-browser-muted: #71717a;
+      --st-browser-track: rgba(24, 24, 27, 0.09);
+      --st-browser-accent: #059669;
+    }
+
     /* --- Animations / cartes --- */
     @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
     .animate-rise { animation: rise 0.5s ease both; }
@@ -357,7 +375,7 @@
           <div class="flex flex-col rounded-3xl border border-white/5 bg-[#0c0c0c] p-8 shadow-2xl">
             <div class="flex items-center justify-between mb-8">
               <h3 class="text-base font-bold text-white">Ton parcours</h3>
-              <button @click="document.getElementById('tree-grid').scrollIntoView({ behavior: 'smooth' })" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300">Voir l'arbre complet →</button>
+              <button @click="document.getElementById('tree-browser')?.scrollIntoView({ behavior: 'smooth', block: 'start' })" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300">Voir l'arbre complet →</button>
             </div>
             <div class="relative flex-1 flex items-center justify-between min-h-[120px]">
               <div class="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-white/5 z-0"></div>
@@ -397,14 +415,102 @@
         </section>
 
         <div class="mb-8 flex flex-wrap gap-3">
-          <button type="button" @click="treeFilter = 'all'; moduleFilter = 'all'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'all' && moduleFilter === 'all' ? 'border-white/20 bg-white/10 text-white shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🌐 Tout voir</button>
-          <button type="button" @click="treeFilter = 'beginner'; moduleFilter = 'all'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'beginner' && moduleFilter === 'all' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🌱 Débutant</button>
-          <button type="button" @click="treeFilter = 'intermediaire'; moduleFilter = 'all'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'intermediaire' && moduleFilter === 'all' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🚀 Intermédiaire</button>
-          <button type="button" @click="treeFilter = 'expert'; moduleFilter = 'all'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'expert' && moduleFilter === 'all' ? 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🔥 Expert</button>
-          <button type="button" @click="moduleFilter = moduleFilter === 'Data & Bases de données' ? 'all' : 'Data & Bases de données'; treeFilter = 'all'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="moduleFilter === 'Data & Bases de données' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">📊 Data & Bases de données</button>
-          <button type="button" @click="moduleFilter = moduleFilter === 'AIOps & Intelligence Artificielle' ? 'all' : 'AIOps & Intelligence Artificielle'; treeFilter = 'all'" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="moduleFilter === 'AIOps & Intelligence Artificielle' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🤖 AIOps & Intelligence Artificielle</button>
+          <button type="button" @click="treeFilter = 'all'; moduleFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'all' && moduleFilter === 'all' ? 'border-white/20 bg-white/10 text-white shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🗂️ Tous les modules</button>
+          <button type="button" @click="treeFilter = 'beginner'; moduleFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'beginner' && moduleFilter === 'all' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🌱 Débutant</button>
+          <button type="button" @click="treeFilter = 'intermediaire'; moduleFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'intermediaire' && moduleFilter === 'all' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🚀 Intermédiaire</button>
+          <button type="button" @click="treeFilter = 'expert'; moduleFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'expert' && moduleFilter === 'all' ? 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🔥 Expert</button>
+          <button type="button" @click="moduleFilter = moduleFilter === 'Data & Bases de données' ? 'all' : 'Data & Bases de données'; treeFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="moduleFilter === 'Data & Bases de données' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">📊 Data & Bases de données</button>
+          <button type="button" @click="moduleFilter = moduleFilter === 'AIOps & Intelligence Artificielle' ? 'all' : 'AIOps & Intelligence Artificielle'; treeFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="moduleFilter === 'AIOps & Intelligence Artificielle' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🤖 AIOps & Intelligence Artificielle</button>
         </div>
 
+        <div id="tree-browser" class="space-y-6">
+          <!-- Vue d'ensemble des modules : évite d'afficher tous les cours simultanément -->
+          <div id="module-overview" x-show="showModuleOverview" x-cloak class="space-y-5">
+            <div class="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Parcours d'apprentissage</p>
+                <h2 class="mt-1 text-xl font-bold" style="color:var(--st-browser-text)">Choisir un module</h2>
+                <p class="mt-2 max-w-2xl text-sm" style="color:var(--st-browser-muted)">Sélectionne un module pour parcourir ses catégories et retrouver plus facilement les cours.</p>
+              </div>
+              <span class="rounded-full border px-3 py-1.5 text-xs font-medium" style="border-color:var(--st-browser-border);color:var(--st-browser-muted)" x-text="`${moduleCards.length} module${moduleCards.length > 1 ? 's' : ''}`"></span>
+            </div>
+            <p x-show="loading" class="rounded-2xl border border-white/10 p-5 text-sm text-zinc-400">Chargement des modules…</p>
+            <div x-show="!loading && moduleCards.length > 0" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <template x-for="module in moduleCards" :key="module.name">
+                <button type="button" @click="selectModule(module.name)" class="group rounded-3xl border p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400" style="background:var(--st-browser-card);border-color:var(--st-browser-border);color:var(--st-browser-text)">
+                  <div class="flex items-start justify-between gap-3">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl border text-xl" style="border-color:var(--st-browser-border);background:var(--st-browser-track)">📚</span>
+                    <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider" style="background:var(--st-browser-track);color:var(--st-browser-muted)" x-text="`${module.progress}%`"></span>
+                  </div>
+                  <h3 class="mt-4 text-base font-bold leading-snug" x-text="module.name"></h3>
+                  <p class="mt-1 text-xs" style="color:var(--st-browser-muted)" x-text="`${module.total} cours`"></p>
+                  <div class="mt-5 flex items-center justify-between gap-2 text-[11px]" style="color:var(--st-browser-muted)">
+                    <span x-text="`${module.validated} / ${module.total} validés`"></span>
+                    <span>Progression</span>
+                  </div>
+                  <div class="mt-2 h-1.5 overflow-hidden rounded-full" style="background:var(--st-browser-track)">
+                    <div class="h-full rounded-full transition-all duration-300" style="background:var(--st-browser-accent)" :style="`width:${module.progress}%`"></div>
+                  </div>
+                  <span class="mt-5 flex items-center justify-between text-xs font-semibold text-emerald-400">Explorer le module <span class="transition-transform group-hover:translate-x-1">→</span></span>
+                </button>
+              </template>
+            </div>
+            <p x-show="!loading && moduleCards.length === 0" class="rounded-2xl border border-white/10 p-5 text-sm text-zinc-400">Aucun module n'est disponible pour le moment.</p>
+          </div>
+
+          <!-- Vue des sous-modules d'un module sélectionné -->
+          <div id="submodule-overview" x-show="showSubmoduleOverview" x-cloak class="space-y-5">
+            <div class="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500" x-text="moduleFilter"></p>
+                <h2 class="mt-1 text-xl font-bold" style="color:var(--st-browser-text)">Sous-modules</h2>
+                <p class="mt-2 max-w-2xl text-sm" style="color:var(--st-browser-muted)">Choisis une catégorie pour afficher uniquement les cours qui lui appartiennent.</p>
+              </div>
+              <button type="button" @click="showAllModules()" class="rounded-xl border px-3 py-2 text-xs font-semibold transition hover:bg-white/5" style="border-color:var(--st-browser-border);color:var(--st-browser-muted)">← Retour aux modules</button>
+            </div>
+            <p x-show="loading" class="rounded-2xl border border-white/10 p-5 text-sm text-zinc-400">Chargement des sous-modules…</p>
+            <div x-show="!loading && submodules.length > 0" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <template x-for="submodule in submodules" :key="submodule.name">
+                <button type="button" @click="selectSubmodule(submodule.name)" class="group rounded-3xl border p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400" style="background:var(--st-browser-card);border-color:var(--st-browser-border);color:var(--st-browser-text)">
+                  <div class="flex items-start justify-between gap-3">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl border text-2xl" style="border-color:var(--st-browser-border);background:var(--st-browser-track)" x-text="submodule.icon"></span>
+                    <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider" style="background:var(--st-browser-track);color:var(--st-browser-muted)" x-text="`${submodule.progress}%`"></span>
+                  </div>
+                  <h3 class="mt-4 text-base font-bold leading-snug" x-text="submodule.name"></h3>
+                  <p class="mt-1 text-xs" style="color:var(--st-browser-muted)" x-text="`${submodule.total} cours`"></p>
+                  <div class="mt-5 flex items-center justify-between gap-2 text-[11px]" style="color:var(--st-browser-muted)">
+                    <span x-text="`${submodule.validated} / ${submodule.total} validés`"></span>
+                    <span>Progression</span>
+                  </div>
+                  <div class="mt-2 h-1.5 overflow-hidden rounded-full" style="background:var(--st-browser-track)">
+                    <div class="h-full rounded-full transition-all duration-300" style="background:var(--st-browser-accent)" :style="`width:${submodule.progress}%`"></div>
+                  </div>
+                  <span class="mt-5 flex items-center justify-between text-xs font-semibold text-emerald-400">Voir les cours <span class="transition-transform group-hover:translate-x-1">→</span></span>
+                </button>
+              </template>
+            </div>
+            <p x-show="!loading && submodules.length === 0" class="rounded-2xl border border-white/10 p-5 text-sm text-zinc-400">Aucune catégorie disponible pour ce module.</p>
+          </div>
+
+          <!-- Fil d'Ariane et retour depuis les cours filtrés -->
+          <div x-show="moduleFilter !== 'all' && submoduleFilter !== null" x-cloak class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4" style="border-color:var(--st-browser-border);background:var(--st-browser-card)">
+            <nav aria-label="Fil d’Ariane" class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <button type="button" @click="showAllModules()" class="font-medium text-emerald-400 transition hover:text-emerald-300">Tableau de bord</button>
+              <span style="color:var(--st-browser-muted)">›</span>
+              <button type="button" @click="returnToSubmodules()" class="font-medium transition hover:text-emerald-300" style="color:var(--st-browser-muted)" x-text="moduleFilter"></button>
+              <span style="color:var(--st-browser-muted)">›</span>
+              <span class="font-semibold" style="color:var(--st-browser-text)" x-text="submoduleFilter"></span>
+            </nav>
+            <button type="button" @click="returnToSubmodules()" class="rounded-xl border px-3 py-2 text-xs font-semibold transition hover:bg-white/5" style="border-color:var(--st-browser-border);color:var(--st-browser-text)">← Retour aux sous-modules</button>
+          </div>
+
+          <!-- Cas particulier : module à catégorie unique, affiché directement -->
+          <div x-show="moduleFilter !== 'all' && treeFilter === 'all' && submoduleFilter === null && submodules.length <= 1" x-cloak class="flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm font-semibold" style="color:var(--st-browser-muted)" x-text="moduleFilter"></p>
+            <button type="button" @click="showAllModules()" class="rounded-xl border px-3 py-2 text-xs font-semibold transition hover:bg-white/5" style="border-color:var(--st-browser-border);color:var(--st-browser-muted)">← Retour aux modules</button>
+          </div>
+
+          <div x-show="showCourseTree" x-cloak>
         <div id="tree-grid" class="flex flex-col gap-10">
           <template x-for="(category, categoryIndex) in categories" :key="category.name">
             <section>
@@ -428,6 +534,8 @@
               </div>
             </section>
           </template>
+        </div>
+          </div>
         </div>
       </section>
 
@@ -1038,7 +1146,7 @@
         showUpdateToast: false,
         profileMenuOpen: false, profileDraft: '',
         theme: document.documentElement.classList.contains('light') ? 'light' : 'dark',
-        focusMode: false, treeFilter: 'all', moduleFilter: 'all', sidebarCollapsed: false,
+        focusMode: false, treeFilter: 'all', moduleFilter: 'all', submoduleFilter: null, sidebarCollapsed: false,
         notificationsOpen: false, settingsMenuOpen: false, tab: 'tree',
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
         nodes: [], total: 0, validated: 0, loading: true, streakDays: 0,
@@ -1725,40 +1833,118 @@
           }
         },
 
-        get categories() {
-          const g = new Map();
-
-          // 1. On filtre les nœuds selon le bouton cliqué (treeFilter)
-          const filteredNodes = this.nodes.filter(n => {
-            if (this.moduleFilter !== 'all' && n.module !== this.moduleFilter) return false;
-            if (this.treeFilter === 'all') return true;
-
-            const title = n.title.toLowerCase();
-
-            if (this.treeFilter === 'beginner') {
-              return title.includes('débutant') || title.includes('debutant');
-            }
-            if (this.treeFilter === 'intermediaire') {
-              return title.includes('intermédiaire') || title.includes('intermediaire');
-            }
-            if (this.treeFilter === 'expert') {
-              return title.includes('expert');
-            }
-            return true;
-          });
-          // 2. On regroupe les nœuds filtrés par catégorie
-          for (const n of filteredNodes) {
-            if (!g.has(n.category)) g.set(n.category, []);
-            g.get(n.category).push(n);
+        get moduleCards() {
+          const groups = new Map();
+          for (const node of this.nodes) {
+            const name = (node.module || 'Autres').trim();
+            if (!groups.has(name)) groups.set(name, []);
+            groups.get(name).push(node);
           }
 
-          // 3. On renvoie le résultat formaté pour l'affichage
-          return [...g.entries()].map(([name, items]) => ({
+          return [...groups.entries()]
+            .map(([name, items]) => {
+              const total = items.length;
+              const validated = items.filter(node => node.status === 'validated').length;
+              return { name, total, validated, progress: total ? Math.round((validated / total) * 100) : 0 };
+            })
+            .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
+        },
+
+        get filteredNodes() {
+          return this.nodes.filter(node => {
+            if (this.moduleFilter !== 'all' && node.module !== this.moduleFilter) return false;
+            if (this.treeFilter === 'all') return true;
+
+            const title = (node.title || '').toLowerCase();
+            if (this.treeFilter === 'beginner') return title.includes('débutant') || title.includes('debutant');
+            if (this.treeFilter === 'intermediaire') return title.includes('intermédiaire') || title.includes('intermediaire');
+            if (this.treeFilter === 'expert') return title.includes('expert');
+            return true;
+          });
+        },
+
+        get submodules() {
+          const groups = new Map();
+          for (const node of this.filteredNodes) {
+            const name = node.category || 'Sans catégorie';
+            if (!groups.has(name)) groups.set(name, []);
+            groups.get(name).push(node);
+          }
+
+          return [...groups.entries()].map(([name, items]) => {
+            const total = items.length;
+            const validated = items.filter(node => node.status === 'validated').length;
+            return {
+              name,
+              icon: this.categoryIcon(name),
+              items,
+              total,
+              validated,
+              progress: total ? Math.round((validated / total) * 100) : 0
+            };
+          });
+        },
+
+        get categories() {
+          const groups = new Map();
+          const visibleNodes = this.submoduleFilter === null
+            ? this.filteredNodes
+            : this.filteredNodes.filter(node => node.category === this.submoduleFilter);
+
+          for (const node of visibleNodes) {
+            const name = node.category || 'Sans catégorie';
+            if (!groups.has(name)) groups.set(name, []);
+            groups.get(name).push(node);
+          }
+
+          return [...groups.entries()].map(([name, items]) => ({
             name,
             items,
-            validated: items.filter(n => n.status === 'validated').length
+            validated: items.filter(node => node.status === 'validated').length
           }));
+        },
 
+        get showModuleOverview() {
+          return this.moduleFilter === 'all' && this.treeFilter === 'all' && this.submoduleFilter === null;
+        },
+        get showSubmoduleOverview() {
+          return this.moduleFilter !== 'all' && this.treeFilter === 'all' && this.submoduleFilter === null && this.submodules.length > 1;
+        },
+        get showCourseTree() {
+          return !this.showModuleOverview && !this.showSubmoduleOverview;
+        },
+
+        selectModule(moduleName) {
+          this.moduleFilter = moduleName;
+          this.treeFilter = 'all';
+          this.submoduleFilter = null;
+        },
+        selectSubmodule(categoryName) {
+          this.submoduleFilter = categoryName;
+        },
+        returnToSubmodules() {
+          this.submoduleFilter = null;
+        },
+        showAllModules() {
+          this.moduleFilter = 'all';
+          this.treeFilter = 'all';
+          this.submoduleFilter = null;
+        },
+        categoryIcon(name) {
+          const icons = {
+            'Fondamentaux': '🧱',
+            'Couche 2': '🔌',
+            'Couche 3': '🌐',
+            'Routage': '🧭',
+            'Routage Avancé': '🚀',
+            'Services': '⚙️',
+            'Sécurité': '🛡️',
+            'Exploitation': '🛠️',
+            'Cloud & Auto': '☁️',
+            'Labs': '🧪',
+            'Défis': '🎯'
+          };
+          return icons[name] || '📚';
         },
         get progress() { return this.total ? Math.round((this.validated / this.total) * 100) : 0; },
         get currentFlashcard() { return this.flashcardQueue[0] || null; },
